@@ -39,7 +39,7 @@ class ICE_API Object_ptrE
 public:
 
     Object_ptrE() { }
-    explicit Object_ptrE(const Object_ptrE&);
+    Object_ptrE(const Object_ptrE&);
     explicit Object_ptrE(const Object_ptr&);
     operator Object_ptr() const;
     Object* operator->() const;
@@ -57,6 +57,7 @@ public:
     Object();
     virtual ~Object();
 
+    virtual void _throw();
     virtual bool _isA(const std::string&);
     ::__Ice::DispatchStatus ____isA(::__Ice::Incoming&);
     virtual const std::string* _classIds() = 0;

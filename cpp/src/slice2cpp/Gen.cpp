@@ -497,6 +497,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	return;
 
     string name = p -> name();
+    string scoped = p -> scoped();
     ClassList bases = p -> bases();
 
     H << sp;
@@ -520,6 +521,13 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDef_ptr& p)
     H.dec();
     H << nl << "public: ";
     H.inc();
+
+    H << sp;
+    H << nl << "virtual void _throw();";
+    C << sp << nl << "void" << nl << "__IceProxy" << scoped << "::_throw()";
+    C << sb;
+    C << nl << "throw " << scoped << "_prxE(this);";
+    C << eb;
 }
 
 void
@@ -947,13 +955,16 @@ Slice::Gen::DelegateMVisitor::visitOperation(const Operation_ptr& p)
 	{
 	    C.dec();
 	    C << nl << "case " << cnt++ << ':';
-	    C.sb();
+	    C << sb;
 	    TypeStringList li;
 	    li.push_back(make_pair(*r, string("__ex")));
 	    writeAllocateCode(C, li, 0);
 	    writeUnmarshalCode(C, li, 0);
-	    C << nl << "throw __ex;";
-	    C.eb();
+	    if(ClassDecl_ptr::dynamicCast(*r) || Proxy_ptr::dynamicCast(*r))
+		C << nl << "__ex -> _throw();";
+	    else
+		C << nl << "throw __ex;";
+	    C << eb;
 	    C.inc();
 	}
 	C << eb;
@@ -1101,6 +1112,60 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     C << nl << "return dynamic_cast< " << scoped << "*>(ptr_.get());";
     C << eb;
 
+    if(!p -> isLocal())
+    {
+	H << sp;
+	H << nl << "class" << dllExport_ << ' ' << name << "_prxE : ";
+	H.useCurrentPosAsIndent();
+	if(bases.empty())
+	    H << "virtual public ::Ice::Object_prxE";
+	else
+	{
+	    ClassList::iterator q = bases.begin();
+	    while(q != bases.end())
+	    {
+		H << "virtual public " << (*q) -> scoped()
+		  << "_prxE";
+		if(++q != bases.end())
+		    H << ',' << nl;
+	    }
+	}
+	H.restoreIndent();
+	H << sb;
+	H.dec();
+	H << nl << "public: ";
+	H.inc();
+	H << sp;
+	H << nl << name << "_prxE() { }";
+	H << nl << name << "_prxE(const " << name << "_prxE&);";
+	H << nl << "explicit " << name << "_prxE(const " << name << "_prx&);";
+	H << nl << "operator " << name << "_prx() const;";
+	H << nl << "::__IceProxy" << scoped << "* operator->() const;";
+	H << eb << ';';
+	C << sp << nl << scoped.substr(2) << "_prxE::" << name
+	  << "_prxE(const " << name << "_prxE& p)";
+	C << sb;
+	C << nl << "prx_ = p.prx_;";
+	C << eb;
+	C << sp << nl << scoped.substr(2) << "_prxE::" << name
+	  << "_prxE(const " << scoped << "_prx& p)";
+	C << sb;
+	C << nl << "prx_ = p;";
+	C << eb;
+	C << sp << nl << scoped.substr(2) << "_prxE::operator " << scoped
+	  << "_prx() const";
+	C << sb;
+	C << nl << "return " << scoped << "_prx(dynamic_cast< ::__IceProxy"
+	  << scoped << "*>(prx_.get()));";
+	C << eb;
+	C << sp << nl << "::__IceProxy" << scoped << '*' << nl
+	  << scoped.substr(2) << "_prxE::operator->() const";
+	C << sb;
+	C << nl << "return dynamic_cast< ::__IceProxy" << scoped 
+	  << "*>(prx_.get());";
+	C << eb;
+    }
+
     H << sp;
     H << nl << "class" << dllExport_ << ' ' << name << " : ";
     H.useCurrentPosAsIndent();
@@ -1128,6 +1193,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     H.dec();
     H << nl << "public: ";
     H.inc();
+
+    H << sp;
+    H << nl << "virtual void _throw();";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_throw()";
+    C << sb;
+    C << nl << "throw " << scoped << "_ptrE(this);";
+    C << eb;
+
     if(!p -> isLocal())
     {
 	ClassList allBases = p -> allBases();
@@ -1438,7 +1511,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const Operation_ptr& p)
 	    Ice::Int cnt = 0;
 	    for(r = throws.begin(); r != throws.end(); ++r)
 	    {
-		C << nl << "catch(" << inputTypeToString(*r) << " __ex)";
+		C << nl << "catch(" << exceptionTypeToString(*r) << " __ex)";
 		C << sb;
 		C << nl << "__os -> write(" << cnt++ << ");";
 		writeMarshalUnmarshalCode(C, *r, "__ex", true);

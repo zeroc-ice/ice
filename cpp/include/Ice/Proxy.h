@@ -27,6 +27,27 @@ ICE_API void read(Stream*, ::Ice::Object_prx&);
 
 }
 
+namespace Ice
+{
+
+class ICE_API Object_prxE
+{
+public:
+
+    Object_prxE() { }
+    Object_prxE(const Object_prxE&);
+    explicit Object_prxE(const Object_prx&);
+    operator Object_prx() const;
+    ::__IceProxy::Ice::Object* operator->() const;
+    operator bool() const;
+
+protected:
+
+    Object_prx prx_;        
+};
+
+};
+
 namespace __IceProxy { namespace Ice
 {
 
@@ -34,6 +55,7 @@ class ICE_API Object : public ::__Ice::Shared, JTCMutex
 {
 public:
 
+    virtual void _throw();
     bool _isA(const std::string&);
 
     bool operator==(const Object&) const;

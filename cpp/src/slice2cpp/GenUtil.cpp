@@ -148,6 +148,52 @@ Slice::outputTypeToString(const Type_ptr& type)
     return "???";
 }
 
+string
+Slice::exceptionTypeToString(const Type_ptr& type)
+{
+    static const char* inputBuiltinTable[] =
+    {
+	"::Ice::Byte",
+	"bool",
+	"::Ice::Short",
+	"::Ice::Int",
+	"::Ice::Long",
+	"::Ice::Float",
+	"::Ice::Double",
+	"const ::std::string&",
+	"const ::std::wstring&",
+	"const ::Ice::Object_ptrE&",
+	"const ::Ice::Object_prx&",
+	"const ::Ice::LocalObject_ptrE&"
+    };
+
+    Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
+    if(builtin)
+	return inputBuiltinTable[builtin -> kind()];
+
+    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    if(cl)
+	return "const " + cl -> scoped() + "_ptrE&";
+	    
+    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+    if(proxy)
+	return "const " + proxy -> _class() -> scoped() + "_prx&";
+	    
+    Enum_ptr en = Enum_ptr::dynamicCast(type);
+    if(en)
+	return en -> scoped();
+	    
+    Native_ptr native = Native_ptr::dynamicCast(type);
+    if(native)
+	return native -> scoped();
+	    
+    Contained_ptr contained = Contained_ptr::dynamicCast(type);
+    if(contained)
+	return "const " + contained -> scoped() + "&";
+
+    return "???";
+}
+
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 				 const string& param, bool marshal)
