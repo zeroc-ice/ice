@@ -76,7 +76,7 @@ interface Locator
      * be found.
      *
      **/
-    nonmutating Object* findObjectById(Ice::Identity id)
+    ["amd"] nonmutating Object* findObjectById(Ice::Identity id)
 	throws ObjectNotFoundException;
 
     /**
@@ -92,7 +92,7 @@ interface Locator
      * found.
      *
      **/
-    nonmutating Object* findAdapterById(string id)
+    ["amd"] nonmutating Object* findAdapterById(string id)
 	throws AdapterNotFoundException;
 
     /**

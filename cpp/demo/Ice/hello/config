@@ -6,7 +6,7 @@ Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name
-# "HelloAdapter". The following line sets the endpoints for this
+# "Hello". The following line sets the endpoints for this
 # adapter.
 #
 Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
@@ -67,3 +67,24 @@ Glacier.Router.Trace.RoutingTable=1
 # Uncomment the following lines if you want to run this demo with Glacier
 #
 #Ice.Default.Router=Glacier/router:default -p 10005
+
+#
+# IcePack registry settings (assumes that a db directory exists in the 
+# current working directory).
+# 
+IcePack.Registry.Client.Endpoints=default -p 10006
+IcePack.Registry.Server.Endpoints=default
+IcePack.Registry.Admin.Endpoints=default
+IcePack.Registry.Data=db
+IcePack.Registry.DynamicRegistration=1
+
+#
+# Uncomment the following lines if you want to run this demo with the 
+# IcePack registry (Note that we override properties previously set
+# above, make sure to comment these properties again to run the demo
+# without IcePack!).
+#
+#Hello.Proxy=hello@HelloAdapter
+#Hello.Endpoints=tcp:udp:ssl
+#Hello.AdapterId=HelloAdapter
+#Ice.Default.Locator=IcePack/Locator:default -p 10006

@@ -27,9 +27,11 @@ public:
 
     LocatorI(const AdapterRegistryPtr&, const ObjectRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
 
-    virtual ::Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
+    virtual void findObjectById_async(const ::Ice::AMD_Locator_findObjectByIdPtr&, const ::Ice::Identity&, 
+				      const ::Ice::Current&) const;
 
-    virtual ::Ice::ObjectPrx findAdapterById(const std::string&, const ::Ice::Current&) const;
+    virtual void findAdapterById_async(const ::Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&, 
+				       const ::Ice::Current&) const;
 
     virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 

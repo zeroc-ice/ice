@@ -64,16 +64,18 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 {
 }
 
-Ice::ObjectPrx
-ServerLocator::findAdapterById(const ::std::string& adapter, const ::Ice::Current&) const
+void
+ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id, 
+				    const Ice::Current& current) const
 {
-    return _registry->getAdapter(adapter);
+    response->ice_response(_registry->getObject(id));
 }
 
-Ice::ObjectPrx
-ServerLocator::findObjectById(const Ice::Identity& id, const ::Ice::Current&) const
+void
+ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string& id, 
+				     const Ice::Current& current) const
 {
-    return _registry->getObject(id);
+    response->ice_response(_registry->getAdapter(id));
 }
 
 Ice::LocatorRegistryPrx

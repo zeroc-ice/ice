@@ -86,7 +86,7 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
     {
 	try
 	{
-	    return AdapterPrx::checkedCast(p->second);
+	    return AdapterPrx::checkedCast(p->second->ice_collocationOptimization(false));
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -94,7 +94,7 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
 	}
 	catch(const Ice::LocalException&)
 	{
-	    return AdapterPrx::uncheckedCast(p->second);
+	    return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
 	}
     }
     throw AdapterNotExistException();

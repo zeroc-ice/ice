@@ -192,7 +192,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     locatorRegistryId.category = "IcePack";
     locatorRegistryId.name = IceUtil::generateUUID();
     
-    ObjectPtr locatorRegistry = new LocatorRegistryI(adapterRegistry, registryAdapter);
+    ObjectPtr locatorRegistry = new LocatorRegistryI(adapterRegistry, serverAdapter);
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(
 	serverAdapter->add(locatorRegistry, locatorRegistryId));
 
@@ -203,7 +203,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 
     ObjectPtr locator = new LocatorI(adapterRegistry, objectRegistry, locatorRegistryPrx); 
     LocatorPrx locatorPrx = LocatorPrx::uncheckedCast(
-	clientAdapter->add(locator, stringToIdentity("IcePack/Locator")));
+	clientAdapter->add(locator, stringToIdentity("IcePack/Locator"))->ice_collocationOptimization(false));
 
     QueryPtr query = new QueryI(_communicator, objectRegistry);
     clientAdapter->add(query, stringToIdentity("IcePack/Query"));

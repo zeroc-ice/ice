@@ -452,7 +452,7 @@ interface Admin
      *
      **/
     nonmutating string getAdapterEndpoints(string id)
-	throws AdapterNotExistException;
+	throws AdapterNotExistException, NodeUnreachableException;
 
     /**
      *

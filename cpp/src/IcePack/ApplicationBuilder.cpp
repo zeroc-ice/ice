@@ -146,7 +146,7 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, AttributeList& attr
     {
 	if(!_currentNode.empty())
 	{
-	    throw DeploySAXParseException("Node element enclosed in an node element is not allowed", _locator);
+	    throw DeploySAXParseException("node element enclosed in an node element is not allowed", _locator);
 	}
 	_currentNode = getAttributeValue(attrs, "name");
 
@@ -165,7 +165,7 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, AttributeList& attr
     {
 	if(_currentNode.empty())
 	{
-	    throw DeploySAXParseException("Server element is not allowed outside the scope of a node element", 
+	    throw DeploySAXParseException("server element is not allowed outside the scope of a node element", 
 					  _locator);
 	}
 
