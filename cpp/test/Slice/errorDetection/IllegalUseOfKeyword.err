@@ -23,3 +23,4 @@ IllegalUseOfKeyword.ice:57: keyword `string' cannot be used as enumeration name
 IllegalUseOfKeyword.ice:64: keyword `sequence' cannot be used as enumerator
 IllegalUseOfKeyword.ice:65: keyword `dictionary' cannot be used as enumerator
 IllegalUseOfKeyword.ice:66: keyword `enum' cannot be used as enumerator
+IllegalUseOfKeyword.ice:70: illegal inheritance from type Object

@@ -852,6 +852,11 @@ interface_list
     }
     $$ = intfs;
 }
+| ICE_OBJECT
+{
+    unit->error("illegal inheritance from type Object");
+    $$ = new ClassListTok;
+}
 ;
 
 // ----------------------------------------------------------------------

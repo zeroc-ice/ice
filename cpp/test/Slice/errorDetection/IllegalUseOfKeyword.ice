@@ -66,3 +66,7 @@ enum E
     enum,
     laksdjflkj
 };
+
+interface Bletch extends Object
+{
+};
