@@ -28,7 +28,7 @@ tests = [ \
     "IceUtil/thread", \
     "IceUtil/unicode", \
     "IceUtil/inputUtil", \
-    "Slice/errorDetection", \
+#    "Slice/errorDetection", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \

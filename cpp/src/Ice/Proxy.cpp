@@ -579,14 +579,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     }
     catch(const CloseConnectionException&)
     {
-	//
-	// We always retry on a close connection exception, as this
-	// indicates graceful server shutdown.
-	//
-	// TODO: ML: Perhaps we should have a limit on this too?
-	// Otherwise a rogue server could let the client retry
-	// forever.
-	//
+	++cnt;
     }
     catch(const SocketException&)
     {

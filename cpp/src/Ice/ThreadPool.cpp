@@ -55,6 +55,10 @@ IceInternal::ThreadPool::promoteFollower()
 void
 IceInternal::ThreadPool::initiateShutdown()
 {
+    //
+    // This operation must be signal safe, so all we can do is to set
+    // an interrupt.
+    //
     setInterrupt(1);
 }
 
@@ -262,7 +266,13 @@ IceInternal::ThreadPool::run()
 
     repeatSelect:
 	
-	if(shutdown) // Shutdown has been initiated.
+	//
+	// We must shut down the object adapter factory. We cannot do
+	// this in initiateShutdown(), because this method must be
+	// signal safe. We also cannot do this within the
+	// synchronization of this object, so we do it here.
+	//
+	if(shutdown)
 	{
 	    shutdown = false;
 	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();

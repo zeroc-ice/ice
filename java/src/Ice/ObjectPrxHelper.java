@@ -523,10 +523,7 @@ public class ObjectPrxHelper implements ObjectPrx
         }
         catch(CloseConnectionException e)
         {
-            //
-            // We always retry on a close connection exception, as this
-            // indicates graceful server shutdown.
-            //
+	    ++cnt;
         }
         catch(SocketException e)
         {
