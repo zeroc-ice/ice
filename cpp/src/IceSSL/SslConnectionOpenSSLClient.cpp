@@ -163,7 +163,11 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
                     // ECONNREFUSED.
                     //
                     ConnectFailedException ex(__FILE__, __LINE__);
+#ifdef _WIN32
+                    ex.error = WSAECONNREFUSED;
+#else
                     ex.error = ECONNREFUSED;
+#endif
                     throw ex;
                 }
             }
