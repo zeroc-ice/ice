@@ -101,7 +101,7 @@ Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& curren
 }
 
 void
-Glacier2::SessionRouterI::createSession(const std::string&, const std::string&, const Current& current)
+Glacier2::SessionRouterI::createSession(const std::string& userId, const std::string& password, const Current& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 

@@ -106,6 +106,10 @@ PostBuild_Cmds=copy $(OutDir)\glacier2d.lib ..\..\lib	copy $(OutDir)\glacier215d
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\PermissionsVerifier.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Router.cpp
 # End Source File
 # End Group
@@ -114,12 +118,100 @@ SOURCE=.\Router.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\..\include\Glacier2\PermissionsVerifier.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Glacier2\PermissionsVerifierF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Glacier2\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Glacier2\RouterF.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=..\..\slice\Glacier2\PermissionsVerifier.ice
+
+!IF  "$(CFG)" == "Glacier2 - Win32 Release"
+
+USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\PermissionsVerifier.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
+	move PermissionsVerifier.h ..\..\include\Glacier2 \
+	
+
+"..\..\include\Glacier2\PermissionsVerifier.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"PermissionsVerifier.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
+
+USERDEP__PERMI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\PermissionsVerifier.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifier.ice \
+	move PermissionsVerifier.h ..\..\include\Glacier2 \
+	
+
+"..\..\include\Glacier2\PermissionsVerifier.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"PermissionsVerifier.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Glacier2\PermissionsVerifierF.ice
+
+!IF  "$(CFG)" == "Glacier2 - Win32 Release"
+
+USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\PermissionsVerifierF.ice
+
+"..\..\include\Glacier2\PermissionsVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
+	move PermissionsVerifierF.h ..\..\include\Glacier2 
+	del PermissionsVerifierF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
+
+USERDEP__PERMIS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\PermissionsVerifierF.ice
+
+"..\..\include\Glacier2\PermissionsVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/PermissionsVerifierF.ice 
+	move PermissionsVerifierF.h ..\..\include\Glacier2 
+	del PermissionsVerifierF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\slice\Glacier2\Router.ice
@@ -158,6 +250,39 @@ BuildCmds= \
 
 "Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Glacier2\RouterF.ice
+
+!IF  "$(CFG)" == "Glacier2 - Win32 Release"
+
+USERDEP__ROUTER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\RouterF.ice
+
+"..\..\include\Glacier2\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
+	move RouterF.h ..\..\include\Glacier2 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
+
+USERDEP__ROUTER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Glacier2\RouterF.ice
+
+"..\..\include\Glacier2\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER2_API --include-dir Glacier2 -I../../slice ../../slice/Glacier2/RouterF.ice 
+	move RouterF.h ..\..\include\Glacier2 
+	del RouterF.cpp 
+	
 # End Custom Build
 
 !ENDIF 

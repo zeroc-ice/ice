@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER_ICE
-#define GLACIER_ICE
+#ifndef GLACIER_STARTER_ICE
+#define GLACIER_STARTER_ICE
 
 #include <Glacier/Router.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -113,9 +113,9 @@ interface PermissionsVerifier
      *
      * @param password The user's password.
      *
-     * @param reason The reason access was denied.
+     * @param reason The reason why access was denied.
      *
-     * @return true if access is allowed, or false otherwise.
+     * @return True if access is granted, or false otherwise.
      *
      **/
     nonmutating bool checkPermissions(string userId, string password, out string reason);

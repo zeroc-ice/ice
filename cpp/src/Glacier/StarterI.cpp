@@ -785,9 +785,3 @@ Glacier::CryptPasswordVerifierI::checkPermissions(
 #endif
     return p->second == buff;
 }
-
-void
-Glacier::CryptPasswordVerifierI::destroy(const Current&)
-{
-    // Nothing to do.
-}
