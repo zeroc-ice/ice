@@ -65,8 +65,9 @@ public class AllTests
         Console.Out.Write("shutdown server... ");
         Console.Out.Flush();
         obj.shutdown();
+	manager.cleanup();
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("restarting server... ");
         Console.Out.Flush();
         manager.startServer();
@@ -122,6 +123,7 @@ public class AllTests
         Console.Out.Write("shutdown server... ");
         Console.Out.Flush();
         obj.shutdown();
+	manager.cleanup();
         Console.Out.WriteLine("ok");
         
         Console.Out.Write("testing whether server is gone... ");

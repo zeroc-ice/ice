@@ -63,7 +63,7 @@ namespace IceInternal
 		overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
 	    	if(!BasicStream.Compressible() && overrideCompressValue)
 		{
-		    Console.Error.WriteLine("warning: libbz2.dll not installed, Ice.Override.Compress changed to 0");
+		    Console.Error.WriteLine("warning: libbz2.dll not installed, Ice.Override.Compress ignored");
 		    overrideCompressValue = false;
 		}
 	    }
