@@ -304,7 +304,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		String name = serviceProperties.getProperty("Ice.ProgramName");
 		if(!name.equals(service))
 		{
-		    name = name.length() == 0 ? name + "-" + service : service;
+		    name = name.length() == 0 ? service : name + "-" + service;
 		}
 
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
