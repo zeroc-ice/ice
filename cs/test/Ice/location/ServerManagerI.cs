@@ -7,12 +7,14 @@
 //
 // **********************************************************************
 
+using System.Collections;
 
 public class ServerManagerI : _ServerManagerDisp
 {
     internal ServerManagerI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
+	_communicators = new ArrayList();
     }
     
     public override void startServer(Ice.Current current)
@@ -27,12 +29,13 @@ public class ServerManagerI : _ServerManagerDisp
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        _serverCommunicator = Ice.Util.initialize(ref argv);
-        _serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
-        _serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
-        Ice.ObjectAdapter adapter = _serverCommunicator.createObjectAdapter("TestAdapter");
+        Ice.Communicator serverCommunicator = Ice.Util.initialize(ref argv);
+	_communicators.Add(serverCommunicator);
+        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+        serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
+        Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
         
-        Ice.ObjectPrx locator = _serverCommunicator.stringToProxy("locator:default -p 12345 -t 30000");
+        Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12345 -t 30000");
         adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
         
         Ice.Object @object = new TestI(adapter);
@@ -40,16 +43,15 @@ public class ServerManagerI : _ServerManagerDisp
         adapter.activate();
     }
 
-    public override void cleanup(Ice.Current current)
-    {
-        _serverCommunicator.destroy();
-    }
-    
     public override void shutdown(Ice.Current current)
     {
+	foreach(Ice.Communicator c in _communicators)
+	{
+	    c.destroy();
+	}
         _adapter.getCommunicator().shutdown();
     }
     
     private Ice.ObjectAdapter _adapter;
-    private Ice.Communicator _serverCommunicator;
+    private ArrayList _communicators;
 }

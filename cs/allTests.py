@@ -50,7 +50,7 @@ tests = [ \
     "Ice/inheritance", \
     "Ice/facets", \
     "Ice/objects", \
-    #"Ice/faultTolerance", \
+    "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \

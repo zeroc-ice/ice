@@ -420,11 +420,18 @@ namespace IceInternal
 	    }
 	    
 	    //
-	    // Show process id if requested.
+	    // Show process id if requested (but only once).
 	    //
-	    if(_properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+	    if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
 	    {
-		System.Console.WriteLine(Process.GetCurrentProcess().Id);
+		lock(this)
+		{
+		    if(!_printProcessIdDone)	// Double-checked locking
+		    {
+			System.Console.WriteLine(Process.GetCurrentProcess().Id);
+			_printProcessIdDone = true;
+		    }
+		}
 	    }
 
 	    //
@@ -576,6 +583,7 @@ namespace IceInternal
 	private EndpointFactoryManager _endpointFactoryManager;
 	private Ice.PluginManager _pluginManager;
 	private volatile BufferManager _bufferManager; // Immutable, not reset by destroy().
+	private volatile static bool _printProcessIdDone = false;
     }
 
 }

@@ -149,7 +149,7 @@ public class Set : ICollection, ICloneable
 	{
 	    return false;
 	}
-	if(_capacity * _loadFactor >= _count)
+	if(_count >= _capacity * _loadFactor)
 	{
 	    if(_capacity == MAXIMUM_CAPACITY)
 	    {

@@ -64,7 +64,7 @@ def killServers():
     for pid in serverPids:
         if isCygwin():
             print "killServers(): not implemented for cygwin python."
-            sys.exit(1)
+            #sys.exit(1)
         elif isWin32():
             try:
                 import win32api
