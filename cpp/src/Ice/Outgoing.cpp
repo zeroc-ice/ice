@@ -35,7 +35,8 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, const char* operation) :
+IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, const char* operation,
+				const Context& context) :
     _emitter(emitter),
     _reference(ref),
     _state(StateUnsent),
@@ -63,6 +64,13 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
     _os.write(_reference->identity);
     _os.write(_reference->facet);
     _os.write(operation);
+    _os.write(Int(context.size()));
+    Context::const_iterator p;
+    for (p = context.begin(); p != context.end(); ++p)
+    {
+	_os.write(p->first);
+	_os.write(p->second);
+    }
 
     //
     // Input parameters are always sent in an encapsulation, which

@@ -14,6 +14,7 @@
 #include <Ice/EmitterF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Current.h>
 
 namespace Ice
 {
@@ -49,7 +50,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public JTCMonitorT< JTCM
 {
 public:
 
-    Outgoing(const EmitterPtr&, const ReferencePtr&, const char*);
+    Outgoing(const EmitterPtr&, const ReferencePtr&, const char*, const ::Ice::Context&);
     ~Outgoing();
 
     bool invoke();

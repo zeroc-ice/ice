@@ -1103,7 +1103,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, \"" << name << "\");";
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, \"" << name << "\", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";

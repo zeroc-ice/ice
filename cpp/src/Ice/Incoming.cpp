@@ -32,6 +32,15 @@ IceInternal::Incoming::invoke()
     _is.read(current.identity);
     _is.read(current.facet);
     _is.read(current.operation);
+    Int sz;
+    _is.read(sz);
+    while (sz--)
+    {
+	pair<string, string> pair;
+	_is.read(pair.first);
+	_is.read(pair.second);
+	current.context.insert(current.context.end(), pair);
+    }
 
     BasicStream::Container::size_type statusPos = _os.b.size();
 

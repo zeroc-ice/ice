@@ -509,7 +509,7 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, "ice_isA");
+    Outgoing __out(__emitter, __reference, "ice_isA", __context);
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
     __os->write(__id);
@@ -525,7 +525,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, "ice_ping");
+    Outgoing __out(__emitter, __reference, "ice_ping", __context);
     if (!__out.invoke())
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -536,7 +536,7 @@ void
 IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams,
 					const Context& __context)
 {
-    Outgoing __out(__emitter, __reference, operation.c_str());
+    Outgoing __out(__emitter, __reference, operation.c_str(), __context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
     if (!__out.invoke())
