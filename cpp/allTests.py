@@ -25,7 +25,7 @@ import TestUtil
 # List of all basic tests.
 #
 tests = [ \
-#    "IceUtil/thread", \
+    "IceUtil/thread", \
     "IceUtil/unicode", \
     "IceUtil/inputUtil", \
     "Slice/errorDetection", \
