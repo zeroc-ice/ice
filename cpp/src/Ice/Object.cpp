@@ -115,7 +115,11 @@ ObjectPtr
 Ice::Object::ice_clone() const
 {
     ObjectPtr __p = new Ice::Object;
+#ifdef _WIN32
+    Object::__copyMembers(__p);
+#else
     ::Ice::Object::__copyMembers(__p);
+#endif
     return __p;
 }
 
