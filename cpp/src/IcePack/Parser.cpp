@@ -61,7 +61,7 @@ IcePack::Parser::add(const list<string>& args)
     {
 	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
-	desc.object = _communicator->stringToProxy(*p);
+	desc.obj = _communicator->stringToProxy(*p);
 	if(++p != args.end())
 	{
 	    desc.path = *p;
@@ -112,7 +112,7 @@ IcePack::Parser::listAll()
 	while(p != descriptions.end())
 	{
 	    cout << "identity = " << p->first << endl;
-	    cout << "object = " << _communicator->proxyToString(p->second.object) << endl;
+	    cout << "object = " << _communicator->proxyToString(p->second.obj) << endl;
 	    cout << "host = " << p->second.host << endl;
 	    cout << "path = " << p->second.path << endl;
 	    cout << "args =";

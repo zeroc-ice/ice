@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-sequence<int> Sequence;
-sequence<int> Sequence;
+sequence<int> Seq;
+sequence<int> Seq;

@@ -8,17 +8,17 @@
 //
 // **********************************************************************
 
-sequence<int> Sequence;
-dictionary<Sequence, int> Dictionary;
+sequence<int> Seq;
+dictionary<Seq, int> Dict;
 
 interface I
 {
-    Sequence* f1();
-    void f2(Sequence*);
-    void f3(; Sequence*);
+    Seq* f1();
+    void f2(Seq*);
+    void f3(; Seq*);
 
-    Dictionary* f1();
-    void f2(Dictionary*);
-    void f3(; Dictionary*);
+    Dict* f1();
+    void f2(Dict*);
+    void f3(; Dict*);
     void op();
 };

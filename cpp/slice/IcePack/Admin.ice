@@ -39,11 +39,11 @@ struct ServerDescription
     /**
      *
      * The server object or object template. Any non-administrative
-     * &IcePack; request that matches the identity of [object] will be
-     * forwarded to [object].
+     * &IcePack; request that matches the identity of [obj] will be
+     * forwarded to [obj].
      *
      **/
-    Object* object;
+    Object* obj;
 
     /**
      *

@@ -1,22 +1,25 @@
-IllegalUseOfKeyword.ice:11: keyword cannot be used as exception name
-IllegalUseOfKeyword.ice:13: keyword cannot be used as exception name
-IllegalUseOfKeyword.ice:17: keyword cannot be used as struct name
-IllegalUseOfKeyword.ice:19: keyword cannot be used as struct name
-IllegalUseOfKeyword.ice:23: keyword cannot be used as class name
-IllegalUseOfKeyword.ice:25: keyword cannot be used as class name
-IllegalUseOfKeyword.ice:32: keyword cannot be used as interface name
-IllegalUseOfKeyword.ice:38: keyword cannot be used as operation name
-IllegalUseOfKeyword.ice:40: keyword cannot be used as a parameter name
-IllegalUseOfKeyword.ice:40: keyword cannot be used as a parameter name
-IllegalUseOfKeyword.ice:42: keyword cannot be used as a parameter name
-IllegalUseOfKeyword.ice:42: keyword cannot be used as a parameter name
-IllegalUseOfKeyword.ice:47: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:48: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:49: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:50: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:53: keyword cannot be used as sequence name
-IllegalUseOfKeyword.ice:55: keyword cannot be used as dictionary name
-IllegalUseOfKeyword.ice:57: keyword cannot be used as enum name
-IllegalUseOfKeyword.ice:64: keyword cannot be used as enumerator
-IllegalUseOfKeyword.ice:65: keyword cannot be used as enumerator
-IllegalUseOfKeyword.ice:66: keyword cannot be used as enumerator
+IllegalUseOfKeyword.ice:11: keyword `module' cannot be used as exception name
+IllegalUseOfKeyword.ice:11: exceptions cannot be forward declared
+IllegalUseOfKeyword.ice:12: keyword `void' cannot be used as exception name
+IllegalUseOfKeyword.ice:17: keyword `exception' cannot be used as struct name
+IllegalUseOfKeyword.ice:17: structs cannot be forward declared
+IllegalUseOfKeyword.ice:18: keyword `class' cannot be used as struct name
+IllegalUseOfKeyword.ice:23: keyword `interface' cannot be used as class name
+IllegalUseOfKeyword.ice:24: keyword `struct' cannot be used as class name
+IllegalUseOfKeyword.ice:30: keyword `local' cannot be used as interface name
+IllegalUseOfKeyword.ice:31: keyword `extends' cannot be used as interface name
+IllegalUseOfKeyword.ice:38: keyword `implements' cannot be used as operation name
+IllegalUseOfKeyword.ice:40: keyword `throws' cannot be used as parameter name
+IllegalUseOfKeyword.ice:40: keyword `void' cannot be used as parameter name
+IllegalUseOfKeyword.ice:42: keyword `byte' cannot be used as parameter name
+IllegalUseOfKeyword.ice:42: keyword `short' cannot be used as parameter name
+IllegalUseOfKeyword.ice:47: keyword `int' cannot be used as data member name
+IllegalUseOfKeyword.ice:48: keyword `long' cannot be used as data member name
+IllegalUseOfKeyword.ice:49: keyword `float' cannot be used as data member name
+IllegalUseOfKeyword.ice:50: keyword `double' cannot be used as data member name
+IllegalUseOfKeyword.ice:53: keyword `Object' cannot be used as sequence name
+IllegalUseOfKeyword.ice:55: keyword `LocalObject' cannot be used as dictionary name
+IllegalUseOfKeyword.ice:57: keyword `string' cannot be used as enumeration name
+IllegalUseOfKeyword.ice:64: keyword `sequence' cannot be used as enumerator
+IllegalUseOfKeyword.ice:65: keyword `dictionary' cannot be used as enumerator
+IllegalUseOfKeyword.ice:66: keyword `enum' cannot be used as enumerator

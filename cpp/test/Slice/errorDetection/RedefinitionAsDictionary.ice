@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-class Class { long l; };
-dictionary<string, int> Class;
+class C { long l; };
+dictionary<string, int> C;

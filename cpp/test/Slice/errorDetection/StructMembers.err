@@ -1,11 +1,7 @@
 StructMembers.ice:13: struct `s1' must have at least one member
 StructMembers.ice:30: missing data member name
-StructMembers.ice:30: struct `s8' must have at least one member
 StructMembers.ice:31: missing data member name
 StructMembers.ice:31: `;' missing after definition
-StructMembers.ice:31: struct `s9' must have at least one member
 StructMembers.ice:32: missing data member name
-StructMembers.ice:32: struct `s10' must have at least one member
 StructMembers.ice:33: missing data member name
 StructMembers.ice:33: `;' missing after definition
-StructMembers.ice:33: struct `s11' must have at least one member

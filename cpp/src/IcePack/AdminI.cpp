@@ -25,9 +25,9 @@ IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if(desc.object)
+    if(desc.obj)
     {
-	_serverDescriptions[desc.object->ice_getIdentity()] = desc;
+	_serverDescriptions[desc.obj->ice_getIdentity()] = desc;
     }
 }
 

@@ -1,1 +1,2 @@
-RedefinitionAsEnum.ice:12: redefinition of class `Class' as enumeration
+RedefinitionAsEnum.ice:12: redefinition of class `C' as enumeration
+RedefinitionAsEnum.ice:12: redefinition of class `C' as enumerator

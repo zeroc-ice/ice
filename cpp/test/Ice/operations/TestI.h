@@ -60,8 +60,8 @@ public:
 				       Test::MyClassPrx&, Test::MyClassPrx&,
 				       const Ice::Current&);
 
-    virtual Test::Struct opStruct(const Test::Struct&, const Test::Struct&,
-				  Test::Struct&,
+    virtual Test::Structure opStruct(const Test::Structure&, const Test::Structure&,
+				  Test::Structure&,
 				  const Ice::Current&);
 
     virtual Test::ByteS opByteS(const Test::ByteS&,

@@ -16,6 +16,7 @@
 using namespace std;
 using namespace Slice;
 
+#define	YY_USER_INIT	initialize();				 
 %}
 
 %option noyywrap
@@ -97,260 +98,6 @@ using namespace Slice;
     return ICE_SCOPE_DELIMITOR;
 }
 
-"module" {
-    return ICE_MODULE;
-}
-
-"module"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"class" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_CLASS;
-}
-
-"local"[[:space:]]*"class" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_CLASS;
-}
-
-"class"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"interface" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_INTERFACE;
-}
-
-"local"[[:space:]]*"interface" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_INTERFACE;
-}
-
-"interface"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"exception" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_EXCEPTION;
-}
-
-"local"[[:space:]]*"exception" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_EXCEPTION;
-}
-
-"exception"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"struct" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_STRUCT;
-}
-
-"local"[[:space:]]*"struct" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_STRUCT;
-}
-
-"struct"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"sequence" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_SEQUENCE;
-}
-
-"local"[[:space:]]*"sequence" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_SEQUENCE;
-}
-
-"sequence"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"local"[[:space:]]*"dictionary" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_DICTIONARY;
-}
-
-"dictionary" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_DICTIONARY;
-}
-
-"dictionary"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"enum" {
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    *yylvalp = local;
-    return ICE_ENUM;
-}
-
-"local"[[:space:]]*"enum" {
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    *yylvalp = local;
-    return ICE_ENUM;
-}
-
-"enum"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"out" {
-    return ICE_OUT;
-}
-
-"out"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"extends" {
-    return ICE_EXTENDS;
-}
-
-"extends"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"implements" {
-    return ICE_IMPLEMENTS;
-}
-
-"implements"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"throws" {
-    return ICE_THROWS;
-}
-
-"throws"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"void" {
-    return ICE_VOID;
-}
-
-"void"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"byte" {
-    return ICE_BYTE;
-}
-
-"byte"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"bool" {
-    return ICE_BOOL;
-}
-
-"bool"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"short" {
-    return ICE_SHORT;
-}
-
-"short"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"int" {
-    return ICE_INT;
-}
-
-"int"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"long" {
-    return ICE_LONG;
-}
-
-"long"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"float" {
-    return ICE_FLOAT;
-}
-
-"float"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"double" {
-    return ICE_DOUBLE;
-}
-
-"double"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"string" {
-    return ICE_STRING;
-}
-
-"string"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"Object" {
-    return ICE_OBJECT;
-}
-
-"Object"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"LocalObject" {
-    return ICE_LOCAL_OBJECT;
-}
-
-"LocalObject"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
 \\?[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
     if (*yytext == '\\')
@@ -362,22 +109,21 @@ using namespace Slice;
 	ident->v = yytext;
     }
     *yylvalp = ident;
-    return ICE_IDENTIFIER;
-}
 
-\\?[[:alpha:]_][[:alnum:]_]*[[:space:]]*"(" {
-    StringTokPtr ident = new StringTok;
-    if (*yytext == '\\')
+    stringTokenMap::const_iterator pos = keywordMap.find(ident->v);
+    if(pos != keywordMap.end())
     {
-	ident->v = yytext + 1;
+    	if(pos->first != ident->v)
+	{
+		string msg;
+		msg = "illegal identifier: `" + ident->v + "' differs from keyword `";
+		msg += pos->first + "' only in capitalization";
+		unit->error(msg);
+		ident->v = pos->first;
+	}
+	return pos->second;
     }
-    else
-    {
-	ident->v = yytext;
-    }
-    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
-    *yylvalp = ident;
-    return ICE_OP_IDENTIFIER;
+    return ICE_IDENTIFIER;
 }
 
 \" {
@@ -501,3 +247,37 @@ using namespace Slice;
 }
 
 %%
+
+namespace Slice {
+
+stringTokenMap keywordMap;
+
+void
+initialize()
+{
+	keywordMap["module"] = ICE_MODULE;
+	keywordMap["class"] = ICE_CLASS;
+	keywordMap["interface"] = ICE_INTERFACE;
+	keywordMap["exception"] = ICE_EXCEPTION;
+	keywordMap["struct"] = ICE_STRUCT;
+	keywordMap["sequence"] = ICE_SEQUENCE;
+	keywordMap["dictionary"] = ICE_DICTIONARY;
+	keywordMap["enum"] = ICE_ENUM;
+	keywordMap["out"] = ICE_OUT;
+	keywordMap["extends"] = ICE_EXTENDS;
+	keywordMap["implements"] = ICE_IMPLEMENTS;
+	keywordMap["throws"] = ICE_THROWS;
+	keywordMap["void"] = ICE_VOID;
+	keywordMap["byte"] = ICE_BYTE;
+	keywordMap["bool"] = ICE_BOOL;
+	keywordMap["short"] = ICE_SHORT;
+	keywordMap["int"] = ICE_INT;
+	keywordMap["long"] = ICE_LONG;
+	keywordMap["float"] = ICE_FLOAT;
+	keywordMap["double"] = ICE_DOUBLE;
+	keywordMap["string"] = ICE_STRING;
+	keywordMap["Object"] = ICE_OBJECT;
+	keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
+	keywordMap["local"] = ICE_LOCAL;
+}
+}

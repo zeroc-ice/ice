@@ -1,0 +1,86 @@
+IdentAsKeyword.ice:11: illegal identifier: `INTERFACE' differs from keyword `interface' only in capitalization
+IdentAsKeyword.ice:13: illegal identifier: `Void' differs from keyword `void' only in capitalization
+IdentAsKeyword.ice:13: keyword `void' cannot be used as exception name
+IdentAsKeyword.ice:14: keyword `int' cannot be used as exception name
+IdentAsKeyword.ice:16: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeyword.ice:16: keyword `out' cannot be used as struct name
+IdentAsKeyword.ice:17: keyword `double' cannot be used as struct name
+IdentAsKeyword.ice:19: illegal identifier: `Int' differs from keyword `int' only in capitalization
+IdentAsKeyword.ice:19: keyword `int' cannot be used as data member name
+IdentAsKeyword.ice:20: keyword `byte' cannot be used as data member name
+IdentAsKeyword.ice:21: illegal identifier: `Int' differs from keyword `int' only in capitalization
+IdentAsKeyword.ice:21: keyword `int' cannot be used as data member name
+IdentAsKeyword.ice:22: keyword `byte' cannot be used as data member name
+IdentAsKeyword.ice:24: illegal identifier: `inTERface' differs from keyword `interface' only in capitalization
+IdentAsKeyword.ice:24: keyword `interface' cannot be used as class name
+IdentAsKeyword.ice:25: keyword `interface' cannot be used as class name
+IdentAsKeyword.ice:27: illegal identifier: `MOdule' differs from keyword `module' only in capitalization
+IdentAsKeyword.ice:27: keyword `module' cannot be used as class name
+IdentAsKeyword.ice:28: keyword `module' cannot be used as class name
+IdentAsKeyword.ice:28: redefinition of class `module'
+IdentAsKeyword.ice:28: parse error
+IdentAsKeyword.ice:30: illegal identifier: `extendS' differs from keyword `extends' only in capitalization
+IdentAsKeyword.ice:30: keyword `extends' cannot be used as data member name
+IdentAsKeyword.ice:31: redefinition of class `C'
+IdentAsKeyword.ice:31: parse error
+IdentAsKeyword.ice:32: keyword `extends' cannot be used as data member name
+IdentAsKeyword.ice:34: keyword `local' cannot be used as interface name
+IdentAsKeyword.ice:35: illegal identifier: `Local' differs from keyword `local' only in capitalization
+IdentAsKeyword.ice:35: keyword `local' cannot be used as interface name
+IdentAsKeyword.ice:37: keyword `Object' cannot be used as interface name
+IdentAsKeyword.ice:38: illegal identifier: `object' differs from keyword `Object' only in capitalization
+IdentAsKeyword.ice:38: keyword `Object' cannot be used as interface name
+IdentAsKeyword.ice:38: redefinition of interface `Object'
+IdentAsKeyword.ice:38: parse error
+IdentAsKeyword.ice:39: keyword `long' cannot be used as interface name
+IdentAsKeyword.ice:41: illegal identifier: `impLEments' differs from keyword `implements' only in capitalization
+IdentAsKeyword.ice:41: keyword `implements' cannot be used as sequence name
+IdentAsKeyword.ice:42: redefinition of sequence `implements' as sequence
+IdentAsKeyword.ice:42: keyword `implements' cannot be used as sequence name
+IdentAsKeyword.ice:43: keyword `short' cannot be used as sequence name
+IdentAsKeyword.ice:45: parse error
+IdentAsKeyword.ice:46: illegal identifier: `moDule' differs from keyword `module' only in capitalization
+IdentAsKeyword.ice:46: parse error
+IdentAsKeyword.ice:48: keyword `throws' cannot be used as dictionary name
+IdentAsKeyword.ice:49: illegal identifier: `thRows' differs from keyword `throws' only in capitalization
+IdentAsKeyword.ice:49: redefinition of dictionary `throws' as dictionary
+IdentAsKeyword.ice:49: keyword `throws' cannot be used as dictionary name
+IdentAsKeyword.ice:50: illegal identifier: `LOCALobject' differs from keyword `LocalObject' only in capitalization
+IdentAsKeyword.ice:50: keyword `LocalObject' cannot be used as dictionary name
+IdentAsKeyword.ice:52: parse error
+IdentAsKeyword.ice:53: illegal identifier: `MODULE' differs from keyword `module' only in capitalization
+IdentAsKeyword.ice:53: parse error
+IdentAsKeyword.ice:55: parse error
+IdentAsKeyword.ice:56: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeyword.ice:56: parse error
+IdentAsKeyword.ice:58: parse error
+IdentAsKeyword.ice:59: illegal identifier: `VOID' differs from keyword `void' only in capitalization
+IdentAsKeyword.ice:59: parse error
+IdentAsKeyword.ice:59: illegal identifier: `VOID' differs from keyword `void' only in capitalization
+IdentAsKeyword.ice:61: keyword `local' cannot be used as enumeration name
+IdentAsKeyword.ice:61: redefinition of interface declaration `local' as enumeration
+IdentAsKeyword.ice:62: illegal identifier: `LOCAL' differs from keyword `local' only in capitalization
+IdentAsKeyword.ice:62: keyword `local' cannot be used as enumeration name
+IdentAsKeyword.ice:62: redefinition of interface declaration `local' as enumeration
+IdentAsKeyword.ice:62: warning: enumerator `c' differs only in capitalization from class `C'
+IdentAsKeyword.ice:64: keyword `long' cannot be used as enumerator
+IdentAsKeyword.ice:64: keyword `byte' cannot be used as enumerator
+IdentAsKeyword.ice:65: illegal identifier: `LONG' differs from keyword `long' only in capitalization
+IdentAsKeyword.ice:65: keyword `long' cannot be used as enumerator
+IdentAsKeyword.ice:65: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeyword.ice:65: keyword `byte' cannot be used as enumerator
+IdentAsKeyword.ice:67: keyword `module' cannot be used as operation name
+IdentAsKeyword.ice:68: illegal identifier: `mODule' differs from keyword `module' only in capitalization
+IdentAsKeyword.ice:68: keyword `module' cannot be used as operation name
+IdentAsKeyword.ice:70: keyword `exception' cannot be used as operation name
+IdentAsKeyword.ice:71: illegal identifier: `EXception' differs from keyword `exception' only in capitalization
+IdentAsKeyword.ice:71: keyword `exception' cannot be used as operation name
+IdentAsKeyword.ice:73: parse error
+IdentAsKeyword.ice:74: illegal identifier: `OUT' differs from keyword `out' only in capitalization
+IdentAsKeyword.ice:74: parse error
+IdentAsKeyword.ice:76: keyword `byte' cannot be used as parameter name
+IdentAsKeyword.ice:77: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeyword.ice:77: keyword `byte' cannot be used as parameter name
+IdentAsKeyword.ice:79: keyword `byte' cannot be used as parameter name
+IdentAsKeyword.ice:80: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
+IdentAsKeyword.ice:80: keyword `byte' cannot be used as parameter name

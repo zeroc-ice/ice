@@ -175,17 +175,17 @@ twoways(const Test::MyClassPrx& p)
 
 
     {
-	Test::Struct si1;
+	Test::Structure si1;
 	si1.p = p;
 	si1.e = Test::enum3;
 	si1.s.s = "abc";
-	Test::Struct si2;
+	Test::Structure si2;
 	si2.p = 0;
 	si2.e = Test::enum2;
 	si2.s.s = "def";
 	
-	Test::Struct so;
-	Test::Struct rso = p->opStruct(si1, si2, so);
+	Test::Structure so;
+	Test::Structure rso = p->opStruct(si1, si2, so);
 	test(rso.p == 0);
 	test(rso.e == Test::enum2);
 	test(rso.s.s == "def");

@@ -48,7 +48,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
     // If we didn't find a server description, we return null, meaning
     // that the client will get an "object not exist" exception.
     //
-    if(!desc.object)
+    if(!desc.obj)
     {
 	return 0;
     }
@@ -99,7 +99,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 		    // server timeout, a crash, or an explicit
 		    // shutdown method.
 		    //
-		    desc.object->ice_ping();
+		    desc.obj->ice_ping();
 
 		    //
 		    // Everything ok, the server is now up and
@@ -143,7 +143,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 
 #endif
 
-    throw LocationForward(desc.object);
+    throw LocationForward(desc.obj);
 }
 
 void

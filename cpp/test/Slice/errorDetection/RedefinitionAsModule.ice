@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-sequence<int> Sequence;
-module Sequence { };
-module Module { };
-module Module { };
+sequence<int> Seq;
+module Seq;
+module Mod { };
+module Mod { };

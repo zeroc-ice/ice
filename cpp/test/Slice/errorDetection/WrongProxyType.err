@@ -1,6 +1,6 @@
-WrongProxyType.ice:16: `Sequence' must be class or interface
-WrongProxyType.ice:17: `Sequence' must be class or interface
-WrongProxyType.ice:18: `Sequence' must be class or interface
-WrongProxyType.ice:20: `Dictionary' must be class or interface
-WrongProxyType.ice:21: `Dictionary' must be class or interface
-WrongProxyType.ice:22: `Dictionary' must be class or interface
+WrongProxyType.ice:16: `Seq' must be class or interface
+WrongProxyType.ice:17: `Seq' must be class or interface
+WrongProxyType.ice:18: `Seq' must be class or interface
+WrongProxyType.ice:20: `Dict' must be class or interface
+WrongProxyType.ice:21: `Dict' must be class or interface
+WrongProxyType.ice:22: `Dict' must be class or interface

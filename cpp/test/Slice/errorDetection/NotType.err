@@ -1,11 +1,11 @@
-NotType.ice:17: `Module' is not a type
-NotType.ice:18: `Module' is not a type
-NotType.ice:19: `Module' is not a type
-NotType.ice:20: `Module' is not a type
+NotType.ice:17: `Mod' is not a type
+NotType.ice:18: `Mod' is not a type
+NotType.ice:19: `Mod' is not a type
+NotType.ice:20: `Mod' is not a type
 NotType.ice:21: `Module3' is not a type
 NotType.ice:21: `Module2' is not a type
 NotType.ice:21: `Module1' is not a type
-NotType.ice:22: `Module' is not a type
+NotType.ice:22: `Mod' is not a type
 NotType.ice:22: `Module3' is not a type
 NotType.ice:22: `Module2' is not a type
 NotType.ice:22: `Module1' is not a type

@@ -106,10 +106,10 @@ MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
     return Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 }
 
-Test::Struct
-MyDerivedClassI::opStruct(const Test::Struct& p1,
-			  const ::Test::Struct& p2,
-			  ::Test::Struct& p3,
+Test::Structure
+MyDerivedClassI::opStruct(const Test::Structure& p1,
+			  const ::Test::Structure& p2,
+			  ::Test::Structure& p3,
 			  const Ice::Current&)
 {
     p3 = p1;

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-class Class
+class C
 {
     void operation();
     void operation();

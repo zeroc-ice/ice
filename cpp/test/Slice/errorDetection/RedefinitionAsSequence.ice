@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-class Class { long l; };
-sequence<int> Class;
+class C { long l; };
+sequence<int> C;
