@@ -2607,16 +2607,13 @@ Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePt
                 out << " = 0.0";
                 break;
             }
+	    case Builtin::KindObject: 
             case Builtin::KindString:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
                 break;
             }
-	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
-	    {
-		assert("Slice classes not support in IceE" == 0);
-	    }
         }
     }
 
@@ -2662,17 +2659,13 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
                 out << nl << "return ::std::string();";
                 break;
             }
+	    case Builtin::KindObject: 
 	    case Builtin::KindObjectProxy:
 	    case Builtin::KindLocalObject:
             {
                 out << nl << "return 0;";
                 break;
             }
-	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
-	    {
-		assert("Slice classes not support in IceE" == 0);
-	    }
-
         }
     }
     else

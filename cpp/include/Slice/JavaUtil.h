@@ -56,6 +56,8 @@ protected:
 
     JavaGenerator(const std::string&);
 
+    JavaGenerator(const std::string&, Slice::FeatureProfile profile);
+
     //
     // Given the fully-scoped Java class name, create any intermediate
     // package directories and open the class file
@@ -139,6 +141,8 @@ protected:
     // Find custom sequence metadata.
     //
     static std::string findMetaData(const StringList&);
+
+    Slice::FeatureProfile _featureProfile;
 
 private:
 

@@ -760,6 +760,17 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE && !local)
+    {
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+	{
+	    string msg = "Sequence `" + name + "' cannot contain object values.";
+	    _unit->error(msg);
+	    return 0;
+	}
+    }
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -809,6 +820,17 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE && !local)
+    {
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(valueType);
+	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(valueType))
+	{
+	    string msg = "Dictionary `" + name + "' cannot contain object values.";
+	    _unit->error(msg);
+	    return 0;
+	}
+    }
+ 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -2526,6 +2548,28 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE)
+    {
+	if(!isLocal())
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+	    if((builtin && builtin->kind() == Builtin::KindObject))
+	    {
+		string msg = "Class data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    } 
+
+	    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
+	    if(classDecl != 0 && !classDecl->isLocal())
+	    {
+		string msg = "Class data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    }
+	}
+    }
+
     assert(!isInterface()); 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2970,6 +3014,28 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE)
+    {
+	if(!isLocal())
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+	    if((builtin && builtin->kind() == Builtin::KindObject))
+	    {
+		string msg = "Exception data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    }
+
+	    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
+	    if(classDecl != 0 && !classDecl->isLocal())
+	    {
+		string msg = "Exception data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    }
+	}
+    }
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3241,6 +3307,27 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE)
+    {
+	if(!isLocal())
+	{	    
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+	    if((builtin && builtin->kind() == Builtin::KindObject))
+	    {
+		string msg = "Struct data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    }
+	    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
+	    if(classDecl != 0 && !classDecl->isLocal())
+	    {
+		string msg = "Struct data member `" + name + "' cannot be a value object.";
+		_unit->error(msg);
+		return 0;
+	    }
+	}
+    }
+ 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4086,6 +4173,29 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 {
     checkPrefix(name);
 
+    if(_unit->profile() == IceE)
+    {
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
+	assert(cl);
+	if(!cl->isLocal())
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+	    if((builtin && builtin->kind() == Builtin::KindObject))
+	    {
+		string msg = "Object `" + name + "' cannot be passed by value.";
+		_unit->error(msg);
+		return 0;
+	    }
+	    ClassDeclPtr classDecl =  ClassDeclPtr::dynamicCast(type);
+	    if(classDecl != 0 && !classDecl->isLocal())
+	    {
+		string msg = "Object `" + name + "' cannot be passed by value.";
+		_unit->error(msg);
+		return 0;
+	    }
+	}
+    }
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -4372,6 +4482,26 @@ Slice::Operation::Operation(const ContainerPtr& container,
     _returnType(returnType),
     _mode(mode)
 {
+    if(_unit->profile() == IceE)
+    {
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
+	assert(cl);
+	if(!cl->isLocal())
+	{
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(returnType);
+	    if((builtin && builtin->kind() == Builtin::KindObject))
+	    {
+		string msg = "Method `" + name + "' cannot return an object by value.";
+		_unit->error(msg);
+	    }
+	    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(returnType);
+	    if(classDecl != 0 && !classDecl->isLocal())
+	    {
+		string msg = "Method `" + name + "' cannot return an object by value.";
+		_unit->error(msg);
+	    }
+	}
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -4970,6 +5100,12 @@ Slice::Unit::usesConsts() const
     return false;
 }
 
+FeatureProfile
+Slice::Unit::profile() const
+{
+    return _featureProfile;
+}
+
 StringList
 Slice::Unit::includeFiles() const
 {
@@ -4977,7 +5113,7 @@ Slice::Unit::includeFiles() const
 }
 
 int
-Slice::Unit::parse(FILE* file, bool debug)
+Slice::Unit::parse(FILE* file, bool debug, Slice::FeatureProfile profile)
 {
     slice_debug = debug ? 1 : 0;
 
@@ -4987,6 +5123,7 @@ Slice::Unit::parse(FILE* file, bool debug)
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
+    _featureProfile = profile;
     pushContainer(this);
     pushDefinitionContext();
 

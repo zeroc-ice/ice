@@ -57,6 +57,12 @@ const IceUtil::Int64 Int16Min = -Int16Max - 1;
 const IceUtil::Int64 ByteMax = 0xff;
 const IceUtil::Int64 ByteMin = 0x00;
 
+SLICE_API enum FeatureProfile
+{
+    Ice,
+    IceE
+};
+
 class GrammarBase;
 class SyntaxTreeBase;
 class Type;
@@ -929,9 +935,11 @@ public:
     bool usesNonLocals() const;
     bool usesConsts() const;
 
-    StringList includeFiles() const;
+    FeatureProfile profile() const;
 
-    int parse(FILE*, bool);
+    StringList includeFiles() const;
+    
+    int parse(FILE*, bool, FeatureProfile profile = Ice);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);
@@ -957,6 +965,7 @@ private:
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
     std::map<std::string, ContainedList> _contentMap;
+    FeatureProfile _featureProfile;
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex

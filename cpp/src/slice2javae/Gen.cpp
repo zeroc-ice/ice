@@ -62,7 +62,7 @@ sliceModeToIceMode(const OperationPtr& op)
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
-    JavaGenerator(dir)
+    JavaGenerator(dir, Slice::IceE)
 {
 }
 
@@ -501,10 +501,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
 	    }
 	}
-	if(op->sendsClasses())
-	{
-	    out << nl << "__is.readPendingObjects();";
-	}
 	    
 	//
 	// Create holders for 'out' parameters.
@@ -558,10 +554,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	if(ret)
 	{
 	    writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter, false, opMetaData);
-	}
-	if(op->returnsClasses())
-	{
-	    out << nl << "__os.writePendingObjects();";
 	}
 	out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
 	    
@@ -1252,31 +1244,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     //
-    // Default factory for non-abstract classes.
-    //
-    if(!p->isAbstract() && !p->isLocal())
-    {
-        out << sp;
-        out << nl << "private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory";
-        out << sb;
-        out << nl << "public Ice.Object" << nl << "create(String type)";
-        out << sb;
-        out << nl << "assert(type.equals(ice_staticId()));";
-        out << nl << "return new " << fixKwd(name) << "();";
-        out << eb;
-        out << sp << nl << "public void" << nl << "destroy()";
-        out << sb;
-        out << eb;
-        out << eb;
-        out << nl << "private static Ice.ObjectFactory _factory = new __F();";
-        out << sp;
-        out << nl << "public static Ice.ObjectFactory" << nl << "ice_factory()";
-        out << sb;
-        out << nl << "return _factory;";
-        out << eb;
-    }
-
-    //
     // Marshalling & dispatch support.
     //
     if(!p->isInterface() && !p->isLocal())
@@ -1566,14 +1533,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         for(d = members.begin(); d != members.end(); ++d)
         {
 	    ostringstream patchParams;
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-	    {
-		if(classMembers.size() > 1 || allClassMembers.size() > 1)
-		{
-		    patchParams << "new Patcher(" << classMemberCount++ << ')';
-		}
-	    }
             StringList metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		    		      patchParams.str());
@@ -1585,16 +1544,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
-	if(p->usesClasses())
-	{
-	    if(!base || base && !base->usesClasses())
-	    {
-		out << sp << nl << "public boolean" << nl << "__usesClasses()";
-		out << sb;
-		out << nl << "return true;";
-		out << eb;
-	    }
-	}
     }
 
     out << eb;
@@ -1842,14 +1791,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         for(d = members.begin(); d != members.end(); ++d)
         {
 	    ostringstream patchParams;
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-	    {
-		if(classMembers.size() > 1)
-		{
-		    patchParams << "new Patcher(" << classMemberCount++ << ')';
-		}
-	    }
             StringList metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		    		      patchParams.str());
@@ -2195,33 +2136,6 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << sb;
         out << nl << "this.value = value;";
         out << eb;
-	if(!p->isLocal())
-	{
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
-	    {
-		out << sp << nl << "public class Patcher implements IceInternal.Patcher";
-		out << sb;
-		out << nl << "public void";
-		out << nl << "patch(Ice.Object v)";
-		out << sb;
-		out << nl << "value = (" << typeS << ")v;";
-		out << eb;
-
-		out << sp << nl << "public String" << nl << "type()";
-		out << sb;
-		out << nl << "return \"" << p->typeId() << "\";";
-		out << eb;
-
-		out << eb;
-
-		out << sp << nl << "public Patcher";
-		out << nl << "getPatcher()";
-		out << sb;
-		out << nl << "return new Patcher();";
-		out << eb;
-	    }
-	}
         out << sp << nl << "public " << typeS << " value;";
         out << eb;
         close();
@@ -2642,11 +2556,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                         break;
                     }
                     case Builtin::KindString:
-                    case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
                     {
                         break;
                     }
+
+		    case Builtin::KindObject:
                     case Builtin::KindLocalObject:
                     {
                         assert(false);
@@ -2811,16 +2726,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                         out << nl << "java.lang.String " << arg << " = __is.readString();";
                         break;
                     }
-                    case Builtin::KindObject:
-                    {
-                        out << nl << "__is.readObject(new Patcher(__r, __key));";
-                        break;
-                    }
                     case Builtin::KindObjectProxy:
                     {
                         out << nl << "Ice.ObjectPrx " << arg << " = __is.readProxy();";
                         break;
                     }
+                    case Builtin::KindObject:
                     case Builtin::KindLocalObject:
                     {
                         assert(false);
@@ -2831,17 +2742,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             else
             {
                 string s = typeToString(type, TypeModeIn, package);
-		BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
-		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
-		{
-		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-					      "new Patcher(__r, __key)");
-		}
-		else
-		{
-		    out << nl << s << ' ' << arg << ';';
-		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
-		}
+		out << nl << s << ' ' << arg << ';';
+		writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
             }
         }
 	if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
@@ -3047,10 +2949,6 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
 					  (*pli)->getMetaData());
 	    }
-	    if(op->sendsClasses())
-	    {
-		out << nl << "__os.writePendingObjects();";
-	    }
 	    out << eb;
 	    out << nl << "catch(Ice.LocalException __ex)";
 	    out << sb;
@@ -3086,33 +2984,12 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         if(ret)
         {
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-	    {
-		out << nl << retS << "Holder __ret = new " << retS << "Holder();";
-		out << nl << "__is.readObject(__ret.getPatcher());";
-	    }
-	    else
-	    {
-		out << nl << retS << " __ret;";
-		writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
-	    }
+	    out << nl << retS << " __ret;";
+	    writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
         }
-	if(op->returnsClasses())
-	{
-	    out << nl << "__is.readPendingObjects();";
-	}
 	if(ret)
 	{
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-	    {
-		out << nl << "return __ret.value;";
-	    }
-	    else
-	    {
-		out << nl << "return __ret;";
-	    }
+	    out << nl << "return __ret;";
 	}
 	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
@@ -3294,13 +3171,17 @@ Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type)
                 break;
             }
             case Builtin::KindString:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
                 out << nl << "return null;";
                 break;
             }
+            case Builtin::KindObject:
+	    {
+		assert("Ice objects cannot be returned by value in IceE." == 0);
+		break;
+	    }
         }
         return;
     }

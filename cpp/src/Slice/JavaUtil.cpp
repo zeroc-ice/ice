@@ -154,6 +154,13 @@ Slice::JavaGenerator::JavaGenerator(const string& dir) :
 {
 }
 
+Slice::JavaGenerator::JavaGenerator(const string& dir, Slice::FeatureProfile profile) :
+    _featureProfile(profile),
+    _dir(dir),
+    _out(0)
+{
+}
+
 Slice::JavaGenerator::~JavaGenerator()
 {
     assert(_out == 0);
@@ -660,28 +667,31 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
             case Builtin::KindObject:
             {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeObject(" << v << ");";
-                }
-                else
-                {
-		    if(holder)
+		if(_featureProfile != Slice::IceE)
+		{
+		    if(marshal)
 		    {
-			out << nl << stream << ".readObject(" << param << ".getPatcher());";
+			out << nl << stream << ".writeObject(" << v << ");";
 		    }
 		    else
 		    {
-                        if(patchParams.empty())
-                        {
-                            out << nl << stream << ".readObject(new Patcher());";
-                        }
-                        else
-                        {
-                            out << nl << stream << ".readObject(" << patchParams << ");";
-                        }
+			if(holder)
+			{
+			    out << nl << stream << ".readObject(" << param << ".getPatcher());";
+			}
+			else
+			{
+			    if(patchParams.empty())
+			    {
+				out << nl << stream << ".readObject(new Patcher());";
+			    }
+			    else
+			    {
+				out << nl << stream << ".readObject(" << patchParams << ");";
+			    }
+			}
 		    }
-                }
+		}
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -723,29 +733,32 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(marshal)
-        {
-            out << nl << stream << ".writeObject(" << v << ");";
-        }
-        else
-        {
-            string typeS = typeToString(type, TypeModeIn, package);
-	    if(holder)
+	if(_featureProfile != Slice::IceE)
+	{
+	    if(marshal)
 	    {
-		out << nl << stream << ".readObject(" << param << ".getPatcher());";
+		out << nl << stream << ".writeObject(" << v << ");";
 	    }
 	    else
 	    {
-                if(patchParams.empty())
-                {
-                    out << nl << stream << ".readObject(new Patcher());";
-                }
-                else
-                {
-                    out << nl << stream << ".readObject(" << patchParams << ");";
-                }
+		string typeS = typeToString(type, TypeModeIn, package);
+		if(holder)
+		{
+		    out << nl << stream << ".readObject(" << param << ".getPatcher());";
+		}
+		else
+		{
+		    if(patchParams.empty())
+		    {
+			out << nl << stream << ".readObject(new Patcher());";
+		    }
+		    else
+		    {
+			out << nl << stream << ".readObject(" << patchParams << ");";
+		    }
+		}
 	    }
-        }
+	}
         return;
     }
 
@@ -1551,28 +1564,31 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
             }
             case Builtin::KindObject:
             {
-                if(marshal)
-                {
-                    out << nl << stream << ".writeObject(" << v << ");";
-                }
-                else
-                {
-                    if(holder)
-                    {
-                        out << nl << stream << ".readObject((Ice.ReadObjectCallback)" << param << ".getPatcher());";
-                    }
-                    else
-                    {
-                        if(patchParams.empty())
-                        {
-                            out << nl << stream << ".readObject(new Patcher());";
-                        }
-                        else
-                        {
-                            out << nl << stream << ".readObject(" << patchParams << ");";
-                        }
-                    }
-                }
+		if(_featureProfile != Slice::IceE)
+		{
+		    if(marshal)
+		    {
+			out << nl << stream << ".writeObject(" << v << ");";
+		    }
+		    else
+		    {
+			if(holder)
+			{
+			    out << nl << stream << ".readObject((Ice.ReadObjectCallback)" << param << ".getPatcher());";
+			}
+			else
+			{
+			    if(patchParams.empty())
+			    {
+				out << nl << stream << ".readObject(new Patcher());";
+			    }
+			    else
+			    {
+				out << nl << stream << ".readObject(" << patchParams << ");";
+			    }
+			}
+		    }
+		}
                 break;
             }
             case Builtin::KindObjectProxy:
@@ -1614,29 +1630,32 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        if(marshal)
-        {
-            out << nl << stream << ".writeObject(" << v << ");";
-        }
-        else
-        {
-            string typeS = typeToString(type, TypeModeIn, package);
-            if(holder)
-            {
-                out << nl << stream << ".readObject(" << param << ".getPatcher());";
-            }
-            else
-            {
-                if(patchParams.empty())
-                {
-                    out << nl << stream << ".readObject(new Patcher());";
-                }
-                else
-                {
-                    out << nl << stream << ".readObject(" << patchParams << ");";
-                }
-            }
-        }
+	if(_featureProfile != Slice::IceE)
+	{
+	    if(marshal)
+	    {
+		out << nl << stream << ".writeObject(" << v << ");";
+	    }
+	    else
+	    {
+		string typeS = typeToString(type, TypeModeIn, package);
+		if(holder)
+		{
+		    out << nl << stream << ".readObject(" << param << ".getPatcher());";
+		}
+		else
+		{
+		    if(patchParams.empty())
+		    {
+			out << nl << stream << ".readObject(new Patcher());";
+		    }
+		    else
+		    {
+			out << nl << stream << ".readObject(" << patchParams << ");";
+		    }
+		}
+	    }
+	}
         return;
     }
 
