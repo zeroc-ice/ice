@@ -15,17 +15,26 @@
 #include <Freeze/Freeze.h>
 #include <list>
 
+class Evictor;
+typedef IceUtil::Handle<Evictor> EvictorPtr;
+
 class Evictor : public Ice::ServantLocator, public JTCMutex
 {
 public:
 
     Evictor(const Freeze::DBPtr&, Ice::Int);
     
+    void createObject(const std::string&, const Ice::ObjectPtr&);
+    void destroyObject(const std::string&);
+
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const std::string&, Ice::ObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&,
 			  const Ice::ObjectPtr&);
 
 private:
+
+    void evict();
+    void add(const std::string&, const Ice::ObjectPtr&);
 
     Freeze::DBPtr _db;
 

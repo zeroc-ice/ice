@@ -17,13 +17,14 @@ class ServantFactory : public Ice::ServantFactory
 {
 public:
 
-    ServantFactory(const PhoneBookIPtr&);
+    ServantFactory(const PhoneBookIPtr&, const EvictorPtr&);
 
     virtual Ice::ObjectPtr create(const std::string&);
 
 private:
 
     PhoneBookIPtr _phoneBook;
+    EvictorPtr _evictor;
 };
 
 #endif

@@ -17,11 +17,6 @@ using namespace std;
 Ice::ObjectPtr
 ServantFactory::create(const string& type)
 {
-    if (type == "::Persistent")
-    {
-	return new Persistent;
-    }
-
-    assert(false);
-    return 0;
+    assert(type == "::Persistent");
+    return new Persistent;
 }

@@ -12,19 +12,15 @@
 
 using namespace std;
 
-ServantFactory::ServantFactory(const PhoneBookIPtr& phoneBook) :
-    _phoneBook(phoneBook)
+ServantFactory::ServantFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+    _phoneBook(phoneBook),
+    _evictor(evictor)
 {
 }
 
 Ice::ObjectPtr
 ServantFactory::create(const string& type)
 {
-    if (type == "::Entry")
-    {
-	return new EntryI(_phoneBook);
-    }
-
-    assert(false);
-    return 0;
+    assert(type == "::Entry");
+    return new EntryI(_phoneBook, _evictor);
 }

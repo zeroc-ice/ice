@@ -9,13 +9,15 @@
 // **********************************************************************
 
 #include <PhoneBookI.h>
+#include <Evictor.h>
 #include <sstream>
 
 using namespace std;
 using namespace Ice;
 
-EntryI::EntryI(const PhoneBookIPtr& phoneBook) :
-    _phoneBook(phoneBook)
+EntryI::EntryI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+    _phoneBook(phoneBook),
+    _evictor(evictor)
 {
 }
 
@@ -73,10 +75,13 @@ EntryI::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phoneBook->remove(_identity, _name);
+    _evictor->destroyObject(_identity);
 }
 
-PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
+    _adapter(adapter),
+    _evictor(evictor),
+    _nextEntryIdentity(0)
 {
 }
 
@@ -96,6 +101,9 @@ PhoneBookI::createEntry()
     string identity = s.str();
 #endif
     
+    EntryPtr entry = new EntryI(this, _evictor);
+    _evictor->createObject(identity, entry);
+
     add(identity, "");
 
     return EntryPrx::uncheckedCast(_adapter->createProxy(identity));
