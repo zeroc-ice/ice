@@ -1,7 +1,7 @@
 <project name="main" default="all" basedir=".">
 
     <!-- install slice2java task -->
-    <taskdef name="slice2java" classname="Slice2JavaTask" />
+    <taskdef name="slice2java" classpath="ant" classname="Slice2JavaTask" />
 
     <!-- set global properties for this build -->
     <property name="slice.dir" value="../ice/slice"/>

@@ -1,14 +1,15 @@
 <project name="demo_Ice_callback" default="all" basedir=".">
 
-    <!-- install slice2java task -->
-    <taskdef name="slice2java" classname="Slice2JavaTask" />
-
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
     <property name="tags.dir" value="${generated.dir}/.tags"/>
+
+    <!-- install slice2java task -->
+    <taskdef name="slice2java" classpath="${top.dir}/ant"
+        classname="Slice2JavaTask" />
 
     <target name="init">
         <!-- Create the time stamp -->
