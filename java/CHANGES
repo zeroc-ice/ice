@@ -1,0 +1,5 @@
+Changes since version 1.0.0
+---------------------------
+
+- Fixed a bug in the ObjectAdapter which caused it to ignore all but the
+  first endpoint.
