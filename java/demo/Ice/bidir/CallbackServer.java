@@ -22,15 +22,20 @@ class CallbackServer extends Ice.Application
 	Thread t = new Thread(sender);
 	t.start();
 
-        communicator().waitForShutdown();
-
-	sender.destroy();
 	try
 	{
-	    t.join();
+	    communicator().waitForShutdown();
 	}
-	catch(java.lang.InterruptedException ex)
+	finally
 	{
+	    sender.destroy();
+	    try
+	    {
+		t.join();
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
 	}
 
         return 0;

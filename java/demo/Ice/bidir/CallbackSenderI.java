@@ -15,65 +15,55 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
     {
 	_destroy = false;
 	_num = 0;
-	_lock = new java.lang.Object();
 	_clients = new java.util.Vector();
     }
 
-    public void
+    synchronized public void
     destroy()
     {
-	synchronized(_lock) // TODO: Make the method synchronized, remove _lock
-	{
-	    System.out.println("destroying callback sender");
-	    _destroy = true;
+	System.out.println("destroying callback sender");
+	_destroy = true;
 
-	    _lock.notify();
-	}
+	this.notify();
     }
 
-    public void
+    synchronized public void
     addClient(Ice.Identity ident, Ice.Current current)
     {
-	synchronized(_lock)
-	{
-	    System.out.println("adding client `" + Ice.Util.identityToString(ident) + "'");
+	System.out.println("adding client `" + Ice.Util.identityToString(ident) + "'");
 
-	    Ice.ObjectPrx base = current.con.createProxy(ident);
-	    CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(base);
-	    _clients.addElement(client);
-	}
+	Ice.ObjectPrx base = current.con.createProxy(ident);
+	CallbackReceiverPrx client = CallbackReceiverPrxHelper.uncheckedCast(base);
+	_clients.addElement(client);
     }
 
-    public void
+    synchronized public void
     run()
     {
-	while(!_destroy) // TODO: Bug, check is not in synchronization.
+	while(!_destroy)
 	{
-	    synchronized(_lock)
+	    try
 	    {
-		try
-		{
-		    _lock.wait(2000);
-		}
-		catch(java.lang.InterruptedException ex)
-		{
-		}
+		this.wait(2000);
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
 
-		if(!_destroy && !_clients.isEmpty())
-		{
-		    ++_num;
+	    if(!_destroy && !_clients.isEmpty())
+	    {
+		++_num;
 
-		    java.util.Iterator p = _clients.iterator();
-		    while(p.hasNext())
+		java.util.Iterator p = _clients.iterator();
+		while(p.hasNext())
+		{
+		    try
 		    {
-			try
-			{
-			    ((CallbackReceiverPrx)p.next()).callback(_num);
-			}
-			catch(Exception ex)
-			{
-			    p.remove(); // TODO: Check if it is legal to remove the current iterator.
-			}
+			((CallbackReceiverPrx)p.next()).callback(_num);
+		    }
+		    catch(Exception ex)
+		    {
+			p.remove();
 		    }
 		}
 	    }
@@ -82,6 +72,5 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 
     private boolean _destroy;
     private int _num;
-    private java.lang.Object _lock; // TODO: remove.
     private java.util.Vector _clients;
 }
