@@ -15,16 +15,9 @@
 #ifndef ICE_PHP_EXCEPTION_H
 #define ICE_PHP_EXCEPTION_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
+#include "common.h"
 
-#include <Ice/Ice.h>
-
-bool Ice_LocalException_init(TSRMLS_DC);
+bool Ice_LocalException_init(TSRMLS_D);
 
 void ice_throw_exception(const IceUtil::Exception& TSRMLS_DC);
 

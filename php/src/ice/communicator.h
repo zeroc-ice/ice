@@ -15,19 +15,13 @@
 #ifndef ICE_PHP_COMMUNICATOR_H
 #define ICE_PHP_COMMUNICATOR_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
-
-#include <Ice/Ice.h>
+#include "common.h"
 
 bool Ice_Communicator_init(TSRMLS_D);
-bool Ice_Communicator_create(TSRMLS_DC);
+bool Ice_Communicator_create(TSRMLS_D);
 Ice::CommunicatorPtr Ice_Communicator_instance(TSRMLS_D);
-//bool Ice_Communicator_shutdown(TSRMLS_D);
+void Ice_Communicator_addRef(TSRMLS_D);
+void Ice_Communicator_decRef(TSRMLS_D);
 
 //
 // Ice_Communicator class methods.

@@ -15,14 +15,7 @@
 #ifndef ICE_PHP_UTIL_H
 #define ICE_PHP_UTIL_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
-
-#include <Ice/Ice.h>
+#include "common.h"
 
 //
 // PHP wrapper for C++ objects.

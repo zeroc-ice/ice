@@ -15,16 +15,9 @@
 #ifndef ICE_PHP_IDENTITY_H
 #define ICE_PHP_IDENTITY_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
+#include "common.h"
 
-#include <Ice/Ice.h>
-
-bool Ice_Identity_init(TSRMLS_DC);
+bool Ice_Identity_init(TSRMLS_D);
 bool Ice_Identity_create(zval*, const Ice::Identity& TSRMLS_DC);
 bool Ice_Identity_extract(zval*, Ice::Identity& TSRMLS_DC);
 

@@ -28,7 +28,7 @@ using namespace std;
 zend_class_entry* Ice_Identity_entry_ptr;
 
 bool
-Ice_Identity_init(TSRMLS_DC)
+Ice_Identity_init(TSRMLS_D)
 {
     //
     // Register the Ice_Identity class.
@@ -140,7 +140,7 @@ ZEND_FUNCTION(Ice_stringToIdentity)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex);
+        ice_throw_exception(ex TSRMLS_CC);
     }
 }
 

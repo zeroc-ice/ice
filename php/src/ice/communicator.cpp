@@ -20,7 +20,6 @@
 #include "proxy.h"
 #include "exception.h"
 #include "util.h"
-#include "php_ice.h"
 
 using namespace std;
 
@@ -68,7 +67,7 @@ Ice_Communicator_init(TSRMLS_D)
 }
 
 bool
-Ice_Communicator_create(TSRMLS_DC)
+Ice_Communicator_create(TSRMLS_D)
 {
     zval* global;
     MAKE_STD_ZVAL(global);
@@ -87,7 +86,7 @@ Ice_Communicator_create(TSRMLS_DC)
     //
     // Register the global variable "ICE" to hold the communicator.
     //
-    ICE_G(z_communicator) = global;
+    ICE_G(communicator) = global;
     ZEND_SET_GLOBAL_VAR("ICE", global);
 
     return true;
@@ -111,7 +110,7 @@ Ice_Communicator_instance(TSRMLS_D)
         {
             try
             {
-                initCommunicator(obj);
+                initCommunicator(obj TSRMLS_CC);
             }
             catch(const IceUtil::Exception& ex)
             {
@@ -127,6 +126,24 @@ Ice_Communicator_instance(TSRMLS_D)
     }
 
     return result;
+}
+
+void
+Ice_Communicator_addRef(TSRMLS_D)
+{
+    zval **zv = NULL;
+    zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
+    assert(zv);
+    Z_OBJ_HT_PP(zv)->add_ref(*zv TSRMLS_CC);
+}
+
+void
+Ice_Communicator_decRef(TSRMLS_D)
+{
+    zval **zv = NULL;
+    zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
+    assert(zv);
+    Z_OBJ_HT_PP(zv)->del_ref(*zv TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_Communicator___construct)
@@ -266,7 +283,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
         {
             try
             {
-                initCommunicator(obj);
+                initCommunicator(obj TSRMLS_CC);
             }
             catch(const IceUtil::Exception& ex)
             {

@@ -44,7 +44,7 @@ static function_entry Ice_LocalException_methods[] =
 };
 
 bool
-Ice_LocalException_init(TSRMLS_DC)
+Ice_LocalException_init(TSRMLS_D)
 {
     //
     // Register the Ice_LocalException class.
