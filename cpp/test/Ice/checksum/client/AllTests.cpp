@@ -31,6 +31,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     //
     cout << "testing checksums... " << flush;
     Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+    test(!localChecksums.empty());
     for(p = localChecksums.begin(); p != localChecksums.end(); ++p)
     {
         string::size_type pos = p->first.find("Local");
