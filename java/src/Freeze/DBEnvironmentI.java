@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class DBEnvironmentI implements DBEnvironment
+class DBEnvironmentI implements DBEnvironment, com.sleepycat.db.DbErrcall
 {
     public String
     getName()
@@ -233,8 +233,19 @@ class DBEnvironmentI implements DBEnvironment
 	    ex.message = _errorPrefix + "DbEnv.open: " + e.getMessage();
 	    throw ex;
 	}
+	
+	_dbEnv.set_errcall(this);
     }
 
+    //
+    // com.sleepycat.db.DbErrcall interface implementation.
+    //
+    public void 
+    errcall(String errorPrefix, String message)
+    {
+	_communicator.getLogger().error("Freeze database error: " + _name + ": " + message);
+    }
+    
     private Ice.Communicator _communicator;
     private int _trace = 0;
     private com.sleepycat.db.DbEnv _dbEnv;
