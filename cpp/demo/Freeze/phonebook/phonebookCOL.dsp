@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
+# ADD LINK32 IceXML101.lib Freeze101.lib Ice101.lib IceUtil101.lib /nologo /subsystem:console /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "phonebookCOL - Win32 Debug"
@@ -77,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 IceXML101d.lib Freeze101d.lib Ice101d.lib IceUtil101d.lib /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
@@ -108,13 +108,6 @@ SOURCE=.\NameIdentitiesDict.cpp
 # Begin Source File
 
 SOURCE=.\Parser.cpp
-
-!IF  "$(CFG)" == "phonebookCOL - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "phonebookCOL - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -273,7 +266,7 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp
+	echo #include "IceUtil/Config.h" > Scanner.cpp 
 	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
@@ -285,7 +278,7 @@ InputPath=.\Scanner.l
 
 "Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	flex Scanner.l 
-	echo #include "IceUtil/Config.h" > Scanner.cpp
+	echo #include "IceUtil/Config.h" > Scanner.cpp 
 	type lex.yy.c >> Scanner.cpp 
 	
 # End Custom Build
