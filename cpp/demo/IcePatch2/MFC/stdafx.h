@@ -1,12 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently,

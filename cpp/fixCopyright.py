@@ -119,11 +119,7 @@ def replaceCopyright(file, commentMark, commentBegin, commentEnd, newCopyrightLi
         # Hack to keep the .err files
         #
         if fnmatch.fnmatch(file, "*test/Slice/errorDetection/*.ice") > 0: 
-        	newFile.write("\n")
-		newFile.write("\n")
             	newFile.write("\n")
-            	newFile.write("\n")
-                newFile.write("\n")
 
         newFile.writelines(newLines)
         newFile.close()        
