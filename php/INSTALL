@@ -49,20 +49,19 @@ Updating configure
 ------------------
 
 In order to make the PHP build system aware of the Ice extension, the
-configure script must be updated. If you have the necessary tools
-installed on your system (e.g., autoconf, etc.), you can regenerate
-the script using the following commands:
-
-$ cd <phpdir>
-$ rm -rf configure autom4te.cache
-$ ./buildconf --force
-
-Alternatively, you can use the configure script supplied in the IcePHP
-source distribution:
+configure script must be updated. The IcePHP distribution includes a
+replacement script that you can install:
 
 $ cd <phpdir>
 $ cp <icephpdir>/configure.gz .
 $ gunzip configure
+
+Alternatively, you can regenerate the configure script yourself if
+you have the necessary utilities installed on your system:
+
+$ cd <phpdir>
+$ rm -rf configure autom4te.cache
+$ ./buildconf --force
 
 Running configure
 -----------------
