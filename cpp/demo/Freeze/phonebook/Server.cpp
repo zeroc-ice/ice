@@ -63,7 +63,7 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Create an Object Adapter, use the Evictor as Servant Locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBookAdapter");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
     adapter->addServantLocator(evictor, "contact");
     
     //

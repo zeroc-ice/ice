@@ -17,19 +17,19 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* refProperty = "Latency.Ping";
-    std::string ref = properties->getProperty(refProperty);
-    if(ref.empty())
+    const char* proxyProperty = "Latency.Ping";
+    std::string proxy = properties->getProperty(proxyProperty);
+    if(proxy.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 

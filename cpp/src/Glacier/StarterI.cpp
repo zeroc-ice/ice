@@ -59,6 +59,19 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     _certContext.setSecondsValid(issuedAdjust);
 }
 
+static bool
+prefixOK(const string& property)
+{
+    if(property.find("--Ice.") == 0)
+	return false;
+    if(property.find("--IceSSL.") == 0)
+	return false;
+    if(property.find("--Glacier.Router") == 0)
+	return false;
+
+    return true;
+}
+
 void
 Glacier::StarterI::destroy()
 {
@@ -173,6 +186,13 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// Setup arguments to start the router with.
 	//
 	StringSeq args = _properties->getCommandLineOptions();
+
+	//
+	// Filter all arguments that don't start with "--Ice.",
+	// "--IceSSL.", or "--Glacier.Router.".
+	//
+	args.erase(remove_if(args.begin(), args.end(), prefixOK), args.end());
+
 	args.push_back("--Glacier.Router.Identity=" + uuid);
 
         //

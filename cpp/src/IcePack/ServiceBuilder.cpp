@@ -70,13 +70,24 @@ IcePack::ServiceHandler::startElement(const XMLCh *const name, AttributeList &at
 	    _builder.setDBEnv(getAttributeValueWithDefault(attrs, "dbenv", ""));
 	}
 	
-	_builder.createConfigFile("/config/config_" + _builder.substitute("${name}"));
+	_builder.createConfigFile(_builder.substitute("/config/config_${name}"));
 	_builder.setEntryPoint(getAttributeValue(attrs, "entry"));
     }
     else if(str == "adapter")
     {
-	_builder.getServerBuilder().registerAdapter(getAttributeValue(attrs, "name"), 
-						    getAttributeValueWithDefault(attrs, "endpoints", ""));
+	string name = getAttributeValue(attrs, "name");
+	string id = getAttributeValueWithDefault(attrs, "id", "");
+
+	//
+	// If the adapter id is not specified or empty, generate one
+	// from the server, service and adapter name: <adapter
+	// name>-<server name>-<service name>
+	//
+	if(id.empty())
+	{
+	    id = name + "-" + _builder.getServerBuilder().substitute("${name}") + _builder.substitute("${name}");
+	}
+	_builder.getServerBuilder().registerAdapter(name, getAttributeValue(attrs, "endpoints"), id);
     }
 }
 

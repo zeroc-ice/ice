@@ -25,19 +25,19 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     args = properties->parseCommandLineOptions("IceStorm", args);
     stringSeqToArgs(args, argc, argv);
 
-    const char* managerReferenceProperty = "IceStorm.TopicManager";
-    string managerReference = properties->getProperty(managerReferenceProperty);
-    if(managerReference.empty())
+    const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
+    string managerProxy = properties->getProperty(managerProxyProperty);
+    if(managerProxy.empty())
     {
-	cerr << argv[0] << ": property `" << managerReferenceProperty << "' is not set" << endl;
+	cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerReference);
+    ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << argv[0] << ": `" << managerReference << "' is not running" << endl;
+	cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 

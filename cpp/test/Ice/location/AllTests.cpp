@@ -15,10 +15,9 @@
 using namespace std;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 {
-    ServerManagerPrx manager = ServerManagerPrx::checkedCast(
-	communicator->stringToProxy("servermanager :default -t 10000 -p 12345"));
+    ServerManagerPrx manager = ServerManagerPrx::checkedCast(communicator->stringToProxy(ref));
     test(manager);
 
     //

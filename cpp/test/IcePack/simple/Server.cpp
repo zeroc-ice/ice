@@ -17,8 +17,8 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.Adapter.TestAdapter.Endpoints", "default -t 2000");
-    properties->setProperty("Ice.Adapter.TestAdapter.Locator", properties->getProperty("Ice.Default.Locator"));
+    properties->setProperty("TestAdapter.Endpoints", "default -t 2000");
+    properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);

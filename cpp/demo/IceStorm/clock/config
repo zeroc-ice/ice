@@ -1,13 +1,19 @@
 #
-# This property defines the endpoints on which the IceStorm
-# TopicManager listens.
+# This property is used to configure the endpoints of the clock
+# subscriber adapter.
 #
-IceStorm.TopicManager.Endpoints=default -p 10000
+Clock.Subscriber.Endpoints=tcp
 
 #
 # This property is used by the clients to connect to IceStorm.
 #
-IceStorm.TopicManager=IceStorm.TopicManager: default -p 10000
+IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000
+
+#
+# This property defines the endpoints on which the IceStorm
+# TopicManager listens.
+#
+IceStorm.TopicManager.Endpoints=default -p 10000
 
 #
 # TopicManager Tracing

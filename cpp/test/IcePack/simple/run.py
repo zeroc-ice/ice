@@ -40,10 +40,9 @@ if os.path.exists(os.path.join(testdir, "db/registry")):
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
 
 #
-# Test client/server, collocated without on demand activation.
+# Test client/server without on demand activation.
 #
 TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
-TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
 # Shutdown the registry.

@@ -121,10 +121,10 @@ The request retry tracing level:
 <section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
+<section><title><replaceable>name</replaceable>.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</replaceable>
+<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
@@ -132,17 +132,15 @@ Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</re
 <para>
 Sets the endpoints for the object adapter
 <replaceable>name</replaceable> to
-<replaceable>endpoints</replaceable>, provided that such object adapter
-has been created with
-<literal>Ice::Communicator::createObjectAdapter</literal>.
+<replaceable>endpoints</replaceable>.
 </para>
 </section>
 </section>
 
-<section><title>Ice.Adapter.<replaceable>name</replaceable>.Router</title>
+<section><title><replaceable>name</replaceable>.Router</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replaceable>
+<replaceable>name</replaceable>.Router=<replaceable>router</replaceable>
 </synopsis>
 </section>
 <section>
@@ -162,10 +160,10 @@ router. </para></note>
 </section>
 </section>
 
-<section><title>Ice.Adapter.<replaceable>name</replaceable>.Locator</title>
+<section><title><replaceable>name</replaceable>.Locator</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Adapter.<replaceable>name</replaceable>.Locator=<replaceable>locator</replaceable>
+<replaceable>name</replaceable>.Locator=<replaceable>locator</replaceable>
 </synopsis>
 </section>
 <section>
@@ -173,11 +171,26 @@ Ice.Adapter.<replaceable>name</replaceable>.Locator=<replaceable>locator</replac
 <para>
 Specifies a locator (as stringified proxy to the &Ice; locator
 interface) for the object adapter with the name
-<replaceable>name</replaceable>. By doing so, the object adapter will
-register itself and its endpoints with the locator registry from this
-locator. To prevent the object adapter to register its endpoints with
-the locator registry you can set <replaceable>locator</replaceable> to
-0.
+<replaceable>name</replaceable>.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.AdapterId</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.AdapterId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies an identity for the object adapter with the name
+<replaceable>name</replaceable>. This identity needs to be 
+unique among object adapters using a same locator instance. If the
+default locator or the object adapter locator is set, the object
+adapter will set its endpoints with the locator registry when it's
+activated.
 </para>
 </section>
 </section>
@@ -790,24 +803,6 @@ There are no default values for these properties.
 <section><title>&IceBox; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IceBox.Name</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceBox.Name=<replaceable>name</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the name of the &IceBox; server. This property needs to be set
-if the &IceBox; server is used with the locator to uniquely identify
-the service manager object adapter. It's also used to create a unique
-service manager object identity if the property
-<literal>IceBox.ServiceManager.Identity</literal> is not specified.
-</para>
-</section>
-</section>
-
 <section><title>IceBox.ServiceManager.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -833,12 +828,82 @@ IceBox.ServiceManager.Identity=<replaceable>identity</replaceable>
 <section>
 <title>Description</title>
 <para>
-The identity of the service manager interface. If not specified and if
-<literal>IceBox.Name</literal> is specified, the identity will be
-<literal>ServiceManager</literal> prefixed with the value of the
-<literal>IceBox.Name</literal> property. If
-<literal>IceBox.Name</literal> is not specified the default value
-<literal>ServiceManager</literal> is used.
+The identity of the service manager interface. If not specified the
+default value <literal>ServiceManager</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.PrintServicesReady</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.PrintServicesReady=<replaceable>token</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The service manager will print "<replaceable>token</replaceable>
+ready" on standard output after initialization of all the service is
+done. This is useful for scripts that wish to wait until all services
+are ready to be used.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.Service.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point [args]</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines a service to be loaded during the &IceBox; initialization.
+</para>
+<para>
+In C++, <replaceable>entry_point</replaceable> has the form
+<literal>library:symbol</literal>. The <literal>library</literal>
+component is the name of a shared library or DLL. The
+<literal>symbol</literal> component is the name of a factory
+function used to create the service.
+</para>
+<para>
+In Java, <replaceable>entry_point</replaceable> is the name of the
+service implementation class.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.DBEnvName.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.DBEnvName.<replaceable>name</replaceable>=<replaceable>db</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the database environment directory for the &Freeze; service
+with the name <replaceable>name</replaceable>.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.UseSharedCommunicator.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.UseSharedCommunicator.<replaceable>name</replaceable>=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the service manager will supply the service with the name
+<replaceable>name</replaceable> a communicator wich might be shared by
+other services.
 </para>
 </section>
 </section>

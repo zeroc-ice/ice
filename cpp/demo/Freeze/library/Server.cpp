@@ -63,7 +63,7 @@ LibraryServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Create an Object Adapter, use the Evictor as Servant Locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("LibraryAdapter");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
     adapter->addServantLocator(evictor, "book");
     
     //

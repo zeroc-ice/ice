@@ -28,7 +28,6 @@ public:
 
     virtual void start(const ::std::string&,
 		       const ::Ice::CommunicatorPtr&,
-		       const ::Ice::PropertiesPtr&,
 		       const ::Ice::StringSeq&);
 
     virtual void stop();

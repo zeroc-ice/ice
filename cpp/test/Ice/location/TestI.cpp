@@ -31,7 +31,9 @@ ServerManagerI::startServer(const Ice::Current&)
     // the adapter id instead of the endpoints.
     //
     _serverCommunicator = Ice::initialize(argc, argv);
-    Ice::ObjectAdapterPtr adapter = _serverCommunicator->createObjectAdapterWithEndpoints("TestAdapter", "default");
+    _serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
+    _serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
+    Ice::ObjectAdapterPtr adapter = _serverCommunicator->createObjectAdapter("TestAdapter");
 
     Ice::ObjectPrx locator = _serverCommunicator->stringToProxy("locator:default -p 12345");
     adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));

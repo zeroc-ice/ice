@@ -37,7 +37,7 @@ private:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("HelloSessionManagerAdapter");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("HelloSessionManager");
 
     //
     // Create the SessionManager.

@@ -16,8 +16,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    string endpts = "default -p 12345 -t 2000";
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new ThrowerI(adapter);
     adapter->add(object, Ice::stringToIdentity("thrower"));
 

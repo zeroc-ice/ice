@@ -35,19 +35,19 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* refProperty = "Hello.Hello";
-    std::string ref = properties->getProperty(refProperty);
-    if(ref.empty())
+    const char* proxyProperty = "Hello.Proxy";
+    std::string proxy = properties->getProperty(proxyProperty);
+    if(proxy.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
     HelloPrx oneway = HelloPrx::uncheckedCast(twoway->ice_oneway());

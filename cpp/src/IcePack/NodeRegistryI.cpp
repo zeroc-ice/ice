@@ -81,7 +81,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 
     try
     {
-	_adapterRegistry->findByName("IcePackNodeAdapter." + name);
+	_adapterRegistry->findByName("IcePack.Node-" + name);
 
 	//
 	// TODO: ensure this adapter has been created by the adapter
@@ -100,7 +100,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	AdapterPrx adapter = _adapterFactory->createStandaloneAdapter("IcePackNodeAdapter." + name);
 	try
 	{
-	    _adapterRegistry->add("IcePackNodeAdapter." + name, adapter);
+	    _adapterRegistry->add("IcePack.Node-" + name, adapter);
 	}
 	catch(const AdapterExistsException&)
 	{
@@ -133,9 +133,9 @@ IcePack::NodeRegistryI::remove(const string& name, const Ice::Current&)
     //
     try
     {
-	AdapterPrx adapter = _adapterRegistry->findByName("IcePackNodeAdapter." + name);
+	AdapterPrx adapter = _adapterRegistry->findByName("IcePack.Node-" + name);
 	adapter->destroy();
-	_adapterRegistry->remove("IcePackNodeAdapter." + name);
+	_adapterRegistry->remove("IcePack.Node-" + name);
     }
     catch(const AdapterNotExistException&)
     {

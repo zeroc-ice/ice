@@ -1,7 +1,7 @@
 <server kind="cpp">
 
   <adapters>
-    <adapter name="TestAdapter"/>
+    <adapter name="TestAdapter" endpoints="default" id="TestAdapter"/>
   </adapters>
 
   <target name="debug">

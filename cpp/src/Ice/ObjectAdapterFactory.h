@@ -22,7 +22,7 @@ class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 public:
 
     void shutdown();
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&, const std::string&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
 
 private:

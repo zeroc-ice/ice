@@ -31,7 +31,6 @@ public:
 
     virtual void start(const string&,
                       const CommunicatorPtr&,
-                      const PropertiesPtr&,
                       const StringSeq&);
 
     virtual void stop();
@@ -46,7 +45,6 @@ public:
 
     virtual void start(const string&,
 		       const CommunicatorPtr&,
-		       const PropertiesPtr&,
 		       const StringSeq&,
 		       const Freeze::DBEnvironmentPtr&);
 
@@ -84,11 +82,10 @@ ServiceI::~ServiceI()
 void
 ServiceI::start(const string& name,
 		const CommunicatorPtr& communicator,
-		const PropertiesPtr& properties,
 		const StringSeq& args)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name + "Adapter");
-    Ice::ObjectPtr object = new TestI(adapter, properties);
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
+    Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());
     adapter->add(object, Ice::stringToIdentity(name));
     adapter->activate();
 }
@@ -109,7 +106,6 @@ FreezeServiceI::~FreezeServiceI()
 void
 FreezeServiceI::start(const string& name,
 		      const CommunicatorPtr& communicator,
-		      const PropertiesPtr& properties,
 		      const StringSeq& args,
 		      const Freeze::DBEnvironmentPtr& dbEnv)
 {
@@ -118,8 +114,8 @@ FreezeServiceI::start(const string& name,
     //
     Freeze::DBPtr db = dbEnv->openDB("testdb", true);
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name + "Adapter");
-    Ice::ObjectPtr object = new TestI(adapter, properties);
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
+    Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());
     adapter->add(object, Ice::stringToIdentity(name));
     adapter->activate();
 }

@@ -34,7 +34,7 @@ void
 allCommonTests(const Ice::CommunicatorPtr& communicator)
 {
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
-	communicator->stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
+	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
     test(admin);
 
     cout << "test server registration..." << flush;
@@ -56,7 +56,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     Yellow::QueryPrx yellow = Yellow::QueryPrx::checkedCast(
-	communicator->stringToProxy("Yellow/Query@YellowQueryAdapter"));
+	communicator->stringToProxy("Yellow/Query@Yellow.Query"));
     test(yellow);
 
     cout << "testing offer registration... " << flush;
@@ -127,7 +127,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     allCommonTests(communicator);
 
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
-	communicator->stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
+	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
     test(admin);
 
     cout << "pinging server objects... " << flush;

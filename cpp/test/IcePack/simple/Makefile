@@ -12,9 +12,8 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
-COLLOCATED	= collocated
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Test.o \
 
@@ -24,14 +23,9 @@ COBJS		= Client.o \
 SOBJS		= TestI.o \
 		  Server.o
 
-COLOBJS		= TestI.o \
-		  Collocated.o \
-		  AllTests.o
-
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
-		  $(COLOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
 
@@ -46,10 +40,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-$(COLLOCATED): $(OBJS) $(COLOBJS)
-	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(LIBS)
 
 Test.h Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f Test.h Test.cpp

@@ -62,8 +62,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     ostringstream endpts;
-    endpts << "default -p " << port;
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts.str());
+    endpts << "default  -p " << port;
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter, fwd);
     adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();

@@ -37,7 +37,7 @@ iceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
 iceStormService=" --IceBox.Service.IceStorm=IceStormService:create" + \
                 ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
 		" --IceBox.PrintServicesReady=IceStorm"
-iceStormReference=' --IceStorm.TopicManager="IceStorm.TopicManager: default -p 12346"'
+iceStormReference=' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager: default -p 12346"'
 
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)

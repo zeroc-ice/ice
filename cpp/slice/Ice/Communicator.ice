@@ -132,63 +132,17 @@ local interface Communicator
      *
      * Create a new object adapter. The endpoints for the object
      * adapter are taken from the property
-     * <literal>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</literal>,
-     * with <replaceable>name</replaceable> being the name of the
-     * object adapter.
+     * <literal><replaceable>name</replaceable>.Endpoints</literal>.
      *
-     * @param name The name to use for the object adapter. This name
-     * must be unique for the communicator.
+     * @param name The object adapter name.
      *
      * @return The new object adapter.
      *
      * @see ObjectAdapter
      * @see Properties
-     * @see createObjectAdapterFromProperty
-     * @see createObjectAdapterWithEndpoints
      *
      **/
     ObjectAdapter createObjectAdapter(string name);
-
-    /**
-     *
-     * Create a new object adapter from a property. The endpoints for
-     * the object adapter are taken from the property
-     * <replaceable>property</replaceable>.
-     *
-     * @param name The name to use for the object adapter. This name
-     * must be unique for the communicator.
-     *
-     * @param property The property from which the endpoints are taken.
-     *
-     * @return The new object adapter.
-     *
-     * @see Properties
-     * @see ObjectAdapter
-     * @see createObjectAdapterWithEndpoints
-     *
-     **/
-    ObjectAdapter createObjectAdapterFromProperty(string name, string property);
-
-    /**
-     *
-     * Create a new object adapter with a list of endpoints. In
-     * contrast to [createObjectAdapter] and
-     * [createObjectAdapterFromProperty], the endpoints to use are
-     * passed explicitly as a parameter.
-     *
-     * @param name The name to use for the object adapter. This name
-     * must be unique for the communicator.
-     *
-     * @param endpts The list of endpoints for the object adapter.
-     *
-     * @return The new object adapter.
-     *
-     * @see ObjectAdapter
-     * @see createObjectAdapter
-     * @see createObjectAdapterFromProperty
-     *
-     **/
-    ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpts);
 
     /**
      *

@@ -157,19 +157,19 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    const char* managerReferenceProperty = "IceStorm.TopicManager";
-    string managerReference = properties->getProperty(managerReferenceProperty);
-    if(managerReference.empty())
+    const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
+    string managerProxy = properties->getProperty(managerProxyProperty);
+    if(managerProxy.empty())
     {
-	cerr << appName() << ": property `" << managerReferenceProperty << "' is not set" << endl;
+	cerr << appName() << ": property `" << managerProxyProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy(managerReference);
+    ObjectPrx base = communicator()->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << appName() << ": `" << managerReference << "' is not running" << endl;
+	cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 

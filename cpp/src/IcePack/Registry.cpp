@@ -94,32 +94,28 @@ IcePack::Registry::start(bool nowarn)
     //
     // Check that required properties are set and valid.
     //
-    string registryEndpoints = properties->getProperty("IcePack.Registry.Internal.Endpoints");
-    if(registryEndpoints.empty())
+    if(properties->getProperty("IcePack.Registry.Internal.Endpoints").empty())
     {
 	Ice::Error out(_communicator->getLogger());
 	out << "property `IcePack.Registry.Internal.Endpoints' is not set";
 	return false;
     }
 
-    string locatorEndpoints = properties->getProperty("IcePack.Registry.Locator.Endpoints");
-    if(locatorEndpoints.empty())
+    if(properties->getProperty("IcePack.Registry.Locator.Endpoints").empty())
     {
 	Ice::Error out(_communicator->getLogger());
 	out << "property `IcePack.Registry.Locator.Endpoints' is not set";
 	return false;
     }
 
-    string locatorRegistryEndpoints = properties->getProperty("IcePack.Registry.LocatorRegistry.Endpoints");
-    if(locatorRegistryEndpoints.empty())
+    if(properties->getProperty("IcePack.Registry.LocatorRegistry.Endpoints").empty())
     {
 	Ice::Error out(_communicator->getLogger());
 	out << "property `IcePack.Registry.LocatorRegistry.Endpoints' is not set";
 	return false;
     }
 
-    string adminEndpoints = properties->getProperty("IcePack.Registry.Admin.Endpoints");
-    if(!adminEndpoints.empty())
+    if(!properties->getProperty("IcePack.Registry.Admin.Endpoints").empty())
     {
 	if(!nowarn)
 	{
@@ -140,8 +136,8 @@ IcePack::Registry::start(bool nowarn)
     //
     // Create the internal registries (node, server, adapter).
     //
-    Ice::ObjectAdapterPtr registryAdapter = 
-	_communicator->createObjectAdapterWithEndpoints("IcePackRegistryAdapter", registryEndpoints);
+    properties->setProperty("IcePack.Registry.Internal.AdapterId", "IcePack.Registry.Internal");
+    Ice::ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IcePack.Registry.Internal");
 
     AdapterFactoryPtr adapterFactory = new AdapterFactory(registryAdapter, traceLevels, _dbEnv);    
 
@@ -162,8 +158,8 @@ IcePack::Registry::start(bool nowarn)
     // NOTE: the locator registry uses the registry object adapter
     // to activate standalone object adapters.
     //
-    Ice::ObjectAdapterPtr locatorRegistryAdapter =
-	_communicator->createObjectAdapterWithEndpoints("IcePackLocatorRegistryAdapter",locatorRegistryEndpoints);
+    Ice::ObjectAdapterPtr locatorRegistryAdapter = 
+	_communicator->createObjectAdapter("IcePack.Registry.LocatorRegistry");
     
     Ice::Identity locatorRegistryId;
     locatorRegistryId.category = "IcePack";
@@ -176,8 +172,7 @@ IcePack::Registry::start(bool nowarn)
     // Create the locator registry adapter and the locator
     // registry servant.
     //
-    Ice::ObjectAdapterPtr locatorAdapter = 
-	_communicator->createObjectAdapterWithEndpoints("IcePackLocatorAdapter", locatorEndpoints);
+    Ice::ObjectAdapterPtr locatorAdapter = _communicator->createObjectAdapter("IcePack.Registry.Locator");
     
     Ice::Identity locatorId;
     locatorId.category = "IcePack";
@@ -189,37 +184,37 @@ IcePack::Registry::start(bool nowarn)
     //
     // Create the admin adapter and admin servant.
     //
-    Ice::ObjectAdapterPtr adminAdapter = 
-	_communicator->createObjectAdapterWithEndpoints("IcePackAdminAdapter", adminEndpoints);
+    properties->setProperty("IcePack.Registry.Admin.AdapterId", "IcePack.Registry.Admin");
+    Ice::ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IcePack.Registry.Admin");
 
     AdminPtr admin = new AdminI(_communicator, nodeRegistry, serverRegistry, adapterRegistry);
     adminAdapter->add(admin, Ice::stringToIdentity("IcePack/Admin"));
     
     //
-    // Register the IcePackRegistryAdapter adapter and
-    // IcePackAdminAdapter with the adapter registry so that they can
+    // Register the IcePack.Registry.Internal adapter and
+    // IcePack.Registry.Admin with the adapter registry so that they can
     // be located by clients.
     //
     try
     {
-	adapterRegistry->remove("IcePackRegistryAdapter");
+	adapterRegistry->remove("IcePack.Registry.Internal");
     }
     catch(const AdapterNotExistException&)
     {
     }
     try
     {
-	adapterRegistry->remove("IcePackAdminAdapter");
+	adapterRegistry->remove("IcePack.Registry.Admin");
     }
     catch(const AdapterNotExistException&)
     {
     }
     
-    adapterRegistry->add("IcePackRegistryAdapter", AdapterPrx::uncheckedCast(
+    adapterRegistry->add("IcePack.Registry.Internal", AdapterPrx::uncheckedCast(
 			     locatorRegistryAdapter->addWithUUID(new StandaloneAdapterI())));
-    adapterRegistry->add("IcePackAdminAdapter", AdapterPrx::uncheckedCast(
+    adapterRegistry->add("IcePack.Registry.Admin", AdapterPrx::uncheckedCast(
 			     locatorRegistryAdapter->addWithUUID(new StandaloneAdapterI())));
-    
+
     //
     // Set the locator on the registry and admin adapter. This should
     // cause the adapters to register their endpoints with the locator

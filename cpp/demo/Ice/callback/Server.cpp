@@ -31,7 +31,7 @@ main(int argc, char* argv[])
 int
 CallbackServer::run(int argc, char* argv[])
 {
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Server");
     CallbackPrx self = CallbackPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("callback")));
     adapter->add(new CallbackI(communicator()), Ice::stringToIdentity("callback"));
     adapter->activate();

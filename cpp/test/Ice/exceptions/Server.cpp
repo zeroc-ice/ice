@@ -18,8 +18,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     properties->setProperty("Ice.ConnectionWarnings", "0");
-    string endpts = "default -p 12345 -t 2000";
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new ThrowerI(adapter);
     adapter->add(object, Ice::stringToIdentity("thrower"));
     adapter->activate();

@@ -32,23 +32,23 @@ int
 NestedClient::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    const char* refProperty = "Nested.NestedServer";
-    std::string ref = properties->getProperty(refProperty);
-    if(ref.empty())
+    const char* proxyProperty = "Nested.Client.NestedServer";
+    std::string proxy = properties->getProperty(proxyProperty);
+    if(proxy.empty())
     {
-	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
+	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy(ref);
+    ObjectPrx base = communicator()->stringToProxy(proxy);
     NestedPrx nested = NestedPrx::checkedCast(base);
     if(!nested)
     {
-	cerr << appName() << ": invalid object reference" << endl;
+	cerr << appName() << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("NestedClientAdapter");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Client");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("nestedClient")));
     adapter->add(new NestedI(self), Ice::stringToIdentity("nestedClient"));
     adapter->activate();

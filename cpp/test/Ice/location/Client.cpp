@@ -17,8 +17,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    void allTests(const Ice::CommunicatorPtr&, const string&);
+    allTests(communicator, "ServerManager:default -p 12345 -t 10000");
     return EXIT_SUCCESS;
 }
 

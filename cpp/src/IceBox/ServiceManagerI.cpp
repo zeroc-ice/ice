@@ -34,9 +34,6 @@ IceBox::ServiceManagerI::ServiceManagerI(Application* server, int& argc, char* a
     {
         _argv.push_back(argv[i]);
     }
-
-    PropertiesPtr properties = _server->communicator()->getProperties();
-    _options = properties->getCommandLineOptions();
 }
 
 IceBox::ServiceManagerI::~ServiceManagerI()
@@ -56,34 +53,16 @@ IceBox::ServiceManagerI::run()
     {
         ServiceManagerPtr obj = this;
 
-	//
-	// TODO: Simplify configuration, this is way too complicated. We
-	// should most likely have only two configuration properties, one
-	// for the identity and the other one for the endpoints.
-	//
-
-	//
-	// Prefix the adapter name and object identity with the value
-	// of the IceBox.Name property.
-	//
-        PropertiesPtr properties = _server->communicator()->getProperties();
-	string namePrefix = properties->getProperty("IceBox.Name");
-	if(!namePrefix.empty())
-	{
-	    namePrefix += ".";
-	}
-
         //
         // Create an object adapter. Services probably should NOT share
         // this object adapter, as the endpoint(s) for this object adapter
         // will most likely need to be firewalled for security reasons.
         //
-        ObjectAdapterPtr adapter = 
-	    _server->communicator()->createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
-								     "IceBox.ServiceManager.Endpoints");
+        ObjectAdapterPtr adapter = _server->communicator()->createObjectAdapter("IceBox.ServiceManager");
 
-	string identity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", 
-							     namePrefix + "ServiceManager");
+	PropertiesPtr properties = _server->communicator()->getProperties();
+
+	string identity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
         adapter->add(obj, stringToIdentity(identity));
 
         //
@@ -189,26 +168,14 @@ void
 IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, const StringSeq& args)
 {
     //
-    // We need to create a property set to pass to start().
-    // The property set is populated from a number of sources.
-    // The precedence order (from lowest to highest) is:
-    //
-    // 1. Properties defined in the server property set (e.g.,
-    //    that were defined in the server's configuration file)
-    // 2. Service arguments
-    // 3. Server arguments
-    //
-    // We'll compose an array of arguments in the above order.
+    // Create the service property set from the service arguments and
+    // the server arguments. The service property set will be use to
+    // create a new communicator or we be added to the shared
+    // communicator depending on the value of the
+    // IceBox.UseSharedCommunicator property.
     //
     StringSeq serviceArgs;
     StringSeq::size_type j;
-    for(j = 0; j < _options.size(); j++)
-    {
-        if(_options[j].find("--" + service + ".") == 0)
-        {
-            serviceArgs.push_back(_options[j]);
-        }
-    }
     for(j = 0; j < args.size(); j++)
     {
         serviceArgs.push_back(args[j]);
@@ -222,13 +189,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     }
 
     //
-    // Create the service property set.
-    //
-    PropertiesPtr serviceProperties = createProperties(serviceArgs);
-    serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
-    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
-
-    //
     // Load the entry point.
     //
     DynamicLibraryPtr library = new DynamicLibrary();
@@ -236,7 +196,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     if(sym == 0)
     {
         string msg = library->getErrorMessage();
-        FailureException ex;
+        FailureException ex(__FILE__, __LINE__);
         ex.reason = "ServiceManager: unable to load entry point `" + entryPoint + "'";
         if(!msg.empty())
         {
@@ -256,13 +216,13 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     }
     catch(const Exception& ex)
     {
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
         throw e;
     }
     catch (...)
     {
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: unknown exception in entry point `" + entryPoint + "'";
         throw e;
     }
@@ -272,13 +232,48 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     try
     {
+	//
+	// If Ice.UseSharedCommunicator.<name> is defined create a
+	// communicator for the service. The communicator inherits
+	// from the shared communicator properties. If it's not
+	// defined, add the service properties to the shared
+	// commnunicator property set.
+	//
+	PropertiesPtr properties = _server->communicator()->getProperties();
+	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+	{
+	    Ice::PropertiesPtr fileProperties = Ice::createProperties(serviceArgs);
+	    properties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
+
+	    serviceArgs = properties->parseCommandLineOptions("Ice", serviceArgs);
+	    serviceArgs = properties->parseCommandLineOptions(service, serviceArgs);
+	}
+	else
+	{
+	    int argc = 0;
+	    char **argv = 0;
+	    
+	    Ice::PropertiesPtr serviceProperties = properties->clone();
+
+	    Ice::PropertiesPtr fileProperties = Ice::createProperties(serviceArgs);
+	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
+
+	    serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
+	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
+
+	    info.communicator = initializeWithProperties(argc, argv, serviceProperties);
+	}
+	
+	Ice::CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();
+
         ::IceBox::ServicePtr s = ::IceBox::ServicePtr::dynamicCast(info.service);
+
         if(s)
 	{
 	    //
 	    // IceBox::Service
 	    //
-            s->start(service, _server->communicator(), serviceProperties, serviceArgs);
+            s->start(service, communicator, serviceArgs);
 	}
 	else
 	{
@@ -290,32 +285,16 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    //
             ::IceBox::FreezeServicePtr fs = ::IceBox::FreezeServicePtr::dynamicCast(info.service);
 
-	    PropertiesPtr properties = _server->communicator()->getProperties();
-	    string propName = "IceBox.DBEnvName." + service;
-	    info.dbEnvName = properties->getProperty(propName);
+	    info.dbEnv = ::Freeze::initialize(communicator, properties->getProperty("IceBox.DBEnvName." + service));
 
-	    DBEnvironmentInfo dbInfo;
-	    map<string,DBEnvironmentInfo>::iterator r = _dbEnvs.find(info.dbEnvName);
-	    if(r == _dbEnvs.end())
-	    {
-	        dbInfo.dbEnv = ::Freeze::initialize(_server->communicator(), info.dbEnvName);
-	        dbInfo.openCount = 1;
-	    }
-	    else
-	    {
-	        dbInfo = r->second;
-		++dbInfo.openCount;
-	    }
-	    _dbEnvs[info.dbEnvName] = dbInfo;
-
-            fs->start(service, _server->communicator(), serviceProperties, serviceArgs, dbInfo.dbEnv);
+            fs->start(service, communicator, serviceArgs, info.dbEnv);
 	}
         info.library = library;
         _services[service] = info;
     }
     catch(const Freeze::DBException& ex)
     {
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex.ice_name() +
 		   "\n" + ex.message;
         throw e;
@@ -326,7 +305,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     }
     catch(const Exception& ex)
     {
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: exception while starting service " + service + ": " + ex.ice_name();
         throw e;
     }
@@ -345,56 +324,83 @@ IceBox::ServiceManagerI::stop(const string& service)
         info.service->stop();
 
 	//
-	// Close the database environment if service is a Freeze service and the 
-	// database open count is one.
+	// Close the database environment if the service database
+	// environment is set.
 	//
-        ::IceBox::FreezeServicePtr fs = IceBox::FreezeServicePtr::dynamicCast(info.service);
-	if(fs)
+	if(info.dbEnv)
 	{
-	    map<string,DBEnvironmentInfo>::iterator r = _dbEnvs.find(info.dbEnvName);
-	    assert(r != _dbEnvs.end());
-	    DBEnvironmentInfo dbInfo = r->second;
-	    if(--dbInfo.openCount == 0)
-	    {
-	        dbInfo.dbEnv->close();
-		_dbEnvs.erase(info.dbEnvName);
-	    }
-	    else
-	    {
-	        _dbEnvs[info.dbEnvName] = dbInfo;
-	    }
+	    info.dbEnv->close();
+	    info.dbEnv = 0;
 	}
     }
     catch(const ::Freeze::DBException& ex)
     {
-        //
-        // Release the service before the library
-        //
         info.service = 0;
+
+	if(info.communicator)
+	{
+	    try
+	    {
+		info.communicator->destroy();
+	    }
+	    catch(const Ice::Exception&)
+	    {
+	    }
+	    info.communicator = 0;
+	}
+
         info.library = 0;
 
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex.ice_name() +
 		   "\n" + ex.message;
         throw e;
     }
     catch(const Exception& ex)
     {
-        //
-        // Release the service before the library
-        //
         info.service = 0;
+
+	if(info.communicator)
+	{
+	    try
+	    {
+		info.communicator->destroy();
+	    }
+	    catch(const Ice::Exception&)
+	    {
+	    }
+	    info.communicator = 0;
+	}
+
         info.library = 0;
 
-        FailureException e;
+        FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex.ice_name();
         throw e;
     }
 
     //
-    // Release the service before the library
+    // Release the service, the service communicator and then the
+    // library. The order is important, the service must be release
+    // before destroying the communicator so that the communicator
+    // leak detector doesn't report potential leaks, and the
+    // communicator must be destroyed before the library is released
+    // since the library will destroy its global state.
     //
     info.service = 0;
+
+    if(info.communicator)
+    {
+	try
+	{
+	    info.communicator->destroy();
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+	info.communicator = 0;
+    }
+
     info.library = 0;
 }
 

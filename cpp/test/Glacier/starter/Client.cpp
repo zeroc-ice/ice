@@ -37,7 +37,8 @@ CallbackClient::run(int argc, char* argv[])
 {
     string ref;
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackReceiverAdapter", "default");
+    communicator()->getProperties()->setProperty("CallbackReceiverAdapter.Endpoints", "default");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackReceiverAdapter");
     adapter->activate();
     // Put the print statement after activate(), so that if
     // Ice.PrintAdapterReady is set, the "ready" is the first output

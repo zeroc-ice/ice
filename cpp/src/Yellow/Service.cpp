@@ -36,7 +36,6 @@ public:
 
     virtual void start(const string&,
 		       const CommunicatorPtr&,
-		       const PropertiesPtr&,
 		       const StringSeq&,
 		       const ::Freeze::DBEnvironmentPtr&);
 
@@ -75,7 +74,6 @@ Yellow::ServiceI::~ServiceI()
 void
 Yellow::ServiceI::start(const string& name,
 			const CommunicatorPtr& communicator,
-			const PropertiesPtr& properties,
 			const StringSeq& args,
 			const DBEnvironmentPtr& dbEnv)
 {
@@ -95,13 +93,12 @@ Yellow::ServiceI::start(const string& name,
     //
     // TODO: At present #2 isn't supported.
     //
-    string queryEndpoints = properties->getProperty(name + ".Query.Endpoints");
-    _queryAdapter = communicator->createObjectAdapterWithEndpoints(name + "QueryAdapter", queryEndpoints);
+    _queryAdapter = communicator->createObjectAdapter(name + ".Query");
 
-    string adminEndpoints = properties->getProperty(name + ".Admin.Endpoints");
+    string adminEndpoints = communicator->getProperties()->getProperty(name + ".Admin.Endpoints");
     if(!adminEndpoints.empty())
     {
-	_adminAdapter = communicator->createObjectAdapterWithEndpoints(name + "AdminAdapter", adminEndpoints);
+	_adminAdapter = communicator->createObjectAdapter(name + ".Admin");
 	ObjectPtr admin = new AdminI(dbYellow);
 	_adminAdapter->add(admin, stringToIdentity(name + "/Admin"));
     }

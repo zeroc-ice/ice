@@ -34,18 +34,6 @@ local interface ObjectAdapter
 {
     /**
      *
-     * Get the name of this object adapter. The name is mainly used
-     * for configuration purposes with Properties.
-     *
-     * @return The name of this object adapter.
-     *
-     * @see Properties
-     *
-     **/
-    string getName();
-
-    /**
-     *
      * Get the communicator this object adapter belongs to.
      *
      * @return This object adapter's communicator.

@@ -23,12 +23,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // communicator and object adapter).
     //
     Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.Adapter.ServerManagerAdapter.Endpoints", "default -p 12345");
+    properties->setProperty("ServerManager.Endpoints", "default -p 12345");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManagerAdapter");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManager");
 
     Ice::ObjectPtr object = new ServerManagerI(adapter);
-    adapter->add(object, Ice::stringToIdentity("servermanager"));
+    adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
     //
     // We also register a sample server locator which implements the

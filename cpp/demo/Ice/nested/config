@@ -1,5 +1,5 @@
-Nested.NestedServer=nestedServer:default -p 10000 -t 10000
-Ice.Adapter.NestedClientAdapter.Endpoints=default -t 10000
+Nested.Client.NestedServer=nestedServer:default -p 10000 -t 10000
+Nested.Client.Endpoints=default -t 10000
 
 Ice.ThreadPool.Size=50
 #Ice.Trace.Network=1

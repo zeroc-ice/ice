@@ -1,7 +1,7 @@
 <service kind="standard" entry="TestService:create">
 
   <adapters>
-    <adapter name="${name}Adapter" endpoints="default">
+    <adapter name="${name}" endpoints="default" id="${name}Adapter">
       <offer interface="::Test" identity="${name}"/>
     </adapter>
   </adapters>

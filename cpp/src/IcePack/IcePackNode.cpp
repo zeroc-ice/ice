@@ -144,8 +144,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     //
     // Check that required properties are set and valid.
     //
-    string endpoints = properties->getProperty("IcePack.Node.Endpoints");
-    if(endpoints.empty())
+    if(properties->getProperty("IcePack.Node.Endpoints").empty())
     {
 	Ice::Error out(communicator->getLogger());
 	out << "property `IcePack.Node.Endpoints' is not set";
@@ -170,8 +169,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 	}
     }
 
-    Ice::ObjectAdapterPtr adapter = 
-	communicator->createObjectAdapterWithEndpoints("IcePackNodeAdapter." + name, endpoints);
+    //
+    // Set the adapter id for this node and create the node object
+    // adapter.
+    //
+    properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node-" + name);
+
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("IcePack.Node");
 	
     TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator->getLogger());
 	
@@ -213,7 +217,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     try
     {
 	NodeRegistryPrx nodeRegistry = NodeRegistryPrx::checkedCast(
-	    communicator->stringToProxy("IcePack/NodeRegistry@IcePackRegistryAdapter"));
+	    communicator->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
 	nodeRegistry->add(name, nodeProxy);
     }
     catch(const NodeActiveException&)
@@ -248,7 +252,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 	AdminPrx admin;
 	try
 	{
-	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
+	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
 	}
 	catch(const Ice::LocalException& ex)
 	{

@@ -36,12 +36,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-string
-Ice::ObjectAdapterI::getName()
-{
-    return _name; // _name is immutable
-}
-
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
@@ -67,7 +61,7 @@ Ice::ObjectAdapterI::activate()
     
     if(!_printAdapterReadyDone)
     {
-	if(_locatorInfo)
+	if(_locatorInfo && !_id.empty())
 	{
 	    Identity ident;
 	    ident.name = "dummy";
@@ -80,7 +74,7 @@ Ice::ObjectAdapterI::activate()
 	    //
 	    try
 	    {
-		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_name, newDirectProxy(ident));
+		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_id, newDirectProxy(ident));
 	    }
 	    catch(const Ice::AdapterNotRegistered&)
 	    {
@@ -429,12 +423,6 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// callbacks.
 	//	
 	_instance->outgoingConnectionFactory()->setRouter(routerInfo->getRouter());
-
-	//
-	// Creates proxies with endpoints instead of the adapter name
-	// when there is a router.
-	//
-	_useEndpointsInProxy = true;
     }
 }
 
@@ -449,21 +437,6 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
     }
 
     _locatorInfo = _instance->locatorManager()->get(locator);
-    if(_locatorInfo)
-    {
-	//
-	// If a locator is set, we create proxies with adapter names in
-	// the reference instead of endpoints. If it's not set, we create
-	// proxies with endpoints if there's at least one incoming
-	// connection factory or router endpoints.
-	//
-	_useEndpointsInProxy = false;
-    }
-    else
-    {
-	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
-	_useEndpointsInProxy = !_incomingConnectionFactories.empty() || !_routerEndpoints.empty();
-    }
 }
 
 list<ConnectionPtr>
@@ -484,11 +457,12 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-				    const string& name, const string& endpts) :
+				    const string& name, const string& endpts, const string& id) :
     _instance(instance),
     _communicator(communicator),
     _printAdapterReadyDone(false),
     _name(name),
+    _id(id),
     _activeServantMapHint(_activeServantMap.end()),
     _locatorMapHint(_locatorMap.end())
 {
@@ -541,15 +515,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	__setNoDelete(false);
 	throw;
     }
-    __setNoDelete(false);
-  
-    //
-    // Create proxies with the adapter endpoints only if there's
-    // incoming connection factories. If there's no incoming
-    // connection factories we will create proxies with the adapter
-    // name in the reference (to allow collocation to work).
-    //
-    _useEndpointsInProxy = !_incomingConnectionFactories.empty();
+    __setNoDelete(false);  
 
 //
 // Object Adapters without incoming connection factories are
@@ -576,7 +542,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 {
-    if(_useEndpointsInProxy)
+    if(_id.empty())
     {
 	return newDirectProxy(ident);
     }
@@ -587,7 +553,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	//
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, vector<string>(), Reference::ModeTwoway,
-								 false, false, _name, endpoints, 0, 0, 0);
+								 false, false, _id, endpoints, 0, 0, 0);
 
 	//
 	// Return a proxy for the reference. 
@@ -637,9 +603,9 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     {
 	//
 	// Proxy is local if the reference adapter id matches this
-	// adapter name.
+	// adapter id.
 	//
-	return ref->adapterId == _name;
+	return ref->adapterId == _id;
     }
 
     //

@@ -35,7 +35,6 @@ class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Mutex
 {
 public:
 
-    virtual std::string getName();
     virtual CommunicatorPtr getCommunicator();
 
     virtual void activate();
@@ -66,7 +65,8 @@ public:
 
 private:
 
-    ObjectAdapterI(const ::IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&);
+    ObjectAdapterI(const ::IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&,
+		   const std::string&);
     virtual ~ObjectAdapterI();
     friend class ::IceInternal::ObjectAdapterFactory;
     
@@ -78,7 +78,7 @@ private:
     CommunicatorPtr _communicator;
     bool _printAdapterReadyDone;
     std::string _name;
-    bool _useEndpointsInProxy;
+    std::string _id;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;

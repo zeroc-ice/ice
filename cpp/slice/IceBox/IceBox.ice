@@ -26,8 +26,7 @@ module IceBox
  * unable to load a service executable.
  *
  **/
-// ML: Shouldn't this be local?
-exception FailureException
+local exception FailureException
 {
     /**
      *
@@ -107,10 +106,8 @@ local interface Service extends ServiceBase
     /**
      *
      * Initialize the service. The given Communicator is created by
-     * the [ServiceManager]. The service may use this instance, or may
-     * create its own as needed. The advantage of using this
-     * Communicator instance is that invocations between collocated
-     * services are optimized.
+     * the [ServiceManager]. It may be shared by other services
+     * depending on the service configuration.
      *
      * <note><para>The [ServiceManager] owns this Communicator, and is
      * responsible for destroying it.</para></note>
@@ -121,10 +118,6 @@ local interface Service extends ServiceBase
      * @param communicator The [ServiceManager]'s Communicator
      * instance.
      *
-     * @param properties The property set representing the service's
-     * command-line arguments of the form
-     * [--<replaceable>name</replaceable>.key=value].
-     *
      * @param args The service arguments which were not converted into
      * properties.
      *
@@ -133,7 +126,7 @@ local interface Service extends ServiceBase
      * @see start
      *
      **/
-    void start(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args)
+    void start(string name, Ice::Communicator communicator, Ice::StringSeq args)
         throws FailureException;
 
 };
@@ -152,10 +145,8 @@ local interface FreezeService extends ServiceBase
     /**
      *
      * Initialize the service. The given Communicator is created by
-     * the [ServiceManager]. The service may use this instance, or may
-     * create its own as needed. The advantage of using this
-     * Communicator instance is that invocations between collocated
-     * services are optimized.
+     * the [ServiceManager]. It may be shared by other services
+     * depending on the service configuration.
      *
      * <note><para>The [ServiceManager] owns this Communicator, and is
      * responsible for destroying it.</para></note>
@@ -165,10 +156,6 @@ local interface FreezeService extends ServiceBase
      *
      * @param communicator The [ServiceManager]'s Communicator
      * instance.
-     *
-     * @param properties The property set representing the service's
-     * command-line arguments of the form
-     * [--<replaceable>name</replaceable>.key=value].
      *
      * @param args The service arguments which were not converted into
      * properties.
@@ -180,8 +167,7 @@ local interface FreezeService extends ServiceBase
      * @see ServiceBase
      *
      **/
-    void start(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args,
-	       Freeze::DBEnvironment dbEnv)
+    void start(string name, Ice::Communicator communicator, Ice::StringSeq args, Freeze::DBEnvironment dbEnv)
         throws FailureException;
 };
 

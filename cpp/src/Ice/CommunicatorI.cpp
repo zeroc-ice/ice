@@ -97,52 +97,36 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    ObjectAdapterPtr adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
-    
-    string router = _instance->properties()->getProperty("Ice.Adapter." + name + ".Router");
-    if(!router.empty())
+    ObjectAdapterPtr adapter;
+
+    if(name.empty())
     {
-	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
+	adapter = _instance->objectAdapterFactory()->createObjectAdapter("", "", "");
     }
-
-    string locator = _instance->properties()->getProperty("Ice.Adapter." + name + ".Locator");
-    if(!locator.empty())
+    else
     {
-	adapter->setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
+	string id = _instance->properties()->getProperty(name + ".AdapterId");
+
+	string endpts = _instance->properties()->getProperty(name + ".Endpoints");
+	
+	adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts, id);
+	
+	string router = _instance->properties()->getProperty(name + ".Router");
+	if(!router.empty())
+	{
+	    adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
+	}
+	
+	string locator = _instance->properties()->getProperty(name + ".Locator");
+	if(!locator.empty())
+	{
+	    adapter->setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
+	}
+	else
+	{
+	    adapter->setLocator(_instance->referenceFactory()->getDefaultLocator());
+	}
     }
-
-    return adapter;
-}
-
-ObjectAdapterPtr
-Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const string& property)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    string endpts = _instance->properties()->getProperty(property);
-
-    return createObjectAdapterWithEndpoints(name, endpts);
-}
-
-ObjectAdapterPtr
-Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpts)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    
-    ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
-
-    //
-    // Set the adapter locator to this communicator default locator.
-    //
-    adapter->setLocator(_instance->referenceFactory()->getDefaultLocator());
 
     if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
     {

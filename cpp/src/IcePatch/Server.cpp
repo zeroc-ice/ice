@@ -95,8 +95,7 @@ IcePatch::Server::run(int argc, char* argv[])
     // Get the IcePatch endpoints.
     //
     const char* endpointsProperty = "IcePatch.Endpoints";
-    string endpoints = properties->getProperty(endpointsProperty);
-    if(endpoints.empty())
+    if(properties->getProperty(endpointsProperty).empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -123,7 +122,7 @@ IcePatch::Server::run(int argc, char* argv[])
     //
     // Create and initialize the object adapter and the file locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch");
     ServantLocatorPtr fileLocator = new FileLocator(adapter);
     adapter->addServantLocator(fileLocator, "IcePatch");
 

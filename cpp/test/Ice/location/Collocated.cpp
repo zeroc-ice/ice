@@ -16,13 +16,13 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    string endpts = "default -p 12345 -t 2000";
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerManagerAdapter", endpts);
+    communicator->getProperties()->setProperty("ServerManager.AdapterId", "ServerManager");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManager");
     Ice::ObjectPtr object = new ServerManagerI(adapter);
-    adapter->add(object, Ice::stringToIdentity("servermanager"));
+    adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    void allTests(const Ice::CommunicatorPtr&, const string&);
+    allTests(communicator, "ServerManager@ServerManager");
 
     return EXIT_SUCCESS;
 }

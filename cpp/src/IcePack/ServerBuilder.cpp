@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <IcePack/ServerBuilder.h>
 #include <IcePack/ServiceBuilder.h>
@@ -248,14 +249,28 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &att
 	else if(kind == "cpp-icebox")
 	{
 	    _builder.setKind(ServerBuilder::ServerKindCppIceBox);
-	    _builder.addProperty("IceBox.ServiceManager.Endpoints", getAttributeValue(attrs, "endpoints"));
 	    _builder.createConfigFile("/config/config_icebox");
+	    _builder.createDirectory("/dbs");
+
+	    //
+	    // TODO: is the server name a good category?
+	    //
+	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
+	    
+	    _builder.registerAdapter("IceBox.ServiceManager", getAttributeValue(attrs, "endpoints"), "");
 	}
 	else if(kind == "java-icebox")
 	{
 	    _builder.setKind(ServerBuilder::ServerKindJavaIceBox);
-	    _builder.addProperty("IceBox.ServiceManager.Endpoints", getAttributeValue(attrs, "endpoints"));
 	    _builder.createConfigFile("/config/config_icebox");
+	    _builder.createDirectory("/dbs");
+
+	    //
+	    // TODO: is the server name a good category?
+	    //
+	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
+
+	    _builder.registerAdapter("IceBox.ServiceManager", getAttributeValue(attrs, "endpoints"), "");
 	}
     }
     else if(str == "service")
@@ -267,7 +282,8 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &att
     else if(str == "adapter")
     {
 	_builder.registerAdapter(getAttributeValue(attrs, "name"), 
-				 getAttributeValueWithDefault(attrs, "endpoints", ""));
+				 getAttributeValue(attrs, "endpoints"),
+				 getAttributeValueWithDefault(attrs, "id", ""));
     }
     else if(str == "activation")
     {
@@ -521,7 +537,7 @@ IcePack::ServerBuilder::registerServer()
 }
 
 void
-IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoints)
+IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoints, const string& adapterId)
 {
     AdapterRegistryPrx adapterRegistry = _nodeInfo->getAdapterRegistry();
     if(!adapterRegistry)
@@ -531,26 +547,33 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
 
     if(name.empty())
     {
-	throw DeploySAXParseException("no adapter name", _locator);
+	throw DeploySAXParseException("empty adapter name", _locator);
     }
+    if(endpoints.empty())
+    {
+	throw DeploySAXParseException("empty adapter endpoints", _locator);
+    }
+    
+    //
+    // If the adapter id is not specified, generate one from the
+    // server and adapter name.
+    //
+    string id = adapterId.empty() ? name + "-" + _variables["name"] : adapterId;
 
     //
-    // A server adapter object will be created with the server
-    // when the server is created (see ServerBuilder::execute()
+    // A server adapter object will be created with the server when
+    // the server is created (see ServerBuilder::execute()
     // method). The RegisterServerAdapter task will get the server
-    // adapter proxy through the builder method
-    // getServerAdapter().
-    // 
-    _serverAdapterNames.push_back(name);
-    _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, name, *this));
-    
-    addProperty("Ice.Adapter." + name + ".Locator", 
-		_nodeInfo->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator"));
+    // adapter proxy through the builder method getServerAdapter().
+    //
+    _serverAdapterNames.push_back(id);
+    _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, id, *this));
 
-    if(!endpoints.empty())
-    {
-	addProperty("Ice.Adapter." + name + ".Endpoints", endpoints);
-    }
+    //
+    // Generate adapter configuration properties.
+    //
+    addProperty(name + ".Endpoints", endpoints);
+    addProperty(name + ".AdapterId", id);
 }
 
 void
@@ -633,12 +656,10 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		_variables["name"] + ".ServiceManager@" + _variables["name"] + ".ServiceManagerAdapter"));
+		"IceBox/" + _variables["name"] + "@" + _variables["name"] + "ServiceManagerAdapter"));
 
 	_className = "IceBox.Server";
-	createDirectory("/dbs");
-	addProperty("IceBox.Name", _variables["name"]);
-	registerAdapter(_variables["name"] + ".ServiceManagerAdapter","");
+
 	break;
     }
     case ServerKindCppIceBox:
@@ -650,11 +671,8 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		_variables["name"] + ".ServiceManager@" + _variables["name"] + ".ServiceManagerAdapter"));
+		"IceBox/" + _variables["name"] + "@" + _variables["name"] + "ServiceManagerAdapter"));
 
-	createDirectory("/dbs");
-	addProperty("IceBox.Name", _variables["name"]);
-	registerAdapter(_variables["name"] + ".ServiceManagerAdapter","");
 	break;
     }
     }

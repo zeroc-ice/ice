@@ -31,8 +31,8 @@ main(int argc, char* argv[])
 int
 CallbackServer::run(int argc, char* argv[])
 {
-    string endpts = "tcp -p 12345 -t 2000";
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("CallbackAdapter", endpts);
+    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12345 -t 2000");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
     CallbackPrx self = CallbackPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("callback")));
     adapter->add(new CallbackI(communicator()), Ice::stringToIdentity("callback"));
     adapter->activate();

@@ -167,26 +167,20 @@ Glacier::RouterApp::run(int argc, char* argv[])
     // Initialize the client object adapter.
     //
     const char* clientEndpointsProperty = "Glacier.Router.Client.Endpoints";
-    string clientEndpoints = properties->getProperty(clientEndpointsProperty);
-    if(clientEndpoints.empty())
+    if(properties->getProperty(clientEndpointsProperty).empty())
     {
 	cerr << appName() << ": property `" << clientEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
-    ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapterFromProperty("Client",
-										     clientEndpointsProperty);
-    clientAdapter->setLocator(0);
+    ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier.Router.Client");
 
     //
     // Initialize the server object adapter.
     //
-    const char* serverEndpointsProperty = "Glacier.Router.Server.Endpoints";
-    string serverEndpoints = properties->getProperty(serverEndpointsProperty);
     ObjectAdapterPtr serverAdapter;
-    if(!serverEndpoints.empty())
+    if(!properties->getProperty("Glacier.Router.Server.Endpoints").empty())
     {
-	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
-	serverAdapter->setLocator(0);
+	serverAdapter = communicator()->createObjectAdapter("Glacier.Router.Server");
     }
 
     //
@@ -209,8 +203,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     // Initialize the router object adapter and the router object.
     //
     const char* routerEndpointsProperty = "Glacier.Router.Endpoints";
-    string routerEndpoints = properties->getProperty(routerEndpointsProperty);
-    if(routerEndpoints.empty())
+    if(properties->getProperty(routerEndpointsProperty).empty())
     {
 	cerr << appName() << ": property `" << routerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
@@ -231,9 +224,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
     const char* userIdProperty = "Glacier.Router.UserId";
     string userId = properties->getProperty(userIdProperty);
 
-    ObjectAdapterPtr routerAdapter =
-	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
-    routerAdapter->setLocator(0);
+    ObjectAdapterPtr routerAdapter = communicator()->createObjectAdapter("Glacier.Router");
     RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable, sessionManagerPrx, userId);
     routerAdapter->add(router, stringToIdentity(routerIdentity));
 
@@ -307,7 +298,7 @@ main(int argc, char* argv[])
 	defaultProperties = getDefaultProperties(argc, argv);
         StringSeq args = argsToStringSeq(argc, argv);
         args = defaultProperties->parseCommandLineOptions("Ice", args);
-        args = defaultProperties->parseCommandLineOptions("Glacier", args);
+        args = defaultProperties->parseCommandLineOptions("Glacier.Router", args);
         stringSeqToArgs(args, argc, argv);
     }
     catch(const Exception& ex)

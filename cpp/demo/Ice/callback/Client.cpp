@@ -50,19 +50,19 @@ int
 CallbackClient::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    const char* refProperty = "Callback.Callback";
-    std::string ref = properties->getProperty(refProperty);
-    if(ref.empty())
+    const char* proxyProperty = "Callback.Client.Callback";
+    std::string proxy = properties->getProperty(proxyProperty);
+    if(proxy.empty())
     {
-	cerr << appName() << ": property `" << refProperty << "' not set" << endl;
+	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy(ref);
+    ObjectPrx base = communicator()->stringToProxy(proxy);
     CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
-	cerr << appName() << ": invalid object reference" << endl;
+	cerr << appName() << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
@@ -70,7 +70,7 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx datagram = CallbackPrx::uncheckedCast(twoway->ice_datagram());
     CallbackPrx batchDatagram = CallbackPrx::uncheckedCast(twoway->ice_batchDatagram());
     
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackReceiverAdapter");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
     adapter->add(new CallbackReceiverI, stringToIdentity("callbackReceiver"));
     adapter->activate();
 

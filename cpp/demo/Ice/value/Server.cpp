@@ -16,7 +16,7 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ValueAdapter");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Value");
     Ice::ObjectPtr object = new InitialI(adapter);
     adapter->add(object, Ice::stringToIdentity("initial"));
     adapter->activate();

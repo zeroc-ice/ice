@@ -88,39 +88,31 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    
-    //
-    // TODO: Simplify configuration, this is way too complicated. We
-    // should most likely have only two configuration variables, one
-    // for the identity and the other one for the endpoints.
-    //
-
-    string namePrefix = properties->getProperty("IceBox.Name");
-    if(!namePrefix.empty())
-    {
-	namePrefix += ".";
-    }
-
     string managerProxy;
 
-    string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
-    if(managerEndpoints.empty())
+    string managerIdentity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+
+    if(properties->getProperty("Ice.Default.Locator").empty())
     {
-	if(!properties->getProperty("Ice.Default.Locator").empty() && !namePrefix.empty())
-	{
-	    managerProxy = namePrefix + "ServiceManager@" + namePrefix + "ServiceManagerAdapter";
-	}
-	else
+	string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
+	if(managerEndpoints.empty())
 	{
 	    cerr << appName() << ": property `IceBox.ServiceManager.Endpoints' is not set" << endl;
 	    return EXIT_FAILURE;
 	}
+
+	managerProxy = managerIdentity + ":" + managerEndpoints;
     }
     else
     {
-	string managerIdentity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", 
-								    "ServiceManager");
-	managerProxy = namePrefix + managerIdentity + ":" + managerEndpoints;
+	string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
+	if(managerAdapterId.empty())
+	{
+	    cerr << appName() << ": property `IceBox.ServiceManager.AdapterId' is not set" << endl;
+	    return EXIT_FAILURE;
+	}
+
+	managerProxy = managerIdentity + "@" + managerAdapterId;
     }
 
     ObjectPrx base = communicator()->stringToProxy(managerProxy);

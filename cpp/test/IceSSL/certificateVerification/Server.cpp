@@ -159,13 +159,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         sslPlugin->setCertificateVerifier(IceSSL::Server, certVerifier);
     }
 
-    string kmEndpts = "tcp -p 12344 -t 2000";
-    Ice::ObjectAdapterPtr kmAdapter = communicator->createObjectAdapterWithEndpoints("KeyManagerAdapter", kmEndpts);
+    properties->setProperty("KeyManagerAdapter.Endpoints", "tcp -p 12344 -t 2000");
+    Ice::ObjectAdapterPtr kmAdapter = communicator->createObjectAdapter("KeyManagerAdapter");
     kmAdapter->add(object, Ice::stringToIdentity("keyManager"));
     kmAdapter->activate();
 
-    string endpts = "ssl -p 12345 -t 2000";
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("PingerAdapter", endpts);
+    properties->setProperty("PingerAdapter.Endpoints", "ssl -p 12345 -t 2000");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PingerAdapter");
     adapter->add(new PingerI(), Ice::stringToIdentity("pinger"));
     adapter->activate();
     communicator->waitForShutdown();

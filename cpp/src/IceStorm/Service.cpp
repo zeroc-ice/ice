@@ -35,7 +35,6 @@ public:
 
     virtual void start(const string&,
                       const CommunicatorPtr&,
-                      const PropertiesPtr&,
                       const StringSeq&,
                       const DBEnvironmentPtr&);
 
@@ -73,18 +72,17 @@ IceStorm::ServiceI::~ServiceI()
 
 void
 IceStorm::ServiceI::start(const string& name,
-			 const CommunicatorPtr& communicator,
-			 const PropertiesPtr& properties,
-			 const StringSeq& args,
-			 const DBEnvironmentPtr& dbEnv)
+			  const CommunicatorPtr& communicator,
+			  const StringSeq& args,
+			  const DBEnvironmentPtr& dbEnv)
 {
     DBPtr dbTopicManager = dbEnv->openDB("topicmanager", true);
 
-    TraceLevelsPtr traceLevels = new TraceLevels(name, properties, communicator->getLogger());
-    string endpoints = properties->getProperty(name + ".TopicManager.Endpoints");
-    _adapter = communicator->createObjectAdapterWithEndpoints(name + ".TopicManagerAdapter", endpoints);
+    TraceLevelsPtr traceLevels = new TraceLevels(name, communicator->getProperties(), communicator->getLogger());
+    _adapter = communicator->createObjectAdapter(name + ".TopicManager");
+
     _manager = new TopicManagerI(communicator, _adapter, traceLevels, dbEnv, dbTopicManager);
-    _adapter->add(_manager, stringToIdentity(name + ".TopicManager"));
+    _adapter->add(_manager, stringToIdentity(name + "/TopicManager"));
 
     _adapter->activate();
 }
