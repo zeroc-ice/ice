@@ -606,6 +606,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	{
 	    DNSException ex(__FILE__, __LINE__);
 	    ex.error = getDNSErrno();
+	    ex.host = host;
 	    throw ex;
 	}
 
@@ -644,6 +645,7 @@ IceInternal::getLocalHost(bool numeric)
 	{
 	    DNSException ex(__FILE__, __LINE__);
 	    ex.error = getDNSErrno();
+	    ex.host = host;
 	    throw ex;
 	}
 

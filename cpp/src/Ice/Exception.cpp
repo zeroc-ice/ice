@@ -239,7 +239,7 @@ void
 Ice::DNSException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nDNS error: " << errorToStringDNS(error);
+    out << ":\nDNS error: " << errorToStringDNS(error) << "\nhost: " << host;
 }
 
 void

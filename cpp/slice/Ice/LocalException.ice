@@ -366,6 +366,13 @@ local exception DNSException
      *
      **/
     int error; // Don't use h_errno, as h_errno is usually a macro.
+
+    /**
+     *
+     * The host name which couldn't be resolved.
+     *
+     **/
+    string host;
 };
 
 /**
