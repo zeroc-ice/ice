@@ -130,6 +130,7 @@ Subscriber::run(int argc, char* argv[])
     if(subscribers.size() == topics.size())
     {
 	adapter->activate();
+	shutdownOnInterrupt();
 	communicator()->waitForShutdown();
     }
 
