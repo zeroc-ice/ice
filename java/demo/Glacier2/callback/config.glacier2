@@ -110,7 +110,7 @@ Ice.Warn.Connections=1
 #IceSSL.Trace.Security=3
 
 Ice.Plugin.IceSSL=IceSSL:create
-IceSSL.Server.CertPath=../../../certs/cpp
+IceSSL.Server.CertPath=../../../certs
 IceSSL.Server.Config=sslconfig.xml
-IceSSL.Client.CertPath=../../../certs/cpp
+IceSSL.Client.CertPath=../../../certs
 IceSSL.Client.Config=sslconfig.xml

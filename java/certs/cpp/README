@@ -1,3 +1,0 @@
-This directory contains the IceSSL certificates for the C++
-plugin. These certificates are required to run C++ services for the
-demo (the glacier2router for example) as well as for the test suite.
