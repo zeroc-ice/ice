@@ -32,7 +32,7 @@ local interface Stream
      *
      * @param size The number of elements in the dictionary.
      *
-     * @see [endWriteDictionary]
+     * @see endWriteDictionary
      *
      **/
     void startWriteDictionary(string name, int size);
@@ -41,7 +41,7 @@ local interface Stream
      *
      * End the writing of a dictionary.
      *
-     * @see [startWriteDictionary]
+     * @see startWriteDictionary
      *
      **/
     void endWriteDictionary();
@@ -50,7 +50,7 @@ local interface Stream
      *
      * Start the writing of a dictionary element.
      *
-     * @see [endWriteDictionaryElement]
+     * @see endWriteDictionaryElement
      *
      **/
     void startWriteDictionaryElement();
@@ -59,7 +59,7 @@ local interface Stream
      *
      * End the writing of a dictionary element.
      *
-     * @see [startWriteDictionaryElement]
+     * @see startWriteDictionaryElement
      *
      **/
     void endWriteDictionaryElement();
@@ -72,7 +72,7 @@ local interface Stream
      *
      * @param size The number of elements in the dictionary.
      *
-     * @see [endReadDictionary]
+     * @see endReadDictionary
      *
      **/
     void startReadDictionary(string name ; int size);
@@ -81,7 +81,7 @@ local interface Stream
      *
      * End the reading of a dictionary.
      *
-     * @see [startReadDictionary]
+     * @see startReadDictionary
      *
      **/
     void endReadDictionary();
@@ -90,7 +90,7 @@ local interface Stream
      *
      * Start the reading of a dictionary element.
      *
-     * @see [endReadDictionaryElement]
+     * @see endReadDictionaryElement
      *
      **/
     void startReadDictionaryElement();
@@ -99,7 +99,7 @@ local interface Stream
      *
      * End the reading of a dictionary element.
      *
-     * @see [startReadDictionaryElement]
+     * @see startReadDictionaryElement
      *
      **/
     void endReadDictionaryElement();
@@ -112,7 +112,7 @@ local interface Stream
      *
      * @param size The number of elements in the sequence.
      *
-     * @see [endWriteSequence]
+     * @see endWriteSequence
      *
      **/
     void startWriteSequence(string name, int size);
@@ -121,7 +121,7 @@ local interface Stream
      *
      * End the writing of a sequence.
      *
-     * @see [startWriteSequence]
+     * @see startWriteSequence
      *
      **/
     void endWriteSequence();
@@ -130,7 +130,7 @@ local interface Stream
      *
      * Start the writing of a sequence element.
      *
-     * @see [endWriteSequenceElement]
+     * @see endWriteSequenceElement
      *
      **/
     void startWriteSequenceElement();
@@ -139,7 +139,7 @@ local interface Stream
      *
      * End the writing of a sequence.
      *
-     * @see [startWriteSequence]
+     * @see startWriteSequence
      *
      **/
     void endWriteSequenceElement();
@@ -152,7 +152,7 @@ local interface Stream
      *
      * @param size The number of elements in the sequence.
      *
-     * @see [endReadSequence]
+     * @see endReadSequence
      *
      **/
     void startReadSequence(string name ; int size);
@@ -161,7 +161,7 @@ local interface Stream
      *
      * End the reading of a sequence.
      *
-     * @see [startReadSequence]
+     * @see startReadSequence
      *
      **/
     void endReadSequence();
@@ -170,7 +170,7 @@ local interface Stream
      *
      * Start the reading of a sequence element.
      *
-     * @see [endReadSequenceElement]
+     * @see endReadSequenceElement
      *
      **/
     void startReadSequenceElement();
@@ -179,7 +179,7 @@ local interface Stream
      *
      * End the reading of a sequence element.
      *
-     * @see [startReadSequenceElement]
+     * @see startReadSequenceElement
      *
      **/
     void endReadSequenceElement();
@@ -190,7 +190,7 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @see [endWriteStruct]
+     * @see endWriteStruct
      *
      **/
     void startWriteStruct(string name);
@@ -199,7 +199,7 @@ local interface Stream
      *
      * End the writing of a struct.
      *
-     * @see [startWriteStruct]
+     * @see startWriteStruct
      *
      **/
     void endWriteStruct();
@@ -210,7 +210,7 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @see [endReadStruct]
+     * @see endReadStruct
      *
      **/
     void startReadStruct(string name);
@@ -219,7 +219,7 @@ local interface Stream
      *
      * End the reading of a struct.
      *
-     * @see [startReadStruct]
+     * @see startReadStruct
      *
      **/
     void endReadStruct();
@@ -230,7 +230,7 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @see [endWriteException]
+     * @see endWriteException
      *
      **/
     void startWriteException(string name);
@@ -239,7 +239,7 @@ local interface Stream
      *
      * End the writing of an exception
      *
-     * @see [startWriteException]
+     * @see startWriteException
      *
      **/
     void endWriteException();
@@ -250,7 +250,7 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @see [endReadException]
+     * @see endReadException
      *
      **/
     void startReadException(string name);
@@ -259,7 +259,7 @@ local interface Stream
      *
      * End the reading of an exception
      *
-     * @see [startReadException]
+     * @see startReadException
      *
      **/
     void endReadException();
@@ -274,7 +274,7 @@ local interface Stream
      *
      * @param ordinal The index of the enumeration value.
      *
-     * @see [readEnum]
+     * @see readEnum
      *
      **/
     void writeEnum(string name, StringSeq table, int ordinal);
@@ -289,7 +289,7 @@ local interface Stream
      *
      * @param ordinal The index of the enumeration value.
      *
-     * @see [readEnum]
+     * @see writeEnum
      *
      **/
     void readEnum(string name, StringSeq table ; int ordinal);
@@ -302,7 +302,7 @@ local interface Stream
      *
      * @param value The byte to write.
      *
-     * @see [readByte]
+     * @see readByte
      *
      **/
     void writeByte(string name, byte value);
@@ -315,7 +315,7 @@ local interface Stream
      *
      * @param value The sequence of bytes to write.
      *
-     * @see [readByteSeq]
+     * @see readByteSeq
      *
      **/
     void writeByteSeq(string name, ByteSeq value);
@@ -328,7 +328,7 @@ local interface Stream
      *
      * @param value The byte that has been read.
      *
-     * @see [writeByte]
+     * @see writeByte
      *
      **/
     void readByte(string name ; byte value);
@@ -341,7 +341,7 @@ local interface Stream
      *
      * @param value The bytes that have been read.
      *
-     * @see [writeByteSeq]
+     * @see writeByteSeq
      *
      **/
     void readByteSeq(string name ; ByteSeq value);
@@ -354,7 +354,7 @@ local interface Stream
      *
      * @param value The bool to write.
      *
-     * @see [readBool]
+     * @see readBool
      *
      **/
     void writeBool(string name, bool value);
@@ -367,7 +367,7 @@ local interface Stream
      *
      * @param value The sequence of bools to write.
      *
-     * @see [readBoolSeq]
+     * @see readBoolSeq
      *
      **/
     void writeBoolSeq(string name, BoolSeq value);
@@ -380,7 +380,7 @@ local interface Stream
      *
      * @param value The bool that has been read.
      *
-     * @see [writeBool]
+     * @see writeBool
      *
      **/
     void readBool(string name ; bool value);
@@ -393,7 +393,7 @@ local interface Stream
      *
      * @param value The bools that have been read.
      *
-     * @see [writeBoolSeq]
+     * @see writeBoolSeq
      *
      **/
     void readBoolSeq(string name ; BoolSeq value);
@@ -406,7 +406,7 @@ local interface Stream
      *
      * @param value The short to write.
      *
-     * @see [readShort]
+     * @see readShort
      *
      **/
     void writeShort(string name, short value);
@@ -419,7 +419,7 @@ local interface Stream
      *
      * @param value The sequence of shorts to write.
      *
-     * @see [readShortSeq]
+     * @see readShortSeq
      *
      **/
     void writeShortSeq(string name, ShortSeq value);
@@ -432,7 +432,7 @@ local interface Stream
      *
      * @param value The short that has been read.
      *
-     * @see [writeShort]
+     * @see writeShort
      *
      **/
     void readShort(string name ; short value);
@@ -445,7 +445,7 @@ local interface Stream
      *
      * @param value The shorts that have been read.
      *
-     * @see [writeShortSeq]
+     * @see writeShortSeq
      *
      **/
     void readShortSeq(string name ; ShortSeq value);
@@ -458,7 +458,7 @@ local interface Stream
      *
      * @param value The int to write.
      *
-     * @see [readInt]
+     * @see readInt
      *
      **/
     void writeInt(string name, int value);
@@ -471,7 +471,7 @@ local interface Stream
      *
      * @param value The sequence of ints to write.
      *
-     * @see [readIntSeq]
+     * @see readIntSeq
      *
      **/
     void writeIntSeq(string name, IntSeq value);
@@ -484,7 +484,7 @@ local interface Stream
      *
      * @param value The int that has been read.
      *
-     * @see [writeInt]
+     * @see writeInt
      *
      **/
     void readInt(string name ; int value);
@@ -497,7 +497,7 @@ local interface Stream
      *
      * @param value The ints that have been read.
      *
-     * @see [writeIntSeq]
+     * @see writeIntSeq
      *
      **/
     void readIntSeq(string name ; IntSeq value);
@@ -510,7 +510,7 @@ local interface Stream
      *
      * @param value The long to write.
      *
-     * @see [readLong]
+     * @see readLong
      *
      **/
     void writeLong(string name, long value);
@@ -523,7 +523,7 @@ local interface Stream
      *
      * @param value The sequence of longs to write.
      *
-     * @see [readLongSeq]
+     * @see readLongSeq
      *
      **/
     void writeLongSeq(string name, LongSeq value);
@@ -536,7 +536,7 @@ local interface Stream
      *
      * @param value The long that has been read.
      *
-     * @see [readLong]
+     * @see readLong
      *
      **/
     void readLong(string name ; long value);
@@ -549,7 +549,7 @@ local interface Stream
      *
      * @param value The longs that have been read.
      *
-     * @see [readLongSeq]
+     * @see readLongSeq
      *
      **/
     void readLongSeq(string name ; LongSeq value);
@@ -562,7 +562,7 @@ local interface Stream
      *
      * @param value The float to write.
      *
-     * @see [readFloat]
+     * @see readFloat
      *
      **/
     void writeFloat(string name, float value);
@@ -575,7 +575,7 @@ local interface Stream
      *
      * @param value The sequence of floats to write.
      *
-     * @see [readFloatSeq]
+     * @see readFloatSeq
      *
      **/
     void writeFloatSeq(string name, FloatSeq value);
@@ -588,7 +588,7 @@ local interface Stream
      *
      * @param value The float that has been read.
      *
-     * @see [writeFloat]
+     * @see writeFloat
      *
      **/
     void readFloat(string name ; float value);
@@ -601,7 +601,7 @@ local interface Stream
      *
      * @param value The floats that have been read.
      *
-     * @see [writeFloatSeq]
+     * @see writeFloatSeq
      *
      **/
     void readFloatSeq(string name ; FloatSeq value);
@@ -614,7 +614,7 @@ local interface Stream
      *
      * @param value The double to write.
      *
-     * @see [readDouble]
+     * @see readDouble
      *
      **/
     void writeDouble(string name, double value);
@@ -627,7 +627,7 @@ local interface Stream
      *
      * @param value The sequence of doubles to write.
      *
-     * @see [readDoubleSeq]
+     * @see readDoubleSeq
      *
      **/
     void writeDoubleSeq(string name, DoubleSeq value);
@@ -640,7 +640,7 @@ local interface Stream
      *
      * @param value The double that has been read.
      *
-     * @see [writeDouble]
+     * @see writeDouble
      *
      **/
     void readDouble(string name ; double value);
@@ -653,7 +653,7 @@ local interface Stream
      *
      * @param value The doubles that have been read.
      *
-     * @see [writeDoubleSeq]
+     * @see writeDoubleSeq
      *
      **/
     void readDoubleSeq(string name ; DoubleSeq value);
@@ -666,7 +666,7 @@ local interface Stream
      *
      * @param value The string to write.
      *
-     * @see [readString]
+     * @see readString
      *
      **/
     void writeString(string name, string value);
@@ -679,7 +679,7 @@ local interface Stream
      *
      * @param value The sequence of strings to write.
      *
-     * @see [readStringSeq]
+     * @see readStringSeq
      *
      **/
     void writeStringSeq(string name, StringSeq value);
@@ -692,7 +692,7 @@ local interface Stream
      *
      * @param value The string that has been read.
      *
-     * @see [writeString]
+     * @see writeString
      *
      **/
     void readString(string name ; string value);
@@ -705,7 +705,7 @@ local interface Stream
      *
      * @param value The strings that have been read.
      *
-     * @see [writeStringSeq]
+     * @see writeStringSeq
      *
      **/
     void readStringSeq(string name ; StringSeq value);
@@ -718,7 +718,7 @@ local interface Stream
      *
      * @param value The proxy to write.
      *
-     * @see [readProxy]
+     * @see readProxy
      *
      **/
     void writeProxy(string name, Object* value);
@@ -731,7 +731,7 @@ local interface Stream
      *
      * @param value The proxy that has been read.
      *
-     * @see [writeProxy]
+     * @see writeProxy
      *
      **/
     void readProxy(string name ; Object* value);
@@ -744,7 +744,7 @@ local interface Stream
      *
      * @param value The object to write.
      *
-     * @see [readObject]
+     * @see readObject
      *
      **/
     void writeObject(string name, Object value);
@@ -766,7 +766,7 @@ local interface Stream
      *
      * @param value The object that has been read.
      *
-     * @see ObjectFactory, [readObject]
+     * @see ObjectFactory, readObject
      *
      **/
     void readObject(string name, string signatureType, ObjectFactory factory; Object value);
