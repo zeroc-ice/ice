@@ -26,7 +26,7 @@ class ClientConnection : public Connection
 {
 
 public:
-    ClientConnection(const CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
+    ClientConnection(const IceSecurity::Ssl::CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
     virtual ~ClientConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);

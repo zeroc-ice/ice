@@ -14,3 +14,15 @@ IceSecurity::Ssl::OpenSSL::CertificateVerifier::~CertificateVerifier()
 {
 }
 
+void
+IceInternal::incRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier* p)
+{
+    p->__incRef();
+}
+
+void
+IceInternal::decRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier* p)
+{
+    p->__decRef();
+}
+

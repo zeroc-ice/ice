@@ -134,7 +134,7 @@ class Connection : public IceSecurity::Ssl::Connection
 {
 public:
 
-    Connection(const CertificateVerifierPtr&, SSL*, const SystemPtr&);
+    Connection(const IceSecurity::Ssl::CertificateVerifierPtr&, SSL*, const SystemPtr&);
     virtual ~Connection();
 
     virtual void shutdown();

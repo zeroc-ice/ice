@@ -21,6 +21,10 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+if TestUtil.protocol != "ssl":
+    print "This test may only be run using the SSL protocol."
+    sys.exit(0)
+
 starter = os.path.join(toplevel, "bin", "glacierstarter")
 router = os.path.join(toplevel, "bin", "glacier")
 
@@ -28,14 +32,12 @@ updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
-print "starting glacier starter...",
 command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Client.Endpoints="default"' + \
           r' --Glacier.Server.Endpoints="tcp"' + \
-          r' --Glacier.Starter.PropertiesOverwrite="Ice.Security.Ssl.CertPath=./"' + \
           r' --Glacier.Starter.Certificate.Country=US' + \
           r' --Glacier.Starter.Certificate.StateProvince=Alabama' + \
           r' --Glacier.Starter.Certificate.Locality=Huntsville' + \
@@ -45,6 +47,7 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.Certificate.BitStrength=1024' + \
           r' --Glacier.Starter.Certificate.SecondsValid=31536000'
 
+print "starting glacier starter...",
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)

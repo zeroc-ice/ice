@@ -42,11 +42,22 @@ public:
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;
 };
 
-}
+typedef ::IceInternal::Handle< ::IceSecurity::Ssl::OpenSSL::CertificateVerifier> CertificateVerifierPtr;
 
 }
 
 }
+
+}
+
+namespace IceInternal
+{
+
+ICE_API void incRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier*);
+ICE_API void decRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier*);
+
+}
+
 
 #endif
 

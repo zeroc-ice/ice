@@ -27,7 +27,7 @@ namespace Ssl
 class Connection : public IceUtil::Shared
 {
 public:
-    Connection(const CertificateVerifierPtr&);
+    Connection(const IceSecurity::Ssl::CertificateVerifierPtr&);
     virtual ~Connection();
 
     virtual void shutdown() = 0;

@@ -26,7 +26,7 @@ class ServerConnection : public Connection
 {
 
 public:
-    ServerConnection(const CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
+    ServerConnection(const IceSecurity::Ssl::CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
     virtual ~ServerConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);

@@ -39,10 +39,17 @@ using std::dec;
 // Public Methods
 //
 
-IceSecurity::Ssl::OpenSSL::ClientConnection::ClientConnection(const CertificateVerifierPtr& certificateVerifier,
-                                                              SSL* connection,
-                                                              const SystemPtr& system) :
-                                            Connection(certificateVerifier, connection, system)
+// Note: I would use a using directive of the form:
+//       using IceSecurity::Ssl::CertificateVerifierPtr;
+//       but unfortunately, it appears that this is not properly picked up.
+//
+
+IceSecurity::Ssl::OpenSSL::ClientConnection::ClientConnection(
+            const IceSecurity::Ssl::CertificateVerifierPtr& certificateVerifier,
+            SSL* connection,
+            const SystemPtr& system) :
+                                            Connection(certificateVerifier,
+                                                       connection, system)
 {
 }
 

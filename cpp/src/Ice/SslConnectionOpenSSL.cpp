@@ -163,9 +163,15 @@ IceSecurity::Ssl::OpenSSL::SslConnectionMap IceSecurity::Ssl::OpenSSL::Connectio
 void ::IceInternal::incRef(::IceSecurity::Ssl::OpenSSL::Connection* p) { p->__incRef(); }
 void ::IceInternal::decRef(::IceSecurity::Ssl::OpenSSL::Connection* p) { p->__decRef(); }
 
-IceSecurity::Ssl::OpenSSL::Connection::Connection(const CertificateVerifierPtr& certificateVerifier,
-                                                  SSL* sslConnection,
-                                                  const SystemPtr& system) :
+// Note: I would use a using directive of the form:
+//       using IceSecurity::Ssl::CertificateVerifierPtr;
+//       but unfortunately, it appears that this is not properly picked up.
+//
+
+IceSecurity::Ssl::OpenSSL::Connection::Connection(
+            const IceSecurity::Ssl::CertificateVerifierPtr& certificateVerifier,
+            SSL* sslConnection,
+            const SystemPtr& system) :
                                       IceSecurity::Ssl::Connection(certificateVerifier),
                                       _sslConnection(sslConnection),
                                       _system(system)
