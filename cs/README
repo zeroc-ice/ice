@@ -1,10 +1,8 @@
-This is the 1.6.0 release of Ice for C#.
-
 The following features of Ice for C++ are currently not supported:
 
 - Protocol encryption
 
-- Any of the Ice services (Freeze, Glacier, etc.)
+- Any of the Ice services (Freeze, Glacier2, etc.)
 
 - Protocol compression is supported. Note that, for compression to work,
   libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH.
@@ -16,8 +14,10 @@ Supported environments:
 
 - Visual C# (Windows)
 
-- Mono (all platforms)
+- Mono
 
+  Currently, Ice for C# does not work with Mono under Windows, due to a
+  bug in the Mono .NET class libraries.
 
 See INSTALL.VISUAL_C# for how to compile and install using Visual C#.
 
