@@ -16,7 +16,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src test demo doc
+SUBDIRS		= src test demo
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -24,6 +24,12 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+doc::
+	@( cd doc && $(MAKE) ) || exit 1
+
+clean::
+	@( cd doc && $(MAKE) clean ) || exit 1
 
 test::
 	@python $(top_srcdir)/allTests.py
