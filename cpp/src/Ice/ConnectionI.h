@@ -93,13 +93,6 @@ public:
     virtual Ice::Int timeout() const; // From Connection.
     virtual std::string toString() const;  // From Connection and EvantHandler.
 
-    //
-    // Compare connections for sorting purposes.
-    //
-    virtual bool operator==(const ConnectionI&) const;
-    virtual bool operator!=(const ConnectionI&) const;
-    virtual bool operator<(const ConnectionI&) const;
-
 private:
 
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 

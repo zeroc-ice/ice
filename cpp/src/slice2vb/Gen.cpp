@@ -5072,7 +5072,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        writeInheritedOperations(*i, opNames);
+        writeInheritedOperationsWithOpNames(*i, opNames);
     }
 
     _out << sp << nl << "Private _ice_delegate As _" << name << opIntfName;
@@ -5088,7 +5088,7 @@ Slice::Gen::TieVisitor::visitClassDefEnd(const ClassDefPtr&)
 }
 
 void
-Slice::Gen::TieVisitor::writeInheritedOperations(const ClassDefPtr& p, NameSet& opNames)
+Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p, NameSet& opNames)
 {
     OperationList ops = p->operations();
     OperationList::const_iterator r;
@@ -5153,7 +5153,7 @@ Slice::Gen::TieVisitor::writeInheritedOperations(const ClassDefPtr& p, NameSet& 
     ClassList bases = p->bases();
     for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
     {
-        writeInheritedOperations(*i, opNames);
+        writeInheritedOperationsWithOpNames(*i, opNames);
     }
 }
 

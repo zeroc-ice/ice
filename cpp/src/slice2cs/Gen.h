@@ -214,7 +214,7 @@ private:
     private:
 
 	typedef ::std::set< ::std::string> NameSet;
-	void writeInheritedOperations(const ClassDefPtr&, NameSet&);
+	void writeInheritedOperationsWithOpNames(const ClassDefPtr&, NameSet&);
     };
 
     class BaseImplVisitor : public CsVisitor

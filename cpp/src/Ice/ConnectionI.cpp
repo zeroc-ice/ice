@@ -1350,24 +1350,6 @@ Ice::ConnectionI::toString() const
     return _desc; // No mutex lock, _desc is immutable.
 }
 
-bool
-Ice::ConnectionI::operator==(const ConnectionI& r) const
-{
-    return this == &r;
-}
-
-bool
-Ice::ConnectionI::operator!=(const ConnectionI& r) const
-{
-    return this != &r;
-}
-
-bool
-Ice::ConnectionI::operator<(const ConnectionI& r) const
-{
-    return this < &r;
-}
-
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 			      const TransceiverPtr& transceiver,
 			      const EndpointPtr& endpoint,
