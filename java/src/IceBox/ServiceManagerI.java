@@ -217,11 +217,12 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         // Create the service property set.
         //
-        Ice.Properties serviceProperties = Ice.Util.createProperties();
-        String[] serviceArgs = new String[l.size()];
-        l.toArray(serviceArgs);
-        serviceArgs = serviceProperties.parseCommandLineOptions("Ice", serviceArgs);
-        serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
+        Ice.StringSeqHolder serviceArgs = new Ice.StringSeqHolder();
+        serviceArgs.value = new String[l.size()];
+        l.toArray(serviceArgs.value);
+        Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs);
+        serviceArgs.value = serviceProperties.parseCommandLineOptions("Ice", serviceArgs.value);
+        serviceArgs.value = serviceProperties.parseCommandLineOptions(service, serviceArgs.value);
 
         //
         // Instantiate the class.
@@ -269,7 +270,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         try
         {
-            svc.init(service, _communicator, serviceProperties, serviceArgs);
+            svc.init(service, _communicator, serviceProperties, serviceArgs.value);
             _services.put(service, svc);
         }
         catch (FailureException ex)
