@@ -123,6 +123,7 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void generateImpl(const UnitPtr&);
 
 private:
 
@@ -210,6 +211,21 @@ private:
     public:
 
         DispatcherVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class ImplVisitor : public JavaVisitor
+    {
+        //
+        // Generate code to assign a value
+        //
+        void writeAssign(Output&, const std::string&, const TypePtr&,
+                         const std::string&, int&);
+
+    public:
+
+        ImplVisitor(const std::string&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };

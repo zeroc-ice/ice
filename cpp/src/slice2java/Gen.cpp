@@ -1026,7 +1026,7 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type,
         out << nl << "for (int __i" << iter << " = 0; __i" << iter
             << " < " << name << ".length; __i" << iter << "++)";
         out << sb;
-	ostringstream elem;
+        ostringstream elem;
         elem << name << "[__i" << iter << ']';
         iter++;
         writeHashCode(out, seq->type(), elem.str(), iter);
@@ -1102,6 +1102,13 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     DispatcherVisitor dispatcherVisitor(_dir, _package);
     unit->visit(&dispatcherVisitor);
+}
+
+void
+Slice::Gen::generateImpl(const UnitPtr& unit)
+{
+    ImplVisitor implVisitor(_dir, _package);
+    unit->visit(&implVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
@@ -1751,7 +1758,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         << name << "[" << sz << "];";
     out << nl << "private int __value;";
     out << sp;
-    en = enumerators.begin();
     int n;
     for (en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
     {
@@ -3207,6 +3213,262 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp << nl << "private " << name << " _delegate;";
+
+    out << eb;
+    close();
+
+    return false;
+}
+
+Slice::Gen::ImplVisitor::ImplVisitor(const string& dir,
+                                     const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+void
+Slice::Gen::ImplVisitor::writeAssign(Output& out, const string& scope,
+                                     const TypePtr& type, const string& name,
+                                     int& iter)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
+    {
+        switch (builtin->kind())
+        {
+            case Builtin::KindByte:
+            {
+                out << nl << name << " = (byte)0;";
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                out << nl << name << " = false;";
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                out << nl << name << " = (short)0;";
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                out << nl << name << " = 0;";
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                out << nl << name << " = 0L;";
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                out << nl << name << " = 0.0f;";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                out << nl << name << " = 0.0;";
+                break;
+            }
+            case Builtin::KindString:
+            {
+                out << nl << name << " = \"\";";
+                break;
+            }
+            case Builtin::KindObject:
+            {
+                out << nl << name << " = null;";
+                break;
+            }
+            case Builtin::KindObjectProxy:
+            {
+                out << nl << name << " = null;";
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                out << nl << name << " = null;";
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if (prx)
+    {
+        out << nl << name << " = null;";
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if (cl)
+    {
+        out << nl << name << " = null;";
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if (st)
+    {
+        string typeS = getAbsolute(st->scoped(), scope);
+        out << nl << name << " = new " << typeS << "();";
+        DataMemberList members = st->dataMembers();
+        DataMemberList::const_iterator d;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = name + "." + fixKwd((*d)->name());
+            writeAssign(out, scope, (*d)->type(), memberName, iter);
+        }
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if (en)
+    {
+        string typeS = getAbsolute(st->scoped(), scope);
+        EnumeratorList enumerators = en->getEnumerators();
+        out << nl << name << " = " << typeS << '.'
+            << fixKwd(enumerators.front()->name()) << ';';
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
+    {
+        //
+        // Determine sequence depth
+        //
+        int depth = 0;
+        TypePtr origContent = seq->type();
+        SequencePtr s = SequencePtr::dynamicCast(origContent);
+        while (s)
+        {
+            depth++;
+            origContent = s->type();
+            s = SequencePtr::dynamicCast(origContent);
+        }
+
+        string origContentS = typeToString(origContent, TypeModeIn, scope);
+        out << nl << name << " = new " << origContentS << "[5]";
+        while (depth--)
+        {
+            out << "[]";
+        }
+        out << ';';
+        out << nl << "for (int __i" << iter << " = 0; __i" << iter << " < "
+            << name << ".length; __i" << iter << "++)";
+        out << sb;
+        ostringstream elem;
+        elem << name << "[__i" << iter << ']';
+        iter++;
+        writeAssign(out, scope, seq->type(), elem.str(), iter);
+        out << eb;
+        return;
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    assert(dict);
+    out << nl << name << " = new java.util.HashMap();";
+}
+
+bool
+Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "", "I");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    out << sp << nl << "public final class " << name << 'I';
+    if (p->isInterface())
+    {
+        out << " implements " << name;
+    }
+    else
+    {
+        out << " extends " << name;
+    }
+    out << sb;
+
+    out << nl << "public" << nl << name << "I()";
+    out << sb;
+    out << eb;
+
+    if (p->isInterface())
+    {
+        out << sp << nl << "public Ice.Dispatcher"
+            << nl << "__dispatcher()";
+        out << sb;
+        out << nl << "return new _" << name << "Disp(this);";
+        out << eb;
+    }
+
+    OperationList ops = p->allOperations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = fixKwd(op->name());
+
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+        string params = getParams(op, scope);
+
+        out << sp << nl << "public " << retS
+            << nl << opName << "(" << params;
+        if (!p->isLocal())
+        {
+            if (!params.empty())
+            {
+                out << ", ";
+            }
+            out << "Ice.Current current";
+        }
+        out << ')';
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+        writeThrowsClause(scope, throws);
+
+        out << sb;
+
+        TypeStringList outParams = op->outputParameters();
+        TypeStringList::const_iterator q;
+        int iter = 0;
+
+        //
+        // Assign values to 'out' params
+        //
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            string param = fixKwd(q->second) + ".value";
+            writeAssign(out, scope, q->first, param, iter);
+        }
+
+        //
+        // Return value
+        //
+        if (ret)
+        {
+            out << sp << nl << retS << " __r;";
+            writeAssign(out, scope, ret, "__r", iter);
+            out << nl << "return __r;";
+        }
+
+        out << eb;
+    }
 
     out << eb;
     close();

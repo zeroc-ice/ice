@@ -28,6 +28,7 @@ usage(const char* n)
         "-IDIR                   Put DIR in the include file search path.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--package PKG           Generate everything in package PKG.\n"
+        "--impl                  Generate sample implementations.\n"
         "-d, --debug             Print debug messages.\n"
         ;
 }
@@ -39,6 +40,7 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     string output;
     string package;
+    bool impl = false;
     bool debug = false;
 
     int idx = 1;
@@ -129,6 +131,15 @@ main(int argc, char* argv[])
             }
             argc -= 2;
         }
+        else if (strcmp(argv[idx], "--impl") == 0)
+        {
+            impl = true;
+            for (int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
         else if (argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
@@ -212,6 +223,10 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
             gen.generate(unit);
+            if (impl)
+            {
+                gen.generateImpl(unit);
+            }
         }
 
         unit->destroy();
