@@ -16,9 +16,9 @@ const SliceChecksumDict Ice::sliceChecksums;
 
 IceInternal::SliceChecksumInit::SliceChecksumInit(const char* checksums[])
 {
-    SliceChecksumDict& map = const_cast<SliceChecksumDict&>(sliceChecksums);
+    SliceChecksumDict& m = const_cast<SliceChecksumDict&>(sliceChecksums);
     for(int i = 0; checksums[i] != 0; i += 2)
     {
-        map.insert(SliceChecksumDict::value_type(checksums[i], checksums[i + 1]));
+        m.insert(SliceChecksumDict::value_type(checksums[i], checksums[i + 1]));
     }
 }
