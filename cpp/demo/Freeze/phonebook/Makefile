@@ -24,7 +24,6 @@ COBJS		= Grammer.o \
 
 SOBJS		= PhoneBookI.o \
 		  ServantFactory.o \
-		  ServantInitializer.o \
 		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \

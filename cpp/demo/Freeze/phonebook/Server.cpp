@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <ServantFactory.h>
-#include <ServantInitializer.h>
 
 static Ice::CommunicatorPtr communicator;
 
@@ -87,17 +86,33 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     cout << "starting up..." << endl;
     ignoreInterrupt();
 
+    //
+    // Open the phonebook database.
+    //
     DBPtr db = dbenv->open("phonebook");
 
+    //
+    // Create an Evictor.
+    //
     EvictorPtr evictor = db->createEvictor();
     evictor->setSize(3);
-    
+
+    //
+    // Create an Object Adapter, use the Evictor as Servant Locator.
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     adapter->setServantLocator(evictor);
-    
+
+    //
+    // Create and install a factory for the phonebook.
+    //
     ServantFactoryPtr phoneBookFactory = new PhoneBookFactory(adapter, evictor);
     communicator->installServantFactory(phoneBookFactory, "::PhoneBook");
 
+    //
+    // Try to load the phonebook from the database. If none exists in
+    // the database yet, create a new one. Then add the phonebook
+    // Servant to the Object Adapter.
+    //
     PhoneBookIPtr phoneBook;
     ObjectPtr servant = db->get("phonebook");
     if (!servant)
@@ -111,21 +126,28 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     assert(phoneBook);
     adapter->add(phoneBook, "phonebook");
 
+    //
+    // Create and install a factory and initializer for contacts.
+    //
     ServantFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
+    ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
     communicator->installServantFactory(contactFactory, "::Contact");
-
-    ServantInitializerPtr contactInitializer = new ContactInitializer(phoneBook);
     evictor->installServantInitializer(contactInitializer);
 
+    //
+    // Everything ok, let's go.
+    //
     adapter->activate();
-
     shutdownOnInterrupt();
     communicator->waitForShutdown();
     cout << "shutting down..." << endl;
     ignoreInterrupt();
 
+    //
+    // Application has shut down, save the phonebook in the database
+    // and exit.
+    //
     db->put("phonebook", phoneBook);
-
     return EXIT_SUCCESS;
 }
 
@@ -149,7 +171,7 @@ main(int argc, char* argv[])
     }
     catch(const DBException& ex)
     {
-	cerr << "Berkeley DB error: " << ex.message << endl;
+	cerr << ex.message << endl;
 	status = EXIT_FAILURE;
     }
 
@@ -166,7 +188,7 @@ main(int argc, char* argv[])
 	}
 	catch(const DBException& ex)
 	{
-	    cerr << "Berkeley DB error: " << ex.message << endl;
+	    cerr << ex.message << endl;
 	    status = EXIT_FAILURE;
 	}
     }

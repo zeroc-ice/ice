@@ -28,14 +28,22 @@ private:
     Freeze::EvictorPtr _evictor;
 };
 
-class ContactFactory : public Ice::ServantFactory
+class ContactFactory : virtual public Ice::ServantFactory, virtual public Freeze::ServantInitializer
 {
 public:
 
     ContactFactory(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
 
+    //
+    // Operations from ServantFactory
+    //
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
+
+    //
+    // Operations from ServantInitializer
+    //
+    virtual void initialize(const Ice::ObjectAdapterPtr&, const std::string&, const Ice::ObjectPtr&);
 
 private:
 

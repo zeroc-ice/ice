@@ -51,3 +51,11 @@ ContactFactory::destroy()
 {
     // Nothing to do
 }
+
+void
+ContactFactory::initialize(const ObjectAdapterPtr&, const string& identity, const ObjectPtr& servant)
+{
+    ContactIPtr contact = ContactIPtr::dynamicCast(servant);
+    assert(contact);
+    contact->setIdentity(identity);
+}
