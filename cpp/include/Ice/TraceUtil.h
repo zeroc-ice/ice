@@ -11,6 +11,8 @@
 #ifndef ICE_TRACE_UTIL_H
 #define ICE_TRACE_UTIL_H
 
+#include <Ice/LoggerF.h>
+#include <Ice/TraceLevelsF.h>
 #include <Ice/Config.h>
 
 namespace __Ice
@@ -18,9 +20,12 @@ namespace __Ice
 
 class Stream;
 
-void traceHeader(const char*, const Stream&);
-void traceRequest(const char*, const Stream&);
-void traceReply(const char*, const Stream&);
+void traceHeader(const char*, const Stream&,
+		 const ::Ice::Logger&, const TraceLevels&);
+void traceRequest(const char*, const Stream&,
+		  const ::Ice::Logger&, const TraceLevels&);
+void traceReply(const char*, const Stream&,
+		const ::Ice::Logger&, const TraceLevels&);
 
 }
 

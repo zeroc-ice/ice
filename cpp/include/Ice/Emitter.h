@@ -17,6 +17,8 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EndpointF.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
 #include <map>
 
@@ -74,6 +76,10 @@ private:
     std::map< ::Ice::Int, Outgoing*> requests_;
     std::auto_ptr< ::Ice::LocalException> exception_;
     State state_;
+#ifndef ICE_NO_TRACE
+    TraceLevels traceLevels_;
+    ::Ice::Logger logger_;
+#endif
 };
 
 class ICE_API EmitterFactoryI : public Shared, public JTCMutex

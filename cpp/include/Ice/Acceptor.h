@@ -14,6 +14,8 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
 
 #ifndef WIN32
@@ -49,6 +51,10 @@ private:
     int fd_;
     int backlog_;
     struct sockaddr_in addr_;
+#ifndef ICE_NO_TRACE
+    TraceLevels traceLevels_;
+    ::Ice::Logger logger_;
+#endif
 };
 
 }

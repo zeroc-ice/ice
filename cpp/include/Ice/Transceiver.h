@@ -13,6 +13,8 @@
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
 
 #ifndef WIN32
@@ -47,6 +49,10 @@ private:
 
     Instance instance_;
     int fd_;
+#ifndef ICE_NO_TRACE
+    TraceLevels traceLevels_;
+    ::Ice::Logger logger_;
+#endif
 };
 
 }

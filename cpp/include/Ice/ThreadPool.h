@@ -27,7 +27,8 @@ public:
     void _register(int, const EventHandler&);
     void unregister(int);
     void reregister(int);
-    void waitForServerShutdown();
+    void waitUntilServerFinished();
+    void waitUntilFinished();
     void joinWithAllThreads();
     
 private:

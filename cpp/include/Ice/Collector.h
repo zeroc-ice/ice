@@ -18,6 +18,8 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointF.h>
+#include <Ice/TraceLevelsF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 #include <map>
@@ -80,6 +82,10 @@ private:
     Transceiver transceiver_;
     int responseCount_;
     State state_;
+#ifndef ICE_NO_TRACE
+    TraceLevels traceLevels_;
+    ::Ice::Logger logger_;
+#endif
 };
 
 class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
@@ -123,6 +129,10 @@ private:
     Acceptor acceptor_;
     std::list<Collector> collectors_;
     State state_;
+#ifndef ICE_NO_TRACE
+    TraceLevels traceLevels_;
+    ::Ice::Logger logger_;
+#endif
 };
 
 class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
