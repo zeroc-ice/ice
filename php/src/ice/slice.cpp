@@ -30,7 +30,7 @@ using namespace std;
 class Visitor : public Slice::ParserVisitor
 {
 public:
-    Visitor(TSRMLS_D);
+    Visitor(int TSRMLS_DC);
 
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual void visitClassDefEnd(const Slice::ClassDefPtr&);
@@ -43,6 +43,7 @@ public:
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
+    int _module;
     zend_class_entry* createZendClass(const Slice::ContainedPtr&);
 #ifdef ZTS
     TSRMLS_D;
@@ -164,7 +165,7 @@ parse_slice(const string& argStr)
 }
 
 bool
-Slice_init(TSRMLS_DC)
+Slice_init(int module TSRMLS_DC)
 {
     //
     // Parse the Slice files.
@@ -177,11 +178,7 @@ Slice_init(TSRMLS_DC)
             return false;
         }
 
-#ifdef ZTS
-        Visitor visitor(TSRMLS_C);
-#else
-        Visitor visitor;
-#endif
+        Visitor visitor(module TSRMLS_CC);
         _unit->visit(&visitor);
     }
 
@@ -263,8 +260,10 @@ Slice_isNativeKey(const Slice::TypePtr& type)
     return false;
 }
 
-Visitor::Visitor(TSRMLS_D)
+Visitor::Visitor(int module TSRMLS_DC) :
+    _module(module)
 {
+cerr << "_module = " << _module << endl;
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
@@ -390,8 +389,96 @@ Visitor::visitEnum(const Slice::EnumPtr& p)
 }
 
 void
-Visitor::visitConst(const Slice::ConstPtr&)
+Visitor::visitConst(const Slice::ConstPtr& p)
 {
+    string name = ice_flatten(p->scoped()); // Don't convert to lower case; constant names are case sensitive.
+    char* cname = const_cast<char*>(name.c_str());
+    uint cnameLen = name.length() + 1;
+    string value = p->value();
+    const int flags = CONST_PERSISTENT|CONST_CS; // Persistent and case sensitive
+
+    Slice::TypePtr type = p->type();
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+        {
+            long l = (value == "true" ? 1 : 0);
+            zend_register_long_constant(cname, cnameLen, l, flags, _module TSRMLS_CC);
+            break;
+        }
+
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+        {
+            Ice::Long l;
+            string::size_type pos;
+            IceUtil::stringToInt64(value, l, pos);
+            //
+            // The platform's 'long' type may not be 64 bits, so we store 64-bit
+            // values as a string.
+            //
+            if(sizeof(Ice::Long) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
+            {
+                zend_register_stringl_constant(cname, cnameLen, const_cast<char*>(value.c_str()), value.length(),
+                                               flags, _module TSRMLS_CC);
+            }
+            else
+            {
+                zend_register_long_constant(cname, cnameLen, static_cast<long>(l), flags, _module TSRMLS_CC);
+            }
+            break;
+        }
+
+        case Slice::Builtin::KindString:
+        {
+            zend_register_stringl_constant(cname, cnameLen, const_cast<char*>(value.c_str()), value.length(), flags,
+                                           _module TSRMLS_CC);
+            break;
+        }
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        {
+            double d = atof(value.c_str());
+            zend_register_double_constant(cname, cnameLen, d, flags, _module TSRMLS_CC);
+            break;
+        }
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
+
+        return;
+    }
+
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        Slice::EnumeratorList l = en->getEnumerators();
+        Slice::EnumeratorList::iterator q;
+        long i;
+        for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
+        {
+            if((*q)->name() == value)
+            {
+                zend_register_long_constant(cname, cnameLen, i, flags, _module TSRMLS_CC);
+                return;
+            }
+        }
+        assert(false); // No match found.
+    }
+
+    //
+    // No other constant types are allowed.
+    //
+    assert(false);
 }
 
 zend_class_entry*

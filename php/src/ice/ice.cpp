@@ -90,7 +90,7 @@ ZEND_MINIT_FUNCTION(ice)
         return FAILURE;
     }
 
-    if(!Slice_init(TSRMLS_CC))
+    if(!Slice_init(module_number TSRMLS_CC))
     {
         return FAILURE;
     }

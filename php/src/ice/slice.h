@@ -24,7 +24,7 @@ extern "C"
 
 #include <Slice/Parser.h>
 
-bool Slice_init(TSRMLS_DC);
+bool Slice_init(int TSRMLS_DC);
 Slice::UnitPtr Slice_getUnit(TSRMLS_DC);
 bool Slice_shutdown(TSRMLS_DC);
 zend_class_entry* Slice_getClass(const std::string&);
