@@ -640,11 +640,17 @@ IceInternal::Instance::destroy()
 {
     assert(!_destroyed);
 
-    _objectAdapterFactory->shutdown();
-    _objectAdapterFactory->waitForShutdown();
+    if(_objectAdapterFactory)
+    {
+	_objectAdapterFactory->shutdown();
+	_objectAdapterFactory->waitForShutdown();
+    }
 	
-    _outgoingConnectionFactory->destroy();
-    _outgoingConnectionFactory->waitUntilFinished();
+    if(_outgoingConnectionFactory)
+    {
+	_outgoingConnectionFactory->destroy();
+	_outgoingConnectionFactory->waitUntilFinished();
+    }
 
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
@@ -673,27 +679,45 @@ IceInternal::Instance::destroy()
 	    std::swap(_clientThreadPool, clientThreadPool);
 	}
 
-	_servantFactoryManager->destroy();
-	_servantFactoryManager = 0;
+	if(_servantFactoryManager)
+	{
+	    _servantFactoryManager->destroy();
+	    _servantFactoryManager = 0;
+	}
 	
-	_referenceFactory->destroy();
-	_referenceFactory = 0;
+	if(_referenceFactory)
+	{
+	    _referenceFactory->destroy();
+	    _referenceFactory = 0;
+	}
 	
 	// No destroy function defined.
 	// _proxyFactory->destroy();
 	_proxyFactory = 0;
 	
-	_routerManager->destroy();
-	_routerManager = 0;
+	if(_routerManager)
+	{
+	    _routerManager->destroy();
+	    _routerManager = 0;
+	}
 
-	_locatorManager->destroy();
-	_locatorManager = 0;
+	if(_locatorManager)
+	{
+	    _locatorManager->destroy();
+	    _locatorManager = 0;
+	}
 
-	_endpointFactoryManager->destroy();
-	_endpointFactoryManager = 0;
+	if(_endpointFactoryManager)
+	{
+	    _endpointFactoryManager->destroy();
+	    _endpointFactoryManager = 0;
+	}
 
-	_pluginManager->destroy();
-	_pluginManager = 0;
+	if(_pluginManager)
+	{
+	    _pluginManager->destroy();
+	    _pluginManager = 0;
+	}
 
 	// No destroy function defined.
 	// _dynamicLibraryList->destroy();
