@@ -530,10 +530,10 @@ milliseconds, or -1 for no timeout.
 </section>
 </section>
 
-<section><title>Ice.Override.Compression</title>
+<section><title>Ice.Override.Compress</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Override.Compression=<replaceable>num</replaceable>
+Ice.Override.Compress=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
