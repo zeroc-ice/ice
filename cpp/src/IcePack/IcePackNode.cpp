@@ -54,8 +54,11 @@ public:
 
     NodeService();
 
-    virtual bool start(int, char**);
     virtual bool shutdown();
+
+protected:
+
+    virtual bool start(int, char*[]);
     virtual void waitForShutdown();
     virtual bool stop();
 
@@ -104,7 +107,15 @@ IcePack::NodeService::NodeService()
 }
 
 bool
-IcePack::NodeService::start(int argc, char** argv)
+IcePack::NodeService::shutdown()
+{
+    assert(_activator);
+    _activator->shutdown();
+    return true;
+}
+
+bool
+IcePack::NodeService::start(int argc, char* argv[])
 {
 #ifndef _WIN32
     //
@@ -155,7 +166,7 @@ IcePack::NodeService::start(int argc, char** argv)
         }
     }
 
-    Ice::PropertiesPtr properties = _communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
 
     //
     // Disable server idle time. Otherwise, the adapter would be
@@ -173,7 +184,7 @@ IcePack::NodeService::start(int argc, char** argv)
     //
     if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
     {
-        _registry = auto_ptr<Registry>(new Registry(_communicator));
+        _registry = auto_ptr<Registry>(new Registry(communicator()));
         if(!_registry->start(nowarn, true))
         {
             return false;
@@ -301,9 +312,9 @@ IcePack::NodeService::start(int argc, char** argv)
     //
     properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node-" + name);
 
-    Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("IcePack.Node");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
 
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger());
+    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
 
     //
     // Create the activator.
@@ -334,7 +345,7 @@ IcePack::NodeService::start(int argc, char** argv)
     NodePtr node = new NodeI(_activator, name, ServerDeployerPrx::uncheckedCast(adapter->createProxy(deployerId)));
     NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
 
-    NodeInfoPtr nodeInfo = new NodeInfo(_communicator, serverFactory, node, traceLevels);
+    NodeInfoPtr nodeInfo = new NodeInfo(communicator(), serverFactory, node, traceLevels);
 
     //
     // Create the server deployer.
@@ -348,7 +359,7 @@ IcePack::NodeService::start(int argc, char** argv)
     try
     {
         NodeRegistryPrx nodeRegistry = NodeRegistryPrx::checkedCast(
-            _communicator->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
+            communicator()->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
         nodeRegistry->add(name, nodeProxy);
     }
     catch(const NodeActiveException&)
@@ -380,7 +391,7 @@ IcePack::NodeService::start(int argc, char** argv)
         AdminPrx admin;
         try
         {
-            admin = AdminPrx::checkedCast(_communicator->stringToProxy("IcePack/Admin"));
+            admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin"));
         }
         catch(const Ice::LocalException& ex)
         {
@@ -429,14 +440,6 @@ IcePack::NodeService::start(int argc, char** argv)
     return true;
 }
 
-bool
-IcePack::NodeService::shutdown()
-{
-    assert(_activator);
-    _activator->shutdown();
-    return true;
-}
-
 void
 IcePack::NodeService::waitForShutdown()
 {
@@ -477,8 +480,8 @@ IcePack::NodeService::stop()
     //
     try
     {
-        _communicator->shutdown();
-        _communicator->waitForShutdown();
+        communicator()->shutdown();
+        communicator()->waitForShutdown();
     }
     catch(...)
     {
@@ -507,20 +510,31 @@ IcePack::NodeService::usage(const string& appName)
         options.append(
 	"\n"
 	"\n"
+	"--service NAME       Run as the Windows service NAME.\n"
+	"\n"
 	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
 	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name, otherwise\n"
-	"                     NAME is used. If EXEC is provided, use it as the\n"
-	"                     service executable, otherwise this executable is\n"
-	"                     used. Any additional arguments are passed\n"
-	"                     unchanged to the service at startup.\n"
-	"\n"
+	"                     provided, use it as the display name,\n"
+	"                     otherwise NAME is used. If EXEC is provided,\n"
+	"                     use it as the service executable, otherwise\n"
+	"                     this executable is used. Any additional\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service at startup.\n"
 	"--uninstall NAME     Uninstall Windows service NAME.\n"
 	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the service.\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service.\n"
 	"--stop NAME          Stop Windows service NAME."
         );
     }
+#else
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory."
+    );
 #endif
     cerr << "Usage: " << appName << " [options]" << endl;
     cerr << options << endl;

@@ -28,7 +28,9 @@ public:
 
     RegistryService();
 
-    virtual bool start(int, char**);
+protected:
+
+    virtual bool start(int, char*[]);
 
 private:
 
@@ -44,7 +46,7 @@ IcePack::RegistryService::RegistryService()
 }
 
 bool
-IcePack::RegistryService::start(int argc, char** argv)
+IcePack::RegistryService::start(int argc, char* argv[])
 {
     bool nowarn = false;
     for(int i = 1; i < argc; ++i)
@@ -71,7 +73,7 @@ IcePack::RegistryService::start(int argc, char** argv)
         }
     }
 
-    _registry = auto_ptr<Registry>(new Registry(_communicator));
+    _registry = auto_ptr<Registry>(new Registry(communicator()));
     if(!_registry->start(nowarn, false))
     {
         return false;
@@ -94,20 +96,31 @@ IcePack::RegistryService::usage(const string& appName)
         options.append(
 	"\n"
 	"\n"
+	"--service NAME       Run as the Windows service NAME.\n"
+	"\n"
 	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
 	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name, otherwise\n"
-	"                     NAME is used. If EXEC is provided, use it as the\n"
-	"                     service executable, otherwise this executable is\n"
-	"                     used. Any additional arguments are passed\n"
-	"                     unchanged to the service at startup.\n"
-	"\n"
+	"                     provided, use it as the display name,\n"
+	"                     otherwise NAME is used. If EXEC is provided,\n"
+	"                     use it as the service executable, otherwise\n"
+	"                     this executable is used. Any additional\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service at startup.\n"
 	"--uninstall NAME     Uninstall Windows service NAME.\n"
 	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the service.\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service.\n"
 	"--stop NAME          Stop Windows service NAME."
         );
     }
+#else
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory."
+    );
 #endif
     cerr << "Usage: " << appName << " [options]" << endl;
     cerr << options << endl;

@@ -29,31 +29,32 @@ public:
     Service();
     virtual ~Service();
 
-    virtual bool start(int, char**) = 0;
     virtual bool shutdown();
-    virtual void waitForShutdown();
-    virtual bool stop();
     virtual void interrupt();
-    virtual void initializeCommunicator(int&, char**);
 
     int main(int, char*[]);
-    void enableInterrupt();
-    void disableInterrupt();
+    Ice::CommunicatorPtr communicator() const;
 
     static Service* instance();
 
 protected:
 
-    void syserror(const std::string&);
-    void error(const std::string&);
-    void warning(const std::string&);
-    void trace(const std::string&);
+    virtual bool start(int, char*[]) = 0;
+    virtual void waitForShutdown();
+    virtual bool stop();
+    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[]);
 
-    Ice::CommunicatorPtr _communicator;
+    void enableInterrupt();
+    void disableInterrupt();
+
+    void syserror(const std::string&) const;
+    void error(const std::string&) const;
+    void warning(const std::string&) const;
+    void trace(const std::string&) const;
 
 #ifdef _WIN32
 
-    bool _win9x; // Are we running on Windows 9x/ME?
+    bool win9x() const;
 
 private:
 
@@ -71,6 +72,7 @@ public:
 private:
 
     bool _service;
+    bool _win9x; // Are we running on Windows 9x/ME?
     SERVICE_STATUS_HANDLE _statusHandle;
     SERVICE_STATUS _status;
     std::vector<std::string> _serviceArgs;
@@ -87,6 +89,7 @@ private:
 
     std::string _prog;
     Ice::LoggerPtr _logger;
+    Ice::CommunicatorPtr _communicator;
     static Service* _instance;
 };
 

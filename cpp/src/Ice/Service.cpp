@@ -132,32 +132,9 @@ Ice::Service::shutdown()
 }
 
 void
-Ice::Service::waitForShutdown()
-{
-    if(_communicator)
-    {
-        enableInterrupt();
-        _communicator->waitForShutdown();
-        disableInterrupt();
-    }
-}
-
-bool
-Ice::Service::stop()
-{
-    return true;
-}
-
-void
 Ice::Service::interrupt()
 {
     shutdown();
-}
-
-void
-Ice::Service::initializeCommunicator(int& argc, char** argv)
-{
-    _communicator = Ice::initialize(argc, argv);
 }
 
 int
@@ -191,7 +168,7 @@ Ice::Service::main(int argc, char* argv[])
         //
         // Initialize the communicator.
         //
-        initializeCommunicator(argc, argv);
+        _communicator = initializeCommunicator(argc, argv);
 
         //
         // Use the configured logger.
@@ -240,6 +217,41 @@ Ice::Service::main(int argc, char* argv[])
     return status;
 }
 
+Ice::CommunicatorPtr
+Ice::Service::communicator() const
+{
+    return _communicator;
+}
+
+Ice::Service*
+Ice::Service::instance()
+{
+    return _instance;
+}
+
+void
+Ice::Service::waitForShutdown()
+{
+    if(_communicator)
+    {
+        enableInterrupt();
+        _communicator->waitForShutdown();
+        disableInterrupt();
+    }
+}
+
+bool
+Ice::Service::stop()
+{
+    return true;
+}
+
+Ice::CommunicatorPtr
+Ice::Service::initializeCommunicator(int& argc, char* argv[])
+{
+    return Ice::initialize(argc, argv);
+}
+
 void
 Ice::Service::enableInterrupt()
 {
@@ -252,14 +264,8 @@ Ice::Service::disableInterrupt()
     _ctrlCHandler->setCallback(0);
 }
 
-Ice::Service*
-Ice::Service::instance()
-{
-    return _instance;
-}
-
 void
-Ice::Service::syserror(const std::string& msg)
+Ice::Service::syserror(const std::string& msg) const
 {
     string errmsg;
 #ifdef _WIN32
@@ -316,7 +322,7 @@ Ice::Service::syserror(const std::string& msg)
 }
 
 void
-Ice::Service::error(const std::string& msg)
+Ice::Service::error(const std::string& msg) const
 {
     if(_logger)
     {
@@ -329,7 +335,7 @@ Ice::Service::error(const std::string& msg)
 }
 
 void
-Ice::Service::warning(const std::string& msg)
+Ice::Service::warning(const std::string& msg) const
 {
     if(_logger)
     {
@@ -342,7 +348,7 @@ Ice::Service::warning(const std::string& msg)
 }
 
 void
-Ice::Service::trace(const std::string& msg)
+Ice::Service::trace(const std::string& msg) const
 {
     if(_logger)
     {
@@ -943,7 +949,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     //
     try
     {
-        initializeCommunicator(argc, args);
+        _communicator = initializeCommunicator(argc, args);
     }
     catch(const Ice::Exception& ex)
     {
@@ -1104,7 +1110,7 @@ bool
 Ice::Service::checkDaemon(int argc, char* argv[], int& status)
 {
     //
-    // Check for --daemon.
+    // Check for --daemon, --noclose and --nochdir.
     //
     bool daemonize = false;
     bool noClose = false;
@@ -1357,7 +1363,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         //
         // Initialize the communicator.
         //
-        initializeCommunicator(argc, argv);
+        _communicator = initializeCommunicator(argc, argv);
 
         if(!noClose)
         {

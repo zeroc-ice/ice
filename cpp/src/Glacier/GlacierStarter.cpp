@@ -32,9 +32,11 @@ public:
 
     StarterService();
 
-    virtual bool start(int, char**);
+protected:
+
+    virtual bool start(int, char*[]);
     virtual bool stop();
-    virtual void initializeCommunicator(int&, char**);
+    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[]);
 
 private:
 
@@ -79,7 +81,7 @@ Glacier::StarterService::StarterService()
 }
 
 bool
-Glacier::StarterService::start(int argc, char** argv)
+Glacier::StarterService::start(int argc, char* argv[])
 {
     for(int i = 1; i < argc; ++i)
     {
@@ -101,7 +103,7 @@ Glacier::StarterService::start(int argc, char** argv)
         }
     }
 
-    Ice::PropertiesPtr properties = _communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
 
     //
     // Initialize the object adapter (and make sure this object
@@ -114,7 +116,7 @@ Glacier::StarterService::start(int argc, char** argv)
 	return false;
     }
 
-    Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("Glacier.Starter");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier.Starter");
 
     //
     // Get the permissions verifier, or create one if no verifier is
@@ -124,7 +126,7 @@ Glacier::StarterService::start(int argc, char** argv)
     PermissionsVerifierPrx verifier;
     if(!verifierProperty.empty())
     {
-	verifier = PermissionsVerifierPrx::checkedCast(_communicator->stringToProxy(verifierProperty));
+	verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
 	if(!verifier)
 	{
 	    error("permissions verifier `" + verifierProperty + "' is invalid");
@@ -173,7 +175,7 @@ Glacier::StarterService::start(int argc, char** argv)
     //
     // Create and initialize the starter object.
     //
-    _starter = new StarterI(_communicator, verifier);
+    _starter = new StarterI(communicator(), verifier);
     adapter->add(_starter, Ice::stringToIdentity("Glacier/starter"));
 
     //
@@ -196,8 +198,8 @@ Glacier::StarterService::stop()
     return true;
 }
 
-void
-Glacier::StarterService::initializeCommunicator(int& argc, char** argv)
+Ice::CommunicatorPtr
+Glacier::StarterService::initializeCommunicator(int& argc, char* argv[])
 {
     //
     // Make sure that this process doesn't use a router.
@@ -205,7 +207,7 @@ Glacier::StarterService::initializeCommunicator(int& argc, char** argv)
     Ice::PropertiesPtr defaultProperties = Ice::getDefaultProperties(argc, argv);
     defaultProperties->setProperty("Ice.Default.Router", "");
 
-    Service::initializeCommunicator(argc, argv);
+    return Service::initializeCommunicator(argc, argv);
 }
 
 void
@@ -221,20 +223,31 @@ Glacier::StarterService::usage(const string& appName)
         options.append(
 	"\n"
 	"\n"
+	"--service NAME       Run as the Windows service NAME.\n"
+	"\n"
 	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
 	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name, otherwise\n"
-	"                     NAME is used. If EXEC is provided, use it as the\n"
-	"                     service executable, otherwise this executable is\n"
-	"                     used. Any additional arguments are passed\n"
-	"                     unchanged to the service at startup.\n"
-	"\n"
+	"                     provided, use it as the display name,\n"
+	"                     otherwise NAME is used. If EXEC is provided,\n"
+	"                     use it as the service executable, otherwise\n"
+	"                     this executable is used. Any additional\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service at startup.\n"
 	"--uninstall NAME     Uninstall Windows service NAME.\n"
 	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the service.\n"
+	"                     arguments are passed unchanged to the\n"
+	"                     service.\n"
 	"--stop NAME          Stop Windows service NAME."
         );
     }
+#else
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory."
+    );
 #endif
     cerr << "Usage: " << appName << " [options]" << endl;
     cerr << options << endl;
