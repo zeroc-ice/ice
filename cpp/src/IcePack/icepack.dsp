@@ -134,7 +134,7 @@ InputPath=..\..\slice\IcePack\Admin.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
 	move Admin.h ..\..\include\IcePack \
 	
 
@@ -153,7 +153,7 @@ InputPath=..\..\slice\IcePack\Admin.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
 	move Admin.h ..\..\include\IcePack \
 	
 
@@ -179,7 +179,7 @@ InputPath=..\..\slice\IcePack\AdminF.ice
 
 "..\..\include\IcePack\AdminF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/AdminF.ice 
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/AdminF.ice 
 	move AdminF.h ..\..\include\IcePack 
 	del AdminF.cpp 
 	
@@ -193,7 +193,7 @@ InputPath=..\..\slice\IcePack\AdminF.ice
 
 "..\..\include\IcePack\AdminF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/AdminF.ice 
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/AdminF.ice 
 	move AdminF.h ..\..\include\IcePack 
 	del AdminF.cpp 
 	

@@ -181,7 +181,7 @@ InputPath=.\Activator.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. Activator.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. Activator.ice \
 	
 
 "Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -199,7 +199,7 @@ InputPath=.\Activator.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. Activator.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. Activator.ice \
 	
 
 "Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -224,7 +224,7 @@ InputPath=.\AdapterManager.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
 	
 
 "AdapterManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -242,7 +242,7 @@ InputPath=.\AdapterManager.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
 	
 
 "AdapterManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -280,7 +280,7 @@ InputPath=.\AdapterManagerF.ice
 
 "AdapterManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManagerF.ice 
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. AdapterManagerF.ice 
 	del AdapterManagerF.cpp 
 	
 # End Custom Build
@@ -300,7 +300,7 @@ InputPath=.\ServerManager.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManager.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. ServerManager.ice \
 	
 
 "ServerManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -318,7 +318,7 @@ InputPath=.\ServerManager.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManager.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. ServerManager.ice \
 	
 
 "ServerManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -343,7 +343,7 @@ InputPath=.\ServerManagerF.ice
 
 "ServerManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
 	del ServerManagerF.cpp 
 	
 # End Custom Build
@@ -356,7 +356,7 @@ InputPath=.\ServerManagerF.ice
 
 "ServerManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
 	del ServerManagerF.cpp 
 	
 # End Custom Build
