@@ -42,7 +42,13 @@ validate(const DBPtr& db)
 	//
 	// Verify the stored record is correct.
 	//
-	test(p->first.result == p->second->calc());
+        // COMPILERFIX: VC.NET reports an unhandled
+        // exception if the test is written this way:
+        //
+	//test(p->first.result == p->second->calc());
+        //
+        Complex::NodePtr n = p->second;
+	test(p->first.result == n->calc());
 
 	//
 	// Verify that the expression & result again.
