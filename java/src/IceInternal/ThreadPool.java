@@ -204,12 +204,22 @@ public final class ThreadPool
             _multipleThreads = true;
         }
 
+        //
+        // Use Ice.ProgramName as the prefix for the thread names.
+        //
+        String threadNamePrefix = "";
+        String programName = _instance.properties().getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            threadNamePrefix = programName + "-";
+        }
+
         try
         {
             _threads = new EventHandlerThread[_threadNum];
             for(int i = 0; i < _threadNum; i++)
             {
-                _threads[i] = new EventHandlerThread(_name + "-" + i);
+                _threads[i] = new EventHandlerThread(threadNamePrefix + _name + "-" + i);
                 _threads[i].start();
             }
         }
