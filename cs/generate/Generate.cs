@@ -132,14 +132,21 @@ namespace Generate
 		    info.RedirectStandardOutput = true;
 		    info.RedirectStandardError = true;
 		    p = Process.Start(info);
+                    if(p == null)
+                    {
+                        Console.Error.WriteLine(progName + ": cannot start `" + slice2cs + " " + cmdArgs + "'");
+                        Environment.Exit(1);
+                    }
 		    Thread t1 = new Thread (new ThreadStart(RedirectStandardOutput));
 		    Thread t2 = new Thread(new ThreadStart(RedirectStandardError));
 		    t1.Start();
 		    t2.Start();
 		    p.WaitForExit();
+                    int rc = p.ExitCode;
+                    p.Close();
 		    t1.Join();
 		    t2.Join();
-		    Environment.Exit(p.ExitCode);
+		    Environment.Exit(rc);
 		}
 		Environment.Exit(0);
 	    }
