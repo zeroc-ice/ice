@@ -1071,7 +1071,19 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					    }
 					    
 					    facet.status = clean;
-					    streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+					    try
+					    {
+						streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+					    }
+					    catch(RuntimeException ex)
+					    {
+						java.io.StringWriter sw = new java.io.StringWriter();
+						java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+						ex.printStackTrace(pw);
+						pw.flush();
+						_communicator.getLogger().error
+						    (_errorPrefix + "marshalling error in saving thread:\n" + sw.toString());
+					    }
 					}
 					else
 					{
