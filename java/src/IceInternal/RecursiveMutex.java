@@ -40,7 +40,7 @@ public class RecursiveMutex
             }
         }
 
-        assert _owner == null && _count == 0;
+        assert(_owner == null && _count == 0);
         _locked = true;
         _owner = Thread.currentThread();
         _count = 1;
@@ -59,7 +59,7 @@ public class RecursiveMutex
 
         if (_owner == Thread.currentThread())
         {
-            assert _count > 0;
+            assert(_count > 0);
             _count++;
             return true;
         }
@@ -70,7 +70,7 @@ public class RecursiveMutex
     public synchronized void
     unlock()
     {
-        assert _owner == Thread.currentThread() && _count > 0 && _locked;
+        assert(_owner == Thread.currentThread() && _count > 0 && _locked);
         _count--;
         if (_count <= 0)
         {

@@ -110,7 +110,7 @@ public class Collector extends EventHandler
 
             try
             {
-                // assert stream.i == stream.b.end(); TODO
+                // assert(stream.i == stream.b.end()); TODO
                 // stream.i = stream.b.begin() + 2;
                 // Byte messageType;
                 // stream.read(messageType);
@@ -157,14 +157,14 @@ public class Collector extends EventHandler
                     {
                         if (_state == StateClosing)
                         {
-                            TraceUtil.traceRequest(
+                            TraceUtil.traceBatchRequest(
                                 "received batch request during closing\n" +
                                 "(ignored by server, client will retry)",
                                 stream, _logger, _traceLevels);
                         }
                         else
                         {
-                            TraceUtil.traceRequest(
+                            TraceUtil.traceBatchRequest(
                                 "received batch request", stream, _logger,
                                 _traceLevels);
                             invoke = true;
@@ -175,7 +175,7 @@ public class Collector extends EventHandler
 
                     case Protocol.replyMsg:
                     {
-                        TraceUtil.traceRequest(
+                        TraceUtil.traceReply(
                             "received reply on server side\n" +
                             "(invalid, closing connection)",
                             stream, _logger, _traceLevels);
@@ -185,7 +185,7 @@ public class Collector extends EventHandler
 
                     case Protocol.closeConnectionMsg:
                     {
-                        TraceUtil.traceRequest(
+                        TraceUtil.traceHeader(
                             "received close connection on server side\n" +
                             "(invalid, closing connection)",
                             stream, _logger, _traceLevels);
@@ -195,7 +195,7 @@ public class Collector extends EventHandler
 
                     default:
                     {
-                        TraceUtil.traceRequest(
+                        TraceUtil.traceHeader(
                             "received unknown message\n" +
                             "(invalid, closing connection)",
                             stream, _logger, _traceLevels);
@@ -249,7 +249,7 @@ public class Collector extends EventHandler
                 }
                 catch (Exception ex)
                 {
-                    assert false; // Should not happen
+                    assert(false); // Should not happen
                 }
             }
             while (batch && stream.i < stream.b.end());
@@ -342,7 +342,7 @@ public class Collector extends EventHandler
         try
         {
             //
-            // We also unregister with the thread poool if we go to holding
+            // We also unregister with the thread pool if we go to holding
             // state, but in this case we may not close the connection.
             //
             if (_state == StateClosed)
@@ -414,7 +414,7 @@ public class Collector extends EventHandler
     finalize()
         throws Throwable
     {
-        assert _state == StateClosed;
+        assert(_state == StateClosed);
     }
 
     private static final int StateActive = 0;
@@ -455,7 +455,7 @@ public class Collector extends EventHandler
                     return;
                 }
 
-                _threadPool._unregister(_transceiver.fd());
+                _threadPool.unregister(_transceiver.fd());
                 break;
             }
 
@@ -507,11 +507,13 @@ public class Collector extends EventHandler
                 }
                 else
                 {
-                    _threadPool._unregister(_transceiver.fd());
+                    _threadPool.unregister(_transceiver.fd());
                 }
                 break;
             }
         }
+
+        _state = state;
     }
 
     private void

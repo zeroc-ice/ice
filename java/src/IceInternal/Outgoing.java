@@ -138,7 +138,7 @@ public final class Outgoing
                     throw new Ice.LocationForward(p);
                 }
 
-                assert _state == StateOK;
+                assert(_state == StateOK);
                 break;
             }
 
@@ -166,7 +166,7 @@ public final class Outgoing
     public synchronized void
     finished(Ice.Stream is)
     {
-        assert _state != StateUnsent;
+        assert(_state != StateUnsent);
         if (_state == StateInProgress)
         {
             _is.swap(is);
@@ -247,7 +247,7 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-        assert _state != StateUnsent;
+        assert(_state != StateUnsent);
         if (_state == StateInProgress)
         {
             _state = StateLocalException;
