@@ -15,8 +15,7 @@ public final class ObjectAdapterFactory
     public synchronized void
     shutdown()
     {
-        java.util.Set entrySet = _adapters.entrySet();
-        java.util.Iterator i = entrySet.iterator();
+        java.util.Iterator i = _adapters.values().iterator();
         while (i.hasNext())
         {
             Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
@@ -42,8 +41,7 @@ public final class ObjectAdapterFactory
     public Ice.ObjectAdapter
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
-        java.util.Set entrySet = _adapters.entrySet();
-        java.util.Iterator i = entrySet.iterator();
+        java.util.Iterator i = _adapters.values().iterator();
         while (i.hasNext())
         {
             Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.next();

@@ -87,13 +87,11 @@ public class ObjectAdapterI implements ObjectAdapter
         _activeServantMap.clear();
         // TODO: Hint
 
-        int sz = _locatorMap.size();
-        java.util.Set entrySet = _locatorMap.entrySet();
-        ServantLocator[] locators = new ServantLocator[sz];
-        entrySet.toArray(locators);
-        for (int n = 0; n < sz; n++)
+        java.util.Iterator p = _locatorMap.values().iterator();
+        while (p.hasNext())
         {
-            locators[n].deactivate();
+            ServantLocator locator = (ServantLocator)p.next();
+            locator.deactivate();
         }
         _locatorMap.clear();
         // TODO: Hint

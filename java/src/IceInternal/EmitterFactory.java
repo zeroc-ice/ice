@@ -25,8 +25,7 @@ public final class EmitterFactory
         //
         // First reap destroyed emitters
         //
-        java.util.Set entries = _emitters.entrySet();
-        java.util.Iterator p = entries.iterator();
+        java.util.Iterator p = _emitters.values().iterator();
         while (p.hasNext())
         {
             Emitter emitter = (Emitter)p.next();
@@ -134,8 +133,7 @@ public final class EmitterFactory
             return;
         }
 
-        java.util.Set entries = _emitters.entrySet();
-        java.util.Iterator p = entries.iterator();
+        java.util.Iterator p = _emitters.values().iterator();
         while (p.hasNext())
         {
             Emitter emitter = (Emitter)p.next();
