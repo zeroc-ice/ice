@@ -37,7 +37,7 @@ mklibname           	= lib$(1).dylib
 
 mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
 
-BASELIBS		= -lIceEUtil -lpthread 
+BASELIBS		= -lpthread 
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = -lpthread

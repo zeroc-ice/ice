@@ -11,8 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice
+SUBDIRS		= Ice
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -18,13 +18,10 @@ Package=<4>
     Project_Dep_Name icecpp
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name slice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cpp
+    Project_Dep_Name slice2cppe
     End Project Dependency
 }}}
 
@@ -42,13 +39,10 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name slice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cpp
+    Project_Dep_Name slice2cppe
     End Project Dependency
 }}}
 
@@ -66,13 +60,10 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name slice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cpp
+    Project_Dep_Name slice2cppe
     End Project Dependency
 }}}
 
@@ -117,7 +108,7 @@ Package=<4>
     Project_Dep_Name interfaceCOL
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cpp
+    Project_Dep_Name slice2cppe
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name html
@@ -196,9 +187,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name nestedS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name facetsC
@@ -539,9 +527,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -557,9 +542,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -574,9 +556,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
@@ -597,9 +576,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
 }}}
@@ -615,7 +591,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name iceutil
+    Project_Dep_Name ice
     End Project Dependency
 }}}
 
@@ -632,9 +608,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -649,9 +622,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -668,9 +638,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -685,9 +652,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -704,9 +668,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -721,9 +682,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -740,9 +698,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -758,9 +713,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -775,9 +727,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
@@ -798,9 +747,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
 }}}
@@ -816,23 +762,8 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name slice2cpp
+    Project_Dep_Name slice2cppe
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "iceutil"=.\src\iceutil\iceutil.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
@@ -847,9 +778,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -866,9 +794,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -884,9 +809,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -901,9 +823,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
@@ -924,9 +843,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
 }}}
@@ -944,9 +860,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -961,9 +874,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -980,9 +890,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -997,9 +904,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -1016,9 +920,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1033,9 +934,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -1052,9 +950,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1069,9 +964,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
@@ -1092,9 +984,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
 }}}
@@ -1112,9 +1001,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1129,9 +1015,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -1148,9 +1031,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1165,9 +1045,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 
@@ -1184,9 +1061,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1200,7 +1074,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name iceutil
+    Project_Dep_Name ice
     End Project Dependency
 }}}
 
@@ -1217,9 +1091,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1235,9 +1106,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1251,7 +1119,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name iceutil
+    Project_Dep_Name ice
     End Project Dependency
 }}}
 
@@ -1265,9 +1133,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
 }}}
 
 ###############################################################################

@@ -28,7 +28,7 @@ CXXLIBS			=
 
 mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lc_r
 
-BASELIBS		= -lIceEUtil -lc_r
+BASELIBS		= -lc_r
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = 

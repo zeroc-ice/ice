@@ -71,7 +71,7 @@ mksoname                = $(if $(2),lib$(1).$(2),lib$(1).sl)
 mklibname               = lib$(1).sl
 mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
 
-BASELIBS		= -lIceEUtil -lxnet -lpthread
+BASELIBS		= -lxnet -lpthread
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         := -lpthread -lrt

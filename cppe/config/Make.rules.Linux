@@ -97,7 +97,7 @@ ifeq ($(CXX),icpc)
 
 endif
 
-BASELIBS		= -lIceEUtil $(STLPORT_LIBS) -lpthread 
+BASELIBS		= $(STLPORT_LIBS) -lpthread 
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = 

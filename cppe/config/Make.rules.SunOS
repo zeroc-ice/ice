@@ -99,7 +99,7 @@ ifeq ($(CXX),g++)
     mkshlib              = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 endif
 
-BASELIBS		= -lIceEUtil -lpthread
+BASELIBS		= -lpthread
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         := -lpthread -lrt

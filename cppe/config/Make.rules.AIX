@@ -54,7 +54,7 @@ mkshlib                 = $(CXX) -qmkshrobj $(LDFLAGS) -o $(2) $(3) $(4) ; ar -r
 
 installlib              = $(INSTALL) $(2)/$(3) $(1)
 
-BASELIBS		= -lIceEUtil
+BASELIBS		=
 LIBS			= -lIceE $(BASELIBS)
 
 ICEUTIL_OS_LIBS         :=
