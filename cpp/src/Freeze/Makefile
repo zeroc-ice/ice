@@ -18,7 +18,8 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
-OBJS		= DB.o
+OBJS		= DB.o \
+	  	  DBI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

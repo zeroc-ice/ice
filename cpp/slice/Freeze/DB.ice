@@ -31,10 +31,12 @@ local class Exception
 {
     /**
      *
-     * A message describing the failure that caused the exception.
+     * Get a message describing the failure that caused the exception.
+     *
+     * @return The message describing the exception.
      *
      **/
-    string _msg;
+    string message();
 };
 
 /**
@@ -47,12 +49,6 @@ local class Exception
  **/
 local class DBException extends Exception
 {
-    /**
-     *
-     * The database object that raised this exception.
-     *
-     **/
-    DB _factory;
 };
 
 /**
@@ -99,12 +95,6 @@ local class DB
  **/
 local class DBFactoryException extends Exception
 {
-    /**
-     *
-     * The database object factory that raised this exception.
-     *
-     **/
-    DBFactory _factory;
 };
 
 /**
