@@ -30,6 +30,11 @@ public final class Reference
     {
         Reference r = (Reference)obj;
 
+        if (r == null)
+        {
+            return false;
+        }
+
         if (this == r)
         {
             return true;
