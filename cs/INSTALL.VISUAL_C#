@@ -18,10 +18,16 @@ Open icecs/All.sln in Visual C# and build the "All" solution (both
 debug and release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
-errors for the "adapterDeactivationCOL" and/or the "adapterDeactivationS"
-project. The work-around is to rebuild (not build) these projects
-once you have seen the errors. Thereafter, building the projects seems to work
-fine. (If someone can work out why this is happening, please let us know!)
+errors for the following projects:
+
+ * adapterDeactivationCOL
+ * adapterDeactivationS
+ * helloIcePackS
+
+The work-around is to rebuild (not build) these projects individually
+once you have seen the errors. Thereafter, building the projects seems to
+work fine. (If someone can work out why this is happening, please let us
+know!)
 
 
 Running the tests
