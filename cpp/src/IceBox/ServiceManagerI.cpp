@@ -18,7 +18,7 @@
 #include <Freeze/Initialize.h>
 
 using namespace Ice;
-using namespace IceInternal;
+using namespace IceBox;
 using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
@@ -207,8 +207,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     // Load the entry point.
     //
-    DynamicLibraryPtr library = new DynamicLibrary();
-    DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
+    IceInternal::DynamicLibraryPtr library = new IceInternal::DynamicLibrary();
+    IceInternal::DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
     if(sym == 0)
     {
         string msg = library->getErrorMessage();
@@ -236,7 +236,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
         throw e;
     }
-    catch (...)
+    catch(...)
     {
         FailureException e(__FILE__, __LINE__);
         e.reason = "ServiceManager: unknown exception in entry point `" + entryPoint + "'";
@@ -258,7 +258,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	PropertiesPtr properties = _server->communicator()->getProperties();
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	{
-	    Ice::PropertiesPtr fileProperties = Ice::createProperties(serviceArgs);
+	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    properties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
 
 	    serviceArgs = properties->parseCommandLineOptions("Ice", serviceArgs);
@@ -269,9 +269,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    int argc = 0;
 	    char **argv = 0;
 	    
-	    Ice::PropertiesPtr serviceProperties = properties->clone();
+	    PropertiesPtr serviceProperties = properties->clone();
 
-	    Ice::PropertiesPtr fileProperties = Ice::createProperties(serviceArgs);
+	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
 
 	    serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
@@ -280,9 +280,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    info.communicator = initializeWithProperties(argc, argv, serviceProperties);
 	}
 	
-	Ice::CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();
+	CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();
 
-        ::IceBox::ServicePtr s = ::IceBox::ServicePtr::dynamicCast(info.service);
+        ServicePtr s = ServicePtr::dynamicCast(info.service);
 
         if(s)
 	{
@@ -299,20 +299,24 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    // Either open the database environment or if it has already been opened
 	    // retrieve it from the map.
 	    //
-            ::IceBox::FreezeServicePtr fs = ::IceBox::FreezeServicePtr::dynamicCast(info.service);
+            FreezeServicePtr fs = FreezeServicePtr::dynamicCast(info.service);
 
 	    info.dbEnv = ::Freeze::initialize(communicator, properties->getProperty("IceBox.DBEnvName." + service));
 
             fs->start(service, communicator, serviceArgs, info.dbEnv);
 	}
+
         info.library = library;
         _services[service] = info;
     }
     catch(const Freeze::DBException& ex)
     {
-        FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex.ice_name() +
-		   "\n" + ex.message;
+	ostringstream s;
+	s << "ServiceManager: database exception while starting service " << service << ":\n";
+	s << ex;
+
+	FailureException e(__FILE__, __LINE__);
+	e.reason = s.str();
         throw e;
     }
     catch(const FailureException&)
@@ -321,8 +325,12 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     }
     catch(const Exception& ex)
     {
-        FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: exception while starting service " + service + ": " + ex.ice_name();
+	ostringstream s;
+	s << "ServiceManager: exception while starting service " << service << ":\n";
+	s << ex;
+
+	FailureException e(__FILE__, __LINE__);
+	e.reason = s.str();
         throw e;
     }
 }
@@ -335,14 +343,18 @@ IceBox::ServiceManagerI::stop(const string& service)
     ServiceInfo info = r->second;
     _services.erase(r);
 
+    std::auto_ptr< FailureException> failureEx;
+
     try
     {
         info.service->stop();
 
-	//
-	// Close the database environment if the service database
-	// environment is set.
-	//
+	if(info.communicator)
+	{
+	    info.communicator->shutdown();
+	    info.communicator->waitForShutdown();
+	}
+
 	if(info.dbEnv)
 	{
 	    info.dbEnv->close();
@@ -351,48 +363,21 @@ IceBox::ServiceManagerI::stop(const string& service)
     }
     catch(const ::Freeze::DBException& ex)
     {
-        info.service = 0;
+	ostringstream s;
+	s << "ServiceManager: database exception in stop for service " << service << ":\n";
+	s << ex;
 
-	if(info.communicator)
-	{
-	    try
-	    {
-		info.communicator->destroy();
-	    }
-	    catch(const Ice::Exception&)
-	    {
-	    }
-	    info.communicator = 0;
-	}
-
-        info.library = 0;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex.ice_name() +
-		   "\n" + ex.message;
-        throw e;
+	failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
+        failureEx->reason = s.str();
     }
     catch(const Exception& ex)
     {
-        info.service = 0;
+	ostringstream s;
+	s << "ServiceManager: exception in stop for service " << service << ":\n";
+	s << ex;
 
-	if(info.communicator)
-	{
-	    try
-	    {
-		info.communicator->destroy();
-	    }
-	    catch(const Ice::Exception&)
-	    {
-	    }
-	    info.communicator = 0;
-	}
-
-        info.library = 0;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex.ice_name();
-        throw e;
+	failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
+        failureEx->reason = s.str();
     }
 
     //
@@ -411,13 +396,24 @@ IceBox::ServiceManagerI::stop(const string& service)
 	{
 	    info.communicator->destroy();
 	}
-	catch(const Ice::Exception&)
+	catch(const Exception& ex)
 	{
+	    ostringstream s;
+	    s << "ServiceManager: exception in stop for service " << service << ":\n";
+	    s << ex;
+
+	    failureEx = auto_ptr<FailureException>(new FailureException(__FILE__, __LINE__));
+	    failureEx->reason = s.str();
 	}
 	info.communicator = 0;
     }
 
     info.library = 0;
+
+    if(failureEx.get())
+    {
+	failureEx->ice_throw();
+    }
 }
 
 void
