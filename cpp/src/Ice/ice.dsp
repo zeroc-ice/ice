@@ -25,7 +25,7 @@ CFG=Ice - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -52,7 +52,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
@@ -84,7 +84,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1D.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
@@ -264,6 +264,10 @@ SOURCE=.\ReferenceFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\RequestQueue.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
@@ -289,10 +293,6 @@ SOURCE=.\SecurityException2.cpp
 # Begin Source File
 
 SOURCE=.\ServantLocator.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RequestQueue.cpp
 # End Source File
 # Begin Source File
 
@@ -760,6 +760,14 @@ SOURCE=.\ReferenceFactoryF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\RequestQueue.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RequestQueueF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Router.h
 # End Source File
 # Begin Source File
@@ -801,14 +809,6 @@ SOURCE=..\..\include\Ice\ServantLocator.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ServantLocatorF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RequestQueue.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RequestQueueF.h
 # End Source File
 # Begin Source File
 
@@ -1630,6 +1630,86 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\RequestQueue.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__REQUE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RequestQueue.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
+	move RequestQueue.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__REQUE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RequestQueue.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
+	move RequestQueue.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\RequestQueueF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__REQUES="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RequestQueueF.ice
+
+"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
+	move RequestQueueF.h ..\..\include\Ice 
+	del RequestQueueF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__REQUES="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RequestQueueF.ice
+
+"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
+	move RequestQueueF.h ..\..\include\Ice 
+	del RequestQueueF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\Router.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -1908,86 +1988,6 @@ InputPath=..\..\slice\Ice\ServantLocatorF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\RequestQueue.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SERVA="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueue.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
-	move RequestQueue.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SERVA="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueue.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueue.ice \
-	move RequestQueue.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\RequestQueue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"RequestQueue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\RequestQueueF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SERVAN="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueueF.ice
-
-"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
-	move RequestQueueF.h ..\..\include\Ice 
-	del RequestQueueF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SERVAN="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RequestQueueF.ice
-
-"..\..\include\Ice\RequestQueueF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RequestQueueF.ice 
-	move RequestQueueF.h ..\..\include\Ice 
-	del RequestQueueF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Ice\SslCertificateVerifier.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -2036,6 +2036,18 @@ BuildCmds= \
 SOURCE=..\..\slice\Ice\SslCertificateVerifierF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__SSLCER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SslCertificateVerifierF.ice
+
+"..\..\include\Ice\SslCertificateVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslCertificateVerifierF.ice 
+	move SslCertificateVerifierF.h ..\..\include\Ice 
+	del SslCertificateVerifierF.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
