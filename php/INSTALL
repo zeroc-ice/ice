@@ -137,12 +137,19 @@ Dependencies
 Whether you build a dynamic or static Ice extension, PHP will need to be
 able to locate the Ice run-time libraries "Ice", "Slice" and "IceUtil").
 In general, these libraries must reside in a directory of the user's
-PATH. For Web servers, the libraries may need to reside in a system
-directory.
+PATH.
+
+For Web servers, the libraries may need to reside in a system directory.
+For example, on Linux you can add the directory containing the Ice
+run-time libraries to /etc/ld.so.conf and run ldconfig. On Windows,
+you can copy the DLLs to the C:\WINDOWS\system32 directory.
 
 You can verify that the Ice extension is installed properly by examining
 the output of the "php -m" command, or by calling the phpinfo() function
 from a script.
+
+Note that if you want to use IceSSL from the Ice extension, then PHP will
+also need access to the shared libraries for IceSSL and Xerces.
 
 =========================================================================
 Linux Issues
