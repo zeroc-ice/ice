@@ -41,7 +41,8 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include,
 	_base.erase(0, pos + 1);
     }
 
-    string fileO = _base + ".wsdl";
+    //string fileO = _base + ".wsdl";
+    string fileO = containedToId(classDef) + classDef->name() + ".wsdl";
     if (!dir.empty())
     {
 	fileO = dir + '/' + fileO;
@@ -80,11 +81,11 @@ Slice::Gen::generate(const UnitPtr& unit)
     // correctly.
     //
     ostringstream os;
-    os << "wsdl:definitions name=\"" << scopeId << "\""
-       << "\n               xmlns:wsdl=\"http://schemas.xmlsoap.org/wsdl/\""
-       << "\n               xmlns:xsd1=\"" << _orgName << "/schemas\""
-       << "\n               xmlns:tns=\"" << _orgName << "/definitions\""
-       << "\n               targetNamespace=\"" << _orgName << "/definitions\"";
+    os << "wsdl:definitions name=\"" << scopeId << _classDef->name() << "\""
+       << "\n                 xmlns:wsdl=\"http://schemas.xmlsoap.org/wsdl/\""
+       << "\n                 xmlns:xsd1=\"" << _orgName << "/schemas\""
+       << "\n                 xmlns:tns=\"" << _orgName << "/definitions\""
+       << "\n                 targetNamespace=\"" << _orgName << "/definitions\"";
 
     start(os.str());
 
