@@ -20,6 +20,7 @@ SUBDIRS		= IceUtil \
 		  slice2docbook \
 		  slice2java \
 		  slice2xsd \
+		  slice2wsdl \
 		  Ice \
 		  IceXML \
 		  Freeze \
