@@ -106,6 +106,8 @@ IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
 
     _privateKey = d2i_RSAPrivateKey(rsapp, privKeyBuffpp, (long)keySeq.size());
 
+    delete [] privateKeyBuffer;
+
     if (_privateKey == 0)
     {
         IceSSL::PrivateKeyParseException pkParseException(__FILE__, __LINE__);
@@ -114,8 +116,5 @@ IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
 
         throw pkParseException;
     }
-
-    // ML: Not deleted if an exception is raised!
-    delete [] privateKeyBuffer;
 }
 

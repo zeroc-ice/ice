@@ -158,7 +158,6 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
                     // errno isn't set in this situation, so we always use
                     // ECONNREFUSED.
                     //
-//                    std::cout << std::dec << clock() << " init(): SSL_ERROR_SYSCALL: (result == 0)" << std::endl;
                     ConnectFailedException ex(__FILE__, __LINE__);
 #ifdef _WIN32
                     ex.error = WSAECONNREFUSED;
