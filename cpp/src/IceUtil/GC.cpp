@@ -229,6 +229,7 @@ IceUtil::GC::collectGarbage()
 	}
 	for(i = counts.begin(); i != counts.end(); ++i)
 	{
+	    gcObjects.erase(i->first);
 	    delete i->first;
 	    if(_statsCallback)
 	    {

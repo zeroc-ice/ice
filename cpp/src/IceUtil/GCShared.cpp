@@ -29,9 +29,6 @@ IceUtil::GCShared::GCShared()
 
 IceUtil::GCShared::~GCShared()
 {
-    gcRecMutex._m->lock();
-    gcObjects.erase(this);
-    gcRecMutex._m->unlock();
 }
 
 void
@@ -71,6 +68,12 @@ IceUtil::GCShared::__decRef()
     }
     gcRecMutex._m->unlock();
 
+    //
+    // We call delete outside the lock to avoid deadlock: if thread 1 executes
+    // the destructor of a class, and the destructor tries to join with thread 2,
+    // we would deadlock if thread 2 can't complete until after it has destroyed
+    // some class instance of its own.
+    //
     if(doDelete)
     {
 	delete this;
