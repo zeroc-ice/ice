@@ -3021,6 +3021,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E173F532A4884958856117A8A4AE5EBE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\README.FACETS"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E2489BD5C8BD4A4F8D45089A3212A2BD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\THROUGHPUT\\SERVER.CPP"
@@ -13400,6 +13406,26 @@
             "TargetName" = "8:Ice.h"
             "Tag" = "8:"
             "Folder" = "8:_A42D74C86BA04AF4A760DBEC329FD88D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E173F532A4884958856117A8A4AE5EBE"
+            {
+            "SourcePath" = "8:..\\..\\..\\README.FACETS"
+            "TargetName" = "8:README.FACETS"
+            "Tag" = "8:"
+            "Folder" = "8:_9CC2760FAF3948349E98706AE0817C64"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
