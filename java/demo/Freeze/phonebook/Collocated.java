@@ -8,9 +8,9 @@
 //
 // **********************************************************************
 
-class PhoneBookServer extends Freeze.Application
+class PhoneBookCollocated extends Freeze.Application
 {
-    PhoneBookServer(String dbEnvName)
+    PhoneBookCollocated(String dbEnvName)
     {
 	super(dbEnvName);
     }
@@ -91,27 +91,19 @@ class PhoneBookServer extends Freeze.Application
 	//
 	// Everything ok, let's go.
 	//
-	adapter.activate();
-
-	//
-	// TODO:
-	//
-	//shutdownOnInterrupt();
-
-	communicator().waitForShutdown();
-
-	//ignoreInterrupt();
+	RunParser.runParser(appName(), args, communicator());
+	adapter.deactivate();
 
 	return 0;
     }
 }
 
-public class Server
+public class Collocated
 {
     static public void
     main(String[] args)
     {
-	PhoneBookServer app = new PhoneBookServer("db");
-	app.main("test.Freeze.phonebook.Server", args, "config");
+	PhoneBookCollocated app = new PhoneBookCollocated("db");
+	app.main("test.Freeze.phonebook.Collocated", args, "config");
     }
 }
