@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed problems with generated code in slice2cpp and slice2freeze
+  when --header-ext is used.
+
 - The Slice parser and database transformer didn't parse negative
   floating-point numbers correctly. This has been fixed.
 
