@@ -12,6 +12,7 @@
 #define ICE_TRACE_LEVELS_H
 
 #include <Ice/TraceLevelsF.h>
+#include <Ice/PropertiesF.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -21,7 +22,7 @@ class ICE_API TraceLevelsI : virtual public Shared
 {
 public:
 
-    TraceLevelsI(int, int);
+    TraceLevelsI(const ::Ice::Properties&);
     virtual ~TraceLevelsI();
 
     const int network;

@@ -28,6 +28,8 @@ class ICE_API ObjectAdapterI : virtual public ::__Ice::Shared, public JTCMutex
 {
 public:
 
+    std::string name() const;
+
     void activate();
     void hold();
     void deactivate();
@@ -40,11 +42,13 @@ public:
 
 private:
 
-    ObjectAdapterI(const ::__Ice::Instance&, const std::string&);
+    ObjectAdapterI(const ::__Ice::Instance&, const std::string&,
+		   const std::string&);
     virtual ~ObjectAdapterI();
     friend CommunicatorI; // May create ObjectAdapterIs
 
     ::__Ice::Instance instance_;
+    std::string name_;
     std::vector< __Ice::CollectorFactory> collectorFactories_;
     std::map<std::string, ::IceServant::Ice::Object> servants_;
 };

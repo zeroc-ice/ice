@@ -15,8 +15,10 @@
 #include <Ice/InstanceF.h>
 #include <Ice/StubF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
+#include <map>
 
 namespace Ice
 {
@@ -32,22 +34,32 @@ public:
     Object referenceFromString(const std::string&);
 
     ObjectAdapter createObjectAdapter(const std::string&);
+    ObjectAdapter createObjectAdapter(const std::string&, const std::string&);
+
+    Properties properties();
 
     Logger logger();
     void logger(const Logger&);
 
 private:
 
-    CommunicatorI();
+    CommunicatorI(const Properties&);
     virtual ~CommunicatorI();
-    // May create CommunicatorIs
+
+    // The following operations may create CommunicatorIs
     friend ICE_API Communicator initialize(int&, char*[]);
+    friend ICE_API Communicator initialize(int&, char*[], const Properties&);
 
     ::__Ice::Instance instance_;
-    std::vector<ObjectAdapter> adapters_;
+    std::map<std::string, ObjectAdapter> adapters_;
 };
 
 ICE_API Communicator initialize(int&, char*[]);
+ICE_API Communicator initialize(int&, char*[], const Properties&);
+
+ICE_API Properties createProperties();
+ICE_API Properties createProperties(const Properties&);
+ICE_API Properties createProperties(const std::string&);
 
 }
 

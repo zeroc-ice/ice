@@ -1,0 +1,49 @@
+// **********************************************************************
+//
+// Copyright (c) 2002
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#ifndef ICE_PROPERTIES_H
+#define ICE_PROPERTIES_H
+
+#include <Ice/PropertiesF.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/Shared.h>
+#include <map>
+
+namespace Ice
+{
+
+class ICE_API PropertiesI : public ::__Ice::Shared
+{
+public:
+    
+    std::string getProperty(const std::string&);
+    void setProperty(const std::string&, const std::string&);
+
+private:
+
+    PropertiesI();
+    PropertiesI(const std::string&);
+    PropertiesI(const Properties&);
+
+    // The following operations may create PropertiesIs
+    friend ICE_API Communicator initialize(int&, char*[]);
+    friend ICE_API Properties createProperties();
+    friend ICE_API Properties createProperties(const Properties&);
+    friend ICE_API Properties createProperties(const std::string&);
+
+    void load(const std::string&);
+    void parse(std::istream&);
+
+    std::map<std::string, std::string> properties_;
+};
+
+}
+
+#endif
