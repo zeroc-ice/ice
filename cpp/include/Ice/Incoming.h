@@ -36,6 +36,8 @@ public:
 
 private:
 
+    void warning(const std::string&, const std::string&);
+
     Ice::Current _current;
 
     BasicStream _is;

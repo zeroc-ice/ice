@@ -85,6 +85,34 @@ local interface DBEnvironment
 
     /**
      *
+     * Open and return a database object within the context of a
+     * transaction. If the database does not exist and the [create]
+     * flag is false a DBNotFoundException is raised. If the database
+     * has been opened before, the previously returned database object
+     * is returned again.
+     *
+     * @param txn The transaction context.
+     *
+     * @param name The database name.
+     *
+     * @param create Flag that determines whether the database is
+     * created, if necessary.
+     *
+     * @return The database object.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws DBNotFoundException Raised if a database does not exist
+     * and the [create] flag is false.
+     *
+     * @see DB
+     * @see DB::close
+     *
+     **/
+    DB openDBWithTxn(DBTransaction txn, string name, bool create) throws DBException;
+
+    /**
+     *
      * Start a new transaction in this database environment, and
      * return the transaction object for such new transaction.
      *
@@ -563,7 +591,7 @@ local interface DB
      * Save a value in the database under a given key within the
      * context of a transaction.
      *
-     * @param txn The transaction context
+     * @param txn The transaction context.
      *
      * @param k The key under which the value will be stored in
      * the database.
@@ -586,7 +614,7 @@ local interface DB
      * Determine if a key is contained in the database within the
      * context of a transaction.
      *
-     * @param txn The transaction context
+     * @param txn The transaction context.
      *
      * @param k The key to check.
      *
@@ -611,7 +639,7 @@ local interface DB
      * Get a value from a database by it's key within the context of a
      * transaction.
      *
-     * @param txn The transaction context
+     * @param txn The transaction context.
      *
      * @param k The key under which the value is stored in the database
      *
@@ -637,7 +665,7 @@ local interface DB
      * within the context of a transaction. If the key does not exist,
      * this operation will do nothing.
      *
-     * @param txn The transaction context
+     * @param txn The transaction context.
      *
      * @param k The key to remove together with the corresponding
      * value.

@@ -68,6 +68,8 @@ public:
 
     virtual DBPtr openDB(const std::string&, bool);
 
+    virtual DBPtr openDBWithTxn(const DBTransactionPtr&, const std::string&, bool);
+
     virtual DBTransactionPtr startTransaction();
 
     virtual void close();
@@ -78,6 +80,7 @@ private:
 
     // DBI needs access to add, remove & eraseDB
     friend class DBI;
+    DBPtr openDBImpl(::DB_TXN*, const std::string&, bool);
     void add(const std::string&, const DBPtr&);
     void remove(const std::string&);
     void eraseDB(const std::string&);
@@ -106,6 +109,7 @@ public:
 
 private:
 
+    friend class DBEnvironmentI;
     friend class DBI;
 
     ::Ice::CommunicatorPtr _communicator;
@@ -122,7 +126,7 @@ class DBI : public DB, public IceUtil::Mutex
 {
 public:
     
-    DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&, bool);
+    DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, ::DB_TXN*, const std::string&, bool);
     virtual ~DBI();
 
     virtual std::string getName();

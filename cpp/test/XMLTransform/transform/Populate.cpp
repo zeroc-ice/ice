@@ -103,7 +103,10 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
                 map.insert(make_pair(i, i));
             }
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "byteToShort", false);
         emitSchemas("xs:byte", "xs:short");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -122,7 +125,10 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
                 map.insert(make_pair(i, i));
             }
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "shortToInt", false);
         emitSchemas("xs:short", "xs:int");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -141,7 +147,10 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
                 map.insert(make_pair(i, i));
             }
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "intToLong", false);
         emitSchemas("xs:int", "xs:long");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -160,7 +169,10 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
                 map.insert(make_pair(i, i));
             }
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "longToByte", false);
         emitSchemas("xs:long", "xs:byte");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -179,7 +191,10 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
                 map.insert(make_pair(i, static_cast<float>(i)));
             }
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "floatToDouble", false);
         emitSchemas("xs:float", "xs:double");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -201,9 +216,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             map.insert(make_pair(2, l));
             map.insert(make_pair(3, l + 1)); // Out of range for byte.
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("xs:long", "xs:byte");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -232,9 +249,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             map.insert(make_pair(2, l));
             map.insert(make_pair(3, l + 1)); // Out of range for short.
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("xs:long", "xs:short");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -263,9 +282,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             map.insert(make_pair(2, l));
             map.insert(make_pair(3, l + 1)); // Out of range for int.
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("xs:long", "xs:int");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -324,7 +345,10 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             }
             map.insert(make_pair(0, seq));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "byteToShortSeq", false);
         emitSchemas("tns:_internal.Test.Seq1Type", "tns:_internal.Test.Seq1Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -345,7 +369,10 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             }
             map.insert(make_pair(0, seq));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "shortToIntSeq", false);
         emitSchemas("tns:_internal.Test.Seq2Type", "tns:_internal.Test.Seq2Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -366,7 +393,10 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             }
             map.insert(make_pair(0, seq));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "intToLongSeq", false);
         emitSchemas("tns:_internal.Test.Seq3Type", "tns:_internal.Test.Seq3Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -387,7 +417,10 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             }
             map.insert(make_pair(0, seq));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "longToByteSeq", false);
         emitSchemas("tns:_internal.Test.Seq4Type", "tns:_internal.Test.Seq4Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -411,9 +444,11 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             seq.push_back(l + 1); // Out of range for byte.
             map.insert(make_pair(0, seq));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("tns:_internal.Test.Seq4Type", "tns:_internal.Test.Seq4Type");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -466,7 +501,10 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
             map.insert(make_pair(0, Test::one));
             map.insert(make_pair(1, Test::two));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "enum", false);
         emitSchemas("tns:_internal.Test.E1Type", "tns:_internal.Test.E1Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -484,9 +522,11 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
             map.insert(make_pair(1, Test::two));
             map.insert(make_pair(2, Test::three));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("tns:_internal.Test.E1Type", "tns:_internal.Test.E1Type");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -541,7 +581,10 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
             dict.insert(make_pair(string("two"), Test::two));
             map.insert(make_pair(0, dict));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "dict", false);
         emitSchemas("tns:_internal.Test.D1Type", "tns:_internal.Test.D1Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -561,9 +604,11 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
             dict.insert(make_pair(string("three"), Test::three));
             map.insert(make_pair(0, dict));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("tns:_internal.Test.D1Type", "tns:_internal.Test.D1Type");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -624,7 +669,10 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
             s1.i = 2;
             map.insert(make_pair(2, s1));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "struct", false);
         emitSchemas("tns:_internal.Test.S1Type", "tns:_internal.Test.S1Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -649,9 +697,11 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
             s1.i = ((Int)SCHAR_MAX) + 1; // Out of range for byte
             map.insert(make_pair(2, s1));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("tns:_internal.Test.S1Type", "tns:_internal.Test.S1Type");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -661,7 +711,13 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
         {
             // Expected.
         }
+        db->close();
+        db = 0;
 
+	//
+	// Make sure nothing changed.
+	//
+        db = dbEnv->openDB("failure", false);
         {
             IntS1Map map(db);
 	    for(IntS1Map::iterator p = map.begin(); p != map.end(); ++p)
@@ -670,7 +726,6 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
 		s1.b = false;
 	    }
         }
-
         db->close();
         db = 0;
 
@@ -774,7 +829,10 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->ice_addFacet(c2Facet, "c1-2");
             map.insert(make_pair(3, c2));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "class", false);
         emitSchemas("tns:_internal.Test.C1Type", "tns:_internal.Test.C1Type");
         transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
@@ -815,9 +873,11 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->d = 2;
             map.insert(make_pair(2, c2));
         }
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         emitSchemas("tns:_internal.Test.C1Type", "tns:_internal.Test.C1Type");
-
         try
         {
             transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
@@ -827,7 +887,13 @@ transformClass(const DBEnvironmentPtr& dbEnv)
         {
             // Expected.
         }
+        db->close();
+        db = 0;
 
+	//
+	// Make sure nothing changed.
+	//
+        db = dbEnv->openDB("failure", false);
         {
             IntC1Map map(db);
 	    for(IntC1Map::iterator p = map.begin(); p != map.end(); ++p)
@@ -961,8 +1027,11 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
             ident.name = "3";
             evictor->createObject(ident, c2);
         }
-
         evictor->deactivate();
+        db->close();
+        db = 0;
+
+        db = dbEnv->openDBWithTxn(0, "evictor", false);
         transformer.transform(dbEnv, db, loadOld, loadNew, paths, paths, evictorSchema);
         db->close();
         db = 0;
@@ -1005,9 +1074,11 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
             ident.name = "2";
             evictor->createObject(ident, c2);
         }
-
         evictor->deactivate();
+        db->close();
+        db = 0;
 
+        db = dbEnv->openDBWithTxn(0, "failure", false);
         try
         {
             transformer.transform(dbEnv, db, loadOld, loadNew, paths, paths, evictorSchema);

@@ -201,35 +201,26 @@ Freeze::DBEnvironmentI::getCommunicator()
 DBPtr
 Freeze::DBEnvironmentI::openDB(const string& name, bool create)
 {
-    IceUtil::RecMutex::Lock sync(*this);
+    return openDBImpl(0, name, create);
+}
 
-    if(!_dbEnv)
+DBPtr
+Freeze::DBEnvironmentI::openDBWithTxn(const DBTransactionPtr& t, const string& name, bool create)
+{
+    DBTransactionPtr txn = t;
+    if(!t)
     {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex(__FILE__, __LINE__);
-	ex.message = s.str();
-	throw ex;
-    }
-
-    map<string, DBPtr>::iterator p = _dbMap.find(name);
-    if(p != _dbMap.end())
-    {
-	return p->second;
+	txn = startTransaction();
     }
 
-    ::DB* db;
-    checkBerkeleyDBReturn(db_create(&db, _dbEnv, 0), _errorPrefix, "db_create");
-    
-    try
+    DBPtr db = openDBImpl(static_cast<const DBTransactionI*>(txn.get())->_tid, name, create);
+
+    if(!t)
     {
-	return new DBI(_communicator, this, db, name, create);
+	txn->commit();
     }
-    catch(...)
-    {
-	db->close(db, 0);
-	throw;
-    }
+
+    return db;
 }
 
 DBTransactionPtr
@@ -283,6 +274,40 @@ Freeze::DBEnvironmentI::sync()
     {
 	DBPtr db = _dbMap.begin()->second;
 	db->sync();
+    }
+}
+
+DBPtr
+Freeze::DBEnvironmentI::openDBImpl(::DB_TXN* txn, const string& name, bool create)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(!_dbEnv)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    map<string, DBPtr>::iterator p = _dbMap.find(name);
+    if(p != _dbMap.end())
+    {
+	return p->second;
+    }
+
+    ::DB* db;
+    checkBerkeleyDBReturn(db_create(&db, _dbEnv, 0), _errorPrefix, "db_create");
+    
+    try
+    {
+	return new DBI(_communicator, this, db, txn, name, create);
+    }
+    catch(...)
+    {
+	db->close(db, 0);
+	throw;
     }
 }
 
@@ -656,7 +681,7 @@ DBCursorI::close()
     _cursor = 0;
 }
 
-Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db,
+Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db, ::DB_TXN* txn, 
 		 const string& name, bool create) :
     _communicator(communicator),
     _trace(0),
@@ -675,7 +700,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     
     u_int32_t flags = (create) ? DB_CREATE : 0;
 #if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
-    checkBerkeleyDBReturn(_db->open(_db, 0, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE),
+    checkBerkeleyDBReturn(_db->open(_db, txn, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE),
 			  _errorPrefix, "DB->open");
 #else
     checkBerkeleyDBReturn(_db->open(_db, _name.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE),

@@ -19,7 +19,9 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -266,8 +268,9 @@ IceInternal::Incoming::invoke(bool response)
 
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception: unknown local exception:\n" << ex;
+	    ostringstream str;
+	    str << ex;
+	    warning("dispatch exception: unknown local exception:", str.str());
 	}
 	
 	return;
@@ -293,8 +296,9 @@ IceInternal::Incoming::invoke(bool response)
 
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception: unknown user exception:\n" << ex;
+	    ostringstream str;
+	    str << ex;
+	    warning("dispatch exception: unknown user exception:", str.str());
 	}
 
 	return;
@@ -320,8 +324,9 @@ IceInternal::Incoming::invoke(bool response)
 
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception: unknown exception:\n" << ex;
+	    ostringstream str;
+	    str << ex;
+	    warning("dispatch exception: unknown exception:", str.str());
 	}
 
 	return;
@@ -347,8 +352,7 @@ IceInternal::Incoming::invoke(bool response)
 
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception: unknown std::exception: " << ex.what();
+	    warning("dispatch exception: unknown std::exception:", ex.what());
 	}
 
 	return;
@@ -373,8 +377,7 @@ IceInternal::Incoming::invoke(bool response)
 
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception: unknown c++ exception";
+	    warning("dispatch exception: unknown c++ exception:", "");
 	}
 
 	return;
@@ -428,4 +431,30 @@ BasicStream*
 IceInternal::Incoming::os()
 {
     return &_os;
+}
+
+void
+IceInternal::Incoming::warning(const string& msg, const string& ex)
+{
+    ostringstream str;
+    str << msg;
+    if(!ex.empty())
+    {
+	str << "\n" << ex;
+    }
+    str << "\nidentity: " << _current.id;
+    str << "\nfacet: ";
+    vector<string>::const_iterator p = _current.facet.begin();
+    while(p != _current.facet.end())
+    {
+	str << encodeString(*p++, "/");
+	if(p != _current.facet.end())
+	{
+	    str << '/';
+	}
+    }
+    str << "\noperation: " << _current.operation;
+
+    Warning out(_os.instance()->logger());
+    out << str.str();
 }

@@ -65,12 +65,12 @@ IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 	    break;
 	}
 	case Activating:
+	case Deactivating:
 	{
 	    wait(); // TODO: Timeout?
 	    continue;
 	}
  	case Active:
-	case Deactivating:
 	{
 	    return true; // Raise an exception instead?
 	}
