@@ -57,7 +57,12 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
-    int size = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".Size", 5);
+    //
+    // We use just one thread as the default. This is the fastest
+    // possible setting, still allows one level of nesting, and
+    // doesn't require to make the servants thread safe.
+    //
+    int size = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".Size", 1);
     if(size < 1)
     {
 	size = 1;
