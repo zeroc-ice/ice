@@ -636,7 +636,11 @@ public final class Reference
 		    endpts = locatorInfo.getEndpoints(this, cached);
 		}
 
-		Endpoint[] filteredEndpts = filterEndpoints(endpts);
+		Endpoint[] filteredEndpts = null;
+                if(endpts != null)
+                {
+                    filteredEndpts = filterEndpoints(endpts);
+                }
 		if(filteredEndpts == null || filteredEndpts.length == 0)
 		{
 		    Ice.NoEndpointException e = new Ice.NoEndpointException();
