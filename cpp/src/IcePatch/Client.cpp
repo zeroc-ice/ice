@@ -252,6 +252,15 @@ IcePatch::Client::run(int argc, char* argv[])
 	}
 	return EXIT_FAILURE;
     }
+    catch(...)
+    {
+	cout << endl; // There might still be a non-terminated line on cout.
+	if(router)
+	{
+	    router->shutdown();
+	}
+	throw; // Let Application::main() print the error message for this exception.
+    }
     
     if(router)
     {
