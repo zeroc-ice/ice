@@ -38,6 +38,7 @@ menu()
 	"O: invoke callback as batch oneway\n"
 	"f: flush all batch requests\n"
 	"v: set/reset override context field\n"
+	"F: set/reset fake category\n"
 	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
@@ -83,6 +84,14 @@ CallbackClient::run(int argc, char* argv[])
 	}
     }
 
+    string category = router->getServerProxy()->ice_getIdentity().category;
+    Identity callbackReceiverIdent;
+    callbackReceiverIdent.name = "callbackReceiver";
+    callbackReceiverIdent.category = category;
+    Identity callbackReceiverFakeIdent;
+    callbackReceiverFakeIdent.name = "callbackReceiver";
+    callbackReceiverFakeIdent.category = "fake";
+
     PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Callback.Client.Callback";
     std::string proxy = properties->getProperty(proxyProperty);
@@ -96,19 +105,17 @@ CallbackClient::run(int argc, char* argv[])
     CallbackPrx twoway = CallbackPrx::checkedCast(base);
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
-    CallbackPrx datagram = CallbackPrx::uncheckedCast(twoway->ice_datagram());
-    CallbackPrx batchDatagram = CallbackPrx::uncheckedCast(twoway->ice_batchDatagram());
     
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
-    adapter->add(new CallbackReceiverI, stringToIdentity("callbackReceiver"));
+    adapter->add(new CallbackReceiverI, callbackReceiverIdent);
+    adapter->add(new CallbackReceiverI, callbackReceiverFakeIdent); // Should never be called for the fake identity. 
     adapter->activate();
 
-    CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
-	adapter->createProxy(stringToIdentity("callbackReceiver")));
+    CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(adapter->createProxy(callbackReceiverIdent));
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
-    CallbackReceiverPrx datagramR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_datagram());
 
     string override;
+    bool fake = false;
 
     menu();
 
@@ -165,6 +172,23 @@ CallbackClient::run(int argc, char* argv[])
 		    override.clear();
 		    cout << "override context field is empty" << endl;
 		}
+	    }
+	    else if(c == 'F')
+	    {
+		fake = !fake;
+
+		if(fake)
+		{
+		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_newIdentity(callbackReceiverFakeIdent));
+		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_newIdentity(callbackReceiverFakeIdent));
+		}
+		else
+		{
+		    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_newIdentity(callbackReceiverIdent));
+		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_newIdentity(callbackReceiverIdent));
+		}
+		
+		cout << "callback receiver identity: " << identityToString(twowayR->ice_getIdentity()) << endl;
 	    }
 	    else if(c == 's')
 	    {

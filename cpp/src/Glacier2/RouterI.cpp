@@ -53,21 +53,30 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
     _clientBlobject(new ClientBlobject(_communicator, _routingTable, ""))
 {
-    if(serverAdapter)
+    try
     {
-	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
-	Identity ident;
-	ident.category.resize(20);
-	for(string::iterator p = ident.category.begin(); p != ident.category.end(); ++p)
+	if(serverAdapter)
 	{
-	    *p = static_cast<char>(33 + rand() % (127-33)); // We use ASCII 33-126 (from ! to ~, w/o space).
+	    ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
+	    Identity ident;
+	    ident.name = "dummy";
+	    ident.category.resize(20);
+	    for(string::iterator p = ident.category.begin(); p != ident.category.end(); ++p)
+	    {
+		*p = static_cast<char>(33 + rand() % (127-33)); // We use ASCII 33-126 (from ! to ~, w/o space).
+	    }
+	    serverProxy = serverAdapter->createProxy(ident);
+	    
+	    ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
+	    serverBlobject = new ServerBlobject(_communicator, transport);
+	    serverAdapter->addServantLocator(new RouterLocator(serverBlobject), ident.category);
+	    serverAdapter->activate();
 	}
-	serverProxy = serverAdapter->createProxy(ident);
-
-	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-	serverBlobject = new ServerBlobject(_communicator, transport);
-	serverAdapter->addServantLocator(new RouterLocator(serverBlobject), ident.category);
-	serverAdapter->activate();
+    }
+    catch(...)
+    {
+	destroy();
+	throw;
     }
 }
 

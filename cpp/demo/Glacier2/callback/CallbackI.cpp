@@ -23,12 +23,26 @@ void
 CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
     cout << "initiating callback to: " << current.adapter->getCommunicator()->proxyToString(proxy) << endl;
-    proxy->callback(current.ctx);
+    try
+    {
+	proxy->callback(current.ctx);
+    }
+    catch(const Exception& ex)
+    {
+	cout << ex << endl;
+    }
 }
 
 void
 CallbackI::shutdown(const Ice::Current& c)
 {
     cout << "Shutting down..." << endl;
-    c.adapter->getCommunicator()->shutdown();
+    try
+    {
+	c.adapter->getCommunicator()->shutdown();
+    }
+    catch(const Exception& ex)
+    {
+	cout << ex << endl;
+    }
 }
