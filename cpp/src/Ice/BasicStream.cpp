@@ -261,12 +261,12 @@ IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
 void
 IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 {
-    Container::iterator begin = i;
-    i += sz;
-    if(i > b.end())
+    if(b.end() - i < sz)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sz;
     v.resize(sz);
     copy(begin, i, v.begin());
 }
@@ -296,12 +296,12 @@ IceInternal::BasicStream::read(vector<Byte>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz;
-    if(i > b.end())
+    if(b.end() - i < sz)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sz;
     v.resize(sz);
     copy(begin, i, v.begin());
 }
@@ -331,12 +331,12 @@ IceInternal::BasicStream::read(vector<bool>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz;
-    if(i > b.end())
+    if(b.end() - i < sz)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sz;
     v.resize(sz);
     copy(begin, i, v.begin());
 }
@@ -380,12 +380,12 @@ IceInternal::BasicStream::write(const vector<Short>& v)
 void
 IceInternal::BasicStream::read(Short& v)
 {
-    Container::iterator begin = i;
-    i += sizeof(Short);
-    if(i > b.end())
+    if(b.end() - i < static_cast<int>(sizeof(Short)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sizeof(Short);
 #ifdef ICE_UTIL_BIGENDIAN
     reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
 #else
@@ -398,12 +398,13 @@ IceInternal::BasicStream::read(vector<Short>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz * sizeof(Short);
-    if(i > b.end())
+    const int length = sz * static_cast<int>(sizeof(Short));
+    if(b.end() - i < length)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += length;
     v.resize(sz);
     if(sz > 0)
     {
@@ -458,12 +459,12 @@ IceInternal::BasicStream::write(const vector<Int>& v)
 void
 IceInternal::BasicStream::read(Int& v)
 {
-    Container::iterator begin = i;
-    i += sizeof(Int);
-    if(i > b.end())
+    if(b.end() - i < static_cast<int>(sizeof(Int)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sizeof(Int);
 #ifdef ICE_UTIL_BIGENDIAN
     reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
 #else
@@ -476,12 +477,13 @@ IceInternal::BasicStream::read(vector<Int>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz * sizeof(Int);
-    if(i > b.end())
+    const int length = sz * static_cast<int>(sizeof(Int));
+    if(b.end() - i < length)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += length;
     v.resize(sz);
     if(sz > 0)
     {
@@ -536,12 +538,12 @@ IceInternal::BasicStream::write(const vector<Long>& v)
 void
 IceInternal::BasicStream::read(Long& v)
 {
-    Container::iterator begin = i;
-    i += sizeof(Long);
-    if(i > b.end())
+    if(b.end() - i < static_cast<int>(sizeof(Long)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sizeof(Long);
 #ifdef ICE_UTIL_BIGENDIAN
     reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
 #else
@@ -554,12 +556,13 @@ IceInternal::BasicStream::read(vector<Long>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz * sizeof(Long);
-    if(i > b.end())
+    const int length = sz * static_cast<int>(sizeof(Long));
+    if(b.end() - i < length)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += length;
     v.resize(sz);
     if(sz > 0)
     {
@@ -614,12 +617,12 @@ IceInternal::BasicStream::write(const vector<Float>& v)
 void
 IceInternal::BasicStream::read(Float& v)
 {
-    Container::iterator begin = i;
-    i += sizeof(Float);
-    if(i > b.end())
+    if(b.end() - i < static_cast<int>(sizeof(Float)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sizeof(Float);
 #ifdef ICE_UTIL_BIGENDIAN
     reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
 #else
@@ -632,12 +635,13 @@ IceInternal::BasicStream::read(vector<Float>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz * sizeof(Float);
-    if(i > b.end())
+    const int length = sz * static_cast<int>(sizeof(Float));
+    if(b.end() - i < length)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += length;
     v.resize(sz);
     if(sz > 0)
     {
@@ -692,12 +696,12 @@ IceInternal::BasicStream::write(const vector<Double>& v)
 void
 IceInternal::BasicStream::read(Double& v)
 {
-    Container::iterator begin = i;
-    i += sizeof(Double);
-    if(i > b.end())
+    if(b.end() - i < static_cast<int>(sizeof(Double)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += sizeof(Double);
 #ifdef ICE_UTIL_BIGENDIAN
     reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
 #else
@@ -710,12 +714,13 @@ IceInternal::BasicStream::read(vector<Double>& v)
 {
     Int sz;
     readSize(sz);
-    Container::iterator begin = i;
-    i += sz * sizeof(Double);
-    if(i > b.end())
+    const int length = sz * static_cast<int>(sizeof(Double));
+    if(b.end() - i < length)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    Container::iterator begin = i;
+    i += length;
     v.resize(sz);
     if(sz > 0)
     {
@@ -767,12 +772,12 @@ IceInternal::BasicStream::read(string& v)
     }
     else
     {
-	Container::iterator begin = i;
-	i += len;
-	if(i > b.end())
+	if(b.end() - i < len)
 	{
 	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
+	Container::iterator begin = i;
+	i += len;
 	v.resize(len);
 	copy(begin, i, v.begin());
     }
