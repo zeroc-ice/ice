@@ -880,7 +880,7 @@ public:
             {
                 _transform->checkMissingTypes(info, child, map);
             }
-            catch(const MissingTypeException& ex)
+            catch(const MissingTypeException&)
             {
                 --l;
             }
