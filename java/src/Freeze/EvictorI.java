@@ -356,7 +356,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 			"\" from the queue\n" + "number of elements in the queue: " +
 			_evictorMap.size());
 		}
-		break;
 	    }
 	}
 
