@@ -380,7 +380,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(stdOutFilename != "")
 	    {
-		FILE* file = freopen(stdOutFilename.c_str(), "a", ::stdout);
+		FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
 		if(file == 0)
 		{
 		    SyscallException ex(__FILE__, __LINE__);
@@ -391,7 +391,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(stdErrFilename != "")
 	    {
-		FILE* file = freopen(stdErrFilename.c_str(), "a", ::stderr);
+		FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
 		if(file == 0)
 		{
 		    SyscallException ex(__FILE__, __LINE__);
