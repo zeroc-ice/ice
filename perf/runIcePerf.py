@@ -160,7 +160,7 @@ if not os.environ.has_key('ICE_HOME'):
     if os.path.exists(os.path.join(toplevel, "..", "ice")):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
 
-if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_HOME'):
+if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_HOME') and not os.environ.has_key('TAO_ROOT'):
     print "You need to set at least ICE_HOME or TAO_HOME!"
     sys.exit(1)
     
@@ -171,7 +171,7 @@ while i < niter:
     try:
         if os.environ.has_key('ICE_HOME'):
             runIcePerfs(expr, results, i)
-        if os.environ.has_key('TAO_HOME'):
+        if os.environ.has_key('TAO_HOME') or os.environ.has_key('TAO_ROOT'):
             runTAOPerfs(expr, results, i)
         i += 1
     except KeyboardInterrupt:
