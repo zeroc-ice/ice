@@ -19,6 +19,10 @@ These instructions assume that you have correctly configured your
 environment according to the directions contained in the included
 platform-specific README file.
 
+gmake 3.80 is required to build the C++ or C# demos.  Ant
+1.6.2 is required to build the Java demos. Ant can be downloaded from:
+
+http://ant.apache.org/bindownload.cgi
 
 Running the Ice Demos
 =====================
