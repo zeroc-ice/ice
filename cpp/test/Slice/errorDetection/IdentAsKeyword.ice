@@ -84,3 +84,7 @@ interface \true {};	// OK, escaped keyword
 interface _a;		// Illegal leading underscore
 interface _true;	// Illegal leading underscore
 interface \_true;	// Illegal leading underscore
+
+interface b_;		// Illegal underscore
+interface tr_ue;	// Illegal underscore
+interface \tr_ue;	// Illegal underscore
