@@ -1078,7 +1078,6 @@ public:
 
 private:
 
-    friend struct StringTypeTable;
     enum Type
     {
 	TypeInteger, // byte, short, int, long
@@ -1189,9 +1188,61 @@ private:
     // transform.
     //
     TransformMap _defaultInitializedTransforms;
+
+    //
+    // Why won't MSVC allow name to be a string?
+    //
+    struct StringTypeTable
+    {
+	const char* name; // COMPILERFIX: const string name;
+	Type type;
+	
+	bool operator==(const string& rhs) const
+	{
+	    return string(name) == rhs;
+	}
+    };
+    
+    static const StringTypeTable items[];
+    static const StringTypeTable* itemsBegin;
+    static const StringTypeTable* itemsEnd;
+
+    static const StringTypeTable itemsByName[];
+    static const StringTypeTable* itemsByNameBegin;
+    static const StringTypeTable* itemsByNameEnd;
 };
 
 } // End of namespace XMLTransform
+
+const TransformFactory::StringTypeTable TransformFactory::items[] =
+{
+    { "enumeration", TransformFactory::TypeEnumeration },
+    { "struct", TransformFactory::TypeStruct },
+    { "class", TransformFactory::TypeClass },
+    { "exception", TransformFactory::TypeException },
+    { "dictionary", TransformFactory::TypeDictionary },
+    { "sequence", TransformFactory::TypeSequence },
+    { "proxy", TransformFactory::TypeProxy },
+    { "reference", TransformFactory::TypeReference },
+    { "internal", TransformFactory::TypeInternal }
+};
+const TransformFactory::StringTypeTable* TransformFactory::itemsBegin = &items[0];
+const TransformFactory::StringTypeTable* TransformFactory::itemsEnd = &items[sizeof(items) /
+									     sizeof(items[0])];
+
+const TransformFactory::StringTypeTable TransformFactory::itemsByName[] =
+{
+    { "xs:byte", TransformFactory::TypeInteger },
+    { "xs:short", TransformFactory::TypeInteger },
+    { "xs:int", TransformFactory::TypeInteger },
+    { "xs:long", TransformFactory::TypeInteger },
+    { "xs:float", TransformFactory::TypeFloat },
+    { "xs:double", TransformFactory::TypeFloat },
+    { "xs:string", TransformFactory::TypeString },
+};
+const TransformFactory::StringTypeTable* TransformFactory::itemsByNameBegin = &itemsByName[0];
+const TransformFactory::StringTypeTable* TransformFactory::itemsByNameEnd = &itemsByName[sizeof(itemsByName) /
+											 sizeof(itemsByName[0])];
 
 //
 // Constructor & destructor.
@@ -1499,37 +1550,6 @@ XMLTransform::TransformFactory::findType(const DocumentMap& docs, const Document
     return false;
 }
 
-namespace XMLTransform
-{
-
-//
-// Why won't MSVC allow name to be a string?
-//
-struct StringTypeTable
-{
-    const char* name; // COMPILERFIX: const string name;
-    TransformFactory::Type type;
-    
-    bool operator==(const string& rhs) const { return string(name) == rhs; }
-};
-
-}
-
-static const StringTypeTable items[] =
-{
-    { "enumeration", TypeEnumeration },
-    { "struct", TypeStruct },
-    { "class", TypeClass },
-    { "exception", TypeException },
-    { "dictionary", TypeDictionary },
-    { "sequence", TypeSequence },
-    { "proxy", TypeProxy },
-    { "reference", TypeReference },
-    { "internal", TypeInternal }
-};
-static const StringTypeTable* itemsBegin = &items[0];
-static const StringTypeTable* itemsEnd = &items[sizeof(items)/sizeof(items[0])];
-
 TransformFactory::Type
 XMLTransform::TransformFactory::getType(DOMNode* node)
 {
@@ -1560,7 +1580,7 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
     }
 
     const StringTypeTable* p = find(itemsBegin, itemsEnd, type);
-    if(p == end)
+    if(p == itemsEnd)
     {
         InvalidSchema ex(__FILE__, __LINE__);
         ex.reason = "no type found for element " + getNameAttribute(node);
@@ -1570,19 +1590,6 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
     return p->type;
 }
 
-static const StringTypeTable itemsByName[] =
-{
-    { "xs:byte", TypeInteger },
-    { "xs:short", TypeInteger },
-    { "xs:int", TypeInteger },
-    { "xs:long", TypeInteger },
-    { "xs:float", TypeFloat },
-    { "xs:double", TypeFloat },
-    { "xs:string", TypeString },
-};
-static const StringTypeTable* itemsByNameBegin = &itemsByName[0];
-static const StringTypeTable* itemsByNameEnd = &itemsByName[sizeof(itemsByName)/sizeof(itemsByName[0])];
-
 TransformFactory::Type
 XMLTransform::TransformFactory::getTypeByName(const DocumentMap& docs, const DocumentInfoPtr& info, const string& type,
                                               DOMNode*& n, DocumentInfoPtr& nInfo)
@@ -1591,7 +1598,7 @@ XMLTransform::TransformFactory::getTypeByName(const DocumentMap& docs, const Doc
     // First check to see if the type is a primitive schema type.
     //
     const StringTypeTable* p = find(itemsByNameBegin, itemsByNameEnd, type);
-    if(p != end)
+    if(p != itemsByNameEnd)
     {
 	return p->type;
     }

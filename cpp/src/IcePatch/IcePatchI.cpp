@@ -66,7 +66,7 @@ IcePatch::FileI::readMD5(const Current& current) const
 	
 	return getMD5(path);
     }
-    catch(const IceUtil::LockedException&)
+    catch(const IceUtil::ThreadLockedException&)
     {
 	throw BusyException();
     }
@@ -134,7 +134,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 	    }
 	}
     }
-    catch(const IceUtil::LockedException&)
+    catch(const IceUtil::ThreadLockedException&)
     {
 	throw BusyException();
     }
@@ -218,7 +218,7 @@ IcePatch::RegularI::getBZ2Size(const Current& current) const
 	
 	return infoBZ2.size;
     }
-    catch(const IceUtil::LockedException&)
+    catch(const IceUtil::ThreadLockedException&)
     {
 	throw BusyException();
     }
@@ -257,7 +257,7 @@ IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 	
 	return IcePatch::getBZ2(path, pos, num);
     }
-    catch(const IceUtil::LockedException&)
+    catch(const IceUtil::ThreadLockedException&)
     {
 	throw BusyException();
     }
@@ -296,7 +296,7 @@ IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 	
 	return IcePatch::calcPartialMD5(path + ".bz2", size);
     }
-    catch(const IceUtil::LockedException&)
+    catch(const IceUtil::ThreadLockedException&)
     {
 	throw BusyException();
     }
