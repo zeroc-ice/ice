@@ -54,7 +54,7 @@ IcePatch::Client::usage()
 int
 IcePatch::Client::run(int argc, char* argv[])
 {
-    RouterPrx router;
+    Glacier::RouterPrx router;
 
     try
     {

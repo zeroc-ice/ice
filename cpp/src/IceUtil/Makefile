@@ -25,6 +25,7 @@ OBJS		= Exception.o \
 		  RWRecMutex.o \
 		  Cond.o \
 		  Thread.o \
+		  Time.o \
 		  OutputUtil.o \
                   Base64.o
 

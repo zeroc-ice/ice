@@ -10,6 +10,7 @@
 
 #include <IceUtil/RWRecMutex.h>
 #include <IceUtil/Exception.h>
+#include <IceUtil/Time.h>
 
 #include <assert.h>
 
@@ -64,11 +65,15 @@ IceUtil::RWRecMutex::timedTryReadlock(int timeout) const
     // Wait while a writer holds the lock or while writers are waiting
     // to get the lock.
     //
-    // TODO: This needs to check the time after each notify...
-    //
+    Time end = Time::now() + Time::milliSeconds(timeout);
     while (_count < 0 || _waitingWriters != 0)
     {
-	if (!_readers.timedWait(lock, timeout))
+	long t = (end - Time::now()).milliSeconds();
+	if (t > 0)
+	{
+	    _readers.timedWait(lock, t);
+	}
+	else
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
@@ -165,27 +170,25 @@ IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
     // Wait for the lock to become available and increment the number
     // of waiting writers.
     //
-    // TODO: This needs to check the time after each notify...
-    //
-    if (_count != 0)
+    Time end = Time::now() + Time::milliSeconds(timeout);
+    while (_count != 0)
     {
-	_waitingWriters++;
-	bool timedOut;
-	try
+	long t = (end - Time::now()).milliSeconds();
+	if (t > 0)
 	{
-	    timedOut = !_writers.timedWait(lock, timeout);
+	    _waitingWriters++;
+	    try
+	    {
+		_writers.timedWait(lock, t);
+	    }
+	    catch(...)
+	    {
+		--_waitingWriters;
+		throw;
+	    }
+	    _waitingWriters--;
 	}
-	catch(...)
-	{
-	    --_waitingWriters;
-	    throw;
-	}
-	_waitingWriters--;
-
-	//
-	// If a timeout occurred then the lock wasn't acquired.
-	//
-	if (timedOut)
+	else
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
@@ -316,29 +319,30 @@ IceUtil::RWRecMutex::timedUpgrade(int timeout) const
     //
     // Wait to acquire the write lock.
     //
-    // TODO: This needs to check the time after each notify...
-    //
+    Time end = Time::now() + Time::milliSeconds(timeout);
     while (_count != 0)
     {
-	_waitingWriters++;
-	bool timedOut;
-	try
+	long t = (end - Time::now()).milliSeconds();
+	if (t > 0)
 	{
-	    timedOut = !_writers.timedWait(lock, timeout);
+	    _waitingWriters++;
+	    try
+	    {
+		_writers.timedWait(lock, timeout);
+	    }
+	    catch(...)
+	    {
+		--_waitingWriters;
+		throw;
+	    }
+	    _waitingWriters--;
 	}
-	catch(...)
+	else
 	{
-	    --_waitingWriters;
-	    throw;
-	}
-	_waitingWriters--;
-
-	//
-	// If a timeout occurred then the lock wasn't acquired. Ensure
-	// that the _count is increased again before returning.
-	//
-	if (timedOut)
-	{
+	    //
+	    // If a timeout occurred then the lock wasn't acquired. Ensure
+	    // that the _count is increased again before returning.
+	    //
 	    ++_count;
 	    throw LockedException(__FILE__, __LINE__);
 	}

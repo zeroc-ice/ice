@@ -25,5 +25,6 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Base64.h>
+#include <IceUtil/Time.h>
 
 #endif
