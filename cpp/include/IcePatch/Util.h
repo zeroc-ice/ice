@@ -12,6 +12,7 @@
 #define ICE_PATCH_UTIL_H
 
 #include <Ice/Ice.h>
+#include <IcePatch/Node.h>
 
 namespace IcePatch
 {
@@ -37,7 +38,12 @@ void createDirectory(const std::string&);
 Ice::ByteSeq getMD5(const std::string&);
 std::string MD5ToString(const Ice::ByteSeq&);
 
+void writeBZ2(const std::string&, const Ice::ByteSeq&);
+Ice::ByteSeq readBZ2(const std::string&);
+
 Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
+
+void getFile(const IcePatch::FilePrx&);
 
 }
 

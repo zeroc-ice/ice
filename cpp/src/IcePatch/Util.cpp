@@ -10,10 +10,10 @@
 
 #include <IcePatch/Util.h>
 #include <IcePatch/Node.h>
+#include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <dirent.h>
 #include <openssl/md5.h>
 #include <bzlib.h>
@@ -214,17 +214,17 @@ IcePatch::getMD5(const string& path)
     }
 
     //
-    // Stat the .md5 file. If it doesn't exist, or if it's outdated,
+    // Stat the MD5 file. If it doesn't exist, or if it's outdated,
     // set a flag to create a new MD5 hash value.
     //
-    struct stat bufmd5;
-    string pathmd5 = path + ".md5";
-    bool createmd5 = false;
-    if (::stat(pathmd5.c_str(), &bufmd5) == -1)
+    struct stat bufMD5;
+    string pathMD5 = path + ".md5";
+    bool createMD5 = false;
+    if (::stat(pathMD5.c_str(), &bufMD5) == -1)
     {
 	if (errno == ENOENT)
 	{
-	    createmd5 = true;
+	    createMD5 = true;
 	}
 	else
 	{
@@ -235,165 +235,117 @@ IcePatch::getMD5(const string& path)
     }
     else
     {
-	if (!S_ISREG(bufmd5.st_mode))
+	if (!S_ISREG(bufMD5.st_mode))
 	{
 	    NodeAccessException ex;
 	    ex.reason = "`" + path + "' is not a regular file";
 	    throw ex;
 	}
 	
-	if (bufmd5.st_size != 16)
+	if (bufMD5.st_size != 16)
 	{
 	    NodeAccessException ex;
 	    ex.reason = "`" + path + "' isn't 16 bytes in size";
 	    throw ex;
 	}
 	
-	if (bufmd5.st_mtime <= buf.st_mtime)
+	if (bufMD5.st_mtime <= buf.st_mtime)
 	{
-	    createmd5 = true;
+	    createMD5 = true;
 	}
     }
 
-    ByteSeq md5;
-    md5.resize(16);
+    ByteSeq bytesMD5;
+    bytesMD5.resize(16);
 
-    if (createmd5)
+    if (createMD5)
     {
 	//
-	// Open the original file and create a MD5 hash value.
+	// Read the original file.
 	//
-	{
-	    int fd = ::open(path.c_str(), O_RDONLY);
-	    
-	    if (fd == -1)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + path + "' for reading:" + strerror(errno);
-		throw ex;
-	    }
-	    
-	    unsigned char* fileBuf = new unsigned char[buf.st_size];
-	    
-	    try
-	    {
-		int sz = ::read(fd, fileBuf, buf.st_size);
-		
-		if (sz == -1)
-		{
-		    NodeAccessException ex;
-		    ex.reason = "cannot read `" + path + "':" + strerror(errno);
-		    throw ex;
-		}
-		
-		if (sz < buf.st_size)
-		{
-		    NodeAccessException ex;
-		    ex.reason = "could not read all bytes from `" + path + "'";
-		    throw ex;
-		}
-		
-		::MD5(fileBuf, sz, reinterpret_cast<unsigned char*>(&md5[0]));
-		
-		::close(fd);
-		delete [] fileBuf;
-	    }
-	    catch (...)
-	    {
-		::close(fd);
-		delete [] fileBuf;
-		throw;
-	    }
-	}
-
-	//
-	// Write the MD5 hash value to the corresponding .md5 file.
-	//
-	{
-	    int fd = ::open(pathmd5.c_str(), O_WRONLY | O_CREAT, 00666);
-	    
-	    if (fd == -1)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + pathmd5 + "' for writing:" + strerror(errno);
-		throw ex;
-	    }
-	    
-	    try
-	    {
-		int sz = ::write(fd, &md5[0], 16);
-		
-		if (sz == -1)
-		{
-		    NodeAccessException ex;
-		    ex.reason = "cannot read `" + path + "':" + strerror(errno);
-		    throw ex;
-		}
-		
-		if (sz < 16)
-		{
-		    NodeAccessException ex;
-		    ex.reason = "could not write 16 bytes to `" + path + "'";
-		    throw ex;
-		}
-		
-		::close(fd);
-	    }
-	    catch (...)
-	    {
-		::close(fd);
-		throw;
-	    }
-	}
-    }
-    else
-    {
-	//
-	// Read the MD5 hash value from the .md5 file.
-	//
-	int fd = ::open(pathmd5.c_str(), O_RDONLY);
-	
-	if (fd == -1)
+	ifstream file(path.c_str());
+	if (!file)
 	{
 	    NodeAccessException ex;
 	    ex.reason = "cannot open `" + path + "' for reading:" + strerror(errno);
 	    throw ex;
 	}
+	ByteSeq bytes;
+	bytes.resize(buf.st_size);
+	file.read(&bytes[0], bytes.size());
+	if (!file)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot read `" + path + "':" + strerror(errno);
+	    throw ex;
+	}
+	if (file.gcount() < static_cast<int>(bytes.size()))
+	{
+	    NodeAccessException ex;
+	    ex.reason = "could not read all bytes from `" + path + "'";
+	    throw ex;
+	}
+	file.close();
 	
-	try
+	//
+	// Create the MD5 hash value.
+	//
+	MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
+	
+	//
+	// Save the MD5 hash value to the MD5 file.
+	//
+	ofstream fileMD5(pathMD5.c_str());
+	if (!fileMD5)
 	{
-	    int sz = ::read(fd, &md5[0], 16);
-	    
-	    if (sz == -1)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot read `" + path + "':" + strerror(errno);
-		throw ex;
-	    }
-	    
-	    if (sz < 16)
-	    {
-		NodeAccessException ex;
-		ex.reason = "could not read 16 bytes from `" + path + "'";
-		throw ex;
-	    }
-	    
-	    ::close(fd);
+	    NodeAccessException ex;
+	    ex.reason = "cannot open `" + pathMD5 + "' for writing:" + strerror(errno);
+	    throw ex;
 	}
-	catch (...)
+	fileMD5.write(&bytesMD5[0], 16);
+	if (!fileMD5)
 	{
-	    ::close(fd);
-	    throw;
+	    NodeAccessException ex;
+	    ex.reason = "cannot write `" + pathMD5 + "':" + strerror(errno);
+	    throw ex;
 	}
+	fileMD5.close();
+    }
+    else
+    {
+	//
+	// Read the MD5 hash value from the MD5 file.
+	//
+	ifstream fileMD5(pathMD5.c_str());
+	if (!fileMD5)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot open `" + pathMD5 + "' for reading:" + strerror(errno);
+	    throw ex;
+	}
+	fileMD5.read(&bytesMD5[0], 16);
+	if (!fileMD5)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot read `" + pathMD5 + "':" + strerror(errno);
+	    throw ex;
+	}
+	if (fileMD5.gcount() < 16)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "could not read 16 bytes from `" + pathMD5 + "'";
+	    throw ex;
+	}
+	fileMD5.close();
     }
 
-    return md5;
+    return bytesMD5;
 }
 
 string
-IcePatch::MD5ToString(const ByteSeq& md5)
+IcePatch::MD5ToString(const ByteSeq& bytesMD5)
 {
-    if (md5.size() != 16)
+    if (bytesMD5.size() != 16)
     {
 	return "illegal MD5 hash code";
     }
@@ -402,7 +354,7 @@ IcePatch::MD5ToString(const ByteSeq& md5)
 
     for (int i = 0; i < 16; ++i)
     {
-	int b = static_cast<int>(md5[i]);
+	int b = static_cast<int>(bytesMD5[i]);
 	if (b < 0)
 	{
 	    b += 256;
@@ -413,14 +365,14 @@ IcePatch::MD5ToString(const ByteSeq& md5)
     return out.str();
 }
 
-static void
-createBZ2(const string& path, char* buf, int sz)
+void
+IcePatch::writeBZ2(const string& pathBZ2, const ByteSeq& bytes)
 {
-    FILE* file = fopen(path.c_str(), "wb");
+    FILE* file = fopen(pathBZ2.c_str(), "wb");
     if (!file)
     {
 	NodeAccessException ex;
-	ex.reason = "cannot open `" + path + "' for writing:" + strerror(errno);
+	ex.reason = "cannot open `" + pathBZ2 + "' for writing:" + strerror(errno);
 	throw ex;
     }
     
@@ -437,7 +389,7 @@ createBZ2(const string& path, char* buf, int sz)
 	
 	try
 	{
-	    BZ2_bzWrite(&bzError, bzFile, buf, sz);
+	    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[0]), bytes.size());
 	    if (bzError != BZ_OK)
 	    {
 		NodeAccessException ex;
@@ -478,7 +430,7 @@ ByteSeq
 IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
 {
     //
-    // Stat the file to get a bzip2 file for.
+    // Stat the file to get a BZ2 file for.
     //
     struct stat buf;
     if (::stat(path.c_str(), &buf) == -1)
@@ -498,17 +450,17 @@ IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
     }
 
     //
-    // Stat the .bz2 file. If it doesn't exist, or if it's outdated,
-    // set a flag to create a new bzip2 file.
+    // Stat the BZ2 file. If it doesn't exist, or if it's outdated,
+    // set a flag to create a new BZ2 file.
     //
-    struct stat bufbz2;
-    string pathbz2 = path + ".bz2";
-    bool createbz2 = false;
-    if (::stat(pathbz2.c_str(), &bufbz2) == -1)
+    struct stat bufBZ2;
+    string pathBZ2 = path + ".bz2";
+    bool createBZ2 = false;
+    if (::stat(pathBZ2.c_str(), &bufBZ2) == -1)
     {
 	if (errno == ENOENT)
 	{
-	    createbz2 = true;
+	    createBZ2 = true;
 	}
 	else
 	{
@@ -519,70 +471,59 @@ IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
     }
     else
     {
-	if (!S_ISREG(bufbz2.st_mode))
+	if (!S_ISREG(bufBZ2.st_mode))
 	{
 	    NodeAccessException ex;
 	    ex.reason = "`" + path + "' is not a regular file";
 	    throw ex;
 	}
 
-	if (bufbz2.st_mtime <= buf.st_mtime)
+	if (bufBZ2.st_mtime <= buf.st_mtime)
 	{
-	    createbz2 = true;
+	    createBZ2 = true;
 	}
     }
 
-    if (createbz2)
+    if (createBZ2)
     {
 	//
-	// Open the original file and create a bzip2 file.
+	// Read the original file.
 	//
-	int fd = ::open(path.c_str(), O_RDONLY);
-	
-	if (fd == -1)
+	ifstream file(path.c_str());
+	if (!file)
 	{
 	    NodeAccessException ex;
 	    ex.reason = "cannot open `" + path + "' for reading:" + strerror(errno);
 	    throw ex;
 	}
-	
-	char* fileBuf = new char[buf.st_size];
-	
-	try
+	ByteSeq bytes;
+	bytes.resize(buf.st_size);
+	file.read(&bytes[0], bytes.size());
+	if (!file)
 	{
-	    int sz = ::read(fd, fileBuf, buf.st_size);
-	    
-	    if (sz == -1)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot read `" + path + "':" + strerror(errno);
-		throw ex;
-	    }
-	    
-	    if (sz < buf.st_size)
-	    {
-		NodeAccessException ex;
-		ex.reason = "could not read all bytes from `" + path + "'";
-		throw ex;
-	    }
-	    
-	    createBZ2(pathbz2, fileBuf, sz);
-	    
-	    ::close(fd);
-	    delete [] fileBuf;
+	    NodeAccessException ex;
+	    ex.reason = "cannot read `" + path + "':" + strerror(errno);
+	    throw ex;
 	}
-	catch (...)
+	if (file.gcount() < static_cast<int>(bytes.size()))
 	{
-	    ::close(fd);
-	    delete [] fileBuf;
-	    throw;
+	    NodeAccessException ex;
+	    ex.reason = "could not read all bytes from `" + path + "'";
+	    throw ex;
 	}
+	file.close();
+
+	//
+	// Create the BZ2 file.
+	//
+	writeBZ2(pathBZ2, bytes);
 
 /*
 	//
-	// Stat the .bz2 file. This time, it must exist.
+	// Stat the BZ2 file. This time, the BZ2 file must exist,
+	// otherwise it's an error.
 	//
-	if (::stat(pathbz2.c_str(), &bufbz2) == -1)
+	if (::stat(pathBZ2.c_str(), &bufBZ2) == -1)
 	{
 	    NodeAccessException ex;
 	    ex.reason = "cannot stat `" + path + "':" + strerror(errno);
@@ -592,49 +533,71 @@ IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
     }
 
     //
-    // Open and read the bzip2 file.
+    // Read the BZ2 file.
     //
-    int fd = ::open(pathbz2.c_str(), O_RDONLY);
-    
-    if (fd == -1)
+    ifstream fileBZ2(pathBZ2.c_str());
+    if (!fileBZ2)
     {
 	NodeAccessException ex;
-	ex.reason = "cannot open `" + pathbz2 + "' for reading:" + strerror(errno);
+	ex.reason = "cannot open `" + pathBZ2 + "' for reading:" + strerror(errno);
 	throw ex;
     }
-    
-    ByteSeq bytes;
-    bytes.resize(num);
-
-    try
+    fileBZ2.seekg(pos);
+    if (!fileBZ2)
     {
-	if (lseek(fd, pos, SEEK_SET) == -1)
+	NodeAccessException ex;
+	ostringstream out;
+	out << "cannot seek position " << pos << " in file `" << path << "':" << strerror(errno);
+	ex.reason = out.str();
+	throw ex;
+    }
+    ByteSeq bytesBZ2;
+    bytesBZ2.resize(num);
+    fileBZ2.read(&bytesBZ2[0], bytesBZ2.size());
+    if (!fileBZ2 && !fileBZ2.eof())
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot read `" + pathBZ2 + "':" + strerror(errno);
+	throw ex;
+    }
+    bytesBZ2.resize(fileBZ2.gcount());
+    fileBZ2.close();
+
+    return bytesBZ2;
+}
+
+void
+IcePatch::getFile(const FilePrx& file)
+{
+    string path = identityToPath(file->ice_getIdentity());
+
+    string pathBZ2 = path + ".bz2";
+    ofstream fileBZ2(pathBZ2.c_str());
+    if (!fileBZ2)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + pathBZ2 + "' for writing:" + strerror(errno);
+	throw ex;
+    }
+    ByteSeq bytesBZ2;
+    Int pos = 0;
+    while(true)
+    {
+	bytesBZ2 = file->getBytesBZ2(pos, 256 * 1024);
+	if (bytesBZ2.empty())
+	{
+	    break;
+	}
+
+	pos += bytesBZ2.size();
+
+	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
+	if (!fileBZ2)
 	{
 	    NodeAccessException ex;
-	    ostringstream out;
-	    out << "cannot seek position " << pos << " in file `" << path << "':" << strerror(errno);
-	    ex.reason = out.str();
+	    ex.reason = "cannot write `" + pathBZ2 + "':" + strerror(errno);
 	    throw ex;
 	}
-	
-	int sz = ::read(fd, &bytes[0], num);
-	
-	if (sz == -1)
-	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot read `" + path + "':" + strerror(errno);
-	    throw ex;
-	}
-	
-	bytes.resize(sz);
-	
-	::close(fd);
     }
-    catch (...)
-    {
-	::close(fd);
-	throw;
-    }
-
-    return bytes;
+    fileBZ2.close();
 }

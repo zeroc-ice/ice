@@ -26,7 +26,6 @@ public:
     void usage();
     virtual int run(int, char*[]);
     void printNodeDescSeq(const NodeDescSeq&, const string&);
-    void getFile(const FilePrx&);
 };
 
 };
@@ -257,20 +256,6 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    }
 	}
     }
-}
-
-void
-IcePatch::Client::getFile(const FilePrx& file)
-{
-    ByteSeq bytes;
-    Int pos = 0;
-
-    do
-    {
-	bytes = file->getBytesBZ2(pos, 256 * 1024);
-	pos += bytes.size();
-    }
-    while (!bytes.empty());
 }
 
 int
