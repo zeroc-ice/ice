@@ -1,4 +1,4 @@
-Latency.Ping=ping:default -p 10000 -h localhost
+Latency.Ping=ping:default -p 10000
 Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
 
 Ice.Security.Ssl.CertPath=../../../certs
