@@ -40,8 +40,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // this object adapter, as the endpoint(s) for this object adapter
             // will most likely need to be firewalled for security reasons.
             //
-            Ice.ObjectAdapter adapter =
-                _server.communicator().createObjectAdapter("IceBox.ServiceManager");
+            Ice.ObjectAdapter adapter = _server.communicator().createObjectAdapter("IceBox.ServiceManager");
 
 	    Ice.Properties properties = _server.communicator().getProperties();
 
@@ -69,15 +68,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 //
                 String className;
                 String[] args;
-                int pos = value.indexOf(' ');
-                if(pos == -1)
-                {
-                    pos = value.indexOf('\t');
-                }
-                if(pos == -1)
-                {
-                    pos = value.indexOf('\n');
-                }
+                int pos = IceInternal.StringUtil.findFirstOf(value, " \t\n");
                 if(pos == -1)
                 {
                     className = value;
@@ -111,7 +102,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
 
 	    //
-	    // Don't move after the adapter activation. This allow
+	    // Don't move after the adapter activation. This allows
 	    // applications to wait for the service manager to be
 	    // reachable before sending a signal to shutdown the
 	    // IceBox.
@@ -182,8 +173,8 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	//
 	// Create the service property set from the service arguments
 	// and the server arguments. The service property set will be
-	// use to create a new communicator or we be added to the
-	// shared communicator depending on the value of the
+	// used to create a new communicator, or will be added to the
+	// shared communicator, depending on the value of the
 	// IceBox.UseSharedCommunicator property.
 	//
         java.util.ArrayList l = new java.util.ArrayList();
@@ -249,7 +240,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         try
         {
 	    //
-	    // If Ice.UseSharedCommunicator.<name> is defined create a
+	    // If Ice.UseSharedCommunicator.<name> is defined, create a
 	    // communicator for the service. The communicator inherits
 	    // from the shared communicator properties. If it's not
 	    // defined, add the service properties to the shared
@@ -267,6 +258,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    else
 	    {
 		Ice.Properties serviceProperties = properties._clone();
+
+                //
+                // Initialize the Ice.ProgramName property with the name of this service.
+                //
+                serviceProperties.setProperty("Ice.ProgramName", service);
 
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
@@ -293,7 +289,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	        //
 		// IceBox::FreezeService
 		//
-		// Either open the database environment or if it has already been opened
+		// Either open the database environment, or if it has already been opened,
 		// retrieve it from the map.
 		//
 	        FreezeService fs = (FreezeService)info.service;
