@@ -408,7 +408,8 @@ Parser::getInput(char* buf, int& result, int maxSize)
     {
 #ifdef HAVE_READLINE
 
-	char* line = readline(parser->getPrompt());
+        const char* prompt = parser->getPrompt();
+	char* line = readline(const_cast<char*>(prompt));
 	if(!line)
 	{
 	    result = 0;
