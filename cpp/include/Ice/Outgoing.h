@@ -23,6 +23,8 @@ public:
     Outgoing(const Reference&, const std::string&);
     ~Outgoing();
 
+    void invoke();
+
 private:
 
     Outgoing(const Outgoing&);

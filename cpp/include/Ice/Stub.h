@@ -16,6 +16,35 @@
 #include <Ice/Shared.h>
 #include <Ice/Outgoing.h>
 
+namespace _Ice
+{
+
+//
+// Special handle class for Ice objects, which support the static
+// member function cast().
+//
+template<typename T>
+class ObjectHandle : public Handle<T>
+{
+public:
+    
+    ObjectHandle(T* p = 0) : Handle<T>(p) { }
+    ObjectHandle(const ObjectHandle& r) : Handle<T>(r) { }
+
+    ObjectHandle& operator=(const ObjectHandle& r)
+    {
+	Handle<T>::operator=(r);
+	return *this;
+    }
+
+    static ObjectHandle<T> cast(const ::Ice::Object& r)
+    {
+	return T::_cast(r);
+    }
+};
+
+}
+
 namespace _IceObj { namespace Ice
 {
 
@@ -87,14 +116,14 @@ protected:
     ObjectI();
     virtual ~ObjectI();
 
+    ::_Ice::Reference reference_;
+
 private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
     void setup(const ::_Ice::Reference&);
-
-    ::_Ice::Reference reference_;
 
     friend class ::_IceObj::Ice::ObjectI; // May create and setup ObjectIs
 };

@@ -108,7 +108,7 @@ public:
 
     void swap(Handle<T>& other) { std::swap(ptr_, other.ptr_); }
 
-private:
+protected:
 
     T* ptr_;
 };
