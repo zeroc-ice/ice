@@ -13,15 +13,15 @@ package Ice;
 public class _ObjectDelM implements _ObjectDel
 {
     public boolean
-    ice_isA(String s)
+    ice_isA(String __id, java.util.HashMap __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__emitter, __reference);
+            new IceInternal.Outgoing(__emitter, __reference, false, "ice_isA",
+                                     true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
-        __os.writeString("ice_isA");
-        __os.writeString(s);
+        __os.writeString(__id);
         if (!__out.invoke())
         {
             throw new UnknownUserException();
@@ -30,17 +30,36 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public void
-    ice_ping()
+    ice_ping(java.util.HashMap __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__emitter, __reference);
-        IceInternal.BasicStream __os = __out.os();
-        __os.writeString("ice_ping");
+            new IceInternal.Outgoing(__emitter, __reference, false, "ice_ping",
+                                     true, __context);
         if (!__out.invoke())
         {
             throw new UnknownUserException();
         }
+    }
+
+    public byte[]
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+               java.util.HashMap __context)
+        throws LocationForward, IceInternal.NonRepeatable
+    {
+        IceInternal.Outgoing __out =
+            new IceInternal.Outgoing(__emitter, __reference, false, operation,
+                                     nonmutating, __context);
+        IceInternal.BasicStream __os = __out.os();
+        __os.writeBlob(inParams);
+        __out.invoke();
+        if (__reference.mode == IceInternal.Reference.ModeTwoway)
+        {
+            IceInternal.BasicStream __is = __out.is();
+            int sz = __is.getReadEncapsSize();
+            return __is.readBlob(sz);
+        }
+        return null;
     }
 
     public void

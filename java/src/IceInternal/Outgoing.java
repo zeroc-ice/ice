@@ -13,7 +13,8 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Emitter emitter, Reference ref)
+    Outgoing(Emitter emitter, Reference ref, boolean sendProxy,
+             String operation, boolean nonmutating, java.util.HashMap context)
     {
         _emitter = emitter;
         _reference = ref;
@@ -39,8 +40,46 @@ public final class Outgoing
             }
         }
 
-        _os.writeString(_reference.identity);
-        _os.writeString(_reference.facet);
+        _os.writeBool(sendProxy);
+        if (sendProxy)
+        {
+            Ice.ObjectPrx proxy = _reference.instance.proxyFactory().
+                referenceToProxy(_reference);
+            _os.writeProxy(proxy);
+        }
+        else
+        {
+            _os.writeString(_reference.identity);
+            _os.writeString(_reference.facet);
+        }
+        _os.writeString(operation);
+        _os.writeBool(nonmutating);
+        if (context == null)
+        {
+            _os.writeInt(0);
+        }
+        else
+        {
+            final int sz = context.size();
+            _os.writeInt(sz);
+            if (sz > 0)
+            {
+                java.util.Iterator i = context.entrySet().iterator();
+                while (i.hasNext())
+                {
+                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
+                    _os.writeString((String)entry.getKey());
+                    _os.writeString((String)entry.getValue());
+                }
+            }
+        }
+
+        //
+        // Input and output parameters are always sent in an
+        // encapsulation, which makes it possible to forward oneway
+        // requests as blobs.
+        //
+        _os.startWriteEncaps();
     }
 
     protected void
@@ -61,6 +100,8 @@ public final class Outgoing
     invoke()
         throws Ice.LocationForward, NonRepeatable
     {
+        _os.endWriteEncaps();
+
         switch (_reference.mode)
         {
             case Reference.ModeTwoway:
@@ -156,8 +197,15 @@ public final class Outgoing
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                _state = StateInProgress; // Must be set to StateInProgress
-                                          // before finishBatchRequest()
+                //
+                // The state must be set to StateInProgress before calling
+                // finishBatchRequest, because otherwise if
+                // finishBatchRequest raises an exception, the destructor
+                // of this class will call abortBatchRequest, and calling
+                // both finishBatchRequest and abortBatchRequest is
+                // illegal.
+                //
+                _state = StateInProgress;
                 _emitter.finishBatchRequest(this);
                 break;
             }
@@ -178,12 +226,24 @@ public final class Outgoing
             {
                 case DispatchStatus._DispatchOK:
                 {
+                    //
+                    // Input and output parameters are always sent in an
+                    // encapsulation, which makes it possible to forward
+                    // oneway requests as blobs.
+                    //
+                    _is.startReadEncaps();
                     _state = StateOK;
                     break;
                 }
 
                 case DispatchStatus._DispatchUserException:
                 {
+                    //
+                    // Input and output parameters are always sent in an
+                    // encapsulation, which makes it possible to forward
+                    // oneway requests as blobs.
+                    //
+                    _is.startReadEncaps();
                     _state = StateException;
                     break;
                 }

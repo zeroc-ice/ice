@@ -45,12 +45,7 @@ final class TraceUtil
             {
                 s.write(" (oneway)");
             }
-            String identity = stream.readString();
-            s.write("\nidentity = " + identity);
-            String facet = stream.readString();
-            s.write("\nfacet = " + facet);
-            String operation = stream.readString();
-            s.write("\noperation name = " + operation);
+            printRequestHeader(s, stream);
             logger.trace(tl.protocolCat, s.toString());
             stream.pos(pos);
         }
@@ -72,15 +67,7 @@ final class TraceUtil
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
-                int pos2 = stream.pos();
-                stream.startReadEncaps();
-                String identity = stream.readString();
-                s.write("\nidentity = " + identity);
-                String facet = stream.readString();
-                s.write("\nfacet = " + facet);
-                String operation = stream.readString();
-                s.write("\noperation name = " + operation);
-                stream.pos(pos2);
+                printRequestHeader(s, stream);
                 stream.skipEncaps();
             }
             logger.trace(tl.protocolCat, s.toString());
@@ -192,6 +179,53 @@ final class TraceUtil
             }
             int size = stream.readInt();
             out.write("\nmessage size = " + size);
+        }
+        catch (java.io.IOException ex)
+        {
+            assert(false);
+        }
+    }
+
+    private static void
+    printRequestHeader(java.io.Writer out, BasicStream stream)
+    {
+        try
+        {
+            String identity = null;
+            String facet = null;
+            boolean gotProxy = stream.readBool();
+            out.write("\naddressing = " + gotProxy);
+            if (gotProxy)
+            {
+                out.write(" (proxy)");
+                Ice.ObjectPrx proxy = stream.readProxy();
+                identity = proxy.ice_getIdentity();
+                facet = proxy.ice_getFacet();
+            }
+            else
+            {
+                out.write(" (identity)");
+                identity = stream.readString();
+                facet = stream.readString();
+            }
+            out.write("\nidentity = " + identity);
+            out.write("\nfacet = " + facet);
+            String operation = stream.readString();
+            out.write("\noperation = " + operation);
+            boolean nonmutating = stream.readBool();
+            out.write("\nnonmutating = " + nonmutating);
+            int sz = stream.readInt();
+            out.write("\ncontext = ");
+            while (sz-- > 0)
+            {
+                String key = stream.readString();
+                String value = stream.readString();
+                out.write(key + '/'+ value);
+                if (sz > 0)
+                {
+                    out.write(", ");
+                }
+            }
         }
         catch (java.io.IOException ex)
         {

@@ -134,8 +134,6 @@ public final class Emitter extends EventHandler
             _batchStream.writeInt(0); // Message size (placeholder)
         }
 
-        _batchStream.startWriteEncaps();
-
         //
         // Give the batch stream to `out', until finishBatchRequest() is
         // called.
@@ -155,8 +153,6 @@ public final class Emitter extends EventHandler
 
         _batchStream.swap(out.os()); // Get the batch stream back
         _mutex.unlock(); // Give the Emitter back
-
-        _batchStream.endWriteEncaps();
     }
 
     public void

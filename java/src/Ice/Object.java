@@ -10,7 +10,7 @@
 
 package Ice;
 
-public abstract class Object
+public class Object
 {
     public
     Object()
@@ -20,42 +20,50 @@ public abstract class Object
     public final int
     ice_hash()
     {
-        // TODO: replace with hashCode? Call hashCode?
-        return 0;
+        return hashCode();
+    }
+
+    public static String[] __classIds =
+    {
+        "::Ice::Object"
+    };
+
+    public String[]
+    __getClassIds()
+    {
+        return __classIds;
     }
 
     public boolean
-    ice_isA(String s)
+    ice_isA(String s, Current current)
     {
         return s.equals("::Ice::Object");
     }
 
     public void
-    ice_ping()
+    ice_ping(Current current)
     {
-        // Nothing to do
+        // Nothing to do.
     }
 
+    /* TODO: Server
     public final IceInternal.DispatchStatus
-    ___ice_isA(IceInternal.Incoming __in)
+    ___ice_isA(IceInternal.Incoming __in, Current __current)
     {
         IceInternal.BasicStream __is = __in.is();
         IceInternal.BasicStream __os = __in.os();
-        String s = __is.readString();
-        boolean __ret = ice_isA(s);
+        String __id = __is.readString();
+        boolean __ret = ice_isA(__id, __current);
         __os.writeBool(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
     }
 
     public final IceInternal.DispatchStatus
-    ___ice_ping(IceInternal.Incoming __in)
+    ___ice_ping(IceInternal.Incoming __in, Current __current)
     {
-        ice_ping();
+        ice_ping(__current);
         return IceInternal.DispatchStatus.DispatchOK;
     }
-
-    public abstract String[]
-    __getClassIds();
 
     public static String[] __all =
     {
@@ -64,9 +72,9 @@ public abstract class Object
     };
 
     public IceInternal.DispatchStatus
-    __dispatch(IceInternal.Incoming in, String s)
+    __dispatch(IceInternal.Incoming in, Current current)
     {
-        int pos = java.util.Arrays.binarySearch(__all, s);
+        int pos = java.util.Arrays.binarySearch(__all, current.operation);
         if (pos < 0)
         {
             return IceInternal.DispatchStatus.DispatchOperationNotExist;
@@ -76,27 +84,18 @@ public abstract class Object
         {
             case 0:
             {
-                return ___ice_isA(in);
+                return ___ice_isA(in, current);
             }
             case 1:
             {
-                return ___ice_ping(in);
+                return ___ice_ping(in, current);
             }
         }
 
         assert(false);
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
-
-    public boolean
-    __isMutating(String s)
-    {
-        //
-        // None of the Ice::Object operations accessible via __dispatch()
-        // is mutating.
-        //
-        return false;
-    }
+    */
 
     public void
     __write(IceInternal.BasicStream __os)

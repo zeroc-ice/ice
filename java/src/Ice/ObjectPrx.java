@@ -19,7 +19,13 @@ public class ObjectPrx
     }
 
     public final boolean
-    ice_isA(String s)
+    ice_isA(String __id)
+    {
+        return ice_isA(__id, null);
+    }
+
+    public final boolean
+    ice_isA(String __id, java.util.HashMap __context)
     {
         int __cnt = 0;
         while (true)
@@ -27,7 +33,7 @@ public class ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_isA(s);
+                return __del.ice_isA(__id, __context);
             }
             catch (LocationForward __ex)
             {
@@ -47,13 +53,19 @@ public class ObjectPrx
     public final void
     ice_ping()
     {
+        ice_ping(null);
+    }
+
+    public final void
+    ice_ping(java.util.HashMap __context)
+    {
         int __cnt = 0;
         while (true)
         {
             try
             {
                 _ObjectDel __del = __getDelegate();
-                __del.ice_ping();
+                __del.ice_ping(__context);
                 return;
             }
             catch (LocationForward __ex)
@@ -63,6 +75,47 @@ public class ObjectPrx
             catch (IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
+            }
+            catch (LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
+    public final byte[]
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams)
+    {
+        return ice_invoke(operation, nonmutating, inParams, null);
+    }
+
+    public final byte[]
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+               java.util.HashMap __context)
+    {
+        int __cnt = 0;
+        while (true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                return __del.ice_invoke(operation, nonmutating, inParams,
+                                        __context);
+            }
+            catch (LocationForward __ex)
+            {
+                __locationForward(__ex);
+            }
+            catch (IceInternal.NonRepeatable __ex)
+            {
+                if (nonmutating)
+                {
+                    __cnt = __handleException(__ex.get(), __cnt);
+                }
+                else
+                {
+                    __rethrowException(__ex.get());
+                }
             }
             catch (LocalException __ex)
             {
@@ -272,6 +325,12 @@ public class ObjectPrx
         {
             ++cnt;
         }
+        /* TODO: SSL
+        catch (IceSecurity.SecurityException e) // TODO: bandaid to make retry
+        {                                       // w/ ssl work
+            ++cnt;
+        }
+        */
         catch (DNSException e)
         {
             ++cnt;
@@ -349,6 +408,7 @@ public class ObjectPrx
     {
         if (_delegate == null)
         {
+            /* TODO: Server
             ObjectAdapter adapter = _reference.instance.objectAdapterFactory().
                 findObjectAdapter(this);
             if (adapter != null)
@@ -358,6 +418,7 @@ public class ObjectPrx
                 _delegate = delegate;
             }
             else
+            */
             {
                 _ObjectDelM delegate = __createDelegateM();
                 delegate.setup(_reference);

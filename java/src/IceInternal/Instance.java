@@ -66,11 +66,13 @@ public class Instance
         return _userExceptionFactoryManager;
     }
 
+    /* TODO: Server
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
         return _objectAdapterFactory;
     }
+    */
 
     public synchronized ThreadPool
     threadPool()
@@ -101,7 +103,9 @@ public class Instance
             _emitterFactory = new EmitterFactory(this);
             _servantFactoryManager = new ObjectFactoryManager();
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
+            /* TODO: Server
             _objectAdapterFactory = new ObjectAdapterFactory(this);
+            */
             _threadPool = new ThreadPool(this);
             _bufferManager = new BufferManager();
         }
@@ -124,7 +128,9 @@ public class Instance
         assert(_emitterFactory == null);
         assert(_servantFactoryManager == null);
         assert(_userExceptionFactoryManager == null);
+        /* TODO: Server
         assert(_objectAdapterFactory == null);
+        */
         assert(_threadPool == null);
 
         super.finalize();
@@ -193,12 +199,14 @@ public class Instance
             _userExceptionFactoryManager = null;
         }
 
+        /* TODO: Server
         if (_objectAdapterFactory != null)
         {
             _objectAdapterFactory.shutdown(); // ObjectAdapterFactory has
                                               // shutdown(), not destroy()
             _objectAdapterFactory = null;
         }
+        */
 
         if (_threadPool != null)
         {   
@@ -223,7 +231,9 @@ public class Instance
     private EmitterFactory _emitterFactory;
     private ObjectFactoryManager _servantFactoryManager;
     private UserExceptionFactoryManager _userExceptionFactoryManager;
+    /* TODO: Server
     private ObjectAdapterFactory _objectAdapterFactory;
+    */
     private ThreadPool _threadPool;
     private BufferManager _bufferManager;
 }

@@ -80,8 +80,11 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
+        /* TODO: Server
         return _instance.objectAdapterFactory().createObjectAdapter(
             name, endpts);
+        */
+        return null;
     }
 
     public synchronized void

@@ -23,8 +23,8 @@ public class BasicStream
         assert(_buf.limit() == _capacity);
 
         Encaps enc = new Encaps();
-        enc.start = 0;
         enc.encoding = 0;
+        enc.start = 0;
         _encapsStack.add(enc);
     }
 
@@ -120,12 +120,12 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
+        writeInt(0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
         Encaps enc = new Encaps();
-        enc.start = _buf.position();
         enc.encoding = 0;
+        enc.start = _buf.position();
         _encapsStack.add(enc);
-        writeByte(enc.encoding);
     }
 
     public void
@@ -139,14 +139,15 @@ public class BasicStream
     public void
     startReadEncaps()
     {
-        int sz = readInt();
-        Encaps enc = new Encaps();
-        enc.start = _buf.position();
-        enc.encoding = readByte();
-        if (enc.encoding != 0)
+        int encoding = readInt();
+        if (encoding != 0)
         {
             throw new Ice.UnsupportedEncodingException();
         }
+        int sz = readInt();
+        Encaps enc = new Encaps();
+        enc.encoding = (byte)encoding;
+        enc.start = _buf.position();
         _encapsStack.add(enc);
     }
 
@@ -155,21 +156,70 @@ public class BasicStream
     {
         Encaps enc = (Encaps)_encapsStack.removeLast();
         int sz = _buf.getInt(enc.start - 4);
+        try
+        {
+            _buf.position(enc.start + sz);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    checkReadEncaps()
+    {
+        Encaps enc = (Encaps)_encapsStack.getLast();
+        int sz = _buf.getInt(enc.start - 4);
         if (sz != _buf.position() - enc.start)
         {
             throw new Ice.EncapsulationException();
         }
     }
 
+    public int
+    getReadEncapsSize()
+    {
+        Encaps enc = (Encaps)_encapsStack.getLast();
+        return _buf.getInt(enc.start - 4);
+    }
+
     public void
     skipEncaps()
     {
+        int encoding = readInt();
+        if (encoding != 0)
+        {
+            throw new Ice.UnsupportedEncodingException();
+        }
         int sz = readInt();
         try
         {
             _buf.position(_buf.position() + sz);
         }
         catch (IllegalArgumentException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    writeBlob(byte[] v)
+    {
+        expand(v.length);
+        _buf.put(v);
+    }
+
+    public byte[]
+    readBlob(int sz)
+    {
+        byte[] v = new byte[sz];
+        try
+        {
+            _buf.get(v);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -809,6 +859,12 @@ public class BasicStream
                 v.value = null;
                 return true;
             }
+            else if (id.equals("::Ice::Object"))
+            {
+                v.value = new Ice.Object();
+                readObject(v.value);
+                return true;
+            }
             else
             {
                 Encaps enc = (Encaps)_encapsStack.getLast();
@@ -824,21 +880,32 @@ public class BasicStream
                     v.value = factory.create(id);
                     if (v.value != null)
                     {
-                        enc.objectsRead.add(v.value);
-                        v.value.__read(this);
+                        readObject(v.value);
                         return true;
                     }
                 }
 
                 if (id.equals(signatureType))
                 {
-                    enc.objectsRead.add(v.value);
                     return false;
                 }
 
                 throw new Ice.NoObjectFactoryException();
             }
         }
+    }
+
+    public void
+    readObject(Ice.Object v)
+    {
+        assert(v != null);
+        Encaps enc = (Encaps)_encapsStack.getLast();
+        if (enc.objectsRead == null) // Lazy creation
+        {
+            enc.objectsRead = new java.util.ArrayList(10);
+        }
+        enc.objectsRead.add(v);
+        v.__read(this);
     }
 
     public void

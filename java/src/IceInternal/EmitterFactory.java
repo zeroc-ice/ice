@@ -73,6 +73,12 @@ public final class EmitterFactory
             {
                 exception = ex;
             }
+            /* TODO: SSL
+            catch (IceSecurity.SecurityException ex)
+            {
+                exception = ex;
+            }
+            */
             catch (Ice.DNSException ex)
             {
                 exception = ex;
