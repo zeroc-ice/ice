@@ -63,6 +63,7 @@ public:
 
     ::Ice::ObjectPrx _twoway() const;
     ::Ice::ObjectPrx _oneway() const;
+    ::Ice::ObjectPrx _secure() const;
     ::Ice::ObjectPrx _datagram() const;
     ::Ice::ObjectPrx _timeout(int) const;
 

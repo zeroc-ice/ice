@@ -47,9 +47,6 @@ public:
 
     LocalObject();
     virtual ~LocalObject();
-
-    virtual void __write(::IceInternal::Stream*) = 0;
-    virtual void __read(::IceInternal::Stream*) = 0;
 };
 
 }

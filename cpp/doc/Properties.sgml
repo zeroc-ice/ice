@@ -99,7 +99,7 @@ ice.adapter.<replaceable>name</replaceable>.endpoints=<replaceable>endpoint_list
 <section>
 <title>Description</title>
 <para>
-Sets the endpoints for an object adapter
+Sets the endpoints for the object adapter
 <replaceable>name</replaceable> to
 <replaceable>enpoint_list</replaceable>.
 </para>

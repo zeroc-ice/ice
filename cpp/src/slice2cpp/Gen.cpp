@@ -1341,58 +1341,58 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
 	    C << eb;
 	}
+	H << sp;
+	H << nl << "virtual void __write(::IceInternal::Stream*);";
+	H << nl << "virtual void __read(::IceInternal::Stream*);";
+	TypeStringList memberList;
+	DataMemberList dataMembers = p->dataMembers();
+	DataMemberList::const_iterator q;
+	for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+	C << sp;
+	C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::Stream* __os)";
+	C << sb;
+	C << nl << "__os->startWriteEncaps();";
+	writeMarshalCode(C, memberList, 0);
+	C << nl << "__os->endWriteEncaps();";
+	if (base)
+	{
+	    C.zeroIndent();
+	    C << nl << "#ifdef WIN32"; // COMPILERBUG
+	    C.restoreIndent();
+	    C << nl << base->name() << "::__write(__os);";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << base->scoped() << "::__write(__os);";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
+	}
+	C << eb;
+	C << sp;
+	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::Stream* __is)";
+	C << sb;
+	C << nl << "__is->startReadEncaps();";
+	writeUnmarshalCode(C, memberList, 0);
+	C << nl << "__is->endReadEncaps();";
+	if (base)
+	{
+	    C.zeroIndent();
+	    C << nl << "#ifdef WIN32"; // COMPILERBUG
+	    C.restoreIndent();
+	    C << nl << base->name() << "::__read(__is);";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << base->scoped() << "::__read(__is);";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
+	}
+	C << eb;
     }
-    H << sp;
-    H << nl << "virtual void __write(::IceInternal::Stream*);";
-    H << nl << "virtual void __read(::IceInternal::Stream*);";
     H << eb << ';';
-    TypeStringList memberList;
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList::const_iterator q;
-    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-    C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::Stream* __os)";
-    C << sb;
-    C << nl << "__os->startWriteEncaps();";
-    writeMarshalCode(C, memberList, 0);
-    C << nl << "__os->endWriteEncaps();";
-    if (base)
-    {
-	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
-	C.restoreIndent();
-	C << nl << base->name() << "::__write(__os);";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << base->scoped() << "::__write(__os);";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-    }
-    C << eb;
-    C << sp;
-    C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::Stream* __is)";
-    C << sb;
-    C << nl << "__is->startReadEncaps();";
-    writeUnmarshalCode(C, memberList, 0);
-    C << nl << "__is->endReadEncaps();";
-    if (base)
-    {
-	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
-	C.restoreIndent();
-	C << nl << base->name() << "::__read(__is);";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << base->scoped() << "::__read(__is);";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-    }
-    C << eb;
 }
 
 void
