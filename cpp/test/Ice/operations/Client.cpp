@@ -49,6 +49,7 @@ main(int argc, char* argv[])
     {
 	Ice::PropertiesPtr properties = Ice::getDefaultProperties();
 	properties->setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+	properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);

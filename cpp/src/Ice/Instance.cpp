@@ -275,25 +275,6 @@ IceInternal::Instance::clientThreadPool()
 
     if(!_clientThreadPool) // Lazy initialization.
     {
-// Not necessary anymore, this is now the default for every thread pool
-/*
-	//
-	// Make sure that the client thread pool defaults are correctly
-	//
-	if(_properties->getProperty("Ice.ThreadPool.Client.Size").empty())
-	{
-	    _properties->setProperty("Ice.ThreadPool.Client.Size", "1");
-	}
-	if(_properties->getProperty("Ice.ThreadPool.Client.SizeMax").empty())
-	{
-	    _properties->setProperty("Ice.ThreadPool.Client.SizeMax", "1");
-	}
-	if(_properties->getProperty("Ice.ThreadPool.Client.SizeWarn").empty())
-	{
-	    _properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-	}
-*/
-
 	_clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
     }
 

@@ -3104,10 +3104,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "IceInternal.BasicStream __os = __out.os();";
         }
-        if(!outParams.empty() || ret || !throws.empty())
-        {
-            out << nl << "IceInternal.BasicStream __is = __out.is();";
-        }
         iter = 0;
         for(q = inParams.begin(); q != inParams.end(); ++q)
         {
@@ -3117,36 +3113,28 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    out << nl << "__os.writePendingObjects();";
 	}
-        out << nl << "if(!__out.invoke())";
+        out << nl << "boolean __ok = __out.invoke();";
+	out << nl << "try";
+	out << sb;
+	out << nl << "IceInternal.BasicStream __is = __out.is();";
+        out << nl << "if(!__ok)";
         out << sb;
-        if(!throws.empty())
-        {
-            //
-            // The try/catch block is necessary because throwException()
-            // can raise UserException.
-            //
-            out << nl << "try";
-            out << sb;
-            out << nl << "__is.throwException();";
-            out << eb;
-            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-            {
-                out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
-                out << sb;
-                out << nl << "throw __ex;";
-                out << eb;
-            }
-            out << nl << "catch(Ice.UserException __ex)";
-            out << sb;
-            out << eb;
-        }
+	out << nl << "try";
+	out << sb;
+	out << nl << "__is.throwException();";
+	out << eb;
+	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+	{
+	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
+	    out << sb;
+	    out << nl << "throw __ex;";
+	    out << eb;
+	}
+	out << nl << "catch(Ice.UserException __ex)";
+	out << sb;
         out << nl << "throw new Ice.UnknownUserException();";
+	out << eb;
         out << eb;
-        if(!outParams.empty() || ret)
-        {
-            out << nl << "try";
-            out << sb;
-        }
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
             writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter, true);
@@ -3181,14 +3169,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		out << nl << "return __ret;";
 	    }
 	}
-        if(!outParams.empty() || ret)
-        {
-            out << eb;
-            out << nl << "catch(Ice.LocalException __ex)";
-            out << sb;
-            out << nl << "throw new IceInternal.NonRepeatable(__ex);";
-            out << eb;
-        }
+	out << eb;
+	out << nl << "catch(Ice.LocalException __ex)";
+	out << sb;
+	out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+	out << eb;
         out << eb;
         out << nl << "finally";
         out << sb;
@@ -3870,34 +3855,24 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
 	out << nl << "try";
 	out << sb;
-	if(ret || !outParams.empty() || !throws.empty())
-	{
-	    out << nl << "IceInternal.BasicStream __is = this.__is();";
-	}
+	out << nl << "IceInternal.BasicStream __is = this.__is();";
 	out << nl << "if(!__ok)";
         out << sb;
-        if(!throws.empty())
-        {
-            //
-            // The try/catch block is necessary because throwException()
-            // can raise UserException.
-            //
-            out << nl << "try";
-            out << sb;
-            out << nl << "__is.throwException();";
-            out << eb;
-            for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-            {
-                out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
-                out << sb;
-                out << nl << "throw __ex;";
-                out << eb;
-            }
-            out << nl << "catch(Ice.UserException __ex)";
-            out << sb;
-            out << eb;
-        }
+	out << nl << "try";
+	out << sb;
+	out << nl << "__is.throwException();";
+	out << eb;
+	for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
+	{
+	    out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
+	    out << sb;
+	    out << nl << "throw __ex;";
+	    out << eb;
+	}
+	out << nl << "catch(Ice.UserException __ex)";
+	out << sb;
         out << nl << "throw new Ice.UnknownUserException();";
+	out << eb;
         out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {

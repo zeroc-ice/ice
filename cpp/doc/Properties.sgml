@@ -514,16 +514,16 @@ of thread starvation.
 </para>
 <para>
 <replaceable>num</replaceable> is the initial and also minimum number
-of threads in the thread pool. The default is one thread for
-<literal>Ice.ThreadPool.Client</literal>, five threads for
-<literal>Ice.ThreadPool.Server</literal>, and zero threads for object
-adapter thread pools, meaning that by default, object adapters use the
-default server-side thread pool.  <note><para>Multiple threads for the
-client side thread pool are only required for nested AMI
-invocations. If AMI is not used, or AMI calls are not nested (i.e.,
-AMI callbacks do not call any other methods on Ice objects), then
-there is no need to set the number of threads in the client thread
-pool to a value larger than one. </para></note>
+of threads in the thread pool. The default is one for
+<literal>Ice.ThreadPool.Client</literal> and
+<literal>Ice.ThreadPool.Server</literal>, and zero for object adapter
+thread pools, meaning that by default, object adapters use the default
+server-side thread pool.  <note><para>Multiple threads for the client
+side thread pool are only required for nested AMI invocations. If AMI
+is not used, or AMI calls are not nested (i.e., AMI callbacks do not
+call any other methods on Ice objects), then there is no need to set
+the number of threads in the client thread pool to a value larger than
+one. </para></note>
 </para>
 </section>
 </section>
@@ -537,17 +537,17 @@ pool to a value larger than one. </para></note>
 <section>
 <title>Description</title>
 <para>
-<replaceable>num</replaceable> is the maximum number of threads for the
-thread pool <replaceable>name</replaceable>. Thread pools in Ice grow
-and shrink dynamically, based on an average load factor. Thread
-pools do not grow larger than the parameter specified by
-<literal>SizeMax</literal>, and they do not shrink to a number of
+<replaceable>num</replaceable> is the maximum number of threads for
+the thread pool <replaceable>name</replaceable>. Thread pools in Ice
+can grow and shrink dynamically, based on an average load
+factor. Thread pools do not grow larger than the parameter specified
+by <literal>SizeMax</literal>, and they do not shrink to a number of
 threads smaller than the value specified by <literal>Size</literal>.
 </para>
 <para>
-The default value for <literal>SizeMax</literal> is 1 for the
-client-side thread pool. For all other thread pools, it is 10 times
-the value of <literal>Size</literal>.
+The default value for <literal>SizeMax</literal> is the value of
+<literal>Size</literal>, meaning that by default, thread pools do not
+grow dynamically.
 </para>
 </section>
 </section>

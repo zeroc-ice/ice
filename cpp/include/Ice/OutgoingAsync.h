@@ -43,7 +43,7 @@ public:
     void __setup(const IceInternal::ReferencePtr&);
 
     void __finished(BasicStream&);
-    void __finished(const Ice::Exception&);
+    void __finished(const Ice::LocalException&);
 
     bool __timedOut() const;
 

@@ -697,9 +697,13 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 void
 IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    _delegate = 0;
+    //
+    // Only _delegate needs to be mutex protected here.
+    //
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	_delegate = 0;
+    }
 
     if(_reference->locatorInfo)
     {
@@ -812,13 +816,13 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
     __os->write(__id);
-    if(!__out.invoke())
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-    }
     bool __ret;
     try
     {
+	if(!__out.invoke())
+	{
+	    __is->throwException();
+	}
         __is->read(__ret);
     }
     catch(const ::Ice::LocalException& __ex)
@@ -833,9 +837,17 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
     Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    if(!__out.invoke())
+    BasicStream* __is = __out.is();
+    try
     {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	if(!__out.invoke())
+	{
+	    __is->throwException();
+	}
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::NonRepeatable(__ex);
     }
 }
 
@@ -845,13 +857,13 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
     static const string __operation("ice_ids");
     Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
-    if(!__out.invoke())
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-    }
     vector<string> __ret;
     try
     {
+	if(!__out.invoke())
+	{
+	    __is->throwException();
+	}
         __is->read(__ret);
     }
     catch(const ::Ice::LocalException& __ex)
@@ -867,13 +879,13 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
     static const string __operation("ice_id");
     Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
-    if(!__out.invoke())
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-    }
     string __ret;
     try
     {
+	if(!__out.invoke())
+	{
+	    __is->throwException();
+	}
         __is->read(__ret);
     }
     catch(const ::Ice::LocalException& __ex)
@@ -889,13 +901,13 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
     static const string __operation("ice_facets");
     Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
-    if(!__out.invoke())
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
-    }
     FacetPath __ret;
     try
     {
+	if(!__out.invoke())
+	{
+	    __is->throwException();
+	}
         __is->read(__ret);
     }
     catch(const ::Ice::LocalException& __ex)

@@ -200,8 +200,9 @@ if host != "":
 else:
     defaultHost = ""
 
-commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ThreadPool.Server.Size=3" + \
-                      " --Ice.Warn.Connections "
+commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady" + \
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
+                      " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=10"
 
 clientOptions = clientProtocol + defaultHost
 serverOptions = serverProtocol + defaultHost + commonServerOptions

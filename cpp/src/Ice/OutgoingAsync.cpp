@@ -20,6 +20,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/LocatorInfo.h>
 
 using namespace std;
 using namespace Ice;
@@ -158,8 +159,25 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 }
 
 void
-IceInternal::OutgoingAsync::__finished(const Exception& exc)
+IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
+    if(_reference->locatorInfo)
+    {
+	_reference->locatorInfo->clearObjectCache(_reference);
+    }
+
+/*
+    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+    if(proxyFactory)
+    {
+	proxyFactory->checkRetryAfterException(ex, cnt);
+    }
+    else
+    {
+        ex.ice_throw(); // The communicator is already destroyed, so we cannot retry.
+    }
+*/
+
     try
     {
 	ice_exception(exc);

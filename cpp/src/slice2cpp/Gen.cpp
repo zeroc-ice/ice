@@ -1514,7 +1514,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::IceInternal::Outgoing __out(__connection.get(), __reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
-    C << nl << "::IceInternal::BasicStream* __is = __out.is();";
     if(!inParams.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
@@ -1524,30 +1523,29 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
 	C << nl << "__os->writePendingObjects();";
     }
-    C << nl << "if(!__out.invoke())";
+    C << nl << "bool __ok = __out.invoke();";
+    C << nl << "try";
+    C << sb;
+    C << nl << "::IceInternal::BasicStream* __is = __out.is();";
+    C << nl << "if(!__ok)";
     C << sb;
     C << nl << "__is->throwException();";
     C << eb;
     writeAllocateCode(C, TypeStringList(), ret);
-    if(!outParams.empty() || ret)
+    writeUnmarshalCode(C, outParams, ret);
+    if(p->returnsClasses())
     {
-        C << nl << "try";
-        C << sb;
-        writeUnmarshalCode(C, outParams, ret);
-	if(p->returnsClasses())
-	{
-	    C << nl << "__is->readPendingObjects();";
-	}
-        C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
-        C << sb;
-        C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
-        C << eb;
+	C << nl << "__is->readPendingObjects();";
     }
     if(ret)
     {
 	C << nl << "return __ret;";
     }
+    C << eb;
+    C << nl << "catch(const ::Ice::LocalException& __ex)";
+    C << sb;
+    C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
+    C << eb;
     C << eb;
 }
 
@@ -3445,9 +3443,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << "__is->readPendingObjects();";
 	}
 	C << eb;
-	C << nl << "catch(const ::Ice::Exception& __ex)";
+	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
 	C << nl << "__finished(__ex);";
+	C << nl << "return;";
+	C << eb;
+	C << nl << "catch(const ::Ice::UserException& __ex)";
+	C << sb;
+	C << nl << "ice_exception(__ex);";
 	C << nl << "return;";
 	C << eb;
 	C << nl << "ice_response" << spar << args << epar << ';';

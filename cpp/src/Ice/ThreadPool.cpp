@@ -67,16 +67,17 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     {
 	size = 1;
     }
-    const_cast<int&>(_size) = size;
     
-    int sizeMax = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeMax", _size * 10);
-    if(sizeMax < _size)
+    int sizeMax = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+    if(sizeMax < size)
     {
-	sizeMax = _size;
-    }
-    const_cast<int&>(_sizeMax) = sizeMax;
+	sizeMax = size;
+    }		
+    
+    int sizeWarn = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
 
-    int sizeWarn = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
+    const_cast<int&>(_size) = size;
+    const_cast<int&>(_sizeMax) = sizeMax;
     const_cast<int&>(_sizeWarn) = sizeWarn;
 
     const_cast<int&>(_messageSizeMax) = instance->messageSizeMax();

@@ -73,26 +73,27 @@ public final class ThreadPool
 
 	//
 	// We use just one thread as the default. This is the fastest
-	// possible setting, still allows one level of nesting, and
+	// psossible setting, still allows one level of nesting, and
 	// doesn't require to make the servants thread safe.
 	//
 	int size = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	if(size < 1)
 	{
 	    size = 1;
-	}
-	_size = size;
-	
-	int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", _size * 10);
-	if(sizeMax < _size)
+	}		
+
+	int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+	if(sizeMax < size)
 	{
-	    sizeMax = _size;
+	    sizeMax = size;
 	}
+		
+	int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", sizeMax * 80 / 100);
+
+	_size = size;
 	_sizeMax = sizeMax;
-
-	int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
 	_sizeWarn = sizeWarn;
-
+	
         _messageSizeMax = _instance.messageSizeMax();
 
 	try

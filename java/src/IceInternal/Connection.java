@@ -1497,6 +1497,11 @@ public final class Connection extends EventHandler
 	    os.writeByte(Protocol.closeConnectionMsg);
 	    os.writeByte((byte)0); // Compression status.
 	    os.writeInt(Protocol.headerSize); // Message size.
+
+	    //
+	    // Send the message.
+	    //
+	    TraceUtil.traceHeader("sending close connection", os, _logger, _traceLevels);
 	    _transceiver.write(os, _endpoint.timeout());
 	    _transceiver.shutdown();
 	}
