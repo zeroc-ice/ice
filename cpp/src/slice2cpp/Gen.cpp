@@ -1048,42 +1048,82 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     ClassList bases = p -> bases();
     
     H << sp;
-    H << nl << "class" << dllExport_ << ' ' << name << " : ";
-    if(p -> isLocal())
+    H << nl << "class" << dllExport_ << ' ' << name << "_ptrE : ";
+    H.useCurrentPosAsIndent();
+    if(bases.empty())
     {
-	if(bases.empty())
-	    H << "virtual public ::Ice::LocalObject";
+	if(p -> isLocal())
+	    H << "virtual public ::Ice::LocalObject_ptrE";
 	else
-	{
-	    H.useCurrentPosAsIndent();
-	    ClassList::iterator q = bases.begin();
-	    while(q != bases.end())
-	    {
-		H << "virtual public " << (*q) -> scoped();
-		if(++q != bases.end())
-		    H << ',' << nl;
-	    }
-	    H.restoreIndent();
-	}
+	    H << "virtual public ::Ice::Object_ptrE";
     }
     else
     {
-	H.useCurrentPosAsIndent();
-	H << "virtual public ::__IceDelegate" << scoped << ',';
-	if(bases.empty())
-	    H << nl << "virtual public ::Ice::Object";
-	else
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
 	{
-	    ClassList::iterator q = bases.begin();
-	    while(q != bases.end())
-	    {
-		H << nl << "virtual public " << (*q) -> scoped();
-		if(++q != bases.end())
-		    H << ',';
-	    }
+	    H << "virtual public " << (*q) -> scoped() << "_ptrE";
+	    if(++q != bases.end())
+		H << ',' << nl;
 	}
-	H.restoreIndent();
     }
+    H.restoreIndent();
+    H << sb;
+    H.dec();
+    H << nl << "public: ";
+    H.inc();
+    H << sp;
+    H << nl << name << "_ptrE() { }";
+    H << nl << name << "_ptrE(const " << name << "_ptrE&);";
+    H << nl << "explicit " << name << "_ptrE(const " << name << "_ptr&);";
+    H << nl << "operator " << name << "_ptr() const;";
+    H << nl << name << "* operator->() const;";
+    H << eb << ';';
+    C << sp << nl << scoped.substr(2) << "_ptrE::" << name << "_ptrE(const "
+      << name << "_ptrE& p)";
+    C << sb;
+    C << nl << "ptr_ = p.ptr_;";
+    C << eb;
+    C << sp << nl << scoped.substr(2) << "_ptrE::" << name << "_ptrE(const "
+      << scoped << "_ptr& p)";
+    C << sb;
+    C << nl << "ptr_ = p;";
+    C << eb;
+    C << sp << nl << scoped.substr(2) << "_ptrE::operator " << scoped
+      << "_ptr() const";
+    C << sb;
+    C << nl << "return " << scoped << "_ptr(dynamic_cast< " << scoped
+      << "*>(ptr_.get()));";
+    C << eb;
+    C << sp << nl << scoped << '*' << nl << scoped.substr(2)
+      << "_ptrE::operator->() const";
+    C << sb;
+    C << nl << "return dynamic_cast< " << scoped << "*>(ptr_.get());";
+    C << eb;
+
+    H << sp;
+    H << nl << "class" << dllExport_ << ' ' << name << " : ";
+    H.useCurrentPosAsIndent();
+    if(bases.empty())
+    {
+	if(p -> isLocal())
+	    H << "virtual public ::Ice::LocalObject";
+	else
+	    H << "virtual public ::Ice::Object";
+    }
+    else
+    {
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    H << "virtual public " << (*q) -> scoped();
+	    if(++q != bases.end())
+		H << ',' << nl;
+	}
+    }
+    if(!p -> isLocal())
+ 	H << ',' << nl << "virtual public ::__IceDelegate" << scoped;
+    H.restoreIndent();
     H << sb;
     H.dec();
     H << nl << "public: ";

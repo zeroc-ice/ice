@@ -25,7 +25,22 @@ class Stream;
 namespace Ice
 {
 
-// No virtual inheritance for local objects
+class ICE_API LocalObject_ptrE
+{
+public:
+
+    LocalObject_ptrE() { }
+    explicit LocalObject_ptrE(const LocalObject_ptrE&);
+    explicit LocalObject_ptrE(const LocalObject_ptr&);
+    operator LocalObject_ptr() const;
+    LocalObject* operator->() const;
+    operator bool() const;
+
+protected:
+
+    LocalObject_ptr ptr_;        
+};
+
 class ICE_API LocalObject : public ::__Ice::Shared
 {
 public:

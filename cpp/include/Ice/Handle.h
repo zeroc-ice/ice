@@ -131,8 +131,6 @@ public:
     }
 
     T* get() const { return ptr_; }
-
-    T& operator*() const { return *ptr_; }
     T* operator->() const { return ptr_; }
     operator bool() const { return ptr_ ? true : false; }
 

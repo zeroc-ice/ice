@@ -34,6 +34,22 @@ enum DispatchStatus
 namespace Ice
 {
 
+class ICE_API Object_ptrE
+{
+public:
+
+    Object_ptrE() { }
+    explicit Object_ptrE(const Object_ptrE&);
+    explicit Object_ptrE(const Object_ptr&);
+    operator Object_ptr() const;
+    Object* operator->() const;
+    operator bool() const;
+
+protected:
+
+    Object_ptr ptr_;        
+};
+
 class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
 {
 public:
