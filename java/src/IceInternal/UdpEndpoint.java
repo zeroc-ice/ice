@@ -24,10 +24,6 @@ final class UdpEndpoint implements Endpoint
         _instance = instance;
         _host = ho;
         _port = po;
-	_protocolMajor = Protocol.protocolMajor;
-	_protocolMinor = Protocol.protocolMinor;
-	_encodingMajor = Protocol.encodingMajor;
-	_encodingMinor = Protocol.encodingMinor;
         _connect = false;
 	_compress = co;
         calcHashValue();
@@ -69,118 +65,6 @@ final class UdpEndpoint implements Endpoint
 
             switch(option.charAt(1))
             {
-                case 'v':
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-                    }
-
-		    int pos = argument.indexOf('.');
-                    if(pos == -1)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-                    }
-
-		    String majStr = argument.substring(0, pos);
-		    String minStr = argument.substring(pos + 1, argument.length());
-		    int majVersion;
-		    int minVersion;
-		    try
-		    {
-		        majVersion = Integer.parseInt(majStr);
-			minVersion = Integer.parseInt(minStr);
-		    }
-                    catch(NumberFormatException ex)
-		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-		    }
-
-		    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-		    }
-
-		    if(majVersion != Protocol.protocolMajor)
-		    {
-			Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-			e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
-			e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
-			e.major = Protocol.protocolMajor;
-			e.minor = Protocol.protocolMinor;
-			throw e;
-		    }
-
-		    _protocolMajor = (byte)majVersion;
-		    _protocolMinor = (byte)minVersion;
-
-                    break;
-                }
-
-                case 'e':
-                {
-                    if(argument == null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-                    }
-
-		    int pos = argument.indexOf('.');
-                    if(pos == -1)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-                    }
-
-		    String majStr = argument.substring(0, pos);
-		    String minStr = argument.substring(pos + 1, argument.length());
-		    int majVersion;
-		    int minVersion;
-		    try
-		    {
-		        majVersion = Integer.parseInt(majStr);
-			minVersion = Integer.parseInt(minStr);
-		    }
-                    catch(NumberFormatException ex)
-		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-		    }
-
-		    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
-		    }
-
-		    if(majVersion != Protocol.encodingMajor)
-		    {
-			Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-			e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
-			e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
-			e.major = Protocol.encodingMajor;
-			e.minor = Protocol.encodingMinor;
-			throw e;
-		    }
-
-		    _encodingMajor = (byte)majVersion;
-		    _encodingMinor = (byte)minVersion;
-
-                    break;
-                }
-
                 case 'h':
                 {
                     if(argument == null)
@@ -267,28 +151,6 @@ final class UdpEndpoint implements Endpoint
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
-	_protocolMajor = s.readByte();
-	_protocolMinor = s.readByte();
-	_encodingMajor = s.readByte();
-	_encodingMinor = s.readByte();
-	if(_protocolMajor != Protocol.protocolMajor)
-	{
-	    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-	    e.badMajor = _protocolMajor < 0 ? _protocolMajor + 255 : _protocolMajor;
-	    e.badMinor = _protocolMinor < 0 ? _protocolMinor + 255 : _protocolMinor;
-	    e.major = Protocol.protocolMajor;
-	    e.minor = Protocol.protocolMinor;
-	    throw e;
-	}
-	if(_encodingMajor != Protocol.encodingMajor)
-	{
-	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-	    e.badMajor = _encodingMajor < 0 ? _encodingMajor + 255 : _encodingMajor;
-	    e.badMinor = _encodingMinor < 0 ? _encodingMinor + 255 : _encodingMinor;
-	    e.major = Protocol.encodingMajor;
-	    e.minor = Protocol.encodingMinor;
-	    throw e;
-	}
         // Not transmitted.
         //_connect = s.readBool();
         _connect = false;
@@ -307,10 +169,6 @@ final class UdpEndpoint implements Endpoint
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
-	s.writeByte(_protocolMajor);
-	s.writeByte(_protocolMinor);
-	s.writeByte(_encodingMajor);
-	s.writeByte(_encodingMinor);
         // Not transmitted.
         //s.writeBool(_connect);
 	s.writeBool(_compress);
@@ -323,12 +181,7 @@ final class UdpEndpoint implements Endpoint
     public String
     toString()
     {
-        String s = "udp";
-	s += " -v " + (_protocolMajor < 0 ? (int)_protocolMajor + 255 : _protocolMajor)
-	      + "." + (_protocolMinor < 0 ? (int)_protocolMinor + 255 : _protocolMinor);
-	s += " -e " + (_encodingMajor < 0 ? (int)_encodingMajor + 255 : _encodingMajor)
-	      + "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
-	s += " -h " + _host + " -p " + _port;
+        String s = "udp -h " + _host + " -p " + _port;
         if(_connect)
         {
             s += " -c";
@@ -560,42 +413,6 @@ final class UdpEndpoint implements Endpoint
             return 1;
         }
 
-	if(_protocolMajor < p._protocolMajor)
-	{
-	    return -1;
-	}
-	else if(p._protocolMajor < _protocolMajor)
-	{
-	    return 1;
-	}
-
-	if(_protocolMinor < p._protocolMinor)
-	{
-	    return -1;
-	}
-	else if(p._protocolMinor < _protocolMinor)
-	{
-	    return 1;
-	}
-
-	if(_encodingMajor < p._encodingMajor)
-	{
-	    return -1;
-	}
-	else if(p._encodingMajor < _encodingMajor)
-	{
-	    return 1;
-	}
-
-	if(_encodingMinor < p._encodingMinor)
-	{
-	    return -1;
-	}
-	else if(p._encodingMinor < _encodingMinor)
-	{
-	    return 1;
-	}
-
         if(!_host.equals(p._host))
         {
             //
@@ -636,10 +453,6 @@ final class UdpEndpoint implements Endpoint
     private Instance _instance;
     private String _host;
     private int _port;
-    private byte _protocolMajor;
-    private byte _protocolMinor;
-    private byte _encodingMajor;
-    private byte _encodingMinor;
     private boolean _connect;
     private boolean _compress;
     private int _hashCode;
