@@ -1034,7 +1034,10 @@ IceInternal::Connection::compress(BasicStream& uncompressed, BasicStream& compre
     int bzError = BZ2_bzBuffToBuffCompress(compressed.b.begin() + headerSize + sizeof(Int), &compressedLen,
 					   uncompressed.b.begin() + headerSize, uncompressedLen,
 					   1, 0, 0);
-    assert(bzError == BZ_OK); // TODO: Local exception
+    if (bzError != BZ_OK)
+    {
+	throw CompressionException(__FILE__, __LINE__);
+    }
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
     
     //
@@ -1079,7 +1082,10 @@ IceInternal::Connection::uncompress(BasicStream& compressed, BasicStream& uncomp
 					     compressed.b.begin() + headerSize + sizeof(Int),
 					     compressedLen,
 					     0, 0);
-    assert(bzError == BZ_OK);
+    if (bzError != BZ_OK)
+    {
+	throw CompressionException(__FILE__, __LINE__);
+    }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
 }

@@ -310,6 +310,13 @@ Ice::CompressionNotSupportedException::ice_print(ostream& out) const
 }
 
 void
+Ice::CompressionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: failed to compress or uncompress data";
+}
+
+void
 Ice::PluginInitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

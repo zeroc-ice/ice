@@ -463,6 +463,17 @@ local exception CompressionNotSupportedException extends ProtocolException
 
 /**
  *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised if there is a problem with compressing or uncompressing
+ * data.
+ *
+ **/
+local exception CompressionException extends ProtocolException
+{
+};
+
+/**
+ *
  * This exception indicates that a failure occurred while initializing
  * a plug-in.
  *
