@@ -102,6 +102,11 @@ PyObject* createExceptionInstance(PyObject*);
 //
 // Converts an Ice exception into a Python exception.
 //
+PyObject* convertException(const Ice::Exception&);
+
+//
+// Converts an Ice exception into a Python exception and sets it in the Python environment.
+//
 void setPythonException(const Ice::Exception&);
 
 //

@@ -259,8 +259,8 @@ IcePy::createExceptionInstance(PyObject* type)
     return PyEval_CallObject(type, args.get());
 }
 
-void
-IcePy::setPythonException(const Ice::Exception& ex)
+PyObject*
+IcePy::convertException(const Ice::Exception& ex)
 {
     PyObjectHandle p;
     PyObject* type;
@@ -382,8 +382,17 @@ IcePy::setPythonException(const Ice::Exception& ex)
         }
     }
 
+    return p.release();
+}
+
+void
+IcePy::setPythonException(const Ice::Exception& ex)
+{
+    PyObjectHandle p = convertException(ex);
+
     if(p.get() != NULL)
     {
+        PyObject* type = (PyObject*)((PyInstanceObject*)p.get())->in_class;
         Py_INCREF(type);
         PyErr_Restore(type, p.release(), NULL);
     }

@@ -302,17 +302,31 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << ", ctx=None):";
             _out.inc();
             _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
-            if(!inParams.empty())
+            if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "ctx";
-            if(inParams.empty())
-            {
-                _out << ',';
-            }
-            _out << "))";
+            _out << "), ctx)";
             _out.dec();
+
+            if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
+            {
+                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+                if(!inParams.empty())
+                {
+                    _out << ", " << inParams;
+                }
+                _out << ", ctx=None):";
+                _out.inc();
+                _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
+                     << inParams;
+                if(!inParams.empty() && inParams.find(',') == string::npos)
+                {
+                    _out << ", ";
+                }
+                _out << "), ctx)";
+                _out.dec();
+            }
         }
 
         _out << sp << nl << "def checkedCast(proxy, facet=''):";

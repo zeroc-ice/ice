@@ -23,7 +23,10 @@ public:
 
     virtual ~Operation();
 
-    virtual PyObject* invoke(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*) = 0;
+    virtual PyObject* invoke(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*, PyObject*) = 0;
+    virtual PyObject* invokeAsync(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*, PyObject*,
+                                  PyObject*) = 0;
+
     virtual bool dispatch(PyObject*, const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&) = 0;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
