@@ -65,7 +65,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     catch(const Ice::SocketException&)
     {
-
 	test(false);
     }
     cout << "ok" << endl;

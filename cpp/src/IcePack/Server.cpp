@@ -77,6 +77,8 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    // TODO: ML: Loose this try/catch, it's unnecessary. The
+    // Application::main() catches already.
     PropertiesPtr defaultProperties;
     try
     {

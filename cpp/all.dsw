@@ -1676,6 +1676,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceSSL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
 }}}
 
 ###############################################################################
