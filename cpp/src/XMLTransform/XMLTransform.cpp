@@ -1107,8 +1107,10 @@ public:
             //
             string id = getAttributeByName(node, "id");
             assert(!id.empty());
+#ifndef NDEBUG
             MissingTypeMap::const_iterator q = map.find(id);
             assert(q != map.end());
+#endif
             MissingTypeException ex(__FILE__, __LINE__);
             ex.reason = "unable to find a transformation for type `" + n + "'";
             throw ex;
