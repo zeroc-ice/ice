@@ -1600,7 +1600,10 @@ public class BasicStream
     private String
     typeToClass(String id)
     {
-        assert(id.startsWith("::"));
+        if(!id.startsWith("::"))
+        {
+            throw new Ice.MarshalException();
+        }
         return id.substring(2).replaceAll("::", ".");
     }
 
