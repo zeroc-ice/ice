@@ -233,7 +233,7 @@ final class UdpTransceiver implements Transceiver
             _addr = new java.net.InetSocketAddress(host, port);
 	    if(_traceLevels.network >= 2)
 	    {
-		String s = "attempting to bind to udp socket\n" + toString();
+		String s = "attempting to bind to udp socket " + Network.addrToString(_addr);
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
             _addr = Network.doBind(_fd, _addr);

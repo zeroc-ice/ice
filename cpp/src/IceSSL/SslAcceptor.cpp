@@ -118,7 +118,7 @@ IceSSL::SslAcceptor::SslAcceptor(const OpenSSLPluginIPtr& plugin, const string& 
 	if(_traceLevels->network >= 2)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "attempting to bind to ssl socket\n" << toString();
+	    out << "attempting to bind to ssl socket " << toString();
 	}
 	doBind(_fd, _addr);
     }

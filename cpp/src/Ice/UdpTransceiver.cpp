@@ -272,7 +272,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	if(_traceLevels->network >= 2)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "attempting to bind to udp socket\n" << toString();
+	    out << "attempting to bind to udp socket " << addrToString(_addr);
 	}
 	doBind(_fd, _addr);
 	    
