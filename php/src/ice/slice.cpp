@@ -17,7 +17,6 @@
 #endif
 
 #include "slice.h"
-#include "struct.h"
 #include "util.h"
 #include "php_ice.h"
 
@@ -31,23 +30,44 @@ using namespace std;
 class Visitor : public Slice::ParserVisitor
 {
 public:
+    Visitor(TSRMLS_D);
+
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual void visitClassDefEnd(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
     virtual void visitExceptionEnd(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
-    virtual void visitStructEnd(const Slice::StructPtr&);
     virtual void visitOperation(const Slice::OperationPtr&);
     virtual void visitDataMember(const Slice::DataMemberPtr&);
     virtual void visitDictionary(const Slice::DictionaryPtr&);
     virtual void visitEnum(const Slice::EnumPtr&);
     virtual void visitConst(const Slice::ConstPtr&);
+
+private:
+    zend_class_entry* createZendClass(const Slice::ContainedPtr&);
+#ifdef ZTS
+    TSRMLS_D;
+#endif
 };
 
 //
 // The Slice parse tree.
 //
 static Slice::UnitPtr _unit;
+
+//
+// Map from flattened, lowercase type name to type information.
+//
+struct TypeInfo : public IceUtil::SimpleShared
+{
+    TypeInfo(const Slice::ContainedPtr& t, zend_class_entry* e) : type(t), entry(e) {}
+
+    Slice::ContainedPtr type;
+    zend_class_entry* entry;
+};
+typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
+typedef map<string, TypeInfoPtr> TypeMap;
+static TypeMap _typeMap;
 
 //
 // Parse the Slice files that define the types and operations available to a PHP script.
@@ -158,7 +178,11 @@ Slice_init(TSRMLS_DC)
             return false;
         }
 
+#ifdef ZTS
+        Visitor visitor(TSRMLS_C);
+#else
         Visitor visitor;
+#endif
         _unit->visit(&visitor);
     }
 
@@ -193,6 +217,60 @@ Slice_shutdown(TSRMLS_DC)
     return true;
 }
 
+zend_class_entry*
+Slice_get_class(const string& scoped)
+{
+    zend_class_entry* result = NULL;
+
+    string flat = ice_lowercase(ice_flatten(scoped));
+    TypeMap::iterator p = _typeMap.find(flat);
+    if(p != _typeMap.end())
+    {
+        result = p->second->entry;
+    }
+
+    return result;
+}
+
+bool
+Slice_is_native_key(const Slice::TypePtr& type)
+{
+    //
+    // PHP's native associative array supports only integer and string types for the key.
+    // For Slice dictionaries that meet this criteria, we use the native array type.
+    //
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindBool: // We allow bool even though PHP doesn't support it directly.
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+        case Slice::Builtin::KindString:
+            return true;
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            break;
+        }
+    }
+
+    return false;
+}
+
+Visitor::Visitor(TSRMLS_D)
+{
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
+}
+
 bool
 Visitor::visitClassDefStart(const Slice::ClassDefPtr&)
 {
@@ -218,12 +296,13 @@ Visitor::visitExceptionEnd(const Slice::ExceptionPtr&)
 bool
 Visitor::visitStructStart(const Slice::StructPtr& p)
 {
-    return Struct_register(p);
-}
+    zend_class_entry* cls = createZendClass(p);
+    if(cls != NULL)
+    {
+        // TODO: Add default properties?
+    }
 
-void
-Visitor::visitStructEnd(const Slice::StructPtr&)
-{
+    return false;
 }
 
 void
@@ -237,16 +316,76 @@ Visitor::visitDataMember(const Slice::DataMemberPtr&)
 }
 
 void
-Visitor::visitDictionary(const Slice::DictionaryPtr&)
+Visitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
+    Slice::TypePtr keyType = p->keyType();
+    if(!Slice_is_native_key(keyType))
+    {
+        //
+        // TODO: Generate class.
+        //
+        string scoped = p->scoped();
+        zend_error(E_WARNING, "dictionary %s uses an unsupported key type", scoped.c_str());
+    }
 }
 
 void
-Visitor::visitEnum(const Slice::EnumPtr&)
+Visitor::visitEnum(const Slice::EnumPtr& p)
 {
+    //
+    // Enum values are represented as integers, however we define a class in order
+    // to hold constants that symbolically identify the enumerators.
+    //
+    zend_class_entry* cls = createZendClass(p);
+    if(cls != NULL)
+    {
+        //
+        // Create a class constant for each enumerator.
+        //
+        Slice::EnumeratorList l = p->getEnumerators();
+        Slice::EnumeratorList::const_iterator q;
+        long i;
+        for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
+        {
+            string name = (*q)->name();
+            zval* en;
+            ALLOC_ZVAL(en);
+            ZVAL_LONG(en, i);
+            zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, &en,
+                             sizeof(zval*), NULL);
+        }
+    }
 }
 
 void
 Visitor::visitConst(const Slice::ConstPtr&)
 {
+}
+
+zend_class_entry*
+Visitor::createZendClass(const Slice::ContainedPtr& type)
+{
+    string scoped = type->scoped();
+    string flat = ice_lowercase(ice_flatten(scoped));
+
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
+    //
+    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
+    // is a string constant.
+    //
+    ce.name_length = flat.length();
+    // TODO: Check for conflicts with existing symbols
+    zend_class_entry* result = zend_register_internal_class(&ce TSRMLS_CC);
+
+    if(result == NULL)
+    {
+        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
+    }
+    else
+    {
+        _typeMap[flat] = new TypeInfo(type, result);
+    }
+
+    return result;
 }

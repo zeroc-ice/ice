@@ -27,5 +27,7 @@ extern "C"
 bool Slice_init(TSRMLS_DC);
 Slice::UnitPtr Slice_getUnit(TSRMLS_DC);
 bool Slice_shutdown(TSRMLS_DC);
+zend_class_entry* Slice_get_class(const std::string&);
+bool Slice_is_native_key(const Slice::TypePtr&);
 
 #endif

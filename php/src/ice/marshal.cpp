@@ -18,7 +18,7 @@
 
 #include "marshal.h"
 #include "proxy.h"
-#include "struct.h"
+#include "slice.h"
 #include "util.h"
 
 #include <IceUtil/InputUtil.h>
@@ -79,6 +79,51 @@ private:
     MarshalerPtr _marshaler;
 };
 
+class StructMarshaler : public Marshaler
+{
+public:
+    StructMarshaler(const Slice::StructPtr&);
+    ~StructMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    Slice::StructPtr _type;
+    zend_class_entry* _class;
+    vector<MarshalerPtr> _members;
+};
+
+class EnumMarshaler : public Marshaler
+{
+public:
+    EnumMarshaler(const Slice::EnumPtr&);
+    ~EnumMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    zend_class_entry* _class;
+    long _count;
+};
+
+class NativeDictionaryMarshaler : public Marshaler
+{
+public:
+    NativeDictionaryMarshaler(const Slice::DictionaryPtr&);
+    ~NativeDictionaryMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    Slice::DictionaryPtr _type;
+    Slice::Builtin::Kind _keyKind;
+    MarshalerPtr _keyMarshaler;
+    MarshalerPtr _valueMarshaler;
+};
+
 //
 // Marshaler implementation.
 //
@@ -136,17 +181,27 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
     Slice::StructPtr st = Slice::StructPtr::dynamicCast(type);
     if(st)
     {
-        return Struct_create_marshaler(st);
+        return new StructMarshaler(st);
+    }
+
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        return new EnumMarshaler(en);
+    }
+
+    Slice::DictionaryPtr dict = Slice::DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        if(Slice_is_native_key(dict->keyType()))
+        {
+            return new NativeDictionaryMarshaler(dict);
+        }
     }
 
 #if 0
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-    {
-    }
-
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    if(dict)
     {
     }
 #endif
@@ -258,7 +313,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
             zend_error(E_ERROR, "value %ld is out of range for a byte", val);
             return false;
         }
-        os.write((Ice::Byte)val);
+        os.write(static_cast<Ice::Byte>(val));
         break;
     }
     case Slice::Builtin::KindShort:
@@ -275,7 +330,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
             zend_error(E_ERROR, "value %ld is out of range for a short", val);
             return false;
         }
-        os.write((Ice::Short)val);
+        os.write(static_cast<Ice::Short>(val));
         break;
     }
     case Slice::Builtin::KindInt:
@@ -292,7 +347,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
             zend_error(E_ERROR, "value %ld is out of range for an int", val);
             return false;
         }
-        os.write((Ice::Int)val);
+        os.write(static_cast<Ice::Int>(val));
         break;
     }
     case Slice::Builtin::KindLong:
@@ -334,7 +389,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
             return false;
         }
         double val = Z_DVAL_P(zv);
-        os.write((Ice::Float)val);
+        os.write(static_cast<Ice::Float>(val));
         break;
     }
     case Slice::Builtin::KindDouble:
@@ -625,6 +680,9 @@ ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
     return true;
 }
 
+//
+// MemberMarshaler implementation.
+//
 MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr& marshaler) :
     _name(name), _marshaler(marshaler)
 {
@@ -662,6 +720,327 @@ MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
     {
         zend_error(E_ERROR, "unable to set member `%s'", _name.c_str());
         return false;
+    }
+
+    return true;
+}
+
+//
+// StructMarshaler implementation.
+//
+StructMarshaler::StructMarshaler(const Slice::StructPtr& type) :
+    _type(type)
+{
+    _class = Slice_get_class(type->scoped());
+    assert(_class);
+
+    Slice::DataMemberList members = type->dataMembers();
+    for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
+    {
+        string name = ice_lowercase((*p)->name());
+        MarshalerPtr marshaler = createMemberMarshaler(name, (*p)->type());
+        assert(marshaler);
+        _members.push_back(marshaler);
+    }
+}
+
+StructMarshaler::~StructMarshaler()
+{
+}
+
+bool
+StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_OBJECT)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "expected struct value of type %s but received %s", _class->name, s.c_str());
+        return false;
+    }
+
+    //
+    // Compare class entries.
+    //
+    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+    if(!obj)
+    {
+        zend_error(E_ERROR, "object not found in object store");
+        return false;
+    }
+
+    if(obj->ce != _class)
+    {
+        zend_error(E_ERROR, "expected struct value of type %s but received %s", _class->name, obj->ce->name);
+        return false;
+    }
+
+    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+        if(!(*p)->marshal(zv, os))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    if(object_init_ex(zv, _class) != SUCCESS)
+    {
+        zend_error(E_ERROR, "unable to initialize object of type %s", _class->name);
+        return false;
+    }
+
+    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+        if(!(*p)->unmarshal(zv, is))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+//
+// EnumMarshaler implementation.
+//
+EnumMarshaler::EnumMarshaler(const Slice::EnumPtr& type)
+{
+    _class = Slice_get_class(type->scoped());
+    _count = static_cast<long>(type->getEnumerators().size());
+}
+
+EnumMarshaler::~EnumMarshaler()
+{
+}
+
+bool
+EnumMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_LONG)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "expected long value for enum %s but received %s", _class->name, s.c_str());
+        return false;
+    }
+
+    //
+    // Validate value.
+    //
+    long val = Z_LVAL_P(zv);
+    if(val < 0 || val >= _count)
+    {
+        zend_error(E_ERROR, "value %ld is out of range for enum %s", val, _class->name);
+        return false;
+    }
+
+    if(_count <= 127)
+    {
+        os.write(static_cast<Ice::Byte>(val));
+    }
+    else if(_count <= 32767)
+    {
+        os.write(static_cast<Ice::Short>(val));
+    }
+    else
+    {
+        os.write(static_cast<Ice::Int>(val));
+    }
+
+    return true;
+}
+
+bool
+EnumMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    if(_count <= 127)
+    {
+        Ice::Byte val;
+        is.read(val);
+        ZVAL_LONG(zv, val);
+    }
+    else if(_count <= 32767)
+    {
+        Ice::Short val;
+        is.read(val);
+        ZVAL_LONG(zv, val);
+    }
+    else
+    {
+        Ice::Int val;
+        is.read(val);
+        ZVAL_LONG(zv, val);
+    }
+
+    return true;
+}
+
+//
+// NativeDictionaryMarshaler implementation.
+//
+NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::DictionaryPtr& type) :
+    _type(type)
+{
+    Slice::TypePtr keyType = type->keyType();
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(keyType);
+    assert(b);
+    _keyKind = b->kind();
+    _keyMarshaler = createMarshaler(keyType);
+    _valueMarshaler = createMarshaler(type->valueType());
+}
+
+NativeDictionaryMarshaler::~NativeDictionaryMarshaler()
+{
+}
+
+bool
+NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_ARRAY)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "expected array value but received %s", s.c_str());
+        return false;
+    }
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+
+    os.writeSize(zend_hash_num_elements(arr));
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+        //
+        // Get the key (which can be a long or a string).
+        //
+        char* keyStr;
+        uint keyLen;
+        ulong keyNum;
+        int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
+
+        //
+        // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
+        //
+        zval zkey;
+        if(keyType == HASH_KEY_IS_LONG)
+        {
+            ZVAL_LONG(&zkey, keyNum);
+        }
+        else
+        {
+            ZVAL_STRINGL(&zkey, keyStr, keyLen, 1);
+        }
+
+        //
+        // Convert the zval to the key type required by Slice, if necessary.
+        //
+        switch(_keyKind)
+        {
+        case Slice::Builtin::KindBool:
+        {
+            convert_to_boolean(&zkey);
+            break;
+        }
+
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+        {
+            if(keyType == HASH_KEY_IS_STRING)
+            {
+                convert_to_long(&zkey);
+            }
+            break;
+        }
+
+        case Slice::Builtin::KindString:
+        {
+            if(keyType == HASH_KEY_IS_LONG)
+            {
+                convert_to_string(&zkey);
+            }
+            break;
+        }
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
+
+        //
+        // Marshal the key.
+        //
+        if(!_keyMarshaler->marshal(&zkey, os TSRMLS_CC))
+        {
+            zval_dtor(&zkey);
+            return false;
+        }
+
+        zval_dtor(&zkey);
+
+        //
+        // Marshal the value.
+        //
+        if(!_valueMarshaler->marshal(*val, os TSRMLS_CC))
+        {
+            return false;
+        }
+
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    return true;
+}
+
+bool
+NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    array_init(zv);
+
+    Ice::Int sz;
+    is.readSize(sz);
+
+    for(Ice::Int i = 0; i < sz; ++i)
+    {
+        zval* key;
+        zval* val;
+        MAKE_STD_ZVAL(key);
+        MAKE_STD_ZVAL(val);
+
+        if(!_keyMarshaler->unmarshal(key, is TSRMLS_CC))
+        {
+            return false;
+        }
+        if(!_valueMarshaler->unmarshal(val, is TSRMLS_CC))
+        {
+            return false;
+        }
+
+        switch(Z_TYPE_P(key))
+        {
+        case IS_LONG:
+            add_index_zval(zv, Z_LVAL_P(key), val);
+            break;
+        case IS_BOOL:
+            add_index_zval(zv, Z_BVAL_P(key) ? 1 : 0, val);
+            break;
+        case IS_STRING:
+            add_assoc_zval_ex(zv, Z_STRVAL_P(key), Z_STRLEN_P(key) + 1, val);
+            break;
+        default:
+            assert(false);
+            return false;
+        }
     }
 
     return true;
