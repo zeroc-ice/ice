@@ -25,9 +25,9 @@ icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-updatedCollocatedOptions = TestUtil.collocatedOptions.replace("TOPLEVELDIR", toplevel)
+updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
-command = icePack + updatedCollocatedOptions + ' --nowarn' + \
+command = icePack + updatedClientServerOptions + ' --nowarn' + \
        r' "--Ice.Adapter.Forward.Endpoints=' + TestUtil.protocol + ' -p 12346 -t 5000"' + \
        r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"'
 print "starting icepack...",
