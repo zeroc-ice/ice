@@ -137,6 +137,7 @@ IcePatch2::normalize(const string& path)
     
     string::size_type pos;
     
+#ifdef WIN32
     for(pos = 0; pos < result.size(); ++pos)
     {
 	if(result[pos] == '\\')
@@ -144,6 +145,7 @@ IcePatch2::normalize(const string& path)
 	    result[pos] = '/';
 	}
     }
+#endif
     
     pos = 0;
     while((pos = result.find("//", pos)) != string::npos)
@@ -801,7 +803,7 @@ IcePatch2::operator>>(istream& is, FileInfo& info)
     string s;
 
     getline(is, s, '\t');
-    info.path = s;
+    IceUtil::unescapeString(s, 0, s.size(), info.path);
 
     getline(is, s, '\t');
     info.checksum = stringToBytes(s);
