@@ -29,8 +29,6 @@ public class IncomingBase
 
         _compress = compress;
 
-        _is = new BasicStream(instance);
-
         _os = new BasicStream(instance);
 
 	_connection = connection;
@@ -56,9 +54,6 @@ public class IncomingBase
 
 	_compress = in._compress;
 	in._compress = 0;
-
-	_is = in._is;
-	in._is = null;
 
 	_os = in._os;
 	in._os = null;
@@ -108,15 +103,6 @@ public class IncomingBase
 
         _compress = compress;
 
-	if(_is == null)
-	{
-	    _is = new BasicStream(instance);
-	}
-	else
-	{
-	    _is.reset();
-	}
-
 	if(_os == null)
 	{
 	    _os = new BasicStream(instance);
@@ -132,14 +118,9 @@ public class IncomingBase
     //
     // Reclaim resources.
     //
-    final public void
+    public void
     __destroy()
     {
-	if(_is != null)
-	{
-	    _is.destroy();
-	    _is = null;
-	}
 	if(_os != null)
 	{
 	    _os.destroy();
@@ -150,14 +131,10 @@ public class IncomingBase
     final protected void
     __finishInvoke()
     {
-	assert(_is != null);
-
 	if(_locator != null && _servant != null)
 	{
 	    _locator.finished(_current, _servant, _cookie.value);
 	}
-	
-	_is.endReadEncaps();
 	
 	//
 	// Send a response if necessary. If we don't need to send a
@@ -205,7 +182,6 @@ public class IncomingBase
     protected boolean _response;
     protected byte _compress;
 
-    protected BasicStream _is;
     protected BasicStream _os;
 
     private Connection _connection;

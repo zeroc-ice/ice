@@ -160,12 +160,6 @@ public class IncomingAsync extends IncomingBase
     }
 
     final protected BasicStream
-    __is()
-    {
-	return _is;
-    }
-
-    final protected BasicStream
     __os()
     {
 	return _os;

@@ -20,6 +20,27 @@ final public class Incoming extends IncomingBase
     Incoming(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
 	super(instance, connection, adapter, response, compress);
+
+        _is = new BasicStream(instance);
+    }
+
+    //
+    // This function allows this object to be reused, rather than
+    // reallocated.
+    //
+    public void
+    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    {
+	super.reset(instance, connection, adapter, response, compress);
+
+	if(_is == null)
+	{
+	    _is = new BasicStream(instance);
+	}
+	else
+	{
+	    _is.reset();
+	}
     }
 
     public void
@@ -108,20 +129,6 @@ final public class Incoming extends IncomingBase
                 {
                     status = _servant.__dispatch(this, _current);
                 }
-
-		//
-		// DispatchAsync is "pseudo dispatch status", used
-		// internally only to indicate async dispatch.
-		//
-		if(status == DispatchStatus.DispatchAsync)
-		{
-		    //
-		    // If this was an asynchronous dispatch, we're done
-		    // here.  We do *not* call __finishInvoke(), because
-		    // the call is not finished yet.
-		    //
-		    return;
-		}
             }
         }
         catch(Ice.RequestFailedException ex)
@@ -169,6 +176,7 @@ final public class Incoming extends IncomingBase
             }
 
 	    __finishInvoke();
+	    _is.endReadEncaps();
 	    return;
         }
         catch(Ice.LocalException ex)
@@ -189,6 +197,7 @@ final public class Incoming extends IncomingBase
             }
 
 	    __finishInvoke();
+	    _is.endReadEncaps();
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -215,6 +224,7 @@ final public class Incoming extends IncomingBase
             }
 	    
 	    __finishInvoke();
+	    _is.endReadEncaps();
 	    return;
         }
 	
@@ -223,6 +233,21 @@ final public class Incoming extends IncomingBase
 	// in the code below are considered fatal, and must propagate to
 	// the caller of this operation.
 	//
+
+	//
+	// DispatchAsync is "pseudo dispatch status", used internally
+	// only to indicate async dispatch.
+	//
+	if(status == DispatchStatus.DispatchAsync)
+	{
+	    //
+	    // If this was an asynchronous dispatch, we're done
+	    // here.  We do *not* call __finishInvoke(), because
+	    // the call is not finished yet.
+	    //
+	    _is.endReadEncaps();
+	    return;
+	}
 
 	if(_response)
 	{
@@ -251,6 +276,7 @@ final public class Incoming extends IncomingBase
 	}
 
 	__finishInvoke();
+	_is.endReadEncaps();
     }
 
     public BasicStream
@@ -265,5 +291,22 @@ final public class Incoming extends IncomingBase
         return _os;
     }
 
+    //
+    // Reclaim resources.
+    //
+    public void
+    __destroy()
+    {
+	super.__destroy();
+
+	if(_is != null)
+	{
+	    _is.destroy();
+	    _is = null;
+	}
+    }
+
     Incoming next; // For use by Connection.
+
+    private BasicStream _is;
 }

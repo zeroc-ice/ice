@@ -6,10 +6,6 @@ Changes since version 1.0.1
   the receiver understands, the exception or class is automatically
   sliced. (Previously, this situation resulted in an exception.)
 
-- A new property, Ice.Trace.Slicing, controls whether slicing of
-  exceptions and classes is traced: a value of 1 or greater prints
-  a trace message for each unknown type that is received and sliced.
-
 - User exception factories and user exception factory
   managers no longer exist. The factories for user exceptions
   are now automatically installed by the Ice run time.
