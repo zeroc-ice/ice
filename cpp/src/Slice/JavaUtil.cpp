@@ -2374,17 +2374,23 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 string::size_type pos = s.find(':', prefix.size());
                 if(pos == string::npos)
                 {
-                    cout << file << ": warning: metadata `" << s << "' uses deprecated syntax" << endl;
+                    cout << file << ":" << cont->line() << ": warning: metadata `" << s << "' uses deprecated syntax"
+		         << endl;
                 }
                 else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
                 {
-                    cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                    cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
                 }
 		if(SequencePtr::dynamicCast(cont))
 		{
 		    continue;
 		}
-		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+		DataMemberPtr m = DataMemberPtr::dynamicCast(cont);
+		if(m && SequencePtr::dynamicCast(m->type()))
+		{
+		    continue;
+		}
+		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }

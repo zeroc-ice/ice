@@ -1115,7 +1115,7 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 		        continue;
 		    }
 		}
-		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }
