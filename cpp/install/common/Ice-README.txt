@@ -67,3 +67,19 @@ In a separate Command Prompt window, enter the following command to
 run the client:
 
 java -cp "classes;%CLASSPATH%" Client
+
+Building and running the C# demos
+-----------------------------------
+
+The C# demos are in the democs directory.
+
+To build the C# demos, you need Visual C# 7.1, build 3088 or later,
+and .NET 1.1, build 4322 or later.
+
+To build a C# demo, you need to open democs\demo.sln in Visual
+Studio .NET, right click on it in the Solution Explorer window and
+select "Build". 
+
+To run a demo, open a Command Prompt, cd to the desired demo directory,
+type 'server.exe' to start the server. In a separate Command Prompt window,
+type 'client.exe' to run the client.
