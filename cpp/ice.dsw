@@ -116,6 +116,24 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name pickleW
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name cpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name html
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name parser
+    End Project Dependency
 }}}
 
 ###############################################################################
