@@ -725,7 +725,7 @@ namespace IceInternal
 		    {
 			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(Ice.LocalException)
 		    {
 			//
 			// Ignore all exceptions while constructing the
@@ -845,7 +845,7 @@ namespace IceInternal
 			connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
 			connection.validate();
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(Ice.LocalException)
 		    {
 			//
 			// Ignore all exceptions while constructing or
