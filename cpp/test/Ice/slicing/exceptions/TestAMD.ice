@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#ifndef TEST_AMD_ICE
+#define TEST_AMD_ICE
 
 exception Base
 {
@@ -35,7 +35,7 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 };
 
-["ami"] interface Test
+["ami", "amd"] interface Test
 {
     void baseAsBase() throws Base;
     void unknownDerivedAsBase() throws Base;

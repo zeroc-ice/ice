@@ -27,5 +27,8 @@ import TestUtil
 
 name = os.path.join("Ice", "slicing", "exceptions")
 
+print "tests with regular server."
 TestUtil.clientServerTest(name)
+print "tests with AMD server."
+TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "serveramd", "client")
 sys.exit(0)

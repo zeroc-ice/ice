@@ -30,7 +30,7 @@ public:
     virtual void unknownIntermediateAsBase(const ::Ice::Current&);
     virtual void knownIntermediateAsBase(const ::Ice::Current&);
     virtual void knownMostDerivedAsBase(const ::Ice::Current&);
-    virtual void knownIntermediateAsknownIntermediate(const ::Ice::Current&);
+    virtual void knownIntermediateAsKnownIntermediate(const ::Ice::Current&);
     virtual void knownMostDerivedAsKnownIntermediate(const ::Ice::Current&);
     virtual void knownMostDerivedAsKnownMostDerived(const ::Ice::Current&);
 

@@ -18,6 +18,458 @@
 
 using namespace std;
 
+class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    CallbackBase() :
+	_called(false)
+    {
+    }
+
+    virtual ~CallbackBase()
+    {
+    }
+
+    bool check()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	while(!_called)
+	{
+	    if(!timedWait(IceUtil::Time::seconds(5)))
+	    {
+		return false;
+	    }
+	}
+	_called = false;
+	return true;
+    }
+
+protected:
+
+    void called()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	assert(!_called);
+	_called = true;
+	notify();
+    }
+
+private:
+
+    bool _called;
+};
+
+class AMI_Test_baseAsBaseI : public AMI_Test_baseAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Base& b)
+	{
+	    test(b.b == "Base.b");
+	    test(b.ice_name() == "Base");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_baseAsBaseI> AMI_Test_baseAsBaseIPtr;
+
+class AMI_Test_unknownDerivedAsBaseI : public AMI_Test_unknownDerivedAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Base& b)
+	{
+	    test(b.b == "UnknownDerived.b");
+	    test(b.ice_name() == "Base");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_unknownDerivedAsBaseI> AMI_Test_unknownDerivedAsBaseIPtr;
+
+class AMI_Test_knownDerivedAsBaseI : public AMI_Test_knownDerivedAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownDerived& k)
+	{
+	    test(k.b == "KnownDerived.b");
+	    test(k.kd == "KnownDerived.kd");
+	    test(k.ice_name() == "KnownDerived");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownDerivedAsBaseI> AMI_Test_knownDerivedAsBaseIPtr;
+
+class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_Test_knownDerivedAsKnownDerived, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownDerived& k)
+	{
+	    test(k.b == "KnownDerived.b");
+	    test(k.kd == "KnownDerived.kd");
+	    test(k.ice_name() == "KnownDerived");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownDerivedAsKnownDerivedI> AMI_Test_knownDerivedAsKnownDerivedIPtr;
+
+class AMI_Test_unknownIntermediateAsBaseI : public AMI_Test_unknownIntermediateAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Base& b)
+	{
+	    test(b.b == "UnknownIntermediate.b");
+	    test(b.ice_name() == "Base");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_unknownIntermediateAsBaseI> AMI_Test_unknownIntermediateAsBaseIPtr;
+
+class AMI_Test_knownIntermediateAsBaseI : public AMI_Test_knownIntermediateAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownIntermediate& ki)
+	{
+	    test(ki.b == "KnownIntermediate.b");
+	    test(ki.ki == "KnownIntermediate.ki");
+	    test(ki.ice_name() == "KnownIntermediate");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownIntermediateAsBaseI> AMI_Test_knownIntermediateAsBaseIPtr;
+
+class AMI_Test_knownMostDerivedAsBaseI : public AMI_Test_knownMostDerivedAsBase,
+					 public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownMostDerived& kmd)
+	{
+	    test(kmd.b == "KnownMostDerived.b");
+	    test(kmd.ki == "KnownMostDerived.ki");
+	    test(kmd.kmd == "KnownMostDerived.kmd");
+	    test(kmd.ice_name() == "KnownMostDerived");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsBaseI> AMI_Test_knownMostDerivedAsBaseIPtr;
+
+class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_Test_knownIntermediateAsKnownIntermediate,
+                                                       public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownIntermediate& ki)
+	{
+	    test(ki.b == "KnownIntermediate.b");
+	    test(ki.ki == "KnownIntermediate.ki");
+	    test(ki.ice_name() == "KnownIntermediate");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownIntermediateAsKnownIntermediateI> AMI_Test_knownIntermediateAsKnownIntermediateIPtr;
+
+class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_Test_knownMostDerivedAsKnownMostDerived,
+                                                      public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownMostDerived& kmd)
+	{
+	    test(kmd.b == "KnownMostDerived.b");
+	    test(kmd.ki == "KnownMostDerived.ki");
+	    test(kmd.kmd == "KnownMostDerived.kmd");
+	    test(kmd.ice_name() == "KnownMostDerived");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsKnownMostDerivedI> AMI_Test_knownMostDerivedAsKnownMostDerivedIPtr;
+
+class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_Test_knownMostDerivedAsKnownIntermediate,
+                                                      public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownMostDerived& kmd)
+	{
+	    test(kmd.b == "KnownMostDerived.b");
+	    test(kmd.ki == "KnownMostDerived.ki");
+	    test(kmd.kmd == "KnownMostDerived.kmd");
+	    test(kmd.ice_name() == "KnownMostDerived");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsKnownIntermediateI> AMI_Test_knownMostDerivedAsKnownIntermediateIPtr;
+
+class AMI_Test_unknownMostDerived1AsBaseI : public AMI_Test_unknownMostDerived1AsBase,
+                                                      public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownIntermediate& ki)
+	{
+	    test(ki.b == "UnknownMostDerived1.b");
+	    test(ki.ki == "UnknownMostDerived1.ki");
+	    test(ki.ice_name() == "KnownIntermediate");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_unknownMostDerived1AsBaseI> AMI_Test_unknownMostDerived1AsBaseIPtr;
+
+class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_Test_unknownMostDerived1AsKnownIntermediate,
+                                                         public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const KnownIntermediate& ki)
+	{
+	    test(ki.b == "UnknownMostDerived1.b");
+	    test(ki.ki == "UnknownMostDerived1.ki");
+	    test(ki.ice_name() == "KnownIntermediate");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_unknownMostDerived1AsKnownIntermediateI>
+	    AMI_Test_unknownMostDerived1AsKnownIntermediateIPtr;
+
+class AMI_Test_unknownMostDerived2AsBaseI : public AMI_Test_unknownMostDerived2AsBase,
+                                            public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Base& b)
+	{
+	    test(b.b == "UnknownMostDerived2.b");
+	    test(b.ice_name() == "Base");
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_unknownMostDerived2AsBaseI> AMI_Test_unknownMostDerived2AsBaseIPtr;
+
 TestPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -45,6 +497,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing throwing a base exception with AMI... " << flush;
+    {
+	AMI_Test_baseAsBaseIPtr cb = new AMI_Test_baseAsBaseI;
+	test->baseAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing slicing of unknown derived exception... " << flush;
     {
 	bool gotException = false;
@@ -66,7 +526,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception thrown as base exception... " << flush;
+    cout << "testing slicing of unknown derived exception with AMI... " << flush;
+    {
+	AMI_Test_unknownDerivedAsBaseIPtr cb = new AMI_Test_unknownDerivedAsBaseI;
+	test->unknownDerivedAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing non-slicing of known derived exception" << endl;
+    cout << "\tthrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -88,7 +557,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known derived exception thrown as derived exception... " << flush;
+    cout << "testing non-slicing of known derived exception" << endl;
+    cout << "\tthrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_knownDerivedAsBaseIPtr cb = new AMI_Test_knownDerivedAsBaseI;
+	test->knownDerivedAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing non-slicing of known derived exception" << endl;
+    cout << "\tthrown as derived exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -110,7 +589,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown intermediate exception thrown as base exception... " << flush;
+    cout << "testing non-slicing of known derived exception" << endl;
+    cout << "\tthrown as derived exception with AMI... " << flush;
+    {
+	AMI_Test_knownDerivedAsKnownDerivedIPtr cb = new AMI_Test_knownDerivedAsKnownDerivedI;
+	test->knownDerivedAsKnownDerived_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of unknown intermediate exception" << endl;
+    cout << "\tthrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -131,7 +620,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known intermediate exception thrown as base exception... " << flush;
+    cout << "testing slicing of unknown intermediate exception" << endl;
+    cout << "\tthrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_unknownIntermediateAsBaseIPtr cb = new AMI_Test_unknownIntermediateAsBaseI;
+	test->unknownIntermediateAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of known intermediate exception" << endl;
+    cout << "\tthrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -153,7 +652,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of known most derived exception thrown as base exception... " << flush;
+    cout << "testing slicing of known intermediate exception" << endl;
+    cout << "\tthrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_knownIntermediateAsBaseIPtr cb = new AMI_Test_knownIntermediateAsBaseI;
+	test->knownIntermediateAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of known most derived exception" << endl;
+    cout << "\tthrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -176,12 +685,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known intermediate exception thrown as intermediate exception... " << flush;
+    cout << "testing slicing of known most derived exception" << endl;
+    cout << "\tthrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_knownMostDerivedAsBaseIPtr cb = new AMI_Test_knownMostDerivedAsBaseI;
+	test->knownMostDerivedAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing non-slicing of known intermediate exception" << endl;
+    cout << "\tthrown as intermediate exception... " << flush;
     {
 	bool gotException = false;
 	try
 	{
-	    test->knownIntermediateAsknownIntermediate();
+	    test->knownIntermediateAsKnownIntermediate();
 	}
 	catch(const KnownIntermediate& ki)
 	{
@@ -198,7 +717,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived thrown as intermediate exception... " << flush;
+    cout << "testing non-slicing of known intermediate exception" << endl;
+    cout << "\tthrown as intermediate exception with AMI... "
+	 << flush;
+    {
+	AMI_Test_knownIntermediateAsKnownIntermediateIPtr cb = new AMI_Test_knownIntermediateAsKnownIntermediateI;
+	test->knownIntermediateAsKnownIntermediate_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing non-slicing of known most derived exception" << endl;
+    cout << "\tthrown as intermediate exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -221,7 +751,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing non-slicing of known most derived thrown as most derived exception... " << flush;
+    cout << "testing non-slicing of known most derived exception" << endl;
+    cout << "\tthrown as intermediate exception with AMI... " << flush;
+    {
+	AMI_Test_knownMostDerivedAsKnownIntermediateIPtr cb = new AMI_Test_knownMostDerivedAsKnownIntermediateI;
+	test->knownMostDerivedAsKnownIntermediate_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing non-slicing of known most derived exception" << endl;
+    cout << "\tthrown as most derived exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -244,7 +784,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived with known intermediate thrown as base exception... " << flush;
+    cout << "testing non-slicing of known most derived exception" << endl;
+    cout << "\tthrown as most derived exception with AMI... " << flush;
+    {
+	AMI_Test_knownMostDerivedAsKnownMostDerivedIPtr cb = new AMI_Test_knownMostDerivedAsKnownMostDerivedI;
+	test->knownMostDerivedAsKnownMostDerived_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith known intermediate thrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -266,7 +816,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived with known intermediate thrown as intermediate exception... "
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith known intermediate thrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_unknownMostDerived1AsBaseIPtr cb = new AMI_Test_unknownMostDerived1AsBaseI;
+	test->unknownMostDerived1AsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith known intermediate thrown as intermediate exception... "
 	 << flush;
     {
 	bool gotException = false;
@@ -289,7 +849,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing slicing of unknown most derived with unknown intermediate thrown as base exception... " << flush;
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith known intermediate thrown as intermediate exception with AMI... "
+	 << flush;
+    {
+	AMI_Test_unknownMostDerived1AsKnownIntermediateIPtr cb = new AMI_Test_unknownMostDerived1AsKnownIntermediateI;
+	test->unknownMostDerived1AsKnownIntermediate_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith unknown intermediate thrown as base exception... " << flush;
     {
 	bool gotException = false;
 	try
@@ -307,6 +878,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(0);
 	}
 	test(gotException);
+    }
+    cout << "ok" << endl;
+
+    cout << "testing slicing of unknown most derived exception" << endl;
+    cout << "\twith unknown intermediate thrown as base exception with AMI... " << flush;
+    {
+	AMI_Test_unknownMostDerived2AsBaseIPtr cb = new AMI_Test_unknownMostDerived2AsBaseI;
+	test->unknownMostDerived2AsBase_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
