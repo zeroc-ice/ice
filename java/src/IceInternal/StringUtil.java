@@ -199,7 +199,7 @@ public final class StringUtil
         }
         assert(start >= 0);
         assert(end <= len);
-        assert(start < end);
+        assert(start <= end);
 
         byte[] bytes = new byte[len];
         int bc = 0;

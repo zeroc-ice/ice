@@ -144,7 +144,7 @@ IceInternal::decodeString(const string& s, string::size_type start, string::size
     }
     assert(start >= 0);
     assert(end <= len);
-    assert(start < end);
+    assert(start <= end);
 
     while(start < end)
     {
