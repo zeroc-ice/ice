@@ -220,8 +220,12 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	    return 0;
 	}
 
-	ObjectPtr servant = p->second;
-	
+	//
+	// This should work - but with MSVC for some reason it does not. Re-examine.
+	//
+	//ObjectPtr servant = p->second;
+	ObjectPtr servant = p->second.get_value();
+		
 	//
 	// Add the new Servant to the evictor queue.
 	//

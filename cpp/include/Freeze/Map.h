@@ -43,6 +43,14 @@ public:
 	return _value;
     }
 
+    //
+    // For MSVC (EvictorI.cpp). TODO: Re-examine.
+    //
+    value_type get_value() const
+    {
+	return _value;
+    }
+
     bool operator!=(const value_type& value) const
     {
 	return _value != value;
