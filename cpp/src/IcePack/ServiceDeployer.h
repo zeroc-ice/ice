@@ -13,8 +13,6 @@
 
 #include <IceUtil/Shared.h>
 #include <IcePack/ComponentDeployer.h>
-// Remove duplicate empty line.
-
 
 namespace IcePack
 {
@@ -30,7 +28,8 @@ public:
 	ServiceKindFreeze
     };
 
-    ServiceDeployer(const Ice::CommunicatorPtr&, ServerDeployer&, const std::map<std::string, std::string>&);
+    ServiceDeployer(const Ice::CommunicatorPtr&, ServerDeployer&, const std::map<std::string, std::string>&,
+		    const std::string&, const std::vector<std::string>&);
 
     void parse(const std::string&);
 

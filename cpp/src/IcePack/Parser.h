@@ -67,7 +67,10 @@ public:
 
     void usage();
 
-    void addServer(const std::list<std::string>&, const std::list<std::string>&, const std::list<std::string>&);
+    void addApplication(const std::list<std::string>&);
+    void removeApplication(const std::list<std::string>&);
+
+    void addServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void describeServer(const std::list<std::string>&);
     void stateServer(const std::list<std::string>&);

@@ -12,6 +12,7 @@
 #include <IcePack/AdminI.h>
 #include <IcePack/ServerManager.h>
 #include <IcePack/AdapterManager.h>
+#include <IcePack/ApplicationDeployer.h>
 #include <IcePack/ServerDeployer.h>
 
 using namespace std;
@@ -27,10 +28,26 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const ServerManager
 }
 
 void
-IcePack::AdminI::addServer(const string& name, const string& path, const string& ldpath, const string& descriptor,
-			   const Current&)
+IcePack::AdminI::addApplication(const string& descriptor, const Targets& targets, const Current&)
 {
-    ServerDeployer deployer(_communicator, name, path, ldpath);
+    ApplicationDeployer deployer(_communicator, this, targets);
+    deployer.parse(descriptor);
+    deployer.deploy();
+}
+
+void
+IcePack::AdminI::removeApplication(const string& descriptor, const Current&)
+{
+    ApplicationDeployer deployer(_communicator, this, Targets());
+    deployer.parse(descriptor);
+    deployer.deploy();
+}
+
+void
+IcePack::AdminI::addServer(const string& name, const string& path, const string& ldpath, const string& descriptor,
+			   const Targets& targets, const Current&)
+{
+    ServerDeployer deployer(_communicator, name, path, ldpath, targets);
     deployer.setServerManager(_serverManager);
     deployer.setAdapterManager(_adapterManager);
     deployer.parse(descriptor);
@@ -100,7 +117,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
     server->setState(Destroyed);
     ServerDescription desc = server->getServerDescription();
     
-    ServerDeployer deployer(_communicator, desc.name, desc.path, "");
+    ServerDeployer deployer(_communicator, desc.name, desc.path, "", desc.targets);
     deployer.setServerManager(_serverManager);
     deployer.setAdapterManager(_adapterManager);
     deployer.parse(desc.descriptor);

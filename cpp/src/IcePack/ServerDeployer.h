@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-
 #ifndef ICE_PACK_SERVER_DEPLOYER_H
 #define ICE_PACK_SERVER_DEPLOYER_H
 
@@ -33,7 +32,8 @@ public:
 	ServerKindJavaServer
     };
 
-    ServerDeployer(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&);
+    ServerDeployer(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&,
+		   const std::vector<std::string>&);
 
     void setServerManager(const ServerManagerPrx&);
     void setAdapterManager(const AdapterManagerPrx&);

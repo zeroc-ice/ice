@@ -31,9 +31,6 @@
 using namespace std;
 using namespace IcePack;
 
-void IcePack::incRef(Task* p) { p->__incRef(); }
-void IcePack::decRef(Task* p) { p->__decRef(); }
-
 namespace IcePack
 {
 
@@ -296,15 +293,17 @@ IcePack::ComponentErrorHandler::warning(const SAXParseException& exception)
 void
 IcePack::ComponentErrorHandler::error(const SAXParseException& exception)
 {
-    string s = toString(exception.getMessage());
-    cerr << "error: " << s << endl;
+    throw exception;
+//    string s = toString(exception.getMessage());
+//    cerr << "error: " << s << endl;
 }
 
 void
 IcePack::ComponentErrorHandler::fatalError(const SAXParseException& exception)
 {
-    string s = toString(exception.getMessage());
-    cerr << "fatal:" << s << endl;
+    throw exception;
+//    string s = toString(exception.getMessage());
+//    cerr << "fatal:" << s << endl;
 }
 
 void
@@ -313,7 +312,8 @@ IcePack::ComponentErrorHandler::resetErrors()
 }
 
 IcePack::ComponentDeployHandler::ComponentDeployHandler(ComponentDeployer& deployer) :
-    _deployer(deployer)
+    _deployer(deployer),
+    _isCurrentTargetDeployable(true)
 {
 }
 
@@ -327,6 +327,11 @@ void
 IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 {
     _elements.push("");
+
+    if(!isCurrentTargetDeployable())
+    {
+	return;
+    }
 
     string str = toString(name);
 
@@ -345,11 +350,24 @@ IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, Attribute
     }
     else if(str == "adapter")
     {
-	_adapter = getAttributeValue(attrs, "name");
+	if(!_currentAdapter.empty())
+	{
+	    throw DeploySAXParseException("Adapter element enclosed in an adapter element is not allowed", _locator);
+	}
+	_currentAdapter = getAttributeValue(attrs, "name");
     }
     else if(str == "offer")
     {
-	_deployer.addOffer(getAttributeValue(attrs, "interface"), _adapter, getAttributeValue(attrs, "identity"));
+	_deployer.addOffer(getAttributeValue(attrs, "interface"), _currentAdapter, 
+			   getAttributeValue(attrs, "identity"));
+    }
+    else if(str == "target")
+    {
+	if(!_currentTarget.empty())
+	{
+	    throw DeploySAXParseException("Target element enclosed in a target element is not allowed", _locator);
+	}
+	_isCurrentTargetDeployable = _deployer.isTargetDeployable(getAttributeValue(attrs, "name"));
     }
 }
 
@@ -360,9 +378,17 @@ IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
 
     string str = toString(name);
 
-    if(str == "adapter")
+    if(str == "target")
     {
-	_adapter = "";
+	_isCurrentTargetDeployable = true;
+    }
+
+    if(isCurrentTargetDeployable())
+    {
+	if(str == "adapter")
+	{
+	    _currentAdapter = "";
+	}
     }
 }
 
@@ -419,9 +445,19 @@ IcePack::ComponentDeployHandler::elementValue() const
     return _elements.top();
 }
 
-IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& communicator) :
+bool
+IcePack::ComponentDeployHandler::isCurrentTargetDeployable() const
+{
+    return _isCurrentTargetDeployable;
+}
+
+IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& communicator,
+					      const string& componentPath,
+					      const vector<string>& targets) :
     _communicator(communicator),
-    _properties(Ice::createProperties())
+    _properties(Ice::createProperties()),
+    _componentPath(componentPath),
+    _targets(targets)
 {
     string serversPath = _communicator->getProperties()->getProperty("IcePack.Data");
     assert(!serversPath.empty());
@@ -485,7 +521,7 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 	os << xmlFile << ":" << e.getLineNumber() << ": " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["name"];
+	ex.component = _componentPath;
 	ex.reason = os.str();
 	throw ex;
     }
@@ -497,7 +533,7 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 	os << xmlFile << ": SAXException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["name"];
+	ex.component = _componentPath;
 	ex.reason = os.str();
 	throw ex;
     }
@@ -509,7 +545,7 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 	os << xmlFile << ": XMLException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["name"];
+	ex.component = _componentPath;
 	ex.reason = os.str();
 	throw ex;
     }
@@ -518,13 +554,10 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 	delete parser;
 
 	ostringstream os;
-	// TODO: ML: UnknownException? This it not UnknownException,
-	// that's an unknown exception. UnknownException is an Ice
-	// exception.
-	os << xmlFile << ": UnknownException while parsing file";
+	os << xmlFile << ": unknown exception while parsing file";
 
 	ParserDeploymentException ex;
-	ex.component = _variables["name"];
+	ex.component = _componentPath;
 	ex.reason = os.str();
 	throw ex;
     }
@@ -535,17 +568,57 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
     if(rc > 0)
     {
 	ParserDeploymentException ex;
-	ex.component = _variables["name"];
+	ex.component = _componentPath;
 	ex.reason = xmlFile + ": parse error";
 	throw ex;
-    }    
+    }
 }
 
-// TODO: ML: Add space, loose last const.
 void
-IcePack::ComponentDeployer::setDocumentLocator(const Locator*const locator)
+IcePack::ComponentDeployer::setDocumentLocator(const Locator* locator)
 {
     _locator = locator;
+}
+
+bool
+IcePack::ComponentDeployer::isTargetDeployable(const string& target) const
+{
+    for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
+    {
+	if((*p) == target)
+	{
+	    return true;
+	}
+	else
+	{
+	    string componentTarget;
+	    string::size_type end = 0;
+	    while(end != string::npos)
+	    {
+		//
+		// Add the first component name to the component target
+		// path.
+		//
+		end = _componentPath.find('.', end);
+		if(end == string::npos)
+		{
+		    componentTarget = _componentPath + "." + target;
+		}
+		else
+		{
+		    componentTarget = _componentPath.substr(0, end) + "." + target;
+		    ++end;
+		}
+
+		if((*p) == componentTarget)
+		{
+		    return true;
+		}
+	    }
+	}
+    }
+
+    return false;
 }
 
 void
@@ -560,7 +633,10 @@ IcePack::ComponentDeployer::deploy()
 	}
 	catch(DeploymentException& ex)
 	{
-	    ex.component = _variables["name"];
+	    if(ex.component.empty())
+	    {
+		ex.component = _componentPath;
+	    }
 	    undeployFrom(p);
 	    throw;
 	}

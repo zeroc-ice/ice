@@ -111,6 +111,10 @@ void
 IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 {
     ComponentDeployHandler::startElement(name, attrs);
+    if(!isCurrentTargetDeployable())
+    {
+	return;
+    }
 
     string str = toString(name);
 
@@ -163,13 +167,16 @@ IcePack::ServerDeployHandler::endElement(const XMLCh *const name)
 {
     string str = toString(name);
 
-    if(str == "classname")
+    if(isCurrentTargetDeployable())
     {
-	_deployer.setClassName(elementValue());
-    }
-    else if(str == "pwd")
-    {
-	_deployer.setWorkingDirectory(elementValue());
+	if(str == "classname")
+	{
+	    _deployer.setClassName(elementValue());
+	}
+	else if(str == "pwd")
+	{
+	    _deployer.setWorkingDirectory(elementValue());
+	}
     }
 
     ComponentDeployHandler::endElement(name);
@@ -178,8 +185,9 @@ IcePack::ServerDeployHandler::endElement(const XMLCh *const name)
 IcePack::ServerDeployer::ServerDeployer(const Ice::CommunicatorPtr& communicator,
 					const string& name,
 					const string& path,
-					const string& libraryPath) :
-    ComponentDeployer(communicator),
+					const string& libraryPath,
+					const vector<string>& targets) :
+    ComponentDeployer(communicator, name, targets),
     _libraryPath(libraryPath)
 {
     _variables["name"] = name;
@@ -187,6 +195,7 @@ IcePack::ServerDeployer::ServerDeployer(const Ice::CommunicatorPtr& communicator
 
     _description.name = name;
     _description.path = path;
+    _description.targets = targets;
 }
 
 void
@@ -244,6 +253,15 @@ IcePack::ServerDeployer::parse(const std::string& descriptor)
 void
 IcePack::ServerDeployer::deploy()
 {
+    ServerPrx server = _serverManager->findByName(_description.name);
+    if(server)
+    {
+	ServerDeploymentException ex;
+	ex.server = _variables["name"];
+	ex.reason = "Server already exists";
+	throw ex;
+    }
+
     ComponentDeployer::deploy();
 
     try
@@ -252,6 +270,8 @@ IcePack::ServerDeployer::deploy()
     }
     catch(const ServerExistsException& ex)
     {
+	ComponentDeployer::undeploy();
+
 	ServerDeploymentException ex1;
 	ex1.server = _variables["name"];
 	ex1.reason = "Server already exists";
@@ -262,8 +282,18 @@ IcePack::ServerDeployer::deploy()
 void
 IcePack::ServerDeployer::undeploy()
 { 
-    _serverManager->remove(_description.name);
-
+    try
+    {
+	_serverManager->remove(_description.name);
+    }
+    catch(const ServerNotExistException&)
+    {
+    }
+    
+    //
+    // TODO: Shall we really continue removing the server components
+    // here?
+    //
     ComponentDeployer::undeploy();
 }
 
@@ -327,8 +357,7 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
 {
     if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
-	// TODO: ML: Grammar. Should this be "allowed"?
-	throw DeploySAXParseException("services are only allows in IceBox servers", _locator);
+	throw DeploySAXParseException("services are only allowed in IceBox servers", _locator);
     }
 
     if(name.empty())
@@ -346,7 +375,9 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
     std::map<std::string, std::string> variables = _variables;
     variables["name"] = name;
 
-    ServiceDeployer* task = new ServiceDeployer(_communicator, *this, variables);
+    string componentPath = _componentPath + "." + name;
+
+    ServiceDeployer* task = new ServiceDeployer(_communicator, *this, variables, componentPath, _targets);
     try
     {
 	string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
@@ -354,13 +385,7 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
     }
     catch(const ParserDeploymentException& ex)
     {
-	//
-	// Add component and wrap the exception in a
-	// ParserDeploymentWrapperException.
-	//
-	ParserDeploymentException ex1(ex);
-	ex1.component = _variables["name"] + ":" + ex.component;
-	throw ParserDeploymentWrapperException(ex1);
+	throw ParserDeploymentWrapperException(ex);
     }
     
     _tasks.push_back(task);

@@ -153,15 +153,14 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	// pipe.
 	//
 	// TODO: This doesn't work well if the server doesn't control
-	// when and how the output is flushed. This can result for
-	// example in printing on character by line... The standard
-	// Ice logger could be changed to flush the stream and not use
-	// automatic flushing.
+	// when and how the output is flushed. For example, we could
+	// receive one character after the other over the pipe which
+	// is problematic since we don't know when to log message. For
+	// sure we don't want to log each character one after the
+	// other. We want to log the message. One solution would be to
+	// put the received information in a buffer and log it only
+	// when we receive a '\n'.
 	//
-
-// TODO: ML: Can you be more specific? Sending messages through a pipe
-// is one of the most basic unix mechanisms. I don't see how this
-// could not work.
 
 // 	if(fds[1] != STDERR_FILENO)
 // 	{

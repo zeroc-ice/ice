@@ -77,7 +77,7 @@ if TestUtil.isWin32() == 0 and TestUtil.protocol != "ssl":
     client = os.path.join(testdir, "client")
 
     print "registering server with icepack...",
-    IcePackAdmin.addServer(toplevel, "server", server, "", os.path.join(testdir, "simple_server.xml"));
+    IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", "");
     print "ok"
     
     print "testing adapter registration...",

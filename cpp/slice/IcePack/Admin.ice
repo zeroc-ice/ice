@@ -110,6 +110,12 @@ exception ServerDeploymentException extends DeploymentException
  **/
 sequence<string> Args;
 
+/**
+ *
+ * A vector of strings representing targets.
+ *
+ **/
+sequence<string> Targets;
 
 /**
  *
@@ -136,10 +142,17 @@ struct ServerDescription
 
     /**
      *
-     * Descriptor file.
+     * Deployment descriptor.
      *
      **/
     string descriptor;
+
+    /**
+     *
+     * Targets used to deployed the server.
+     *
+     **/
+    Targets targets;
 
     /**
      *
@@ -215,8 +228,40 @@ class Admin
 {
     /**
      *
-     * Add a server and the adapters implemented by that server to
-     * &IcePack;.
+     * Add an application to &IcePack;. An application is a set of
+     * servers.
+     *
+     * @param descriptor The application descriptor.
+     * 
+     * @param tgts The optional targets to deploy. A target is a list
+     * of components separated by dots and a target name. For example,
+     * the "debug" target of the "service1" in the "server1" will be
+     * deployed if the target "server1.service1.debug" is specified.
+     *
+     * @throws DeploymentException Raised if the deployment of the
+     * application failed.
+     *
+     * @see removeApplication
+     *
+     **/
+    void addApplication(string descriptor, Targets tgts)
+	throws DeploymentException;    
+
+    /**
+     *
+     * Remove an application from &IcePack;.
+     *
+     * @param descriptor The application descriptor.
+     *
+     * @see addApplication
+     *
+     **/
+    void removeApplication(string descriptor)
+	throws DeploymentException;
+
+    /**
+     *
+     * Add a server to &IcePack;.
      *
      * @param name The server name.
      *
@@ -230,7 +275,12 @@ class Admin
      * @param librarypath Specify the LD_LIBRARY_PATH value for C++
      * servers or the CLASSPATH value for Java servers.
      *
-     * @param name The server deployment descriptor.
+     * @param desciptor The server deployment descriptor.
+     *
+     * @param tgts The optional targets to deploy. A target is a list
+     * of components separated by dots and a target name. For example,
+     * the "debug" target of the "service1" in the "server1" will be
+     * deployed if the target "server1.service1.debug" is specified.
      *
      * @throws ServerExistsException Raised if a server with the same
      * name already exists.
@@ -241,8 +291,8 @@ class Admin
      * @see removeServer
      *
      **/
-    void addServer(string name, string path, string libraryPath, string descriptor)
-	throws ServerExistsException, DeploymentException;
+    void addServer(string name, string path, string libraryPath, string descriptor, Targets tgts)
+	throws DeploymentException;
 
     /**
      *
@@ -315,7 +365,7 @@ class Admin
      *
      **/
     void removeServer(string name)
-	throws ServerNotExistException, ServerNotInactiveException;
+	throws DeploymentException, ServerNotExistException, ServerNotInactiveException;
 
     /**
      *

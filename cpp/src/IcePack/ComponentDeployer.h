@@ -31,13 +31,7 @@ public:
     virtual void undeploy() = 0;
 };
 
-// TODO: ML: Nonportable. The incRef/decRef declarations must be done
-// before the typedef below. Why not just use IceUtil::Handle in this
-// case?
-typedef ::IceInternal::Handle< ::IcePack::Task> TaskPtr;
-
-void incRef(::IcePack::Task*);
-void decRef(::IcePack::Task*);
+typedef ::IceUtil::Handle< ::IcePack::Task> TaskPtr;
 
 class ComponentDeployer;
 
@@ -45,10 +39,7 @@ class DeploySAXParseException : public SAXParseException
 {
 public:
 
-    // TODO: ML: Space is missing: "const Locator* const
-    // locator". Also, why not just const Locator*? What's the point
-    // of making the pointer constant as well?
-    DeploySAXParseException(const std::string&, const Locator*const locator);
+    DeploySAXParseException(const std::string&, const Locator* locator);
 
 };
 
@@ -89,18 +80,13 @@ public:
 
     ComponentDeployHandler(ComponentDeployer&);
 
-    // TODO: ML: Incorrect spacing, should be "const XMLCh*
-    // const". Also, loose the last const -- there is no point in
-    // forcing the pointer itself to be const. (Here and everywhere
-    // else.)
-    virtual void characters(const XMLCh *const, const unsigned int);
-    // TODO: ML: AttributeList&.
-    virtual void startElement(const XMLCh *const, AttributeList &); 
-    virtual void endElement(const XMLCh *const);
+    virtual void characters(const XMLCh*const, const unsigned int);
+    virtual void startElement(const XMLCh*const, AttributeList&); 
+    virtual void endElement(const XMLCh*const);
 
     // TODO: ML: No reason to make inline, see style guide.
-    virtual void ignorableWhitespace(const XMLCh *const, const unsigned int) { }
-    virtual void processingInstruction(const XMLCh *const, const XMLCh *const) { }
+    virtual void ignorableWhitespace(const XMLCh*const, const unsigned int) { }
+    virtual void processingInstruction(const XMLCh*const, const XMLCh*const) { }
     virtual void resetDocument() { }
     virtual void setDocumentLocator(const Locator *const);
     virtual void startDocument() { }
@@ -111,23 +97,26 @@ protected:
     std::string getAttributeValue(const AttributeList&, const std::string&) const;
     std::string getAttributeValueWithDefault(const AttributeList&, const std::string&, const std::string&) const;
 
-    std::string toString(const XMLCh *const) const;
+    std::string toString(const XMLCh*const) const;
     std::string elementValue() const;
+    bool isCurrentTargetDeployable() const;
 
 private:
 
+    ComponentDeployer& _deployer;
     std::stack<std::string> _elements;
-    std::string _adapter;
+    std::string _currentAdapter;
+    std::string _currentTarget;
+    bool _isCurrentTargetDeployable;
 
     const Locator* _locator;
-    ComponentDeployer& _deployer;
 };
 
 class ComponentDeployer : public Task
 {
 public:
 
-    ComponentDeployer(const Ice::CommunicatorPtr&);
+    ComponentDeployer(const Ice::CommunicatorPtr&, const std::string&, const std::vector<std::string>&);
 
     virtual void deploy();
     virtual void undeploy();
@@ -135,6 +124,8 @@ public:
     void parse(const std::string&, ComponentDeployHandler&);
     void setDocumentLocator(const Locator*const locator);
     std::string substitute(const std::string&) const;
+
+    bool isTargetDeployable(const std::string&) const;
 
     void createDirectory(const std::string&, bool = false);
     void createConfigFile(const std::string&);
@@ -153,6 +144,8 @@ protected:
     std::map<std::string, std::string> _variables;
     std::vector<TaskPtr> _tasks;
     std::string _configFile;
+    std::string _componentPath;
+    std::vector<std::string> _targets;
 
     const Locator* _locator;
 };

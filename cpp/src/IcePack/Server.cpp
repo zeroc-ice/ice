@@ -145,6 +145,9 @@ void
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
 	"--nowarn             Don't print any security warnings.\n"
+	"--deploy descriptor [target1 [target2 ...]]\n"
+        "                     Deploy application describe by descriptor\n"
+        "                     with optional targets.\n"
 	;
 }
 
@@ -159,6 +162,8 @@ int
     stringSeqToArgs(args, argc, argv);
 
     bool nowarn = false;
+    string descriptor;
+    vector<string> targets;
     for(int i = 1; i < argc; ++i)
     {
 	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -174,6 +179,22 @@ int
 	else if(strcmp(argv[i], "--nowarn") == 0)
 	{
 	    nowarn = true;
+	}
+	else if(strcmp(argv[i], "--deploy") == 0)
+	{
+	    if(i + 1 >= argc)
+	    {
+		cerr << appName() << ": missing descriptor argument for option `" << argv[i] << "'" << endl;
+		usage();
+		return EXIT_FAILURE;
+	    }
+
+	    descriptor = argv[++i];
+	    
+	    while(argv[++i][0] != '-' && i < argc)
+	    {
+		targets.push_back(argv[i]);
+	    }
 	}
 	else
 	{
@@ -299,6 +320,28 @@ int
     adminAdapter->activate();
     locatorAdapter->activate();
     locatorRegistryAdapter->activate();
+
+    //
+    // Deploy application desciptor.
+    //
+    if(!descriptor.empty())
+    {
+	try
+	{
+	    admin->addApplication(descriptor, targets);
+	}
+	catch(const ServerDeploymentException& ex)
+	{
+	    cerr << appName() << ": warning: failed to deploy application " << descriptor << ":" << endl;
+	    cerr << ex << ": " << ex.server << ": " << ex.reason << endl;
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << appName() << ": warning: failed to deploy application " << descriptor << ":" << endl;
+	    cerr << ex << ": " << ex.component << ": " << ex.reason << endl;
+	}
+    }
+
     communicator()->waitForShutdown();
     ignoreInterrupt();
 

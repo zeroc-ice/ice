@@ -96,6 +96,10 @@ NL	[\n]
     return ICE_PACK_EXIT;
 }
 
+"application" {
+    return ICE_PACK_APPLICATION;
+}
+
 "server" {
     return ICE_PACK_SERVER;
 }
@@ -134,22 +138,6 @@ NL	[\n]
 
 "start" {
     return ICE_PACK_START;
-}
-
-"adapters" {
-    return ICE_PACK_ADAPTERS;
-}
-
-"options" {
-    return ICE_PACK_OPTIONS;
-}
-
-"{" {
-    return ICE_PACK_OPEN_BRACKET;
-}
-
-"}" {
-    return ICE_PACK_CLOSE_BRACKET;
 }
 
 {WS}*(\\{WS}*{NL})? {

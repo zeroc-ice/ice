@@ -24,10 +24,13 @@ public:
 
     AdminI(const Ice::CommunicatorPtr&, const ServerManagerPrx&, const AdapterManagerPrx&);
 
-    virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&, 
-			   const Ice::Current&);
+    virtual void addApplication(const std::string&, const Targets&, const Ice::Current& = Ice::Current());
+    virtual void removeApplication(const std::string&, const Ice::Current& = Ice::Current());
+
+    virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&,
+			   const Targets&, const Ice::Current& = Ice::Current());
     virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&);
-    virtual ServerState getServerState(const ::std::string&, const Ice::Current&);
+    virtual ServerState getServerState(const ::std::string&, const Ice::Current& = Ice::Current());
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void removeServer(const ::std::string&, const Ice::Current&);
     virtual ServerNames getAllServerNames(const Ice::Current&);

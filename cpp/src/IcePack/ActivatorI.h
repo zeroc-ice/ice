@@ -15,8 +15,6 @@
 #include <IcePack/Activator.h>
 #include <IcePack/ServerManagerF.h>
 
-// TODO: ML: This file has DOS line endings. Change to Unix line endings.
-
 namespace IcePack
 {
 

@@ -25,8 +25,6 @@ public:
     ServiceDeployHandler(ServiceDeployer&);
 
     virtual void startElement(const XMLCh *const name, AttributeList &attrs); 
-    virtual void endElement(const XMLCh *const name);
-    virtual void startDocument();
 
 private:
 
@@ -41,15 +39,14 @@ IcePack::ServiceDeployHandler::ServiceDeployHandler(ServiceDeployer& deployer) :
 {
 }
 
-void
-IcePack::ServiceDeployHandler::startDocument()
-{
-}
-
 void 
 IcePack::ServiceDeployHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 {
     ComponentDeployHandler::startElement(name, attrs);
+    if(!isCurrentTargetDeployable())
+    {
+	return;
+    }
 
     string str = toString(name);
 
@@ -82,18 +79,12 @@ IcePack::ServiceDeployHandler::startElement(const XMLCh *const name, AttributeLi
     }
 }
 
-void
-IcePack::ServiceDeployHandler::endElement(const XMLCh *const name)
-{
-    string str = toString(name);
-
-    ComponentDeployHandler::endElement(name);
-}
-
 IcePack::ServiceDeployer::ServiceDeployer(const Ice::CommunicatorPtr& communicator,
 					  ServerDeployer& serverDeployer,
-					  const map<string, string>& variables) :
-    ComponentDeployer(communicator),
+					  const map<string, string>& variables,
+					  const string& componentPath,
+					  const vector<string>& targets) :
+    ComponentDeployer(communicator, componentPath, targets),
     _serverDeployer(serverDeployer)
 {
     _variables = variables;

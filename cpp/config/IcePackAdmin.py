@@ -59,7 +59,7 @@ def shutdownIcePack(toplevel, icePackPipe):
         sys.exit(1)
         
 
-def addServer(toplevel, name, server, libpath, serverDescriptor):
+def addServer(toplevel, name, serverDescriptor, server, libpath, targets):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
@@ -68,8 +68,8 @@ def addServer(toplevel, name, server, libpath, serverDescriptor):
     
     command = icePackAdmin + options + \
               r' "--Ice.Default.Locator=IcePack/locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server add \"' + name + '\\" \\"' + server + '\\" ' + \
-              r' \"' + libpath + '\\" ' + serverDescriptor + '\"'
+              r' -e "server add \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
+              r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"'
 
     icePackAdminPipe = os.popen(command)
     icePackAdminStatus = icePackAdminPipe.close()

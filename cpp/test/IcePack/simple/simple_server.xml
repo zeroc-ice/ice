@@ -4,4 +4,11 @@
     <adapter name="TestAdapter"/>
   </adapters>
 
+  <target name="debug">
+    <properties>
+      <property name="Ice.Network.Trace" value="1"/>
+      <property name="Ice.Network.Protocol" value="1"/>
+    </properties>
+  </target>
+
 </server>

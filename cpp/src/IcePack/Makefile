@@ -37,6 +37,7 @@ SOBJS		= Server.o \
 		  ComponentDeployer.o \
 		  ServerDeployer.o \
 		  ServiceDeployer.o \
+		  ApplicationDeployer.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \

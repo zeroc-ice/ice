@@ -41,28 +41,34 @@ void
 IcePack::Parser::usage()
 {
     cout <<
-        "help                                Print this message.\n"
-        "exit, quit                          Exit this program.\n"
-        "server add NAME PATH LIBPATH DESC   Add server NAME with PATH.\n" // TODO: ML: What about LIBPATH, DESC?
-	"server describe NAME                Get server NAME description.\n"
-	"server state NAME                   Get server NAME state.\n"
-	"server start NAME                   Starts server NAME.\n"
-        "server remove NAME                  Remove server NAME.\n"
-        "server list                         List all server names.\n"
-	"adapter add NAME ENDPOINTS          Add adapter NAME with ENDPOINTS.\n"
-        "adapter list                        List all adapter names.\n"
-        "adapter remove NAME                 Remove adapter NAME.\n"
-	"adapter endpoints NAME              Get adapter NAME endpoints.\n"
-        "shutdown                            Shut the IcePack server down.\n";
+        "help                        Print this message.\n"
+        "exit, quit                  Exit this program.\n"
+	"application add DESC [TARGET1 [TARGET2 ...]]\n"
+	"                            Add application described by DESC with\n"
+        "                            optional targets to deploy.\n"
+	"application remove DESC     Remove application described by DESC\n"
+        "server add NAME DESC [PATH [LIBPATH [TARGET1 [TARGET2 ...]]]]\n"
+        "                            Add server NAME with deployment descriptor\n"
+        "                            DESC, optional PATH and LIBPATH. If specified\n"
+        "                            the optional targets TARGET will be deployed.\n"
+	"server describe NAME        Get server NAME description.\n"
+	"server state NAME           Get server NAME state.\n"
+	"server start NAME           Starts server NAME.\n"
+        "server remove NAME          Remove server NAME.\n"
+        "server list                 List all server names.\n"
+	"adapter add NAME ENDPOINTS  Add adapter NAME with ENDPOINTS.\n"
+        "adapter list                List all adapter names.\n"
+        "adapter remove NAME         Remove adapter NAME.\n"
+	"adapter endpoints NAME      Get adapter NAME endpoints.\n"
+        "shutdown                    Shut the IcePack server down.\n";
 }
 
 void
-IcePack::Parser::addServer(const list<string>& args, const std::list<std::string>& adapters, 
-			   const std::list<std::string>& options)
+IcePack::Parser::addApplication(const list<string>& args)
 {
-    if(args.size() != 4)
+    if(args.size() < 1)
     {
-	error("`server add' requires four arguments\n(`help' for more info)");
+	error("`application add' requires at least one argument\n(`help' for more info)");
 	return;
     }
 
@@ -70,18 +76,100 @@ IcePack::Parser::addServer(const list<string>& args, const std::list<std::string
     {
 	list<string>::const_iterator p = args.begin();
 
-	string name = *p++;
-	string path = *p++;
-	string ldpath = *p++;
 	string descriptor = *p++;
 
-	_admin->addServer(name, path, ldpath, descriptor);
+	Targets targets;
+	for(; p != args.end(); ++p)
+	{
+	    targets.push_back(*p);
+	}
+
+	_admin->addApplication(descriptor, targets);
     }
-    catch(const ParserDeploymentException& ex)
+    catch(const ServerDeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.server << ": " << ex.reason;
+	error(s.str());	
+    }
+    catch(const DeploymentException& ex)
     {
 	ostringstream s;
 	s << ex << ": " << ex.component << ": " << ex.reason;
 	error(s.str());	
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::removeApplication(const list<string>& args)
+{
+    if(args.size() < 1)
+    {
+	error("`application remove' requires at exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+
+	string descriptor = *p++;
+
+	_admin->removeApplication(descriptor);
+    }
+    catch(const DeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.component << ": " << ex.reason;
+	error(s.str());	
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::addServer(const list<string>& args)
+{
+    if(args.size() < 2)
+    {
+	error("`server add' requires at least two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+	string name = *p++;
+	string descriptor = *p++;
+	string path;
+	string ldpath;
+	Targets targets;
+
+	if(p != args.end())
+	{
+	    path = *p++;
+	}
+	if(p != args.end())
+	{
+	    ldpath = *p++;
+	}
+
+	for(; p != args.end(); ++p)
+	{
+	    targets.push_back(*p);
+	}
+
+	_admin->addServer(name, path, ldpath, descriptor, targets);
     }
     catch(const DeploymentException& ex)
     {
@@ -110,10 +198,7 @@ IcePack::Parser::startServer(const list<string>& args)
     {
 	if(!_admin->startServer(args.front()))
 	{
-	    // TODO: ML: That's not in our style guide, but don't
-	    // capitalize error messages, i.e., use "the server
-	    // didn't...". (Here and in other places.)
-	    error("The server didn't start successfully");
+	    error("the server didn't start successfully");
 	}
     }
     catch(const Exception& ex)
@@ -172,22 +257,31 @@ IcePack::Parser::stateServer(const list<string>& args)
 
 	switch(state)
 	{
-	    // TODO: ML: Indentation wrong, { } missing.
 	case Inactive:
+	{
 	    cout << "inactive" << endl;
 	    break;
+	}
 	case Activating:
+	{
 	    cout << "activating" << endl;
 	    break;
+	}
 	case Active:
+	{
 	    cout << "active" << endl;
 	    break;
+	}
 	case Deactivating:
+	{
 	    cout << "deactivating" << endl;
 	    break;
+	}
 	case Destroyed:
+	{
 	    cout << "destroyed" << endl;
 	    break;
+	}
 	default:
 	    assert(false);
 	}
