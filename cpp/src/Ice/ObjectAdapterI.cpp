@@ -576,7 +576,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    
 	    if(end == beg)
 	    {
-		break;
+		++end;
+                continue;
 	    }
 	    
 	    string s = endpts.substr(beg, end - beg);
