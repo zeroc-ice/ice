@@ -415,6 +415,20 @@ SOURCE=.\dummy2.ice
 
 !IF  "$(CFG)" == "IcePackNode - Win32 Release"
 
+d.lib"	
+# Begin Custom Build
+InputPath=.\dummy2.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --include-dir IcePack --dict "IcePack::StringObjectProxyDict,string,Object*" StringObjectProxyDict
+
+"StringObjectProxyDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxyDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
 USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
@@ -439,6 +453,20 @@ BuildCmds= \
 SOURCE=.\dummy3.ice
 
 !IF  "$(CFG)" == "IcePackNode - Win32 Release"
+
+USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\dummy3.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+
+"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
