@@ -70,7 +70,17 @@ public final class ThreadPool
     {
         if(_multipleThreads)
         {
-            _threadMutex.unlock();
+	    if(!_promote) // Double-checked locking.
+	    {
+		synchronized(_promoteMonitor)
+		{
+		    if(!_promote)
+		    {
+			_promote = true;
+			_promoteMonitor.notify();
+		    }
+		}
+	    }
         }
     }
 
@@ -119,6 +129,7 @@ public final class ThreadPool
         _destroyed = false;
         _timeout = 0;
         _multipleThreads = false;
+	_promote = true;
         _name = name;
 
         Network.SocketPair pair = Network.createPipe();
@@ -353,7 +364,21 @@ public final class ThreadPool
         {
             if(_multipleThreads)
             {
-                _threadMutex.lock();
+		synchronized(_promoteMonitor)
+		{
+		    while(!_promote)
+		    {
+			try
+			{
+			    _promoteMonitor.wait();
+			}
+			catch(InterruptedException ex)
+			{
+			}
+		    }
+
+		    _promote = false;
+		}
 
                 if(TRACE_THREAD)
                 {
@@ -847,7 +872,8 @@ public final class ThreadPool
     private java.util.HashMap _handlerMap = new java.util.HashMap();
     private int _timeout;
     private int _timeoutMillis;
-    private RecursiveMutex _threadMutex = new RecursiveMutex();
+    private boolean _promote;
+    private java.lang.Object _promoteMonitor = new java.lang.Object();
     private boolean _multipleThreads;
     private String _name;
 
