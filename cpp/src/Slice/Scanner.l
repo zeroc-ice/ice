@@ -187,6 +187,10 @@ L	[a-zA-Z_]
     return ICE_ENUM;
 }
 
+"nonmutating" {
+    return ICE_NONMUTATING;
+}
+
 "\\"?{L}({L}|{D})* {
     char* s = yytext;
     

@@ -704,8 +704,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch (const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
-//    C << nl << "__handleException(*__ex.get(), __cnt);";
-    C << nl << "__ex.raise();";
+    if (p->nonmutating())
+    {
+	C << nl << "__handleException(*__ex.get(), __cnt);";
+    }
+    else
+    {
+	C << nl << "__ex.raise();";
+    }
     C << eb;
     C << nl << "catch (const ::Ice::LocalException& __ex)";
     C << sb;

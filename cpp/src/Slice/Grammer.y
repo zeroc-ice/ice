@@ -46,6 +46,7 @@ yyerror(const char* s)
 %token ICE_NATIVE
 %token ICE_VECTOR
 %token ICE_ENUM
+%token ICE_NONMUTATING
 %token ICE_IDENTIFIER
 %token ICE_OP_IDENTIFIER
 
@@ -414,19 +415,37 @@ interface_extends
 ;
 
 // ----------------------------------------------------------------------
+nonmutating
+// ----------------------------------------------------------------------
+: ICE_NONMUTATING
+{
+    BoolTokPtr nonmutating = new BoolTok;
+    nonmutating->v = true;
+    $$ = nonmutating;
+}
+|
+{
+    BoolTokPtr nonmutating = new BoolTok;
+    nonmutating->v = false;
+    $$ = nonmutating;
+}
+;
+
+// ----------------------------------------------------------------------
 operation
 // ----------------------------------------------------------------------
-: return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
+: nonmutating return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
 {
-    TypePtr returnType = TypePtr::dynamicCast($1);
-    StringTokPtr name = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($3);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
+    BoolTokPtr nonmutating = BoolTokPtr::dynamicCast($1);
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    StringTokPtr name = StringTokPtr::dynamicCast($3);
+    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
+    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
+    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v);
+    cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, nonmutating->v);
 }
-
+ 
 // ----------------------------------------------------------------------
 parameters
 // ----------------------------------------------------------------------

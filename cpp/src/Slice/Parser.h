@@ -383,9 +383,8 @@ class ICE_API ClassDef : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    OperationPtr createOperation(const std::string&, const TypePtr&,
-				  const TypeStringList&, const TypeStringList&,
-				  const TypeList&);
+    OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
+				 const TypeList&, bool);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassList bases();
     ClassList allBases();
@@ -441,6 +440,7 @@ public:
     TypeStringList inputParameters();
     TypeStringList outputParameters();
     TypeList throws();
+    bool nonmutating();
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
@@ -451,13 +451,15 @@ protected:
 	      const TypePtr&,
 	      const TypeStringList&,
 	      const TypeStringList&,
-	      const TypeList&);
+	      const TypeList&,
+	      bool);
     friend class ICE_API ClassDef;
 
     TypePtr _returnType;
     TypeStringList _inParams;
     TypeStringList _outParams;
     TypeList _throws;
+    bool _nonmutating;
 };
 
 // ----------------------------------------------------------------------
