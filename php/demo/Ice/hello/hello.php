@@ -24,7 +24,11 @@ if(isset($_POST["submitted"]))
     echo "<P>Status:<BR><B>\n";
     try
     {
-        $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
+	//
+	// We assume SSL is not configured.
+	//
+	//$p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
+        $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
 
         if($_POST["mode"] == "oneway")
         {

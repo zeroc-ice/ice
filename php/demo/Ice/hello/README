@@ -13,10 +13,6 @@ directory:
 
 #! /opt/php5/bin/php
 
-Note that if you haven't installed the IceSSL shared library in order
-to use it from the Ice extension, you will also need to modify the
-script to remove the SSL endpoint from the stringified proxy.
-
 Next, the PHP configuration must be modified to load the Slice
 definitions required by this example. In php.ini, set this directive:
 

@@ -193,9 +193,27 @@ To run the PHP demos, you need PHP 5.0.3. It can be downloaded from:
 
 http://www.php.net/downloads.php
 
+The Ice extension for PHP is provided as bin\php_ice.dll. In order to
+use the extension, you must first configure PHP to load it. PHP looks
+for extensions in the directory C:\php5 by default, so you can copy
+php_ice.dll to this directory and then modify PHP's configuration
+file (php.ini) to load the extension using the following directive:
+
+extension = php_ice.dll
+
+If you want to use a different extension directory, you must add
+another directive as shown below:
+
+extension_dir = C:\MyApp\PHPExtensions
+extension = php_ice.dll
+
 The example in demophp/Ice/hello demonstrates the use of the Ice
-extension for PHP in a dynamic Web page. The example in
-demophp/Ice/value is used with PHP's command line interpreter. Both
+extension for PHP in a dynamic Web page, whereas the example in
+demophp/Ice/value requires PHP's command line interpreter. Both
 examples require that an Ice server be available; a matching server
 from any of the other language mappings can be used. A README file is
 provided in each of the example directories.
+
+Note that you must modify the php.ini files in each demo directory to
+match your PHP installation and ensure that the Ice extension is
+loaded properly.
