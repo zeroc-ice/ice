@@ -279,11 +279,12 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	return r;
     }
 
-    public override Test.StringSS[] opStringSSS(Test.StringSS[] p1, Test.StringSS[] p2, out Test.StringSS[] p3, Ice.Current current)
+    public override Test.StringSS[] opStringSSS(Test.StringSS[] p1, Test.StringSS[] p2, out Test.StringSS[] p3,
+                                                Ice.Current current)
     {
         p3 = new Test.StringSS[p1.Length + p2.Length];
         p1.CopyTo(p3, 0);
-        p2.CopyTo(p3, p3.Length);
+        p2.CopyTo(p3, p1.Length);
 	
         Test.StringSS[] r = new Test.StringSS[p2.Length];
         for(int i = 0; i < p2.Length; i++)

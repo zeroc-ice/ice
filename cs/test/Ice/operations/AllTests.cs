@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-
 using System;
 
 public class AllTests
@@ -51,8 +50,8 @@ public class AllTests
 	{
 	    Console.Out.Write("testing twoway operations with AMI... ");
 	    Console.Out.Flush();
-	    //TwowaysAMI.twowaysAMI(cl);
-	    //TwowaysAMI.twowaysAMI(derivedProxy);
+	    TwowaysAMI.twowaysAMI(cl);
+	    TwowaysAMI.twowaysAMI(derivedProxy);
 	    Console.Out.WriteLine("ok");
 	}
 	

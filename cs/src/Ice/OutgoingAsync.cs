@@ -12,6 +12,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Diagnostics;
+    using System.Threading;
 
     public abstract class OutgoingAsync
     {
@@ -19,215 +20,218 @@ namespace IceInternal
 	{
 	}
 	
-	public abstract void ice_exception(Ice.LocalException ex);
+	public abstract void ice_exception(Ice.Exception ex);
 	
 	public void __finished(BasicStream istr)
 	{
-	    System.Threading.Monitor.Enter(this);
-
-	    DispatchStatus status;
-	    
-	    try
+	    lock(_monitor)
 	    {
-		__is.swap(istr);
+		DispatchStatus status;
 		
-		status = (DispatchStatus)__is.readByte();
-		
-		switch(status)
+		try
 		{
-		    case DispatchStatus.DispatchOK:
-		    case DispatchStatus.DispatchUserException:
-		    {
-			__is.startReadEncaps();
-			break;
-		    }
+		    __is.swap(istr);
 		    
-		    case DispatchStatus.DispatchObjectNotExist:
-		    case DispatchStatus.DispatchFacetNotExist:
-		    case DispatchStatus.DispatchOperationNotExist:
-		    {
-                        Ice.Identity id = new Ice.Identity();
-                        id.__read(__is);
-
-                        //
-                        // For compatibility with the old FacetPath.
-                        //
-                        string[] facetPath = __is.readStringSeq();
-                        string facet;
-                        if(facetPath.Length > 0)
-                        {
-                            if(facetPath.Length > 1)
-                            {
-                                throw new Ice.MarshalException();
-                            }
-                            facet = facetPath[0];
-                        }
-                        else
-                        {
-                            facet = "";
-                        }
-
-                        string operation = __is.readString();
-
-                        Ice.RequestFailedException ex = null;
-                        switch(status)
-                        {
-                            case DispatchStatus.DispatchObjectNotExist:
-                            {
-                                ex = new Ice.ObjectNotExistException();
-                                break;
-                            }
-                            
-                            case DispatchStatus.DispatchFacetNotExist:
-                            {
-                                ex = new Ice.FacetNotExistException();
-                                break;
-                            }
-                            
-                            case DispatchStatus.DispatchOperationNotExist:
-                            {
-                                ex = new Ice.OperationNotExistException();
-                                break;
-                            }
-
-                            default:
-                            {
-                                Debug.Assert(false);
-                                break;
-                            }
-                        }
-
-			ex.id = id;
-			ex.facet = facet;;
-			ex.operation = operation;
-			throw ex;
-		    }
+		    status = (DispatchStatus)__is.readByte();
 		    
-		    case DispatchStatus.DispatchUnknownException:
-		    case DispatchStatus.DispatchUnknownLocalException:
-		    case DispatchStatus.DispatchUnknownUserException:
+		    switch(status)
 		    {
-		        string unknown = __is.readString();
-
-			Ice.UnknownException ex = null;
-		        switch(status)
+			case DispatchStatus.DispatchOK:
+			case DispatchStatus.DispatchUserException:
 			{
-			    case DispatchStatus.DispatchUnknownException:
-			    {
-			        ex = new Ice.UnknownException();
-				break;
-			    }
-			    case DispatchStatus.DispatchUnknownLocalException:
-			    {
-			        ex = new Ice.UnknownLocalException();
-				break;
-			    }
-			    case DispatchStatus.DispatchUnknownUserException:
-			    {
-			        ex = new Ice.UnknownUserException();
-				break;
-			    }
-			    default:
-			    {
-			        Debug.Assert(false);
-				break;
-			    }
+			    __is.startReadEncaps();
+			    break;
 			}
-			ex.unknown = unknown;
-			throw ex;
-		    }
+			
+			case DispatchStatus.DispatchObjectNotExist:
+			case DispatchStatus.DispatchFacetNotExist:
+			case DispatchStatus.DispatchOperationNotExist:
+			{
+			    Ice.Identity id = new Ice.Identity();
+			    id.__read(__is);
 
-		    default:
-		    {
-			throw new Ice.UnknownReplyStatusException();
+			    //
+			    // For compatibility with the old FacetPath.
+			    //
+			    string[] facetPath = __is.readStringSeq();
+			    string facet;
+			    if(facetPath.Length > 0)
+			    {
+				if(facetPath.Length > 1)
+				{
+				    throw new Ice.MarshalException();
+				}
+				facet = facetPath[0];
+			    }
+			    else
+			    {
+				facet = "";
+			    }
+
+			    string operation = __is.readString();
+
+			    Ice.RequestFailedException ex = null;
+			    switch(status)
+			    {
+				case DispatchStatus.DispatchObjectNotExist:
+				{
+				    ex = new Ice.ObjectNotExistException();
+				    break;
+				}
+				
+				case DispatchStatus.DispatchFacetNotExist:
+				{
+				    ex = new Ice.FacetNotExistException();
+				    break;
+				}
+				
+				case DispatchStatus.DispatchOperationNotExist:
+				{
+				    ex = new Ice.OperationNotExistException();
+				    break;
+				}
+
+				default:
+				{
+				    Debug.Assert(false);
+				    break;
+				}
+			    }
+
+			    ex.id = id;
+			    ex.facet = facet;;
+			    ex.operation = operation;
+			    throw ex;
+			}
+			
+			case DispatchStatus.DispatchUnknownException:
+			case DispatchStatus.DispatchUnknownLocalException:
+			case DispatchStatus.DispatchUnknownUserException:
+			{
+			    string unknown = __is.readString();
+
+			    Ice.UnknownException ex = null;
+			    switch(status)
+			    {
+				case DispatchStatus.DispatchUnknownException:
+				{
+				    ex = new Ice.UnknownException();
+				    break;
+				}
+				case DispatchStatus.DispatchUnknownLocalException:
+				{
+				    ex = new Ice.UnknownLocalException();
+				    break;
+				}
+				case DispatchStatus.DispatchUnknownUserException:
+				{
+				    ex = new Ice.UnknownUserException();
+				    break;
+				}
+				default:
+				{
+				    Debug.Assert(false);
+				    break;
+				}
+			    }
+			    ex.unknown = unknown;
+			    throw ex;
+			}
+
+			default:
+			{
+			    throw new Ice.UnknownReplyStatusException();
+			}
 		    }
 		}
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		__finished(ex);
-		return;
-	    }
+		catch(Ice.LocalException ex)
+		{
+		    __finished(ex);
+		    return;
+		}
+		    
+		Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
 		
-	    Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
-	    
-	    try
-	    {
-		__response(status == DispatchStatus.DispatchOK);
-	    }
-	    catch(System.Exception ex)
-	    {
-		warning(ex);
-	    }
-	    finally
-	    {
-		cleanup();
+		try
+		{
+		    __response(status == DispatchStatus.DispatchOK);
+		}
+		catch(System.Exception ex)
+		{
+		    warning(ex);
+		}
+		finally
+		{
+		    cleanup();
+		}
 	    }
 	}
 	
 	public void __finished(Ice.LocalException exc)
 	{
-	    System.Threading.Monitor.Enter(this);
+	    lock(_monitor)
+	    {
 
-	    if(_reference != null)
-	    {
-		if(_reference.locatorInfo != null)
+		if(_reference != null)
 		{
-		    _reference.locatorInfo.clearObjectCache(_reference);
-		}
-		
-		bool doRetry = false;
-		
-		//
-		// A CloseConnectionException indicates graceful
-		// server shutdown, and is therefore always repeatable
-		// without violating "at-most-once". That's because by
-		// sending a close connection message, the server
-		// guarantees that all outstanding requests can safely
-		// be repeated. Otherwise, we can also retry if the
-		// operation mode is Nonmutating or Idempotent.
-		//
-		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
-		   exc is Ice.CloseConnectionException)
-		{
-		    try
+		    if(_reference.locatorInfo != null)
 		    {
-			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
-			if(proxyFactory != null)
-			{
-			    _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
-			}
-			else
-			{
-			    throw exc; // The communicator is already destroyed, so we cannot retry.
-			}
-			
-			doRetry = true;
+			_reference.locatorInfo.clearObjectCache(_reference);
 		    }
-		    catch(Ice.LocalException)
+		    
+		    bool doRetry = false;
+		    
+		    //
+		    // A CloseConnectionException indicates graceful
+		    // server shutdown, and is therefore always repeatable
+		    // without violating "at-most-once". That's because by
+		    // sending a close connection message, the server
+		    // guarantees that all outstanding requests can safely
+		    // be repeated. Otherwise, we can also retry if the
+		    // operation mode is Nonmutating or Idempotent.
+		    //
+		    if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
+		       exc is Ice.CloseConnectionException)
 		    {
+			try
+			{
+			    ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			    if(proxyFactory != null)
+			    {
+				_cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
+			    }
+			    else
+			    {
+				throw exc; // The communicator is already destroyed, so we cannot retry.
+			    }
+			    
+			    doRetry = true;
+			}
+			catch(Ice.LocalException)
+			{
+			}
+		    }
+		    
+		    if(doRetry)
+		    {
+			_connection = null;
+			__send();
+			return;
 		    }
 		}
 		
-		if(doRetry)
+		try
 		{
-		    _connection = null;
-		    __send();
-		    return;
+		    ice_exception(exc);
 		}
-	    }
-	    
-	    try
-	    {
-		ice_exception(exc);
-	    }
-	    catch(System.Exception ex)
-	    {
-		warning(ex);
-	    }
-	    finally
-	    {
-		cleanup();
+		catch(System.Exception ex)
+		{
+		    warning(ex);
+		}
+		finally
+		{
+		    cleanup();
+		}
 	    }
 	}
 	
@@ -249,151 +253,148 @@ namespace IceInternal
 
 	protected void __prepare(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode, Ice.Context context)
 	{
-	    System.Threading.Monitor.Enter(this);
-
-	    try
+	    lock(_monitor)
 	    {
-		//
-		// We must first wait for other requests to finish.
-		//
-		while(_reference != null)
+
+		try
 		{
-		    try
+		    //
+		    // We must first wait for other requests to finish.
+		    //
+		    while(_reference != null)
 		    {
-			System.Threading.Monitor.Wait(this);
+			Monitor.Wait(_monitor);
 		    }
-		    catch(System.Threading.ThreadInterruptedException)
+		    
+		    _reference = ((Ice.ObjectPrxHelperBase)prx).__reference();;
+		    Debug.Assert(_connection == null);
+		    _connection = _reference.getConnection();
+		    _cnt = 0;
+		    _mode = mode;
+		    Debug.Assert(__is == null);
+		    __is = new BasicStream(_reference.instance);
+		    Debug.Assert(__os == null);
+		    __os = new BasicStream(_reference.instance);
+		    
+		    //
+		    // If we are using a router, then add the proxy to the router info object.
+		    //
+		    if(_reference.routerInfo != null)
 		    {
+			_reference.routerInfo.addProxy(prx);
 		    }
-		}
-		
-		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();;
-		Debug.Assert(_connection == null);
-		_connection = _reference.getConnection();
-		_cnt = 0;
-		_mode = mode;
-		Debug.Assert(__is == null);
-		__is = new BasicStream(_reference.instance);
-		Debug.Assert(__os == null);
-		__os = new BasicStream(_reference.instance);
-		
-                //
-                // If we are using a router, then add the proxy to the router info object.
-                //
-                if(_reference.routerInfo != null)
-                {
-                    _reference.routerInfo.addProxy(prx);
-                }
 
-		_connection.prepareRequest(__os);
-		
-		_reference.identity.__write(__os);
+		    _connection.prepareRequest(__os);
+		    
+		    _reference.identity.__write(__os);
 
-                //
-                // For compatibility with the old FacetPath.
-                //
-                if(_reference.facet == null || _reference.facet.Length == 0)
-                {
-                    __os.writeStringSeq(null);
-                }
-                else
-                {
-                    string[] facetPath = { _reference.facet };
-                    __os.writeStringSeq(facetPath);
-                }
-
-		__os.writeString(operation);
-
-		__os.writeByte((byte)mode);
-
-		if(context == null)
-		{
-		    __os.writeSize(0);
-		}
-		else
-		{
-		    int sz = context.Count;
-		    __os.writeSize(sz);
-		    if(sz > 0)
+		    //
+		    // For compatibility with the old FacetPath.
+		    //
+		    if(_reference.facet == null || _reference.facet.Length == 0)
 		    {
-			foreach(DictionaryEntry e in context)
+			__os.writeStringSeq(null);
+		    }
+		    else
+		    {
+			string[] facetPath = { _reference.facet };
+			__os.writeStringSeq(facetPath);
+		    }
+
+		    __os.writeString(operation);
+
+		    __os.writeByte((byte)mode);
+
+		    if(context == null)
+		    {
+			__os.writeSize(0);
+		    }
+		    else
+		    {
+			int sz = context.Count;
+			__os.writeSize(sz);
+			if(sz > 0)
 			{
-			    __os.writeString((string)e.Key);
-			    __os.writeString((string)e.Value);
+			    foreach(DictionaryEntry e in context)
+			    {
+				__os.writeString((string)e.Key);
+				__os.writeString((string)e.Value);
+			    }
 			}
 		    }
+		    
+		    __os.startWriteEncaps();
 		}
-		
-		__os.startWriteEncaps();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		cleanup();
-		throw ex;
+		catch(Ice.LocalException ex)
+		{
+		    cleanup();
+		    throw ex;
+		}
 	    }
 	}
 	
 	protected void __send()
 	{
-	    System.Threading.Monitor.Wait(this);
-
-	    try
+	    lock(_monitor)
 	    {
-		while(true)
+		try
 		{
-		    if(_connection == null)
+		    while(true)
 		    {
-			_connection = _reference.getConnection();
-		    }
-		    
-		    _timeoutMutex.WaitOne();
-		    if(_connection.timeout() >= 0)
-		    {
-			_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
-		    }
-		    else
-		    {
-			_absoluteTimeoutMillis = 0;
-		    }
-		    _timeoutMutex.ReleaseMutex();
-		    
-		    try
-		    {
-			_connection.sendAsyncRequest(__os, this);
-			
-			//
-			// Don't do anything after sendAsyncRequest() returned
-			// without an exception.  I such case, there will be
-			// callbacks, i.e., calls to the __finished()
-			// functions. Since there is no mutex protection, we
-			// cannot modify state here and in such callbacks.
-			//
-			return;
-		    }
-		    catch(Ice.LocalException ex)
-		    {
-			if(_reference.locatorInfo != null)
+			if(_connection == null)
 			{
-			    _reference.locatorInfo.clearObjectCache(_reference);
+			    _connection = _reference.getConnection();
 			}
 			
-			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
-			if(proxyFactory != null)
+			_timeoutMutex.WaitOne();
+			if(_connection.timeout() >= 0)
 			{
-			    _cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
+			    _absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
 			}
 			else
 			{
-			    throw ex; // The communicator is already destroyed, so we cannot retry.
+			    _absoluteTimeoutMillis = 0;
 			}
+			_timeoutMutex.ReleaseMutex();
+			
+			try
+			{
+			    _connection.sendAsyncRequest(__os, this);
+			    
+			    //
+			    // Don't do anything after sendAsyncRequest() returned
+			    // without an exception.  I such case, there will be
+			    // callbacks, i.e., calls to the __finished()
+			    // functions. Since there is no mutex protection, we
+			    // cannot modify state here and in such callbacks.
+			    //
+			    return;
+			}
+			catch(Ice.LocalException ex)
+			{
+			    if(_reference.locatorInfo != null)
+			    {
+				_reference.locatorInfo.clearObjectCache(_reference);
+			    }
+			    
+			    ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			    if(proxyFactory != null)
+			    {
+				_cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
+			    }
+			    else
+			    {
+				throw ex; // The communicator is already destroyed, so we cannot retry.
+			    }
+			}
+			
+			_connection = null;
 		    }
-		    
-		    _connection = null;
 		}
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		__finished(ex);
+		catch(Ice.LocalException ex)
+		{
+		    __finished(ex);
+		}
 	    }
 	}
 
@@ -430,8 +431,7 @@ namespace IceInternal
 		__os = null;
 	    }
 
-	    System.Threading.Monitor.Pulse(this);
-	    System.Threading.Monitor.Exit(this);
+	    Monitor.Pulse(_monitor);
 	}
 	
 	protected BasicStream __is;
@@ -448,7 +448,9 @@ namespace IceInternal
 	// This is true for Java -- for C#, we sadly can't have volatile longs :-(
 	//
 	private long _absoluteTimeoutMillis;
-	System.Threading.Mutex _timeoutMutex = new System.Threading.Mutex();
+	Mutex _timeoutMutex = new Mutex();
+
+        object _monitor = new object();
     }
 
 }

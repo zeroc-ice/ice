@@ -13,7 +13,7 @@ namespace Ice
     public abstract class AMI_Object_ice_invoke : IceInternal.OutgoingAsync
     {
 	public abstract void ice_response(bool ok, byte[] outParams);
-	public abstract override void ice_exception(Ice.LocalException ex);
+	public abstract override void ice_exception(Ice.Exception ex);
 
 	public void __invoke(Ice.ObjectPrx prx, string operation, OperationMode mode,
 		             byte[] inParams, Ice.Context context)

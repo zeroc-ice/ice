@@ -94,6 +94,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "TwowaysAMI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "generated\Test.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
