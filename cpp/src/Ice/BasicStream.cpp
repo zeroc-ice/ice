@@ -1097,8 +1097,15 @@ IceInternal::BasicStream::read(string& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    v.assign(reinterpret_cast<const char*>(&(*i)), len);
-    i += len;
+    if(len > 0)
+    {
+       v.assign(reinterpret_cast<const char*>(&(*i)), len);
+       i += len;
+    }
+    else
+    {
+       v.clear();
+    }
 }
 
 void
