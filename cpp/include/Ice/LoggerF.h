@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::Logger> Logger_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif

@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::Communicator> Communicator_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif

@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::ObjectAdapter> ObjectAdapter_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif

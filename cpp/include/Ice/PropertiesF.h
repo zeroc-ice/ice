@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::Properties> Properties_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif

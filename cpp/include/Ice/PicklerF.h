@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::Pickler> Pickler_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif

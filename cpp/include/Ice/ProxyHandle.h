@@ -126,7 +126,7 @@ public:
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
     {
 	T* p;
-	::__Ice::checkedCast(r.ptr_, p);
+	::__Ice::uncheckedCast(r.ptr_, p);
 	return ProxyHandle(p);
     }
 

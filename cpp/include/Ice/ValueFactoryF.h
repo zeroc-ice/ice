@@ -37,9 +37,4 @@ typedef ::__Ice::Handle< ::Ice::ValueFactory> ValueFactory_ptr;
 
 }
 
-namespace Ice
-{
-
-}
-
 #endif
