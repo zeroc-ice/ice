@@ -74,7 +74,10 @@
 // STLport library. This is done by setting _STLP_DEBUG before any
 // STLport header files are included.
 //
-#if !defined(NDEBUG) && !defined(_STLP_DEBUG)
+// TODO: figure out why IceUtil does not compile with _SLTP_DEBUG using
+// the Intel compiler.
+//
+#if !defined(NDEBUG) && !defined(_STLP_DEBUG) && !defined(__INTEL_COMPILER)
 #   define _STLP_DEBUG
 #endif
 

@@ -19,51 +19,80 @@
 USE_SPARC_ASM           = irrelevant
 MACHINE                 = $(shell uname -m)
 
-CXX	                = c++
-
-ifeq ($(MACHINE),sparc64)
 #
-# We are an ultra, at least, and so have the atomic instructions
+# Default compiler is c++ (aka g++).
 #
-USE_SPARC_ASM           = yes
-CXXARCHFLAGS            := -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+ifeq ($(CXX),)
+   CXX	                := c++
 endif
 
-ifeq ($(MACHINE),sparc)
-#
-# We are a sun4m or sun4c
-# On sun4m, there is a bug in some CPU/kernel/gcc configurations which
-# prevent us from using '-mcpu=v8'
-#
-USE_SPARC_ASM           = no
-CXXARCHFLAGS            := -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+ifeq ($(CXX),g++)
+   CXX	                := c++
 endif
 
-ifeq ($(MACHINE),x86_64)
+ifeq ($(CXX),c++)
 
-    ifneq ($(LP64),yes)
-        CXXARCHFLAGS    := -m32
-    endif    
+   ifeq ($(MACHINE),sparc64)
+      #
+      # We are an ultra, at least, and so have the atomic instructions
+      #
+      USE_SPARC_ASM           = yes
+      CXXARCHFLAGS            := -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+   endif
 
-    lp64suffix          := 64
+   ifeq ($(MACHINE),sparc)
+      #
+      # We are a sun4m or sun4c
+      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+      # prevent us from using '-mcpu=v8'
+      #
+      USE_SPARC_ASM           = no
+      CXXARCHFLAGS            := -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+   endif
+
+   ifeq ($(MACHINE),x86_64)
+
+      ifneq ($(LP64),yes)
+         CXXARCHFLAGS    := -m32
+      endif    
+      lp64suffix          := 64
+   endif
+
+   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+   else
+      CXXFLAGS		:= -g $(CXXFLAGS)
+   endif
+
+   ifeq ($(USE_SPARC_ASM),yes)
+      CFLAGS                  := -O3 -mcpu=ultrasparc -pipe -DNDEBUG -fPIC -DUSE_SPARC_ASM
+   endif
+   ifeq ($(USE_SPARC_ASM),no)
+      CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
+   endif
+
+   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
 endif
 
-CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+ifeq ($(CXX),icc)
 
-ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
-else
-     CXXFLAGS		:= -g $(CXXFLAGS)
-endif
+   #
+   # -no-gcc: we use __GNUC macros to work-around GCC bugs, and we don't want to 
+   # automatically enable these work arounds.
+   #
 
-ifeq ($(USE_SPARC_ASM),yes)
-CFLAGS                  := -O3 -mcpu=ultrasparc -pipe -DNDEBUG -fPIC -DUSE_SPARC_ASM
-endif
-ifeq ($(USE_SPARC_ASM),no)
-CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
-endif
+   CXXFLAGS		= -fPIC -no-gcc -D_REENTRANT    
 
-mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+   else
+      CXXFLAGS		:= -g $(CXXFLAGS)
+   endif
+
+   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+endif
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread 
 LIBS			= -lIce $(BASELIBS)
