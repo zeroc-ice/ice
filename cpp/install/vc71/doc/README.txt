@@ -33,15 +33,15 @@ libraries, and executables.
 
 - Select "Include files"
 
-- Add C:\Ice-<version>\include
+- Add <Ice installation root directory>\include
 
 - Select "Library files"
 
-- Add C:\Ice-<version>\lib
+- Add <Ice installation root directory>\lib
 
 - Select "Executable files"
 
-- Add C:\Ice-<version>\bin
+- Add <Ice installation root directory>\bin
 
 
 Building and running the C++ demos
