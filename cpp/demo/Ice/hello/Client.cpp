@@ -28,15 +28,18 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
     }
 
     HelloPrx timeout = HelloPrx::uncheckedCast(hello->_timeout(2000));
-    HelloPrx secure = HelloPrx::uncheckedCast(hello->_secure());
     HelloPrx oneway = HelloPrx::uncheckedCast(hello->_oneway());
+    HelloPrx batchOneway = HelloPrx::uncheckedCast(hello->_batchOneway());
     HelloPrx datagram = HelloPrx::uncheckedCast(hello->_datagram());
+    HelloPrx batchDatagram = HelloPrx::uncheckedCast(hello->_batchDatagram());
 
     cout << "h: hello" << endl;
     cout << "t: hello w/ 2s timeout" << endl;
     cout << "o: hello as oneway" << endl;
-    cout << "e: hello w/ secure connection" << endl;
+    cout << "O: hello as batch oneway" << endl;
     cout << "d: hello as datagram" << endl;
+    cout << "D: hello as batch datagram" << endl;
+    cout << "f: flush batch request" << endl;
     cout << "s: shutdown" << endl;
     cout << "x: exit" << endl;
 
@@ -57,13 +60,22 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	{
 	    oneway->hello();
 	}
-	else if (c == 'e')
+	else if (c == 'O')
 	{
-	    secure->hello();
+	    batchOneway->hello();
 	}
 	else if (c == 'd')
 	{
 	    datagram->hello();
+	}
+	else if (c == 'D')
+	{
+	    batchDatagram->hello();
+	}
+	else if (c == 'f')
+	{
+	    batchOneway->_flush();
+	    batchDatagram->_flush();
 	}
   	else if (c == 's')
 	{

@@ -24,22 +24,12 @@ icePack = os.path.normpath(toplevel + "/bin/icepack")
 icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
 print "starting icepack...",
-icePackPipe = os.popen(icePack + ' --Ice.PrintProcessId --Ice.PrintAdapterReady --nowarn' + \
+icePackPipe = os.popen(icePack + TestUtil.serverOptions + ' --nowarn' + \
                        r' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 5000"' + \
                        r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 5000"')
-output = icePackPipe.readline().strip()
-if not output:
-    print "failed!"
-    sys.exit(0)
-TestUtil.serverPids.append(int(output))
-output = icePackPipe.readline().strip()
-if not output:
-    print "failed!"
-    sys.exit(0)
-output = icePackPipe.readline().strip()
-if not output:
-    print "failed!"
-    sys.exit(0)
+TestUtil.getServerPid(icePackPipe)
+TestUtil.getAdapterReady(icePackPipe)
+TestUtil.getAdapterReady(icePackPipe)
 print "ok"
 
 print "registering server with icepack...",

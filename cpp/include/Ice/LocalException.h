@@ -431,6 +431,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API AbortBatchRequestException : public ProtocolException
+{
+public:    
+
+    AbortBatchRequestException(const char*, int);
+    AbortBatchRequestException(const AbortBatchRequestException&);
+    AbortBatchRequestException& operator=(const AbortBatchRequestException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 }
 
 #endif

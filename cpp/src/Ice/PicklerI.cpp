@@ -11,6 +11,7 @@
 #include <Ice/PicklerI.h>
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
+#include <Ice/Protocol.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,8 +35,8 @@ ObjectPtr
 Ice::PicklerI::unpickle(std::istream& in)
 {
     Stream s(_instance);
-    s.b.resize(5);
-    in.read(s.b.begin(), 5);
+    s.b.resize(encapsHeaderSize);
+    in.read(s.b.begin(), encapsHeaderSize);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -53,8 +54,8 @@ Ice::PicklerI::unpickle(std::istream& in)
 
     // Don't use s.b.resize() here, otherwise no size sanity checks
     // will be done
-    s.resize(5 + sz);
-    in.read(s.b.begin() + 5, sz);
+    s.resize(encapsHeaderSize + sz);
+    in.read(s.b.begin() + encapsHeaderSize, sz);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);

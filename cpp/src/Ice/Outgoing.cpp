@@ -42,19 +42,41 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& reference) :
+IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref) :
     _emitter(emitter),
-    _reference(reference),
-    _state(StateInProgress),
-    _is(reference->instance),
-    _os(reference->instance)
+    _reference(ref),
+    _state(StateUnsent),
+    _is(ref->instance),
+    _os(ref->instance)
 {
-    _emitter->prepareRequest(this);
+    switch (_reference->mode)
+    {
+	case Reference::ModeTwoway:
+	case Reference::ModeOneway:
+	case Reference::ModeDatagram:
+	{
+	    _emitter->prepareRequest(this);
+	    break;
+	}
+
+	case Reference::ModeBatchOneway:
+	case Reference::ModeBatchDatagram:
+	{
+	    _emitter->prepareBatchRequest(this);
+	    break;
+	}
+    }
+
     _os.write(_reference->identity);
 }
 
 IceInternal::Outgoing::~Outgoing()
 {
+    if (_state == StateUnsent &&
+	(_reference->mode == Reference::ModeBatchOneway || _reference->mode == Reference::ModeBatchDatagram))
+    {
+	_emitter->abortBatchRequest();
+    }
 }
 
 bool
@@ -70,6 +92,7 @@ IceInternal::Outgoing::invoke()
 		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 		
 		_emitter->sendRequest(this, false);
+		_state = StateInProgress;
 		
 		Int timeout = _emitter->timeout();
 		while (_state == StateInProgress)
@@ -149,6 +172,15 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeDatagram:
 	{
 	    _emitter->sendRequest(this, true);
+	    _state = StateInProgress;
+	    break;
+	}
+
+	case Reference::ModeBatchOneway:
+	case Reference::ModeBatchDatagram:
+	{
+	    _state = StateInProgress; // Must be set to StateInProgress before finishBatchRequest()
+	    _emitter->finishBatchRequest(this);
 	    break;
 	}
     }
@@ -160,6 +192,7 @@ void
 IceInternal::Outgoing::finished(Stream& is)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    assert(_state != StateUnsent);
     if (_state == StateInProgress)
     {
 	_is.swap(is);
@@ -214,6 +247,7 @@ void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    assert(_state != StateUnsent);
     if (_state == StateInProgress)
     {
 	_state = StateLocalException;

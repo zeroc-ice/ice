@@ -15,7 +15,6 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
-#include <stack>
 #include <set>
 
 namespace IceInternal
@@ -95,14 +94,17 @@ public:
 private:
 
     InstancePtr _instance;
-    std::stack<int> _encapsStartStack;
+    std::vector<int> _encapsStartStack;
 
     class CmpPosPos
     {
     public:
 	CmpPosPos(const Container&);
+	CmpPosPos(const CmpPosPos&);
+	CmpPosPos& operator=(const CmpPosPos&);
 	bool operator()(int, int) const;
     private:
+	CmpPosPos();
 	const Container& _cont;
     };
 
@@ -110,9 +112,12 @@ private:
     {
     public:
 	CmpPosString(const Container&);
+	CmpPosString(const CmpPosString&);
+	CmpPosString& operator=(const CmpPosString&);
 	bool operator()(int, const std::string&) const;
 	bool operator()(const std::string&, int) const;
     private:
+	CmpPosString();
 	const Container& _cont;
     };
 

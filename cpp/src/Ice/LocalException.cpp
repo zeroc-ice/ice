@@ -1224,3 +1224,37 @@ Ice::CloseConnectionException::raise() const
     throw *this;
 }
 
+Ice::AbortBatchRequestException::AbortBatchRequestException(const char* file, int line) :
+    ProtocolException(file, line)
+{
+}
+
+Ice::AbortBatchRequestException::AbortBatchRequestException(const AbortBatchRequestException& ex) :
+    ProtocolException(ex)
+{
+}
+
+AbortBatchRequestException&
+Ice::AbortBatchRequestException::operator=(const AbortBatchRequestException& ex)
+{
+    ProtocolException::operator=(ex);
+    return *this;
+}
+
+string
+Ice::AbortBatchRequestException::toString() const
+{
+    return debugInfo() + "protocol error: batch request was aborted";
+}
+
+LocalException*
+Ice::AbortBatchRequestException::clone() const
+{
+    return new AbortBatchRequestException(*this);
+}
+
+void
+Ice::AbortBatchRequestException::raise() const
+{
+    throw *this;
+}

@@ -21,11 +21,12 @@ using namespace IceInternal;
 void IceInternal::incRef(Reference* p) { p->__incRef(); }
 void IceInternal::decRef(Reference* p) { p->__decRef(); }
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident,
+IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, Mode md, bool sec,
 				  const vector<EndpointPtr>& origEndpts, const vector<EndpointPtr>& endpts) :
     instance(inst),
     identity(ident),
-    mode(ModeTwoway),
+    mode(md),
+    secure(sec),
     origEndpoints(origEndpts),
     endpoints(endpts)
 {
@@ -33,7 +34,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident,
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     instance(inst),
-    mode(ModeTwoway)
+    mode(ModeTwoway),
+    secure(false)
 {
     const string delim = " \t\n\r";
 
@@ -101,15 +103,27 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 		break;
 	    }
 
-	    case 's':
+	    case 'O':
 	    {
-		const_cast<Mode&>(mode) = ModeSecure;
+		const_cast<Mode&>(mode) = ModeBatchOneway;
 		break;
 	    }
 
 	    case 'd':
 	    {
 		const_cast<Mode&>(mode) = ModeDatagram;
+		break;
+	    }
+
+	    case 'D':
+	    {
+		const_cast<Mode&>(mode) = ModeBatchDatagram;
+		break;
+	    }
+
+	    case 's':
+	    {
+		const_cast<bool&>(secure) = true;
 		break;
 	    }
 
@@ -168,7 +182,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 
 IceInternal::Reference::Reference(Stream* s) :
     instance(s->instance()),
-    mode(ModeTwoway)
+    mode(ModeTwoway),
+    secure(false)
 {
     s->read(const_cast<string&>(identity));
 
@@ -260,7 +275,7 @@ IceInternal::Reference::changeIdentity(const string& newIdentity) const
     }
     else
     {
-	return new Reference(instance, newIdentity, origEndpoints, endpoints);
+	return new Reference(instance, newIdentity, mode, secure, origEndpoints, endpoints);
     }
 }
 
@@ -281,7 +296,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
 	newEndpoints.push_back((*p)->timeout(timeout));
     }
     
-    ReferencePtr ref(new Reference(instance, identity, newOrigEndpoints, newEndpoints));
+    ReferencePtr ref(new Reference(instance, identity, mode, secure, newOrigEndpoints, newEndpoints));
     
     if (*ref.get() == *this)
     {
@@ -292,31 +307,41 @@ IceInternal::Reference::changeTimeout(int timeout) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeMode(Mode m) const
+IceInternal::Reference::changeMode(Mode newMode) const
 {
-    if (m == mode)
+    if (newMode == mode)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
     else
     {
-	ReferencePtr ref(new Reference(instance, identity, origEndpoints, endpoints));
-	const_cast<Mode&>(ref->mode) = m;
-	return ref;
+	return new Reference(instance, identity, newMode, secure, origEndpoints, endpoints);
     }
 }
 
 ReferencePtr
-IceInternal::Reference::changeEndpoints(const std::vector<EndpointPtr>& endpts) const
+IceInternal::Reference::changeSecure(bool newSecure) const
 {
-    if (endpts == endpoints)
+    if (newSecure == secure)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
     }
     else
     {
-	ReferencePtr ref(new Reference(instance, identity, origEndpoints, endpts));
-	return ref;
+	return new Reference(instance, identity, mode, newSecure, origEndpoints, endpoints);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeEndpoints(const std::vector<EndpointPtr>& newEndpoints) const
+{
+    if (newEndpoints == endpoints)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return new Reference(instance, identity, mode, secure, origEndpoints, newEndpoints);
     }
 }
 
@@ -340,6 +365,11 @@ IceInternal::Reference::operator!=(const Reference& r) const
     }
 
     if (mode != r.mode)
+    {
+	return true;
+    }
+
+    if (secure != r.secure)
     {
 	return true;
     }
@@ -379,6 +409,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return true;
     }
     else if (mode != r.mode)
+    {
+	return false;
+    }
+    
+    if (!secure && r.secure)
+    {
+	return true;
+    }
+    else if (secure != r.secure)
     {
 	return false;
     }

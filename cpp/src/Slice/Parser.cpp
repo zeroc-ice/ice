@@ -1796,6 +1796,7 @@ void
 Slice::Unit::destroy()
 {
     _builtins.clear();
+    _contentMap.clear();
     Container::destroy();
 }
 

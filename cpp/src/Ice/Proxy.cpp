@@ -133,6 +133,13 @@ IceProxy::Ice::Object::_ping()
     }
 }
 
+void
+IceProxy::Ice::Object::_flush()
+{
+    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+    __del->_flush();
+}
+
 bool
 IceProxy::Ice::Object::operator==(const Object& r) const
 {
@@ -205,9 +212,9 @@ IceProxy::Ice::Object::_oneway() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_secure() const
+IceProxy::Ice::Object::_batchOneway() const
 {
-    ReferencePtr ref = _reference->changeMode(Reference::ModeSecure);
+    ReferencePtr ref = _reference->changeMode(Reference::ModeBatchOneway);
     if (ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -224,6 +231,38 @@ ObjectPrx
 IceProxy::Ice::Object::_datagram() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeDatagram);
+    if (ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::_batchDatagram() const
+{
+    ReferencePtr ref = _reference->changeMode(Reference::ModeBatchDatagram);
+    if (ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::_secure(bool b) const
+{
+    ReferencePtr ref = _reference->changeSecure(b);
     if (ref == _reference)
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
@@ -409,6 +448,12 @@ IceProxy::Ice::Object::setup(const ReferencePtr& reference)
     _reference = reference;
 }
 
+void
+IceDelegate::Ice::Object::_flush()
+{
+    // Do nothing
+}
+
 IceDelegate::Ice::Object::Object()
 {
 }
@@ -451,6 +496,12 @@ IceDelegateM::Ice::Object::_ping()
     }
 }
 
+void
+IceDelegateM::Ice::Object::_flush()
+{
+    __emitter()->flushBatchRequest();
+}
+
 IceDelegateM::Ice::Object::Object()
 {
 }
@@ -484,6 +535,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
+	case Reference::ModeBatchOneway:
 	{
 	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints), 
 			   not1(constMemFun(&Endpoint::regular)));
@@ -491,18 +543,18 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 	}
 	
 	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
 	{
 	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints),
 			   not1(constMemFun(&Endpoint::datagram)));
 	    break;
 	}
+    }
 
-	case Reference::ModeSecure:
-	{
-	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints),
-			   not1(constMemFun(&Endpoint::secure)));
-	    break;
-	}
+    if (_reference->secure)
+    {
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(constMemFun(&Endpoint::secure))),
+			endpoints.end());
     }
 
     if (endpoints.empty())

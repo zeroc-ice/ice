@@ -39,8 +39,12 @@ IceInternal::Stream::instance() const
 void
 IceInternal::Stream::swap(Stream& other)
 {
+    assert(_instance.get() == other._instance.get());
+
     b.swap(other.b);
     std::swap(i, other.i);
+    _encapsStartStack.swap(other._encapsStartStack);
+    _stringSet.swap(other._stringSet);
 }
 
 void
@@ -68,14 +72,14 @@ IceInternal::Stream::startWriteEncaps()
 {
     write(Byte(0)); // Encoding version
     write(Int(0)); // Placeholder for the encapsulation length
-    _encapsStartStack.push(b.size());
+    _encapsStartStack.push_back(b.size());
 }
 
 void
 IceInternal::Stream::endWriteEncaps()
 {
-    int start = _encapsStartStack.top();
-    _encapsStartStack.pop();
+    int start = _encapsStartStack.back();
+    _encapsStartStack.pop_back();
     Int sz = b.size() - start;
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIGENDIAN
@@ -100,14 +104,14 @@ IceInternal::Stream::startReadEncaps()
     }
     Int sz;
     read(sz);
-    _encapsStartStack.push(i - b.begin());
+    _encapsStartStack.push_back(i - b.begin());
 }
 
 void
 IceInternal::Stream::endReadEncaps()
 {
-    int start = _encapsStartStack.top();
-    _encapsStartStack.pop();
+    int start = _encapsStartStack.back();
+    _encapsStartStack.pop_back();
     Container::iterator save = i;
     i = b.begin() + start - sizeof(Int);
     Int sz;
@@ -842,9 +846,22 @@ IceInternal::Stream::CmpPosPos::CmpPosPos(const Container& cont) :
 {
 }
 
+IceInternal::Stream::CmpPosPos::CmpPosPos(const CmpPosPos& cmp) :
+    _cont(cmp._cont)
+{
+}
+
+IceInternal::Stream::CmpPosPos&
+IceInternal::Stream::CmpPosPos::operator=(const CmpPosPos&)
+{
+    // Do *not* assign anything! I want CmpPosPos to ignore std::swap().
+    return *this;
+}
+
 bool
 IceInternal::Stream::CmpPosPos::operator()(int p, int q) const
 {
+    assert(!_cont.empty());
     return strcmp(_cont.begin() + p, _cont.begin() + q) < 0;
 }
 
@@ -853,14 +870,28 @@ IceInternal::Stream::CmpPosString::CmpPosString(const Container& cont) :
 {
 }
 
+IceInternal::Stream::CmpPosString::CmpPosString(const CmpPosString& cmp) :
+    _cont(cmp._cont)
+{
+}
+
+IceInternal::Stream::CmpPosString&
+IceInternal::Stream::CmpPosString::operator=(const CmpPosString&)
+{
+    // Do *not* assign anything! I want CmpPosString to ignore std::swap().
+    return *this;
+}
+
 bool
 IceInternal::Stream::CmpPosString::operator()(int i, const string& s) const
 {
+    assert(!_cont.empty());
     return _cont.begin() + i < s;
 }
 
 bool
 IceInternal::Stream::CmpPosString::operator()(const string& s, int i) const
 {
+    assert(!_cont.empty());
     return s < _cont.begin() + i;
 }

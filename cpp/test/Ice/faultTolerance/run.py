@@ -30,16 +30,9 @@ base = 12340
 serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + " --Ice.PrintProcessId --Ice.PrintAdapterReady %d" % (base + i))
-    output = serverPipes[i].readline().strip()
-    if not output:
-        print "failed!"
-        sys.exit(0)
-    TestUtil.serverPids.append(int(output))
-    output = serverPipes[i].readline().strip()
-    if not output:
-        print "failed!"
-        sys.exit(0)
+    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i))
+    TestUtil.getServerPid(serverPipes[i])
+    TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
 print "starting client...",

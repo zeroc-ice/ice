@@ -242,7 +242,7 @@ Ice::ObjectAdapterI::identityToProxy(const string& ident)
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
 	      constMemFun(&CollectorFactory::endpoint));
 
-    ReferencePtr reference = new Reference(_instance, ident, endpoints, endpoints);
+    ReferencePtr reference = new Reference(_instance, ident, Reference::ModeTwoway, false, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
 }
 

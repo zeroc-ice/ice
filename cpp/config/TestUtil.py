@@ -11,6 +11,8 @@
 
 import sys, os
 
+serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60"
+
 serverPids = []
 
 def killServers():
@@ -27,6 +29,27 @@ def killServers():
 
     serverPids = []
 
+def getServerPid(serverPipe):
+
+    output = serverPipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(0)
+
+    serverPids.append(int(output))
+
+def getAdapterReady(serverPipe):
+
+    output = serverPipe.readline().strip()
+
+    if not output:
+        print "failed!"
+        killServers()
+        sys.exit(0)
+    
+
 def clientServerTest(toplevel, name):
 
     testdir = os.path.normpath(toplevel + "/test/" + name)
@@ -34,16 +57,9 @@ def clientServerTest(toplevel, name):
     client = os.path.normpath(testdir + "/client")
 
     print "starting server...",
-    serverPipe = os.popen(server + " --Ice.PrintProcessId --Ice.PrintAdapterReady")
-    output = serverPipe.readline().strip()
-    if not output:
-        print "failed!"
-        sys.exit(0)
-    serverPids.append(int(output))
-    output = serverPipe.readline().strip()
-    if not output:
-        print "failed!"
-        sys.exit(0)
+    serverPipe = os.popen(server + serverOptions)
+    getServerPid(serverPipe)
+    getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
@@ -51,7 +67,7 @@ def clientServerTest(toplevel, name):
     output = clientPipe.readline()
     if not output:
 	print "failed!"
-	TestUtil.killServers()
+	killServers()
 	sys.exit(0)
     print "ok"
     print output,

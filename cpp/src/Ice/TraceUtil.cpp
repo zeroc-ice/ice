@@ -10,9 +10,11 @@
 
 #include <Ice/TraceUtil.h>
 #include <Ice/Instance.h>
+#include <Ice/Object.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/Stream.h>
+#include <Ice/Protocol.h>
 #include <sstream>
 
 using namespace std;
@@ -30,7 +32,35 @@ printHeader(ostream& s, Stream& stream)
     s << "\nencoding version = " << static_cast<int>(encVer);
     Byte type;
     stream.read(type);
-    s << "\nmessage type = " << static_cast<int>(type);
+    s << "\nmessage type = "  << static_cast<int>(type) << ' ';
+    switch(type)
+    {
+	case requestMsg:
+	{
+	    s << "(request)";
+	    break;
+	}
+	case requestBatchMsg:
+	{
+	    s << "(request batch)";
+	    break;
+	}
+	case replyMsg:
+	{
+	    s << "(reply)";
+	    break;
+	}
+	case closeConnectionMsg:
+	{
+	    s << "(close connection)";
+	    break;
+	}
+	default:
+	{
+	    s << "(unknown)";
+	    break;
+	}
+    }
     Int size;
     stream.read(size);
     s << "\nmessage size = " << size;
@@ -69,7 +99,9 @@ IceInternal::traceRequest(const char* heading, const Stream& str, const ::Ice::L
 	stream.read(requestId);
 	s << "\nrequest id = " << requestId;
 	if (requestId == 0)
+	{
 	    s << " (oneway)";
+	}
 	string identity;
 	stream.read(identity);
 	s << "\nidentity = " << identity;
@@ -77,6 +109,22 @@ IceInternal::traceRequest(const char* heading, const Stream& str, const ::Ice::L
 	stream.read(operation);
 	s << "\noperation name = " << operation;
 	logger->trace(tl->protocolCat, s.str());
+	stream.i = p;
+    }
+}
+
+void
+IceInternal::traceBatchRequest(const char* heading, const Stream& str, const ::Ice::LoggerPtr& logger,
+			       const TraceLevelsPtr& tl)
+{
+    if (tl->protocol >= 1)
+    {
+	Stream& stream = const_cast<Stream&>(str);
+	Stream::Container::iterator p = stream.i;
+	stream.i = stream.b.begin();
+	ostringstream s;
+	s << heading;
+	printHeader(s, stream);
 	stream.i = p;
     }
 }
@@ -98,7 +146,40 @@ IceInternal::traceReply(const char* heading, const Stream& str, const ::Ice::Log
 	s << "\nrequest id = " << requestId;
 	Byte status;
 	stream.read(status);
-	s << "\nreply status = " << static_cast<int>(status);
+	s << "\nreply status = " << static_cast<int>(status) << ' ';
+	switch(static_cast<DispatchStatus>(status))
+	{
+	    case DispatchOK:
+	    {
+		s << "(ok)";
+		break;
+	    }
+	    case DispatchException:
+	    {
+		s << "(exception)";
+		break;
+	    }
+	    case DispatchLocationForward:
+	    {
+		s << "(location forward)";
+		break;
+	    }
+	    case DispatchObjectNotExist:
+	    {
+		s << "(object not exist)";
+		break;
+	    }
+	    case DispatchOperationNotExist:
+	    {
+		s << "(operation not exist)";
+		break;
+	    }
+	    default:
+	    {
+		s << "(unknown)";
+		break;
+	    }
+	}
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }

@@ -25,7 +25,16 @@ class Reference : public Shared
 {
 public:
 
-    Reference(const InstancePtr&, const std::string&,
+    enum Mode
+    {
+	ModeTwoway,
+	ModeOneway,
+	ModeBatchOneway,
+	ModeDatagram,
+	ModeBatchDatagram
+    };
+
+    Reference(const InstancePtr&, const std::string&, Mode, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
     Reference(const InstancePtr&, const std::string&);
     Reference(Stream*);
@@ -45,16 +54,8 @@ public:
     //
     const InstancePtr instance;
     const std::string identity;
-
-    enum Mode
-    {
-	ModeTwoway,
-	ModeOneway,
-	ModeSecure,
-	ModeDatagram
-    };
     const Mode mode;
-
+    const bool secure;
     const std::vector<EndpointPtr> origEndpoints; // Original endpoints
     const std::vector<EndpointPtr> endpoints; // Actual endpoints (set by a location forward)
 
@@ -65,6 +66,7 @@ public:
     ReferencePtr changeIdentity(const std::string&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
+    ReferencePtr changeSecure(bool) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
  
     bool operator==(const Reference&) const;

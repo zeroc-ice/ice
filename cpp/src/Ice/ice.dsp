@@ -458,6 +458,10 @@ SOURCE=.\Ice\PropertiesI.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Protocol.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Proxy.h
 # End Source File
 # Begin Source File

@@ -42,6 +42,10 @@ public:
     bool destroyed() const;
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*, bool);
+    void prepareBatchRequest(Outgoing*);
+    void finishBatchRequest(Outgoing*);
+    void abortBatchRequest();
+    void flushBatchRequest();
     int timeout() const;
 
     //
@@ -76,6 +80,7 @@ private:
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::auto_ptr< ::Ice::LocalException> _exception;
+    Stream _batchStream;
     State _state;
 #ifndef ICE_NO_TRACE
     TraceLevelsPtr _traceLevels;

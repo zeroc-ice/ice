@@ -61,9 +61,13 @@ public:
 
     ::Ice::ObjectPrx _twoway() const;
     ::Ice::ObjectPrx _oneway() const;
-    ::Ice::ObjectPrx _secure() const;
+    ::Ice::ObjectPrx _batchOneway() const;
     ::Ice::ObjectPrx _datagram() const;
+    ::Ice::ObjectPrx _batchDatagram() const;
+    ::Ice::ObjectPrx _secure(bool) const;
     ::Ice::ObjectPrx _timeout(int) const;
+
+    void _flush(); // Flush batch messages
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyTo(::IceProxy::Ice::Object*) const;
@@ -99,6 +103,7 @@ public:
 
     virtual bool _isA(const std::string&) = 0;
     virtual void _ping() = 0;
+    virtual void _flush();
 
 protected:
 
@@ -122,6 +127,7 @@ public:
 
     virtual bool _isA(const std::string&);
     virtual void _ping();
+    virtual void _flush();
 
 protected:
 
