@@ -1040,7 +1040,10 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    writeOperations(p, false);
+    if(!p->isLocal())
+    {
+	writeOperations(p, false);
+    }
     writeOperations(p, true);
 
     return false;
