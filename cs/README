@@ -6,6 +6,9 @@ The following features of Ice for C++ are currently not supported:
 
 - Any of the Ice services (Freeze, Glacier, etc.)
 
+- Protocol compression is supported under Windows (both .NET and Mono)
+  but not on other platforms.
+
 
 Supported environments:
 
@@ -14,6 +17,6 @@ Supported environments:
 - Mono (all platforms)
 
 
-See INSTALL.WINDOWS for how to compile and install using Visual C#.
+See INSTALL.VISUAL_C# for how to compile and install using Visual C#.
 
 See INSTALL.MONO for how to compile and install using Mono.
