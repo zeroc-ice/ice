@@ -27,9 +27,8 @@ class AddAdapterTask : public Task
 {
 public:
 
-    AddAdapterTask(const AdapterManagerPrx& manager, const ServerPtr& server, const AdapterDescription& desc) :
+    AddAdapterTask(const AdapterManagerPrx& manager, const AdapterDescription& desc) :
 	_manager(manager),
-	_server(server),
 	_desc(desc)
     {
     }
@@ -39,10 +38,7 @@ public:
     {
 	try
 	{
-	    AdapterPrx adapter = _manager->create(_desc);
-	    
-	    _server->_description.adapters.push_back(_desc.name);
-	    _server->_adapters.push_back(adapter);
+	    AdapterPrx adapter = _manager->create(_desc);    
 	}
 	catch(const AdapterExistsException&)
 	{
@@ -54,18 +50,11 @@ public:
     undeploy()
     {
 	_manager->remove(_desc.name);
-
-	// 
-	// NOTE: We don't need to remove the adapter from the
-	// server. The undo occured because a problem during the
-	// server deployment so the server will be removed anyway.
-	//
     }
 
 private:
 
     AdapterManagerPrx _manager;
-    ServerPtr _server;
     AdapterDescription _desc;
 };
 
@@ -78,8 +67,8 @@ public:
 
     ServerDeployHandler(ServerDeployer&);
 
-    virtual void startElement(const XMLCh *const name, AttributeList &attrs); 
-    virtual void endElement(const XMLCh *const name);
+    virtual void startElement(const XMLCh *const, AttributeList &);
+    virtual void endElement(const XMLCh *const);
     virtual void startDocument();
 
 private:
@@ -117,22 +106,27 @@ IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeLis
 	string kind = getAttributeValue(attrs, "kind");
 	if(kind == "cpp")
 	{
-	    _deployer.setKind(ServerDeployer::CppServer);
+	    _deployer.setKind(ServerDeployer::ServerKindCppServer);
+	    _deployer.createConfigFile("/config/config_server");
 	}
 	else if(kind == "java")
 	{
-	    _deployer.setKind(ServerDeployer::JavaServer);
+	    _deployer.setKind(ServerDeployer::ServerKindJavaServer);
+	    _deployer.createConfigFile("/config/config_server");
 	}
 	else if(kind == "cpp-icebox")
 	{
-	    _deployer.setKind(ServerDeployer::CppIceBox);
+	    _deployer.setKind(ServerDeployer::ServerKindCppIceBox);
+	    _deployer.addProperty("IceBox.ServiceManager.Endpoints", getAttributeValue(attrs, "endpoints"));
+	    _deployer.createConfigFile("/config/config_icebox");
 	}
 	else if(kind == "java-icebox")
 	{
-	    _deployer.setKind(ServerDeployer::JavaIceBox);
+	    _deployer.setKind(ServerDeployer::ServerKindJavaIceBox);
+	    _deployer.addProperty("IceBox.ServiceManager.Endpoints", getAttributeValue(attrs, "endpoints"));
+	    _deployer.createConfigFile("/config/config_icebox");
 	}
 
-	_deployer.createConfigFile("/config/config_server");
     }
     else if(str == "service")
     {
@@ -142,7 +136,7 @@ IcePack::ServerDeployHandler::startElement(const XMLCh *const name, AttributeLis
     }
     else if(str == "adapter")
     {
-	_deployer.addAdapter(getAttributeValue(attrs, "name"));
+	_deployer.addAdapter(getAttributeValue(attrs, "name"), getAttributeValueWithDefault(attrs, "endpoints", ""));
     }
 }
 
@@ -164,14 +158,17 @@ IcePack::ServerDeployHandler::endElement(const XMLCh *const name)
 }
 
 IcePack::ServerDeployer::ServerDeployer(const Ice::CommunicatorPtr& communicator,
-					const ServerPtr& server, 
-					const ServerPrx& serverProxy) :
+					const string& name,
+					const string& path,
+					const string& libraryPath) :
     ComponentDeployer(communicator),
-    _server(server),
-    _serverProxy(serverProxy)
+    _libraryPath(libraryPath)
 {
-    _variables["name"] = _server->_description.name;
+    _variables["name"] = name;
     _variables["datadir"] += "/" + _variables["name"];
+
+    _description.name = name;
+    _description.path = path;
 }
 
 void
@@ -181,51 +178,78 @@ IcePack::ServerDeployer::setAdapterManager(const AdapterManagerPrx& manager)
 }
 
 void
-IcePack::ServerDeployer::parse()
+IcePack::ServerDeployer::setServerManager(const ServerManagerPrx& manager)
+{
+    _serverManager = manager;
+}
+
+void
+IcePack::ServerDeployer::parse(const std::string& descriptor)
 {
     ServerDeployHandler handler(*this);
 
-    ComponentDeployer::parse(_server->_description.descriptor, handler);
+    //
+    // Parse the deployment descriptor.
+    //
+    ComponentDeployer::parse(descriptor, handler);
 
     //
     // Once everything is parsed, we can perform some final setup
     // before the deployment starts.
     // 
+    _description.descriptor = descriptor;
+
     Ice::PropertiesPtr props = _communicator->getProperties();
     _properties->setProperty("Ice.ProgramName", _variables["name"]);
     _properties->setProperty("Ice.Default.Locator", props->getProperty("Ice.Default.Locator"));
     _properties->setProperty("Yellow.Query", props->getProperty("IcePack.Yellow.Query"));
 
-    if(_kind == JavaServer)
+    if(_kind == ServerKindJavaServer)
     {
-	if(!_server->_description.libraryPath.empty())
+	if(!_libraryPath.empty())
 	{
 	    _javaOptions.push_back("-classpath");
-	    _javaOptions.push_back(_server->_description.libraryPath);
+	    _javaOptions.push_back(_libraryPath);
 	    _javaOptions.push_back("-ea");
 	}
 	_javaOptions.push_back(_className);
 
 	for(vector<string>::reverse_iterator p = _javaOptions.rbegin(); p != _javaOptions.rend(); ++p)
 	{
-	    _server->_description.args.insert(_server->_description.args.begin(), *p);
+	    _description.args.insert(_description.args.begin(), *p);
 	}
     }
 
-    _server->_description.args.push_back("--Ice.Config=" + _configFile);
+    _description.args.push_back("--Ice.Config=" + _configFile);
+}
+
+void
+IcePack::ServerDeployer::deploy()
+{
+    ComponentDeployer::deploy();
+
+    _serverManager->create(_description);
+}
+
+void
+IcePack::ServerDeployer::undeploy()
+{ 
+    _serverManager->remove(_description.name);
+
+    ComponentDeployer::undeploy();
 }
 
 void
 IcePack::ServerDeployer::setClassName(const string& name)
 {
-    if(_kind != JavaServer)
+    if(_kind != ServerKindJavaServer)
     {
 	cerr << "Class name element only allowed for Java servers." << endl;
 	_error++;
 	return;	
     }
 
-    if(name == "")
+    if(name.empty())
     {
 	cerr << "Empty path." << endl;
 	_error++;
@@ -238,18 +262,18 @@ IcePack::ServerDeployer::setClassName(const string& name)
 void
 IcePack::ServerDeployer::setWorkingDirectory(const string& pwd)
 {
-    if(pwd == "")
+    if(pwd.empty())
     {
 	cerr << "Empty working directory." << endl;
 	_error++;
 	return;
     }
 
-    _server->_description.pwd = substitute(pwd);
+    _description.pwd = pwd;
 }
 
 void
-IcePack::ServerDeployer::addAdapter(const string& name)
+IcePack::ServerDeployer::addAdapter(const string& name, const string& endpoints)
 {
     if(!_adapterManager)
     {
@@ -259,8 +283,9 @@ IcePack::ServerDeployer::addAdapter(const string& name)
     }
 
     AdapterDescription desc;
-    desc.name = substitute(name);
-    desc.server = _serverProxy;
+    desc.name = name;
+    desc.server = ServerPrx::uncheckedCast(
+	_communicator->stringToProxy("server/" + _description.name + "@IcePack.Internal"));
     if(desc.name == "")
     {
 	cerr << "Empty adapter name." << endl;
@@ -268,32 +293,51 @@ IcePack::ServerDeployer::addAdapter(const string& name)
 	return;
     }
 
-    _tasks.push_back(new AddAdapterTask(_adapterManager, _server, desc));
+    _tasks.push_back(new AddAdapterTask(_adapterManager, desc));
+
+    _description.adapters.push_back(desc.name);
+    
+    if(!endpoints.empty())
+    {
+	addProperty("Ice.Adapter." + name + ".Endpoints", endpoints);
+    }
 }
 
 void
 IcePack::ServerDeployer::addService(const string& name, const string& descriptor)
 {
-    if(_kind != CppIceBox && _kind != JavaIceBox)
+    if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
 	cerr << "Service elements are only allowed for Java or C++ IceBox servers." << endl;
 	_error++;
 	return;
     }
 
+    if(name.empty() || descriptor.empty())
+    {
+	cerr << "Name or descriptor attribute value is empty in service element." << endl;
+	_error++;
+	return;
+    }
+
+    //
+    // Setup new variables for the service, overides the name value.
+    //
     std::map<std::string, std::string> variables = _variables;
     variables["name"] = name;
 
     ServiceDeployer* task = new ServiceDeployer(_communicator, *this, variables);
     try
     {
-	task->parse(descriptor);
+	string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
+	task->parse(xmlFile);
     }
     catch(const DeploymentException&)
     {
 	cerr << "Failed to parse the service '" << name << "' descriptor" << endl;
 	delete task;
 	_error++;
+	return;
     }
     
     _tasks.push_back(task);
@@ -302,13 +346,13 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
 void
 IcePack::ServerDeployer::addOption(const string& option)
 {
-    _server->_description.args.push_back(substitute(option));
+    _description.args.push_back(option);
 }
 
 void
 IcePack::ServerDeployer::addJavaOption(const string& option)
 {
-    _javaOptions.push_back(substitute(option));
+    _javaOptions.push_back(option);
 }
 
 void
@@ -316,37 +360,39 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
 {
     switch(kind)
     {
-    case CppServer:
-	if(_server->_description.path.empty())
+    case ServerKindCppServer:
+	if(_description.path.empty())
 	{
 	    cerr << "C++ server path is not specified" << endl;
 	    _error++;
 	    break;
 	}
 	
-    case JavaServer:	
-	if(_server->_description.path.empty())
+    case ServerKindJavaServer:	
+	if(_description.path.empty())
 	{
-	    _server->_description.path = "java";
+	    _description.path = "java";
 	}
 	break;
 
-    case JavaIceBox:
-	if(_server->_description.path.empty())
+    case ServerKindJavaIceBox:
+	if(_description.path.empty())
 	{
-	    _server->_description.path = "java";
+	    _description.path = "java";
 	}
-	addProperty("IceBox.Name", "${name}");
-	addAdapter("${name}.ServiceManagerAdapter");
+	createDirectory("/dbs");
+	addProperty("IceBox.Name", _variables["name"]);
+	addAdapter(_variables["name"] + ".ServiceManagerAdapter","");
 	break;
 
-    case CppIceBox:
-	if(_server->_description.path.empty())
+    case ServerKindCppIceBox:
+	if(_description.path.empty())
 	{
-	    _server->_description.path = "icebox";
+	    _description.path = "icebox";
 	}
-	addProperty("IceBox.Name", "${name}");
-	addAdapter("${name}.ServiceManagerAdapter");
+	createDirectory("/dbs");
+	addProperty("IceBox.Name", _variables["name"]);
+	addAdapter(_variables["name"] + ".ServiceManagerAdapter","");
 	break;
     }
     

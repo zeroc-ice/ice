@@ -12,6 +12,7 @@
 #define ICE_PACK_SERVER_MANAGER_I_H
 
 #include <IceUtil/Mutex.h>
+#include <Freeze/DB.h>
 #include <IcePack/ServerManager.h>
 #include <IcePack/Activator.h>
 #include <set>
@@ -36,6 +37,8 @@ private:
 
     ::Ice::ObjectAdapterPtr _adapter;
     ActivatorPrx _activator;
+
+    ServerState _state;
 };
 
 
@@ -43,11 +46,11 @@ class ServerManagerI : public ServerManager, public IceUtil::Mutex
 {
 public:
 
-    ServerManagerI(const Ice::ObjectAdapterPtr&, const AdapterManagerPrx&, const ActivatorPrx&);
+    ServerManagerI(const Ice::ObjectAdapterPtr&, const Freeze::DBEnvironmentPtr&, const AdapterManagerPrx&,
+		   const ActivatorPrx&);
     virtual ~ServerManagerI();
 
-    virtual ServerPrx create(const std::string&, const std::string&, const std::string&, const std::string&, 
-			     const ::Ice::Current&);
+    virtual ServerPrx create(const ServerDescription&, const ::Ice::Current&);
     virtual ServerPrx findByName(const ::std::string&, const ::Ice::Current&);
     virtual void remove(const ::std::string&, const ::Ice::Current&);
     virtual ServerNames getAll(const ::Ice::Current&);
@@ -55,6 +58,7 @@ public:
 private:
 
     ::Ice::ObjectAdapterPtr _adapter;
+    ::Freeze::EvictorPtr _evictor;
     ::std::set< ::std::string> _serverNames;
     AdapterManagerPrx _adapterManager;
     ActivatorPrx _activator;

@@ -118,13 +118,6 @@ class Adapter
      *
      */
     Object* _proxy;
-
-    /**
-     *
-     * The state of the adapter, true if active false otherwise.
-     *
-     */    
-    bool _active;
 };
 
 /**

@@ -25,6 +25,7 @@ namespace IcePack
 class Task : public ::IceUtil::SimpleShared
 {
 public:
+
     virtual void deploy() = 0;
     virtual void undeploy() = 0;
 };
@@ -50,7 +51,6 @@ public:
 private:
 
     ComponentDeployer& _deployer;
-
 };
 
 class ComponentDeployHandler : public DocumentHandler
@@ -81,6 +81,7 @@ protected:
 private:
 
     std::stack<std::string> _elements;
+    std::string _adapter;
 
     ComponentDeployer& _deployer;
 };
@@ -100,14 +101,13 @@ public:
     void createDirectory(const std::string&);
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
-    void addOffer(const std::string&, const std::string&);
+    void addOffer(const std::string&, const std::string&, const std::string&);
 
 protected:
 
     void undeployFrom(std::vector<TaskPtr>::iterator);
 
     Ice::CommunicatorPtr _communicator;
-    Yellow::AdminPrx _yellowAdmin;
 
     Ice::PropertiesPtr _properties;
     std::map<std::string, std::string> _variables;

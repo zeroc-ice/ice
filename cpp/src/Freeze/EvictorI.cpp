@@ -402,9 +402,8 @@ Freeze::EvictorI::evict()
 	//
 	// Remove last unused element from the evictor queue.
 	//
-	_evictorList.erase(element->position);
+	p = list<Identity>::reverse_iterator(_evictorList.erase(element->position));
 	_evictorMap.erase(q);
-	++p;
 
 	if(_trace >= 2)
 	{

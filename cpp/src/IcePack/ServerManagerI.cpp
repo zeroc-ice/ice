@@ -9,6 +9,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Freeze/DB.h>
+#include <Freeze/Evictor.h>
 #include <Ice/Functional.h>
 #include <Ice/LoggerUtil.h>
 #include <IcePack/ServerManagerI.h>
@@ -46,11 +48,45 @@ private:
     ObjectAdapterPtr _adapter;
 };
 
+class ServerFactory : public ObjectFactory
+{
+public:
+
+    ServerFactory(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
+	_adapter(adapter),
+	_activator(activator)
+    {
+    }
+
+    //
+    // Operations from ObjectFactory
+    //
+    virtual Ice::ObjectPtr 
+    create(const std::string& type)
+    {
+	assert(type == "::IcePack::Server");
+	return new ServerI(_adapter, _activator);
+    }
+
+    virtual void 
+    destroy()
+    {
+	_adapter = 0;
+	_activator = 0;
+    }
+
+private:
+    
+    ObjectAdapterPtr _adapter;
+    ActivatorPrx _activator;
+};
+
 }
 
 IcePack::ServerI::ServerI(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
     _adapter(adapter), 
-    _activator(activator)
+    _activator(activator),
+    _state(Inactive)
 {
 }
 
@@ -155,13 +191,34 @@ IcePack::ServerI::setState(ServerState state, const Current&)
     notifyAll();
 }
 
-IcePack::ServerManagerI::ServerManagerI(const ObjectAdapterPtr& adapter, 
+IcePack::ServerManagerI::ServerManagerI(const ObjectAdapterPtr& adapter,
+					const Freeze::DBEnvironmentPtr& dbEnv,
 					const AdapterManagerPrx& adapterManager,
 					const ActivatorPrx& activator) :
     _adapter(adapter),
     _adapterManager(adapterManager),
     _activator(activator)
 {
+    ObjectFactoryPtr serverFactory = new ServerFactory(adapter, activator);
+    adapter->getCommunicator()->addObjectFactory(serverFactory, "::IcePack::Server");
+
+    Freeze::DBPtr dbServers = dbEnv->openDB("servers", true);
+    _evictor = dbServers->createEvictor(Freeze::SaveUponEviction);
+    _evictor->setSize(100);
+    _adapter->addServantLocator(_evictor, "server");
+
+    //
+    // Cache the server names for getAll(). This will load all the
+    // server objects at the begining and might cause slow startup.
+    //
+    Freeze::EvictorIteratorPtr p = _evictor->getIterator();
+    while(p->hasNext())
+    {
+	ServerPrx s = ServerPrx::checkedCast(_adapter->createProxy(p->next()));
+	assert(s);
+	ServerDescription desc = s->getServerDescription();
+	_serverNames.insert(desc.name);
+    }
 }
 
 IcePack::ServerManagerI::~ServerManagerI()
@@ -169,12 +226,11 @@ IcePack::ServerManagerI::~ServerManagerI()
 }
 
 ServerPrx
-IcePack::ServerManagerI::create(const string& name, const string& path, const string& libraryPath,
-				const string& descriptor, const Current&)
+IcePack::ServerManagerI::create(const ServerDescription& desc, const Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    ServerPrx server = ServerNameToServer(_adapter)(name);
+    ServerPrx server = ServerNameToServer(_adapter)(desc.name);
     try
     {
 	server->ice_ping();
@@ -183,48 +239,18 @@ IcePack::ServerManagerI::create(const string& name, const string& path, const st
     catch (const ObjectNotExistException&)
     {
     }
-
-    //
-    // Creates the server. Set its state to Activating so that we can
-    // safelly register the adapters without any race conditions. If a
-    // request comes in for an adapter we've just registerd, the
-    // server won't be started as long as we are not in the Inactive
-    // state.
-    //
-    // TODO: the server isn't fully initialized here. Is this really
-    // valid to add the servant to the object adapter? If not, how do
-    // we handle the race condition because of registered adapters
-    // having a proxy on the server?
-    //
+    
     ServerPtr serverI = new ServerI(_adapter, _activator);
-    serverI->_description.name = name;
-    serverI->_description.path = path;
-    serverI->_description.libraryPath = libraryPath;
-    serverI->_description.descriptor = descriptor;
-    serverI->_state = Activating;
-    server = ServerPrx::uncheckedCast(_adapter->add(serverI, server->ice_getIdentity()));
-
-    //
-    // Deploy the server.
-    //
-    try
+    serverI->_description = desc;
+    for(AdapterNames::const_iterator p = desc.adapters.begin(); p != desc.adapters.end(); ++p)
     {
-	ServerDeployer deployer(_adapter->getCommunicator(), serverI, server);
-	deployer.setAdapterManager(_adapterManager);
-
-	deployer.parse();
-	deployer.deploy();
-    }
-    catch(const DeploymentException&)
-    {
-	_adapter->remove(server->ice_getIdentity());
-	serverI->setState(Destroyed);
-	throw;
+	AdapterPrx adapter = _adapterManager->findByName(*p);
+	serverI->_adapters.push_back(adapter);
     }
 
-    serverI->setState(Inactive);
+    _evictor->createObject(server->ice_getIdentity(), serverI);
 
-    _serverNames.insert(name);
+    _serverNames.insert(desc.name);
 
     return server;
 }
@@ -260,34 +286,9 @@ IcePack::ServerManagerI::remove(const string& name, const Current&)
     {
 	throw ServerNotExistException();
     }
-    
-    //
-    // Mark the server as destroyed.
-    //
-    ServerPtr serverI = ServerPtr::dynamicCast(_adapter->proxyToServant(server).get());
-    assert(serverI);
-    serverI->setState(Destroyed);
 
-    //
-    // Undeploy the server.
-    //
-    try
-    {
-	ServerDeployer deployer(_adapter->getCommunicator(), serverI, server);
-	deployer.setAdapterManager(_adapterManager);
+    _evictor->destroyObject(server->ice_getIdentity());
 
-	deployer.parse();
-	deployer.undeploy();
-    }
-    catch(const DeploymentException& ex)
-    {
-    }
-
-    _adapter->remove(server->ice_getIdentity());
-
-    //
-    // Remove the server name from our internal server name set.
-    //
     _serverNames.erase(_serverNames.find(name));
 }
 

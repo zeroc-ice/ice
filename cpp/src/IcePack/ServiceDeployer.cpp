@@ -58,22 +58,21 @@ IcePack::ServiceDeployHandler::startElement(const XMLCh *const name, AttributeLi
 	string kind = getAttributeValue(attrs, "kind");
 	if(kind == "standard")
 	{
-	    _deployer.setKind(ServiceDeployer::Standard);
+	    _deployer.setKind(ServiceDeployer::ServiceKindStandard);
 	}
 	else if(kind == "freeze")
 	{
-	    _deployer.setKind(ServiceDeployer::Freeze);
+	    _deployer.setKind(ServiceDeployer::ServiceKindFreeze);
 	    _deployer.setDBEnv(getAttributeValueWithDefault(attrs, "dbenv", "${name}"));
 	}
 
-	_deployer.setEntryPoint(getAttributeValueWithDefault(attrs, "library", "${name}"),
-				getAttributeValueWithDefault(attrs, "entry", "create"));
-
-	_deployer.createConfigFile("/config/config_${name}");
+	_deployer.createConfigFile("/config/config_" + _deployer.substitute("${name}"));
+	_deployer.setEntryPoint(getAttributeValue(attrs, "entry"));
     }
     else if(str == "adapter")
     {
-	_deployer.getServerDeployer().addAdapter(getAttributeValue(attrs, "name"));
+	_deployer.getServerDeployer().addAdapter(getAttributeValue(attrs, "name"), 
+						 getAttributeValueWithDefault(attrs, "endpoints", ""));
     }
 }
 
@@ -115,10 +114,10 @@ IcePack::ServiceDeployer::setKind(ServiceKind kind)
 }
 
 void
-IcePack::ServiceDeployer::setEntryPoint(const string& library, const string& entry)
+IcePack::ServiceDeployer::setEntryPoint(const string& entry)
 {
     assert(!_configFile.empty());
-    _serverDeployer.addProperty("IceBox.Service.${name}", library + ":" + entry + " --Ice.Config=" + _configFile);
+    _serverDeployer.addProperty("IceBox.Service." + _variables["name"], entry + " --Ice.Config=" + _configFile);
 }
 
 void
@@ -126,14 +125,15 @@ IcePack::ServiceDeployer::setDBEnv(const string& dir)
 {
     assert(!dir.empty());
 
-    if(_kind != Freeze)
+    if(_kind != ServiceKindFreeze)
     {
-	cerr << "Dabase environment is only allowed for Freeze services." << endl;
+	cerr << "Database environment is only allowed for Freeze services." << endl;
 	_error++;
 	return;
     }
 
     createDirectory("/dbs" + (dir[0] == '/' ? dir : "/" + dir));
-    addProperty("IceBox.DBEnvName.${name}", "${datadir}/dbs" + (dir[0] == '/' ? dir : "/" + dir));
+    addProperty("IceBox.DBEnvName." + _variables["name"], 
+		_variables["datadir"] + "/dbs" + (dir[0] == '/' ? dir : "/" + dir));
 }
 

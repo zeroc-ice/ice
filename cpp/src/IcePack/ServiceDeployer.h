@@ -25,8 +25,8 @@ public:
 
     enum ServiceKind
     {
-	Standard,
-	Freeze
+	ServiceKindStandard,
+	ServiceKindFreeze
     };
 
     ServiceDeployer(const Ice::CommunicatorPtr&, ServerDeployer&, const std::map<std::string, std::string>&);
@@ -36,7 +36,7 @@ public:
     ServerDeployer& getServerDeployer() const;
 
     void setKind(ServiceKind);
-    void setEntryPoint(const std::string&, const std::string&);
+    void setEntryPoint(const std::string&);
     void setDBEnv(const std::string&);
 
 private:

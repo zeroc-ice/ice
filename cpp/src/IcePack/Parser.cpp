@@ -43,9 +43,8 @@ IcePack::Parser::usage()
     cout <<
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
-        "server add NAME PATH [PWD] [adapters { NAMES }] [options { OPTIONS }]\n"
-        "                            Add server NAME with PATH, optional working\n"
-	"                            directory PWD, adapters and options.\n"
+        "server add NAME PATH LIBRARY_PATH DESCRIPTOR\n"
+        "                            Add server NAME with PATH.\n"
 	"server describe NAME        Get server NAME description.\n"
 	"server state NAME           Get server NAME state.\n"
 	"server start NAME           Starts server NAME.\n"

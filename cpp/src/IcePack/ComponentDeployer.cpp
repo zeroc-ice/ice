@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/Locator.h>
 
 #include <IcePack/ComponentDeployer.h>
 #include <IcePack/Admin.h>
@@ -95,6 +96,7 @@ class GenerateConfiguration : public Task
     class WriteConfigProperty : public unary_function<Ice::PropertyDict::value_type, string>
     {
     public:
+
 	string 
 	operator()(const Ice::PropertyDict::value_type& p) const
 	{
@@ -243,7 +245,24 @@ IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, Attribute
 
     if(str == "property")
     {
-	_deployer.addProperty(getAttributeValue(attrs, "name"), getAttributeValue(attrs, "value"));
+	string value = getAttributeValueWithDefault(attrs, "value", "");
+	if(value.empty())
+	{
+	    value = getAttributeValueWithDefault(attrs, "location", "");
+	    if(!value.empty() && value[0] != '/')
+	    {
+		value = _deployer.substitute("${basedir}/") + value;
+	    }
+	}
+	_deployer.addProperty(getAttributeValue(attrs, "name"), value);
+    }
+    else if(str == "adapter")
+    {
+	_adapter = getAttributeValue(attrs, "name");
+    }
+    else if(str == "offer")
+    {
+	_deployer.addOffer(getAttributeValue(attrs, "interface"), _adapter, getAttributeValue(attrs, "identity"));
     }
 }
 
@@ -251,6 +270,13 @@ void
 IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
 {
     _elements.pop();
+
+    string str = toString(name);
+
+    if(str == "adapter")
+    {
+	_adapter = "";
+    }
 }
 
 string
@@ -266,7 +292,7 @@ IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, c
 	return "";
     }
 
-    return toString(value);
+    return _deployer.substitute(toString(value));
 }
 
 string
@@ -279,11 +305,11 @@ IcePack::ComponentDeployHandler::getAttributeValueWithDefault(const AttributeLis
     
     if(value == 0)
     {
-	return def;
+	return _deployer.substitute(def);
     }
     else
     {
-	return toString(value);
+	return _deployer.substitute(toString(value));
     }
 }
 
@@ -303,17 +329,9 @@ IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& commun
     _communicator(communicator),
     _properties(Ice::createProperties())
 {
-    _variables["datadir"] = _communicator->getProperties()->getProperty("IcePack.Data");
-    assert(!_variables["datadir"].empty());
-
-    try
-    {
-	_yellowAdmin = Yellow::AdminPrx::checkedCast(
-	    _communicator->stringToProxy(_communicator->getProperties()->getProperty("IcePack.Yellow.Admin")));
-    }
-    catch(Ice::LocalException&)
-    {
-    }
+    string serversPath = _communicator->getProperties()->getProperty("IcePack.Data");
+    assert(!serversPath.empty());
+    _variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
 }
 
 void 
@@ -321,6 +339,21 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 {
     _error = 0;
 
+    //
+    // Setup the base directory for this deploment descriptor to the
+    // location of the desciptor file.
+    //
+    string::size_type end = xmlFile.find_last_of('/');
+    if(end != string::npos)
+    {
+	_variables["basedir"] = xmlFile.substr(0, end);
+    }
+
+    if(_variables["basedir"].empty())
+    {
+	_variables["basedir"] = ".";
+    }
+    
     SAXParser* parser = new SAXParser;
     parser->setValidationScheme(SAXParser::Val_Never);
 
@@ -334,6 +367,7 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
     catch(const XMLException& e)
     {
 	cerr << "XMLException: " << toString(e.getMessage()) << endl;
+	_error++;
     }
     int rc = parser->getErrorCount();
     delete parser;
@@ -397,7 +431,7 @@ IcePack::ComponentDeployer::undeploy()
 void
 IcePack::ComponentDeployer::createDirectory(const string& name)
 {
-    string path = _variables["datadir"] + substitute(name.empty() || name[0] == '/' ? name : "/" + name);
+    string path = _variables["datadir"] + (name.empty() || name[0] == '/' ? name : "/" + name);
     _tasks.push_back(new CreateDirectory(path));
 }
 
@@ -405,35 +439,56 @@ void
 IcePack::ComponentDeployer::createConfigFile(const string& name)
 {
     assert(!name.empty());
-    _configFile = _variables["datadir"] + substitute(name[0] == '/' ? name : "/" + name);
+    _configFile = _variables["datadir"] + (name[0] == '/' ? name : "/" + name);
     _tasks.push_back(new GenerateConfiguration(_configFile, _properties));
 }
 
 void
 IcePack::ComponentDeployer::addProperty(const string& name, const string& value)
 {
-    _properties->setProperty(substitute(name), substitute(value));
+    _properties->setProperty(name, value);
 }
 
 void
-IcePack::ComponentDeployer::addOffer(const string& offer, const string& proxy)
+IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter, const string& identity)
 {
-    if(!_yellowAdmin)
+    assert(!adapter.empty());
+
+    Yellow::AdminPrx yellowAdmin;    
+    try
     {
-	cerr << "Yellow admin not set, can't register the offer '" << offer << "'" << endl;
+	//
+	// TODO: Find a better way to bootstrap the yellow service. We
+	// need to set the locator on the proxy here, because the
+	// communicator doesn't have a default locator since it's the
+	// locator communicator...
+	//
+	Ice::ObjectPrx object = _communicator->stringToProxy(
+	    _communicator->getProperties()->getProperty("IcePack.Yellow.Admin"));
+
+	if(!object)
+	{	
+	    cerr << "IcePack.Yellow.Admin is not set, can't register the offer '" << offer << "'" << endl;
+	    _error++;
+	    return;	
+	}
+
+	Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(
+	    _communicator->stringToProxy(_communicator->getProperties()->getProperty("Ice.Default.Locator")));
+
+	yellowAdmin = Yellow::AdminPrx::checkedCast(object->ice_locator(locator));
+    }
+    catch(Ice::LocalException& ex)
+    {
+	cerr << "Couldn't contact the yellow service to register the offer '" << offer << "':" << ex << endl;
 	_error++;
 	return;	
     }
 
-    Ice::ObjectPrx object = _communicator->stringToProxy(proxy);
-    if(!object)
-    {
-	cerr << "Invalid proxy: " << proxy << endl;
-	_error++;
-	return;	
-    }
+    Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapter);
+    assert(object);
     
-    _tasks.push_back(new RegisterOffer(_yellowAdmin, offer, object));
+    _tasks.push_back(new RegisterOffer(yellowAdmin, offer, object));
 }
 
 //

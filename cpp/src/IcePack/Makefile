@@ -69,7 +69,7 @@ $(CLIENT): $(COBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack $(XERCESC_LIBS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

@@ -58,7 +58,8 @@ class Server
      * Set the server state.
      *
      **/
-    void setState(ServerState state);
+    void setState(ServerState state)
+	throws ServerNotInactiveException;
 
     /**
      * 
@@ -66,13 +67,6 @@ class Server
      *
      */
     ServerDescription _description;
-
-    /**
-     *
-     * The server state.
-     *
-     */    
-    ServerState _state;
 
     /**
      *
@@ -89,7 +83,7 @@ class ServerManager
      * Create a server.
      *
      **/
-    Server* create(string name, string path, string libpath, string descriptor)
+    Server* create(ServerDescription desc)
 	throws DeploymentException, ServerExistsException;
 
     /**

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Freeze/Application.h>
 #include <IcePack/LocatorI.h>
 #include <IcePack/LocatorRegistryI.h>
 #include <IcePack/ServerManagerI.h>
@@ -21,16 +21,26 @@
 #endif
 #include <util/PlatformUtils.hpp>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 using namespace std;
 using namespace Ice;
+using namespace Freeze;
 using namespace IcePack;
 
-class Server : public Application
+class Server : public Freeze::Application
 {
 public:
 
+    Server(const string& dbEnvName) :
+	Freeze::Application(dbEnvName)
+    {
+    }
+
     void usage();
-    virtual int run(int, char*[]);
+    virtual int runFreeze(int argc, char* argv[], const DBEnvironmentPtr&);
 };
 
 #ifndef _WIN32
@@ -67,7 +77,48 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ::Server app;    
+    //
+    // Get the data directory from the IcePack.Data property.
+    //
+    PropertiesPtr properties = createProperties(argc, argv);
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IcePack", args);
+
+    string dataPath = properties->getProperty("IcePack.Data");
+    if(dataPath.empty())
+    {
+	cerr << argv[0] << ": property `IcePack.Data' is not set" << endl;
+	return EXIT_FAILURE;
+    }
+    
+    if(dataPath[dataPath.length() - 1] != '/')
+    {
+	dataPath += "/"; 
+    }
+
+    string dbPath = dataPath + "db";
+    string serversPath = dataPath + "servers";
+    
+    struct stat filestat;
+    if(stat(dataPath.c_str(), &filestat) == 0 && S_ISDIR(filestat.st_mode))
+    {
+	if(stat(dbPath.c_str(), &filestat) != 0)
+	{
+	    mkdir(dbPath.c_str(), 0755);
+	}
+
+	if(stat(serversPath.c_str(), &filestat) != 0)
+	{
+	    mkdir(serversPath.c_str(), 0755);
+	}
+    }
+    else
+    {
+	cerr << argv[0] << ": IcePack.Data doesn't contain a valid directory path." << endl;
+	return EXIT_FAILURE;
+    }
+
+    ::Server app(dbPath);
     int rc = app.main(argc, argv);
 
     XMLPlatformUtils::Terminate();
@@ -88,12 +139,13 @@ void
 }
 
 int
-::Server::run(int argc, char* argv[])
+::Server::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 {
     PropertiesPtr properties = communicator()->getProperties();
 
     StringSeq args = argsToStringSeq(argc, argv);
     args = properties->parseCommandLineOptions("IcePack", args);
+    args = properties->parseCommandLineOptions("Freeze", args);
     stringSeqToArgs(args, argc, argv);
 
     bool nowarn = false;
@@ -150,41 +202,41 @@ int
     string adminId = properties->getPropertyWithDefault("IcePack.Admin.Identity", "IcePack/admin");
 
     communicator()->getProperties()->setProperty("Ice.Default.Locator", locatorId + ":" + locatorEndpoints);
-    
+
     //
-    // Register the server manager and adapter manager with an
-    // internal object adapter. We ensure that the internal object
-    // adapter doesn't have any endpoints, all the objects registered
-    // with this adapter are *only* accessed internally through
-    // collocation.
+    // An internal object adapter for internal objects which are not
+    // exposed to the outside world. They might be at one point.
     //
     ObjectAdapterPtr internalAdapter = communicator()->createObjectAdapterWithEndpoints("IcePack.Internal", "");
     internalAdapter->setLocator(0);
 
     //
-    // Activator isn't supported on Windows yet, just pass an empty
-    // acticator proxy.
+    // Creates and register the adapter manager.
     //
-    ActivatorPrx activatorProxy;
+    AdapterManagerPtr adapterManager = new AdapterManagerI(internalAdapter, dbEnv);
+    AdapterManagerPrx adapterManagerProxy = 
+	AdapterManagerPrx::uncheckedCast(internalAdapter->add(adapterManager, 
+							      stringToIdentity("IcePack/adaptermanager")));
+
+    //
+    // Activator and server manager are not supported on Windows yet.
+    //
+    ServerManagerPrx serverManagerProxy;
 
 #ifndef _WIN32
 
     ActivatorIPtr activator = new ActivatorI(communicator());
     activator->start();
-    activatorProxy = ActivatorPrx::uncheckedCast(internalAdapter->add(activator, 
+    ActivatorPrx  activatorProxy = ActivatorPrx::uncheckedCast(internalAdapter->add(activator, 
 								      stringToIdentity("IcePack/activator")));
-#endif
 
-    AdapterManagerPtr adapterManager = new AdapterManagerI(internalAdapter);
-    AdapterManagerPrx adapterManagerProxy = 
-	AdapterManagerPrx::uncheckedCast(internalAdapter->add(adapterManager, 
-							      stringToIdentity("IcePack/adaptermanager")));
-
-    ServerManagerPtr serverManager = new ServerManagerI(internalAdapter, adapterManagerProxy, activatorProxy);
-    ServerManagerPrx serverManagerProxy = 
+    ServerManagerPtr serverManager = new ServerManagerI(internalAdapter, dbEnv, adapterManagerProxy, activatorProxy);
+    serverManagerProxy = 
 	ServerManagerPrx::uncheckedCast(internalAdapter->add(serverManager, 
 							     stringToIdentity("IcePack/servermanager")));
     internalAdapter->activate();
+
+#endif
 
     //
     // Create the "IcePack.Admin" object adapter and register the

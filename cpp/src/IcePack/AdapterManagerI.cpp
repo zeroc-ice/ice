@@ -9,6 +9,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Freeze/DB.h>
+#include <Freeze/Evictor.h>
 #include <IcePack/AdapterManagerI.h>
 #include <IcePack/ServerManager.h>
 
@@ -16,8 +18,65 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
+namespace IcePack
+{
+
+class AdapterNameToAdapter
+{
+public:
+
+    AdapterNameToAdapter(const ObjectAdapterPtr& adapter) :
+	_adapter(adapter)
+    {
+    }
+
+    AdapterPrx
+    operator()(const string& name)
+    {
+	Identity ident;
+	ident.category = "adapter";
+	ident.name = name;
+	return AdapterPrx::uncheckedCast(_adapter->createProxy(ident));
+    }
+
+private:
+
+    ObjectAdapterPtr _adapter;
+};
+
+class AdapterFactory : public ObjectFactory
+{
+public:
+
+    AdapterFactory(int waitTime) : _waitTime(waitTime)
+    {
+    }
+
+    //
+    // Operations from ObjectFactory
+    //
+    virtual Ice::ObjectPtr 
+    create(const std::string& type)
+    {
+	assert(type == "::IcePack::Adapter");
+	return new AdapterI(_waitTime);
+    }
+
+    virtual void 
+    destroy()
+    {
+    }
+
+private:
+    
+    int _waitTime;
+};
+
+}
+
 IcePack::AdapterI::AdapterI(Int waitTime) :
-    _waitTime(waitTime)
+    _waitTime(waitTime),
+    _active(false)
 {
 }
 
@@ -87,34 +146,32 @@ IcePack::AdapterI::markAsInactive(const Current&)
     notifyAll();
 }
 
-class AdapterNameToAdapter
-{
-public:
-
-    AdapterNameToAdapter(const ObjectAdapterPtr& adapter) :
-	_adapter(adapter)
-    {
-    }
-
-    AdapterPrx
-    operator()(const string& name)
-    {
-	Identity ident;
-	ident.category = "adapter";
-	ident.name = name;
-	return AdapterPrx::uncheckedCast(_adapter->createProxy(ident));
-    }
-
-private:
-
-    ObjectAdapterPtr _adapter;
-};
-
-IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter) :
+IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter, const Freeze::DBEnvironmentPtr& dbEnv) :
     _adapter(adapter)
 {
     Ice::PropertiesPtr properties = adapter->getCommunicator()->getProperties();
     _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 60);
+
+    ObjectFactoryPtr adapterFactory = new AdapterFactory(_waitTime);
+    adapter->getCommunicator()->addObjectFactory(adapterFactory, "::IcePack::Adapter");
+
+    Freeze::DBPtr dbAdapters = dbEnv->openDB("adapters", true);
+    _evictor = dbAdapters->createEvictor(Freeze::SaveUponEviction);
+    _evictor->setSize(100);
+    _adapter->addServantLocator(_evictor, "adapter");
+
+    //
+    // Cache the server names for getAll(). This will load all the
+    // server objects at the begining and might cause slow startup.
+    //
+    Freeze::EvictorIteratorPtr p = _evictor->getIterator();
+    while(p->hasNext())
+    {
+	AdapterPrx a = AdapterPrx::checkedCast(_adapter->createProxy(p->next()));
+	assert(a);
+	AdapterDescription desc = a->getAdapterDescription();
+	_adapterNames.insert(desc.name);
+    }
 }
 
 AdapterPrx
@@ -138,7 +195,6 @@ IcePack::AdapterManagerI::create(const AdapterDescription& description, const Cu
     
     AdapterPtr adapterI = new AdapterI(_waitTime);
     adapterI->_description = description;
-    adapterI->_active = false;
     adapterI->_proxy = 0;
 
     //
@@ -146,7 +202,9 @@ IcePack::AdapterManagerI::create(const AdapterDescription& description, const Cu
     //
     _adapterNames.insert(description.name);
 
-    return AdapterPrx::uncheckedCast(_adapter->add(adapterI, adapter->ice_getIdentity()));
+    _evictor->createObject(adapter->ice_getIdentity(), adapterI);
+
+    return adapter;
 }
 
 AdapterPrx
@@ -179,7 +237,7 @@ IcePack::AdapterManagerI::remove(const string& name, const Current&)
 	throw AdapterNotExistException();
     }
 
-    _adapter->remove(adapter->ice_getIdentity());
+    _evictor->destroyObject(adapter->ice_getIdentity());
 
     //
     // Remove the adapter name from our internal name set.

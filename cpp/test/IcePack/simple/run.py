@@ -32,6 +32,8 @@ testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\" " + \
                     "--Ice.Adapter.TestAdapter.Endpoints=default"
 
+TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
+
 #
 # Start IcePack
 # 
@@ -107,15 +109,14 @@ if TestUtil.isWin32() == 0 and TestUtil.protocol != "ssl":
        print output,
 
     clientStatus = clientPipe.close()
-
-    print "unregister server with icepack...",
-    IcePackAdmin.removeServer(toplevel, "server");
-    print "ok"
-
     if clientStatus:
 	TestUtil.killServers()
 	sys.exit(1)
     
+    print "unregister server with icepack...",
+    IcePackAdmin.removeServer(toplevel, "server");
+    print "ok"
+
 IcePackAdmin.shutdownIcePack(toplevel, icePackPipe)
 
 sys.exit(0)

@@ -12,6 +12,7 @@
 #include <IcePack/AdminI.h>
 #include <IcePack/ServerManager.h>
 #include <IcePack/AdapterManager.h>
+#include <IcePack/ServerDeployer.h>
 
 using namespace std;
 using namespace Ice;
@@ -29,7 +30,11 @@ void
 IcePack::AdminI::addServer(const string& name, const string& path, const string& ldpath, const string& descriptor,
 			   const Current&)
 {
-    _serverManager->create(name, path, ldpath, descriptor);
+    ServerDeployer deployer(_communicator, name, path, ldpath);
+    deployer.setServerManager(_serverManager);
+    deployer.setAdapterManager(_adapterManager);
+    deployer.parse(descriptor);
+    deployer.deploy();
 }
 
 ServerDescription
@@ -86,7 +91,20 @@ IcePack::AdminI::startServer(const string& name, const Current&)
 void
 IcePack::AdminI::removeServer(const string& name, const Current&)
 {
-    _serverManager->remove(name);
+    ServerPrx server = _serverManager->findByName(name);
+    if(!server)
+    {
+	throw ServerNotExistException();
+    }
+
+    server->setState(Destroyed);
+    ServerDescription desc = server->getServerDescription();
+    
+    ServerDeployer deployer(_communicator, desc.name, desc.path, "");
+    deployer.setServerManager(_serverManager);
+    deployer.setAdapterManager(_adapterManager);
+    deployer.parse(desc.descriptor);
+    deployer.undeploy();
 }
 
 ServerNames

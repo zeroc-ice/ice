@@ -14,6 +14,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IcePack/ComponentDeployer.h>
+#include <IcePack/Admin.h>
 #include <IcePack/ServerManagerF.h>
 #include <IcePack/AdapterManagerF.h>
 
@@ -23,23 +24,30 @@ namespace IcePack
 class ServerDeployer : public ComponentDeployer
 {
 public:
+
     enum ServerKind
     {
-	CppIceBox,
-	JavaIceBox,
-	CppServer,
-	JavaServer
+	ServerKindCppIceBox,
+	ServerKindJavaIceBox,
+	ServerKindCppServer,
+	ServerKindJavaServer
     };
 
-    ServerDeployer(const Ice::CommunicatorPtr&, const ServerPtr&, const ServerPrx&);
+    ServerDeployer(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&);
 
+    void setServerManager(const ServerManagerPrx&);
     void setAdapterManager(const AdapterManagerPrx&);
 
-    virtual void parse();
+    void parse(const std::string&);
+
+    virtual void deploy();
+    virtual void undeploy();
+
+    const ServerDescription& getServerDescription() const;
 
     void setClassName(const std::string&);
     void setWorkingDirectory(const std::string&);
-    void addAdapter(const std::string&);
+    void addAdapter(const std::string&, const std::string&);
     void addService(const std::string&, const std::string&);
     void addOption(const std::string&);
     void addJavaOption(const std::string&);
@@ -47,14 +55,13 @@ public:
 
 private:
 
+    ServerManagerPrx _serverManager;
     AdapterManagerPrx _adapterManager;
 
     ServerKind _kind;
-
-    ServerPtr _server;
-    ServerPrx _serverProxy;
-
+    ServerDescription _description;
     std::string _className;
+    std::string _libraryPath;
     std::vector<std::string> _javaOptions;
 };
 

@@ -13,6 +13,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <Freeze/DBF.h>
 #include <IcePack/AdapterManager.h>
 #include <set>
 
@@ -34,14 +35,15 @@ public:
 
 private:
 
-    ::Ice::Int _waitTime;    
+    ::Ice::Int _waitTime;
+    bool _active;
 };
 
 class AdapterManagerI : public AdapterManager, public IceUtil::Mutex
 {
 public:
 
-    AdapterManagerI(const Ice::ObjectAdapterPtr&);
+    AdapterManagerI(const Ice::ObjectAdapterPtr&, const Freeze::DBEnvironmentPtr&);
     
     virtual AdapterPrx create(const AdapterDescription&, const ::Ice::Current&);
     virtual AdapterPrx findByName(const ::std::string&, const ::Ice::Current&);
@@ -51,6 +53,7 @@ public:
 private:
 
     ::Ice::ObjectAdapterPtr _adapter;
+    ::Freeze::EvictorPtr _evictor;
     ::std::set< ::std::string> _adapterNames;
     ::Ice::Int _waitTime;
 };

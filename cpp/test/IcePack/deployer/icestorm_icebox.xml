@@ -1,0 +1,8 @@
+<server kind="cpp-icebox" endpoints="default">
+
+<services>
+   <service name="AnIceStorm" descriptor="icestorm_service.xml"/>
+   <service name="AnotherIceStorm" descriptor="icestorm_service.xml"/>
+</services>
+
+</server>
