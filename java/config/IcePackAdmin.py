@@ -28,7 +28,7 @@ def startIcePack(toplevel, port, testdir):
           r' --IcePack.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
           r' --IcePack.LocatorRegistry.Endpoints=default' + \
           r' --IcePack.Admin.Endpoints=default' + \
-          r' --IcePack.Data=' + os.path.join(testdir, "db")
+          r' --IcePack.Data=' + os.path.join(testdir, "data")
 
     icePackPipe = os.popen(command)
     TestUtil.getServerPid(icePackPipe)

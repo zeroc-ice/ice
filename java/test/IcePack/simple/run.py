@@ -37,6 +37,8 @@ name = os.path.join("IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\""
 
+TestUtil.cleanDbDir(os.path.join(testdir, "data/db"))
+
 #
 # Start IcePack
 # 
