@@ -141,7 +141,7 @@ static const char* _coreTypes =
     "    {\n"
     "        return get_class($this) . \"\\n\" .\n"
     "               \"   identity: \" . Ice_identityToString($this->id) . \"\\n\" .\n"
-    "               \"      facet: \" . implode(',', $this->facet) . \"\\n\" .\n"
+    "               \"      facet: \" . $this->facet . \"\\n\" .\n"
     "               \"  operation: \" . $this->operation;\n"
     "    }\n"
     "\n"
