@@ -20,6 +20,7 @@ public class Client
                            + "1: sequence of bytes (default)\n"
                            + "2: sequence of strings (\"hello\")\n"
                            + "3: sequence structs with a string (\"hello\") and a double\n"
+                           + "\n"
                            + "select test to run:\n"
                            + "t: Send sequence as twoway\n"
                            + "o: Send sequence as oneway\n" 
@@ -85,9 +86,13 @@ public class Client
                 Console.Write("==> ");
                 Console.Out.Flush();
                 line = Console.In.ReadLine();
+		if(line == null)
+		{
+		    break;
+		}
 
                 long tmsec = System.DateTime.Now.Ticks / 10000;
-                const int repetitions = 1000;
+                const int repetitions = 100;
 
                 if(line.Equals("1") || line.Equals("2") || line.Equals("3"))
                 {
@@ -120,6 +125,10 @@ public class Client
                     switch (c)
                     {                       
                         case 't': 
+                        {
+                            Console.Write("sending");
+                            break;
+                        }                                            
                         case 'o': 
                         {
                             Console.Write("sending");
