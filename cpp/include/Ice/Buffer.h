@@ -24,7 +24,10 @@ class ICE_API Buffer : public ::IceUtil::noncopyable
 {
 public:
 
+    Buffer() : i(b.begin()) { }
+
     typedef std::vector<Ice::Byte> Container;
+
     Container b;
     Container::iterator i;
 };

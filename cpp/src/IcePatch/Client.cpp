@@ -371,10 +371,56 @@ public:
     }
 };
 
+#ifdef _WIN32
+
+//
+// Function object to do case-insensitive string comparison.
+//
+class CICompare : public std::binary_function<std::string, std::string, bool>
+{
+public:
+
+    bool operator()(const string& s1, const string& s2) const
+    {
+	string::const_iterator p1 = s1.begin();
+	string::const_iterator p2 = s2.begin();
+	while(p1 != s1.end() && p2 != s2.end() && ::tolower(*p1) == ::tolower(*p2))
+	{
+	    ++p1;
+	    ++p2;
+	}
+	if(p1 == s1.end() && p2 == s2.end())
+	{
+	    return false;
+	}
+	else if(p1 == s1.end())
+	{
+	    return true;
+	}
+	else if(p2 == s2.end())
+	{
+	    return false;
+	}
+	else
+	{
+	    return ::tolower(*p1) < ::tolower(*p2);
+	}
+    }
+};
+
+typedef set<string, CICompare> OrphanedSet;
+
+#else
+
+typedef set<string> OrphanedSet;
+
+#endif
+
 void
 IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) const
 {
-    set<string> orphaned;
+    OrphanedSet orphaned;
+
     if(_remove)
     {
 	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->dir->ice_getIdentity()));
@@ -527,7 +573,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	}
     }
 
-    for(set<string>::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
+    for(OrphanedSet::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
     {
 	cout << indent << "+-" << pathToName(*p) << ": removing orphaned file" << endl;
 	removeRecursive(*p);

@@ -399,7 +399,7 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
         }
 
         int retryCount = 0;
-        int pkLoadResult;
+        int pkLoadResult = 0;
         int errCode = 0;
 
         while(retryCount != _maxPassphraseTries)

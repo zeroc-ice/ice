@@ -185,7 +185,7 @@ main(int argc, char* argv[])
                 //
                 static string schema =
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                    "<xs:schema xmlns:xs=\"http://www.w3.org/2003/XMLSchema\""
+                    "<xs:schema xmlns:xs=\"http://www.w3.org/2002/XMLSchema\""
                     "           elementFormDefault=\"qualified\""
                     "           xmlns:tns=\"http://www.noorg.org/schemas\""
                     "           xmlns:ice=\"http://www.zeroc.com/schemas\""

@@ -100,17 +100,7 @@ SOURCE=.\cexp.c
 # Begin Source File
 
 SOURCE=.\prefix.c
-
-!IF  "$(CFG)" == "icecpp - Win32 Release"
-
 # ADD CPP /D "__STDC__"
-
-!ELSEIF  "$(CFG)" == "icecpp - Win32 Debug"
-
-# ADD CPP /D "__STDC__"
-
-!ENDIF 
-
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -1,6 +1,13 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed a bug with connections being closed even though they have
+  outstanding batch requests.
+
+- Fixed bug in the WIN32 icepatch client. The removal of orphaned files
+  didn't take into account that WIN32 file names are not case
+  sensitive.
+
 - New Ice.Nohup property: when its value is >0, shutdownOnInterrupt()
   in Application will ignore SIGHUP on Unix and CTRL_LOGOFF_EVENT on 
   Windows.
@@ -66,7 +73,8 @@ Changes since version 1.0.1
   sequences are (recursively) legal.
 
 - The connection timeout is now also used when connections are
-  closed. This avoid hanging processes if the peer misbehaves.
+  closed. This avoid hanging processes if the peer misbehaves, or if
+  asynchronous methods invocations don't return.
 
 - In some cases, communicator destruction could result in a
   NullHandleException. This has been fixed. Now a

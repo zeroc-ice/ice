@@ -130,6 +130,8 @@ private:
     static void doCompress(BasicStream&, BasicStream&);
     static void doUncompress(BasicStream&, BasicStream&);
 
+    bool closeOK() const;
+
     TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
 

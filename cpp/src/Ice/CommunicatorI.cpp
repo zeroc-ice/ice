@@ -228,10 +228,11 @@ void
 Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 {
     RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
+    //
+    // No check for destruction. It must be possible to set the logger
+    // after destruction (needed by logger plugins for example to
+    // unset the logger).
+    //
     _instance->logger(logger);
 }
 
