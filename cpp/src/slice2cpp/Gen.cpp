@@ -2698,7 +2698,7 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& name
 	C << nl << "for(" << scoped << "::const_iterator " << iterName << " = " << name
           << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
 	C << sb;
-	emitGCInsertCode(d->valueType(), string("(*") + iterName + ")", "", ++level);
+	emitGCInsertCode(d->valueType(), string("(*") + iterName + ").second", "", ++level);
 	C << eb;
 	C << eb;
 	return;
@@ -2758,7 +2758,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& name,
 	C << nl << "for(" << scoped << "::iterator " << iterName << " = " << name
           << ".begin(); " << iterName << " != " << name << ".end(); ++" << iterName << ")";
 	C << sb;
-	emitGCClearCode(d->valueType(), string("(*") + iterName + ")", "", ++level);
+	emitGCClearCode(d->valueType(), string("(*") + iterName + ").second", "", ++level);
 	C << eb;
 	C << eb;
 	return;
