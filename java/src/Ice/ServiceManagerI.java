@@ -33,6 +33,8 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // Initialize a Communicator. The services may share this
             // Communicator instance if desired.
             //
+            Util.addArgumentPrefix("IceBox");
+            StringSeqHolder argsH = new StringSeqHolder(args);
             _communicator = Util.initialize(argsH);
         }
         catch(Exception ex)
@@ -71,6 +73,18 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             {
                 stopServices();
                 return 1;
+            }
+
+            //
+            // We may want to notify external scripts that the services have started.
+            // This is done by defining IceBox.PrintServicesReady=bundleName
+            // Where bundleName is whatever you choose to call this set of services.
+            // It will be echoed back as "bundleName ready".
+            //
+            String bundleName = _communicator.getProperties().getProperty("IceBox.PrintServicesReady");
+            if (bundleName.length() > 0)
+            {
+                System.out.println(bundleName + " ready");
             }
 
             //
