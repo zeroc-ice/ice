@@ -1064,6 +1064,11 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             }
         }
 
+        if(_op->sendsClasses())
+        {
+            os.writePendingObjects();
+        }
+
         //
         // Invoke the operation.
         //
@@ -1101,6 +1106,10 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             {
                 return;
             }
+        }
+        if(_op->returnsClasses())
+        {
+            is.readPendingObjects();
         }
     }
     catch(const IceUtil::Exception& ex)
