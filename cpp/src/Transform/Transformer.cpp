@@ -45,14 +45,34 @@ public:
     TransformSymbolTable(const DataFactoryPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&, const ErrorReporterPtr&,
                          TransformSymbolTable* = 0);
 
-    virtual DataPtr getValue(const Identifier&) const;
+    virtual DataPtr getValue(const EntityNodePtr&) const;
     virtual DataPtr getConstantValue(const string&) const;
 
     void add(const string&, const DataPtr&);
 
 private:
 
-    DataPtr findValue(const string&);
+    DataPtr findValue(const string&) const;
+
+    class EntityVisitor : public EntityNodeVisitor
+    {
+    public:
+
+        EntityVisitor(TransformSymbolTable*);
+
+        virtual void visitIdentifier(const string&);
+        virtual void visitElement(const NodePtr&);
+
+        DataPtr getCurrent() const;
+
+    private:
+
+        TransformSymbolTable* _table;
+        DataPtr _current;
+        bool _error;
+    };
+
+    friend class EntityVisitor;
 
     DataFactoryPtr _factory;
     Slice::UnitPtr _old;
@@ -104,7 +124,7 @@ public:
 
 private:
 
-    IdentNodePtr _target;
+    EntityNodePtr _target;
     NodePtr _key;
     string _keyStr;
     NodePtr _value;
@@ -125,7 +145,7 @@ public:
 
 private:
 
-    IdentNodePtr _target;
+    EntityNodePtr _target;
     NodePtr _key;
     string _keyStr;
 };
@@ -214,7 +234,7 @@ public:
 
 private:
 
-    IdentNodePtr _target;
+    EntityNodePtr _target;
     string _key;
     string _value;
     string _element;
@@ -373,42 +393,16 @@ Transform::TransformSymbolTable::TransformSymbolTable(const DataFactoryPtr& fact
 }
 
 Transform::DataPtr
-Transform::TransformSymbolTable::getValue(const Identifier& id) const
+Transform::TransformSymbolTable::getValue(const EntityNodePtr& entity) const
 {
-    DataPtr result;
-
-    Identifier tmpid = id;
-    string s = tmpid.front();
-    tmpid.erase(tmpid.begin());
-
-    DataMap::const_iterator p = _dataMap.find(s);
-    if(p != _dataMap.end())
-    {
-        result = p->second;
-    }
-
-    if(!result && _parent)
-    {
-        result = _parent->findValue(s);
-    }
-
+    EntityVisitor visitor(const_cast<TransformSymbolTable*>(this));
+    entity->visit(visitor);
+    DataPtr result = visitor.getCurrent();
     if(!result)
     {
         ostringstream ostr;
-        ostr << "invalid identifier `" << id << "'";
-        throw TransformException(__FILE__, __LINE__, ostr.str());
-    }
-
-    for(Identifier::const_iterator p = tmpid.begin(); p != tmpid.end(); ++p)
-    {
-        DataPtr d = result->getMember(*p);
-        if(!d)
-        {
-            ostringstream ostr;
-            ostr << "invalid identifier `" << id << "'";
-            throw TransformException(__FILE__, __LINE__, ostr.str());
-        }
-        result = d;
+        ostr << "invalid entity `" << entity << "'";
+        _errorReporter->error(ostr.str());
     }
 
     return result;
@@ -572,7 +566,7 @@ Transform::TransformSymbolTable::add(const string& name, const DataPtr& data)
 }
 
 Transform::DataPtr
-Transform::TransformSymbolTable::findValue(const string& name)
+Transform::TransformSymbolTable::findValue(const string& name) const
 {
     DataMap::const_iterator p = _dataMap.find(name);
     if(p != _dataMap.end())
@@ -586,6 +580,55 @@ Transform::TransformSymbolTable::findValue(const string& name)
     }
 
     return 0;
+}
+
+Transform::TransformSymbolTable::EntityVisitor::EntityVisitor(TransformSymbolTable* table) :
+    _table(table), _error(false)
+{
+}
+
+void
+Transform::TransformSymbolTable::EntityVisitor::visitIdentifier(const string& name)
+{
+    if(!_error)
+    {
+        if(!_current)
+        {
+            _current = _table->findValue(name);
+        }
+        else
+        {
+            _current = _current->getMember(name);
+        }
+
+        if(!_current)
+        {
+            _error = true;
+        }
+    }
+}
+
+void
+Transform::TransformSymbolTable::EntityVisitor::visitElement(const NodePtr& value)
+{
+    if(!_error)
+    {
+        assert(_current);
+
+        DataPtr val = value->evaluate(*_table);
+        _current = _current->getElement(val);
+
+        if(!_current)
+        {
+            _error = true;
+        }
+    }
+}
+
+Transform::DataPtr
+Transform::TransformSymbolTable::EntityVisitor::getCurrent() const
+{
+    return _current;
 }
 
 //
@@ -664,10 +707,10 @@ Transform::SetDescriptor::SetDescriptor(const DescriptorPtr& parent, int line, c
     DescriptorErrorContext ctx(errorReporter(), "set", _line);
 
     NodePtr node = parse(target);
-    _target = IdentNodePtr::dynamicCast(node);
+    _target = EntityNodePtr::dynamicCast(node);
     if(!_target)
     {
-        errorReporter()->error("`target' attribute is not an identifier: `" + target + "'");
+        errorReporter()->error("`target' attribute is not an entity: `" + target + "'");
     }
 
     if(!key.empty())
@@ -698,11 +741,11 @@ Transform::SetDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
 {
     DescriptorErrorContext ctx(errorReporter(), "set", _line);
 
-    DataPtr data = sym.getValue(_target->getValue());
+    DataPtr data = sym.getValue(_target);
     if(data->readOnly())
     {
         ostringstream ostr;
-        ostr << _target->getValue();
+        ostr << _target;
         errorReporter()->error("target `" + ostr.str() + "' cannot be modified");
     }
 
@@ -757,7 +800,7 @@ Transform::SetDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
         if(!dict)
         {
             ostringstream ostr;
-            ostr << _target->getValue();
+            ostr << _target;
             errorReporter()->error("target `" + ostr.str() + "' is not a dictionary");
         }
         dict->put(key, value, interceptor, _convert);
@@ -778,10 +821,10 @@ Transform::RemoveDescriptor::RemoveDescriptor(const DescriptorPtr& parent, int l
     DescriptorErrorContext ctx(errorReporter(), "remove", _line);
 
     NodePtr node = parse(target);
-    _target = IdentNodePtr::dynamicCast(node);
+    _target = EntityNodePtr::dynamicCast(node);
     if(!_target)
     {
-        errorReporter()->error("`target' attribute is not an identifier: `" + target + "'");
+        errorReporter()->error("`target' attribute is not an entity: `" + target + "'");
     }
 
     _key = parse(key);
@@ -814,11 +857,11 @@ Transform::RemoveDescriptor::execute(TransformSymbolTable& sym, DataInterceptor&
         errorReporter()->error("evaluation of key `" + _keyStr + "' failed:\n" + ex.reason());
     }
 
-    DataPtr data = sym.getValue(_target->getValue());
+    DataPtr data = sym.getValue(_target);
     if(data->readOnly())
     {
         ostringstream ostr;
-        ostr << _target->getValue();
+        ostr << _target;
         errorReporter()->error("target `" + ostr.str() + "' cannot be modified");
     }
 
@@ -826,7 +869,7 @@ Transform::RemoveDescriptor::execute(TransformSymbolTable& sym, DataInterceptor&
     if(!dict)
     {
         ostringstream ostr;
-        ostr << _target->getValue();
+        ostr << _target;
         errorReporter()->error("target `" + ostr.str() + "' is not a dictionary");
     }
     dict->remove(key);
@@ -1016,10 +1059,10 @@ Transform::IterateDescriptor::IterateDescriptor(const DescriptorPtr& parent, int
     DescriptorErrorContext ctx(errorReporter(), "iterate", _line);
 
     NodePtr node = parse(target);
-    _target = IdentNodePtr::dynamicCast(node);
+    _target = EntityNodePtr::dynamicCast(node);
     if(!_target)
     {
-        errorReporter()->error("`target' attribute is not an identifier: `" + target + "'");
+        errorReporter()->error("`target' attribute is not an entity: `" + target + "'");
     }
 }
 
@@ -1028,14 +1071,14 @@ Transform::IterateDescriptor::execute(TransformSymbolTable& sym, DataInterceptor
 {
     DescriptorErrorContext ctx(errorReporter(), "iterate", _line);
 
-    DataPtr data = sym.getValue(_target->getValue());
+    DataPtr data = sym.getValue(_target);
 
     DictionaryDataPtr dict = DictionaryDataPtr::dynamicCast(data);
     SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
     if(!dict && !seq)
     {
         ostringstream ostr;
-        ostr << _target->getValue();
+        ostr << _target;
         errorReporter()->error("target `" + ostr.str() + "' is not a dictionary or sequence");
     }
 

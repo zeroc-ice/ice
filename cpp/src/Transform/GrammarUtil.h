@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_GRAMMAR_UTIL_H
-#define FREEZE_GRAMMAR_UTIL_H
+#ifndef TRANSFORM_GRAMMAR_UTIL_H
+#define TRANSFORM_GRAMMAR_UTIL_H
 
 #include <Transform/Node.h>
 #include <Transform/Parser.h>
@@ -64,18 +64,6 @@ public:
     StringTok() { }
 
     std::string v;
-};
-
-// ----------------------------------------------------------------------
-// IdentifierTok
-// ----------------------------------------------------------------------
-
-class IdentifierTok : public Token
-{
-public:
-
-    IdentifierTok() { }
-    Identifier v;
 };
 
 // ----------------------------------------------------------------------

@@ -203,11 +203,9 @@ unary
 {
     $$ = new DataNode(parseDataFactory->createNil(true));
 }
-| identifier
+| entity
 {
-    IdentifierTokPtr listVal = IdentifierTokPtr::dynamicCast($1);
-    assert(listVal);
-    $$ = new IdentNode(listVal->v);
+    $$ = $1;
 }
 | constant
 {
@@ -218,24 +216,29 @@ unary
 ;
 
 // ----------------------------------------------------------------------
-identifier
+entity
 // ----------------------------------------------------------------------
-: identifier '.' TOK_IDENTIFIER
+: entity TOK_LBRACKET expr TOK_RBRACKET
 {
-    IdentifierTokPtr listVal = IdentifierTokPtr::dynamicCast($1);
-    assert(listVal);
+    EntityNodePtr entity = EntityNodePtr::dynamicCast($1);
+    assert(entity);
+    entity->append(new ElementNode($3));
+    $$ = $1;
+}
+| entity '.' TOK_IDENTIFIER
+{
     StringTokPtr stringVal = StringTokPtr::dynamicCast($3);
     assert(stringVal);
-    listVal->v.push_back(stringVal->v);
+    EntityNodePtr entity = EntityNodePtr::dynamicCast($1);
+    assert(entity);
+    entity->append(new IdentNode(stringVal->v));
     $$ = $1;
 }
 | TOK_IDENTIFIER
 {
     StringTokPtr stringVal = StringTokPtr::dynamicCast($1);
     assert(stringVal);
-    IdentifierTokPtr listVal = new IdentifierTok;
-    listVal->v.push_back(stringVal->v);
-    $$ = listVal;
+    $$ = new IdentNode(stringVal->v);
 }
 ;
 

@@ -16,17 +16,54 @@
 
 using namespace std;
 
-ostream&
-operator<<(ostream& os, const Transform::Identifier& id)
+namespace Transform
 {
-    for(Transform::Identifier::const_iterator p = id.begin(); p != id.end(); ++p)
+
+class EntityNodePrinter : public EntityNodeVisitor
+{
+public:
+
+    EntityNodePrinter(ostream& os) :
+        _os(os), _first(true)
     {
-        if(p != id.begin())
-        {
-            os << '.';
-        }
-        os << *p;
     }
+
+    virtual void
+    visitIdentifier(const std::string& name)
+    {
+        if(_first)
+        {
+            _first = false;
+        }
+        else
+        {
+            _os << '.';
+        }
+        _os << name;
+    }
+
+    virtual void
+    visitElement(const NodePtr& value)
+    {
+        assert(!_first);
+        _os << '[';
+        value->print(_os);
+        _os << ']';
+    }
+
+private:
+
+    ostream& _os;
+    bool _first;
+};
+
+} // End of namespace Transform
+
+ostream&
+operator<<(ostream& os, const Transform::EntityNodePtr& entity)
+{
+    Transform::EntityNodePrinter printer(os);
+    entity->visit(printer);
     return os;
 }
 
@@ -406,36 +443,94 @@ Transform::DataNode::print(ostream& os) const
 }
 
 //
-// IdentNode
+// EntityNodeVisitor
 //
-Transform::IdentNode::IdentNode(const Identifier& value) :
-    _value(value)
+Transform::EntityNodeVisitor::~EntityNodeVisitor()
 {
 }
 
+//
+// EntityNode
+//
 Transform::DataPtr
-Transform::IdentNode::evaluate(SymbolTable& st)
+Transform::EntityNode::evaluate(SymbolTable& st)
 {
-    DataPtr result = st.getValue(_value);
+    DataPtr result = st.getValue(this);
     if(!result)
     {
         ostringstream ostr;
         print(ostr);
-        throw EvaluateException(__FILE__, __LINE__, "unknown identifier `" + ostr.str() + "'");
+        throw EvaluateException(__FILE__, __LINE__, "unknown entity `" + ostr.str() + "'");
     }
     return result;
 }
 
 void
-Transform::IdentNode::print(ostream& os) const
+Transform::EntityNode::print(ostream& os) const
 {
-    os << _value;
+    EntityNodePrinter printer(os);
+    visit(printer);
 }
 
-Transform::Identifier
+void
+Transform::EntityNode::append(const EntityNodePtr& next)
+{
+    if(_next)
+    {
+        _next->append(next);
+    }
+    else
+    {
+        _next = next;
+    }
+}
+
+//
+// IdentNode
+//
+Transform::IdentNode::IdentNode(const string& value) :
+    _value(value)
+{
+}
+
+string
 Transform::IdentNode::getValue() const
 {
     return _value;
+}
+
+void
+Transform::IdentNode::visit(EntityNodeVisitor& visitor) const
+{
+    visitor.visitIdentifier(_value);
+    if(_next)
+    {
+        _next->visit(visitor);
+    }
+}
+
+//
+// ElementNode
+//
+Transform::ElementNode::ElementNode(const NodePtr& value) :
+    _value(value)
+{
+}
+
+Transform::NodePtr
+Transform::ElementNode::getValue() const
+{
+    return _value;
+}
+
+void
+Transform::ElementNode::visit(EntityNodeVisitor& visitor) const
+{
+    visitor.visitElement(_value);
+    if(_next)
+    {
+        _next->visit(visitor);
+    }
 }
 
 //

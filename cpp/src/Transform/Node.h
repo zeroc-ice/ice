@@ -23,7 +23,8 @@ namespace Transform
 class Node;
 typedef IceUtil::Handle<Node> NodePtr;
 
-typedef std::vector<std::string> Identifier;
+class EntityNode;
+typedef IceUtil::Handle<EntityNode> EntityNodePtr;
 
 class EvaluateException : public IceUtil::Exception
 {
@@ -34,6 +35,7 @@ public:
     virtual void ice_print(std::ostream&) const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
+
     std::string reason() const;
 
 private:
@@ -47,7 +49,7 @@ public:
 
     virtual ~SymbolTable();
 
-    virtual DataPtr getValue(const Identifier&) const = 0;
+    virtual DataPtr getValue(const EntityNodePtr&) const = 0;
     virtual DataPtr getConstantValue(const std::string&) const = 0;
 };
 
@@ -126,23 +128,64 @@ private:
     DataPtr _data;
 };
 
-class IdentNode : public Node
+class EntityNodeVisitor
 {
 public:
 
-    IdentNode(const Identifier&);
+    virtual ~EntityNodeVisitor();
+
+    virtual void visitIdentifier(const std::string&) = 0;
+    virtual void visitElement(const NodePtr&) = 0;
+};
+
+class EntityNode : public Node
+{
+public:
 
     virtual DataPtr evaluate(SymbolTable&);
 
     virtual void print(std::ostream&) const;
 
-    Identifier getValue() const;
+    virtual void visit(EntityNodeVisitor&) const = 0;
+
+    void append(const EntityNodePtr&);
+
+protected:
+
+    EntityNodePtr _next;
+};
+
+class IdentNode : public EntityNode
+{
+public:
+
+    IdentNode(const std::string&);
+
+    virtual void visit(EntityNodeVisitor&) const;
+
+    std::string getValue() const;
 
 private:
 
-    Identifier _value;
+    std::string _value;
 };
 typedef IceUtil::Handle<IdentNode> IdentNodePtr;
+
+class ElementNode : public EntityNode
+{
+public:
+
+    ElementNode(const NodePtr&);
+
+    virtual void visit(EntityNodeVisitor&) const;
+
+    NodePtr getValue() const;
+
+private:
+
+    NodePtr _value;
+};
+typedef IceUtil::Handle<ElementNode> ElementNodePtr;
 
 class ConstantNode : public Node
 {
@@ -161,6 +204,6 @@ private:
 
 } // End of namespace Transform
 
-std::ostream& operator<<(std::ostream&, const Transform::Identifier&);
+std::ostream& operator<<(std::ostream&, const Transform::EntityNodePtr&);
 
 #endif
