@@ -15,13 +15,6 @@ Solaris 9; on Solaris 8, you need to install patch 112438-01.
 C++ compiler
 ------------
 
-- Sun C++ 5.3 (part of Forte 6 update 2 aka Sun WorkShop 6 update 2)
-  with patch 111685-14 (or later) applied.  It is necessary to setup
-  Sun C++ 5.3 to use the shared version of libCstd, as described in
-  <F6U2 install base>/SUNWspro/READMEs/c++ C.1.b (line 168).
- 
-  or
-
 - Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7)
 
   or
@@ -34,7 +27,8 @@ C++ compiler
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1
+- Berkeley DB 4.1.25 with C++ support enabled, and built with a C++
+  compiler compatible with the one you are using.
 
 - expat 1.9x
 
@@ -50,6 +44,7 @@ http://www.sunfreeware.com; or you can download the source from
 http://www.openssl.org.
 
 expat can be downloaded from:
+http://www.sunfreeware.com or
 http://sourceforge.net/projects/expat/
 
 And Berkeley DB from:
