@@ -25,6 +25,39 @@
 using namespace std;
 
 //
+// We're using a little hack. For performance reasons, we want to parse the Slice files and create
+// the corresponding PHP classes during module startup, not request startup. In order for these
+// classes to persist across requests, we need to register them as "internal" classes, and not
+// "user" classes. User classes are created when PHP scripts are parsed, and destroyed when the
+// script terminates.
+//
+// The decision about which type of class to create influences memory management. If we use PHP's
+// e* functions (e.g., emalloc), then that memory is reclaimed after each request. Therefore, we
+// cannot use these functions to create internal classes.
+//
+// There are also two types of class methods: internal functions and user functions. Internal
+// functions are implemented by the extension, whereas user functions are implemented in PHP.
+// PHP assumes that a user function descriptor is allocated using the e* functions, because
+// a user function is normally only created by the PHP parser and therefore the function must
+// have been defined within a user class.
+//
+// This means that if we want to define a user function in an internal class, as is necessary for
+// definining operation prototypes for Slice classes and interfaces, we have to be very careful
+// about memory management. Therefore, when PHP is shutting down, we iterate over the classes
+// we've created and manually free the user functions we created. If we didn't do this, then PHP
+// would use the wrong memory management functions to free this data.
+//
+// There are two alternatives:
+//
+// 1. Create the PHP classes for Slice types for each request. These could then be created as
+//    user classes, not internal classes.
+//
+// 2. Generate PHP classes from the Slice types. This avoids the need to create the classes
+//    manually, but we would likely still need to parse the Slice files in the extension, which
+//    means the user would need both the PHP classes and the Slice files.
+//
+
+//
 // Visitor descends the Slice parse tree and creates PHP classes for certain Slice types.
 //
 class Visitor : public Slice::ParserVisitor
@@ -33,18 +66,18 @@ public:
     Visitor(int TSRMLS_DC);
 
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
-    virtual void visitClassDefEnd(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
     virtual void visitOperation(const Slice::OperationPtr&);
-    virtual void visitDataMember(const Slice::DataMemberPtr&);
     virtual void visitDictionary(const Slice::DictionaryPtr&);
     virtual void visitEnum(const Slice::EnumPtr&);
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
-    int _module;
     zend_class_entry* createZendClass(const Slice::ContainedPtr&);
+
+    int _module;
+    zend_class_entry* _currentClass;
 #ifdef ZTS
     TSRMLS_D;
 #endif
@@ -73,7 +106,7 @@ static TypeMap _typeMap;
 // Parse the Slice files that define the types and operations available to a PHP script.
 //
 static bool
-parse_slice(const string& argStr)
+parseSlice(const string& argStr)
 {
     vector<string> args;
     if(!ice_splitString(argStr, args))
@@ -164,6 +197,18 @@ parse_slice(const string& argStr)
     return status;
 }
 
+static void
+destroyUserFunc(void* p)
+{
+    zend_op_array* op = static_cast<zend_op_array*>(p);
+cerr << "destroying function " << op->function_name << endl;
+    assert(op->type = ZEND_USER_FUNCTION);
+    free(op->function_name);
+    free(op->refcount);
+    free(op->opcodes);
+    free(op->arg_types);
+}
+
 bool
 Slice_init(int module TSRMLS_DC)
 {
@@ -173,7 +218,7 @@ Slice_init(int module TSRMLS_DC)
     char* parse = INI_STR("ice.parse");
     if(parse && strlen(parse) > 0)
     {
-        if(!parse_slice(parse))
+        if(!parseSlice(parse))
         {
             return false;
         }
@@ -261,7 +306,7 @@ Slice_isNativeKey(const Slice::TypePtr& type)
 }
 
 Visitor::Visitor(int module TSRMLS_DC) :
-    _module(module)
+    _module(module), _currentClass(0)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -269,14 +314,69 @@ Visitor::Visitor(int module TSRMLS_DC) :
 }
 
 bool
-Visitor::visitClassDefStart(const Slice::ClassDefPtr&)
+Visitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 {
-    return false;
-}
+    //
+    // Get the class entry for the base exception (if any).
+    //
+    zend_class_entry* parent = NULL;
+#if 0
+    Slice::ExceptionPtr base = p->base();
+    if(base)
+    {
+        string s = base->scoped();
+        string f = ice_lowerCase(ice_flatten(s));
+        TypeMap::iterator q = _typeMap.find(f);
+        if(q != _typeMap.end())
+        {
+            parent = q->second->entry;
+        }
+        else
+        {
+            zend_error(E_ERROR, "base exception %s not found", f.c_str());
+            return false;
+        }
+    }
+#endif
 
-void
-Visitor::visitClassDefEnd(const Slice::ClassDefPtr&)
-{
+    string scoped = p->scoped();
+    string flat = ice_lowerCase(ice_flatten(scoped));
+
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
+    //
+    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
+    // is a string constant.
+    //
+    ce.name_length = flat.length();
+    zend_class_entry* cls = zend_register_internal_class_ex(&ce, parent, NULL TSRMLS_CC);
+
+    if(cls == NULL)
+    {
+        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
+        return false;
+    }
+
+    //
+    // Reset the hashtable destructor for the function table. See visitOperation and
+    // the note at the top of the file.
+    //
+    cls->function_table.pDestructor = destroyUserFunc;
+
+    if(p->isInterface())
+    {
+        cls->ce_flags |= ZEND_ACC_INTERFACE;
+    }
+    else if(p->isAbstract())
+    {
+        cls->ce_flags |= ZEND_ACC_ABSTRACT;
+    }
+
+    _typeMap[flat] = new TypeInfo(p, cls);
+
+    _currentClass = cls;
+
+    return true;
 }
 
 bool
@@ -344,13 +444,60 @@ Visitor::visitStructStart(const Slice::StructPtr& p)
 }
 
 void
-Visitor::visitOperation(const Slice::OperationPtr&)
+Visitor::visitOperation(const Slice::OperationPtr& p)
 {
-}
+    assert(_currentClass);
 
-void
-Visitor::visitDataMember(const Slice::DataMemberPtr&)
-{
+    string name = ice_lowerCase(p->name());
+    char* cname = const_cast<char*>(name.c_str());
+
+    zend_op_array op;
+    //
+    // We can't do this because it uses the e* allocation functions.
+    //
+    //init_op_array(&op, ZEND_USER_FUNCTION, INITIAL_OP_ARRAY_SIZE TSRMLS_CC);
+    //
+    memset(&op, 0, sizeof(zend_op_array));
+    op.type = ZEND_USER_FUNCTION;
+    op.function_name = strdup(cname);
+    op.refcount = static_cast<zend_uint*>(malloc(sizeof(zend_uint)));
+    *op.refcount = 1;
+    op.size = 8192; // TODO: Too large?
+    op.opcodes = static_cast<zend_op*>(calloc(op.size, sizeof(zend_op)));
+    op.current_brk_cont = static_cast<zend_uint>(-1);
+    op.fn_flags = ZEND_ACC_ABSTRACT | ZEND_ACC_PUBLIC;
+    op.scope = _currentClass;
+    op.prototype = NULL;
+
+    //
+    // Create an array that indicates how arguments are passed to the operation.
+    // The first element in the array determines how many follow it. The values
+    // must match what the PHP language parser would do, because PHP will compare
+    // this array to the one created for the user's function that overrides this
+    // one. Therefore, we must use BYREF_NONE for in params, and BYREF_FORCE for
+    // out params.
+    //
+    Slice::ParamDeclList params = p->parameters();
+    if(params.size() > 0)
+    {
+        op.arg_types = static_cast<zend_uchar*>(malloc((params.size() + 1) * sizeof(zend_uchar)));
+        op.arg_types[0] = static_cast<zend_uchar>(params.size());
+        int i;
+        Slice::ParamDeclList::const_iterator q;
+        for(q = params.begin(), i = 1; q != params.end(); ++q, ++i)
+        {
+            op.arg_types[i] = (*q)->isOutParam() ? BYREF_FORCE : BYREF_NONE;
+        }
+    }
+
+    if(zend_hash_add(&_currentClass->function_table, cname, name.length() + 1, &op, sizeof(zend_op_array), NULL) ==
+       FAILURE)
+    {
+        zend_error(E_ERROR, "unable to add method %s to class %s", cname, _currentClass->name);
+        free(op.function_name);
+        free(op.refcount);
+        free(op.opcodes);
+    }
 }
 
 void
