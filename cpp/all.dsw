@@ -893,6 +893,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name XMLTransformC
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name evictorC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name evictorS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1219,6 +1225,54 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2xsd
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "evictorC"=.\test\Freeze\evictor\evictorC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "evictorS"=.\test\Freeze\evictor\evictorS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 

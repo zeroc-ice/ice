@@ -47,6 +47,7 @@ tests = [ \
     "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
+    "Freeze/evictor", \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
