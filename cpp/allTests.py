@@ -58,6 +58,8 @@ tests = [ \
     "IceStorm/federation2", \
     "Transform/dbmap", \
     "Transform/evictor", \
+    "IcePack/simple", \
+    "IcePack/deployer", \
     ]
 
 #
@@ -65,8 +67,6 @@ tests = [ \
 #
 if TestUtil.isWin32() == 0:
     tests += [ \
-        "IcePack/simple", \
-        "IcePack/deployer", \
         "Glacier/starter", \
         ]
 
