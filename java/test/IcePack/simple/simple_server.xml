@@ -1,11 +1,13 @@
-<server kind="java">
+<icepack>
 
-  <classname>Server</classname>
+  <server name="server" kind="java" activation="on-demand" classname="Server">
 
-  <adapters>
-    <adapter name="TestAdapter" id="TestAdapter" endpoints="default" register="true">
-      <object identity="test" type="Test"/>
-    </adapter>
-  </adapters>
+    <adapters>
+      <adapter name="TestAdapter" id="TestAdapter" endpoints="default" register="true">
+        <object identity="test" type="Test"/>
+      </adapter>
+    </adapters>
 
-</server>
+  </server>
+
+</icepack>

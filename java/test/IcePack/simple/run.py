@@ -68,7 +68,7 @@ icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 client = "java -ea Client"
 
 print "registering server with icepack...",
-IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), "", "", "");
+IcePackAdmin.addServer(os.path.join(testdir, "simple_server.xml"), "test.dir=" + testdir);
 print "ok"
 
 print "starting client...",

@@ -62,11 +62,11 @@ public class AllTests
 	System.out.print("testing adapter registration... ");
 	System.out.flush();
 	String[] adapterIds = admin.getAllAdapterIds();
-	test(find(adapterIds, "Server-Server1"));
-	test(find(adapterIds, "Server-Server2"));
-	test(find(adapterIds, "Service1-IceBox1.Service1"));
+	test(find(adapterIds, "Server1.Server"));
+	test(find(adapterIds, "Server2.Server"));
+	test(find(adapterIds, "IceBox1.Service1.Service1"));
 	test(find(adapterIds, "IceBox1Service2Adapter"));
-	test(find(adapterIds, "Service1-IceBox2.Service1"));
+	test(find(adapterIds, "IceBox2.Service1.Service1"));
 	test(find(adapterIds, "IceBox2Service2Adapter"));
 	System.out.println("ok");
 
@@ -133,11 +133,11 @@ public class AllTests
 
 	TestPrx obj;
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server-Server2"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service1@Service1-IceBox2.Service1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     
 	System.out.println("ok");
@@ -145,7 +145,7 @@ public class AllTests
 	System.out.print("testing server configuration... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	test(obj.getProperty("Type").equals("Server"));
 	test(obj.getProperty("Name").equals("Server1"));
 
@@ -158,7 +158,7 @@ public class AllTests
 	System.out.print("testing service configuration... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
 	test(obj.getProperty("Service1.Type").equals("standard"));
 	test(obj.getProperty("Service1.ServiceName").equals("Service1"));
     
@@ -176,46 +176,13 @@ public class AllTests
 	System.out.print("testing server options... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	test(obj.getProperty("Test.Test").equals("2"));
 	test(obj.getProperty("Test.Test1").equals("0"));
 
 	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 
-	//
-	// Ping the icebox service manager to avoid terminating the
-	// icebox too soon (before the icebox is fully initialized)
-	// and some connection warnings message (caused by the fact
-	// the termination handler is not yet installed and
-	// communicator not properly shutdown).
-	//
-	try
-        {
-	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox1");
-	    desc.serviceManager.ice_ping();
-	}
-	catch(IcePack.ServerNotExistException ex)
-	{
-	    test(false);
-	}
-	catch(IcePack.NodeUnreachableException ex)
-	{
-	    test(false);
-	}
-	try
-        {
-	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox2");
-	    desc.serviceManager.ice_ping();
-	}
-	catch(IcePack.ServerNotExistException ex)
-	{
-	    test(false);
-	}
-	catch(IcePack.NodeUnreachableException ex)
-	{
-	    test(false);
-	}
 	System.out.println("ok");
     }
 
@@ -249,7 +216,7 @@ public class AllTests
 	TestPrx obj;
 	try
 	{
-	    obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
+	    obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	    test(false);
 	}
 	catch(Ice.LocalException ex)
@@ -269,36 +236,15 @@ public class AllTests
 	    test(false);
 	}
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server-Server2"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
 
 	System.out.println("ok");
 
 	System.out.print("testing service configuration... ");
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
 	test(obj.getProperty("Service1.DebugProperty").equals("debug"));
-
-	//
-	// Ping the icebox service manager to avoid terminating the
-	// icebox too soon (before the icebox is fully initialized)
-	// and some connection warnings message (caused by the fact
-	// the termination handler is not yet installed and
-	// communicator not properly shutdown).
-	//
-	try
-        {
-	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox1");
-	    desc.serviceManager.ice_ping();
-	}
-	catch(IcePack.ServerNotExistException ex)
-	{
-	    test(false);
-	}
-	catch(IcePack.NodeUnreachableException ex)
-	{
-	    test(false);
-	}
 
 	System.out.println("ok");
     }

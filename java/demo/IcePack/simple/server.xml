@@ -1,23 +1,25 @@
-<server kind="java">
+<icepack>
 
-  <classname>Server</classname>
+  <server name="${name}" kind="java" classname="Server" activation="on-demand">
 
-  <adapters>
-    <adapter name="Hello" endpoints="tcp:udp" register="true">
-      <object identity="${name}" type="::Hello"/>
-    </adapter>
-  </adapters>
+    <adapters>
+      <adapter name="Hello" endpoints="tcp:udp" register="true">
+        <object identity="${name}" type="::Hello"/>
+      </adapter>
+    </adapters>
 
-  <properties>
-    <!-- The identity of the hello object will be the name of the server -->
-    <property name="Identity" value="${name}"/>
-  </properties>
- 
-  <target name="debug">
     <properties>
-      <property name="Ice.Network.Trace" value="1"/>
-      <property name="Ice.Network.Protocol" value="1"/>
+      <!-- The identity of the hello object will be the name of the server -->
+      <property name="Identity" value="${name}"/>
     </properties>
-  </target>
+ 
+    <target name="debug">
+      <properties>
+        <property name="Ice.Network.Trace" value="1"/>
+        <property name="Ice.Network.Protocol" value="1"/>
+      </properties>
+    </target>
   
-</server>
+  </server>
+
+</icepack>

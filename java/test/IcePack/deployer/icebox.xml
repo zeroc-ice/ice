@@ -1,12 +1,16 @@
-<server kind="java-icebox" endpoints="default">
+<icepack>
+
+<server name="${name}" kind="java-icebox" endpoints="default" activation="on-demand">
 
   <variable name="inheritedvar" value="inherited"/>
 
-  <service name="Service1" descriptor="service.xml"/>
-  <service name="Service2" descriptor="freezeservice.xml"/>
+  <include name="Service1" descriptor="service.xml"/>
+  <include name="Service2" descriptor="freezeservice.xml"/>
 
   <properties>
     <property name="Ice.Warn.Connections" value="1"/>
   </properties>
 
 </server>
+
+</icepack>

@@ -142,7 +142,7 @@ def shutdownIcePackNode():
         sys.exit(1)
     print "ok"
         
-def addApplication(descriptor, targets):
+def addApplication(descriptor, options):
 
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
@@ -150,7 +150,7 @@ def addApplication(descriptor, targets):
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"' + " 2>&1"
+              r' -e "application add \"' + descriptor + '\\" ' + options + ' \"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
@@ -176,18 +176,16 @@ def removeApplication(descriptor):
         TestUtil.killServers()
         sys.exit(1)
 
-def addServer(name, serverDescriptor, server, libpath, targets):
+def addServer(serverDescriptor, options):
 
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
     serverDescriptor = serverDescriptor.replace("\\", "/");
-    server = server.replace("\\", "/");
-    libpath = libpath.replace("\\", "/");
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server add localnode \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
-              r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"' + " 2>&1"
+              r' -e "server add ' + serverDescriptor + ' localnode ' + \
+              r' ' + options + '\"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)

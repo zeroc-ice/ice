@@ -1,13 +1,17 @@
-<server kind="java-icebox" endpoints="default">
+<icepack>
 
-  <!-- =========================================================== -->
-  <!-- Deploys one service named 'Service1' and defined in the     -->
-  <!-- service.xml file                                            -->
-  <!-- =========================================================== -->
-  <service name="Service1" descriptor="service.xml"/>
+  <server name="${name}" kind="java-icebox" endpoints="default" activation="on-demand">
 
-  <properties>
-    <property name="Ice.ThreadPool.Server.Size" value="5"/>
-  </properties>
+    <!-- =========================================================== -->
+    <!-- Deploys one service named 'Service1' and defined in the     -->
+    <!-- service.xml file                                            -->
+    <!-- =========================================================== -->
+    <include name="Service1" descriptor="service.xml"/>
+  
+    <properties>
+      <property name="Ice.ThreadPool.Server.Size" value="5"/>
+    </properties>
 
-</server>
+  </server>
+
+</icepack>

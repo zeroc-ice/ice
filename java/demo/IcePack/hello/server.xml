@@ -1,31 +1,33 @@
-<server kind="java">
+<icepack>
 
-  <classname>Server</classname>
+  <server name="${name}" classname="Server" kind="java" activation="on-demand">
 
-  <!-- ============================================================= -->
-  <!-- Register the server adapter named Hello and the HelloFactory  -->
-  <!-- object hosted by this server.                                 -->
-  <!-- ============================================================= -->
-  <adapters>
-    <adapter name="Hello" endpoints="default" register="true">
-      <object identity="${name}" type="::HelloFactory"/>
-    </adapter>
-  </adapters>
+    <!-- ============================================================= -->
+    <!-- Register the server adapter named Hello and the HelloFactory  -->
+    <!-- object hosted by this server.                                 -->
+    <!-- ============================================================= -->
+    <adapters>
+      <adapter name="Hello" endpoints="default" register="true">
+        <object identity="${name}" type="::HelloFactory"/>
+      </adapter>
+    </adapters>
 
-  <!-- ============================================================= -->
-  <!-- The HelloFactory object identity is obtained from the         -->
-  <!-- Identity property defined here. We defined the identity of    -->
-  <!-- the HelloFactory object as the name of the server.            -->
-  <!-- ============================================================= -->
-  <properties>
-    <property name="Identity" value="${name}"/>
-    <property name="Ice.ThreadPool.Server.Size" value="5"/>
-  </properties>
-
-  <target name="debug">
+    <!-- ============================================================= -->
+    <!-- The HelloFactory object identity is obtained from the         -->
+    <!-- Identity property defined here. We defined the identity of    -->
+    <!-- the HelloFactory object as the name of the server.            -->
+    <!-- ============================================================= -->
     <properties>
-      <property name="Ice.Trace.Location" value="1"/>
+      <property name="Identity" value="${name}"/>
+      <property name="Ice.ThreadPool.Server.Size" value="5"/>
     </properties>
-  </target>
+  
+    <target name="debug">
+      <properties>
+        <property name="Ice.Trace.Location" value="1"/>
+      </properties>
+    </target>
 
-</server>
+  </server>
+
+</icepack>

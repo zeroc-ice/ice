@@ -236,7 +236,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             java.lang.Object obj = c.newInstance();
             try
             {
-                info.service = (ServiceBase)obj;
+                info.service = (Service)obj;
             }
             catch(ClassCastException ex)
             {
@@ -313,38 +313,10 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();
 
-	    try
-	    {
-	        //
-		// IceBox::Service
-		//
-	        Service s = (Service)info.service;
-	        info.envName = null;
-                s.start(service, communicator, serviceArgs);
-	    }
-	    catch(ClassCastException e)
-	    {
-	        //
-		// IceBox::FreezeService
-		//
-		// Either open the database environment, or if it has already been opened,
-		// retrieve it from the map.
-		//
-	        FreezeService fs = (FreezeService)info.service;
+	    info.service.start(service, communicator, serviceArgs);
 
-		info.envName = properties.getProperty("IceBox.DBEnvName." + service);
-		
-                fs.start(service, communicator, serviceArgs, info.envName);
-	    }
             _services.put(service, info);
         }
-	catch(Freeze.DatabaseException ex)
-	{
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex;
-            e.initCause(ex);
-            throw e;
-	}
         catch(FailureException ex)
         {
             throw ex;
@@ -443,7 +415,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 
     class ServiceInfo
     {
-        public ServiceBase service;
+        public Service service;
 	public Ice.Communicator communicator = null;
         String envName;
     }

@@ -42,10 +42,10 @@ public class HelloFactoryI extends _HelloFactoryDisp
             adapter.remove(object.ice_getIdentity());
             throw new NameExistsException();
         }
-        catch(IcePack.ObjectDeploymentException ex)
-        {
-            assert(false);
-        }
+	catch(IcePack.DeploymentException ex)
+	{
+	    assert(false);
+	}
 
         String id = communicator.getProperties().getProperty("Identity");
 

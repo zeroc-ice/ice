@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-public class FreezeService extends Ice.LocalObjectImpl implements IceBox.FreezeService
+public class FreezeService extends Ice.LocalObjectImpl implements IceBox.Service
 {
     public void
-    start(String name, Ice.Communicator communicator, String[] args, String envName)
+    start(String name, Ice.Communicator communicator, String[] args)
         throws IceBox.FailureException
     {
 	Ice.Properties properties = communicator.getProperties();

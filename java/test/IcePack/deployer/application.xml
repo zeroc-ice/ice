@@ -1,4 +1,6 @@
-<application>
+<icepack>
+
+<application name="test">
 
    <!-- The base directory for the node is the same as this file base
    directory. This is because the node and the registry are started in
@@ -6,11 +8,13 @@
 
    <node name="localnode" basedir="${basedir}">
 
-     <server name="IceBox1" descriptor="icebox.xml"/>
-     <server name="IceBox2" descriptor="icebox.xml"/>
-     <server name="Server1" descriptor="server.xml"/>
-     <server name="Server2" descriptor="server.xml"/>
+     <include name="IceBox1" descriptor="icebox.xml"/>
+     <include name="IceBox2" descriptor="icebox.xml"/>
+     <include name="Server1" descriptor="server.xml"/>
+     <include name="Server2" descriptor="server.xml"/>
 
    </node>
 
 </application>
+
+</icepack>

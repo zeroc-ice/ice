@@ -1,3 +1,7 @@
-<server kind="java-icebox" endpoints="default">
-  <service name="Hello" descriptor="service.xml"/>
-</server>
+<icepack>
+
+  <server name="${name}" kind="java-icebox" endpoints="default" activation="on-demand">
+    <include name="Hello" descriptor="service.xml"/>
+  </server>
+
+</icepack>

@@ -1,13 +1,15 @@
-<service kind="freeze" entry="FreezeService">
+<icepack>
+
+<service name="${name}" kind="freeze" entry="FreezeService">
 
   <adapters>
-    <adapter name="${name}" endpoints="default"  id="${parent}${name}Adapter">
-      <object identity="${parent}-${name}" type="::Test"/>
+    <adapter name="${name}" endpoints="default"  id="${server}${name}Adapter">
+      <object identity="${server}-${name}" type="::Test"/>
     </adapter>
   </adapters>
 
   <properties>
-    <property name="${name}.Identity" value="${parent}-${name}"/>
+    <property name="${name}.Identity" value="${server}-${name}"/>
     <property name="${name}.Type" value="freeze"/>
     <property name="${name}.ServiceName" value="${name}"/>
   </properties>
@@ -17,3 +19,5 @@
   </target>
 
 </service>
+
+</icepack>

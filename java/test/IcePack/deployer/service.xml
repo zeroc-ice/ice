@@ -1,14 +1,16 @@
-<service kind="standard" entry="Service">
+<icepack>
+
+<service name="${name}" entry="Service">
 
   <adapters>
     <adapter name="${name}" endpoints="default">
-      <object identity="${parent}-${name}" type="::Test"/>
+      <object identity="${server}-${name}" type="::Test"/>
     </adapter>
   </adapters>
 
   <properties>
     <property name="${name}.InheritedVariable" value="${inheritedvar}"/>
-    <property name="${name}.Identity" value="${parent}-${name}"/>
+    <property name="${name}.Identity" value="${server}-${name}"/>
     <property name="${name}.Type" value="standard"/>
     <property name="${name}.ServiceName" value="${name}"/>
   </properties>
@@ -20,3 +22,5 @@
   </target>
 
 </service>
+
+</icepack>

@@ -1,8 +1,8 @@
-<server kind="java">
+<icepack>
+
+<server name="${name}" kind="java" classname="Server" activation="on-demand">
 
   <variable name="var0" value="val0"/>
-
-  <classname>Server</classname>
 
   <option>--Test.Test=2</option>
   <option>--Test.Test1=0</option>
@@ -27,3 +27,5 @@
   </properties>
 
 </server>
+
+</icepack>
