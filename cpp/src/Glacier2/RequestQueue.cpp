@@ -156,7 +156,13 @@ Glacier2::RequestQueue::destroy()
 	_requests.clear();
     }
 
-    getThreadControl().join();
+    //
+    // We don't want to wait for the RequestQueue thread, because this
+    // destroy() operation is called when sessions expire or are
+    // destroyed, in which case we do not want the session handler
+    // thread to block here.
+    //
+    //getThreadControl().join();
 }
 
 void 

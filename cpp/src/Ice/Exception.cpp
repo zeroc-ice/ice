@@ -442,14 +442,14 @@ void
 Ice::AlreadyRegisteredException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\n" << kindOfObject << " already registered under ID `" << id << "'";
+    out << ":\n" << kindOfObject << " with id `" << id << "' is already registered";
 }
 
 void
 Ice::NotRegisteredException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\n no " << kindOfObject << " registered under ID `" << id << "'";
+    out << ":\n no " << kindOfObject << " with id `" << id << "' is registered";
 }
 
 void

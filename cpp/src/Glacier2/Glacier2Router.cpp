@@ -231,10 +231,12 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     // sending of requests that are already queued for this session
     // block indefinitely.
     //
-    if(!defaultProperties->getProperty("Glacier2.SessionTimeout").empty())
+    int sessionTimeout = defaultProperties->getPropertyAsInt("Glacier2.SessionTimeout"); 
+    if(sessionTimeout > 0)
     {
-	defaultProperties->setProperty("Ice.Override.Timeout",
-				       defaultProperties->getProperty("Glacier2.SessionTimeout"));
+	ostringstream s;
+	s << sessionTimeout * 1000;
+	defaultProperties->setProperty("Ice.Override.Timeout", s.str());
     }
     
     //

@@ -64,9 +64,7 @@ Glacier2::RouterI::destroy()
     
     if(_serverBlobject)
     {
-	cout << "xxxxx" << endl;
 	_serverBlobject->destroy();
-	cout << "yyyyy" << endl;
     }
 
     if(_session)
