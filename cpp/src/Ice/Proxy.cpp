@@ -422,7 +422,15 @@ IceProxy::Ice::Object::__getDelegate()
 	else
 	{
 	    _delegate = __createDelegateM();
-	    _delegate->setup(_reference);
+	    try
+	    {
+		_delegate->setup(_reference);
+	    }
+	    catch(...)
+	    {
+		_delegate = 0;
+		throw;
+	    }
 	}
     }
 
