@@ -51,6 +51,8 @@ class Package:
 	ofile.write("Version: " + version + "\n")
 	ofile.write("Release: " + release + "\n")
 	if self.requires <> "":
+            if self.requires.find("%version%"):
+                self.requires = self.requires.replace("%version%", version)
 	    ofile.write("Requires: " + self.requires + "\n")
 	ofile.write("License: GPL\n")
 	ofile.write("Group: Development/Libraries\n")
@@ -114,8 +116,10 @@ class Subpackage(Package):
         ofile.write("%package " + self.name + "\n")
         ofile.write("Summary: " + self.summary + "\n")
         ofile.write("Group: " + self.group + "\n")
-        if not self.requires == "":
-            ofile.write("Requires: " + self.requires + "\n")
+	if self.requires <> "":
+            if self.requires.find("%version%"):
+                self.requires = self.requires.replace("%version%", version)
+	    ofile.write("Requires: " + self.requires + "\n")
 	if not self.other == "":
 	    ofile.write(self.other + "\n")
         ofile.write("%description " + self.name + "\n")
@@ -226,7 +230,7 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/certs/sslconfig.xml")
 		]),
     Subpackage("csharp",
-               "ice mono-core >= 1.0.6",
+               "ice = %version%, mono-core >= 1.0.6",
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
@@ -234,7 +238,7 @@ fileLists = [
                [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
                 ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
     Subpackage("csharp-devel",
-               "ice-csharp mono-devel >= 1.0.6",
+               "ice-csharp = %version%, mono-devel >= 1.0.6",
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
@@ -243,7 +247,7 @@ fileLists = [
 		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
-               "ice-java",
+               "ice-java = %version%",
                "Ice tools developing Ice applications in Java",
                "Development/Libraries Development/Tools",
                "",
@@ -265,14 +269,14 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
 		("dir", "share/doc/Ice-%version%/demoj")]),
     Subpackage("python",
-               "ice python >= 2.3.4",
+               "ice = %version%, python >= 2.3.4",
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
 	       "",
                [("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
-               "ice-python",
+               "ice-python = %version%",
                "Ice tools for developing Ice applications in Python",
                "Development/Libraries Development/Tools",
                "",
@@ -283,7 +287,7 @@ fileLists = [
 
 noarchFileList = [
     Package("ice-java",
-	    "ice db4-java >= 4.2.52",
+	    "ice = %version%, db4-java >= 4.2.52",
 	    "The Internet Communications Engine (ICE) is a modern alternative to object middleware",
 	    "Development/Libraries",
 	    "",
