@@ -335,11 +335,16 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>PackagesBinFiles</td><td>{4959F93C-46F6-4BD7-A0FF-DDF5DE143631}</td><td>BIN</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>PackagesDebugBinFiles</td><td>{F95783AF-CAD8-4ADB-BB6D-B3D6227261A6}</td><td>BIN</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>PackagesDebugLibFiles</td><td>{F1F237F7-3DEB-473A-BA1D-F30E25F44AEF}</td><td>LIB</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>PackagesIncludeFiles</td><td>{07731ACF-498C-49C6-9EBE-44E5F8C1EF8C}</td><td>INCLUDE</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>PackagesLibFiles</td><td>{5A44EBE1-4E90-4F0B-A4E3-ED2348FF3E4D}</td><td>LIB</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BZip2DevKit</td><td>{06E0EB15-6729-466D-9FED-87B35F298B2F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBDevKit</td><td>{C7EECE03-AF88-4472-A6EC-014C0FB9E7F9}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBRuntime</td><td>{50483368-5AF6-483F-B5A8-46B0A57792DB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ExpatDevKit</td><td>{286CAD3A-E514-4EC3-9616-375754807746}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ExpatRuntime</td><td>{9DF4AC09-BC9E-4411-8A6C-41D5A4A1FF2D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>OpenSSLDevKit</td><td>{098AAC6F-7D78-44CF-9095-CD6A0F92838F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>OpenSSLRuntime</td><td>{9B1DDABB-D483-4B59-AE68-DF3E61B7277E}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>STLPortDevKit</td><td>{187F8B04-4FF0-4D52-9258-F3677DD3C75E}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>STLPortRuntime</td><td>{6739A8F8-0562-4789-8539-ADC03012699C}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>VisualStudioRuntime</td><td>{020D3A53-2D97-407A-BC6F-D1146FBAA5BE}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -948,6 +953,7 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>INSTALLDIR</td><td>ExpatDevKit</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1029,7 +1035,6 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_FOR_VISUAL_STUDIO_6.0_THIRD_PARTY_TOOLS</td><td>ZEROC</td><td>THIRDP~1|ThirdParty-2.1.0-VC60</td><td/><td>0</td><td/></row>
-		<row><td>INCLUDE</td><td>INSTALLDIR</td><td>include</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_2.1.0_FOR_VISUAL_STUDIO_6.0_THIRD_PARTY_TOOLS</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1262,17 +1267,21 @@
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
 		<row><td>packages</td><td/><td>##IDS_FEATURE_DISPLAY_NAME2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
-		<row><td>packages_debug</td><td>packages</td><td>##IDS_FEATURE_DISPLAY_NAME3##</td><td/><td>5</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>packages</td><td>PackagesBinFiles</td></row>
-		<row><td>packages</td><td>PackagesIncludeFiles</td></row>
-		<row><td>packages</td><td>PackagesLibFiles</td></row>
-		<row><td>packages_debug</td><td>PackagesDebugBinFiles</td></row>
-		<row><td>packages_debug</td><td>PackagesDebugLibFiles</td></row>
+		<row><td>packages</td><td>BZip2DevKit</td></row>
+		<row><td>packages</td><td>BerkeleyDBDevKit</td></row>
+		<row><td>packages</td><td>BerkeleyDBRuntime</td></row>
+		<row><td>packages</td><td>ExpatDevKit</td></row>
+		<row><td>packages</td><td>ExpatRuntime</td></row>
+		<row><td>packages</td><td>OpenSSLDevKit</td></row>
+		<row><td>packages</td><td>OpenSSLRuntime</td></row>
+		<row><td>packages</td><td>STLPortDevKit</td></row>
+		<row><td>packages</td><td>STLPortRuntime</td></row>
+		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 	</table>
 
 	<table name="File">
@@ -1439,11 +1448,16 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>PackagesBinFiles</td><td/><td/><td>_8D885751_1C60_4104_9361_CC10D2C56DC8_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>PackagesDebugBinFiles</td><td/><td/><td>_883A39C2_C554_44E3_863A_2F2683694922_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>PackagesDebugLibFiles</td><td/><td/><td>_87250913_CA94_474D_AAFC_9908F7C262E0_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>PackagesIncludeFiles</td><td/><td/><td>_D4698506_0475_4A40_B4CB_E9E19A22867F_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>PackagesLibFiles</td><td/><td/><td>_10352FA6_7E79_4C76_ACCC_905A015DC105_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>BZip2DevKit</td><td/><td/><td>_CA0CD530_4B68_45DE_908C_4469686242B2_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>BerkeleyDBDevKit</td><td/><td/><td>_EF022FDB_E260_4081_9D0B_236E677BEFE9_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>BerkeleyDBRuntime</td><td/><td/><td>_3CD824C0_CEF1_4121_84B3_2DF70AEE652F_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ExpatDevKit</td><td/><td/><td>_BD10D532_E5FD_405C_B552_E1A9F5A1D08A_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ExpatRuntime</td><td/><td/><td>_460A046F_F71E_45E4_9942_577B655AD2D6_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>OpenSSLDevKit</td><td/><td/><td>_66474839_FA2F_4578_96BC_0C9356E315CC_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>OpenSSLRuntime</td><td/><td/><td>_5DD78062_718C_4FD6_95B3_19A0EA0A027D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>STLPortDevKit</td><td/><td/><td>_A1AA7996_9E9B_469A_8673_1DA7C979B172_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>STLPortRuntime</td><td/><td/><td>_339361DB_C677_4AC0_B6CF_7DAC4C5F5A7C_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>VisualStudioRuntime</td><td/><td/><td>_C04BC271_D558_4A4A_98DB_DACB6A21E277_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -1471,11 +1485,15 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>PackagesBinFiles</td><td>&lt;ISProjectFolder&gt;\install-packages\bin</td><td>4</td><td/><td/><td>0</td></row>
-		<row><td>PackagesDebugBinFiles</td><td>&lt;ISProjectFolder&gt;\install-packages\debug\bin</td><td>4</td><td/><td/><td>0</td></row>
-		<row><td>PackagesDebugLibFiles</td><td>&lt;ISProjectFolder&gt;\install-packages\debug\lib</td><td>4</td><td/><td/><td>0</td></row>
-		<row><td>PackagesIncludeFiles</td><td>&lt;ISProjectFolder&gt;\install-packages\include</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>PackagesLibFiles</td><td>&lt;ISProjectFolder&gt;\install-packages\lib</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>BZip2DevKit</td><td>&lt;ISProjectFolder&gt;\install\bzip2\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBDevKit</td><td>&lt;ISProjectFolder&gt;\install\berkeley\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>BerkeleyDBRuntime</td><td>&lt;ISProjectFolder&gt;\install\berkeley\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>ExpatRuntime</td><td>&lt;ISProjectFolder&gt;\install\expat\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>OpenSSLDevKit</td><td>&lt;ISProjectFolder&gt;\install\openssl\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>OpenSSLRuntime</td><td>&lt;ISProjectFolder&gt;\install\openssl\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>STLPortDevKit</td><td>&lt;ISProjectFolder&gt;\install\stlport\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>STLPortRuntime</td><td>&lt;ISProjectFolder&gt;\install\stlport\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
