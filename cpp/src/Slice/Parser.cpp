@@ -619,7 +619,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local, boo
 	return 0;
     }
 
-    if(!checkForGlobalDef(name, intf ? "interface" : "class"))
+    if(!checkForGlobalDef(name, intf ? "interface" : "class", implicit))
     {
 	return 0;
     }
@@ -1956,8 +1956,11 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct, b
     return true;
 }
 
+//
+// TODO: remove the suppressWarnings parameter once deprecrecated features are outlawed.
+//
 bool
-Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct)
+Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct, bool suppressWarnings)
 {
     if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
     {
@@ -1975,7 +1978,10 @@ Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct
 	}
 	else
 	{
-	    _unit->warning("`" + name + "': " + newConstruct + " definitions at global scope are deprecated");
+	    if(!suppressWarnings)
+	    {
+		_unit->warning("`" + name + "': " + newConstruct + " definitions at global scope are deprecated");
+	    }
 	}
 	return true;
     }

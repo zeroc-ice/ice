@@ -423,7 +423,8 @@ public:
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
     // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
     bool nameIsLegal(const std::string&, const char *, bool = false);
-    bool checkForGlobalDef(const std::string&, const char *);
+    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
+    bool checkForGlobalDef(const std::string&, const char *, bool = false);
 
 protected:
 
