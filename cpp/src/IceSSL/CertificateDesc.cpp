@@ -18,7 +18,7 @@ using namespace IceSSL;
 
 IceSSL::CertificateFile::CertificateFile() :
                         _fileName(""),
-                        _encoding(0)
+                        _encoding(SSL_FILETYPE_PEM)
 {
 }
 

@@ -421,7 +421,7 @@ IceSSL::ConfigParser::loadCertificateFile(const IceXML::NodePtr& rootNode, Certi
     }
 
     string filename;
-    int encoding = 0; // Initialize, to keep the compiler from complaining.
+    int encoding = SSL_FILETYPE_PEM; // PEM is the default type.
 
     filename = rootNode->getAttribute("filename");
     if(!filename.empty())
@@ -463,13 +463,13 @@ IceSSL::ConfigParser::isAbsolutePath(string& pathString)
 int
 IceSSL::ConfigParser::parseEncoding(string& encodingString)
 {
-    int encoding = 0;
+    int encoding = SSL_FILETYPE_PEM;
 
-    if(encodingString.compare("PEM") == 0)
+    if(encodingString == "PEM")
     {
         encoding = SSL_FILETYPE_PEM;
     }
-    else if(encodingString.compare("ASN1") == 0)
+    else if(encodingString == "ASN1")
     {
         encoding = SSL_FILETYPE_ASN1;
     }

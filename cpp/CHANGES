@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed an encoding bug in IceSSL.
+
 - Fixed incorrect logging message if no more endpoints are available
   for retry.
 
