@@ -12,6 +12,7 @@
 #define ICE_OBJECT_FACTORY_H
 
 #include <Ice/ObjectFactoryF.h>
+#include <Ice/StubF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
 
@@ -22,6 +23,9 @@ class ICE_API ObjectFactoryI : public SimpleShared
 {
 public:
     
+    Ice::Object referenceFromString(const std::string&);
+    std::string referenceToString(const Ice::Object&);
+
 private:
 
     ObjectFactoryI(const ObjectFactoryI&);

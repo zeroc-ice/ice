@@ -23,7 +23,7 @@ class ICE_API InstanceI : public SimpleShared
 {
 public:
 
-    ObjectFactory getObjectFactory();
+    ObjectFactory objectFactory();
     
 private:
 

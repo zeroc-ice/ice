@@ -12,6 +12,8 @@
 #define ICE_STUB_H
 
 #include <Ice/StubF.h>
+#include <Ice/InstanceF.h>
+#include <Ice/ObjectFactoryF.h>
 #include <Ice/Shared.h>
 
 namespace _IceIntf { namespace Ice
@@ -28,13 +30,16 @@ protected:
 
 private:
 
+    Object(const Object&);
+    void operator=(const Object&);
+    friend class ::_Ice::ObjectFactoryI; // May create Objects
+
+    ::_Ice::Instance instance_;
+
     // TODO: Only for getting started...
     std::string host_;
     int port_;
     std::string identity_;
-
-    Object(const Object&);
-    void operator=(const Object&);
 };
 
 } }
