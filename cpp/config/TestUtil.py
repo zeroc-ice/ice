@@ -207,7 +207,7 @@ else:
 commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=120" + \
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
 
