@@ -372,12 +372,6 @@ Package=<4>
     Project_Dep_Name cursor
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name complexC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name complexP
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name dbmap
     End Project Dependency
     Begin Project Dependency
@@ -432,7 +426,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "complexC"=.\test\Freeze\complex\complexC.dsp - Package Owner=<4>
+Project: "complex"=.\test\Freeze\complex\complex.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -448,33 +442,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "complexP"=.\test\Freeze\complex\complexP.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
     End Project Dependency
 }}}
 

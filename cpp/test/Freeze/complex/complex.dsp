@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="complexP" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="complex" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=complexP - Win32 Debug
+CFG=complex - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "complexP.mak".
+!MESSAGE NMAKE /f "complex.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "complexP.mak" CFG="complexP - Win32 Debug"
+!MESSAGE NMAKE /f "complex.mak" CFG="complex - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "complexP - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "complexP - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "complex - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "complex - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=complexP - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "complexP - Win32 Release"
+!IF  "$(CFG)" == "complex - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -53,7 +53,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 ws2_32.lib jtc.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 
-!ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
+!ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -76,18 +76,22 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"populate.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "complexP - Win32 Release"
-# Name "complexP - Win32 Debug"
+# Name "complex - Win32 Release"
+# Name "complex - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\Client.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\Complex.cpp
@@ -106,17 +110,11 @@ SOURCE=.\Parser.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Populate.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Scanner.cpp
 
-!IF  "$(CFG)" == "complexP - Win32 Release"
+!IF  "$(CFG)" == "complex - Win32 Release"
 
-!ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
-
-# ADD CPP /I "dummyinclude"
+!ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
 !ENDIF 
 
@@ -145,7 +143,7 @@ SOURCE=.\Parser.h
 
 SOURCE=.\Complex.ice
 
-!IF  "$(CFG)" == "complexP - Win32 Release"
+!IF  "$(CFG)" == "complex - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Complex.ice
@@ -169,7 +167,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
+!ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Complex.ice
@@ -200,7 +198,7 @@ BuildCmds= \
 
 SOURCE=.\Grammar.y
 
-!IF  "$(CFG)" == "complexP - Win32 Release"
+!IF  "$(CFG)" == "complex - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -218,7 +216,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
+!ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -243,7 +241,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "complexP - Win32 Release"
+!IF  "$(CFG)" == "complex - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -254,7 +252,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
+!ELSEIF  "$(CFG)" == "complex - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
