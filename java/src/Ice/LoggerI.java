@@ -26,17 +26,14 @@ public class LoggerI extends LocalObjectImpl implements Logger
     {
 	synchronized(_globalMutex)
 	{
-	    String s = "[ " + _prefix + category + ": ";
-	    int start = 0;
-	    int next;
-	    while((next = message.indexOf('\n', start)) != -1)
-	    {
-		s += message.substring(start, next + 1);
-		start = next + 1;
-	    }
-	    s += message.substring(start);
-	    s += " ]";
-	    System.err.println(s);
+            StringBuffer s = new StringBuffer("[ " + _prefix + category + ": " + message + " ]");
+            int idx = 0;
+            while((idx = s.indexOf("\n", idx)) != -1)
+            {
+                s.insert(idx + 1, "  ");
+                ++idx;
+            }
+            System.err.println(s.toString());
 	}
     }
 
