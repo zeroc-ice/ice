@@ -74,14 +74,6 @@ tests = [ \
     "Glacier2/router", \
     ]
 
-#
-# This test is not currently supported when using SSL.
-#
-if TestUtil.protocol != "ssl":
-    tests += [ \
-       "Glacier/starter", \
-    ]
-
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
     sys.exit(2)

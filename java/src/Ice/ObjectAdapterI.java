@@ -95,16 +95,20 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
+		locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
 	    }
-	    catch(Ice.AdapterNotFoundException ex)
+	    catch(ObjectAdapterDeactivatedException ex)
+	    {
+		// IGNORE: The object adapter is already inactive.
+	    }
+	    catch(AdapterNotFoundException ex)
 	    {
 		NotRegisteredException ex1 = new NotRegisteredException();
 		ex1.id = _id;
 		ex1.kindOfObject = "object adapter";
 		throw ex1;
 	    }
-	    catch(Ice.AdapterAlreadyActiveException ex)
+	    catch(AdapterAlreadyActiveException ex)
 	    {
 		ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
 		ex1.id = _id;
@@ -113,13 +117,16 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
             if(registerProcess)
             {
-                Process servant = new ProcessI(communicator);
-                ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
-
                 try
                 {
+		    Process servant = new ProcessI(communicator);
+		    ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
                     locatorRegistry.setServerProcessProxy(serverId, proxy);
                 }
+		catch(ObjectAdapterDeactivatedException ex)
+		{
+		    // IGNORE: The object adapter is already inactive.
+		}
                 catch(ServerNotFoundException ex)
                 {
                     NotRegisteredException ex1 = new NotRegisteredException();

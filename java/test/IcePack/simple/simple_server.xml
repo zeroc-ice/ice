@@ -3,7 +3,7 @@
   <server name="server" kind="java" activation="on-demand" classname="Server">
 
     <adapters>
-      <adapter name="TestAdapter" id="TestAdapter" endpoints="default" register="true">
+      <adapter name="TestAdapter" id="TestAdapter" endpoints="default -t 30000" register="true">
         <object identity="test" type="Test"/>
       </adapter>
     </adapters>

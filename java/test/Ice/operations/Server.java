@@ -12,7 +12,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
         adapter.add(object, Ice.Util.stringToIdentity("test"));

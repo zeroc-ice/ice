@@ -45,7 +45,7 @@ icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12345", testdir)
 #
 # Test client/server without on demand activation.
 #
-additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
+additionalServerOptions=" --TestAdapter.Endpoints=\"default -t 30000\" --TestAdapter.AdapterId=TestAdapter " + additionalOptions
 TestUtil.mixedClientServerTestWithOptions(additionalServerOptions, additionalOptions)
 
 #

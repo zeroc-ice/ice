@@ -10,13 +10,16 @@
 public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 {
     public void
-    setAdapterDirectProxy(String adapter, Ice.ObjectPrx object, Ice.Current current)
+    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter, Ice.ObjectPrx object,
+				Ice.Current current)
     {
 	_adapters.put(adapter, object);
+	cb.ice_response();
     }
 
     public void
-    setServerProcessProxy(String id, Ice.ProcessPrx proxy, Ice.Current current)
+    setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb, String id, Ice.ProcessPrx proxy,
+				Ice.Current current)
     {
     }
 
