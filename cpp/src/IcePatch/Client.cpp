@@ -42,7 +42,7 @@ public:
 void
 IcePatch::Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options]\n";
+    cerr << "Usage: " << appName() << " [options] [sub-directories...]\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
@@ -57,25 +57,43 @@ IcePatch::Client::run(int argc, char* argv[])
 
     try
     {
-        for (int i = 1; i < argc; ++i)
-        {
-            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	int idx = 1;
+	while (idx < argc)
+	{
+            if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
             {
                 usage();
                 return EXIT_SUCCESS;
             }
-            else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+            else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
             {
                 cout << ICE_STRING_VERSION << endl;
                 return EXIT_SUCCESS;
             }
-            else
+            else if (argv[idx][0] == '-')
             {
-                cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+                cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
                 usage();
                 return EXIT_FAILURE;
             }
-        }
+	    else
+	    {
+		++idx;
+	    }
+	}
+	
+	vector<string> subdirs;
+	if (argc >= 1)
+	{
+	    for (int i = 1; i < argc; ++i)
+	    {
+		subdirs.push_back(argv[i]);
+	    }
+	}
+	else
+	{
+	    subdirs.push_back(".");
+	}
         
         PropertiesPtr properties = communicator()->getProperties();
         
@@ -181,18 +199,21 @@ IcePatch::Client::run(int argc, char* argv[])
         communicator()->addObjectFactory(factory, "::IcePatch::RegularDesc");
         
 	//
-	// Patch all files.
+	// Patch all subdirectories.
 	//
-	Identity identity = pathToIdentity(".");
-	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
-	FilePrx top = FilePrx::checkedCast(topObj);
-	assert(top);
-	DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
-	assert(topDesc);
-	string path = identityToPath(topDesc->directory->ice_getIdentity());
-	cout << pathToName(path) << endl;
-	cout << "|" << endl;
-	patch(topDesc->directory->getContents(), "");
+	for (vector<string>::const_iterator p = subdirs.begin(); p != subdirs.end(); ++p)
+	{
+	    Identity identity = pathToIdentity(*p);
+	    ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
+	    FilePrx top = FilePrx::checkedCast(topObj);
+	    assert(top);
+	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
+	    assert(topDesc);
+	    string path = identityToPath(topDesc->directory->ice_getIdentity());
+	    cout << pathToName(path) << endl;
+	    cout << "|" << endl;
+	    patch(topDesc->directory->getContents(), "");
+	}
     }
     catch (const FileAccessException& ex)
     {
