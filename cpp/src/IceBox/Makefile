@@ -46,6 +46,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
+LINKWITH	:= -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -61,7 +62,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(SERVER): $(SOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze $(LIBS)
 
 $(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@

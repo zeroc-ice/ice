@@ -92,6 +92,13 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib += 'd';
 #   endif
     lib += ".dll";
+#elif defined(__APPLE__)
+    lib = "lib" + libName;
+    if(!version.empty()) 
+    {
+	lib += "." + version;
+    }
+    lib += ".dylib";
 #elif defined(__hpux)
     lib = "lib" + libName;
     if(!version.empty())

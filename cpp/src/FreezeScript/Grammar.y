@@ -46,7 +46,6 @@ freeze_script_error(const char* s)
 %}
 
 %pure_parser
-%name_prefix="freeze_script_"
 
 %token TOK_AND
 %token TOK_OR

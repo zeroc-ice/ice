@@ -30,7 +30,7 @@ CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(LIBS)
 
 IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
 	rm -f IntLongMap.h IntLongMap.cpp

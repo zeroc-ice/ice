@@ -15,6 +15,10 @@
 #include <Ice/FactoryTableDef.h>
 #include <Ice/UserExceptionFactory.h>
 
+#ifdef __APPLE__
+#   include <dlfcn.h>
+#endif
+
 namespace Ice
 {
 
@@ -52,6 +56,28 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
+#ifdef __APPLE__
+    if(i == _eft.end())
+    {
+	lock.release();
+
+	//
+	// Try to find the symbol, if found this should trigger the
+	// object static constructors to be called.
+	//
+	std::string symbol = "__F";
+	for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
+	{
+	    symbol += ((*p) == ':') ? '_' : *p;
+	}
+	symbol += "__initializer";
+	dlsym(RTLD_DEFAULT, symbol.c_str());
+
+	lock.acquire();	
+
+	i = _eft.find(t);
+    }
+#endif
     return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
 }
 
@@ -101,6 +127,28 @@ Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
+#ifdef __APPLE__
+    if(i == _oft.end())
+    {
+	lock.release();
+
+	//
+	// Try to find the symbol, if found this should trigger the
+	// object static constructors to be called.
+	//
+	std::string symbol = "__F";
+	for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
+	{
+	    symbol += ((*p) == ':') ? '_' : *p;
+	}
+	symbol += "__initializer";
+	dlsym(RTLD_DEFAULT, symbol.c_str());
+
+	lock.acquire();	
+
+	i = _oft.find(t);
+    }
+#endif
     return i != _oft.end() ? i->second.first : ObjectFactoryPtr();
 }
 

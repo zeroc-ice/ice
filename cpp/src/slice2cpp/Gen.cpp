@@ -509,6 +509,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << eb << ";";
 	C << sp << nl << "static __F__" << name << "__Init __F__" << name << "__i;";
+	C << sp << nl << "#ifdef __APPLE__";
+	std::string initfuncname = "__F";
+	for(std::string::const_iterator p = scope.begin(); p != scope.end(); ++p)
+	{
+	    initfuncname += ((*p) == ':') ? '_' : *p;
+	}
+	initfuncname += name + "__initializer";
+	C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
+	C << nl << "#endif";
     }
 
     H.dec();
@@ -2290,6 +2299,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	    C << sp;
 	    C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
+	    C << sp << nl << "#ifdef __APPLE__";
+	    std::string initfuncname = "__F";
+	    for(std::string::const_iterator p = scope.begin(); p != scope.end(); ++p)
+	    {
+		initfuncname += ((*p) == ':') ? '_' : *p;
+	    }
+	    initfuncname += name + "__initializer";
+	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
+	    C << nl << "#endif";
 	}
     }
 

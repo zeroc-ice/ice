@@ -43,10 +43,11 @@ SLICE_SRCS	= Hello.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
+LINKWITH	:= -lIcePack -lIceBox -lIce -lIceUtil
 
 $(LIBFILENAME): $(OBJS) $(SVC_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SVC_OBJS),-lIcePack)
+	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SVC_OBJS),$(LINKWITH))
 
 $(SONAME): $(LIBFILENAME)
 	rm -f $@

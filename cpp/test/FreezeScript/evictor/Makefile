@@ -31,7 +31,7 @@ CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS)
 
 clean::
 	rm -f db/*.db db/log.*

@@ -1,0 +1,47 @@
+# **********************************************************************
+#
+# Copyright (c) 2003
+# ZeroC, Inc.
+# Billerica, MA, USA
+#
+# All Rights Reserved.
+#
+# Ice is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Darwin.
+#
+
+CXX	                = c++
+
+CXXFLAGS		= -ftemplate-depth-128 -Wall -D_REENTRANT
+
+ifeq ($(OPTIMIZE),yes)
+     CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= -g $(CXXFLAGS)
+endif
+
+LDPLATFORMFLAGS		= -Wl,-bind_at_load -Wl,-executable_path,$(top_srcdir)/bin
+
+shlibldflags		= $(CXXFLAGS) -L$(libdir)
+
+mklibfilename       	= lib$(1).$(2).dylib
+mksoname           	= lib$(1).$(2).dylib
+mklibname           	= lib$(1).dylib
+
+mkshlib                 = $(CXX) -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
+
+BASELIBS		= -lIceUtil -lpthread 
+LIBS			= -lIce $(BASELIBS)
+
+ICEUTIL_OS_LIBS         = -lpthread
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   := no
+
+export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)

@@ -102,8 +102,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PACK_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 SLICE2CPPFLAGS 	:= --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
-
-LINKWITH        := -lIceBox
+LINKWITH        := -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	rm -f $@

@@ -47,7 +47,6 @@ slice_error(const char* s)
 %}
 
 %pure_parser
-%name_prefix="slice_"
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this

@@ -28,7 +28,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= $(CPPFLAGS) -DICE_XML_API_EXPORTS $(EXPAT_FLAGS)
 
-LINKWITH        := $(EXPAT_LIBS)
+LINKWITH        := -lIceUtil $(EXPAT_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
