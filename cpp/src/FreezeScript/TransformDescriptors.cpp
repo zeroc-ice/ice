@@ -2149,7 +2149,7 @@ FreezeScript::TransformInfoI::executeCustomTransform(const DataPtr& dest, const 
     if(obj && obj->getValue())
     {
         ObjectDataPtr data = obj->getValue();
-        Slice::TypePtr cls = data->getType(); // Actual type
+        Slice::TypePtr cls = data->getType(); // Actual type: may be Builtin (Object) or ClassDecl
         bool transformBase = true;
         while(cls)
         {
