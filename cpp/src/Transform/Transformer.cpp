@@ -269,15 +269,17 @@ class TransformDescriptor : public ExecutableContainerDescriptor
 {
 public:
 
-    TransformDescriptor(const DescriptorPtr&, int, const string&, bool, const string&);
+    TransformDescriptor(const DescriptorPtr&, int, const string&, bool, bool, const string&);
 
     string type() const;
     string rename() const;
     bool doDefaultTransform() const;
+    bool doBaseTransform() const;
 
 private:
 
     bool _default;
+    bool _base;
     string _rename;
     Slice::TypePtr _oldType;
     Slice::TypePtr _newType;
@@ -1330,8 +1332,9 @@ Transform::IterateDescriptor::execute(TransformSymbolTable& sym, DataInterceptor
 // TransformDescriptor
 //
 Transform::TransformDescriptor::TransformDescriptor(const DescriptorPtr& parent, int line, const string& type,
-                                                    bool def, const string& rename) :
-    ExecutableContainerDescriptor(parent, line, "transform"), Descriptor(parent, line), _default(def), _rename(rename)
+                                                    bool def, bool base, const string& rename) :
+    ExecutableContainerDescriptor(parent, line, "transform"), Descriptor(parent, line), _default(def), _base(base),
+    _rename(rename)
 {
     DescriptorErrorContext ctx(errorReporter(), "transform", _line);
 
@@ -1379,6 +1382,12 @@ bool
 Transform::TransformDescriptor::doDefaultTransform() const
 {
     return _default;
+}
+
+bool
+Transform::TransformDescriptor::doBaseTransform() const
+{
+    return _base;
 }
 
 //
@@ -1846,6 +1855,7 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
 
         string type, rename;
         bool def = true;
+        bool base = true;
 
         p = attributes.find("type");
         if(p == attributes.end())
@@ -1863,13 +1873,22 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
             }
         }
 
+        p = attributes.find("base");
+        if(p != attributes.end())
+        {
+            if(p->second == "false")
+            {
+                base = false;
+            }
+        }
+
         p = attributes.find("rename");
         if(p != attributes.end())
         {
             rename = p->second;
         }
 
-        d = new TransformDescriptor(_current, line, type, def, rename);
+        d = new TransformDescriptor(_current, line, type, def, base, rename);
     }
     else if(name == "init")
     {
@@ -2202,26 +2221,95 @@ void
 Transform::TransformInterceptor::postTransform(const DataPtr& dest, const DataPtr& src)
 {
     //
-    // Execute the type's transform (if any).
+    // Execute the type's transform (if any). Non-nil objects need special consideration,
+    // for two reasons:
     //
-    string type = typeName(dest->getType());
-    TransformMap::const_iterator p = _transformMap.find(type);
-    if(p != _transformMap.end())
+    // 1. The dest and src arguments are ObjectRef instances whose getType()
+    //    function returns the formal type, which may not match the actual type
+    //    if inheritance is being used. Therefore, we need to look for the
+    //    transform of the actual type of the object.
+    //
+    // 2. It's not sufficient to execute only the transform for the actual type;
+    //    the transform descriptors for base types must also be executed (if not
+    //    explicitly precluded).
+    //
+    // The algorithm goes like this:
+    //
+    // 1. If a transform exists for the actual type, execute it.
+    // 2. If the transform doesn't exist, or if it does exist and does not preclude
+    //    the execution of the base transform, then obtain the base type. If the
+    //    type has no user-defined base class, use Object.
+    // 3. If a base type was found and a transform exists for the base type, execute it.
+    // 4. Repeat step 2.
+    //
+    ObjectRefPtr obj = ObjectRefPtr::dynamicCast(dest);
+    if(obj && obj->getValue())
     {
-        bool raise = _errorReporter->raise();
-        _errorReporter->raise(true);
-        TransformSymbolTable sym(_factory, _old, _new, _errorReporter);
-        sym.add("new", dest);
-        sym.add("old", src);
-        try
+        ObjectDataPtr data = obj->getValue();
+        Slice::TypePtr cls = data->getType(); // Actual type
+        bool transformBase = true;
+        while(cls)
         {
-            p->second->execute(sym, *this);
-            _errorReporter->raise(raise);
+            string type = typeName(cls);
+            TransformMap::const_iterator p = _transformMap.find(type);
+            if(p != _transformMap.end())
+            {
+                bool raise = _errorReporter->raise();
+                _errorReporter->raise(true);
+                TransformSymbolTable sym(_factory, _old, _new, _errorReporter);
+                sym.add("new", dest);
+                sym.add("old", src);
+                try
+                {
+                    p->second->execute(sym, *this);
+                    _errorReporter->raise(raise);
+                }
+                catch(...)
+                {
+                    _errorReporter->raise(raise);
+                    throw;
+                }
+                transformBase = p->second->doBaseTransform();
+            }
+            Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(cls);
+            cls = 0;
+            if(transformBase && decl)
+            {
+                Slice::ClassDefPtr def = decl->definition();
+                assert(def);
+                Slice::ClassList bases = def->bases();
+                if(!bases.empty() && !bases.front()->isInterface())
+                {
+                    cls = bases.front()->declaration();
+                }
+                else
+                {
+                    cls = _new->builtin(Slice::Builtin::KindObject);
+                }
+            }
         }
-        catch(...)
+    }
+    else
+    {
+        string type = typeName(dest->getType());
+        TransformMap::const_iterator p = _transformMap.find(type);
+        if(p != _transformMap.end())
         {
-            _errorReporter->raise(raise);
-            throw;
+            bool raise = _errorReporter->raise();
+            _errorReporter->raise(true);
+            TransformSymbolTable sym(_factory, _old, _new, _errorReporter);
+            sym.add("new", dest);
+            sym.add("old", src);
+            try
+            {
+                p->second->execute(sym, *this);
+                _errorReporter->raise(raise);
+            }
+            catch(...)
+            {
+                _errorReporter->raise(raise);
+                throw;
+            }
         }
     }
 }

@@ -629,6 +629,7 @@ public:
     virtual std::string toString() const;
 
     void instantiate();
+    ObjectDataPtr getValue() const;
     void setValue(const ObjectDataPtr&);
 
     virtual void printI(IceUtil::Output&, ObjectDataHistory&) const;

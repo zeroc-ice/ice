@@ -3490,6 +3490,12 @@ Transform::ObjectRef::instantiate()
     setValue(data);
 }
 
+Transform::ObjectDataPtr
+Transform::ObjectRef::getValue() const
+{
+    return _value;
+}
+
 void
 Transform::ObjectRef::setValue(const ObjectDataPtr& value)
 {
