@@ -17,6 +17,29 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
+ProgressCB::ProgressCB() :
+    _aborted(false)
+{
+}
+
+ProgressCB::~ProgressCB()
+{
+}
+
+void
+IcePatch::ProgressCB::abort()
+{
+    IceUtil::Mutex::Lock lock(*this);
+    _aborted = true;
+}
+
+bool
+IcePatch::ProgressCB::isAborted()
+{
+    IceUtil::Mutex::Lock lock(*this);
+    return _aborted;
+}
+
 string
 IcePatch::pathToName(const string& path)
 {

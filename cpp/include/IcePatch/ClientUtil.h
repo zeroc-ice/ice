@@ -19,9 +19,14 @@ namespace IcePatch
 
 ICE_PATCH_API std::string pathToName(const std::string&);
 
-class ICE_PATCH_API ProgressCB
+class ICE_PATCH_API ProgressCB : public IceUtil::Mutex
 {
 public:
+
+    ProgressCB();
+    virtual ~ProgressCB();
+    void abort();
+    bool isAborted();
 
     virtual void startDownload(Ice::Int, Ice::Int) = 0;
     virtual void updateDownload(Ice::Int, Ice::Int) = 0;
@@ -30,6 +35,10 @@ public:
     virtual void startUncompress(Ice::Int, Ice::Int) = 0;
     virtual void updateUncompress(Ice::Int, Ice::Int) = 0;
     virtual void finishedUncompress(Ice::Int) = 0;
+
+ private:
+
+    bool _aborted;
 };
 
 ICE_PATCH_API void getRegular(const IcePatch::RegularPrx&, ProgressCB&);
