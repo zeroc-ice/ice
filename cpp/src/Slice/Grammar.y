@@ -323,17 +323,18 @@ struct_def
 }
 '{' struct_exports '}'
 {
+    unit->popContainer();
+    $$ = $3;
+
     //
     // Empty structures are not allowed
     //
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    StructPtr st = StructPtr::dynamicCast($$);
     assert(st);
-    unit->popContainer();
     if (st->dataMembers().empty())
     {
-    	unit->error("struct must have at least one member");
+    	unit->error("structs must have at least one member");
     }
-    $$ = $3;
 }
 | ICE_STRUCT keyword
 {
@@ -417,18 +418,21 @@ class_def
 }
 '{' class_exports '}'
 {
+    unit->popContainer();
+    $$ = $5;
+
     //
     // Check whether at least one data member is present, otherwise the class
     // really is an interface and must be defined as an interface.
     //
-    ClassDefPtr cd = ClassDefPtr::dynamicCast(unit->currentContainer());
+    ClassDefPtr cd = ClassDefPtr::dynamicCast($$);
     assert(cd);
-    unit->popContainer();
+/*
     if (cd->dataMembers().empty())
     {
-    	unit->error("class must have at least one data member");
+    	unit->error("classes must have at least one data member");
     }
-    $$ = $5;
+*/
 }
 | ICE_CLASS keyword class_extends implements
 {
@@ -565,18 +569,21 @@ interface_def
 }
 '{' interface_exports '}'
 {
+    unit->popContainer();
+    $$ = $4;
+
     //
     // Check whether at least one operation is present, otherwise the
     // interface is empty, which doesn't make sense.
     //
-    ClassDefPtr cd = ClassDefPtr::dynamicCast(unit->currentContainer());
+    ClassDefPtr cd = ClassDefPtr::dynamicCast($$);
     assert(cd);
-    unit->popContainer();
+/*
     if (cd->operations().empty())
     {
-     	unit->error("interface must have at least one operation");
+     	unit->error("interfaces must have at least one operation");
     }
-    $$ = $4;
+*/
 }
 | ICE_INTERFACE keyword interface_extends
 {
@@ -939,8 +946,8 @@ output_parameters
 //
 : ';' parameters
 {
-    unit->warning("Deprecated use of semicolon to indicate out parameters");
-    unit->warning("Use the out keyword instead");
+    unit->warning("deprecated use of semicolon to indicate out parameters");
+    unit->warning("use the out keyword instead");
     $$ = $2
 }
 | out_param_decl ',' output_parameters

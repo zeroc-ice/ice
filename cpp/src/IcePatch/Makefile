@@ -19,7 +19,7 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 CLIENT		= $(top_srcdir)/bin/icepatchclient
 SERVER		= $(top_srcdir)/bin/icepatchserver
 
-TARGETS		= $(NAME) $(CLIENT) $(SERVER)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
 
 OBJS		= IcePatch.o \
 		  FileDescFactory.o \
