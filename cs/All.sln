@@ -1,12 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceUtil", "src\IceUtil\IceUtil.csproj", "{4ACBB09B-D203-4A37-A529-16BCF49A02BE}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice", "src\Ice\Ice.csproj", "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
-		{4ACBB09B-D203-4A37-A529-16BCF49A02BE} = {4ACBB09B-D203-4A37-A529-16BCF49A02BE}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generate", "generate\generate.csproj", "{6851468D-426E-4260-986C-244F278F3526}"
@@ -171,10 +166,6 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Debug.ActiveCfg = Debug|.NET
-		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Debug.Build.0 = Debug|.NET
-		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Release.ActiveCfg = Release|.NET
-		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Release.Build.0 = Release|.NET
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Debug.ActiveCfg = Debug|.NET
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Debug.Build.0 = Debug|.NET
 		{C3630502-8F67-42BF-B4CA-A21D2EA8049E}.Release.ActiveCfg = Release|.NET

@@ -40,7 +40,8 @@ Unpack the archive in /home/me to create
 /home/me/icicle	- Ice for C# source tree
 
 The archive also contains ice/bin/slice2cs.exe. This is a statically-linked
-version of the Slice-to-C# compiler.
+version of the Slice-to-C# compiler. You need to add the directory containing
+the slice2cs executable to your PATH.
 
 Once unpacked, open All.sln from Visual C# and build the "All" solution.
 (Both debug and release builds are configured.)

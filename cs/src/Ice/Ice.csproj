@@ -69,11 +69,6 @@
                     AssemblyName = "System"
                     HintPath = "..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
-                <Reference
-                    Name = "IceUtil"
-                    Project = "{4ACBB09B-D203-4A37-A529-16BCF49A02BE}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
             </References>
         </Build>
         <Files>
@@ -219,6 +214,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "LinkedList.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ListPatcher.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -329,6 +329,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "OutputBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Patcher.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -385,6 +390,11 @@
                 />
                 <File
                     RelPath = "ServantManager.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Set.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -485,6 +495,16 @@
                 />
                 <File
                     RelPath = "ValueWriter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Version.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "XMLOutput.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
