@@ -186,7 +186,7 @@ interface Topic
      *
      * @param link The topic to destroy the link to.
      *
-     * @throws NoSuchTopic Raised if a link to the topic does not exist.
+     * @throws NoSuchLink Raised if a link to the topic does not exist.
      *
      **/
     void unlink(Topic* linkTo) throws NoSuchLink;
