@@ -218,7 +218,7 @@ Glacier::StarterService::usage(const string& appName)
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.";
 #ifdef _WIN32
-    if(!win9x())
+    if(checkSystem())
     {
         options.append(
 	"\n"

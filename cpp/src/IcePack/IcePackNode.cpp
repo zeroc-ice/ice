@@ -510,7 +510,7 @@ IcePack::NodeService::usage(const string& appName)
 	"                     Deploy descriptor in file DESCRIPTOR, with\n"
 	"                     optional targets.";
 #ifdef _WIN32
-    if(!win9x())
+    if(checkSystem())
     {
         options.append(
 	"\n"
