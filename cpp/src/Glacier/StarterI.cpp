@@ -143,7 +143,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     //
     string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacierrouter");
     string uuid = IceUtil::generateUUID();
-    pid_t pid;
+    pid_t pid = -1; // Initialize to keep the compiler happy.
     int fds[2];
 
     try
