@@ -838,6 +838,7 @@ IceSecurity::Ssl::OpenSSL::System::System(string& systemID) :
 
     _sessionContext = "iceServer";
 
+    _randSeeded = 0;
     _sslServerContext = 0;
     _sslClientContext = 0;
 
