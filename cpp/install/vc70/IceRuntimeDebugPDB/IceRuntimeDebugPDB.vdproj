@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:701"
-"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:IceRuntimeDebugPDB"
 "LanguageId" = "3:1033"
@@ -17,73 +17,73 @@
         {
         "MsmKey" = "8:_31A8F263E2524AA5864CFE3104B46902"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_3DE640C892384CE585CDFE24C1559DE2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6AD8D9520DDB452E95B8FC96C995F4F4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\XMLTRANSFORM11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6AF894626E074D009ED3AAFE45618134"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6CAE4F4BA0DA46F694C659307BD7E862"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6DF7844A943146369CFBE7C454A672A6"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_87E3B905028A4D47A8F81A8C39960CA8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_946A2F0E753F4E04931CC089B6678C0D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_9774B6E1CC7B49EC9BC14ECFA0D6E449"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_A668BE7FC53643E89D02384FB34DF84D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_F090C9C844A54086944E5DD04C9536FC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_F0F2B0F9ACF640D5BE707663DB15A37D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX11D.PDB"
         }
     }
     "Configurations"
@@ -118,7 +118,7 @@
         }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_31A8F263E2524AA5864CFE3104B46902"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_31A8F263E2524AA5864CFE3104B46902"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\ice11d.pdb"
             "TargetName" = "8:ice11d.pdb"
@@ -138,7 +138,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3DE640C892384CE585CDFE24C1559DE2"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3DE640C892384CE585CDFE24C1559DE2"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icestormservice11d.pdb"
             "TargetName" = "8:icestormservice11d.pdb"
@@ -158,7 +158,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6AD8D9520DDB452E95B8FC96C995F4F4"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6AD8D9520DDB452E95B8FC96C995F4F4"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\xmltransform11d.pdb"
             "TargetName" = "8:xmltransform11d.pdb"
@@ -178,7 +178,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6AF894626E074D009ED3AAFE45618134"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6AF894626E074D009ED3AAFE45618134"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icepatch11d.pdb"
             "TargetName" = "8:icepatch11d.pdb"
@@ -198,7 +198,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6CAE4F4BA0DA46F694C659307BD7E862"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6CAE4F4BA0DA46F694C659307BD7E862"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\freeze11d.pdb"
             "TargetName" = "8:freeze11d.pdb"
@@ -218,7 +218,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6DF7844A943146369CFBE7C454A672A6"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6DF7844A943146369CFBE7C454A672A6"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icexml11d.pdb"
             "TargetName" = "8:icexml11d.pdb"
@@ -238,7 +238,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_87E3B905028A4D47A8F81A8C39960CA8"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_87E3B905028A4D47A8F81A8C39960CA8"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\glacier11d.pdb"
             "TargetName" = "8:glacier11d.pdb"
@@ -258,7 +258,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_946A2F0E753F4E04931CC089B6678C0D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_946A2F0E753F4E04931CC089B6678C0D"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\iceutil11d.pdb"
             "TargetName" = "8:iceutil11d.pdb"
@@ -278,7 +278,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9774B6E1CC7B49EC9BC14ECFA0D6E449"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9774B6E1CC7B49EC9BC14ECFA0D6E449"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\slice11d.pdb"
             "TargetName" = "8:slice11d.pdb"
@@ -298,7 +298,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_A668BE7FC53643E89D02384FB34DF84D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A668BE7FC53643E89D02384FB34DF84D"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icessl11d.pdb"
             "TargetName" = "8:icessl11d.pdb"
@@ -318,7 +318,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F090C9C844A54086944E5DD04C9536FC"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F090C9C844A54086944E5DD04C9536FC"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icestorm11d.pdb"
             "TargetName" = "8:icestorm11d.pdb"
@@ -338,7 +338,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_F0F2B0F9ACF640D5BE707663DB15A37D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F0F2B0F9ACF640D5BE707663DB15A37D"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icebox11d.pdb"
             "TargetName" = "8:icebox11d.pdb"
@@ -364,7 +364,7 @@
         }
         "Folder"
         {
-            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_B7E87A49239640DCA1DEAE9292E379F6"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_B7E87A49239640DCA1DEAE9292E379F6"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -376,7 +376,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_2709A182318A457B9C35639588358FC2"
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2709A182318A457B9C35639588358FC2"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -390,25 +390,10 @@
                 }
             }
         }
+        "Shortcut"
+        {
+        }
         "Sequences"
-        {
-        }
-        "MergeModule"
-        {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
-        "Version" = "8:1.0.0.0"
-        "Title" = "8:IceRuntimeDebugPDB"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "ProjectOutput"
         {
         }
         "Registry"
@@ -444,7 +429,22 @@
                 }
             }
         }
-        "Shortcut"
+        "ProjectOutput"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
+        "Version" = "8:1.0.0.0"
+        "Title" = "8:IceRuntimeDebugPDB"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
         {
         }
     }

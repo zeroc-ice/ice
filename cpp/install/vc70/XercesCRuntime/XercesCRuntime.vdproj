@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:701"
-"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:XercesCRuntime"
 "LanguageId" = "3:0"
@@ -17,7 +17,19 @@
         {
         "MsmKey" = "8:_10F0D59EE9484AB08E6ED0BCEE8277FD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\XERCES-C-SRC2_2_0\\BUILD\\WIN32\\VC7\\RELEASE\\XERCES-C_2_2_0.DLL"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6C4C92DF7A294493BA7BD35535BDE4E5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:VC_User_CRT_IO.BA9B7684_0DE0_11D5_A548_0090278A1BB8"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B75E5E2BF26543D4888381F92BB17072"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
         }
     }
     "Configurations"
@@ -68,7 +80,7 @@
         }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_10F0D59EE9484AB08E6ED0BCEE8277FD"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_10F0D59EE9484AB08E6ED0BCEE8277FD"
             {
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Release\\xerces-c_2_2_0.dll"
             "TargetName" = "8:xerces-c_2_2_0.dll"
@@ -94,7 +106,7 @@
         }
         "Folder"
         {
-            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_0A7A7D6961984C299E04CDCA5FA090F6"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_0A7A7D6961984C299E04CDCA5FA090F6"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -106,7 +118,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_CBC6714983D0420997D148C866E12656"
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_CBC6714983D0420997D148C866E12656"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -120,25 +132,10 @@
                 }
             }
         }
+        "Shortcut"
+        {
+        }
         "Sequences"
-        {
-        }
-        "MergeModule"
-        {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
-        "Version" = "8:2.2.0.0"
-        "Title" = "8:XercesCRuntime"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "ProjectOutput"
         {
         }
         "Registry"
@@ -174,8 +171,47 @@
                 }
             }
         }
-        "Shortcut"
+        "ProjectOutput"
         {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
+        "Version" = "8:2.2.0.0"
+        "Title" = "8:XercesCRuntime"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
+        {
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_6C4C92DF7A294493BA7BD35535BDE4E5"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_CRT_IO.msm"
+            "ModuleSignature" = "8:VC_User_CRT_IO.BA9B7684_0DE0_11D5_A548_0090278A1BB8"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_B75E5E2BF26543D4888381F92BB17072"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_CRT.msm"
+            "ModuleSignature" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:701"
-"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:BerkeleyDBRuntimeDebug"
 "LanguageId" = "3:0"
@@ -17,7 +17,7 @@
         {
         "MsmKey" = "8:_C12C26B269874E359B1BA818440DD24D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\DEBUG\\LIBDB41D.DLL"
         }
     }
     "Configurations"
@@ -68,7 +68,7 @@
         }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_C12C26B269874E359B1BA818440DD24D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C12C26B269874E359B1BA818440DD24D"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Debug\\libdb41d.dll"
             "TargetName" = "8:libdb41d.dll"
@@ -94,7 +94,7 @@
         }
         "Folder"
         {
-            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_28D9A93C72B347ED90A0256E6A900174"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_28D9A93C72B347ED90A0256E6A900174"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -106,7 +106,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_41C668252C5E45BC856D33ED6359A0AA"
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_41C668252C5E45BC856D33ED6359A0AA"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -120,25 +120,10 @@
                 }
             }
         }
+        "Shortcut"
+        {
+        }
         "Sequences"
-        {
-        }
-        "MergeModule"
-        {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        "Version" = "8:4.1.25.0"
-        "Title" = "8:BerkeleyDBRuntimeDebug"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "ProjectOutput"
         {
         }
         "Registry"
@@ -174,7 +159,22 @@
                 }
             }
         }
-        "Shortcut"
+        "ProjectOutput"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
+        "Version" = "8:4.1.25.0"
+        "Title" = "8:BerkeleyDBRuntimeDebug"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
         {
         }
     }

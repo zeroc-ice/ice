@@ -1,7 +1,7 @@
 "DeployProject"
 {
-"VSVersion" = "3:701"
-"ProjectType" = "8:{DD7A5B58-C2F9-40FF-B2EF-0773356FB978}"
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:BerkeleyDBRuntime"
 "LanguageId" = "3:0"
@@ -17,151 +17,163 @@
         {
         "MsmKey" = "8:_06705D2C0B844999B71909D221B77AF8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_ACCESS.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_088FE0FE9D7848B5B3F2B4BBD6F65A16"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_UPGRADE.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_149B5428021746D0A5B51E49602A2DCF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_LOAD.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_29A7E4782493485CA4D0CB498083DD0B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_STAT.EXE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_38E7071BF52D4595A14BD76CE396AF93"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_397D61FDFF8748B58ABDCC196BA91365"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
         }
         "Entry"
         {
         "MsmKey" = "8:_3A9E9384491F4235A6051DEAF7FBFE8D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_DUMP.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_402465EC95B146C38AF2C77096661E92"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_LOCK.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_45AB9CCD317D4BC28623F0D74752C93C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_ENV.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_50622696A6924D58A87617BAFCDEB152"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_ARCHIVE.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_5318C3A6B3294A0A94AC9E04E6FC0EA7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_BTREC.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_572D50BC90934B02853E8187ED51E1FF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_TPCB.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_6CB8CA614EBC4C918403C7FC3E4C4EF3"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\LIBDB41.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_6F7647BD9062427695C9925E265342EC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB.JAR"
         }
         "Entry"
         {
         "MsmKey" = "8:_7895306EFC704010A9F9416BE784B2B6"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_ACCESS.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_7E75FCC684F04781AB7A6E0B2112C03D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_RECOVER.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_8949557C1FDD42B6B1574BB7D43DA210"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_ENV.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_90F1FF0B03174CC9A29689CA80953634"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_MPOOL.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_9593D7990100418A92A2BF1173B29C01"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EXCXX_LOCK.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_996785CF16CB427E94CBA3D90E73BCFD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_MPOOL.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_B324DDD29352441185680DA8CA905CB2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_CHECKPOINT.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_BD449823275C412596DBDCB17149387B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_BTREC.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_BFA8E78F76134514A85AC892B76DE778"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_PRINTLOG.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_C1F18486D79B4493BAB72CCB38028B1B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_DEADLOCK.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_E36451A259B7414A90B55560D71758D2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\DB_VERIFY.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_EFD696EB90E84563A842E46DD3EADBFF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\EX_TPCB.EXE"
         }
         "Entry"
         {
         "MsmKey" = "8:_FBA5F0623C474CC8B7B040710FA86485"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\RELEASE\\LIBDB_JAVA41.DLL"
         }
     }
     "Configurations"
@@ -212,7 +224,7 @@
         }
         "File"
         {
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_06705D2C0B844999B71909D221B77AF8"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_06705D2C0B844999B71909D221B77AF8"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_access.exe"
             "TargetName" = "8:ex_access.exe"
@@ -232,7 +244,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_088FE0FE9D7848B5B3F2B4BBD6F65A16"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_088FE0FE9D7848B5B3F2B4BBD6F65A16"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_upgrade.exe"
             "TargetName" = "8:db_upgrade.exe"
@@ -252,7 +264,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_149B5428021746D0A5B51E49602A2DCF"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_149B5428021746D0A5B51E49602A2DCF"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_load.exe"
             "TargetName" = "8:db_load.exe"
@@ -272,7 +284,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_29A7E4782493485CA4D0CB498083DD0B"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_29A7E4782493485CA4D0CB498083DD0B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_stat.exe"
             "TargetName" = "8:db_stat.exe"
@@ -292,7 +304,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_3A9E9384491F4235A6051DEAF7FBFE8D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3A9E9384491F4235A6051DEAF7FBFE8D"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_dump.exe"
             "TargetName" = "8:db_dump.exe"
@@ -312,7 +324,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_402465EC95B146C38AF2C77096661E92"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_402465EC95B146C38AF2C77096661E92"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_lock.exe"
             "TargetName" = "8:ex_lock.exe"
@@ -332,7 +344,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_45AB9CCD317D4BC28623F0D74752C93C"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_45AB9CCD317D4BC28623F0D74752C93C"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_env.exe"
             "TargetName" = "8:excxx_env.exe"
@@ -352,7 +364,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_50622696A6924D58A87617BAFCDEB152"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_50622696A6924D58A87617BAFCDEB152"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_archive.exe"
             "TargetName" = "8:db_archive.exe"
@@ -372,7 +384,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_5318C3A6B3294A0A94AC9E04E6FC0EA7"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5318C3A6B3294A0A94AC9E04E6FC0EA7"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_btrec.exe"
             "TargetName" = "8:excxx_btrec.exe"
@@ -392,7 +404,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_572D50BC90934B02853E8187ED51E1FF"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_572D50BC90934B02853E8187ED51E1FF"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_tpcb.exe"
             "TargetName" = "8:excxx_tpcb.exe"
@@ -412,7 +424,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6CB8CA614EBC4C918403C7FC3E4C4EF3"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6CB8CA614EBC4C918403C7FC3E4C4EF3"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\libdb41.dll"
             "TargetName" = "8:libdb41.dll"
@@ -432,7 +444,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_6F7647BD9062427695C9925E265342EC"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6F7647BD9062427695C9925E265342EC"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db.jar"
             "TargetName" = "8:db.jar"
@@ -452,7 +464,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7895306EFC704010A9F9416BE784B2B6"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7895306EFC704010A9F9416BE784B2B6"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_access.exe"
             "TargetName" = "8:excxx_access.exe"
@@ -472,7 +484,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_7E75FCC684F04781AB7A6E0B2112C03D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7E75FCC684F04781AB7A6E0B2112C03D"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_recover.exe"
             "TargetName" = "8:db_recover.exe"
@@ -492,7 +504,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_8949557C1FDD42B6B1574BB7D43DA210"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8949557C1FDD42B6B1574BB7D43DA210"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_env.exe"
             "TargetName" = "8:ex_env.exe"
@@ -512,7 +524,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_90F1FF0B03174CC9A29689CA80953634"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_90F1FF0B03174CC9A29689CA80953634"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_mpool.exe"
             "TargetName" = "8:excxx_mpool.exe"
@@ -532,7 +544,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_9593D7990100418A92A2BF1173B29C01"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9593D7990100418A92A2BF1173B29C01"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\excxx_lock.exe"
             "TargetName" = "8:excxx_lock.exe"
@@ -552,7 +564,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_996785CF16CB427E94CBA3D90E73BCFD"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_996785CF16CB427E94CBA3D90E73BCFD"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_mpool.exe"
             "TargetName" = "8:ex_mpool.exe"
@@ -572,7 +584,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_B324DDD29352441185680DA8CA905CB2"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B324DDD29352441185680DA8CA905CB2"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_checkpoint.exe"
             "TargetName" = "8:db_checkpoint.exe"
@@ -592,7 +604,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BD449823275C412596DBDCB17149387B"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BD449823275C412596DBDCB17149387B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_btrec.exe"
             "TargetName" = "8:ex_btrec.exe"
@@ -612,7 +624,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_BFA8E78F76134514A85AC892B76DE778"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BFA8E78F76134514A85AC892B76DE778"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_printlog.exe"
             "TargetName" = "8:db_printlog.exe"
@@ -632,7 +644,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_C1F18486D79B4493BAB72CCB38028B1B"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C1F18486D79B4493BAB72CCB38028B1B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_deadlock.exe"
             "TargetName" = "8:db_deadlock.exe"
@@ -652,7 +664,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_E36451A259B7414A90B55560D71758D2"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E36451A259B7414A90B55560D71758D2"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\db_verify.exe"
             "TargetName" = "8:db_verify.exe"
@@ -672,7 +684,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_EFD696EB90E84563A842E46DD3EADBFF"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EFD696EB90E84563A842E46DD3EADBFF"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\ex_tpcb.exe"
             "TargetName" = "8:ex_tpcb.exe"
@@ -692,7 +704,7 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{A582A373-4685-4296-BEFE-614B80A702C3}:_FBA5F0623C474CC8B7B040710FA86485"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FBA5F0623C474CC8B7B040710FA86485"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\libdb_java41.dll"
             "TargetName" = "8:libdb_java41.dll"
@@ -718,7 +730,7 @@
         }
         "Folder"
         {
-            "{29CD8198-A6F0-4B93-8B90-AC03CFEAD328}:_7DC4317E664C43829847DA1D47C7ADF1"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_7DC4317E664C43829847DA1D47C7ADF1"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
@@ -730,7 +742,7 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY4"
                 "Folders"
                 {
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_753ACC8749D641B08D91F3ED0CDCD491"
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_753ACC8749D641B08D91F3ED0CDCD491"
                     {
                     "Name" = "8:lib"
                     "AlwaysCreate" = "11:FALSE"
@@ -741,7 +753,7 @@
                         {
                         }
                     }
-                    "{F27BD5C5-A65D-4608-96D4-7C5DA1F76302}:_960E1A72653C4D889AFC062E21AEE40A"
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_960E1A72653C4D889AFC062E21AEE40A"
                     {
                     "Name" = "8:bin"
                     "AlwaysCreate" = "11:FALSE"
@@ -755,25 +767,10 @@
                 }
             }
         }
+        "Shortcut"
+        {
+        }
         "Sequences"
-        {
-        }
-        "MergeModule"
-        {
-        }
-        "Module"
-        {
-        "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
-        "Version" = "8:4.1.25.0"
-        "Title" = "8:BerkeleyDBRuntime"
-        "Subject" = "8:"
-        "Author" = "8:ZeroC, Inc"
-        "Keywords" = "8:"
-        "Comments" = "8:"
-        "SearchPath" = "8:"
-        "UseSystemSearchPath" = "11:TRUE"
-        }
-        "ProjectOutput"
         {
         }
         "Registry"
@@ -809,8 +806,47 @@
                 }
             }
         }
-        "Shortcut"
+        "ProjectOutput"
         {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
+        "Version" = "8:4.1.25.0"
+        "Title" = "8:BerkeleyDBRuntime"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
+        {
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_38E7071BF52D4595A14BD76CE396AF93"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_CRT.msm"
+            "ModuleSignature" = "8:VC_User_CRT.BA9B6D09_0DE0_11D5_A548_0090278A1BB8"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_397D61FDFF8748B58ABDCC196BA91365"
+            {
+            "UseDynamicProperties" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:C:\\Program Files\\Common Files\\Merge Modules\\VC_STL.msm"
+            "ModuleSignature" = "8:VC_User_STL.BA9B76E9_0DE0_11D5_A548_0090278A1BB8"
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
     }
 }
