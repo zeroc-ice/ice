@@ -19,28 +19,26 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
         // this iterator to continue to function even if the
         // database is accessed and the map iterator is invalidated.
         //
-        java.util.ArrayList list = new java.util.ArrayList();
         while(iterator.hasNext())
         {
-            list.add(iterator.next());
+            java.util.Map.Entry entry = (java.util.Map.Entry)iterator.next();
+            _identities.add(entry.getKey());
         }
-        _identities= new Ice.Identity[list.size()];
-        list.toArray(_identities);
-        _pos = 0;
+        _iterator = _identities.iterator();
     }
 
     public boolean
     hasNext()
     {
-        return _pos < _identities.length;
+        return _iterator != null && _iterator.hasNext();
     }
 
     public Ice.Identity
     next()
     {
-        if(_pos < _identities.length)
+        if(_iterator != null)
         {
-            return _identities[_pos++];
+            return (Ice.Identity)_iterator.next();
         }
         else
         {
@@ -51,9 +49,10 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
     public void
     destroy()
     {
-        _pos = _identities.length;
+        _identities = null;
+        _iterator = null;
     }
     
-    private Ice.Identity[] _identities;
-    private int _pos;
+    private java.util.ArrayList _identities = new java.util.ArrayList();
+    private java.util.Iterator _iterator;
 }
