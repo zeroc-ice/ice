@@ -20,6 +20,7 @@ class ICE_API Buffer : public ::IceUtil::noncopyable
 {
 public:
 
+    // TODO: Should not be inline, as this is not performance critical.
     Buffer()
     {
 	b.reserve(1000);

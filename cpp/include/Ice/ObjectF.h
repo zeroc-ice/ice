@@ -13,7 +13,12 @@
 
 #include <Ice/Handle.h>
 
-namespace Ice { class Object; }
+namespace Ice
+{
+
+class Object;
+
+}
 
 namespace IceInternal
 {

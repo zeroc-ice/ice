@@ -25,7 +25,7 @@ public:
 
     void flush();
 
-    std::ostringstream& __str() { return _str; } // Don't use directly
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
 
 private:
 
@@ -52,7 +52,7 @@ public:
 
     void flush();
 
-    std::ostringstream& __str() { return _str; } // Don't use directly
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
 
 private:
 
@@ -79,7 +79,7 @@ public:
 
     void flush();
 
-    std::ostringstream& __str() { return _str; } // Don't use directly
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
 
 private:
 

@@ -33,11 +33,6 @@ public:
     virtual void write(Buffer&, int) = 0;
     virtual void read(Buffer&, int) = 0;
     virtual std::string toString() const = 0;
-    
-protected:
-
-    Transceiver() { }
-    virtual ~Transceiver() { }
 };
 
 }

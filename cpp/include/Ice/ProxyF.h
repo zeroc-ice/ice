@@ -13,10 +13,53 @@
 
 #include <Ice/ProxyHandle.h>
 
-namespace IceProxy { namespace Ice { class Object; } }
-namespace IceDelegate { namespace Ice { class Object; } }
-namespace IceDelegateM { namespace Ice { class Object; } }
-namespace IceDelegateD { namespace Ice { class Object; } }
+namespace IceProxy
+{
+
+namespace Ice
+{
+
+class Object;
+
+}
+
+}
+
+namespace IceDelegate
+{
+
+namespace Ice
+{
+
+class Object;
+
+}
+
+}
+
+namespace IceDelegateM
+{
+
+namespace Ice
+{
+
+class Object;
+
+}
+
+}
+
+namespace IceDelegateD
+{
+
+namespace Ice
+{
+
+class Object;
+
+}
+
+}
 
 namespace IceInternal
 {

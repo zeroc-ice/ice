@@ -18,12 +18,14 @@ namespace IceUtil
 {
 
 #ifdef WIN32
+// TODO: Should not be inlined, not performance critical.
 struct HandleWrapper : public Shared
 {
     HandleWrapper(HANDLE h) :
 	handle(h)
     {
     }
+
     ~HandleWrapper()
     {
 	if (handle != 0)

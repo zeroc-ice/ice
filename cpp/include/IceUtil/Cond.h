@@ -175,6 +175,9 @@ private:
     }
  */
 
+    //
+    // TODO: Should not be inlined, not performance critical.
+    //
     void
     waitImpl(const RecMutex& mutex) const
     {
@@ -195,6 +198,9 @@ private:
 	}
     }
 
+    //
+    // TODO: Should not be inlined, not performance critical.
+    //
     void
     waitImpl(const Mutex& mutex) const
     {
@@ -215,6 +221,9 @@ private:
 	}
     }
     
+    //
+    // TODO: Should not be inlined, not performance critical.
+    //
     bool
     timedwaitImpl(const RecMutex& mutex, long msec) const
     {
@@ -236,6 +245,9 @@ private:
 	}
     }
 
+    //
+    // TODO: Should not be inlined, not performance critical.
+    //
     bool
     timedwaitImpl(const Mutex& mutex, long msec) const
     {

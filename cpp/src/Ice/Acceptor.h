@@ -32,11 +32,6 @@ public:
     virtual void listen() = 0;
     virtual TransceiverPtr accept(int) = 0;
     virtual std::string toString() const = 0;
-
-protected:
-
-    Acceptor() { }
-    virtual ~Acceptor() { }
 };
 
 }

@@ -24,11 +24,6 @@ public:
     
     virtual TransceiverPtr connect(int) = 0;
     virtual std::string toString() const = 0;
-    
-protected:
-
-    Connector() { }
-    virtual ~Connector() { }
 };
 
 }

@@ -30,8 +30,13 @@
 // using namespace Ice;
 // using namespace IceInternal;
 //
-namespace Ice { }
-namespace IceInternal { }
+namespace Ice
+{
+}
+
+namespace IceInternal
+{
+}
 
 #if defined(WIN32)
 
@@ -55,6 +60,7 @@ typedef double Double;
 
 }
 
+// TODO: Should not be inline, this is not performance critical.
 inline int getSystemErrno() { return GetLastError(); }
 inline int getSocketErrno() { return WSAGetLastError(); }
 inline int getDNSErrno() { return WSAGetLastError(); }
@@ -78,6 +84,7 @@ typedef double Double;
 
 }
 
+// TODO: Should not be inline, this is not performance critical.
 inline int getSystemErrno() { return errno; }
 inline int getSocketErrno() { return errno; }
 extern int h_errno;

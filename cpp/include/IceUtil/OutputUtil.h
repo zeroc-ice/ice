@@ -36,8 +36,7 @@ public:
     OutputBase();
     OutputBase(std::ostream&);
     OutputBase(const char*);
-
-    virtual ~OutputBase() { }
+    virtual ~OutputBase();
 
     void setIndent(int); // What is the indent level?
     void setUseTab(bool); // Should we output tabs?
@@ -70,10 +69,14 @@ protected:
     bool _separator;
 };
 
-class ICE_UTIL_API NextLine { };
+class ICE_UTIL_API NextLine
+{
+};
 extern ICE_UTIL_API NextLine nl;
 
-class ICE_UTIL_API Separator { };
+class ICE_UTIL_API Separator
+{
+};
 extern ICE_UTIL_API Separator sp;
 
 // ----------------------------------------------------------------------
@@ -126,7 +129,9 @@ operator<<(Output& o, const Separator&)
     return o;
 }
 
-class ICE_UTIL_API StartBlock { };
+class ICE_UTIL_API StartBlock
+{
+};
 extern ICE_UTIL_API StartBlock sb;
 
 template<>
@@ -137,7 +142,9 @@ operator<<(Output& o, const StartBlock&)
     return o;
 }
 
-class ICE_UTIL_API EndBlock { };
+class ICE_UTIL_API EndBlock
+{
+};
 extern ICE_UTIL_API EndBlock eb;
 
 template<>
@@ -203,12 +210,13 @@ operator<<(XMLOutput& o, const Separator&)
     return o;
 }
 
+// TODO: Not performance critical, does not need to be inlined.
 class ICE_UTIL_API StartElement
 {
 public:
 
-    StartElement(const std::string& name)
-	: _name(name)
+    StartElement(const std::string& name) :
+	_name(name)
     {
     }
     
@@ -216,7 +224,10 @@ public:
     {
     }
 
-    const std::string& getName() const { return _name; }
+    const std::string& getName() const
+    {
+	return _name;
+    }
 
 private:
 

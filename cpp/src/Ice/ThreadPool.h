@@ -76,7 +76,7 @@ private:
     {
     public:
 	
-	EventHandlerThread(const ThreadPoolPtr& pool) : _pool(pool) { }
+	EventHandlerThread(const ThreadPoolPtr&);
 	virtual void run();
 
     private:
@@ -84,6 +84,7 @@ private:
 	ThreadPoolPtr _pool;
     };
     friend class EventHandlerThread;
+
     std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
     int _threadNum; // Number of running threads.
     int _maxConnections; // Maximum number of connections. If set to zero, the number of connections is not limited.

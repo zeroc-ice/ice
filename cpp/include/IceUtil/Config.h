@@ -82,6 +82,12 @@
 namespace IceUtil
 {
 
+//
+// TODO: Constructor and destructor should not be inlined, as they are
+// not performance critical.
+//
+// TODO: Naming conventions?
+//
 class noncopyable
 {
 protected:

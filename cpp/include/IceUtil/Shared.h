@@ -39,25 +39,32 @@
  * on us. We need to use _exactly_ the address the user gave us,
  * not some alias that contains the same information.
  */
-typedef struct { volatile int counter; } ice_atomic_t;
+struct ice_atomic_t
+{
+    volatile int counter;
+};
 
-/**
+/*
  * ice_atomic_set - set ice_atomic variable
  * @v: pointer of type ice_atomic_t
  * @i: required value
  * 
- * Atomically sets the value of @v to @i.  Note that the guaranteed
+ * Atomically sets the value of @v to @i. Note that the guaranteed
  * useful range of an ice_atomic_t is only 24 bits.
- */ 
-#define ice_atomic_set(v,i) (((v)->counter) = (i))
+ */
+// TODO: Does this really need to be a macro?t
+#define ice_atomic_set(v, i) (((v)->counter) = (i))
 
-/**
+/*
  * ice_atomic_inc - increment ice_atomic variable
  * @v: pointer of type ice_atomic_t
  * 
- * Atomically increments @v by 1.  Note that the guaranteed
- * useful range of an ice_atomic_t is only 24 bits.
- */ 
+ * Atomically increments @v by 1. Note that the guaranteed useful
+ * range of an ice_atomic_t is only 24 bits.
+ *
+ * Inlined because this operation is performance critical.
+ */
+// TODO: Why static?
 static inline void ice_atomic_inc(ice_atomic_t *v)
 {
     __asm__ __volatile__(
@@ -70,11 +77,13 @@ static inline void ice_atomic_inc(ice_atomic_t *v)
  * ice_atomic_dec_and_test - decrement and test
  * @v: pointer of type ice_atomic_t
  * 
- * Atomically decrements @v by 1 and
- * returns true if the result is 0, or false for all other
- * cases.  Note that the guaranteed
- * useful range of an ice_atomic_t is only 24 bits.
- */ 
+ * Atomically decrements @v by 1 and returns true if the result is 0,
+ * or false for all other cases. Note that the guaranteed useful
+ * range of an ice_atomic_t is only 24 bits.
+ *
+ * Inlined because this operation is performance critical.
+ */
+// TODO: Why static?
 static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 {
     unsigned char c;
@@ -86,10 +95,13 @@ static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 }
 
 /**
- * ice_atomic_exchange_add - same as InterlockedExchangeAdd. This didn't
- * come from atomic.h (the code was derived from similar code in
- * /usr/include/asm/rwsem.h)
+ * ice_atomic_exchange_add - same as InterlockedExchangeAdd. This
+ * didn't come from atomic.h (the code was derived from similar code
+ * in /usr/include/asm/rwsem.h)
+ *
+ * Inlined because this operation is performance critical.
  */
+// TODO: Why static?
 static inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 {
     int tmp = i;
@@ -120,6 +132,11 @@ static inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 //
 namespace IceUtil
 {
+
+//
+// TODO: Not all operations in this class are performance critical,
+// thus not all of them should be inlined.
+//
 
 class SimpleShared : public noncopyable
 {
@@ -192,6 +209,11 @@ private:
 #endif
     bool _noDelete;
 };
+
+//
+// TODO: Not all operations below are performance critical, thus not
+// all of them should be inlined.
+//
 
 #ifdef ICE_USE_MUTEX_SHARED
 

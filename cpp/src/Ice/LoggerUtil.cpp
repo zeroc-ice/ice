@@ -36,6 +36,12 @@ Ice::Warning::flush()
     _str.clear();
 }
 
+ostringstream&
+Ice::Warning::__str()
+{
+    return _str;
+}
+
 Warning&
 Ice::operator<<(Warning& out, ios_base& (*val)(ios_base&))
 {
@@ -62,6 +68,12 @@ Ice::Error::flush()
 	_logger->error(s);
     }
     _str.clear();
+}
+
+ostringstream&
+Ice::Error::__str()
+{
+    return _str;
 }
 
 Error&
@@ -91,6 +103,12 @@ Ice::Trace::flush()
 	_logger->trace(s, _category);
     }
     _str.clear();
+}
+
+ostringstream&
+Ice::Trace::__str()
+{
+    return _str;
 }
 
 Trace&

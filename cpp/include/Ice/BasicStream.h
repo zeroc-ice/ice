@@ -51,12 +51,22 @@ public:
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
-    void write(Ice::Byte v) { b.push_back(v); }
+    // Performance critical function inlined, as writing single bytes
+    // is used in many places in Ice code.
+    void write(Ice::Byte v)
+    {
+	b.push_back(v);
+    }
     void write(const std::vector<Ice::Byte>&);
     void read(Ice::Byte&);
     void read(std::vector<Ice::Byte>&);
 
-    void write(bool v) { b.push_back(static_cast<Ice::Byte>(v)); }
+    // Performance critical function inlined, as writing single bools
+    // is used in many places in Ice code.
+    void write(bool v)
+    {
+	b.push_back(static_cast<Ice::Byte>(v));
+    }
     void write(const std::vector<bool>&);
     void read(bool&);
     void read(std::vector<bool>&);

@@ -110,7 +110,14 @@ private:
 #endif
 };
 
+//
+// TODO: Check if all the functions below are really performance
+// critical. Those which are not performance critical shouldn't be
+// inlined.
+//
+
 #ifdef WIN32
+
 inline
 Mutex::Mutex()
 {
@@ -237,6 +244,7 @@ inline void
 Mutex::lock(LockState&) const
 {
 }
+
 #endif    
 
 } // End namespace IceUtil

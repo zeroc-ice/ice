@@ -60,6 +60,10 @@ IceUtil::OutputBase::OutputBase(const char* s) :
     open(s);
 }
 
+IceUtil::OutputBase::~OutputBase()
+{
+}
+
 void
 IceUtil::OutputBase::open(const char* s)
 {
