@@ -38,6 +38,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
+    // Priming ping.
+    ping->ping();
+
     timeval tv1;
 #ifdef WIN32
     struct _timeb tb1;

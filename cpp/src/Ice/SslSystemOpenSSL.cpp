@@ -499,6 +499,18 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
 {
     ICE_METHOD_INV("OpenSSL::System::createServerConnection()");
 
+    if (_sslServerContext == 0)
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Server context has not been set up - ";
+        contextEx._message += "please specify an SSL server configuration file.";
+
+        ICE_EXCEPTION(contextEx._message);
+
+	throw contextEx;
+    }
+
     SSL* sslConnection = createConnection(_sslServerContext, socket);
 
     // Set the Accept Connection state for this connection.
@@ -539,6 +551,18 @@ IceSecurity::Ssl::Connection*
 IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
 {
     ICE_METHOD_INV("OpenSSL::System::createClientConnection()");
+
+    if (_sslClientContext == 0)
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Client context has not been set up - ";
+        contextEx._message += "please specify an SSL client configuration file.";
+
+        ICE_EXCEPTION(contextEx._message);
+
+	throw contextEx;
+    }
 
     SSL* sslConnection = createConnection(_sslClientContext, socket);
 
@@ -1220,7 +1244,7 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
 {
     ICE_METHOD_INV("OpenSSL::System::createConnection()");
 
-    SSL *sslConnection = 0;
+    SSL* sslConnection = 0;
 
     sslConnection = SSL_new(sslContext);
 

@@ -1,2 +1,6 @@
-Latency.Ping=ping:tcp -p 10000
-Ice.Adapter.LatencyAdapter.Endpoints=tcp -p 10000
+# Latency.Ping=ping:tcp -p 10000 -h pugdragon
+# Ice.Adapter.LatencyAdapter.Endpoints=tcp -p 10000
+Latency.Ping=ping -s :ssl -p 10000 -h pugdragon
+Ice.Adapter.LatencyAdapter.Endpoints=ssl -p 10000
+Ice.Ssl.CertPath=../../../certs
+Ice.Ssl.Config=./client_sslconfig.xml
