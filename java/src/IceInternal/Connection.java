@@ -17,161 +17,6 @@ package IceInternal;
 public final class Connection extends EventHandler
 {
     public synchronized void
-    activate()
-    {
-	setState(StateActive);
-    }
-
-    public synchronized void
-    hold()
-    {
-	setState(StateHolding);
-    }
-
-    // DestructionReason.
-    public final static int ObjectAdapterDeactivated = 0;
-    public final static int CommunicatorDestroyed = 1;
-
-    public synchronized void
-    destroy(int reason)
-    {
-	switch(reason)
-	{
-	    case ObjectAdapterDeactivated:
-	    {
-		setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
-		break;
-	    }
-	    
-	    case CommunicatorDestroyed:
-	    {
-		setState(StateClosing, new Ice.CommunicatorDestroyedException());
-		break;
-	    }
-	}
-    }
-
-    public synchronized boolean
-    isDestroyed()
-    {
-	return _state >= StateClosing;
-    }
-
-    public synchronized boolean
-    isFinished()
-    {
-	return _transceiver == null && _dispatchCount == 0;
-    }
-
-    public synchronized void
-    waitUntilHolding()
-    {
-	while(_state < StateHolding || _dispatchCount > 0)
-	{
-	    try
-	    {
-		wait();
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-        }
-    }
-
-    public synchronized void
-    waitUntilFinished()
-    {
-	//
-	// We wait indefinitely until all outstanding requests are
-	// completed. Otherwise we couldn't guarantee that there are
-	// no outstanding calls when deactivate() is called on the
-	// servant locators.
-	//
-	while(_dispatchCount > 0)
-	{
-	    try
-	    {
-		wait();
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	    
-	}
-	
-	//
-	// Now we must wait for connection closure. If there is a
-	// timeout, we force the connection closure.
-	//
-	while(_transceiver != null)
-	{
-	    try
-	    {
-		if(_endpoint.timeout() >= 0)
-		{
-		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
-		    
-		    wait(_endpoint.timeout());
-		    
-		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
-		    {
-			setState(StateClosed, new Ice.CloseTimeoutException());
-			// No return here, we must still wait until _transceiver becomes null.
-		    }
-		}
-		else
-		{
-		    wait();
-		}
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	}
-
-	assert(_state == StateClosed);
-    }
-
-    public synchronized void
-    monitor()
-    {
-	if(_state != StateActive)
-	{
-	    return;
-	}
-	
-	//
-	// Check for timed out async requests.
-	//
-	java.util.Iterator i = _asyncRequests.entryIterator();
-	while(i.hasNext())
-	{
-	    IntMap.Entry e = (IntMap.Entry)i.next();
-	    OutgoingAsync out = (OutgoingAsync)e.getValue();
-	    if(out.__timedOut())
-	    {
-		setState(StateClosed, new Ice.TimeoutException());
-		return;
-	    }
-	}
-
-	//
-	// Active connection management for idle connections.
-	//
-	// TODO: Hack: ACM for incoming connections doesn't work right
-	// with AMI.
-	//
-	if(_acmTimeout > 0 && closeOK() && _adapter == null)
-	{
-	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
-	    {
-		setState(StateClosing, new Ice.ConnectionTimeoutException());
-		return;
-	    }
-	}	    
-    }
-
-    public synchronized void
     validate()
     {
 	if(_exception != null)
@@ -331,10 +176,180 @@ public final class Connection extends EventHandler
 	setState(StateHolding);
     }
 
-    public synchronized boolean
+    public synchronized void
+    activate()
+    {
+	setState(StateActive);
+    }
+
+    public synchronized void
+    hold()
+    {
+	setState(StateHolding);
+    }
+
+    // DestructionReason.
+    public final static int ObjectAdapterDeactivated = 0;
+    public final static int CommunicatorDestroyed = 1;
+
+    public synchronized void
+    destroy(int reason)
+    {
+	switch(reason)
+	{
+	    case ObjectAdapterDeactivated:
+	    {
+		setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+		break;
+	    }
+	    
+	    case CommunicatorDestroyed:
+	    {
+		setState(StateClosing, new Ice.CommunicatorDestroyedException());
+		break;
+	    }
+	}
+    }
+
+    public boolean
     isValidated()
     {
+	//
+	// No synchronization necessary, _state is declared
+	// volatile. Synchronization is not possible here anyway,
+	// because this function must not block.
+	//
         return _state > StateNotValidated;
+    }
+
+    public boolean
+    isDestroyed()
+    {
+	//
+	// No synchronization necessary, _state is declared
+	// volatile. Synchronization is not possible here anyway,
+	// because this function must not block.
+	//
+	return _state >= StateClosing;
+    }
+
+    public boolean
+    isFinished()
+    {
+	//
+	// No synchronization necessary, _transceiver is declared
+	// volatile. Synchronization is not possible here anyway,
+	// because this function must not block.
+	//
+	return _transceiver == null;
+    }
+
+    public synchronized void
+    waitUntilHolding()
+    {
+	while(_state < StateHolding || _dispatchCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+        }
+    }
+
+    public synchronized void
+    waitUntilFinished()
+    {
+	//
+	// We wait indefinitely until all outstanding requests are
+	// completed. Otherwise we couldn't guarantee that there are
+	// no outstanding calls when deactivate() is called on the
+	// servant locators.
+	//
+	while(_dispatchCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	    
+	}
+	
+	//
+	// Now we must wait for connection closure. If there is a
+	// timeout, we force the connection closure.
+	//
+	while(_transceiver != null)
+	{
+	    try
+	    {
+		if(_endpoint.timeout() >= 0)
+		{
+		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
+		    
+		    wait(_endpoint.timeout());
+		    
+		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
+		    {
+			setState(StateClosed, new Ice.CloseTimeoutException());
+			// No return here, we must still wait until _transceiver becomes null.
+		    }
+		}
+		else
+		{
+		    wait();
+		}
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+
+	assert(_state == StateClosed);
+    }
+
+    public synchronized void
+    monitor()
+    {
+	if(_state != StateActive)
+	{
+	    return;
+	}
+	
+	//
+	// Check for timed out async requests.
+	//
+	java.util.Iterator i = _asyncRequests.entryIterator();
+	while(i.hasNext())
+	{
+	    IntMap.Entry e = (IntMap.Entry)i.next();
+	    OutgoingAsync out = (OutgoingAsync)e.getValue();
+	    if(out.__timedOut())
+	    {
+		setState(StateClosed, new Ice.TimeoutException());
+		return;
+	    }
+	}
+
+	//
+	// Active connection management for idle connections.
+	//
+	// TODO: Hack: ACM for incoming connections doesn't work right
+	// with AMI.
+	//
+	if(_acmTimeout > 0 && closingOK() && _adapter == null)
+	{
+	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
+	    {
+		setState(StateClosing, new Ice.ConnectionTimeoutException());
+		return;
+	    }
+	}	    
     }
 
     public synchronized void
@@ -350,7 +365,7 @@ public final class Connection extends EventHandler
 	assert(_proxyCount > 0);
 	--_proxyCount;
 
-	if(_proxyCount == 0 && _adapter == null && closeOK())
+	if(_proxyCount == 0 && _adapter == null && closingOK())
 	{
 	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
@@ -647,7 +662,7 @@ public final class Connection extends EventHandler
 	    }
 	}
 
-	if(_proxyCount == 0 && _adapter == null && closeOK())
+	if(_proxyCount == 0 && _adapter == null && closingOK())
 	{
 	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
@@ -946,7 +961,7 @@ public final class Connection extends EventHandler
 				throw new Ice.UnknownRequestIdException();
 			    }
 
-			    if(_proxyCount == 0 && _adapter == null && closeOK())
+			    if(_proxyCount == 0 && _adapter == null && closingOK())
 			    {
 				setState(StateClosing, new Ice.CloseConnectionException());
 			    }
@@ -1472,7 +1487,7 @@ public final class Connection extends EventHandler
 */
 
     private boolean
-    closeOK()
+    closingOK()
     {
 	return
 	    _requests.isEmpty() &&
@@ -1482,7 +1497,7 @@ public final class Connection extends EventHandler
 	    _dispatchCount == 0;
     }
 
-    private Transceiver _transceiver;
+    private volatile Transceiver _transceiver; // Must be volatile, see comment in isFinished().
     private final Endpoint _endpoint;
 
     private Ice.ObjectAdapter _adapter;
@@ -1512,7 +1527,7 @@ public final class Connection extends EventHandler
     private int _dispatchCount; // The number of requests currently being dispatched.
     private int _proxyCount; // The number of proxies using this connection.
 
-    private int _state;
+    private volatile int _state; // Must be volatile, see comment in isDestroyed().
 
     private Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
