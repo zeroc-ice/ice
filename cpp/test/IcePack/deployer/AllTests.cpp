@@ -40,7 +40,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
     test(admin);
 
-    cout << "test server registration..." << flush;
+    cout << "test server registration... "  << flush;
     Ice::StringSeq serverNames = admin->getAllServerNames();
     test(find(serverNames.begin(), serverNames.end(), "Server1") != serverNames.end());
     test(find(serverNames.begin(), serverNames.end(), "Server2") != serverNames.end());
