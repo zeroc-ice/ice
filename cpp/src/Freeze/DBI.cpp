@@ -149,7 +149,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 				       DB_INIT_LOG |
 				       DB_INIT_MPOOL |
 				       DB_INIT_TXN |
-				       DB_THREAD |
+				       DB_PRIVATE |
 				       DB_RECOVER,
 				       FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 
@@ -379,7 +379,11 @@ Freeze::DBTransactionI::abort()
     _tid = 0;
 }
 
-DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::string& name, DBC* cursor) :
+DBCursorI::DBCursorI(const DBIPtr& db,
+		     const ::Ice::CommunicatorPtr& communicator,
+		     const std::string& name,
+		     DBC* cursor) :
+    _db(db),
     _communicator(communicator),
     _trace(0),
     _name(name),
@@ -414,7 +418,7 @@ DBCursorI::getCommunicator()
 void
 DBCursorI::curr(Key& key, Value& value)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -447,7 +451,7 @@ DBCursorI::curr(Key& key, Value& value)
 void
 DBCursorI::set(const Value& value)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -479,7 +483,7 @@ DBCursorI::set(const Value& value)
 bool
 DBCursorI::next()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -520,7 +524,7 @@ DBCursorI::next()
 bool
 DBCursorI::prev()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -561,7 +565,7 @@ DBCursorI::prev()
 void
 DBCursorI::del()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -584,7 +588,7 @@ DBCursorI::del()
 DBCursorPtr
 DBCursorI::clone()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -597,13 +601,13 @@ DBCursorI::clone()
 
     DBC* cursor;
     _cursor->c_dup(_cursor, &cursor, DB_POSITION);
-    return new DBCursorI(_communicator, _name, cursor);
+    return new DBCursorI(_db, _communicator, _name, cursor);
 }
 
 void
 DBCursorI::close()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*_db.get());
 
     if(!_cursor)
     {
@@ -733,7 +737,7 @@ Freeze::DBI::getCursor()
 	throw;
     }
 
-    return new DBCursorI(_communicator, _name, cursor);
+    return new DBCursorI(this, _communicator, _name, cursor);
 }
 
 DBCursorPtr
@@ -784,7 +788,7 @@ Freeze::DBI::getCursorAtKey(const Key& key)
 	throw;
     }
 
-    return new DBCursorI(_communicator, _name, cursor);
+    return new DBCursorI(this, _communicator, _name, cursor);
 }
 
 void

@@ -85,34 +85,6 @@ private:
     std::string _errorPrefix;
 };
 
-class DBCursorI : public DBCursor, public IceUtil::Mutex
-{
-public:
-
-    DBCursorI(const ::Ice::CommunicatorPtr&, const std::string&, DBC*);
-    ~DBCursorI();
-
-    virtual ::Ice::CommunicatorPtr getCommunicator();
-
-    virtual void curr(Key& key, Value& value);
-    virtual void set(const Value& value);
-    virtual bool next();
-    virtual bool prev();
-    virtual void del();
-    
-    virtual DBCursorPtr clone();
-    virtual void close();
-
-private:
-
-    ::Ice::CommunicatorPtr _communicator;
-    int _trace;
-
-    std::string _name;
-    std::string _errorPrefix;
-
-    DBC* _cursor;
-};
 
 class DBI : public DB, public IceUtil::Mutex
 {
@@ -151,6 +123,38 @@ private:
 
     std::string _name;
     std::string _errorPrefix;
+};
+
+typedef IceUtil::Handle<DBI> DBIPtr;
+
+class DBCursorI : public DBCursor
+{
+public:
+
+    DBCursorI(const DBIPtr&, const ::Ice::CommunicatorPtr&, const std::string&, DBC*);
+    ~DBCursorI();
+
+    virtual ::Ice::CommunicatorPtr getCommunicator();
+
+    virtual void curr(Key& key, Value& value);
+    virtual void set(const Value& value);
+    virtual bool next();
+    virtual bool prev();
+    virtual void del();
+    
+    virtual DBCursorPtr clone();
+    virtual void close();
+
+private:
+
+    DBIPtr _db;
+    ::Ice::CommunicatorPtr _communicator;
+    int _trace;
+
+    std::string _name;
+    std::string _errorPrefix;
+
+    DBC* _cursor;
 };
 
 }
