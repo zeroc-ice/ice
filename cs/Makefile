@@ -28,13 +28,6 @@ install::
 	    chmod a+rx $(install_bindir) ; \
 	fi
 
-	@if test ! -d $(install_libdir) ; \
-	then \
-	    echo "Creating $(install_libdir)..." ; \
-	    mkdir -p $(install_libdir) ; \
-	    chmod a+rx $(install_libdir) ; \
-	fi
-
 	@if test ! -d $(install_slicedir) ; \
 	then \
 	    echo "Creating $(install_slicedir)..." ; \
