@@ -24,7 +24,7 @@ final class HelloSessionI extends HelloSession
     }
 
     public void
-    stop(Ice.Current current)
+    destroy(Ice.Current current)
     {
         _manager.remove(current.identity);
     }
