@@ -20,7 +20,6 @@ class CallbackClient extends Ice.Application
             "o: send callback as oneway\n" +
             "O: send callback as batch oneway\n" +
             "f: flush all batch requests\n" +
-	    "S: switch secure mode on/off\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -39,7 +38,7 @@ class CallbackClient extends Ice.Application
         }
 
         Ice.ObjectPrx base = communicator().stringToProxy(proxy);
-        CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
+        CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1));
         if(twoway == null)
         {
             System.err.println("invalid proxy");
@@ -56,9 +55,6 @@ class CallbackClient extends Ice.Application
 	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 Ice.Util.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-
-	boolean secure = false;
-	String secureStr = "";
 
         menu();
 
@@ -88,27 +84,6 @@ class CallbackClient extends Ice.Application
                 {
                     batchOneway.initiateCallback(onewayR);
                 }
-		else if(line.equals("S"))
-		{
-		    secure = !secure;
-		    secureStr = secure ? "s" : "";
-
-		    twoway = CallbackPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = CallbackPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = CallbackPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-
-		    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
-		    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
-
-		    if(secure)
-		    {
-			System.out.println("secure mode is now on");
-		    }
-		    else
-		    {
-			System.out.println("secure mode is now off");
-		    }
-		}
                 else if(line.equals("f"))
                 {
 		    communicator().flushBatchRequests();

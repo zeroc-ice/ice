@@ -21,7 +21,6 @@ public class Client
             "O: send greeting as batch oneway\n" +
             "f: flush all batch requests\n" +
             "T: set a timeout\n" +
-            "S: switch secure mode on/off\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -40,7 +39,7 @@ public class Client
         }
 
         Ice.ObjectPrx base = communicator.stringToProxy(proxy);
-        HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
+        HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1));
         if(twoway == null)
         {
             System.err.println("invalid proxy");
@@ -49,7 +48,6 @@ public class Client
         HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
-	boolean secure = false;
         int timeout = -1;
 
         menu();
@@ -106,23 +104,6 @@ public class Client
                     else
                     {
                         System.out.println("timeout is now set to 2000ms");
-                    }
-                }
-                else if(line.equals("S"))
-                {
-		    secure = !secure;
-
-		    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-
-                    if(secure)
-                    {
-                        System.out.println("secure mode is now on");
-                    }
-                    else
-                    {
-                        System.out.println("secure mode is now off");
                     }
                 }
                 else if(line.equals("s"))

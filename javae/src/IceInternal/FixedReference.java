@@ -29,12 +29,6 @@ public class FixedReference extends Reference
         return _fixedConnections;
     }
 
-    public boolean
-    getSecure()
-    {
-	return false;
-    }
-
     public Endpoint[]
     getEndpoints()
     {
@@ -45,12 +39,6 @@ public class FixedReference extends Reference
     getCollocationOptimization()
     {
         return false;
-    }
-
-    public Reference
-    changeSecure(boolean sec)
-    {
-	return this;
     }
 
     public Reference
@@ -99,15 +87,17 @@ public class FixedReference extends Reference
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder compress)
     {
-        Ice.ConnectionI[] filteredConns = filterConnections(_fixedConnections);
-	if(filteredConns.length == 0)
+	if(_fixedConnections.length == 0)
 	{
 	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
 	    ex.proxy = toString();
 	    throw ex;
 	}
 
-	Ice.ConnectionI connection = filteredConns[0];
+	//
+	// Choose a random connection
+	//
+	Ice.ConnectionI connection = _fixedConnections[_rand.nextInt(_fixedConnections.length)];
 	assert(connection != null);
 	compress.value = connection.endpoint().compress();
 
@@ -134,4 +124,5 @@ public class FixedReference extends Reference
     }
 
     private Ice.ConnectionI _fixedConnections[];
+    private java.util.Random _rand = new java.util.Random();
 }

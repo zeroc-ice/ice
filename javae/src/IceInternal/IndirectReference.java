@@ -17,13 +17,12 @@ public class IndirectReference extends RoutableReference
 		      java.util.Map ctx,
 		      String fs,
 		      int md,
-		      boolean sec,
 		      String adptid,
 		      RouterInfo rtrInfo,
 		      LocatorInfo locInfo,
 		      boolean collocationOpt)
     {
-    	super(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
+    	super(inst, ident, ctx, fs, md, rtrInfo, collocationOpt);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
     }
@@ -55,7 +54,7 @@ public class IndirectReference extends RoutableReference
 	Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
 	if(loc == null)
 	{
-	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false,
+	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway,
 							   new Endpoint[0], getRouterInfo(), false);
 	}
 	else
@@ -75,7 +74,7 @@ public class IndirectReference extends RoutableReference
 	if(newLocator == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), new Endpoint[0], getRouterInfo(),
+							   new Endpoint[0], getRouterInfo(),
 							   getCollocationOptimization());
 	}
 	else

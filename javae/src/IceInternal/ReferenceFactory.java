@@ -16,7 +16,6 @@ public final class ReferenceFactory
            java.util.Map context,
            String facet,
            int mode,
-           boolean secure,
            Endpoint[] endpoints,
            RouterInfo routerInfo,
 	   boolean collocationOptimization)
@@ -34,7 +33,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode, secure,
+        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode,
 						  endpoints, routerInfo, collocationOptimization);
 	return updateCache(ref);
     }
@@ -44,7 +43,6 @@ public final class ReferenceFactory
            java.util.Map context,
            String facet,
            int mode,
-           boolean secure,
            String adapterId,
            RouterInfo routerInfo,
 	   LocatorInfo locatorInfo,
@@ -63,7 +61,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
+        IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode,
 						      adapterId, routerInfo, locatorInfo, collocationOptimization);
 	return updateCache(ref);
     }
@@ -201,7 +199,6 @@ public final class ReferenceFactory
 
         String facet = "";
         int mode = Reference.ModeTwoway;
-        boolean secure = false;
 	String adapter = "";
 
         while(true)
@@ -337,18 +334,6 @@ public final class ReferenceFactory
                     break;
                 }
 
-                case 's':
-                {
-                    if(argument != null)
-                    {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-                    }
-                    secure = true;
-                    break;
-                }
-
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -363,7 +348,7 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, "", routerInfo, locatorInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, "", routerInfo, locatorInfo, true);
 	}
 
         java.util.ArrayList endpoints = new java.util.ArrayList();
@@ -388,7 +373,7 @@ public final class ReferenceFactory
 	    }
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.toArray(endp);
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, endp, routerInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, endp, routerInfo, true);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -428,7 +413,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, routerInfo, locatorInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, adapter, routerInfo, locatorInfo, true);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -473,8 +458,6 @@ public final class ReferenceFactory
             throw new Ice.ProxyUnmarshalException();
         }
 
-        boolean secure = s.readBool();
-
         Endpoint[] endpoints;
 	String adapterId = "";
 
@@ -489,13 +472,13 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, endpoints, routerInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, endpoints, routerInfo, true);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, new java.util.HashMap(), facet, mode, secure,
+	    return create(ident, new java.util.HashMap(), facet, mode,
 	                  adapterId, routerInfo, locatorInfo, true);
 	}
     }

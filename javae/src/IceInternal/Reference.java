@@ -60,7 +60,6 @@ public abstract class Reference implements Cloneable
 
     }
 
-    public abstract boolean getSecure();
     public abstract Endpoint[] getEndpoints();
     public abstract boolean getCollocationOptimization();
 
@@ -156,7 +155,6 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public abstract Reference changeSecure(boolean newSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeCompress(boolean newCompress);
@@ -196,8 +194,6 @@ public abstract class Reference implements Cloneable
             h = 5 * h + (int)_facet.charAt(i);
         }
 
-        h = 5 * h + (getSecure() ? 1 : 0);
-
 	_hashValue = h;
 	_hashInitialized = true;
 
@@ -229,8 +225,6 @@ public abstract class Reference implements Cloneable
         }
 
         s.writeByte((byte)_mode);
-
-        s.writeBool(getSecure());
 
 	// Derived class writes the remainder of the reference.
     }
@@ -300,11 +294,6 @@ public abstract class Reference implements Cloneable
                 s.append(" -O");
                 break;
             }
-        }
-
-        if(getSecure())
-        {
-            s.append(" -s");
         }
 
         return s.toString();
@@ -426,59 +415,10 @@ public abstract class Reference implements Cloneable
         //
         java.util.Collections.shuffle(endpoints);
 
-        //
-        // If a secure connection is requested, remove all non-secure
-        // endpoints. Otherwise make non-secure endpoints preferred over
-        // secure endpoints by partitioning the endpoint vector, so that
-        // non-secure endpoints come first.
-        //
-        if(getSecure())
-        {
-            java.util.Iterator i = endpoints.iterator();
-            while(i.hasNext())
-            {
-                Endpoint endpoint = (Endpoint)i.next();
-                if(!endpoint.secure())
-                {
-                    i.remove();
-                }
-            }
-        }
-        else
-        {
-            java.util.Collections.sort(endpoints, _endpointComparator);
-        }
-
         Endpoint[] arr = new Endpoint[endpoints.size()];
         endpoints.toArray(arr);
         return arr;
     }
-
-    static class EndpointComparator implements java.util.Comparator
-    {
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    IceInternal.Endpoint le = (IceInternal.Endpoint)l;
-	    IceInternal.Endpoint re = (IceInternal.Endpoint)r;
-	    boolean ls = le.secure();
-	    boolean rs = re.secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
-	}
-    }
-    
-    private static EndpointComparator _endpointComparator = new EndpointComparator();
 
     protected boolean
     compare(Endpoint[] arr1, Endpoint[] arr2)
@@ -503,71 +443,4 @@ public abstract class Reference implements Cloneable
 
         return false;
     }
-
-    //
-    // Filter connections based on criteria from this reference.
-    //
-    public Ice.ConnectionI[]
-    filterConnections(Ice.ConnectionI[] allConnections)
-    {
-        java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
-
-        //
-        // Randomize the order of connections.
-        //
-        java.util.Collections.shuffle(connections);
-
-        //
-        // If a secure connection is requested, remove all non-secure
-        // endpoints. Otherwise make non-secure endpoints preferred over
-        // secure endpoints by partitioning the endpoint vector, so that
-        // non-secure endpoints come first.
-        //
-        if(getSecure())
-        {
-            java.util.Iterator i = connections.iterator();
-            while(i.hasNext())
-            {
-                Ice.ConnectionI connection = (Ice.ConnectionI)i.next();
-                if(!connection.endpoint().secure())
-                {
-                    i.remove();
-                }
-            }
-        }
-        else
-        {
-            java.util.Collections.sort(connections, _connectionComparator);
-        }
-
-        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
-        connections.toArray(arr);
-        return arr;
-    }
-
-    static class ConnectionComparator implements java.util.Comparator
-    {
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    Ice.ConnectionI lc = (Ice.ConnectionI)l;
-	    Ice.ConnectionI rc = (Ice.ConnectionI)r;
-	    boolean ls = lc.endpoint().secure();
-	    boolean rs = rc.endpoint().secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
-	}
-    }
-    
-    private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 }

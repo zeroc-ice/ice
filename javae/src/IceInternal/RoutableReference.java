@@ -33,12 +33,6 @@ public abstract class RoutableReference extends Reference
     }
 
     public final boolean
-    getSecure()
-    {
-	return _secure;
-    }
-
-    public final boolean
     getCollocationOptimization()
     {
         return _collocationOptimization;
@@ -48,21 +42,8 @@ public abstract class RoutableReference extends Reference
     changeDefault()
     {
 	RoutableReference r = (RoutableReference)super.changeDefault();
-	r._secure = false;
 	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
 	r._collocationOptimization = false;
-	return r;
-    }
-
-    public Reference
-    changeSecure(boolean newSecure)
-    {
-	if(newSecure == _secure)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._secure = newSecure;
 	return r;
     }
 
@@ -104,10 +85,6 @@ public abstract class RoutableReference extends Reference
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
-	if(_secure != rhs._secure)
-	{
-	    return false;
-	}
 	if(_collocationOptimization != rhs._collocationOptimization)
 	{
 	    return false;
@@ -121,17 +98,14 @@ public abstract class RoutableReference extends Reference
 		      java.util.Map ctx,
 		      String fac,
 		      int md,
-		      boolean sec,
 		      RouterInfo rtrInfo,
 		      boolean collocationOpt)
     {
         super(inst, ident, ctx, fac, md);
-	_secure = sec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;
     }
 
-    private boolean _secure;
     private RouterInfo _routerInfo; // Null if no router is used.
     private boolean _collocationOptimization;
 }

@@ -9,31 +9,12 @@
 # **********************************************************************
 
 #
-# Set protocol to "ssl" in case you want to run the tests with the SSL
-# protocol. Otherwise TCP is used.
-#
-
-protocol = ""
-#protocol = "ssl"
-
-#
 # Set compressed to 1 in case you want to run the tests with
 # protocol compression.
 #
 
 compress = 0
 #compress = 1
-
-#
-# Set threadPerConnection to 1 in case you want to run the tests in
-# thread per connection mode, or if you are using SSL.
-#
-
-#threadPerConnection = 0
-threadPerConnection = 1
-
-if protocol == "ssl":
-    threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -161,42 +142,12 @@ else:
 
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
-if protocol == "ssl":
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
-    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
-                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
-                           " --IceSSL.Client.Password=password"
-    serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
-                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
-                           " --IceSSL.Server.Password=password"
-    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.Keystore=" + os.path.join(toplevel, "certs", "client.jks") + \
-                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
-                           " --IceSSL.Client.Password=password" + \
-                           " --IceSSL.Server.Keystore=" + os.path.join(toplevel, "certs", "server.jks") + \
-                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
-                           " --IceSSL.Server.Password=password"
-    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
-    cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Client.Config=client_sslconfig.xml"
-    cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                              " --IceSSL.Server.Config=server_sslconfig.xml"
-    cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=sslconfig.xml"
-else:
-    clientProtocol = ""
-    serverProtocol = ""
-    clientServerProtocol = ""
-    cppClientProtocol = ""
-    cppServerProtocol = ""
-    cppClientServerProtocol = ""
+clientProtocol = ""
+serverProtocol = ""
+clientServerProtocol = ""
+cppClientProtocol = ""
+cppServerProtocol = ""
+cppClientServerProtocol = ""
 
 if compress:
     clientProtocol += " --Ice.Override.Compress"

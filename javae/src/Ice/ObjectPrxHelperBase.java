@@ -340,22 +340,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_secure(boolean b)
-    {
-        IceInternal.Reference ref = _reference.changeSecure(b);
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-    }
-
-    public final ObjectPrx
     ice_compress(boolean co)
     {
         IceInternal.Reference ref = _reference.changeCompress(co);

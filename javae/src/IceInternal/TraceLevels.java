@@ -16,7 +16,6 @@ public final class TraceLevels
         networkCat = "Network";
         protocolCat = "Protocol";
         retryCat = "Retry";
-        securityCat = "Security";
 	locationCat = "Location";
 	slicingCat = "Slicing";
 
@@ -25,7 +24,6 @@ public final class TraceLevels
         network = properties.getPropertyAsInt(keyBase + networkCat);
 	protocol = properties.getPropertyAsInt(keyBase + protocolCat);
         retry = properties.getPropertyAsInt(keyBase + retryCat);
-        security = properties.getPropertyAsInt(keyBase + securityCat);
 	location = properties.getPropertyAsInt(keyBase + locationCat);
 	slicing = properties.getPropertyAsInt(keyBase + slicingCat);
     }
@@ -36,8 +34,6 @@ public final class TraceLevels
     final public String protocolCat;
     final public int retry;
     final public String retryCat;
-    final public int security;
-    final public String securityCat;
     final public int location;
     final public String locationCat;
     final public int slicing;
