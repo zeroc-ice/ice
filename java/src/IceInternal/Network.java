@@ -360,12 +360,12 @@ public final class Network
 
                                 break;
                             }
-                            catch(java.io.InterruptedIOException ex)
-                            {
-                                continue;
-                            }
                             catch(java.io.IOException ex)
                             {
+				if(interrupted(ex))
+				{
+				    continue;
+				}
                                 Ice.SocketException se = new Ice.SocketException();
                                 se.initCause(ex);
                                 throw se;
@@ -385,12 +385,12 @@ public final class Network
                     }
                 }
             }
-            catch(java.io.InterruptedIOException ex)
-            {
-                continue;
-            }
             catch(java.io.IOException ex)
             {
+		if(interrupted(ex))
+		{
+		    continue;
+		}
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
                 throw se;
@@ -752,5 +752,12 @@ public final class Network
         s.append(':');
         s.append(addr.getPort());
         return s.toString();
+    }
+
+    public static boolean
+    interrupted(java.io.IOException ex)
+    {
+	return ex instanceof java.io.InterruptedIOException ||
+	       ex.getMessage().indexOf("Interrupted system call") >= 0;
     }
 }
