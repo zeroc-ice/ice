@@ -13,6 +13,16 @@
 
 #if defined(WIN32)
 
+#   if !defined(_DLL) || !defined(_MT)
+#       error "Only multi-threaded DLL libraries can be used with Ice!"
+#   endif
+
+#   ifdef ICE_UTIL_API_EXPORTS
+#       define ICE_UTIL_API __declspec(dllexport)
+#   else
+#       define ICE_UTIL_API __declspec(dllimport)
+#   endif
+
 #   include <windows.h>
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
@@ -32,7 +42,8 @@
 
 #elif defined(__linux__) && defined(i386)
 
-// Nothing here yet
+#   define ICE_UTIL_API /**/
+#   define HAVE_READLINE
 
 #else
 

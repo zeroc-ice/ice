@@ -26,11 +26,11 @@ namespace Ice
 
 typedef IceUtil::Exception Exception;
 
-class ICE_API LocalException : public IceUtil::Exception
+class LocalException : public IceUtil::Exception
 {
 public:    
 
-    LocalException(const char*, int);
+    ICE_API LocalException(const char*, int);
     virtual std::string _name() const = 0;
     virtual Exception* _clone() const = 0;
     virtual void _throw() const = 0;

@@ -35,10 +35,6 @@ namespace IceInternal { }
 
 #if defined(WIN32)
 
-#   if !defined(_DLL) || !defined(_MT)
-#       error "Only multi-threaded DLL libraries can be used with Ice!"
-#   endif
-
 #   ifdef ICE_API_EXPORTS
 #       define ICE_API __declspec(dllexport)
 #   else
@@ -71,7 +67,6 @@ inline int getDNSErrno() { return WSAGetLastError(); }
 #   include <unistd.h>
 
 #   define ICE_API /**/
-#   define HAVE_READLINE
 
 namespace Ice
 {

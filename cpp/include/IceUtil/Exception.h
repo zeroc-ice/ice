@@ -16,7 +16,7 @@
 namespace IceUtil
 {
 
-class Exception
+class ICE_UTIL_API Exception
 {
 public:
 
@@ -36,9 +36,9 @@ private:
     int _theLine;
 };
 
-std::ostream& operator<<(std::ostream&, const Exception&);
+ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Exception&);
 
-class NullHandleException : public Exception
+class ICE_UTIL_API NullHandleException : public Exception
 {
 public:
     
