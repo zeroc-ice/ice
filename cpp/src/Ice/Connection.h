@@ -113,6 +113,7 @@ private:
     int _proxyUsageCount;
     State _state;
     bool _warn;
+    bool _registeredWithPool;
 };
 
 }

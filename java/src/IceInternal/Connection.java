@@ -698,6 +698,7 @@ public final class Connection extends EventHandler
 	_proxyUsageCount = 0;
         _state = StateHolding;
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
+	_registeredWithPool = false;
     }
 
     protected void
@@ -893,39 +894,49 @@ public final class Connection extends EventHandler
     private void
     registerWithPool()
     {
-        if (_adapter != null)
-        {
-            if (_serverThreadPool == null)
-            {
-                _serverThreadPool = _instance.serverThreadPool();
-                assert(_serverThreadPool != null);
-            }
-            _serverThreadPool._register(_transceiver.fd(), this);
-        }
-        else
-        {
-            if (_clientThreadPool == null)
-            {
-                _clientThreadPool = _instance.clientThreadPool();
-                assert(_clientThreadPool != null);
-            }
-            _clientThreadPool._register(_transceiver.fd(), this);
-        }
+	if (!_registeredWithPool)
+	{
+	    if (_adapter != null)
+	    {
+		if (_serverThreadPool == null)
+		{
+		    _serverThreadPool = _instance.serverThreadPool();
+		    assert(_serverThreadPool != null);
+		}
+		_serverThreadPool._register(_transceiver.fd(), this);
+	    }
+	    else
+	    {
+		if (_clientThreadPool == null)
+		{
+		    _clientThreadPool = _instance.clientThreadPool();
+		    assert(_clientThreadPool != null);
+		}
+		_clientThreadPool._register(_transceiver.fd(), this);
+	    }
+
+	    _registeredWithPool = true;
+	}
     }
 
     private void
     unregisterWithPool()
     {
-        if (_adapter != null)
-        {
-            assert(_serverThreadPool != null);
-            _serverThreadPool.unregister(_transceiver.fd());
-        }
-        else
-        {
-            assert(_clientThreadPool != null);
-            _clientThreadPool.unregister(_transceiver.fd());
-        }
+	if (_registeredWithPool)
+	{
+	    if (_adapter != null)
+	    {
+		assert(_serverThreadPool != null);
+		_serverThreadPool.unregister(_transceiver.fd());
+	    }
+	    else
+	    {
+		assert(_clientThreadPool != null);
+		_clientThreadPool.unregister(_transceiver.fd());
+	    }
+
+	    _registeredWithPool = false;	
+	}
     }
 
     private void
@@ -979,6 +990,7 @@ public final class Connection extends EventHandler
     private int _proxyUsageCount;
     private int _state;
     private boolean _warn;
+    private boolean _registeredWithPool;
     private RecursiveMutex _mutex = new RecursiveMutex();
     private Incoming _incomingCache;
 }

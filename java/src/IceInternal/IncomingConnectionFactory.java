@@ -199,8 +199,7 @@ public class IncomingConnectionFactory extends EventHandler
     */
 
     public
-    IncomingConnectionFactory(Instance instance, Endpoint endpoint,
-                              Ice.ObjectAdapter adapter)
+    IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {
         super(instance);
         _endpoint = endpoint;
@@ -213,6 +212,7 @@ public class IncomingConnectionFactory extends EventHandler
         _state = StateHolding;
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
 	_finished = false;
+	_registeredWithPool = false;
 
         try
         {
@@ -358,12 +358,16 @@ public class IncomingConnectionFactory extends EventHandler
     {
         if (_acceptor != null)
         {
-            if (_serverThreadPool == null)
-            {
-                _serverThreadPool = _instance.serverThreadPool();
-                assert(_serverThreadPool != null);
-            }
-            _serverThreadPool._register(_acceptor.fd(), this);
+	    if (!_registeredWithPool)
+	    {
+		if (_serverThreadPool == null)
+		{
+		    _serverThreadPool = _instance.serverThreadPool();
+		    assert(_serverThreadPool != null);
+		}
+		_serverThreadPool._register(_acceptor.fd(), this);
+		_registeredWithPool = true;
+	    }
         }
     }
 
@@ -372,8 +376,12 @@ public class IncomingConnectionFactory extends EventHandler
     {
         if (_acceptor != null)
         {
-            assert(_serverThreadPool != null);
-            _serverThreadPool.unregister(_acceptor.fd());
+	    if (!_registeredWithPool)
+	    {
+		assert(_serverThreadPool != null);
+		_serverThreadPool.unregister(_acceptor.fd());
+		_registeredWithPool = true;
+	    }
         }
     }
 
@@ -397,4 +405,5 @@ public class IncomingConnectionFactory extends EventHandler
     private int _state;
     private boolean _warn;
     private boolean _finished;
+    private boolean _registeredWithPool;
 }

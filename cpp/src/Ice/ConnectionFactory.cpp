@@ -432,7 +432,8 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _endpoint(endpoint),
     _adapter(adapter),
     _state(StateHolding),
-    _finished(false)
+    _finished(false),
+    _registeredWithPool(false)    
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     if (defaultsAndOverrides->overrideTimeout)
@@ -554,12 +555,16 @@ IceInternal::IncomingConnectionFactory::registerWithPool()
 {
     if (_acceptor)
     {
-	if (!_serverThreadPool)
+	if (!_registeredWithPool)
 	{
-	    _serverThreadPool = _instance->serverThreadPool();
-	    assert(_serverThreadPool);
+	    if (!_serverThreadPool)
+	    {
+		_serverThreadPool = _instance->serverThreadPool();
+		assert(_serverThreadPool);
+	    }
+	    _serverThreadPool->_register(_acceptor->fd(), this);
+	    _registeredWithPool = true;
 	}
-	_serverThreadPool->_register(_acceptor->fd(), this);
     }
 }
 
@@ -568,7 +573,11 @@ IceInternal::IncomingConnectionFactory::unregisterWithPool()
 {
     if (_acceptor)
     {
-	assert(_serverThreadPool);
-	_serverThreadPool->unregister(_acceptor->fd());
+	if (_registeredWithPool)
+	{
+	    assert(_serverThreadPool);
+	    _serverThreadPool->unregister(_acceptor->fd());
+	    _registeredWithPool = false;
+	}
     }
 }

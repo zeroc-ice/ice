@@ -802,7 +802,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchStream(_instance),
     _responseCount(0),
     _proxyUsageCount(0),
-    _state(StateHolding)
+    _state(StateHolding),
+    _registeredWithPool(false)
 {
     _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
 }
@@ -974,38 +975,48 @@ IceInternal::Connection::closeConnection()
 void
 IceInternal::Connection::registerWithPool()
 {
-    if (_adapter)
+    if (!_registeredWithPool)
     {
-	if (!_serverThreadPool)
+	if (_adapter)
 	{
-	    _serverThreadPool = _instance->serverThreadPool();
-	    assert(_serverThreadPool);
+	    if (!_serverThreadPool)
+	    {
+		_serverThreadPool = _instance->serverThreadPool();
+		assert(_serverThreadPool);
+	    }
+	    _serverThreadPool->_register(_transceiver->fd(), this);
 	}
-	_serverThreadPool->_register(_transceiver->fd(), this);
-    }
-    else
-    {
-	if (!_clientThreadPool)
+	else
 	{
-	    _clientThreadPool = _instance->clientThreadPool();
-	    assert(_clientThreadPool);
+	    if (!_clientThreadPool)
+	    {
+		_clientThreadPool = _instance->clientThreadPool();
+		assert(_clientThreadPool);
+	    }
+	    _clientThreadPool->_register(_transceiver->fd(), this);
 	}
-	_clientThreadPool->_register(_transceiver->fd(), this);
+
+	_registeredWithPool = true;
     }
 }
 
 void
 IceInternal::Connection::unregisterWithPool()
 {
-    if (_adapter)
+    if (_registeredWithPool)
     {
-	assert(_serverThreadPool);
-	_serverThreadPool->unregister(_transceiver->fd());
-    }
-    else
-    {
-	assert(_clientThreadPool);
-	_clientThreadPool->unregister(_transceiver->fd());
+	if (_adapter)
+	{
+	    assert(_serverThreadPool);
+	    _serverThreadPool->unregister(_transceiver->fd());
+	}
+	else
+	{
+	    assert(_clientThreadPool);
+	    _clientThreadPool->unregister(_transceiver->fd());
+	}
+
+	_registeredWithPool = false;
     }
 }
 
