@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -20,6 +20,23 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+def usage():
+    print "usage: " + sys.argv[0] + " [-m]"
+    sys.exit(2)
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "m")
+except getopt.GetoptError:
+    usage()
+
+mono = 0
+for o, a in opts:
+    if o == "-m":
+        mono = 1
+
+if not TestUtil.isWin32():
+    mono = 1
+    
 name = os.path.join("Ice", "faultTolerance")
 testdir = os.path.join(toplevel, "test", name)
 
@@ -31,8 +48,15 @@ base = 12340
 
 serverPipes = { }
 for i in range(0, num):
-    print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i))
+    msg = "starting "
+    if mono:
+        msg += "mono "
+    msg += "server"
+    if mono:
+        msg += ".exe"
+    msg += " #%d..." % (i + 1)
+    print msg,
+    serverPipes[i] = os.popen(TestUtil.createCmd(mono, server) + TestUtil.serverOptions + " %d" % (base + i))
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
@@ -41,8 +65,8 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 
-print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports)
+print TestUtil.createMsg(mono, "client"),
+clientPipe = os.popen(TestUtil.createCmd(mono, client) + TestUtil.clientOptions + " " + ports)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

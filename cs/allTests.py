@@ -18,7 +18,10 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-def runTests(tests, num = 0):
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
+def runTests(mono, tests, num = 0):
 
     #
     # Run each of the tests.
@@ -34,7 +37,11 @@ def runTests(tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-	status = os.system(os.path.join(dir, "run.py"))
+	if mono:
+	    status = os.system(os.path.join(dir, "run.py -m"))
+	else:
+	    status = os.system(os.path.join(dir, "run.py"))
+
 	if status:
 	    if(num > 0):
 		print "[" + str(num) + "]",
@@ -63,22 +70,28 @@ def usage():
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "l")
+    opts, args = getopt.getopt(sys.argv[1:], "lm")
 except getopt.GetoptError:
     usage()
 
 if(args):
     usage()
 
-loop = False
+loop = 0
+mono = 0
 for o, a in opts:
     if o == "-l":
-        loop = True
+        loop = 1
+    if o == "-m":
+        mono = 1
     
+if not TestUtil.isWin32():
+    mono = 1
+
 if loop:
     num = 1
-    while True:
-	runTests(tests, num)
+    while 1:
+	runTests(mono, tests, num)
 	num += 1
 else:
-    runTests(tests)
+    runTests(mono, tests)

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys
+import os, sys, getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -20,7 +20,24 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+def usage():
+    print "usage: " + sys.argv[0] + " [-m]"
+    sys.exit(2)
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "m")
+except getopt.GetoptError:
+    usage()
+
+mono = 0
+for o, a in opts:
+    if o == "-m":
+        mono = 1
+
+if not TestUtil.isWin32():
+    mono = 1
+
 name = os.path.join("Ice", "location")
 
-TestUtil.mixedClientServerTest(name)
+TestUtil.mixedClientServerTest(mono, name)
 sys.exit(0)

@@ -110,7 +110,7 @@ def getAdapterReady(serverPipe):
 
 def waitServiceReady(pipe, token):
 
-    while True:
+    while 1:
 
         output = pipe.readline().strip()
 
@@ -123,7 +123,7 @@ def waitServiceReady(pipe, token):
 
 def printOutputFromPipe(pipe):
 
-    while True:
+    while 1:
 
         c = pipe.read(1)
 
@@ -185,32 +185,42 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
-def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
+def createMsg(mono, name):
+    
+    msg = "starting "
+    if mono:
+	msg += "mono "
+    msg += name
+    if mono:
+        msg += ".exe"
+    msg += "..."
+
+    return msg
+
+def createCmd(mono, bin):
+
+    if mono:
+        return "mono " + bin + ".exe"
+    else:
+        return bin
+
+def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
 
-    testDir = os.path.join(toplevel, "test", name)
-    server = os.path.basename(serverName)
-    serverDir = os.path.dirname(os.path.join(testDir, serverName))
-    client = os.path.basename(clientName)
-    clientDir = os.path.dirname(os.path.join(testDir, clientName))
+    testdir = os.path.join(toplevel, "test", name)
+    server = os.path.join(testdir, serverName)
+    client = os.path.join(testdir, clientName)
 
-    cwd = os.getcwd()
-    
-    print "starting " + serverName + "...",
-    os.chdir(serverDir)
-    serverPipe = os.popen(os.path.join(".", server) + serverOptions + " " + additionalServerOptions)
+    print createMsg(mono, serverName),
+
+    serverPipe = os.popen(createCmd(mono, server) + serverOptions + " " + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    os.chdir(cwd)
-    
-    print "starting " + clientName + "...",
-    os.chdir(clientDir);
-    clientPipe = os.popen(os.path.join(".", client) + clientOptions + " " + additionalClientOptions)
+    print createMsg(mono, clientName),
+    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalClientOptions)
     print "ok"
-
-    os.chdir(cwd)
 
     printOutputFromPipe(clientPipe)
 
@@ -221,38 +231,32 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 	killServers()
 	sys.exit(1)
 
-def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+def clientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
 
-    clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, "server", "client")
+    clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, additionalClientOptions, "server", "client")
 
-def clientServerTest(name):
+def clientServerTest(mono, name):
 
-    clientServerTestWithOptions(name, "", "")
+    clientServerTestWithOptions(mono, name, "", "")
 
-def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additionalClientOptions):
 
-    testDir = os.path.join(toplevel, "test", name)
+    testdir = os.path.join(toplevel, "test", name)
+    server = os.path.join(testdir, "server")
+    client = os.path.join(testdir, "client")
 
-    cwd = os.getcwd()
-
-    print "starting server...",
-    os.chdir(testDir);
-    serverPipe = os.popen(os.path.join(".", "server") + clientServerOptions + " " + additionalServerOptions)
+    print createMsg(mono, "server"),
+    serverPipe = os.popen(createCmd(mono, server) + clientServerOptions + " " + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    os.chdir(cwd)
-
-    print "starting client...",
-    os.chdir(testDir);
-    clientPipe = os.popen(os.path.join(".", "client") + clientServerOptions + " " + additionalClientOptions)
+    print createMsg(mono, "client"),
+    clientPipe = os.popen(createCmd(mono, client) + clientServerOptions + " " + additionalClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
 
-    os.chdir(cwd)
-
     printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
@@ -262,24 +266,18 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 	killServers()
 	sys.exit(1)
 
-def mixedClientServerTest(name):
+def mixedClientServerTest(mono, name):
 
-    mixedClientServerTestWithOptions(name, "", "")
+    mixedClientServerTestWithOptions(mono, name, "", "")
 
-def collocatedTestWithOptions(name, additionalOptions):
+def collocatedTestWithOptions(mono, name, additionalOptions):
 
-    testDir = os.path.join(toplevel, "test", name)
-    collocatedDir = os.path.dirname(os.path.join(testDir, "collocated"))
+    testdir = os.path.join(toplevel, "test", name)
+    collocated = os.path.join(testdir, "collocated")
 
-    cwd = os.getcwd()
-
-    os.chdir(collocatedDir)
-
-    print "starting collocated...",
-    collocatedPipe = os.popen(os.path.join(".", "collocated") + collocatedOptions + " " + additionalOptions)
+    print createMsg(mono, "collocated"),
+    collocatedPipe = os.popen(createCmd(mono, collocated) + collocatedOptions + " " + additionalOptions)
     print "ok"
-
-    os.chdir(cwd)
 
     printOutputFromPipe(collocatedPipe)
 
@@ -289,9 +287,9 @@ def collocatedTestWithOptions(name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(name):
+def collocatedTest(mono, name):
 
-    collocatedTestWithOptions(name, "")
+    collocatedTestWithOptions(mono, name, "")
 
 def cleanDbDir(path):
 
