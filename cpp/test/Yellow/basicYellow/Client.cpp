@@ -10,7 +10,6 @@
 
 #include <Ice/Ice.h>
 #include <Yellow/Yellow.h>
-#include <Test.h>
 #include <TestCommon.h>
 
 using namespace std;
