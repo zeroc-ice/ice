@@ -375,6 +375,12 @@ public:
 	    test(ex.aMem == 1);
 	    test(ex.a2Mem == 2);
 	}
+        catch(const Ice::OperationNotExistException&)
+        {
+            //
+            // This operation is not supported in Java.
+            //
+        }
 	catch(...)
 	{
 	    test(false);
@@ -746,6 +752,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ex.aMem == 1);
 	test(ex.a2Mem == 2);
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+	//
+        // This operation is not supported in Java.
+        //
+    }
     catch(...)
     {
 	test(false);
@@ -797,6 +809,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     catch(const A& ex)
     {
 	test(ex.aMem == 1);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+	//
+        // This operation is not supported in Java.
+        //
     }
     catch(...)
     {
