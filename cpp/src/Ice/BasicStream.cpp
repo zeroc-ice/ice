@@ -902,7 +902,7 @@ IceInternal::BasicStream::throwException(const char** throwsBegin, const char** 
 		if (binary_search(throwsBegin, throwsEnd, string(*p)))
 		{
 		    ex.__read(this);
-		    ex._throw();
+		    ex._ice_throw();
 		}
 	    }
 	

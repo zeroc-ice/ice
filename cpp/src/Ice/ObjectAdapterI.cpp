@@ -360,17 +360,8 @@ Ice::ObjectAdapterI::newProxy(const string& ident)
     vector<EndpointPtr> endpoints;
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
 	      Ice::constMemFun(&CollectorFactory::endpoint));
-
-    // ASN: This is a bandaid
-    bool makeSecure = false;
-    size_t numSecureEndpoints = count_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::secure));
-
-    if (numSecureEndpoints >= endpoints.size())
-    {
-        makeSecure = true;
-    }
-
-    ReferencePtr reference = new Reference(_instance, ident, "", Reference::ModeTwoway, makeSecure /* false */, endpoints, endpoints);
+    
+    ReferencePtr reference = new Reference(_instance, ident, "", Reference::ModeTwoway, false, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
 }
 

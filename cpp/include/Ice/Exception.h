@@ -31,18 +31,18 @@ class LocalException : public IceUtil::Exception
 public:    
 
     ICE_API LocalException(const char*, int);
-    virtual std::string _name() const = 0;
-    virtual Exception* _clone() const = 0;
-    virtual void _throw() const = 0;
+    virtual std::string _ice_name() const = 0;
+    virtual Exception* _ice_clone() const = 0;
+    virtual void _ice_throw() const = 0;
 };
 
 class ICE_API UserException : public IceUtil::Exception
 {
 public:    
 
-    virtual std::string _name() const = 0;
-    virtual Exception* _clone() const = 0;
-    virtual void _throw() const = 0;
+    virtual std::string _ice_name() const = 0;
+    virtual Exception* _ice_clone() const = 0;
+    virtual void _ice_throw() const = 0;
 
     virtual const char** __getExceptionIds() const = 0;
     virtual void __write(::IceInternal::BasicStream*) const = 0;

@@ -50,10 +50,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
     }
-    HelloPrx oneway = HelloPrx::uncheckedCast(twoway->_oneway());
-    HelloPrx batchOneway = HelloPrx::uncheckedCast(twoway->_batchOneway());
-    HelloPrx datagram = HelloPrx::uncheckedCast(twoway->_datagram());
-    HelloPrx batchDatagram = HelloPrx::uncheckedCast(twoway->_batchDatagram());
+    HelloPrx oneway = HelloPrx::uncheckedCast(twoway->_ice_oneway());
+    HelloPrx batchOneway = HelloPrx::uncheckedCast(twoway->_ice_batchOneway());
+    HelloPrx datagram = HelloPrx::uncheckedCast(twoway->_ice_datagram());
+    HelloPrx batchDatagram = HelloPrx::uncheckedCast(twoway->_ice_batchDatagram());
 
     bool secure = false;
     int timeout = -1;
@@ -89,8 +89,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if (c == 'f')
 	    {
-		batchOneway->_flush();
-		batchDatagram->_flush();
+		batchOneway->_ice_flush();
+		batchDatagram->_ice_flush();
 	    }
 	    else if (c == 'T')
 	    {
@@ -103,9 +103,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    timeout = -1;
 		}
 		
-		twoway = HelloPrx::uncheckedCast(twoway->_timeout(timeout));
-		oneway = HelloPrx::uncheckedCast(oneway->_timeout(timeout));
-		batchOneway = HelloPrx::uncheckedCast(batchOneway->_timeout(timeout));
+		twoway = HelloPrx::uncheckedCast(twoway->_ice_timeout(timeout));
+		oneway = HelloPrx::uncheckedCast(oneway->_ice_timeout(timeout));
+		batchOneway = HelloPrx::uncheckedCast(batchOneway->_ice_timeout(timeout));
 		
 		if (timeout == -1)
 		{
@@ -120,11 +120,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		secure = !secure;
 		
-		twoway = HelloPrx::uncheckedCast(twoway->_secure(secure));
-		oneway = HelloPrx::uncheckedCast(oneway->_secure(secure));
-		batchOneway = HelloPrx::uncheckedCast(batchOneway->_secure(secure));
-		datagram = HelloPrx::uncheckedCast(datagram->_secure(secure));
-		batchDatagram = HelloPrx::uncheckedCast(batchDatagram->_secure(secure));
+		twoway = HelloPrx::uncheckedCast(twoway->_ice_secure(secure));
+		oneway = HelloPrx::uncheckedCast(oneway->_ice_secure(secure));
+		batchOneway = HelloPrx::uncheckedCast(batchOneway->_ice_secure(secure));
+		datagram = HelloPrx::uncheckedCast(datagram->_ice_secure(secure));
+		batchDatagram = HelloPrx::uncheckedCast(batchDatagram->_ice_secure(secure));
 		
 		if (secure)
 		{

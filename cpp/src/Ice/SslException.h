@@ -36,10 +36,10 @@ public:
     SecurityException(const SecurityException&);
     SecurityException& operator=(const SecurityException&);
     virtual string toString() const;
-    virtual string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 
 private:
 
@@ -61,10 +61,10 @@ public:
     InitException(const char*, const char*, int);
     InitException(const InitException&);
     InitException& operator=(const InitException&);
-    virtual string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 
 };
 
@@ -80,10 +80,10 @@ public:
     ReInitException(const char*, const char*, int);
     ReInitException(const ReInitException&);
     ReInitException& operator=(const ReInitException&);
-    virtual string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 
 };
 
@@ -100,10 +100,10 @@ public:
     ShutdownException(const char*, const char*, int);
     ShutdownException(const ShutdownException&);
     ShutdownException& operator=(const ShutdownException&);
-    virtual string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 
 };
 
@@ -122,10 +122,10 @@ public:
     ContextException(const char*, const char*, int);
     ContextException(const ContextException&);
     ContextException& operator=(const ContextException&);
-    virtual string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 
 };
 

@@ -243,25 +243,25 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C << eb;
     }
 
-    H << nl << _dllExport << "virtual ::std::string _name() const;";
-    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::_name() const";
+    H << nl << _dllExport << "virtual ::std::string _ice_name() const;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::_ice_name() const";
     C << sb;
     C << nl << "return \"" << scoped.substr(2) << "\";";
     C << eb;
     
     if (p->isLocal())
     {
-	H << nl << _dllExport << "virtual void _print(::std::ostream&) const;";
+	H << nl << _dllExport << "virtual void _ice_print(::std::ostream&) const;";
     }
 
-    H << nl << _dllExport << "virtual ::Ice::Exception* _clone() const;";
-    C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::_clone() const";
+    H << nl << _dllExport << "virtual ::Ice::Exception* _ice_clone() const;";
+    C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::_ice_clone() const";
     C << sb;
     C << nl << "return new " << name << "(*this);";
     C << eb;
 
-    H << nl << _dllExport << "virtual void _throw() const;";
-    C << sp << nl << "void" << nl << scoped.substr(2) << "::_throw() const";
+    H << nl << _dllExport << "virtual void _ice_throw() const;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_ice_throw() const";
     C << sb;
     C << nl << "throw *this;";
     C << eb;
@@ -1540,7 +1540,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << sp;
 	H << nl << exp2 << "static const char* __ids[" << ids.size() << "];";
 	H << nl << exp2 << "static const char* __classIds[" << classIds.size() << "];";
-	H << nl << exp2 << "virtual bool _isA(const ::std::string&);";
+	H << nl << exp2 << "virtual bool _ice_isA(const ::std::string&);";
 	H << nl << exp2 << "virtual const char** __getClassIds();";
 	C << sp;
 	C << nl << "const char* " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
@@ -1569,7 +1569,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "bool" << nl << scoped.substr(2) << "::_isA(const ::std::string& s)";
+	C << nl << "bool" << nl << scoped.substr(2) << "::_ice_isA(const ::std::string& s)";
 	C << sb;
 	C << nl << "const char** b = __ids;";
 	C << nl << "const char** e = __ids + " << ids.size() << ';';
@@ -1614,8 +1614,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
-	    allOpNames.push_back("_isA");
-	    allOpNames.push_back("_ping");
+	    allOpNames.push_back("_ice_isA");
+	    allOpNames.push_back("_ice_ping");
 	    allOpNames.sort();
 	    allOpNames.unique();
 
@@ -1625,7 +1625,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList allMutatingOpNames;
 	    transform(allMutatingOps.begin(), allMutatingOps.end(), back_inserter(allMutatingOpNames),
 		      ::IceUtil::memFun(&Operation::name));
-	    // Don't add _isA and _ping. These operations are non-mutating.
+	    // Don't add _ice_isA and _ice_ping. These operations are non-mutating.
 	    allMutatingOpNames.sort();
 	    allMutatingOpNames.unique();
 	    
@@ -2018,10 +2018,10 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "d = 0;";
 	C << nl << "if (b)";
 	C << sb;
-	C << nl << "if (f == b->_getFacet())";
+	C << nl << "if (f == b->_ice_getFacet())";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
-	C << nl << "if (!d && b->_isA(\"" << scoped << "\"))";
+	C << nl << "if (!d && b->_ice_isA(\"" << scoped << "\"))";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ";";
 	C << nl << "d->__copyFrom(b);";
@@ -2029,10 +2029,10 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << nl << "else";
 	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->_newFacet(f);";
+	C << nl << "::Ice::ObjectPrx bb = b->_ice_newFacet(f);";
 	C << nl << "try";
 	C << sb;
-	C << nl << "if (bb->_isA(\"" << scoped << "\"))";
+	C << nl << "if (bb->_ice_isA(\"" << scoped << "\"))";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ";";
 	C << nl << "d->__copyFrom(bb);";
@@ -2051,7 +2051,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "d = 0;";
 	C << nl << "if (b)";
 	C << sb;
-	C << nl << "if (f == b->_getFacet())";
+	C << nl << "if (f == b->_ice_getFacet())";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
 	C << nl << "if (!d)";
@@ -2062,7 +2062,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << nl << "else";
 	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->_newFacet(f);";
+	C << nl << "::Ice::ObjectPrx bb = b->_ice_newFacet(f);";
 	C << nl << "d = new ::IceProxy" << scoped << ";";
 	C << nl << "d->__copyFrom(bb);";
 	C << eb;

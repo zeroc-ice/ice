@@ -179,13 +179,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
 
     cout << "checking facet consistency... " << flush;
-    BPtr fb1 = BPtr::dynamicCast(b1->_findFacet("b1"));
+    BPtr fb1 = BPtr::dynamicCast(b1->_ice_findFacet("b1"));
     test(fb1);
-    BPtr fb2 = BPtr::dynamicCast(b1->_findFacet("b2"));
+    BPtr fb2 = BPtr::dynamicCast(b1->_ice_findFacet("b2"));
     test(fb2);
-    CPtr fc = CPtr::dynamicCast(b1->_findFacet("c"));
+    CPtr fc = CPtr::dynamicCast(b1->_ice_findFacet("c"));
     test(fc);
-    DPtr fd = DPtr::dynamicCast(b1->_findFacet("d"));
+    DPtr fd = DPtr::dynamicCast(b1->_ice_findFacet("d"));
     test(fd);
     test(b1 == fb1);
     test(fb1->a == fb2);
@@ -209,7 +209,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	BPtr::dynamicCast(fb1->a)->b = 0;
 	fb1->a = 0;
 	fb1->b = 0;
-	fb1->_removeAllFacets();
+	fb1->_ice_removeAllFacets();
 	fb2->a = 0;
 	fb2->b = 0;
 	fb2->c = 0;
@@ -246,13 +246,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "ok" << endl;
 
     cout << "checking facet consistency... " << flush;
-    fb1 = BPtr::dynamicCast(b1->_findFacet("b1"));
+    fb1 = BPtr::dynamicCast(b1->_ice_findFacet("b1"));
     test(fb1);
-    fb2 = BPtr::dynamicCast(b1->_findFacet("b2"));
+    fb2 = BPtr::dynamicCast(b1->_ice_findFacet("b2"));
     test(fb2);
-    fc = CPtr::dynamicCast(b1->_findFacet("c"));
+    fc = CPtr::dynamicCast(b1->_ice_findFacet("c"));
     test(fc);
-    fd = DPtr::dynamicCast(b1->_findFacet("d"));
+    fd = DPtr::dynamicCast(b1->_ice_findFacet("d"));
     test(fd);
     test(b1 == fb1);
     test(b2 == fb2);
@@ -278,7 +278,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	fb1->a = 0;
 	fb1->b = 0;
-	fb1->_removeAllFacets();
+	fb1->_ice_removeAllFacets();
 	fb2->a = 0;
 	fb2->b = 0;
 	fb2->c = 0;

@@ -52,7 +52,7 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 	
 	if (_servant && !ref->facet.empty())
 	{
-	    _facetServant = _servant->_findFacet(ref->facet);
+	    _facetServant = _servant->_ice_findFacet(ref->facet);
 	    if (!_facetServant)
 	    {
 		throw FacetNotExistException(__FILE__, __LINE__);

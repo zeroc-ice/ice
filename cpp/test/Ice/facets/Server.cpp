@@ -29,14 +29,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr d = new DI;
     adapter->add(d, "d");
-    d->_addFacet(d, "facetABCD");
-    d->_addFacet(new FI, "facetEF");
-    d->_addFacet(new GI(communicator), "facetG");
+    d->_ice_addFacet(d, "facetABCD");
+    d->_ice_addFacet(new FI, "facetEF");
+    d->_ice_addFacet(new GI(communicator), "facetG");
 
     adapter->activate();
     communicator->waitForShutdown();
 
-    d->_removeAllFacets(); // Break cyclic dependencies
+    d->_ice_removeAllFacets(); // Break cyclic dependencies
     return EXIT_SUCCESS;
 }
 

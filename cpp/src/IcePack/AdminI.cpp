@@ -27,7 +27,7 @@ IcePack::AdminI::add(const ServerDescription& desc)
 
     if (desc.object)
     {
-	_serverDescriptions[desc.object->_getIdentity()] = desc;
+	_serverDescriptions[desc.object->_ice_getIdentity()] = desc;
     }
 }
 

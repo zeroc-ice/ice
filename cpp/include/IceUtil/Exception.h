@@ -23,17 +23,17 @@ public:
     Exception();
     Exception(const char*, int);
     virtual ~Exception();
-    virtual std::string _name() const;
-    virtual void _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
-    const char* _file() const;
-    int _line() const;
+    virtual std::string _ice_name() const;
+    virtual void _ice_print(std::ostream&) const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
+    const char* _ice_file() const;
+    int _ice_line() const;
     
 private:
     
-    const char* _theFile;
-    int _theLine;
+    const char* _file;
+    int _line;
 };
 
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Exception&);
@@ -43,10 +43,10 @@ class ICE_UTIL_API NullHandleException : public Exception
 public:
     
     NullHandleException(const char*, int);
-    virtual std::string _name() const;
-    virtual std::string _description() const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual std::string _ice_name() const;
+    virtual std::string _ice_description() const;
+    virtual Exception* _ice_clone() const;
+    virtual void _ice_throw() const;
 };
 
 }

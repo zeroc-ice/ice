@@ -48,7 +48,7 @@ IceSecurity::SecurityException::operator=(const SecurityException& ex)
 string
 IceSecurity::SecurityException::toString() const
 {
-    string s = _name();
+    string s = _ice_name();
 
     if (_message == "")
     {
@@ -64,26 +64,26 @@ IceSecurity::SecurityException::toString() const
 }
 
 string
-IceSecurity::SecurityException::_name() const
+IceSecurity::SecurityException::_ice_name() const
 {
     return "IceSecurity::SecurityException";
 }
 
 void
-IceSecurity::SecurityException::_print(ostream& out) const
+IceSecurity::SecurityException::_ice_print(ostream& out) const
 {
-    Exception::_print(out);
+    Exception::_ice_print(out);
     out << ":\nunknown security exception";
 }
 
 Ice::Exception*
-IceSecurity::SecurityException::_clone() const
+IceSecurity::SecurityException::_ice_clone() const
 {
     return new SecurityException(*this);
 }
 
 void
-IceSecurity::SecurityException::_throw() const
+IceSecurity::SecurityException::_ice_throw() const
 {
     throw *this;
 }
@@ -114,26 +114,26 @@ IceSecurity::Ssl::InitException::operator=(const InitException& ex)
 }
 
 string
-IceSecurity::Ssl::InitException::_name() const
+IceSecurity::Ssl::InitException::_ice_name() const
 {
     return "IceSecurity::InitException";
 }
 
 void
-IceSecurity::Ssl::InitException::_print(ostream& out) const
+IceSecurity::Ssl::InitException::_ice_print(ostream& out) const
 {
-    Exception::_print(out);
+    Exception::_ice_print(out);
     out << ":\nsecurity system initialization exception";
 }
 
 Ice::Exception*
-IceSecurity::Ssl::InitException::_clone() const
+IceSecurity::Ssl::InitException::_ice_clone() const
 {
     return new InitException(*this);
 }
 
 void
-IceSecurity::Ssl::InitException::_throw() const
+IceSecurity::Ssl::InitException::_ice_throw() const
 {
     throw *this;
 }
@@ -164,26 +164,26 @@ IceSecurity::Ssl::ReInitException::operator=(const ReInitException& ex)
 }
 
 string
-IceSecurity::Ssl::ReInitException::_name() const
+IceSecurity::Ssl::ReInitException::_ice_name() const
 {
     return "IceSecurity::ReInitException";
 }
 
 void
-IceSecurity::Ssl::ReInitException::_print(ostream& out) const
+IceSecurity::Ssl::ReInitException::_ice_print(ostream& out) const
 {
-    Exception::_print(out);
+    Exception::_ice_print(out);
     out << ":\nsecurity system re-initialization exception";
 }
 
 Ice::Exception*
-IceSecurity::Ssl::ReInitException::_clone() const
+IceSecurity::Ssl::ReInitException::_ice_clone() const
 {
     return new ReInitException(*this);
 }
 
 void
-IceSecurity::Ssl::ReInitException::_throw() const
+IceSecurity::Ssl::ReInitException::_ice_throw() const
 {
     throw *this;
 }
@@ -214,26 +214,26 @@ IceSecurity::Ssl::ShutdownException::operator=(const ShutdownException& ex)
 }
 
 string
-IceSecurity::Ssl::ShutdownException::_name() const
+IceSecurity::Ssl::ShutdownException::_ice_name() const
 {
     return "IceSecurity::ShutdownException";
 }
 
 void
-IceSecurity::Ssl::ShutdownException::_print(ostream& out) const
+IceSecurity::Ssl::ShutdownException::_ice_print(ostream& out) const
 {
-    Exception::_print(out);
+    Exception::_ice_print(out);
     out << ":\nsecurity system shutdown exception";
 }
 
 Ice::Exception*
-IceSecurity::Ssl::ShutdownException::_clone() const
+IceSecurity::Ssl::ShutdownException::_ice_clone() const
 {
     return new ShutdownException(*this);
 }
 
 void
-IceSecurity::Ssl::ShutdownException::_throw() const
+IceSecurity::Ssl::ShutdownException::_ice_throw() const
 {
     throw *this;
 }
@@ -264,26 +264,26 @@ IceSecurity::Ssl::OpenSSL::ContextException::operator=(const ContextException& e
 }
 
 string
-IceSecurity::Ssl::OpenSSL::ContextException::_name() const
+IceSecurity::Ssl::OpenSSL::ContextException::_ice_name() const
 {
     return "IceSecurity::ContextException";
 }
 
 void
-IceSecurity::Ssl::OpenSSL::ContextException::_print(ostream& out) const
+IceSecurity::Ssl::OpenSSL::ContextException::_ice_print(ostream& out) const
 {
-    Exception::_print(out);
+    Exception::_ice_print(out);
     out << ":\nSSL System context exception";
 }
 
 Ice::Exception*
-IceSecurity::Ssl::OpenSSL::ContextException::_clone() const
+IceSecurity::Ssl::OpenSSL::ContextException::_ice_clone() const
 {
     return new ContextException(*this);
 }
 
 void
-IceSecurity::Ssl::OpenSSL::ContextException::_throw() const
+IceSecurity::Ssl::OpenSSL::ContextException::_ice_throw() const
 {
     throw *this;
 }

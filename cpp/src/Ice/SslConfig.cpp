@@ -21,8 +21,6 @@
 #include <Ice/SslConfigErrorReporter.h>
 #include <Ice/SslConfig.h>
 
-#include <direct.h>
-
 using namespace std;
 using namespace IceSecurity::Ssl::OpenSSL;
 
@@ -75,10 +73,6 @@ IceSecurity::Ssl::Parser::process()
     parser->setCreateEntityReferenceNodes(false);
     parser->setToCreateXMLDeclTypeNode(true);
     parser->setErrorHandler(errReporter);
-
-    char bigbuffer[1024];
-    _getcwd(bigbuffer,sizeof(bigbuffer));
-
 
     try
     {

@@ -110,7 +110,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 		    // server timeout, a crash, or an explicit
 		    // shutdown method.
 		    //
-		    desc.object->_ping();
+		    desc.object->_ice_ping();
 
 		    //
 		    // Everything ok, the server is now up and
