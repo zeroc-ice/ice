@@ -43,14 +43,14 @@ private:
     MA::ICPrx _ic;
 };
 
-class CAI : virtual public MA::CA
+class CAI_ : virtual public MA::CA
 {
 public:
 
     virtual MA::CAPrx caop(const MA::CAPrx&, const Ice::Current&);
 };
 
-class CBI : virtual public MB::CB, virtual public CAI
+class CBI : virtual public MB::CB, virtual public CAI_
 {
 public:
 

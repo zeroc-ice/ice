@@ -144,6 +144,21 @@ SOURCE=..\..\slice\Ice\BuiltinSequences.ice
 
 !IF  "$(CFG)" == "YellowS - Win32 Release"
 
+# Begin Custom Build
+InputPath=..\..\slice\Ice\BuiltinSequences.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --ice --include-dir Yellow -I../../slice --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice \
+	
+
+"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "YellowS - Win32 Debug"
 
 # Begin Custom Build

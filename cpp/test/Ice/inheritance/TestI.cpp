@@ -12,7 +12,7 @@
 #include <TestI.h>
 
 MA::CAPrx
-CAI::caop(const MA::CAPrx& p, const Ice::Current&)
+CAI_::caop(const MA::CAPrx& p, const Ice::Current&)
 {
     return p;
 }
@@ -62,7 +62,7 @@ ICI::icop(const MA::ICPrx& p, const Ice::Current&)
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
-    _ca = MA::CAPrx::uncheckedCast(_adapter->addWithUUID(new CAI));
+    _ca = MA::CAPrx::uncheckedCast(_adapter->addWithUUID(new CAI_));
     _cb = MB::CBPrx::uncheckedCast(_adapter->addWithUUID(new CBI));
     _cc = MA::CCPrx::uncheckedCast(_adapter->addWithUUID(new CCI));
     _cd = MA::CDPrx::uncheckedCast(_adapter->addWithUUID(new CDI));
