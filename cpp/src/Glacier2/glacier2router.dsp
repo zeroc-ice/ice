@@ -55,7 +55,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=glacier2router
+TargetName=Glacier2Router
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -87,7 +87,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=glacier2router
+TargetName=Glacier2Router
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -123,11 +123,11 @@ SOURCE=.\RouterI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantLocator.cpp
+SOURCE=.\ServerBlobject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerBlobject.cpp
+SOURCE=.\SessionRouterI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -151,11 +151,11 @@ SOURCE=.\RouterI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantLocator.h
+SOURCE=.\ServerBlobject.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerBlobject.h
+SOURCE=.\SessionRouterI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
