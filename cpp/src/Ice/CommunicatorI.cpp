@@ -257,6 +257,12 @@ Ice::CommunicatorI::getPluginManager()
     return _instance->pluginManager();
 }
 
+void
+Ice::CommunicatorI::flushBatchRequests()
+{
+    // TODO: implement this.
+}
+
 Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties) :
     _destroyed(false)
 {

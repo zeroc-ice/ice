@@ -56,6 +56,8 @@ public:
 
     virtual PluginManagerPtr getPluginManager();
 
+    virtual void flushBatchRequests();
+
 private:
 
     CommunicatorI(int&, char*[], const PropertiesPtr&);
