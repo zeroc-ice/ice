@@ -564,7 +564,6 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 		}
 	    
 		Int pos = 0;
-		string progress;
 	    
 		while(pos < p->size)
 		{
