@@ -36,7 +36,7 @@ private:
 
     struct Process
     {
-	int pid;
+	pid_t pid;
 	int fd;
     };
 

@@ -23,7 +23,7 @@ IcePack::Activator::Activator(const CommunicatorPtr& communicator) :
     _destroy(false)
 {
     int fds[2];
-    if (::pipe(fds) != 0)
+    if (pipe(fds) != 0)
     {
 	throw SystemException(__FILE__, __LINE__);
     }
@@ -75,16 +75,117 @@ IcePack::Activator::destroy()
 {
     JTCSyncT<JTCMonitor> sync(*this);
 
-    if (!_destroy) // Don't destroy twice
+    if (_destroy) // Don't destroy twice
     {
-	_destroy = true;
-	setInterrupt();
+	return;
     }
+
+    _destroy = true;
+    setInterrupt();
 }
 
 void
 IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 {
+    JTCSyncT<JTCMonitor> sync(*this);
+
+    if (_destroy)
+    {
+	return;
+    }
+
+    string path = desc->path;
+    if (path.empty())
+    {
+	return;
+    }
+
+    //
+    // Normalize the pathname a bit
+    //
+    string::size_type pos;
+    while ((pos = path.find("//")) != string::npos)
+    {
+	path.erase(pos, 1);
+    }
+    while ((pos = path.find("/./")) != string::npos)
+    {
+	path.erase(pos, 2);
+    }
+
+    //
+    // Do nothing if the process exists
+    //
+    if (_processes.count(path))
+    {
+	return;
+    }
+
+    //
+    // Process does not exist, activate and create
+    //
+    int fds[2];
+    if (pipe(fds) != 0)
+    {
+	throw SystemException(__FILE__, __LINE__);
+    }
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+	throw SystemException(__FILE__, __LINE__);
+    }
+    if (pid == 0) // Child process
+    {
+	close(fds[0]);
+
+	//
+	// Close all filedescriptors, except for standard input,
+	// standard output, standard error output, and the write side
+	// of the newly created pipe.
+	//
+	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+	for (int fd = 3; fd < maxFd; ++fd)
+	{
+	    if (fd != fds[1])
+	    {
+		close(fd);
+	    }
+	}
+
+	int argc = desc->args.size() + 2;
+	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
+	argv[0] = strdup(path.c_str());
+	for (unsigned int i = 0; i < desc->args.size(); ++i)
+	{
+	    argv[i + 1] = strdup(desc->args[i].c_str());
+	}
+	argv[argc - 1] = 0;
+
+	if (execvp(argv[0], argv) == -1)
+	{
+	    SystemException ex(__FILE__, __LINE__);
+	    ostringstream s;
+	    s << "can't execute `" << path << "':\n" << ex;
+	    write(fds[1], s.str().c_str(), s.str().length());
+	    close(fds[1]);
+	    exit(EXIT_FAILURE);
+	}
+    }
+    else // Parent process
+    {
+	close(fds[1]);
+
+	Process process;
+	process.pid = pid;
+	process.fd = fds[0];
+	_processes[path] = process;
+
+	int flags = fcntl(process.fd, F_GETFL);
+	flags |= O_NONBLOCK;
+	fcntl(process.fd, F_SETFL, flags);
+	
+	setInterrupt();
+    }
 }
 
 void
@@ -149,23 +250,38 @@ IcePack::Activator::terminationListener()
 		int fd = p->second.fd;
 		if (FD_ISSET(fd, &fdSet))
 		{
-		    char c;
-		    int ret = ::read(fd, &c, 1);
+		    char s[16];
+		    int ret = read(fd, &s, 16);
 		    if (ret == -1)
 		    {
 			throw SystemException(__FILE__, __LINE__);
 		    }
-		    
-		    //
-		    // Either the pipe was closed, which means that
-		    // the process has terminated. Or the process is
-		    // misbehaving and sending some garbage data. In
-		    // both cases we remove the process.
-		    //
-		    map<string, Process>::iterator q = p;
-		    ++p;
-		    _processes.erase(q);
-		    close(fd);
+		    else if(ret == 0)
+		    {
+			//
+			// If the pipe was closed, the process has terminated
+			//
+			map<string, Process>::iterator q = p;
+			++p;
+			_processes.erase(q);
+			close(fd);
+		    }
+		    else
+		    {
+			//
+			// Other messages that are sent down the pipe
+			// are interpreted as error messages and
+			// logged as error.
+			//
+			string err;
+			do
+			{
+			    err.append(s, ret);
+			    ret = read(fd, &s, 16);
+			}
+			while (ret != 0);
+			_communicator->getLogger()->error(err);
+		    }
 		}
 		else
 		{
@@ -180,7 +296,7 @@ void
 IcePack::Activator::clearInterrupt()
 {
     char s[32]; // Clear up to 32 interrupts at once
-    while (::read(_fdIntrRead, s, 32) == 32)
+    while (read(_fdIntrRead, s, 32) == 32)
 	;
 }
 
@@ -188,5 +304,5 @@ void
 IcePack::Activator::setInterrupt()
 {
     char c = 0;
-    ::write(_fdIntrWrite, &c, 1);
+    write(_fdIntrWrite, &c, 1);
 }

@@ -21,6 +21,13 @@ module IcePack
 
 /**
  *
+ * A vector of strings representing command line arguments.
+ *
+ **/
+vector<string> Args;
+
+/**
+ *
  * Data describing a server one or more objects implemented by that
  * server.
  *
@@ -69,9 +76,19 @@ class ServerDescription
      * activation will be performed.
      *
      * @see host
+     * @see args
      *
      **/
     string path;
+
+    /**
+     *
+     * The optional server arguments.
+     *
+     * @see path
+     *
+     **/
+    Args args;
 };
 
 /**
