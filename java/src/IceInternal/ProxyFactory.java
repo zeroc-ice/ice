@@ -61,7 +61,7 @@ public final class ProxyFactory
     referenceToProxy(Reference reference)
     {
         Ice.ObjectPrxHelper proxy = new Ice.ObjectPrxHelper();
-        proxy.setup(reference, _retryIntervals);
+        proxy.setup(reference);
         return proxy;
     }
 
@@ -82,6 +82,12 @@ public final class ProxyFactory
             ident.category = "";
             ident.__write(s);
         }
+    }
+
+    public int[]
+    getRetryIntervals()
+    {  
+	return _retryIntervals;
     }
 
     //

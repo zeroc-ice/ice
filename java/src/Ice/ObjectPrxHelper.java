@@ -241,7 +241,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(_reference.changeIdentity(newIdentity), _retryIntervals);
+            proxy.setup(_reference.changeIdentity(newIdentity));
             return proxy;
         }
     }
@@ -262,7 +262,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(_reference.changeFacet(newFacet), _retryIntervals);
+            proxy.setup(_reference.changeFacet(newFacet));
             return proxy;
         }
     }
@@ -278,7 +278,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -294,7 +294,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -310,7 +310,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -326,7 +326,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -342,7 +342,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -358,7 +358,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -374,7 +374,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -390,7 +390,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -406,7 +406,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -422,7 +422,7 @@ public class ObjectPrxHelper implements ObjectPrx
         else
         {
             ObjectPrxHelper proxy = new ObjectPrxHelper();
-            proxy.setup(ref, _retryIntervals);
+            proxy.setup(ref);
             return proxy;
         }
     }
@@ -454,12 +454,10 @@ public class ObjectPrxHelper implements ObjectPrx
         IceInternal.Reference ref = null;
         _ObjectDelM delegateM = null;
         _ObjectDelD delegateD = null;
-	int[] retryIntervals;
 
         synchronized(from)
         {
             ref = h._reference;
-	    retryIntervals = h._retryIntervals;
             try
             {
                 delegateM = (_ObjectDelM)h._delegate;
@@ -482,7 +480,6 @@ public class ObjectPrxHelper implements ObjectPrx
         //
 
         _reference = ref;
-	_retryIntervals = retryIntervals;
 
         if(delegateD != null)
         {
@@ -530,7 +527,9 @@ public class ObjectPrxHelper implements ObjectPrx
         IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();
 
-        if(cnt > _retryIntervals.length)
+	int[] retryIntervals = _reference.instance.proxyFactory().getRetryIntervals();
+
+        if(cnt > retryIntervals.length)
         {
             if(traceLevels.retry >= 1)
             {
@@ -543,9 +542,9 @@ public class ObjectPrxHelper implements ObjectPrx
         if(traceLevels.retry >= 1)
         {
             String s = "re-trying operation call";
-	    if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
+	    if(cnt > 0 && retryIntervals[cnt - 1] > 0)
 	    {
-		s += " in " + _retryIntervals[cnt - 1] + " (ms)";
+		s += " in " + retryIntervals[cnt - 1] + " (ms)";
 	    }
 	    s += " because of exception\n" + ex;
             logger.trace(traceLevels.retryCat, s);
@@ -559,7 +558,7 @@ public class ObjectPrxHelper implements ObjectPrx
 	    //
 	    try
 	    {
-		Thread.currentThread().sleep(_retryIntervals[cnt - 1]);
+		Thread.currentThread().sleep(retryIntervals[cnt - 1]);
 	    }
 	    catch(InterruptedException ex1)
 	    {
@@ -653,17 +652,15 @@ public class ObjectPrxHelper implements ObjectPrx
     // Only for use by IceInternal.ProxyFactory
     //
     public final void
-    setup(IceInternal.Reference ref, int[] retryIntervals)
+    setup(IceInternal.Reference ref)
     {
         //
         // No need to synchronize, as this operation is only called
         // upon initial initialization.
         //
         _reference = ref;
-	_retryIntervals = retryIntervals;
     }
 
     private IceInternal.Reference _reference;
     private _ObjectDel _delegate;
-    private int[] _retryIntervals;
 }
