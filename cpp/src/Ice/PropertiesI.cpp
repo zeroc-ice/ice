@@ -129,6 +129,8 @@ static const string iceProps[] =
     "ThreadPool.Client.SizeMax",
     "ThreadPool.Client.SizeWarn",
     "ThreadPool.Server.Size",
+    "ThreadPool.Server.SizeMax",
+    "ThreadPool.Server.SizeWarn",
     "Trace.Network",
     "Trace.Protocol",
     "Trace.Retry",
