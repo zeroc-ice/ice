@@ -17,7 +17,7 @@
 #endif
 
 #include "marshal.h"
-#include "objectprx.h"
+#include "proxy.h"
 
 #include <IceUtil/InputUtil.h>
 

@@ -17,7 +17,7 @@
 #endif
 
 #include "communicator.h"
-#include "objectprx.h"
+#include "proxy.h"
 #include "exception.h"
 #include "util.h"
 

@@ -16,7 +16,7 @@
 #include "config.h"
 #endif
 
-#include "objectprx.h"
+#include "proxy.h"
 #include "communicator.h"
 #include "exception.h"
 #include "marshal.h"
