@@ -369,12 +369,12 @@ Transform::TransformVisitor::compareMembers(const DataMemberList& oldMembers, co
 
     for(p = oldMembers.begin(); p != oldMembers.end(); ++p)
     {
-        oldMap.insert(pair<const string, const DataMemberPtr>((*p)->name(), *p));
+        oldMap.insert(pair<string, DataMemberPtr>((*p)->name(), *p));
     }
 
     for(p = newMembers.begin(); p != newMembers.end(); ++p)
     {
-        newMap.insert(pair<const string, const DataMemberPtr>((*p)->name(), *p));
+        newMap.insert(pair<string, DataMemberPtr>((*p)->name(), *p));
     }
 
     for(p = oldMembers.begin(); p != oldMembers.end(); ++p)

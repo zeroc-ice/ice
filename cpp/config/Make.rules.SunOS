@@ -50,7 +50,7 @@ endif
 #
 # -features=tmplife is needed to destroy temporary objects immediately
 # (as specified by ISO C++) instead of at the end of the current block.
-# This is very useful to avoid deadlocks when using Freeze DBMap 
+# This is very useful to avoid deadlocks when using Freeze Map 
 # iterators.
 #
 
