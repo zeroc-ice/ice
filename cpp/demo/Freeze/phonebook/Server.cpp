@@ -106,24 +106,27 @@ PhoneBookServer::run(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    try
+    if (dbEnv)
     {
-	dbEnv->close();
-    }
-    catch(const LocalException& ex)
-    {
-	cerr << argv[0] << ": local exception: " << ex << endl;
-	status = EXIT_FAILURE;
-    }
-    catch(const DBExceptionPtrE& ex)
-    {
-	cerr << argv[0] << ": database exception: " << ex->message << endl;
-	status = EXIT_FAILURE;
-    }
-    catch(...)
-    {
-	cerr << argv[0] << ": unknown exception" << endl;
-	status = EXIT_FAILURE;
+	try
+	{
+	    dbEnv->close();
+	}
+	catch(const LocalException& ex)
+	{
+	    cerr << argv[0] << ": local exception: " << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+	catch(const DBExceptionPtrE& ex)
+	{
+	    cerr << argv[0] << ": database exception: " << ex->message << endl;
+	    status = EXIT_FAILURE;
+	}
+	catch(...)
+	{
+	    cerr << argv[0] << ": unknown exception" << endl;
+	    status = EXIT_FAILURE;
+	}
     }
 
     defaultInterrupt();
