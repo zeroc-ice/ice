@@ -24,6 +24,7 @@ def usage():
     print "Options:"
     print "-h    Show this message."
     print "-d    Skip SGML documentation conversion."
+    print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -82,6 +83,26 @@ def fixMakefile(file, target):
     newMakefile.writelines(newLines)
     newMakefile.close()
     oldMakefile.close()
+    os.remove(origfile)
+
+#
+# Remove lines containing a keyword from a file.
+#
+def editFile(file, target):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    newLines = []
+    for x in origLines:
+        if x.find(target) == -1:
+            newLines.append(x)
+
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
     os.remove(origfile)
 
 #
@@ -164,12 +185,15 @@ def fixMakeRules(file):
 #
 tag = "-rHEAD"
 skipDocs = 0
+verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
     elif x == "-d":
         skipDocs = 1
+    elif x == "-v":
+        verbose = 1
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -190,21 +214,31 @@ os.chdir(distdir)
 #
 # Export sources from CVS.
 #
-os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+print "Checking out CVS tag " + tag + "..."
+if verbose:
+    quiet = ""
+else:
+    quiet = "-Q"
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 
 #
 # Remove files.
 #
+print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
+filesToRemove.extend(find("ice/src/slice2cs", "*"))
 for x in filesToRemove:
     os.remove(x)
+os.removedirs("ice/src/slice2cs")
+editFile("ice/src/Makefile", "slice2cs")
 
 #
 # Generate bison files.
 #
+print "Generating bison files..."
 cwd = os.getcwd()
 grammars = find("ice", "*.y")
 for x in grammars:
@@ -235,6 +269,7 @@ for x in grammars:
 #
 # Generate flex files.
 #
+print "Generating flex files..."
 scanners = find("ice", "*.l")
 for x in scanners:
     #
@@ -262,6 +297,7 @@ for x in scanners:
 # Comment out the implicit parser and scanner rules in
 # config/Make.rules.
 #
+print "Fixing makefiles..."
 fixMakeRules(os.path.join("ice", "config", "Make.rules"))
 
 #
@@ -301,10 +337,19 @@ version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 #
 # Create archives.
 #
+print "Creating distribution..."
 icever = "Ice-" + version
 os.rename("ice", icever)
-os.system("tar cvzf " + icever + ".tar.gz " + icever)
-os.system("zip -9r " + icever + ".zip " + icever)
+if verbose:
+    quiet = "v"
+else:
+    quiet = ""
+os.system("tar c" + quiet + "zf " + icever + ".tar.gz " + icever)
+if verbose:
+    quiet = ""
+else:
+    quiet = "q"
+os.system("zip -9r" + quiet + " " + icever + ".zip " + icever)
 
 #
 # Copy files (README, etc.).
@@ -314,4 +359,6 @@ shutil.copyfile(os.path.join(icever, "CHANGES"), "Ice-" + version + "-CHANGES")
 #
 # Done.
 #
+print "Cleaning up..."
 shutil.rmtree(icever)
+print "Done."
