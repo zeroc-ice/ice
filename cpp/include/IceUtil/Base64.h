@@ -18,18 +18,16 @@
 namespace IceUtil
 {
 
-using std::vector;
-using std::string;
-
 // Defined here to avoid using Ice::ByteSeq
-typedef vector<char> ICE_UTIL_API ByteSeq;
+typedef std::vector<char> ICE_UTIL_API ByteSeq;
 
 class ICE_UTIL_API Base64
 {
 public:
 
-    static string encode(const ByteSeq&);
-    static ByteSeq decode(const string&);
+    static std::string encode(const ByteSeq&);
+    static ByteSeq decode(const std::string&);
+
 
 private:
 
