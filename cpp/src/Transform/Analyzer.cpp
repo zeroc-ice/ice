@@ -74,6 +74,8 @@ public:
 
 private:
 
+    void typeChange(const TypePtr&, const string&, const string&);
+
     XMLOutput& _out;
     UnitPtr _oldUnit;
 };
@@ -84,9 +86,14 @@ string
 Transform::typeToString(const TypePtr& type)
 {
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    ProxyPtr p = ProxyPtr::dynamicCast(type);
     if(b)
     {
         return b->kindAsString();
+    }
+    else if(p)
+    {
+        return p->_class()->scoped() + "*";
     }
     else
     {
@@ -177,8 +184,8 @@ Transform::TransformVisitor::visitClassDefStart(const ClassDefPtr& v)
     _out << "<!-- class " << scoped << " -->";
     _out << se("transform") << attr("type", scoped);
 
-    DataMemberList oldMembers = v->allDataMembers();
-    DataMemberList newMembers = newClass->allDataMembers();
+    DataMemberList oldMembers = v->dataMembers();
+    DataMemberList newMembers = newClass->dataMembers();
     compareMembers(oldMembers, newMembers);
 
     _out << ee;
@@ -686,6 +693,12 @@ Transform::TransformVisitor::compareTypes(const string& desc, const TypePtr& old
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(oldType);
     if(cl)
     {
+        if(!cl->definition())
+        {
+            _errors.push_back("class " + cl->scoped() + " declared but not defined");
+            return;
+        }
+
         //
         // Allow target type of Object.
         //
@@ -696,9 +709,18 @@ Transform::TransformVisitor::compareTypes(const string& desc, const TypePtr& old
         }
 
         ClassDeclPtr newcl = ClassDeclPtr::dynamicCast(newType);
-        if(newcl && checkClasses(cl, newcl))
+        if(newcl)
         {
-            return;
+            if(!newcl->definition())
+            {
+                _errors.push_back("class " + newcl->scoped() + " declared but not defined");
+                return;
+            }
+
+            if(checkClasses(cl, newcl))
+            {
+                return;
+            }
         }
 
         typeChange(desc, oldType, newType);
@@ -790,6 +812,8 @@ Transform::TransformVisitor::typeChange(const string& desc, const TypePtr& t1, c
     BuiltinPtr b2 = BuiltinPtr::dynamicCast(t2);
     ContainedPtr c1 = ContainedPtr::dynamicCast(t1);
     ContainedPtr c2 = ContainedPtr::dynamicCast(t2);
+    ProxyPtr p1 = ProxyPtr::dynamicCast(t1);
+    ProxyPtr p2 = ProxyPtr::dynamicCast(t2);
 
     if(_ignoreTypeChanges)
     {
@@ -798,6 +822,10 @@ Transform::TransformVisitor::typeChange(const string& desc, const TypePtr& t1, c
         if(b1)
         {
             _out << b1->kindAsString();
+        }
+        else if(p1)
+        {
+            _out << p1->_class()->scoped() << '*';
         }
         else
         {
@@ -808,6 +836,10 @@ Transform::TransformVisitor::typeChange(const string& desc, const TypePtr& t1, c
         if(b2)
         {
             _out << b2->kindAsString();
+        }
+        else if(p2)
+        {
+            _out << p2->_class()->scoped() << '*';
         }
         else
         {
@@ -824,6 +856,10 @@ Transform::TransformVisitor::typeChange(const string& desc, const TypePtr& t1, c
         {
             ostr << b1->kindAsString();
         }
+        else if(p1)
+        {
+            ostr << p1->_class()->scoped() << '*';
+        }
         else
         {
             assert(c1);
@@ -833,6 +869,10 @@ Transform::TransformVisitor::typeChange(const string& desc, const TypePtr& t1, c
         if(b2)
         {
             ostr << b2->kindAsString();
+        }
+        else if(p2)
+        {
+            ostr << p2->_class()->scoped() << '*';
         }
         else
         {
@@ -907,22 +947,7 @@ Transform::InitVisitor::visitClassDefStart(const ClassDefPtr& v)
         ClassDeclPtr decl = ClassDeclPtr::dynamicCast(l.front());
         if(!decl || decl->isInterface())
         {
-            BuiltinPtr b1 = BuiltinPtr::dynamicCast(l.front());
-            ContainedPtr c1 = ContainedPtr::dynamicCast(l.front());
-
-            _out.nl();
-            _out << "<!-- NOTICE: " << scoped << " has changed from ";
-            if(b1)
-            {
-                _out << b1->kindAsString();
-            }
-            else
-            {
-                assert(c1);
-                _out << c1->kindOf();
-            }
-            _out << " to class";
-            _out << " -->";
+            typeChange(l.front(), scoped, "class");
         }
         else
         {
@@ -954,22 +979,7 @@ Transform::InitVisitor::visitStructStart(const StructPtr& v)
         StructPtr s = StructPtr::dynamicCast(l.front());
         if(!s)
         {
-            BuiltinPtr b1 = BuiltinPtr::dynamicCast(l.front());
-            ContainedPtr c1 = ContainedPtr::dynamicCast(l.front());
-
-            _out.nl();
-            _out << "<!-- NOTICE: " << scoped << " has changed from ";
-            if(b1)
-            {
-                _out << b1->kindAsString();
-            }
-            else
-            {
-                assert(c1);
-                _out << c1->kindOf();
-            }
-            _out << " to struct";
-            _out << " -->";
+            typeChange(l.front(), scoped, "struct");
         }
         else
         {
@@ -1001,22 +1011,7 @@ Transform::InitVisitor::visitSequence(const SequencePtr& v)
         SequencePtr s = SequencePtr::dynamicCast(l.front());
         if(!s)
         {
-            BuiltinPtr b1 = BuiltinPtr::dynamicCast(l.front());
-            ContainedPtr c1 = ContainedPtr::dynamicCast(l.front());
-
-            _out.nl();
-            _out << "<!-- NOTICE: " << scoped << " has changed from ";
-            if(b1)
-            {
-                _out << b1->kindAsString();
-            }
-            else
-            {
-                assert(c1);
-                _out << c1->kindOf();
-            }
-            _out << " to sequence";
-            _out << " -->";
+            typeChange(l.front(), scoped, "sequence");
         }
         else
         {
@@ -1046,22 +1041,7 @@ Transform::InitVisitor::visitDictionary(const DictionaryPtr& v)
         DictionaryPtr d = DictionaryPtr::dynamicCast(l.front());
         if(!d)
         {
-            BuiltinPtr b1 = BuiltinPtr::dynamicCast(l.front());
-            ContainedPtr c1 = ContainedPtr::dynamicCast(l.front());
-
-            _out.nl();
-            _out << "<!-- NOTICE: " << scoped << " has changed from ";
-            if(b1)
-            {
-                _out << b1->kindAsString();
-            }
-            else
-            {
-                assert(c1);
-                _out << c1->kindOf();
-            }
-            _out << " to dictionary";
-            _out << " -->";
+            typeChange(l.front(), scoped, "dictionary");
         }
         else
         {
@@ -1091,22 +1071,7 @@ Transform::InitVisitor::visitEnum(const EnumPtr& v)
         EnumPtr e = EnumPtr::dynamicCast(l.front());
         if(!e)
         {
-            BuiltinPtr b1 = BuiltinPtr::dynamicCast(l.front());
-            ContainedPtr c1 = ContainedPtr::dynamicCast(l.front());
-
-            _out.nl();
-            _out << "<!-- NOTICE: " << scoped << " has changed from ";
-            if(b1)
-            {
-                _out << b1->kindAsString();
-            }
-            else
-            {
-                assert(c1);
-                _out << c1->kindOf();
-            }
-            _out << " to enum";
-            _out << " -->";
+            typeChange(l.front(), scoped, "enum");
         }
         else
         {
@@ -1118,6 +1083,32 @@ Transform::InitVisitor::visitEnum(const EnumPtr& v)
     _out << "<!-- enum " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
+}
+
+
+void
+Transform::InitVisitor::typeChange(const TypePtr& t, const string& scoped, const string& kind)
+{
+    BuiltinPtr b = BuiltinPtr::dynamicCast(t);
+    ContainedPtr c = ContainedPtr::dynamicCast(t);
+    ProxyPtr p = ProxyPtr::dynamicCast(t);
+
+    _out.nl();
+    _out << "<!-- NOTICE: " << scoped << " has changed from ";
+    if(b)
+    {
+        _out << b->kindAsString();
+    }
+    else if(p)
+    {
+        _out << "proxy";
+    }
+    else
+    {
+        assert(c);
+        _out << c->kindOf();
+    }
+    _out << " to " << kind << " -->";
 }
 
 Transform::Analyzer::Analyzer(const UnitPtr& oldUnit, const UnitPtr& newUnit, bool ignoreTypeChanges) :
