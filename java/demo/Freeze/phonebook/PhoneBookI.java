@@ -169,9 +169,6 @@ class PhoneBookI extends _PhoneBookDisp
 	    // object prior to the setName() operation being
 	    // dispatched. Ignore the exception.
 	    //
-
-	    //ex.printStackTrace();
-	    //System.out.println(ex);
 	}
 	catch(Freeze.DBException ex)
 	{
@@ -244,6 +241,13 @@ class PhoneBookI extends _PhoneBookDisp
 	_nameIdentitiesDict = new NameIdentitiesDict(db);
     }
 
+    //
+    // It's not strictly necessary in the Java implementation to have
+    // a private removeI implememnation since there is no problem with
+    // self-deadlocks (as with the C++ implementation caused by the
+    // use of read-write mutexes). However, to keep the C++/Java
+    // implementations as close-as-possible the method is retained.
+    //
     private void
     removeI(Ice.Identity ident, String name)
     {

@@ -90,6 +90,9 @@ class Scanner
     get()
 	throws EndOfInput
     {
+	//
+	// If there is an character in the unget buffer, return it.
+	//
 	if (_unget)
 	{
 	    _unget = false;
@@ -122,6 +125,9 @@ class Scanner
 	return _buf.charAt(_pos++);
     }
 
+    //
+    // unget only works with one character.
+    //
     private void
     unget(char c)
     {
@@ -275,11 +281,9 @@ class Scanner
     }
 
     private Parser _parser;
-
     private boolean _unget = false;
     private char _ungetChar;
-
-    private String _buf = null; // Current parsing buffer
-    private int _pos; // Current position
+    private String _buf = null;
+    private int _pos;
 }
 

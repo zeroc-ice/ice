@@ -40,7 +40,6 @@ class PhoneBookCollocated extends Freeze.Application
 	    }
 	}
 	
-
 	if(v != 0)
 	{
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
@@ -91,10 +90,10 @@ class PhoneBookCollocated extends Freeze.Application
 	//
 	// Everything ok, let's go.
 	//
-	RunParser.runParser(appName(), args, communicator());
+	int status = RunParser.runParser(appName(), args, communicator());
 	adapter.deactivate();
 
-	return 0;
+	return status;
     }
 }
 

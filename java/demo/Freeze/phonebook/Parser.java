@@ -11,7 +11,8 @@
 class Parser
 {
 
-    public Parser(Ice.Communicator communicator, PhoneBookPrx phoneBook)
+    public
+    Parser(Ice.Communicator communicator, PhoneBookPrx phoneBook)
     {
 	_communicator = communicator;
 	_phoneBook = phoneBook;

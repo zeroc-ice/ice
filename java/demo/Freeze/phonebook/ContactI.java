@@ -10,6 +10,11 @@
 
 class ContactI extends Contact
 {
+    //
+    // No read/write mutexes in Java - hence use native
+    // syncronization.
+    //
+
     synchronized public String
     getName(Ice.Current current)
     {
@@ -20,7 +25,7 @@ class ContactI extends Contact
     setName(String name, Ice.Current current)
 	throws DatabaseException
     {
-	assert(_identity.name.length() == 0);
+	assert(_identity.name.length() != 0);
 	_phonebook.move(_identity, _name, name);
 	_name = name;
     }
@@ -94,7 +99,7 @@ class ContactI extends Contact
 	_phone = new String();
     }
 
-    void
+    protected void
     setIdentity(Ice.Identity identity)
     {
 	_identity = identity;
