@@ -17,6 +17,8 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
+// TODO: ML: Move AbortException out of IcePatch, and into
+// WishPatch. It is not used in IcePatch.
 AbortException::AbortException(const char* file, int line) : 
     IceUtil::Exception(file, line)
 {
@@ -206,6 +208,10 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     
         progressCB.finishedUncompress(totalBZ2);
     }
+    // TODO: ML: The code is broken. If an exception is raised above
+    // (for example, from the if(!file) {...} block), then
+    // BZ2_bzReadClose and fclose are called twice! Solution: Only
+    // close in this block, but not when an exception is raised above.
     catch(...)
     {
         BZ2_bzReadClose(&bzError, bzFile);
