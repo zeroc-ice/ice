@@ -17,7 +17,7 @@ namespace __Ice
 {
 
 //
-// Special handle class for Ice objects, which support the static
+// Special handle class for Ice objects, which supports the static
 // member function cast().
 //
 template<typename T>

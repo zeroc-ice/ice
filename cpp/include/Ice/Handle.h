@@ -85,8 +85,8 @@ public:
         
 //
 // Some compilers (like Visual C++ 6.0) do not support member
-// templates :-( I therefore don't use them completely, otherwise Ice
-// code could be non-portable.
+// templates :-( I therefore don't use them, otherwise Ice code could
+// be non-portable.
 //
 /*
     template<typename Y>
