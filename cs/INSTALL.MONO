@@ -66,6 +66,9 @@ do this, use
 Once installed in the cache, the assembly will always be located
 correctly without having to set environment variables.
 
+Another option is to copy icecs.dll into the directory that contains
+the .exe for your application.
+
 
 Known issues
 ------------
