@@ -83,7 +83,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	}
 	
 	vector<string> subdirs;
-	if (argc >= 1)
+	if (argc > 1)
 	{
 	    for (int i = 1; i < argc; ++i)
 	    {
@@ -210,6 +210,23 @@ IcePatch::Client::run(int argc, char* argv[])
 	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
 	    assert(topDesc);
 	    string path = identityToPath(topDesc->directory->ice_getIdentity());
+	    string::size_type pos = 0;
+	    while (pos < path.size())
+	    {
+		string::size_type pos2 = path.find('/', pos);
+		if (pos2 == string::npos)
+		{
+		    pos2 = path.size();
+		}
+		string subPath = path.substr(0, pos2);
+		FileInfo subPathInfo = getFileInfo(subPath, false);
+		if (subPathInfo.type == FileTypeNotExist)
+		{
+		    createDirectory(subPath);
+		    cout << subPath << ": created" << endl;
+		}
+		pos = pos2 + 1;		    
+	    }
 	    cout << pathToName(path) << endl;
 	    cout << "|" << endl;
 	    patch(topDesc->directory->getContents(), "");
