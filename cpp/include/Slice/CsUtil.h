@@ -25,8 +25,7 @@ class SLICE_API CsGenerator : public ::IceUtil::noncopyable
 {
 public:
 
-    static std::string fixGlobal(const ContainedPtr&);
-    static std::string fixKwd(const std::string&);
+    static std::string fixId(const std::string&);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
 

@@ -29,6 +29,11 @@ public:
 
 protected:
 
+    virtual void writeInheritedOperations(const ClassDefPtr&);
+    virtual void writeDispatch(const ClassDefPtr&);
+    virtual std::string getParams(const OperationPtr&);
+    virtual std::string getArgs(const OperationPtr&);
+
     ::IceUtil::Output& _out;
 };
 
@@ -53,19 +58,6 @@ private:
     std::vector<std::string> _includePaths;
 
     void printHeader();
-
-    class OpsVisitor : public CsVisitor
-    {
-    public:
-
-        OpsVisitor(::IceUtil::Output&);
-
-	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
-	virtual bool visitClassDefStart(const ClassDefPtr&);
-	virtual void visitClassDefEnd(const ClassDefPtr&);
-	virtual void visitOperation(const OperationPtr&);
-    };
 
     class TypesVisitor : public CsVisitor
     {
@@ -100,6 +92,78 @@ private:
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
 	virtual void visitOperation(const OperationPtr&);
+    };
+
+    class OpsVisitor : public CsVisitor
+    {
+    public:
+
+        OpsVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
+    };
+
+    class HelperVisitor : public CsVisitor
+    {
+    public:
+
+        HelperVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class DelegateVisitor : public CsVisitor
+    {
+    public:
+
+        DelegateVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class DelegateMVisitor : public CsVisitor
+    {
+    public:
+
+        DelegateMVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class DelegateDVisitor : public CsVisitor
+    {
+    public:
+
+        DelegateDVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+    };
+
+    class DispatcherVisitor : public CsVisitor
+    {
+    public:
+
+        DispatcherVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 };
 

@@ -30,18 +30,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-string
-Slice::CsGenerator::fixGlobal(const ContainedPtr& p)
-{
-    string name;
-    if(p->scope() == "::" && (p->name() == "Microsoft" || p->name() == "System"))
-    {
-	name = "_cs_";
-    }
-    name += p->name();
-    return name;
-}
-
 static string
 lookupKwd(const string& name)
 {
@@ -58,10 +46,28 @@ lookupKwd(const string& name)
 	"sizeof", "stackalloc", "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof",
 	"uint", "ulong", "unchecked", "unsafe", "ushort", "using", "virtual", "void", "volatile", "while"
     };
-    bool found =  binary_search(&keywordList[0],
-	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-				name);
-    return found ? "@" + name : name;
+    bool found = binary_search(&keywordList[0],
+	                       &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+			       name);
+    if(found)
+    {
+        return "@" + name;
+    }
+
+    static const string memberList[] =
+    {
+	"Add", "Clear", "Clone", "CompareTo", "Contains", "CopyTo", "Count", "Dictionary", "Equals", "Finalize",
+	"GetBaseException", "GetEnumerator", "GetHashCode", "GetObjectData", "GetType", "HResult", "HelpLink",
+	"IndexOf", "InnerException", "InnerHashtable", "InnerList", "Insert", "IsFixedSize", "IsReadOnly",
+	"IsSynchronized", "Item", "Keys", "List", "MemberWiseClone", "Message", "OnClear", "OnClearComplete",
+	"OnGet", "OnInsert", "OnInsertComplete", "OnRemove", "OnRemoveComplete", "OnSet", "OnSetComplete",
+	"OnValidate", "ReferenceEquals", "Remove", "RemoveAt", "Source", "StackTrace", "SyncRoot", "TargetSite",
+	"ToString", "Values",
+    };
+    found = binary_search(&memberList[0],
+                           &memberList[sizeof(memberList) / sizeof(*memberList)],
+			   name);
+    return found ? "_cs_" + name : name;
 }
 
 //
@@ -104,12 +110,10 @@ splitScopedName(const string& scoped)
 // but with all components that are C# keywords replaced by
 // their "@"-prefixed version; otherwise, if the passed name is
 // not scoped, but a C# keyword, return the "@"-prefixed name;
-// otherwise, return the name unchanged. For the first component
-// of a scoped name, also escape the reserved "Microsoft" and
-// "System" namespaces.
+// otherwise, return the name unchanged.
 //
 string
-Slice::CsGenerator::fixKwd(const string& name)
+Slice::CsGenerator::fixId(const string& name)
 {
     if(name.empty())
     {
@@ -124,14 +128,7 @@ Slice::CsGenerator::fixKwd(const string& name)
     stringstream result;
     for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
-	if(i == ids.begin())
-	{
-	    if(*i == "Microsoft" || *i == "System")
-	    {
-		result << "_cs_";
-	    }
-	}
-	else
+	if(i != ids.begin())
 	{
 	    result << '.';
 	}
@@ -172,13 +169,13 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return fixKwd(proxy->_class()->scoped() + "Prx");
+        return fixId(proxy->_class()->scoped() + "Prx");
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        return fixKwd(contained->scoped());
+        return fixId(contained->scoped());
     }
 
     return "???";
@@ -200,8 +197,12 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 	        return false;
 		break;
 	    }
+	    default:
+	    {
+		return true;
+	        break;
+	    }
 	}
-	return true;
    }
    if(EnumPtr::dynamicCast(type))
    {
