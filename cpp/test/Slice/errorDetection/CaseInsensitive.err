@@ -62,9 +62,13 @@ CaseInsensitive.ice:192: interface name `derived' is capitalized inconsistently 
 CaseInsensitive.ice:200: parameter `Param' differs only in capitalization from parameter `param'
 CaseInsensitive.ice:200: `Param' has changed meaning
 CaseInsensitive.ice:202: exception name `E1' is capitalized inconsistently with its previous name: `::e1'
+CaseInsensitive.ice:203: `xxx::xx::e1' has changed meaning
 CaseInsensitive.ice:204: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:204: `xxx::xx::E1' has changed meaning
 CaseInsensitive.ice:205: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:205: `xxx::XX::e1' has changed meaning
 CaseInsensitive.ice:206: exception name `XXX::xx::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:206: `XXX::xx::e1' has changed meaning
 CaseInsensitive.ice:208: exception name `xxx::xx::E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
 CaseInsensitive.ice:209: exception name `xxx::XX::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
 CaseInsensitive.ice:210: exception name `XXX::xx::e1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'

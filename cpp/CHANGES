@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed a bug in the Slice parser: the semantic check to see
+  whether an identifier introduced into a scope has changed
+  meaning was too stringent.
+
 - Fixed integer parsing bugs in the C++ XML stream class.
 
 - Changed glacier router to send all requests from a separate
