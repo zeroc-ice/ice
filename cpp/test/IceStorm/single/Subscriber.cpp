@@ -77,6 +77,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
 	lockfile = argv[1];
     }
+
     createLock(lockfile);
 
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
@@ -95,8 +96,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    properties->setProperty("SingleAdapter", "default");
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("SingleAdapter");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
     ObjectPtr single = new SingleI(communicator);
     ObjectPrx object = adapter->add(single, stringToIdentity("single/events"));
 

@@ -102,8 +102,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    properties->setProperty("SubscriberAdapter.Endpoints", "default");
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("SubscriberAdapter");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
     EventIPtr eventFed1 = new EventI(communicator);
     EventIPtr eventFed2 = new EventI(communicator);
     EventIPtr eventFed3 = new EventI(communicator);
