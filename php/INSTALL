@@ -112,6 +112,8 @@ the file <phpdir>/Makefile and make the following changes:
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
   well as in the rule for "libs/libphp5.bundle" below.
 
+Note that PHP 5.0.0b1 cannot be compiled using Sun CC 5.3.
+
 
 
 =========================================================================
