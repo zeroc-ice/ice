@@ -180,12 +180,16 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     }
 }
 
-IceInternal::Reference::Reference(Stream* s) :
+IceInternal::Reference::Reference(const string& ident, Stream* s) :
     instance(s->instance()),
+    identity(ident),
     mode(ModeTwoway),
     secure(false)
 {
-    s->read(const_cast<string&>(identity));
+    //
+    // Don't read the identity here. Operations calling this
+    // constructor read the identity, and pass it as a parameter.
+    //
 
     vector<EndpointPtr>::const_iterator p;
     Ice::Int sz;
@@ -217,7 +221,10 @@ IceInternal::Reference::Reference(Stream* s) :
 void
 IceInternal::Reference::streamWrite(Stream* s) const
 {
-    s->write(identity);
+    //
+    // Don't write the identity here. Operations calling streamWrite
+    // write the identity.
+    //
 
     vector<EndpointPtr>::const_iterator p;
 

@@ -515,22 +515,22 @@ twoways(Test::MyClassPrx p)
 
     {
 	Test::LongFloatD di1;
-	di1[999999110] = -1.1;
-	di1[9999991100] = 123123.2;
+	di1[999999110] = Ice::Float(-1.1);
+	di1[9999991100] = Ice::Float(123123.2);
 	Test::LongFloatD di2;
-	di2[999999110] = -1.1;
-	di2[999999111] = -100.4;
-	di2[9999991101] = 0.5;
+	di2[999999110] = Ice::Float(-1.1);
+	di2[999999111] = Ice::Float(-100.4);
+	di2[9999991101] = Ice::Float(0.5);
 
 	Test::LongFloatD _do;
 	Test::LongFloatD ro = p->opLongFloatD(di1, di2, _do);
 
 	test(_do == di1);
 	test(ro.size() == 4);
-	test(ro[999999110] == di1[999999110]);
-	test(ro[999999111] == di2[999999111]);
-	test(ro[9999991100] == di1[9999991100]);
-	test(ro[9999991101] == di2[9999991101]);
+	test(ro[999999110] == Ice::Float(-1.1));
+	test(ro[999999111] == Ice::Float(-100.4));
+	test(ro[9999991100] == Ice::Float(123123.2));
+	test(ro[9999991101] == Ice::Float(0.5));
     }
 
     {
@@ -575,28 +575,19 @@ twoways(Test::MyClassPrx p)
 
     {
 	Test::MyClassStringD di1;
-	cout << 1 << endl;
 	di1[p] = "abc";
-	cout << 2 << endl;
 	di1[0] = "def";
-	cout << 3 << endl;
 	Test::MyClassStringD di2;
 	di2[p] = "abc";
-	cout << 4 << endl;
 
 	Test::MyClassStringD _do;
 	Test::MyClassStringD ro = p->opMyClassStringD(di1, di2, _do);
-	cout << 5 << endl;
 
 	test(_do == di1);
-	cout << 6 << endl;
 	test(ro.size() == 2);
-	cout << 7 << endl;
 	test(ro[p] == "abc");
-	cout << 8 << endl;
 	test(ro[0] == "def");
 
-	cout << 9 << endl;
 	int i = 0;
 	for (Test::MyClassStringD::iterator q = ro.begin(); q != ro.end(); ++q, ++i)
 	{
@@ -604,12 +595,12 @@ twoways(Test::MyClassPrx p)
 
 	    if (i == 0)
 	    {
-		test(q->first);
-		q->first->opVoid();
+		test(!q->first);
 	    }
 	    else
 	    {
-		test(!q->first);
+		test(q->first);
+		q->first->opVoid();
 	    }
 	}
     }

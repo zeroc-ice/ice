@@ -38,18 +38,16 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy)
 ObjectPrx
 IceInternal::ProxyFactory::streamToProxy(Stream* s)
 {
-    Stream::Container::iterator i = s->i;
     string identity;
     s->read(identity);
-    if (identity.length() == 0)
+    if (identity.length())
     {
-	return 0;
+	ReferencePtr reference = new Reference(identity, s);
+	return referenceToProxy(reference);
     }
     else
     {
-	s->i = i;
-	ReferencePtr reference = new Reference(s);
-	return referenceToProxy(reference);
+	return 0;
     }
 }
 
@@ -66,6 +64,7 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, Stream* s)
 {
     if (proxy)
     {
+	s->write(proxy->__reference()->identity);
 	proxy->__reference()->streamWrite(s);
     }
     else

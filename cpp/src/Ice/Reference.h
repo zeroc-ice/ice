@@ -37,7 +37,7 @@ public:
     Reference(const InstancePtr&, const std::string&, Mode, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
     Reference(const InstancePtr&, const std::string&);
-    Reference(Stream*);
+    Reference(const std::string&, Stream*);
 
     //
     // Marshal the reference

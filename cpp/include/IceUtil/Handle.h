@@ -182,6 +182,12 @@ inline bool operator==(const Handle<T>& a, const Handle<U>& b)
 }
 
 template<typename T, typename U>
+inline bool operator!=(const Handle<T>& a, const Handle<U>& b)
+{
+    return !operator==(a, b);
+}
+
+template<typename T, typename U>
 inline bool operator<(const Handle<T>& a, const Handle<U>& b)
 {
     T* ap = a.get();

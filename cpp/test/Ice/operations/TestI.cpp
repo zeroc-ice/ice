@@ -316,10 +316,13 @@ MyDerivedClassI::opWStringMyEnumD(const Test::WStringMyEnumD& p1, const Test::WS
     return r;
 }
 
+using namespace std;
+
 Test::MyClassStringD
 MyDerivedClassI::opMyClassStringD(const Test::MyClassStringD& p1, const Test::MyClassStringD& p2,
 				  Test::MyClassStringD& p3)
 {
+    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
     p3 = p1;
     Test::MyClassStringD r;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));

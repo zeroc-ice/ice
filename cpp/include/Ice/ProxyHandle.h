@@ -166,6 +166,12 @@ inline bool operator==(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 }
 
 template<typename T, typename U>
+inline bool operator!=(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
+{
+    return !operator==(a, b);
+}
+
+template<typename T, typename U>
 inline bool operator<(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 {
     T* ap = a.get();
