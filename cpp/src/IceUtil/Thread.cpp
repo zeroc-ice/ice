@@ -10,6 +10,7 @@
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Exception.h>
+#include <IceUtil/Time.h>
 
 using namespace std;
 
@@ -63,8 +64,10 @@ IceUtil::ThreadControl::join()
 }
 
 void
-IceUtil::ThreadControl::sleep(long msec)
+IceUtil::ThreadControl::sleep(const Time& timeout)
 {
+    timeval tv = timeout;
+    long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
     Sleep(msec);
 }
 
@@ -209,12 +212,9 @@ IceUtil::ThreadControl::join()
 }
 
 void
-IceUtil::ThreadControl::sleep(long msec)
+IceUtil::ThreadControl::sleep(const Time& timeout)
 {
-    struct timespec tv;
-    tv.tv_sec = msec/1000;
-    tv.tv_nsec = (msec % 1000)* 1000000;
-    nanosleep(&tv, 0);
+    nanosleep(timeout, 0);
 }
 
 void
