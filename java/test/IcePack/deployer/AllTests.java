@@ -170,6 +170,15 @@ public class AllTests
 	test(obj.getProperty("Service2.DebugProperty").equals(""));
 	test(obj.getProperty("Service1.DebugProperty").equals(""));
     
+	System.out.println("ok");
+
+	System.out.print("testing server options... ");
+	System.out.flush();
+
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
+	test(obj.getProperty("Test.Test").equals("2"));
+	test(obj.getProperty("Test.Test1").equals("0"));
+
 	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 

@@ -2,6 +2,9 @@
 
   <classname>Server</classname>
 
+  <option>--Test.Test=2</option>
+  <option>--Test.Test1=0</option>
+
   <target name="manual">
     <activation mode="manual"/>
     <property name="Mode" value="manual"/>

@@ -20,6 +20,9 @@ public class Server extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
 	String name = properties.getProperty("Ice.ProgramName");
 
+	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	argsH.value = properties.parseCommandLineOptions("Test", argsH.value);
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Server");
         Ice.Object object = new TestI(adapter, properties);
         adapter.add(object, Ice.Util.stringToIdentity(name));
