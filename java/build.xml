@@ -50,7 +50,7 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java ice="on" outputdir="${generated.dir}">
+        <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -58,11 +58,11 @@
                 <include name="BuiltinSequences.ice" />
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
+                <include name="FacetMap.ice" />
                 <include name="Identity.ice" />
-                <include name="Facet.ice" />
                 <include name="LocalException.ice" />
+                <include name="Locator.ice" />
                 <include name="Logger.ice" />
-                <include name="Stats.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
                 <include name="Plugin.ice" />
@@ -70,9 +70,8 @@
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
-		<include name="Locator.ice" />
-		<include name="FacetMap.ice" />
                 <include name="SliceChecksumDict.ice" />
+                <include name="Stats.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
@@ -86,7 +85,8 @@
 
         <!-- Generate Slice checksums for the Ice services. -->
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier.SliceChecksums">
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.Glacier">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -98,7 +98,8 @@
             </fileset>
         </slice2java>
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums">
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.IceBox">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -107,7 +108,8 @@
             </fileset>
         </slice2java>
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="IcePack.SliceChecksums">
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IcePack.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.IcePack">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -118,7 +120,8 @@
             </fileset>
         </slice2java>
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums">
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.IceStorm">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>

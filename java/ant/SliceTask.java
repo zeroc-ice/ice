@@ -225,12 +225,52 @@ public class SliceTask extends org.apache.tools.ant.Task
 		{
 		    depline.append(line);
 
+		    //
+		    // Split the dependencies up into filenames. Note that filenames containing
+		    // spaces are escaped (e.g., "C:/Program\ Files/...").
+		    //
+                    // We skip the initial file (which is not a complete path) that is terminated
+                    // with a colon.
+                    //
+		    String str = depline.toString();
+		    int len = str.length();
+		    java.util.ArrayList l = new java.util.ArrayList();
+		    int start = -1;
+		    int pos = str.indexOf(':') + 1;
+		    assert(pos > 0);
+		    while(pos < len)
+		    {
+			char ch = str.charAt(pos);
+			if(Character.isWhitespace(ch))
+			{
+			    if(start != -1)
+			    {
+				l.add(str.substring(start, pos));
+				start = -1;
+			    }
+			}
+			else if(ch == '\\') // Ignore escaped character.
+			{
+			    ++pos;
+			}
+			else if(start == -1)
+			{
+			    start = pos;
+			}
+			++pos;
+		    }
+		    if(start != -1);
+		    {
+			l.add(str.substring(start));
+		    }
+
+		    //
+		    // Create SliceDependency. We need to remove the trailing colon from the first file.
+		    //
 		    SliceDependency depend = new SliceDependency();
-
-		    depend._dependencies = depline.toString().split("[ \t\n\r]+");
-		    assert(depend._dependencies.length > 0);
+		    depend._dependencies = new String[l.size()];
+		    l.toArray(depend._dependencies);
 		    depend._timeStamp = new java.util.Date().getTime();
-
 		    dependencies.add(depend);
 
 		    depline = new StringBuffer();

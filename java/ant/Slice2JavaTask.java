@@ -318,7 +318,7 @@ public class Slice2JavaTask extends SliceTask
 	// file, with the same output dir and which compiles the same
 	// slice file they'll use the same dependency.
 	//
-	return "slice2java " + _outputDir.toString() + slice;
+	return "slice2java " + _outputDir.toString() + " " + slice;
     }
 
     private File _translator;
