@@ -33,6 +33,26 @@ private:
 
 };
 
+class DecompressorDestroyer
+{
+public:
+
+    DecompressorDestroyer(DecompressorPtr decompressor) :
+	_decompressor(decompressor)
+    {
+    }
+
+    ~DecompressorDestroyer()
+    {
+	_decompressor->destroy();
+	_decompressor->getThreadControl().join();
+    }
+
+private:
+
+    const DecompressorPtr _decompressor;
+};
+
 int
 IcePatch2::Client::run(int argc, char* argv[])
 {
@@ -126,7 +146,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 	{
 	    try
 	    {
-		loadFileInfoSeq(dataDir + ".sum", infoSeq);
+		loadFileInfoSeq(dataDir, infoSeq);
 	    }
 	    catch(const string& ex)
 	    {
@@ -146,14 +166,12 @@ IcePatch2::Client::run(int argc, char* argv[])
 		thorough = true;
 	    }
 	}
-	
+
 	if(thorough)
 	{
 	    getFileInfoSeq(".", infoSeq, false, false, false);
-	    saveFileInfoSeq(dataDir + ".sum", infoSeq);
+	    saveFileInfoSeq(dataDir, infoSeq);
 	}
-
-	sort(infoSeq.begin(), infoSeq.end(), FileInfoCompare());
 
 	const char* endpointsProperty = "IcePatch2.Endpoints";
 	const string endpoints = properties->getProperty(endpointsProperty);
@@ -201,21 +219,22 @@ IcePatch2::Client::run(int argc, char* argv[])
 		{
 		    FileInfoSeq fileSeq = fileServer->getFileInfo1Seq(node0);
 		    
-		    sort(fileSeq.begin(), fileSeq.end(), FileInfoCompare());
+		    sort(fileSeq.begin(), fileSeq.end(), FileInfoLess());
+		    fileSeq.erase(unique(fileSeq.begin(), fileSeq.end(), FileInfoEqual()), fileSeq.end());
 		    
 		    set_difference(tree0.nodes[node0].files.begin(),
 				   tree0.nodes[node0].files.end(),
 				   fileSeq.begin(),
 				   fileSeq.end(),
 				   back_inserter(removeFiles),
-				   FileInfoCompare());
+				   FileInfoLess());
 
 		    set_difference(fileSeq.begin(),
 				   fileSeq.end(),
 				   tree0.nodes[node0].files.begin(),
 				   tree0.nodes[node0].files.end(),
 				   back_inserter(updateFiles),
-				   FileInfoCompare());
+				   FileInfoLess());
 		}
 		
 		for(unsigned int i = 0; i < progress.size(); ++i)
@@ -231,180 +250,213 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 	cout << endl;
 
-	sort(removeFiles.begin(), removeFiles.end(), FileInfoCompare());
-	sort(updateFiles.begin(), updateFiles.end(), FileInfoCompare());
+	sort(removeFiles.begin(), removeFiles.end(), FileInfoLess());
+	sort(updateFiles.begin(), updateFiles.end(), FileInfoLess());
 
 	FileInfoSeq::const_iterator p;
 
-	p = removeFiles.begin();
-	while(p != removeFiles.end())
+	if(!removeFiles.empty())
 	{
-	    cout << "remove: " << p->path << endl;
+	    p = removeFiles.begin();
+	    while(p != removeFiles.end())
+	    {
+		cout << "remove: " << getBasename(p->path) << endl;
+		
+		if(!dry)
+		{
+		    try
+		    {
+			removeRecursive(p->path);
+		    }
+		    catch(const string&)
+		    {
+		    }
+		}
+		
+		string dir = p->path + '/';
+		
+		do
+		{
+		    ++p;
+		}
+		while(p != removeFiles.end() && p->path.size() > dir.size() &&
+		      p->path.compare(0, dir.size(), dir) == 0);
+	    }
+	    
+	    if(!dry)
+	    {
+		FileInfoSeq newInfoSeq;
+		newInfoSeq.reserve(infoSeq.size());
+		
+		set_difference(infoSeq.begin(),
+			       infoSeq.end(),
+			       removeFiles.begin(),
+			       removeFiles.end(),
+			       back_inserter(newInfoSeq),
+			       FileInfoLess());
+		
+		infoSeq.swap(newInfoSeq);
+		
+		saveFileInfoSeq(dataDir, infoSeq);
+	    }
+	}
+
+	if(!updateFiles.empty())
+	{
+	    string pathLog = dataDir + ".log";
+	    ofstream fileLog;
 
 	    if(!dry)
 	    {
-		try
+		fileLog.open(pathLog.c_str());
+		if(!fileLog)
 		{
-		    removeRecursive(p->path);
-		}
-		catch(const string&)
-		{
+		    cerr << argv[0] << ": cannot open `" + pathLog + "' for writing: " + strerror(errno);
+		    return EXIT_FAILURE;
 		}
 	    }
 	    
-	    string dir = p->path + '/';
+	    Long total = 0;
+	    Long updated = 0;
 	    
-	    do
+	    for(p = updateFiles.begin(); p != updateFiles.end(); ++p)
 	    {
-		++p;
-	    }
-	    while(p != removeFiles.end() && p->path.size() > dir.size() && p->path.compare(0, dir.size(), dir) == 0);
-	}
-
-	Long total = 0;
-	Long updated = 0;
-
-	for(p = updateFiles.begin(); p != updateFiles.end(); ++p)
-	{
-	    if(p->size > 0) // Regular, non-empty file?
-	    {
-		total += p->size;
-	    }
-	}
-
-	for(p = updateFiles.begin(); p != updateFiles.end(); ++p)
-	{
-	    cout << "update: " << p->path << ' ' << flush;
-
-	    if(p->size < 0) // Directory?
-	    {
-		if(!dry)
+		if(p->size > 0) // Regular, non-empty file?
 		{
-		    createDirectoryRecursive(p->path);
+		    total += p->size;
 		}
 	    }
-	    else // Regular file.
+	    
+	    DecompressorPtr decompressor = new Decompressor;
+	    DecompressorDestroyer decompressorDestroyer(decompressor);
+	    decompressor->start();
+	    
+	    for(p = updateFiles.begin(); p != updateFiles.end(); ++p)
 	    {
-		string pathBZ2 = p->path + ".bz2";
-		ofstream fileBZ2;
+		cout << "update: " << getBasename(p->path) << ' ' << flush;
 
-		if(!dry)
+		if(p->size < 0) // Directory?
 		{
-		    string dir = getDirname(pathBZ2);
-		    if(!dir.empty())
+		    if(!dry)
 		    {
-			createDirectoryRecursive(dir);
-		    }
-
-		    try
-		    {
-			removeRecursive(pathBZ2);
-		    }
-		    catch(...)
-		    {
-		    }
-
-		    fileBZ2.open(pathBZ2.c_str(), ios::binary);
-		    if(!fileBZ2)
-		    {
-			cerr << argv[0] << ": cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
-			return EXIT_FAILURE;
+			createDirectoryRecursive(p->path);
+			fileLog << *p << endl;
 		    }
 		}
+		else // Regular file.
+		{
+		    string pathBZ2 = p->path + ".bz2";
+		    ofstream fileBZ2;
+
+		    if(!dry)
+		    {
+			string dir = getDirname(pathBZ2);
+			if(!dir.empty())
+			{
+			    createDirectoryRecursive(dir);
+			}
+
+			try
+			{
+			    removeRecursive(pathBZ2);
+			}
+			catch(...)
+			{
+			}
+
+			fileBZ2.open(pathBZ2.c_str(), ios::binary);
+			if(!fileBZ2)
+			{
+			    cerr << argv[0] << ": cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
+			    return EXIT_FAILURE;
+			}
+		    }
 		    
-		Int pos = 0;
-		string progress;
+		    Int pos = 0;
+		    string progress;
 	
-		while(pos < p->size)
-		{
-		    ByteSeq bytes;
+		    while(pos < p->size)
+		    {
+			ByteSeq bytes;
 
-		    try
-		    {
-			bytes = fileServer->getFileCompressed(p->path, pos, chunk);
-		    }
-		    catch(const FileAccessException& ex)
-		    {
-			cerr << argv[0] << ": server error for `" << p->path << "':" << ex.reason << endl;
-			return EXIT_FAILURE;
-		    }
+			try
+			{
+			    bytes = fileServer->getFileCompressed(p->path, pos, chunk);
+			}
+			catch(const FileAccessException& ex)
+			{
+			    cerr << argv[0] << ": server error for `" << p->path << "':" << ex.reason << endl;
+			    return EXIT_FAILURE;
+			}
 
-		    if(bytes.empty())
-		    {
-			cerr << argv[0] << ": size mismatch for `" << p->path << "'" << endl;
-			return EXIT_FAILURE;
+			if(bytes.empty())
+			{
+			    cerr << argv[0] << ": size mismatch for `" << p->path << "'" << endl;
+			    return EXIT_FAILURE;
+			}
+
+			if(!dry)
+			{
+			    fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+
+			    if(!fileBZ2)
+			    {
+				cerr << argv[0] << ": cannot write `" + pathBZ2 + "': " + strerror(errno);
+				return EXIT_FAILURE;
+			    }
+			}
+
+			pos += bytes.size();
+			updated += bytes.size();
+
+			for(unsigned int i = 0; i < progress.size(); ++i)
+			{
+			    cout << '\b';
+			}
+			ostringstream s;
+			s << pos << '/' << p->size << " (" << updated << '/' << total << ')';
+			progress = s.str();
+			cout << progress << flush;
 		    }
 
 		    if(!dry)
 		    {
-			fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+			fileBZ2.close();
+			fileLog << *p << endl;
 
-			if(!fileBZ2)
-			{
-			    cerr << argv[0] << ": cannot write `" + pathBZ2 + "': " + strerror(errno);
-			    return EXIT_FAILURE;
-			}
+			decompressor->checkForException();
+			decompressor->add(p->path);
 		    }
-
-		    pos += bytes.size();
-		    updated += bytes.size();
-
-		    for(unsigned int i = 0; i < progress.size(); ++i)
-		    {
-			cout << '\b';
-		    }
-		    ostringstream s;
-		    s << pos << '/' << p->size << " (" << updated << '/' << total << ')';
-		    progress = s.str();
-		    cout << progress << flush;
 		}
-
-		if(!dry)
-		{
-		    fileBZ2.close();
-		    uncompressFile(p->path);
-		    remove(pathBZ2);
-		}
+	    
+		cout << endl;
 	    }
+
+	    decompressor->destroy();
+	    decompressor->getThreadControl().join();
+	    decompressor->checkForException();
+
+	    if(!dry)
+	    {
+		fileLog.close();
+
+		FileInfoSeq newInfoSeq;
+		newInfoSeq.reserve(infoSeq.size());
 	    
-	    cout << endl;
-	}
-
-	//
-	// After a complete and successful patch, we write a new
-	// summary file.
-	//
-	if(!dry)
-	{
-	    FileInfoSeq newInfoSeq1;
-	    newInfoSeq1.reserve(infoSeq.size());
+		set_union(infoSeq.begin(),
+			  infoSeq.end(),
+			  updateFiles.begin(),
+			  updateFiles.end(),
+			  back_inserter(newInfoSeq),
+			  FileInfoLess());
 	    
-	    set_difference(infoSeq.begin(),
-			   infoSeq.end(),
-			   removeFiles.begin(),
-			   removeFiles.end(),
-			   back_inserter(newInfoSeq1),
-			   FileInfoCompare());
-
-	    FileInfoSeq newInfoSeq2;
-	    newInfoSeq2.reserve(newInfoSeq1.size() + updateFiles.size());
-
-	    set_union(newInfoSeq1.begin(),
-		      newInfoSeq1.end(),
-		      updateFiles.begin(),
-		      updateFiles.end(),
-		      back_inserter(newInfoSeq2),
-		      FileInfoCompare());
-
-	    saveFileInfoSeq(dataDir + ".sum", newInfoSeq2);
+		infoSeq.swap(newInfoSeq);
+		
+		saveFileInfoSeq(dataDir, infoSeq);
+	    }
 	}
     }
     catch(const string& ex)
-    {
-        cerr << argv[0] << ": " << ex << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const char* ex)
     {
         cerr << argv[0] << ": " << ex << endl;
         return EXIT_FAILURE;

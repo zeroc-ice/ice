@@ -114,9 +114,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	    throw "cannot change directory to `" + dataDir + "': " + strerror(errno);
 	}
 	
-	loadFileInfoSeq(dataDir + ".sum", infoSeq);
-
-	sort(infoSeq.begin(), infoSeq.end(), FileInfoCompare());
+	loadFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)
     {

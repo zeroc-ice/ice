@@ -45,7 +45,7 @@ scandir(const char* dir, struct dirent*** namelist,
     {
 	return -1;
     }
-    
+
     *namelist = 0;
     while((entry = readdir(d)) != 0)
     {
@@ -56,7 +56,7 @@ scandir(const char* dir, struct dirent*** namelist,
 	    {
 		return -1;
 	    }
-	    
+
 	    entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
 	    (*namelist)[i] = (struct dirent*)malloc(entrysize);
 	    if((*namelist)[i] == 0)
@@ -72,7 +72,7 @@ scandir(const char* dir, struct dirent*** namelist,
     {
 	return -1;
     }
-    
+
     if(i == 0)
     {
 	return -1;
@@ -82,7 +82,7 @@ scandir(const char* dir, struct dirent*** namelist,
     {
 	qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
     }
-    
+
     return i;
 }
 
@@ -134,9 +134,9 @@ string
 IcePatch2::normalize(const string& path)
 {
     string result = path;
-    
+
     string::size_type pos;
-    
+
 #ifdef WIN32
     for(pos = 0; pos < result.size(); ++pos)
     {
@@ -146,13 +146,13 @@ IcePatch2::normalize(const string& path)
 	}
     }
 #endif
-    
+
     pos = 0;
     while((pos = result.find("//", pos)) != string::npos)
     {
 	result.erase(pos, 1);
     }
-    
+
     pos = 0;
     while((pos = result.find("/./", pos)) != string::npos)
     {
@@ -161,17 +161,17 @@ IcePatch2::normalize(const string& path)
 
     if(result.substr(0, 2) == "./")
     {
-        result.erase(0, 2);
+	result.erase(0, 2);
     }
 
     if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
     {
-        result.erase(result.size() - 2, 2);
+	result.erase(result.size() - 2, 2);
     }
 
     if(result.size() >= 1 && result[result.size() - 1] == '/')
     {
-        result.erase(result.size() - 1);
+	result.erase(result.size() - 1);
     }
 
     return result;
@@ -271,19 +271,19 @@ IcePatch2::removeRecursive(const string& pa)
     {
 	throw "cannot stat `" + path + "': " + strerror(errno);
     }
-    
+
     if(S_ISDIR(buf.st_mode))
     {
 	StringSeq paths = readDirectory(path);
-        for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
 	    removeRecursive(path + '/' + *p);
 	}
-	
+
 #ifdef _WIN32
 	if(_rmdir(path.c_str()) == -1)
 #else
-        if(rmdir(path.c_str()) == -1)
+	if(rmdir(path.c_str()) == -1)
 #endif
 	{
 	    throw "cannot remove directory `" + path + "': " + strerror(errno);
@@ -308,7 +308,7 @@ IcePatch2::readDirectory(const string& pa)
     {
 	throw "cannot read directory `" + path + "': " + strerror(errno);
     }
-    
+
     StringSeq result;
 
     while(true)
@@ -321,17 +321,17 @@ IcePatch2::readDirectory(const string& pa)
 	    result.push_back(name);
 	}
 
-        if(_findnext(h, &data) == -1)
-        {
-            if(errno == ENOENT)
-            {
-                break;
-            }
+	if(_findnext(h, &data) == -1)
+	{
+	    if(errno == ENOENT)
+	    {
+		break;
+	    }
 
-            string ex = "cannot read directory `" + path + "': " + strerror(errno);
-            _findclose(h);
-            throw ex;
-        }
+	    string ex = "cannot read directory `" + path + "': " + strerror(errno);
+	    _findclose(h);
+	    throw ex;
+	}
     }
 
     _findclose(h);
@@ -364,7 +364,7 @@ IcePatch2::readDirectory(const string& pa)
 	    result.push_back(name);
 	}
     }
-    
+
     free(namelist);
     return result;
 
@@ -401,7 +401,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
     {
 	throw "cannot open `" + path + "' for writing: " + strerror(errno);
     }
-    
+
     int bzError;
     BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFile, 5, 0, 0);
     if(bzError != BZ_OK)
@@ -414,7 +414,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	fclose(stdioFile);
 	throw ex;
     }
-    
+
     BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[pos]), bytes.size() - pos);
     if(bzError != BZ_OK)
     {
@@ -427,7 +427,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	fclose(stdioFile);
 	throw ex;
     }
-    
+
     BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
     if(bzError != BZ_OK)
     {
@@ -439,12 +439,12 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	fclose(stdioFile);
 	throw ex;
     }
-    
+
     fclose(stdioFile);
 }
 
 void
-IcePatch2::uncompressFile(const string& pa)
+IcePatch2::decompressFile(const string& pa)
 {
     const string path = normalize(pa);
     const string pathBZ2 = path + ".bz2";
@@ -454,13 +454,13 @@ IcePatch2::uncompressFile(const string& pa)
     {
 	throw "cannot open `" + path + "' for writing: " + strerror(errno);
     }
-    
+
     FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
     if(!stdioFileBZ2)
     {
 	throw "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
     }
-    
+
     int bzError;
     BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
     if(bzError != BZ_OK)
@@ -473,10 +473,10 @@ IcePatch2::uncompressFile(const string& pa)
 	fclose(stdioFileBZ2);
 	throw ex;
     }
-    
+
     const Int numBZ2 = 64 * 1024;
     Byte bytesBZ2[numBZ2];
-    
+
     while(bzError != BZ_STREAM_END)
     {
 	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
@@ -491,7 +491,7 @@ IcePatch2::uncompressFile(const string& pa)
 	    fclose(stdioFileBZ2);
 	    throw ex;
 	}
-	
+
 	if(sz > 0)
 	{
 	    long pos = ftell(stdioFileBZ2);
@@ -501,7 +501,7 @@ IcePatch2::uncompressFile(const string& pa)
 		fclose(stdioFileBZ2);
 		throw "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
 	    }
-	    
+
 	    file.write(reinterpret_cast<char*>(bytesBZ2), sz);
 	    if(!file)
 	    {
@@ -527,8 +527,8 @@ IcePatch2::uncompressFile(const string& pa)
     fclose(stdioFileBZ2);
 }
 
-void
-IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
+static void
+getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
 {
     const string path = normalize(pa);
 
@@ -582,7 +582,7 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
     {
 	throw "cannot stat `" + path + "': " + strerror(errno);
     }
-    
+
     if(S_ISDIR(buf.st_mode))
     {
 	FileInfo info;
@@ -598,11 +598,11 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 	info.checksum.swap(bytesSHA);
 
 	infoSeq.push_back(info);
-	
+
 	StringSeq content = readDirectory(path);
 	for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
 	{
-	    getFileInfoSeq(path + '/' + *p, infoSeq, size, compress, verbose);
+	    getFileInfoSeqNoSort(path + '/' + *p, infoSeq, size, compress, verbose);
 	}
     }
     else if(S_ISREG(buf.st_mode))
@@ -627,7 +627,7 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 		    cout << path << ": calculating checksum" << endl;
 		}
 	    }
-	    
+
 	    int fd = open(path.c_str(), O_RDONLY);
 	    if(fd == -1)
 	    {
@@ -639,9 +639,9 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 		close(fd);
 		throw "cannot read `" + path + "': " + strerror(errno);
 	    }
-	    
+
 	    close(fd);
-	    
+
 	    if(compress)
 	    {
 		string pathBZ2 = path + ".bz2";
@@ -668,7 +668,7 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 		cout << path << ": calculating checksum for empty file" << endl;
 	    }
 	}
-	
+
 	ByteSeq bytesSHA(20);
 	SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
 	     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
@@ -686,39 +686,86 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, boo
 }
 
 void
-IcePatch2::saveFileInfoSeq(const string& path, const FileInfoSeq& infoSeq)
+IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
 {
-    ofstream os(path.c_str());
-    if(!os)
+    getFileInfoSeqNoSort(pa, infoSeq, size, compress, verbose);
+    sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
+    infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
+}
+
+void
+IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
+{
     {
-	throw "cannot open `" + path + "' for writing: " + strerror(errno);
+	const string path = normalize(pa + ".sum");
+	
+	ofstream os(path.c_str());
+	if(!os)
+	{
+	    throw "cannot open `" + path + "' for writing: " + strerror(errno);
+	}
+	
+	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
+	{
+	    os << *p << '\n';
+	}
     }
-    
-    for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
+
     {
-	os << *p << '\n';
+	const string pathLog = normalize(pa + ".log");
+
+	try
+	{
+	    remove(pathLog);
+	}
+	catch(...)
+	{
+	}
     }
 }
 
 void
-IcePatch2::loadFileInfoSeq(const string& path, FileInfoSeq& infoSeq)
+IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 {
-    ifstream is(path.c_str());
-    if(!is)
     {
-	throw "cannot open `" + path + "' for reading: " + strerror(errno);
-    }
-    
-    while(is.good())
-    {
-	FileInfo info;
-	is >> info;
-	
-	if(is.good())
+	const string path = normalize(pa + ".sum");
+
+	ifstream is(path.c_str());
+	if(!is)
 	{
-	    infoSeq.push_back(info);
+	    throw "cannot open `" + path + "' for reading: " + strerror(errno);
+	}
+
+	while(is.good())
+	{
+	    FileInfo info;
+	    is >> info;
+
+	    if(is.good())
+	    {
+		infoSeq.push_back(info);
+	    }
 	}
     }
+
+    {
+	const string pathLog = normalize(pa + ".log");
+
+	ifstream is(pathLog.c_str());
+	while(is.good())
+	{
+	    FileInfo info;
+	    is >> info;
+
+	    if(is.good())
+	    {
+		infoSeq.push_back(info);
+	    }
+	}
+    }
+    
+    sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
+    infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
 }
 
 void
@@ -732,26 +779,26 @@ IcePatch2::getFileTree1(const FileInfoSeq& infoSeq, FileTree1& tree1)
     else
     {
 	tree1.files.reserve(infoSeq.size());
-	
+
 	FileInfoSeq::const_iterator p = infoSeq.begin();
-	
+
 	ByteSeq allChecksums;
 	allChecksums.resize(infoSeq.size() * 20);
 	ByteSeq::iterator q = allChecksums.begin();
-	
+
 	while(p < infoSeq.end())
 	{
 	    tree1.files.push_back(*p);
-	    
+
 	    assert(p->checksum.size() == 20);
 	    copy(p->checksum.begin(), p->checksum.end(), q);
-	    
+
 	    ++p;
 	    q += 20;
 	}
 
-	sort(tree1.files.begin(), tree1.files.end(), FileInfoCompare());
-	
+	sort(tree1.files.begin(), tree1.files.end(), FileInfoLess());
+
 	tree1.checksum.resize(20);
 	SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
 	     reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
@@ -814,4 +861,90 @@ IcePatch2::operator>>(istream& is, FileInfo& info)
     info.size = atoi(s.c_str());
 
     return is;
+}
+
+IcePatch2::Decompressor::Decompressor() :
+    _destroy(false)
+{
+}
+
+IcePatch2::Decompressor::~Decompressor()
+{
+    assert(_destroy);
+}
+
+void
+IcePatch2::Decompressor::destroy()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    _destroy = true;
+
+    notify();
+}
+void
+IcePatch2::Decompressor::add(const string& file)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    assert(!_destroy);
+
+    if(_files.empty())
+    {
+	notify();
+    }
+
+    _files.push_back(file);
+}
+
+void
+IcePatch2::Decompressor::checkForException() const
+{
+   IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+   if(!_exception.empty())
+   {
+       assert(_destroy);
+       throw _exception;
+   }
+}
+
+void
+IcePatch2::Decompressor::run()
+{
+   while(true)
+    {
+	std::string file;
+
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	    while(!_destroy && _files.empty())
+	    {
+		wait();
+	    }
+
+	    if(_destroy && _files.empty())
+	    {
+		return;
+	    }
+
+	    assert(!_files.empty());
+	    file = _files.front();
+	    _files.pop_front();
+	}
+
+	try
+	{
+	    decompressFile(file);
+	    remove(file + ".bz2");
+	}
+	catch(const string& ex)
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    _destroy = true;
+	    _exception = ex;
+	    return;
+	}
+    }
 }

@@ -104,10 +104,7 @@ main(int argc, char* argv[])
 
 	FileInfoSeq infoSeq;
 	getFileInfoSeq(".", infoSeq, true, compress, verbose);
-
-	sort(infoSeq.begin(), infoSeq.end(), FileInfoCompare());
-
-	saveFileInfoSeq(dataDir + ".sum", infoSeq);
+	saveFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)
     {

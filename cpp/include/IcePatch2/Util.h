@@ -11,7 +11,9 @@
 #define ICE_PATCH2_UPDATE_H
 
 #include <Ice/Ice.h>
+#include <IceUtil/Thread.h>
 #include <IcePatch2/FileInfo.h>
+#include <list>
 
 namespace IcePatch2
 {
@@ -35,9 +37,23 @@ ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
 ICEPATCH2_API void createDirectoryRecursive(const std::string&);
 
 ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
-ICEPATCH2_API void uncompressFile(const std::string&);
+ICEPATCH2_API void decompressFile(const std::string&);
 
-struct FileInfoCompare : public std::binary_function<const FileInfo&, const FileInfo&, bool>
+struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	return lhs.path == rhs.path && lhs.checksum < rhs.checksum;
+
+	//
+	// We don't take the size int account, as it might not be set
+	// if no compressed file is available.
+	//
+    }
+};
+
+struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo&, bool>
 {
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
@@ -83,6 +99,28 @@ struct FileTree0
 
 ICEPATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
 ICEPATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
+
+class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    Decompressor();
+    virtual ~Decompressor();
+
+    void destroy();
+    void add(const std::string&);
+    void checkForException() const;
+
+    virtual void run();
+
+private:
+
+    bool _destroy;
+    std::string _exception;
+    std::list<std::string> _files;
+};
+
+typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 
 }
 
