@@ -2399,6 +2399,11 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalClassDecls())
+    {
+	return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -2480,6 +2485,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 bool
 Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasAbstractClassDefs())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -2612,6 +2622,11 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasNonLocalDictionaries())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -3007,6 +3022,11 @@ Slice::Gen::DelegateVisitor::DelegateVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalClassDecls())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -3091,6 +3111,11 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalClassDecls())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -3309,6 +3334,11 @@ Slice::Gen::DelegateDVisitor::DelegateDVisitor(IceUtil::Output& out)
 bool
 Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalClassDecls())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -3423,6 +3453,11 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtil::Output &out)
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasNonLocalInterfaceDefs())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
@@ -3513,6 +3548,11 @@ Slice::Gen::AsyncVisitor::AsyncVisitor(::IceUtil::Output &out)
 bool
 Slice::Gen::AsyncVisitor::visitModuleStart(const ModulePtr& p)
 {
+    if(!p->hasAsyncOps())
+    {
+        return false;
+    }
+
     _out << sp << nl << "namespace " << fixId(p->name());
     _out << sb;
     return true;
