@@ -1,0 +1,122 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<book><?dbhtml filename="index.html">
+<bookinfo>
+<title>Ice User's Manual</title>
+<subtitle>A Guide to the Internet Communications Engine</subtitle>
+<authorgroup>
+<author>
+<firstname>Marc</firstname>
+<surname>Laukien</surname>
+</author>
+</authorgroup>
+<publisher>
+<publishername>Mutable Realms, Inc.</publishername>
+<address>
+<city>Huntsville</city>
+<state>Alabama</state>
+<country>USA</country>
+</address>
+</publisher>
+<releaseinfo>Version 0.0.1</releaseinfo>
+<pubdate>Date to be inserted here...</pubdate>
+<legalnotice>
+<para>Legal stuff to be inserted here...</para>
+</legalnotice>
+<copyright>
+<year>2001</year>
+<holder>Mutable Realms, Inc. All rights reserved.</holder>
+</copyright>
+</bookinfo>
+<part>
+<title>Introduction</title>
+<chapter>
+<title>Getting Started with Ice</title>
+<para>
+TBD
+</para>
+</chapter>
+<chapter>
+<title>Writing Specifications with Slice</title>
+<section>
+<title>Modules</title>
+<para>
+TBD
+</para>
+</section>
+<section>
+<title>Classes</title>
+<para>
+TBD
+</para>
+</section>
+<section>
+<title>Interfaces</title>
+<para>
+TBD
+</para>
+</section>
+</chapter>
+<chapter>
+<title>The Slice to C++ Mapping</title>
+<para>
+TBD
+</para>
+<programlisting>
+int
+main(int argc, char* argv[])
+{
+    int status;
+    Ice::Communicator_ptr communicator;
+
+    try
+    {
+	communicator = Ice::initialize(argc, argv); <co id="intro.main.init">
+	status = run(argc, argv, communicator); <co id="intro.main.run">
+    }
+    catch(const Ice::LocalException& ex) <co id="intro.main.ex1">
+    {
+	cerr << ex << endl;
+	status = EXIT_FAILURE;
+    }
+
+    if(communicator) <co id="intro.main.if">
+    {
+	try
+	{
+	    communicator -> destroy(); <co id="intro.main.dest">
+	}
+	catch(const Ice::LocalException& ex) <co id="intro.main.ex2">
+	{
+	    cerr << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+    }
+
+    return status; <co id="intro.main.return">
+}
+</programlisting>
+<calloutlist>
+<callout arearefs="intro.main.init">
+<para>
+blahblahblah
+</para>
+</callout>
+</calloutlist>
+</chapter>
+</part>
+<part>
+<title>Reference</title>
+<chapter>
+<title>Ice::Communicator</title>
+<para>
+TBD
+</para>
+</chapter>
+<chapter>
+<title>Ice::ObjectAdapter</title>
+<para>
+TBD
+</para>
+</chapter>
+</part>
+</book>

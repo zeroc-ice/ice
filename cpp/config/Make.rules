@@ -29,9 +29,6 @@ BASELIBS	= -lstlport_gcc_debug -lJTC -lpthread
 LIBS		= -lIce $(BASELIBS)
 SLICE		= $(bindir)/slice2cpp
 
-HTMLDSL		= /usr/share/sgml/docbook/dsssl-stylesheets/html/docbook.dsl
-SGML2HTML	= jade -t sgml -d $(HTMLDSL) -i html
-
 EVERYTHING	= all depend clean
 
 .SUFFIXES:

@@ -10,13 +10,18 @@
 
 top_srcdir	= ..
 
-TARGETS		= index.html \
-		  intro.html \
-		  slice.html \
-		  cppmap.html
+TARGETS		= manual/index.html \
+		  manual.pdf
 
 include $(top_srcdir)/config/Make.rules
 
-$(TARGETS): main.sgml
-	rm -f $(TARGETS)
-	$(SGML2HTML) main.sgml
+manual/index.html: manual.sgml
+	rm -rf manual
+	db2html manual.sgml
+
+manual.pdf: manual.sgml
+	rm -rf manual.pdf
+	db2pdf manual.sgml
+
+clean::
+	rm -rf manual
