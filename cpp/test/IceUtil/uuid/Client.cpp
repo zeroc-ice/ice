@@ -26,7 +26,6 @@ inline void usage(const char* myName)
     cerr << "Usage: " << myName << " [number of UUIDs to generate] [number of threads]" << endl;
 }
 
-
 class InsertThread : public Thread
 {
 public:
