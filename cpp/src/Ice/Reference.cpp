@@ -738,11 +738,18 @@ IceInternal::DirectReference::streamWrite(BasicStream* s) const
 {
     RoutableReference::streamWrite(s);
 
-    s->writeSize(Ice::Int(_endpoints.size()));
-    vector<EndpointPtr>::const_iterator p;
-    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    Ice::Int sz = static_cast<Ice::Int>(endpoints.size());
+    s->writeSize(sz);
+    if(sz)
     {
-	(*p)->streamWrite(s);
+	for(vector<EndpointPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+	{
+	    (*p)->streamWrite(s);
+	}
+    }
+    else
+    {
+	s->write(string("")); // Adapter id.
     }
 }
 

@@ -88,9 +88,16 @@ public class DirectReference extends RoutableReference
         super.streamWrite(s);
 
 	s.writeSize(_endpoints.length);
-	for(int i = 0; i < _endpoints.length; i++)
+	if(_endpoints.length > 0)
 	{
-	    _endpoints[i].streamWrite(s);
+	    for(int i = 0; i < _endpoints.length; i++)
+	    {
+		_endpoints[i].streamWrite(s);
+	    }
+	}
+	else
+	{
+	    s.writeString(""); // Adapter id.
 	}
     }
 

@@ -914,9 +914,16 @@ namespace IceInternal
 	    base.streamWrite(s);
 
 	    s.writeSize(_endpoints.Length);
-	    for(int i = 0; i < _endpoints.Length; i++)
+	    if(_endpoints.length > 0)
 	    {
-		_endpoints[i].streamWrite(s);
+		for(int i = 0; i < _endpoints.Length; i++)
+		{
+		    _endpoints[i].streamWrite(s);
+		}
+	    }
+	    else
+	    {
+		s.writeString(""); // Adapter id.
 	    }
 	}
 
