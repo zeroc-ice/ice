@@ -277,53 +277,56 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
-    cout << "catching unknown user exception... " << flush;
+    if (thrower->supportsUndeclaredExceptions())
+    {
+        cout << "catching unknown user exception... " << flush;
 
-    try
-    {
-	thrower->throwUndeclaredA(1);
-	test(false);
-    }
-    catch (const Ice::UnknownUserException&)
-    {
-    }
-    catch (const Ice::Exception& ex)
-    {
-	cout << ex << endl;
-	test(false);
-    }
-    catch (...)
-    {
-	test(false);
-    }
+        try
+        {
+            thrower->throwUndeclaredA(1);
+            test(false);
+        }
+        catch (const Ice::UnknownUserException&)
+        {
+        }
+        catch (const Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        catch (...)
+        {
+            test(false);
+        }
 
-    try
-    {
-	thrower->throwUndeclaredB(1, 2);
-	test(false);
-    }
-    catch (const Ice::UnknownUserException&)
-    {
-    }
-    catch (...)
-    {
-	test(false);
-    }
+        try
+        {
+            thrower->throwUndeclaredB(1, 2);
+            test(false);
+        }
+        catch (const Ice::UnknownUserException&)
+        {
+        }
+        catch (...)
+        {
+            test(false);
+        }
 
-    try
-    {
-	thrower->throwUndeclaredC(1, 2, 3);
-	test(false);
-    }
-    catch (const Ice::UnknownUserException&)
-    {
-    }
-    catch (...)
-    {
-	test(false);
-    }
+        try
+        {
+            thrower->throwUndeclaredC(1, 2, 3);
+            test(false);
+        }
+        catch (const Ice::UnknownUserException&)
+        {
+        }
+        catch (...)
+        {
+            test(false);
+        }
 
-    cout << "ok" << endl;
+        cout << "ok" << endl;
+    }
     
     cout << "catching unknown local exception... " << flush;
 

@@ -43,6 +43,7 @@ interface Thrower
     void throwBasB(int a, int b) throws B;
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
+    bool supportsUndeclaredExceptions();
     void throwUndeclaredA(int a) throws B, D;
     void throwUndeclaredB(int a, int b);
     void throwUndeclaredC(int a, int b, int c) throws D;

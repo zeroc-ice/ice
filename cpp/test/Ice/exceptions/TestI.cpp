@@ -84,6 +84,12 @@ ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
     throw ex;
 }
 
+bool
+ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
+{
+    return true;
+}
+
 void
 ThrowerI::throwUndeclaredA(Ice::Int a, const Ice::Current&)
 {
