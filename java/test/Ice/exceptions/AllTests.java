@@ -1104,8 +1104,8 @@ public class AllTests
         catch(Ice.UnknownLocalException ex)
         {
 	    //
-	    // We get the an unknown local exception without
-	    // collocation optimization.
+	    // We get an unknown local exception without collocation
+	    // optimization.
 	    //
 	    test(!collocated);
 	}
