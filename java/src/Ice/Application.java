@@ -190,7 +190,7 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
-                communicator().shutdown();
+                communicator().signalShutdown();
                 while(!_done)
                 {
                     try

@@ -156,7 +156,7 @@ Ice::interruptHandler(DWORD)
     // Don't use Application::communicator(), this is not signal-safe.
     //
     assert(Application::_communicator);
-    Application::_communicator->shutdown();
+    Application::_communicator->signalShutdown();
     return TRUE;
 }
 
@@ -242,7 +242,7 @@ Ice::interruptHandler(int)
     // Don't use Application::communicator(), this is not signal-safe.
     //
     assert(Application::_communicator);
-    Application::_communicator->shutdown();
+    Application::_communicator->signalShutdown();
 }
 
 void

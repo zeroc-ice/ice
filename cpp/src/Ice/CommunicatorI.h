@@ -31,6 +31,7 @@ public:
     
     virtual void destroy();
     virtual void shutdown();
+    virtual void signalShutdown();
     virtual void waitForShutdown();
 
     virtual ObjectPrx stringToProxy(const std::string&);

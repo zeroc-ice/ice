@@ -40,13 +40,29 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
     public void
     shutdown()
     {
-	//
-	// No mutex locking here!
-	//
-	if(_serverThreadPool != null)
+	IceInternal.ObjectAdapterFactory objectAdapterFactory;
+	
+	synchronized(this)
 	{
-	    _serverThreadPool.initiateShutdown();
+	    if(_destroyed)
+	    {
+		throw new CommunicatorDestroyedException();
+	    }
+	    objectAdapterFactory = _instance.objectAdapterFactory();
 	}
+	
+	//
+	// We must call shutdown on the object adapter factory
+	// outside the synchronization, otherwise the communicator is
+	// blocked while we wait for shutdown.
+	//
+	objectAdapterFactory.shutdown();
+    }
+
+    public void
+    signalShutdown()
+    {
+	 shutdown();
     }
 
     public void

@@ -65,17 +65,14 @@ local interface Communicator
      * deactivates all object adapters. Subsequent calls to [shutdown]
      * are ignored.
      *
-     * <important><para>Shutdown is the only operation that is
-     * signal-safe, i.e., it is safe to call this operation from a
-     * Unix signal handler. No other &Ice; operation can be called from
-     * a Unix signal handler.</para></important>
-     *
-     * <note><para> Shutdown is not immediate, i.e., after [shutdown]
-     * returns, the server-side of the application might still be
-     * active for some time. You can use [waitForShutdown] to wait
-     * until shutdown is complete. </para></note>
+     * <note><para> After [shutdown] returns, no new requests are
+     * processed. However, requests that have been started before
+     * [shutdown] was called might still be active. You can use
+     * [waitForShutdown] to wait for the completion of all
+     * requests. </para></note>
      *
      * @see destroy
+     * @see signalShutdown
      * @see waitForShutdown
      * @see ObjectAdapter::deactivate
      *
@@ -84,17 +81,40 @@ local interface Communicator
 
     /**
      *
+     * A signal-safe variant of [shutdown]. For systems that support
+     * Unix-style signals, this is the only operation that might be
+     * called from a signal handler. No other &Ice; function is
+     * signal-safe. For systems that do not have Unix-style signals,
+     * this operation is equivalent to [shutdown].
+     *
+     * <important><para> The signal-safe variant for [shutdown] is not
+     * immediate, i.e., after [signalShutdown] returns, the
+     * server-side of the application might still be active for some
+     * time, and process new requests. You can use [waitForShutdown]
+     * to wait until shutdown is complete. </para></note>
+     *
+     * @see destroy
+     * @see shutdown
+     * @see waitForShutdown
+     * @see ObjectAdapter::deactivate
+     *
+     **/
+    void signalShutdown();
+
+    /**
+     *
      * Wait until the server-side of an application has shut
      * down. Calling [shutdown] initiates server-side shutdown, and
-     * [waitForShutdown] only returns when such shutdown has been
-     * completed. A typical use of this operation is to call it from
-     * the main thread, which then waits until some other thread calls
-     * [shutdown]. After such shutdown is complete, the main thread
-     * returns and can do some cleanup work before it finally calls
-     * [destroy] to also shut the client-side of the application down,
-     * and then exits the application.
+     * [waitForShutdown] only returns when all outstanding requests
+     * have completed. A typical use of this operation is to call it
+     * from the main thread, which then waits until some other thread
+     * calls [shutdown]. After such shutdown is complete, the main
+     * thread returns and can do some cleanup work before it finally
+     * calls [destroy] to also shut the client-side of the application
+     * down, and then exits the application.
      *
      * @see shutdown
+     * @see signalShutdown
      * @see destroy
      * @see ObjectAdapter::waitForDeactivate
      *

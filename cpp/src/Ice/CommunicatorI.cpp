@@ -53,6 +53,28 @@ Ice::CommunicatorI::destroy()
 
 void
 Ice::CommunicatorI::shutdown()
+{ 
+    ObjectAdapterFactoryPtr objectAdapterFactory;
+
+    {
+	RecMutex::Lock sync(*this);
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+	objectAdapterFactory = _instance->objectAdapterFactory();
+    }
+
+    //
+    // We must call shutdown on the object adapter factory outside the
+    // synchronization, otherwise the communicator is blocked during
+    // shutdown.
+    //
+    objectAdapterFactory->shutdown();
+}
+
+void
+Ice::CommunicatorI::signalShutdown()
 {
     //
     // No mutex locking here! This operation must be signal-safe.

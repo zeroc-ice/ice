@@ -73,10 +73,10 @@ local interface ObjectAdapter
      * Temporarily hold receiving and dispatching requests. The object
      * adapter can be reactivated with the [activate] operation.
      *
-     * <note><para> Holding is not immediate, i.e., after
-     * [hold] returns, the object adapter might still be active
-     * for some time. You can use [waitForHold] to wait until
-     * holding is complete. </para></note>
+     * <note><para> Holding is not immediate, i.e., after [hold]
+     * returns, the object adapter might still be active for some
+     * time. You can use [waitForHold] to wait until holding is
+     * complete. </para></note>
      *
      * @see activate
      * @see deactivate
@@ -110,10 +110,12 @@ local interface ObjectAdapter
      * to [deactivate] on an already deactivated object adapter are
      * ignored.
      *
-     * <note><para> Deactivation is not immediate, i.e., after
-     * [deactivate] returns, the object adapter might still be active
-     * for some time. You can use [waitForDeactivate] to wait until
-     * deactivation is complete. </para></note>
+     * <note><para> After [deactivate] returns, no new requests are
+     * processed by the object adapter. However, requests that have
+     * been started before [deactivate] was called might still be
+     * active. You can use [waitForDeactivate] to wait for the
+     * completion of all requests for this object
+     * adapter. </para></note>
      *
      * @see activate
      * @see hold
