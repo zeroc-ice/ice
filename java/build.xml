@@ -31,15 +31,14 @@
                 <include name="ObjectFactory.ice" />
                 <include name="Properties.ice" />
                 <include name="ServantLocator.ice" />
-                <include name="Stream.ice" />
-                <include name="UserExceptionFactory.ice" />
             </fileset>
         </slice2java>
     </target>
 
     <target name="compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
-        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"/>
+        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
+            source="1.4"/>
     </target>
 
     <target name="all" depends="compile"/>
