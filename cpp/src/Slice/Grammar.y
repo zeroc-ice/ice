@@ -794,6 +794,9 @@ exception_list
 exception
 // ----------------------------------------------------------------------
 /* TODO: builtin exceptions "Exception" and "LocalException"*/
+// ML: Not sure if these should be treated as builtin by the
+// parser. They have no meaning in a Slice definition, so why make
+// them builtin, if they cannot be used anywhere in Slice?
 : scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);

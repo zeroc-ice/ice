@@ -16,7 +16,8 @@
 using namespace std;
 using namespace Slice;
 
-#define	YY_USER_INIT	initialize();				 
+#define	YY_USER_INIT initialize();
+
 %}
 
 %option noyywrap
@@ -115,6 +116,7 @@ using namespace Slice;
     {
     	if(pos->first != ident->v)
 	{
+// TODO: ML: Indentation.
 		string msg;
 		msg = "illegal identifier: `" + ident->v + "' differs from keyword `";
 		msg += pos->first + "' only in capitalization";
@@ -248,6 +250,7 @@ using namespace Slice;
 
 %%
 
+// TODO: ML: Coding conventions.
 namespace Slice {
 
 stringTokenMap keywordMap;
@@ -255,6 +258,7 @@ stringTokenMap keywordMap;
 void
 initialize()
 {
+// TODO: ML: Indentation is 4 char positions, not 8.
 	keywordMap["module"] = ICE_MODULE;
 	keywordMap["class"] = ICE_CLASS;
 	keywordMap["interface"] = ICE_INTERFACE;
@@ -280,4 +284,5 @@ initialize()
 	keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
 	keywordMap["local"] = ICE_LOCAL;
 }
+
 }

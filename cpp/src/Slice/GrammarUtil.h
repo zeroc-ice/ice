@@ -23,7 +23,7 @@ namespace Slice
 //
 struct CICompare : public std::binary_function<std::string, std::string, bool>
 {
-    // TODO: ML: Make non-inline.
+    // TODO: ML: Make non-inline. (Not necessary if moved to Scanner.l)
     bool operator()(const std::string& s1, const std::string& s2) const
     {
 	std::string::const_iterator p1 = s1.begin();
