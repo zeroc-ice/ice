@@ -88,6 +88,7 @@ Glacier::Router::run(int argc, char* argv[])
     //
     string verifierProperty = properties->getProperty("Glacier.Starter.PasswordVerifier");
     PasswordVerifierPrx verifier;
+    PasswordVerifierPtr verifierImpl;
     if (!verifierProperty.empty())
     {
 	verifier = PasswordVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
@@ -132,7 +133,8 @@ Glacier::Router::run(int argc, char* argv[])
 	    passwords.insert(make_pair(userId, password));
 	}
 
-	verifier = PasswordVerifierPrx::uncheckedCast(adapter->addWithUUID(new CryptPasswordVerifierI(passwords)));
+	verifierImpl = new CryptPasswordVerifierI(passwords);
+	verifier = PasswordVerifierPrx::uncheckedCast(adapter->addWithUUID(verifierImpl));
     }
 
     //
@@ -155,7 +157,19 @@ Glacier::Router::run(int argc, char* argv[])
     StarterI* st = dynamic_cast<StarterI*>(starter.get());
     assert(st);
     st->destroy();
-    verifier->destroy();
+    if (verifierImpl)
+    {
+	//
+	// Can't use proxy to shutdown if the verifier is collocated,
+	// since the object adapter is already shut down at this
+	// point. Thus I have to use the implementation.
+	//
+	verifierImpl->destroy();
+    }
+    else
+    {
+	verifier->destroy();
+    }
 
     return EXIT_SUCCESS;
 }
