@@ -52,7 +52,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	    // Expected if the adapter was destroyed.
 	    //
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    //
 	    // TODO: We couldn't contact the adapter object. This

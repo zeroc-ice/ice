@@ -31,7 +31,14 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+#   include <direct.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <unistd.h>
+#endif
 
 using namespace std;
 using namespace Ice;

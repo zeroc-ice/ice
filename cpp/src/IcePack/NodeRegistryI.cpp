@@ -46,7 +46,7 @@ IcePack::NodeRegistryI::NodeRegistryI(const Ice::CommunicatorPtr& communicator,
 	{
 	    remove(p->first);
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	}
     }

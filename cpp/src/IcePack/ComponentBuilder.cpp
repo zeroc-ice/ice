@@ -22,8 +22,17 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
-#include <dirent.h>
+
+#ifdef _WIN32
+#   include <IceUtil/Unicode.h>
+#   include <direct.h>
+#   include <io.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
 
 #include <iterator>
 #include <fstream>
@@ -54,7 +63,11 @@ public:
     virtual void
     execute()
     {
+#ifdef _WIN32
+	if(_mkdir(_name.c_str()) != 0)
+#else
 	if(mkdir(_name.c_str(), 0755) != 0)
+#endif
 	{
 	    DeploymentException ex;
 	    ex.reason = "couldn't create directory " + _name + ": " + strerror(getSystemErrno());
@@ -74,33 +87,46 @@ public:
 	    // removed by another task).
 	    //
 
+	    Ice::StringSeq files;
+
+#ifdef _WIN32
+	    string pattern = _name + "/*";
+	    wstring wpattern = IceUtil::stringToWstring(pattern);
+	    WIN32_FIND_DATA data;
+	    HANDLE hnd = FindFirstFile(wpattern.c_str(), &data);
+	    if(hnd == INVALID_HANDLE_VALUE)
+	    {
+		// TODO: log a warning, throw an exception?
+		return;
+	    }
+
+	    do
+	    {
+		if((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+		    wstring wname(data.cFileName);
+		    files.push_back(_name + "/" + IceUtil::wstringToString(wname));
+		}
+	    } while(FindNextFile(hnd, &data));
+
+	    FindClose(hnd);
+#else
 	    DIR* dir = opendir(_name.c_str());
-	    
 	    if(dir == 0)
 	    {
 		// TODO: log a warning, throw an exception?
 		return;
 	    }
 	    
-	    
 	    // TODO: make the allocation/deallocation exception-safe
 	    struct dirent* entry = static_cast<struct dirent*>(malloc(pathconf(_name.c_str(), _PC_NAME_MAX) + 1));
 
-	    Ice::StringSeq entries;
-	   
 	    while(readdir_r(dir, entry, &entry) == 0 && entry != 0)
 	    {
-		string name = entry->d_name;
-		entries.push_back(_name + "/" + name);
-	    }
-	    free(entry);
-	    closedir(dir);
-		
-	    for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
-	    {
+		string name = _name + "/" + entry->d_name;
 		struct stat buf;
 		
-		if(::stat(p->c_str(), &buf) != 0)
+		if(::stat(name.c_str(), &buf) != 0)
 		{
 		    if(errno != ENOENT)
 		    {
@@ -111,12 +137,21 @@ public:
 		}
 		else if(S_ISREG(buf.st_mode))
 		{
-		    if(unlink(p->c_str()) != 0)
-		    {
-			//
-			// TODO: log error
-			//
-		    }
+		    files.push_back(name);
+		}
+	    }
+
+	    free(entry);
+	    closedir(dir);
+#endif
+		
+	    for(Ice::StringSeq::iterator p = files.begin(); p != files.end(); ++p)
+	    {
+		if(unlink(p->c_str()) != 0)
+		{
+		    //
+		    // TODO: log error
+		    //
 		}
 	    }
 	}

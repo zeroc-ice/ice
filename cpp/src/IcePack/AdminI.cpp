@@ -281,7 +281,7 @@ IcePack::AdminI::pingNode(const string& name, const Current&) const
     {
 	throw NodeNotExistException();
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	return false;
     }

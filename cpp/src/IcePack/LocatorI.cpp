@@ -55,7 +55,7 @@ public:
 	    _cb->ice_exception(Ice::AdapterNotFoundException());
 	    return;
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	    //
 	    // Expected if we couldn't contact the adapter object

@@ -294,7 +294,7 @@ IcePack::ServerI::terminated(const Ice::Current&)
 		// TODO: Inconsistent database.
 		//
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::LocalException&)
 	    {
 		//cerr << (*p)->__reference()->toString() << endl;
 		//cerr << ex << endl;

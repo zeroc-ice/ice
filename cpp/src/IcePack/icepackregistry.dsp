@@ -1,0 +1,420 @@
+# Microsoft Developer Studio Project File - Name="IcePackRegistry" - Package Owner=<4>
+# Microsoft Developer Studio Generated Build File, Format Version 6.00
+# ** DO NOT EDIT **
+
+# TARGTYPE "Win32 (x86) Console Application" 0x0103
+
+CFG=IcePackRegistry - Win32 Debug
+!MESSAGE This is not a valid makefile. To build this project using NMAKE,
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "IcePackRegistry.mak".
+!MESSAGE 
+!MESSAGE You can specify a configuration when running NMAKE
+!MESSAGE by defining the macro CFG on the command line. For example:
+!MESSAGE 
+!MESSAGE NMAKE /f "IcePackRegistry.mak" CFG="IcePackRegistry - Win32 Debug"
+!MESSAGE 
+!MESSAGE Possible choices for configuration are:
+!MESSAGE 
+!MESSAGE "IcePackRegistry - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "IcePackRegistry - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE 
+
+# Begin Project
+# PROP AllowPerConfigDependencies 0
+# PROP Scc_ProjName ""
+# PROP Scc_LocalPath ""
+CPP=cl.exe
+RSC=rc.exe
+
+!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "Release"
+# PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /c
+# SUBTRACT CPP /Fr /YX
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
+# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"Release/icepackregistry.exe" /libpath:"../../../lib"
+# SUBTRACT LINK32 /debug /nodefaultlib
+# Begin Special Build Tool
+OutDir=.\Release
+TargetName=icepackregistry
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
+# End Special Build Tool
+
+!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "Debug"
+# PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
+# SUBTRACT CPP /Fr /YX
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"Debug/icepackregistry.exe" /pdbtype:sept /libpath:"../../../lib"
+# SUBTRACT LINK32 /nodefaultlib
+# Begin Special Build Tool
+OutDir=.\Debug
+TargetName=icepackregistry
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
+# End Special Build Tool
+
+!ENDIF 
+
+# Begin Target
+
+# Name "IcePackRegistry - Win32 Release"
+# Name "IcePackRegistry - Win32 Debug"
+# Begin Group "Source Files"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\Internal.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IdentityObjectDescDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringObjectProxyDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringObjectProxySeqDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterRegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdminI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ApplicationBuilder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ComponentBuilder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IcePackRegistry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorRegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NodeRegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectRegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QueryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Registry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerRegistryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TraceLevels.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Internal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IdentityObjectDescDict.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringObjectProxyDict.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringObjectProxySeqDict.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdminI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ApplicationBuilder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ComponentBuilder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NodeRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\QueryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Registry.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerRegistryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TraceLevels.h
+# End Source File
+# End Group
+# Begin Group "Resource Files"
+
+# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Internal.ice
+
+!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+
+USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\Internal.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Internal.ice \
+	
+
+".\Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Internal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+
+USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\Internal.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Internal.ice \
+	
+
+".\Internal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Internal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy1.ice
+
+!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+
+USERDEP__DICT1="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\dummy1.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+
+"IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDescDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+
+USERDEP__DICT1="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\dummy1.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+
+"IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDescDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy2.ice
+
+!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+
+USERDEP__DICT2="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\dummy2.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --include-dir IcePack --dict "IcePack::StringObjectProxyDict,string,Object*" StringObjectProxyDict
+
+"StringObjectProxyDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxyDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+
+USERDEP__DICT2="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\dummy2.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --include-dir IcePack --dict "IcePack::StringObjectProxyDict,string,Object*" StringObjectProxyDict
+
+"StringObjectProxyDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxyDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy3.ice
+
+!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+
+USERDEP__DICT3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\dummy3.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+
+"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+
+USERDEP__DICT3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\dummy3.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+
+"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# End Group
+# End Target
+# End Project
