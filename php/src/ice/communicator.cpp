@@ -307,7 +307,10 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
             }
             catch(const IceUtil::Exception& ex)
             {
-                throwException(ex TSRMLS_CC);
+                ostringstream ostr;
+                ex.ice_print(ostr);
+                zend_error(E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
+                return 0;
             }
         }
     }
