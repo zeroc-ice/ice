@@ -17,6 +17,7 @@
 #   include <winsock.h>
 #else
 #   include <unistd.h>
+#   include <fcntl.h>
 #   include <sys/socket.h>
 #   include <sys/select.h>
 #   include <netinet/in.h>
@@ -36,10 +37,15 @@ bool interrupted();
 bool acceptInterrupted();
 bool connectFailed();
 bool connectionLost();
+void setBlock(int, bool);
 void closeSocket(int);
 void setTcpNoDelay(int);
 void setKeepAlive(int);
 void getHostByName(const char*, int, struct sockaddr_in&);
+void doBind(int, struct sockaddr_in&);
+void doListen(int, int);
+void doConnect(int, struct sockaddr_in&);
+int doAccept(int, struct sockaddr_in&);
 
 }
 
