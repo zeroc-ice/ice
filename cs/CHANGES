@@ -1,9 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
-- Fixed a bug in slice2cs: incorrect code was generated if
-  an interface was derived from a base interface in a different
-  module if the base interface contained a AMD operation.
+- Fixed a bug in slice2cs: incorrect code was generated if an
+  interface was derived from a base interface in a different module
+  and the base interface contained an AMD operation.
 
 Changes since version 1.5.1
 ---------------------------
