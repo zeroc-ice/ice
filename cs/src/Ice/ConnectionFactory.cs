@@ -240,11 +240,26 @@ namespace IceInternal
 		    threadPool.promoteFollower();
 		}
 		
-		//
-		// Create a connection object for the connection.
-		//
 		Debug.Assert(transceiver != null);
-		connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+
+		try
+		{
+		    //
+		    // Create a connection object for the connection.
+		    //
+		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+		}
+		catch(Ice.LocalException ex)
+		{
+		    //
+		    // Ignore all exceptions while constructing the
+		    // connection. Warning or error messages for such
+		    // exceptions are printed directly by the
+		    // connection object constructor.
+		    //
+		    return;
+		}
+
 		_connections.Add(connection);
 	    }
 	    
@@ -266,6 +281,7 @@ namespace IceInternal
 		// exceptions are printed directly by the validation
 		// code.
 		//
+		return;
 	    }
 	    
 	    connection.activate();

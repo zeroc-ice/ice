@@ -741,10 +741,24 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 
 	assert(transceiver);
 
-	//
-	// Create a connection object for the connection.
-	//
-	connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter);
+	try
+	{
+	    //
+	    // Create a connection object for the connection.
+	    //
+	    connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter);
+	}
+	catch(const LocalException&)
+	{
+	    //
+	    // Ignore all exceptions while constructing the
+	    // connection. Warning or error messages for such
+	    // exceptions are printed directly by the connection
+	    // object constructor.
+	    //
+	    return;
+	}
+
 	_connections.push_back(connection);
     }
 
@@ -765,6 +779,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	// connection. Warning or error messages for such exceptions
 	// are printed directly by the validation code.
 	//
+	return;
     }
 
     connection->activate();

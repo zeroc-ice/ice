@@ -262,18 +262,32 @@ public class IncomingConnectionFactory extends EventHandler
 
 		assert(transceiver != null);
 
-		//
-		// Create a connection object for the connection.
-		//
-		connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+		try
+		{
+		    //
+		    // Create a connection object for the connection.
+		    //
+		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+		}
+		catch(Ice.LocalException ex)
+		{
+		    //
+		    // Ignore all exceptions while constructing the
+		    // connection. Warning or error messages for such
+		    // exceptions are printed directly by the
+		    // connection object constructor.
+		    //
+		    return;
+		}
+
 		_connections.add(connection);
 	    }
 	    finally
 	    {
 		//
-		// This makes sure that we promote a follower before we leave
-		// the scope of the mutex above, but after we call accept()
-		// (if we call it).
+		// This makes sure that we promote a follower before
+		// we leave the scope of the mutex above, but after we
+		// call accept() (if we call it).
 		//
 		threadPool.promoteFollower();
 	    }
@@ -282,8 +296,8 @@ public class IncomingConnectionFactory extends EventHandler
 	assert(connection != null);
 	
 	//
-	// We validate and activate outside the thread synchronization, to not block
-	// the factory.
+	// We validate and activate outside the thread
+	// synchronization, to not block the factory.
 	//
 	try
 	{
@@ -296,6 +310,7 @@ public class IncomingConnectionFactory extends EventHandler
 	    // connection. Warning or error messages for such
 	    // exceptions are printed directly by the validation code.
 	    //
+	    return;
 	}
 
 	connection.activate();
