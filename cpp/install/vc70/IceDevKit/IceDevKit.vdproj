@@ -95,7 +95,7 @@
         {
         "MsmKey" = "8:_040A66E9AA484F739EDEA04CE854123D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEPATCH101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEPATCH.LIB"
         }
         "Entry"
         {
@@ -113,7 +113,7 @@
         {
         "MsmKey" = "8:_0570E15621034E22B94E792446ED38D2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\FREEZE101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\FREEZE.LIB"
         }
         "Entry"
         {
@@ -251,7 +251,7 @@
         {
         "MsmKey" = "8:_0FD1E1A87513472FA02F6E4EAF597324"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTIL101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTILD.LIB"
         }
         "Entry"
         {
@@ -395,7 +395,7 @@
         {
         "MsmKey" = "8:_1A860646380E407A9E516B8E9B0FBBA3"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEBOX101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEBOXD.LIB"
         }
         "Entry"
         {
@@ -485,7 +485,7 @@
         {
         "MsmKey" = "8:_23E2759151F54FADB229A09D8799CD01"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\FREEZE101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\FREEZED.LIB"
         }
         "Entry"
         {
@@ -509,13 +509,13 @@
         {
         "MsmKey" = "8:_261365B4C3EC4395A6383F82382853FE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICE101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICED.LIB"
         }
         "Entry"
         {
         "MsmKey" = "8:_2633D667BA6147028407945E81AF7577"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\XMLTRANSFORM101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\XMLTRANSFORMD.LIB"
         }
         "Entry"
         {
@@ -551,7 +551,7 @@
         {
         "MsmKey" = "8:_28DF70296DEB4E89913D285A9BA9D17D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTIL101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTIL.LIB"
         }
         "Entry"
         {
@@ -689,7 +689,7 @@
         {
         "MsmKey" = "8:_3E5E01CF4D974EDD8E469DC24FB60F54"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORM101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORMD.LIB"
         }
         "Entry"
         {
@@ -821,7 +821,7 @@
         {
         "MsmKey" = "8:_4D16E9A0EEF3486789080BEFA2B94F94"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESSL101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESSLD.LIB"
         }
         "Entry"
         {
@@ -893,7 +893,7 @@
         {
         "MsmKey" = "8:_5258F8BFDAA847768040D06281951BE2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEXML101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEXMLD.LIB"
         }
         "Entry"
         {
@@ -1067,7 +1067,7 @@
         {
         "MsmKey" = "8:_6149D5E7EE1141DFABB1A883C359AAA9"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEXML101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEXML.LIB"
         }
         "Entry"
         {
@@ -1385,7 +1385,7 @@
         {
         "MsmKey" = "8:_83AEF8085F3D4929BC24905381A09945"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\GLACIER101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\GLACIERD.LIB"
         }
         "Entry"
         {
@@ -1571,7 +1571,7 @@
         {
         "MsmKey" = "8:_92D071098DA847A0A523B860574143CD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\SLICE101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\SLICE.LIB"
         }
         "Entry"
         {
@@ -1625,7 +1625,7 @@
         {
         "MsmKey" = "8:_99635770E3EF4223B21EE5328AEE63E0"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEPATCH101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEPATCHD.LIB"
         }
         "Entry"
         {
@@ -1637,7 +1637,7 @@
         {
         "MsmKey" = "8:_9A1F2F913A094C66B7862FC1D39A6CFC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEBOX101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEBOX.LIB"
         }
         "Entry"
         {
@@ -1895,7 +1895,7 @@
         {
         "MsmKey" = "8:_AD61954AF89C4DC083616E11D3201A4B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESSL101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESSL.LIB"
         }
         "Entry"
         {
@@ -1907,7 +1907,7 @@
         {
         "MsmKey" = "8:_AF8516981BF54F6F8FF4230D2965007D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORMSERVICE101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORMSERVICE.LIB"
         }
         "Entry"
         {
@@ -1985,7 +1985,7 @@
         {
         "MsmKey" = "8:_B78F9C8689564F9D828B716807B8FFFF"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\GLACIER101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\GLACIER.LIB"
         }
         "Entry"
         {
@@ -2027,7 +2027,7 @@
         {
         "MsmKey" = "8:_BB702CC837BF49E18FF4B2FAA4BB93F6"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\SLICE101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\SLICED.LIB"
         }
         "Entry"
         {
@@ -2189,7 +2189,7 @@
         {
         "MsmKey" = "8:_C90CC711D5A84976BC3A8D5BF5D26FE7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORMSERVICE101D.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORMSERVICED.LIB"
         }
         "Entry"
         {
@@ -2285,7 +2285,7 @@
         {
         "MsmKey" = "8:_D107BB12ACD842A0B8B325753C55EC7E"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\XMLTRANSFORM101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\XMLTRANSFORM.LIB"
         }
         "Entry"
         {
@@ -2549,7 +2549,7 @@
         {
         "MsmKey" = "8:_E8BCD1BA18094639909ECC21404911F4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICE101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICE.LIB"
         }
         "Entry"
         {
@@ -2567,7 +2567,7 @@
         {
         "MsmKey" = "8:_E971C00FFC174112BB18E9785B82C6E9"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORM101.LIB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICESTORM.LIB"
         }
         "Entry"
         {
@@ -3116,8 +3116,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_040A66E9AA484F739EDEA04CE854123D"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icepatch101.lib"
-            "TargetName" = "8:icepatch101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icepatch.lib"
+            "TargetName" = "8:icepatch.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -3176,8 +3176,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0570E15621034E22B94E792446ED38D2"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\freeze101.lib"
-            "TargetName" = "8:freeze101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\freeze.lib"
+            "TargetName" = "8:freeze.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -3616,8 +3616,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0FD1E1A87513472FA02F6E4EAF597324"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\iceutil101d.lib"
-            "TargetName" = "8:iceutil101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\iceutild.lib"
+            "TargetName" = "8:iceutild.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -4096,8 +4096,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1A860646380E407A9E516B8E9B0FBBA3"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icebox101d.lib"
-            "TargetName" = "8:icebox101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\iceboxd.lib"
+            "TargetName" = "8:iceboxd.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -4396,8 +4396,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_23E2759151F54FADB229A09D8799CD01"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\freeze101d.lib"
-            "TargetName" = "8:freeze101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\freezed.lib"
+            "TargetName" = "8:freezed.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -4476,8 +4476,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_261365B4C3EC4395A6383F82382853FE"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\ice101d.lib"
-            "TargetName" = "8:ice101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\iced.lib"
+            "TargetName" = "8:iced.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -4496,8 +4496,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2633D667BA6147028407945E81AF7577"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\xmltransform101d.lib"
-            "TargetName" = "8:xmltransform101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\xmltransformd.lib"
+            "TargetName" = "8:xmltransformd.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -4616,8 +4616,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_28DF70296DEB4E89913D285A9BA9D17D"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\iceutil101.lib"
-            "TargetName" = "8:iceutil101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\iceutil.lib"
+            "TargetName" = "8:iceutil.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -5076,8 +5076,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3E5E01CF4D974EDD8E469DC24FB60F54"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icestorm101d.lib"
-            "TargetName" = "8:icestorm101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icestormd.lib"
+            "TargetName" = "8:icestormd.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -5496,8 +5496,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4D16E9A0EEF3486789080BEFA2B94F94"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icessl101d.lib"
-            "TargetName" = "8:icessl101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icessld.lib"
+            "TargetName" = "8:icessld.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -5736,8 +5736,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5258F8BFDAA847768040D06281951BE2"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icexml101d.lib"
-            "TargetName" = "8:icexml101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icexmld.lib"
+            "TargetName" = "8:icexmld.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -6316,8 +6316,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6149D5E7EE1141DFABB1A883C359AAA9"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icexml101.lib"
-            "TargetName" = "8:icexml101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icexml.lib"
+            "TargetName" = "8:icexml.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -7356,8 +7356,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_83AEF8085F3D4929BC24905381A09945"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\glacier101d.lib"
-            "TargetName" = "8:glacier101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\glacierd.lib"
+            "TargetName" = "8:glacierd.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -7976,8 +7976,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_92D071098DA847A0A523B860574143CD"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\slice101.lib"
-            "TargetName" = "8:slice101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\slice.lib"
+            "TargetName" = "8:slice.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -8156,8 +8156,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_99635770E3EF4223B21EE5328AEE63E0"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icepatch101d.lib"
-            "TargetName" = "8:icepatch101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icepatchd.lib"
+            "TargetName" = "8:icepatchd.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -8196,8 +8196,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9A1F2F913A094C66B7862FC1D39A6CFC"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icebox101.lib"
-            "TargetName" = "8:icebox101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icebox.lib"
+            "TargetName" = "8:icebox.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -9036,8 +9036,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AD61954AF89C4DC083616E11D3201A4B"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icessl101.lib"
-            "TargetName" = "8:icessl101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icessl.lib"
+            "TargetName" = "8:icessl.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -9076,8 +9076,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AF8516981BF54F6F8FF4230D2965007D"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icestormservice101.lib"
-            "TargetName" = "8:icestormservice101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icestormservice.lib"
+            "TargetName" = "8:icestormservice.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -9336,8 +9336,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B78F9C8689564F9D828B716807B8FFFF"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\glacier101.lib"
-            "TargetName" = "8:glacier101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\glacier.lib"
+            "TargetName" = "8:glacier.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -9456,8 +9456,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BB702CC837BF49E18FF4B2FAA4BB93F6"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\slice101d.lib"
-            "TargetName" = "8:slice101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\sliced.lib"
+            "TargetName" = "8:sliced.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -9976,8 +9976,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C90CC711D5A84976BC3A8D5BF5D26FE7"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icestormservice101d.lib"
-            "TargetName" = "8:icestormservice101d.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icestormserviced.lib"
+            "TargetName" = "8:icestormserviced.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -10296,8 +10296,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D107BB12ACD842A0B8B325753C55EC7E"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\xmltransform101.lib"
-            "TargetName" = "8:xmltransform101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\xmltransform.lib"
+            "TargetName" = "8:xmltransform.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -11136,8 +11136,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E8BCD1BA18094639909ECC21404911F4"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\ice101.lib"
-            "TargetName" = "8:ice101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\ice.lib"
+            "TargetName" = "8:ice.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"
@@ -11196,8 +11196,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E971C00FFC174112BB18E9785B82C6E9"
             {
-            "SourcePath" = "8:..\\..\\..\\lib\\icestorm101.lib"
-            "TargetName" = "8:icestorm101.lib"
+            "SourcePath" = "8:..\\..\\..\\lib\\icestorm.lib"
+            "TargetName" = "8:icestorm.lib"
             "Tag" = "8:"
             "Folder" = "8:_185F9122815049DBBF1C6A7FD701ABC6"
             "Condition" = "8:"

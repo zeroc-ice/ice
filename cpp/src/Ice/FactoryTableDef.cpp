@@ -31,7 +31,7 @@ ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory
 void
 Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExceptionFactoryPtr& f)
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
@@ -49,7 +49,7 @@ Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExcept
 Ice::UserExceptionFactoryPtr
 Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
     return i != _eft.end() ? i->second.first : UserExceptionFactoryPtr();
 }
@@ -63,7 +63,7 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 void
 Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i != _eft.end())
     {
@@ -80,7 +80,7 @@ Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 void
 Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactoryPtr& f)
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
     if(i == _oft.end())
     {
@@ -98,7 +98,7 @@ Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactory
 Ice::ObjectFactoryPtr
 Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
     return i != _oft.end() ? i->second.first : ObjectFactoryPtr();
 }
@@ -112,7 +112,7 @@ Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 void
 Ice::FactoryTableDef::removeObjectFactory(const std::string& t)
 {
-    IceUtil::StaticMutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
     if(i != _oft.end())
     {
@@ -167,4 +167,5 @@ Ice::FactoryTableWrapper::finalize()
     }
 }
 
+IceUtil::StaticMutex Ice::FactoryTableWrapper::_m = ICE_STATIC_MUTEX_INITIALIZER;
 int Ice::FactoryTableWrapper::_initCount = 0;	// Initialization count

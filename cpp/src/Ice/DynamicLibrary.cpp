@@ -80,13 +80,18 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib = libName;
     if(!version.empty())
     {
+	// Temporary hack
+	/*
         for(string::size_type n = 0; n < version.size(); n++)
         {
             if(version[n] != '.') // Remove periods
-            {
+            { 
                 lib += version[n];
             }
         }
+	*/
+	lib += "11";
+
 #   ifdef _DEBUG
         lib += 'd';
 #   endif

@@ -16,6 +16,7 @@
 #define ICE_FACTORYTABLEDEF_H
 
 #include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectFactory.h>
 #include <string>
@@ -38,7 +39,7 @@ public:
 
 private:
 
-    IceUtil::StaticMutex _m;
+    IceUtil::Mutex _m;
 
     typedef ::std::pair<Ice::UserExceptionFactoryPtr, int> EFPair;
     typedef ::std::map< ::std::string, EFPair> EFTable;
@@ -62,7 +63,7 @@ private:
 
     void initialize();
     void finalize();
-    IceUtil::StaticMutex _m;
+    static IceUtil::StaticMutex _m;
     static int _initCount;
 };
 

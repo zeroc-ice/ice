@@ -17,73 +17,73 @@
         {
         "MsmKey" = "8:_31A8F263E2524AA5864CFE3104B46902"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICE\\DEBUG\\ICE101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICE\\DEBUG\\ICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_3DE640C892384CE585CDFE24C1559DE2"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\DEBUG\\ICESTORMSERVICE101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\DEBUG\\ICESTORMSERVICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6AD8D9520DDB452E95B8FC96C995F4F4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\XMLTRANSFORM\\DEBUG\\XMLTRANSFORM101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\XMLTRANSFORM\\DEBUG\\XMLTRANSFORM11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6AF894626E074D009ED3AAFE45618134"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEPATCH\\DEBUG\\ICEPATCH101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEPATCH\\DEBUG\\ICEPATCH11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6CAE4F4BA0DA46F694C659307BD7E862"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\FREEZE\\DEBUG\\FREEZE101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\FREEZE\\DEBUG\\FREEZE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_6DF7844A943146369CFBE7C454A672A6"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEXML\\DEBUG\\ICEXML101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEXML\\DEBUG\\ICEXML11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_87E3B905028A4D47A8F81A8C39960CA8"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\GLACIER\\DEBUG\\GLACIER101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\GLACIER\\DEBUG\\GLACIER11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_946A2F0E753F4E04931CC089B6678C0D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEUTIL\\DEBUG\\ICEUTIL101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEUTIL\\DEBUG\\ICEUTIL11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_9774B6E1CC7B49EC9BC14ECFA0D6E449"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE\\DEBUG\\SLICE101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\SLICE\\DEBUG\\SLICE11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_A668BE7FC53643E89D02384FB34DF84D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESSL\\DEBUG\\ICESSL101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESSL\\DEBUG\\ICESSL11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_F090C9C844A54086944E5DD04C9536FC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\DEBUG\\ICESTORM101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICESTORM\\DEBUG\\ICESTORM11D.PDB"
         }
         "Entry"
         {
         "MsmKey" = "8:_F0F2B0F9ACF640D5BE707663DB15A37D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\DEBUG\\ICEBOX101D.PDB"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SRC\\ICEBOX\\DEBUG\\ICEBOX11D.PDB"
         }
     }
     "Configurations"
@@ -120,8 +120,8 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_31A8F263E2524AA5864CFE3104B46902"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\Ice\\Debug\\ice101d.pdb"
-            "TargetName" = "8:ice101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\Ice\\Debug\\ice11d.pdb"
+            "TargetName" = "8:ice11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -140,8 +140,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3DE640C892384CE585CDFE24C1559DE2"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceStorm\\Debug\\icestormservice101d.pdb"
-            "TargetName" = "8:icestormservice101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceStorm\\Debug\\icestormservice11d.pdb"
+            "TargetName" = "8:icestormservice11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -160,8 +160,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6AD8D9520DDB452E95B8FC96C995F4F4"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\XMLTransform\\Debug\\xmltransform101d.pdb"
-            "TargetName" = "8:xmltransform101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\XMLTransform\\Debug\\xmltransform11d.pdb"
+            "TargetName" = "8:xmltransform11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -180,8 +180,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6AF894626E074D009ED3AAFE45618134"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IcePatch\\Debug\\icepatch101d.pdb"
-            "TargetName" = "8:icepatch101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IcePatch\\Debug\\icepatch11d.pdb"
+            "TargetName" = "8:icepatch11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -200,8 +200,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6CAE4F4BA0DA46F694C659307BD7E862"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\Freeze\\Debug\\freeze101d.pdb"
-            "TargetName" = "8:freeze101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\Freeze\\Debug\\freeze11d.pdb"
+            "TargetName" = "8:freeze11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -220,8 +220,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6DF7844A943146369CFBE7C454A672A6"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceXML\\Debug\\icexml101d.pdb"
-            "TargetName" = "8:icexml101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceXML\\Debug\\icexml11d.pdb"
+            "TargetName" = "8:icexml11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -240,8 +240,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_87E3B905028A4D47A8F81A8C39960CA8"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\Glacier\\Debug\\glacier101d.pdb"
-            "TargetName" = "8:glacier101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\Glacier\\Debug\\glacier11d.pdb"
+            "TargetName" = "8:glacier11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -260,8 +260,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_946A2F0E753F4E04931CC089B6678C0D"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceUtil\\Debug\\iceutil101d.pdb"
-            "TargetName" = "8:iceutil101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceUtil\\Debug\\iceutil11d.pdb"
+            "TargetName" = "8:iceutil11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -280,8 +280,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9774B6E1CC7B49EC9BC14ECFA0D6E449"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\Slice\\Debug\\slice101d.pdb"
-            "TargetName" = "8:slice101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\Slice\\Debug\\slice11d.pdb"
+            "TargetName" = "8:slice11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -300,8 +300,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A668BE7FC53643E89D02384FB34DF84D"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceSSL\\Debug\\icessl101d.pdb"
-            "TargetName" = "8:icessl101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceSSL\\Debug\\icessl11d.pdb"
+            "TargetName" = "8:icessl11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -320,8 +320,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F090C9C844A54086944E5DD04C9536FC"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceStorm\\Debug\\icestorm101d.pdb"
-            "TargetName" = "8:icestorm101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceStorm\\Debug\\icestorm11d.pdb"
+            "TargetName" = "8:icestorm11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"
@@ -340,8 +340,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F0F2B0F9ACF640D5BE707663DB15A37D"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Debug\\icebox101d.pdb"
-            "TargetName" = "8:icebox101d.pdb"
+            "SourcePath" = "8:..\\..\\..\\src\\IceBox\\Debug\\icebox11d.pdb"
+            "TargetName" = "8:icebox11d.pdb"
             "Tag" = "8:"
             "Folder" = "8:_E54623ED41D94401802F27F808D75315"
             "Condition" = "8:"

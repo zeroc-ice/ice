@@ -17,19 +17,19 @@
         {
         "MsmKey" = "8:_244CF18506B740C7955A2D3FBC38C60D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEUTIL11.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_27FC9482580640B983F3EA22E38E9F2B"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESSL11.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_3566FFE19A5C43BC917F0EE22FC3BB72"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICE11.DLL"
         }
         "Entry"
         {
@@ -53,7 +53,7 @@
         {
         "MsmKey" = "8:_5067ADC6FB66469C85498C4BC0E48FB4"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\GLACIER11.DLL"
         }
         "Entry"
         {
@@ -65,7 +65,7 @@
         {
         "MsmKey" = "8:_5DB06C8B0B294A78B966750BAF55EAF5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\XMLTRANSFORM101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\XMLTRANSFORM11.DLL"
         }
         "Entry"
         {
@@ -77,13 +77,13 @@
         {
         "MsmKey" = "8:_79FB15D0EE774DC0B2FE37F308576514"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\FREEZE11.DLL"
         }
         "Entry"
         {
         "MsmKey" = "8:_7B736041D70C4746839048434F834ABE"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORM11.DLL"
         }
         "Entry"
         {
@@ -101,7 +101,7 @@
         {
         "MsmKey" = "8:_8CA1F9A1FE564FDE958A55BAA2BACE83"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEXML11.DLL"
         }
         "Entry"
         {
@@ -113,7 +113,7 @@
         {
         "MsmKey" = "8:_9DCDCDD2964C4AD4AA7C850725CE7FAD"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH11.DLL"
         }
         "Entry"
         {
@@ -131,7 +131,7 @@
         {
         "MsmKey" = "8:_A93C4A4CEF004CC28993F62B041D91D7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICESTORMSERVICE11.DLL"
         }
         "Entry"
         {
@@ -149,7 +149,7 @@
         {
         "MsmKey" = "8:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\SLICE11.DLL"
         }
         "Entry"
         {
@@ -161,7 +161,7 @@
         {
         "MsmKey" = "8:_D1C72D027FF34399B49FB2F9506CF1B1"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX101.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEBOX11.DLL"
         }
         "Entry"
         {
@@ -210,8 +210,8 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_244CF18506B740C7955A2D3FBC38C60D"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\iceutil101.dll"
-            "TargetName" = "8:iceutil101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\iceutil11.dll"
+            "TargetName" = "8:iceutil11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -230,8 +230,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_27FC9482580640B983F3EA22E38E9F2B"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icessl101.dll"
-            "TargetName" = "8:icessl101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icessl11.dll"
+            "TargetName" = "8:icessl11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -250,8 +250,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3566FFE19A5C43BC917F0EE22FC3BB72"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\ice101.dll"
-            "TargetName" = "8:ice101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\ice11.dll"
+            "TargetName" = "8:ice11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -330,8 +330,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5067ADC6FB66469C85498C4BC0E48FB4"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\glacier101.dll"
-            "TargetName" = "8:glacier101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\glacier11.dll"
+            "TargetName" = "8:glacier11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -370,8 +370,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5DB06C8B0B294A78B966750BAF55EAF5"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\xmltransform101.dll"
-            "TargetName" = "8:xmltransform101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\xmltransform11.dll"
+            "TargetName" = "8:xmltransform11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -390,8 +390,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_79FB15D0EE774DC0B2FE37F308576514"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\freeze101.dll"
-            "TargetName" = "8:freeze101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\freeze11.dll"
+            "TargetName" = "8:freeze11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -410,8 +410,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7B736041D70C4746839048434F834ABE"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icestorm101.dll"
-            "TargetName" = "8:icestorm101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icestorm11.dll"
+            "TargetName" = "8:icestorm11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -450,8 +450,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8CA1F9A1FE564FDE958A55BAA2BACE83"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icexml101.dll"
-            "TargetName" = "8:icexml101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icexml11.dll"
+            "TargetName" = "8:icexml11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -490,8 +490,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9DCDCDD2964C4AD4AA7C850725CE7FAD"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icepatch101.dll"
-            "TargetName" = "8:icepatch101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icepatch11.dll"
+            "TargetName" = "8:icepatch11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -530,8 +530,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A93C4A4CEF004CC28993F62B041D91D7"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icestormservice101.dll"
-            "TargetName" = "8:icestormservice101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icestormservice11.dll"
+            "TargetName" = "8:icestormservice11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -570,8 +570,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C0C9DF0118D94D1883CCD7CF7CAABAB7"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\slice101.dll"
-            "TargetName" = "8:slice101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\slice11.dll"
+            "TargetName" = "8:slice11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"
@@ -590,8 +590,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D1C72D027FF34399B49FB2F9506CF1B1"
             {
-            "SourcePath" = "8:..\\..\\..\\bin\\icebox101.dll"
-            "TargetName" = "8:icebox101.dll"
+            "SourcePath" = "8:..\\..\\..\\bin\\icebox11.dll"
+            "TargetName" = "8:icebox11.dll"
             "Tag" = "8:"
             "Folder" = "8:_6D33957B28304672A9A3C154300861E5"
             "Condition" = "8:"

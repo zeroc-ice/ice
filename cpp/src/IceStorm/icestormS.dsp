@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icestormservice101.dll" /libpath:"../../../lib"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icestormservice11.dll" /implib:"Release/icestormservice.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestormservice101.lib ..\..\lib	copy $(OutDir)\icestormservice101.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icestormservice.lib ..\..\lib	copy $(OutDir)\icestormservice11.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
@@ -86,13 +86,13 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestormservice101d.dll" /pdbtype:sept /libpath:"../../../lib"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestormservice11d.dll" /implib:"Debug/icestormserviced.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestormservice101d.lib ..\..\lib	copy $(OutDir)\icestormservice101d.pdb ..\..\lib	copy $(OutDir)\icestormservice101d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icestormserviced.lib ..\..\lib	copy $(OutDir)\icestormservice11d.pdb ..\..\bin	copy $(OutDir)\icestormservice11d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

@@ -785,6 +785,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name sliceobS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uuid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name workqueue
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2377,6 +2383,21 @@ Package=<4>
 ###############################################################################
 
 Project: "unicode"=.\test\IceUtil\unicode\unicode.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uuid"=.\test\IceUtil\uuid\uuid.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

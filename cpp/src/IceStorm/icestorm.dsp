@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icestorm101.dll" /libpath:"../../../lib"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/icestorm11.dll" /implib:"Release/icestorm.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestorm101.lib ..\..\lib	copy $(OutDir)\icestorm101.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icestorm.lib ..\..\lib	copy $(OutDir)\icestorm11.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceStorm - Win32 Debug"
@@ -86,13 +86,13 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestorm101d.dll" /pdbtype:sept /libpath:"../../../lib"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icestorm11d.dll" /implib:"Debug/icestormd.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icestorm101d.lib ..\..\lib	copy $(OutDir)\icestorm101d.pdb ..\..\lib	copy $(OutDir)\icestorm101d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icestormd.lib ..\..\lib	copy $(OutDir)\icestorm11d.pdb ..\..\bin	copy $(OutDir)\icestorm11d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
