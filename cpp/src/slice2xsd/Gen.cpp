@@ -138,7 +138,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     O << se("xs:sequence");
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	emitElement(*q);
+	emitElement((*q)->name(), (*q)->type());
     }
     O << ee; // xs:sequence
 
@@ -191,7 +191,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	emitElement(*q);
+	emitElement((*q)->name(), (*q)->type());
     }
     
     O << ee; // xs:sequence
@@ -228,7 +228,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	emitElement(*q);
+	emitElement((*q)->name(), (*q)->type());
     }
     
     O << ee; // xs:sequence
@@ -262,7 +262,7 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     TypeStringList::const_iterator q;
     for (q = in.begin(); q != in.end(); ++q)
     {
-	emitElement(*q);
+	emitElement(q->second, q->first);
     }
     O << ee; // xs:sequence
 
@@ -282,11 +282,12 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     O << se("xs:sequence");
     if (ret)
     {
-	O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
+	emitElement("__return", ret);
+	//O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
     }
     for (q = out.begin(); q != out.end(); ++q)
     {
-	emitElement(*q);
+	emitElement(q->second, q->first);
     }
     O << ee; // xs:sequence
 
@@ -443,26 +444,12 @@ Slice::Gen::annotate(const ::std::string& type)
 }
 
 void
-Slice::Gen::emitElement(const DataMemberPtr& q)
+Slice::Gen::emitElement(const string& name, const TypePtr& type)
 {
     ostringstream os;
-    os << "xs:element name=\"" << q->name() << "\" type=\"" << toString(q->type()) << '"';
+    os << "xs:element name=\"" << name << "\" type=\"" << toString(type) << '"';
     O << se(os.str());
-    ProxyPtr proxy = ProxyPtr::dynamicCast(q->type());
-    if (proxy)
-    {
-	annotate(proxy->_class()->scoped());
-    }
-    O << ee; // xs:element
-}
-
-void
-Slice::Gen::emitElement(const TypeString& q)
-{
-    ostringstream os;
-    os << "xs:element name=\"" << q.second << "\" type=\"" << toString(q.first) << '"';
-    O << se(os.str());
-    ProxyPtr proxy = ProxyPtr::dynamicCast(q.first);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if (proxy)
     {
 	annotate(proxy->_class()->scoped());
