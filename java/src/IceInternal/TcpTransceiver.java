@@ -99,31 +99,24 @@ final class TcpTransceiver implements Transceiver
 			    _fd.register(selector, java.nio.channels.SelectionKey.OP_WRITE, null);
 			}
 			
-			while(true)
+			try
 			{
-			    try
+			    if(timeout > 0)
 			    {
-				int n;
-				if(timeout > 0)
-				{
-				    n = selector.select(timeout);
-				}
-				else
-				{
-				    n = selector.select();
-				}
-				
-				if(n == 0 && timeout > 0)
+				long start = System.currentTimeMillis();
+				int n = selector.select(timeout);
+				if(n == 0 && System.currentTimeMillis() >= start + timeout)
 				{
 				    throw new Ice.TimeoutException();
 				}
-				
-				break;
 			    }
-			    catch(java.io.InterruptedIOException ex)
+			    else
 			    {
-				continue;
+				selector.select();
 			    }
+			}
+			catch(java.io.InterruptedIOException ex)
+			{
 			}
 
 			continue;
@@ -202,31 +195,24 @@ final class TcpTransceiver implements Transceiver
 			    _fd.register(selector, java.nio.channels.SelectionKey.OP_READ, null);
 			}
 			
-			while(true)
+			try
 			{
-			    try
+			    if(timeout > 0)
 			    {
-				int n;
-				if(timeout > 0)
-				{
-				    n = selector.select(timeout);
-				}
-				else
-				{
-				    n = selector.select();
-				}
-				
-				if(n == 0 && timeout > 0)
+				long start = System.currentTimeMillis();
+				int n = selector.select(timeout);
+				if(n == 0 && System.currentTimeMillis() >= start + timeout)
 				{
 				    throw new Ice.TimeoutException();
 				}
-				
-				break;
 			    }
-			    catch(java.io.InterruptedIOException ex)
+			    else
 			    {
-				continue;
+				selector.select();
 			    }
+			}
+			catch(java.io.InterruptedIOException ex)
+			{
 			}
 
 			continue;
