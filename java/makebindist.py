@@ -152,7 +152,7 @@ for x in executables:
 
 if symlinks:
     for so in libraries:
-        if platform == "hp":
+        if platform == "hpux":
             soBase = so
             soLib = so + ".sl"
         else:
@@ -203,7 +203,7 @@ if strip:
         os.system("strip " + stripOpts + " " + bindir + "/" + x)
         os.chmod(bindir + "/" + x, 0755)
     for x in libraries:
-        if platform == "hp":
+        if platform == "hpux":
             soLib = x + ".sl"
 	elif platform == "macosx":
             soLib = x + ".dylib"
