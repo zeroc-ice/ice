@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- When unmarshaling a string sequence parameter, Ice was not clearing
+  the vector before appending elements to it. This has been fixed.
+  
 - Fixed a rare connection deadlock, that could happen if lots of long
   messages are sent rapidly in parallel, using separate threads or
   AMI.
