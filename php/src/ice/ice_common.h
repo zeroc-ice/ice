@@ -15,6 +15,12 @@
 #ifndef ICE_PHP_ICE_COMMON_H
 #define ICE_PHP_ICE_COMMON_H
 
+#ifdef _WIN32
+    // Necessary for TryEnterCriticalSection.
+#   define _WIN32_WINNT 0x0400
+#   include <winsock2.h>
+#endif
+
 #include <Ice/Ice.h>
 
 #ifdef WIN32
