@@ -48,8 +48,29 @@ public:
 
     void swap(BasicStream&);
 
-    void resize(int);
-    void reserve(size_t);
+    void resize(Container::size_type sz)
+    {
+	if(sz > _messageSizeMax)
+	{
+	    throwMemoryLimitException(__FILE__, __LINE__);
+	}
+	
+	Container::size_type capacity = b.capacity();
+	if(capacity < sz)
+	{
+	    //
+	    // COMPILERBUG: Stupid Visual C++ defines max as a
+	    // macro. But I can't undefine it in a header file,
+	    // because this might cause side effects with other code
+	    // that depends on this macro being defined.
+	    //
+	    //b.reserve(std::max(sz, 2 * capacity));
+	    b.reserve(sz > 2 * capacity ? sz : 2 * capacity);
+	}
+
+	b.resize(sz);
+    }
+    void reserve(Container::size_type);
 
     void startWriteEncaps();
     void endWriteEncaps();
@@ -76,27 +97,37 @@ public:
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
-    void writeBlob(const Ice::Byte*, size_t);
-    void readBlob(Ice::Byte*, size_t);
+    void writeBlob(const Ice::Byte*, Container::size_type);
+    void readBlob(Ice::Byte*, Container::size_type);
 
-    // Performance critical function inlined, as writing single bytes
-    // is used in many places in Ice code.
     void write(Ice::Byte v)
     {
 	b.push_back(v);
     }
     void write(const std::vector<Ice::Byte>&);
-    void read(Ice::Byte&);
+    void read(Ice::Byte& v)
+    {
+	if(i >= b.end())
+	{
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+	v = *i++;
+    }
     void read(std::vector<Ice::Byte>&);
 
-    // Performance critical function inlined, as writing single bools
-    // is used in many places in Ice code.
     void write(bool v)
     {
 	b.push_back(static_cast<Ice::Byte>(v));
     }
     void write(const std::vector<bool>&);
-    void read(bool&);
+    void read(bool& v)
+    {
+	if(i >= b.end())
+	{
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+	v = *i++;
+    }
     void read(std::vector<bool>&);
 
     void write(Ice::Short);
@@ -158,6 +189,15 @@ public:
 private:
 
     //
+    // I can't throw these exception from inline functions from within
+    // this file, because I cannot include the header with the
+    // exceptions. Doing so would screw up the whole include file
+    // ordering.
+    //
+    void throwUnmarshalOutOfBoundsException(const char*, int);
+    void throwMemoryLimitException(const char*, int);
+
+    //
     // Optimization. The instance may not be deleted while a
     // stack-allocated BasicStream still holds it.
     //
@@ -211,7 +251,7 @@ private:
     int _traceSlicing;
     const char* _slicingCat;
 
-    size_t _messageSizeMax;
+    const Container::size_type _messageSizeMax;
 };
 
 }

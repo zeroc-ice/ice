@@ -646,7 +646,6 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     assert(pos >= headerSize);
     stream.i = stream.b.begin();
     stream.i += 8;
-/*
     ByteSeq m(sizeof(magic), 0);
     stream.readBlob(m, static_cast<Int>(sizeof(magic)));
     if(!equal(m.begin(), m.end(), magic))
@@ -683,7 +682,6 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	ex.minor = static_cast<unsigned char>(encodingMinor);
 	throw ex;
     }
-*/
     Byte messageType;
     stream.read(messageType);
     Byte compress;

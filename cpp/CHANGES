@@ -1,94 +1,120 @@
 Changes since version 1.1.0
 ---------------------------
 
-- Major Freeze update:
-  - Removed the lowest Freeze layer. You should use instead Berkeley DB
-    directly.
+- Performance improvements due to inlining of some critical functions
+  in BasicStream.
 
-  - For Freeze Maps and Evictors, the underlying Berkeley DB environment
-    is now always transactional. New configurations variables:
-      - Freeze.<envName>.DbHome provides the path to the DB home, 
-        and defaults to <envName>.
+- Added menu with several options to throughput demo.
+
+- Major Freeze update:
+
+  - Removed the lowest Freeze layer. You should use instead Berkeley
+    DB directly.
+
+  - For Freeze Maps and Evictors, the underlying Berkeley DB
+    environment is now always transactional. New configurations
+    variables:
+
+      - Freeze.<envName>.DbHome provides the path to the DB home, and
+        defaults to <envName>.
+
       - Freeze.<envName>.DbRecoverFatal triggers "fatal recovery" when
         set to a value other than 0 (defaults to 0).
-      - Freeze.<envName>.DbPrivate when set to a value other than 0 tells
-        Berkeley DB to use process private memory instead of shared 
-        memory. Defaults to 1. Set it to 0 when you want to run db_stat
-        (or another Berkeley DB utility) on a running environment.
-      - Freeze.<envName>.DbCheckpointPeriod: each Berkeley DB 
-        environment created by Freeze has an associated thread that 
+
+      - Freeze.<envName>.DbPrivate when set to a value other than 0
+        tells Berkeley DB to use process private memory instead of
+        shared memory. Defaults to 1. Set it to 0 when you want to run
+        db_stat (or another Berkeley DB utility) on a running
+        environment.
+
+      - Freeze.<envName>.DbCheckpointPeriod: each Berkeley DB
+        environment created by Freeze has an associated thread that
         checkpoints this environment every DbCheckpointPeriod minutes.
         Defaults to 3 minutes.
+
       - Freeze.<envName>.PeriodicCheckpointMinSize defines the minimum
         size in kbytes for the periodic checkpoint (see above). This
         value is passed to Berkeley DB's checkpoint function. Defaults
         to 0 (no minimum).
+
       - Freeze.<envName>.OldLogsAutoDelete: when set to a value other
         than 0, old transactional logs no longer in use are deleted
         after each periodic checkpoint. Defaults to 1.
-     Such a Freeze-created Berkeley DB environment is created and opened
-     when the first Freeze Map or Evictor using it is created, and is 
-     closed when the last Freeze Map or Evictor using it is closed.
+
+     Such a Freeze-created Berkeley DB environment is created and
+     opened when the first Freeze Map or Evictor using it is created,
+     and is closed when the last Freeze Map or Evictor using it is
+     closed.
 
   - Freeze Map update:
-    Freeze Maps are now opened/created directly using their constructor
+
+    Freeze Maps are now opened/created directly using their
+    constructor:
+
     C++: DBMap(const Ice::CommunicatorPtr& communicator, 
                const std::string& envName, 
                const std::string& dbName, 
                bool createDb = true);
+
     Java: public
           Map(Ice.Communicator communicator, 
               String envName, 
               String dbName, 
               boolean createDb);
 
-    In Java, it is necessary to call close() on the Map if you want
-    to close the underlying Berkeley DB database (and indirectly
-    environment) before the Map is finalized.  
+    In Java, it is necessary to call close() on the Map if you want to
+    close the underlying Berkeley DB database (and indirectly
+    environment) before the Map is finalized.
 
     As a consequence of using a transactional Berkeley DB environment,
     all Map writes are now transactional:
-    - non-iterator writes use DB_AUTO_COMMIT
-    - writable iterators (non-const C++ iterators, Java Iterators) have
-      an associated transaction that is committed when the iterator is
-      closed.
 
-    Freeze Maps support concurrent access: several threads can use (read
-    and write) the same Map concurrently without any application level
-    locking: the locking is handled by Berkeley DB. However iterators are
-    not thread safe: concurrent access to a given iterator (which is very
-    unusual) needs to be synchronized by the application.
-    Concurrent reads and writes to the same Map can generate deadlocks, 
-    even with a single writer. Berkeley DB detects such deadlocks and 
-    "kills" one locker (iterator or transaction) to resolve it. For 
-    non-iterator access, Freeze handles such exception and retries 
-    transparently. When using iterators, a DBDeadlockException is raised 
-    to the application, which is responsible to close the affected 
-    iterator(s) and retry.
+    - Non-iterator writes use DB_AUTO_COMMIT.
+
+    - Writable iterators (non-const C++ iterators, Java Iterators)
+      have an associated transaction that is committed when the
+      iterator is closed.
+
+    Freeze Maps support concurrent access: several threads can use
+    (read and write) the same Map concurrently without any application
+    level locking: the locking is handled by Berkeley DB. However
+    iterators are not thread safe: concurrent access to a given
+    iterator (which is very unusual) needs to be synchronized by the
+    application.  Concurrent reads and writes to the same Map can
+    generate deadlocks, even with a single writer. Berkeley DB detects
+    such deadlocks and "kills" one locker (iterator or transaction) to
+    resolve it. For non-iterator access, Freeze handles such exception
+    and retries transparently. When using iterators, a
+    DBDeadlockException is raised to the application, which is
+    responsible to close the affected iterator(s) and retry.
     Serialized access or concurrent reads never produce deadlocks.
 
     In Java, iterators are no longer closed as a side effect of other
     write operations. Doing so would require adding synchronization to
     all Java iterator methods.
+
     Currently, Java Freeze Map iterators are closed either through the
     proprietary close() method, or when hasNext() returns false (or
-    next() throws NoSuchElementException, which is equivalent). This 
+    next() throws NoSuchElementException, which is equivalent). This
     latter behavior may be removed soon.
 
-    In C++, the copy constructor and assignment operator of Freeze
-    Map iterators duplicate the source iterator. When the source
-    iterator is non-const, the duplicate iterator will use the same 
-    transaction. This transaction is committed only when its last 
+    In C++, the copy constructor and assignment operator of Freeze Map
+    iterators duplicate the source iterator. When the source iterator
+    is non-const, the duplicate iterator will use the same
+    transaction. This transaction is committed only when its last
     associated iterator is closed (i.e. destroyed or assigned end()).
   
  - Freeze Evictor update:
-    Freeze Maps are now opened/created directly using a static
-    createEvictor function/method:
+
+   Freeze Maps are now opened/created directly using a static
+   createEvictor function/method:
+
     C++: Freeze::EvictorPtr
          Freeze::createEvictor(const Ice::CommunicatorPtr& communicator, 
                                const std::string& envName, 
                                const std::string& dbName, 
                                bool createDb = true);
+
     Java (in class Freeze.Util): 
          public static Evictor
          createEvictor(Ice.Communicator communicator, 
@@ -97,12 +123,15 @@ Changes since version 1.1.0
                        boolean createDb);
 
     The persistence strategies have been removed. 
-    Ice objects are now saved by a background thread, controlled by the
-    following configuration variables.
-     - Freeze.Evictor.<envName>.<dbName>.SaveSizeTrigger: as soon as 
-       SaveSizeTrigger objects have been created, modified or destroyed, 
-       the background wakes up to save them. When set to a negative value,
-       there is no size trigger. Defaults to 10.
+
+    Ice objects are now saved by a background thread, controlled by
+   the following configuration variables.
+
+     - Freeze.Evictor.<envName>.<dbName>.SaveSizeTrigger: as soon as
+       SaveSizeTrigger objects have been created, modified or
+       destroyed, the background wakes up to save them. When set to a
+       negative value, there is no size trigger. Defaults to 10.
+
      - Freeze.Evictor.<envName>.<dbName>.SavePeriod: the saving thread
        wakes up every SavePeriod ms and saves any created, modified or
        destroyed object. When set to 0, there is no periodic wake up.
@@ -114,42 +143,45 @@ Changes since version 1.1.0
 
     When saving an object, the background saving thread locks this
     object. In Java, it locks the object itself; in C++, the object is
-    expected to implement IceUtil::AbstractMutex. Naturally the 
-    application must use the same synchronization to access the 
+    expected to implement IceUtil::AbstractMutex. Naturally the
+    application must use the same synchronization to access the
     persistent state of the object.
  
-    The configuration variable Freeze.Evictor.NoSyncAllowed can be
-    set to a value other than 0 to allow C++ objects that do not
-    implement IceUtil::AbstractMutex to be saved For such objects, no 
+    The configuration variable Freeze.Evictor.NoSyncAllowed can be set
+    to a value other than 0 to allow C++ objects that do not implement
+    IceUtil::AbstractMutex to be saved For such objects, no
     synchronization is performed: it is recommended to only use this
-    feature with explict saves (SaveSizeTrigger set to -1 and 
+    feature with explict saves (SaveSizeTrigger set to -1 and
     SavePeriod set to 0). NoSyncAllowed defaults to 0.
 
- - Freeze and XMLTransform now require Berkeley DB 4.1. They no 
-   longer compile with older Berkeley DB releases.
+ - Freeze and XMLTransform now require Berkeley DB 4.1. They no longer
+   compile with older Berkeley DB releases.
 
-   With Visual C++, you need to use the same project directory settings 
-   when building Berkeley DB and Ice. In particular if you build Ice
-   with STLPort, you need to build Berkeley DB with the same STLPort.
+   With Visual C++, you need to use the same project directory
+   settings when building Berkeley DB and Ice. In particular if you
+   build Ice with STLPort, you need to build Berkeley DB with the same
+   STLPort.
 
-- Added new C++ AbstractMutex class, and helper templates 
-  (AbstractMutexI, AbstractMutexReadI, AbstractMutexWriteI) to easily 
-  implement AbstractMutex using Mutex, RecMutex, Monitor or RWRecMutex.
+- Added new C++ AbstractMutex class, and helper templates
+  (AbstractMutexI, AbstractMutexReadI, AbstractMutexWriteI) to easily
+  implement AbstractMutex using Mutex, RecMutex, Monitor or
+  RWRecMutex.
 
-- Fixed a bug in the implementation of StaticMutex on Windows, which 
+- Fixed a bug in the implementation of StaticMutex on Windows, which
   could result in a crash at exit.
 
-- Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These properties
-  control the size of the UDP receive and send buffers as well as controlling
-  the maximum size of a datagram invocation. If a datagram exceeds the
-  configured size, the Ice run time throws a DatagramLimitException. (Note that,
-  on the receiving size, detection of this condition is dependent on the
-  local UDP implementation -- some UDP implementations silently drop datagrams
-  that are too large to fit into the receive buffer instead of reporting
-  the error or delivering a truncated datagram.)
+- Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These
+  properties control the size of the UDP receive and send buffers as
+  well as controlling the maximum size of a datagram invocation. If a
+  datagram exceeds the configured size, the Ice run time throws a
+  DatagramLimitException. (Note that, on the receiving size, detection
+  of this condition is dependent on the local UDP implementation --
+  some UDP implementations silently drop datagrams that are too large
+  to fit into the receive buffer instead of reporting the error or
+  delivering a truncated datagram.)
 
-- Added Ice.Warn.Datagrams. This property prints a warning on the server
-  side if a DatagramLimitException is thrown.
+- Added Ice.Warn.Datagrams. This property prints a warning on the
+  server side if a DatagramLimitException is thrown.
 
 - Added Ice.MessageSizeMax property. This property controls the
   maximum message size accepted by the Ice protocol in kiloBytes. The
@@ -182,7 +214,6 @@ Changes since version 1.1.0
   function, to insert or replace an element, like the old insert. This
   corresponds to the behavior of Berkeley DB's DB->put().
 
-
 - Added a test to the Slice parser to complain if an operation on a
   local interface or class has an exception specification.
 
@@ -191,13 +222,13 @@ Changes since version 1.1.0
   such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from
   slipping through undetected.
 
-- Changed the mapping of the Slice byte type: ::Ice::Byte is now a
-  typedef for unsigned char. (Previously, ::Ice::Byte was a typedef to
+- Changed the mapping of the Slice byte type: Ice::Byte is now a
+  typedef for unsigned char. (Previously, Ice::Byte was a typedef to
   char.) This change guarantees that byte values are always in the
   range 0..255 (instead of either -128..127 or 0..255, depending on
   the CPU architecture). This change also permits function overloading
-  for ::Ice::Byte and char (which can be useful if you use both
-  strings and byte sequences).
+  for Ice::Byte and char (which can be useful if you use both strings
+  and byte sequences).
 
 - Fixed a performance problem in Glacier which would occur when using
   message batching.
