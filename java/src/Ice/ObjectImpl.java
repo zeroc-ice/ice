@@ -21,20 +21,6 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
     }
 
-    public boolean
-    equals(java.lang.Object rhs)
-    {
-        try
-        {
-            Object r = (Object)rhs;
-            return this == r;
-        }
-        catch(ClassCastException ex)
-        {
-        }
-        return false;
-    }
-
     public java.lang.Object
     clone()
         throws java.lang.CloneNotSupportedException
@@ -212,6 +198,8 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
         synchronized(_activeFacetMap)
         {
+	    __os.writeTypeId("::Ice::Object");
+	    __os.startWriteSlice();
             final int sz = _activeFacetMap.size();
             __os.writeSize(sz);
 
@@ -223,14 +211,38 @@ public class ObjectImpl implements Object, java.lang.Cloneable
                 __os.writeString(keys[i]);
                 __os.writeObject((Object)_activeFacetMap.get(keys[i]));
             }
+	    __os.endWriteSlice();
         }
     }
 
+    private class Patcher implements Ice.Patcher
+    {
+	Patcher(String key)
+	{
+	   __key = key;
+	}
+
+        public void
+	patch(Ice.Object v)
+	{
+	    _activeFacetMap.put(__key, v);
+	}
+
+	private String __key;
+    }
+
     public void
-    __read(IceInternal.BasicStream __is)
+    __read(IceInternal.BasicStream __is, boolean __rid)
     {
         synchronized(_activeFacetMap)
         {
+	    if(__rid)
+	    {
+	        String myId = __is.readTypeId();
+	    }
+
+	    __is.startReadSlice();
+
             int sz = __is.readSize();
 
             _activeFacetMap.clear();
@@ -238,9 +250,10 @@ public class ObjectImpl implements Object, java.lang.Cloneable
             while(sz-- > 0)
             {
                 String key = __is.readString();
-                Object value = __is.readObject("", null);
-                _activeFacetMap.put(key, value);
+		__is.readObject(new Patcher(key));
             }
+
+	    __is.endReadSlice();
         }
     }
 

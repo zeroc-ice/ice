@@ -15,43 +15,96 @@
 #ifndef CLIENTTEST_ICE
 #define CLIENTTEST_ICE
 
-exception Base
+class SBase
 {
-    string b;
+    string sb;
 };
 
-exception KnownDerived extends Base
+class SBSKnownDerived extends SBase
 {
-    string kd;
+    string sbskd;
 };
 
-exception KnownIntermediate extends Base
+class B
 {
-    string ki;
+    string sb;
+    B pb;
 };
 
-exception KnownMostDerived extends KnownIntermediate
+class D1 extends B
 {
-    string kmd;
+    string sd1;
+    B pd1;
 };
+
+sequence<B> BSeq;
+
+class SS1
+{
+    BSeq s;
+};
+
+class SS2
+{
+    BSeq s;
+};
+
+struct SS
+{
+    SS1 c1;
+    SS2 c2;
+};
+
+exception BaseException
+{
+    string sbe;
+    B pb;
+};
+
+exception DerivedException extends BaseException
+{
+    string sde;
+    D1 pd1;
+};
+
+class Forward;		// Forward-declared class defined in another compilation unit
 
 interface Test
 {
-    void baseAsBase() throws Base;
-    void unknownDerivedAsBase() throws Base;
-    void knownDerivedAsBase() throws Base;
-    void knownDerivedAsKnownDerived() throws KnownDerived;
+    Object SBaseAsObject();
+    SBase SBaseAsSBase();
+    SBase SBSKnownDerivedAsSBase();
+    SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
 
-    void unknownIntermediateAsBase() throws Base;
-    void knownIntermediateAsBase() throws Base;
-    void knownMostDerivedAsBase() throws Base;
-    void knownIntermediateAsknownIntermediate() throws KnownIntermediate;
-    void knownMostDerivedAsKnownIntermediate() throws KnownIntermediate;
-    void knownMostDerivedAsKnownMostDerived() throws KnownMostDerived;
+    SBase SBSUnknownDerivedAsSBase();
 
-    void unknownMostDerived1AsBase() throws Base;
-    void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
-    void unknownMostDerived2AsBase() throws Base;
+    Object SUnknownAsObject();
+
+    B oneElementCycle();
+    B twoElementCycle();
+    B D1AsB();
+    D1 D1AsD1();
+    B D2AsB();
+
+    void paramTest1(out B p1, out B p2);
+    void paramTest2(out B p2, out B p1);
+    B paramTest3(out B p1, out B p2);
+    B paramTest4(out B p);
+
+    B returnTest1(out B p1, out B p2);
+    B returnTest2(out B p2, out B p1);
+    B returnTest3(B p1, B p2);
+
+    SS sequenceTest(SS1 p1, SS2 p2);
+
+    void throwKnown();
+    void throwUnknown();
+    void throwBaseAsBase() throws BaseException;
+    void throwDerivedAsBase() throws BaseException;
+    void throwDerivedAsDerived() throws DerivedException;
+    void throwUnknownDerivedAsBase() throws BaseException;
+
+    void useForward(out Forward f);	// Use of forward-declared class to verify that code is generated correctly.
 
     void shutdown();
 };

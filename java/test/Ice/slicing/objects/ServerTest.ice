@@ -17,24 +17,32 @@
 
 #include <ClientTest.ice>
 
-exception UnknownDerived extends Base
+class SBSUnknownDerived extends SBase
 {
-    string ud;
+    string sbsud;
 };
 
-exception UnknownIntermediate extends Base
+class SUnknown
 {
-   string ui;
+    string su;
 };
 
-exception UnknownMostDerived1 extends KnownIntermediate
+class D2 extends B
 {
-   string umd1;
+    string sd2;
+    B pd2;
 };
 
-exception UnknownMostDerived2 extends UnknownIntermediate
+class D4 extends B
 {
-   string umd2;
+    B p1;
+    B p2;
+};
+
+exception UnknownDerivedException extends BaseException
+{
+    string sude;
+    D2 pd2;
 };
 
 #endif

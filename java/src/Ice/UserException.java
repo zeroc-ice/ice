@@ -33,9 +33,6 @@ public abstract class UserException extends Exception
         return sw.toString();
     }
 
-    public abstract String[]
-    __getExceptionIds();
-
     public abstract void
     __write(IceInternal.BasicStream __os);
 

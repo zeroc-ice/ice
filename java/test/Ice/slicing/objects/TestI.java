@@ -26,139 +26,325 @@ public final class TestI extends _TestDisp
         _adapter.getCommunicator().shutdown();
     }
 
-    public void
-    baseAsBase(Ice.Current current)
-        throws Base
+    public Ice.Object
+    SBaseAsObject(Ice.Current current)
     {
-        Base b = new Base();
-	b.b = "Base.b";
-	throw b;
+	SBase sb = new SBase();
+	sb.sb = "SBase.sb";
+	return sb;
+    }
+
+    public SBase
+    SBaseAsSBase(Ice.Current current)
+    {
+	SBase sb = new SBase();
+	sb.sb = "SBase.sb";
+	return sb;
+    }
+
+    public SBase
+    SBSKnownDerivedAsSBase(Ice.Current current)
+    {
+	SBSKnownDerived sbskd = new SBSKnownDerived();
+	sbskd.sb = "SBSKnownDerived.sb";
+	sbskd.sbskd = "SBSKnownDerived.sbskd";
+	return sbskd;
+    }
+
+    public SBSKnownDerived
+    SBSKnownDerivedAsSBSKnownDerived(Ice.Current current)
+    {
+	SBSKnownDerived sbskd = new SBSKnownDerived();
+	sbskd.sb = "SBSKnownDerived.sb";
+	sbskd.sbskd = "SBSKnownDerived.sbskd";
+	return sbskd;
+    }
+
+    public SBase
+    SBSUnknownDerivedAsSBase(Ice.Current current)
+    {
+	SBSUnknownDerived sbsud = new SBSUnknownDerived();
+	sbsud.sb = "SBSUnknownDerived.sb";
+	sbsud.sbsud = "SBSUnknownDerived.sbsud";
+	return sbsud;
+    }
+
+    public Ice.Object
+    SUnknownAsObject(Ice.Current current)
+    {
+	SUnknown su = new SUnknown();
+	su.su = "SUnknown.su";
+	return su;
+    }
+
+    public B
+    oneElementCycle(Ice.Current current)
+    {
+	B b = new B();
+	b.sb = "B1.sb";
+	b.pb = b;
+	return b;
+    }
+
+    public B
+    twoElementCycle(Ice.Current current)
+    {
+	B b1 = new B();
+	b1.sb = "B1.sb";
+	B b2 = new B();
+	b2.sb = "B2.sb";
+	b2.pb = b1;
+	b1.pb = b2;
+	return b1;
+    }
+
+    public B
+    D1AsB(Ice.Current current)
+    {
+	D1 d1 = new D1();
+	d1.sb = "D1.sb";
+	d1.sd1 = "D1.sd1";
+	D2 d2 = new D2();
+	d2.pb = d1;
+	d2.sb = "D2.sb";
+	d2.sd2 = "D2.sd2";
+	d2.pd2 = d1;
+	d1.pb = d2;
+	d1.pd1 = d2;
+	return d1;
+    }
+
+    public D1
+    D1AsD1(Ice.Current current)
+    {
+	D1 d1 = new D1();
+	d1.sb = "D1.sb";
+	d1.sd1 = "D1.sd1";
+	D2 d2 = new D2();
+	d2.pb = d1;
+	d2.sb = "D2.sb";
+	d2.sd2 = "D2.sd2";
+	d2.pd2 = d1;
+	d1.pb = d2;
+	d1.pd1 = d2;
+	return d1;
+    }
+
+    public B
+    D2AsB(Ice.Current current)
+    {
+	D2 d2 = new D2();
+	d2.sb = "D2.sb";
+	d2.sd2 = "D2.sd2";
+	D1 d1 = new D1();
+	d1.pb = d2;
+	d1.sb = "D1.sb";
+	d1.sd1 = "D1.sd1";
+	d1.pd1 = d2;
+	d2.pb = d1;
+	d2.pd2 = d1;
+	return d2;
     }
 
     public void
-    unknownDerivedAsBase(Ice.Current current)
-        throws Base
+    paramTest1(BHolder p1, BHolder p2, Ice.Current current)
     {
-	UnknownDerived d = new UnknownDerived();
-	d.b = "UnknownDerived.b";
-	d.ud = "UnknownDerived.ud";
-	throw d;
+	D1 d1 = new D1();
+	d1.sb = "D1.sb";
+	d1.sd1 = "D1.sd1";
+	D2 d2 = new D2();
+	d2.pb = d1;
+	d2.sb = "D2.sb";
+	d2.sd2 = "D2.sd2";
+	d2.pd2 = d1;
+	d1.pb = d2;
+	d1.pd1 = d2;
+	p1.value = d1;
+	p2.value = d2;
     }
 
     public void
-    knownDerivedAsBase(Ice.Current current)
-        throws Base
+    paramTest2(BHolder p1, BHolder p2, Ice.Current current)
     {
-	KnownDerived d = new KnownDerived();
-	d.b = "KnownDerived.b";
-	d.kd = "KnownDerived.kd";
-	throw d;
+	paramTest1(p2, p1, current);
+    }
+
+    public B
+    paramTest3(BHolder p1, BHolder p2, Ice.Current current)
+    {
+	D2 d2 = new D2();
+	d2.sb = "D2.sb (p1 1)";
+	d2.pb = null;
+	d2.sd2 = "D2.sd2 (p1 1)";
+	p1.value = d2;
+
+	D1 d1 = new D1();
+	d1.sb = "D1.sb (p1 2)";
+	d1.pb = null;
+	d1.sd1 = "D1.sd2 (p1 2)";
+	d1.pd1 = null;
+	d2.pd2 = d1;
+
+	D2 d4 = new D2();
+	d4.sb = "D2.sb (p2 1)";
+	d4.pb = null;
+	d4.sd2 = "D2.sd2 (p2 1)";
+	p2.value = d4;
+
+	D1 d3 = new D1();
+	d3.sb = "D1.sb (p2 2)";
+	d3.pb = null;
+	d3.sd1 = "D1.sd2 (p2 2)";
+	d3.pd1 = null;
+	d4.pd2 = d3;
+
+	return d3;
+    }
+
+    public B
+    paramTest4(BHolder p1, Ice.Current current)
+    {
+	D4 d4 = new D4();
+	d4.sb = "D4.sb (1)";
+	d4.pb = null;
+	d4.p1 = new B();
+	d4.p1.sb = "B.sb (1)";
+	d4.p2 = new B();
+	d4.p2.sb = "B.sb (2)";
+	p1.value = d4;
+	return d4.p2;
+    }
+
+    public B
+    returnTest1(BHolder p1, BHolder p2, Ice.Current current)
+    {
+	Ice.Current c;
+	paramTest1(p1, p2, current);
+	return p1.value;
+    }
+
+    public B
+    returnTest2(BHolder p1, BHolder p2, Ice.Current current)
+    {
+	Ice.Current c;
+	paramTest1(p2, p1, current);
+	return p1.value;
+    }
+
+    public B
+    returnTest3(B p1, B p2, Ice.Current current)
+    {
+	return p1;
+    }
+
+    public SS
+    sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
+    {
+	SS ss = new SS();
+	ss.c1 = p1;
+	ss.c2 = p2;
+	return ss;
     }
 
     public void
-    knownDerivedAsKnownDerived(Ice.Current current)
-        throws KnownDerived
+    throwKnown(Ice.Current current)
+        throws BaseException
     {
-	KnownDerived d = new KnownDerived();
-	d.b = "KnownDerived.b";
-	d.kd = "KnownDerived.kd";
-	throw d;
+	BaseException be = new BaseException();
+	be.sbe = "sbe";
+	be.pb = new B();
+	be.pb.sb = "sb";
+	be.pb.pb = be.pb;
+	throw be;
     }
 
     public void
-    unknownIntermediateAsBase(Ice.Current current)
-        throws Base
+    throwUnknown(Ice.Current current)
+        throws BaseException
     {
-	UnknownIntermediate ui = new UnknownIntermediate();
-	ui.b = "UnknownIntermediate.b";
-	ui.ui = "UnknownIntermediate.ui";
-	throw ui;
+	UnknownDerivedException ude = new UnknownDerivedException();
+	ude.sude = "sude";
+	ude.pd2 = new D2();
+	ude.pd2.sb = "sb";
+	ude.pd2.pb = ude.pd2;
+	ude.pd2.sd2 = "sd2";
+	ude.pd2.pd2 = ude.pd2;
+	throw ude;
     }
 
     public void
-    knownIntermediateAsBase(Ice.Current current)
-        throws Base
+    throwBaseAsBase(Ice.Current current)
+        throws BaseException
     {
-	KnownIntermediate ki = new KnownIntermediate();
-	ki.b = "KnownIntermediate.b";
-	ki.ki = "KnownIntermediate.ki";
-	throw ki;
+	BaseException be = new BaseException();
+	be.sbe = "sbe";
+	be.pb = new B();
+	be.pb.sb = "sb";
+	be.pb.pb = be.pb;
+	throw be;
     }
 
     public void
-    knownMostDerivedAsBase(Ice.Current current)
-        throws Base
+    throwDerivedAsBase(Ice.Current current)
+        throws BaseException
     {
-	KnownMostDerived kmd = new KnownMostDerived();
-	kmd.b = "KnownMostDerived.b";
-	kmd.ki = "KnownMostDerived.ki";
-	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	DerivedException de = new DerivedException();
+	de.sbe = "sbe";
+	de.pb = new B();
+	de.pb.sb = "sb1";
+	de.pb.pb = de.pb;
+	de.sde = "sde1";
+	de.pd1 = new D1();
+	de.pd1.sb = "sb2";
+	de.pd1.pb = de.pd1;
+	de.pd1.sd1 = "sd2";
+	de.pd1.pd1 = de.pd1;
+	throw de;
     }
 
     public void
-    knownIntermediateAsknownIntermediate(Ice.Current current)
-        throws KnownIntermediate
+    throwDerivedAsDerived(Ice.Current current)
+        throws DerivedException
     {
-	KnownIntermediate ki = new KnownIntermediate();
-	ki.b = "KnownIntermediate.b";
-	ki.ki = "KnownIntermediate.ki";
-	throw ki;
+	DerivedException de = new DerivedException();
+	de.sbe = "sbe";
+	de.pb = new B();
+	de.pb.sb = "sb1";
+	de.pb.pb = de.pb;
+	de.sde = "sde1";
+	de.pd1 = new D1();
+	de.pd1.sb = "sb2";
+	de.pd1.pb = de.pd1;
+	de.pd1.sd1 = "sd2";
+	de.pd1.pd1 = de.pd1;
+	throw de;
     }
 
     public void
-    knownMostDerivedAsKnownIntermediate(Ice.Current current)
-        throws KnownIntermediate
+    throwUnknownDerivedAsBase(Ice.Current current)
+    	throws BaseException
     {
-	KnownMostDerived kmd = new KnownMostDerived();
-	kmd.b = "KnownMostDerived.b";
-	kmd.ki = "KnownMostDerived.ki";
-	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	D2 d2 = new D2();
+	d2.sb = "sb d2";
+	d2.pb = d2;
+	d2.sd2 = "sd2 d2";
+	d2.pd2 = d2;
+
+	UnknownDerivedException ude = new UnknownDerivedException();
+	ude.sbe = "sbe";
+	ude.pb = d2;
+	ude.sude = "sude";
+	ude.pd2 = d2;
+	throw ude;
     }
 
     public void
-    knownMostDerivedAsKnownMostDerived(Ice.Current current)
-        throws KnownMostDerived
+    useForward(ForwardHolder f, Ice.Current current)
     {
-	KnownMostDerived kmd = new KnownMostDerived();
-	kmd.b = "KnownMostDerived.b";
-	kmd.ki = "KnownMostDerived.ki";
-	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	f.value = new Forward();
+	f.value.h = new Hidden();
+	f.value.h.f = f.value;
     }
 
-    public void
-    unknownMostDerived1AsBase(Ice.Current current)
-        throws Base
-    {
-	UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-	umd1.b = "UnknownMostDerived1.b";
-	umd1.ki = "UnknownMostDerived1.ki";
-	umd1.umd1 = "UnknownMostDerived1.umd1";
-	throw umd1;
-    }
-
-    public void
-    unknownMostDerived1AsKnownIntermediate(Ice.Current current)
-        throws KnownIntermediate
-    {
-	UnknownMostDerived1 umd1 = new UnknownMostDerived1();
-	umd1.b = "UnknownMostDerived1.b";
-	umd1.ki = "UnknownMostDerived1.ki";
-	umd1.umd1 = "UnknownMostDerived1.umd1";
-	throw umd1;
-    }
-
-    public void
-    unknownMostDerived2AsBase(Ice.Current current)
-        throws Base
-    {
-	UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-	umd2.b = "UnknownMostDerived2.b";
-	umd2.ui = "UnknownMostDerived2.ui";
-	umd2.umd2 = "UnknownMostDerived2.umd2";
-	throw umd2;
-    }
     private Ice.ObjectAdapter _adapter;
 }

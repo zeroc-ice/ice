@@ -11,7 +11,7 @@ the terms of the GNU General Public License version 2 as published by
 the Free Software Foundation.
 
 -->
-<project name="test_Ice_slicing_exceptions" default="all" basedir=".">
+<project name="test_Ice_slicing_objects" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../../.."/>
@@ -35,7 +35,7 @@ the Free Software Foundation.
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
-            <fileset dir="." includes="ClientTest.ice ServerTest.ice"/>
+            <fileset dir="." includes="ClientTest.ice ClientPrivate.ice Forward.ice ServerTest.ice"/>
         </slice2java>
     </target>
 
