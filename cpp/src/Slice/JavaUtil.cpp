@@ -148,8 +148,8 @@ Slice::JavaGenerator::output() const
     return *_out;
 }
 
-string
-Slice::JavaGenerator::fixKwd(const string& name) const
+static string
+lookupKwd(const string& name)
 {
     //
     // Keyword list. *Must* be kept in alphabetical order.
@@ -159,10 +159,10 @@ Slice::JavaGenerator::fixKwd(const string& name) const
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "class", "clone", "const", "continue", "default", "do",
         "double", "else", "equals", "extends", "false", "final", "finalize",
-        "finally", "float", "for", "getClass", "goto", "hashCode", "if",
-        "implements", "import", "instanceof", "int", "interface", "long",
-        "native", "new", "notify", "notifyAll", "null", "package", "private",
-        "protected", "public", "return", "short", "static", "super", "switch",
+	"finally", "float", "for", "getClass", "goto", "hashCode", "if",
+	"implements", "import", "instanceof", "int", "interface", "long",
+	"native", "new", "notify", "notifyAll", "null", "package", "private",
+	"protected", "public", "return", "short", "static", "strictfp", "super", "switch",
         "synchronized", "this", "throw", "throws", "toString", "transient",
         "true", "try", "void", "volatile", "wait", "while"
     };
@@ -170,6 +170,69 @@ Slice::JavaGenerator::fixKwd(const string& name) const
 	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
 				name);
     return found ? "_" + name : name;
+}
+//
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+static StringList
+splitScopedName(const string& scoped)
+{
+    assert(scoped[0] == ':');
+    StringList ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while((pos = scoped.find("::", next)) != string::npos)
+    {
+	pos += 2;
+	if(pos != scoped.size())
+	{
+	    string::size_type endpos = scoped.find("::", pos);
+	    if(endpos != string::npos)
+	    {
+		ids.push_back(scoped.substr(pos, endpos - pos));
+	    }
+	}
+	next = pos;
+    }
+    if(next != scoped.size())
+    {
+	ids.push_back(scoped.substr(next));
+    }
+    else
+    {
+	ids.push_back("");
+    }
+
+    return ids;
+}
+
+//
+// If the passed name is a scoped name, return the identical scoped name,
+// but with all components that are Java keywords replaced by
+// their "_"-prefixed version; otherwise, if the passed name is
+// not scoped, but a Java keyword, return the "_"-prefixed name;
+// otherwise, return the name unchanged.
+//
+string
+Slice::JavaGenerator::fixKwd(const string& name) const
+{
+    if(name.empty())
+    {
+	return name;
+    }
+    if(name[0] != ':')
+    {
+	return lookupKwd(name);
+    }
+    StringList ids = splitScopedName(name);
+    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    stringstream result;
+    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    {
+	result << "::" + *i;
+    }
+    return result.str();
 }
 
 string
@@ -180,8 +243,9 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
 {
     string result;
     string::size_type start = 0;
+    string fscope = fixKwd(scope);
 
-    if(!scope.empty())
+    if(!fscope.empty())
     {
         //
         // Only remove the scope if the resulting symbol is unscoped.
@@ -190,19 +254,14 @@ Slice::JavaGenerator::getAbsolute(const string& scoped,
         // scope=::A, scoped=::A::B, result=B
         // scope=::A, scoped=::A::B::C, result=::A::B::C
         //
-        string::size_type scopeSize = scope.size();
-        if(scoped.compare(0, scopeSize, scope) == 0)
-        {
-            start = scoped.find(':', scopeSize);
-            if(start == string::npos)
-            {
-                start = scopeSize;
-            }
-            else
-            {
-                start = 0;
-            }
-        }
+	string::size_type fscopeSize = fscope.size();
+	if(scoped.compare(0, fscopeSize, fscope) == 0)
+	{
+	    if(scoped.size() > fscopeSize && scoped[fscopeSize] == ':')
+	    {
+		start = fscopeSize;
+	    }
+	}
     }
 
     //

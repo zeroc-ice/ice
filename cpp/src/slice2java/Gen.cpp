@@ -1753,16 +1753,107 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 {
-#if 0
     string name = fixKwd(p->name());
-    string absolute = getAbsolute(p->scoped());
+    string scoped = p->scoped();
+    string absolute = getAbsolute(scoped);
+    TypePtr type = p->type();
 
-        if(open(absolute + "PrxHolder"))
+    if(!open(absolute))
+    {
+        return;
+    }
     Output& out = output();
-    out << "This is a definition for constant " << p->name() << endl;
-    out << eb;
+    out << sp << nl << "public interface " << name;
+    out << sb;
+    out << nl << typeToString(type, TypeModeIn, scoped) << " value = ";
+
+    BuiltinPtr bp;
+    EnumPtr ep;
+    if(bp = BuiltinPtr::dynamicCast(type))
+    {
+	switch(bp->kind())
+	{
+	    case Builtin::KindString:
+	    {
+		out << "\"";					// Opening "
+
+		ios_base::fmtflags originalFlags = out.flags();	// Save stream state
+		streamsize originalWidth = out.width();
+		ostream::char_type originalFill = out.fill();
+
+		const string val = p->value();
+		for(string::const_iterator c = val.begin(); c != val.end(); ++c)
+		{
+		    if(isascii(*c) && isprint(*c))
+		    {
+			switch(*c)
+			{
+			    case '\\':				// Take care of \ and "
+			    case '"':
+			    {
+				out << "\\";
+				break;
+			    }
+			}
+			out << *c;				// Print normally if printable
+		    }
+		    else
+		    {
+			switch(*c)
+			{
+			    case '\r':				// CR can't be written as a universal char name in Java
+			    {
+				out << "\\r";
+				break;
+			    }
+			    case '\n':				// Ditto for NL
+			    {
+				out << "\\n";
+				break;
+			    }
+			    default:
+			    {
+				unsigned char uc = *c;		// char may be signed, so make it positive
+				out << "\\u";    		// Print as universal character name if non-printable
+				out.flags(ios_base::hex);
+				out.width(4);
+				out.fill('0');
+				out << static_cast<unsigned>(uc);
+				break;
+			    }
+			}
+		    }
+		}
+
+		out.fill(originalFill);				// Restore stream state
+		out.width(originalWidth);
+		out.flags(originalFlags);
+
+		out << "\"";					// Closing "
+		break;
+	    }
+	    case Builtin::KindByte:
+	    {
+		out << p->value() << " - 128";	// Slice byte runs from 0-255, Java byte runs from -128 - 127
+		break;
+	    }
+	    case Builtin::KindLong:
+	    {
+		out << p->value() << "L";	// Need to append "L" modifier for long constants
+	    }
+	}
+
+    }
+    else if(ep = EnumPtr::dynamicCast(type))
+    {
+	out << fixKwd(p->value());
+    }
+    else
+    {
+	out << p->value();
+    }
+    out << ";" << eb;
     close();
-#endif
 }
 
 Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, const string& package) :

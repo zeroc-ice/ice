@@ -298,12 +298,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 	{
 	    end = beg;
 	    
-	    while (end < s.length() && s[end] == ':')
+	    while(end < s.length() && s[end] == ':')
 	    {
 		beg = end + 1;
 		
 		end = s.find(':', beg);
-		if (end == string::npos)
+		if(end == string::npos)
 		{
 		    end = s.length();
 		}
@@ -316,13 +316,13 @@ IceInternal::ReferenceFactory::create(const string& str)
 	else if(s[beg] == '@')
 	{
 	    beg = str.find_first_not_of(delim, beg + 1);
-	    if (beg == string::npos)
+	    if(beg == string::npos)
 	    {
 		beg = end + 1;
 	    }
 	    
 	    end = str.find_first_of(delim, beg);
-	    if (end == string::npos)
+	    if(end == string::npos)
 	    {
 		end = str.length();
 	    }

@@ -307,7 +307,7 @@ splitScopedName(const string& scoped)
 	if(pos != scoped.size())
 	{
 	    string::size_type endpos = scoped.find("::", pos);
-	    if (endpos != string::npos)
+	    if(endpos != string::npos)
 	    {
 		ids.push_back(scoped.substr(pos, endpos - pos));
 	    }
