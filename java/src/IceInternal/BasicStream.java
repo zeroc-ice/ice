@@ -1325,6 +1325,7 @@ public class BasicStream
 	    {
 		Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException();
 		nof.type = p.type();
+                nof.initCause(ex);
 	        throw nof;
 	    }
 	}
