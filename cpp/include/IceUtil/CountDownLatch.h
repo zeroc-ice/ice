@@ -12,6 +12,9 @@
 //
 // **********************************************************************
 
+#ifndef ICE_UTIL_COUNT_DOWN_LATCH_H
+#define ICE_UTIL_COUNT_DOWN_LATCH_H
+
 #include <IceUtil/Config.h>
 
 namespace IceUtil
@@ -47,3 +50,5 @@ private:
 };
 
 }
+
+#endif
