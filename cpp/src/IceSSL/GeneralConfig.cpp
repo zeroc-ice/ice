@@ -106,11 +106,7 @@ IceSSL::GeneralConfig::set(string& name, string& value)
 void
 IceSSL::GeneralConfig::parseVersion(string& value)
 {
-    if(value.compare("SSLv2") == 0)
-    {
-        _sslVersion = SSL_V2;
-    }
-    else if(value.compare("SSLv23") == 0)
+    if(value.compare("SSLv23") == 0)
     {
         _sslVersion = SSL_V23;
     }

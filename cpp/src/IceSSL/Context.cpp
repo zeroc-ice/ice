@@ -105,11 +105,14 @@ IceSSL::Context::setRSAKeys(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& 
 
 void
 IceSSL::Context::configure(const GeneralConfig& generalConfig,
-                                    const CertificateAuthority& certificateAuthority,
-                                    const BaseCertificates& baseCertificates)
+                           const CertificateAuthority& certificateAuthority,
+                           const BaseCertificates& baseCertificates)
 {
     // Create an SSL Context based on the context params.
     createContext(generalConfig.getProtocol());
+
+    // Enable workarounds and disable SSLv2.
+    SSL_CTX_set_options(_sslContext, SSL_OP_ALL|SSL_OP_NO_SSLv2);
 
     // Get the cipherlist and set it in the context.
     setCipherList(generalConfig.getCipherList());
@@ -122,7 +125,7 @@ IceSSL::Context::configure(const GeneralConfig& generalConfig,
 
     // Determine the number of retries the user gets on passphrase entry.
     string passphraseRetries = _properties->getPropertyWithDefault(_passphraseRetriesProperty,
-                                                                        _maxPassphraseRetriesDefault);
+                                                                   _maxPassphraseRetriesDefault);
     int retries = atoi(passphraseRetries.c_str());
     retries = (retries < 0 ? 0 : retries);
     _maxPassphraseTries = retries + 1;
@@ -162,12 +165,6 @@ IceSSL::Context::getSslMethod(SslProtocol sslVersion)
 
     switch(sslVersion)
     {
-        case SSL_V2 :
-        {
-            sslMethod = SSLv2_method();
-            break;
-        }
-
         case SSL_V23 :
         {
             sslMethod = SSLv23_method();
