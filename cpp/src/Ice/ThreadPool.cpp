@@ -225,7 +225,7 @@ IceInternal::ThreadPool::run()
 	    shutdown = false;
 	    _instance->objectAdapterFactory()->shutdown();
 	}
-
+	
 	fd_set fdSet;
 	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
 	int ret;
@@ -240,13 +240,13 @@ IceInternal::ThreadPool::run()
 	{
 	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
 	}
-
+	
 	if (ret == 0) // Timeout
 	{
 	    assert(_timeout);
 	    _timeout = 0;
 	    _instance->objectAdapterFactory()->shutdown();
-	    goto repeatSelect;
+	    continue;
 	}
 	
 	if (ret == SOCKET_ERROR)
@@ -256,13 +256,12 @@ IceInternal::ThreadPool::run()
 		goto repeatSelect;
 	    }
 	    
-	    _threadMutex.unlock();
 	    throw SocketException(__FILE__, __LINE__);
 	}
-
+	
 	{
 	    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-
+	    
 	    instance = _instance;
 	    
 	    if (!instance) // Destroyed?
@@ -271,15 +270,14 @@ IceInternal::ThreadPool::run()
 		// Don't clear the interrupt fd if destroyed, so that
 		// the other threads exit as well
 		//
-		_threadMutex.unlock();
 		return;
 	    }
-		
-	    bool again = false;
+	    
+	    bool interrupt = false;
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {
-		again = true;
 		shutdown = clearInterrupt();
+		interrupt = true;
 	    }
 	    
 	    if (!_adds.empty())
@@ -331,12 +329,12 @@ IceInternal::ThreadPool::run()
 		    notifyAll(); // For waitUntil...Finished() methods
 		}
 	    }
-	    
-	    if (again)
+
+	    if (interrupt)
 	    {
 		goto repeatSelect;
 	    }
-
+	    
 	    //
 	    // Round robin for the filedescriptors
 	    //
@@ -344,17 +342,35 @@ IceInternal::ThreadPool::run()
 	    {
 		_lastFd = _minFd - 1;
 	    }
+
+	    int loops = 0;
 	    do
 	    {
 		if (++_lastFd > _maxFd)
 		{
+		    ++loops;
 		    _lastFd = _minFd;
 		}
 	    }
-	    while (!FD_ISSET(_lastFd, &fdSet));
+	    while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
+
+	    if (loops > 1)
+	    {
+		ostringstream s;
+		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
+		_instance->logger()->error(s.str());
+		goto repeatSelect;
+	    }
 	    
 	    std::map<int, EventHandlerPtr>::iterator p = _handlers.find(_lastFd);
-	    assert(p != _handlers.end());
+	    if(p == _handlers.end())
+	    {
+		ostringstream s;
+		s << "filedescriptor " << _lastFd << " not registered in thread pool";
+		_instance->logger()->error(s.str());
+		goto repeatSelect;
+	    }
+
 	    handler = p->second;
 	}
 	
@@ -448,7 +464,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	_pool->run();
     }
     catch (const LocalException& ex)
-    {
+    {	
 	ostringstream s;
 	s << "exception in thread pool:\n" << ex;
 	_pool->_instance->logger()->error(s.str());
@@ -464,5 +480,6 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	_pool->_instance->logger()->error("unknown exception in thread pool");
     }
 
+    _pool->promoteFollower();
     _pool = 0; // Break cyclic dependency
 }
