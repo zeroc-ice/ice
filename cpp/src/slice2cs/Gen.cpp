@@ -2708,10 +2708,30 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << eb;
     }
 
+    bool hasAsyncOps = false;
+
     if(!ops.empty())
     {
 	_out << sp << nl << "#endregion"; // Synchronous operations
 
+	if(p->hasMetaData("ami"))
+	{
+	    hasAsyncOps = true;
+	}
+	else
+	{
+	    for(r = ops.begin(); r != ops.end(); ++r)
+	    {
+		if((*r)->hasMetaData("ami"))
+		{
+		    hasAsyncOps = true;
+		}
+	    }
+	}
+    }
+
+    if(hasAsyncOps)
+    {
 	_out << sp << nl << "#region Asynchronous operations";
     }
 
@@ -2744,7 +2764,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
     }
 
-    if(!ops.empty())
+    if(hasAsyncOps)
     {
 	_out << sp << nl << "#endregion"; // Asynchronous operations
     }
@@ -3455,8 +3475,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 
 	_out << sp << nl << "public " << typeToString(ret) << " " << name << spar << params << epar;
-	_out << sb;
-	_out << nl;
+	_out << sb << nl;
 	if(ret)
 	{
 	    _out << "return ";
