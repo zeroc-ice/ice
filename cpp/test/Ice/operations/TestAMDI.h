@@ -15,6 +15,7 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
+#include <IceUtil/Thread.h>
 #include <TestAMD.h>
 
 class MyDerivedClassI : public Test::MyDerivedClass
@@ -22,7 +23,8 @@ class MyDerivedClassI : public Test::MyDerivedClass
 public:
 
     MyDerivedClassI(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-
+    virtual ~MyDerivedClassI();
+    
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
 				const Ice::Current&);
 
@@ -128,6 +130,7 @@ private:
 
     Ice::ObjectAdapterPtr _adapter;
     Ice::Identity _identity;
+    IceUtil::ThreadPtr _opVoidThread;
 };
 
 #endif

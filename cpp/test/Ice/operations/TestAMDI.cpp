@@ -12,22 +12,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
-
-MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
-    _adapter(adapter),
-    _identity(identity)
-{
-}
-
-void
-MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current&)
-{
-    _adapter->getCommunicator()->shutdown();
-    cb->ice_response();
-}
 
 class Thread_opVoid : public IceUtil::Thread
 {
@@ -48,10 +34,40 @@ private:
     Test::AMD_MyClass_opVoidPtr _cb;
 };
 
+MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
+    _adapter(adapter),
+    _identity(identity)
+{
+}
+
+MyDerivedClassI::~MyDerivedClassI()
+{
+}
+
+void
+MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current&)
+{
+    if(_opVoidThread)
+    {
+	_opVoidThread->getThreadControl().join();
+	_opVoidThread = 0;
+    }
+
+    _adapter->getCommunicator()->shutdown();
+    cb->ice_response();
+}
+
 void
 MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current&)
 {
-    (new Thread_opVoid(cb))->start();
+    if(_opVoidThread)
+    {
+	_opVoidThread->getThreadControl().join();
+	_opVoidThread = 0;
+    }
+
+    _opVoidThread = new Thread_opVoid(cb);
+    _opVoidThread->start();
 }
 
 void
