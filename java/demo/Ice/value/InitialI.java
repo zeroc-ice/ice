@@ -20,13 +20,13 @@ class InitialI extends Initial
         _printer = new PrinterI();
         _printer._message = "Ice rulez!";
         _printerProxy =
-            PrinterPrxHelper.uncheckedCast(adapter.addTemporary(_printer));
+            PrinterPrxHelper.uncheckedCast(adapter.addWithUUID(_printer));
 
         _derivedPrinter = new DerivedPrinterI();
         _derivedPrinter._message = _printer._message;
         _derivedPrinter._derivedMessage = "Coming soon: the ultimate online " +
             "game from MutableRealms!";
-        adapter.addTemporary(_derivedPrinter);
+        adapter.addWithUUID(_derivedPrinter);
     }
 
     public Simple

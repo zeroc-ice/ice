@@ -14,7 +14,7 @@ public class Server
     main(String[] args)
     {
         NestedServer app = new NestedServer();
-        int status = app.main("Server", args, "config");
+        int status = app.main("Server", args, "config.server");
         System.exit(status);
     }
 }

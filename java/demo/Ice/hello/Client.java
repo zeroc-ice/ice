@@ -41,7 +41,8 @@ public class Client
         }
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
-        HelloPrx twoway = HelloPrxHelper.checkedCast(base);
+        HelloPrx twoway = HelloPrxHelper.checkedCast(
+            base.ice_twoway().ice_timeout(-1).ice_secure(false));
         if (twoway == null)
         {
             System.err.println("invalid object reference");
