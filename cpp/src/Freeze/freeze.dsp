@@ -168,6 +168,10 @@ SOURCE=..\..\include\Freeze\Freeze.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Freeze\FreezeMap.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Freeze\Initialize.h
 # End Source File
 # End Group

@@ -16,6 +16,8 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Initialize.h>
 
+#include <db.h>
+
 #include <iterator>
 
 namespace Freeze
@@ -167,6 +169,14 @@ inline bool  operator!=(const std::pair<key_type, mapped_type>& p1,
 }
 
 //
+// This is necessary for MSVC support.
+//
+struct DbIteratorBase
+{
+    typedef std::forward_iterator_tag iterator_category;
+};
+
+//
 // Database iterator. This implements a forward iterator.
 //
 // Equality and inequality are based on whether the iterator is
@@ -177,7 +187,7 @@ inline bool  operator!=(const std::pair<key_type, mapped_type>& p1,
 // necessary.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DbIterator
+class DbIterator : public DbIteratorBase
 {
 public:
 
@@ -196,8 +206,6 @@ public:
     typedef value_type* pointer;
 
     typedef value_type& reference;
-
-    typedef std::forward_iterator_tag iterator_category;
 
     //
     // This is a special value-type that allows write-back to the
@@ -344,7 +352,7 @@ private:
 // See DbIterator comments for design notes
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class ConstDbIterator
+class ConstDbIterator : public DbIteratorBase
 {
 public:
 
@@ -363,8 +371,6 @@ public:
     typedef value_type* pointer;
 
     typedef value_type& reference;
-
-    typedef std::forward_iterator_tag iterator_category;
 
     ConstDbIterator(const DBPtr& db, const DBCursorPtr& cursor)
 	: _db(db), _cursor(cursor)
@@ -702,10 +708,10 @@ public:
 
     size_type size() const
     {
-	return _db->getNumberOfRecords();
+	return (size_type)_db->getNumberOfRecords();
     }
 
-    size_type max() const
+    size_type max_size() const
     {
 	return 0xffffffff; // TODO: is this the max?
     }
@@ -928,5 +934,31 @@ private:
 };
 
 } // End namespace Freeze
+
+//
+// This is for MSVC.
+//
+# ifdef _STLP_USE_OLD_HP_ITERATOR_QUERIES
+namespace std
+{
+
+template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
+inline pair<key_type, mapped_type>* value_type(const Freeze::DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+{
+    return (pair<key_type, mapped_type>*)0;
+}
+
+template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
+inline pair<key_type, mapped_type>* value_type(const Freeze::ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+{
+    return (pair<key_type, mapped_type>*)0;
+}
+
+inline forward_iterator_tag iterator_category(const Freeze::DbIteratorBase&) { return forward_iterator_tag(); }
+
+inline ptrdiff_t* distance_type(const Freeze::DbIteratorBase&) { return (ptrdiff_t*) 0; }
+
+}
+#endif /* _STLP_CLASS_PARTIAL_SPECIALIZATION */
 
 #endif
