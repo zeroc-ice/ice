@@ -16,6 +16,8 @@
 using namespace std;
 using namespace Slice;
 
+static const string internalId = "_internal.";
+
 Slice::Gen::Gen(const string& name, const string& base, const string& include,
 		const vector<string>& includePaths, const string& dir) :
     _base(base),
@@ -119,7 +121,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     //
     string startString = "xs:group";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Data\"";
     start(startString);
 
@@ -151,7 +153,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     //
     startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
     start("xs:complexContent");
@@ -175,10 +177,10 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	if (base->isInterface())
 	    break;
 	string baseScopeId = containedToId(base);
-	O << nl << "<xs:group ref=\"tns:" << baseScopeId << "_internal." << base->name() << "Data\"/>";
+	O << nl << "<xs:group ref=\"tns:" << internalId << baseScopeId << base->name() << "Data\"/>";
 	bases = base->bases();
     }
-    O << nl << "<xs:group ref=\"tns:" << scopeId << "_internal." << p->name() << "Data\"/>";
+    O << nl << "<xs:group ref=\"tns:" << internalId << scopeId << p->name() << "Data\"/>";
 
     end(); // xs:sequence
     end(); // xs:extension
@@ -186,7 +188,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     end(); // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
-      << "\" type=\"tns:" << scopeId << "_internal." << p->name() << "Type\"/>";
+      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
 
     return true;
 }
@@ -203,7 +205,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     //
     string startString = "xs:group";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Data\"";
     start(startString);
 
@@ -235,7 +237,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     //
     startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
 
@@ -255,16 +257,16 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     while (base)
     {
 	string baseScopeId = containedToId(base);
-	O << nl << "<xs:group ref=\"tns:" << baseScopeId << "_internal." << base->name() << "Data\"/>";
+	O << nl << "<xs:group ref=\"tns:" << internalId << baseScopeId << base->name() << "Data\"/>";
 	base = base->base();
     }
-    O << nl << "<xs:group ref=\"tns:" << scopeId << "_internal." << p->name() << "Data\"/>";
+    O << nl << "<xs:group ref=\"tns:" << internalId << scopeId << p->name() << "Data\"/>";
 
     end();
     end();
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
-      << "\" type=\"tns:" << scopeId << "_internal." << p->name() << "Type\"/>";
+      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
 
     return true;
 }
@@ -278,7 +280,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 
     string startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
 
@@ -311,7 +313,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     end(); // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
-      << "\" type=\"tns:" << scopeId << "_internal." << p->name() << "Type\"/>";
+      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
 
     return true;
 }
@@ -325,7 +327,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 
     string startString = "xs:simpleType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
 
@@ -351,7 +353,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     O << sp;
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
-      << "\" type=\"tns:" << scopeId << "_internal." << p->name() << "Type\"/>";
+      << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
 }
 
 void
@@ -363,7 +365,7 @@ Slice::Gen::visitSequence(const SequencePtr& p)
 
     string startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
     start("xs:sequence");
@@ -383,7 +385,7 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     O << sp;
 
     O << nl << "<xs:element name=\"" << scopeId << p->name() << "\" type=\"tns:"
-      << scopeId << "_internal." << p->name() << "Type\"/>";
+      << internalId << scopeId << p->name() << "Type\"/>";
 }
 
 void
@@ -398,7 +400,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     string startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "ContentType\"";
     start(startString);
     start("xs:sequence");
@@ -418,7 +420,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     startString = "xs:complexType";
     startString += " name=\"";
-    startString += scopeId + "_internal." + p->name();
+    startString += internalId + scopeId + p->name();
     startString += "Type\"";
     start(startString);
     start("xs:sequence");
@@ -430,7 +432,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     end(); // xs:appinfo
 
 
-    O << nl << "<xs:element name=\"e\" type=\"tns:" << scopeId + "_internal." + p->name() + "ContentType\"/>";
+    O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\"/>";
 
     end(); // xs:sequence
     end(); // xs:complexType
@@ -438,7 +440,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     O << sp;
 
     O << nl << "<xs:element name=\"" << scopeId << p->name() << "\" type=\"tns:"
-      << scopeId << "_internal." << p->name() << "Type\"/>";
+      << internalId << scopeId << p->name() << "Type\"/>";
 }
 
 /* sequence, dictionary */
@@ -565,28 +567,28 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     if (cl)
     {
 	string scopeId = containedToId(cl);
-	s = "tns:" + scopeId + "_internal." + cl->name() + "Type";
+	s = "tns:" + internalId + scopeId + cl->name() + "Type";
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if (ex)
     {
 	string scopeId = containedToId(ex);
-	s = "tns:" + scopeId + "_internal." + ex->name() + "Type";
+	s = "tns:" + internalId + scopeId + ex->name() + "Type";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
     if (st)
     {
 	string scopeId = containedToId(st);
-	s = "tns:" + scopeId + "_internal." + st->name() + "Type";
+	s = "tns:" + internalId + scopeId + st->name() + "Type";
     }
 
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if (en)
     {
 	string scopeId = containedToId(en);
-	s = "tns:" + scopeId + "_internal." + en->name() + "Type";
+	s = "tns:" + internalId + scopeId + en->name() + "Type";
     }
 
     return s;
