@@ -12,13 +12,18 @@
 #
 
 #
-# Make sure that we're using by default the Python framework installed with 
-# the system.
+# We require Python to be built as a Framework for the IcePy plugin.
 #
-PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
+ifneq ($(PYTHON_HOME),)
+    ifeq ($(shell test ! -f $(PYTHON_HOME)/Python && echo 0),0)
+        $(error Unable to find Python framework See config/Make.rules.Darwin)
+    endif
+else
+    PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
+endif
+
 PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-PYTHON_LIB_DIR		= $(PYTHON_HOME)/lib
-PYTHON_LIBS		= -F$(PYTHON_LIB_DIR) -framework Python
+PYTHON_LIBS		= -F$(PYTHON_HOME) -framework Python
 
 CXX	                = c++
 

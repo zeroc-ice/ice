@@ -18,7 +18,7 @@ necessary to download and build Ice for C++. See the section
 
 
 =========================================================================
-Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X)
+Building the Ice extension for Python (Linux/Solaris/HP-UX/Mac OS X)
 =========================================================================
 
 Follow these steps to build the Ice extension for Python:
@@ -33,10 +33,6 @@ Follow these steps to build the Ice extension for Python:
      Notes: * HP-UX users should modify PYTHON_LIB_DIR to enable the
               linker to find the Python shared library. See Python
               Platform Notes below for more information.
-
-            * Mac OS X users shouldn't modify these settings. The build 
-	      system will use by default Python 2.3 installed with the 
-	      system.
 
 2) Execute 'python -V' to verify that the correct Python interpreter
    is in your executable search path.
