@@ -281,13 +281,13 @@ Ice::Service::syserror(const std::string& msg)
                                  (LPTSTR)&lpMsgBuf,
                                  0,
                                  NULL);
-	if(ok)
-	{
+        if(ok)
+        {
             LPCTSTR str = (LPCTSTR)lpMsgBuf;
             assert(str && strlen((const char*)str) > 0);
             errmsg = (const char*)str;
             LocalFree(lpMsgBuf);
-	}
+        }
     }
 #else
     int err = errno;
@@ -1112,6 +1112,8 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     // Check for --daemon.
     //
     bool daemonize = false;
+    bool noClose = false;
+    bool noChdir = false;
     int idx = 1;
     while(idx < argc)
     {
@@ -1125,10 +1127,44 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
 
             daemonize = true;
         }
+        else if(strcmp(argv[idx], "--noclose") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            noClose = true;
+        }
+        else if(strcmp(argv[idx], "--nochdir") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            noChdir = true;
+        }
         else
         {
             ++idx;
         }
+    }
+
+    if(noClose && !daemonize)
+    {
+        cerr << argv[0] << ": --noclose must be used with --daemon" << endl;
+        status = EXIT_FAILURE;
+        return true;
+    }
+
+    if(noChdir && !daemonize)
+    {
+        cerr << argv[0] << ": --nochdir must be used with --daemon" << endl;
+        status = EXIT_FAILURE;
+        return true;
     }
 
     if(!daemonize)
@@ -1227,14 +1263,17 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         //
         umask(0);
 
-        //
-        // Change the working directory.
-        //
-        if(chdir("/") != 0)
+        if(!noChdir)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            //
+            // Change the working directory.
+            //
+            if(chdir("/") != 0)
+            {
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
+            }
         }
 
         //
@@ -1247,42 +1286,39 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
             throw ex;
         }
 
-        //
-        // Close open file descriptors.
-        //
-        int fdMax = sysconf(_SC_OPEN_MAX);
-        if(fdMax <= 0)
+        fd_set fdsToClose;
+        int fdMax;
+        if(!noClose)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
-        }
-
-        int i;
-        for(i = 0; i < fdMax; ++i)
-        {
-            if(i != fds[1])
+            //
+            // Take a snapshot of the open file descriptors. We don't actually close these
+            // descriptors until after the communicator is initialized, so that plug-ins
+            // have an opportunity to use stdin/stdout/stderr if necessary.
+            //
+            FD_ZERO(&fdsToClose);
+            fdMax = sysconf(_SC_OPEN_MAX);
+            if(fdMax <= 0)
             {
-                close(i);
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
             }
-        }
 
-        //
-        // Associate stdin, stdout and stderr with /dev/null.
-        //
-        int fd;
-        fd = open("/dev/null", O_RDWR);
-        assert(fd == 0);
-        fd = dup2(0, 1);
-        assert(fd == 1);
-        fd = dup2(1, 2);
-        assert(fd == 2);
+            for(int i = 0; i < fdMax; ++i)
+            {
+                if(fcntl(i, F_GETFL) != -1)
+                {
+                    FD_SET(i, &fdsToClose);
+                }
+            }
+            FD_CLR(fds[1], &fdsToClose); // Don't close the write end of the pipe.
+        }
 
         //
         // Create the CtrlCHandler after forking the child so that signals
         // are initialized properly. We do this before initializing the
-        // communicator because we need to ensure that this is done before any
-        // additional threads are created.
+        // communicator because we need to ensure that signals are initialized
+        // before additional threads are created.
         //
         _ctrlCHandler = new IceUtil::CtrlCHandler;
 
@@ -1290,6 +1326,31 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         // Initialize the communicator.
         //
         initializeCommunicator(argc, argv);
+
+        if(!noClose)
+        {
+            //
+            // Close unnecessary file descriptors.
+            //
+            for(int i = 0; i < fdMax; ++i)
+            {
+                if(FD_ISSET(i, &fdsToClose))
+                {
+                    close(i);
+                }
+            }
+
+            //
+            // Associate stdin, stdout and stderr with /dev/null.
+            //
+            int fd;
+            fd = open("/dev/null", O_RDWR);
+            assert(fd == 0);
+            fd = dup2(0, 1);
+            assert(fd == 1);
+            fd = dup2(1, 2);
+            assert(fd == 2);
+        }
 
         //
         // Use the configured logger.
