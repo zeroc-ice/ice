@@ -70,11 +70,7 @@ else:
 #
 # Start IcePack.
 #
-if os.path.exists(os.path.join(testdir, "db/registry")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
-    
-if os.path.exists(os.path.join(testdir, "db/node/db")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
 icePackNodePipe = IcePackAdmin.startIcePackNode(ice_home, testdir)

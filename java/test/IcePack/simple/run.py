@@ -41,29 +41,29 @@ name = os.path.join("IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-if os.path.exists(os.path.join(testdir, "db/registry")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
-# Start IcePack registry
+# Start IcePack registry.
 # 
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
 
 #
 # Test client/server w/o automatic activation.
 #
-TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
+additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
+TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
 #
 IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
 
-TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
-if os.path.exists(os.path.join(testdir, "db/node/db")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
-
+#
+# Start IcePack registry and a node.
+#
 icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
 icePackNodePipe = IcePackAdmin.startIcePackNode(ice_home, testdir)
 

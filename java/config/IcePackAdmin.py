@@ -27,7 +27,7 @@ def startIcePackRegistry(toplevel, port, testdir):
     
     icePack = os.path.join(toplevel, "bin", "icepackregistry")
 
-    dataDir = os.path.join(testdir, "db/registry")
+    dataDir = os.path.join(testdir, "db", "registry")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
@@ -57,9 +57,11 @@ def startIcePackNode(toplevel, testdir):
     
     icePack = os.path.join(toplevel, "bin", "icepacknode")
 
-    dataDir = os.path.join(testdir, "db/node")
+    dataDir = os.path.join(testdir, "db", "node")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
+
+    overrideOptions = '"' + options.replace("--", "") + '"'
 
     print "starting icepack node...",
     command = icePack + options + ' --nowarn ' + \
@@ -67,6 +69,7 @@ def startIcePackNode(toplevel, testdir):
               r' --IcePack.Node.Endpoints=default' + \
               r' --IcePack.Node.Data=' + dataDir + \
               r' --IcePack.Node.Name=localnode' + \
+              r' --IcePack.Node.PropertiesOverride=' + overrideOptions + \
               r' --Ice.ProgramName=icepacknode' + \
               r' --IcePack.Node.Trace.Activator=0' + \
               r' --IcePack.Node.Trace.Adapter=0' + \
@@ -217,3 +220,32 @@ def listAdapters(toplevel):
     icePackAdminPipe = os.popen(command)
     return icePackAdminPipe
 
+def cleanDbDir(path):
+    
+    try:
+        cleanServerDir(os.path.join(path, "node", "servers"))
+    except:
+        pass
+
+    try:
+        TestUtil.cleanDbDir(os.path.join(path, "node", "db"))
+    except:
+        pass
+
+    try:
+        TestUtil.cleanDbDir(os.path.join(path, "registry"))
+    except:
+        pass
+
+def cleanServerDir(path):
+
+    files = os.listdir(path)
+
+    for filename in files:
+        fullpath = os.path.join(path, filename);
+        if os.path.isdir(fullpath):
+            cleanServerDir(fullpath)
+            os.rmdir(fullpath)
+        else:
+            os.remove(fullpath)
+            

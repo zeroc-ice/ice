@@ -17,9 +17,8 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	Ice.Properties properties = communicator.getProperties();
-	properties.setProperty("TestAdapter.Endpoints", "default -t 2000");
-	properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
+	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	argsH.value = communicator.getProperties().parseCommandLineOptions("TestAdapter", argsH.value);
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
