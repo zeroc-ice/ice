@@ -1,3 +1,106 @@
-TODO:
+Building the Ice Demos
+======================
 
-This is a README that needs to go into the root of the demo distribution.
+For your convenience, the Ice demo distribution includes all of the
+demos included in the Ice source distributions.  These demos may be
+built against a pre-existing Ice distribution.  
+
+If you installed Ice from RPM packages, you can build the demos by
+visiting each demo directory (e.g. demo, demoj, democs) and running
+'gmake' or 'ant' as appropriate.  The Ice for Python demos do not need
+to be compiled. 
+
+If you installed Ice from an Ice binary distribution or for source
+distributions by running 'gmake install', you must set the ICE_HOME
+environment variable to the location you installed Ice.  You must also
+tell your system where to find the Ice translators and shared libraries.
+This is normally done through environment variables.  On most systems
+the translators should be in a directory in your PATH environment
+variable.  The shared libraries should be in a directory in your
+system's shared library search path.  This is usually done through a
+system specific environment variable, such as LD_LIBRARY_PATH (Linux and
+other UNIX variants), SHLIB_PATH (32 bit HP-UX) and LIBPATH (IBM AIX).
+You can test whether you have configured your system properly by running
+a Slice translator that was installed on your system.  For example:
+
+myprompt> slice2cpp
+
+Without arguments, the translator will display some usage help
+information.  If you get a 'command not found' or 'libIce.so.2.1.0 not
+found' or similar error, verify the files are in the expected location,
+your environment variables are set properly and that you have the proper
+permissions on these files.
+
+To verify ICE_HOME is set, simply echoing the environment variable works
+on most systems.  Assuming Ice is installed in /opt/Ice:
+
+myprompt> echo $ICE_HOME
+/opt/Ice
+
+Once you've verified that you have your environment configured
+correctly, you can build the demos by visiting each demo directory and
+running 'gmake' or 'ant' as appropriate.  The Ice for Python demos do
+not need to be compiled.
+
+Running the Ice Demos
+=====================
+
+You need to make some additional changes to your environment in order to
+run the demos.
+
+Ice for C++
+-----------
+
+The C++ demos the Ice runtime and tools as well as several third party
+libraries.  If you have managed to build the C++ demos, you already have
+your environment set up properly for the Ice runtime.  However, Ice uses
+other third party libraries such as OpenSSL that should also be
+accessible. 
+
+Ice for Java
+------------
+
+The Java demos require that you have the Ice.jar, the Ice ant tasks and
+the Berkeley DB db.jar in your CLASSPATH.  If Ice was installed from
+RPMs, Ice.jar and the ant tasks are in /usr/lib/Ice-(the Ice version
+number)/Ice.jar and /usr/lib/Ice-(the Ice version number)/ant,
+respectively.  Otherwise, Ice.jar and the ant tasks will be in the Ice
+installation's lib and ant directories, respectively. 
+
+Ice for C#
+----------
+
+To run the C# demos under Mono, you must include the library directory
+containing the icecs.dll in your MONO_PATH environment variable.  In an
+RPM installation, the icecs.dll is installed in the /usr/lib directory.
+It may otherwise be found in the lib directory in your Ice installation.
+
+Ice for Python
+--------------
+
+To run the Python demos, the Ice Python modules and the Ice Python
+extension must be in the PYTHONPATH environment variable.  You also need
+to configure the ICEPY_HOME environment variable to indicate your Ice
+for Python installation.  If you installed Ice for Python from a Ice
+binary distribtion, it should be the same as your ICE_HOME environment
+variable.  If you installed Ice for Python from the source distrbution,
+you may have installed it in a directory other than the ICE_HOME
+directory.  
+
+For RPM installations, the enviroment variables should be:
+ICEPY_HOME=/usr
+PYTHONPATH=/usr/lib:/usr/lib/Ice-(the Ice version)/python:[other non-ice
+components]
+
+For non-RPM installations, the environment variables should be:
+
+ICEPY_HOME=/opt/IcePy-(the Ice version) 
+PYTHONPATH=/opt/IcePy-(the Ice version)/lib:/opt/IcePy-(the Ice version)python:
+  [other non-ice components]
+
+-- or --
+
+ICEPY_HOME=/opt/Ice-(the Ice version) 
+PYTHONPATH=/opt/Ice-(the Ice version)/lib:/opt/Ice-(the Ice version)python:
+  [other non-ice components]
+

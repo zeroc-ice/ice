@@ -414,7 +414,7 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     _transformDirectories(transforms, version, installDir)
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    createSpecFile(ofile, installDir, version, soVersion)
+    createArchSpecFile(ofile, installDir, version, soVersion)
     ofile.flush()
     ofile.close()
 
