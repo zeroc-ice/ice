@@ -710,12 +710,10 @@ def main():
 
     buildEnvironment = dict()
     environmentDefaults = dict([
-	    ("STLPORT_HOME", "/opt/STLPort"),
 	    ("BZIP2_HOME", "/opt/bzip2"),
 	    ("DB_HOME", "/opt/db"),
 	    ("OPENSSL_HOME", "/opt/openssl"),
-	    ("EXPAT_HOME", "/opt/expat"),
-	    ("READLINE_HOME", "/opt/readline")
+	    ("EXPAT_HOME", "/opt/expat")
 	    ])
     buildDir = None
     installDir = None
