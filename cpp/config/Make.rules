@@ -28,6 +28,7 @@ LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib
 BASELIBS	= -lstlport_gcc_debug -lJTC -lpthread
 LIBS		= -lIce $(BASELIBS)
 SLICE		= $(bindir)/slice2cpp
+SLICE2DOCBOOK	= $(bindir)/slice2docbook
 
 EVERYTHING	= all depend clean
 

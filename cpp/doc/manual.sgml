@@ -1,4 +1,15 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+<!ENTITY reference SYSTEM "reference.sgml">
+]>
+<!--
+**********************************************************************
+Copyright (c) 2001
+MutableRealms, Inc.
+Huntsville, AL, USA
+
+All Rights Reserved
+**********************************************************************
+-->
 <book><?dbhtml filename="index.html">
 <bookinfo>
 <title>Ice User's Manual</title>
@@ -106,17 +117,6 @@ blahblahblah
 </part>
 <part>
 <title>Reference</title>
-<chapter>
-<title>Ice::Communicator</title>
-<para>
-TBD
-</para>
-</chapter>
-<chapter>
-<title>Ice::ObjectAdapter</title>
-<para>
-TBD
-</para>
-</chapter>
+&reference;
 </part>
 </book>
