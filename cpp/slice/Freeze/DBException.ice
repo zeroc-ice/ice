@@ -24,7 +24,7 @@ module Freeze
  * @see Evictor
  *
  **/
-exception DBException
+local exception DBException
 {
     /**
      *
@@ -40,7 +40,7 @@ exception DBException
  * could not be found.
  *
  **/
-exception DBNotFoundException extends DBException
+local exception DBNotFoundException extends DBException
 {
 };
 
@@ -50,7 +50,7 @@ exception DBNotFoundException extends DBException
  * this exception by aborting and trying the transaction again.
  *
  **/
-exception DBDeadlockException extends DBException
+local exception DBDeadlockException extends DBException
 {
 };
 

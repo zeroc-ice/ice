@@ -18,7 +18,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Freeze;
 
 extern FILE* yyin;
 
@@ -67,7 +66,7 @@ Parser::addContacts(const list<string>& args)
 	    cout << "added new contact for `" << *p << "'" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -95,7 +94,7 @@ Parser::findContacts(const list<string>& args)
 	cout << "number of contacts found: " << _foundContacts.size() << endl;
 	printCurrent();
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -134,7 +133,7 @@ Parser::printCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -167,7 +166,7 @@ Parser::setCurrentName(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -200,7 +199,7 @@ Parser::setCurrentAddress(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -233,7 +232,7 @@ Parser::setCurrentPhone(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -260,7 +259,7 @@ Parser::removeCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -285,7 +284,7 @@ Parser::setEvictorSize(const list<string>& args)
     {
 	_phoneBook->setEvictorSize(atoi(args.front().c_str()));
     }
-    catch(const DBException& ex)
+    catch(const DatabaseException& ex)
     {
 	error(ex.message);
     }
@@ -303,10 +302,6 @@ Parser::shutdown()
     try
     {
 	_phoneBook->shutdown();
-    }
-    catch(const DBException& ex)
-    {
-	error(ex.message);
     }
     catch(const Exception& ex)
     {

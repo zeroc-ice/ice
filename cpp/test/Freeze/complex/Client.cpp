@@ -36,7 +36,7 @@ validate(const DBPtr& db)
     for (p = m.begin(); p != m.end(); ++p)
     {
 	//
-	// Verified the stored record is correct.
+	// Verify the stored record is correct.
 	//
 	test(p->first.result == p->second->calc());
 

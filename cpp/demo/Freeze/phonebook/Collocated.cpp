@@ -14,11 +14,6 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Freeze;
-
-using namespace std;
-using namespace Ice;
-using namespace Freeze;
 
 class PhoneBookCollocated : public Freeze::Application
 {
@@ -29,7 +24,7 @@ public:
     {
     }
 
-    virtual int runFreeze(int argc, char* argv[], const DBEnvironmentPtr&);
+    virtual int runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr&);
 };
 
 int
@@ -40,26 +35,26 @@ main(int argc, char* argv[])
 }
 
 int
-PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
+PhoneBookCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr& dbEnv)
 {
     PropertiesPtr properties = communicator()->getProperties();
     string value;
     
-    DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
-    DBPtr dbContacts = dbEnv->openDB("contacts", true);
+    Freeze::DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
+    Freeze::DBPtr dbContacts = dbEnv->openDB("contacts", true);
     
     //
     // Create an Evictor for contacts.
     //
-    EvictorPtr evictor;
+    Freeze::EvictorPtr evictor;
     value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
     if(!value.empty() && atoi(value.c_str()) > 0)
     {
-	evictor = dbContacts->createEvictor(SaveAfterMutatingOperation);
+	evictor = dbContacts->createEvictor(Freeze::SaveAfterMutatingOperation);
     }
     else
     {
-	evictor = dbContacts->createEvictor(SaveUponEviction);
+	evictor = dbContacts->createEvictor(Freeze::SaveUponEviction);
     }
     value = properties->getProperty("PhoneBook.EvictorSize");
     if(!value.empty())
@@ -83,7 +78,7 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     // Create and install a factory and initializer for contacts.
     //
     ObjectFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
-    ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
+    Freeze::ServantInitializerPtr contactInitializer = Freeze::ServantInitializerPtr::dynamicCast(contactFactory);
     communicator()->addObjectFactory(contactFactory, "::Contact");
     evictor->installServantInitializer(contactInitializer);
     

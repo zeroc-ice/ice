@@ -41,6 +41,7 @@ Freeze::Application::run(int argc, char* argv[])
 	cerr << appName() << ": " << ex << ": " << ex.message << endl;
 	status = EXIT_FAILURE;
     }
+    // TODO: How does this compile?
     catch(const Exception& ex)
     {
 	cerr << appName() << ": " << ex << endl;

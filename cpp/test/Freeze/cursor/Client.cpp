@@ -142,6 +142,23 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cursor->close();
     cout << "ok" << endl;
 
+    cout << "testing contains... ";
+    try
+    {
+	for (j = alphabet.begin(); j != alphabet.end(); ++j)
+	{
+	    k = KeyCodec::write(*j, instance);
+	    test(db->contains(k));
+	}
+    }
+    catch(const DBException&)
+    {
+	test(false);
+    }
+    k = KeyCodec::write('0', instance);
+    test(!db->contains(k));
+    cout << "ok" << endl;
+
     cout << "testing DB::getCursorAtKey... ";
     k = KeyCodec::write('n', instance);
     j = find(alphabet.begin(), alphabet.end(), 'n');

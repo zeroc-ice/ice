@@ -23,7 +23,7 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Contact, public IceUtil::Mutex
+class ContactI : public Contact, public IceUtil::RWRecMutex
 {
 public:
 
@@ -49,7 +49,7 @@ private:
     Ice::Identity _identity;
 };
 
-class PhoneBookI : public PhoneBook, public IceUtil::RecMutex
+class PhoneBookI : public PhoneBook, public IceUtil::RWRecMutex
 {
 public: 
 
@@ -65,6 +65,8 @@ public:
     Ice::Identity getNewIdentity();
 
 private:
+
+    void removeI(const Ice::Identity&, const std::string&);
 
     Ice::ObjectAdapterPtr _adapter;
     Freeze::DBPtr _db;

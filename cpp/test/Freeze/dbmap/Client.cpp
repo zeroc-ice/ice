@@ -126,6 +126,9 @@ run(int argc, char* argv[], const DBPtr& db)
 	test(cp != m.end());
 	test(cp->first == *j && cp->second == j - alphabet.begin());
     }
+
+    test(!m.empty());
+    test(m.size() == alphabet.size());
     cout << "ok" << endl;
 
     cout << "testing map::find... ";
@@ -182,10 +185,11 @@ run(int argc, char* argv[], const DBPtr& db)
     CharIntMap::iterator p2 = p;
 
     //
-    // Verify both iterators point at 'd'
+    // Verify both iterators point at the same element, and that
+    // element is in the map.
     //
-    test(p->first == 'd' && p->second == 3);
-    test(p2->first == 'd' && p2->second == 3);
+    test(p->first == p2->first && p->second == p2->second);
+    test(find(alphabet.begin(), alphabet.end(), p->first) != alphabet.end());
 
     //
     // Create iterator that points at 'n'
@@ -222,22 +226,24 @@ run(int argc, char* argv[], const DBPtr& db)
 
     cout << "ok" << endl;
 
-    cout << "testing operator[]... ";
-    p = m.find('d');
-    test(p != m.end() && p->second == 3);
-    test(m.find('a') == m.end());
-    m.insert(CharIntMap::value_type('a', 1));
-    p = m.find('a');
-    test(p != m.end() && p->second == 1);
-    m.insert(CharIntMap::value_type('a', 0));
-    p = m.find('a');
-    test(p != m.end() && p->second == 0);
-    cout << "ok" << endl;
-
     //
     // Test writing into an iterator.
     //
     cout << "testing iterator.set... ";
+
+    p = m.find('d');
+    test(p != m.end() && p->second == 3);
+
+    test(m.find('a') == m.end());
+    m.insert(CharIntMap::value_type('a', 1));
+
+    p = m.find('a');
+    test(p != m.end() && p->second == 1);
+
+    m.insert(CharIntMap::value_type('a', 0));
+    p = m.find('a');
+    test(p != m.end() && p->second == 0);
+
     p = m.find('a');
     test(p != m.end() && p->second == 0);
     p.set(1);

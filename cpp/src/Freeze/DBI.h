@@ -129,6 +129,7 @@ public:
     virtual DBCursorPtr getCursorAtKey(const Key&);
 
     virtual void put(const Key&, const Value&);
+    virtual bool contains(const Key&);
     virtual Value get(const Key&);
     virtual void del(const Key&);
 

@@ -42,7 +42,7 @@ Freeze::EvictorI::getDB()
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     return _db;
@@ -55,7 +55,7 @@ Freeze::EvictorI::setSize(Int evictorSize)
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     //
@@ -84,7 +84,7 @@ Freeze::EvictorI::getSize()
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     return static_cast<Int>(_evictorSize);
@@ -97,7 +97,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     //
@@ -125,7 +125,7 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     //
@@ -148,7 +148,7 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 
     if (_deactivated)
     {
-	throw EvictorDeactivatedException();
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
 
     _initializer = initializer;
@@ -415,4 +415,11 @@ Freeze::EvictorI::remove(const Identity& ident)
 	_evictorList.erase(p->second->position);
 	_evictorMap.erase(p);
     }
+}
+
+void
+Freeze::EvictorDeactivatedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
 }

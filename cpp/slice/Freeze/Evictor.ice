@@ -55,7 +55,7 @@ local interface ServantInitializer
  * This exception is raised if the evictor has been deactivated.
  *
  **/
-exception EvictorDeactivatedException
+local exception EvictorDeactivatedException
 {
 };
 

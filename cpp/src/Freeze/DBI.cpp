@@ -40,7 +40,7 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
     {
 	case DB_LOCK_DEADLOCK:
 	{
-	    DBDeadlockException ex;
+	    DBDeadlockException ex(__FILE__, __LINE__);;
 	    ex.message = s.str();
 	    throw ex;
 	}
@@ -48,14 +48,14 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
         case ENOENT: // The case that db->open was called with a non-existent database
 	case DB_NOTFOUND:
 	{
-	    DBNotFoundException ex;
+	    DBNotFoundException ex(__FILE__, __LINE__);
 	    ex.message = s.str();
 	    throw ex;
 	}
 	
 	default:
 	{
-	    DBException ex;
+	    DBException ex(__FILE__, __LINE__);
 	    ex.message = s.str();
 	    throw ex;
 	}
@@ -71,13 +71,13 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     _errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
     _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
 
-    checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
-
     if (_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
 	out << "opening database environment \"" << _name << "\"";
     }
+
+    checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
 
     checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
 				       DB_CREATE |
@@ -121,7 +121,7 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -268,7 +268,7 @@ Freeze::DBTransactionI::commit()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -293,7 +293,7 @@ Freeze::DBTransactionI::abort()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -350,7 +350,7 @@ DBCursorI::curr(Key& key, Value& value)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -383,7 +383,7 @@ DBCursorI::set(const Value& value)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -397,7 +397,7 @@ DBCursorI::set(const Value& value)
     if (_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "DB");
-	out << "reading current value from database \"" << _name << "\"";
+	out << "setting current value in database \"" << _name << "\"";
     }
 
     //
@@ -415,7 +415,7 @@ DBCursorI::next()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -456,7 +456,7 @@ DBCursorI::prev()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -497,7 +497,7 @@ DBCursorI::del()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -520,7 +520,7 @@ DBCursorI::clone()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -606,7 +606,7 @@ Freeze::DBI::getNumberOfRecords()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -630,7 +630,7 @@ Freeze::DBI::getCursor()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -675,7 +675,7 @@ Freeze::DBI::getCursorAtKey(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -726,7 +726,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -748,6 +748,45 @@ Freeze::DBI::put(const Key& key, const Value& value)
     checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
 }
 
+bool
+Freeze::DBI::contains(const Key& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex(__FILE__, __LINE__);
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.size = key.size();
+
+    DBT dbData;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    if (_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "DB");
+	out << "checking key in database \"" << _name << "\"";
+    }
+
+    int rc = _db->get(_db, 0, &dbKey, &dbData, 0);
+    if (rc == DB_NOTFOUND)
+    {
+	return false;
+    }
+
+    checkBerkeleyDBReturn(rc, _errorPrefix, "DB->get");
+    return true;
+}
+
 Value
 Freeze::DBI::get(const Key& key)
 {
@@ -757,7 +796,7 @@ Freeze::DBI::get(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -788,7 +827,7 @@ Freeze::DBI::del(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -816,7 +855,7 @@ Freeze::DBI::clear()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
@@ -894,10 +933,34 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
+	DBException ex(__FILE__, __LINE__);
 	ex.message = s.str();
 	throw ex;
     }
 
     return new EvictorI(this, persistenceMode);
+}
+
+//
+// Print for the various exception types.
+//
+void
+Freeze::DBDeadlockException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+}
+
+void
+Freeze::DBNotFoundException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+}
+
+void
+Freeze::DBException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
 }

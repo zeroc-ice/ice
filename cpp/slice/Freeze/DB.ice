@@ -284,17 +284,19 @@ local interface DBCursor
      *
      * @return The cloned cursor.
      *
-     * @throws DBException Raised if the cursor has been closed.
+     * @throws DBException Raised if a database failure occurred.
      *
      **/
-    DBCursor clone();
+    DBCursor clone() throws DBException;
 
     /**
      *
      * Close the cursor. Subsequent calls to [close] have no effect.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      **/
-    void close();
+    void close() throws DBException;
 };
 
 /**
@@ -414,6 +416,28 @@ local interface DB
 
     /**
      *
+     * Determine if a key is contained in the database.
+     *
+     * @param key The key to check.
+     *
+     * @return True if the key is contained in the database, false otherwise.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     * @see put
+     * @see del
+     *
+     **/
+    bool contains(Key key) throws DBException;
+
+    /**
+     *
      * Get a value from a database by it's key.
      *
      * @param key The key under which the value is stored in the database
@@ -510,11 +534,13 @@ local interface DB
      *
      * @return The new Evictor.
      *
+     * @throws DBException Raised if the database has been closed.
+     *
      * @see Evictor
      * @see EvictorPersistenceMode
      *
      **/
-    Evictor createEvictor(EvictorPersistenceMode mode);
+    Evictor createEvictor(EvictorPersistenceMode mode) throws DBException;
 };
 
 };
