@@ -35,10 +35,10 @@ local interface ObjectFactory
     /**
      *
      * Create a new object for a given object type. The type is the
-     * absolute Slice type name, i.e., the name relative to the
-     * unnamed top-level Slice module. For example, the absolute Slice
-     * type name for interfaces of type [Bar] in the module [Foo] is
-     * [::Foo::Bar].
+     * absolute &Slice; type name, i.e., the name relative to the
+     * unnamed top-level Slice module. For example, the absolute
+     * &Slice; type name for interfaces of type [Bar] in the module
+     * [Foo] is [::Foo::Bar].
      *
      * <note><para>The leading "[::]" is required.</para></note>
      *

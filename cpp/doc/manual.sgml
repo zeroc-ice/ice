@@ -1,10 +1,12 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
 
+<!ENTITY Slice "<phrase>Slice</phrase>">
 <!ENTITY Ice "<phrase>Ice</phrase>">
 <!ENTITY IceSSL "<phrase>IceSSL</phrase>">
 <!ENTITY IcePack "<phrase>IcePack</phrase>">
 <!ENTITY IceBox "<phrase>IceBox</phrase>">
 <!ENTITY IceStorm "<phrase>IceStorm</phrase>">
+<!ENTITY IcePatch "<phrase>IcePatch</phrase>">
 <!ENTITY Glacier "<phrase>Glacier</phrase>">
 <!ENTITY Freeze "<phrase>Freeze</phrase>">
 

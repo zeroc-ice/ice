@@ -264,7 +264,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
     // Convert command-line options beginning with --Ice. to properties.
     //
     StringSeq args = argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("Ice", args);
+    args = _properties->parseCommandLineOptions("Ice", args);
     stringSeqToArgs(args, argc, argv);
 
     try
@@ -352,9 +352,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_stats = 0; // There is no default statistics callback object.
 
-	_traceLevels = new TraceLevels(_properties);
+	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
 
-	_defaultsAndOverrides = new DefaultsAndOverrides(_properties);
+	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_properties);
 
 	_routerManager = new RouterManager;
 

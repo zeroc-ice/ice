@@ -33,7 +33,7 @@ exception NoSessionManagerException
 
 /**
  *
- * The Glacier router interface.
+ * The &Glacier; router interface.
  *
  **/
 interface Router extends Ice::Router
@@ -47,10 +47,10 @@ interface Router extends Ice::Router
 
     /**
      *
-     * Create a new session. The Session is automatically shutdown
+     * Create a new session. The session is automatically shutdown
      * when the Router terminates.
      *
-     * @return A proxy to the new Session.
+     * @return A proxy to the new session.
      *
      * @throws NoSessionManagerException if there is no
      * configured [SessionManager].

@@ -22,7 +22,11 @@
 
 /**
  *
- * The &Ice; module for object persistence.
+ * &Freeze; provides automatic persistence for &Ice;
+ * servants. &Freeze; provides a binary data format for maximum speed,
+ * as well as an XML data format for maximum flexibility. Freeze
+ * databases using the XML data format can be migrated when the
+ * &Slice; description of the persistent data changes.
  *
  **/
 module Freeze
@@ -51,9 +55,9 @@ local interface DBEnvironment
      
     /**
      *
-     * Get the Communicator for this database environment.
+     * Get the communicator for this database environment.
      *
-     * @return The Communicator for this database environment.
+     * @return The communicator for this database environment.
      *
      **/
     Ice::Communicator getCommunicator();
@@ -87,9 +91,9 @@ local interface DBEnvironment
      *
      * Open and return a database object within the context of a
      * transaction. If the database does not exist and the [create]
-     * flag is false a DBNotFoundException is raised. If the database
-     * has been opened before, the previously returned database object
-     * is returned again.
+     * flag is false a [DBNotFoundException] is raised. If the
+     * database has been opened before, the previously returned
+     * database object is returned again.
      *
      * @param txn The transaction context.
      *
@@ -181,7 +185,7 @@ local interface DBTransaction
 
 /**
  *
- * The Evictor persistence mode.
+ * The evictor persistence mode.
  *
  * @see Evictor
  *
@@ -190,8 +194,8 @@ enum EvictorPersistenceMode
 {
     /**
      *
-     * This mode instructs the Evictor to save a Servant to persistent
-     * storage when it is evicted, or when the Evictor is deactivated.
+     * This mode instructs the evictor to save a servant to persistent
+     * storage when it is evicted, or when the evictor is deactivated.
      *
      * @see Ice::ServantLocator::deactivate
      *
@@ -200,7 +204,7 @@ enum EvictorPersistenceMode
 
     /**
      *
-     * This mode instructs the Evictor to save a Servant after each
+     * This mode instructs the evictor to save a servant after each
      * mutating operation. A mutating operation is one that has not
      * been declared as nonmutating.
      *
@@ -237,9 +241,9 @@ local interface DBCursor
 {
     /**
      *
-     * Get the Communicator for this cursor.
+     * Get the communicator for this cursor.
      *
-     * @return The Communicator for this cursor.
+     * @return The communicator for this cursor.
      *
      **/
     Ice::Communicator getCommunicator();
@@ -356,9 +360,9 @@ local interface DB
 {
     /**
      *
-     * Get the Communicator for this database.
+     * Get the communicator for this database.
      *
-     * @return The Communicator for this database.
+     * @return The communicator for this database.
      *
      **/
     Ice::Communicator getCommunicator();
@@ -728,20 +732,20 @@ local interface DB
 
     /**
      *
-     * Create a new Evictor that uses this database to store
-     * Identity/Servant pairs.
+     * Create a new evictor that uses this database to store
+     * identity/servant pairs.
      *
      * <note><para>Care must be taken to not to close this database,
      * or the database environment this database belongs to, before
-     * the Evictor has been properly deactivated. The Evictor is
+     * the evictor has been properly deactivated. The evictor is
      * deactivated by calling [Ice::ObjectAdapter::deactivate] on the
-     * object adapter in which this Evictor is installed, or by shutting
+     * object adapter in which this evictor is installed, or by shutting
      * down all object adapters with [Ice::Communicator::shutdown]
      * followed by [Ice::Communicator::waitForShutdown].</para></note>
      *
-     * @param mode The persistence mode for the new Evictor.
+     * @param mode The persistence mode for the new evictor.
      *
-     * @return The new Evictor.
+     * @return The new evictor.
      *
      * @throws DBException Raised if the database has been closed.
      *

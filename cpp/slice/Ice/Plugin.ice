@@ -20,15 +20,15 @@ module Ice
 
 /**
  *
- * A Communicator plug-in. A plug-in generally adds a feature to a
- * Communicator, such as support for a protocol.
+ * A communicator plug-in. A plug-in generally adds a feature to a
+ * communicator, such as support for a protocol.
  *
  **/
 local interface Plugin
 {
     /**
      *
-     * Called when the Communicator is being destroyed.
+     * Called when the communicator is being destroyed.
      *
      **/
     void destroy();
@@ -36,7 +36,7 @@ local interface Plugin
 
 /**
  *
- * Each Communicator has a PluginManager to administer the set of
+ * Each communicator has a plugin manager to administer the set of
  * plug-ins.
  *
  **/
@@ -66,7 +66,7 @@ local interface PluginManager
 
     /**
      *
-     * Called when the Communicator is being destroyed.
+     * Called when the communicator is being destroyed.
      *
      **/
     void destroy();

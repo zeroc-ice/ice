@@ -19,6 +19,13 @@
 #include <Ice/Plugin.ice>
 #include <IceSSL/CertificateVerifierF.ice>
 
+/**
+ *
+ * &IceSSL; is a dynamic SSL transport plug-in for the &Ice; core. It
+ * provides authentication, encryption, and message integrity, using
+ * the industry-standard SSL protocol.
+ *
+ **/
 module IceSSL
 {
 

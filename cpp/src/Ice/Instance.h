@@ -85,11 +85,11 @@ private:
     friend class Ice::CommunicatorI;
 
     bool _destroyed;
-    Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
+    const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     Ice::LoggerPtr _logger; // Not reset by destroy().
     Ice::StatsPtr _stats; // Not reset by destroy().
-    TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
-    DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
+    const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
+    const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;

@@ -53,9 +53,9 @@ enum ServerState
 
     /**
      *
-     * The server is being activated and will change to the Active
-     * state if the server fork succeeded or to the Inactive state if it
-     * failed.
+     * The server is being activated and will change to the active
+     * state if the server fork succeeded or to the Inactive state if
+     * it failed.
      *
      **/
     Activating,
@@ -99,7 +99,8 @@ enum ServerActivation
     /**
      *
      * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already running.
+     * the server's adapter endpoints and the server is not already
+     * running.
      *
      **/
     OnDemand,
@@ -182,8 +183,8 @@ struct ServerDescription
 /**
  *
  * The &IcePack; administrative interface. <warning><para>Allowing
- * access to this interface is a security risk! Please see the &IcePack;
- * documentation for further information.</para></warning>
+ * access to this interface is a security risk! Please see the
+ * &IcePack; documentation for further information.</para></warning>
  *
  **/
 interface Admin
@@ -195,9 +196,9 @@ interface Admin
      *
      * @param descriptor The application descriptor.
      * 
-     * @param targets The optional targets to deploy. A target is a list
-     * of components separated by dots and a target name. For example,
-     * the "debug" target of "service1" in "server1" will be
+     * @param targets The optional targets to deploy. A target is a
+     * list of components separated by dots and a target name. For
+     * example, the "debug" target of "service1" in "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
      *
      * @throws DeploymentException Raised if application deployment failed.
@@ -231,19 +232,20 @@ interface Admin
      *
      * @param path The server path. For C++ servers, this is the path
      * of the executable. For C++ icebox, this is the path of the C++
-     * icebox executable or, if empty, IcePack will rely on the PATH to
-     * find it. For a Java server or Java icebox, this is the path of
-     * the <literal>java</literal> command or, if empty, IcePack will
-     * rely on the PATH to find it.
+     * icebox executable or, if empty, &IcePack; will rely on the PATH
+     * to find it. For a Java server or Java icebox, this is the path
+     * of the <literal>java</literal> command or, if empty, &IcePack;
+     * will rely on the PATH to find it.
      *
-     * @param librarypath Specify the LD_LIBRARY_PATH value for C++
-     * servers or the CLASSPATH value for Java servers.
+     * @param librarypath Specify the
+     * <literal>LD_LIBRARY_PATH</literal> value for C++ servers or the
+     * <literal>CLASSPATH</literal> value for Java servers.
      *
      * @param descriptor The server deployment descriptor.
      *
-     * @param targets The optional targets to deploy. A target is a list
-     * of components separated by dots and a target name. For example,
-     * the "debug" target of "service1" in "server1" will be
+     * @param targets The optional targets to deploy. A target is a
+     * list of components separated by dots and a target name. For
+     * example, the "debug" target of "service1" in "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
      *
      * @throws DeploymentException Raised if server deployment failed.

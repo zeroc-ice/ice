@@ -23,8 +23,8 @@ module Ice
 
 /**
  *
- * The Servant Locator, which is called by the object adapter to
- * locate a servant that is not found in its Active Servant Map.
+ * The servant locator, which is called by the object adapter to
+ * locate a servant that is not found in its active servant map.
  *
  * @see ObjectAdapter
  * @see ObjectAdapter::addServantLocator
@@ -36,12 +36,11 @@ local interface ServantLocator
 {
     /**
      *
-     * Called by the object adapter before a request is made when
-     * a servant cannot be found in the object adapter's Active
-     * Servant Map. Note that the object adapter does not
-     * automatically insert the returned servant into its Active
-     * Servant Map. This must be done by the Servant Locator
-     * implementation, if this is desired.
+     * Called by the object adapter before a request is made when a
+     * servant cannot be found in the object adapter's active servant
+     * map. Note that the object adapter does not automatically insert
+     * the returned servant into its active servant map. This must be
+     * done by the servant locator implementation, if this is desired.
      *
      * <important><para>If you call [locate] from your own code, you
      * must also call [finished] when you have finished using the
@@ -88,7 +87,7 @@ local interface ServantLocator
 
     /**
      *
-     * Called when the object adapter in which this Servant Locator is
+     * Called when the object adapter in which this servant locator is
      * installed is deactivated.
      *
      * @see ObjectAdapter::deactivate

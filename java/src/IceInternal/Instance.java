@@ -175,7 +175,7 @@ public class Instance
         //
         // Convert command-line options beginning with --Ice. to properties.
         //
-        args.value = properties.parseCommandLineOptions("Ice", args.value);
+        args.value = _properties.parseCommandLineOptions("Ice", args.value);
 
         try
         {
@@ -377,11 +377,11 @@ public class Instance
     }
 
     private boolean _destroyed;
-    private Ice.Properties _properties; // Immutable, not reset by destroy().
+    private final Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
     private Ice.Stats _stats; // Not reset by destroy().
-    private TraceLevels _traceLevels; // Immutable, not reset by destroy().
-    private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+    private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
+    private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
@@ -395,5 +395,5 @@ public class Instance
     private ThreadPool _serverThreadPool;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;
-    private BufferManager _bufferManager; // Immutable, not reset by destroy().
+    private final BufferManager _bufferManager; // Immutable, not reset by destroy().
 }

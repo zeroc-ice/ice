@@ -21,36 +21,14 @@ SGMLFILES	= manual.sgml \
 		  Properties.sgml \
 		  ProxiesEndpoints.sgml
 
-SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
-		  ../slice/Ice/Communicator.ice \
-		  ../slice/Ice/Current.ice \
-		  ../slice/Ice/Facet.ice \
-		  ../slice/Ice/Identity.ice \
-		  ../slice/Ice/LocalException.ice \
-		  ../slice/Ice/Locator.ice \
-		  ../slice/Ice/Logger.ice \
-		  ../slice/Ice/ObjectAdapter.ice \
-		  ../slice/Ice/ObjectFactory.ice \
-		  ../slice/Ice/Plugin.ice \
-		  ../slice/Ice/Properties.ice \
-		  ../slice/Ice/Router.ice \
-		  ../slice/Ice/ServantLocator.ice \
-		  ../slice/Ice/Stream.ice \
-		  ../slice/Ice/UserExceptionFactory.ice \
-		  ../slice/Freeze/DBException.ice \
-		  ../slice/Freeze/DB.ice \
-		  ../slice/Freeze/Evictor.ice \
-		  ../slice/Glacier/Router.ice \
-		  ../slice/Glacier/Session.ice \
-		  ../slice/Glacier/SessionManager.ice \
-		  ../slice/Glacier/Starter.ice \
-		  ../slice/IceBox/IceBox.ice \
-		  ../slice/IcePack/Admin.ice \
-		  ../slice/IcePatch/IcePatch.ice \
-		  ../slice/IceSSL/CertificateVerifier.ice \
-		  ../slice/IceSSL/Exception.ice \
-		  ../slice/IceSSL/Plugin.ice \
-		  ../slice/IceStorm/IceStorm.ice
+SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
+		  $(wildcard ../slice/Freeze/*.ice) \
+		  $(wildcard ../slice/IceBox/*.ice) \
+		  $(wildcard ../slice/IcePack/*.ice) \
+		  $(wildcard ../slice/IceSSL/*.ice) \
+		  $(wildcard ../slice/Glacier/*.ice) \
+		  $(wildcard ../slice/IceStorm/*.ice) \
+		  $(wildcard ../slice/IcePatch/*.ice)
 
 include $(top_srcdir)/config/Make.rules
 

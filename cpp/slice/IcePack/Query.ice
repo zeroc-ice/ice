@@ -20,6 +20,13 @@
 
 #include <IcePack/Exception.ice>
 
+/**
+ *
+ * &IcePack; is a server activation and deployment tool. &IcePack;,
+ * simplifies the complex task of deploying applications in a
+ * heterogenous computer network.
+ *
+ **/
 module IcePack
 {
 

@@ -17,7 +17,10 @@
 
 /**
  *
- * The &Ice; module for publish/subscribe.
+ * A messaging service with support for federation. In contrast to
+ * most other messaging or event services, &IceStorm; supports typed
+ * events, meaning that broadcasting a message over a federation is as
+ * easy as invoking a method on an interface.
  *
  **/
 module IceStorm
@@ -56,14 +59,14 @@ struct LinkInfo
 
 /**
  *
- * A sequence of LinkInfo objects.
+ * A sequence of [LinkInfo] objects.
  *
  **/
 sequence<LinkInfo> LinkInfoSeq;
 
 /**
  *
- * Publishers publish information on a particular Topic. A topic
+ * Publishers publish information on a particular topic. A topic
  * logically represents a type.
  *
  * @see TopicManager
@@ -73,7 +76,7 @@ interface Topic
 {
     /**
      *
-     * Get the name of this Topic. The name of the Topic is for
+     * Get the name of this topic. The name of the topic is for
      * administrative purposes. It is also important for subscribers
      * to form correct object-identity.
      *
@@ -87,20 +90,20 @@ interface Topic
     
     /**
      *
-     * Get a proxy to a publisher object for this Topic.  To publish
-     * data to a Topic the publisher calls [getPublisher] and then
+     * Get a proxy to a publisher object for this topic.  To publish
+     * data to a topic the publisher calls [getPublisher] and then
      * casts to the appropriate type (at present the cast must be
      * unchecked since the type is not validated).
      *
-     * @return A proxy to publish data on this Topic.
+     * @return A proxy to publish data on this topic.
      *
      **/
     nonmutating Object* getPublisher();
 
     /**
      *
-     * Create a link to the given Topic with the cost. All events
-     * flowing through this topic will flow to the given Topic
+     * Create a link to the given topic with the cost. All events
+     * flowing through this topic will flow to the given topic
      * [linkTo].
      *
      * @param linkTo The topic to link to.
@@ -112,7 +115,7 @@ interface Topic
 
     /**
      *
-     * Destroy the link from this topic to the given Topic [linkTo].
+     * Destroy the link from this topic to the given topic [linkTo].
      *
      * @param link The topic to destroy the link to.
      *
@@ -130,7 +133,7 @@ interface Topic
 
     /**
      *
-     * Destroy the Topic.
+     * Destroy the topic.
      *
      **/
     void destroy();
@@ -138,14 +141,14 @@ interface Topic
 
 /**
  *
- * Mapping of Topic name to Topic proxy.
+ * Mapping of topic name to topic proxy.
  *
  **/
 dictionary<string, Topic*> TopicDict;
 
 /**
  *
- * This exception indicates that an attempt was made to create a Topic
+ * This exception indicates that an attempt was made to create a topic
  * that already exists.
  *
  **/
@@ -153,7 +156,7 @@ exception TopicExists
 {
     /**
      *
-     * The name of the Topic that already exists.
+     * The name of the topic that already exists.
      *
      */
     string name;
@@ -162,14 +165,14 @@ exception TopicExists
 /**
  *
  * This exception indicates that an attempt was made to retrieve a
- * Topic that does not exist.
+ * topic that does not exist.
  *
  **/
 exception NoSuchTopic
 {
     /**
      *
-     * The name of the Topic that does not exist.
+     * The name of the topic that does not exist.
      *
      */
     string name;
@@ -186,7 +189,7 @@ dictionary<string, string> QoS;
 
 /**
  *
- * A TopicManager manages Topics, and subscribers to Topics.
+ * A topic manager manages topics, and subscribers to topics.
  *
  * @see Topic
  *
@@ -195,35 +198,35 @@ interface TopicManager
 {
     /**
      *
-     * Create a Topic by name.
+     * Create a topic by name.
      *
-     * @param name The name of the Topic.
+     * @param name The name of the topic.
      *
-     * @return A proxy to the Topic instance.
+     * @return A proxy to the topic instance.
      *
-     * @throws TopicExists Raised if the Topic exists.
+     * @throws TopicExists Raised if the topic exists.
      *
      **/
     Topic* create(string name) throws TopicExists;
 
     /**
      *
-     * Retrieve a Topic by name.
+     * Retrieve a topic by name.
      *
-     * @param name The name of the Topic.
+     * @param name The name of the topic.
      *
-     * @return A proxy to the Topic instance.
+     * @return A proxy to the topic instance.
      *
-     * @throws NoSuchTopic Raised if the Topic does not exist.
+     * @throws NoSuchTopic Raised if the topic does not exist.
      *
      **/
     nonmutating Topic* retrieve(string name) throws NoSuchTopic;
 
     /**
      *
-     * Retrieve all Topics managed by this TopicManager.
+     * Retrieve all topics managed by this topic manager.
      *
-     * @return A dictionary of string, Topic proxy pairs.
+     * @return A dictionary of string, topic proxy pairs.
      *
      **/
     nonmutating TopicDict retrieveAll();

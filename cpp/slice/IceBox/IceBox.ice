@@ -20,14 +20,22 @@
 #include <Ice/PropertiesF.ice>
 #include <Freeze/DB.ice>
 
+/**
+ *
+ * &IceBox; is an application server specifically for &Ice;
+ * applications. &IceBox; can easily run and administer Ice services
+ * that are dynamically loaded as a DLL, shared library, or Java
+ * class.
+ *
+ **/
 module IceBox
 {
     
 /**
  *
  * Indicates a failure occurred. For example, if a service encounters
- * an error during initialization, or if the service manager is
- * unable to load a service executable.
+ * an error during initialization, or if the service manager is unable
+ * to load a service executable.
  *
  **/
 local exception FailureException
@@ -70,18 +78,18 @@ local interface Service extends ServiceBase
 {
     /**
      *
-     * Start the service. The given Communicator is created by
-     * the [ServiceManager] for use by the service. This Communicator
-     * may also be used by other services, depending on the service
+     * Start the service. The given communicator is created by the
+     * [ServiceManager] for use by the service. This communicator may
+     * also be used by other services, depending on the service
      * configuration.
      *
-     * <note><para>The [ServiceManager] owns this Communicator, and is
+     * <note><para>The [ServiceManager] owns this communicator, and is
      * responsible for destroying it.</para></note>
      *
      * @param name The service's name, as determined by the
      * configuration.
      *
-     * @param communicator A Communicator for use by the service.
+     * @param communicator A communicator for use by the service.
      *
      * @param args The service arguments that were not converted into
      * properties.
@@ -104,20 +112,20 @@ local interface FreezeService extends ServiceBase
 {
     /**
      *
-     * Start the service. The given Communicator is created by
-     * the [ServiceManager] for use by the service. This Communicator
-     * may also be used by other services, depending on the service
+     * Start the service. The given communiator is created by the
+     * [ServiceManager] for use by the service. This communiator may
+     * also be used by other services, depending on the service
      * configuration. The database environment is created by the
      * [ServiceManager] for the exclusive use of the service.
      *
-     * <note><para>The [ServiceManager] owns the Communicator and
-     * the database environment, and is responsible for destroying
+     * <note><para>The [ServiceManager] owns the communiator and the
+     * database environment, and is responsible for destroying
      * them.</para></note>
      *
      * @param name The service's name, as determined by the
      * configuration.
      *
-     * @param communicator A Communicator for use by the service.
+     * @param communicator A communiator for use by the service.
      *
      * @param args The service arguments that were not converted into
      * properties.

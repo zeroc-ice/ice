@@ -34,11 +34,9 @@ local dictionary<string, string> Context;
 
 /**
  *
- * The [OperationMode] determines the skeleton
- * signature (for C++), as well as the retry
- * behavior of the Ice run time for an operation
- * invocation in case of a (potentially) recoverable
- * error.
+ * The [OperationMode] determines the skeleton signature (for C++), as
+ * well as the retry behavior of the Ice run time for an operation
+ * invocation in case of a (potentially) recoverable error.
  *
  **/
 //
@@ -48,39 +46,34 @@ local dictionary<string, string> Context;
 enum OperationMode
 {
     /**
-     * Ordinary operations have [Normal] mode. 
-     * These operations modify object state;
-     * invoking such an operation twice in a row
-     * has different semantics than invoking it
-     * once. The Ice run time guarantees that it
-     * will not violate at-most-once semantics for
+     * Ordinary operations have [Normal] mode.  These operations
+     * modify object state; invoking such an operation twice in a row
+     * has different semantics than invoking it once. The Ice run time
+     * guarantees that it will not violate at-most-once semantics for
      * [Normal] operations.
      */
     Normal,
 
     /**
-     * Operations that use the Slice [nonmutating]
-     * keyword must not modify object state. For C++,
-     * nonmutating operations generate [const]
-     * member functions in the skeleton. In addition,
-     * the Ice run time will attempt to transparently
-     * recover from certain run-time errors by re-issuing
-     * a failed request and propagate the failure to
-     * the application only if the second attempt fails.
+     * Operations that use the Slice [nonmutating] keyword must not
+     * modify object state. For C++, nonmutating operations generate
+     * [const] member functions in the skeleton. In addition, the Ice
+     * run time will attempt to transparently recover from certain
+     * run-time errors by re-issuing a failed request and propagate
+     * the failure to the application only if the second attempt
+     * fails.
      */
     \Nonmutating,
 
     /**
-     * Operations that use the Slice [idempotent]
-     * keyword can modify object state, but invoking
-     * an operation twice in a row must result in
-     * the same object state as invoking it once.
-     * For example, x = 1 is an idempotent statement,
-     * whereas x += 1 is not. For idempotent
-     * operations, the Ice run-time uses the same
-     * retry behavior operations as for nonmutating
-     * operations in case of a potentially recoverable
-     * error.
+     * Operations that use the Slice [idempotent] keyword can modify
+     * object state, but invoking an operation twice in a row must
+     * result in the same object state as invoking it once.  For
+     * example, <literal>x = 1</literal> is an idempotent statement,
+     * whereas <literal>x += 1</literal> is not. For idempotent
+     * operations, the Ice run-time uses the same retry behavior
+     * operations as for nonmutating operations in case of a
+     * potentially recoverable error.
      */
     \Idempotent
 };

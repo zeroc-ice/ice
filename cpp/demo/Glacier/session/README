@@ -1,0 +1,16 @@
+To run this demo, open three terminal windows. In the first window,
+start the server:
+
+$ ./server
+
+In the second window, run the Glacier starter:
+
+$ ./glacierstarter --Ice.Config=config
+
+In the third window, run the client:
+
+$ ./client
+
+You will be asked for a userid and a password. Any userid/password
+combination with the password being the same as the userid will be
+accepted (for example, userid="test" with password="test").

@@ -25,7 +25,7 @@ module Freeze
 
 /**
  *
- * A servant initializer is installed in an Evictor and provides the
+ * A servant initializer is installed in an evictor and provides the
  * application with an opportunity to perform custom servant
  * initialization.
  *
@@ -36,12 +36,13 @@ local interface ServantInitializer
 {
     /**
      *
-     * Called whenever the Evictor creates a new servant. This
+     * Called whenever the evictor creates a new servant. This
      * operation allows application code to perform custom servant
      * initialization after the servant has been created by the
-     * Evictor and its persistent state has been restored.
+     * evictor and its persistent state has been restored.
      *
-     * @param adapter The ObjectAdapter in which the Evictor is installed.
+     * @param adapter The object adapter in which the evictor is
+     * installed.
      *
      * @param identity The identity of the &Ice; object for which the
      * servant was created.
@@ -65,7 +66,7 @@ local exception NoSuchElementException
 
 /**
  *
- * An iterator for the identities managed by the Evictor.
+ * An iterator for the identities managed by the evictor.
  *
  * @see Evictor
  *
@@ -76,7 +77,7 @@ local interface EvictorIterator
      *
      * Determines if the iteration has more elements.
      *
-     * @return true if the iterator has more elements, false
+     * @return True if the iterator has more elements, false
      * otherwise.
      *
      **/
@@ -118,17 +119,16 @@ local exception EvictorDeactivatedException
 /**
  *
  * A semi-automatic &Ice; object persistence manager, based on the
- * evictor pattern. The Evictor is a ServantLocator implementation
- * that stores the persistent state of its objects in a database.
- * Any number of objects can be registered with an Evictor, but
- * only a configurable number of servants are active at a time. 
- * These active servants reside in a queue; the least recently
- * used servant in the queue is the first to be evicted when a new
- * servant is activated.
+ * evictor pattern. The evictor is a servant locator implementation
+ * that stores the persistent state of its objects in a database. Any
+ * number of objects can be registered with an evictor, but only a
+ * configurable number of servants are active at a time.  These active
+ * servants reside in a queue; the least recently used servant in the
+ * queue is the first to be evicted when a new servant is activated.
  *
- * An Evictor is created using the operation [DB::createEvictor] and
+ * An evictor is created using the operation [DB::createEvictor] and
  * must be registered with an object adapter just like any other
- * ServantLocator.
+ * servant locator.
  *
  * @see ServantInitializer
  *
@@ -137,10 +137,10 @@ local interface Evictor extends Ice::ServantLocator
 {
     /**
      *
-     * Get the database object that created this Evictor, in which
-     * the Evictor stores the persistent state of its objects.
+     * Get the database object that created this evictor, in which the
+     * evictor stores the persistent state of its objects.
      *
-     * @return The database used by this Evictor.
+     * @return The database used by this evictor.
      *
      * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
@@ -152,16 +152,17 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Set the size of the Evictor's servant queue. This is the maximum
-     * number of servants the Evictor keeps active. Requests to set the
-     * queue size to a value smaller than zero are ignored.
+     * Set the size of the evictor's servant queue. This is the
+     * maximum number of servants the evictor keeps active. Requests
+     * to set the queue size to a value smaller than zero are ignored.
      *
-     * @param sz The size of the servant queue. If the Evictor
+     * @param sz The size of the servant queue. If the evictor
      * currently holds more than [sz] servants in its queue, it evicts
      * enough servants to match the new size. Note that this operation
-     * can block if the new queue size is smaller than the current number
-     * of servants that are servicing requests. In this case, the operation
-     * waits until a sufficient number of servants complete their requests.
+     * can block if the new queue size is smaller than the current
+     * number of servants that are servicing requests. In this case,
+     * the operation waits until a sufficient number of servants
+     * complete their requests.
      *
      * @throws DBException Raised if a database failure occurred.
      *
@@ -175,7 +176,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Get the size of the Evictor's servant queue.
+     * Get the size of the evictor's servant queue.
      *
      * @return The size of the servant queue.
      *
@@ -189,8 +190,8 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Create a new &Ice; object for this Evictor. The state of the
-     * servant passed to this operation is saved in the Evictor's
+     * Create a new &Ice; object for this evictor. The state of the
+     * servant passed to this operation is saved in the evictor's
      * persistent store.
      *
      * @param identity The identity of the &Ice; object to create.
@@ -211,7 +212,7 @@ local interface Evictor extends Ice::ServantLocator
     /**
      *
      * Permanently destroy an &Ice; object by removing it from the
-     * Evictor's persistent store. Furthermore, if a servant is
+     * evictor's persistent store. Furthermore, if a servant is
      * currently active for the &Ice; object, it will be removed.
      *
      * @param identity The identity of the &Ice; object to destroy.
@@ -229,11 +230,11 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Install a servant initializer for this Evictor.
+     * Install a servant initializer for this evictor.
      *
      * @param initializer The servant initializer to install.
-     * Subsequent calls overwrite any previously set value. A null value
-     * removes an existing servant initializer.
+     * Subsequent calls overwrite any previously set value. A null
+     * value removes an existing servant initializer.
      *
      * @see ServantInitializer
      *
@@ -245,7 +246,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Get an iterator for the identities managed by the Evictor.
+     * Get an iterator for the identities managed by the evictor.
      *
      * @return A new iterator.
      *
@@ -257,10 +258,10 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Returns true if the given identity is managed by the Evictor.
+     * Returns true if the given identity is managed by the evictor.
      *
-     * @return true if the identity is managed by the Evictor,
-     * false otherwise.
+     * @return true if the identity is managed by the evictor, false
+     * otherwise.
      *
      * @throws DBException Raised if a database failure occurred.
      *

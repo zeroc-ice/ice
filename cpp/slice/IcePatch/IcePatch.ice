@@ -17,6 +17,14 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+/**
+ *
+ * A patching service for software distributions. &IcePatch; automates
+ * updating of individual files as well as complete directory
+ * hierarchies. Only files that have changed are downloaded to the
+ * client machine, using efficient compression algorithms.
+ *
+ **/
 module IcePatch
 {
 

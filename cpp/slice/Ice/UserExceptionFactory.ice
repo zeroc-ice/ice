@@ -37,8 +37,8 @@ local interface UserExceptionFactory
     /**
      *
      * Create and throw a new user exception for a given user
-     * exception type. The type is the absolute Slice type name, i.e.,
-     * the the name relative to the unnamed top-level Slice
+     * exception type. The type is the absolute &Slice; type name,
+     * i.e., the the name relative to the unnamed top-level &Slice;
      * module. For example, the absolute Slice type name for a user
      * exception [Bar] in the module [Foo] is [::Foo::Bar].
      *
@@ -51,8 +51,8 @@ local interface UserExceptionFactory
 
     /**
      *
-     * Called when the factory is removed from the Communicator, or if
-     * the Communicator is destroyed.
+     * Called when the factory is removed from the communicator, or if
+     * the communicator is destroyed.
      *
      * @see Communicator::removeUserExceptionFactory
      * @see Communicator::destroy

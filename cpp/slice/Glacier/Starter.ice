@@ -20,7 +20,10 @@
 
 /**
  *
- * &Glacier; is the &Ice; firewall and router.
+ * &Glacier; is a firewall solution for Ice. &Glacier; authenticates
+ * and filters client requests and allows callbacks to the client in a
+ * secure fashion. In combination with &IceSSL;, Glacier provides a
+ * security solution that is both non-intrusive and easy to configure.
  *
  **/
 module Glacier
@@ -79,7 +82,7 @@ interface Starter
      *
      **/
     Glacier::Router* startRouter(string userId, string password,
-			     out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
+				 out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
 	throws InvalidPasswordException, CannotStartRouterException;
 };
 

@@ -27,7 +27,11 @@
 
 /**
  *
- * The basic &Ice; module, containing all the &Ice; core functionality.
+ * The &Ice; core library. Among many other features, the &Ice; core
+ * library manages all the communication tasks using an efficient
+ * protocol (including protocol compression and support for both TCP
+ * and UDP), provides a thread pool for multi-threaded servers, and
+ * additional functionality that supports high scalability.
  *
  **/
 module Ice
@@ -36,8 +40,8 @@ module Ice
 /**
  *
  * The central object in &Ice;. One or more communicators can be
- * instantiated for an &Ice; application. Communicator instantiation is
- * language specific, and not specified in Slice code.
+ * instantiated for an &Ice; application. Communicator instantiation
+ * is language specific, and not specified in Slice code.
  *
  * @see Logger
  * @see Stats
@@ -52,9 +56,9 @@ local interface Communicator
     /**
      *
      * Destroy the communicator. This operation calls [shutdown]
-     * implicitly.  Calling [destroy] cleans up memory, and shuts
-     * down this communicator's client functionality. Subsequent
-     * calls to [destroy] are ignored.
+     * implicitly.  Calling [destroy] cleans up memory, and shuts down
+     * this communicator's client functionality. Subsequent calls to
+     * [destroy] are ignored.
      *
      * @see shutdown
      *
@@ -111,9 +115,9 @@ local interface Communicator
      * have completed. A typical use of this operation is to call it
      * from the main thread, which then waits until some other thread
      * calls [shutdown]. After shutdown is complete, the main thread
-     * returns and can do some cleanup work before it finally
-     * calls [destroy] to also shut down the client functionality,
-     * and then exits the application.
+     * returns and can do some cleanup work before it finally calls
+     * [destroy] to also shut down the client functionality, and then
+     * exits the application.
      *
      * @see shutdown
      * @see signalShutdown
