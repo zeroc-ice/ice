@@ -64,7 +64,7 @@ prefix			= /opt/Ice
 # optimization. Otherwise Ice is build with debug information.
 #
 
-OPTIMIZE		= yes
+#OPTIMIZE		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
