@@ -145,14 +145,14 @@ IceInternal::Collector::message(BasicStream& stream)
 		{
 		    if (_state == StateClosing)
 		    {
-			traceRequest("received batch request during closing\n"
-				     "(ignored by server, client will retry)",
-				     stream, _logger, _traceLevels);
+			traceBatchRequest("received batch request during closing\n"
+					  "(ignored by server, client will retry)",
+					  stream, _logger, _traceLevels);
 		    }
 		    else
 		    {
-			traceRequest("received batch request",
-				     stream, _logger, _traceLevels);
+			traceBatchRequest("received batch request",
+					  stream, _logger, _traceLevels);
 			invoke = true;
 			batch = true;
 		    }
@@ -206,11 +206,17 @@ IceInternal::Collector::message(BasicStream& stream)
 	{
 	    try
 	    {
+		if (batch)
+		{
+		    stream.startReadEncaps();
+		}
+
 		in.invoke(stream);
 
-		if (batch) // If we're in batch mode, we need the input stream back
+		if (batch)
 		{
-		    stream.swap(*in.is());
+		    stream.swap(*in.is()); // If we're in batch mode, we need the input stream back
+		    stream.endReadEncaps();
 		}
 	    }
 	    catch (const Exception& ex)

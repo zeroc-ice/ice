@@ -19,7 +19,7 @@ Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-#Ice.Trace.Network=3
+Ice.Trace.Network=3
 
 #
 # Protocol Tracing
@@ -27,4 +27,4 @@ Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-#Ice.Trace.Protocol=1
+Ice.Trace.Protocol=1

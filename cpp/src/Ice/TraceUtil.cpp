@@ -41,7 +41,7 @@ printHeader(ostream& s, BasicStream& stream)
 	}
 	case requestBatchMsg:
 	{
-	    s << "(request batch)";
+	    s << "(batch request)";
 	    break;
 	}
 	case replyMsg:
@@ -127,6 +127,25 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	ostringstream s;
 	s << heading;
 	printHeader(s, stream);
+	int cnt = 0;
+	while (stream.i != stream.b.end())
+	{
+	    s << "\nrequest #" << cnt++ << ':';
+	    BasicStream::Container::iterator q = stream.i;
+	    stream.startReadEncaps();
+	    string identity;
+	    stream.read(identity);
+	    s << "\nidentity = " << identity;
+	    string facet;
+	    stream.read(facet);
+	    s << "\nfacet = " << facet;
+	    string operation;
+	    stream.read(operation);
+	    s << "\noperation name = " << operation;
+	    stream.i = q;
+	    stream.skipEncaps();
+	}
+	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }
 }

@@ -137,6 +137,8 @@ IceInternal::Emitter::prepareBatchRequest(Outgoing* out)
 	_batchStream.write(Int(0)); // Message size (placeholder)
     }
 
+    _batchStream.startWriteEncaps();
+
     //
     // Give the batch stream to `out', until finishBatchRequest() is
     // called.
@@ -156,6 +158,8 @@ IceInternal::Emitter::finishBatchRequest(Outgoing* out)
 
     _batchStream.swap(*out->os()); // Get the batch stream back 
     unlock(); // Give the Emitter back
+
+    _batchStream.endWriteEncaps();
 }
 
 void
@@ -196,8 +200,7 @@ IceInternal::Emitter::flushBatchRequest()
 	_transceiver->write(_batchStream, _endpoint->timeout());
 
 	//
-	// Reset _batchStream and _batchRequestId, so that new batch
-	// messages can be sent.
+	// Reset _batchStream so that new batch messages can be sent.
 	//
 	BasicStream dummy(_instance);
 	_batchStream.swap(dummy);
