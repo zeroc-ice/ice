@@ -103,7 +103,14 @@ public class ObjectAdapterI implements ObjectAdapter
             throw new ObjectAdapterDeactivatedException();
         }
 
-        _activeServantMap.put(ident, servant);
+        //
+        // Create a copy of the Identity argument, in case the caller
+        // reuses it
+        //
+        Identity id = new Identity();
+        id.category = ident.category;
+        id.name = ident.name;
+        _activeServantMap.put(id, servant);
 
         return newProxy(ident);
     }
