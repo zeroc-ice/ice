@@ -90,13 +90,13 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
     {
         int i = 0;
 
-        _readTimeout = timeout;
+        _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
         try
         {
             if (_initWantRead)
             {
-                i = readSelect(timeout);
+                i = readSelect(_readTimeout);
             }
             else if (_initWantWrite)
             {
@@ -168,7 +168,7 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 
                     if (wouldBlock())
                     {
-                        readSelect(timeout);
+                        readSelect(_readTimeout);
                         break;
                     }
 
@@ -216,8 +216,6 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 
         if (retCode > 0)
         {
-            _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
-
             // Init finished, look at the connection information.
             showConnectionInfo();
         }
