@@ -273,6 +273,9 @@ public class Instance
 	_outgoingConnectionFactory.destroy();
 	_outgoingConnectionFactory.waitUntilFinished();
 	
+	ThreadPool serverThreadPool = null;
+	ThreadPool clientThreadPool = null;
+
 	synchronized(this)
 	{
 	    _objectAdapterFactory = null;
@@ -281,14 +284,14 @@ public class Instance
 	    if(_serverThreadPool != null)
 	    {
 		_serverThreadPool.destroy();
-		_serverThreadPool.joinWithAllThreads();
+		serverThreadPool = _serverThreadPool;
 		_serverThreadPool = null;	
 	    }
 	    
 	    if(_clientThreadPool != null)
 	    {
 		_clientThreadPool.destroy();
-		_clientThreadPool.joinWithAllThreads();
+		clientThreadPool = _clientThreadPool;
 		_clientThreadPool = null;
 	    }
 	    
@@ -318,6 +321,19 @@ public class Instance
 	    _pluginManager = null;
 	    
 	    _destroyed = true;
+	}
+
+	//
+	// Join with the thread pool threads outside the
+	// synchronization.
+	//
+	if(clientThreadPool != null)
+	{
+	    clientThreadPool.joinWithAllThreads();
+	}
+	if(serverThreadPool != null)
+	{
+	    serverThreadPool.joinWithAllThreads();
 	}
     }
 

@@ -507,6 +507,9 @@ IceInternal::Instance::destroy()
     _outgoingConnectionFactory->destroy();
     _outgoingConnectionFactory->waitUntilFinished();
 
+    ThreadPoolPtr serverThreadPool;
+    ThreadPoolPtr clientThreadPool;
+
     {
 	IceUtil::RecMutex::Lock sync(*this);
 
@@ -516,15 +519,13 @@ IceInternal::Instance::destroy()
 	if(_serverThreadPool)
 	{
 	    _serverThreadPool->destroy();
-	    _serverThreadPool->joinWithAllThreads();
-	    _serverThreadPool = 0;	
+	    std::swap(_serverThreadPool, serverThreadPool);
 	}
 	
 	if(_clientThreadPool)
 	{
 	    _clientThreadPool->destroy();
-	    _clientThreadPool->joinWithAllThreads();
-	    _clientThreadPool = 0;
+	    std::swap(_clientThreadPool, clientThreadPool);
 	}
 
 	_servantFactoryManager->destroy();
@@ -557,5 +558,17 @@ IceInternal::Instance::destroy()
 	_dynamicLibraryList = 0;
 
 	_destroyed = true;
+    }
+
+    //
+    // Join with the thread pool threads outside the synchronization.
+    //
+    if(clientThreadPool)
+    {
+	clientThreadPool->joinWithAllThreads();
+    }
+    if(serverThreadPool)
+    {
+	serverThreadPool->joinWithAllThreads();
     }
 }
