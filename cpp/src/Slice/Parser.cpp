@@ -215,8 +215,9 @@ Slice::Container::createModule(const string& name)
 ClassDef_ptr
 Slice::Container::createClassDef(const string& name,
 				 const ClassDef_ptr& base,
-				 const ClassList& implements,
-				 bool local)
+				 const ClassList& interfaces,
+				 bool local,
+				 bool intf)
 {
     list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
@@ -237,8 +238,8 @@ Slice::Container::createClassDef(const string& name,
 	assert(false); // TODO: Already exists and not a class declaration
     }
     
-    ClassDef_ptr def = new ClassDef(this, name, base, implements,
-				    local, false);
+    ClassDef_ptr def = new ClassDef(this, name, base, interfaces,
+				    local, intf);
     contents_.push_back(def);
     
     for(list<Contained_ptr>::iterator q = matches.begin();
@@ -254,13 +255,13 @@ Slice::Container::createClassDef(const string& name,
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    createClassDecl(name, local);
+    createClassDecl(name, local, intf);
 
     return def;
 }
 
 ClassDecl_ptr
-Slice::Container::createClassDecl(const string& name, bool local)
+Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 {
     ClassDef_ptr def;
 
@@ -729,6 +730,8 @@ Slice::ClassDef::createOperation(const string& name,
 DataMember_ptr
 Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 {
+    assert(!isInterface());
+
     list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -751,6 +754,12 @@ ClassDef_ptr
 Slice::ClassDef::base()
 {
     return base_;
+}
+
+ClassList
+Slice::ClassDef::interfaces()
+{
+    return interfaces_;
 }
 
 list<Operation_ptr>
@@ -832,17 +841,26 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 Slice::ClassDef::ClassDef(const Container_ptr& container,
 			  const string& name,
 			  const ClassDef_ptr& base,
-			  const ClassList& implements,
+			  const ClassList& interfaces,
 			  bool local,
 			  bool intf)
     : Contained(container, name),
       Container(container -> unit()),
       SyntaxTreeBase(container -> unit()),
       base_(base),
-      implements_(implements),
+      interfaces_(interfaces),
       local_(local),
       interface_(intf)
 {
+    assert(!base_ || !base_ -> isInterface());
+#ifndef NDEBUG
+    for(ClassList::iterator p = interfaces_.begin();
+	p != interfaces_.end();
+	++p)
+    {
+	assert((*p) -> isInterface());
+    }
+#endif
 }
 
 // ----------------------------------------------------------------------

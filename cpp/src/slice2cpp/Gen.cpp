@@ -1051,7 +1051,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     H << nl << "class" << dllExport_ << ' ' << name << " : ";
     if(isLocal)
     {
-        // No virtual inheritance for isLocal objects
+        // No virtual inheritance for local objects
 	H << "public " << baseS;
     }
     else

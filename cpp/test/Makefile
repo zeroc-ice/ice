@@ -12,7 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= operations
+SUBDIRS		= operations inheritance
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

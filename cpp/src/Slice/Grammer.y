@@ -203,7 +203,7 @@ class_decl
     BoolTok_ptr local = BoolTok_ptr::dynamicCast($1);
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
-    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v);
+    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v, false);
 }
 ;
 
@@ -218,7 +218,8 @@ class_def
     ClassDef_ptr base = ClassDef_ptr::dynamicCast($4);
     ClassListTok_ptr intfs = ClassListTok_ptr::dynamicCast($5);
     ClassDef_ptr derived = cont -> createClassDef(ident -> v, base,
-						  intfs -> v, local -> v);
+						  intfs -> v, local -> v,
+						  false);
     unit -> pushContainer(derived);
 }
 '{' class_exports '}'
@@ -289,7 +290,7 @@ interface_decl
     BoolTok_ptr local = BoolTok_ptr::dynamicCast($1);
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
-    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v);
+    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v, true);
 }
 ;
 
@@ -303,7 +304,8 @@ interface_def
     Container_ptr cont = unit -> currentContainer();
     ClassListTok_ptr intfs = ClassListTok_ptr::dynamicCast($4);
     ClassDef_ptr derived = cont -> createClassDef(ident -> v, 0,
-						  intfs -> v, local -> v);
+						  intfs -> v, local -> v,
+						  true);
     unit -> pushContainer(derived);
 }
 '{' interface_exports '}'
@@ -324,7 +326,7 @@ interface_list
     list<Type_ptr> types = cont -> lookupType(scoped -> v);
     assert(!types.empty()); // TODO
     ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
-    if(!cl && !cl -> isInterface())
+    if(!cl || !cl -> isInterface())
     {
 	string msg = "`";
 	msg += scoped -> v;
@@ -356,7 +358,7 @@ interface_list
     list<Type_ptr> types = cont -> lookupType(scoped -> v);
     assert(!types.empty()); // TODO
     ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(types.front());
-    if(!cl && !cl -> isInterface())
+    if(!cl || !cl -> isInterface())
     {
 	string msg = "`";
 	msg += scoped -> v;
