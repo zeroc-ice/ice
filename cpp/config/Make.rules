@@ -18,15 +18,16 @@ JTC		= $(HOME)/JTC-2.0.0b1/jtc
 bindir		= $(top_srcdir)/bin
 libdir		= $(top_srcdir)/lib
 includedir	= $(top_srcdir)/include
-icedir		= $(top_srcdir)/ice
+slicedir	= $(top_srcdir)/slice
 
 CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I. -I$(includedir) -I$(STLPORT)/stlport -I$(JTC)/include
 LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib
-LIBS		= -lIce -lstlport_gcc_debug -lJTC -lpthread
-ICE		= $(bindir)/ice
+BASELIBS	= -lstlport_gcc_debug -lJTC -lpthread
+LIBS		= -lIce $(BASELIBS)
+SLICE		= $(bindir)/slice2cpp
 
 EVERYTHING	= all depend clean
 
