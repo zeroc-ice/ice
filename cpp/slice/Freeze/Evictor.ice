@@ -12,7 +12,7 @@
 #define FREEZE_EVICTOR_ICE
 
 #include <Ice/ObjectAdapter.ice>
-#include <Freeze/DBF.ice>
+#include <Freeze/DB.ice>
 
 module Freeze
 {
@@ -85,10 +85,10 @@ enum EvictorPersistenceMode
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
  * implementation can be created with the operation
- * <literal>DB::createEvictor</literal>, and must be registered with
+ * <literal>DBForServants::createEvictor</literal>, and must be registered with
  * an Object Adapter like other Servant Locators.
  *
- * @see DB::createEvictor
+ * @see DBForServants::createEvictor
  * @see Ice::ServantLocator
  *
  **/
@@ -96,15 +96,15 @@ local interface Evictor extends Ice::ServantLocator
 {
     /**
      *
-     * Get the database that is being used by this Evictor. This is
+     * Get the Servant database that is being used by this Evictor. This is
      * the database from which this Evictor was created.
      *
      * @return The database used by this Evictor.
      *
-     * @see DB::createEvictor
+     * @see DBForServants::createEvictor
      *
      **/
-    DB getDB();
+    DBForServants getDBForServants();
 
     /**
      *
@@ -120,7 +120,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see getSize
      *
      **/
-    void setSize(int sz);
+    void setSize(int sz) throws DBException;
 
     /**
      *
@@ -147,7 +147,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see getPersistenceMode
      *
      **/
-    void setPersistenceMode(EvictorPersistenceMode mode);
+    void setPersistenceMode(EvictorPersistenceMode mode) throws DBException;
 
     /**
      *
@@ -177,7 +177,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see destroyObject
      *
      **/
-    void createObject(string identity, Object servant);
+    void createObject(string identity, Object servant) throws DBException;
 
     /**
      *
@@ -191,7 +191,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see createObject
      *
      **/
-    void destroyObject(string identity);
+    void destroyObject(string identity) throws DBException;
 
     /**
      *
