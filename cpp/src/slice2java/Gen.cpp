@@ -2740,8 +2740,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
 	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-        out << nl << "IceInternal.Outgoing __out = new IceInternal.Outgoing(__connection, __reference, \""
-            << op->name() << "\", " << (nonmutating ? "true" : "false") << ", __context);";
+        out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", "
+            << (nonmutating ? "true" : "false") << ", __context);";
         out << nl << "try";
         out << sb;
         if (!inParams.empty())
@@ -2828,7 +2828,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "finally";
         out << sb;
-        out << nl << "__out.destroy();";
+        out << nl << "reclaimOutgoing(__out);";
         out << eb;
 
         out << eb;
