@@ -214,6 +214,12 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 
     if(pid == 0) // Child process.
     {
+	//
+	// TODO: eliminate all non-async-signal-safe calls, in particular anything
+	// that may allocated dynamic memory
+	//
+
+
 #ifdef __linux
 	//
 	// Create a process group for this child, to be able to send 
@@ -260,7 +266,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 		s << "can't set environment variable: " << *q << "':\n" << ex;
 		write(fds[1], s.str().c_str(), s.str().length());
 		close(fds[1]);
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	    }
 	}
 
@@ -292,7 +298,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 // 		s << "can't redirect stderr to the pipe output";
 // 		write(fds[1], s.str().c_str(), s.str().length());
 // 		close(fds[1]);
-// 		exit(EXIT_FAILURE);
+// 		_exit(EXIT_FAILURE);
 // 	    }
 // 	}
 
@@ -313,7 +319,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 		s << "can't change working directory to `" << pwd << "':\n" << ex;
 		write(fds[1], s.str().c_str(), s.str().length());
 		close(fds[1]);
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	    }
 	}	
 
@@ -329,7 +335,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    s << "can't execute `" << path << "':\n" << ex;
 	    write(fds[1], s.str().c_str(), s.str().length());
 	    close(fds[1]);
-	    exit(EXIT_FAILURE);
+	    _exit(EXIT_FAILURE);
 	}
     }
     else // Parent process.
