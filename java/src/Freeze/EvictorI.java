@@ -70,14 +70,21 @@ class EvictorI implements Evictor
 	}
 
 	//
+	// Copy the identity. This is necessary for add().
+	//
+	Ice.Identity identCopy = new Ice.Identity();
+	identCopy.name = new String(ident.name);
+	identCopy.category = new String(ident.category);
+
+	//
 	// Save the new Ice Object to the database.
 	//
-	_dict.put(ident, servant);
-	add(ident, servant);
+	_dict.put(identCopy, servant);
+	add(identCopy, servant);
 	
 	if (_trace >= 1)
 	{
-	    _db.getCommunicator().getLogger().trace("Evictor", "created \"" +ident + "\"");
+	    _db.getCommunicator().getLogger().trace("Evictor", "created \"" + Ice.Util.identityToString(ident) + "\"");
 	}
 	
 	//
@@ -102,7 +109,8 @@ class EvictorI implements Evictor
 	
 	if (_trace >= 1)
 	{
-	    _db.getCommunicator().getLogger().trace("Evictor", "destroyed \"" + ident + "\"");
+	    _db.getCommunicator().getLogger().trace("Evictor", "destroyed \"" +
+						    Ice.Util.identityToString(ident) + "\"");
 	}
     }
     
@@ -128,14 +136,23 @@ class EvictorI implements Evictor
 	// it's a bug in Ice.
 	//
 	assert(!_deactivated);
+
+	//
+	// First copy current.identity. This is necessary since this
+	// identity is later added to the evictor list (and
+	// potentially the map).
+	//
+	Ice.Identity ident = new Ice.Identity();
+	ident.name = new String(current.identity.name);
+	ident.category = new String(current.identity.category);
 	
-	EvictorElement element = (EvictorElement)_evictorMap.get(current.identity);
+	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
 	if (element != null)
 	{
 	    if (_trace >= 2)
 	    {
 		_db.getCommunicator().getLogger().trace("Evictor",
-							"found \"" + Ice.Util.identityToString(current.identity) +
+							"found \"" + Ice.Util.identityToString(ident) +
 							"\" in the queue");
 	    }
 	    
@@ -144,7 +161,7 @@ class EvictorI implements Evictor
 	    // the evictor list, so that it will be evicted last.
 	    //
 	    element.position.remove();
-	    _evictorList.addFirst(current.identity);
+	    _evictorList.addFirst(ident);
 	    element.position = _evictorList.iterator();
 
 	    //
@@ -158,15 +175,15 @@ class EvictorI implements Evictor
 	    {
 		_db.getCommunicator().getLogger().trace(
 		    "Evictor",
-		    "couldn't find \"" + Ice.Util.identityToString(current.identity) + "\" in the queue\n"
-		    + "loading \"" + Ice.Util.identityToString(current.identity) + "\" from the database");
+		    "couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue\n"
+		    + "loading \"" + Ice.Util.identityToString(ident) + "\" from the database");
 	    }
 	    
 	    //
 	    // Load the Ice Object from database and create and add a
 	    // Servant for it.
 	    //
-	    Ice.Object servant = (Ice.Object)_dict.get(current.identity);
+	    Ice.Object servant = (Ice.Object)_dict.get(ident);
 	    if (servant == null)
 	    {
 		//
@@ -177,16 +194,17 @@ class EvictorI implements Evictor
 	    }
 	    
 	    //
-	    // Add the new Servant to the evictor queue.
+	    // Add the new Servant to the evictor
+	    // queue. current.identity is copied
 	    //
-	    element = add(current.identity, servant);
+	    element = add(ident, servant);
 	    
 	    //
 	    // If an initializer is installed, call it now.
 	    //
 	    if (_initializer != null)
 	    {
-		_initializer.initialize(adapter, current.identity, servant);
+		_initializer.initialize(adapter, ident, servant);
 	    }
 	}
 	
@@ -321,7 +339,8 @@ class EvictorI implements Evictor
 		{
 		    _db.getCommunicator().getLogger().trace(
 			"Evictor", 
-			"evicted \"" + ident + "\" from the queue\n" + "number of elements in the queue: " +
+			"evicted \"" + Ice.Util.identityToString(ident) +
+			"\" from the queue\n" + "number of elements in the queue: " +
 			_evictorMap.size());
 		}
 		break;
@@ -409,4 +428,4 @@ class EvictorI implements Evictor
     private EvictorPersistenceMode _persistenceMode;
     private ServantInitializer _initializer;
     private int _trace = 0;
-};
+}
