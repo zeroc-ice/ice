@@ -91,11 +91,16 @@ namespace Ice
 		// activate operation instead of a non obvious network
 		// exception?
 		//
-		try {
+		try 
+		{
 		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
-		     locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
+		     locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+		}
+		catch(Ice.ObjectAdapterDeactivatedException)
+                {
+		    // IGNORE: The object adapter is already inactive.
 		}
 		catch(Ice.AdapterNotFoundException)
 		{
@@ -113,13 +118,17 @@ namespace Ice
 
 		if(registerProcess)
 		{
-		    Process servant = new ProcessI(communicator);
-		    ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
-
 		    try
 		    {
+		        Process servant = new ProcessI(communicator);
+			ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
+
 		    	locatorRegistry.setServerProcessProxy(serverId, proxy);
 		    } 
+		    catch(Ice.ObjectAdapterDeactivatedException)
+		    {
+		        // IGNORE: The object adapter is already inactive.
+		    }
 		    catch(ServerNotFoundException)
 		    {
 		        NotRegisteredException ex1 = new NotRegisteredException();
