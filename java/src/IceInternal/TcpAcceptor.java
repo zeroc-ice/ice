@@ -128,10 +128,11 @@ class TcpAcceptor implements Acceptor
 
         try
         {
-            _addr = new java.net.InetSocketAddress(port);
+            java.net.InetSocketAddress addr =
+                new java.net.InetSocketAddress(port);
 
             _fd = Network.createTcpServerSocket();
-            Network.doBind(_fd, _addr);
+            _addr = Network.doBind(_fd, addr);
         }
         catch (RuntimeException ex)
         {
