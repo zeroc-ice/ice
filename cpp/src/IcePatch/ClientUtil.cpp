@@ -212,3 +212,48 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 
     return calcMD5(path, false);
 }
+
+void
+IcePatch::checkDirectory(const string& path, bool dynamic, const LoggerPtr& logger)
+{
+    FileInfo info = getFileInfo(path, true, logger);
+    if(info.type != FileTypeDirectory)
+    {
+        FileAccessException ex;
+        ex.reason = "`" + path + "' is not a directory";
+        throw ex;
+    }
+
+    StringSeq paths = readDirectory(path);
+    for(StringSeq::const_iterator p = paths.begin(); p < paths.end(); ++p)
+    {
+        if(!ignoreSuffix(*p))
+        {
+            string subPath = *p;
+            FileInfo subInfo = getFileInfo(subPath, true, logger);
+            if(subInfo.type == FileTypeDirectory)
+            {
+                checkDirectory(subPath, dynamic, logger);
+            }
+            else
+            {
+                FileInfo subInfoMD5 = getFileInfo(subPath + ".md5", false, logger);
+                if(dynamic && subInfoMD5.type != FileTypeNotExist)
+                {
+                    removeRecursive(subPath + ".md5");
+                }
+                else if(!dynamic && (subInfoMD5.type == FileTypeNotExist || subInfoMD5.time < subInfo.time))
+                {
+                    createMD5(subPath, dynamic, logger);
+                }
+            }
+        }
+    }
+
+    info = getFileInfo(path, true, logger); // Get current timestamp.
+    FileInfo infoMD5 = getFileInfo(path + ".md5", false, logger);
+    if(infoMD5.type == FileTypeNotExist || infoMD5.time < info.time)
+    {
+        createMD5(path, dynamic, logger);
+    }
+}
