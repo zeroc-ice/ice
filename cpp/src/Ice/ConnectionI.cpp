@@ -222,7 +222,13 @@ Ice::ConnectionI::close(bool force)
 bool
 Ice::ConnectionI::isDestroyed() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
+    
+    if(!sync.acquired())
+    {
+	return false;
+    }
+
     return _state >= StateClosing;
 }
 
@@ -232,9 +238,17 @@ Ice::ConnectionI::isFinished() const
     IceUtil::ThreadPtr threadPerConnection;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
+	
+	if(!sync.acquired())
+	{
+	    return false;
+	}
 
-	if(_transceiver != 0 || _dispatchCount != 0)
+	if(_transceiver != 0 || _dispatchCount != 0 ||
+	   (threadPerConnection &&
+	    threadPerConnection->getThreadControl() != IceUtil::ThreadControl() &&
+	    threadPerConnection->getThreadControl().isAlive()))
 	{
 	    return false;
 	}
