@@ -200,7 +200,8 @@ static void hack_vms_include_specification ();
 
 /* External declarations.  */
 
-extern char *version_string;
+/* extern char *version_string; */
+
 extern char *update_path PROTO((char *, char *));
 //#ifndef VMS
 //#ifndef HAVE_STRERROR
@@ -2265,7 +2266,7 @@ index0 (s, c, n)
 {
   char *p = (char *) s;
   for (;;) {
-    char *q = index (p, c);
+    char *q = (char*) index (p, c);
     if (q)
       return (U_CHAR *) q;
     else {
@@ -4642,7 +4643,7 @@ base_name (fname)
   if (s != fname)
     return s;
 #endif
-  if ((p = rindex (s, '/'))) s = p + 1;
+  if ((p = (char*) rindex (s, '/'))) s = p + 1;
 #ifdef DIR_SEPARATOR
   if ((p = rindex (s, DIR_SEPARATOR))) s = p + 1;
 #endif
@@ -5227,7 +5228,7 @@ check_preconditions (prec)
   char *lineend;
   
   while (*prec) {
-    lineend = index (prec, '\n');
+    lineend = (char*) index (prec, '\n');
     
     if (*prec++ != '#') {
       error ("Bad format encountered while reading precompiled file");

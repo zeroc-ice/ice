@@ -40,33 +40,33 @@ public:
     
     Handle(T* p = 0)
     {
-	_ptr = p;
+	this->_ptr = p;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
     
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
 
     template<typename Y>
     Handle(const ::IceUtil::Handle<Y>& r)
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
 
@@ -77,33 +77,33 @@ public:
     Handle(const Handle& r)
 #endif
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
     
     ~Handle()
     {
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    decRef(_ptr);
+	    decRef(this->_ptr);
 	}
     }
     
     Handle& operator=(T* p)
     {
-	if(_ptr != p)
+	if(this->_ptr != p)
 	{
 	    if(p)
 	    {
 		incRef(p);
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = p;
+	    T* ptr = this->_ptr;
+	    this->_ptr = p;
 
 	    if(ptr)
 	    {
@@ -116,15 +116,15 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = r._ptr;
+	    T* ptr = this->_ptr;
+	    this->_ptr = r._ptr;
 
 	    if(ptr)
 	    {
@@ -137,15 +137,15 @@ public:
     template<typename Y>
     Handle& operator=(const ::IceUtil::Handle<Y>& r)
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = r._ptr;
+	    T* ptr = this->_ptr;
+	    this->_ptr = r._ptr;
 
 	    if(ptr)
 	    {
@@ -162,15 +162,15 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = r._ptr;
+	    T* ptr = this->_ptr;
+	    this->_ptr = r._ptr;
 
 	    if(ptr)
 	    {
@@ -194,7 +194,7 @@ public:
 
     void __clearHandleUnsafe()
     {
-	_ptr = 0;
+	this->_ptr = 0;
     }
 };
 

@@ -156,9 +156,9 @@ idFunction()
     // On FreeBSD, pthread_t is a pointer to a per-thread structure
     // 
     return reinterpret_cast<unsigned long>(pthread_self());
-#elif (defined(__linux) || defined(__sun))
+#elif (defined(__linux) || defined(__sun) || defined(__hpux))
     //
-    // On Linux and Solaris, pthread_t is an integer
+    // On Linux, Solaris and HP-UX, pthread_t is an integer
     //
     return static_cast<unsigned long>(pthread_self());
 #else

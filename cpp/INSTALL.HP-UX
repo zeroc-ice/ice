@@ -1,0 +1,158 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating System
+----------------
+
+HP-UX 11i (11.11) on PA-RISC.
+
+You also need the "HP-UX Strong Random Number Generator", available for
+free from http://software.hp.com.
+
+
+C++ compiler
+------------
+
+- HP aC++ A.03.37
+  
+More recent versions of aC++ are likely to work as well.
+
+
+C compiler
+----------
+
+- HP C/ANSI C compiler (cc).
+
+
+Third-party libraries
+---------------------
+
+- Berkeley DB 4.1.25 with C++ support enabled, and built with a C++
+  compiler compatible with the one you are using.
+  The Berkeley DB source distribution can be downloaded from 
+  http://www.sleepycat.com
+  
+  We recommend to configure Berkeley DB with:
+  CXXFLAGS=-AA ../../dist/configure --enable-cxx --enable-java
+  (and --prefix=<dir> if you like).
+ 
+- OpenSSL 0.9.7c
+  The OpenSSL source distribution can be downloaded from 
+  http://www.openssl.org
+  We do _not_ recommend to use the binary distribution available from the
+  "Sofware Porting And Archive Centre for HP-UX" as it depends on the
+  GCC runtime.
+  A recommended configuration is:
+  ./Configure hpux-parisc2-cc shared
+  (and --prefix=<dir> if you like).
+
+- expat 1.9x
+  The expat source distribution can be downloaded from: 
+  http://sourceforge.net/projects/expat
+  You can also use the binary distribution from the "Sofware Porting And 
+  Archive Centre for HP-UX", http://hpux.cs.utah.edu.
+
+- bzip2 1.0
+  Source and binary distributions can be downloaded from the "Sofware 
+  Porting And Archive Centre for HP-UX", http://hpux.cs.utah.edu.
+
+GNU Make 3.80
+-------------
+
+GNU Make 3.80 is required to build Ice on HP-UX.
+You can download GNU Make from the "Sofware Porting And Archive Centre 
+for HP-UX", http://hpux.cs.utah.edu.
+
+
+Python 2.2 or 2.3
+-----------------
+
+To run the automated test suite, you will need Python 2.2. If you have
+no interest in running the test scripts, Python is not required.
+
+You can download Python from http://hpux.cs.utah.edu.
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Extract the Ice archive in any directory you like (for example, in
+your home directory):
+
+$ tar xvfz Ice-<version>.tar.gz
+
+Change the working directory to Ice-<version>:
+
+$ cd Ice-<version>
+
+Edit the file config/Make.rules according to the comments in this
+file. Make sure that the paths for the third-party libraries are set
+correctly if they are not installed in the default location /usr/lib
+and /usr/include.
+
+Now you're ready to build Ice:
+
+$ gmake
+
+This will build the Ice core library, all add-ons, all tests, and all
+examples. 
+
+
+After a successful build, you can run the test suite, provided that 
+you installed Python:
+
+$ gmake test
+
+This is equivalent to:
+
+$ python allTests.py
+
+If everything worked out, you should see lots of "ok". In case of a
+failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add "bin" to
+PATH and "lib" to SHLIB_PATH or LD_LIBRARY_PATH (for 64 bit
+builds):
+
+$ export PATH=`pwd`/bin:$PATH
+$ export SHLIB_PATH=`pwd`/lib:$SHLIB_PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
+
+======================================================================
+64 bit builds
+======================================================================
+
+To build Ice in 64 bit mode, you need to:
+
+- Obtain or build all the third party dependencies, and put the 64 bit
+  libraries in the "lib/pa20_64" directories. For example put Berkeley
+  DB 64 bit libraries in $DB_HOME/lib/pa20_64.
+
+- Set the environment variable LP64 to yes, e.g.:
+  $ export LP64=yes
+
+- Build and test as described above.
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "gmake install". This will install Ice in the "prefix"
+directory specified in the file Make.rules.
+
+After installation, make sure that the <prefix>/bin directory is in
+your PATH, and the <prefix>/lib directory is in your
+SHLIB_PATH. When compiling Ice programs, you must also make sure
+to pass the location of the <prefix>/include directory to the compiler
+with the -I option, and the location of the <prefix>/lib directory
+with the -L option.
+
+If you built in 64 bit mode, the libraries are installed in
+<prefix>/lib/pa20_64 and the programs are installed in
+<prefix>/bin/pa20_64. Other files are identical for 32 and 64 bit.
+ 

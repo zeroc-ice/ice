@@ -1,0 +1,65 @@
+# **********************************************************************
+#
+# Copyright (c) 2003
+# ZeroC, Inc.
+# Billerica, MA, USA
+#
+# All Rights Reserved.
+#
+# Ice is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is HP-UX..
+#
+
+CXX               	:= aCC
+
+ifeq ($(LP64),yes)
+    CXXARCHFLAGS        := +DD64
+else
+    CXXARCHFLAGS        := +DA2.0N
+endif
+
+#
+# TODO: add -Bhidden_def (for declspec), when it works
+#
+
+#
+# Disable the following warnings:
+# 307: Function defines return type, but contains no return at end of function.
+# 361: Value-returning function might end without executing a return statement.
+# 849: External symbol too long, truncated from xxx to 4000
+DISABLEDWARNINGS        = +W307 +W361 +W849
+
+CXXFLAGS		= -AA +Z -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
+
+ifeq ($(OPTIMIZE),yes)
+     CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= -g0 $(CXXFLAGS)
+endif
+
+LDPLATFORMFLAGS         = -Wl,+s -Wl,+b$(prefix)/$(libsubdir)
+
+mklibfilename           = lib$(1).$(2)
+mksoname                = lib$(1).$(2)
+mklibname               = lib$(1).sl
+mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
+
+BASELIBS		= -lIceUtil -lpthread
+LIBS			= -lIce $(BASELIBS)
+
+ICEUTIL_OS_LIBS         := -lpthread -lrt
+ICE_OS_LIBS             := 
+
+lp64suffix              := /pa20_64
+
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH)
+else
+    export SHLIB_PATH	   := $(libdir):$(SHLIB_PATH)
+endif

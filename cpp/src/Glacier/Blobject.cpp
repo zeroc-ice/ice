@@ -95,11 +95,47 @@ Glacier::TwowayThrottle::twowayFinished()
     }
 }
 
+
+#ifdef __HP_aCC
+//
+// Compiler bug!
+// The conditional in Glacier::Blobject::Blobject below result in a
+// std::exception "thread synchronization error" at runtime
+// when using string litterals (looks like a RogueWave bug)
+// The work around is to use static strings:
+//
+
+static const string traceServer = "Glacier.Router.Trace.Server";
+static const string traceClient = "Glacier.Router.Trace.Client";
+
+static const string serverForwardContext = "Glacier.Router.Server.ForwardContext";
+static const string clientForwardContext = "Glacier.Router.Client.ForwardContext";
+
+static const string serverSleepTime = "Glacier.Router.Server.SleepTime";
+static const string clientSleepTime = "Glacier.Router.Client.SleepTime";
+#endif
+
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _communicator(communicator),
     _reverse(reverse),
     _properties(_communicator->getProperties()),
     _logger(_communicator->getLogger()),
+
+#ifdef __HP_aCC
+    // 
+    // Compiler bug, see above
+    //
+    _traceLevel(_reverse ?
+		_properties->getPropertyAsInt(traceServer) :
+		_properties->getPropertyAsInt(traceClient)),
+    _forwardContext(_reverse ?
+		    _properties->getPropertyAsInt(serverForwardContext) > 0 :
+		    _properties->getPropertyAsInt(clientForwardContext) > 0),
+    _sleepTime(_reverse ?
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime))),
+
+#else
     _traceLevel(_reverse ?
 		_properties->getPropertyAsInt("Glacier.Router.Trace.Server") :
 		_properties->getPropertyAsInt("Glacier.Router.Trace.Client")),
@@ -109,6 +145,8 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _sleepTime(_reverse ?
 	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Server.SleepTime")) :
 	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Client.SleepTime"))),
+#endif   
+
     _twowayThrottle(_communicator, _reverse)
 {
     _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _sleepTime);

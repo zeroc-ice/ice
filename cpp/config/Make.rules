@@ -214,7 +214,7 @@ CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-LDFLAGS			=  $(CXXFLAGS) -L$(libdir)
+LDFLAGS			=  $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifeq ($(FLEX_NOLINE),yes)
     FLEXFLAGS          := -L

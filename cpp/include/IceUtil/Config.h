@@ -23,7 +23,7 @@
 //
 #if defined(__i386) || defined(_M_IX86) || defined (__x86_64)
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc) || defined(__sparc__)
+#elif defined(__sparc) || defined(__sparc__) || defined(__hppa)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
@@ -37,7 +37,7 @@
 // We are a linux sparc, which forces 32 bit usr land, no matter the architecture
 //
 #   define  ICE_32
-#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64))
+#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64)) || (defined(__hppa) &&defined(__LP64__))
 #   define ICE_64
 #else
 #   define ICE_32
@@ -49,7 +49,7 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
@@ -131,7 +131,7 @@
 //  ...: decorated name length exceeded, name was truncated
 #   pragma warning( disable : 4503 )  
 
-#elif defined(__sun) && defined(__sparc)
+#elif (defined(__sun) && defined(__sparc)) || (defined(__hpux))
 #   include <inttypes.h>
 #else
 //
@@ -212,6 +212,8 @@ const Int64 Int64Max = INT64_MAX;
 
 #if defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
+#elif defined(__HP_aCC)
+#   define ICE_INT64(n) n
 #elif defined(ICE_64)
 #   define ICE_INT64(n) n##L
 #else

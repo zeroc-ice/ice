@@ -34,7 +34,7 @@ class Cond;
 //
 
 //
-class ICE_UTIL_API StaticMutex
+class StaticMutex
 {
 public:
 
@@ -99,7 +99,7 @@ private:
     void lock(LockState&) const;
 
 #ifdef _WIN32
-    void initialize() const;
+    ICE_UTIL_API void initialize() const;
 #endif
 
 #ifndef _MSC_VER

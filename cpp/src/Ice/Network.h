@@ -15,6 +15,10 @@
 #ifndef ICE_NETWORK_H
 #define ICE_NETWORK_H
 
+#ifdef __hpux
+#   define _XOPEN_SOURCE_EXTENDED
+#endif
+
 #include <Ice/Config.h>
 
 #ifdef _WIN32
@@ -24,7 +28,13 @@ typedef int ssize_t;
 #   include <unistd.h>
 #   include <fcntl.h>
 #   include <sys/socket.h>
-#   include <sys/select.h>
+
+#   if defined(__hpux)
+#      include <sys/time.h>
+#   else   
+#      include <sys/select.h>
+#   endif
+
 #   include <netinet/in.h>
 #   include <netinet/tcp.h>
 #   include <arpa/inet.h>

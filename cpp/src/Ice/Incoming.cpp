@@ -319,7 +319,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
-	    __warning(string("std::exception: ") + ex.what());
+	    __warning(string("std::exception3: ") + ex.what());
 	}
 
 	if(_response)
@@ -328,7 +328,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
-	    str << "std::exception: " << ex.what();
+	    str << "std::exception4: " << ex.what();
 	    _os.write(str.str());
 	}
 

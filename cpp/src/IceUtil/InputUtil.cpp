@@ -150,6 +150,10 @@ strToInt64(const char* s, char** endptr, int base)
 
     return result;
 
+#elif defined(ICE_64)
+    return strtol(s, endptr, base);
+#elif defined(__hpux)
+    return __strtoll(s, endptr, base);
 #else
     return strtoll(s, endptr, base);
 #endif

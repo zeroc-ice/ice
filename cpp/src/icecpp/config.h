@@ -17,7 +17,7 @@
 // configure script from the gcc-2.8.1 distribution.
 //
 
-#if defined(__linux) || defined(__FreeBSD__) || defined(__sun)
+#if defined(__linux) || defined(__FreeBSD__) || defined(__sun) || defined(__hpux)
 #   define HAVE_INTTYPES_H 1
 #   define TIME_WITH_SYS_TIME 1
 #   define HAVE_BCMP 1
@@ -33,6 +33,10 @@
 #   pragma warning( disable : 4018 )
 #   pragma warning( disable : 4244 )
 #   define alloca _alloca
+#endif
+
+#if defined(__hpux)
+#include <alloca.h>
 #endif
 
 #if defined(__sun)
@@ -57,10 +61,8 @@
 #define LONG_TYPE_SIZE 4
 #if defined(_WIN32)
 #   define WCHAR_TYPE_SIZE 2
-#elif (defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)) \
-      || defined (__sun)
-#   define WCHAR_TYPE_SIZE 4
-#elif defined(__linux) && defined(__sparc__)
+#elif (defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64) || defined(__sparc)) \
+      || defined (__sun) || defined(__hpux)
 #   define WCHAR_TYPE_SIZE 4
 #else
 #   error "unsupported operating system or platform"

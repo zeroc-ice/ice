@@ -282,7 +282,7 @@ public:
 protected:
 
     Builtin(const UnitPtr&, Kind);
-    friend class SLICE_API Unit;
+    friend class Unit;
 
     Kind _kind;
 };
@@ -336,7 +336,7 @@ public:
 protected:
 
     Contained(const ContainerPtr&, const std::string&);
-    friend class SLICE_API Container;
+    friend class Container;
 
     ContainerPtr _container;
     std::string _name;
@@ -420,7 +420,7 @@ public:
 protected:
 
     Module(const ContainerPtr&, const std::string&);
-    friend class SLICE_API Container;
+    friend class Container;
 };
 
 // ----------------------------------------------------------------------
@@ -466,8 +466,8 @@ public:
 protected:
 
     ClassDecl(const ContainerPtr&, const std::string&, bool, bool);
-    friend class SLICE_API Container;
-    friend class SLICE_API ClassDef;
+    friend class Container;
+    friend class ClassDef;
 
     ClassDefPtr _definition;
     bool _interface;
@@ -519,7 +519,7 @@ public:
 protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, Mode);
-    friend class SLICE_API ClassDef;
+    friend class ClassDef;
 
     TypePtr _returnType;
     ExceptionList _throws;
@@ -566,7 +566,7 @@ public:
 protected:
 
     ClassDef(const ContainerPtr&, const std::string&, bool, const ClassList&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 
     ClassDeclPtr _declaration;
     bool _interface;
@@ -622,7 +622,7 @@ public:
 protected:
 
     Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 
     ExceptionPtr _base;
     bool _local;
@@ -649,7 +649,7 @@ public:
 protected:
 
     Struct(const ContainerPtr&, const std::string&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 };
 
 // ----------------------------------------------------------------------
@@ -671,7 +671,7 @@ public:
 protected:
 
     Sequence(const ContainerPtr&, const std::string&, const TypePtr&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 
     TypePtr _type;
 };
@@ -698,7 +698,7 @@ public:
 protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 
     TypePtr _keyType;
     TypePtr _valueType;
@@ -725,7 +725,7 @@ public:
 protected:
 
     Enum(const ContainerPtr&, const std::string&, bool);
-    friend class SLICE_API Container;
+    friend class Container;
 
     EnumeratorList _enumerators;
 };
@@ -746,8 +746,8 @@ public:
 protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
-    friend class SLICE_API Container;
-    friend class SLICE_API Enum;
+    friend class Container;
+    friend class Enum;
 
     EnumPtr _type;
 };
@@ -775,7 +775,7 @@ public:
 protected:
 
     Const(const ContainerPtr&, const std::string&, const TypePtr&, const std::string&);
-    friend class SLICE_API Container;
+    friend class Container;
 
     TypePtr _type;
     std::string _value;
@@ -799,7 +799,7 @@ public:
 protected:
 
     ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool isOutParam);
-    friend class SLICE_API Operation;
+    friend class Operation;
 
     TypePtr _type;
     bool _isOutParam;
@@ -822,9 +822,9 @@ public:
 protected:
     
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&);
-    friend class SLICE_API ClassDef;
-    friend class SLICE_API Struct;
-    friend class SLICE_API Exception;
+    friend class ClassDef;
+    friend class Struct;
+    friend class Exception;
 
     TypePtr _type;
 };

@@ -33,33 +33,33 @@ public:
     
     ProxyHandle(T* p = 0)
     {
-	_ptr = p;
+	this->_ptr = p;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
     
     template<typename Y>
     ProxyHandle(const ProxyHandle<Y>& r)
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
 
     template<typename Y>
     ProxyHandle(const ::IceUtil::Handle<Y>& r)
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
 
@@ -70,37 +70,37 @@ public:
     ProxyHandle(const ProxyHandle& r)
 #endif
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    incRef(_ptr);
+	    incRef(this->_ptr);
 	}
     }
     
     ~ProxyHandle()
     {
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    decRef(_ptr);
+	    decRef(this->_ptr);
 	}
     }
     
     ProxyHandle& operator=(T* p)
     {
-	if(_ptr != p)
+	if(this->_ptr != p)
 	{
 	    if(p)
 	    {
 		incRef(p);
 	    }
 
-	    if(_ptr)
+	    if(this->_ptr)
 	    {
-		decRef(_ptr);
+		decRef(this->_ptr);
 	    }
 	    
-	    _ptr = p;
+	    this->_ptr = p;
 	}
 	return *this;
     }
@@ -108,19 +108,19 @@ public:
     template<typename Y>
     ProxyHandle& operator=(const ProxyHandle<Y>& r)
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
+	    if(this->_ptr)
 	    {
-		decRef(_ptr);
+		decRef(this->_ptr);
 	    }
 	    
-	    _ptr = r._ptr;
+	    this->_ptr = r._ptr;
 	}
 	return *this;
     }
@@ -128,19 +128,19 @@ public:
     template<typename Y>
     ProxyHandle& operator=(const ::IceUtil::Handle<Y>& r)
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
+	    if(this->_ptr)
 	    {
-		decRef(_ptr);
+		decRef(this->_ptr);
 	    }
 	    
-	    _ptr = r._ptr;
+	    this->_ptr = r._ptr;
 	}
 	return *this;
     }
@@ -152,19 +152,19 @@ public:
     ProxyHandle& operator=(const ProxyHandle& r)
 #endif
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
+	    if(this->_ptr)
 	    {
-		decRef(_ptr);
+		decRef(this->_ptr);
 	    }
 	    
-	    _ptr = r._ptr;
+	    this->_ptr = r._ptr;
 	}
 	return *this;
     }

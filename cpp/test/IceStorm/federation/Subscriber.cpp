@@ -61,7 +61,7 @@ private:
 typedef IceUtil::Handle<EventI> EventIPtr;
 
 int EventI::_count = 0;
-IceUtil::StaticMutex EventI::_countMutex;
+IceUtil::StaticMutex EventI::_countMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 void
 createLock(const string& name)

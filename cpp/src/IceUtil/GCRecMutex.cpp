@@ -14,9 +14,12 @@
 
 #include <IceUtil/GCRecMutex.h>
 
-using namespace IceUtil;
+namespace IceUtil
+{
+GCRecMutex gcRecMutex;
+}
 
-GCRecMutex ICE_UTIL_API IceUtil::gcRecMutex;
+using namespace IceUtil;
 
 static int gcInitCount = 0;
 

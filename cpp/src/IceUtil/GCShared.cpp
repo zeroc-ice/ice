@@ -15,9 +15,12 @@
 #include <IceUtil/GCRecMutex.h>
 #include <IceUtil/GCShared.h>
 
-using namespace IceUtil;
+namespace IceUtil
+{
+GCObjectSet gcObjects;
+}
 
-IceUtil::GCObjectSet IceUtil::gcObjects;
+using namespace IceUtil;
 
 IceUtil::GCShared::GCShared()
     : _ref(0), _noDelete(false)

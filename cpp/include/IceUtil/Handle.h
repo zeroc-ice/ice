@@ -122,22 +122,22 @@ public:
     
     Handle(T* p = 0)
     {
-	_ptr = p;
+	this->_ptr = p;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    _ptr->__incRef();
+	    this->_ptr->__incRef();
 	}
     }
     
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    _ptr->__incRef();
+	    this->_ptr->__incRef();
 	}
     }
 
@@ -148,33 +148,33 @@ public:
     Handle(const Handle& r)
 #endif
     {
-	_ptr = r._ptr;
+	this->_ptr = r._ptr;
 
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    _ptr->__incRef();
+	    this->_ptr->__incRef();
 	}
     }
     
     ~Handle()
     {
-	if(_ptr)
+	if(this->_ptr)
 	{
-	    _ptr->__decRef();
+	    this->_ptr->__decRef();
 	}
     }
     
     Handle& operator=(T* p)
     {
-	if(_ptr != p)
+	if(this->_ptr != p)
 	{
 	    if(p)
 	    {
 		p->__incRef();
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = p;
+	    T* ptr = this->_ptr;
+	    this->_ptr = p;
 
 	    if(ptr)
 	    {
@@ -187,15 +187,15 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		r._ptr->__incRef();
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = r._ptr;
+	    T* ptr = this->_ptr;
+	    this->_ptr = r._ptr;
 
 	    if(ptr)
 	    {
@@ -212,15 +212,15 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if(_ptr != r._ptr)
+	if(this->_ptr != r._ptr)
 	{
 	    if(r._ptr)
 	    {
 		r._ptr->__incRef();
 	    }
 
-	    T* ptr = _ptr;
-	    _ptr = r._ptr;
+	    T* ptr = this->_ptr;
+	    this->_ptr = r._ptr;
 
 	    if(ptr)
 	    {

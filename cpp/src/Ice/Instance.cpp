@@ -627,7 +627,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
     }
 
-#if !defined(_WIN32) && !defined(__sun) 
+#if !defined(_WIN32) && !defined(__sun) && !defined(__hpux)
     //
     // daemon() must be called after any plug-ins have been
     // installed. For example, an SSL plug-in might want to

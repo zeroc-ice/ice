@@ -79,7 +79,15 @@ def isSolaris():
         return 1
     else:
         return 0
-        
+       
+def isHpUx():
+
+   if sys.platform == "hp-ux11":
+        return 1
+   else:
+        return 0
+     
+ 
 serverPids = []
 def killServers():
 
@@ -157,8 +165,12 @@ if isWin32():
     else:
 	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 else:
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
+    if isHpUx():
+        os.environ["SHLIB_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("SHLIB_PATH", "")
+#       os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH, "")
+    else:
+        os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"

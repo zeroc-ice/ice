@@ -2322,7 +2322,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	H << sp << nl << "void " << _dllExport << "__patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
 
 	C << sp << nl << "void " << _dllExport;
-	C << nl << scope << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
+	C << nl << scope.substr(2) << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
 	C << sb;
 	C << nl << scope << name << "Ptr* p = static_cast< " << scope << name << "Ptr*>(__addr);";
 	C << nl << "assert(p);";
@@ -2677,10 +2677,8 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
        || ClassDeclPtr::dynamicCast(p))
     {
 	C << nl << "__addObject(_c, " << prefix << name << ".get());";
-	return;
     }
-
-    if(StructPtr s = StructPtr::dynamicCast(p))
+    else if(StructPtr s = StructPtr::dynamicCast(p))
     {
 	DataMemberList dml = s->dataMembers();
 	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
@@ -2690,10 +2688,8 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
 		emitGCInsertCode((*i)->type(), prefix + name + ".", fixKwd((*i)->name()), ++level);
 	    }
 	}
-	return;
     }
-
-    if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
+    else if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
     {
 	string scoped = fixKwd(d->scoped());
 	stringstream tmp;
@@ -2706,10 +2702,8 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
 	emitGCInsertCode(d->valueType(), "", string("(*") + iterName + ").second", ++level);
 	C << eb;
 	C << eb;
-	return;
     }
-
-    if(SequencePtr s = SequencePtr::dynamicCast(p))
+    else if(SequencePtr s = SequencePtr::dynamicCast(p))
     {
 	string scoped = fixKwd(s->scoped());
 	stringstream tmp;
@@ -2722,7 +2716,6 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
 	emitGCInsertCode(s->type(), string("(*") + iterName + ")", "", ++level);
 	C << eb;
 	C << eb;
-	return;
     }
 }
 
@@ -2737,10 +2730,8 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 	C << nl << prefix << name << "->__decRefUnsafe();";
 	C << nl << prefix << name << ".__clearHandleUnsafe();";
 	C << eb;
-	return;
     }
-
-    if(StructPtr s = StructPtr::dynamicCast(p))
+    else if(StructPtr s = StructPtr::dynamicCast(p))
     {
 	DataMemberList dml = s->dataMembers();
 	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
@@ -2750,10 +2741,8 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 		emitGCClearCode((*i)->type(), prefix + name + ".", fixKwd((*i)->name()), ++level);
 	    }
 	}
-	return;
     }
-
-    if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
+    else if(DictionaryPtr d = DictionaryPtr::dynamicCast(p))
     {
 	string scoped = fixKwd(d->scoped());
 	stringstream tmp;
@@ -2766,10 +2755,8 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 	emitGCClearCode(d->valueType(), "", string("(*") + iterName + ").second", ++level);
 	C << eb;
 	C << eb;
-	return;
     }
-
-    if(SequencePtr s = SequencePtr::dynamicCast(p))
+    else if(SequencePtr s = SequencePtr::dynamicCast(p))
     {
 	string scoped = fixKwd(s->scoped());
 	stringstream tmp;
@@ -2781,8 +2768,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 	C << sb;
 	emitGCClearCode(s->type(), "", string("(*") + iterName + ")", ++level);
 	C << eb;
-	C << eb;
-	return;
+	C << eb;;
     }
 }
 
@@ -3140,48 +3126,54 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
                 break;
             }
         }
-        return;
     }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    else
     {
-        out << nl << "return 0;";
-        return;
+        ProxyPtr prx = ProxyPtr::dynamicCast(type);
+        if(prx)
+	{
+	    out << nl << "return 0;";
+	}
+	else
+	{
+	    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+	    if(cl)
+	    {
+		out << nl << "return 0;";
+	    }
+	    else
+	    {
+		StructPtr st = StructPtr::dynamicCast(type);
+		if(st)
+		{
+		    out << nl << "return " << fixKwd(st->scoped()) << "();";
+		}
+		else
+		{
+		    EnumPtr en = EnumPtr::dynamicCast(type);
+		    if(en)
+		    {
+			EnumeratorList enumerators = en->getEnumerators();
+			out << nl << "return " << fixKwd(en->scope()) << fixKwd(enumerators.front()->name()) << ';';
+		    }
+		    else
+		    {
+			SequencePtr seq = SequencePtr::dynamicCast(type);
+			if(seq)
+			{
+			    out << nl << "return " << fixKwd(seq->scoped()) << "();";
+			}
+			else
+			{
+			    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+			    assert(dict);
+			    out << nl << "return " << fixKwd(dict->scoped()) << "();";
+			}
+		    }
+		}
+	    }
+	}
     }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        out << nl << "return 0;";
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        out << nl << "return " << fixKwd(st->scoped()) << "();";
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        EnumeratorList enumerators = en->getEnumerators();
-        out << nl << "return " << fixKwd(en->scope()) << fixKwd(enumerators.front()->name()) << ';';
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        out << nl << "return " << fixKwd(seq->scoped()) << "();";
-        return;
-    }
-
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    assert(dict);
-    out << nl << "return " << fixKwd(dict->scoped()) << "();";
 }
 
 bool

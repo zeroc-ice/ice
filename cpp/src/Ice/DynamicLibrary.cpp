@@ -92,6 +92,16 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib += 'd';
 #   endif
     lib += ".dll";
+#elif defined(__hpux)
+    lib = "lib" + libName;
+    if(!version.empty())
+    {
+        lib += "." + version;
+    }
+    else
+    {
+	lib += ".sl";
+    }
 #else
     lib = "lib" + libName + ".so";
     if(!version.empty())

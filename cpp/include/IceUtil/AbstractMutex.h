@@ -70,7 +70,7 @@ public:
 
     virtual void lock() const
     {
-	readLock();
+	T::readLock();
     }
 
     virtual void unlock() const
@@ -97,7 +97,7 @@ public:
 
     virtual void lock() const
     {
-	writeLock();
+	T::writeLock();
     }
 
     virtual void unlock() const
