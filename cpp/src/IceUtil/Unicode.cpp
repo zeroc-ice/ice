@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -103,14 +103,14 @@ IceUtil::stringToWstring(const string& str)
 	}
 	else if(c < 0xfc) // 111110xx
 	{
-	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2002.
+	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2003.
 	    wc = c & 3;
 	    len = 5;
 	    minval = 0x110000;
 	}
 	else if(c < 0xfe) // 1111110x
 	{
-	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2002.
+	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2003.
 	    wc = c & 1;
 	    len = 6;
 	    minval = 0x4000000;

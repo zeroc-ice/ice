@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2002
+# Copyright (c) 2003
 # ZeroC, Inc.
 # Billerica, MA, USA
 #
@@ -18,8 +18,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = ""
-#protocol = "ssl"
+#protocol = ""
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Huntsville, AL, USA
 //
@@ -17,8 +17,8 @@ package IceUtil;
 public final class Version
 {
     //
-    // The Ice version
+    // The Ice version.
     //
-    public final static String ICE_STRING_VERSION = "0.0.1";
-    public final static int ICE_INT_VERSION = 0x00000001;
+    public final static String ICE_STRING_VERSION = "1.0.0"; // "A.B.C", with A=major, B=minor, C=patch
+    public final static int ICE_INT_VERSION = 10000;         // AABBCC, with AA=major, BB=minor, CC=patch
 }

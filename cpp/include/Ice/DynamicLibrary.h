@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -36,21 +36,21 @@ public:
 
     //
     // Load an entry point. This is really a convenience function
-    // which combines calls to load() and getSymbol(). However,
-    // it does add some value.
+    // which combines calls to load() and getSymbol(). However, it
+    // does add some value.
     //
     // An entry point has the following format:
     //
     // name[,version]:function
     //
     // The name of the library is constructed from the given
-    // information. If no version is supplied, the Ice version
-    // is used. For example, consider the following entry point:
+    // information. If no version is supplied, the Ice version is
+    // used. For example, consider the following entry point:
     //  
     // foo:create 
     //
-    // This would result in libfoo.so.0.0.1 (Unix) and foo001.dll (Windows),
-    // where the Ice version is 0.0.1.
+    // This would result in libfoo.so.1.0.0 (Unix) and foo100.dll
+    // (Windows), where the Ice version is 1.0.0.
     //
     // Now consider this entry point:
     //
@@ -59,8 +59,8 @@ public:
     // The library names in this case are libfoo.so.1.1 (Unix) and
     // foo11.dll (Windows).
     //
-    // On Windows platforms, a 'd' is appended to the version for debug
-    // builds.
+    // On Windows platforms, a 'd' is appended to the version for
+    // debug builds.
     //
     // Returns 0 if a failure occurred.
     //

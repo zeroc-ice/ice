@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -11,8 +11,6 @@
 // the Free Software Foundation.
 //
 // **********************************************************************
-
-// Ice version 0.0.1
 
 public final class ObjectFactoryI extends Ice.LocalObjectImpl implements Ice.ObjectFactory
 {

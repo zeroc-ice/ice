@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -1877,7 +1877,7 @@ Slice::JavaGenerator::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2002\n"
+"// Copyright (c) 2003\n"
 "// ZeroC, Inc.\n"
 "// Billerica, MA, USA\n"
 "//\n"

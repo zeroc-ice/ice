@@ -16,7 +16,7 @@
 
 <!--
 **********************************************************************
-Copyright (c) 2002
+Copyright (c) 2003
 ZeroC, Inc.
 Billerica, MA, USA
 
@@ -35,9 +35,8 @@ All Rights Reserved
 <country>USA</country>
 </address>
 </publisher>
-<releaseinfo>Version 0.0.1</releaseinfo>
 <copyright>
-<year>2002</year>
+<year>2003</year>
 <holder>ZeroC, Inc. All rights reserved.</holder>
 </copyright>
 </bookinfo>

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -176,7 +176,7 @@ Slice::Gen::printHeader(XMLOutput& O)
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 "<!--\n"
 "**********************************************************************\n"
-"Copyright (c) 2002\n"
+"Copyright (c) 2003\n"
 "ZeroC, Inc.\n"
 "Billerica, MA, USA\n"
 "\n"

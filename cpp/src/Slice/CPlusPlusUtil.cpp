@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2002
+// Copyright (c) 2003
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -67,7 +67,7 @@ Slice::printHeader(Output& out)
     static const char* header = 
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2002\n"
+"// Copyright (c) 2003\n"
 "// ZeroC, Inc.\n"
 "// Billerica, MA, USA\n"
 "//\n"
@@ -89,7 +89,7 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    out << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+    out << "\n#   if ICE_INT_VERSION != " << ICE_INT_VERSION;
     out << "\n#       error Ice version mismatch!";
     out << "\n#   endif";
     out << "\n#endif";
