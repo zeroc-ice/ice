@@ -27,6 +27,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	myClass->opVoid();
 	test(false);
     }
+    catch(const Ice::CloseConnectionException&)
+    {
+	cout << "ok" << endl;
+    }
     catch(const Ice::ConnectFailedException&)
     {
 	cout << "ok" << endl;

@@ -190,7 +190,6 @@ CallbackClient::run(int argc, char* argv[])
     }
     // If we use the glacier router, the exact exception reason gets
     // lost.
-    //catch(const ConnectFailedException&)
     catch(const UnknownLocalException&)
     {
 	cout << "ok" << endl;
@@ -203,6 +202,10 @@ CallbackClient::run(int argc, char* argv[])
     {
 	router->ice_ping();
 	test(false);
+    }
+    catch(const CloseConnectionException&)
+    {
+	cout << "ok" << endl;
     }
     catch(const ConnectFailedException&)
     {
