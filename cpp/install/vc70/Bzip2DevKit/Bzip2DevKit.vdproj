@@ -1,0 +1,276 @@
+"DeployProject"
+{
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"IsWebType" = "8:FALSE"
+"ProjectName" = "8:Bzip2DevKit"
+"LanguageId" = "3:0"
+"CodePage" = "3:1252"
+"UILanguageId" = "3:1033"
+"SccProjectName" = "8:"
+"SccLocalPath" = "8:"
+"SccAuxPath" = "8:"
+"SccProvider" = "8:"
+    "Hierarchy"
+    {
+        "Entry"
+        {
+        "MsmKey" = "8:_2EC1E51959304F9CAF9A2AA95539A5B0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\BZIP2-1.0.2\\LIBBZ2D.LIB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8C2A1FDB0CBC41D4B00D182A039E8AB5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\BZIP2-1.0.2\\LIBBZ2.LIB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BFAD2E51AD2D4E0285F8D63B75C156EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\BZIP2-1.0.2\\LICENSE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C3EBB2AAD6A24D69AD41B2C63F7CCA87"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\BZIP2-1.0.2\\BZLIB.H"
+        }
+    }
+    "Configurations"
+    {
+        "Ice"
+        {
+        "DisplayName" = "8:Ice"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:Ice\\Bzip2DevKit.msm"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:1"
+        }
+        "ThirdParty"
+        {
+        "DisplayName" = "8:ThirdParty"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:..\\MergeModules\\Bzip2DevKit.msm"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:3"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:1"
+        }
+    }
+    "Deployable"
+    {
+        "CustomAction"
+        {
+        }
+        "DefaultFeature"
+        {
+        "Name" = "8:DefaultFeature"
+        "Title" = "8:"
+        "Description" = "8:"
+        }
+        "File"
+        {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2EC1E51959304F9CAF9A2AA95539A5B0"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\libbz2d.lib"
+            "TargetName" = "8:libbz2d.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_143BFBD3319F4821A06DFA20ED4070EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8C2A1FDB0CBC41D4B00D182A039E8AB5"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\libbz2.lib"
+            "TargetName" = "8:libbz2.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_143BFBD3319F4821A06DFA20ED4070EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BFAD2E51AD2D4E0285F8D63B75C156EB"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\LICENSE"
+            "TargetName" = "8:BZIP2-LICENSE"
+            "Tag" = "8:"
+            "Folder" = "8:_632D6E9084E647BC836197ACC76662E6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C3EBB2AAD6A24D69AD41B2C63F7CCA87"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\bzlib.h"
+            "TargetName" = "8:bzlib.h"
+            "Tag" = "8:"
+            "Folder" = "8:_FC54F375D622492E848B3721BD985515"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+        }
+        "FileType"
+        {
+        }
+        "Folder"
+        {
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_143BFBD3319F4821A06DFA20ED4070EF"
+            {
+            "DefaultLocation" = "8:[TARGETDIR]\\lib"
+            "DisplayName" = "8:Retargetable Folder #1"
+            "Description" = "8:"
+            "Name" = "8:lib"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY2"
+                "Folders"
+                {
+                }
+            }
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_632D6E9084E647BC836197ACC76662E6"
+            {
+            "DefaultLocation" = "8:[TARGETDIR]"
+            "DisplayName" = "8:Retargetable Folder #1"
+            "Description" = "8:"
+            "Name" = "8:license"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:TRUE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY3"
+                "Folders"
+                {
+                }
+            }
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_FC54F375D622492E848B3721BD985515"
+            {
+            "DefaultLocation" = "8:[TARGETDIR]\\include"
+            "DisplayName" = "8:Module Retargetable Folder"
+            "Description" = "8:"
+            "Name" = "8:include"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+                "Folders"
+                {
+                }
+            }
+        }
+        "Shortcut"
+        {
+        }
+        "Sequences"
+        {
+        }
+        "Registry"
+        {
+            "HKLM"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCR"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKPU"
+            {
+                "Keys"
+                {
+                }
+            }
+        }
+        "ProjectOutput"
+        {
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.C10AE60A32A14225AEC71599916683FA"
+        "Version" = "8:1.0.2.0"
+        "Title" = "8:Bzip2DevKit"
+        "Subject" = "8:"
+        "Author" = "8:ZeroC, Inc"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
+        {
+        }
+    }
+}
