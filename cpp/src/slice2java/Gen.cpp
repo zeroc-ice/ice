@@ -490,8 +490,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     if(!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                  ::IceUtil::constMemFun(&Operation::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Operation::name));
         allOpNames.push_back("ice_facets");
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");

@@ -116,6 +116,7 @@ IceProxy::Ice::Object::ice_hash() const
 {
     return _reference->hashValue;
 }
+
 bool
 IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
