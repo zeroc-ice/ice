@@ -14,6 +14,8 @@ supported.
 C++ compiler
 ------------
 
+- Visual C++ .NET 2003 (aka VC 7.1); or
+
 - Visual C++ .NET 7.0; or
 
 - Visual C++ 6.0 with STLport 4.5
