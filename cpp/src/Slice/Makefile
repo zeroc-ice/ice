@@ -29,6 +29,8 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
+CPPFLAGS	:= -I. $(CPPFLAGS)
+
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(BASELDFLAGS) -shared -o $@ $(OBJS)

@@ -1858,7 +1858,14 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "::Ice::ObjectPrx proxy;";
     // TODO: Should be ::Ice::__read
     C << nl << "::IceInternal::read(__is, proxy);";
+    C << nl << "if (!proxy)";
+    C << sb;
+    C << nl << "v = 0;";
+    C << eb;
+    C << nl << "else";
+    C << sb;
     C << nl << "v = new ::IceProxy" << scoped << ';';
     C << nl << "proxy->__copyTo(v.get());";
+    C << eb;
     C << eb;
 }

@@ -22,7 +22,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I../parser $(CPPFLAGS)
+CPPFLAGS	:= -I. -I../parser $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@
