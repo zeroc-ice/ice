@@ -58,14 +58,14 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
 
 IceInternal::BasicStream::~BasicStream()
 {
-    while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
+    while(_currentReadEncaps)
     {
 	ReadEncaps* oldEncaps = _currentReadEncaps;
 	_currentReadEncaps = _currentReadEncaps->previous;
 	delete oldEncaps;
     }
 
-    while(_currentWriteEncaps && _currentWriteEncaps != &_preAllocatedWriteEncaps)
+    while(_currentWriteEncaps)
     {
 	WriteEncaps* oldEncaps = _currentWriteEncaps;
 	_currentWriteEncaps = _currentWriteEncaps->previous;
@@ -95,16 +95,8 @@ IceInternal::BasicStream::swap(BasicStream& other)
 
     b.swap(other.b);
     std::swap(i, other.i);
-
-    //
-    // Swap is never called for BasicStreams that still have a current
-    // read or write encapsulation.
-    //
     std::swap(_currentReadEncaps, other._currentReadEncaps);
     std::swap(_currentWriteEncaps, other._currentWriteEncaps);
-    _preAllocatedReadEncaps.swap(other._preAllocatedReadEncaps);
-    _preAllocatedWriteEncaps.swap(other._preAllocatedWriteEncaps);
-
     std::swap(_seqDataStack, other._seqDataStack);
     std::swap(_objectList, other._objectList);
 }
@@ -246,7 +238,7 @@ IceInternal::BasicStream::endSeq(int sz)
 }
 
 IceInternal::BasicStream::WriteEncaps::WriteEncaps()
-    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0)//, previous(0)
+    : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
 {
 }
 
@@ -258,46 +250,10 @@ IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
 }
 
 void
-IceInternal::BasicStream::WriteEncaps::reset()
-{
-    delete toBeMarshaledMap;
-    delete marshaledMap;
-    delete typeIdMap;
-
-    writeIndex = 0;
-    toBeMarshaledMap = 0;
-    marshaledMap = 0;
-    typeIdMap = 0;
-    typeIdIndex = 0;
-//    previous = 0;
-}
-
-void
-IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
-{
-    std::swap(start, other.start);
-
-    std::swap(writeIndex, other.writeIndex);
-    std::swap(toBeMarshaledMap, other.toBeMarshaledMap);
-    std::swap(marshaledMap, other.marshaledMap);
-    std::swap(typeIdMap, other.typeIdMap);
-    std::swap(typeIdIndex, other.typeIdIndex);
-
-    std::swap(previous, other.previous);
-}
-
-void
 IceInternal::BasicStream::startWriteEncaps()
 {
     WriteEncaps* oldEncaps = _currentWriteEncaps;
-    if(!oldEncaps) // First allocated encaps?
-    {
-	_currentWriteEncaps = &_preAllocatedWriteEncaps;
-    }
-    else
-    {
-	_currentWriteEncaps = new WriteEncaps();
-    }
+    _currentWriteEncaps = new WriteEncaps();
     _currentWriteEncaps->previous = oldEncaps;
     _currentWriteEncaps->start = b.size();
 
@@ -330,18 +286,11 @@ IceInternal::BasicStream::endWriteEncaps()
 
     WriteEncaps* oldEncaps = _currentWriteEncaps;
     _currentWriteEncaps = _currentWriteEncaps->previous;
-    if(oldEncaps == &_preAllocatedWriteEncaps)
-    {
-	oldEncaps->reset();
-    }
-    else
-    {
-	delete oldEncaps;
-    }
+    delete oldEncaps;
 }
 
 IceInternal::BasicStream::ReadEncaps::ReadEncaps()
-    : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0)//, previous(0)
+    : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
 {
 }
 
@@ -353,48 +302,10 @@ IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
 }
 
 void
-IceInternal::BasicStream::ReadEncaps::reset()
-{
-    delete patchMap;
-    delete unmarshaledMap;
-    delete typeIdMap;
-
-    patchMap = 0;
-    unmarshaledMap = 0;
-    typeIdMap = 0;
-    typeIdIndex = 0;
-//    previous = 0;
-}
-
-void
-IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
-{
-    std::swap(start, other.start);
-    std::swap(sz, other.sz);
-
-    std::swap(encodingMajor, other.encodingMajor);
-    std::swap(encodingMinor, other.encodingMinor);
-
-    std::swap(patchMap, other.patchMap);
-    std::swap(unmarshaledMap, other.unmarshaledMap);
-    std::swap(typeIdMap, other.typeIdMap);
-    std::swap(typeIdIndex, other.typeIdIndex);
-
-    std::swap(previous, other.previous);
-}
-
-void
 IceInternal::BasicStream::startReadEncaps()
 {
     ReadEncaps* oldEncaps = _currentReadEncaps;
-    if(!oldEncaps) // First allocated encaps?
-    {
-	_currentReadEncaps = &_preAllocatedReadEncaps;
-    }
-    else
-    {
-	_currentReadEncaps = new ReadEncaps();
-    }
+    _currentReadEncaps = new ReadEncaps();
     _currentReadEncaps->previous = oldEncaps;
     _currentReadEncaps->start = i - b.begin();
 
@@ -445,14 +356,7 @@ IceInternal::BasicStream::endReadEncaps()
 
     ReadEncaps* oldEncaps = _currentReadEncaps;
     _currentReadEncaps = _currentReadEncaps->previous;
-    if(oldEncaps == &_preAllocatedReadEncaps)
-    {
-	oldEncaps->reset();
-    }
-    else
-    {
-	delete oldEncaps;
-    }
+    delete oldEncaps;
 }
 
 void
@@ -1354,7 +1258,11 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const ObjectPtr& v)
 {
-    assert(_currentWriteEncaps);
+    if(!_currentWriteEncaps) // Lazy initialization.
+    {
+	_currentWriteEncaps = new WriteEncaps();
+	_currentWriteEncaps->start = b.size();
+    }
 
     if(!_currentWriteEncaps->toBeMarshaledMap) // Lazy initialization.
     {
@@ -1402,7 +1310,10 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 void
 IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 {
-    assert(_currentReadEncaps);
+    if(!_currentReadEncaps) // Lazy initialization.
+    {
+	_currentReadEncaps = new ReadEncaps();
+    }
 
     if(!_currentReadEncaps->patchMap) // Lazy initialization.
     {
