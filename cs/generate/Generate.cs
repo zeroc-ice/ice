@@ -44,11 +44,11 @@ namespace Generate
 	    {
 		includes = "-I" + Path.Combine(solDir, "slice");
 	    }
-	    else if(iceHome != null)
+	    if(iceHome != null)
 	    {
 		if(Directory.Exists(Path.Combine(iceHome, "slice")))
 		{
-		    includes = "-I" + Path.Combine(iceHome, "slice");
+		    includes += " -I" + Path.Combine(iceHome, "slice");
 		}
 	    }
 
