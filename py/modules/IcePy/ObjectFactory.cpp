@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Config.h>
+#ifdef _WIN32
+#   include <IceUtil/Config.h>
+#endif
 #include <ObjectFactory.h>
 #include <Types.h>
 #include <Util.h>

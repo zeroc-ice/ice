@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Config.h>
+#ifdef _WIN32
+#   include <IceUtil/Config.h>
+#endif
 #include <Logger.h>
 #include <Util.h>
 #include <Ice/Logger.h>

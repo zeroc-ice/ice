@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Config.h>
+#ifdef _WIN32
+#   include <IceUtil/Config.h>
+#endif
 #include <Proxy.h>
 #include <structmember.h>
 #include <Util.h>

@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Config.h>
+#ifdef _WIN32
+#   include <IceUtil/Config.h>
+#endif
 #include <Util.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
