@@ -14,6 +14,8 @@
     <!-- Initialize -->
     <target name="init">
 	<property name="top.dir" value="../../.."/>
+	<property name="common.dir" value="../common"/>
+	<property name="doc.dir" value="./doc"/>
 
 	<!-- Sources -->
 	<property name="ice.dir" value="${top.dir}/stage/Ice-2.1.0"/>
@@ -28,8 +30,6 @@
 	<property name="expat.dir" value="${top.dir}/Expat-1.95.8"/>
 	<property name="openssl.dir" value="${top.dir}/openssl-0.9.7e"/>
 	<property name="stlport.dir" value="${top.dir}/STLPort-4.6.2"/>
-	<property name="common.dir" value="${ice.dir}/install/common"/>
-	<property name="doc.dir" value="./doc"/>
 
 	<!-- Targets -->
 	<property name="install.dir" value="./install"/>
@@ -57,13 +57,11 @@
     <!-- Ice Common -->
     <target name="ice-common" depends="setup">
 
-	<!-- Installer images -->
-	<mkdir dir="${install.dir}/ice-common/images"/>
-	<copy todir="${install.dir}/ice-common/images">
-	    <fileset dir="${common.dir}">
-		<include name="installer-*.bmp"/>
-	    </fileset>
-	</copy>
+	<!-- Installer -->
+	<mkdir dir="${install.dir}/ice-common"/>
+	<copy file="${common.dir}/installer-main.bmp" todir="${install.dir}/ice-common"/>
+	<copy file="${common.dir}/installer-header.bmp" todir="${install.dir}/ice-common"/>
+	<copy file="${common.dir}/LICENSE.rtf" todir="${install.dir}/ice-common"/>
 
 	<!-- README, licenses, etc. -->
 	<mkdir dir="${install.dir}/ice-common/doc"/>
@@ -71,7 +69,7 @@
 	<copy file="${ice.dir}/ICE_LICENSE" todir="${install.dir}/ice-common/doc"/>
 	<copy todir="${install.dir}/ice-common/doc">
 	    <fileset dir="${doc.dir}">
-		<exclude name="*.rtf"/>
+		<exclude name="THIRD_PARTY_LICENSE.rtf"/>
 	    </fileset>
 	</copy>
 
@@ -88,13 +86,11 @@
     <!-- Packages Common -->
     <target name="packages-common" depends="setup">
 
-	<!-- Installer images -->
-	<mkdir dir="${install.dir}/packages-common/images"/>
-	<copy todir="${install.dir}/packages-common/images">
-	    <fileset dir="${common.dir}">
-		<include name="installer-*.bmp"/>
-	    </fileset>
-	</copy>
+	<!-- Installer -->
+	<mkdir dir="${install.dir}/packages-common"/>
+	<copy file="${common.dir}/installer-main.bmp" todir="${install.dir}/packages-common"/>
+	<copy file="${common.dir}/installer-header.bmp" todir="${install.dir}/packages-common"/>
+	<copy file="${doc.dir}/THIRD_PARTY_LICENSE.rtf" tofile="${install.dir}/packages-common/LICENSE.rtf"/>
 
 	<!-- README, licenses, etc. -->
 	<mkdir dir="${install.dir}/packages-common/doc"/>
@@ -256,6 +252,10 @@
 	<mkdir dir="${install.dir}/ice-cpp/demo/demo"/>
 	<copy todir="${install.dir}/ice-cpp/demo/demo">
 	    <fileset dir="${ice.dir}/demo">
+		<exclude name="**/*.dsp"/>
+		<exclude name="**/*.dsw"/>
+		<exclude name="**/*.ncb"/>
+		<exclude name="**/*.suo"/>
 		<exclude name="**/*.exe"/>
 		<exclude name="**/*.ilk"/>
 		<exclude name="**/*.pdb"/>
