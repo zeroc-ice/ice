@@ -1382,7 +1382,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public " << s << "[] ToArray()";
     _out << sb;
-    _out << nl << s << "[] __a = new " << s << "[InnerList.Count];";
+    _out << nl << s << "[] __a = new " << toArrayAlloc(s + "[]", "InnerList.Count") << ';';
     _out << nl << "InnerList.CopyTo(__a, 0);";
     _out << nl << "return __a;";
     _out << eb;
@@ -3014,7 +3014,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     string keyArg = "((" + keyS + ")__e.Key)";
     writeMarshalUnmarshalCode(_out, key, keyArg, true, false);
-    string valueArg = "(" + valueS + ")__e.Value";
+    string valueArg = "((" + valueS + ")__e.Value)";
     writeMarshalUnmarshalCode(_out, value, valueArg, true, false);
     _out << eb;
     _out << eb;

@@ -504,51 +504,51 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << "else";
 		    out << sb;
 		    out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
-		    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+		    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 		    out << sb;
 		    string func = builtin->kind() == Builtin::KindObject ? "writeObject" : "writeProxy";
-		    out << nl << stream << '.' << func << '(' << param << "[__i]);";
+		    out << nl << stream << '.' << func << '(' << param << "[__ix]);";
 		    out << eb;
 		    out << eb;
 		}
 		else
 		{
-		    out << nl << "int __len = " << stream << ".readSize();";
-		    out << nl << stream << ".startSeq(__len, " << static_cast<unsigned>(builtin->minWireSize()) << ");";
+		    out << nl << "int __lenx = " << stream << ".readSize();";
+		    out << nl << stream << ".startSeq(__lenx, " << static_cast<unsigned>(builtin->minWireSize()) << ");";
 		    out << nl << param << " = new ";
 		    if(builtin->kind() == Builtin::KindObject)
 		    {
 			if(isArray)
 			{
-			    out << "Ice.Object[__len];";
+			    out << "Ice.Object[__lenx];";
 			}
 			else
 			{
-			    out << typeToString(seq) << "(__len);";
+			    out << typeToString(seq) << "(__lenx);";
 			}
-			out << nl << "for(int __i = 0; __i < __len; ++__i)";
+			out << nl << "for(int __ix = 0; __ix < __lenx; ++__ix)";
 			out << sb;
 			out << nl << stream << ".readObject(new IceInternal.SequencePatcher("
-			    << param << ", typeof(Ice.Object), __i));";
+			    << param << ", typeof(Ice.Object), __ix));";
 		    }
 		    else
 		    {
 		        if(isArray)
 			{
-			    out << "Ice.ObjectPrx[__len];";
+			    out << "Ice.ObjectPrx[__lenx];";
 			}
 			else
 			{
-			    out << typeToString(seq) << "(__len);";
+			    out << typeToString(seq) << "(__lenx);";
 			}
-			out << nl << "for(int __i = 0; __i < __len; ++__i)";
+			out << nl << "for(int __ix = 0; __ix < __lenx; ++__ix)";
 			out << sb;
-			out << nl << param << "[__i] = " << stream << ".readProxy();";
+			out << nl << param << "[__ix] = " << stream << ".readProxy();";
 		    }
 		    out << nl << stream << ".checkSeq();";
 		    out << nl << stream << ".endElement();";
 		    out << eb;
-		    out << nl << stream << ".endSeq(__len);";
+		    out << nl << stream << ".endSeq(__lenx);";
 		}
 	        break;
 	    }
@@ -588,35 +588,35 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         if(marshal)
         {
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
-	    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
-            out << nl << stream << ".writeObject(" << param << "[__i]);";
+            out << nl << stream << ".writeObject(" << param << "[__ix]);";
 	    out << eb;
         }
         else
         {
 	    out << sb;
-	    out << nl << "int sz = " << stream << ".readSize();";
-	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ");";
+	    out << nl << "int szx = " << stream << ".readSize();";
+	    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ");";
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "[]", "sz");
+		out << toArrayAlloc(typeS + "[]", "szx");
 	    }
 	    else
 	    {
-	        out << fixId(seq->scoped()) << "(sz)";
+	        out << fixId(seq->scoped()) << "(szx)";
 	    }
 	    out << ';';
-	    out << nl << "for(int i = 0; i < sz; ++i)";
+	    out << nl << "for(int i = 0; i < szx; ++i)";
 	    out << sb;
-	    out << nl << "IceInternal.SequencePatcher sp = new IceInternal.SequencePatcher("
+	    out << nl << "IceInternal.SequencePatcher spx = new IceInternal.SequencePatcher("
 		<< param << ", " << "typeof(" << typeS << "), i);";
-	    out << nl << stream << ".readObject(sp);";
+	    out << nl << stream << ".readObject(spx);";
 	    out << nl << stream << ".checkSeq();";
 	    out << nl << stream << ".endElement();";
 	    out << eb;
-	    out << nl << stream << ".endSeq(sz);";
+	    out << nl << stream << ".endSeq(szx);";
 	    out << eb;
         }
         return;
@@ -628,36 +628,36 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         if(marshal)
 	{
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
-	    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
-	    out << nl << param << "[__i].__write(" << stream << ");";
+	    out << nl << param << "[__ix].__write(" << stream << ");";
 	    out << eb;
 	}
 	else
 	{
 	    out << sb;
-	    out << nl << "int sz = " << stream << ".readSize();";
-	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ");";
+	    out << nl << "int szx = " << stream << ".readSize();";
+	    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ");";
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-	        out << toArrayAlloc(typeS + "[]", "sz");
+	        out << toArrayAlloc(typeS + "[]", "szx");
 	    }
 	    else
 	    {
-		out << fixId(seq->scoped()) << "(sz)";
+		out << fixId(seq->scoped()) << "(szx)";
 	    }
 	    out << ';';
-	    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
-	    out << nl << param << "[__i].__read(" << stream << ");";
+	    out << nl << param << "[__ix].__read(" << stream << ");";
 	    if(st->isVariableLength())
 	    {
 		out << nl << stream << ".checkSeq();";
 		out << nl << stream << ".endElement();";
 	    }
 	    out << eb;
-	    out << nl << stream << ".endSeq(sz);";
+	    out << nl << stream << ".endSeq(szx);";
 	    out << eb;
 	}
 	return;
@@ -670,77 +670,87 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	if(marshal)
 	{
 	    out << nl << stream << ".writeSize(" << param << '.'<< limitID << ");";
-	    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+	    out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	    out << sb;
-	    out << nl << stream << ".writeByte((byte)" << param << "[__i]);";
+	    out << nl << stream << ".writeByte((byte)" << param << "[__ix]);";
 	    out << eb;
 	}
 	else
 	{
 	    out << sb;
-	    out << nl << "int sz = " << stream << ".readSize();";
-	    out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ");";
+	    out << nl << "int szx = " << stream << ".readSize();";
+	    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ");";
 	    out << nl << param << " = new ";
 	    if(isArray)
 	    {
-	        out << toArrayAlloc(typeS + "[]", "sz");
+	        out << toArrayAlloc(typeS + "[]", "szx");
 	    }
 	    else
 	    {
-	        out << fixId(seq->scoped()) << "(sz)";
+	        out << fixId(seq->scoped()) << "(szx)";
 	    }
 	    out << ';';
-	    out << nl << "for(int __i = 0; __i < sz; ++__i)";
+	    out << nl << "for(int __ix = 0; __ix < szx; ++__ix)";
 	    out << sb;
 	    if(isArray)
 	    {
-		out << nl << param << "[__i] = (" << typeS << ')' << stream << ".readByte();";
+		out << nl << param << "[__ix] = (" << typeS << ')' << stream << ".readByte();";
 	    }
 	    else
 	    {
 	        out << nl << param << ".Add((" << typeS << ')' << stream << ".readByte());";
 	    }
 	    out << eb;
-	    out << nl << stream << ".endSeq(sz);";
+	    out << nl << stream << ".endSeq(szx);";
 	    out << eb;
 	}
         return;
+    }
+
+    string helperName;
+    if(ProxyPtr::dynamicCast(type))
+    {
+        helperName = fixId(ProxyPtr::dynamicCast(type)->_class()->scoped() + "PrxHelper");
+    }
+    else
+    {
+        helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
     }
 
     if(marshal)
     {
         string func = ProxyPtr::dynamicCast(type) ? "__write" : "write";
 	out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
-	out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
+	out << nl << "for(int __ix = 0; __ix < " << param << '.' << limitID << "; ++__ix)";
 	out << sb;
-	out << nl << typeS << "Helper." << func << '(' << stream << ", " << param << "[__i]);";
+	out << nl << helperName << '.' << func << '(' << stream << ", " << param << "[__ix]);";
 	out << eb;
     }
     else
     {
         string func = ProxyPtr::dynamicCast(type) ? "__read" : "read";
 	out << sb;
-	out << nl << "int sz = " << stream << ".readSize();";
-	out << nl << stream << ".startSeq(sz, " << static_cast<unsigned>(type->minWireSize()) << ");";
+	out << nl << "int szx = " << stream << ".readSize();";
+	out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ");";
 	out << nl << param << " = new ";
 	if(isArray)
 	{
-	    out << toArrayAlloc(typeS + "[]", "sz");
+	    out << toArrayAlloc(typeS + "[]", "szx");
 	}
 	else
 	{
-	    out << fixId(seq->scoped()) << "(sz)";
+	    out << fixId(seq->scoped()) << "(szx)";
 	}
 	out << ';';
-	out << nl << "for(int __i = 0; __i < sz; ++__i)";
+	out << nl << "for(int __ix = 0; __ix < szx; ++__ix)";
 	out << sb;
 	if(isArray)
 	{
-	    out << nl << param << "[__i] = " << typeS << "Helper." << func << '(' << stream << ");";
+	    out << nl << param << "[__ix] = " << helperName << '.' << func << '(' << stream << ");";
 	}
 	else
 	{
-	    out << nl << param << ".Add(" << typeS << "Helper." << func << '(' << stream << "));";
+	    out << nl << param << ".Add(" << helperName << '.' << func << '(' << stream << "));";
 	}
 	if(type->isVariableLength())
 	{
@@ -751,7 +761,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << stream << ".endElement();";
 	}
 	out << eb;
-	out << nl << stream << ".endSeq(sz);";
+	out << nl << stream << ".endSeq(szx);";
 	out << eb;
     }
 
