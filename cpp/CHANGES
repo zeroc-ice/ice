@@ -1,6 +1,12 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added STL functors for partial proxy comparison:
+  * ProxyIdentityLess
+  * ProxyIdentityEqual
+  * ProxyIdentityAndFacetLess
+  * ProxyIdentityAndFacetEqual
+
 - A DNSException could cause a deadlock. This has been fixed.
 
 - Changed FD_SETSIZE under Windows to 1024. (The default permits only

@@ -268,6 +268,38 @@ ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
 ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
 ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
 
+struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+	return proxyIdentityLess(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+	return proxyIdentityEqual(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+	return proxyIdentityAndFacetLess(lhs, rhs);
+    }
+};
+
+struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+	return proxyIdentityAndFacetEqual(lhs, rhs);
+    }
+};
+
 }
 
 #endif
