@@ -55,7 +55,7 @@ Property settings have one of the forms
 <para>
 The <literal>#</literal> character indicates a comment: the
 <literal>#</literal> character and anything following the <literal>#</literal> character on the same
-line are ignored. A line that has the <literal>#</literal> character as its first non-whitespace character
+line are ignored. A line that has the <literal>#</literal> character as its first non-white space character
 is ignored in its entirety.
 </para>
 <para>
@@ -1575,7 +1575,7 @@ Defines a list of properties which override the properties defined in
 server deployment descriptors. For example, in some cases it is desirable
 to set the property <literal>Ice.Default.Host</literal> for servers, but
 not in server deployment descriptors. The property definitions should
-be separated by whitespace.
+be separated by white space.
 </para>
 </section>
 </section>
@@ -2172,7 +2172,7 @@ Glacier.Router.AllowCategories=<replaceable>list</replaceable>
 <section>
 <title>Description</title>
 <para>
-A whitespace separated list of categories. If this property is set,
+A white space separated list of categories. If this property is set,
 then requests are only permitted to &Ice; objects with an identity
 that matches one of the categories from this list.
 </para>
@@ -2283,7 +2283,7 @@ exact same property set as for the router
 starter. <replaceable>overrides</replaceable> can contain a list
 of properties for the router, which are used in addition to the router
 starter's properties, or which override the router starter's properties.
-The property definitions should be separated by whitespace.
+The property definitions should be separated by white space.
 </para>
 <para>
 For example, in many cases it is desirable to set the property

@@ -86,7 +86,7 @@ The object identity <replaceable>identity</replaceable> is structured
 as <literal>[<replaceable>category</replaceable>/]<replaceable>name
 </replaceable></literal>, where the <replaceable>category</replaceable>
 component and slash separator are optional. If
-<replaceable>identity</replaceable> contains whitespace or either of the
+<replaceable>identity</replaceable> contains white space or either of the
 characters <literal>:</literal> or <literal>@</literal>, it must be enclosed
 in single or double quotes. The <replaceable>category</replaceable> and
 <replaceable>name</replaceable> components are UTF8 strings that use the
@@ -98,7 +98,7 @@ must be escaped with a backslash (i.e., <literal>\/</literal>).
 The <replaceable>facet</replaceable> argument of the <literal>-f</literal>
 option represents a facet path comprising one or more facets separated by
 a slash (<literal>/</literal>). If <replaceable>facet</replaceable>
-contains whitespace, it must be enclosed in single or double quotes. Each
+contains white space, it must be enclosed in single or double quotes. Each
 component of the facet path is a UTF8 string that uses the encoding described
 below. Any occurrence of a slash (<literal>/</literal>) in a facet path
 component must be escaped with a backslash (i.e., <literal>\/</literal>).
@@ -106,7 +106,7 @@ component must be escaped with a backslash (i.e., <literal>\/</literal>).
 <para>
 The object adapter identifier <replaceable>adapter_id</replaceable>
 is a UTF8 string that uses the encoding described below. If
-<replaceable>adapter_id</replaceable> contains whitespace, it must
+<replaceable>adapter_id</replaceable> contains white space, it must
 be enclosed in single or double quotes.
 </para>
 <para>
