@@ -55,7 +55,7 @@ TestUtil.collocatedTest(toplevel, name)
 #
 # This test doesn't work under Windows.
 #
-if sys.platform != "cygwin" and sys.platform != "win32":
+if sys.platform[:6] != "cygwin" and sys.platform != "win32":
 
     testdir = os.path.join(toplevel, "test", "IcePack", "simple")
     server = os.path.join(testdir, "server")
