@@ -143,6 +143,8 @@ private:
 
     bool _configLoaded;
 
+    void setKeyCert(SSL_CTX*, const CertificateDesc&, const string&, const string&);
+
     // Call to initialize the SSL system.
     void initClient(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
     void initServer(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
@@ -151,6 +153,9 @@ private:
 
     void processCertificate(SSL_CTX*, const CertificateDesc&);
     void addKeyCert(SSL_CTX*, const CertificateFile&, const CertificateFile&);
+    X509* byteSeqToX509(ByteSeq&);
+    RSA* byteSeqToKey(ByteSeq&);
+    void addKeyCert(SSL_CTX*, const string&, const string&);
 
     SSL_CTX* createContext(SslProtocol);
 

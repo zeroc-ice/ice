@@ -862,6 +862,26 @@ IceSecurity::Ssl::OpenSSL::System::~System()
 //
 
 void
+IceSecurity::Ssl::OpenSSL::System::setKeyCert(SSL_CTX* context,
+                                              const CertificateDesc& certDesc,
+                                              const string& privateKey,
+                                              const string& publicKey)
+{
+    ICE_METHOD_INV("OpenSSL::System::setKeyCert()");
+
+    if (!privateKey.empty() && !publicKey.empty())
+    {
+        addKeyCert(context, privateKey, publicKey);
+    }
+    else if (certDesc.getKeySize() != 0)
+    {
+        processCertificate(context, certDesc);
+    }
+
+    ICE_METHOD_RET("OpenSSL::System::setKeyCert()");
+}
+
+void
 IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
                                               CertificateAuthority& certAuth,
                                               BaseCertificates& baseCerts)
@@ -886,17 +906,15 @@ IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
         // Set the certificate verify depth to 10 deep.
         SSL_CTX_set_verify_depth(_sslClientContext, general.getVerifyDepth());
 
-        // Process the RSA Certificate (if present).
-        if (baseCerts.getRSACert().getKeySize() != 0)
-        {
-            processCertificate(_sslClientContext, baseCerts.getRSACert());
-        }
+        // Process the RSA Certificate
+        string privateRSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey");
+        string publicRSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.RSA.Certificate");
+        setKeyCert(_sslClientContext, baseCerts.getRSACert(), privateRSAKey, publicRSAKey);
 
-        // Process the DSA Certificate (if present).
-        if (baseCerts.getDSACert().getKeySize() != 0)
-        {
-            processCertificate(_sslClientContext, baseCerts.getDSACert());
-        }
+        // Process the DSA Certificate
+        string privateDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.PrivateKey");
+        string publicDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Client.DSA.Certificate");
+        setKeyCert(_sslClientContext, baseCerts.getDSACert(), privateDSAKey, publicDSAKey);
 
         // Set the DH key agreement parameters.
         if (baseCerts.getDHParams().getKeySize() != 0)
@@ -941,17 +959,15 @@ IceSecurity::Ssl::OpenSSL::System::initServer(GeneralConfig& general,
         // Load the Certificate Authority files, and check them.
         loadAndCheckCAFiles(_sslServerContext, certAuth);
 
-        // Process the RSA Certificate (if present).
-        if (baseCerts.getRSACert().getKeySize() != 0)
-        {
-            processCertificate(_sslServerContext, baseCerts.getRSACert());
-        }
+        // Process the RSA Certificate
+        string privateRSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey");
+        string publicRSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.RSA.Certificate");
+        setKeyCert(_sslServerContext, baseCerts.getRSACert(), privateRSAKey, publicRSAKey);
 
-        // Process the DSA Certificate (if present).
-        if (baseCerts.getDSACert().getKeySize() != 0)
-        {
-            processCertificate(_sslServerContext, baseCerts.getDSACert());
-        }
+        // Process the DSA Certificate
+        string privateDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.PrivateKey");
+        string publicDSAKey = _properties->getProperty("Ice.Security.Ssl.Overrides.Server.DSA.Certificate");
+        setKeyCert(_sslServerContext, baseCerts.getDSACert(), privateDSAKey, publicDSAKey);
 
         // Set the DH key agreement parameters.
         if (baseCerts.getDHParams().getKeySize() != 0)
@@ -1124,6 +1140,164 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
 
             throw contextEx;
         }
+    }
+
+    ICE_METHOD_RET("OpenSSL::System::addKeyCert()");
+}
+
+X509*
+IceSecurity::Ssl::OpenSSL::System::byteSeqToX509(ByteSeq& byteSeq)
+{
+    // Create a BIO that reads directly from our ByteSeq!
+    // NOTE: The reinterpret_cast is required, nasty OpenSSL hack!
+    BIO* memoryBio = BIO_new_mem_buf(reinterpret_cast<void *>(byteSeq.begin()), byteSeq.size());
+
+    X509* x509 = PEM_read_bio_X509(memoryBio, 0, 0, 0);
+
+    if (!x509)
+    {
+        cout << "X509 returned as NULL" << endl;
+    }
+
+    BIO_free(memoryBio);
+
+    return x509;
+}
+
+RSA*
+IceSecurity::Ssl::OpenSSL::System::byteSeqToKey(ByteSeq& byteSeq)
+{
+    // Create a BIO that reads directly from our ByteSeq!
+    // NOTE: The reinterpret_cast is required, nasty OpenSSL hack!
+    BIO* memoryBio = BIO_new_mem_buf(reinterpret_cast<void *>(byteSeq.begin()), byteSeq.size());
+
+    RSA* rsa = PEM_read_bio_RSAPrivateKey(memoryBio, 0, 0, 0);
+
+    // TODO: if rsa comes back as 0, we should find out why here.
+
+    if (!rsa)
+    {
+        cout << "RSA returned as NULL" << endl;
+    }
+
+    BIO_free(memoryBio);
+
+    return rsa;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
+                                              const string& privateKey,
+                                              const string& publicKey)
+{
+    ICE_METHOD_INV("OpenSSL::System::addKeyCert()");
+
+    string privKey = privateKey;
+
+    if (privKey.empty())
+    {
+        ICE_WARNING("No private key specified - using the certificate.");
+
+        privKey = publicKey;
+    }
+
+    //
+    // Convert the strings containing the Key (Private Key) and Certificate (Public Key)
+    // into byte sequences.
+    //
+    ByteSeq publicKeyByteSeq;
+    ByteSeq privateKeyByteSeq;
+
+    publicKeyByteSeq.reserve(privateKey.size());
+    privateKeyByteSeq.reserve(publicKey.size());
+
+    std::copy(privateKey.begin(), privateKey.end(), back_inserter(privateKeyByteSeq));
+    std::copy(publicKey.begin(), publicKey.end(), back_inserter(publicKeyByteSeq));
+
+    X509* x509 = 0;
+    RSA* rsa = 0;
+
+    try
+    {
+        // These methods should throw exceptions if they can't perform the conversion.
+        x509 = byteSeqToX509(publicKeyByteSeq);
+        rsa = byteSeqToKey(privateKeyByteSeq);
+
+        // Set which Public Key file to use.
+        if (SSL_CTX_use_certificate(sslContext, x509) <= 0)
+        {
+            ContextException contextEx(__FILE__, __LINE__);
+
+            contextEx._message = "Unable to set certificate from memory.";
+            string sslError = sslGetErrors();
+
+            if (!sslError.empty())
+            {
+                contextEx._message += "\n";
+                contextEx._message += sslError;
+            }
+
+
+            ICE_EXCEPTION(contextEx._message);
+
+            throw contextEx;
+        }
+
+        // Set which Private Key file to use.
+        if (SSL_CTX_use_RSAPrivateKey(sslContext, rsa) <= 0)
+        {
+            ContextException contextEx(__FILE__, __LINE__);
+
+            contextEx._message = "Unable to set private key from memory.";
+            string sslError = sslGetErrors();
+
+            if (!sslError.empty())
+            {
+                contextEx._message += "\n";
+                contextEx._message += sslError;
+            }
+
+            ICE_EXCEPTION(contextEx._message);
+
+            throw contextEx;
+        }
+    }
+    catch (...)
+    {
+        if (x509)
+        {
+            X509_free(x509);
+        }
+
+        if (rsa)
+        {
+            RSA_free(rsa);
+        }
+
+        throw;
+    }
+
+    X509_free(x509);
+    RSA_free(rsa);
+
+    // Check to see if the Private and Public keys that have been
+    // set against the SSL context match up.
+    if (!SSL_CTX_check_private_key(sslContext))
+    {
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Private key does not match the certificate public key.";
+        string sslError = sslGetErrors();
+
+        if (!sslError.empty())
+        {
+            contextEx._message += "\n";
+            contextEx._message += sslError;
+        }
+
+        ICE_EXCEPTION(contextEx._message);
+
+        throw contextEx;
     }
 
     ICE_METHOD_RET("OpenSSL::System::addKeyCert()");
