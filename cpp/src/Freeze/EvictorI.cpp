@@ -210,7 +210,15 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& ident, c
 	// Load the Ice Object from database and create and add a
 	// Servant for it.
 	//
-	ObjectPtr servant = _db->getServant(ident);
+	ObjectPtr servant;
+	try
+	{
+	    servant = _db->getServant(ident);
+	}
+	catch (const DBNotFoundException&)
+	{
+	}
+
 	if (!servant)
 	{
 	    //
