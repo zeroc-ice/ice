@@ -48,4 +48,6 @@ public interface ObjectPrx
     public ObjectPrx ice_timeout(int t);
 
     public void ice_flush();
+
+    public boolean equals(ObjectPrx r);
 }

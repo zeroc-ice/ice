@@ -290,6 +290,13 @@ public class ObjectPrxHelper implements ObjectPrx
         __del.ice_flush();
     }
 
+    public final boolean
+    equals(ObjectPrx r)
+    {
+        ObjectPrxHelper rhs = (ObjectPrxHelper)r;
+        return _reference.equals(rhs._reference);
+    }
+
     public final IceInternal.Reference
     __reference()
     {
