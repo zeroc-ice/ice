@@ -1215,7 +1215,12 @@ IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoin
     }
     else
     {
-	partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized endpoints.
+	//
+	stable_partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
     }
     
     return endpoints;
