@@ -166,13 +166,13 @@ IceUtil::Options::parse(int argc, char* argv[])
 		pos = checkOpt(opt, ShortOpt);
 		if(pos->second.arg == NeedArg && *(p + 1) != '\0')
 		{
-		    string optarg;
+		    string optArg;
 		    while(*++p != '\0')
 		    {
-			optarg.push_back(*p);
+			optArg.push_back(*p);
 		    }
 		    --p;
-		    setOpt(opt, optarg, pos->second.repeat);
+		    setOpt(opt, optArg, pos->second.repeat);
 		    argDone = true;
 		}
 	    }
@@ -303,7 +303,7 @@ IceUtil::Options::addValidOpt(const string& opt, LengthType lt, ArgType at, cons
     od.arg = at;
     od.repeat = rt;
 
-    _validOpts.insert(pos, make_pair(opt, od));
+    _validOpts.insert(pos, ValidOpts::value_type(opt, od));
 
     if(at == NeedArg && !dflt.empty())
     {
@@ -355,7 +355,7 @@ IceUtil::Options::setOpt(const string& opt, const string& val, RepeatType rt)
 	{
 	    vector<string> vec;
 	    vec.push_back(val);
-	    _ropts.insert(pos, make_pair(opt, vec));
+	    _ropts.insert(pos, ROpts::value_type(opt, vec));
 	}
     }
     else
