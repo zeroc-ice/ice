@@ -18,6 +18,7 @@
 #include <Ice/SkeletonF.h>
 #include <Ice/LocalException.h>
 #include <Ice/Shared.h>
+#include <map>
 
 namespace Ice
 {
@@ -42,7 +43,9 @@ public:
 
     void add(const ::IceServant::Ice::Object&, const std::string&);
 
-    ::__Ice::EndpointData __endpointData();
+    ::__Ice::Instance __instance() const;
+    ::__Ice::EndpointData __endpointData() const;
+    ::IceServant::Ice::Object __findServant(const std::string&) const;
 
 private:
 
@@ -56,6 +59,7 @@ private:
     ::__Ice::Instance instance_;
     ::__Ice::EndpointData endpointData_;
     ::__Ice::CollectorFactory collectorFactory_;
+    std::map<std::string, ::IceServant::Ice::Object> servants_;
 };
 
 }

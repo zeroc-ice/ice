@@ -13,6 +13,7 @@
 
 #include <Ice/SkeletonF.h>
 #include <Ice/Shared.h>
+#include <Ice/Incoming.h>
 
 namespace IceServant { namespace Ice
 {
@@ -21,10 +22,10 @@ class ICE_API ObjectS : virtual public ::__Ice::Shared
 {
 public:
 
-protected:
-
     ObjectS();
     virtual ~ObjectS();
+
+    virtual void __dispatch(::__Ice::Incoming*, const std::string&) = 0;
 
 private:
 

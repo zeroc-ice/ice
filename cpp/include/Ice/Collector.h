@@ -50,14 +50,13 @@ private:
     CollectorI(const CollectorI&);
     void operator=(const CollectorI&);
 
-    CollectorI(const Instance&, const Transceiver&);
+    CollectorI(const ::Ice::Endpoint&, const Transceiver&);
     virtual ~CollectorI();
     void destroy();
     friend class CollectorFactoryI; // May create and destroy CollectorIs
 
     void warning(const Ice::LocalException&) const;
 
-    Instance instance_;
     ::Ice::Endpoint endpoint_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
