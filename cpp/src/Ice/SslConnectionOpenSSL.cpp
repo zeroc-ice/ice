@@ -525,7 +525,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 
                 case SSL_ERROR_SSL:
                 {
-                    string errorString = "Encountered a violation the SSL Protocol.\n";
+                    string errorString = "Encountered a violation of the SSL Protocol.\n";
 
                     ICE_SSLERRORS(errorString);
                     ICE_EXCEPTION(errorString);

@@ -567,10 +567,12 @@ IceInternal::CollectorFactory::message(BasicStream&)
 	collector->activate();
 	_collectors.push_back(collector);
     }
-    catch (const SecurityException&)
+    catch (const SecurityException& securityEx)
     {
         // TODO: bandaid.  Takes care of SSL Handshake problems during creation of a Transceiver
+        // TODO: THIS DOESN'T WORK!!!  For some reason it skips it.
         // Ignore, nothing we can do here
+        warning(securityEx);
     }
     catch (const SocketException&)
     {

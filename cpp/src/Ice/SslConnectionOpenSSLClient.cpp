@@ -184,7 +184,7 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 
             case SSL_ERROR_SSL:
             {
-                string errorString = "Encountered a violation the SSL Protocol during handshake.\n";
+                string errorString = "Encountered a violation of the SSL Protocol during handshake.\n";
 
                 ICE_SSLERRORS(errorString);
                 ICE_EXCEPTION(errorString);
@@ -402,7 +402,7 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 
                 case SSL_ERROR_SSL:
                 {
-                    string errorString = "Encountered a violation the SSL Protocol.\n";
+                    string errorString = "Encountered a violation of the SSL Protocol.\n";
 
                     ICE_SSLERRORS(errorString);
                     ICE_EXCEPTION(errorString);

@@ -34,7 +34,8 @@ IceSecurity::SecurityException::SecurityException(const char* errMessage, const 
 }
 
 IceSecurity::SecurityException::SecurityException(const SecurityException& ex) :
-                               LocalException(ex)
+                               LocalException(ex),
+                               _message(ex._message)
 {
 }
 
@@ -50,7 +51,7 @@ IceSecurity::SecurityException::toString() const
 {
     string s = ice_name();
 
-    if (_message == "")
+    if (_message.empty())
     {
         s += ": unspecified exception";
     }
@@ -73,7 +74,7 @@ void
 IceSecurity::SecurityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunknown security exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
@@ -123,7 +124,7 @@ void
 IceSecurity::Ssl::ConfigParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsecurity system shutdown exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
@@ -173,7 +174,7 @@ void
 IceSecurity::Ssl::ShutdownException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsecurity system shutdown exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
@@ -223,7 +224,7 @@ void
 IceSecurity::Ssl::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsecurity system re-initialization exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
@@ -273,7 +274,7 @@ void
 IceSecurity::Ssl::CertificateException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsecurity system initialization exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
@@ -323,7 +324,7 @@ void
 IceSecurity::Ssl::OpenSSL::ContextException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nSSL System context exception";
+    out << ":\n" << toString();
 }
 
 Ice::Exception*
