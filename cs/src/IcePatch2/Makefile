@@ -20,7 +20,7 @@ SLICE_SRCS	= $(SDIR)/FileInfo.ice \
 SDIR		= $(slicedir)/IcePatch2
 GDIR		= generated
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 

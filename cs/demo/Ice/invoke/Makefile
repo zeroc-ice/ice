@@ -20,7 +20,7 @@ SDIR		= .
 
 GDIR		= generated
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
