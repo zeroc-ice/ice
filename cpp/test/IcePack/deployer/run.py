@@ -30,9 +30,9 @@ name = os.path.join("IcePack", "deployer")
 testdir = os.path.join(toplevel, "test", name)
 
 if TestUtil.isWin32():
-    os.environ["PATH"] = testdir + ";" + os.environ["PATH"]
+    os.environ["PATH"] = testdir + ";" + os.getenv("PATH", "")
 else:
-    os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.environ["LD_LIBRARY_PATH"]
+    os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
 #
 # Start the client.

@@ -32,7 +32,7 @@ import IcePackAdmin
 
 name = os.path.join("IcePack", "simple")
 testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
 #
 # Add locator options for the client and server. Since the server

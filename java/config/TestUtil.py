@@ -104,7 +104,7 @@ if isWin32():
 else:
     sep = ":"
 
-os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.environ["CLASSPATH"]
+os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
 clientProtocol = ""
 serverProtocol = ""

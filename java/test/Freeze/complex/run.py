@@ -27,7 +27,7 @@ import TestUtil
 
 name = os.path.join("Freeze", "complex")
 testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
 #
 # Clean the contents of the database directory.

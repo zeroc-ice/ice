@@ -126,9 +126,9 @@ else:
     raise "can't find toplevel directory!"
 
 if isWin32():
-    os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.environ["PATH"]
+    os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 else:
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.environ["LD_LIBRARY_PATH"]
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"

@@ -32,7 +32,7 @@ import IcePackAdmin
 
 name = os.path.join("IcePack", "deployer")
 testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.environ["CLASSPATH"]
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
 #
 # Start the client.
