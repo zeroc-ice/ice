@@ -213,6 +213,12 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 		    break;
 		}
 		
+		case 'c':
+		{
+		    proxy = proxy->ice_compress(true);
+		    break;
+		}
+		
 		default:
 		{
 		    Warning out(_logger);
