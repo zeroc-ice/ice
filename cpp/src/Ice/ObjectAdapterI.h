@@ -62,7 +62,8 @@ private:
     ::IceInternal::InstancePtr _instance;
     std::string _name;
     std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
-    std::map<std::string, ObjectPtr> _objects;
+    std::map<std::string, ObjectPtr> _aom;
+    std::map<std::string, ObjectPtr>::iterator _aomHint;
     ::Ice::ObjectLocatorPtr _locator;
 };
 

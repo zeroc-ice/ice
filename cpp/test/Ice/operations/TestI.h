@@ -113,6 +113,24 @@ public:
 					const Test::WStringSS&,
 					Test::WStringSS&);
     
+    virtual Test::ByteBoolD opByteBoolD(const Test::ByteBoolD&, const Test::ByteBoolD&, 
+					Test::ByteBoolD&);
+
+    virtual Test::ShortIntD opShortIntD(const Test::ShortIntD&, const Test::ShortIntD&,
+					Test::ShortIntD&);
+
+    virtual Test::LongFloatD opLongFloatD(const Test::LongFloatD&, const Test::LongFloatD&,
+					  Test::LongFloatD&);
+
+    virtual Test::DoubleStringD opDoubleStringD(const Test::DoubleStringD&, const Test::DoubleStringD&,
+						Test::DoubleStringD&);
+
+    virtual Test::WStringMyEnumD opWStringMyEnumD(const Test::WStringMyEnumD&, const Test::WStringMyEnumD&,
+						  Test::WStringMyEnumD&);
+
+    virtual Test::MyClassStringD opMyClassStringD(const Test::MyClassStringD&, const Test::MyClassStringD&,
+						  Test::MyClassStringD&);
+
     virtual void opEx(Ice::Int);
 
     virtual void opDerived();

@@ -37,28 +37,14 @@ namespace IcePack
 {
 
 class Parser;
-
-}
-
-namespace IceInternal
-{
-
-void incRef(::IcePack::Parser*);
-void decRef(::IcePack::Parser*);
+typedef ::Ice::Handle<Parser> ParserPtr;
 
 }
 
 namespace IcePack
 {
 
-typedef ::IceInternal::Handle<Parser> ParserPtr;
-
-}
-
-namespace IcePack
-{
-
-class Parser : public ::IceInternal::SimpleShared
+class Parser : public ::Ice::SimpleShared
 {
 public:
 

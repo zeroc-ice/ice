@@ -83,7 +83,8 @@ Ice::ObjectAdapterI::deactivate()
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
 	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::destroy));
     _collectorFactories.clear();
-    _objects.clear();
+    _aom.clear();
+    _aomHint = _aom.begin();
 }
 
 void
@@ -96,7 +97,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _objects.insert(make_pair(ident, object));
+    _aomHint = _aom.insert(_aomHint, make_pair(ident, object));
 }
 
 void
@@ -121,7 +122,7 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
     s << hex << '.' << tv.tv_sec << '.' << tv.tv_usec / 1000 << '.' << rand();
 #endif
 
-    _objects.insert(make_pair(s.str(), object));
+    _aomHint = _aom.insert(_aomHint, make_pair(s.str(), object));
 }
 
 void
@@ -134,7 +135,8 @@ Ice::ObjectAdapterI::remove(const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _objects.erase(ident);
+    _aom.erase(ident);
+    _aomHint = _aom.begin();
 }
 
 void
@@ -156,13 +158,15 @@ Ice::ObjectAdapterI::identityToObject(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ObjectPtr>::const_iterator p = _objects.find(ident);
-    if (p == _objects.end())
+    map<string, ObjectPtr>::const_iterator p = _aom.find(ident);
+    if (p != _aom.end())
+    {
+	return p->second;
+    }
+    else
     {
 	return 0;
     }
-    
-    return p->second;
 }
 
 string
@@ -176,7 +180,7 @@ Ice::ObjectAdapterI::objectToIdentity(const ObjectPtr& object)
     }
 
     map<string, ObjectPtr>::const_iterator p;
-    for (p = _objects.begin(); p != _objects.end(); ++p)
+    for (p = _aom.begin(); p != _aom.end(); ++p)
     {
 	if (object.get() == p->second.get())
 	{
@@ -254,7 +258,8 @@ Ice::ObjectAdapterI::proxyToIdentity(const ObjectPrx& proxy)
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
     _instance(instance),
-    _name(name)
+    _name(name),
+    _aomHint(_aom.begin())
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), tolower);

@@ -266,6 +266,66 @@ MyDerivedClassI::opWStringSS(const Test::WStringSS& p1,
     return r;
 }
 
+Test::ByteBoolD
+MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1, const Test::ByteBoolD& p2,
+			     Test::ByteBoolD& p3)
+{
+    p3 = p1;
+    Test::ByteBoolD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
+Test::ShortIntD
+MyDerivedClassI::opShortIntD(const Test::ShortIntD& p1, const Test::ShortIntD& p2,
+			     Test::ShortIntD& p3)
+{
+    p3 = p1;
+    Test::ShortIntD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
+Test::LongFloatD
+MyDerivedClassI::opLongFloatD(const Test::LongFloatD& p1, const Test::LongFloatD& p2,
+			      Test::LongFloatD& p3)
+{
+    p3 = p1;
+    Test::LongFloatD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
+Test::DoubleStringD
+MyDerivedClassI::opDoubleStringD(const Test::DoubleStringD& p1, const Test::DoubleStringD& p2,
+				 Test::DoubleStringD& p3)
+{
+    p3 = p1;
+    Test::DoubleStringD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
+Test::WStringMyEnumD
+MyDerivedClassI::opWStringMyEnumD(const Test::WStringMyEnumD& p1, const Test::WStringMyEnumD& p2,
+				  Test::WStringMyEnumD& p3)
+{
+    p3 = p1;
+    Test::WStringMyEnumD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
+Test::MyClassStringD
+MyDerivedClassI::opMyClassStringD(const Test::MyClassStringD& p1, const Test::MyClassStringD& p2,
+				  Test::MyClassStringD& p3)
+{
+    p3 = p1;
+    Test::MyClassStringD r = p1;
+    r.insert(p2.begin(), p2.end());
+    return r;
+}
+
 void
 MyDerivedClassI::opEx(Ice::Int p)
 {

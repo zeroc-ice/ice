@@ -35,9 +35,6 @@ Parser* parser;
 
 }
 
-void IceInternal::incRef(Parser* p) { p->__incRef(); }
-void IceInternal::decRef(Parser* p) { p->__decRef(); }
-
 // ----------------------------------------------------------------------
 // Parser
 // ----------------------------------------------------------------------
