@@ -24,7 +24,8 @@ class Incoming;
 namespace IceServant { namespace Ice
 {
 
-class ICE_API ObjectS : virtual public ::__Ice::Shared
+// No virtual inheritance for servants
+class ICE_API ObjectS : public ::__Ice::Shared
 {
 public:
 
