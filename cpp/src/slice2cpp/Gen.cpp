@@ -1925,6 +1925,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
 	H << nl << exp2 << "virtual const ::std::string* __getClassIds() const;";
 	H << nl << exp2 << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current());";
+	H << nl << exp2 << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current());";
 	if (!p->isAbstract())
 	{
 	    H << sp << nl << exp2 << "static ::Ice::ObjectFactoryPtr _factory;";
@@ -1972,6 +1973,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "return ::std::vector< ::std::string>(&__ids[0], &__ids[" << ids.size() << "]);";
 	C << eb;
+
+	C << sp;
+	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id(const ::Ice::Current&)";
+	C << sb;
+	C << nl << "return __classIds[0];";
+	C << eb;
     }
 
     return true;
@@ -2006,6 +2013,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
+	    allOpNames.push_back("ice_facets");
+	    allOpNames.push_back("ice_id");
 	    allOpNames.push_back("ice_ids");
 	    allOpNames.push_back("ice_isA");
 	    allOpNames.push_back("ice_ping");
@@ -2072,7 +2081,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	  << scoped << "Ptr&);";
 
 	H << sp;
-	H << nl << exp2 << "static const ::std::string& ice_id();";
+	H << nl << exp2 << "static const ::std::string& ice_staticId();";
 
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
@@ -2116,7 +2125,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << eb;
 
 	C << sp;
-	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_id()";
+	C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
 	C << sb;
 	C << nl << "return __classIds[0];";
 	C << eb;

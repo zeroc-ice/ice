@@ -186,6 +186,58 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
     }
 }
 
+string
+IceProxy::Ice::Object::ice_id(const Context& __context)
+{
+    int __cnt = 0;
+    while (true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    return __del->ice_id(__context);
+	}
+	catch (const LocationForward& __ex)
+	{
+	    __locationForward(__ex);
+	}
+	catch (const NonRepeatable& __ex)
+	{
+	    __handleException(*__ex.get(), __cnt);
+	}
+	catch (const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
+vector<string>
+IceProxy::Ice::Object::ice_facets(const Context& __context)
+{
+    int __cnt = 0;
+    while (true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    return __del->ice_facets(__context);
+	}
+	catch (const LocationForward& __ex)
+	{
+	    __locationForward(__ex);
+	}
+	catch (const NonRepeatable& __ex)
+	{
+	    __handleException(*__ex.get(), __cnt);
+	}
+	catch (const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
 void
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  bool nonmutating,
@@ -661,6 +713,36 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
     return __ret;
 }
 
+string
+IceDelegateM::Ice::Object::ice_id(const Context& __context)
+{
+    static const string __operation("ice_id");
+    Outgoing __out(__connection, __reference, __operation, true, __context);
+    BasicStream* __is = __out.is();
+    if (!__out.invoke())
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    string __ret;
+    __is->read(__ret);
+    return __ret;
+}
+
+vector<string>
+IceDelegateM::Ice::Object::ice_facets(const Context& __context)
+{
+    static const string __operation("ice_facets");
+    Outgoing __out(__connection, __reference, __operation, true, __context);
+    BasicStream* __is = __out.is();
+    if (!__out.invoke())
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    vector<string> __ret;
+    __is->read(__ret);
+    return __ret;
+}
+
 void
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      bool nonmutating,
@@ -902,6 +984,60 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	try
 	{
 	    return __direct.facetServant()->ice_ids(__current);
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
+    }
+}
+
+string
+IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
+{
+    Current __current;
+    __initCurrent(__current, "ice_id", true, __context);
+    while (true)
+    {
+	Direct __direct(__adapter, __current);
+	try
+	{
+	    return __direct.facetServant()->ice_id(__current);
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
+    }
+}
+
+vector<string>
+IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
+{
+    Current __current;
+    __initCurrent(__current, "ice_facets", true, __context);
+    while (true)
+    {
+	Direct __direct(__adapter, __current);
+	try
+	{
+	    return __direct.facetServant()->ice_facets(__current);
 	}
 	catch (const LocalException&)
 	{

@@ -92,6 +92,30 @@ Ice::Object::ice_ids(const Current&)
     return vector<string>(&__classIds[0], &__classIds[1]);
 }
 
+const string&
+Ice::Object::ice_id(const Current&)
+{
+    return __classIds[0];
+}
+
+vector<string>
+Ice::Object::ice_facets(const Current&)
+{
+    vector<string> v;
+    for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    {
+	v.push_back(p->first);
+    }
+    return v;
+}
+
+
+const ::std::string&
+Ice::Object::ice_staticId()
+{
+    return __classIds[0];
+}
+
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __in, const Current& __current)
 {
@@ -120,8 +144,29 @@ Ice::Object::___ice_ids(Incoming& __in, const Current& __current)
     return DispatchOK;
 }
 
+::IceInternal::DispatchStatus
+Ice::Object::___ice_id(::IceInternal::Incoming& __in, const Current& __current)
+{
+    BasicStream* __os = __in.os();
+    string __ret = ice_id(__current);
+    __os->write(__ret);
+    return DispatchOK;
+}
+
+::IceInternal::DispatchStatus
+Ice::Object::___ice_facets(::IceInternal::Incoming& __in, const Current& __current)
+{
+    BasicStream* __os = __in.os();
+    vector<string> __ret = ice_facets(__current);
+    __os->write(__ret);
+    return DispatchOK;
+}
+
+
 string Ice::Object::__all[] =
 {
+    "ice_facets",
+    "ice_id",
     "ice_ids",
     "ice_isA",
     "ice_ping"
@@ -142,13 +187,21 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     {
         case 0:
         {
-	    return ___ice_ids(in, current);
+	    return ___ice_facets(in, current);
         }
         case 1:
+        {
+	    return ___ice_id(in, current);
+        }
+        case 2:
+        {
+	    return ___ice_ids(in, current);
+        }
+        case 3:
 	{
 	    return ___ice_isA(in, current);
 	}
-	case 2:
+	case 4:
 	{
 	    return ___ice_ping(in, current);
 	}

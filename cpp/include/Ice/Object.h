@@ -79,6 +79,14 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const Current& = Current());
     ::IceInternal::DispatchStatus ___ice_ids(::IceInternal::Incoming&, const Current&);
 
+    virtual const ::std::string& ice_id(const Current& = Current());
+    ::IceInternal::DispatchStatus ___ice_id(::IceInternal::Incoming&, const Current&);
+
+    ::std::vector< ::std::string> ice_facets(const Current& = Current());
+    ::IceInternal::DispatchStatus ___ice_facets(::IceInternal::Incoming&, const Current&);
+
+    static const ::std::string& ice_staticId();
+
     static ::std::string __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 
