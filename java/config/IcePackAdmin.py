@@ -152,6 +152,7 @@ def addApplication(descriptor, targets):
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
+    descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"'
@@ -167,6 +168,7 @@ def removeApplication(descriptor):
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
+    descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application remove \"' + descriptor + '\\" \"'
@@ -182,6 +184,9 @@ def addServer(name, serverDescriptor, server, libpath, targets):
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
+    serverDescriptor = serverDescriptor.replace("\\", "/");
+    server = server.replace("\\", "/");
+    libpath = libpath.replace("\\", "/");
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server add localnode \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
