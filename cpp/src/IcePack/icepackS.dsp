@@ -179,6 +179,22 @@ SOURCE=.\Activator.ice
 
 !IF  "$(CFG)" == "IcePackS - Win32 Release"
 
+USERDEP__ACTIV="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\Activator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. Activator.ice \
+	
+
+"Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Activator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
 USERDEP__ACTIV="../../bin/slice2cpp.exe"	
@@ -205,6 +221,22 @@ BuildCmds= \
 SOURCE=.\AdapterManager.ice
 
 !IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+USERDEP__ADAPT="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\AdapterManager.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
+	
+
+"AdapterManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"AdapterManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
@@ -233,6 +265,17 @@ SOURCE=.\AdapterManagerF.ice
 
 !IF  "$(CFG)" == "IcePackS - Win32 Release"
 
+USERDEP__ADAPTE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\AdapterManagerF.ice
+
+"AdapterManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManagerF.ice 
+	del AdapterManagerF.cpp 
+	
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
 USERDEP__ADAPTE="../../bin/slice2cpp.exe"	
@@ -254,6 +297,22 @@ InputPath=.\AdapterManagerF.ice
 SOURCE=.\ServerManager.ice
 
 !IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+USERDEP__SERVE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\ServerManager.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManager.ice \
+	
+
+"ServerManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServerManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
@@ -281,6 +340,17 @@ BuildCmds= \
 SOURCE=.\ServerManagerF.ice
 
 !IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+USERDEP__SERVER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\ServerManagerF.ice
+
+"ServerManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
+	del ServerManagerF.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 

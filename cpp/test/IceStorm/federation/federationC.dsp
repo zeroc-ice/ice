@@ -115,6 +115,7 @@ SOURCE=.\Event.ice
 
 !IF  "$(CFG)" == "federationC - Win32 Release"
 
+USERDEP__EVENT="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Event.ice
 
@@ -132,6 +133,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "federationC - Win32 Debug"
 
+USERDEP__EVENT="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Event.ice
 

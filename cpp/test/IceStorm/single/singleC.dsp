@@ -132,6 +132,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "singleC - Win32 Debug"
 
+USERDEP__SINGL="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Single.ice
 

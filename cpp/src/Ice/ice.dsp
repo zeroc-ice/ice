@@ -1135,6 +1135,23 @@ SOURCE=..\..\slice\Ice\Locator.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__LOCAT="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Locator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice \
+	move Locator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 USERDEP__LOCAT="../../bin/slice2cpp.exe"	
@@ -1162,6 +1179,18 @@ BuildCmds= \
 SOURCE=..\..\slice\Ice\LocatorF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__LOCATO="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\LocatorF.ice
+
+"..\..\include\Ice\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocatorF.ice 
+	move LocatorF.h ..\..\include\Ice 
+	del LocatorF.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
