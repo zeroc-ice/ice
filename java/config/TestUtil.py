@@ -13,8 +13,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = ""
-#protocol = "ssl"
+#protocol = ""
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -161,8 +161,6 @@ else:
 
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
-iceHome = os.environ["ICE_HOME"]
-
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
@@ -182,15 +180,15 @@ if protocol == "ssl":
                            " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(iceHome, "certs") + \
+                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
                               " --IceSSL.Client.Config=client_sslconfig.xml"
     cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(iceHome, "certs") + \
+                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
                               " --IceSSL.Server.Config=server_sslconfig.xml"
     cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(iceHome, "certs") + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
                            " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(iceHome, "certs") + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
                            " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""

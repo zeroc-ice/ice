@@ -31,6 +31,16 @@ public final class RouterInfo
     public boolean
     equals(java.lang.Object obj)
     {
+	if(obj == null)
+	{
+	    return false;
+	}
+
+	if(obj == this)
+	{
+	    return true;
+	}
+
         RouterInfo rhs = null;
         try
         {

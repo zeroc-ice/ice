@@ -1,0 +1,15 @@
+#
+# The endpoint of the server's object adapter. This should be an
+# endpoint on an internal network (like 192.168.x.x), or on the
+# loopback, so that the server is not directly accessible from the
+# Internet.
+#
+Callback.Server.Endpoints=tcp -h 127.0.0.1 -p 10000
+
+#
+# Other settings.
+#
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1

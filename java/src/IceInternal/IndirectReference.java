@@ -251,8 +251,7 @@ public class IndirectReference extends RoutableReference
 	{
 	   return false;
 	}
-	return (_locatorInfo == rhs._locatorInfo) ||
-	    (_locatorInfo != null && rhs._locatorInfo != null && rhs._locatorInfo.equals(_locatorInfo));
+	return _locatorInfo == null ? rsh._locatorInfo == null : _locatorInfo.equals(rhs._locatorInfo);
     }
 
     private String _adapterId;

@@ -27,6 +27,16 @@ public final class LocatorInfo
     public boolean
     equals(java.lang.Object obj)
     {
+	if(obj == null)
+	{
+	    return false;
+	}
+
+	if(obj == this)
+	{
+	    return true;
+	}
+
         LocatorInfo rhs = null;
         try
         {
