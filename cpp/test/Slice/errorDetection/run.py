@@ -21,7 +21,7 @@ else:
 directory = os.path.join(toplevel, "test", "Slice", "errorDetection")
 slice2cpp = os.path.join(toplevel, "bin", "slice2cpp")
 
-regex1 = re.compile(r".ice$", re.IGNORECASE)
+regex1 = re.compile(r"\.ice$", re.IGNORECASE)
 files = []
 for file in os.listdir(directory):
     if(regex1.search(file)):
