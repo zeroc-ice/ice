@@ -82,11 +82,10 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     message(BasicStream unused, ThreadPool threadPool)
     {
-        threadPool.promoteFollower();
-
         if(_state != StateActive)
         {
             Thread.yield();
+	    threadPool.promoteFollower();
             return;
         }
 
@@ -114,6 +113,7 @@ public class IncomingConnectionFactory extends EventHandler
         catch(Ice.TimeoutException ex)
         {
             // Ignore timeouts.
+	    threadPool.promoteFollower();
 	    return;
         }
         catch(Ice.LocalException ex)
@@ -123,8 +123,20 @@ public class IncomingConnectionFactory extends EventHandler
                 warning(ex);
             }
             setState(StateClosed);
+	    threadPool.promoteFollower();
 	    return;
         }
+	catch(RuntimeException ex)
+	{
+	    threadPool.promoteFollower();
+	    throw ex;
+	}
+
+	//
+	// We must promote a follower after we accepted the new
+	// connection.
+	//
+        threadPool.promoteFollower();
 
 	//
 	// Create and activate a connection object for the connection.

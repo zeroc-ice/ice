@@ -308,11 +308,10 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
-    threadPool->promoteFollower();
-
     if(_state != StateActive)
     {
 	IceUtil::ThreadControl::yield();
+	threadPool->promoteFollower();
 	return;
     }
     
@@ -334,11 +333,13 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
+	threadPool->promoteFollower();
 	return;
     }
     catch(const TimeoutException&)
     {
 	// Ignore timeouts.
+	threadPool->promoteFollower();
 	return;
     }
     catch(const LocalException& ex)
@@ -349,8 +350,20 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	}
         setState(StateClosed);
+	threadPool->promoteFollower();
 	return;
     }
+    catch(...)
+    {
+	threadPool->promoteFollower();
+	throw;
+    }
+
+    //
+    // We must promote a follower after we accepted the new
+    // connection.
+    //
+    threadPool->promoteFollower();
 
     //
     // Create and activate a connection object for the connection.
