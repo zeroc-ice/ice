@@ -17,6 +17,7 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 #include <map>
@@ -83,7 +84,8 @@ private:
     CollectorFactoryI(const CollectorFactoryI&);
     void operator=(const CollectorFactoryI&);
 
-    CollectorFactoryI(const Instance&, const ::Ice::ObjectAdapter&);
+    CollectorFactoryI(const Instance&, const ::Ice::ObjectAdapter&,
+		      const Endpoint&);
     virtual ~CollectorFactoryI();
     void destroy();
     // May create and destroy CollectorFactoryIs
@@ -103,7 +105,8 @@ class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    CollectorFactory create(const ::Ice::ObjectAdapter&);
+    CollectorFactory create(const ::Ice::ObjectAdapter&,
+			    const Endpoint&);
 
 private:
 

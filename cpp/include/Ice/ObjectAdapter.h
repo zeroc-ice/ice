@@ -36,12 +36,12 @@ public:
     void add(const ::IceServant::Ice::Object&, const std::string&);
 
     ::__Ice::Instance __instance() const;
-    ::__Ice::Endpoint __endpoint() const;
     ::IceServant::Ice::Object __findServant(const std::string&) const;
 
 private:
 
-    ObjectAdapterI(const ::__Ice::Instance&, const __Ice::Endpoint&);
+    ObjectAdapterI(const ::__Ice::Instance&,
+		   const std::vector< ::__Ice::Endpoint>&);
     virtual ~ObjectAdapterI();
     friend CommunicatorI; // May create ObjectAdapterIs
 
@@ -49,8 +49,7 @@ private:
     void operator=(const ObjectAdapterI&);
 
     ::__Ice::Instance instance_;
-    ::__Ice::Endpoint endpoint_;
-    ::__Ice::CollectorFactory collectorFactory_;
+    std::vector< __Ice::CollectorFactory> factories_;
     std::map<std::string, ::IceServant::Ice::Object> servants_;
 };
 

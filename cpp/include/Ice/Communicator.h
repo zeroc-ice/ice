@@ -26,7 +26,7 @@ class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCMutex
 public:
     
     void destroy();
-
+    void shutdown();
     void waitForShutdown();
 
     Object referenceFromString(const std::string&);
