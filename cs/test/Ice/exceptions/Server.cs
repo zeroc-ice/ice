@@ -31,11 +31,11 @@ public class Server
 	// For this test, we need a dummy logger, otherwise the
 	// assertion test will print an error message.
 	//
-	//communicator.setLogger(new DummyLogger());
+	communicator.setLogger(new DummyLogger());
 
         Ice.Properties properties = communicator.getProperties();
 	// We don't need to disable warnings because we have a dummy logger.
-        properties.setProperty("Ice.Warn.Dispatch", "0");
+        //properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object @object = new ThrowerI(adapter);
