@@ -986,6 +986,7 @@ public class BasicStream
     {
         if (_buf.position() == _limit)
         {
+            int oldLimit = _limit;
             _limit += size;
             if (_limit > MAX)
             {
@@ -995,8 +996,13 @@ public class BasicStream
             {
                 final int cap2 = _capacity << 1;
                 int newCapacity = cap2 > _limit ? cap2 : _limit;
+                _buf.limit(oldLimit);
+                int pos = _buf.position();
+                _buf.position(0);
                 _buf = _bufferManager.reallocate(_buf, newCapacity);
                 _capacity = _buf.capacity();
+                _buf.limit(_capacity);
+                _buf.position(pos);
             }
         }
     }
