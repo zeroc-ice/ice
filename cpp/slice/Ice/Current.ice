@@ -26,34 +26,6 @@ module Ice
  *
  **/
 local dictionary<string, string> Context;
-/**
- *
- * The Evictor persistence mode.
- *
- * @see Evictor
- *
- **/
-enum EvictorPersistenceMode
-{
-    /**
-     *
-     * This mode instructs the Evictor to save a Servant to persistent
-     * store when it is evicted, or when the Evictor is deactivated.
-     *
-     * @see Ice::ServantLocator::deactivate
-     *
-     **/
-    SaveUponEviction,
-
-    /**
-     *
-     * This mode instructs the Evictor to save a Servant after each
-     * mutating operation call. A mutating operation call is a call to
-     * any operation that has not been declared as nonmutating.
-     *
-     **/
-    SaveAfterMutatingOperation
-};
 
 /**
  *
