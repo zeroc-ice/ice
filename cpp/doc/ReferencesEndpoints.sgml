@@ -9,7 +9,47 @@ All Rights Reserved
 -->
 
 <!-- ********************************************************************** -->
-<section><title>TCP/IP</title>
+<section><title>References</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<arg choice=plain><replaceable>identity</replaceable></arg>
+<arg>-t</arg>
+<arg>-o</arg>
+<arg>-s</arg>
+<arg>-d</arg>
+<arg choice=plain>:<replaceable>endpoints</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>Endpoints</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<arg choice=plain><replaceable>endpoint</replaceable></arg>
+<arg rep=repeat>:<replaceable>endpoint</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>TCP/IP Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -30,7 +70,28 @@ TBD
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>UDP/IP</title>
+<section><title>SSL Endpoint</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<command>ssl</command>
+<arg>-h <replaceable>host</replaceable></arg>
+<arg>-p <replaceable>port</replaceable></arg>
+<arg>-t <replaceable>timeout</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>UDP/IP Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -47,25 +108,6 @@ TBD
 </para>
 </section>
 
-</section>
-
-<!-- ********************************************************************** -->
-<section><title>SSL</title>
-<!-- ********************************************************************** -->
-
-<section><title>Synopsis</title>
-<cmdsynopsis>
-<command>ssl</command>
-<arg>-h <replaceable>host</replaceable></arg>
-<arg>-p <replaceable>port</replaceable></arg>
-<arg>-t <replaceable>timeout</replaceable></arg>
-</cmdsynopsis>
-</section>
-
-<section><title>Description</title>
-<para>
-TBD
-</para>
 </section>
 
 </section>

@@ -2,7 +2,7 @@
 <!ENTITY Ice "<phrase>Ice</phrase>">
 <!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">
-<!ENTITY Protocols SYSTEM "Protocols.sgml">
+<!ENTITY ReferencesEndpoints SYSTEM "ReferencesEndpoints.sgml">
 ]>
 <!--
 **********************************************************************
@@ -61,8 +61,8 @@ TBD
 &Properties;
 </chapter>
 <chapter>
-<title>Protocols</title>
-&Protocols;
+<title>References and Endpoints</title>
+&ReferencesEndpoints;
 </chapter>
 </part>
 </book>
