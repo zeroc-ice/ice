@@ -1582,7 +1582,7 @@ namespace IceInternal
             return rc;
         }
 
-        public static bool Compressible()
+        public static bool compressible()
         {
             return _bzlibInstalled;
         }
@@ -1624,9 +1624,9 @@ namespace IceInternal
                 ex.reason = getBZ2Error(rc);
                 throw ex;
             }
-            if(compressedLen >= uncompressedLen)
+            if(compressedLen >= uncompressedLen) // Don't bother if the compressed data is larger than the uncompressed data.
             {
-                return false; // Don't bother if the compressed data is larger than the uncompressed data.
+                return false;
             }
 
             cstream = new BasicStream(_instance);

@@ -380,7 +380,7 @@ namespace IceInternal
             Protocol.protocolMajor, Protocol.protocolMinor,
             Protocol.encodingMajor, Protocol.encodingMinor,
             Protocol.requestMsg,
-            BasicStream.Compressible() ? (byte)1 : (byte)0,
+            (byte)0,
 	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
         };
 	
@@ -394,38 +394,43 @@ namespace IceInternal
 
 	private BasicStream doCompress(BasicStream uncompressed, bool compress)
 	{
-            if(_compressionEnabled)
+            if(_compressionSupported)
 	    {
-	        IceInternal.DefaultsAndOverrides dfao = _instance.defaultsAndOverrides();
-	        if(compress && (!dfao.overrideCompress || dfao.overrideCompressValue) && uncompressed.size() >= 100)
+	        if(compress && uncompressed.size() >= 100)
                 {
-                    BasicStream cstream = null;
-
                     //
                     // Do compression.
                     //
-                    bool wasCompressed = uncompressed.compress(ref cstream);
+                    BasicStream cstream = null;
+                    if(uncompressed.compress(ref cstream))
+                    {
+                        //
+                        // Set compression status.
+                        //     
+                        cstream.pos(9);
+                        cstream.writeByte((byte)2);
 
-                    //
-                    // Set compression status.
-                    //
-		    if(wasCompressed)
-		    {
-			cstream.pos(9);
-			cstream.writeByte((byte)2);
-			return cstream;
-		    }
+                        //
+                        // Write the compression status and size of the compressed stream into the header of the
+                        // uncompressed stream -- we need this to trace requests correctly.
+                        //
+                        uncompressed.pos(9);
+                        uncompressed.writeByte((byte)2);
+                        uncompressed.writeInt(cstream.size());
+                        return cstream;
+                    }
                 }
             }
-
-            uncompressed.pos(9);
-            uncompressed.writeByte((byte)(_compressionEnabled ? 1 : 0));
+	    
+	    uncompressed.pos(9);
+	    uncompressed.writeByte((byte)(compress ? 1 : 0));
 
 	    //
 	    // Not compressed, fill in the message size.
 	    //
 	    uncompressed.pos(10);
 	    uncompressed.writeInt(uncompressed.size());
+
 	    return uncompressed;
 	}
 	
@@ -454,6 +459,7 @@ namespace IceInternal
 		    //
 		    // Create a new unique request ID.
 		    //
+                    requestId = _nextRequestId++;
 		    if(requestId <= 0)
 		    {
 			_nextRequestId = 1;
@@ -472,7 +478,7 @@ namespace IceInternal
 		    _requests[requestId] = og;
 		}
 
-                stream = doCompress(os, compress);
+                stream = doCompress(os, _overrideCompress ? _overrideCompressValue : compress);
 		
 		if(_acmTimeout > 0)
 		{
@@ -523,12 +529,12 @@ namespace IceInternal
 			// performance.
 			//
 			Outgoing o = (Outgoing)_requests[requestId];
-			_requests.Remove(requestId);
+                        _requests.Remove(requestId);
 			if(o != null)
 			{
 			    Debug.Assert(o == og);
 			    throw _exception;
-			}
+			}           			
 		    }
 		    else
 		    {
@@ -576,7 +582,7 @@ namespace IceInternal
 		//
 		_asyncRequests[requestId] = og;
 		    
-                stream = doCompress(os, compress);
+                stream = doCompress(os, _overrideCompress ? _overrideCompressValue : compress);
 
 		if(_acmTimeout > 0)
 		{
@@ -640,7 +646,7 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.requestBatchMsg,
-            BasicStream.Compressible() ? (byte)1 : (byte)0,
+            (byte)0,
 	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
@@ -751,7 +757,7 @@ namespace IceInternal
 		//
 		_batchStream.writeInt(_batchRequestNum);
 
-		stream = doCompress(_batchStream, _batchRequestCompress);
+		stream = doCompress(_batchStream, _overrideCompress ? _overrideCompressValue : _batchRequestCompress);
 			
 		if(_acmTimeout > 0)
 		{
@@ -978,7 +984,7 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.replyMsg,
-            BasicStream.Compressible() ? (byte)1 : (byte)0,
+            (byte)0,
 	    (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
@@ -1023,7 +1029,7 @@ namespace IceInternal
 		    compress = stream.readByte();
 		    if(compress == (byte)2)
 		    {
-			if(BasicStream.Compressible())
+			if(_compressionSupported)
 			{
 			    stream = stream.uncompress();
 			}
@@ -1333,7 +1339,7 @@ namespace IceInternal
 	
         static Connection()
         {
-            _compressionEnabled = BasicStream.Compressible();
+            _compressionSupported = BasicStream.compressible();
         }
 
 	internal Connection(Instance instance, Transceiver transceiver,
@@ -1369,6 +1375,10 @@ namespace IceInternal
 		_threadPool = _instance.clientThreadPool();
 		_servantManager = null;
 	    }
+
+	    _overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
+	    _overrideCompressValue = _instance.defaultsAndOverrides().overrideCompressValue;
+
 	}
 	
 	~Connection()
@@ -1578,7 +1588,7 @@ namespace IceInternal
 		    os.writeByte(Protocol.encodingMajor);
 		    os.writeByte(Protocol.encodingMinor);
 		    os.writeByte(Protocol.closeConnectionMsg);
-		    os.writeByte(BasicStream.Compressible() ? (byte)1 : (byte)0);
+		    os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
 		    os.writeInt(Protocol.headerSize); // Message size.
 
 		    //
@@ -1710,6 +1720,9 @@ namespace IceInternal
 	private Incoming _incomingCache;
 	private object _incomingCacheMutex = new object();
 
-        private static volatile bool _compressionEnabled;
+        private static volatile bool _compressionSupported;
+
+	private bool _overrideCompress;
+	private bool _overrideCompressValue;
     }
 }
