@@ -38,7 +38,7 @@ public final class Connection extends EventHandler
 			os.writeByte(Protocol.encodingMajor);
 			os.writeByte(Protocol.encodingMinor);
 			os.writeByte(Protocol.validateConnectionMsg);
-			os.writeByte((byte)0); // Compression status.
+			os.writeByte((byte)0); // Compression status (always zero for validate connection).
 			os.writeInt(Protocol.headerSize); // Message size.
 			TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
 			_transceiver.write(os, _endpoint.timeout());
@@ -126,11 +126,7 @@ public final class Connection extends EventHandler
 			throw new Ice.ConnectionNotValidatedException();
 		    }
 
-                    byte compress = is.readByte();
-                    if(compress == (byte)2)
-                    {
-                        throw new Ice.CompressionNotSupportedException();
-                    }
+                    byte compress = is.readByte(); // Ignore compression status for validate connection.
 
 		    int size = is.readInt();
 		    if(size != Protocol.headerSize)
