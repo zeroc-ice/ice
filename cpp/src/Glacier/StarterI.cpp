@@ -82,10 +82,6 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     bool sslConfigured = !_properties->getProperty("IceSSL.Server.Config").empty();
 
-    std::cerr << std::endl;
-    std::cerr << "Starter SSL: " << sslConfigured << std::endl;
-    std::cerr << std::endl;
-
     //
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
     // router as the values for the properties
