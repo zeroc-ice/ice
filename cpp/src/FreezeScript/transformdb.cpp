@@ -707,7 +707,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 		string dbElement;
 		if(p->second.evictor)
 		{
-		    dbElement = "<database key=\"::Ice::Identity\" value=\"::Freeze::ObjectRecord\"/>";
+		    dbElement = "<database key=\"::Ice::Identity\" value=\"::Freeze::ObjectRecord\"> <record/> </database>";
 		}
 		else
 		{
@@ -724,7 +724,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 			value = "Object*";
 		    }
 
-		    dbElement = "<database key=\"" + p->second.key + "\" value=\"" + value + "\"/>"; 
+		    dbElement = "<database key=\"" + p->second.key + "\" value=\"" + value + "\"> <record/> </database>"; 
 		}
 		
 		string localDescriptor = descriptors;
