@@ -92,7 +92,7 @@ INSTALL			= cp -fp
 
 MCS			= mcs
 
-LIBS			= $(libdir)/icecs.dll
+LIBS			= $(libdir)/icecs.dll $(libdir)/glaciercs.dll
 
 ifeq ($(DEBUG),yes)
     MCSFLAGS := -g

@@ -26,7 +26,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 server.exe: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
 
 install:: all
 	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)

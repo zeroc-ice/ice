@@ -12,7 +12,7 @@ top_srcdir	= ../..
 LIBNAME		= glaciercs.dll
 TARGETS		= $(libdir)/$(LIBNAME)
 
-SRCS		=
+SRCS		= AssemblyInfo.cs
 
 SLICE_SRCS	= $(SDIR)/Router.ice \
 		  $(SDIR)/Session.ice \
@@ -31,7 +31,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(LIBS) $^
+	$(MCS) $(MCSFLAGS) -r:$(libdir)/icecs.dll $^
 
 install:: all
 	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)

@@ -11,10 +11,10 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs
-S_SRCS		= HelloI.cs Server.cs
+C_SRCS		= CallbackClient.cs CallbackReceiverI.cs Client.cs
+S_SRCS		= CallbackI.cs CallbackReceiverI.cs CallbackServer.cs Server.cs
 
-SLICE_SRCS	= $(SDIR)/Hello.ice
+SLICE_SRCS	= $(SDIR)/Callback.ice
 
 SDIR		= .
 
@@ -27,7 +27,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll -r:$(libdir)/glaciercs.dll $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^

@@ -9,9 +9,8 @@ subdirectory.
 
 You can either build the slice2cs compiler from the Ice for C++ source
 distribution, or you can download the Ice binary package for Windows,
-which contains a compiled versions of slice2cs.  If you build slice2cs
-yourself, make sure it is in your PATH or, alternatively, place
-slice2cs.exe into the bin directory of the Ice for C# distribution.
+which contains a compiled versions of slice2cs. Make sure that
+the directory containing slice2cs is in your PATH.
 
 TODO: This is not correct. The slice and iceutil DLLs must be copied
 as well, and also icecpp.exe.
@@ -20,9 +19,9 @@ Open icecs/All.sln in Visual C# and build the "All" solution (both
 debug and release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
-errors for the "adapterDeactivationCOL" project. The work-around is
-to rebuild (not build) the "adapterDeactivationCOL" project once you
-have seen the errors. Thereafter, building the project seems to work
+errors for the "adapterDeactivationCOL" and/or the "adapterDeactivationS"
+project. The work-around is to rebuild (not build) these projects
+once you have seen the errors. Thereafter, building the projects seems to work
 fine. (If someone can work out why this is happening, please let us know!)
 
 

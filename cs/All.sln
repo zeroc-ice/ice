@@ -184,6 +184,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adapterDeactivationCOL", "t
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier", "src\Glacier\Glacier.csproj", "{443F2166-8A31-48FD-9345-9070EA38FF39}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "starterC", "test\Glacier\starter\starterC.csproj", "{AF19DEBC-1648-4782-9B18-8311D2A36E3B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "starterS", "test\Glacier\starter\starterS.csproj", "{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -374,6 +386,18 @@ Global
 		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Debug.Build.0 = Debug|.NET
 		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Release.ActiveCfg = Release|.NET
 		{0957A1E3-27E3-4CE2-BA24-05DF5D680BAE}.Release.Build.0 = Release|.NET
+		{443F2166-8A31-48FD-9345-9070EA38FF39}.Debug.ActiveCfg = Debug|.NET
+		{443F2166-8A31-48FD-9345-9070EA38FF39}.Debug.Build.0 = Debug|.NET
+		{443F2166-8A31-48FD-9345-9070EA38FF39}.Release.ActiveCfg = Release|.NET
+		{443F2166-8A31-48FD-9345-9070EA38FF39}.Release.Build.0 = Release|.NET
+		{AF19DEBC-1648-4782-9B18-8311D2A36E3B}.Debug.ActiveCfg = Debug|.NET
+		{AF19DEBC-1648-4782-9B18-8311D2A36E3B}.Debug.Build.0 = Debug|.NET
+		{AF19DEBC-1648-4782-9B18-8311D2A36E3B}.Release.ActiveCfg = Release|.NET
+		{AF19DEBC-1648-4782-9B18-8311D2A36E3B}.Release.Build.0 = Release|.NET
+		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Debug.ActiveCfg = Debug|.NET
+		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Debug.Build.0 = Debug|.NET
+		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Release.ActiveCfg = Release|.NET
+		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
