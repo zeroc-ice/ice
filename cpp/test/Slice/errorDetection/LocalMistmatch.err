@@ -1,12 +1,16 @@
 LocalMistmatch.ice:12: local `Intf1' was declared non-local
 LocalMistmatch.ice:13: local `Intf1' was declared non-local
+LocalMistmatch.ice:13: parse error
 LocalMistmatch.ice:16: local `Intf2' was defined non-local
 LocalMistmatch.ice:19: non-local `Intf3' was declared local
 LocalMistmatch.ice:20: non-local `Intf3' was declared local
+LocalMistmatch.ice:20: parse error
 LocalMistmatch.ice:23: non-local `Intf4' was defined local
 LocalMistmatch.ice:26: local `Class1' was declared non-local
 LocalMistmatch.ice:27: local `Class1' was declared non-local
+LocalMistmatch.ice:27: parse error
 LocalMistmatch.ice:30: local `Class2' was defined non-local
 LocalMistmatch.ice:33: non-local `Class3' was declared local
 LocalMistmatch.ice:34: non-local `Class3' was declared local
+LocalMistmatch.ice:34: parse error
 LocalMistmatch.ice:37: non-local `Class4' was defined local

@@ -11,6 +11,7 @@
 class Foo
 {
     void Foo();
+    long l;
 };
 
 interface IFoo
@@ -21,6 +22,7 @@ interface IFoo
 class Bar
 {
     string Bar;
+    long l;
 };
 
 exception EBar

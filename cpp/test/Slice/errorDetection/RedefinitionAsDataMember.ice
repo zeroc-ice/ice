@@ -12,4 +12,5 @@ class Class
 {
     void operation();
     int operation;
+    long l;
 };

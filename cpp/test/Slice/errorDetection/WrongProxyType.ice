@@ -20,4 +20,5 @@ interface I
     Dictionary* f1();
     void f2(Dictionary*);
     void f3(; Dictionary*);
+    void op();
 };

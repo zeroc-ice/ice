@@ -1,2 +1,4 @@
-ClassRedefinition.ice:12: redefinition of class `Class1'
-ClassRedefinition.ice:16: redefinition of class `Class2'
+ClassRedefinition.ice:13: redefinition of class `Class1'
+ClassRedefinition.ice:13: parse error
+ClassRedefinition.ice:17: redefinition of class `Class2'
+ClassRedefinition.ice:17: parse error

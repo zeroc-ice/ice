@@ -16,10 +16,10 @@ module Module
 
 sequence<Module> Sequence;
 dictionary<int, Module> Dictionary;
-interface BarIntf extends Module { };
-class BarClass1 extends Module { };
-class BarClass2 implements Module1, Module2, Module3 { };
-class BarClass3 extends Module implements Module1, Module2, Module3 { };
+interface BarIntf extends Module { void op(); };
+class BarClass1 extends Module { long l; };
+class BarClass2 implements Module1, Module2, Module3 { long l; };
+class BarClass3 extends Module implements Module1, Module2, Module3 { long l; };
 
 };
 
@@ -33,4 +33,5 @@ struct S
 interface I
 {
     E foo(E e1; E e2);
+    void op();
 };

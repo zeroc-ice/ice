@@ -8,6 +8,6 @@
 //
 // **********************************************************************
 
-class Class { };
+class Class { long l; };
 sequence<int> Sequence;
 enum Enum { Class, Sequence };

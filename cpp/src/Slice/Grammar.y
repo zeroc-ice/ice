@@ -323,13 +323,16 @@ struct_def
 }
 '{' struct_exports '}'
 {
+    //
+    // Empty structures are not allowed
+    //
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
+    unit->popContainer();
     if (st->dataMembers().empty())
     {
     	unit->error("struct must have at least one member");
     }
-    unit->popContainer();
     $$ = $3;
 }
 | ICE_STRUCT keyword
@@ -414,7 +417,17 @@ class_def
 }
 '{' class_exports '}'
 {
+    //
+    // Check whether at least one data member is present, otherwise the class
+    // really is an interface and must be defined as an interface.
+    //
+    ClassDefPtr cd = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cd);
     unit->popContainer();
+    if (cd->dataMembers().empty())
+    {
+    	unit->error("class must have at least one data member");
+    }
     $$ = $5;
 }
 | ICE_CLASS keyword class_extends implements
@@ -552,7 +565,17 @@ interface_def
 }
 '{' interface_exports '}'
 {
+    //
+    // Check whether at least one operation is present, otherwise the
+    // interface is empty, which doesn't make sense.
+    //
+    ClassDefPtr cd = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cd);
     unit->popContainer();
+    if (cd->operations().empty())
+    {
+     	unit->error("interface must have at least one operation");
+    }
     $$ = $4;
 }
 | ICE_INTERFACE keyword interface_extends
