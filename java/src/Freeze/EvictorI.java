@@ -998,59 +998,87 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    for(int i = 0; i < size; i++)
 	    {
 		Facet facet = (Facet) allObjects.get(i);
-		
-		synchronized(facet)
-		{
-		    ObjectRecord rec = facet.rec;
-		    
-		    boolean streamIt = true;
-		    byte status = facet.status;
 
-		    switch(status)
+		boolean tryAgain = false;
+		do
+		{
+		    Ice.Object servant = null;
+
+		    synchronized(facet)
 		    {
-			case created:
-			case modified:
+			byte status = facet.status;
+
+			switch(status)
 			{
-			    facet.status = clean;
-			    break;
-			}   
-			case destroyed:
-			{
-			    facet.status = dead;
-			    break;
-			}   
-			default:
-			{
-			    //
-			    // Nothing to do (could be a duplicate)
-			    //
-			    streamIt = false;
-			    break;
-			}
-		    }
-		    
-		    if(streamIt)
-		    {
-			int index = streamedObjectQueue.size();
-			StreamedObject obj = new StreamedObject();
-			streamedObjectQueue.add(obj);
-			
-			EvictorStorageKey esk = new EvictorStorageKey();
-			esk.identity = facet.element.identity;
-			esk.facet = facet.path;
-			obj.key = marshalKey(esk, _communicator);
-			obj.status = status;
-			if(status != destroyed)
-			{
-			    synchronized(rec.servant)
+			    case created:
+			    case modified:
 			    {
-				obj.value = writeObjectRecordToValue(saveStart, rec);
+				servant = facet.rec.servant;
+				break;
+			    }   
+			    case destroyed:
+			    {
+				streamedObjectQueue.add(streamFacet(facet, status, saveStart));
+				break;
+			    }   
+			    default:
+			    {
+				//
+				// Nothing to do (could be a duplicate)
+				//
+				break;
 			    }
 			}
 		    }
-		}    
+			
+		    if(servant != null)
+		    {
+			//
+			// Lock servant and then facet so that user can safely lock
+			// servant and call various Evictor operations
+			//
+			synchronized(servant)
+			{
+			    synchronized(facet)
+			    {
+				byte status = facet.status;
+				
+				switch(status)
+				{
+				    case created:
+				    case modified:
+				    {
+					if(servant == facet.rec.servant)
+					{
+					    facet.status = clean;
+					    streamedObjectQueue.add(streamFacet(facet, status, saveStart));
+					}
+					else
+					{
+					    tryAgain = true;
+					}
+					break;
+				    }
+				    case destroyed:
+				    {
+					facet.status = dead;
+					streamedObjectQueue.add(streamFacet(facet, status, saveStart));
+					break;
+				    }   
+				    default:
+				    {
+					//
+					// Nothing to do (could be a duplicate)
+					//
+					break;
+				    }
+				}
+			    }
+			}
+		    }
+		} while(tryAgain);
 	    }
-	
+	    
 	    //
 	    // Now let's save all these streamed objects to disk using a transaction
 	    //
@@ -1438,6 +1466,23 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    notifyAll();
 	}
     }
+
+    private StreamedObject
+    streamFacet(Facet facet, byte status, long saveStart)
+    {
+	StreamedObject obj = new StreamedObject();
+	EvictorStorageKey esk = new EvictorStorageKey();
+	esk.identity = facet.element.identity;
+	esk.facet = facet.path;
+	obj.key = marshalKey(esk, _communicator);
+	obj.status = status;
+	if(status != destroyed)
+	{
+	    obj.value = writeObjectRecordToValue(saveStart, facet.rec); 
+	}
+	return obj;
+    }
+
     
     private void
     saveNowNoSync()
@@ -1814,6 +1859,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    return facet.rec.servant;
 	}
     }
+
+    
 
     private boolean
     startWith(byte[] key, byte[] root)
