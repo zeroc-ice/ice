@@ -15,12 +15,8 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
-#include <Ice/Incoming.h>
 #include <Ice/Connection.h>
 #include <Ice/LocalException.h>
-//#include <Ice/Instance.h>
-//#include <Ice/Properties.h>
-//#include <Ice/LoggerUtil.h>
 #include <Ice/Protocol.h>
 
 using namespace std;
@@ -34,19 +30,10 @@ void IceInternal::incRef(AMD_Object_ice_invoke* p) { p->__incRef(); }
 void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
-    _instance(in._is.instance()),
-    _current(in._current),
-    _servant(in._servant),
-    _locator(in._locator),
-    _cookie(in._cookie),
-    _connection(in._connection),
-    _response(in._response),
-    _compress(in._compress),
-    _is(_instance),
-    _os(_instance)
+    IncomingBase(in),
+    _instance(_is.instance()),
+    _connection(_connection)
 {
-    _is.swap(in._is);
-    _os.swap(in._os);
 }
 
 void
@@ -66,7 +53,7 @@ IceInternal::IncomingAsync::__response(bool ok)
 	}
     }
 
-    finishInvoke();
+    __finishInvoke();
 }
 
 void
@@ -93,6 +80,8 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ex.operation = _current.operation;
 	}
 
+	__warning(ex);
+
 	if(_response)
 	{
 	    _os.endWriteEncaps();
@@ -117,11 +106,11 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    _os.write(ex.facet);
 	    _os.write(ex.operation);
 	}
-
-	finishInvoke();
     }
     catch(const LocalException& ex)
     {
+	__warning(ex);
+
 	if(_response)
 	{
 	    _os.endWriteEncaps();
@@ -131,11 +120,11 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    str << ex;
 	    _os.write(str.str());
 	}
-
-	finishInvoke();
     }
     catch(const UserException& ex)
     {
+	__warning(ex);
+
 	if(_response)
 	{
 	    _os.endWriteEncaps();
@@ -145,11 +134,11 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    str << ex;
 	    _os.write(str.str());
 	}
-
-	finishInvoke();
     }
     catch(const Exception& ex)
     {
+	__warning(ex);
+
 	if(_response)
 	{
 	    _os.endWriteEncaps();
@@ -159,9 +148,9 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    str << ex;
 	    _os.write(str.str());
 	}
-
-	finishInvoke();
     }
+
+    __finishInvoke();
 }
 
 void
@@ -177,7 +166,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 	_os.write(str.str());
     }
 
-    finishInvoke();
+    __finishInvoke();
 }
 
 void
@@ -192,7 +181,7 @@ IceInternal::IncomingAsync::__exception()
 	_os.write(reason);
     }
 
-    finishInvoke();
+    __finishInvoke();
 }
 
 BasicStream*
@@ -205,31 +194,6 @@ BasicStream*
 IceInternal::IncomingAsync::__os()
 {
     return &_os;
-}
-
-void
-IceInternal::IncomingAsync::finishInvoke()
-{
-    if(_locator && _servant)
-    {
-	_locator->finished(_current, _servant, _cookie);
-    }
-
-    _is.endReadEncaps();
-
-    //
-    // Send a response if necessary. If we don't need to send a
-    // response, we still need to tell the connection that we're
-    // finished with dispatching.
-    //
-    if(_response)
-    {
-	_connection->sendResponse(&_os, _compress);
-    }
-    else
-    {
-	_connection->sendNoResponse();
-    }
 }
 
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :

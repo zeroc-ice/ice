@@ -16,25 +16,20 @@
 #define ICE_INCOMING_ASYNC_H
 
 #include <Ice/IncomingAsyncF.h>
-#include <Ice/ConnectionF.h>
-#include <Ice/ServantLocatorF.h>
-#include <Ice/BasicStream.h>
-#include <Ice/Current.h>
+#include <Ice/Incoming.h>
 
 namespace IceInternal
 {
-
-class Incoming;
 
 //
 // We need virtual inheritance from shared, because we use multiple
 // inheritance from IceUtil::Shared for generated AMD code.
 //
-class ICE_API IncomingAsync : virtual public ::IceUtil::Shared
+class ICE_API IncomingAsync : public IncomingBase, virtual public ::IceUtil::Shared
 {
 public:
 
-    IncomingAsync(Incoming&); // Adopts the Incoming argument. It must not be used afterwards.
+    IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
 
 protected:
 
@@ -48,26 +43,17 @@ protected:
 
 private:
 
-    void finishInvoke();
-
     //
     // We need a separate InstancePtr, because _is and _os only hold a
-    // const InstancePtr& for optimization.
+    // Instance* for optimization.
     //
     InstancePtr _instance;
 
-    Ice::Current _current;
-    Ice::ObjectPtr _servant;
-    Ice::ServantLocatorPtr _locator;
-    Ice::LocalObjectPtr _cookie;
-
+    //
+    // We need a separate ConnectionPtr, because IncomingBase only
+    // holds a Connection* for optimization.
+    //
     ConnectionPtr _connection;
-
-    bool _response;
-    bool _compress;
-
-    BasicStream _is;
-    BasicStream _os;
 };
 
 }
