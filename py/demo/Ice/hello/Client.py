@@ -27,9 +27,10 @@ x: exit
 
 def run(args, communicator):
     properties = communicator.getProperties()
-    proxy = properties.getProperty('Hello.Proxy')
+    refProperty = 'Hello.Proxy'
+    proxy = properties.getProperty(refProperty)
     if len(proxy) == 0:
-        print " property `Hello.Proxy' not set"
+        print args[0] + ": property `" + refPropert + "' not set"
         return False
 
     base = communicator.stringToProxy(proxy)
@@ -111,6 +112,7 @@ def run(args, communicator):
 
     return True
 
+communicator = None
 try:
     properties = Ice.createProperties()
     properties.load("config")
@@ -127,7 +129,4 @@ if communicator:
         print ex
         status = False
 
-if status:
-    sys.exit(0)
-else:
-    sys.exit(1)
+sys.exit(not status)
