@@ -216,11 +216,11 @@ IcePack::ServerFactory::createServerAdapter(const string& adapterId, const Serve
 }
 
 void
-IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& identity)
+IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& ident)
 {
     try
     {
-	_serverEvictor->destroyObject(identity);
+	_serverEvictor->destroyObject(ident);
 
 	if(_traceLevels->server > 0)
 	{
@@ -239,15 +239,15 @@ IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& id
 	assert(false);
     }
 
-    _adapter->remove(identity);
+    _adapter->remove(ident);
 }
 
 void
-IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Identity& identity)
+IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Identity& ident)
 {
     try
     {
-	_serverAdapterEvictor->destroyObject(identity);
+	_serverAdapterEvictor->destroyObject(ident);
 
 	if(_traceLevels->adapter > 0)
 	{
@@ -266,5 +266,5 @@ IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Iden
 	assert(false);
     }
 
-    _adapter->remove(identity);
+    _adapter->remove(ident);
 }

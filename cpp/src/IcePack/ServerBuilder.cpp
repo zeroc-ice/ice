@@ -311,6 +311,7 @@ IcePack::ServerHandler::endElement(const string& name, int line, int column)
 	}
 	else if(name == "env")
 	{
+cout << "Adding environment variable " << elementValue() << endl;
 	    _builder.addEnvVar(elementValue());
 	}
     }

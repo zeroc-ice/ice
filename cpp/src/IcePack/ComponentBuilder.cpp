@@ -20,14 +20,11 @@
 #include <IcePack/ComponentBuilder.h>
 #include <IcePack/Internal.h>
 
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 #   include <direct.h>
-#   include <io.h>
-#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#   define S_ISREG(mode) ((mode) & _S_IFREG)
 #else
 #   include <unistd.h>
 #   include <dirent.h>

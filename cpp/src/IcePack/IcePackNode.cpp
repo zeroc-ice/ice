@@ -26,12 +26,20 @@
 #include <IcePack/TraceLevels.h>
 #include <IcePack/Registry.h>
 
-#include <csignal>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#ifdef _WIN32
+#   include <direct.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <csignal>
+#   include <signal.h>
+#   include <sys/wait.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <unistd.h>
+#endif
 
 using namespace std;
 using namespace IcePack;
@@ -57,6 +65,7 @@ usage(const char* appName)
 	;
 }
 
+#ifndef _WIN32
 extern "C"
 {
 
@@ -64,7 +73,7 @@ static void
 childHandler(int)
 {
     //
-    // Call wait to de-allocate any ressources allocated for the child
+    // Call wait to de-allocate any resources allocated for the child
     // process and avoid zombie processes. See man wait or waitpid for
     // more information.
     //
@@ -72,6 +81,7 @@ childHandler(int)
 }
 
 }
+#endif
 
 static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
 
@@ -217,7 +227,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
 	out << "a node with the same name is already registered and active";
 	throw;
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
 	Ice::Error out(communicator->getLogger());
 	out << "couldn't contact the IcePack registry:";
@@ -286,7 +296,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
     }
     
     //
-    // Wait for the activator shutdown. Once, the run method returns
+    // Wait for the activator shutdown. Once the run method returns
     // all the servers have been deactivated.
     //
     _ctrlCHandler->setCallback(shutdownCallback);
@@ -315,9 +325,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
 int
 main(int argc, char* argv[])
 {
+#ifndef _WIN32
     //
-    // This application forks, so we need a signal handler for child
-    // termination.
+    // This application forks, so we need a signal handler for child termination.
     //
     struct sigaction action;
     action.sa_handler = childHandler;
@@ -325,6 +335,7 @@ main(int argc, char* argv[])
     sigaddset(&action.sa_mask, SIGCHLD);
     action.sa_flags = 0;
     sigaction(SIGCHLD, &action, 0);
+#endif
 
     Ice::CommunicatorPtr communicator;
 
@@ -346,8 +357,8 @@ main(int argc, char* argv[])
 
 	//
 	// Disable server idle time. Otherwise, the adapter would be
-	// shutdown permaturaly and the deactivation would
-	// fail. Deactivation of the node relies on the object adapter
+	// shutdown prematurely and the deactivation would fail.
+        // Deactivation of the node relies on the object adapter
 	// to be active since it needs to terminate servers.
 	//
 	// TODO: implement Ice.ServerIdleTime in the activator
@@ -421,12 +432,21 @@ main(int argc, char* argv[])
 	}
 	else
 	{
-	    struct stat filestat;
-	    if(stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+#ifdef _WIN32
+	    struct _stat filestat;
+	    if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
 	    {
 		cerr << argv[0] << ": property `IcePack.Node.Data' is not set to a valid directory path" << endl;
 		return EXIT_FAILURE;
 	    }	    
+#else
+	    struct stat filestat;
+	    if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+	    {
+		cerr << argv[0] << ": property `IcePack.Node.Data' is not set to a valid directory path" << endl;
+		return EXIT_FAILURE;
+	    }	    
+#endif
 
 	    //
 	    // Creates subdirectories db and servers in the IcePack.Node.Data
@@ -440,14 +460,25 @@ main(int argc, char* argv[])
 	    envName = dataPath + "db";
 	    string serversPath = dataPath + "servers";
     
-	    if(stat(envName.c_str(), &filestat) != 0)
+#ifdef _WIN32
+	    if(::_stat(envName.c_str(), &filestat) != 0)
+	    {
+		_mkdir(envName.c_str());
+	    }
+	    if(::_stat(serversPath.c_str(), &filestat) != 0)
+	    {
+		_mkdir(serversPath.c_str());
+	    }
+#else
+	    if(::stat(envName.c_str(), &filestat) != 0)
 	    {
 		mkdir(envName.c_str(), 0755);
 	    }
-	    if(stat(serversPath.c_str(), &filestat) != 0)
+	    if(::stat(serversPath.c_str(), &filestat) != 0)
 	    {
 		mkdir(serversPath.c_str(), 0755);
 	    }
+#endif
 	}
 
 	status = run(argc, argv, communicator, envName);

@@ -49,13 +49,18 @@ private:
     void deactivateAll();    
 
     void terminationListener();
-    bool clearInterrupt();
-    void setInterrupt(char);
+    void clearInterrupt();
+    void setInterrupt();
 
     struct Process
     {
+#ifdef _WIN32
+        DWORD pid;
+        HANDLE hnd;
+#else
 	pid_t pid;
 	int fd;
+#endif
 	ServerPtr server;
     };
 
@@ -64,8 +69,12 @@ private:
     std::vector<Process> _processes;
     bool _deactivating;
 
+#ifdef _WIN32
+    HANDLE _hIntr;
+#else
     int _fdIntrRead;
     int _fdIntrWrite;
+#endif
 
     std::vector<std::string> _propertiesOverride;
     

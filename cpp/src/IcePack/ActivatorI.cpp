@@ -12,10 +12,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   error Sorry, the IcePack Activator is not yet supported on WIN32.
-#endif
-
 #include <Ice/Ice.h>
 #include <IcePack/ActivatorI.h>
 #include <IcePack/Admin.h>
@@ -60,6 +56,21 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const Propert
     _properties(properties),
     _deactivating(false)
 {
+#ifdef _WIN32
+    _hIntr = CreateEvent(
+        NULL,  // Security attributes
+        TRUE,  // Manual reset
+        FALSE, // Initial state is nonsignaled
+        NULL   // Unnamed
+    );
+
+    if(_hIntr == NULL)
+    {
+	SyscallException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+#else
     int fds[2];
     if(pipe(fds) != 0)
     {
@@ -72,6 +83,7 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const Propert
     int flags = fcntl(_fdIntrRead, F_GETFL);
     flags |= O_NONBLOCK;
     fcntl(_fdIntrRead, F_SETFL, flags);
+#endif
 
     //
     // Parse the properties override property.
@@ -113,8 +125,15 @@ IcePack::ActivatorI::~ActivatorI()
 {
     assert(!_thread);
     
+#ifdef _WIN32
+    if(_hIntr != NULL)
+    {
+        CloseHandle(_hIntr);
+    }
+#else
     close(_fdIntrRead);
     close(_fdIntrWrite);
+#endif
 }
 
 bool
@@ -133,6 +152,35 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	return false;
     }
 
+    string pwd = server->description.pwd;
+
+#ifdef _WIN32
+    //
+    // Get the absolute pathname of the executable.
+    //
+    char absbuf[_MAX_PATH];
+    if(_fullpath(absbuf, path.c_str(), _MAX_PATH) == NULL)
+    {
+        Error out(_traceLevels->logger);
+        out << "cannot convert `" << path << "' into an absolute path";
+        return false;
+    }
+    path = absbuf;
+
+    //
+    // Get the absolute pathname of the working directory.
+    //
+    if(!pwd.empty())
+    {
+        if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
+        {
+            Error out(_traceLevels->logger);
+            out << "cannot convert `" << pwd << "' into an absolute path";
+            return false;
+        }
+        pwd = absbuf;
+    }
+#else
     //
     // Normalize the pathname a bit.
     //
@@ -151,7 +199,6 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Normalize the path to the working directory.
     //
-    string pwd = server->description.pwd;
     if(!pwd.empty())
     {
 	string::size_type pos;
@@ -164,6 +211,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    pwd.erase(pos, 2);
 	}
     }
+#endif
 
     //
     // Setup arguments.
@@ -197,6 +245,143 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Activate and create.
     //
+#ifdef _WIN32
+    //
+    // Compose command line.
+    //
+    string cmd;
+    StringSeq::const_iterator p;
+    for(p = args.begin(); p != args.end(); ++p)
+    {
+        if(p != args.begin())
+        {
+            cmd.push_back(' ');
+        }
+        //
+        // Enclose arguments containing spaces in double quotes.
+        //
+        if((*p).find(' ') != string::npos)
+        {
+            cmd.push_back('"');
+            cmd.append(*p);
+            cmd.push_back('"');
+        }
+        else
+        {
+            cmd.append(*p);
+        }
+    }
+
+    const char* dir;
+    if(!pwd.empty())
+    {
+        dir = pwd.c_str();
+    }
+    else
+    {
+        dir = NULL;
+    }
+
+    //
+    // Make a copy of the command line.
+    //
+    char* cmdbuf = strdup(cmd.c_str());
+
+    //
+    // Create the environment block for the child process. We start with the environment
+    // of this process, and then merge environment variables from the server description.
+    //
+    const char* env = NULL;
+    string envbuf;
+//cout << "Activator: description.envs.size() = " << server->description.envs.size() << endl;
+    if(!server->description.envs.empty())
+    {
+//cout << "Activator: creating environment block" << endl;
+        map<string, string> envMap;
+        LPVOID parentEnv = GetEnvironmentStrings();
+        const char* var = reinterpret_cast<const char*>(parentEnv);
+        while(*var)
+        {
+            string s(var);
+//cout << "  - adding parent variable `" << s << "'" << endl;
+            string::size_type pos = s.find('=');
+            if(pos != string::npos)
+            {
+                envMap.insert(map<string, string>::value_type(s.substr(0, pos), s.substr(pos + 1)));
+            }
+        }
+        FreeEnvironmentStrings(static_cast<char*>(parentEnv));
+        for(p = server->description.envs.begin(); p != server->description.envs.end(); ++p)
+        {
+            string s = *p;
+//cout << "  - adding descriptor variable `" << s << "'" << endl;
+            string::size_type pos = s.find('=');
+            if(pos != string::npos)
+            {
+                envMap.insert(map<string, string>::value_type(s.substr(0, pos), s.substr(pos + 1)));
+            }
+        }
+        for(map<string, string>::const_iterator q = envMap.begin(); q != envMap.end(); ++q)
+        {
+            envbuf.append(q->first);
+            envbuf.push_back('=');
+            envbuf.append(q->second);
+            envbuf.push_back('\0');
+        }
+        envbuf.push_back('\0');
+        env = envbuf.c_str();
+//cout << "  - envbuf.size() = " << envbuf.size() << endl;
+    }
+
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(pi));
+
+    BOOL b = CreateProcess(
+        NULL,                     // Executable
+        cmdbuf,                   // Command line
+        NULL,                     // Process attributes
+        NULL,                     // Thread attributes
+        FALSE,                    // Inherit handles
+        CREATE_NEW_PROCESS_GROUP, // Process creation flags
+        (LPVOID)env,              // Process environment
+        dir,                      // Current directory
+        &si,                      // Startup info
+        &pi                       // Process info
+    );
+
+//    delete[] cmdbuf;
+    free(cmdbuf);
+
+    if(!b)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+
+    //
+    // Caller is responsible for closing handles in PROCESS_INFORMATION. We don't need to
+    // keep the thread handle, so we close it now. The process handle will be closed later.
+    //
+    CloseHandle(pi.hThread);
+
+    Process process;
+    process.pid = pi.dwProcessId;
+    process.hnd = pi.hProcess;
+    process.server = server;
+    _processes.push_back(process);
+    
+    setInterrupt();
+
+    if(_traceLevels->activator > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+        out << "activated server `" << server->description.name << "' (pid = " << pi.dwProcessId << ")";
+    }
+#else
     int fds[2];
     if(pipe(fds) != 0)
     {
@@ -216,7 +401,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     {
 	//
 	// TODO: eliminate all non-async-signal-safe calls, in particular anything
-	// that may allocated dynamic memory
+	// that may allocate dynamic memory.
 	//
 
 
@@ -230,7 +415,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 
 	//
 	// Close all file descriptors, except for standard input,
-	// standard output, standard error output, and the write side
+	// standard output, standard error, and the write side
 	// of the newly created pipe.
 	//
 	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
@@ -352,14 +537,15 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	flags |= O_NONBLOCK;
 	fcntl(process.fd, F_SETFL, flags);
 
-	setInterrupt(0);
+	setInterrupt();
 
 	if(_traceLevels->activator > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	    out << "activated server `" << server->description.name << "'(pid = " << pid << ")";
+	    out << "activated server `" << server->description.name << "' (pid = " << pid << ")";
 	}
     }
+#endif
 
     return true;
 }
@@ -377,6 +563,25 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 	return;
     }
 
+#ifdef _WIN32
+    //
+    // Generate a Ctrl+Break event on the child.
+    //
+    if(GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid))
+    {
+        if(_traceLevels->activator > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+            out << "sent Ctrl+Break to server `" << server->description.name << "' (pid = " << pid << ")";
+        }
+    }
+    else
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+#else
     //
     // Send a SIGTERM to the process.
     //
@@ -395,12 +600,13 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 	ex.error = getSystemErrno();
 	throw ex;
     }
-    
+
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
 	out << "sent SIGTERM to server `" << server->description.name << "' (pid = " << pid << ")";
     }
+#endif
 }
 
 void
@@ -416,6 +622,32 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
 	return;
     }
 
+#ifdef _WIN32
+    HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+    if(hnd == NULL)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+
+    BOOL b = TerminateProcess(hnd, 1);
+
+    CloseHandle(hnd);
+
+    if(!b)
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+
+    if(_traceLevels->activator > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	out << "terminating server `" << server->description.name << "' (pid = " << pid << ")";
+    }
+#else
     //
     // Send a SIGKILL to the process.
     //
@@ -437,6 +669,7 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
 	out << "sent SIGKILL to server `" << server->description.name << "' (pid = " << pid << ")";
     }
+#endif
 }
 
 Ice::Int
@@ -478,7 +711,16 @@ IcePack::ActivatorI::waitForShutdown()
 void
 IcePack::ActivatorI::shutdown()
 {
-    setInterrupt(1);
+    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    //
+    // Deactivation has been initiated. Set _deactivating to true to 
+    // prevent activation of new processes. This will also cause the
+    // termination listener thread to stop when there are no more
+    // active processes.
+    //
+    _deactivating = true;
+    setInterrupt();
+    notifyAll();
 }
 
 void
@@ -526,30 +768,29 @@ void
 IcePack::ActivatorI::deactivateAll()
 {
     //
-    // Stop all activate processes.
+    // Stop all active processes.
     //
-    std::vector<Process> processes;
+    vector<Process> processes;
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 	processes = _processes;
     }
 
-    for(std::vector<Process>::iterator p = processes.begin(); p != processes.end(); ++p)
+    for(vector<Process>::iterator p = processes.begin(); p != processes.end(); ++p)
     {
 	//
-	// Stop the server. The activator thread should detect the
-	// process deactivation and remove it from the activator
-	// active processes.
+	// Stop the server. The listener thread should detect the
+	// process deactivation and remove it from the activator's
+	// list of active processes.
 	//
 	try
 	{
 	    p->server->stop();
 	}
-	catch(const Ice::ObjectNotExistException&)
+	catch(const ObjectNotExistException&)
 	{
 	    //
-	    // Expected if the server was in the process of being
-	    // destroyed.
+	    // Expected if the server was in the process of being destroyed.
 	    //
 	}
     }
@@ -558,6 +799,82 @@ IcePack::ActivatorI::deactivateAll()
 void
 IcePack::ActivatorI::terminationListener()
 {
+#ifdef _WIN32
+    while(true)
+    {
+        vector<HANDLE> handles;
+
+        //
+        // Lock while we collect the process handles.
+        //
+        {
+            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+
+            for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            {
+                handles.push_back(p->hnd);
+            }
+        }
+
+        handles.push_back(_hIntr);
+
+        //
+        // Wait for a child to terminate, or the interrupt event to be signaled.
+        //
+        DWORD ret = WaitForMultipleObjects(handles.size(), &handles[0], FALSE, INFINITE);
+        if(ret == WAIT_FAILED)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        vector<HANDLE>::size_type pos = ret - WAIT_OBJECT_0;
+        assert(pos < handles.size());
+        HANDLE hnd = handles[pos];
+
+        IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+
+        if(hnd == _hIntr)
+        {
+            clearInterrupt();
+        }
+        else
+        {
+            for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            {
+                if(p->hnd == hnd)
+                {
+                    if(_traceLevels->activator > 0)
+                    {
+                        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                        out << "detected termination of server `" << p->server->description.name << "'";
+                    }
+
+                    try
+                    {
+                        p->server->terminated();
+                    }
+                    catch(const Ice::LocalException& ex)
+                    {
+                        Ice::Warning out(_traceLevels->logger);
+                        out << "unexpected exception raised by server `" << p->server->description.name 
+                            << "' termination:\n" << ex;
+                    }
+                            
+                    _processes.erase(p);
+                    break;
+                }
+            }
+            CloseHandle(hnd);
+        }
+
+        if(_deactivating && _processes.empty())
+        {
+            return;
+        }
+    }
+#else
     while(true)
     {
 	fd_set fdSet;
@@ -607,23 +924,12 @@ IcePack::ActivatorI::terminationListener()
 	    
 	    if(FD_ISSET(_fdIntrRead, &fdSet))
 	    {
-		bool deactivating = clearInterrupt();
+		clearInterrupt();
 
-		if(deactivating && !_deactivating)
-		{
-		    //
-		    // Deactivation has been initiated. Set _deactivating to true to 
-		    // prevent new processes to be activated. This will also cause the
-		    // termination of this loop when there's no more active processes.
-		    //
-		    _deactivating = true;
-		    notifyAll(); // For waitForShutdown
-
-		    if(_processes.empty())
-		    {
-			return;
-		    }
-		}
+		if(_deactivating && _processes.empty())
+                {
+                    return;
+                }
 	    }
 	    
 	    vector<Process>::iterator p = _processes.begin();
@@ -668,7 +974,7 @@ IcePack::ActivatorI::terminationListener()
 		    if(_traceLevels->activator > 0)
 		    {
 			Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-			out << "detected server `" << p->server->description.name << "' termination";
+                        out << "detected termination of server `" << p->server->description.name << "'";
 		    }
 
 		    try
@@ -706,24 +1012,28 @@ IcePack::ActivatorI::terminationListener()
 	    }
 	}
     }
-}
-
-bool
-IcePack::ActivatorI::clearInterrupt()
-{
-    bool shutdown = false;
-    char c;
-
-    while(read(_fdIntrRead, &c, 1) == 1)
-    {
-	shutdown = shutdown ? true : c == 1;
-    }
-
-    return shutdown;
+#endif
 }
 
 void
-IcePack::ActivatorI::setInterrupt(char c)
+IcePack::ActivatorI::clearInterrupt()
 {
+#ifdef _WIN32
+    ResetEvent(_hIntr);
+#else
+    char c;
+    while(read(_fdIntrRead, &c, 1) == 1)
+        ;
+#endif
+}
+
+void
+IcePack::ActivatorI::setInterrupt()
+{
+#ifdef _WIN32
+    SetEvent(_hIntr);
+#else
+    char c = 0;
     write(_fdIntrWrite, &c, 1);
+#endif
 }

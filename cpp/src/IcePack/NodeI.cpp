@@ -40,6 +40,6 @@ IcePack::NodeI::getServerDeployer(const Ice::Current&) const
 void
 IcePack::NodeI::shutdown(const Ice::Current&) const
 {
-    return _activator->shutdown();
+    _activator->shutdown();
 }
 
