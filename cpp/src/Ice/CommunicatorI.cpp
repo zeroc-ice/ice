@@ -227,7 +227,7 @@ Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
     __setNoDelete(false);
 
     //
-    // Se the comments in the header file for an explanation of why we
+    // See the comments in the header file for an explanation of why we
     // need _threadPool directly in CommunicatorI.
     //
     _threadPool = _instance->threadPool();

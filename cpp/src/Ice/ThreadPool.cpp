@@ -148,7 +148,7 @@ IceInternal::ThreadPool::getMaxConnections()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
     _destroyed(false),
-    _lastFd(-1),
+    _lastFd(INVALID_SOCKET),
     _servers(0),
     _timeout(0)
 {
@@ -361,7 +361,7 @@ IceInternal::ThreadPool::run()
 		if (!_handlerMap.empty())
 		{
 		    _maxFd = max(_maxFd, (--_handlerMap.end())->first);
-		    _minFd = min(_minFd, (--_handlerMap.end())->first);
+		    _minFd = min(_minFd, (--_handlerMap.begin())->first);
 		}
 		if (_handlerMap.empty() || _servers == 0)
 		{
@@ -384,10 +384,10 @@ IceInternal::ThreadPool::run()
 		for (list<int>::reverse_iterator p = _reapList.rbegin(); p != _reapList.rend(); ++p)
 		{
 		    int fd = *p;
-		    if (fd != -1)
+		    if (fd != INVALID_SOCKET)
 		    {
 			_reapList.pop_back();
-			_reapList.push_front(-1);
+			_reapList.push_front(INVALID_SOCKET);
 			map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q = _handlerMap.find(fd);
 			q->second.second = _reapList.begin();
 			handler = q->second.first;

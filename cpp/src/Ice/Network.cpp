@@ -608,7 +608,7 @@ void
 IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
 {
     char host[1024 + 1];
-    if (gethostname(host, 1024) == -1)
+    if (gethostname(host, 1024) == SOCKET_ERROR)
     {
 	SystemException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
@@ -650,7 +650,7 @@ string
 IceInternal::getLocalHost(bool numeric)
 {
     char host[1024 + 1];
-    if (gethostname(host, 1024) == -1)
+    if (gethostname(host, 1024) == SOCKET_ERROR)
     {
 	SystemException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
