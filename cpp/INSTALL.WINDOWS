@@ -7,7 +7,7 @@ Windows version
 ---------------
 
 Ice has been extensively tested with Windows XP and Windows 2000. Ice
-will most likely also work Windows NT. Windows 95/98/ME is not
+will most likely also work on Windows NT. Windows 95/98/ME is not
 supported.
 
 
@@ -61,6 +61,12 @@ http://www.openssl.org
 And bzip2 from:
 
 http://sources.redhat.com/bzip2
+
+Note: For a regular build of bzip2, both the debug and the release
+library are named "libbz2.lib". In order to be able to have both a
+debug and a release version on your system, please rename the debug
+library to "libbz2d.lib". This is also what the Ice project files
+expect if you build a debug version of Ice.
 
 
 Python 2
