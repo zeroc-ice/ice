@@ -14,5 +14,6 @@
 #include <Freeze/Initialize.h>
 #include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
+#include <Freeze/FreezeMap.h>
 
 #endif

@@ -195,22 +195,7 @@ local interface DBCursor
 
     /**
      *
-     * Determine if there are more elements in the database.
-     *
-     * @return Returns true if the cursor has more elements, false
-     * otherwise.
-     *
-     * @throws DBDeadlockException Raised if a deadlock occurred.
-     *
-     * @throws DBException Raised if any other database failure
-     * occurred.
-     *
-     **/
-    bool hasNext() throws DBException;
-
-    /**
-     *
-     * Return the next element in the database.
+     * Return the element to which the cursor currently refers.
      *
      * @param key The key of the next element.
      * @param value The value of the next element
@@ -224,16 +209,14 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void next(; Key key, Value value) throws DBException;
+    void curr(; Key k, Value v) throws DBException;
 
     /**
      *
-     * Remove the last element returned by the cursor. This method can
-     * only be called once per call to [next].
+     * Move the cursor to the next element in the database.
      *
-     * @throws DBNotFoundException If the next method has not yet been
-     * called, or the [remove] method has already been called after the
-     * last call to the [next] method.
+     * @return false if there is no next element in the database, true
+     * otherwise.
      *
      * @throws DBDeadlockException Raised if a deadlock occurred.
      *
@@ -241,7 +224,38 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void remove() throws DBException;
+    bool next() throws DBException;
+
+    /**
+     *
+     * Move the cursor to the previous element in the database.
+     *
+     * @return false if there is no previous element in the database,
+     * true otherwise.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     **/
+    bool prev() throws DBException;
+
+    /**
+     *
+     * Remove the key and the corresponding value from the database at
+     * the current cursor position.
+     *
+     * @throws DBNotFoundException Raised if the current element does
+     * not exist.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     **/
+    void del() throws DBException;
 
     /**
      *
@@ -252,7 +266,7 @@ local interface DBCursor
      * @throws DBException Raised if the cursor has been closed.
      *
      **/
-    DBCursor clone() throws DBException;
+    DBCursor clone();
 
     /**
      *
@@ -309,7 +323,7 @@ local interface DB
      * @throws DBException Raised if the database has been closed.
      *
      **/
-    long getNumberRecords() throws DBException;
+    long getNumberOfRecords() throws DBException;
 
     /**
      *
@@ -317,17 +331,19 @@ local interface DB
      *
      * @return A database cursor.
      *
+     * @throws DBNotFoundException Raised if the database is empty.
+     *
      * @throws DBException Raised if the database has been closed.
      *
      * @see DBCursor
-     * @see getCursorForKey
+     * @see getCursorAtKey
      *
      **/
     DBCursor getCursor() throws DBException;
 
     /**
      *
-     * Create a cursor for this database. Calling [next] on the cursor
+     * Create a cursor for this database. Calling [curr] on the cursor
      * will return the key/value pair for the given key.
      *
      * @return A database cursor.
@@ -344,7 +360,7 @@ local interface DB
      * @see getCursor
      *
      **/
-    DBCursor getCursorForKey(Key key) throws DBException;
+    DBCursor getCursorAtKey(Key key) throws DBException;
 
     /**
      *

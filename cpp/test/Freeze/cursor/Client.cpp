@@ -126,37 +126,40 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     j = alphabet.begin();
     try
     {
-	while(cursor->hasNext())
+	do
 	{
-	    cursor->next(k, v);
+	    cursor->curr(k, v);
 	    readValue(db, k, v, key, value);
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
+	while (cursor->next());
     }
     catch(const DBNotFoundException&)
     {
+	test(false);
     }
     cursor->close();
     cout << "ok" << endl;
 
-    cout << "Testing DB::getCursorForKey... ";
+    cout << "Testing DB::getCursorAKey... ";
     k = KeyCodec::write('n', instance);
     j = find(alphabet.begin(), alphabet.end(), 'n');
-    cursor = db->getCursorForKey(k);
+    cursor = db->getCursorAtKey(k);
     try
     {
-
-	while(cursor->hasNext())
+	do
 	{
-	    cursor->next(k, v);
+	    cursor->curr(k, v);
 	    readValue(db, k, v, key, value);
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
+	while (cursor->next());
     }
     catch(const DBNotFoundException&)
     {
+	test(false);
     }
     cursor->close();
     cout << "ok" << endl;
@@ -167,30 +170,21 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 
     try
     {
-	cursor->remove();
-	test(false);
-    }
-    catch(const DBNotFoundException&)
-    {
-	// Ignore expected exception
-    }
-
-    try
-    {
-
-	while(cursor->hasNext())
+	do
 	{
-	    cursor->next(k, v);
+	    cursor->curr(k, v);
 	    readValue(db, k, v, key, value);
 	    test(key == *j && value == j - alphabet.begin());
-	    cursor->remove();
+	    cursor->del();
 	    ++j;
 	    if (key == 'c')
 		break;
 	}
+	while (cursor->next());
     }
     catch(const DBNotFoundException&)
     {
+	test(false);
     }
     cursor->close();
 
@@ -198,13 +192,14 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     j = find(alphabet.begin(), alphabet.end(), 'd');
     try
     {
-	while(cursor->hasNext())
+	do
 	{
-	    cursor->next(k, v);
+	    cursor->curr(k, v);
 	    readValue(db, k, v, key, value);
 	    test(key == *j && value == j - alphabet.begin());
 	    ++j;
 	}
+	while (cursor->next());
     }
     catch(const DBNotFoundException&)
     {
@@ -215,11 +210,11 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Get a cursor for the deleted element - this should fail.
     //
-    cout << "Testing DB::getCursorForKey (again)... ";
+    cout << "Testing DB::getCursorAtKey (again)... ";
     try
     {
 	k = KeyCodec::write('a', instance);
-	cursor = db->getCursorForKey(k);
+	cursor = db->getCursorAtKey(k);
 	test(false);
      }
     catch(const DBNotFoundException&)
@@ -235,11 +230,11 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Verify both cursors point at 'd'
     //
-    cursor->next(k, v);
+    cursor->curr(k, v);
     readValue(db, k, v, key, value);
     test(key == 'd' && value == 3);
 
-    clone->next(k, v);
+    clone->curr(k, v);
     readValue(db, k, v, key, value);
     test(key == 'd' && value == 3);
 
@@ -250,17 +245,17 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     // Create cursor that points at 'n'
     //
     k = KeyCodec::write('n', instance);
-    cursor = db->getCursorForKey(k);
+    cursor = db->getCursorAtKey(k);
     clone = cursor->clone();
 
     //
     // Verify both cursors point at 'n'
     //
-    cursor->next(k, v);
+    cursor->curr(k, v);
     readValue(db, k, v, key, value);
     test(key == 'n' && value == 13);
 
-    clone->next(k, v);
+    clone->curr(k, v);
     readValue(db, k, v, key, value);
     test(key == 'n' && value == 13);
 
@@ -271,8 +266,9 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     // Create cursor that points at 'n'
     //
     k = KeyCodec::write('n', instance);
-    cursor = db->getCursorForKey(k);
-    cursor->next(k, v);
+    cursor = db->getCursorAtKey(k);
+    cursor->curr(k, v);
+    cursor->next();
     readValue(db, k, v, key, value);
     test(key == 'n' && value == 13);
 
@@ -281,44 +277,24 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Verify cloned cursors are independent
     //
-    cursor->next(k, v);
+    cursor->curr(k, v);
+    cursor->next();
     readValue(db, k, v, key, value);
     test(key == 'o' && value == 14);
 
-    cursor->next(k, v);
+    cursor->curr(k, v);
+    cursor->next();
     readValue(db, k, v, key, value);
     test(key == 'p' && value == 15);
 
-    clone->next(k, v);
+    clone->curr(k, v);
+    clone->next();
     readValue(db, k, v, key, value);
     test(key == 'o' && value == 14);
 
     cursor->close();
     clone->close();
-
-    cursor = db->getCursor();
-
-    clone = cursor->clone();
-
-    //
-    // Get the 'd' value
-    //
-    cursor->next(k, v); 
-    readValue(db, k, v, key, value);
-    test(key == 'd' && value == 3);
-
-    //
-    // Clone the cursor
-    //
-    cursor->remove();
-
-    clone->next(k, v);
-    readValue(db, k, v, key, value);
-    test(key == 'e' && value == 4);
-
-    clone->close();
-    cursor->close();
-
+    
     cout << " ok" << endl;
 
     db->close();

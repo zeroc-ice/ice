@@ -294,13 +294,10 @@ Freeze::DBTransactionI::abort()
     _tid = 0;
 }
 
-DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::string& name, DBC* cursor,
-		     bool hasCurrentValue) :
+DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::string& name, DBC* cursor) :
     _communicator(communicator),
     _trace(0),
     _name(name),
-    _canRemove(false),
-    _hasCurrentValue(hasCurrentValue),
     _cursor(cursor)
 {
     PropertiesPtr properties = _communicator->getProperties();
@@ -339,77 +336,8 @@ DBCursorI::getCommunicator()
     return _communicator;
 }
 
-bool
-DBCursorI::hasNext()
-{
-    JTCSyncT<JTCMutex> sync(*this);
-
-    if (!_cursor)
-    {
-	ostringstream s;
-	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
-
-    //
-    // Note that the reads are partial reads since this method only
-    // verifies that there is a next value
-    //
-    DBT dbKey, dbData;
-    memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.flags = DB_DBT_PARTIAL;
-
-    memset(&dbData, 0, sizeof(dbData));
-    dbData.flags = DB_DBT_PARTIAL;
-
-    //
-    // If we've already verified that there is a next record then
-    // verify that the current record still exists.
-    //
-    if (_hasCurrentValue)
-    {
-	try
-	{
-	    checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_CURRENT), _errorPrefix,
-				  "DBcursor->c_get");\
-	}
-	catch(const DBNotFoundException&)
-	{
-	    //
-	    // There is no next record.
-	    //
-	    return false;
-	}
-	return true;
-    }
-
-    //
-    // Otherwise, move to the next record.
-    //
-    try
-    {
-	checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_NEXT), _errorPrefix,
-			      "DBcursor->c_get");\
-    }
-    catch(const DBNotFoundException&)
-    {
-	//
-	// There is no next record
-	//
-	return false;
-    }
-
-    //
-    // We now have a current value.
-    //
-    _hasCurrentValue = true;
-    return true;
-}
-
 void
-DBCursorI::next(Key& key, Value& value)
+DBCursorI::curr(Key& key, Value& value)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -425,45 +353,25 @@ DBCursorI::next(Key& key, Value& value)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-
-    u_int32_t getFlags;
-    string desc;
-
-    //
-    // Do we need to move to the next record?
-    //
-    if (!_hasCurrentValue)
-    {
-	getFlags = DB_NEXT;
-	desc = "next";
-    }
-    else
-    {
-	getFlags = DB_CURRENT;
-	desc = "current";
-    }
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "reading " << desc << " value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	s << "reading current value from database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
     }
 
-    checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, getFlags), _errorPrefix, "DBcursor->c_get");
+    checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_CURRENT), _errorPrefix, "DBcursor->c_get");
 
     //
     // Copy the data from the read key & data
     //
     key = Key(static_cast<Byte*>(dbKey.data), static_cast<Byte*>(dbKey.data) + dbKey.size);
     value = Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
-
-    _canRemove = true;
-    _hasCurrentValue = false;
 }
 
-void
-DBCursorI::remove()
+bool
+DBCursorI::next()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -476,25 +384,98 @@ DBCursorI::remove()
 	throw ex;
     }
 
-    if (!_canRemove)
+    //
+    // This does a 0 byte partial read of the data for efficiency
+    // reasons.
+    //
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.flags = DB_DBT_PARTIAL;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    if (_trace >= 1)
     {
-	DBNotFoundException ex;
-	ex.message = "The next method has not yet been called, or the remove method has already been called "
-	             "after the last call to the next method.";
+	ostringstream s;
+	s << "moving to next value in database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+
+    try
+    {
+	checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_NEXT), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	return false;
+    }
+    return true;
+}
+
+bool
+DBCursorI::prev()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    //
+    // This does a 0 byte partial read of the data for efficiency
+    // reasons.
+    //
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.flags = DB_DBT_PARTIAL;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "moving to previous value in database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+
+    try
+    {
+	checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_PREV), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	return false;
+    }
+    return true;
+}
+
+void
+DBCursorI::del()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
 	throw ex;
     }
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "deleting value from database \"" << _name << "\"";
-	_communicator->getLogger()->trace("DB", s.str());
+	s << "removing the current element in database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
     }
 
-    checkBerkeleyDBReturn( _cursor->c_del(_cursor, 0), _errorPrefix, "DBcursor->c_del");
-
-    _hasCurrentValue = false;
-    _canRemove = false;
+    checkBerkeleyDBReturn(_cursor->c_del(_cursor, 0), _errorPrefix, "DBcursor->c_del");
 }
 
 DBCursorPtr
@@ -513,7 +494,7 @@ DBCursorI::clone()
 
     DBC* cursor;
     _cursor->c_dup(_cursor, &cursor, DB_POSITION);
-    return new DBCursorI(_communicator, _name, cursor, _hasCurrentValue);
+    return new DBCursorI(_communicator, _name, cursor);
 }
 
 void
@@ -594,7 +575,7 @@ Freeze::DBI::getCommunicator()
 }
 
 Long
-Freeze::DBI::getNumberRecords()
+Freeze::DBI::getNumberOfRecords()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -607,11 +588,14 @@ Freeze::DBI::getNumberRecords()
 	throw ex;
     }
 
-    DB_BTREE_STAT s;
-
-    checkBerkeleyDBReturn(_db->stat(_db, &s, DB_FAST_STAT), _errorPrefix, "DB->stat");
-
-    return s.bt_ndata;
+    //
+    // TODO: DB_FAST_STAT doesn't seem to do what the documentation says...
+    //
+    DB_BTREE_STAT* s;
+    checkBerkeleyDBReturn(_db->stat(_db, &s, 0), _errorPrefix, "DB->stat");
+    Long num = s->bt_ndata;
+    free(s);
+    return num;
 }
 
 DBCursorPtr
@@ -632,11 +616,35 @@ Freeze::DBI::getCursor()
 
     checkBerkeleyDBReturn(_db->cursor(_db, 0, &cursor, 0), _errorPrefix, "DB->cursor");
 
-    return new DBCursorI(_communicator, _name, cursor, false);
+    //
+    // Note that the read of the data is partial (that is the data
+    // will not actually be read into memory since it isn't needed
+    // yet).
+    //
+    DBT dbData, dbKey;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.flags = DB_DBT_PARTIAL;
+
+    try
+    {
+	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_FIRST), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	//
+	// Cleanup.
+	//
+	cursor->c_close(cursor);
+	throw;
+    }
+
+    return new DBCursorI(_communicator, _name, cursor);
 }
 
 DBCursorPtr
-Freeze::DBI::getCursorForKey(const Key& key)
+Freeze::DBI::getCursorAtKey(const Key& key)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -683,7 +691,7 @@ Freeze::DBI::getCursorForKey(const Key& key)
 	throw;
     }
 
-    return new DBCursorI(_communicator, _name, cursor, true);
+    return new DBCursorI(_communicator, _name, cursor);
 }
 
 void

@@ -87,15 +87,16 @@ class DBCursorI : public DBCursor, public JTCMutex
 {
 public:
 
-    DBCursorI(const ::Ice::CommunicatorPtr&, const std::string&, DBC*, bool);
+    DBCursorI(const ::Ice::CommunicatorPtr&, const std::string&, DBC*);
     ~DBCursorI();
 
     virtual ::Ice::CommunicatorPtr getCommunicator();
 
-    virtual bool hasNext();
-    virtual void next(Key& key, Value& value);
-    virtual void remove();
-
+    virtual void curr(Key& key, Value& value);
+    virtual bool next();
+    virtual bool prev();
+    virtual void del();
+    
     virtual DBCursorPtr clone();
     virtual void close();
 
@@ -107,9 +108,6 @@ private:
     std::string _name;
     std::string _errorPrefix;
 
-    bool _canRemove; // Can remove be called?
-    bool _hasCurrentValue; // Have we already verified that there is a next value?
-    
     DBC* _cursor;
 };
 
@@ -123,10 +121,10 @@ public:
     virtual std::string getName();
     virtual ::Ice::CommunicatorPtr getCommunicator();
 
-    virtual ::Ice::Long getNumberRecords();
+    virtual ::Ice::Long getNumberOfRecords();
 
     virtual DBCursorPtr getCursor();
-    virtual DBCursorPtr getCursorForKey(const Key&);
+    virtual DBCursorPtr getCursorAtKey(const Key&);
 
     virtual void put(const Key&, const Value&);
     virtual Value get(const Key&);
