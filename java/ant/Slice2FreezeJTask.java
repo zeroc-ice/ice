@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
  *   tagdir - The directory in which tag files are located (default: ".").
  *   outputdir - The value for the --output-dir translator option.
  *   binary - Enables --binary option.
+ *   casesensitive - The value for the --case-sensitive translator option.
  *
  * Nested elements:
  *
@@ -90,6 +91,12 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     setBinary(boolean binary)
     {
         _binary = binary;
+    }
+
+    public void
+    setCaseSensitive(boolean c)
+    {
+        _caseSensitive = c;
     }
 
     public Path
@@ -249,6 +256,14 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
         }
 
 	//
+	// Add --case-sensitive
+	//
+	if(_caseSensitive)
+	{
+	    cmd.append(" --case-sensitive");
+	}
+
+	//
 	// Add include directives
 	//
 	if(_includePath != null)
@@ -310,6 +325,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     private File _tagDir = new File(".");
     private File _outputDir = null;
     private boolean _binary = false;
+    private boolean _caseSensitive = false;
     private Path _includePath = null;
     private java.util.List _fileSets = new java.util.LinkedList();
 

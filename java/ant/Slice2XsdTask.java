@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
  *   tagdir - The directory in which tag files are located (default: ".").
  *   outputdir - The value for the --output-dir translator option.
  *   package - The value for the --package translator option.
+ *   casesensitive - The value for the --case-sensitive translator option.
  *
  * Nested elements:
  *
@@ -71,6 +72,7 @@ public class Slice2XsdTask extends org.apache.tools.ant.Task
         _package = null;
         _includePath = null;
         _fileSet = null;
+	_caseSensitive = false;
     }
 
     public void
@@ -95,6 +97,12 @@ public class Slice2XsdTask extends org.apache.tools.ant.Task
     setPackage(String pkg)
     {
         _package = pkg;
+    }
+
+    public void
+    setCaseSensitive(boolean c)
+    {
+	_caseSensitive = c;
     }
 
     public Path
@@ -212,6 +220,14 @@ public class Slice2XsdTask extends org.apache.tools.ant.Task
                 cmd.append(_package);
             }
 
+	    //
+	    // Add --case-sensitive
+	    //
+	    if(_caseSensitive)
+	    {
+		cmd.append(" --case-sensitive");
+	    }
+
             //
             // Add include directives
             //
@@ -285,4 +301,5 @@ public class Slice2XsdTask extends org.apache.tools.ant.Task
     private String _package;
     private Path _includePath;
     private FileSet _fileSet;
+    private boolean _caseSensitive;
 }
