@@ -194,7 +194,8 @@ fileLists = [
              ("dir", "share/doc/Ice-%version%/images"),
              ("dir", "share/doc/Ice-%version%/manual"),
 	     ("xdir", "share/doc/Ice-%version%/config"),
-	     ("xdir", "share/doc/Ice-%version%/certs")]),
+	     ("xdir", "share/doc/Ice-%version%/certs"),
+	     ("file", "share/doc/Ice-%version%/README.DEMOS")]),
     Subpackage("c++-devel",
                "",
                "Ice tools, files and libraries for developing Ice applications in C++",
@@ -279,7 +280,7 @@ fileLists = [
                "Development/Libraries",
                "",
 	       "",
-               [("lib", "lib/IcePy.so.VERSION"), ("dir", "lib/Ice-%version%/python")]),
+               [("lib", "lib/IcePy.so.VERSION"), ("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python = %version%",
                "Ice tools for developing Ice applications in Python",
@@ -287,7 +288,6 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2py"),
-	        ("lib", "lib/IcePy.so"),
 	        ("dir", "share/doc/Ice-%version%/demopy")])
     ]
 
