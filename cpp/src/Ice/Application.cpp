@@ -66,12 +66,12 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     }
     catch(const std::string& msg)
     {
-	cerr << msg << endl;
+	cerr << _appName << ": " << msg << endl;
 	status = EXIT_FAILURE;
     }
     catch(const char * msg)
     {
-	cerr << msg << endl;
+	cerr << _appName << ": " << msg << endl;
 	status = EXIT_FAILURE;
     }
     catch(...)
@@ -94,6 +94,16 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	catch(const std::exception& ex)
 	{
 	    cerr << _appName << ": std::exception: " << ex.what() << endl;
+	    status = EXIT_FAILURE;
+	}
+	catch(const std::string& msg)
+	{
+	    cerr << _appName << ": " << msg << endl;
+	    status = EXIT_FAILURE;
+	}
+	catch(const char * msg)
+	{
+	    cerr << _appName << ": " << msg << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(...)
@@ -212,12 +222,14 @@ Ice::interruptHandler(int)
     // Don't use Application::communicator(), this is not signal-safe.
     //
     assert(Application::_communicator);
+cerr << "Caught signal, shutting down" << endl;
     Application::_communicator->shutdown();
 }
 
 void
 Ice::Application::shutdownOnInterrupt()
 {
+cerr << "Setting handler" << endl;
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = interruptHandler;
@@ -229,6 +241,7 @@ Ice::Application::shutdownOnInterrupt()
     sigaction(SIGHUP, &action, 0);
     sigaction(SIGINT, &action, 0);
     sigaction(SIGTERM, &action, 0);
+cerr << "Done Setting handler" << endl;
 }
 
 void
