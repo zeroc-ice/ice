@@ -103,7 +103,8 @@ local interface Communicator
      * 10000</literal> creates a proxy that refers to the &Ice; object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
-     * 10000.
+     * 10000. If the string does not parse correctly, the operation
+     * throws [ProxyParseException].
      *
      * @param str The string to convert into a proxy.
      *

@@ -201,7 +201,7 @@ private:
 
     private:
 
-	typedef ::std::set<::std::string> NameSet;
+	typedef ::std::set< ::std::string> NameSet;
 	void writeInheritedOperations(const ClassDefPtr&, NameSet&);
     };
 
