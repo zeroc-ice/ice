@@ -1,0 +1,60 @@
+======================================================================
+Requirements
+======================================================================
+
+- PHP5 (http://www.php.net/downloads.php)
+- Ice 1.1.x
+- Linux
+
+======================================================================
+Building PHP
+======================================================================
+
+The Ice extension for PHP currently supports only static builds. After
+downloading and extracting the PHP5 source code, you must incorporate
+the Ice extension into the PHP5 source tree. There are two ways to do
+this:
+
+1) Copy the extension source directory.
+
+   $ cd <icephpdir>
+   $ cp -r src/ice <phpdir>/ext
+
+2) Create a symbolic link to the extension:
+
+   $ cd <phpdir>
+   $ ln -s <icephpdir>/src/ice ext
+
+You are now ready to configure PHP. To include support for the Ice
+extension, use the --with-ice option to specify the location of the
+Ice installation:
+
+$ cd <phpdir>
+$ ./configure --with-ice=$ICE_HOME ...
+$ make
+
+See the PHP documentation for more details on the PHP build process.
+
+======================================================================
+Configuring Ice for PHP
+======================================================================
+
+The Ice extension currently supports two configuration directives:
+
+- ice.config=<file>
+
+  Specifies the name of an Ice configuration file that should be loaded
+  when creating the Ice communicator instance shared by PHP scripts.
+  This directive is optional.
+
+- ice.parse=<options> [file ...]
+
+  Specifies the preprocessor options and Slice files to be parsed. This
+  directive is optional, however, if no Slice files are parsed, then
+  PHP scripts will have very few capabilities. For example, scripts
+  will be able to invoke basic proxy operations, but will not be able
+  to use any user-defined types.
+
+It is important to note that access to configuration and Slice files
+may be restricted, depending on PHP's execution context, such as
+when running as an Apache module in a process that has been chroot()ed.
