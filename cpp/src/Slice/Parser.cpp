@@ -1357,44 +1357,69 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     {
 	return true;
     }
-
+    
     //
-    // Split off first component of scoped name
+    // Split off first component.
     //
     string::size_type pos = scoped.find("::");
-    string firstComponent = scoped.substr(0, pos);
+    string firstComponent = pos == string::npos ? scoped : scoped.substr(0, pos);
 
     //
-    // If we don't have a type, use the Contained for the first component
+    // If we don't have a type, the thing that is introduced is the contained for
+    // the first component.
     //
     if(namedThing == 0)
     {
 	ContainedList cl = lookupContained(firstComponent, false);
-	if(cl.empty())
+	if(namedThing == 0)
 	{
-	    return true;	// Ignore types whose creation failed previously
+	    if(cl.empty())
+	    {
+		return true;	// Ignore types whose creation failed previously
+	    }
 	}
 	namedThing = cl.front();
     }
 
     //
-    // Check if we have the introduced name in the map already...
+    // For each scope, get the container until we have the container
+    // for the first scope (which is the introduced one).
     //
-    map<string, ContainedPtr, CICompare>::const_iterator it = _introducedMap.find(namedThing->name());
+    ContainerPtr c;
+    while(pos != string::npos)
+    {
+	c = namedThing->container();
+	pos = scoped.find("::", pos + 2);
+    }
+    if(c)
+    {
+	namedThing = ContainedPtr::dynamicCast(c);
+    }
+
+    //
+    // Check if the first component is in the introduced map of this scope.
+    //
+    map<string, ContainedPtr, CICompare>::const_iterator it = _introducedMap.find(firstComponent);
     if(it == _introducedMap.end())
     {
-	_introducedMap[namedThing->name()] = namedThing;	// No, insert it
-	return true;
+	//
+	// We've just introduced the first component to the current scope.
+	//
+	_introducedMap[firstComponent] = namedThing;	// No, insert it
     }
     else
     {
+	//
+	// We've previously introduced the first component to the current scope,
+	// check that it has not changed meaning.
+	//
 	if(!_unit->caseSensitive() && it->second != namedThing)
 	{
-	    _unit->error("`" + scoped + "' has changed meaning");
+	    _unit->error("`" + firstComponent + "' has changed meaning");
 	    return false;
 	}
-	return true;
     }
+    return true;
 }
 
 Slice::Container::Container(const UnitPtr& unit) :

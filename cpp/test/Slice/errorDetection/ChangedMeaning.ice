@@ -138,3 +138,20 @@ struct y
 {
     ::IS is;				// OK, nothing introduced
 };
+
+interface Blah {
+    void op1() throws ::E::ee1;		// Nothing introduced
+    void E();				// OK
+    void op2() throws E;		// Changed meaning
+};
+
+interface Blah2 {
+    void op3() throws ::E::ee1;		// Nothing introduced
+    void E();				// OK
+    void op4() throws E::ee1;		// Changed meaning
+};
+
+interface Blah3 {
+    void op5() throws E::ee1;		// Introduces E
+    void E();				// Changed meaning
+};
