@@ -442,135 +442,174 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sb;
 
 	bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
-
-        TypePtr ret;
 	if(!amd)
 	{
-	    ret = op->returnType();
-	}
-
-        TypeStringList inParams;
-        TypeStringList outParams;
-	ParamDeclList paramList = op->parameters();
-	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-	{
-	    if((*pli)->isOutParam())
+	    TypePtr ret = op->returnType();
+	    
+	    TypeStringList inParams;
+	    TypeStringList outParams;
+	    ParamDeclList paramList = op->parameters();
+	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
 	    {
-		if(!amd)
+		if((*pli)->isOutParam())
 		{
 		    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
 		}
+		else
+		{
+		    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		}
 	    }
-	    else
-	    {
-		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
-	    }
-	}
-
-        ExceptionList throws;
-	if(!amd)
-	{
-	    throws = op->throws();
+	    
+	    ExceptionList throws = op->throws();
 	    throws.sort();
 	    throws.unique();
 	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+
+	    TypeStringList::const_iterator q;
+	    int iter;
+	    
+	    if(!inParams.empty())
+	    {
+		out << nl << "IceInternal.BasicStream __is = __in.is();";
+	    }
+	    if(!outParams.empty() || ret || !throws.empty())
+	    {
+		out << nl << "IceInternal.BasicStream __os = __in.os();";
+	    }
+	    
+	    //
+	    // Unmarshal 'in' parameters.
+	    //
+	    iter = 0;
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		string typeS = typeToString(q->first, TypeModeIn, scope);
+		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+	    }
+	    
+	    //
+	    // Create holders for 'out' parameters.
+	    //
+	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    {
+		string typeS = typeToString(q->first, TypeModeOut, scope);
+		out << nl << typeS << ' ' << fixKwd(q->second) << " = new " << typeS << "();";
+	    }
+	    
+	    //
+	    // Call on the servant.
+	    //
+	    if(!throws.empty())
+	    {
+		out << nl << "try";
+		out << sb;
+	    }
+	    out << nl;
+	    if(ret)
+	    {
+		string retS = typeToString(ret, TypeModeReturn, scope);
+		out << retS << " __ret = ";
+	    }
+	    out << "__obj." << opName << '(';
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		out << fixKwd(q->second) << ", ";
+	    }
+	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    {
+		out << fixKwd(q->second) << ", ";
+	    }
+	    out << "__current);";
+	    
+	    //
+	    // Marshal 'out' parameters and return value.
+	    //
+	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    {
+		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter, true);
+	    }
+	    if(ret)
+	    {
+		writeMarshalUnmarshalCode(out, scope, ret, "__ret", true, iter);
+	    }
+	    out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+	    
+	    //
+	    // Handle user exceptions.
+	    //
+	    if(!throws.empty())
+	    {
+		out << eb;
+		ExceptionList::const_iterator r;
+		for(r = throws.begin(); r != throws.end(); ++r)
+		{
+		    string exS = getAbsolute((*r)->scoped(), scope);
+		    out << nl << "catch(" << exS << " ex)";
+		    out << sb;
+		    out << nl << "__os.writeUserException(ex);";
+		    out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+		    out << eb;
+		}
+	    }
+
+	    out << eb;
 	}
-
-        TypeStringList::const_iterator q;
-        int iter;
-
-        if(!inParams.empty())
-        {
-            out << nl << "IceInternal.BasicStream __is = __in.is();";
-        }
-        if(!outParams.empty() || ret || !throws.empty())
-        {
-            out << nl << "IceInternal.BasicStream __os = __in.os();";
-        }
-
-        //
-        // Unmarshal 'in' parameters.
-        //
-        iter = 0;
-        for(q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            string typeS = typeToString(q->first, TypeModeIn, scope);
-            out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
-        }
-
-        //
-        // Create holders for 'out' parameters.
-        //
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            string typeS = typeToString(q->first, TypeModeOut, scope);
-            out << nl << typeS << ' ' << fixKwd(q->second) << " = new " << typeS << "();";
-        }
-
-        //
-        // Call on the servant.
-        //
-        if(!throws.empty())
-        {
-            out << nl << "try";
-            out << sb;
-        }
-	if(amd)
+	else
 	{
+	    TypeStringList inParams;
+	    ParamDeclList paramList = op->parameters();
+	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    {
+		if(!(*pli)->isOutParam())
+		{
+		    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		}
+	    }
+	    
+	    TypeStringList::const_iterator q;
+	    int iter;
+	    
+	    if(!inParams.empty())
+	    {
+		out << nl << "IceInternal.BasicStream __is = __in.is();";
+	    }
+	    
+	    //
+	    // Unmarshal 'in' parameters.
+	    //
+	    iter = 0;
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		string typeS = typeToString(q->first, TypeModeIn, scope);
+		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+	    }
+	    
+	    //
+	    // Call on the servant.
+	    //
 	    string classNameAMD = "AMD_" + fixKwd(p->name());
 	    out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
 		<< "(__in);";
+            out << nl << "try";
+            out << sb;
+	    out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		out << fixKwd(q->second) << ", ";
+	    }
+	    out << "__current);";
+	    out << eb;
+	    out << nl << "catch(java.lang.Exception ex)";
+	    out << sb;
+	    out << nl << "__cb.ice_exception(ex);";
+	    out << eb;
+	    out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+
+	    out << eb;
 	}
-        out << nl;
-        if(ret)
-        {
-	    string retS = typeToString(ret, TypeModeReturn, scope);
-            out << retS << " __ret = ";
-        }
-        out << "__obj." << opName << (amd ? "_async(__cb, " : "(");
-        for(q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            out << fixKwd(q->second) << ", ";
-        }
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            out << fixKwd(q->second) << ", ";
-        }
-        out << "__current);";
-
-        //
-        // Marshal 'out' parameters and return value.
-        //
-        for(q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter, true);
-        }
-        if(ret)
-        {
-            writeMarshalUnmarshalCode(out, scope, ret, "__ret", true, iter);
-        }
-        out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
-
-        //
-        // Handle user exceptions.
-        //
-        if(!throws.empty())
-        {
-            out << eb;
-            ExceptionList::const_iterator r;
-            for(r = throws.begin(); r != throws.end(); ++r)
-            {
-                string exS = getAbsolute((*r)->scoped(), scope);
-                out << nl << "catch(" << exS << " ex)";
-                out << sb;
-                out << nl << "__os.writeUserException(ex);";
-                out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
-                out << eb;
-            }
-        }
-
-        out << eb;
     }
 
     OperationList allOps = p->allOperations();
@@ -3776,6 +3815,31 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << eb;
 	    out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
 	    out << sb;
+	    if(throws.empty())
+	    {
+		out << nl << "__exception(ex);";
+	    }
+	    else
+	    {
+		out << nl << "try";
+		out << sb;
+		out << nl << "throw ex;";
+		out << eb;
+		ExceptionList::const_iterator r;
+		for(r = throws.begin(); r != throws.end(); ++r)
+		{
+		    string exS = getAbsolute((*r)->scoped(), classScope);
+		    out << nl << "catch(" << exS << " __ex)";
+		    out << sb;
+		    out << nl << "__os().writeUserException(__ex);";
+		    out << nl << "__response(false);";
+		    out << eb;
+		}
+		out << nl << "catch(java.lang.Exception __ex)";
+		out << sb;
+		out << nl << "__exception(__ex);";
+		out << eb;
+	    }
 	    out << eb;
 	    out << eb << ';';
 	    
