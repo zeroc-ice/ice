@@ -131,7 +131,9 @@ if not skipDocs:
     os.system("gmake")
     os.chdir(cwd)
     os.mkdir(os.path.join("icej", "doc"))
-    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icej", "doc", "manual"))
+    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
+    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
 shutil.rmtree("ice")
 
 #
