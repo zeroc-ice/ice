@@ -346,7 +346,7 @@ public:
     virtual Slice::UnitPtr newUnit() const;
     virtual ErrorReporterPtr errorReporter() const;
 
-    void transform(const Ice::CommunicatorPtr&, Db*, Db*, DbTxn*, bool);
+    void transform(const Ice::CommunicatorPtr&, Db*, DbTxn*, Db*, DbTxn*, bool);
 
 private:
 
@@ -1699,8 +1699,8 @@ Transform::TransformerDescriptor::errorReporter() const
 }
 
 void
-Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communicator, Db* db, Db* dbNew,
-                                            DbTxn* txn, bool purgeObjects)
+Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communicator, Db* db, DbTxn* txn, Db* dbNew,
+                                            DbTxn* txnNew, bool purgeObjects)
 {
     Dbc* dbc = 0;
 
@@ -1734,7 +1734,7 @@ Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communic
                 {
                     outValue.endWriteEncaps();
                     Dbt dbNewKey(&outKey.b[0], outKey.b.size()), dbNewValue(&outValue.b[0], outValue.b.size());
-                    if(dbNew->put(0, &dbNewKey, &dbNewValue, DB_NOOVERWRITE) == DB_KEYEXIST)
+                    if(dbNew->put(txnNew, &dbNewKey, &dbNewValue, DB_NOOVERWRITE) == DB_KEYEXIST)
                     {
                         errorReporter()->error("duplicate key encountered");
                     }
@@ -2300,7 +2300,7 @@ Transform::Transformer::analyze(ostream& descriptors, Ice::StringSeq& missingTyp
 }
 
 void
-Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, DbTxn* txn, ostream& errors)
+Transform::Transformer::transform(istream& is, Db* db, DbTxn* txn, Db* dbNew, DbTxn* txnNew, ostream& errors)
 {
     ErrorReporterPtr errorReporter = new ErrorReporter(errors);
 
@@ -2312,7 +2312,7 @@ Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, DbTxn* txn, os
 
         TransformerDescriptorPtr descriptor = dh.descriptor();
         descriptor->validate();
-        descriptor->transform(_communicator, db, dbNew, txn, _purgeObjects);
+        descriptor->transform(_communicator, db, txn, dbNew, txnNew, _purgeObjects);
     }
     catch(const IceXML::ParserException& ex)
     {

@@ -13,7 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, re
+import os, sys, re, shutil
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -30,6 +30,21 @@ transformdb = os.path.join(toplevel, "bin", "transformdb")
 
 dbdir = os.path.join(directory, "db")
 TestUtil.cleanDbDir(dbdir)
+
+init_dbdir = os.path.join(directory, "db_init")
+if os.path.exists(init_dbdir):
+    shutil.rmtree(init_dbdir)
+os.mkdir(init_dbdir)
+
+check_dbdir = os.path.join(directory, "db_check")
+if os.path.exists(check_dbdir):
+    shutil.rmtree(check_dbdir)
+os.mkdir(check_dbdir)
+
+tmp_dbdir = os.path.join(directory, "db_tmp")
+if os.path.exists(tmp_dbdir):
+    shutil.rmtree(tmp_dbdir)
+os.mkdir(tmp_dbdir)
 
 regex1 = re.compile(r"_old\.ice$", re.IGNORECASE)
 files = []
@@ -83,14 +98,14 @@ testnew = os.path.join(directory, "TestNew.ice")
 initxml = os.path.join(directory, "init.xml")
 checkxml = os.path.join(directory, "check.xml")
 
-command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db init.db"
+command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db " + init_dbdir
 os.system(command)
 
-command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + dbdir + " init.db check.db"
+command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + init_dbdir + " default.db " + check_dbdir
 stdin, stdout, stderr = os.popen3(command)
 
 stderr.readlines()
-command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + dbdir + " check.db tmp.db"
+command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " default.db " + tmp_dbdir
 os.system(command)
 
 print "ok"

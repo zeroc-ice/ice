@@ -44,7 +44,7 @@ public:
 
     void analyze(std::ostream&, Ice::StringSeq&, Ice::StringSeq&);
 
-    void transform(std::istream&, Db*, Db*, DbTxn*, std::ostream&);
+    void transform(std::istream&, Db*, DbTxn*, Db*, DbTxn*, std::ostream&);
 
 private:
 

@@ -31,7 +31,7 @@ using namespace std;
 static void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] [dbenv db newdb]\n";
+    cerr << "Usage: " << n << " [options] [dbenv db newdbenv]\n";
     cerr <<
         "Options:\n"
         "-h, --help            Show this message.\n"
@@ -45,6 +45,7 @@ usage(const char* n)
         "                      Database transformation is not performed.\n"
         "-i                    Ignore incompatible type changes.\n"
         "-p                    Purge objects whose types no longer exist.\n"
+        "-c                    Use catastrophic recovery on the old database environment.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         "                      Database transformation is not performed.\n"
         "--include-old DIR     Put DIR in the include file search path for old Slice\n"
@@ -112,13 +113,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string outputFile;
     bool ignoreTypeChanges = false;
     bool purgeObjects = false;
+    bool catastrophicRecover = false;
     string inputFile;
     vector<string> oldSlice;
     vector<string> newSlice;
     bool evictor = false;
     string keyTypeNames;
     string valueTypeNames;
-    string dbEnvName, dbName, dbNameNew;
+    string dbEnvName, dbName, dbEnvNameNew;
 
     int idx = 1;
     while(idx < argc)
@@ -202,6 +204,15 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         else if(strcmp(argv[idx], "-p") == 0)
         {
             purgeObjects = true;
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "-c") == 0)
+        {
+            catastrophicRecover = true;
             for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
@@ -352,7 +363,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     if(argc > 3)
     {
-        dbNameNew = argv[3];
+        dbEnvNameNew = argv[3];
     }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
@@ -495,8 +506,16 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         in.close();
     }
 
+    if(dbEnvName == dbEnvNameNew)
+    {
+        cerr << argv[0] << ": database environment names must be different" << endl;
+        return EXIT_FAILURE;
+    }
+
     DbEnv dbEnv(0);
+    DbEnv dbEnvNew(0);
     DbTxn* txn = 0;
+    DbTxn* txnNew = 0;
     Db* db = 0;
     Db* dbNew = 0;
     int status = EXIT_SUCCESS;
@@ -507,18 +526,54 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         // Berkeley DB may use a different C++ runtime.
         //
         dbEnv.set_alloc(::malloc, ::realloc, ::free);
+        dbEnvNew.set_alloc(::malloc, ::realloc, ::free);
 #endif
 
-        u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_RECOVER | DB_CREATE;
-        dbEnv.open(dbEnvName.c_str(), flags, TRANSFORM_DB_MODE);
+        //
+        // Open the old database environment. Use DB_RECOVER_FATAL if -c is specified.
+        //
+        {
+            u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE;
+            if(catastrophicRecover)
+            {
+                flags |= DB_RECOVER_FATAL;
+            }
+            else
+            {
+                flags |= DB_RECOVER;
+            }
+            dbEnv.open(dbEnvName.c_str(), flags, TRANSFORM_DB_MODE);
+        }
+
+        //
+        // Open the new database environment.
+        //
+        {
+            u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_RECOVER | DB_CREATE;
+            dbEnvNew.open(dbEnvNameNew.c_str(), flags, TRANSFORM_DB_MODE);
+        }
+
+        //
+        // Open the old database in a transaction.
+        //
         db = new Db(&dbEnv, 0);
         dbEnv.txn_begin(0, &txn, 0);
         db->open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, TRANSFORM_DB_MODE);
-        dbNew = new Db(&dbEnv, 0);
-        dbNew->open(0, dbNameNew.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, TRANSFORM_DB_MODE);
+
+        //
+        // Open the new database in a transaction.
+        //
+        dbNew = new Db(&dbEnvNew, 0);
+        dbEnvNew.txn_begin(0, &txnNew, 0);
+        dbNew->open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, TRANSFORM_DB_MODE);
 
         istringstream istr(descriptors);
-        transformer.transform(istr, db, dbNew, txn, cerr);
+        transformer.transform(istr, db, txn, dbNew, txnNew, cerr);
+
+        //
+        // Checkpoint to migrate changes from the log to the database.
+        //
+        dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
     }
     catch(const DbException& ex)
     {
@@ -536,12 +591,17 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             db->close(0);
             delete db;
         }
+        if(txnNew)
+        {
+            txnNew->abort();
+        }
         if(dbNew)
         {
             dbNew->close(0);
             delete dbNew;
         }
         dbEnv.close(0);
+        dbEnvNew.close(0);
         throw;
     }
 
@@ -554,12 +614,24 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         db->close(0);
         delete db;
     }
+    if(txnNew)
+    {
+        if(status == EXIT_FAILURE)
+        {
+            txnNew->abort();
+        }
+        else
+        {
+            txnNew->commit(0);
+        }
+    }
     if(dbNew)
     {
         dbNew->close(0);
         delete dbNew;
     }
     dbEnv.close(0);
+    dbEnvNew.close(0);
 
     return status;
 }
