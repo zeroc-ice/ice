@@ -68,114 +68,128 @@ public class OutgoingConnectionFactory
         _connections.clear();
     }
 
-    public synchronized Connection
+    public Connection
     create(Endpoint[] endpoints)
     {
-        if(_instance == null)
-        {
-            throw new Ice.CommunicatorDestroyedException();
-        }
+	Connection connection = null;
 
-        assert(endpoints.length > 0);
-
-	//
-	// Reap connections for which destruction has completed.
-	//
-        java.util.Iterator p = _connections.values().iterator();
-        while(p.hasNext())
-        {
-            Connection connection = (Connection)p.next();
-            if(connection.isFinished())
-            {
-                p.remove();
-            }
-        }
-
-        //
-        // Search for existing connections.
-        //
-	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-        for(int i = 0; i < endpoints.length; i++)
-        {
-	    Endpoint endpoint = endpoints[i];
-	    if(defaultsAndOverrides.overrideTimeout)
+	synchronized(this)
+	{
+	    if(_instance == null)
 	    {
-		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+		throw new Ice.CommunicatorDestroyedException();
 	    }
 
-            Connection connection = (Connection)_connections.get(endpoint);
-            if(connection != null)
-            {
-		//
-		// Don't return connections for which destruction has
-		// been initiated.
-		//
-		if(!connection.isDestroyed())
+	    assert(endpoints.length > 0);
+
+	    //
+	    // Reap connections for which destruction has completed.
+	    //
+	    java.util.Iterator p = _connections.values().iterator();
+	    while(p.hasNext())
+	    {
+		Connection con = (Connection)p.next();
+		if(con.isFinished())
 		{
-		    return connection;
+		    p.remove();
 		}
-            }
-        }
-
-        //
-        // No connections exist, try to create one.
-        //
-        TraceLevels traceLevels = _instance.traceLevels();
-        Ice.Logger logger = _instance.logger();
-
-        Connection connection = null;
-        Ice.LocalException exception = null;
-        for(int i = 0; i < endpoints.length; i++)
-        {
-  	    Endpoint endpoint = endpoints[i];
-	    if(defaultsAndOverrides.overrideTimeout)
-	    {
-		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
-	    
-	    try
-            {
-                Transceiver transceiver = endpoint.clientTransceiver();
-                if(transceiver == null)
-                {
-                    Connector connector = endpoint.connector();
-                    assert(connector != null);
-                    transceiver = connector.connect(endpoint.timeout());
-                    assert(transceiver != null);
-                }
-                connection = new Connection(_instance, transceiver, endpoint, null);
-		connection.validate();
-                connection.activate();
-                _connections.put(endpoint, connection);
-                break;
-            }
-            catch(Ice.LocalException ex)
-            {
-                exception = ex;
-            }
 
-            if(traceLevels.retry >= 2)
-            {
-                StringBuffer s = new StringBuffer();
-                s.append("connection to endpoint failed");
-                if(i < endpoints.length - 1)
-                {
-                    s.append(", trying next endpoint\n");
-                }
-                else
-                {
-                    s.append(" and no more endpoints to try\n");
-                }
-                s.append(exception.toString());
-                logger.trace(traceLevels.retryCat, s.toString());
-            }
-        }
+	    //
+	    // Search for existing connections.
+	    //
+	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	    for(int i = 0; i < endpoints.length; i++)
+	    {
+		Endpoint endpoint = endpoints[i];
+		if(defaultsAndOverrides.overrideTimeout)
+		{
+		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+		}
 
-        if(connection == null)
-        {
-            assert(exception != null);
-            throw exception;
-        }
+		Connection con = (Connection)_connections.get(endpoint);
+		if(con != null)
+		{
+		    //
+		    // Don't return connections for which destruction
+		    // has been initiated.
+		    //
+		    if(!con.isDestroyed())
+		    {
+			connection = con;
+			break;
+		    }
+		}
+	    }
+
+	    //
+	    // No connections exist, try to create one.
+	    //
+	    if(connection == null)
+	    {
+		TraceLevels traceLevels = _instance.traceLevels();
+		Ice.Logger logger = _instance.logger();
+		
+		Ice.LocalException exception = null;
+		for(int i = 0; i < endpoints.length; i++)
+		{
+		    Endpoint endpoint = endpoints[i];
+		    if(defaultsAndOverrides.overrideTimeout)
+		    {
+			endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+		    }
+		    
+		    try
+		    {
+			Transceiver transceiver = endpoint.clientTransceiver();
+			if(transceiver == null)
+			{
+			    Connector connector = endpoint.connector();
+			    assert(connector != null);
+			    transceiver = connector.connect(endpoint.timeout());
+			    assert(transceiver != null);
+			}
+			connection = new Connection(_instance, transceiver, endpoint, null);
+			_connections.put(endpoint, connection);
+			break;
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			exception = ex;
+		    }
+		    
+		    if(traceLevels.retry >= 2)
+		    {
+			StringBuffer s = new StringBuffer();
+			s.append("connection to endpoint failed");
+			if(i < endpoints.length - 1)
+			{
+			    s.append(", trying next endpoint\n");
+			}
+			else
+			{
+			    s.append(" and no more endpoints to try\n");
+			}
+			s.append(exception.toString());
+			logger.trace(traceLevels.retryCat, s.toString());
+		    }
+		}
+
+		if(connection == null)
+		{
+		    assert(exception != null);
+		    throw exception;
+		}
+	    }
+	}
+
+	//
+	// We validate and activate outside the thread
+	// synchronization, to not block the factory.
+	//
+	assert(connection != null);
+	connection.validate();
+	connection.activate();
 
         return connection;
     }

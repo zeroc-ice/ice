@@ -160,6 +160,16 @@ IceInternal::Connection::validate()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
+    if(_exception.get())
+    {
+	_exception->ice_throw();
+    }
+
+    if(_state != StateNotValidated)
+    {
+	return;
+    }
+
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
 	try
@@ -246,6 +256,11 @@ IceInternal::Connection::validate()
 	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
 	}
     }
+
+    //
+    // We start out in holding state.
+    //
+    setState(StateHolding);
 }
 
 void
@@ -291,7 +306,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool compress)
     {
 	_exception->ice_throw();
     }
-    assert(_state < StateClosing);
+    assert(_state > StateNotValidated && _state < StateClosing);
 
     Int requestId;
 
@@ -397,7 +412,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
     {
 	_exception->ice_throw();
     }
-    assert(_state < StateClosing);
+    assert(_state > StateNotValidated && _state < StateClosing);
 
     Int requestId;
 
@@ -497,7 +512,7 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 	unlock();
 	_exception->ice_throw();
     }
-    assert(_state < StateClosing);
+    assert(_state > StateNotValidated && _state < StateClosing);
 
     if(_batchStream.b.empty())
     {
@@ -529,7 +544,7 @@ IceInternal::Connection::finishBatchRequest(BasicStream* os)
 	unlock();
 	_exception->ice_throw();
     }
-    assert(_state < StateClosing);
+    assert(_state > StateNotValidated && _state < StateClosing);
 
     _batchStream.swap(*os); // Get the batch stream back.
     ++_batchRequestNum; // Increment the number of requests in the batch.
@@ -557,7 +572,7 @@ IceInternal::Connection::flushBatchRequest(bool compress)
     {
 	_exception->ice_throw();
     }
-    assert(_state < StateClosing);
+    assert(_state > StateNotValidated && _state < StateClosing);
     
     try
     {
@@ -1227,7 +1242,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchRequestNum(0),
     _dispatchCount(0),
     _proxyCount(0),
-    _state(StateHolding)
+    _state(StateNotValidated)
 {
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
     requestHdr[0] = protocolVersion;
@@ -1318,9 +1333,18 @@ IceInternal::Connection::setState(State state)
     
     switch(state)
     {
+	case StateNotValidated:
+	{
+	    assert(false);
+	    break;
+	}
+
 	case StateActive:
 	{
-	    if(_state != StateHolding) // Can only switch from holding to active.
+	    //
+            // Can only switch from holding to active.
+	    //
+	    if(_state != StateHolding)
 	    {
 		return;
 	    }
@@ -1330,7 +1354,11 @@ IceInternal::Connection::setState(State state)
 	
 	case StateHolding:
 	{
-	    if(_state != StateActive) // Can only switch from active to holding.
+	    //
+	    // Can only switch from active or not validated to
+	    // holding.
+	    //
+	    if(_state != StateActive && _state != StateNotValidated)
 	    {
 		return;
 	    }
@@ -1340,7 +1368,10 @@ IceInternal::Connection::setState(State state)
 
 	case StateClosing:
 	{
-	    if(_state == StateClosed) // Can't change back from closed.
+	    //
+	    // Can't change back from closed.
+	    //
+	    if(_state == StateClosed)
 	    {
 		return;
 	    }

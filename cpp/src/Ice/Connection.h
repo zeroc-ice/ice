@@ -113,6 +113,7 @@ private:
 
     enum State
     {
+	StateNotValidated,
 	StateActive,
 	StateHolding,
 	StateClosing,

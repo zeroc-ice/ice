@@ -154,78 +154,89 @@ public class IncomingConnectionFactory extends EventHandler
         assert(false); // Must not be called.
     }
 
-    public synchronized void
+    public void
     message(BasicStream unused, ThreadPool threadPool)
     {
-        if(_state != StateActive)
-        {
-            Thread.yield();
-	    threadPool.promoteFollower();
-            return;
-        }
+	Connection connection = null;
 
-	//
-	// Reap connections for which destruction has completed.
-	//
-        java.util.ListIterator iter = _connections.listIterator();
-        while(iter.hasNext())
-        {
-            Connection connection = (Connection)iter.next();
-            if(connection.isFinished())
-            {
-                iter.remove();
-            }
-        }
-
-        //
-        // Now accept a new connection.
-        //
-	Transceiver transceiver;
-        try
-        {
-            transceiver = _acceptor.accept(0);
-        }
-        catch(Ice.TimeoutException ex)
-        {
-            // Ignore timeouts.
-	    return;
-        }
-        catch(Ice.LocalException ex)
-        {
-	    // Warn about other Ice local exceptions.
-            if(_warn)
-            {
-                warning(ex);
-            }
-	    return;
-        }
-	finally
+	synchronized(this)
 	{
+	    if(_state != StateActive)
+	    {
+		Thread.yield();
+		threadPool.promoteFollower();
+		return;
+	    }
+
 	    //
-	    // We must promote a follower after we accepted a new
-	    // connection, or after an exception.
+	    // Reap connections for which destruction has completed.
 	    //
-	    threadPool.promoteFollower();
+	    java.util.ListIterator iter = _connections.listIterator();
+	    while(iter.hasNext())
+	    {
+		Connection con = (Connection)iter.next();
+		if(con.isFinished())
+		{
+		    iter.remove();
+		}
+	    }
+
+	    //
+	    // Now accept a new connection.
+	    //
+	    Transceiver transceiver;
+	    try
+	    {
+		transceiver = _acceptor.accept(0);
+	    }
+	    catch(Ice.TimeoutException ex)
+	    {
+		// Ignore timeouts.
+		return;
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		// Warn about other Ice local exceptions.
+		if(_warn)
+		{
+		    warning(ex);
+		}
+		return;
+	    }
+	    finally
+	    {
+		//
+		// We must promote a follower after we accepted a new
+		// connection, or after an exception.
+		//
+		threadPool.promoteFollower();
+	    }
+
+	    //
+	    // Create a connection object for the connection.
+	    //
+	    assert(transceiver != null);
+            connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+            _connections.add(connection);
 	}
 
 	//
-	// Create and activate a connection object for the connection.
+	// We validate and activate outside the thread
+	// synchronization, to not block the factory.
 	//
 	try
 	{
-	    assert(transceiver != null);
-            Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	    assert(connection != null);
 	    connection.validate();
-            connection.activate();
-            _connections.add(connection);
+            connection.activate(); // The factory must be active at this point, so we activate the connection, too.
 	}
         catch(Ice.LocalException ex)
 	{
 	    //
-	    // Ignore all exceptions while creating or activating the
-	    // connection object. Warning or error messages for such
-	    // exceptions must be printed directly in the connection
-	    // object code.
+	    // Ignore all exceptions while activating or validating
+	    // the connection object. Warning or error messages for
+	    // such exceptions must be printed directly in the
+	    // connection object code.
 	    //
 	}
     }

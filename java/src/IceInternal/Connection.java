@@ -28,7 +28,7 @@ public final class Connection extends EventHandler
 	setState(StateHolding);
     }
 
-    // DestructionReason
+    // DestructionReason.
     public final static int ObjectAdapterDeactivated = 0;
     public final static int CommunicatorDestroyed = 1;
 
@@ -135,6 +135,16 @@ public final class Connection extends EventHandler
     public synchronized void
     validate()
     {
+	if(_exception != null)
+	{
+	    throw _exception;
+	}
+	
+	if(_state != StateNotValidated)
+	{
+	    return;
+	}
+
 	if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
 	{
 	    try
@@ -216,6 +226,11 @@ public final class Connection extends EventHandler
 		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 	    }
 	}
+
+	//
+	// We start out in holding state.
+	//
+	setState(StateHolding);
     }
 
     public synchronized void
@@ -266,7 +281,7 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state < StateClosing);
+	assert(_state > StateNotValidated && _state < StateClosing);
 	
 	int requestId = 0;
 	
@@ -325,7 +340,7 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state < StateClosing);
+	assert(_state > StateNotValidated && _state < StateClosing);
 	
 	int requestId = 0;
 	
@@ -397,7 +412,7 @@ public final class Connection extends EventHandler
         {
             throw _exception;
         }
-        assert(_state < StateClosing);
+        assert(_state > StateNotValidated && _state < StateClosing);
 
         if(_batchStream.isEmpty())
         {
@@ -428,7 +443,7 @@ public final class Connection extends EventHandler
         {
             throw _exception;
         }
-        assert(_state < StateClosing);
+        assert(_state > StateNotValidated && _state < StateClosing);
 
         _batchStream.swap(os); // Get the batch stream back.
 	++_batchRequestNum; // Increment the number of requests in the batch.
@@ -477,7 +492,7 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state < StateClosing);
+	assert(_state > StateNotValidated && _state < StateClosing);
 	
 	try
 	{
@@ -940,7 +955,7 @@ public final class Connection extends EventHandler
 	_batchRequestNum = 0;
         _dispatchCount = 0;
 	_proxyCount = 0;
-        _state = StateHolding;
+        _state = StateNotValidated;
     }
 
     protected void
@@ -958,10 +973,11 @@ public final class Connection extends EventHandler
         super.finalize();
     }
 
-    private static final int StateActive = 0;
-    private static final int StateHolding = 1;
-    private static final int StateClosing = 2;
-    private static final int StateClosed = 3;
+    private static final int StateNotValidated = 0;
+    private static final int StateActive = 1;
+    private static final int StateHolding = 2;
+    private static final int StateClosing = 3;
+    private static final int StateClosed = 4;
 
     private void
     setState(int state, Ice.LocalException ex)
@@ -1035,9 +1051,18 @@ public final class Connection extends EventHandler
 
         switch(state)
         {
+	    case StateNotValidated:
+	    {
+		assert(false);
+		break;
+	    }
+
             case StateActive:
             {
-                if(_state != StateHolding) // Can only switch from holding to active.
+		//
+		// Can only switch from holding to active.
+		//
+                if(_state != StateHolding)
                 {
                     return;
                 }
@@ -1047,8 +1072,12 @@ public final class Connection extends EventHandler
 
             case StateHolding:
             {
-                if(_state != StateActive) // Can only switch from active to holding.
-                {
+		//
+		// Can only switch from active or not validated to
+		// holding.
+		//
+		if(_state != StateActive && _state != StateNotValidated)
+		{
                     return;
                 }
                 unregisterWithPool();
@@ -1057,7 +1086,10 @@ public final class Connection extends EventHandler
 
             case StateClosing:
             {
-                if(_state == StateClosed) // Can't change back from closed.
+		//
+		// Can't change back from closed.
+		//
+                if(_state == StateClosed)
                 {
                     return;
                 }
