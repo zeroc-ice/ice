@@ -10,6 +10,8 @@
 #include <Ice/Application.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/ClientUtil.h>
+#include <fcntl.h>
+#include <termios.h>
 
 using namespace std;
 using namespace Ice;
@@ -36,6 +38,28 @@ class TextPatcherFeedback : public PatcherFeedback
 {
 public:
 
+    TextPatcherFeedback()
+    {
+	tcgetattr(0, &_savedTerm);
+	termios term;
+	memcpy(&term, &_savedTerm, sizeof(termios));
+	term.c_lflag &= ~(ECHO | ICANON);
+	term.c_cc[VTIME] = 0;
+	term.c_cc[VMIN] = 1;
+	tcsetattr(0, TCSANOW, &term);
+
+	_savedFlags = fcntl(0, F_GETFL);
+	int flags = _savedFlags;
+	flags |= O_NONBLOCK;
+	fcntl(0, F_SETFL, flags);
+    }
+
+    virtual ~TextPatcherFeedback()
+    {
+	tcsetattr(0, TCSANOW, &_savedTerm);
+	fcntl(0, F_SETFL, _savedFlags);
+    }
+
     virtual bool
     noFileSummary(const string& reason)
     {
@@ -58,9 +82,10 @@ public:
     virtual bool
     fileListStart()
     {
+	cout << "[Press any key to interrupt]" << endl;
 	_lastProgress = "0%";
 	cout << "Getting list of files to patch: " << _lastProgress << flush;
-	return true;
+	return !keyPressed();
     }
 
     virtual bool
@@ -74,14 +99,14 @@ public:
 	s << percent << '%';
 	_lastProgress = s.str();
 	cout << _lastProgress << flush;
-	return true;
+	return !keyPressed();
     }
 
     virtual bool
     fileListEnd()
     {
 	cout << endl;
-	return true;
+	return !keyPressed();
     }
 
     virtual bool
@@ -91,7 +116,7 @@ public:
 	s << "0/" << size << " (" << totalProgress << '/' << totalSize << ')';
 	_lastProgress = s.str();
 	cout << getBasename(path) << ' ' << _lastProgress << flush;
-	return true;
+	return !keyPressed();
     }
 
     virtual bool
@@ -105,19 +130,33 @@ public:
 	s << progress << '/' << size << " (" << totalProgress << '/' << totalSize << ')';
 	_lastProgress = s.str();
 	cout << _lastProgress << flush;
-	return true;
+	return !keyPressed();
     }
 
     virtual bool
     patchEnd()
     {
 	cout << endl;
-	return true;
+	return !keyPressed();
     }
 
 private:
 
+    bool
+    keyPressed()
+    {
+	bool pressed = false;
+	char c;
+	while(read(0, &c, 1) > 0)
+	{
+	    pressed = true;
+	}
+	return pressed;
+    }
+
     string _lastProgress;
+    termios _savedTerm;
+    int _savedFlags;
 };
 
 int
@@ -166,6 +205,8 @@ IcePatch2::Client::run(int argc, char* argv[])
         }
     }
 
+    bool patchComplete;
+
     try
     {
 	PatcherFeedbackPtr feedback = new TextPatcherFeedback;
@@ -178,7 +219,15 @@ IcePatch2::Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    if(patchComplete)
+    {
+	return EXIT_SUCCESS;
+    }
+    else
+    {
+	cout << "\n[Interrupted]" << endl;
+	return EXIT_FAILURE;
+    }
 }
 
 void

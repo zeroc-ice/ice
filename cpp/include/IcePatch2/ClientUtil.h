@@ -43,12 +43,17 @@ public:
     Patcher(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
     virtual ~Patcher();
 
-    void patch();
+    //
+    // Returns true if patching was successful, false if patching was
+    // aborted by the user, or raises std::string as an exception if
+    // there was an error.
+    //
+    bool patch();
 
 private:
 
-    void removeFiles(const FileInfoSeq&);
-    void updateFiles(const FileInfoSeq&);
+    bool removeFiles(const FileInfoSeq&);
+    bool updateFiles(const FileInfoSeq&);
 
     virtual void run();
 

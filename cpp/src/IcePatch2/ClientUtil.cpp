@@ -76,7 +76,7 @@ IcePatch2::Patcher::~Patcher()
     assert(!_decompress);
 }
 
-void
+bool
 IcePatch2::Patcher::patch()
 {
     FileInfoSeq infoSeq;
@@ -94,7 +94,7 @@ IcePatch2::Patcher::patch()
 	    thorough = _feedback->noFileSummary(ex);
 	    if(!thorough)
 	    {
-		return;
+		return false;
 	    }
 	}
     }
@@ -115,7 +115,10 @@ IcePatch2::Patcher::patch()
 
     if(tree0.checksum != _serverCompress->getChecksum())
     {
-	_feedback->fileListStart();
+	if(!_feedback->fileListStart())
+	{
+	    return false;
+	}
 	
 	ByteSeqSeq checksum0Seq = _serverCompress->getChecksum0Seq();
 	if(checksum0Seq.size() != 256)
@@ -147,18 +150,27 @@ IcePatch2::Patcher::patch()
 			       FileInfoLess());
 	    }
 
-	    _feedback->fileListProgress((node0 + 1) * 100 / 256);
+	    if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
+	    {
+		return false;
+	    }
 	}
 
-	_feedback->fileListEnd();
+	if(!_feedback->fileListEnd())
+	{
+	    return false;
+	}
     }
     
     sort(removeFileSeq.begin(), removeFileSeq.end(), FileInfoLess());
     sort(updateFileSeq.begin(), updateFileSeq.end(), FileInfoLess());
-    
+
     if(!removeFileSeq.empty())
     {
-	removeFiles(removeFileSeq);
+	if(!removeFiles(removeFileSeq))
+	{
+	    return false;
+	}
 
 	if(!_dryRun)
 	{
@@ -199,7 +211,18 @@ IcePatch2::Patcher::patch()
 	
 	try
 	{
-	    updateFiles(updateFileSeq);
+	    if(!updateFiles(updateFileSeq))
+	    {
+		{
+		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		    _decompress = false;
+		    notify();
+		}
+		
+		getThreadControl().join();
+
+		return false;
+	    }
 	}
 	catch(...)
 	{
@@ -245,9 +268,11 @@ IcePatch2::Patcher::patch()
 	    saveFileInfoSeq(_dataDir, infoSeq);
 	}
     }
+
+    return true;
 }
 
-void
+bool
 IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 {
     if(!_dryRun)
@@ -268,9 +293,11 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 		  p->path.compare(0, dir.size(), dir) == 0);
 	}
     }
+
+    return true;
 }
     
-void
+bool
 IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 {
     FileInfoSeq::const_iterator p;
@@ -302,7 +329,10 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 	}
 	else // Regular file.
 	{
-	    _feedback->patchStart(p->path, p->size, updated, total);
+	    if(!_feedback->patchStart(p->path, p->size, updated, total))
+	    {
+		return false;
+	    }
 
 	    string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
 	    ofstream fileBZ2;
@@ -364,7 +394,10 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 		pos += bytes.size();
 		updated += bytes.size();
 		
-		_feedback->patchProgress(pos, p->size, updated, total);
+		if(!_feedback->patchProgress(pos, p->size, updated, total))
+		{
+		    return false;
+		}
 	    }
 	    
 	    if(!_dryRun)
@@ -382,9 +415,14 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 		}
 	    }
 	
-	    _feedback->patchEnd();
+	    if(!_feedback->patchEnd())
+	    {
+		return false;
+	    }
 	}
     }
+
+    return true;
 }
 
 void
