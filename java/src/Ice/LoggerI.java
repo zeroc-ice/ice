@@ -32,7 +32,7 @@ public class LoggerI implements Logger
     public synchronized void
     warning(String message)
     {
-        System.err.println("warning: " + message);
+        System.out.println("warning: " + message);
     }
 
     public synchronized void
