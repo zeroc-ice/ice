@@ -67,8 +67,11 @@ public:
     void read(std::vector<Ice::Double>&);
 
     void write(const std::string&);
-    void write(const char*); // Optimized version for const char*
+    void write(const char*); // Optimization
     void read(std::string&);
+
+    void write(const std::wstring&);
+    void read(std::wstring&);
 
 private:
 
@@ -289,6 +292,18 @@ inline void streamWrite<std::string>(Stream* s, const std::string& v)
 
 template<>
 inline void streamRead<std::string>(Stream* s, std::string& v)
+{
+    s -> read(v);
+}
+
+template<>
+inline void streamWrite<std::wstring>(Stream* s, const std::wstring& v)
+{
+    s -> write(v);
+}
+
+template<>
+inline void streamRead<std::wstring>(Stream* s, std::wstring& v)
 {
     s -> read(v);
 }
