@@ -12,9 +12,13 @@
 import sys, os
 
 protocol = "tcp"
-serverOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60 --Ice.Ssl.Config=TOPLEVELDIR/Certs/server_sslconfig.xml"
-clientOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.Ssl.Config=TOPLEVELDIR/Certs/client_sslconfig.xml"
-collocatedOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60 --Ice.Ssl.Config=TOPLEVELDIR/Certs/sslconfig.xml"
+
+serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60" + \
+                " --Ice.Ssl.Config=TOPLEVELDIR/Certs/server_sslconfig.xml --Ice.Protocol=" + protocol
+
+clientOptions = " --Ice.Ssl.Config=TOPLEVELDIR/Certs/client_sslconfig.xml --Ice.Protocol=" + protocol
+
+collocatedOptions = " --Ice.Ssl.Config=TOPLEVELDIR/Certs/sslconfig.xml --Ice.Protocol=" + protocol
 
 serverPids = []
 
@@ -59,16 +63,14 @@ def clientServerTest(toplevel, name):
     server = os.path.normpath(testdir + "/server")
     client = os.path.normpath(testdir + "/client")
 
-    updatedServerOptions = serverOptions
-    updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
+    updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     print "starting server...",
     serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    updatedClientOptions = clientOptions
-    updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
+    updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
@@ -89,12 +91,9 @@ def collocatedTest(toplevel, name):
     testdir = os.path.normpath(toplevel + "/test/" + name)
     collocated = os.path.normpath(testdir + "/collocated")
 
-    updatedCollocatedOptions = collocatedOptions
-    updatedCollocatedOptions = updatedCollocatedOptions.replace("TOPLEVELDIR", toplevel)
-
-    command = collocated + " " + updatedCollocatedOptions
+    updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
     print "starting collocated...",
-    collocatedPipe = os.popen(command)
+    collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
     output = collocatedPipe.read().strip()
     if not output:
         print "failed!"

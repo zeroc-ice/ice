@@ -21,8 +21,8 @@ using namespace Ice;
 
 %}
 
-WS	[ \t\v\f]
-NL	[\n\r]
+WS	[ \t\v\f\r]
+NL	[\n]
 
 %option noyywrap
 
@@ -71,8 +71,83 @@ NL	[\n\r]
     }
 }
 
+"help" {
+    return TOK_HELP;
+}
+
+"quit"|"exit" {
+    return TOK_EXIT;
+}
+
+"add" {
+    return TOK_ADD_CONTACTS;
+}
+
+"find" {
+    return TOK_FIND_CONTACTS;
+}
+
+"next" {
+    return TOK_NEXT_FOUND_CONTACT;
+}
+
+"current" {
+    return TOK_PRINT_CURRENT;
+}
+
+"name" {
+    return TOK_SET_CURRENT_NAME;
+}
+
+"address" {
+    return TOK_SET_CURRENT_ADDRESS;
+}
+
+"phone" {
+    return TOK_SET_CURRENT_PHONE;
+}
+
+"remove" {
+    return TOK_REMOVE_CURRENT;
+}
+
+"size" {
+    return TOK_SET_EVICTOR_SIZE;
+}
+
+"shutdown" {
+    return TOK_SHUTDOWN;
+}
+
+{WS}*(\\{WS}*{NL})? {
+    int len = strlen(yytext);
+    for (int i = 0; i < len; ++i)
+    {
+	if (yytext[i] == '\\')
+	{
+	    parser->continueLine();
+	}
+	else if (yytext[i] == '\n')
+	{
+	    parser->nextLine();
+	}
+    }
+}
+
+{NL}|; {
+    int len = strlen(yytext);
+    for (int i = 0; i < len; ++i)
+    {
+	if (yytext[i] == '\n')
+	{
+	    parser->nextLine();
+	}
+    }
+    return ';';
+}
+
 \" {
-    // "..."-type string
+    // "..."-type strings
     string s;
     while (true)
     {
@@ -151,7 +226,7 @@ NL	[\n\r]
 }
 
 \' {
-    // '...'-type string
+    // '...'-type strings
     string s;
     while (true)
     {
@@ -180,81 +255,6 @@ NL	[\n\r]
     return TOK_STRING;
 }
 
-"help" {
-    return TOK_HELP;
-}
-
-"quit"|"exit" {
-    return TOK_EXIT;
-}
-
-"add" {
-    return TOK_ADD_CONTACTS;
-}
-
-"find" {
-    return TOK_FIND_CONTACTS;
-}
-
-"next" {
-    return TOK_NEXT_FOUND_CONTACT;
-}
-
-"current" {
-    return TOK_PRINT_CURRENT;
-}
-
-"name" {
-    return TOK_SET_CURRENT_NAME;
-}
-
-"address" {
-    return TOK_SET_CURRENT_ADDRESS;
-}
-
-"phone" {
-    return TOK_SET_CURRENT_PHONE;
-}
-
-"remove" {
-    return TOK_REMOVE_CURRENT;
-}
-
-"size" {
-    return TOK_SET_EVICTOR_SIZE;
-}
-
-"shutdown" {
-    return TOK_SHUTDOWN;
-}
-
-{WS}*(\\{WS}*{NL})? {
-    int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
-    {
-	if (yytext[i] == '\\')
-	{
-	    parser->continueLine();
-	}
-	else if (yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
-}
-
-{NL}|; {
-    int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
-    {
-	if (yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
-    return ';';
-}
-
 . {
     // Simple strings
     string s;
@@ -266,7 +266,7 @@ NL	[\n\r]
 	{
 	    break;
 	}
-	else if (isspace(c))
+	else if (isspace(c) || c == ';')
 	{
 	    unput(c);
 	    break;

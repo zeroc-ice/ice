@@ -25,7 +25,9 @@ IcePack::Activator::Activator(const CommunicatorPtr& communicator) :
     int fds[2];
     if (pipe(fds) != 0)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -127,12 +129,16 @@ IcePack::Activator::activate(const ServerDescription& desc)
     int fds[2];
     if (pipe(fds) != 0)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
     pid_t pid = fork();
     if (pid == -1)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
     if (pid == 0) // Child process
     {
@@ -168,6 +174,8 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	    // end of the pipe.
 	    //
 	    SystemException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
 	    ostringstream s;
 	    s << "can't execute `" << path << "':\n" << ex;
 	    write(fds[1], s.str().c_str(), s.str().length());
@@ -234,7 +242,9 @@ IcePack::Activator::terminationListener()
 		goto repeatSelect;
 	    }
 	    
-	    throw SystemException(__FILE__, __LINE__);
+	    SystemException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
 	}
 	
 	{
@@ -260,7 +270,9 @@ IcePack::Activator::terminationListener()
 		    int ret = read(fd, &s, 16);
 		    if (ret == -1)
 		    {
-			throw SystemException(__FILE__, __LINE__);
+			SystemException ex(__FILE__, __LINE__);
+			ex.error = getSystemErrno();
+			throw ex;
 		    }
 		    else if(ret == 0)
 		    {
@@ -304,7 +316,9 @@ IcePack::Activator::terminationListener()
 	{
 	    if (errno != ECHILD) // Ignore ECHILD
 	    {
-		throw SystemException(__FILE__, __LINE__);
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
 	    }
 	}
     }

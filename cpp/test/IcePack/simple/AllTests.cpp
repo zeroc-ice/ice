@@ -35,8 +35,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         secure = " -s ";
     }
 
-    string endpts = protocol + " -p 12345 -t 2000";
-
+    string endpts = protocol + " -p 12346 -t 2000";
 
     ref = "test" + secure + ":" + endpts;
 

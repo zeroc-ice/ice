@@ -281,8 +281,8 @@ IceInternal::ThreadPool::run()
 	{
 	    assert(_timeout);
 	    _timeout = 0;
-	    _instance->objectAdapterFactory()->shutdown();
-	    continue;
+	    shutdown = true;
+	    goto repeatSelect;
 	}
 	
 	if (ret == SOCKET_ERROR)

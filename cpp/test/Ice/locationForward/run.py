@@ -27,30 +27,30 @@ client = os.path.normpath(testdir + "/client")
 num = 5
 base = 12340
 
-serverPipes = { }
+updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
+updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
+
 if TestUtil.protocol == "ssl":
     secure = " -s "
 else:
     secure = ""
-updatedServerOptions = TestUtil.serverOptions
-updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
+
+serverPipes = { }
 for i in range(0, num):
     if i + 1 < num:
-        s = updatedServerOptions + " --fwd \"test" + secure + ":" + TestUtil.protocol + " -t 2000 -p %d\" %d" \
+        s = " --fwd \"test" + secure + ":" + TestUtil.protocol + " -t 2000 -p %d\" %d" \
             % ((base + i + 1), (base + i))
     else:
-        s = updatedServerOptions + " %d" % (base + i)
+        s = " %d" % (base + i)
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + " " + s)
+    serverPipes[i] = os.popen(server + updatedServerOptions + s)
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
 print "starting client...",
-s = "%d %d" % (base, (base + num - 1))
-updatedClientOptions = TestUtil.clientOptions
-updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
-clientPipe = os.popen(client + updatedClientOptions + " " + s)
+s = " %d %d" % (base, (base + num - 1))
+clientPipe = os.popen(client + updatedClientOptions + s)
 output = clientPipe.readline()
 if not output:
     print "failed!"

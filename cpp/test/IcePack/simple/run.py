@@ -23,12 +23,10 @@ import TestUtil
 icePack = os.path.normpath(toplevel + "/bin/icepack")
 icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
-updatedServerOptions = TestUtil.serverOptions
-updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions
-updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
+updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
+updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 
-command = icePack + ' ' + updatedServerOptions + ' --nowarn' + \
+command = icePack + updatedServerOptions + ' --nowarn' + \
        r' "--Ice.Adapter.Forward.Endpoints=' + TestUtil.protocol + ' -p 12346 -t 5000"' + \
        r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"'
 print "starting icepack...",
@@ -38,13 +36,13 @@ TestUtil.getAdapterReady(icePackPipe)
 TestUtil.getAdapterReady(icePackPipe)
 print "ok"
 
-secure = " -s "
+secure = ""
 if TestUtil.protocol == "ssl":
     secure = " -s "
 
-command = icePackAdmin + ' ' + updatedClientOptions + \
+command = icePackAdmin + updatedClientOptions + \
         r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"' + \
-        r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\" " '
+        r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\""'
 print "registering server with icepack...",
 icePackAdminPipe = os.popen(command)
 icePackAdminPipe.close()
@@ -58,22 +56,20 @@ if os.name != "nt":
     testdir = os.path.normpath(toplevel + "/test/IcePack/simple")
 
     server = os.path.normpath(testdir + "/server")
-    server = server + " " + updatedServerOptions
-
     client = os.path.normpath(testdir + "/client")
-    client = client + " " + updatedClientOptions
 
-    command = icePackAdmin + ' ' + updatedClientOptions + \
+    command = icePackAdmin + updatedClientOptions + \
             r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"' + \
-            r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\" \"' + server + \
-            r'"\"'
+            r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\"' + \
+            ' ' + server + updatedServerOptions + '"'
     print "registering server with icepack for automatic activation...",
     icePackAdminPipe = os.popen(command)
     icePackAdminPipe.close()
     print "ok"
 
     print "starting client...",
-    clientPipe = os.popen(client)
+    exit
+    clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
     if not output:
         print "failed!"
@@ -87,9 +83,8 @@ if os.name != "nt":
             break;
         print output,
 
-command = icePackAdmin + ' ' + updatedClientOptions + \
-        r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + r' -p 12347 -t 5000"' + \
-        r' -e "shutdown"'
+command = icePackAdmin + updatedClientOptions + \
+          r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + r' -p 12347 -t 5000"' + r' -e "shutdown"'
 print "shutting down icepack...",
 icePackAdminPipe = os.popen(command)
 icePackAdminPipe.close()

@@ -22,8 +22,8 @@ using namespace IcePack;
 
 %}
 
-WS	[ \t\v\f]
-NL	[\n\r]
+WS	[ \t\v\f\r]
+NL	[\n]
 
 %option noyywrap
 
@@ -88,8 +88,59 @@ NL	[\n\r]
     }
 }
 
+"help" {
+    return ICE_PACK_HELP;
+}
+
+"quit"|"exit" {
+    return ICE_PACK_EXIT;
+}
+
+"add" {
+    return ICE_PACK_ADD;
+}
+
+"remove" {
+    return ICE_PACK_REMOVE;
+}
+
+"list" {
+    return ICE_PACK_LIST;
+}
+
+"shutdown" {
+    return ICE_PACK_SHUTDOWN;
+}
+
+{WS}*(\\{WS}*{NL})? {
+    int len = strlen(yytext);
+    for (int i = 0; i < len; ++i)
+    {
+	if (yytext[i] == '\\')
+	{
+	    parser->continueLine();
+	}
+	else if (yytext[i] == '\n')
+	{
+	    parser->nextLine();
+	}
+    }
+}
+
+{NL}|; {
+    int len = strlen(yytext);
+    for (int i = 0; i < len; ++i)
+    {
+	if (yytext[i] == '\n')
+	{
+	    parser->nextLine();
+	}
+    }
+    return ';';
+}
+
 \" {
-    // "..."-type string
+    // "..."-type strings
     string s;
     while (true)
     {
@@ -168,7 +219,7 @@ NL	[\n\r]
 }
 
 \' {
-    // '...'-type string
+    // '...'-type strings
     string s;
     while (true)
     {
@@ -197,59 +248,28 @@ NL	[\n\r]
     return ICE_PACK_STRING;
 }
 
-"help" {
-    return ICE_PACK_HELP;
-}
-
-"quit"|"exit" {
-    return ICE_PACK_EXIT;
-}
-
-"add" {
-    return ICE_PACK_ADD;
-}
-
-"remove" {
-    return ICE_PACK_REMOVE;
-}
-
-"list" {
-    return ICE_PACK_LIST;
-}
-
-"shutdown" {
-    return ICE_PACK_SHUTDOWN;
-}
-
-{WS}*(\\{WS}*{NL})? {
-    int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
-    {
-	if (yytext[i] == '\\')
-	{
-	    parser->continueLine();
-	}
-	else if (yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
-}
-
-{NL}|; {
-    int len = strlen(yytext);
-    for (int i = 0; i < len; ++i)
-    {
-	if (yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
-    return ';';
-}
-
 . {
-    return yytext[0];
+    // Simple strings
+    string s;
+    s += yytext[0];
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == EOF)
+	{
+	    break;
+	}
+	else if (isspace(c) || c == ';')
+	{
+	    unput(c);
+	    break;
+	}
+	
+	s += c;
+    }
+    yylvalp->clear();
+    yylvalp->push_back(s);
+    return ICE_PACK_STRING;
 }
 
 %%

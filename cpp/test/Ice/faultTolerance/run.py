@@ -27,9 +27,10 @@ client = os.path.normpath(testdir + "/client")
 num = 8
 base = 12340
 
+updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
+updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
+
 serverPipes = { }
-updatedServerOptions = TestUtil.serverOptions
-updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     serverPipes[i] = os.popen(server + updatedServerOptions + " %d" % (base + i))
@@ -37,14 +38,11 @@ for i in range(0, num):
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
-updatedClientOptions = TestUtil.clientOptions
-updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
-
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientPipe = os.popen(client + " " + updatedClientOptions + " " + ports)
+clientPipe = os.popen(client + updatedClientOptions + " " + ports)
 output = clientPipe.readline()
 if not output:
     print "failed!"
