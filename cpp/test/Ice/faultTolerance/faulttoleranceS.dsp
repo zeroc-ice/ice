@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="faultToleranceS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="faulttoleranceS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=faultToleranceS - Win32 Debug
+CFG=faulttoleranceS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "faultToleranceS.mak".
+!MESSAGE NMAKE /f "faulttoleranceS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "faultToleranceS.mak" CFG="faultToleranceS - Win32 Debug"
+!MESSAGE NMAKE /f "faulttoleranceS.mak" CFG="faultToleranceS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "faultToleranceS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "faultToleranceS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "faulttoleranceS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "faulttoleranceS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=faultToleranceS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "faultToleranceS - Win32 Release"
+!IF  "$(CFG)" == "faulttoleranceS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "faultToleranceS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "faulttoleranceS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "faultToleranceS - Win32 Release"
-# Name "faultToleranceS - Win32 Debug"
+# Name "faulttoleranceS - Win32 Release"
+# Name "faulttoleranceS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -121,7 +121,7 @@ SOURCE=.\TestI.h
 
 SOURCE=.\Test.ice
 
-!IF  "$(CFG)" == "faultToleranceS - Win32 Release"
+!IF  "$(CFG)" == "faulttoleranceS - Win32 Release"
 
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -137,7 +137,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "faultToleranceS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "faulttoleranceS - Win32 Debug"
 
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

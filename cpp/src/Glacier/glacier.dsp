@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Glacier" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="glacier" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=Glacier - Win32 Debug
+CFG=glacier - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier.mak".
+!MESSAGE NMAKE /f "glacier.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier.mak" CFG="Glacier - Win32 Debug"
+!MESSAGE NMAKE /f "glacier.mak" CFG="Glacier - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Glacier - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "Glacier - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "glacier - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "glacier - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\glacier.lib ..\..\lib	copy $(OutDir)\glacier20.dll ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\glacierd.lib ..\..\lib	copy $(OutDir)\glacier20d.p
 
 # Begin Target
 
-# Name "Glacier - Win32 Release"
-# Name "Glacier - Win32 Debug"
+# Name "glacier - Win32 Release"
+# Name "glacier - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -126,27 +126,27 @@ SOURCE=.\Starter.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\Router.h
+SOURCE=..\..\include\glacier\Router.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\Session.h
+SOURCE=..\..\include\glacier\Session.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\SessionF.h
+SOURCE=..\..\include\glacier\SessionF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\SessionManager.h
+SOURCE=..\..\include\glacier\SessionManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\SessionManagerF.h
+SOURCE=..\..\include\glacier\SessionManagerF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Glacier\Starter.h
+SOURCE=..\..\include\glacier\Starter.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -154,38 +154,38 @@ SOURCE=..\..\include\Glacier\Starter.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\Router.ice
+SOURCE=..\..\slice\glacier\Router.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Router.ice
+InputPath=..\..\slice\glacier\Router.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
-	move Router.h ..\..\include\Glacier \
+	move Router.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Router.ice
+InputPath=..\..\slice\glacier\Router.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
-	move Router.h ..\..\include\Glacier \
+	move Router.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -197,38 +197,38 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\Session.ice
+SOURCE=..\..\slice\glacier\Session.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Session.ice
+InputPath=..\..\slice\glacier\Session.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
-	move Session.h ..\..\include\Glacier \
+	move Session.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Session.ice
+InputPath=..\..\slice\glacier\Session.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
-	move Session.h ..\..\include\Glacier \
+	move Session.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -240,30 +240,30 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\SessionF.ice
+SOURCE=..\..\slice\glacier\SessionF.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionF.ice
+InputPath=..\..\slice\glacier\SessionF.ice
 
-"..\..\include\Glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
-	move SessionF.h ..\..\include\Glacier 
+	move SessionF.h ..\..\include\glacier 
 	del SessionF.cpp 
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionF.ice
+InputPath=..\..\slice\glacier\SessionF.ice
 
-"..\..\include\Glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
-	move SessionF.h ..\..\include\Glacier 
+	move SessionF.h ..\..\include\glacier 
 	del SessionF.cpp 
 	
 # End Custom Build
@@ -273,38 +273,38 @@ InputPath=..\..\slice\Glacier\SessionF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\SessionManager.ice
+SOURCE=..\..\slice\glacier\SessionManager.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionManager.ice
+InputPath=..\..\slice\glacier\SessionManager.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
-	move SessionManager.h ..\..\include\Glacier \
+	move SessionManager.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\SessionManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "SessionManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionManager.ice
+InputPath=..\..\slice\glacier\SessionManager.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
-	move SessionManager.h ..\..\include\Glacier \
+	move SessionManager.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\SessionManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "SessionManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -316,30 +316,30 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\SessionManagerF.ice
+SOURCE=..\..\slice\glacier\SessionManagerF.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionManagerF.ice
+InputPath=..\..\slice\glacier\SessionManagerF.ice
 
-"..\..\include\Glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
-	move SessionManagerF.h ..\..\include\Glacier 
+	move SessionManagerF.h ..\..\include\glacier 
 	del SessionManagerF.cpp 
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\SessionManagerF.ice
+InputPath=..\..\slice\glacier\SessionManagerF.ice
 
-"..\..\include\Glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
-	move SessionManagerF.h ..\..\include\Glacier 
+	move SessionManagerF.h ..\..\include\glacier 
 	del SessionManagerF.cpp 
 	
 # End Custom Build
@@ -349,38 +349,38 @@ InputPath=..\..\slice\Glacier\SessionManagerF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Glacier\Starter.ice
+SOURCE=..\..\slice\glacier\Starter.ice
 
-!IF  "$(CFG)" == "Glacier - Win32 Release"
+!IF  "$(CFG)" == "glacier - Win32 Release"
 
 USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Starter.ice
+InputPath=..\..\slice\glacier\Starter.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
-	move Starter.h ..\..\include\Glacier \
+	move Starter.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Starter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Starter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Starter.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Glacier - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier - Win32 Debug"
 
 USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\Glacier\Starter.ice
+InputPath=..\..\slice\glacier\Starter.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
-	move Starter.h ..\..\include\Glacier \
+	move Starter.h ..\..\include\glacier \
 	
 
-"..\..\include\Glacier\Starter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\glacier\Starter.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Starter.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

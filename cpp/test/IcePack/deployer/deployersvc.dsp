@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="deployerSvc" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="deployersvc" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=deployerSvc - Win32 Debug
+CFG=deployersvc - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "deployerSvc.mak".
+!MESSAGE NMAKE /f "deployersvc.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "deployerSvc.mak" CFG="deployerSvc - Win32 Debug"
+!MESSAGE NMAKE /f "deployersvc.mak" CFG="deployerSvc - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "deployerSvc - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "deployerSvc - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "deployersvc - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "deployersvc - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "deployerSvc - Win32 Release"
+!IF  "$(CFG)" == "deployersvc - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\testservice.* .
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "deployerSvc - Win32 Debug"
+!ELSEIF  "$(CFG)" == "deployersvc - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\testserviced.* .
 
 # Begin Target
 
-# Name "deployerSvc - Win32 Release"
-# Name "deployerSvc - Win32 Debug"
+# Name "deployersvc - Win32 Release"
+# Name "deployersvc - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -136,7 +136,7 @@ SOURCE=.\TestI.h
 
 SOURCE=.\Test.ice
 
-!IF  "$(CFG)" == "deployerSvc - Win32 Release"
+!IF  "$(CFG)" == "deployersvc - Win32 Release"
 
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -152,7 +152,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "deployerSvc - Win32 Debug"
+!ELSEIF  "$(CFG)" == "deployersvc - Win32 Debug"
 
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

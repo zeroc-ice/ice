@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IcePack" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icepack" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=IcePack - Win32 Debug
+CFG=icepack - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePack.mak".
+!MESSAGE NMAKE /f "icepack.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePack.mak" CFG="IcePack - Win32 Debug"
+!MESSAGE NMAKE /f "icepack.mak" CFG="IcePack - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IcePack - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "IcePack - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icepack - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icepack - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IcePack - Win32 Release"
+!IF  "$(CFG)" == "icepack - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icepack.lib ..\..\lib	copy $(OutDir)\icepack20.dll ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepack - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\icepackd.lib ..\..\lib	copy $(OutDir)\icepack20d.p
 
 # Begin Target
 
-# Name "IcePack - Win32 Release"
-# Name "IcePack - Win32 Debug"
+# Name "icepack - Win32 Release"
+# Name "icepack - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -122,15 +122,15 @@ SOURCE=.\Query.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\IcePack\Admin.h
+SOURCE=..\..\include\icepack\Admin.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePack\Exception.h
+SOURCE=..\..\include\icepack\Exception.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePack\Query.h
+SOURCE=..\..\include\icepack\Query.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -138,38 +138,38 @@ SOURCE=..\..\include\IcePack\Query.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=..\..\slice\IcePack\Admin.ice
+SOURCE=..\..\slice\icepack\Admin.ice
 
-!IF  "$(CFG)" == "IcePack - Win32 Release"
+!IF  "$(CFG)" == "icepack - Win32 Release"
 
 USERDEP__ADMIN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Admin.ice
+InputPath=..\..\slice\icepack\Admin.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
-	move Admin.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Admin.ice \
+	move Admin.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Admin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Admin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Admin.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepack - Win32 Debug"
 
 USERDEP__ADMIN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Admin.ice
+InputPath=..\..\slice\icepack\Admin.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
-	move Admin.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Admin.ice \
+	move Admin.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Admin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Admin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Admin.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -181,38 +181,38 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\IcePack\Exception.ice
+SOURCE=..\..\slice\icepack\Exception.ice
 
-!IF  "$(CFG)" == "IcePack - Win32 Release"
+!IF  "$(CFG)" == "icepack - Win32 Release"
 
 USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Exception.ice
+InputPath=..\..\slice\icepack\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
-	move Exception.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Exception.ice \
+	move Exception.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepack - Win32 Debug"
 
 USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Exception.ice
+InputPath=..\..\slice\icepack\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
-	move Exception.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Exception.ice \
+	move Exception.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -224,38 +224,38 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\IcePack\Query.ice
+SOURCE=..\..\slice\icepack\Query.ice
 
-!IF  "$(CFG)" == "IcePack - Win32 Release"
+!IF  "$(CFG)" == "icepack - Win32 Release"
 
 USERDEP__QUERY="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Query.ice
+InputPath=..\..\slice\icepack\Query.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
-	move Query.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Query.ice \
+	move Query.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Query.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Query.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Query.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepack - Win32 Debug"
 
 USERDEP__QUERY="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePack\Query.ice
+InputPath=..\..\slice\icepack\Query.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
-	move Query.h ..\..\include\IcePack \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir icepack -I../../slice ../../slice/IcePack/Query.ice \
+	move Query.h ..\..\include\icepack \
 	
 
-"..\..\include\IcePack\Query.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepack\Query.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Query.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="glacier2CallbackS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="glacier2callbackS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=glacier2CallbackS - Win32 Debug
+CFG=glacier2callbackS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "glacier2CallbackS.mak".
+!MESSAGE NMAKE /f "glacier2callbackS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "glacier2CallbackS.mak" CFG="glacier2CallbackS - Win32 Debug"
+!MESSAGE NMAKE /f "glacier2callbackS.mak" CFG="glacier2CallbackS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "glacier2CallbackS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "glacier2CallbackS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacier2callbackS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacier2callbackS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=glacier2CallbackS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "glacier2CallbackS - Win32 Release"
+!IF  "$(CFG)" == "glacier2callbackS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 Glacier2.lib Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "glacier2CallbackS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier2callbackS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "glacier2CallbackS - Win32 Release"
-# Name "glacier2CallbackS - Win32 Debug"
+# Name "glacier2callbackS - Win32 Release"
+# Name "glacier2callbackS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -121,7 +121,7 @@ SOURCE=.\CallbackI.h
 
 SOURCE=.\Callback.ice
 
-!IF  "$(CFG)" == "glacier2CallbackS - Win32 Release"
+!IF  "$(CFG)" == "glacier2callbackS - Win32 Release"
 
 USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -137,7 +137,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "glacier2CallbackS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier2callbackS - Win32 Debug"
 
 USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

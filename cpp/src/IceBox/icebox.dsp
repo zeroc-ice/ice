@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IceBox" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icebox" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=IceBox - Win32 Debug
+CFG=icebox - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IceBox.mak".
+!MESSAGE NMAKE /f "icebox.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IceBox.mak" CFG="IceBox - Win32 Debug"
+!MESSAGE NMAKE /f "icebox.mak" CFG="IceBox - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceBox - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "IceBox - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icebox - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icebox - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceBox - Win32 Release"
+!IF  "$(CFG)" == "icebox - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icebox.lib ..\..\lib	copy $(OutDir)\icebox20.dll ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IceBox - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icebox - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\iceboxd.lib ..\..\lib	copy $(OutDir)\icebox20d.pdb
 
 # Begin Target
 
-# Name "IceBox - Win32 Release"
-# Name "IceBox - Win32 Debug"
+# Name "icebox - Win32 Release"
+# Name "icebox - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -110,7 +110,7 @@ SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IceBox.cpp
+SOURCE=.\icebox.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -118,7 +118,7 @@ SOURCE=.\IceBox.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\IceBox\IceBox.h
+SOURCE=..\..\include\icebox\IceBox.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -126,41 +126,41 @@ SOURCE=..\..\include\IceBox\IceBox.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=..\..\slice\IceBox\IceBox.ice
+SOURCE=..\..\slice\icebox\IceBox.ice
 
-!IF  "$(CFG)" == "IceBox - Win32 Release"
+!IF  "$(CFG)" == "icebox - Win32 Release"
 
 USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IceBox\IceBox.ice
+InputPath=..\..\slice\icebox\IceBox.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
-	move IceBox.h ..\..\include\IceBox \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir icebox -I../../slice ../../slice/IceBox/IceBox.ice \
+	move icebox.h ..\..\include\IceBox \
 	
 
-"..\..\include\IceBox\IceBox.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icebox\IceBox.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IceBox.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"icebox.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IceBox - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icebox - Win32 Debug"
 
 USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IceBox\IceBox.ice
+InputPath=..\..\slice\icebox\IceBox.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
-	move IceBox.h ..\..\include\IceBox \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir icebox -I../../slice ../../slice/IceBox/IceBox.ice \
+	move icebox.h ..\..\include\IceBox \
 	
 
-"..\..\include\IceBox\IceBox.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icebox\IceBox.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IceBox.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"icebox.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

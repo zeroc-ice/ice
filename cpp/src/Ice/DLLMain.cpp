@@ -15,7 +15,7 @@ extern "C"
 {
 
 BOOL WINAPI
-Ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
+ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
 {
     if(!_CRT_INIT(hDLL, reason, reserved))
     {

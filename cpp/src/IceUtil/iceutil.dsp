@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IceUtil" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="iceutil" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=IceUtil - Win32 Debug
+CFG=iceutil - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IceUtil.mak".
+!MESSAGE NMAKE /f "iceutil.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IceUtil.mak" CFG="IceUtil - Win32 Debug"
+!MESSAGE NMAKE /f "iceutil.mak" CFG="IceUtil - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceUtil - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "IceUtil - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "iceutil - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "iceutil - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceUtil - Win32 Release"
+!IF  "$(CFG)" == "iceutil - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\iceutil.lib ..\..\lib	copy $(OutDir)\iceutil20.dll ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IceUtil - Win32 Debug"
+!ELSEIF  "$(CFG)" == "iceutil - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\iceutild.lib ..\..\lib	copy $(OutDir)\iceutil20d.p
 
 # Begin Target
 
-# Name "IceUtil - Win32 Release"
-# Name "IceUtil - Win32 Debug"
+# Name "iceutil - Win32 Release"
+# Name "iceutil - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -194,67 +194,67 @@ SOURCE=.\UUID.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Base64.h
+SOURCE=..\..\include\iceutil\Base64.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Cond.h
+SOURCE=..\..\include\iceutil\Cond.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\CountDownLatch.h
+SOURCE=..\..\include\iceutil\CountDownLatch.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Config.h
+SOURCE=..\..\include\iceutil\Config.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\CtrlCHandler.h
+SOURCE=..\..\include\iceutil\CtrlCHandler.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Exception.h
+SOURCE=..\..\include\iceutil\Exception.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Functional.h
+SOURCE=..\..\include\iceutil\Functional.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\GC.h
+SOURCE=..\..\include\iceutil\GC.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\GCF.h
+SOURCE=..\..\include\iceutil\GCF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\GCRecMutex.h
+SOURCE=..\..\include\iceutil\GCRecMutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\GCShared.h
+SOURCE=..\..\include\iceutil\GCShared.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Handle.h
+SOURCE=..\..\include\iceutil\Handle.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\IceUtil.h
+SOURCE=..\..\include\iceutil\IceUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\InputUtil.h
+SOURCE=..\..\include\iceutil\InputUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Lock.h
+SOURCE=..\..\include\iceutil\Lock.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\MD5.h
+SOURCE=..\..\include\iceutil\MD5.h
 # End Source File
 # Begin Source File
 
@@ -262,55 +262,55 @@ SOURCE=MD5I.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Monitor.h
+SOURCE=..\..\include\iceutil\Monitor.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Mutex.h
+SOURCE=..\..\include\iceutil\Mutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\OutputUtil.h
+SOURCE=..\..\include\iceutil\OutputUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\RecMutex.h
+SOURCE=..\..\include\iceutil\RecMutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\RWRecMutex.h
+SOURCE=..\..\include\iceutil\RWRecMutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Shared.h
+SOURCE=..\..\include\iceutil\Shared.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\StaticMutex.h
+SOURCE=..\..\include\iceutil\StaticMutex.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\StringUtil.h
+SOURCE=..\..\include\iceutil\StringUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Thread.h
+SOURCE=..\..\include\iceutil\Thread.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\ThreadException.h
+SOURCE=..\..\include\iceutil\ThreadException.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Time.h
+SOURCE=..\..\include\iceutil\Time.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\Unicode.h
+SOURCE=..\..\include\iceutil\Unicode.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceUtil\UUID.h
+SOURCE=..\..\include\iceutil\UUID.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

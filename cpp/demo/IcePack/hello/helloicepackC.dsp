@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="helloIcePackC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="helloicepackC" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=helloIcePackC - Win32 Debug
+CFG=helloicepackC - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "helloIcePackC.mak".
+!MESSAGE NMAKE /f "helloicepackC.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "helloIcePackC.mak" CFG="helloIcePackC - Win32 Debug"
+!MESSAGE NMAKE /f "helloicepackC.mak" CFG="helloIcePackC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "helloIcePackC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "helloIcePackC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "helloicepackC - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "helloicepackC - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=helloIcePackC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "helloIcePackC - Win32 Release"
+!IF  "$(CFG)" == "helloicepackC - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 IcePack.lib Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "helloIcePackC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "helloicepackC - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "helloIcePackC - Win32 Release"
-# Name "helloIcePackC - Win32 Debug"
+# Name "helloicepackC - Win32 Release"
+# Name "helloicepackC - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -113,7 +113,7 @@ SOURCE=.\Hello.h
 
 SOURCE=.\Hello.ice
 
-!IF  "$(CFG)" == "helloIcePackC - Win32 Release"
+!IF  "$(CFG)" == "helloicepackC - Win32 Release"
 
 USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -129,7 +129,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "helloIcePackC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "helloicepackC - Win32 Debug"
 
 USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build

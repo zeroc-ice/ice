@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IcePatch2" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icepatch2" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Dynamic-Link Library" 0x0102
 
-CFG=IcePatch2 - Win32 Debug
+CFG=icepatch2 - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePatch2.mak".
+!MESSAGE NMAKE /f "icepatch2.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePatch2.mak" CFG="IcePatch2 - Win32 Debug"
+!MESSAGE NMAKE /f "icepatch2.mak" CFG="IcePatch2 - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IcePatch2 - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
-!MESSAGE "IcePatch2 - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icepatch2 - Win32 Release" (based on "Win32 (x86) Dynamic-Link Library")
+!MESSAGE "icepatch2 - Win32 Debug" (based on "Win32 (x86) Dynamic-Link Library")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IcePatch2 - Win32 Release"
+!IF  "$(CFG)" == "icepatch2 - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -62,7 +62,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icepatch2.lib ..\..\lib	copy $(OutDir)\icepatch220.dll ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IcePatch2 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepatch2 - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -99,8 +99,8 @@ PostBuild_Cmds=copy $(OutDir)\icepatch2d.lib ..\..\lib	copy $(OutDir)\icepatch22
 
 # Begin Target
 
-# Name "IcePatch2 - Win32 Release"
-# Name "IcePatch2 - Win32 Debug"
+# Name "icepatch2 - Win32 Release"
+# Name "icepatch2 - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -126,19 +126,19 @@ SOURCE=.\Util.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch2\ClientUtil.h
+SOURCE=..\..\include\icepatch2\ClientUtil.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch2\FileInfo.h
+SOURCE=..\..\include\icepatch2\FileInfo.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch2\FileServer.h
+SOURCE=..\..\include\icepatch2\FileServer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch2\Util.h
+SOURCE=..\..\include\icepatch2\Util.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -146,38 +146,38 @@ SOURCE=..\..\include\IcePatch2\Util.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=..\..\slice\IcePatch2\FileInfo.ice
+SOURCE=..\..\slice\icepatch2\FileInfo.ice
 
-!IF  "$(CFG)" == "IcePatch2 - Win32 Release"
+!IF  "$(CFG)" == "icepatch2 - Win32 Release"
 
 USERDEP__FILEI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch2\FileInfo.ice
+InputPath=..\..\slice\icepatch2\FileInfo.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir IcePatch2 -I../../slice ../../slice/IcePatch2/FileInfo.ice \
-	move FileInfo.h ..\..\include\IcePatch2 \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir icepatch2 -I../../slice ../../slice/IcePatch2/FileInfo.ice \
+	move FileInfo.h ..\..\include\icepatch2 \
 	
 
-"..\..\include\IcePatch2\FileInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepatch2\FileInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "FileInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePatch2 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepatch2 - Win32 Debug"
 
 USERDEP__FILEI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch2\FileInfo.ice
+InputPath=..\..\slice\icepatch2\FileInfo.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir IcePatch2 -I../../slice ../../slice/IcePatch2/FileInfo.ice \
-	move FileInfo.h ..\..\include\IcePatch2 \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir icepatch2 -I../../slice ../../slice/IcePatch2/FileInfo.ice \
+	move FileInfo.h ..\..\include\icepatch2 \
 	
 
-"..\..\include\IcePatch2\FileInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepatch2\FileInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "FileInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -189,38 +189,38 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\IcePatch2\FileServer.ice
+SOURCE=..\..\slice\icepatch2\FileServer.ice
 
-!IF  "$(CFG)" == "IcePatch2 - Win32 Release"
+!IF  "$(CFG)" == "icepatch2 - Win32 Release"
 
 USERDEP__FILES="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch2\FileServer.ice
+InputPath=..\..\slice\icepatch2\FileServer.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir IcePatch2 -I../../slice ../../slice/IcePatch2/FileServer.ice \
-	move FileServer.h ..\..\include\IcePatch2 \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir icepatch2 -I../../slice ../../slice/IcePatch2/FileServer.ice \
+	move FileServer.h ..\..\include\icepatch2 \
 	
 
-"..\..\include\IcePatch2\FileServer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepatch2\FileServer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "FileServer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePatch2 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepatch2 - Win32 Debug"
 
 USERDEP__FILES="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch2\FileServer.ice
+InputPath=..\..\slice\icepatch2\FileServer.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir IcePatch2 -I../../slice ../../slice/IcePatch2/FileServer.ice \
-	move FileServer.h ..\..\include\IcePatch2 \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH2_API --include-dir icepatch2 -I../../slice ../../slice/IcePatch2/FileServer.ice \
+	move FileServer.h ..\..\include\icepatch2 \
 	
 
-"..\..\include\IcePatch2\FileServer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\icepatch2\FileServer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "FileServer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IcePatchC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icepatchC" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IcePatchC - Win32 Debug
+CFG=icepatchC - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePatchC.mak".
+!MESSAGE NMAKE /f "icepatchC.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePatchC.mak" CFG="IcePatchC - Win32 Debug"
+!MESSAGE NMAKE /f "icepatchC.mak" CFG="IcePatchC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IcePatchC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IcePatchC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "icepatchC - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "icepatchC - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IcePatchC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IcePatchC - Win32 Release"
+!IF  "$(CFG)" == "icepatchC - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,16 +51,16 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"Release/icepatchclient.exe"
+# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"Release/icepatchClient.exe"
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=icepatchclient
+TargetName=icepatchClient
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IcePatchC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepatchC - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -83,11 +83,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"Debug/icepatchclient.exe" /pdbtype:sept
+# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"Debug/icepatchClient.exe" /pdbtype:sept
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=icepatchclient
+TargetName=icepatchClient
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -96,8 +96,8 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "IcePatchC - Win32 Release"
-# Name "IcePatchC - Win32 Debug"
+# Name "icepatchC - Win32 Release"
+# Name "icepatchC - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"

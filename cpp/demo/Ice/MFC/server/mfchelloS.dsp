@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="mfcHelloS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="mfchelloS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=mfcHelloS - Win32 Debug
+CFG=mfchelloS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "mfcHelloS.mak".
+!MESSAGE NMAKE /f "mfchelloS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "mfcHelloS.mak" CFG="mfcHelloS - Win32 Debug"
+!MESSAGE NMAKE /f "mfchelloS.mak" CFG="mfcHelloS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "mfcHelloS - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "mfcHelloS - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "mfchelloS - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "mfchelloS - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "mfcHelloS - Win32 Release"
+!IF  "$(CFG)" == "mfchelloS - Win32 Release"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 0
@@ -55,7 +55,7 @@ LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /machine:I386 /out:"server.exe" /libpath:"../../../../lib"
 
-!ELSEIF  "$(CFG)" == "mfcHelloS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "mfchelloS - Win32 Debug"
 
 # PROP BASE Use_MFC 6
 # PROP BASE Use_Debug_Libraries 1
@@ -85,8 +85,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "mfcHelloS - Win32 Release"
-# Name "mfcHelloS - Win32 Debug"
+# Name "mfchelloS - Win32 Release"
+# Name "mfchelloS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -167,7 +167,7 @@ SOURCE=.\res\HelloServer.rc2
 
 SOURCE=.\Hello.ice
 
-!IF  "$(CFG)" == "mfcHelloS - Win32 Release"
+!IF  "$(CFG)" == "mfchelloS - Win32 Release"
 
 USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"
 # Begin Custom Build
@@ -183,7 +183,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "mfcHelloS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "mfchelloS - Win32 Debug"
 
 USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"
 # Begin Custom Build

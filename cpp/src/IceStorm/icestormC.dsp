@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IceStormC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icestormC" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IceStormC - Win32 Debug
+CFG=icestormC - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IceStormC.mak".
+!MESSAGE NMAKE /f "icestormC.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IceStormC.mak" CFG="IceStormC - Win32 Debug"
+!MESSAGE NMAKE /f "icestormC.mak" CFG="IceStormC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IceStormC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IceStormC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "icestormC - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "icestormC - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IceStormC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceStormC - Win32 Release"
+!IF  "$(CFG)" == "icestormC - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -60,7 +60,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icestormC - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -96,8 +96,8 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "IceStormC - Win32 Release"
-# Name "IceStormC - Win32 Debug"
+# Name "icestormC - Win32 Release"
+# Name "icestormC - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -145,7 +145,7 @@ SOURCE=.\WeightedGraph.h
 
 SOURCE=.\Grammar.y
 
-!IF  "$(CFG)" == "IceStormC - Win32 Release"
+!IF  "$(CFG)" == "icestormC - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -163,7 +163,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icestormC - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -188,7 +188,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "IceStormC - Win32 Release"
+!IF  "$(CFG)" == "icestormC - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -200,7 +200,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icestormC - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l

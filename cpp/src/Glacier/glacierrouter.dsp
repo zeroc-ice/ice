@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="GlacierRouter" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="glacierrouter" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=GlacierRouter - Win32 Debug
+CFG=glacierrouter - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "GlacierRouter.mak".
+!MESSAGE NMAKE /f "glacierrouter.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "GlacierRouter.mak" CFG="GlacierRouter - Win32 Debug"
+!MESSAGE NMAKE /f "glacierrouter.mak" CFG="GlacierRouter - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "GlacierRouter - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "GlacierRouter - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacierrouter - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacierrouter - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=GlacierRouter - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "GlacierRouter - Win32 Release"
+!IF  "$(CFG)" == "glacierrouter - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -60,7 +60,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "GlacierRouter - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacierrouter - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -96,8 +96,8 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "GlacierRouter - Win32 Release"
-# Name "GlacierRouter - Win32 Debug"
+# Name "glacierrouter - Win32 Release"
+# Name "glacierrouter - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -111,7 +111,7 @@ SOURCE=.\ClientBlobject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GlacierRouter.cpp
+SOURCE=.\glacierrouter.cpp
 # End Source File
 # Begin Source File
 

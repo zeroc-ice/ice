@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="certificateAndKeyParsing" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="certificateandkeyparsing" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=certificateAndKeyParsing - Win32 Debug
+CFG=certificateandkeyparsing - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "certificateAndKeyParsing.mak".
+!MESSAGE NMAKE /f "certificateandkeyparsing.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "certificateAndKeyParsing.mak" CFG="certificateAndKeyParsing - Win32 Debug"
+!MESSAGE NMAKE /f "certificateandkeyparsing.mak" CFG="certificateAndKeyParsing - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "certificateAndKeyParsing - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "certificateAndKeyParsing - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "certificateandkeyparsing - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "certificateandkeyparsing - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=certificateAndKeyParsing - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "certificateAndKeyParsing - Win32 Release"
+!IF  "$(CFG)" == "certificateandkeyparsing - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,9 +51,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"certificateAndKeyParsing.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"certificateandkeyparsing.exe" /libpath:"../../../lib"
 
-!ELSEIF  "$(CFG)" == "certificateAndKeyParsing - Win32 Debug"
+!ELSEIF  "$(CFG)" == "certificateandkeyparsing - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -76,20 +76,20 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"certificateAndKeyParsing.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"certificateandkeyparsing.exe" /pdbtype:sept /libpath:"../../../lib"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "certificateAndKeyParsing - Win32 Release"
-# Name "certificateAndKeyParsing - Win32 Debug"
+# Name "certificateandkeyparsing - Win32 Release"
+# Name "certificateandkeyparsing - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\CertificateAndKeyParsing.cpp
+SOURCE=.\certificateandkeyparsing.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

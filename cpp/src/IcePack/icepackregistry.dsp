@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IcePackRegistry" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icepackregistry" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IcePackRegistry - Win32 Debug
+CFG=icepackregistry - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePackRegistry.mak".
+!MESSAGE NMAKE /f "icepackregistry.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePackRegistry.mak" CFG="IcePackRegistry - Win32 Debug"
+!MESSAGE NMAKE /f "icepackregistry.mak" CFG="IcePackRegistry - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IcePackRegistry - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IcePackRegistry - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "icepackregistry - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "icepackregistry - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IcePackRegistry - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+!IF  "$(CFG)" == "icepackregistry - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -55,12 +55,12 @@ LINK32=link.exe
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=IcePackRegistry
+TargetName=icepackregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepackregistry - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -87,7 +87,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=IcePackRegistry
+TargetName=icepackregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -96,8 +96,8 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "IcePackRegistry - Win32 Release"
-# Name "IcePackRegistry - Win32 Debug"
+# Name "icepackregistry - Win32 Release"
+# Name "icepackregistry - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -131,7 +131,7 @@ SOURCE=.\DescriptorVisitor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IcePackRegistry.cpp
+SOURCE=.\icepackregistry.cpp
 # End Source File
 # Begin Source File
 
@@ -273,7 +273,7 @@ SOURCE=.\TraceLevels.h
 
 SOURCE=.\dummy1.ice
 
-!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+!IF  "$(CFG)" == "icepackregistry - Win32 Release"
 
 USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -289,7 +289,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepackregistry - Win32 Debug"
 
 USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
@@ -312,7 +312,7 @@ BuildCmds= \
 
 SOURCE=.\dummy2.ice
 
-!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+!IF  "$(CFG)" == "icepackregistry - Win32 Release"
 
 USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -328,7 +328,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepackregistry - Win32 Debug"
 
 USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
@@ -351,7 +351,7 @@ BuildCmds= \
 
 SOURCE=.\dummy3.ice
 
-!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+!IF  "$(CFG)" == "icepackregistry - Win32 Release"
 
 USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -367,7 +367,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepackregistry - Win32 Debug"
 
 USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
@@ -390,7 +390,7 @@ BuildCmds= \
 
 SOURCE=.\Internal.ice
 
-!IF  "$(CFG)" == "IcePackRegistry - Win32 Release"
+!IF  "$(CFG)" == "icepackregistry - Win32 Release"
 
 USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -406,7 +406,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "IcePackRegistry - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icepackregistry - Win32 Debug"
 
 USERDEP__INTER="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
