@@ -16,7 +16,7 @@
      <node name="node">
 
        <!-- First, we deploy the regular server --> 
-       <server name="Server" kind="cpp" exe="../../../demo/IcePack/simple/server" activation="on-demand">
+       <server name="Server" kind="cpp" exe="./server" activation="on-demand">
  
          <adapters>
            <adapter name="Hello" endpoints="tcp:udp:ssl" register="true">
