@@ -15,6 +15,11 @@
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 extern zend_module_entry ice_module_entry;
 #define phpext_ice_ptr &ice_module_entry
 
@@ -45,6 +50,10 @@ ZEND_END_MODULE_GLOBALS(ice)
 #define ICE_G(v) TSRMG(ice_globals_id, zend_ice_globals*, v)
 #else
 #define ICE_G(v) (ice_globals.v)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif	/* PHP_ICE_H */

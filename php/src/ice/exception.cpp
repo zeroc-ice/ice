@@ -30,8 +30,12 @@ static zend_class_entry* Ice_LocalException_entry_ptr;
 // Ice::LocalException support.
 //
 static zend_object_handlers Ice_LocalException_handlers;
-static zend_object_value Ice_LocalException_alloc(zend_class_entry* TSRMLS_DC);
-static void Ice_LocalException_dtor(void*, zend_object_handle TSRMLS_DC);
+
+extern "C"
+{
+static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
+static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+}
 
 //
 // Function entries for Ice::LocalException methods.
@@ -51,7 +55,7 @@ Ice_LocalException_init(TSRMLS_D)
     //
     zend_class_entry ce_LocalException;
     INIT_CLASS_ENTRY(ce_LocalException, "Ice_LocalException", Ice_LocalException_methods);
-    ce_LocalException.create_object = Ice_LocalException_alloc;
+    ce_LocalException.create_object = handleAlloc;
     Ice_LocalException_entry_ptr = zend_register_internal_class(&ce_LocalException TSRMLS_CC);
     memcpy(&Ice_LocalException_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     return true;
@@ -142,21 +146,21 @@ ZEND_FUNCTION(Ice_LocalException_message)
 }
 
 static zend_object_value
-Ice_LocalException_alloc(zend_class_entry* ce TSRMLS_DC)
+handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
     ice_object* obj = ice_newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, Ice_LocalException_dtor, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, handleDestroy, NULL TSRMLS_CC);
     result.handlers = &Ice_LocalException_handlers;
 
     return result;
 }
 
 static void
-Ice_LocalException_dtor(void* p, zend_object_handle handle TSRMLS_DC)
+handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
     ice_object* obj = static_cast<ice_object*>(p);
 

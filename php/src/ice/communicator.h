@@ -25,9 +25,12 @@ zval* Ice_Communicator_getZval(TSRMLS_D);
 //
 // Ice_Communicator class methods.
 //
+extern "C"
+{
 ZEND_FUNCTION(Ice_Communicator___construct);
 ZEND_FUNCTION(Ice_Communicator_stringToProxy);
 ZEND_FUNCTION(Ice_Communicator_proxyToString);
+}
 
 #define ICE_PHP_COMMUNICATOR_FUNCTIONS \
     ZEND_FE(Ice_Communicator___construct,   NULL) \

@@ -35,9 +35,14 @@ static zend_class_entry* Ice_Communicator_entry_ptr;
 // Ice::Communicator support.
 //
 static zend_object_handlers Ice_Communicator_handlers;
+
+extern "C"
+{
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
+}
+
 static void initCommunicator(ice_object* TSRMLS_DC);
 
 //
@@ -303,7 +308,7 @@ initCommunicator(ice_object* obj TSRMLS_DC)
     }
 
     int argc = 0;
-    char** argv;
+    char** argv = 0;
     Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, props);
     obj->ptr = new Ice::CommunicatorPtr(communicator);
 

@@ -24,8 +24,11 @@ void ice_throw_exception(const IceUtil::Exception& TSRMLS_DC);
 //
 // Ice_LocalException class methods.
 //
+extern "C"
+{
 ZEND_FUNCTION(Ice_LocalException___construct);
 ZEND_FUNCTION(Ice_LocalException_message);
+}
 
 #define ICE_PHP_LOCAL_EXCEPTION_FUNCTIONS \
     ZEND_FE(Ice_LocalException___construct, NULL) \

@@ -31,6 +31,8 @@ extern zend_class_entry* Ice_ObjectPrx_entry_ptr;
 //
 // Ice_ObjectPrx class methods.
 //
+extern "C"
+{
 ZEND_FUNCTION(Ice_ObjectPrx___construct);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ping);
@@ -62,6 +64,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_default);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_flush);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
+}
 
 #define ICE_PHP_OBJECT_PRX_FUNCTIONS \
     ZEND_FE(Ice_ObjectPrx___construct,           NULL) \

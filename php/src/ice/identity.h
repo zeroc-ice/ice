@@ -29,8 +29,11 @@ extern zend_class_entry* Ice_Identity_entry_ptr;
 //
 // Ice_Identity global functions.
 //
+extern "C"
+{
 ZEND_FUNCTION(Ice_stringToIdentity);
 ZEND_FUNCTION(Ice_identityToString);
+}
 
 #define ICE_PHP_IDENTITY_FUNCTIONS \
     ZEND_FE(Ice_stringToIdentity,   NULL) \

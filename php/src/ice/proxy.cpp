@@ -119,11 +119,15 @@ private:
 // Ice::ObjectPrx support.
 //
 static zend_object_handlers Ice_ObjectPrx_handlers;
+
+extern "C"
+{
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
 static int handleCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
+}
 
 //
 // Predefined methods for Ice_ObjectPrx.
