@@ -989,6 +989,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name checksumS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleIcePackC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleIcePackS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleIcePackSvc
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2500,6 +2509,69 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IcePack
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleIcePackC"=.\demo\IcePack\simple\simpleIcePackC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePack
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleIcePackS"=.\demo\IcePack\simple\simpleIcePackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleIcePackSvc"=.\demo\IcePack\simple\simpleIcePackSvc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePack
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 
