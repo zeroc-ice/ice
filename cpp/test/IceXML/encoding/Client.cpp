@@ -415,6 +415,52 @@ TestClass3Rec(const Ice::CommunicatorPtr& communicator)
 }
 
 void
+TestFacets(const Ice::CommunicatorPtr& communicator)
+{
+    communicator->addObjectFactory(Test::Class1::ice_factory(), Test::Class1::ice_staticId());
+    communicator->addObjectFactory(Test::Class2::ice_factory(), Test::Class2::ice_staticId());
+
+    static const string element = "Test.Class2";
+    Test::Class2Ptr in = new Test::Class2();
+    in->c = Test::Blue;
+    in->name = "Blue";
+    Test::Class2Ptr in2 = new Test::Class2();
+    in2->c = Test::Green;
+    in2->name = "Green";
+    in2->r = in;
+    in->r = in2;
+
+    Test::Class1Ptr facet = new Test::Class1();
+    facet->c = Test::Red;
+    facet->name = "Red";
+    in->ice_addFacet(facet, "red");
+
+    ostringstream os;
+    os << header;
+    Ice::StreamPtr ostream = new IceXML::StreamI(communicator, os);
+    in->ice_marshal(element, ostream);
+    os << footer;
+
+    istringstream is(os.str());
+    Ice::StreamPtr istream = new IceXML::StreamI(communicator, is);
+    Test::Class2Ptr out;
+    Test::Class2::ice_unmarshal(element, istream, out);
+    test(out->r);
+    test(out->r->r);
+    test(in->c == out->c && in->name == out->name);
+    test(in->r->c == out->r->c && in->r->name == out->r->name);
+    test(in == in->r->r);
+    Ice::ObjectPtr obj = out->ice_findFacet("red");
+    test(obj);
+    Test::Class1Ptr outFacet = Test::Class1Ptr::dynamicCast(obj);
+    test(outFacet);
+    test(facet->c == outFacet->c && facet->name == outFacet->name);
+
+    communicator->removeObjectFactory(Test::Class1::ice_staticId());
+    communicator->removeObjectFactory(Test::Class2::ice_staticId());
+}
+
+void
 TestException1(const Ice::CommunicatorPtr& communicator)
 {
     static const string element = "Test.Exception1";
@@ -509,6 +555,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     TestClass3(communicator);
     TestClass3Rec(communicator);
+    TestFacets(communicator);
     cout << "ok" << endl;
 
     cout << "testing exception... ";
