@@ -215,15 +215,20 @@ public final class ThreadPool
     {
         if(_sizeMax > 1)
         {
-	    if(!_promote) // Double-checked locking.
+	    synchronized(_promoteMonitor)
 	    {
-		synchronized(_promoteMonitor)
+		assert(!_promote);
+		_promote = true;
+		_promoteMonitor.notify();
+
+		assert(_inUse >= 0);
+		++_inUse;
+
+		if(_inUse == _sizeWarn)
 		{
-		    if(!_promote)
-		    {
-			_promote = true;
-			_promoteMonitor.notify();
-		    }
+		    String s = "thread pool `" + _prefix + "' is running low on threads\n"
+			+ "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
+		    _instance.logger().warning(s);
 		}
 	    }
         }
@@ -648,6 +653,9 @@ public final class ThreadPool
 	    {
 		synchronized(_promoteMonitor)
 		{
+		    assert(_inUse > 0);
+		    --_inUse;
+
 		    while(!_promote)
 		    {
 			try
@@ -921,7 +929,6 @@ public final class ThreadPool
     private final int _sizeMax; // Maximum number of threads.
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private int _inUse; // Number of threads that are currently in use.
-    private java.lang.Object _inUseMutex = new java.lang.Object();
 
     private java.nio.channels.ReadableByteChannel _fdIntrRead;
     private java.nio.channels.SelectionKey _fdIntrReadKey;
@@ -974,7 +981,19 @@ public final class ThreadPool
                 trace("run() terminated - promoting follower");
             }
 
-            promoteFollower();
+	    //
+	    // Promote a follower, but w/o modifying _inUse or
+	    // creating new threads.
+	    //
+	    if(_sizeMax > 1)
+	    {
+		synchronized(_promoteMonitor)
+		{
+		    assert(!_promote);
+		    _promote = true;
+		    _promoteMonitor.notify();
+		}
+	    }
 
             stream.destroy();
         }
