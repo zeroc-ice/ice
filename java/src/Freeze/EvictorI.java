@@ -72,8 +72,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(System.currentTimeMillis() - startTime >= _timeout)
 		    {
 			_communicator.getLogger().error
-			(_errorPrefix + "Streaming watch dog thread timed out. *** Halting JVM ***");
-			Runtime.getRuntime().halt(1);
+			    (_errorPrefix + "Fatal error: streaming watch dog thread timed out.");
+
+			FatalErrorCallback cb = Freeze.Util.getFatalErrorCallback();
+			if(cb != null)
+			{
+			    cb.handleError(EvictorI.this, _communicator, null);
+			}
+			else
+			{
+			    _communicator.getLogger().error(_errorPrefix + "*** Halting JVM ***");
+			    Runtime.getRuntime().halt(1);
+			}
 		    }
 		}
 	    }
@@ -1802,10 +1812,19 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 	    ex.printStackTrace(pw);
 	    pw.flush();
-	    _communicator.getLogger().error
-		(_errorPrefix + "Critical error in saving thread:\n" + sw.toString()
-		 + "\n*** Halting JVM ***");
-	    Runtime.getRuntime().halt(1);
+	    _communicator.getLogger().
+		error(_errorPrefix + "Fatal error in saving thread:\n" + sw.toString());
+
+	    FatalErrorCallback cb = Freeze.Util.getFatalErrorCallback();
+	    if(cb != null)
+	    {
+		cb.handleError(this, _communicator, ex);
+	    }
+	    else
+	    {
+		_communicator.getLogger().error(_errorPrefix + "*** Halting JVM ***");
+		Runtime.getRuntime().halt(1);
+	    }
 	}
     }
 

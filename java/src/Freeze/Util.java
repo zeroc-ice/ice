@@ -44,5 +44,20 @@ public class Util
 	return new ConnectionI(communicator, envName, dbEnv);
     } 
 
+    public static synchronized FatalErrorCallback
+    registerFatalErrorCallback(FatalErrorCallback cb)
+    {
+	FatalErrorCallback result = _fatalErrorCallback;
+	_fatalErrorCallback = cb;
+	return result;
+    }
+    
+    public static synchronized FatalErrorCallback
+    getFatalErrorCallback()
+    {
+	return _fatalErrorCallback;
+    }
+
+    private static FatalErrorCallback _fatalErrorCallback = null;
 }
 
