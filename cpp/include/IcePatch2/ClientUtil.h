@@ -62,6 +62,7 @@ private:
 
     bool removeFiles(const FileInfoSeq&);
     bool updateFiles(const FileInfoSeq&);
+    bool updateFilesInternal(const FileInfoSeq&);
 
     virtual void run();
 

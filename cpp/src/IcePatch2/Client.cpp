@@ -47,17 +47,7 @@ public:
     {
 #ifndef _WIN32
 	tcgetattr(0, &_savedTerm);
-	termios term;
-	memcpy(&term, &_savedTerm, sizeof(termios));
-	term.c_lflag &= ~(ECHO | ICANON);
-	term.c_cc[VTIME] = 0;
-	term.c_cc[VMIN] = 1;
-	tcsetattr(0, TCSANOW, &term);
-
 	_savedFlags = fcntl(0, F_GETFL);
-	int flags = _savedFlags;
-	flags |= O_NONBLOCK;
-	fcntl(0, F_SETFL, flags);
 #endif
     }
 
@@ -92,7 +82,20 @@ public:
     virtual bool
     fileListStart()
     {
-	cout << "[Press any key to interrupt]" << endl;
+#ifndef _WIN32
+	termios term;
+	memcpy(&term, &_savedTerm, sizeof(termios));
+	term.c_lflag &= ~(ECHO | ICANON);
+	term.c_cc[VTIME] = 0;
+	term.c_cc[VMIN] = 1;
+	tcsetattr(0, TCSANOW, &term);
+
+	int flags = _savedFlags;
+	flags |= O_NONBLOCK;
+	fcntl(0, F_SETFL, flags);
+#endif
+
+	cout << "[Press any key to abort]" << endl;
 	_lastProgress = "0%";
 	cout << "Getting list of files to patch: " << _lastProgress << flush;
 	return !keyPressed();
@@ -231,13 +234,22 @@ IcePatch2::Client::run(int argc, char* argv[])
 	cout << "Calculating checksums -- please wait, this might take awhile..." << endl;
     }
 
-    bool patchComplete = false;
+    bool aborted = false;
 
     try
     {
 	PatcherFeedbackPtr feedback = new TextPatcherFeedback;
 	PatcherPtr patcher = new Patcher(communicator(), feedback);
-	patchComplete = patcher->patch();
+
+	if(!aborted)
+	{
+	    aborted = !patcher->prepare();
+	}
+
+	if(!aborted)
+	{
+	    aborted = !patcher->patch();
+	}
     }
     catch(const string& ex)
     {
@@ -245,14 +257,14 @@ IcePatch2::Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    if(patchComplete)
+    if(aborted)
     {
-	return EXIT_SUCCESS;
+	cout << "\n[Aborted]" << endl;
+	return EXIT_FAILURE;
     }
     else
     {
-	cout << "\n[Interrupted]" << endl;
-	return EXIT_FAILURE;
+	return EXIT_SUCCESS;
     }
 }
 

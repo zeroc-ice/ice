@@ -172,20 +172,20 @@ IcePatch2::Patcher::patch()
 	{
 	    return false;
 	}
-
+	
 	if(!_dryRun)
 	{
 	    saveFileInfoSeq(_dataDir, _localFiles);
 	}
     }
-
+    
     if(!_updateFiles.empty())
     {
 	if(!updateFiles(_updateFiles))
 	{
 	    return false;
 	}
-
+	
 	if(!_dryRun)
 	{
 	    saveFileInfoSeq(_dataDir, _localFiles);
@@ -200,20 +200,9 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 {
     if(!_dryRun)
     {
-	FileInfoSeq::const_iterator p = files.begin();
-	
-	while(p != files.end())
+	for(FileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
 	{
-	    removeRecursive(_dataDir + '/' + p->path);
-	    
-	    string dir = p->path + '/';
-	    
-	    do
-	    {
-		++p;
-	    }
-	    while(p != files.end() && p->path.size() > dir.size() &&
-		  p->path.compare(0, dir.size(), dir) == 0);
+	    remove(_dataDir + '/' + p->path);
 	}
 
 	FileInfoSeq newLocalFiles;

@@ -335,9 +335,29 @@ IcePatch2::remove(const string& pa)
 {
     const string path = normalize(pa);
 
-    if(::remove(path.c_str()) == -1)
+    struct stat buf;
+    if(stat(path.c_str(), &buf) == -1)
     {
-	throw "cannot remove file `" + path + "': " + lastError();
+	throw "cannot stat `" + path + "': " + lastError();
+    }
+
+    if(S_ISDIR(buf.st_mode))
+    {
+#ifdef _WIN32
+	if(_rmdir(path.c_str()) == -1)
+#else
+	if(rmdir(path.c_str()) == -1)
+#endif
+	{
+	    throw "cannot remove directory `" + path + "': " + lastError();
+	}
+    }
+    else
+    {
+	if(::remove(path.c_str()) == -1)
+	{
+	    throw "cannot remove file `" + path + "': " + lastError();
+	}
     }
 }
 
@@ -371,7 +391,10 @@ IcePatch2::removeRecursive(const string& pa)
     }
     else
     {
-	remove(path);
+	if(::remove(path.c_str()) == -1)
+	{
+	    throw "cannot remove file `" + path + "': " + lastError();
+	}
     }
 }
 
