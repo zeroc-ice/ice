@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{9CC4F073-3EAF-4F4E-962D-5395D04822E9}"
+        ProjectGuid = "{642C4D73-5B01-4F2A-A8A8-669E0EFB2B66}"
     >
         <Build>
             <Settings
