@@ -1021,7 +1021,7 @@ ServerCleaner::visitObject(const ObjectWrapper&, const ObjectDescriptor& object)
 {
     try
     {
-	_objectRegistry->remove(object.proxy);
+	_objectRegistry->remove(object.proxy->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
@@ -1029,9 +1029,12 @@ ServerCleaner::visitObject(const ObjectWrapper&, const ObjectDescriptor& object)
     }
 }
 
-IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const NodeRegistryPtr& nodeRegistry,
-			const ApplicationRegistryPtr& applicationRegistry, const ServerRegistryPtr& serverRegistry, 
-			const AdapterRegistryPtr& adapterRegistry, const ObjectRegistryPtr& objectRegistry) :
+AdminI::AdminI(const CommunicatorPtr& communicator, 
+	       const NodeRegistryPtr& nodeRegistry,
+	       const ApplicationRegistryPtr& applicationRegistry, 
+	       const ServerRegistryPtr& serverRegistry, 
+	       const AdapterRegistryPtr& adapterRegistry,
+	       const ObjectRegistryPtr& objectRegistry) :
     _communicator(communicator),
     _nodeRegistry(nodeRegistry),
     _applicationRegistry(applicationRegistry),
@@ -1041,12 +1044,12 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const NodeRegistryP
 {
 }
 
-IcePack::AdminI::~AdminI()
+AdminI::~AdminI()
 {
 }
 
 void
-IcePack::AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
+AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
 {
     ApplicationDeployer(_nodeRegistry, 
 			_applicationRegistry,
@@ -1057,7 +1060,7 @@ IcePack::AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, cons
 }
 
 void
-IcePack::AdminI::updateApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
+AdminI::updateApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
 {
     ApplicationUpdater(_nodeRegistry, 
 		       _applicationRegistry,
@@ -1068,7 +1071,7 @@ IcePack::AdminI::updateApplication(const ApplicationDescriptorPtr& descriptor, c
 }
 
 void
-IcePack::AdminI::removeApplication(const string& name, const Current&)
+AdminI::removeApplication(const string& name, const Current&)
 {
     ApplicationCleaner(_nodeRegistry, 
 		       _applicationRegistry, 
@@ -1079,19 +1082,19 @@ IcePack::AdminI::removeApplication(const string& name, const Current&)
 }
 
 ApplicationDescriptorPtr
-IcePack::AdminI::getApplicationDescriptor(const string& name, const Current&) const
+AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
     return _applicationRegistry->getDescriptor(name);
 }
 
 Ice::StringSeq
-IcePack::AdminI::getAllApplicationNames(const Current&) const
+AdminI::getAllApplicationNames(const Current&) const
 {
     return _applicationRegistry->getAll();
 }
 
 void
-IcePack::AdminI::addServer(const ServerDescriptorPtr& server, const Current&)
+AdminI::addServer(const ServerDescriptorPtr& server, const Current&)
 {
     if(!server->application.empty())
     {
@@ -1110,7 +1113,7 @@ IcePack::AdminI::addServer(const ServerDescriptorPtr& server, const Current&)
 }
 
 void
-IcePack::AdminI::updateServer(const ServerDescriptorPtr& server, const Current&)
+AdminI::updateServer(const ServerDescriptorPtr& server, const Current&)
 {
     ServerDescriptorPtr orig = _serverRegistry->getDescriptor(server->name);
     if(!orig->application.empty())
@@ -1177,7 +1180,7 @@ IcePack::AdminI::updateServer(const ServerDescriptorPtr& server, const Current&)
 }
 
 void
-IcePack::AdminI::removeServer(const string& name, const Current&)
+AdminI::removeServer(const string& name, const Current&)
 {
     ServerDescriptorPtr server = _serverRegistry->getDescriptor(name);
     if(!server->application.empty())
@@ -1197,13 +1200,13 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
 }
 
 ServerDescriptorPtr
-IcePack::AdminI::getServerDescriptor(const string& name, const Current&) const
+AdminI::getServerDescriptor(const string& name, const Current&) const
 {
     return _serverRegistry->getDescriptor(name);
 }
 
 ServerState
-IcePack::AdminI::getServerState(const string& name, const Current&) const
+AdminI::getServerState(const string& name, const Current&) const
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1221,7 +1224,7 @@ IcePack::AdminI::getServerState(const string& name, const Current&) const
 }
 
 Ice::Int
-IcePack::AdminI::getServerPid(const string& name, const Current&) const
+AdminI::getServerPid(const string& name, const Current&) const
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1239,7 +1242,7 @@ IcePack::AdminI::getServerPid(const string& name, const Current&) const
 }
 
 bool
-IcePack::AdminI::startServer(const string& name, const Current&)
+AdminI::startServer(const string& name, const Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1257,7 +1260,7 @@ IcePack::AdminI::startServer(const string& name, const Current&)
 }
 
 void
-IcePack::AdminI::stopServer(const string& name, const Current&)
+AdminI::stopServer(const string& name, const Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1275,7 +1278,7 @@ IcePack::AdminI::stopServer(const string& name, const Current&)
 }
 
 void
-IcePack::AdminI::sendSignal(const string& name, const string& signal, const Current&)
+AdminI::sendSignal(const string& name, const string& signal, const Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1293,7 +1296,7 @@ IcePack::AdminI::sendSignal(const string& name, const string& signal, const Curr
 }
 
 void
-IcePack::AdminI::writeMessage(const string& name, const string& message, Int fd, const Current&)
+AdminI::writeMessage(const string& name, const string& message, Int fd, const Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1312,13 +1315,13 @@ IcePack::AdminI::writeMessage(const string& name, const string& message, Int fd,
 
 
 StringSeq
-IcePack::AdminI::getAllServerNames(const Current&) const
+AdminI::getAllServerNames(const Current&) const
 {
     return _serverRegistry->getAll();
 }
 
 ServerActivation 
-IcePack::AdminI::getServerActivation(const ::std::string& name, const Ice::Current&) const
+AdminI::getServerActivation(const ::std::string& name, const Ice::Current&) const
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1336,7 +1339,7 @@ IcePack::AdminI::getServerActivation(const ::std::string& name, const Ice::Curre
 }
 
 void 
-IcePack::AdminI::setServerActivation(const ::std::string& name, ServerActivation mode, const Ice::Current&)
+AdminI::setServerActivation(const ::std::string& name, ServerActivation mode, const Ice::Current&)
 {
     ServerPrx server = _serverRegistry->findByName(name);
     try
@@ -1354,7 +1357,7 @@ IcePack::AdminI::setServerActivation(const ::std::string& name, ServerActivation
 }
 
 string 
-IcePack::AdminI::getAdapterEndpoints(const string& id, const Current&) const
+AdminI::getAdapterEndpoints(const string& id, const Current&) const
 {
     AdapterPrx adapter = _adapterRegistry->findById(id);
     try
@@ -1376,13 +1379,13 @@ IcePack::AdminI::getAdapterEndpoints(const string& id, const Current&) const
 }
 
 StringSeq
-IcePack::AdminI::getAllAdapterIds(const Current&) const
+AdminI::getAllAdapterIds(const Current&) const
 {
     return _adapterRegistry->getAll();
 }
 
 void 
-IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
+AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
     ObjectDescriptor desc;
     desc.proxy = proxy;
@@ -1400,7 +1403,7 @@ IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& cu
 }
 
 void 
-IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
+AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
     ObjectDescriptor desc;
     desc.proxy = proxy;
@@ -1409,13 +1412,25 @@ IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& ty
 }
 
 void 
-IcePack::AdminI::removeObject(const Ice::ObjectPrx& proxy, const Ice::Current&)
+AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
 {
-    _objectRegistry->remove(proxy);
+    _objectRegistry->remove(id);
+}
+
+ObjectDescriptor
+AdminI::getObjectDescriptor(const Ice::Identity& id, const Ice::Current&) const
+{
+    return _objectRegistry->getObjectDescriptor(id);
+}
+
+ObjectDescriptorSeq
+AdminI::getAllObjectDescriptors(const string& expression, const Ice::Current&) const
+{
+    return _objectRegistry->findAll(expression);
 }
 
 bool
-IcePack::AdminI::pingNode(const string& name, const Current&) const
+AdminI::pingNode(const string& name, const Current&) const
 {
     NodePrx node = _nodeRegistry->findByName(name);
     try
@@ -1434,7 +1449,7 @@ IcePack::AdminI::pingNode(const string& name, const Current&) const
 }
 
 void
-IcePack::AdminI::shutdownNode(const string& name, const Current&)
+AdminI::shutdownNode(const string& name, const Current&)
 {
     NodePrx node = _nodeRegistry->findByName(name);
     try
@@ -1452,7 +1467,7 @@ IcePack::AdminI::shutdownNode(const string& name, const Current&)
 }
 
 void
-IcePack::AdminI::removeNode(const string& name, const Current&)
+AdminI::removeNode(const string& name, const Current&)
 {
     //
     // Remove the node servers.
@@ -1475,7 +1490,7 @@ IcePack::AdminI::removeNode(const string& name, const Current&)
 }
 
 string
-IcePack::AdminI::getNodeHostname(const string& name, const Current&) const
+AdminI::getNodeHostname(const string& name, const Current&) const
 {
     NodePrx node = _nodeRegistry->findByName(name);
     try
@@ -1494,19 +1509,19 @@ IcePack::AdminI::getNodeHostname(const string& name, const Current&) const
 
 
 StringSeq
-IcePack::AdminI::getAllNodeNames(const Current&) const
+AdminI::getAllNodeNames(const Current&) const
 {
     return _nodeRegistry->getAll();
 }
 
 void
-IcePack::AdminI::shutdown(const Current&)
+AdminI::shutdown(const Current&)
 {
     _communicator->shutdown();
 }
 
 SliceChecksumDict
-IcePack::AdminI::getSliceChecksums(const Current&) const
+AdminI::getSliceChecksums(const Current&) const
 {
     return sliceChecksums();
 }

@@ -1093,6 +1093,7 @@ IceInternal::IncomingConnectionFactory::run()
 	// can accept connections with this factory's
 	// acceptor. Therefore we don't call validate() in thread per
 	// connection mode.
+	//
     }
 }
 

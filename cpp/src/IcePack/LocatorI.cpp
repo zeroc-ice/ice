@@ -206,7 +206,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     AdapterPrx adapter;
     try
     {
-	adapter = AdapterPrx::uncheckedCast(_adapterRegistry->findById(id));
+	adapter = AdapterPrx::uncheckedCast(_adapterRegistry->findById(id)->ice_collocationOptimization(false));
     }
     catch(const AdapterNotExistException&)
     {

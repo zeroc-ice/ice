@@ -46,8 +46,6 @@ private:
 
     void loadConfig();
 
-    static bool match(const std::string&, const std::string&);
-
     std::map<std::string, std::string> _properties;
 };
 

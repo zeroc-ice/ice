@@ -65,7 +65,7 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 	    if(_traceLevels->adapterRegistry > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
-		out << "added adapter `" << id << "'";
+		out << "updated adapter `" << id << "'";
 	    }
 	}
 	else
@@ -120,7 +120,7 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
     StringObjectProxyDict::iterator p = dict.find(id);
     if(p != dict.end())
     {
-	return AdapterPrx::uncheckedCast(p->second->ice_collocationOptimization(false));
+	return AdapterPrx::uncheckedCast(p->second); 
     }
     throw AdapterNotExistException();
 }

@@ -35,6 +35,14 @@ ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std
 //
 ICE_UTIL_API std::string::size_type checkQuote(const std::string&, std::string::size_type = 0);
 
+//
+// Match `s' against the pattern `pat'. A * in the pattern acts
+// as a wildcard: it matches any non-empty sequence of characters
+// other than a period (`.'). We match by hand here because
+// it's portable across platforms (whereas regex() isn't).
+//
+ICE_UTIL_API bool match(const std::string&, const std::string&);
+
 }
 
 #endif

@@ -1,6 +1,11 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added 'object list' and 'object describe' IcePack admin commands.
+
+- Changed the signature of IcePack::Admin::removeObject() to take the identity
+  of the object instead of its proxy.
+
 - Connection validation now checks for the timeout specified by the property
   Ice.Override.ConnectTimeout and will raise Ice::ConnectTimeoutException if
   the connection validation times out.

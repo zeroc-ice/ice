@@ -28,14 +28,15 @@ public:
     ObjectRegistryI(const Ice::CommunicatorPtr& communicator, const std::string&, const TraceLevelsPtr& traceLevels);
 
     virtual void add(const IcePack::ObjectDescriptor&, const ::Ice::Current&);
-    virtual void remove(const Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void remove(const Ice::Identity&, const ::Ice::Current&);
 
     virtual ObjectDescriptor getObjectDescriptor(const Ice::Identity&, const ::Ice::Current&) const;
 
     virtual Ice::ObjectPrx findById(const ::Ice::Identity&, const ::Ice::Current&) const;
     virtual Ice::ObjectPrx findByType(const std::string&, const ::Ice::Current&) const;
     virtual Ice::ObjectProxySeq findAllWithType(const std::string&, const ::Ice::Current&) const;
-
+    virtual ObjectDescriptorSeq findAll(const std::string&, const ::Ice::Current&) const;
+    
 private:
 
     static const std::string _objectsDbName;

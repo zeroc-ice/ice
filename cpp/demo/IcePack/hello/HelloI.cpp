@@ -93,7 +93,7 @@ HelloFactoryI::find(const string& name, const Ice::Current& current) const
 	// been removed from the object registry.
 	// 
 	IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
-	admin->removeObject(communicator->stringToProxy(name));	
+	admin->removeObject(Ice::stringToIdentity(name));	
 	throw NameNotExistException();
     }
 }
@@ -120,7 +120,7 @@ HelloI::destroy(const Ice::Current& current)
     // from the IcePack object registry.
     // 
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
-    admin->removeObject(adapter->createProxy(current.id));
+    admin->removeObject(current.id);
 
     //
     // Remove the Hello object from the object adapter.

@@ -25,6 +25,7 @@
 #endif
 
 #include <iterator>
+#include <iomanip>
 
 extern FILE* yyin;
 extern int yydebug;
@@ -322,6 +323,10 @@ IcePack::Parser::usage()
 	"                            optionally specifying its type.\n"
 	"object remove IDENTITY      Remove an object from the object registry.\n"
 	"object find TYPE            Find all objects with the type TYPE.\n"
+	"object describe EXPR        Describe all registered objects whose stringified\n"
+        "                            identity match EXPR.\n"
+	"object list EXPR            List all registered objects whose stringified\n"
+	"                            identity match EXPR.\n"
 	"\n"
         "shutdown                    Shut the IcePack registry down.\n"
 #ifdef GPL_BUILD
@@ -1118,7 +1123,14 @@ IcePack::Parser::endpointsAdapter(const list<string>& args)
     try
     {
 	string endpoints = _admin->getAdapterEndpoints(args.front());
-	cout << endpoints << endl;
+	if(endpoints.empty())
+	{
+	    cout << "<inactive>" << endl;
+	}
+	else
+	{
+	    cout << endpoints << endl;
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -1194,7 +1206,7 @@ IcePack::Parser::removeObject(const list<string>& args)
 
     try
     {
-	_admin->removeObject(_communicator->stringToProxy((*(args.begin()))));
+	_admin->removeObject(Ice::stringToIdentity((*(args.begin()))));
     }
     catch(const Ice::Exception& ex)
     {
@@ -1219,6 +1231,73 @@ IcePack::Parser::findObject(const list<string>& args)
 	for (Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
 	    cout << _communicator->proxyToString(*p) << endl;
+	}	
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::describeObject(const list<string>& args)
+{
+    try
+    {
+	ObjectDescriptorSeq objects;
+	if(args.size() == 1)
+	{
+	    string arg = *(args.begin());
+	    if(arg.find('*') == string::npos)
+	    {
+		ObjectDescriptor desc = _admin->getObjectDescriptor(Ice::stringToIdentity(arg));
+		cout << "proxy = " << _communicator->proxyToString(desc.proxy) << endl;
+		cout << "type = " << desc.type << endl;
+		return;
+	    }
+	    else
+	    {
+		objects = _admin->getAllObjectDescriptors(arg);
+	    }
+	}
+	else
+	{
+	    objects = _admin->getAllObjectDescriptors("");
+	}
+	
+	for(ObjectDescriptorSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	{
+	    cout << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
+	}	
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::listObject(const list<string>& args)
+{
+    try
+    {
+	ObjectDescriptorSeq objects;
+	if(args.size() == 1)
+	{
+	    objects = _admin->getAllObjectDescriptors(*(args.begin()));
+	}
+	else
+	{
+	    objects = _admin->getAllObjectDescriptors("");
+	}
+	
+	for(ObjectDescriptorSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	{
+	    cout << Ice::identityToString(p->proxy->ice_getIdentity()) << endl;
 	}	
     }
     catch(const Ice::Exception& ex)

@@ -211,6 +211,18 @@ command
 {
     parser->findObject($3);
 }
+| ICE_PACK_OBJECT ICE_PACK_LIST optional_strings ';'
+{
+    parser->listObject($3);
+}
+| ICE_PACK_OBJECT ICE_PACK_DESCRIBE optional_strings ';'
+{
+    parser->describeObject($3);
+}
+| ICE_PACK_OBJECT ICE_PACK_LIST ';'
+{
+    parser->listObject(YYSTYPE());
+}
 | ICE_PACK_SHUTDOWN ';'
 {
     parser->shutdown();
@@ -243,6 +255,24 @@ strings
 | ICE_PACK_STRING
 {
     $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+optional_strings
+// ----------------------------------------------------------------------
+: ICE_PACK_STRING optional_strings
+{
+    $$ = $2;
+    $$.push_front($1.front());
+}
+| ICE_PACK_STRING
+{
+    $$ = $1;
+}
+|
+{
+    $$ = YYSTYPE()
 }
 ;
 

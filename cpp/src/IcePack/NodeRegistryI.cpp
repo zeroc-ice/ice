@@ -101,42 +101,44 @@ NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::Current& 
 	break;
     }
 
-    AdapterPrx adapter;
-    while(!adapter)
+    //
+    // Set the direct proxy of the node object adapter.
+    //
+    while(true)
     {
 	try
 	{
-	    adapter = _adapterRegistry->findById("IcePack.Node." + name);
-	    
 	    //
 	    // TODO: ensure this adapter has been created by the adapter factory. It's possible that an 
 	    // adapter has been created with the same name. In such a case, the best is probably to
 	    // prevent the node registration by throwing an appropriate exception. The user would then 
 	    // need to remove the adapter from the adapter registry to be able to run the node.
 	    //
+
+	    AdapterPrx adapter = _adapterRegistry->findById("IcePack.Node." + name);
+	    adapter->setDirectProxy(node);
+	    return;
 	}    
 	catch(const AdapterNotExistException&)
 	{
-	    //
-	    // Create and register the node adapter.
-	    //
-	    adapter = _adapterFactory->createStandaloneAdapter("IcePackNodeAdapter." + name);
-	    try
-	    {
-		_adapterRegistry->add("IcePack.Node." + name, adapter);
-	    }
-	    catch(const AdapterExistsException&)
-	    {
-		adapter->destroy();
-		adapter = 0;
-	    }
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+
+	//
+	// Create and register the node adapter.
+	//
+	AdapterPrx adapter = _adapterFactory->createStandaloneAdapter("IcePackNodeAdapter." + name);
+	try
+	{
+	    _adapterRegistry->add("IcePack.Node." + name, adapter);
+	}
+	catch(const AdapterExistsException&)
+	{
+	    adapter->destroy();
 	}
     }
-
-    //
-    // Set the direct proxy of the node object adapter.
-    //
-    adapter->setDirectProxy(node);
 }
 
 void

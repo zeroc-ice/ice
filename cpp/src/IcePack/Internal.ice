@@ -38,7 +38,7 @@ interface ObjectRegistry
      * Remove an object from the registry.
      *
      **/
-    void remove(Object* obj)
+    void remove(Ice::Identity id)
 	throws ObjectNotExistException;
 
     /**
@@ -70,6 +70,13 @@ interface ObjectRegistry
      *
      **/
     nonmutating Ice::ObjectProxySeq findAllWithType(string type);
+
+    /**
+     *
+     * Find all the objects matching the given expression.
+     *
+     **/
+    nonmutating ObjectDescriptorSeq findAll(string expression);
 };
 
 /**

@@ -79,8 +79,10 @@ IcePack::Registry::start(bool nowarn)
 	if(stat(_envName.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
 	{
 	    Error out(_communicator->getLogger());
-	    out << "property `IcePack.Registry.Data' is not set to a valid directory path";
-	    return false;	    
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    out << "property `IcePack.Registry.Data' is set to an invalid path:\n" << ex;
+	    return false;
 	}
     }
 
@@ -246,7 +248,7 @@ IcePack::Registry::start(bool nowarn)
     ObjectPrx queryPrx = clientAdapter->createDirectProxy(stringToIdentity("IcePack/Query"));
     try
     {
-	objectRegistry->remove(queryPrx);
+	objectRegistry->remove(queryPrx->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
@@ -264,7 +266,7 @@ IcePack::Registry::start(bool nowarn)
     ObjectPrx adminPrx = adminAdapter->createDirectProxy(stringToIdentity("IcePack/Admin"));
     try
     {
-	objectRegistry->remove(adminPrx);
+	objectRegistry->remove(adminPrx->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
