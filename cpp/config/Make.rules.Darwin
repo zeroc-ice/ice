@@ -21,6 +21,11 @@ else
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
 
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			=
+
 LDPLATFORMFLAGS		= -Wl,-bind_at_load -Wl,-executable_path,$(top_srcdir)/bin
 
 shlibldflags		= $(CXXFLAGS) -L$(libdir)

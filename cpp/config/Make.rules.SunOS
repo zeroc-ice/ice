@@ -58,6 +58,12 @@ else
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
 
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			= -lCstd -lCrun
+
+
 mkshlib                 = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread

@@ -21,6 +21,11 @@ else
       CXXFLAGS		:= -g $(CXXFLAGS)
 endif
 
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			=
+
 mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lc_r
 
 BASELIBS		= -lIceUtil -lc_r

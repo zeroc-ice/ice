@@ -38,6 +38,10 @@ else
      CXXFLAGS		:= -g0 $(CXXFLAGS)
 endif
 
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			=
 
 #
 # On HP-UX, we need -L for all dependent libraries
