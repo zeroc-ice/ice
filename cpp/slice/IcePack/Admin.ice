@@ -99,10 +99,10 @@ exception AdapterDeploymentException extends DeploymentException
 {
     /**
      *
-     * The name of the adapter which couldn't be registered.
+     * The id of the adapter which couldn't be registered.
      *
      **/
-    string adapter;
+    string id;
 };
 
 /**
@@ -159,14 +159,14 @@ exception NodeUnreachableException
  * A vector of strings representing command line arguments.
  *
  **/
-sequence<string> Args;
+sequence<string> ServerArgs;
 
 /**
  *
  * A vector of strings representing deployment targets.
  *
  **/
-sequence<string> Targets;
+sequence<string> ServerTargets;
 
 /**
  *
@@ -278,39 +278,28 @@ struct ServerDescription
      * Targets used to deploy the server.
      *
      **/
-    Targets theTargets;
+    ServerTargets targets;
 
     /**
      *
      * The server path.
-     *
-     * @see args
-     * @see pwd
      *
      **/
     string path;
 
     /**
      *
-     * The optional server working directory path. The current or
-     * working directory of the server will be changed to this path
-     * when the server is started.
+     * The server working directory.
      *
-     * @see path
-     * @see args
-     * 
      **/
     string pwd;
 
     /**
      *
-     * The optional server arguments.
-     *
-     * @see path
-     * @see pwd
+     * The server arguments.
      *
      **/
-    Args theArgs;
+    ServerArgs args;
     
     /**
      *
@@ -337,7 +326,7 @@ class Admin
      *
      * @param descriptor The application descriptor.
      * 
-     * @param tgts The optional targets to deploy. A target is a list
+     * @param targets The optional targets to deploy. A target is a list
      * of components separated by dots and a target name. For example,
      * the "debug" target of the "service1" in the "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
@@ -348,7 +337,7 @@ class Admin
      * @see removeApplication
      *
      **/
-    void addApplication(string descriptor, Targets tgts)
+    void addApplication(string descriptor, ServerTargets targets)
 	throws DeploymentException;    
 
     /**
@@ -384,7 +373,7 @@ class Admin
      *
      * @param desciptor The server deployment descriptor.
      *
-     * @param tgts The optional targets to deploy. A target is a list
+     * @param targets The optional targets to deploy. A target is a list
      * of components separated by dots and a target name. For example,
      * the "debug" target of the "service1" in the "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
@@ -395,15 +384,14 @@ class Admin
      * @see removeServer
      *
      **/
-    void addServer(string node, string name, string path, string libraryPath, string descriptor, Targets tgts)
+    void addServer(string node, string name, string path, string libraryPath, string descriptor, ServerTargets targets)
 	throws DeploymentException;
 
     /**
      *
      * Remove a server from an &IcePack; node.
      *
-     * @param name Must match the name of the
-     * [ServerDescription::name].
+     * @param name Must match the name of [ServerDescription::name].
      *
      * @throws DeploymentException Raised if the server deployer
      * failed to remove the server.
@@ -559,7 +547,7 @@ class Admin
      *
      * Get the list of endpoints for an adapter.
      *
-     * @param name The adapter name.
+     * @param id The adapter id.
      *
      * @return The stringified adapter endpoints.
      *
@@ -567,17 +555,17 @@ class Admin
      * found.
      *
      **/
-    nonmutating string getAdapterEndpoints(string name)
+    nonmutating string getAdapterEndpoints(string id)
 	throws AdapterNotExistException;
 
     /**
      *
-     * Get all the adapter names registered with &IcePack;.
+     * Get all the adapter identities registered with &IcePack;.
      *
-     * @return The adapter names.
+     * @return The adapter idendities.
      *
      **/
-    nonmutating Ice::StringSeq getAllAdapterNames();
+    nonmutating Ice::StringSeq getAllAdapterIds();
 
     /**
      *

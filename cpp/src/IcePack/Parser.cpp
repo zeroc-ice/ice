@@ -90,7 +90,7 @@ IcePack::Parser::addApplication(const list<string>& args)
 
 	string descriptor = *p++;
 
-	Targets targets;
+	ServerTargets targets;
 	for(; p != args.end(); ++p)
 	{
 	    targets.push_back(*p);
@@ -231,7 +231,7 @@ IcePack::Parser::addServer(const list<string>& args)
 	string descriptor = *p++;
 	string path;
 	string ldpath;
-	Targets targets;
+	ServerTargets targets;
 
 	if(p != args.end())
 	{
@@ -349,7 +349,7 @@ IcePack::Parser::describeServer(const list<string>& args)
 	cout << "pwd = " << desc.pwd << endl;
 	cout << "activation = " << (activation == OnDemand ? "on-demand" : "manual") << endl;
 	cout << "args = ";
-	copy(desc.theArgs.begin(), desc.theArgs.end(), ostream_iterator<string>(cout," "));
+	copy(desc.args.begin(), desc.args.end(), ostream_iterator<string>(cout," "));
 	cout << endl;
     }
     catch(const Exception& ex)
@@ -513,7 +513,7 @@ IcePack::Parser::listAllAdapters()
 {
     try
     {
-	Ice::StringSeq names = _admin->getAllAdapterNames();
+	Ice::StringSeq names = _admin->getAllAdapterIds();
 	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
     }
     catch(const Exception& ex)

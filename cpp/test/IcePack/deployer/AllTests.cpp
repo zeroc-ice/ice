@@ -50,13 +50,13 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing adapter registration... " << flush;
-    Ice::StringSeq adapterNames = admin->getAllAdapterNames();
-    test(find(adapterNames.begin(), adapterNames.end(), "Server-Server1") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "Server-Server2") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "Service1-IceBox1.Service1") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "IceBox1Service2Adapter") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "Service1-IceBox2.Service1") != adapterNames.end());
-    test(find(adapterNames.begin(), adapterNames.end(), "IceBox2Service2Adapter") != adapterNames.end());
+    Ice::StringSeq adapterIds = admin->getAllAdapterIds();
+    test(find(adapterIds.begin(), adapterIds.end(), "Server-Server1") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "Server-Server2") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "Service1-IceBox1.Service1") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "IceBox1Service2Adapter") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "Service1-IceBox2.Service1") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     cout << "ok" << endl;
 
     Yellow::QueryPrx yellow = Yellow::QueryPrx::checkedCast(

@@ -94,7 +94,7 @@ interface AdapterRegistry
      * Add an adapter to the registry.
      *
      **/
-    void add(string name, Adapter* adpt)
+    void add(string id, Adapter* adpt)
 	throws AdapterExistsException;
 
     /**
@@ -102,24 +102,20 @@ interface AdapterRegistry
      * Remove an adapter from the registry.
      *
      **/
-    void remove(string name)
+    void remove(string id)
 	throws AdapterNotExistException;
     
     /**
      *
      * Find an adapter and return its proxy.
      *
-     * @param name Name of the adapter.
-     *
-     * @return Adapter proxy.
-     *
      **/
-    Adapter* findByName(string name)
+    Adapter* findById(string id)
 	throws AdapterNotExistException;
 
     /**
      *
-     * Get all adapter names.
+     * Get all adapter ids.
      *
      **/
     nonmutating Ice::StringSeq getAll();
@@ -157,14 +153,14 @@ class ServerAdapter implements Adapter
      * The adapter server.
      *
      **/
-    Server* theServer;
+    Server* svr;
 
     /**
      *
-     * The adapter name.
+     * The adapter id.
      *
      **/
-    string name;
+    string id;
 };
 
 /**
@@ -358,11 +354,11 @@ interface ServerDeployer
      * @param libPath Specify the CLASSPATH value for Java servers,
      * ignored for C++ servers.
      *
-     * @param tgts The optional targets to be executed during the
+     * @param targets The optional targets to be executed during the
      * deployment.
      *
      **/
-    void add(string name, string xmlfile, string binPath, string libPath, Targets tgts)
+    void add(string name, string xmlfile, string binPath, string libPath, ServerTargets targets)
 	throws DeploymentException;
 
     /**

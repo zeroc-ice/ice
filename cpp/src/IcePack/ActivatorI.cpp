@@ -166,14 +166,14 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Compute arguments.
     //
-    int argc = server->description.theArgs.size() + _propertiesOverride.size() + 3;
+    int argc = server->description.args.size() + _propertiesOverride.size() + 3;
     char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
     argv[0] = strdup(path.c_str());
 
     unsigned int i = 0;
     vector<string>::const_iterator q;
 
-    for(q = server->description.theArgs.begin(); q != server->description.theArgs.end(); ++q, ++i)
+    for(q = server->description.args.begin(); q != server->description.args.end(); ++q, ++i)
     {
 	argv[i + 1] = strdup(q->c_str());
     }

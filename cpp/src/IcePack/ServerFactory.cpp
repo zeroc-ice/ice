@@ -137,7 +137,7 @@ IcePack::ServerFactory::destroy()
 //
 ServerPrx
 IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& description, 
-						const vector<string>& adapterNames,
+						const vector<string>& adapterIds,
 						map<string, ServerAdapterPrx>& adapters)
 {
     //
@@ -155,7 +155,7 @@ IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& descrip
     // Create the server adapters.
     //
     ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-    for(Ice::StringSeq::const_iterator p = adapterNames.begin(); p != adapterNames.end(); ++p)
+    for(Ice::StringSeq::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
     {
 	ServerAdapterPrx adapterProxy = createServerAdapter(*p, proxy);	
 	adapters[*p] = adapterProxy;
@@ -185,15 +185,15 @@ IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& descrip
 // and add it the evictor database.
 //
 ServerAdapterPrx
-IcePack::ServerFactory::createServerAdapter(const string& name, const ServerPrx& server)
+IcePack::ServerFactory::createServerAdapter(const string& adapterId, const ServerPrx& server)
 {
     ServerAdapterPtr adapterI = new ServerAdapterI(this, _traceLevels, _waitTime);
-    adapterI->name = name;
-    adapterI->theServer = server;
+    adapterI->id = adapterId;
+    adapterI->svr = server;
 
     Ice::Identity id;
     id.category = "IcePackServerAdapter";
-    id.name = name + "-" + IceUtil::generateUUID();
+    id.name = adapterId + "-" + IceUtil::generateUUID();
 
     _adapter->add(adapterI, id);
     
@@ -202,7 +202,7 @@ IcePack::ServerFactory::createServerAdapter(const string& name, const ServerPrx&
     if(_traceLevels->adapter > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	out << "created server adapter `" << name << "'";
+	out << "created server adapter `" << adapterId << "'";
     }
     
     return ServerAdapterPrx::uncheckedCast(_adapter->createProxy(id));
@@ -245,13 +245,13 @@ IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Iden
 	if(_traceLevels->adapter > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "destroyed server adapter `" << adapter->name << "'";
+	    out << "destroyed server adapter `" << adapter->id << "'";
 	}
     }
     catch(const Freeze::DBException& ex)
     {
 	ostringstream os;
-	os << "couldn't destroy server adapter `" << adapter->name << "':\n" << ex;
+	os << "couldn't destroy server adapter `" << adapter->id << "':\n" << ex;
 	_traceLevels->logger->warning(os.str());
     }
     catch(const Freeze::EvictorDeactivatedException&)

@@ -243,7 +243,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 	    //
 	    try
 	    {
-		ObjectPrx object = _locator->findAdapterByName(ref->adapterId);
+		ObjectPrx object = _locator->findAdapterById(ref->adapterId);
 		if(object)
 		{
 		    endpoints = object->__reference()->endpoints;

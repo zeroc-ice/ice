@@ -92,10 +92,10 @@ Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 }
 
 void
-Ice::ObjectAdapterNameInUseException::ice_print(ostream& out) const
+Ice::ObjectAdapterIdInUseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject adapter name `" << name << "' already in use";
+    out << ":\nobject adapter `" << name << "' uses an id `" << id << "' which is already in use";
 }
 
 void

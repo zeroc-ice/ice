@@ -34,7 +34,7 @@ IcePack::AdminI::~AdminI()
 }
 
 void
-IcePack::AdminI::addApplication(const string& descriptor, const Targets& targets, const Current&)
+IcePack::AdminI::addApplication(const string& descriptor, const ServerTargets& targets, const Current&)
 {
     ApplicationBuilder builder(_communicator, _nodeRegistry, targets);
     builder.parse(descriptor);
@@ -44,14 +44,14 @@ IcePack::AdminI::addApplication(const string& descriptor, const Targets& targets
 void
 IcePack::AdminI::removeApplication(const string& descriptor, const Current&)
 {
-    ApplicationBuilder builder(_communicator, _nodeRegistry, Targets());
+    ApplicationBuilder builder(_communicator, _nodeRegistry, ServerTargets());
     builder.parse(descriptor);
     builder.undo();
 }
 
 void
 IcePack::AdminI::addServer(const string& node, const string& name, const string& path, const string& ldpath, 
-			   const string& descriptor, const Targets& targets, const Current&)
+			   const string& descriptor, const ServerTargets& targets, const Current&)
 {
     ApplicationBuilder builder(_communicator, _nodeRegistry, targets);
     builder.addServer(name, node, descriptor, path, ldpath, "");
@@ -66,7 +66,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
     {
 	ServerDescription desc = server->getServerDescription();
 	
-	ApplicationBuilder builder(_communicator, _nodeRegistry, desc.theTargets);
+	ApplicationBuilder builder(_communicator, _nodeRegistry, desc.targets);
 	builder.addServer(name, desc.node, desc.descriptor, desc.path, "", "");
 	builder.undo();
     }
@@ -209,9 +209,9 @@ IcePack::AdminI::setServerActivation(const ::std::string& name, ServerActivation
 }
 
 string 
-IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
+IcePack::AdminI::getAdapterEndpoints(const string& id, const Current&) const
 {
-    AdapterPrx adapter = _adapterRegistry->findByName(name);
+    AdapterPrx adapter = _adapterRegistry->findById(id);
     try
     {
 	return _communicator->proxyToString(adapter->getDirectProxy(false));
@@ -227,7 +227,7 @@ IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
 }
 
 StringSeq
-IcePack::AdminI::getAllAdapterNames(const Current&) const
+IcePack::AdminI::getAllAdapterIds(const Current&) const
 {
     return _adapterRegistry->getAll();
 }

@@ -137,17 +137,24 @@ local exception ObjectAdapterNotRegisteredException
  * This exception is raised only if the [ObjectAdapter] [Locator] is
  * set and if the [ObjectAdapter] can't be activated because the
  * [Locator] detected another active [ObjectAdapter] with the same
- * name.
+ * id.
  *
  **/
-local exception ObjectAdapterNameInUseException
+local exception ObjectAdapterIdInUseException
 {
     /**
      * 
-     * Name of the adapter.
+     * Adapter name.
      *
      **/
     string name;
+    
+    /**
+     *
+     * Adapter id.
+     *
+     **/
+    string id;
 };
  
 /**

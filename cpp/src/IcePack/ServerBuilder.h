@@ -60,7 +60,7 @@ private:
     NodeInfoPtr _nodeInfo;
 
     ServerDescription _description;
-    std::vector<std::string> _serverAdapterNames;
+    std::vector<std::string> _serverAdapterIds;
     ServerKind _kind;
     std::string _className;
     std::string _libraryPath;

@@ -25,7 +25,7 @@ class AddServer : public Task
 public:
     
     AddServer(const ServerDeployerPrx& deployer, const string& node, const string& name, const string& descriptor,
-	      const string& binpath, const string& libpath, const Targets& targets) :
+	      const string& binpath, const string& libpath, const ServerTargets& targets) :
 	_deployer(deployer),
 	_node(node),
 	_name(name),
@@ -95,7 +95,7 @@ private:
     string _descriptor;
     string _binpath;
     string _libpath;
-    Targets _targets;
+    ServerTargets _targets;
 };
 
 class ApplicationHandler : public ComponentHandler

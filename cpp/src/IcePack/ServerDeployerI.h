@@ -30,7 +30,7 @@ public:
     virtual ~ServerDeployerI();
 
     virtual void add(const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
-		     const ::IcePack::Targets&, const ::Ice::Current& = ::Ice::Current());
+		     const ::IcePack::ServerTargets&, const ::Ice::Current& = ::Ice::Current());
 
     virtual void remove(const ::std::string&, const ::Ice::Current& = ::Ice::Current());
 

@@ -27,11 +27,11 @@ public:
     AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ServerRegistryPtr&, const AdapterRegistryPtr&);
     virtual ~AdminI();
 
-    virtual void addApplication(const std::string&, const Targets&, const Ice::Current& = Ice::Current());
+    virtual void addApplication(const std::string&, const ServerTargets&, const Ice::Current& = Ice::Current());
     virtual void removeApplication(const std::string&, const Ice::Current& = Ice::Current());
 
     virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&, 
-			   const std::string&, const Targets&, const Ice::Current& = Ice::Current());
+			   const std::string&, const ServerTargets&, const Ice::Current& = Ice::Current());
     virtual void removeServer(const ::std::string&, const Ice::Current&);
 
     virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&) const;
@@ -44,7 +44,7 @@ public:
     virtual void setServerActivation(const ::std::string&, ServerActivation, const Ice::Current&);
 
     virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
-    virtual Ice::StringSeq getAllAdapterNames(const ::Ice::Current&) const;
+    virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);

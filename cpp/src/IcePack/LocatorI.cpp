@@ -26,21 +26,21 @@ IcePack::LocatorI::LocatorI(const AdapterRegistryPtr& adapterRegistry,
 }
 
 Ice::ObjectPrx 
-IcePack::LocatorI::findAdapterByName(const string& name, const Ice::Current&) const
+IcePack::LocatorI::findAdapterById(const string& id, const Ice::Current&) const
 {
     //
     // TODO: I think will need to do something more sensible in cases
     // where the adapter is found but the adapter proxy is null
     // (possibly because the server activation failed or timed out) or
     // if the adapter object isn't reachable (possibly because the
-    // IcePack node is down or unreachable). Right now the Ice cleint
+    // IcePack node is down or unreachable). Right now the Ice client
     // will always throw a NoEndpointException because we return a
     // null proxy here...
     //
 
     try
     {
-	return _adapterRegistry->findByName(name)->getDirectProxy(true);
+	return _adapterRegistry->findById(id)->getDirectProxy(true);
     }
     catch(const AdapterNotExistException&)
     {
@@ -55,7 +55,8 @@ IcePack::LocatorI::findAdapterByName(const string& name, const Ice::Current&) co
     {
 	//
 	// This could be because we can't locate the IcePack node
-	// adapter. IcePack server adapter proxy are not direct proxy.
+	// adapter (IcePack server adapter proxies are not direct
+	// proxies)
 	//
     }
     catch(const Ice::LocalException&)

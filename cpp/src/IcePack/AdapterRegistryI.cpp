@@ -25,9 +25,9 @@ IcePack::AdapterRegistryI::AdapterRegistryI(const Freeze::DBPtr& db, const Trace
 }
 
 void
-IcePack::AdapterRegistryI::add(const string& name, const AdapterPrx& adapter, const Ice::Current&)
+IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(name);
+    StringObjectProxyDict::iterator p = _dict.find(id);
     if(p != _dict.end())
     {
 	try
@@ -41,7 +41,7 @@ IcePack::AdapterRegistryI::add(const string& name, const AdapterPrx& adapter, co
 	    if(_traceLevels->adapterRegistry > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
-		out << "added adapter `" << name << "'";
+		out << "added adapter `" << id << "'";
 	    }
 
 	    return;
@@ -51,19 +51,19 @@ IcePack::AdapterRegistryI::add(const string& name, const AdapterPrx& adapter, co
 	}
 	throw AdapterExistsException();
     }
-    _dict.insert(make_pair(name, adapter));
+    _dict.insert(make_pair(id, adapter));
 
     if(_traceLevels->adapterRegistry > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
-	out << "added adapter `" << name << "'";
+	out << "added adapter `" << id << "'";
     }
 }
 
 void
-IcePack::AdapterRegistryI::remove(const string& name, const Ice::Current&)
+IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(name);
+    StringObjectProxyDict::iterator p = _dict.find(id);
     if(p == _dict.end())
     {
 	throw AdapterNotExistException();
@@ -74,14 +74,14 @@ IcePack::AdapterRegistryI::remove(const string& name, const Ice::Current&)
     if(_traceLevels->adapterRegistry > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
-	out << "removed adapter `" << name << "'";
+	out << "removed adapter `" << id << "'";
     }
 }
 
 AdapterPrx
-IcePack::AdapterRegistryI::findByName(const string& name, const Ice::Current&)
+IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(name);
+    StringObjectProxyDict::iterator p = _dict.find(id);
     if(p != _dict.end())
     {
 	try
@@ -103,13 +103,13 @@ IcePack::AdapterRegistryI::findByName(const string& name, const Ice::Current&)
 Ice::StringSeq
 IcePack::AdapterRegistryI::getAll(const Ice::Current&) const
 {
-    Ice::StringSeq names;
-    names.reserve(_dict.size());
+    Ice::StringSeq ids;
+    ids.reserve(_dict.size());
 
     for(StringObjectProxyDict::const_iterator p = _dict.begin(); p != _dict.end(); ++p)
     {
-	names.push_back(p->first);
+	ids.push_back(p->first);
     }
 
-    return names;
+    return ids;
 }

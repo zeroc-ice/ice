@@ -32,7 +32,7 @@ IcePack::ServerDeployerI::~ServerDeployerI()
 
 void
 IcePack::ServerDeployerI::add(const string& name, const string& descriptor, const string& binPath, 
-			      const string& libPath, const Targets& targets, const Ice::Current&)
+			      const string& libPath, const ServerTargets& targets, const Ice::Current&)
 {
     //
     // Setup required variables.
@@ -122,7 +122,7 @@ IcePack::ServerDeployerI::remove(const string& name, const Ice::Current&)
     string dataDir = _nodeInfo->getCommunicator()->getProperties()->getProperty("IcePack.Node.Data");
     variables["datadir"] = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "servers/" + name;
 
-    ServerBuilder builder(_nodeInfo, variables, desc.theTargets);
+    ServerBuilder builder(_nodeInfo, variables, desc.targets);
 
     //
     // Parse the server deployment descriptors.

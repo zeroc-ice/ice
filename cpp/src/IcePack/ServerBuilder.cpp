@@ -111,9 +111,9 @@ class RegisterServerAdapterTask : public Task
 {
 public:
 
-    RegisterServerAdapterTask(const AdapterRegistryPrx& registry, const string& name, const ServerBuilder& builder) :
+    RegisterServerAdapterTask(const AdapterRegistryPrx& registry, const string& id, const ServerBuilder& builder) :
 	_registry(registry),
-	_name(name),
+	_id(id),
 	_builder(builder)
     {
     }
@@ -123,7 +123,7 @@ public:
     {
 	try
 	{
-	    _registry->add(_name, _builder.getServerAdapter(_name));
+	    _registry->add(_id, _builder.getServerAdapter(_id));
 	}
 	catch(const AdapterExistsException& lex)
 	{
@@ -131,7 +131,7 @@ public:
 	    os << "couldn't add the adapter to the registry:\n" << lex;
 
 	    AdapterDeploymentException ex;
-	    ex.adapter = _name;
+	    ex.id = _id;
 	    ex.reason = os.str();
 	    throw ex;
 	}
@@ -141,7 +141,7 @@ public:
 	    os << "couldn't contact the adapter registry: " << lex << endl;
 
 	    AdapterDeploymentException ex;
-	    ex.adapter = _name;
+	    ex.id = _id;
 	    ex.reason = os.str();
 	    throw ex;
 	}
@@ -152,7 +152,7 @@ public:
     {
 	try
 	{
-	    _registry->remove(_name);
+	    _registry->remove(_id);
 	}
 	catch(const AdapterNotExistException& lex)
 	{
@@ -160,7 +160,7 @@ public:
 	    os << "couldn't remove the adapter from the registry:\n" << lex;
 
 	    AdapterDeploymentException ex;
-	    ex.adapter = _name;
+	    ex.id = _id;
 	    ex.reason = os.str();
 	    throw ex;
 	}
@@ -170,7 +170,7 @@ public:
 	    os << "couldn't contact the adapter registry:\n" << lex;
 
 	    AdapterDeploymentException ex;
-	    ex.adapter = _name;
+	    ex.id = _id;
 	    ex.reason = os.str();
 	    throw ex;
 	}
@@ -179,7 +179,7 @@ public:
 private:
 
     AdapterRegistryPrx _registry;
-    string _name;
+    string _id;
     const ServerBuilder& _builder;
 };
 
@@ -341,7 +341,7 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     _description.path = _variables["binpath"];
     _libraryPath = _variables["libpath"];
     _description.node = nodeInfo->getNode()->getName();
-    _description.theTargets = targets;
+    _description.targets = targets;
 }
 
 void
@@ -381,11 +381,11 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
 
 	for(vector<string>::reverse_iterator p = _javaOptions.rbegin(); p != _javaOptions.rend(); ++p)
 	{
-	    _description.theArgs.insert(_description.theArgs.begin(), *p);
+	    _description.args.insert(_description.args.begin(), *p);
 	}
     }
 
-    _description.theArgs.push_back("--Ice.Config=" + _configFile);
+    _description.args.push_back("--Ice.Config=" + _configFile);
 }
 
 void
@@ -393,13 +393,13 @@ IcePack::ServerBuilder::execute()
 {
     //
     // Creates the server from _description and the server adapters
-    // listed in _serverAdapterNames. The adapter proxies are returned
+    // listed in _serverAdapterIds. The adapter proxies are returned
     // in _serverAdapters.
     //
     try
     {
 	_server = _nodeInfo->getServerFactory()->createServerAndAdapters(_description,
-									 _serverAdapterNames,
+									 _serverAdapterIds,
 									 _serverAdapters);
     }
     catch(const Freeze::DBException& lex)
@@ -555,7 +555,7 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     // method). The RegisterServerAdapter task will get the server
     // adapter proxy through the builder method getServerAdapter().
     //
-    _serverAdapterNames.push_back(adapterId);
+    _serverAdapterIds.push_back(adapterId);
     _tasks.push_back(new RegisterServerAdapterTask(adapterRegistry, adapterId, *this));
 
     //
@@ -609,7 +609,7 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
 void
 IcePack::ServerBuilder::addOption(const string& option)
 {
-    _description.theArgs.push_back(option);
+    _description.args.push_back(option);
 }
 
 void
@@ -680,9 +680,9 @@ IcePack::ServerBuilder::getServer() const
 }
 
 ServerAdapterPrx
-IcePack::ServerBuilder::getServerAdapter(const std::string& name) const
+IcePack::ServerBuilder::getServerAdapter(const std::string& id) const
 {
-    map<string, ServerAdapterPrx>::const_iterator p = _serverAdapters.find(name);
+    map<string, ServerAdapterPrx>::const_iterator p = _serverAdapters.find(id);
     if(p != _serverAdapters.end())
     {
 	return p->second;

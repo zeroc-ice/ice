@@ -92,7 +92,8 @@ Ice::ObjectAdapterI::activate()
 	    }
 	    catch(const Ice::AdapterAlreadyActive&)
 	    {
-		ObjectAdapterNameInUseException ex(__FILE__, __LINE__);
+		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+		ex.id = _id;
 		ex.name = _name;
 		throw ex;
 	    }

@@ -40,7 +40,7 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 }
 
 Ice::ObjectPrx
-ServerLocator::findAdapterByName(const ::std::string& adapter, const ::Ice::Current&) const
+ServerLocator::findAdapterById(const ::std::string& adapter, const ::Ice::Current&) const
 {
     return _registry->getAdapter(adapter);
 }

@@ -35,15 +35,15 @@ interface Locator
 {
     /**
      *
-     * Find an adapter by name and return the adapter proxy (a dummy
+     * Find an adapter by id and return the adapter proxy (a dummy
      * direct proxy created with the adapter).
      *
-     * @param name The adapter name.
+     * @param id The adapter id.
      *
      * @return The adapter proxy or null if the adapter is not found.
      *
      **/
-    nonmutating Object* findAdapterByName(string name);
+    nonmutating Object* findAdapterById(string id);
 
     /**
      *
@@ -92,7 +92,7 @@ interface LocatorRegistry
      *
      * Set the adapter endpoints with the locator registry.
      *
-     * @param name The adapter name.
+     * @param id The adapter id.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
      * with the adapter). The direct proxy contains the adapter
@@ -103,10 +103,10 @@ interface LocatorRegistry
      * adapter is not registered with the locator.
      *
      * @throws AdapterAlreadyActive Raised if an adapter with the same
-     * name is already active.
+     * id is already active.
      *
      */
-    idempotent void setAdapterDirectProxy(string name, Object* proxy)
+    idempotent void setAdapterDirectProxy(string id, Object* proxy)
 	throws AdapterNotRegistered, AdapterAlreadyActive;
 };
 

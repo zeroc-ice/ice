@@ -85,7 +85,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 
     try
     {
-	_adapterRegistry->findByName("IcePack.Node-" + name);
+	_adapterRegistry->findById("IcePack.Node-" + name);
 
 	//
 	// TODO: ensure this adapter has been created by the adapter
@@ -137,7 +137,7 @@ IcePack::NodeRegistryI::remove(const string& name, const Ice::Current&)
     //
     try
     {
-	AdapterPrx adapter = _adapterRegistry->findByName("IcePack.Node-" + name);
+	AdapterPrx adapter = _adapterRegistry->findById("IcePack.Node-" + name);
 	adapter->destroy();
 	_adapterRegistry->remove("IcePack.Node-" + name);
     }
