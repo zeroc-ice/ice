@@ -194,8 +194,7 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     clientTransceiver(Instance instance)
     {
-        //return new UdpTransceiver(instance, _host, _port);
-        return null;
+        return new UdpTransceiver(instance, _host, _port);
     }
 
     //
@@ -208,7 +207,7 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     serverTransceiver(Instance instance, EndpointHolder endpoint)
     {
-        /*
+        /* TODO: Server
         UdpTransceiver p = new UdpTransceiver(instance, _port);
         endpoint.value = new UdpEndpoint(_host, p.effectivePort());
         return p;
@@ -236,7 +235,7 @@ public final class UdpEndpoint extends Endpoint
     public Acceptor
     acceptor(Instance instance, EndpointHolder endpoint)
     {
-        endpoint.value = null;
+        endpoint.value = this;
         return null;
     }
 
@@ -247,7 +246,6 @@ public final class UdpEndpoint extends Endpoint
     public boolean
     equivalent(Transceiver transceiver)
     {
-        /*
         UdpTransceiver udpTransceiver = null;
         try
         {
@@ -258,8 +256,6 @@ public final class UdpEndpoint extends Endpoint
             return false;
         }
         return udpTransceiver.equivalent(_host, _port);
-        */
-        return false;
     }
 
     public boolean

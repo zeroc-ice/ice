@@ -167,6 +167,20 @@ public final class Network
         }
     }
 
+    public static java.net.InetSocketAddress
+    getLocalAddress(int port)
+    {
+        try
+        {
+            java.net.InetAddress addr = java.net.InetAddress.getLocalHost();
+            return new java.net.InetSocketAddress(addr, port);
+        }
+        catch (java.net.UnknownHostException ex)
+        {
+            throw new Ice.DNSException();
+        }
+    }
+
     public static String
     getLocalHost(boolean numeric)
     {
