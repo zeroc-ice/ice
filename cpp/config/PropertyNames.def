@@ -1,0 +1,393 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# This file defines the valid properties that are used by the various
+# parts of Ice. It is used generate source code using the makeprops.py
+# utility, so we do not need to redundantly maintain the same property
+# definitions in several languages (and risk having them go out of sync).
+#
+# Syntax:
+#
+# Empty lines (lines containing only whitespace) are ignored.
+#
+# The # character introduces a comment that extends to the end of line.
+# Property names cannot contain a # character.
+#
+# The file is organized into labelled sections. The label for a section
+# must be an identifier followed by a colon, such as "ice:". Section labels
+# must appear on a line by themselves (possibly followed by a comment).
+# Leading and trailing whitespace is ignored. Each section must occur
+# only once in a file. "validProps" is reserved and cannot be used
+# as a section name.
+#
+# Each section contains a number of property names, one to a line.
+# A property name cannot contain the # character. Otherwise, a property
+# name is taken to be any consecutive sequence of non-whitespace characters.
+# Leading and trailing whitespace is ignored, as is a trailing comment.
+#
+# A '*' character in a property is a wildcard. If used, it must appear at the end of the property.
+# Examples: "Ice.Foo.*" allows all properties with that prefix, such as "Ice.Foo.Bar".
+#           "Ice.Foo*" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
+#
+# Property definitions are translated into each language by makeprops.py.
+# For example, consider the following definitions:
+#
+# Ice:
+#	ChangeUser
+#	Package.*
+#
+# IceBox:
+#	LoadOrder
+#
+# If the source file is called Properties.defs, makeprops.py generates the following
+# C++ header and source code for this:
+#
+# // Properties.h
+#
+# namespace IceInternal
+# {
+# 
+# class Properties
+# {
+# public:
+# 
+#     static const char* const IceProps[];
+#     static const char* const IceBoxProps[];
+#
+#     static const char* const* validProps[];
+# };
+# 
+# }
+#
+# // Properties.cpp
+#
+# const char* const IceInternal::Properties::IceProps[] =
+# {
+#     "Ice.ChangeUser",
+#     "Ice.Package.*",
+#     0
+# };
+# 
+# const char* const IceInternal::Properties::IceBoxProps[] =
+# {
+#     "IceBox.LoadOrder",
+#     0
+# };
+#
+# const char* const* IceInternal::Properties::validProps[] =
+# {
+#    IceProps,
+#    IceBoxProps,
+#    0
+# };
+#
+# Note that the class name ("Properties" in this example) is
+# generated from the file name, and the first component of
+# the property name is generated from the section label.
+#
+
+Ice:
+    ChangeUser
+    Config
+    ConnectionIdleTime
+    Default.Host
+    Default.Locator
+    Default.Package
+    Default.Protocol
+    Default.Router
+    GC.Interval
+    Logger.Timestamp
+    MessageSizeMax
+    MonitorConnections
+    Nohup
+    NullHandleAbort
+    Override.Compress
+    Override.ConnectTimeout
+    Override.Timeout
+    Package.*
+    Plugin.*
+    PrintAdapterReady
+    PrintProcessId
+    ProgramName
+    RetryIntervals
+    ServerId
+    ServerIdleTime
+    StdErr
+    StdOut
+    ThreadPerConnection
+    ThreadPerConnection.StackSize
+    ThreadPool.Client.Size
+    ThreadPool.Client.SizeMax
+    ThreadPool.Client.SizeWarn
+    ThreadPool.Client.StackSize
+    ThreadPool.Server.Size
+    ThreadPool.Server.SizeMax
+    ThreadPool.Server.SizeWarn
+    ThreadPool.Server.StackSize
+    Trace.GC
+    Trace.Location
+    Trace.Network
+    Trace.Protocol
+    Trace.Retry
+    Trace.Slicing
+    UDP.RcvSize
+    UDP.SndSize
+    UseEventLog
+    UseSyslog
+    Warn.AMICallback
+    Warn.Connections
+    Warn.Datagrams
+    Warn.Dispatch
+    Warn.Leaks
+
+IceBox:
+    LoadOrder
+    PrintServicesReady
+    Service.*
+    ServiceManager.AdapterId
+    ServiceManager.Endpoints
+    ServiceManager.Identity
+    ServiceManager.PublishedEndpoints
+    ServiceManager.RegisterProcess
+    ServiceManager.ThreadPool.Size
+    ServiceManager.ThreadPool.SizeMax
+    ServiceManager.ThreadPool.SizeWarn
+    ServiceManager.ThreadPool.StackSize
+    UseSharedCommunicator.*
+
+IcePack:
+    Node.AdapterId
+    Node.CollocateRegistry
+    Node.Data
+    Node.Endpoints
+    Node.Name
+    Node.Output
+    Node.PrintServersReady
+    Node.PropertiesOverride
+    Node.PublishedEndpoints
+    Node.RedirectErrToOut
+    Node.ThreadPool.Size
+    Node.ThreadPool.SizeMax
+    Node.ThreadPool.SizeWarn
+    Node.ThreadPool.StackSize
+    Node.Trace.Activator
+    Node.Trace.Adapter
+    Node.Trace.Server
+    Node.WaitTime
+    Registry.Admin.AdapterId
+    Registry.Admin.Endpoints
+    Registry.Admin.PublishedEndpoints
+    Registry.Admin.ThreadPool.Size
+    Registry.Admin.ThreadPool.SizeMax
+    Registry.Admin.ThreadPool.SizeWarn
+    Registry.Admin.ThreadPool.StackSize
+    Registry.Client.AdapterId
+    Registry.Client.Endpoints
+    Registry.Client.PublishedEndpoints
+    Registry.Client.ThreadPool.Size
+    Registry.Client.ThreadPool.SizeMax
+    Registry.Client.ThreadPool.SizeWarn
+    Registry.Client.ThreadPool.StackSize
+    Registry.Data
+    Registry.DynamicRegistration
+    Registry.Internal.AdapterId
+    Registry.Internal.Endpoints
+    Registry.Internal.PublishedEndpoints
+    Registry.Internal.ThreadPool.Size
+    Registry.Internal.ThreadPool.SizeMax
+    Registry.Internal.ThreadPool.SizeWarn
+    Registry.Internal.ThreadPool.StackSize
+    Registry.Server.AdapterId
+    Registry.Server.Endpoints
+    Registry.Server.PublishedEndpoints
+    Registry.Server.ThreadPool.Size
+    Registry.Server.ThreadPool.SizeMax
+    Registry.Server.ThreadPool.SizeWarn
+    Registry.Server.ThreadPool.StackSize
+    Registry.Trace.AdapterRegistry
+    Registry.Trace.NodeRegistry
+    Registry.Trace.ObjectRegistry
+    Registry.Trace.ServerRegistry
+
+IcePatch:
+    BusyTimeout
+    Directory
+    Dynamic
+    Endpoints
+    PublishedEndpoints
+    RemoveOrphaned
+    Thorough
+    Trace.Files
+    UpdatePeriod
+
+IcePatch2:
+    AdapterId
+    Admin.AdapterId
+    Admin.Endpoints
+    Admin.PublishedEndpoints
+    Admin.ThreadPool.Size
+    Admin.ThreadPool.SizeMax
+    Admin.ThreadPool.SizeWarn
+    Admin.ThreadPool.StackSize
+    Directory
+    Endpoints
+    PublishedEndpoints
+    ThreadPool.Size
+    ThreadPool.SizeMax
+    ThreadPool.SizeWarn
+    ThreadPool.StackSize
+
+IceSSL:
+    Client.CertPath*
+    Client.Config
+    Client.Handshake.Retries
+    Client.IgnoreValidPeriod
+    Client.Overrides.CACertificate
+    Client.Overrides.DSA.Certificate
+    Client.Overrides.DSA.PrivateKey
+    Client.Overrides.RSA.Certificate
+    Client.Overrides.RSA.PrivateKey
+    Client.Passphrase.Retries
+    Server.CertPath*
+    Server.Config
+    Server.IgnoreValidPeriod
+    Server.Overrides.CACertificate
+    Server.Overrides.DSA.Certificate
+    Server.Overrides.DSA.PrivateKey
+    Server.Overrides.RSA.Certificate
+    Server.Overrides.RSA.PrivateKey
+    Server.Passphrase.Retries
+    Trace.Security
+
+IceStorm:
+    Flush.Timeout
+    Publish.AdapterId
+    Publish.Endpoints
+    Publish.PublishedEndpoints
+    Publish.RegisterProcess
+    Publish.ThreadPool.Size
+    Publish.ThreadPool.SizeMax
+    Publish.ThreadPool.SizeWarn
+    Publish.ThreadPool.StackSize
+    TopicManager.AdapterId
+    TopicManager.Endpoints
+    TopicManager.Proxy
+    TopicManager.PublishedEndpoints
+    TopicManager.RegisterProcess
+    TopicManager.ThreadPool.Size
+    TopicManager.ThreadPool.SizeMax
+    TopicManager.ThreadPool.SizeWarn
+    TopicManager.ThreadPool.StackSize
+    Trace.Flush
+    Trace.Subscriber
+    Trace.Topic
+    Trace.TopicManager
+
+Glacier:
+    Router.AcceptCert
+    Router.AdapterId
+    Router.AllowCategories
+    Router.Client.AdapterId
+    Router.Client.Endpoints
+    Router.Client.ForwardContext
+    Router.Client.PublishedEndpoints
+    Router.Client.SleepTime
+    Router.Client.ThreadPool.Size
+    Router.Client.ThreadPool.SizeMax
+    Router.Client.ThreadPool.SizeWarn
+    Router.Client.ThreadPool.StackSize
+    Router.Client.Throttle.Twoways
+    Router.Endpoints
+    Router.Identity
+    Router.PrintProxyOnFd
+    Router.PublishedEndpoints
+    Router.Server.AdapterId
+    Router.Server.Endpoints
+    Router.Server.ForwardContext
+    Router.Server.PublishedEndpoints
+    Router.Server.SleepTime
+    Router.Server.ThreadPool.Size
+    Router.Server.ThreadPool.SizeMax
+    Router.Server.ThreadPool.SizeWarn
+    Router.Server.ThreadPool.StackSize
+    Router.Server.Throttle.Twoways
+    Router.SessionManager
+    Router.ThreadPool.Size
+    Router.ThreadPool.SizeMax
+    Router.ThreadPool.SizeWarn
+    Router.ThreadPool.StackSize
+    Router.Trace.Client
+    Router.Trace.RoutingTable
+    Router.Trace.Server
+    Router.Trace.Throttle
+    Router.UserId
+    Starter.AdapterId
+    Starter.AddUserToAllowCategories
+    Starter.Certificate.BitStrength
+    Starter.Certificate.CommonName
+    Starter.Certificate.Country
+    Starter.Certificate.IssuedAdjust
+    Starter.Certificate.Locality
+    Starter.Certificate.Organization
+    Starter.Certificate.OrganizationalUnit
+    Starter.Certificate.SecondsValid
+    Starter.Certificate.StateProvince
+    Starter.CryptPasswords
+    Starter.Endpoints
+    Starter.PermissionsVerifier
+    Starter.PropertiesOverride
+    Starter.PublishedEndpoints
+    Starter.RouterPath
+    Starter.StartupTimeout
+    Starter.ThreadPool.Size
+    Starter.ThreadPool.SizeMax
+    Starter.ThreadPool.SizeWarn
+    Starter.ThreadPool.StackSize
+    Starter.Trace
+
+Glacier2:
+    AddUserToAllowCategories
+    Admin.Endpoints
+    AdminIdentity
+    Admin.PublishedEndpoints
+    AllowCategories
+    Client.AlwaysBatch
+    Client.Buffered
+    Client.Endpoints
+    Client.ForwardContext
+    Client.PublishedEndpoints
+    Client.SleepTime
+    Client.Trace.Override
+    Client.Trace.Reject
+    Client.Trace.Request
+    CryptPasswords
+    PermissionsVerifier
+    RouterIdentity
+    Server.AlwaysBatch
+    Server.Buffered
+    Server.Endpoints
+    Server.ForwardContext
+    Server.PublishedEndpoints
+    Server.SleepTime
+    Server.Trace.Override
+    Server.Trace.Request
+    SessionManager
+    SessionTimeout
+    Trace.RoutingTable
+    Trace.Session
+
+Freeze:
+    DbEnv.*
+    Evictor.*
+    Trace.DbEnv
+    Trace.Evictor
+    Trace.Map
+    Trace.Transaction
+    Warn.CloseInFinalize
+    Warn.Deadlocks

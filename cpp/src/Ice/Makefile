@@ -15,117 +15,118 @@ LIBNAME		= $(call mklibname,Ice)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Initialize.o \
+OBJS		= Acceptor.o \
 		  Application.o \
-		  Exception.o \
-		  LocalException.o \
-		  Properties.o \
-		  PropertiesI.o \
-		  Logger.o \
-		  LoggerUtil.o \
-		  LoggerI.o \
-		  Stats.o \
-		  SysLoggerI.o \
-		  BuiltinSequences.o \
 		  BasicStream.o \
-		  DefaultsAndOverrides.o \
-		  TraceLevels.o \
-		  TraceUtil.o \
-		  Instance.o \
-		  Communicator.o \
+		  BuiltinSequences.o \
 		  CommunicatorI.o \
-		  ObjectFactory.o \
-		  ObjectFactoryManager.o \
-		  ObjectAdapter.o \
-		  ObjectAdapterI.o \
-		  ObjectAdapterFactory.o \
-		  ServantManager.o \
-		  ServantLocator.o \
-		  Endpoint.o \
-		  EndpointFactory.o \
-		  EndpointFactoryManager.o \
-		  TcpEndpoint.o \
-		  UdpEndpoint.o \
-		  UnknownEndpoint.o \
-		  Reference.o \
-		  ReferenceFactory.o \
-		  Identity.o \
-		  IdentityUtil.o \
-		  Current.o \
-		  Router.o \
-		  RouterInfo.o \
-		  RoutingTable.o \
-		  Connection.o \
-		  ConnectionI.o \
+		  Communicator.o \
 		  ConnectionFactory.o \
+		  ConnectionI.o \
 		  ConnectionMonitor.o \
-		  LocalObject.o \
-		  Object.o \
-		  ProxyFactory.o \
-		  Proxy.o \
-		  Outgoing.o \
-		  OutgoingAsync.o \
-		  Incoming.o \
-		  IncomingAsync.o \
-		  Direct.o \
-		  Network.o \
-	          ThreadPool.o \
-		  EventHandler.o \
+		  Connection.o \
 		  Connector.o \
-		  Acceptor.o \
-		  Transceiver.o \
-		  TcpConnector.o \
-		  TcpAcceptor.o \
-		  TcpTransceiver.o \
-		  UdpTransceiver.o \
+		  Current.o \
+		  DefaultsAndOverrides.o \
+		  Direct.o \
 		  DynamicLibrary.o \
-		  Plugin.o \
-		  PluginManagerI.o \
-		  ProtocolPluginFacade.o \
-		  Locator.o \
-		  LocatorInfo.o \
+		  EndpointFactoryManager.o \
+		  EndpointFactory.o \
+		  Endpoint.o \
+		  EventHandler.o \
+		  Exception.o \
+		  FacetMap.o \
 		  FactoryTableDef.o \
 		  FactoryTable.o \
-		  Service.o \
+		  Identity.o \
+		  IdentityUtil.o \
+		  IncomingAsync.o \
+		  Incoming.o \
+		  Initialize.o \
+		  Instance.o \
+		  LocalException.o \
+		  LocalObject.o \
+		  LocatorInfo.o \
+		  Locator.o \
+		  LoggerI.o \
+		  Logger.o \
+		  LoggerUtil.o \
+		  Network.o \
+		  ObjectAdapterFactory.o \
+		  ObjectAdapterI.o \
+		  ObjectAdapter.o \
+		  ObjectFactoryManager.o \
+		  ObjectFactory.o \
+		  Object.o \
+		  OutgoingAsync.o \
+		  Outgoing.o \
+		  PluginManagerI.o \
+		  Plugin.o \
 		  Process.o \
-		  FacetMap.o \
+		  PropertiesI.o \
+		  Properties.o \
+		  PropertyNames.o \
+		  ProtocolPluginFacade.o \
+		  ProxyFactory.o \
+		  Proxy.o \
+		  ReferenceFactory.o \
+		  Reference.o \
+		  RouterInfo.o \
+		  Router.o \
+		  RoutingTable.o \
+		  ServantLocator.o \
+		  ServantManager.o \
+		  Service.o \
 		  SliceChecksumDict.o \
 		  SliceChecksums.o \
+		  Stats.o \
+		  StreamI.o \
 		  Stream.o \
-		  StreamI.o
+		  SysLoggerI.o \
+		  TcpAcceptor.o \
+		  TcpConnector.o \
+		  TcpEndpoint.o \
+		  TcpTransceiver.o \
+	          ThreadPool.o \
+		  TraceLevels.o \
+		  TraceUtil.o \
+		  Transceiver.o \
+		  UdpEndpoint.o \
+		  UdpTransceiver.o \
+		  UnknownEndpoint.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/LocalException.ice \
-		  $(SDIR)/Communicator.ice \
+SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/CommunicatorF.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ServantLocator.ice \
-		  $(SDIR)/ServantLocatorF.ice \
-		  $(SDIR)/Properties.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/ObjectFactoryF.ice \
-		  $(SDIR)/Identity.ice \
-		  $(SDIR)/Current.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/PluginF.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LocatorF.ice \
-                  $(SDIR)/StatsF.ice \
-                  $(SDIR)/Stats.ice \
-                  $(SDIR)/Process.ice \
-                  $(SDIR)/ProcessF.ice \
-		  $(SDIR)/FacetMap.ice \
-		  $(SDIR)/SliceChecksumDict.ice \
+		  $(SDIR)/Communicator.ice \
+		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Connection.ice \
-		  $(SDIR)/ConnectionF.ice
+		  $(SDIR)/Current.ice \
+		  $(SDIR)/FacetMap.ice \
+		  $(SDIR)/Identity.ice \
+		  $(SDIR)/LocalException.ice \
+		  $(SDIR)/LocatorF.ice \
+		  $(SDIR)/Locator.ice \
+		  $(SDIR)/LoggerF.ice \
+		  $(SDIR)/Logger.ice \
+		  $(SDIR)/ObjectAdapterF.ice \
+		  $(SDIR)/ObjectAdapter.ice \
+		  $(SDIR)/ObjectFactoryF.ice \
+		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/PluginF.ice \
+		  $(SDIR)/Plugin.ice \
+                  $(SDIR)/ProcessF.ice \
+                  $(SDIR)/Process.ice \
+		  $(SDIR)/PropertiesF.ice \
+		  $(SDIR)/Properties.ice \
+		  $(SDIR)/RouterF.ice \
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/ServantLocatorF.ice \
+		  $(SDIR)/ServantLocator.ice \
+		  $(SDIR)/SliceChecksumDict.ice \
+                  $(SDIR)/StatsF.ice \
+                  $(SDIR)/Stats.ice
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
