@@ -71,7 +71,7 @@ extern "C"
 int initIceGlobals(zend_ice_globals* g)
 {
     g->communicator = NULL;
-    g->marshalerMap = new MarshalerMap;
+    g->marshalerMap = 0;
     g->profile = 0;
     g->properties = 0;
     return SUCCESS;
@@ -111,14 +111,16 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
         status = FAILURE;
     }
 
-    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
-    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
-
     return status;
 }
 
 ZEND_RINIT_FUNCTION(ice)
 {
+    ICE_G(communicator) = NULL;
+    ICE_G(marshalerMap) = new MarshalerMap;
+    ICE_G(profile) = 0;
+    ICE_G(properties) = 0;
+
     //
     // Create the global variable "ICE" to hold the communicator for this request. The
     // communicator won't actually be created until the script uses this global variable
@@ -134,6 +136,9 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
+    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
+    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
+
     return SUCCESS;
 }
 
