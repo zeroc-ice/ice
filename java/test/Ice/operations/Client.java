@@ -43,6 +43,9 @@ public class Client
 
         try
         {
+	    Ice.Properties properties = Ice.Util.getDefaultProperties();
+	    properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
