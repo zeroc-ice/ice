@@ -91,7 +91,7 @@ local interface Communicator
      * immediate, i.e., after [signalShutdown] returns, the
      * server-side of the application might still be active for some
      * time, and process new requests. You can use [waitForShutdown]
-     * to wait until shutdown is complete. </para></note>
+     * to wait until shutdown is complete. </para></important>
      *
      * @see destroy
      * @see shutdown
