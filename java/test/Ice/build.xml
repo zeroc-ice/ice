@@ -27,6 +27,7 @@
         <ant dir="translator"/>
         <ant dir="checksum"/>
         <ant dir="package"/>
+       <ant dir="stream"/>
     </target>
 
     <target name="clean">
@@ -45,6 +46,7 @@
         <ant dir="translator" target="clean"/>
         <ant dir="checksum" target="clean"/>
         <ant dir="package" target="clean"/>
+        <ant dir="stream" target="clean"/>
     </target>
 
 </project>
