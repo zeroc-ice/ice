@@ -500,3 +500,13 @@ Freeze::EvictorIteratorI::next()
     ++_curr;
     return ident;
 }
+
+//
+// Print for the various exception types.
+//
+void
+Freeze::NoSuchElementException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+}
