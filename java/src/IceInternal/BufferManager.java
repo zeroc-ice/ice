@@ -58,7 +58,9 @@ final class BufferManager
             }
             buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
         }
+        old.position(0);
         buf.put(old);
+        reclaim(old);
         return buf;
     }
 

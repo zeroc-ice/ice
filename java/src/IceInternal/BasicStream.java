@@ -121,6 +121,8 @@ public class BasicStream
         {
             final int cap2 = _capacity << 1;
             int newCapacity = cap2 > total ? cap2 : total;
+            _buf.limit(_limit);
+            _buf.position(0);
             _buf = _bufferManager.reallocate(_buf, newCapacity);
             _capacity = _buf.capacity();
         }
