@@ -159,7 +159,8 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     // Get the absolute pathname of the executable.
     //
     char absbuf[_MAX_PATH];
-    if(_fullpath(absbuf, path.c_str(), _MAX_PATH) == NULL)
+    char* filePart;
+    if(SearchPath(NULL, path.c_str(), ".exe", _MAX_PATH, absbuf, &filePart) == 0)
     {
         Error out(_traceLevels->logger);
         out << "cannot convert `" << path << "' into an absolute path";
