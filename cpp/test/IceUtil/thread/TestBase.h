@@ -18,33 +18,25 @@ class TestFailed
 {
 public:
 
-    TestFailed(const std::string& n) : name(n) { }
+    TestFailed(const std::string&);
 
-    std::string name;
+    const std::string name;
 };
 
 class TestBase : public IceUtil::Shared
 {
 public:
 
-    TestBase(const std::string& n) :
-	_name(n)
-    {
-    }
-    
-    virtual ~TestBase()
-    {
-    }
+    TestBase(const std::string&);
 
-    const std::string& name() const { return _name; }
-
+    std::string name() const;
     void start();
 
 protected:
 
     virtual void run() = 0;
-    
-    std::string _name;
+
+    const std::string _name;
 };
 
 typedef IceUtil::Handle<TestBase> TestBasePtr;
