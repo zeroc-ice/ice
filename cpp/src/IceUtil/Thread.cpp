@@ -214,7 +214,11 @@ IceUtil::ThreadControl::join()
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
-    nanosleep(timeout, 0);
+    struct timeval tv = timeout;
+    struct timespec ts;
+    ts.tv_sec = tv.tv_sec;
+    ts.tv_nsec = tv.tv_usec * 1000L;
+    nanosleep(&ts, 0);
 }
 
 void
