@@ -20,6 +20,7 @@ TARGETS         = $(LIBTARGETS) $(ROUTER)
 
 OBJS		= Router.o \
 		  Session.o \
+		  SessionF.o \
 		  PermissionsVerifier.o
 
 ROBJS		= Glacier2Router.o \
