@@ -402,7 +402,15 @@ IcePatch::createMD5(const string& path)
 	{
 	    if(getSuffix(*p) == "md5")
 	    {
-		ByteSeq subBytesMD5 = getMD5(removeSuffix(*p));
+		string plainPath = removeSuffix(*p);
+
+		//
+		// We must take the filename into account, so that
+		// renaming a file will change the summary MD5.
+		//
+		copy(plainPath.begin(), plainPath.end(), back_inserter(bytes));
+
+		ByteSeq subBytesMD5 = getMD5(plainPath);
 		copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
 	    }
 	}	
