@@ -469,9 +469,6 @@ class TestApp extends Ice.Application
 	System.out.println("Struct1Class1Map");
 	Struct1Class1MapTest();
 
-	MyFactory factory = new MyFactory();
-	factory.install(communicator());
-
 	System.out.println("Struct1ObjectMap");
 	Struct1ObjectMapTest();
 
@@ -490,35 +487,6 @@ class TestApp extends Ice.Application
         {
             throw new RuntimeException();
         }
-    }
-
-    static private class MyFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
-    {
-	public Ice.Object
-	create(String type)
-	{
-	    if(type.equals("::Class1"))
-	    {
-		return new Class1();
-	    }
-	    else if(type.equals("::Class2"))
-	    {
-		return new Class2();
-	    }
-	    throw new RuntimeException();
-	}
-	
-	public void
-	destroy()
-	{
-	}
-
-	public void
-	install(Ice.Communicator communicator)
-	{
-	    communicator.addObjectFactory(this, "::Class1");
-	    communicator.addObjectFactory(this, "::Class2");
-	}
     }
 
     private Freeze.Connection _connection;
