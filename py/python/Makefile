@@ -9,7 +9,7 @@
 
 top_srcdir	= ..
 
-SRCS		= Application.py \
+SRCS		= ApplicationImpl.py \
 		  BuiltinSequences_ice.py \
 		  Communicator_ice.py \
 		  CommunicatorF_ice.py \
