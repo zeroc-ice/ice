@@ -47,6 +47,8 @@ public:
 
     RouterInfo(const ::Ice::RouterPrx&);
 
+    void destroy();
+
     bool operator==(const RouterInfo&) const;
     bool operator!=(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
@@ -62,10 +64,10 @@ public:
 
 private:
 
-    ::Ice::RouterPrx _router;
+    ::Ice::RouterPrx _router; // Immutable.
     ::Ice::ObjectPrx _clientProxy;
     ::Ice::ObjectPrx _serverProxy;
-    RoutingTablePtr _routingTable;
+    RoutingTablePtr _routingTable; // Immutable.
     ::Ice::ObjectAdapterPtr _adapter;
 };
 

@@ -16,8 +16,8 @@ import sys, os
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
-#protocol = ""
+#protocol = "ssl"
+protocol = ""
 
 #
 # Set compressed to 1 in case you want to run the tests with

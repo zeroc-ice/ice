@@ -33,6 +33,11 @@ public:
     RoutingTable();
 
     //
+    // Clear the contents of the routing table.
+    //
+    void clear();
+
+    //
     // Returns false if the Proxy exists already.
     //
     bool add(const ::Ice::ObjectPrx&);

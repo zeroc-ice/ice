@@ -23,6 +23,13 @@ IceInternal::RoutingTable::RoutingTable() :
 {
 }
 
+void
+IceInternal::RoutingTable::clear()
+{
+    _table.clear();
+    _tableHint = _table.end();
+}
+
 bool
 IceInternal::RoutingTable::add(const ObjectPrx& prx)
 {

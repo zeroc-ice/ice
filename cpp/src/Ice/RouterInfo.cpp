@@ -12,6 +12,7 @@
 #include <Ice/Router.h>
 #include <Ice/RoutingTable.h>
 #include <Ice/LocalException.h>
+#include <Ice/Functional.h>
 
 using namespace std;
 using namespace Ice;
@@ -32,6 +33,8 @@ void
 IceInternal::RouterManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
+
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<RouterPrx, RouterInfo>(&RouterInfo::destroy));
 
     _table.clear();
     _tableHint = _table.end();
@@ -81,6 +84,17 @@ IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
     _routingTable(new RoutingTable)
 {
     assert(_router);
+}
+
+void
+IceInternal::RouterInfo::destroy()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    _clientProxy = 0;
+    _serverProxy = 0;
+    _adapter = 0;
+    _routingTable->clear();
 }
 
 bool
