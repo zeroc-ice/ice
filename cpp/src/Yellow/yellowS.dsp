@@ -151,7 +151,7 @@ InputPath=..\..\slice\Ice\BuiltinSequences.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir Yellow -I../../slice --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir Yellow -I../../slice --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice \
 	
 
 "StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

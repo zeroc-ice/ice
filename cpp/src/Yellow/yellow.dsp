@@ -124,7 +124,7 @@ SOURCE=..\..\slice\Yellow\Yellow.ice
 
 !IF  "$(CFG)" == "Yellow - Win32 Release"
 
-USERDEP__ICEST="../../bin/slice2cpp.exe"	
+USERDEP__YELLO="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Yellow\Yellow.ice
 
@@ -143,13 +143,13 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Yellow - Win32 Debug"
 
-USERDEP__ICEST="../../bin/slice2cpp.exe"	
+USERDEP__YELLO="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Yellow\Yellow.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export YELLOW_API --include-dir Yellow -I../../slice ../../slice/Yellow/Yellow.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export YELLOW_API --include-dir Yellow -I../../slice ../../slice/Yellow/Yellow.ice \
 	move Yellow.h ..\..\include\Yellow \
 	
 
