@@ -14,11 +14,6 @@
 
 public final class CallbackI extends Callback
 {
-    CallbackI(Ice.Communicator communicator)
-    {
-        _communicator = communicator;
-    }
-
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
@@ -30,8 +25,6 @@ public final class CallbackI extends Callback
     shutdown(Ice.Current current)
     {
         System.out.println("Shutting down...");
-        _communicator.shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
-
-    private Ice.Communicator _communicator;
 }
