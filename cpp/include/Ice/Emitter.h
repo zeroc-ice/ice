@@ -30,6 +30,7 @@ class ICE_API EmitterI : public EventHandlerI, public JTCMutex
 public:
 
     Instance instance() const;
+    void destroy();
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*);
 
@@ -47,8 +48,7 @@ private:
 
     EmitterI(const Instance&, const Transceiver&);
     virtual ~EmitterI();
-    void destroy();
-    friend class EmitterFactoryI; // May create and destroy EmitterIs
+    friend class EmitterFactoryI; // May create EmitterIs
 
     Instance instance_;
     ThreadPool threadPool_;
@@ -62,6 +62,7 @@ class ICE_API EmitterFactoryI : public Shared, public JTCMutex
 {
 public:
 
+    void destroy();
     Emitter create();
 
 private:
@@ -71,9 +72,7 @@ private:
 
     EmitterFactoryI(const Instance&, const Endpoint&);
     virtual ~EmitterFactoryI();
-    void destroy();
-    // May create and destroy EmitterFactoryIs
-    friend class EmitterFactoryFactoryI;
+    friend class EmitterFactoryFactoryI; // May create EmitterFactoryIs
 
     Instance instance_;
     Connector connector_;

@@ -28,7 +28,7 @@ public:
     void _register(const EventHandler&);
     void unregister(int);
     void reregister(int);
-    void waitForAllThreads();
+    void joinWithAllThreads();
     
 private:
 

@@ -34,6 +34,7 @@ public:
     void deactivate();
 
     void add(const ::IceServant::Ice::Object&, const std::string&);
+    void remove(const std::string&);
 
     ::__Ice::Instance __instance() const;
     ::IceServant::Ice::Object __findServant(const std::string&) const;

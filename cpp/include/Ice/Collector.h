@@ -39,9 +39,10 @@ class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
 public:
 
     Instance instance() const;
+    void destroy();
+    bool destroyed() const;
     void prepareReply(Incoming*);
     void sendReply(Incoming*);
-    bool destroyed() const;
 
     //
     // Operations from EventHandlerI
@@ -57,8 +58,7 @@ private:
 
     CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&);
     virtual ~CollectorI();
-    void destroy();
-    friend class CollectorFactoryI; // May create and destroy CollectorIs
+    friend class CollectorFactoryI; // May create CollectorIs
 
     void warning(const Ice::LocalException&) const;
 
@@ -71,6 +71,8 @@ private:
 class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
 {
 public:
+
+    void destroy();
 
     //
     // Operations from EventHandlerI
@@ -87,9 +89,7 @@ private:
     CollectorFactoryI(const Instance&, const ::Ice::ObjectAdapter&,
 		      const Endpoint&);
     virtual ~CollectorFactoryI();
-    void destroy();
-    // May create and destroy CollectorFactoryIs
-    friend class CollectorFactoryFactoryI;
+    friend class CollectorFactoryFactoryI; // May create CollectorFactoryIs
 
     void warning(const Ice::LocalException&) const;
 

@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCMutex
+class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCRecursiveMutex
 {
 public:
     
@@ -48,6 +48,7 @@ private:
     friend ICE_API Communicator initialize(int&, char*[]);
 
     ::__Ice::Instance instance_;
+    std::vector<ObjectAdapter> adapters_;
 };
 
 ICE_API Communicator initialize(int&, char*[]);
