@@ -160,15 +160,15 @@ class PropertiesI implements Properties
 
         s = s.trim();
 
-        // TODO: Could also use a regex
-        int pos = s.indexOf(' ');
-        if (pos == -1)
+        final char[] arr = s.toCharArray();
+        int pos = -1;
+        for (int i = 0; i < arr.length; i++)
         {
-            pos = s.indexOf('\t');
-        }
-        if (pos == -1)
-        {
-            pos = s.indexOf('=');
+            if (arr[i] == ' ' || arr[i] == '\t' || arr[i] == '=')
+            {
+                pos = i;
+                break;
+            }
         }
         if (pos == -1 || pos == s.length() - 1)
         {

@@ -117,12 +117,10 @@ final class TcpTransceiver implements Transceiver
             {
                 int ret = _fd.read(buf);
 
-                /* TODO: Review
-                if (ret == 0)
+                if (ret == -1)
                 {
                     throw new Ice.ConnectionLostException();
                 }
-                */
 
                 if (_traceLevels.network >= 3)
                 {

@@ -127,7 +127,8 @@ public class _ObjectDelM implements _ObjectDel
         }
 
         IceInternal.Endpoint[] arr =
-            (IceInternal.Endpoint[])endpoints.toArray();
+            new IceInternal.Endpoint[endpoints.size()];
+        endpoints.toArray(arr);
 
         // TODO
         //random_shuffle(endpoints.begin(), endpoints.end());
