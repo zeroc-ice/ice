@@ -98,7 +98,7 @@ public:
     Thread();
     virtual ~Thread();
 
-    //pthread_t id() const;
+    ThreadId id() const;
 
     virtual void run() = 0;
 
