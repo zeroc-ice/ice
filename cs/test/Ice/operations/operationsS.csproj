@@ -71,8 +71,8 @@
                 />
                 <Reference
                     Name = "Ice"
-                    AssemblyName = "Ice"
-                    HintPath = "..\..\..\lib\Ice.dll"
+                    Project = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>
@@ -89,7 +89,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Test.cs"
+                    RelPath = "generated\Test.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
