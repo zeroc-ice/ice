@@ -360,7 +360,7 @@ def getDBfiles(dbLocation):
     pipe_stdin.close()
     pipe_stdout.close()
     fileList.extend(lines)
-    if getPlatform == 'aix':
+    if getPlatform() == 'aix':
 	pipe_stdin, pipe_stdout = os.popen2('find lib -name "*.a" -type f')
 	lines = pipe_stdout.readlines()
 	pipe_stdin.close()
@@ -663,7 +663,7 @@ def main():
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     cwd = os.getcwd()
     os.chdir(installDir)
-    if not getPlatform() in ['linux', 'aix']:
+    if not getPlatform() in ['linux']:
 	#
 	# I need to get third party libraries.
 	#
