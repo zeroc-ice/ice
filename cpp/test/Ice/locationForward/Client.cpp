@@ -44,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 	else
 	{
-	    cerr << argv[0] << ": only one two ports can be specified" << endl;
+	    cerr << argv[0] << ": only two ports can be specified" << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
 	}

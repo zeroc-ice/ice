@@ -38,7 +38,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Let's first transfer a simple object, for a class without\n"
-	 << "operations, and print it's contents. No factory is required\n"
+	 << "operations, and print its contents. No factory is required\n"
 	 << "for this.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
