@@ -60,7 +60,7 @@ class DBEnvironmentI implements DBEnvironment, com.sleepycat.db.DbErrcall
 	{
 	    return new DBI(_communicator, this, db, name, create);
 	}
-	catch(java.lang.Exception e)
+	catch(DBException e)
 	{
 	    try
 	    {
