@@ -51,8 +51,6 @@ public:
 
     virtual SS sequenceTest(const SS1Ptr&, const SS2Ptr&, const ::Ice::Current&);
 
-    virtual void throwKnown(const ::Ice::Current&);
-    virtual void throwUnknown(const ::Ice::Current&);
     virtual void throwBaseAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsDerived(const ::Ice::Current&);

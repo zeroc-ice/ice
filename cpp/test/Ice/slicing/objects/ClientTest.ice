@@ -97,8 +97,6 @@ interface Test
 
     SS sequenceTest(SS1 p1, SS2 p2);
 
-    void throwKnown();
-    void throwUnknown();
     void throwBaseAsBase() throws BaseException;
     void throwDerivedAsBase() throws BaseException;
     void throwDerivedAsDerived() throws DerivedException;

@@ -633,44 +633,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing UnknownUserException with known exception... " << flush;
-    {
-	try
-	{
-	    test->throwKnown();
-	    test(0);
-	}
-	catch(const ::Ice::UnknownUserException& e)
-	{
-	    test(e.ice_name() == "Ice::UnknownUserException");
-	    test(dynamic_cast<const BaseException*>(&e) == 0);
-	}
-	catch(...)
-	{
-	    test(0);
-	}
-    }
-    cout << "ok" << endl;
-
-    cout << "testing UnknownUserException with unknown exception... " << flush;
-    {
-	try
-	{
-	    test->throwUnknown();
-	    test(0);
-	}
-	catch(const ::Ice::UnknownUserException& e)
-	{
-	    test(e.ice_name() == "Ice::UnknownUserException");
-	    test(dynamic_cast<const BaseException*>(&e) == 0);
-	}
-	catch(...)
-	{
-	    test(0);
-	}
-    }
-    cout << "ok" << endl;
-
     cout << "testing base exception thrown as base exception... " << flush;
     {
 	try

@@ -242,30 +242,6 @@ TestI::sequenceTest(const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 }
 
 void
-TestI::throwKnown(const ::Ice::Current&)
-{
-    BaseException be;
-    be.sbe = "sbe";
-    be.pb = new B;
-    be.pb->sb = "sb";
-    be.pb->pb = be.pb;
-    throw be;
-}
-
-void
-TestI::throwUnknown(const ::Ice::Current&)
-{
-    UnknownDerivedException ude;
-    ude.sude = "sude";
-    ude.pd2 = new D2;
-    ude.pd2->sb = "sb";
-    ude.pd2->pb = ude.pd2;
-    ude.pd2->sd2 = "sd2";
-    ude.pd2->pd2 = ude.pd2;
-    throw ude;
-}
-
-void
 TestI::throwBaseAsBase(const ::Ice::Current&)
 {
     BaseException be;

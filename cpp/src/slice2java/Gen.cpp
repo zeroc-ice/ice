@@ -1335,13 +1335,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
-out << nl << "System.err.print(\"patch: patcher is \");";
-out << nl << "System.err.print(this.toString());";
-out << nl << "System.err.print(\" instance is \");";
-out << nl << "if(v == null)";
-out << nl << "System.err.println(\"0\");";
-out << nl << "else";
-out << nl << "System.err.println(v.toString());";
 	    if(allClassMembers.size() > 1)
 	    {
 		out << nl << "switch(__member)";
@@ -2273,13 +2266,6 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 	    out << nl << "public void";
 	    out << nl << "patch(Ice.Object v)";
 	    out << sb;
-out << nl << "System.err.print(\"patch: patcher is \");";
-out << nl << "System.err.print(this.toString());";
-out << nl << "System.err.print(\" instance is \");";
-out << nl << "if(v == null)";
-out << nl << "System.err.println(\"0\");";
-out << nl << "else";
-out << nl << "System.err.println(v.toString());";
 	    out << nl << "value = (" << typeS << ")v;";
 	    out << eb;
 	    out << eb;
