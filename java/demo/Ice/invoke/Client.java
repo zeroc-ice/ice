@@ -75,6 +75,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("2"))
                 {
@@ -92,6 +94,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("3"))
                 {
@@ -111,6 +115,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("4"))
                 {
@@ -127,6 +133,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("5"))
                 {
@@ -146,6 +154,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("6"))
                 {
@@ -172,6 +182,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("7"))
                 {
@@ -192,6 +204,8 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+
+                    out.destroy();
                 }
                 else if(line.equals("8"))
                 {
@@ -213,6 +227,7 @@ public class Client
                     Demo.CHelper.read(in, c);
                     String str = in.readString();
                     in.finished();
+                    in.destroy();
                     System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
                         ", s.value=" + c.value.s.value);
                 }
@@ -241,6 +256,7 @@ public class Client
                     {
                         System.out.println("Unknown user exception");
                     }
+                    in.destroy();
                 }
                 else if(line.equals("s"))
                 {

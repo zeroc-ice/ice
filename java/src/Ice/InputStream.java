@@ -54,4 +54,5 @@ public interface InputStream
     void skipSlice();
 
     void finished();
+    void destroy();
 }

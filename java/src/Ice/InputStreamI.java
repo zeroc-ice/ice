@@ -29,10 +29,7 @@ public class InputStreamI implements InputStream
     finalize()
         throws Throwable
     {
-        if(_is != null)
-        {
-            _is.destroy();
-        }
+        destroy();
     }
 
     public Communicator
@@ -222,8 +219,16 @@ public class InputStreamI implements InputStream
         {
             _is.readPendingObjects();
         }
-        _is.destroy();
-        _is = null;
+    }
+
+    public void
+    destroy()
+    {
+        if(_is != null)
+        {
+            _is.destroy();
+            _is = null;
+        }
     }
 
     private Communicator _communicator;

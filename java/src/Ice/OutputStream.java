@@ -51,4 +51,5 @@ public interface OutputStream
     void endSlice();
 
     byte[] finished();
+    void destroy();
 }

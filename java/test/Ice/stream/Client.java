@@ -92,6 +92,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readBool());
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -101,6 +103,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readByte() == (byte)1);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -110,6 +114,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readShort() == (short)2);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -119,6 +125,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readInt() == 3);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -128,6 +136,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readLong() == 4);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -137,6 +147,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readFloat() == (float)5.0);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -146,6 +158,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readDouble() == 6.0);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -155,6 +169,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readString().equals("hello world"));
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         System.out.println("ok");
@@ -169,6 +185,8 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             test(Test.MyEnum.__read(in) == Test.MyEnum.enum3);
             in.finished();
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -191,6 +209,8 @@ public class Client
             s2.__read(in);
             in.finished();
             test(s2.equals(s));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -208,6 +228,8 @@ public class Client
             boolean[] arr2 = Test.BoolSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -225,6 +247,8 @@ public class Client
             byte[] arr2 = Test.ByteSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -242,6 +266,8 @@ public class Client
             short[] arr2 = Test.ShortSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -259,6 +285,8 @@ public class Client
             int[] arr2 = Test.IntSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -276,6 +304,8 @@ public class Client
             long[] arr2 = Test.LongSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -293,6 +323,8 @@ public class Client
             float[] arr2 = Test.FloatSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -310,6 +342,8 @@ public class Client
             double[] arr2 = Test.DoubleSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -327,6 +361,8 @@ public class Client
             String[] arr2 = Test.StringSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -344,6 +380,8 @@ public class Client
             Test.MyEnum[] arr2 = Test.MyEnumSHelper.read(in);
             in.finished();
             test(java.util.Arrays.equals(arr2, arr));
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -392,6 +430,8 @@ public class Client
                 test(java.util.Arrays.equals(arr2[i].seq9, arr[i].seq9));
                 test(arr2[i].d.get("hi") == arr2[i]);
             }
+            out.destroy();
+            in.destroy();
         }
 
         {
@@ -415,6 +455,8 @@ public class Client
             test(reader.called);
             test(reader.obj != null);
             test(reader.obj.s.e == Test.MyEnum.enum2);
+            out.destroy();
+            in.destroy();
         }
 
         System.out.println("ok");

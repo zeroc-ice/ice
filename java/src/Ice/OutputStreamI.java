@@ -23,10 +23,7 @@ public class OutputStreamI implements OutputStream
     finalize()
         throws Throwable
     {
-        if(_os != null)
-        {
-            _os.destroy();
-        }
+        destroy();
     }
 
     public Communicator
@@ -186,10 +183,17 @@ public class OutputStreamI implements OutputStream
         byte[] result = new byte[buf.limit()];
         buf.get(result);
 
-        _os.destroy();
-        _os = null;
-
         return result;
+    }
+
+    public void
+    destroy()
+    {
+        if(_os != null)
+        {
+            _os.destroy();
+            _os = null;
+        }
     }
 
     private Communicator _communicator;
