@@ -450,7 +450,8 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     end(); // xs:appinfo
 
 
-    O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\"/>";
+    O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\""
+      << " minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
 
     end(); // xs:sequence
     end(); // xs:complexType
@@ -607,6 +608,20 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     {
 	string scopeId = containedToId(en);
 	s = "tns:" + internalId + scopeId + en->name() + "Type";
+    }
+
+    SequencePtr sq = SequencePtr::dynamicCast(p);
+    if (sq)
+    {
+	string scopeId = containedToId(sq);
+	s = "tns:" + internalId + scopeId + sq->name() + "Type";
+    }
+
+    DictionaryPtr di = DictionaryPtr::dynamicCast(p);
+    if (di)
+    {
+	string scopeId = containedToId(di);
+	s = "tns:" + internalId + scopeId + di->name() + "Type";
     }
 
     return s;

@@ -58,4 +58,12 @@ All Rights Reserved
 
   <xs:element name="facet" type="tns:_internal.facetType"/>
 
+  <xs:complexType name="dataType">
+    <xs:sequence>
+       <xs:any namespace="##any" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="data" type="tns:dataType"/>
+
 </xs:schema>
