@@ -145,10 +145,6 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     properties->setProperty("Ice.Daemon", "0");
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.Warn.Leaks", "0");
-    if(properties->getProperty("Ice.ThreadPool.Server.Size").empty())
-    {
-	properties->setProperty("Ice.ThreadPool.Server.Size", "15");
-    }
 
     //
     // Register IcePack exception factory with the communicator.
