@@ -19,7 +19,7 @@ namespace _Ice
 
 class Buffer;
 
-class ICE_API TransceiverI : public Shared
+class TransceiverI : public Shared
 {
 public:
     

@@ -14,6 +14,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectFactoryF.h>
+#include <Ice/ThreadPoolF.h>
 #include <Ice/Shared.h>
 
 namespace _Ice
@@ -24,6 +25,7 @@ class ICE_API InstanceI : public Shared, public JTCMutex
 public:
 
     ObjectFactory objectFactory();
+    ThreadPool threadPool();
     
 private:
 
@@ -36,6 +38,7 @@ private:
     friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
     ObjectFactory objectFactory_;
+    ThreadPool threadPool_;
 
     //
     // Global state management

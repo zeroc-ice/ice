@@ -18,7 +18,7 @@
 namespace _Ice
 {
 
-class ICE_API AcceptorI : public Shared
+class AcceptorI : public Shared
 {
 public:
     

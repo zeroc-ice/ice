@@ -18,7 +18,7 @@
 namespace _Ice
 {
 
-class ICE_API ConnectorI : public Shared
+class ConnectorI : public Shared
 {
 public:
     

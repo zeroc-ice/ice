@@ -46,7 +46,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <list>
 
 //
 // Ice uses JThreads/C++
