@@ -27,6 +27,7 @@
 	<property name="openssl.dir" value="${top.dir}/openssl-0.9.7e"/>
 	<property name="stlport.dir" value="${top.dir}/STLPort-4.6.2"/>
 	<property name="common.dir" value="${ice.dir}/install/common"/>
+	<property name="doc.dir" value="./doc"/>
 
 	<!-- Targets -->
 	<property name="install.dir" value="./install"/>
@@ -64,6 +65,16 @@
 	    </fileset>
 	</copy>
 
+	<!-- README, licenses, etc. -->
+	<mkdir dir="${install.dir}/ice-common/doc"/>
+	<copy file="${ice.dir}/LICENSE" todir="${install.dir}/ice-common/doc"/>
+	<copy file="${ice.dir}/ICE_LICENSE" todir="${install.dir}/ice-common/doc"/>
+	<copy todir="${install.dir}/ice-common/doc">
+	    <fileset dir="${doc.dir}">
+		<exclude name="*.rtf"/>
+	    </fileset>
+	</copy>
+
 	<!-- HTML documentation -->
 	<mkdir dir="${install.dir}/ice-common/html/doc"/>
 	<copy todir="${install.dir}/ice-common/html/doc">
@@ -72,6 +83,7 @@
 		<include name="reference/**"/>
 	    </fileset>
 	</copy>
+
     </target>
 
     <!-- Packages Common -->
@@ -84,6 +96,11 @@
 		<include name="installer-*.bmp"/>
 	    </fileset>
 	</copy>
+
+	<!-- README, licenses, etc. -->
+	<mkdir dir="${install.dir}/packages-common/doc"/>
+	<copy file="${doc.dir}/THIRD_PARTY_LICENSE" tofile="${install.dir}/packages-common/doc/LICENSE"/>
+	<copy file="${doc.dir}/THIRD_PARTY_SOURCES" tofile="${install.dir}/packages-common/doc/SOURCES"/>
 
     </target>
 
