@@ -67,6 +67,7 @@ public:
 
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*, bool);
+    void abortBatchRequest();
     virtual void flushBatchRequests(); // From Connection.
 
     void sendResponse(IceInternal::BasicStream*, Byte);

@@ -728,8 +728,8 @@ Ice::ConnectionI::prepareBatchRequest(BasicStream* os)
     _batchStream.swap(*os);
 
     //
-    // _batchStream now belongs to the caller, until
-    // finishBatchRequest() is called.
+    // The batch stream now belongs to the caller, until
+    // finishBatchRequest() or abortBatchRequest() is called.
     //
 }
 
@@ -738,16 +738,12 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(_exception.get())
-    {
-	_exception->ice_throw();
-    }
-
-    assert(_state > StateNotValidated);
-    assert(_state < StateClosing);
-
-    _batchStream.swap(*os); // Get the batch stream back.
-    ++_batchRequestNum; // Increment the number of requests in the batch.
+    //
+    // Get the batch stream back and increment the number of requests
+    // in the batch.
+    //
+    _batchStream.swap(*os);
+    ++_batchRequestNum;
 
     //
     // We compress the whole batch if there is at least one compressed
@@ -757,9 +753,33 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
     {
 	_batchRequestCompress = true;
     }
+    
+    //
+    // Notify about the batch stream not being in use anymore.
+    //
+    assert(_batchStreamInUse);
+    _batchStreamInUse = false;
+    notifyAll();
+}
+
+void
+Ice::ConnectionI::abortBatchRequest()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    
+    //
+    // Destroy and reset the batch stream and batch count. We cannot
+    // safe old requests in the batch stream, as they might be
+    // corrupted due to incomplete marshaling.
+    //
+    BasicStream dummy(_instance.get());
+    _batchStream.swap(dummy);
+    _batchRequestNum = 0;
+    _batchRequestCompress = false;
 
     //
-    // Give the Connection back.
+    // Notify about the batch stream not being in use
+    // anymore.
     //
     assert(_batchStreamInUse);
     _batchStreamInUse = false;
@@ -895,7 +915,6 @@ Ice::ConnectionI::flushBatchRequests()
 	//
 	BasicStream dummy(_instance.get());
 	_batchStream.swap(dummy);
-	assert(_batchStream.b.empty());
 	_batchRequestNum = 0;
 	_batchRequestCompress = false;
 	_batchStreamInUse = false;

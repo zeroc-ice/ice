@@ -1768,12 +1768,19 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context, __compress);";
     if(!inParams.empty())
     {
+	C << nl << "try";
+	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
-    }
-    writeMarshalCode(C, inParams, 0);
-    if(p->sendsClasses())
-    {
-	C << nl << "__os->writePendingObjects();";
+	writeMarshalCode(C, inParams, 0);
+	if(p->sendsClasses())
+	{
+	    C << nl << "__os->writePendingObjects();";
+	}
+	C << eb;
+	C << nl << "catch(const ::Ice::LocalException& __ex)";
+	C << sb;
+	C << nl << "__out.abort(__ex);";
+	C << eb;
     }
     C << nl << "bool __ok = __out.invoke();";
     C << nl << "try";

@@ -54,6 +54,7 @@ public:
     Outgoing(Ice::ConnectionI*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&, bool);
 
     bool invoke(); // Returns true if ok, false if user exception.
+    void abort(const Ice::LocalException&);
     void finished(BasicStream&);
     void finished(const Ice::LocalException&);
 

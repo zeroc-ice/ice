@@ -95,6 +95,7 @@ IceInternal::Reference::changeSecure(bool newSecure) const
 ReferencePtr
 IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimization) const
 {
+    // TODO: See comments in header.
     if(newCollocationOptimization == collocationOptimization)
     {
 	return ReferencePtr(const_cast<Reference*>(this));
@@ -107,30 +108,40 @@ IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimiz
 ReferencePtr
 IceInternal::Reference::changeRouter(const RouterPrx&) const
 {
+    // TODO: I suggest to make this pure virtual, and to move this
+    // implementation to FixedReference.
     return ReferencePtr(const_cast<Reference*>(this));
 }
 
 ReferencePtr
 IceInternal::Reference::changeLocator(const LocatorPrx&) const
 {
+    // TODO: I suggest to make this pure virtual, and to move this
+    // implementation to FixedReference.
     return ReferencePtr(const_cast<Reference*>(this));
 }
 
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
+    // TODO: This operation should either be pure virtual, or it
+    // should change the default values and be used by the overrides.
     return ReferencePtr(const_cast<Reference*>(this));
 }
 
 ReferencePtr
 IceInternal::Reference::changeCompress(bool) const
 {
+    // TODO: I suggest to make this pure virtual, and to move this
+    // implementation to FixedReference.
     return ReferencePtr(const_cast<Reference*>(this));
 }
 
 ReferencePtr
 IceInternal::Reference::changeTimeout(int) const
 {
+    // TODO: I suggest to make it pure virtual, and to move this
+    // implementation to FixedReference.
     return ReferencePtr(const_cast<Reference*>(this));
 }
 
@@ -503,6 +514,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const Ice::Identity& 
 
 IceInternal::Reference::Reference(const Reference& r)
 {
+    // TODO: Use initializer list.
     instance = r.instance;
     mode = r.mode;
     identity = r.identity;
@@ -528,6 +540,8 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Ice::
 vector<EndpointPtr>
 IceInternal::FixedReference::getEndpoints() const
 {
+    // TODO: Remove implementation, it doesn't do anything. The
+    // overrides are all that is needed.
     return vector<EndpointPtr>();
 }
 
@@ -655,12 +669,14 @@ IceInternal::RoutableReference::changeDefault() const
 ReferencePtr
 IceInternal::RoutableReference::changeCompress(bool newCompress) const
 {
+    // TODO: Remove this implementation, it doesn't add anything.
     return RoutableReferencePtr(const_cast<RoutableReference*>(this));
 }
 
 ReferencePtr
 IceInternal::RoutableReference::changeTimeout(int newTimeout) const
 {
+    // TODO: Remove this implementation, it doesn't add anything.
     return RoutableReferencePtr(const_cast<RoutableReference*>(this));
 }
 
