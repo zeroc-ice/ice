@@ -14,7 +14,14 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef WIN32
+#include <direct.h>
+#endif
+
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 using namespace std;
 using namespace Slice;
@@ -461,8 +468,8 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope,
     // Don't include local exceptions in the throws clause
     //
     ExceptionList::size_type localCount = 0;
-    count_if(throws.begin(), throws.end(),
-             ::IceUtil::memFun(&Exception::isLocal), localCount);
+    localCount = count_if(throws.begin(), throws.end(),
+                          ::IceUtil::memFun(&Exception::isLocal));
     Output& out = output();
     if (throws.size() - localCount > 0)
     {
