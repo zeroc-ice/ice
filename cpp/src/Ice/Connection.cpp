@@ -375,7 +375,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
 	    // Send the request.
 	    //
 	    os->i = os->b.begin();
-	    traceRequest("sending compressed request", *os, _logger, _traceLevels);
+	    traceRequest("sending compressed asynchronous request", *os, _logger, _traceLevels);
 	    cstream.i = cstream.b.begin();
 	    _transceiver->write(cstream, _endpoint->timeout());
 	}
@@ -393,7 +393,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
 	    // Send the request.
 	    //
 	    os->i = os->b.begin();
-	    traceRequest("sending request", *os, _logger, _traceLevels);
+	    traceRequest("sending asynchronous request", *os, _logger, _traceLevels);
 	    _transceiver->write(*os, _endpoint->timeout());
 	}
     }
@@ -1019,11 +1019,9 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		os->writeBlob(_replyHdr);
 
 		//
-		// Fill in the request ID.
+		// Add the request ID.
 		//
-		const Byte* p;
-		p = reinterpret_cast<const Byte*>(&requestId);
-		copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+		os->write(requestId);
 	    }
 	    
 	    //
@@ -1092,7 +1090,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _warn(false),
     _requestHdr(headerSize + 4, 0),
     _requestBatchHdr(headerSize + 4, 0),
-    _replyHdr(headerSize + 4, 0),
+    _replyHdr(headerSize, 0),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _asyncRequestsHint(_asyncRequests.end()),
