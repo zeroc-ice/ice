@@ -563,7 +563,7 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRML
         }
         else if(Z_TYPE_P(zv) == IS_NULL)
         {
-            os.write("");
+            os.write(string());
         }
         else
         {
