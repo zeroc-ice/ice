@@ -36,7 +36,7 @@ public:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	while (!_done)
 	{
-	    this->IceUtil::Monitor<IceUtil::Mutex>::wait();
+	    wait();
 	}
     }
 
