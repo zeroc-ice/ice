@@ -1,0 +1,19 @@
+**********************************************************************
+
+Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
+Demos in this directory:
+
+- simple
+
+  Shows how to use IcePack for simple server activation.
+
+- hello
+
+  Illustrates more advanced use of IcePack, in particular,
+  how to register objects and how to use the Query interface.
