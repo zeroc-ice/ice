@@ -289,14 +289,12 @@ namespace IceInternal
 	// the remaining number of elements of all enclosing
 	// sequences, would still fit within the message.
 	//
-	public void
-	checkSeq()
+	public void checkSeq()
 	{
 	    checkSeq(_buf.remaining());
 	}
 
-	public void
-	checkSeq(int bytesLeft)
+	public void checkSeq(int bytesLeft)
 	{
 	    int size = 0;
 	    SeqData sd = _seqDataStack;
@@ -313,8 +311,13 @@ namespace IceInternal
 	    }
 	}
 
-	public void
-	endSeq(int sz)
+	public void endElement()
+	{
+	    Debug.Assert(_seqDataStack != null);
+	    --_seqDataStack.numElements;
+	}
+
+	public void endSeq(int sz)
 	{
 	    if(sz == 0) // Pop only if something was pushed previously.
 	    {
@@ -329,10 +332,23 @@ namespace IceInternal
 	    _seqDataStack = oldSeqData.previous;
 	}
 
-	public void endElement()
+	public void checkFixedSeq(int numElements, int elemSize)
 	{
-	    Debug.Assert(_seqDataStack != null);
-	    --_seqDataStack.numElements;
+	    int bytesLeft = _buf.remaining();
+	    if(_seqDataStack == null) // Outermost sequence
+	    {
+		//
+		// The sequence must fit within the message.
+		//
+		if(numElements * elemSize > bytesLeft) 
+		{
+		    throw new Ice.UnmarshalOutOfBoundsException();
+		}
+	    }
+	    else // Nested sequence
+	    {
+		checkSeq(bytesLeft - numElements * elemSize);
+	    }
 	}
 
 	public virtual void startWriteEncaps()
@@ -694,10 +710,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 1);
+		checkFixedSeq(sz, 1);
 		byte[] v = new byte[sz];
 		_buf.get(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -743,10 +758,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 1);
+		checkFixedSeq(sz, 1);
 		bool[] v = new bool[sz];
 		_buf.getBoolSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -792,10 +806,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 2);
+		checkFixedSeq(sz, 2);
 		short[] v = new short[sz];
 		_buf.getShortSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -841,10 +854,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 4);
+		checkFixedSeq(sz, 4);
 		int[] v = new int[sz];
 		_buf.getIntSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -890,10 +902,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 8);
+		checkFixedSeq(sz, 8);
 		long[] v = new long[sz];
 		_buf.getLongSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -939,10 +950,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 4);
+		checkFixedSeq(sz, 4);
 		float[] v = new float[sz];
 		_buf.getFloatSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -988,10 +998,9 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
-		startSeq(sz, 8);
+		checkFixedSeq(sz, 8);
 		double[] v = new double[sz];
 		_buf.getDoubleSeq(v);
-		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)

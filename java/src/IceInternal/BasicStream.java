@@ -303,10 +303,31 @@ public class BasicStream
 	_seqDataStack = oldSeqData.previous;
     }
 
-    public void endElement()
+    public void
+    endElement()
     {
         assert(_seqDataStack != null);
 	--_seqDataStack.numElements;
+    }
+
+    public void
+    checkFixedSeq(int numElements, int elemSize)
+    {
+	int bytesLeft = _buf.remaining();
+	if(_seqDataStack == null) // Outermost sequence
+	{
+	    //
+	    // The sequence must fit within the message.
+	    //
+	    if(numElements * elemSize > bytesLeft) 
+	    {
+		throw new Ice.UnmarshalOutOfBoundsException();
+	    }
+	}
+	else // Nested sequence
+	{
+	    checkSeq(bytesLeft - numElements * elemSize);
+	}
     }
 
     public void
@@ -674,10 +695,9 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 1);
+	    checkFixedSeq(sz, 1);
             byte[] v = new byte[sz];
             _buf.get(v);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -730,13 +750,12 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 1);
+	    checkFixedSeq(sz, 1);
             boolean[] v = new boolean[sz];
             for(int i = 0; i < sz; i++)
             {
                 v[i] = _buf.get() == 1;
             }
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -788,12 +807,11 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 2);
+	    checkFixedSeq(sz, 2);
             short[] v = new short[sz];
             java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
             shortBuf.get(v);
             _buf.position(_buf.position() + sz * 2);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -845,12 +863,11 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 4);
+	    checkFixedSeq(sz, 4);
             int[] v = new int[sz];
             java.nio.IntBuffer intBuf = _buf.asIntBuffer();
             intBuf.get(v);
             _buf.position(_buf.position() + sz * 4);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -902,12 +919,11 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 8);
+	    checkFixedSeq(sz, 8);
             long[] v = new long[sz];
             java.nio.LongBuffer longBuf = _buf.asLongBuffer();
             longBuf.get(v);
             _buf.position(_buf.position() + sz * 8);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -959,12 +975,11 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 4);
+	    checkFixedSeq(sz, 4);
             float[] v = new float[sz];
             java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
             floatBuf.get(v);
             _buf.position(_buf.position() + sz * 4);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -1016,12 +1031,11 @@ public class BasicStream
         try
         {
             final int sz = readSize();
-	    startSeq(sz, 8);
+	    checkFixedSeq(sz, 8);
             double[] v = new double[sz];
             java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
             doubleBuf.get(v);
             _buf.position(_buf.position() + sz * 8);
-	    endSeq(sz);
             return v;
         }
         catch(java.nio.BufferUnderflowException ex)

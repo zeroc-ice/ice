@@ -588,8 +588,16 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << "Dim __lenx As Integer = " << stream << ".readSize()";
 		    if(!streamingAPI)
 		    {
-			out << nl << stream << ".startSeq(__len, " << static_cast<unsigned>(builtin->minWireSize())
-			    << ")";
+                        if(builtin->isVariableLength())
+                        {
+                            out << nl << stream << ".startSeq(__len, " << static_cast<unsigned>(builtin->minWireSize())
+                                << ")";
+                        }
+                        else
+                        {
+                            out << nl << stream << ".checkFixedSeq(__len, "
+                                << static_cast<unsigned>(builtin->minWireSize()) << ")";
+                        }
 		    }
 		    out << nl << param << " = New ";
 		    if(builtin->kind() == Builtin::KindObject)
@@ -633,7 +641,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			out.dec();
 			out << nl << "Next";
 		    }
-		    if(!streamingAPI)
+		    if(!streamingAPI && builtin->isVariableLength())
 		    {
 			out << nl << stream << ".checkSeq()";
 			out << nl << stream << ".endElement()";
@@ -702,7 +710,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Dim szx As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
-		out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                if(type->isVariableLength())
+                {
+                    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                }
+                else
+                {
+                    out << nl << stream << ".checkFixedSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                }
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
@@ -725,14 +740,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    {
 		out << nl << stream << ".readObject(spx)";
 	    }
-	    if(!streamingAPI)
+	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".checkSeq()";
 		out << nl << stream << ".endElement()";
 	    }
 	    out.dec();
 	    out << nl << "Next";
-	    if(!streamingAPI)
+	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".endSeq(szx)";
 	    }
@@ -769,7 +784,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Dim szx As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
-		out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                if(type->isVariableLength())
+                {
+                    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                }
+                else
+                {
+                    out << nl << stream << ".checkFixedSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                }
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
@@ -783,14 +805,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
 	    out.inc();
 	    out << nl << param << "(__ix).__read(" << stream << ")";
-	    if(st->isVariableLength() && !streamingAPI)
+	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".checkSeq()";
 		out << nl << stream << ".endElement()";
 	    }
 	    out.dec();
 	    out << nl << "Next";
-	    if(!streamingAPI)
+	    if(!streamingAPI && type->isVariableLength())
 	    {
 		out << nl << stream << ".endSeq(szx)";
 	    }
@@ -799,7 +821,6 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << "Next";
 	return;
     }
-
 
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
@@ -828,7 +849,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Dim szx As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
-		out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+		out << nl << stream << ".checkFixedSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
@@ -851,10 +872,6 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    }
 	    out.dec();
 	    out << nl << "Next";
-	    if(!streamingAPI)
-	    {
-		out << nl << stream << ".endSeq(szx)";
-	    }
 	}
 	out.dec();
 	out << nl << "Next";
@@ -903,7 +920,14 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << "Dim szx As Integer = " << stream << ".readSize()";
 	if(!streamingAPI)
 	{
-	    out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ")";
+            if(type->isVariableLength())
+            {
+                out << nl << stream << ".startSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ")";
+            }
+            else
+            {
+                out << nl << stream << ".checkFixedSeq(szx, " << static_cast<unsigned>(type->minWireSize()) << ")";
+            }
 	}
 	out << nl << param << " = New ";
 	if(isArray)
@@ -924,20 +948,17 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	{
 	    out << nl << param << ".Add(" << helperName << '.' << func << '(' << stream << "))";
 	}
-	if(type->isVariableLength())
+	if(!streamingAPI && type->isVariableLength())
 	{
-	    if(!SequencePtr::dynamicCast(type) && !streamingAPI)
+	    if(!SequencePtr::dynamicCast(type))
 	    {
 		out << nl << stream << ".checkSeq()";
 	    }
-	    if(!streamingAPI)
-	    {
-		out << nl << stream << ".endElement()";
-	    }
+            out << nl << stream << ".endElement()";
 	}
 	out.dec();
 	out << nl << "Next";
-	if(!streamingAPI)
+	if(!streamingAPI && type->isVariableLength())
 	{
 	    out << nl << stream << ".endSeq(szx)";
 	}
