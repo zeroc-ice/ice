@@ -40,6 +40,7 @@ public:
 private:
 
     void printHeader();
+    std::string getComment(const ContainedPtr&, const ContainerPtr&, bool);
     StringList getTagged(const std::string&, std::string&);
     void printComment(const ContainedPtr&);
     void printSummary(const ContainedPtr&);

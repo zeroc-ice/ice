@@ -37,12 +37,10 @@ struct ServerDescription
     /**
      *
      * The server object or object template. Any non-administrative
-     * &IcePack; request that matches the identity of
-     * <literal>object</literal> will be forwarded to
-     * <literal>object</literal>. If <literal>regex</literal> is set
-     * to true, <literal>object</literal>'s identity is interpreted as
-     * a regular expression, and each request that matches this
-     * expression will be forwarded.
+     * &IcePack; request that matches the identity of [object] will be
+     * forwarded to [object]. If [regex] is set to true, [object]'s
+     * identity is interpreted as a regular expression, and each
+     * request that matches this expression will be forwarded.
      *
      * @see regex
      *
@@ -51,9 +49,8 @@ struct ServerDescription
 
     /**
      *
-     * If set to true, the identity contained in
-     * <literal>object</literal> will be interpreted as regular
-     * expression.
+     * If set to true, the identity contained in [object] will be
+     * interpreted as regular expression.
      *
      * @see object
      *
@@ -132,7 +129,7 @@ class Admin
      * Remove a server and objects implemented by that server from &IcePack;.
      *
      * @param identity Must match the identity of the
-     * <literal>ServerDescription::object</literal>.
+     * [ServerDescription::object].
      *
      * @see add
      *
@@ -144,7 +141,7 @@ class Admin
      * Find a server and objects implemented by that server from &IcePack;.
      *
      * @param identity Must match the identity of the
-     * <literal>ServerDescription::object</literal>.
+     * [ServerDescription::object].
      *
      * @return The server description, or null if no description was found.
      *

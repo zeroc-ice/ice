@@ -42,11 +42,10 @@ local interface Communicator
 {
     /**
      *
-     * Destroy the Communicator. This operation calls
-     * <literal>shutdown</literal> implicitly.  Calling
-     * <literal>destroy</literal> cleans up memory, and shuts the
+     * Destroy the Communicator. This operation calls [shutdown]
+     * implicitly.  Calling [destroy] cleans up memory, and shuts the
      * client-side of an application down. Subsequent calls to
-     * <literal>destroy</literal> are ignored.
+     * [destroy] are ignored.
      *
      * @see shutdown
      *
@@ -55,20 +54,18 @@ local interface Communicator
 
     /**
      *
-     * Shut the server-side of an application
-     * down. <literal>shutdown</literal> deactivates all Object
-     * Adapters. Subsequent calls to <literal>shutdown</literal> are
-     * ignored.
+     * Shut the server-side of an application down. [shutdown]
+     * deactivates all Object Adapters. Subsequent calls to [shutdown]
+     * are ignored.
      *
      * <important><para>Shutdown is the only operation that is
      * signal-safe, i.e., it is safe to call this operation from a
      * Unix signal handler. No other Ice operation must be called from
      * a Unix signal handler.</para></important>
      *
-     * <note><para> Shutdown is not immediate, i.e., after
-     * <literal>shutdown</literal> returns, the server-side of the
-     * application might still be active. You can use
-     * <literal>waitForShutdown</literal> to wait until shutdown is
+     * <note><para> Shutdown is not immediate, i.e., after [shutdown]
+     * returns, the server-side of the application might still be
+     * active. You can use [waitForShutdown] to wait until shutdown is
      * complete. </para></note>
      *
      * @see destroy
@@ -80,16 +77,14 @@ local interface Communicator
     /**
      *
      * Wait until the server-side of an application has shut
-     * down. Calling <literal>shutdown</literal> initiates server-side
-     * shutdown, and <literal>waitForShutdown</literal> only returns
-     * when such shutdown has been completed. A typical use of this
-     * operation is to call it from the main thread, which then waits
-     * until some other thread calls
-     * <literal>shutdown</literal>. After such shutdown is complete,
-     * the main thread returns and can do some cleanup work before it
-     * finally calls <literal>destroy</literal> to also shut the
-     * client-side of the application down, and then exits the
-     * application.
+     * down. Calling [shutdown] initiates server-side shutdown, and
+     * [waitForShutdown] only returns when such shutdown has been
+     * completed. A typical use of this operation is to call it from
+     * the main thread, which then waits until some other thread calls
+     * [shutdown]. After such shutdown is complete, the main thread
+     * returns and can do some cleanup work before it finally calls
+     * [destroy] to also shut the client-side of the application down,
+     * and then exits the application.
      *
      * @see shutdown
      * @see destroy
@@ -99,10 +94,10 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into a Proxy. For example, <literal>MyObject:tcp
-     * -h some_host -p 10000</literal> creates a proxy that refers to the
-     * object with the identity "MyObject", with the server running at
-     * host "some_host", port 10000.
+     * Convert a string into a Proxy. For example, [MyObject:tcp -h
+     * some_host -p 10000] creates a proxy that refers to the object
+     * with the identity "MyObject", with the server running at host
+     * "some_host", port 10000.
      *
      * @param str The string to turn into a Proxy.
      *
@@ -130,9 +125,9 @@ local interface Communicator
      *
      * Create a new Object Adapter. The endpoints for the Object
      * Adapter are taken from the property
-     * <literal>ice.adapter.<replaceable>name</replaceable>.endpoints</literal>,
-     * with <replaceable>name</replaceable> being the name of the
-     * Object Adapter.
+     * [ice.adapter.<replaceable>name</replaceable>.endpoints], with
+     * <replaceable>name</replaceable> being the name of the Object
+     * Adapter.
      *
      * @param name The name to use for the Object Adapter. This name
      * must be unique for the Communicator.
@@ -148,8 +143,8 @@ local interface Communicator
     /**
      *
      * Create a new Object Adapter with a list of endpoints. In
-     * contrast to <literal>createObjectAdapter</literal>, the endpoints to
-     * use are passed explicitly as a parameter.
+     * contrast to [createObjectAdapter], the endpoints to use are
+     * passed explicitly as a parameter.
      *
      * @param name The name to use for the Object Adapter. This name
      * must be unique for the Communicator.

@@ -683,6 +683,46 @@ Slice::Gen::printHeader()
     O.restoreIndent();
 }
 
+string
+Slice::Gen::getComment(const ContainedPtr& contained, const ContainerPtr& container, bool summary)
+{
+    string s = contained->comment();
+    string comment;
+    for (unsigned int i = 0; i < s.size(); ++i)
+    {
+	if (s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
+	{
+	    comment += '[';
+	    ++i;
+	}
+	else if (s[i] == '[')
+	{
+	    ++i;
+	    string literal;
+	    while (s[i] != ']')
+	    {
+		literal += s[i++];
+		if (i >= s.size())
+		{
+		    break;
+		}
+	    }
+	    comment += toString(literal, container);
+	}
+	else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+	{
+	    comment += '.';
+	    break;
+	}
+	else
+	{
+	    comment += s[i];
+	}
+
+    }
+    return comment;
+}
+
 StringList
 Slice::Gen::getTagged(const string& tag, string& comment)
 {
@@ -727,7 +767,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	container = p->container();
     }
 
-    string comment = p->comment();
+    string comment = getComment(p, container, false);
     StringList par = getTagged("param", comment);
     StringList ret = getTagged("return", comment);
     StringList throws = getTagged("throws", comment);
@@ -906,17 +946,17 @@ Slice::Gen::printComment(const ContainedPtr& p)
 void
 Slice::Gen::printSummary(const ContainedPtr& p)
 {
-    string comment = p->comment();
-
-    start("para");
-    string::size_type pos = comment.find('.');
-    if (pos != string::npos)
+    ContainerPtr container = ContainerPtr::dynamicCast(p);
+    if (!container)
     {
-	comment.erase(pos + 1);
-	O.zeroIndent();
-	O << nl << comment;
-	O.restoreIndent();
+	container = p->container();
     }
+
+    string summary = getComment(p, container, true);
+    start("para");
+    O.zeroIndent();
+    O << nl << summary;
+    O.restoreIndent();
     end();
 }
 
@@ -1134,5 +1174,9 @@ Slice::Gen::toString(const string& str, const ContainerPtr& container)
 	return toString(contList.front(), container);
     }
 
-    return s;
+    //
+    // If we can't find the string, printing it as "literal" is the
+    // best we can do.
+    //
+    return "<literal>" + s + "</literal>";
 }

@@ -22,9 +22,7 @@ local interface ServantLocator;
  *
  * The Object Adapter, which is responsible for receiving requests
  * from Endpoints, and for mapping between Servant, Identities, and
- * Proxies. Object Adapters are created with the Communicator's
- * <literal>createObjectAdapter</literal> and
- * <literal>createObjectAdapterWithEndpoints</literal> operations.
+ * Proxies.
  *
  * @see Communicator
  * @see ServantLocator
@@ -70,8 +68,7 @@ local interface ObjectAdapter
     /**
      *
      * Temporarily hold receiving and dispatching requests. The Object
-     * Adapter can be reactivated with the <literal>activate</literal>
-     * operation.
+     * Adapter can be reactivated with the [activate] operation.
      *
      * @see activate
      * @see deactivate
@@ -83,11 +80,10 @@ local interface ObjectAdapter
      *
      * Deactivate all Endpoints that belong to this Object
      * Adapter. After deactivation, the Object Adapter stops receiving
-     * requests through its Endpoints. Object Adapter's that have
-     * been deactivated must not be reactivated again, i.e., the
-     * deactivation is permanent and <literal>activate</literal> or
-     * <literal>hold</literal> must not be called after calling
-     * <literal>deactivate</literal>.
+     * requests through its Endpoints. Object Adapter's that have been
+     * deactivated must not be reactivated again, i.e., the
+     * deactivation is permanent and [activate] or [hold] must not be
+     * called after calling [deactivate].
      *
      * @see activate
      * @see hold
@@ -122,7 +118,7 @@ local interface ObjectAdapter
      * Servant does not have a fixed identity. Instead, a temporary
      * identity is assigned by the Object Adapter. Such temporary
      * identity is only valid for the lifetime of this Object Adapter,
-     * or until the Servant is removed with <literal>remove</literal>.
+     * or until the Servant is removed with [remove].
      *
      * @param servant The Servant to add.
      *
@@ -141,8 +137,8 @@ local interface ObjectAdapter
      *
      * @param identity The identity of the Ice Object that is
      * implemented by the Servant. If the Servant implements multiple
-     * Ice Objects, <literal>remove</literal> has to be called for all
-     * such Ice Objects.
+     * Ice Objects, [remove] has to be called for all such Ice
+     * Objects.
      *
      * @see add
      * @see addTemporary
@@ -223,8 +219,8 @@ local interface ObjectAdapter
  *
  * The Servant Locator, which is called by the Object Adapter to
  * locate Servants, which it doesn't find in its Active Servant
- * Map. The Servant Locator must be set with the Object Adapter's
- * <literal>setServantLocator</literal> operation.
+ * Map. The Servant Locator must be set with
+ * [ObjectAdapter::setServantLocator] operation.
  *
  * @see ObjectAdapter
  *
@@ -249,8 +245,7 @@ local interface ServantLocator
      * @param operation The operation the Object Adapter is about to
      * call.
      *
-     * @param cookie A "cookie", which is returned to
-     * <literal>finished</literal>.
+     * @param cookie A "cookie", which is returned to [finished].
      *
      * @return The located Servant, or null if no suitable Servant has
      * been found.
@@ -264,23 +259,20 @@ local interface ServantLocator
     /**
      *
      * Called by the Object Adapter after a request has been
-     * made. This operation is only called if
-     * <literal>locate</literal> was called prior to the request and
-     * returned a non-null servant. This operation can be used for
-     * cleanup purposes after a request.
+     * made. This operation is only called if [locate] was called
+     * prior to the request and returned a non-null servant. This
+     * operation can be used for cleanup purposes after a request.
      *
      * @param adapter The Object Adapter that calls the Servant Locator.
      *
      * @param identity The identity of the Ice Object for which a
-     * Servant was located by <literal>locate</literal>.
+     * Servant was located by [locate].
      *
-     * @param servant The Servant that was returned by
-     * <literal>locate</literal>.
+     * @param servant The Servant that was returned by [locate].
      *
      * @param operation The operation the Object Adapter just called.
      *
-     * @param cookie The cookie that was returned by
-     * <literal>locate</literal>.
+     * @param cookie The cookie that was returned by [locate].
      *
      * @see ObjectAdapter
      * @see locate

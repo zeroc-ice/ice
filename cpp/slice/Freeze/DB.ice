@@ -118,10 +118,9 @@ local interface DBEnvironment
     /**
      *
      * Close the database environment and destroy this database
-     * environment object. This operation also calls
-     * <literal>close</literal> on all databases that have been opened
-     * with this database environment object. Subsequent calls to
-     * <literal>close</literal> have no effect.
+     * environment object. This operation also calls [close] on all
+     * databases that have been opened with this database environment
+     * object. Subsequent calls to [close] have no effect.
      *
      * @throws DBException Raised if a database failure occurred.
      *
@@ -337,7 +336,7 @@ local interface DB
     /**
      *
      * Close the database and destroy this database object. Subsequent
-     * calls to <literal>close</literal> have no effect.
+     * calls to [close] have no effect.
      *
      * @throws DBException Raised if a database failure occurred.
      *

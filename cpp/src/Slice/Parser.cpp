@@ -554,8 +554,6 @@ Slice::Container::createNative(const string& name)
 TypeList
 Slice::Container::lookupType(const string& scoped, bool printError)
 {
-    assert(!scoped.empty());
-
     static const char* builtinTable[] =
     {
 	"byte",
@@ -588,9 +586,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
 TypeList
 Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 {
-    assert(!scoped.empty());
-
-    if (scoped[0] == ':')
+    if (scoped.size() >= 2 && scoped[0] == ':')
     {
 	return _unit->lookupTypeNoBuiltin(scoped.substr(2), printError);
     }
@@ -644,9 +640,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 ContainedList
 Slice::Container::lookupContained(const string& scoped, bool printError)
 {
-    assert(!scoped.empty());
-
-    if (scoped[0] == ':')
+    if (scoped.size() >= 2 && scoped[0] == ':')
     {
 	return _unit->lookupContained(scoped.substr(2), printError);
     }

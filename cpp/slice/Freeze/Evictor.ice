@@ -71,8 +71,7 @@ enum EvictorPersistenceMode
      *
      * This mode instructs the Evictor to save a Servant after each
      * mutating operation call. A mutating operation call is a call to
-     * any operation that has not been declared as
-     * <literal>nonmutating</literal>.
+     * any operation that has not been declared as [nonmutating].
      *
      **/
     SaveAfterMutatingOperation
@@ -84,8 +83,8 @@ enum EvictorPersistenceMode
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
  * implementation can be created with the operation
- * <literal>DB::createEvictor</literal>, and must be registered with
- * an Object Adapter like other Servant Locators.
+ * [DB::createEvictor], and must be registered with an Object Adapter
+ * like other Servant Locators.
  *
  * @see ServantInitializer
  *
@@ -135,11 +134,11 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Set the Evictor's persistence mode. If the mode is change to
-     * <literal>SaveAfterMutatingOperation</literal>, all Servants
-     * that are currently in the Evictor's Servant queue are saved to
-     * persistent store, so that it can safely be assumed that no data
-     * can get lost after the mode has been changed.
+     * Set the Evictor's persistence mode. If the mode is changed to
+     * [SaveAfterMutatingOperation], all Servants that are currently
+     * in the Evictor's Servant queue are saved to persistent store,
+     * so that it can safely be assumed that no data can get lost
+     * after the mode has been changed.
      *
      * @param mode The Evictor's persistence mode.
      *

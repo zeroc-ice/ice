@@ -21,8 +21,8 @@ native OutputStream;
  *
  * A simple object serializer. Servants can be written to a native
  * ioutput stream type, and read from a native input stream type. For
- * C++, the output stream type is <literal>std::ostream</literal> and
- * the input stream type is <literal>std::istream</literal>.
+ * C++, the output stream type is [std::ostream] and the input stream
+ * type is [std::istream].
  *
  * <note><para>For more sophisticated object persistence, you should
  * use the Freeze module.</para></note>
