@@ -22,12 +22,6 @@ usage(const char* n)
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    if(argc < 3)
-    {
-        usage(argv[0]);
-	return 1;
-    }
-
     vector<int> ports;
     for(int i = 1; i < argc; ++i)
     {

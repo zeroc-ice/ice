@@ -16,7 +16,7 @@ class TestI : public Test
 {
 public:
 
-    TestI(const Ice::ObjectAdapterPtr&, const CleanerPtr& cleaner);
+    TestI(const Ice::ObjectAdapterPtr&);
 
     virtual void shutdown(const Ice::Current&);
     virtual void abort(const Ice::Current&);
@@ -27,20 +27,6 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    CleanerPtr _cleaner;
-};
-
-class CleanerI : public Cleaner
-{
-public:
-
-    CleanerI(const Ice::CommunicatorPtr&);
-
-    virtual void cleanup(const Ice::Current&);
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif
