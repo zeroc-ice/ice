@@ -29,7 +29,6 @@ SLICEFILES	= ../slice/Ice/LocalException.ice \
 		  ../slice/Ice/SslException.ice \
                   ../slice/Ice/SslExtension.ice \
                   ../slice/Ice/System.ice \
-                  ../slice/Ice/SecureUdp.ice \
 		  ../slice/Ice/Identity.ice \
 		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Router.ice \
