@@ -100,7 +100,7 @@ TopicManagerI::retrieveAll()
 }
 
 void
-TopicManagerI::subscribe(const Ice::ObjectPrx& tmpl, const string& id, const QoS& qos, const StringSeq& topics)
+TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topics, const Ice::ObjectPrx& tmpl)
 {
     JTCSyncT<JTCMutex> sync(*this);
 

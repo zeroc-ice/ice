@@ -46,7 +46,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     topics.push_back("time");
     IceStorm::QoS qos;
     qos["reliability"] = "batch";
-    manager->subscribe(object, "events", qos, topics);
+    manager->subscribe("events", qos, topics, object);
 
     adapter->activate();
 

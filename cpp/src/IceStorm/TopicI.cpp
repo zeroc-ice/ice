@@ -172,7 +172,6 @@ void
 BlobjectI::ice_invokeIn(const string&, const string&, const string& op,
 			const std::vector< ::Ice::Byte>& blob)
 {
-    cerr << "ice_invokeIn" << endl;
     _subscribers->publish(op, blob);
 }
 

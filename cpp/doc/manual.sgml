@@ -2,6 +2,7 @@
 
 <!ENTITY Ice "<abbrev>Ice</abbrev>">
 <!ENTITY IcePack "<abbrev>IcePack</abbrev>">
+<!ENTITY IceStorm "<abbrev>IceStorm</abbrev>">
 <!ENTITY Freeze "<abbrev>Freeze</abbrev>">
 
 <!ENTITY SliceDoc SYSTEM "SliceDoc.sgml">

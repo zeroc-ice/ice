@@ -147,6 +147,7 @@ The Security extension tracing level:
 </section>
 </section>
 
+
 <section><title>Freeze.Trace.DB</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -311,6 +312,159 @@ contains a relative path, the path will be interpreted in terms of
 <literal>Ice.Ssl.CertPath</literal>. Xerces-c, the XML parser used to read this
 file, will look for the DTD file in the same directory that it finds the XML
 configuration file.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>IceStorm</title>
+<!-- ********************************************************************** -->
+
+<section><title>IceStorm.Trace.TopicManager</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Trace.TopicManager=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The TopicManager tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>topic creation, subscription, unsubscription</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>more verbose, includes qos information, and other diagnostic information</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Trace.Topic</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Trace.Topic=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The Topic tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>trace topic diagnostic information</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Trace.Flush</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Trace.Flush=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Trace information on the thread that flushes batch reliability events to subscribers:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>trace each flush</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Trace.Subscriber</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Trace.Subscriber=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The Subscriber tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>trace topic diagnostic information on subscription/unsubscription</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Flush.Timeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Flush.Timeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the interval in milliseconds that batch reliability events are
+sent to subscribers. The default is 1000 ms. The minimum value of this
+property is 100 ms.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Adapter.TopicManager.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Adapter.TopicManager.Enpoints=<replaceable>string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Definies the endpoint that the IceStorm TopicManager uses. TODO: add
+cross-reference TODO: Move to some place more appropriate
 </para>
 </section>
 </section>
