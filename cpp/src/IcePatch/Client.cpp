@@ -244,11 +244,12 @@ IcePatch::Client::run(int argc, char* argv[])
 	//
 	// Patch all subdirectories.
 	//
+	FilePrx top;
 	for(vector<string>::const_iterator p = subdirs.begin(); p != subdirs.end(); ++p)
 	{
 	    Identity identity = pathToIdentity(*p);
 	    ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
-	    FilePrx top;
+	    
 	    try
 	    {
 		top = FilePrx::checkedCast(topObj);
