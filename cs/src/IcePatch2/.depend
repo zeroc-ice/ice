@@ -1,0 +1,2 @@
+FileInfo.cs: ../../../ice/slice/IcePatch2/FileInfo.ice ../../../ice/slice/Ice/BuiltinSequences.ice
+FileServer.cs: ../../../ice/slice/IcePatch2/FileServer.ice ../../../ice/slice/IcePatch2/FileInfo.ice ../../../ice/slice/Ice/BuiltinSequences.ice
