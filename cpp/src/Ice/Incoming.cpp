@@ -86,7 +86,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	    locator->finished(_adapter, identity, servant, operation, cookie);
 	}
     }
-    catch(const LocationForward& p)
+    catch (const LocationForward& ex)
     {
 	if (locator && servant)
 	{
@@ -94,10 +94,10 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchLocationForward));
-	_os.write(p._prx);
+	_os.write(ex._prx);
 	return;
     }
-    catch(const LocalException&)
+    catch (const LocalException& ex)
     {
 	if (locator && servant)
 	{
@@ -105,9 +105,9 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
-	throw;
+	ex._throw();
     }
-    catch(const UserException&)
+    catch (const UserException& ex)
     {
 	if (locator && servant)
 	{
@@ -115,9 +115,9 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownUserException));
-	throw;
+	ex._throw();
     }
-    catch(...)
+    catch (...)
     {
 	if (locator && servant)
 	{

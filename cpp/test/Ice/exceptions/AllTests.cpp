@@ -284,6 +284,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     catch (const Ice::UnknownUserException&)
     {
     }
+    catch (const Ice::Exception& ex)
+    {
+	cout << ex << endl;
+	test(false);
+    }
     catch (...)
     {
 	test(false);

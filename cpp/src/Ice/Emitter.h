@@ -21,17 +21,10 @@
 #include <Ice/LoggerF.h>
 #include <Ice/EventHandler.h>
 
-namespace IceUtil
-{
-
-class Exception;
-
-}
-
 namespace Ice
 {
 
-typedef IceUtil::Exception LocalException;
+class LocalException;
 
 }
 

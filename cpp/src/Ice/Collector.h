@@ -23,17 +23,10 @@
 #include <Ice/EventHandler.h>
 #include <list>
 
-namespace IceUtil
-{
-
-class Exception;
-
-}
-
 namespace Ice
 {
 
-typedef IceUtil::Exception LocalException;
+class LocalException;
 class ObjectAdapterI;
 
 }
@@ -81,7 +74,7 @@ private:
 
     void setState(State);
     void closeConnection();
-    void warning(const ::Ice::LocalException&) const;
+    void warning(const ::Ice::Exception&) const;
 
     ::Ice::ObjectAdapterPtr _adapter;
     TransceiverPtr _transceiver;
@@ -132,7 +125,7 @@ private:
 
     void setState(State);
     void clearBacklog();
-    void warning(const ::Ice::LocalException&) const;
+    void warning(const ::Ice::Exception&) const;
 
     ::Ice::ObjectAdapterPtr _adapter;
     AcceptorPtr _acceptor;

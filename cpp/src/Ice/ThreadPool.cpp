@@ -462,7 +462,7 @@ IceInternal::ThreadPool::run()
 		    goto repeatSelect;
 		}
 	    }
-	    catch (const LocalException& ex)
+	    catch (const LocalException&)
 	    {
 		// Ignore exeptions.
 	    }
@@ -564,7 +564,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     {
 	_pool->run();
     }
-    catch (const LocalException& ex)
+    catch (const Exception& ex)
     {	
 	ostringstream s;
 	s << "exception in thread pool:\n" << ex;
@@ -573,7 +573,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     catch (const JTCException& ex)
     {
 	ostringstream s;
-	s << "exception in thread pool:\n" << ex;
+	s << "JThreads/C++ exception in thread pool:\n" << ex;
 	_pool->_instance->logger()->error(s.str());
     }
     catch (...)

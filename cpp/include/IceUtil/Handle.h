@@ -45,7 +45,7 @@ public:
 	return "operation call on null handle";
     }
 
-    virtual NullHandleException* _clone() const
+    virtual Exception* _clone() const
     {
 	return new NullHandleException(*this);
     }

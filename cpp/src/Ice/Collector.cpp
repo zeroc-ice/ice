@@ -187,12 +187,12 @@ IceInternal::Collector::message(BasicStream& stream)
 		}
 	    }
 	}
-	catch(const ConnectionLostException&)
+	catch (const ConnectionLostException&)
 	{
 	    setState(StateClosed); // Connection drop from client is ok
 	    return;
 	}
-	catch(const Exception& ex)
+	catch (const LocalException& ex)
 	{
 	    warning(ex);
 	    setState(StateClosed);
@@ -213,10 +213,14 @@ IceInternal::Collector::message(BasicStream& stream)
 		    stream.swap(*in.is());
 		}
 	    }
-	    catch(const Exception& ex)
+	    catch (const Exception& ex)
 	    {
 		JTCSyncT<JTCRecursiveMutex> sync(*this);
 		warning(ex);
+	    }
+	    catch (...)
+	    {
+		assert(false); // Should not happen
 	    }
 	}
 	while (batch && stream.i < stream.b.end());
@@ -253,12 +257,12 @@ IceInternal::Collector::message(BasicStream& stream)
 		closeConnection();
 	    }
 	}
-	catch(const ConnectionLostException&)
+	catch (const ConnectionLostException&)
 	{
 	    setState(StateClosed); // Connection drop from client is ok
 	    return;
 	}
-	catch(const Exception& ex)
+	catch (const LocalException& ex)
 	{
 	    warning(ex);
 	    setState(StateClosed);
@@ -315,7 +319,7 @@ IceInternal::Collector::tryDestroy()
     {
 	setState(StateClosing);
     }
-    catch(...)
+    catch (...)
     {
 	unlock();
 	throw;
@@ -399,12 +403,12 @@ IceInternal::Collector::setState(State state)
 		{
 		    closeConnection();
 		}
-		catch(const ConnectionLostException&)
+		catch (const ConnectionLostException&)
 		{
 		    state = StateClosed;
 		    setState(state); // Connection drop from client is ok
 		}
-		catch(const Exception& ex)
+		catch (const LocalException& ex)
 		{
 		    warning(ex);
 		    state = StateClosed;
@@ -458,7 +462,7 @@ IceInternal::Collector::closeConnection()
 }
 
 void
-IceInternal::Collector::warning(const LocalException& ex) const
+IceInternal::Collector::warning(const Exception& ex) const
 {
     if (_warnAboutExceptions)
     {
@@ -555,11 +559,11 @@ IceInternal::CollectorFactory::message(BasicStream&)
 	collector->activate();
 	_collectors.push_back(collector);
     }
-    catch(const TimeoutException&)
+    catch (const TimeoutException&)
     {
 	// Ignore timeouts
     }
-    catch(const Exception& ex)
+    catch (const LocalException& ex)
     {
 	warning(ex);
 	destroy();
@@ -628,7 +632,7 @@ IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
 	    _threadPool = _instance->threadPool();
 	}
     }
-    catch(...)
+    catch (...)
     {
 	setState(StateClosed);
 	throw;
@@ -725,7 +729,7 @@ IceInternal::CollectorFactory::clearBacklog()
 	    CollectorPtr collector = new Collector(_instance, _adapter, transceiver, _endpoint);
 	    collector->destroy();
 	}
-	catch(const Exception&)
+	catch (const Exception&)
 	{
 	    break;
 	}
@@ -733,7 +737,7 @@ IceInternal::CollectorFactory::clearBacklog()
 }
 
 void
-IceInternal::CollectorFactory::warning(const LocalException& ex) const
+IceInternal::CollectorFactory::warning(const Exception& ex) const
 {
     if (_warnAboutExceptions)
     {

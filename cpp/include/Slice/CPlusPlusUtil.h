@@ -19,24 +19,24 @@ namespace Slice
 
 struct ToIfdef
 {
-    char operator()(char);
+    SLICE_API char operator()(char);
 };
 
-std::string changeInclude(const std::string&, const std::vector<std::string>&);
-void printHeader(Output&);
-void printVersionCheck(Output&);
-void printDllExportStuff(Output&, const std::string&);
+SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
+SLICE_API void printHeader(Output&);
+SLICE_API void printVersionCheck(Output&);
+SLICE_API void printDllExportStuff(Output&, const std::string&);
 
-std::string typeToString(const TypePtr&);
-std::string returnTypeToString(const TypePtr&);
-std::string inputTypeToString(const TypePtr&);
-std::string outputTypeToString(const TypePtr&);
+SLICE_API std::string typeToString(const TypePtr&);
+SLICE_API std::string returnTypeToString(const TypePtr&);
+SLICE_API std::string inputTypeToString(const TypePtr&);
+SLICE_API std::string outputTypeToString(const TypePtr&);
 
-void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool, const std::string& = "",
+SLICE_API void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool, const std::string& = "",
 			       bool = true);
-void writeMarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
-void writeUnmarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
-void writeAllocateCode(Output&,	const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+SLICE_API void writeMarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+SLICE_API void writeUnmarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+SLICE_API void writeAllocateCode(Output&,	const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
 
 }
 

@@ -200,7 +200,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
 
-    H << sp << nl << "struct " << name << " : ";
+    H << sp << nl << "class " << name << " : ";
     H.useCurrentPosAsIndent();
     if (!base)
     {
@@ -219,6 +219,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     H.restoreIndent();
     H << sb;
+
+    H.dec();
+    H << nl << "public: ";
+    H.inc();
 
     if (p->isLocal())
     {
@@ -1139,8 +1143,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if (!throws.empty())
     {
-	// TODO: pretty hacky, should be statically initialized, once
-	// per operation.
 	ExceptionList::const_iterator r;
 	C << nl << "static const char* __throws[] =";
 	C << sb;
@@ -1341,12 +1343,38 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__);";
     C << eb;
+    C << nl << "try";
+    C << sb;
     C << nl;
     if (ret)
     {
 	C << "return ";
     }
     C << "__servant->" << name << args << ';';
+    C << eb;
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+    ExceptionList::const_iterator r;
+    for (r = throws.begin(); r != throws.end(); ++r)
+    {
+	C << nl << "catch (const " << (*r)->scoped() << "&)";
+	C << sb;
+	C << nl << "throw;";
+	C << eb;
+    }
+    C << nl << "catch (const ::Ice::LocalException&)";
+    C << sb;
+    C << nl << "throw ::Ice::UnknownLocalException(__FILE__, __LINE__);";
+    C << eb;
+    C << nl << "catch (const ::Ice::UserException&)";
+    C << sb;
+    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+    C << eb;
+    C << nl << "catch (...)";
+    C << sb;
+    C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__);";
+    C << eb;
     C << eb;
 }
 
@@ -1864,7 +1892,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    ExceptionList::const_iterator r;
 	    for (r = throws.begin(); r != throws.end(); ++r)
 	    {
-		C << nl << "catch(const " << (*r)->scoped() << "& __ex)";
+		C << nl << "catch (const " << (*r)->scoped() << "& __ex)";
 		C << sb;
 		C << nl << "__os->write(__ex);";
 		C << nl << "return ::IceInternal::DispatchUserException;";

@@ -96,7 +96,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 	traceRequest("sending request", *os, _logger, _traceLevels);
 	_transceiver->write(*os, _endpoint->timeout());
     }
-    catch(const Exception& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	ex._throw();
@@ -203,7 +203,7 @@ IceInternal::Emitter::flushBatchRequest()
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
     }
-    catch(const Exception& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	ex._throw();
@@ -307,7 +307,7 @@ IceInternal::Emitter::message(BasicStream& stream)
 	    }
 	}
     }
-    catch(const Exception& ex)
+    catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
 	return;
@@ -405,7 +405,7 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
     
     if (!_exception.get())
     {
-	_exception = auto_ptr<LocalException>(ex._clone());
+	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._clone()));
     }
 
     for (std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
@@ -487,15 +487,15 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	}
 	catch (const SocketException& ex)
 	{
-	    exception = auto_ptr<LocalException>(ex._clone());
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._clone()));
 	}
 	catch (const DNSException& ex)
 	{
-	    exception = auto_ptr<LocalException>(ex._clone());
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._clone()));
 	}
 	catch (const TimeoutException& ex)
 	{
-	    exception = auto_ptr<LocalException>(ex._clone());
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._clone()));
 	}
 
 	++q;
