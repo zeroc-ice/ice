@@ -19,19 +19,19 @@ public final class InitialI extends Initial
         _c = new C();
         _d = new D();
 
-        _b1.a = _b2; // Cyclic reference to another B
-        _b1.b = _b1; // Self reference.
-        _b1.c = null; // Null reference.
+        _b1.theA = _b2; // Cyclic reference to another B
+        _b1.theB = _b1; // Self reference.
+        _b1.theC = null; // Null reference.
 
-        _b2.a = _b2; // Self reference, using base.
-        _b2.b = _b1; // Cyclic reference to another B
-        _b2.c = _c; // Cyclic reference to a C.
+        _b2.theA = _b2; // Self reference, using base.
+        _b2.theB = _b1; // Cyclic reference to another B
+        _b2.theC = _c; // Cyclic reference to a C.
 
-        _c.b = _b2; // Cyclic reference to a B.
+        _c.theB = _b2; // Cyclic reference to a B.
 
-        _d.a = _b1; // Reference to a B.
-        _d.b = _b2; // Reference to a B.
-        _d.c = null; // Reference to a C.
+        _d.theA = _b1; // Reference to a B.
+        _d.theB = _b2; // Reference to a B.
+        _d.theC = null; // Reference to a C.
     }
 
     public void
@@ -84,19 +84,19 @@ public final class InitialI extends Initial
         //
         // Break cyclic dependencies
         //
-        _b1.a = null;
-        _b1.b = null;
-        _b1.c = null;
+        _b1.theA = null;
+        _b1.theB = null;
+        _b1.theC = null;
         _b1.ice_removeAllFacets();
-        _b2.a = null;
-        _b2.b = null;
-        _b2.c = null;
+        _b2.theA = null;
+        _b2.theB = null;
+        _b2.theC = null;
         _b2.ice_removeAllFacets();
-        _c.b = null;
+        _c.theB = null;
         _c.ice_removeAllFacets();
-        _d.a = null;
-        _d.b = null;
-        _d.c = null;
+        _d.theA = null;
+        _d.theB = null;
+        _d.theC = null;
         _d.ice_removeAllFacets();
     }
 

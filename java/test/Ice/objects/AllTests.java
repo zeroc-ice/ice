@@ -68,17 +68,17 @@ public class AllTests
         //test(b2 != c);
         //test(b2 != d);
         //test(c != d);
-        test(b1.b == b1);
-        test(b1.c == null);
-        test(b1.a instanceof B);
-        test(((B)b1.a).a == b1.a);
-        test(((B)b1.a).b == b1);
-        test(((B)b1.a).c instanceof C);
-        test(((C)(((B)b1.a).c)).b == b1.a);
+        test(b1.theB == b1);
+        test(b1.theC == null);
+        test(b1.theA instanceof B);
+        test(((B)b1.theA).theA == b1.theA);
+        test(((B)b1.theA).theB == b1);
+        test(((B)b1.theA).theC instanceof C);
+        test(((C)(((B)b1.theA).theC)).theB == b1.theA);
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
-        test(b2.a == b2);
-        test(d.c == null);
+        test(b2.theA == b2);
+        test(d.theC == null);
         System.out.println("ok");
 
         //
@@ -86,29 +86,29 @@ public class AllTests
         //
         if(!collocated)
         {
-            ((B)b1.a).a = null;
-            ((B)b1.a).b = null;
-            ((B)b1.a).c = null;
-            b1.a = null;
-            b1.b = null;
+            ((B)b1.theA).theA = null;
+            ((B)b1.theA).theB = null;
+            ((B)b1.theA).theC = null;
+            b1.theA = null;
+            b1.theB = null;
 
-            b2.a = null;
-            b2.b.a = null;
-            b2.b.b = null;
-            b2.c = null;
+            b2.theA = null;
+            b2.theB.theA = null;
+            b2.theB.theB = null;
+            b2.theC = null;
 
-            c.b.a = null;
-            c.b.b.a = null;
-            c.b.b.b = null;
-            c.b = null;
+            c.theB.theA = null;
+            c.theB.theB.theA = null;
+            c.theB.theB.theB = null;
+            c.theB = null;
 
-            ((B)((B)d.a).a).a = null;
-            ((B)((B)d.a).a).b = null;
-            ((B)d.a).b.a = null;
-            ((B)d.a).b.b = null;
-            d.b.a = null;
-            d.b.b = null;
-            d.b.c = null;
+            ((B)((B)d.theA).theA).theA = null;
+            ((B)((B)d.theA).theA).theB = null;
+            ((B)d.theA).theB.theA = null;
+            ((B)d.theA).theB.theB = null;
+            d.theB.theA = null;
+            d.theB.theB = null;
+            d.theB.theC = null;
         }
 
         System.out.print("getting B1, B2, C, and D all at once... ");
@@ -136,16 +136,16 @@ public class AllTests
         //test(b2 != c);
         //test(b2 != d);
         //test(c != d);
-        test(b1.a == b2);
-        test(b1.b == b1);
-        test(b1.c == null);
-        test(b2.a == b2);
-        test(b2.b == b1);
-        test(b2.c == c);
-        test(c.b == b2);
-        test(d.a == b1);
-        test(d.b == b2);
-        test(d.c == null);
+        test(b1.theA == b2);
+        test(b1.theB == b1);
+        test(b1.theC == null);
+        test(b2.theA == b2);
+        test(b2.theB == b1);
+        test(b2.theC == c);
+        test(c.theB == b2);
+        test(d.theA == b1);
+        test(d.theB == b2);
+        test(d.theC == null);
         System.out.println("ok");
 
         //
@@ -153,14 +153,14 @@ public class AllTests
         //
         if(!collocated)
         {
-            b1.a = null;
-            b1.b = null;
-            b2.a = null;
-            b2.b = null;
-            b2.c = null;
-            c.b = null;
-            d.a = null;
-            d.b = null;
+            b1.theA = null;
+            b1.theB = null;
+            b2.theA = null;
+            b2.theB = null;
+            b2.theC = null;
+            c.theB = null;
+            d.theA = null;
+            d.theB = null;
         }
 
         System.out.print("adding facets to B1... ");
@@ -176,13 +176,13 @@ public class AllTests
 
         System.out.print("checking consistency... ");
         System.out.flush();
-        test(b1.b == b1);
-        test(b1.c == null);
-        test(b1.a instanceof B);
-        test(((B)b1.a).a == b1.a);
-        test(((B)b1.a).b == b1);
-        test(((B)b1.a).c instanceof C);
-        test(((C)((B)b1.a).c).b == b1.a);
+        test(b1.theB == b1);
+        test(b1.theC == null);
+        test(b1.theA instanceof B);
+        test(((B)b1.theA).theA == b1.theA);
+        test(((B)b1.theA).theB == b1);
+        test(((B)b1.theA).theC instanceof C);
+        test(((C)((B)b1.theA).theC).theB == b1.theA);
         System.out.println("ok");
 
         System.out.print("checking facet consistency... ");
@@ -192,16 +192,16 @@ public class AllTests
         C fc = (C)fb2.ice_findFacet("c");
         D fd = (D)fb2.ice_findFacet("d");
         test(b1 == fb1);
-        test(fb1.a == fb2);
-        test(fb1.b == fb1);
-        test(fb1.c == null);
-        test(fb2.a == fb2);
-        test(fb2.b == fb1);
-        test(fb2.c == fc);
-        test(fc.b == fb2);
-        test(fd.a == fb1);
-        test(fd.b == fb2);
-        test(fd.c == null);
+        test(fb1.theA == fb2);
+        test(fb1.theB == fb1);
+        test(fb1.theC == null);
+        test(fb2.theA == fb2);
+        test(fb2.theB == fb1);
+        test(fb2.theC == fc);
+        test(fc.theB == fb2);
+        test(fd.theA == fb1);
+        test(fd.theB == fb2);
+        test(fd.theC == null);
         System.out.println("ok");
 
         //
@@ -209,17 +209,17 @@ public class AllTests
         //
         if(!collocated)
         {
-            ((B)fb1.a).a = null;
-            ((B)fb1.a).b = null;
-            fb1.a = null;
-            fb1.b = null;
+            ((B)fb1.theA).theA = null;
+            ((B)fb1.theA).theB = null;
+            fb1.theA = null;
+            fb1.theB = null;
             fb1.ice_removeAllFacets();
-            fb2.a = null;
-            fb2.b = null;
-            fb2.c = null;
-            fc.b = null;
-            fd.a = null;
-            fd.b = null;
+            fb2.theA = null;
+            fb2.theB = null;
+            fb2.theC = null;
+            fc.theB = null;
+            fd.theA = null;
+            fd.theB = null;
         }
 
         System.out.print("getting B1 with facets, and B2, C, and D all at once... ");
@@ -243,16 +243,16 @@ public class AllTests
         //test(b2 != c);
         //test(b2 != d);
         //test(c != d);
-        test(b1.a == b2);
-        test(b1.b == b1);
-        test(b1.c == null);
-        test(b2.a == b2);
-        test(b2.b == b1);
-        test(b2.c == c);
-        test(c.b == b2);
-        test(d.a == b1);
-        test(d.b == b2);
-        test(d.c == null);
+        test(b1.theA == b2);
+        test(b1.theB == b1);
+        test(b1.theC == null);
+        test(b2.theA == b2);
+        test(b2.theB == b1);
+        test(b2.theC == c);
+        test(c.theB == b2);
+        test(d.theA == b1);
+        test(d.theB == b2);
+        test(d.theC == null);
         System.out.println("ok");
             
         System.out.print("checking facet consistency... ");
@@ -265,16 +265,16 @@ public class AllTests
         test(b2 == fb2);
         test(c == fc);
         test(d == fd);
-        test(fb1.a == fb2);
-        test(fb1.b == fb1);
-        test(fb1.c == null);
-        test(fb2.a == fb2);
-        test(fb2.b == fb1);
-        test(fb2.c == fc);
-        test(fc.b == fb2);
-        test(fd.a == fb1);
-        test(fd.b == fb2);
-        test(fd.c == null);
+        test(fb1.theA == fb2);
+        test(fb1.theB == fb1);
+        test(fb1.theC == null);
+        test(fb2.theA == fb2);
+        test(fb2.theB == fb1);
+        test(fb2.theC == fc);
+        test(fc.theB == fb2);
+        test(fd.theA == fb1);
+        test(fd.theB == fb2);
+        test(fd.theC == null);
         System.out.println("ok");
 
         //
@@ -282,15 +282,15 @@ public class AllTests
         //
         if(!collocated)
         {
-            fb1.a = null;
-            fb1.b = null;
+            fb1.theA = null;
+            fb1.theB = null;
             fb1.ice_removeAllFacets();
-            fb2.a = null;
-            fb2.b = null;
-            fb2.c = null;
-            fc.b = null;
-            fd.a = null;
-            fd.b = null;
+            fb2.theA = null;
+            fb2.theB = null;
+            fb2.theC = null;
+            fc.theB = null;
+            fd.theA = null;
+            fd.theB = null;
         }
 
         return initial;

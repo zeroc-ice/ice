@@ -16,25 +16,25 @@ class C;
 
 class A
 {
-    B b;
-    C c;
+    B theB;
+    C theC;
 };
 
 class B extends A
 {
-    A a;
+    A theA;
 };
 
 class C
 {
-    B b;
+    B theB;
 };
 
 class D
 {
-    A a;
-    B b;
-    C c;    
+    A theA;
+    B theB;
+    C theC;    
 };
 
 class Initial
@@ -44,7 +44,7 @@ class Initial
     B getB2();
     C getC();
     D getD();
-    void getAll(out B b1, out B b2, out C c, out D d);
+    void getAll(out B b1, out B b2, out C theC, out D theD);
     void addFacetsToB1();
 };
 
