@@ -180,7 +180,7 @@ Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& curren
     getRouter(current.con)->addProxy(proxy, current); // Forward to the per-client router.
 }
 
-void
+SessionPrx
 Glacier2::SessionRouterI::createSession(const std::string& userId, const std::string& password, const Current& current)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -221,6 +221,8 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	out << "new session\n";
 	out << router->toString();
     }
+
+    return 0;
 }
 
 RouterIPtr

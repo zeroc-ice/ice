@@ -100,10 +100,11 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
     _routingTable->add(proxy);
 }
 
-void
+SessionPrx
 Glacier2::RouterI::createSession(const std::string&, const std::string&, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
+    return 0;
 }
 
 ClientBlobjectPtr

@@ -19,6 +19,7 @@ LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAM
 TARGETS         = $(LIBTARGETS) $(ROUTER)
 
 OBJS		= Router.o \
+		  Session.o \
 		  PermissionsVerifier.o
 
 ROBJS		= Glacier2Router.o \
@@ -35,6 +36,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(ROBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/Router.ice \
+		  $(SDIR)/Session.ice \
 		  $(SDIR)/PermissionsVerifier.ice \
 		  $(SDIR)/PermissionsVerifierF.ice
 

@@ -32,7 +32,7 @@ public:
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
+    virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;

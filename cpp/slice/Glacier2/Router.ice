@@ -11,6 +11,7 @@
 #define GLACIER2_ROUTER_ICE
 
 #include <Ice/Router.ice>
+#include <Glacier2/SessionF.ice>
 
 /**
  *
@@ -50,6 +51,8 @@ interface Router extends Ice::Router
      *
      * Create a session with the router.
      *
+     * @return A proxy for the newly created session.
+     *
      * @param userId The user id for which to check the password.
      *
      * @param password The password for the given user id.
@@ -59,7 +62,7 @@ interface Router extends Ice::Router
      * access.
      *
      **/
-    void createSession(string userId, string password)
+    Session* createSession(string userId, string password)
 	throws PermissionDeniedException;
 };
 
