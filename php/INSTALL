@@ -94,8 +94,8 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-No source patches are necessary to compile PHP 5.0.0 on the supported
-platforms.
+No source patches are necessary to compile PHP 5.0.3 on the supported
+platforms. However, see the NOTE above regarding HP-UX.
 
 Platform-specific Issues
 ------------------------
