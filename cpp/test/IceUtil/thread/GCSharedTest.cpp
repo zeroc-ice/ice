@@ -27,13 +27,13 @@ struct TestClass : public Thread, GCShared
 
     bool basesAreVirtual()
     {
-	GCShared::_noDelete = true;
-	Thread::_noDelete = false;
+	GCShared::_noDelete = false;
+	Thread::_noDelete = true;
 	//
 	// If we have virtual bases, there will be only one instance of the IceUtil::Shared base class,
-	// so GCShared::_noDelete will be false after the second assignment.
+	// so GCShared::_noDelete will be true after the second assignment.
 	//
-	return !GCShared::_noDelete;
+	return GCShared::_noDelete;
     }
 };
 
