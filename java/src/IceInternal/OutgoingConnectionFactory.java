@@ -28,7 +28,7 @@ public class OutgoingConnectionFactory
 	    while(q.hasNext())
 	    {
 		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
-		connection.destroy(Connection.CommunicatorDestroyed);
+		connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 	    }
 	}
 
@@ -328,7 +328,7 @@ public class OutgoingConnectionFactory
 
 		if(_destroyed)
 		{
-		    connection.destroy(Connection.CommunicatorDestroyed);
+		    connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 		    throw new Ice.CommunicatorDestroyedException();
 		}
 		else

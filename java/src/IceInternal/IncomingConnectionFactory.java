@@ -445,7 +445,7 @@ public class IncomingConnectionFactory extends EventHandler
                 while(p.hasNext())
                 {   
                     Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-                    connection.destroy(Connection.ObjectAdapterDeactivated);
+                    connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
                 }
 		break;
             }
