@@ -18,8 +18,8 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/Buffer.h>
 #include <Ice/ObjectFactoryF.h>
+#include <Ice/Buffer.h>
 
 namespace Ice
 {
