@@ -15,7 +15,7 @@
 #ifndef ICE_UTIL_GC_SHARED_H
 #define ICE_UTIL_GC_SHARED_H
 
-#include <IceUtil/GCRecMutex.h>
+#include <IceUtil/Config.h>
 #include <set>
 
 namespace IceUtil
@@ -55,100 +55,6 @@ private:
 
     friend class IceUtil::GC;
 };
-
-inline
-GCShared::GCShared()
-{
-    gcRecMutex._m->lock();
-    _ref = 0;
-    _noDelete = false;
-    _adopted = false;
-    gcRecMutex._m->unlock();
-}
-
-inline
-GCShared::~GCShared()
-{
-    gcRecMutex._m->lock();
-#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
-    gcObjects.erase(this);
-#else
-    GCObjectSet::size_type num = gcObjects.erase(this);
-    assert(num == 1);
-#endif
-    gcRecMutex._m->unlock();
-}
-
-inline void
-GCShared::__incRef()
-{
-    gcRecMutex._m->lock();
-    assert(_ref >= 0);
-    if(!_adopted && _ref == 0)
-    {
-        _adopted = true;
-#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
-	gcObjects.insert(this);
-#else
-	std::pair<GCObjectSet::iterator, bool> rc = gcObjects.insert(this);
-	assert(rc.second);
-#endif
-    }
-    ++_ref;
-    gcRecMutex._m->unlock();
-}
-
-inline void
-GCShared::__decRef()
-{
-    gcRecMutex._m->lock();
-    bool doDelete = false;
-    assert(_ref > 0);
-    if(--_ref == 0)
-    {
-	doDelete = !_noDelete;
-	_noDelete = true;
-    }
-    if(doDelete)
-    {
-	delete this;
-    }
-    gcRecMutex._m->unlock();
-}
-
-inline int
-GCShared::__getRef() const
-{
-    gcRecMutex._m->lock();
-    int ref = _ref;
-    gcRecMutex._m->unlock();
-    return ref;
-}
-
-inline void
-GCShared::__setNoDelete(bool b)
-{
-    gcRecMutex._m->lock();
-    _noDelete = b;
-    gcRecMutex._m->unlock();
-}
-
-inline void
-GCShared::__decRefUnsafe()
-{
-    --_ref;
-}
-
-inline void
-GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
-{
-    gcRecMutex._m->lock();
-    if(p)
-    {
-	c.insert(p);
-    }
-    gcRecMutex._m->unlock();
-}
 
 }
 

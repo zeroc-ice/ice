@@ -14,6 +14,7 @@
 
 #include <IceUtil/GC.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/GCRecMutex.h>
 #include <IceUtil/GCShared.h>
 #include <map>
 
