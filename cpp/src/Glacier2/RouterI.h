@@ -11,13 +11,16 @@
 #define GLACIER_ROUTER_I_H
 
 #include <Ice/RoutingTableF.h>
-#include <Ice/Ice.h>
-#include <Glacier/Router.h>
 #include <Glacier/SessionManagerF.h>
 #include <Glacier/SessionF.h>
+#include <Glacier/Router.h>
+#include <Ice/Ice.h>
 
 namespace Glacier
 {
+
+class RouterI;
+typedef IceUtil::Handle<RouterI> RouterIPtr;
 
 class RouterI : public Router
 {

@@ -23,6 +23,7 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
 		 communicator->getProperties()->getPropertyAsInt(clientAlwaysBatch) > 0)
 {
     _requestQueue = new RequestQueue(communicator, reverse);
+    _requestQueue->start();
 }
 
 Glacier::Blobject::~Blobject()

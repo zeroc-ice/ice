@@ -11,7 +11,6 @@
 #include <Glacier/RouterI.h>
 #include <Glacier/Session.h>
 #include <Glacier/SessionManager.h>
-#include <iostream>
 
 using namespace std;
 using namespace Ice;

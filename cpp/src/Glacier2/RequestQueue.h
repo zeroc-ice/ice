@@ -10,9 +10,9 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-#include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
+#include <Ice/Ice.h>
 
 namespace Glacier
 {
@@ -69,6 +69,7 @@ private:
     const IceUtil::Time _sleepTime;
 
     std::vector<RequestPtr> _requests;
+
     bool _destroy;
 };
 

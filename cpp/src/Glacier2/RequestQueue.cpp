@@ -146,7 +146,7 @@ Glacier::RequestQueue::destroy()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-    assert(_destroy);
+    assert(!_destroy);
 
     _destroy = true;
     _requests.clear();

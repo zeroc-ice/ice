@@ -35,7 +35,7 @@ Glacier::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
 
     assert(current.transport);
     
-    map<TransportInfoPtr, Client>::iterator p = _clientMap.end();
+    map<TransportInfoPtr, Client>::iterator p;
     
     if(_clientMapHint != _clientMap.end() && _clientMapHint->first == current.transport)
     {

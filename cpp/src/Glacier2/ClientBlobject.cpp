@@ -55,6 +55,7 @@ void
 Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					  const Current& current)
 {
+    cout << "xxxxxxxxxxxxxx 8" << endl;
     //
     // If there is an _allowCategories set then enforce it.
     //
@@ -74,6 +75,8 @@ Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
 	}
     }
 
+    cout << "xxxxxxxxxxxxxx 9" << endl;
+
     assert(_routingTable); // Destroyed?
     ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
@@ -83,5 +86,6 @@ Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
 	throw ex;
     }
 
+    cout << "xxxxxxxxxxxxxx 10" << endl;
     invoke(proxy, amdCB, inParams, current);
 }
