@@ -16,6 +16,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+std::set<string> Ice::PropertiesI::_argumentPrefixes;
+
 string
 Ice::PropertiesI::getProperty(const string& key)
 {
@@ -43,6 +45,12 @@ Ice::PropertiesI::clone()
     PropertiesI* p = new PropertiesI(dummy, 0);
     p->_properties = _properties;
     return p;
+}
+
+void
+Ice::PropertiesI::addArgumentPrefix(const std::string& prefix)
+{
+    _argumentPrefixes.insert(prefix);
 }
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
@@ -111,23 +119,40 @@ Ice::PropertiesI::parseArgs(int& argc, char* argv[])
     int idx = 1;
     while (idx < argc)
     {
-	if (strncmp(argv[idx], "--Ice.", 6) == 0)
+	bool match = false;
+	string arg = argv[idx];
+	string::size_type beg = arg.find("--");
+	if (beg == 0)
 	{
-	    string line = argv[idx];
-	    for (int i = idx ; i + 1 < argc ; ++i)
+	    string::size_type end = arg.find('.');
+	    if (end != string::npos)
 	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
+		string prefix = arg.substr(2, end - 2);
+		
+		if (prefix == "Ice" || _argumentPrefixes.find(prefix) != _argumentPrefixes.end())
+		{
+		    match = true;
+		}
 
-	    if (line.find('=') == string::npos)
-	    {
-		line += "=1";
+		if (match)
+		{
+		    for (int i = idx ; i + 1 < argc ; ++i)
+		    {
+			argv[i] = argv[i + 1];
+		    }
+		    --argc;
+		    
+		    if (arg.find('=') == string::npos)
+		    {
+			arg += "=1";
+		    }
+		    
+		    parseLine(arg.substr(2));
+		}
 	    }
-	    
-	    parseLine(line.substr(2));
 	}
-	else
+	
+	if (!match)
 	{
 	    ++idx;
 	}

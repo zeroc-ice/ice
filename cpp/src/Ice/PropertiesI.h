@@ -12,6 +12,7 @@
 #define ICE_PROPERTIES_I_H
 
 #include <Ice/Properties.h>
+#include <set>
 
 namespace Ice
 {
@@ -23,6 +24,7 @@ public:
     virtual std::string getProperty(const std::string&);
     virtual void setProperty(const std::string&, const std::string&);
     virtual PropertiesPtr clone();
+    static void addArgumentPrefix(const std::string&);
 
 private:
 
@@ -37,6 +39,7 @@ private:
     void parseLine(const std::string&);
 
     std::map<std::string, std::string> _properties;
+    static std::set<std::string> _argumentPrefixes;
 };
 
 }

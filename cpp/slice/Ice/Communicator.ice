@@ -129,7 +129,7 @@ local interface Communicator
      *
      * Create a new Object Adapter. The endpoints for the Object
      * Adapter are taken from the property
-     * [ice.adapter.<replaceable>name</replaceable>.endpoints], with
+     * [Ice.Adapter.<replaceable>name</replaceable>.Endpoints], with
      * <replaceable>name</replaceable> being the name of the Object
      * Adapter.
      *
@@ -139,6 +139,8 @@ local interface Communicator
      * @return The new Object Adapter.
      *
      * @see ObjectAdapter
+     * @see Properties
+     * @see createObjectAdapterFromProperty
      * @see createObjectAdapterWithEndpoints
      *
      **/
@@ -146,8 +148,29 @@ local interface Communicator
 
     /**
      *
+     * Create a new Object Adapter from a property. The endpoints for
+     * the Object Adapter are taken from the property
+     * <replaceable>property</replaceable>.
+     *
+     * @param name The name to use for the Object Adapter. This name
+     * must be unique for the Communicator.
+     *
+     * @param property The property from which the endpoints are taken.
+     *
+     * @return The new Object Adapter.
+     *
+     * @see Properties
+     * @see ObjectAdapter
+     * @see createObjectAdapterWithEndpoints
+     *
+     **/
+    ObjectAdapter createObjectAdapterFromProperty(string name, string property);
+
+    /**
+     *
      * Create a new Object Adapter with a list of endpoints. In
-     * contrast to [createObjectAdapter], the endpoints to use are
+     * contrast to [createObjectAdapter] and
+     * [createObjectAdapterFromProperty], the endpoints to use are
      * passed explicitly as a parameter.
      *
      * @param name The name to use for the Object Adapter. This name
@@ -159,6 +182,7 @@ local interface Communicator
      *
      * @see ObjectAdapter
      * @see createObjectAdapter
+     * @see createObjectAdapterFromProperty
      *
      **/
     ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpts);

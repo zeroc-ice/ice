@@ -27,6 +27,7 @@ public:
 int
 main(int argc, char* argv[])
 {
+    addArgumentPrefix("IcePack");
     Client app;
     return app.main(argc, argv);
 }
@@ -137,7 +138,7 @@ Client::run(int argc, char* argv[])
     }
 
     PropertiesPtr properties = communicator()->getProperties();
-    const char* adminEndpointsProperty = "Ice.Adapter.Admin.Endpoints";
+    const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
     if (adminEndpoints.empty())
     {

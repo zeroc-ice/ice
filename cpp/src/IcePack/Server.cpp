@@ -27,6 +27,7 @@ public:
 int
 main(int argc, char* argv[])
 {
+    addArgumentPrefix("IcePack");
     Server app;
     return app.main(argc, argv);
 }
@@ -73,7 +74,7 @@ Server::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    const char* adminEndpointsProperty = "Ice.Adapter.Admin.Endpoints";
+    const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
     if (!adminEndpoints.empty() && !nowarn)
     {
@@ -81,7 +82,7 @@ Server::run(int argc, char* argv[])
 	     << endl;
     }
 
-    const char* forwardEndpointsProperty = "Ice.Adapter.Forward.Endpoints";
+    const char* forwardEndpointsProperty = "IcePack.Forward.Endpoints";
     string forwardEndpoints = properties->getProperty(forwardEndpointsProperty);
     if (forwardEndpoints.empty())
     {
@@ -94,12 +95,14 @@ Server::run(int argc, char* argv[])
 
     if (adminEndpoints.length() != 0)
     {
-	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapter("Admin");
+	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapterFromProperty("Admin",
+											adminEndpointsProperty);
 	adminAdapter->add(admin, stringToIdentity("admin"));
 	adminAdapter->activate();
     }
 
-    ObjectAdapterPtr forwardAdapter = communicator()->createObjectAdapter("Forward");
+    ObjectAdapterPtr forwardAdapter = communicator()->createObjectAdapterFromProperty("Forward",
+										      forwardEndpointsProperty);
     forwardAdapter->addServantLocator(forward, "");
     forwardAdapter->activate();
 

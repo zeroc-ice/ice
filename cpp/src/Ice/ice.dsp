@@ -168,6 +168,10 @@ SOURCE=.\Incoming.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Initialize.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Instance.cpp
 # End Source File
 # Begin Source File

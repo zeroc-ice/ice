@@ -26,6 +26,7 @@ public:
 int
 main(int argc, char* argv[])
 {
+    addArgumentPrefix("IceWall");
     Server app;
     return app.main(argc, argv);
 }
@@ -66,7 +67,7 @@ Server::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    const char* routerEndpointsProperty = "Ice.Adapter.Router.Endpoints";
+    const char* routerEndpointsProperty = "IceWall.Router.Endpoints";
     string routerEndpoints = properties->getProperty(routerEndpointsProperty);
     if (routerEndpoints.empty())
     {
@@ -76,7 +77,8 @@ Server::run(int argc, char* argv[])
 
     ServantLocatorPtr router = new Router;
 
-    ObjectAdapterPtr routerAdapter = communicator()->createObjectAdapter("Router");
+    ObjectAdapterPtr routerAdapter = communicator()->createObjectAdapterFromProperty("Router",
+										     routerEndpointsProperty);
     routerAdapter->addServantLocator(router, "");
     routerAdapter->activate();
 

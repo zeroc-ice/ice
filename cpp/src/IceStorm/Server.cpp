@@ -70,13 +70,13 @@ main(int argc, char* argv[])
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	    }
-	    dbdir = argv[i+1];
+	    dbdir = argv[i + 1];
 	    //
 	    // Consume arguments
 	    //
 	    while (i < argc - 2)
 	    {
-		argv[i] = argv[i+2];
+		argv[i] = argv[i + 2];
 		++i;
 	    }
 	    argc -= 2;
@@ -87,6 +87,7 @@ main(int argc, char* argv[])
 	}
     }
     
+    addArgumentPrefix("IcePack");
     Server app(dbdir);
     return app.main(argc, argv);
 }
@@ -129,7 +130,8 @@ IceStorm::Server::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentP
     //PropertiesPtr properties = communicator()->getProperties();
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties());
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TopicManager");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("TopicManager",
+									       "IceStorm.TopicManager.Endpoints");
     ObjectPtr object = new TopicManagerI(communicator(), adapter, traceLevels, dbTopicManager);
     adapter->add(object, stringToIdentity("TopicManager"));
     adapter->activate();

@@ -8,7 +8,7 @@ IceStorm.TopicManager=TopicManager:tcp -h localhost -p 10000
 # This property sets the endpoint for the TopicManager. The port
 # number must match the above.
 #
-Ice.Adapter.TopicManager.Endpoints=tcp -p 10000
+IceStorm.TopicManager.Endpoints=tcp -p 10000
 
 #
 # TopicManager Tracing

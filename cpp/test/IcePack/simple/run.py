@@ -27,24 +27,19 @@ updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
-command = icePack + updatedClientServerOptions + ' --nowarn' + \
-       r' "--Ice.Adapter.Forward.Endpoints=default -p 12346 -t 5000"' + \
-       r' "--Ice.Adapter.Admin.Endpoints=default -p 12347 -t 5000"'
 print "starting icepack...",
+command = icePack + updatedClientServerOptions + ' --nowarn' + \
+          r' "--IcePack.Forward.Endpoints=default -p 12346 -t 5000"' + \
+          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000"'
 icePackPipe = os.popen(command)
 TestUtil.getServerPid(icePackPipe)
 TestUtil.getAdapterReady(icePackPipe)
 TestUtil.getAdapterReady(icePackPipe)
 print "ok"
 
-secure = ""
-if TestUtil.protocol == "ssl":
-    secure = " -s "
-
-command = icePackAdmin + updatedClientOptions + \
-        r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"' + \
-        r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\""'
 print "registering server with icepack...",
+command = icePackAdmin + updatedClientOptions + \
+          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "add \"test:default -p 12345 -t 5000\""'
 icePackAdminPipe = os.popen(command)
 icePackAdminPipe.close()
 print "ok"
@@ -57,16 +52,15 @@ TestUtil.collocatedTest(toplevel, name)
 # This test doesn't work under Windows.
 #
 if sys.platform != "cygwin" and sys.platform != "win32":
-    testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 
+    testdir = os.path.join(toplevel, "test", "IcePack", "simple")
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    command = icePackAdmin + updatedClientOptions + \
-            r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + ' -p 12347 -t 5000"' + \
-            r' -e "add \"test' + secure + ':' + TestUtil.protocol + r' -p 12345 -t 5000\"' + \
-            ' ' + server + updatedServerOptions + '"'
     print "registering server with icepack for automatic activation...",
+    command = icePackAdmin + updatedClientOptions + \
+              r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000"' + \
+              r' -e "add \"test:default -p 12345 -t 5000\" ' + server + updatedServerOptions + '"'
     icePackAdminPipe = os.popen(command)
     icePackAdminPipe.close()
     print "ok"
@@ -87,9 +81,9 @@ if sys.platform != "cygwin" and sys.platform != "win32":
             break;
         print output,
 
-command = icePackAdmin + updatedClientOptions + \
-          r' "--Ice.Adapter.Admin.Endpoints=' + TestUtil.protocol + r' -p 12347 -t 5000"' + r' -e "shutdown"'
 print "shutting down icepack...",
+command = icePackAdmin + updatedClientOptions + \
+          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "shutdown"'
 icePackAdminPipe = os.popen(command)
 icePackAdminPipe.close()
 print "ok"

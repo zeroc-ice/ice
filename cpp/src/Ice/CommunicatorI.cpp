@@ -9,8 +9,8 @@
 // **********************************************************************
 
 #include <Ice/CommunicatorI.h>
-#include <Ice/PropertiesI.h>
 #include <Ice/Instance.h>
+#include <Ice/Properties.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectFactoryManager.h>
@@ -18,7 +18,6 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
 #include <Ice/StreamI.h>
-#include <Ice/Initialize.h>
 #include <Ice/Exception.h>
 
 using namespace std;
@@ -81,12 +80,18 @@ Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
+    return createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+}
+
+ObjectAdapterPtr
+Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const string& property)
+{
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    string endpts = _instance->properties()->getProperty("Ice.Adapter." + name + ".Endpoints");
+    string endpts = _instance->properties()->getProperty(property);
     return createObjectAdapterWithEndpoints(name, endpts);
 }
 
@@ -239,72 +244,4 @@ Ice::CommunicatorI::~CommunicatorI()
     {
 	_instance->logger()->warning("communicator has not been destroyed");
     }
-}
-
-CommunicatorPtr
-Ice::initialize(int& argc, char* argv[], Int version)
-{
-#ifndef ICE_IGNORE_VERSION
-    if (version != ICE_INT_VERSION)
-    {
-	throw VersionMismatchException(__FILE__, __LINE__);
-    }
-#endif
-
-    return new CommunicatorI(getDefaultProperties(argc, argv));
-}
-
-CommunicatorPtr
-Ice::initializeWithProperties(const PropertiesPtr& properties, Int version)
-{
-#ifndef ICE_IGNORE_VERSION
-    if (version != ICE_INT_VERSION)
-    {
-	throw VersionMismatchException(__FILE__, __LINE__);
-    }
-#endif
-
-    return new CommunicatorI(properties);
-}
-
-static PropertiesPtr defaultProperties;
-class DefaultPropertiesDestroyer
-{
-public:
-
-    ~DefaultPropertiesDestroyer()
-    {
-	defaultProperties = 0;
-    }
-};
-static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
-
-PropertiesPtr
-Ice::getDefaultProperties(int& argc, char* argv[])
-{
-    if (!defaultProperties)
-    {
-	defaultProperties = createProperties(argc, argv);
-    }
-    return defaultProperties;
-}
-
-PropertiesPtr
-Ice::createProperties(int& argc, char* argv[])
-{
-    return new PropertiesI(argc, argv);
-}
-
-PropertiesPtr
-Ice::createPropertiesFromFile(int& argc, char* argv[], const string& file)
-{
-    return new PropertiesI(argc, argv, file);
-}
-
-InstancePtr
-IceInternal::getInstance(const CommunicatorPtr& communicator)
-{
-    CommunicatorI* p = dynamic_cast<CommunicatorI*>(communicator.get());
-    assert(p);
-    return p->_instance;
 }
