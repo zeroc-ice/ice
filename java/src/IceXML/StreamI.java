@@ -828,7 +828,10 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         assert(IceInternal.StringUtil.findFirstOf(name, " \t") == -1);
 
         _os.se(name);
-        _os.startEscapes().write(value == null ? "" : value).endEscapes();
+        if(value != null && value.length() > 0)
+        {
+            _os.startEscapes().write(value == null ? "" : value).endEscapes();
+        }
         _os.ee();
     }
 
@@ -839,7 +842,10 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         for(int i = 0; i < value.length; i++)
         {
             _os.se("e");
-            _os.startEscapes().write(value[i] == null ? "" : value[i]).endEscapes();
+            if(value[i] != null && value[i].length() > 0)
+            {
+                _os.startEscapes().write(value[i] == null ? "" : value[i]).endEscapes();
+            }
             _os.ee();
         }
         endWriteSequence();
@@ -901,7 +907,10 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         String s = _communicator.proxyToString(value);
 
         _os.se(name);
-        _os.startEscapes().write(s).endEscapes();
+        if(s.length() > 0)
+        {
+            _os.startEscapes().write(s).endEscapes();
+        }
         _os.ee();
     }
 

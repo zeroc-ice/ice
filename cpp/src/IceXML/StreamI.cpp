@@ -964,7 +964,10 @@ IceXML::StreamI::writeString(const string& name, const string& value)
     assert(name.find_first_of(" \t") == string::npos);
 
     _os << se(name);
-    _os << startEscapes << value << endEscapes;
+    if(!value.empty())
+    {
+        _os << startEscapes << value << endEscapes;
+    }
     _os << ee;
 }
 
@@ -975,7 +978,10 @@ IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
     for(::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
 	_os << se("e");
-	_os << startEscapes << *p << endEscapes;
+        if(!p->empty())
+        {
+            _os << startEscapes << *p << endEscapes;
+        }
 	_os << ee;
     }
     endWriteSequence();
@@ -1039,7 +1045,10 @@ IceXML::StreamI::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
     string s = _communicator->proxyToString(proxy);
 
     _os << se(name);
-    _os << startEscapes << s << endEscapes;
+    if(!s.empty())
+    {
+        _os << startEscapes << s << endEscapes;
+    }
     _os << ee;
 }
 
