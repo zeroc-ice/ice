@@ -94,6 +94,11 @@ public abstract class Application
             _communicator = null;
         }
 
+        if(_shutdownHook != null)
+        {
+            _shutdownHook.done();
+        }
+
         return status;
     }
 
@@ -133,7 +138,7 @@ public abstract class Application
 	    // terminated. So the shutdown hook will join the current
 	    // thread before to end.
 	    //
-	    _shutdownHook = new ShutdownHook(Thread.currentThread());
+	    _shutdownHook = new ShutdownHook();
 	    Runtime.getRuntime().addShutdownHook(_shutdownHook);
 	}
     }
@@ -163,8 +168,42 @@ public abstract class Application
 		//
 	    }
 
+            _shutdownHook.done();
 	    _shutdownHook = null;
 	}
+    }
+
+    static class ShutdownHook extends Thread
+    {
+        ShutdownHook()
+        {
+            _done = false;
+        }
+
+        public synchronized void
+        run()
+        {
+            communicator().shutdown();
+            while(!_done)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+        }
+
+        synchronized void
+        done()
+        {
+            _done = true;
+            notify();
+        }
+
+        private boolean _done;
     }
 
     private static String _appName;
