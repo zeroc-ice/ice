@@ -32,6 +32,12 @@ public final class ThrowerI extends _ThrowerDisp
         return false;
     }
 
+    public boolean
+    supportsAssertException(Ice.Current current)
+    {
+        return true;
+    }
+
     public void
     throwAasA(int a, Ice.Current current)
         throws A
@@ -103,18 +109,6 @@ public final class ThrowerI extends _ThrowerDisp
     }
 
     public void
-    throwLocalException(Ice.Current current)
-    {
-        throw new Ice.TimeoutException();
-    }
-
-    public void
-    throwNonIceException(Ice.Current current)
-    {
-        throw new RuntimeException();
-    }
-
-    public void
     throwUndeclaredA(int a, Ice.Current current)
     {
         // Not possible in Java.
@@ -133,6 +127,24 @@ public final class ThrowerI extends _ThrowerDisp
     {
         // Not possible in Java.
         throw new Ice.UnknownUserException();
+    }
+
+    public void
+    throwLocalException(Ice.Current current)
+    {
+        throw new Ice.TimeoutException();
+    }
+
+    public void
+    throwNonIceException(Ice.Current current)
+    {
+        throw new RuntimeException();
+    }
+
+    public void
+    throwAssertException(Ice.Current current)
+    {
+        throw new java.lang.AssertionError();
     }
 
     private Ice.ObjectAdapter _adapter;

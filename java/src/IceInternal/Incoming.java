@@ -151,6 +151,8 @@ final public class Incoming extends IncomingBase
         }
         catch(Ice.RequestFailedException ex)
         {
+	    _is.endReadEncaps();
+
 	    if(ex.id == null)
 	    {
 		ex.id = _current.id;
@@ -209,12 +211,17 @@ final public class Incoming extends IncomingBase
 		_os.writeString(ex.operation);
             }
 
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
-	    _is.endReadEncaps();
 	    return;
         }
         catch(Ice.LocalException ex)
         {
+	    _is.endReadEncaps();
+
 	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
@@ -232,8 +239,11 @@ final public class Incoming extends IncomingBase
 		_os.writeString(sw.toString());
             }
 
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
-	    _is.endReadEncaps();
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -244,6 +254,8 @@ final public class Incoming extends IncomingBase
 	*/
         catch(Exception ex)
         {
+	    _is.endReadEncaps();
+
 	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
 		__warning(ex);
@@ -261,8 +273,11 @@ final public class Incoming extends IncomingBase
 		_os.writeString(sw.toString());
             }
 	    
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
-	    _is.endReadEncaps();
 	    return;
         }
 	
@@ -271,6 +286,8 @@ final public class Incoming extends IncomingBase
 	// in the code below are considered fatal, and must propagate to
 	// the caller of this operation.
 	//
+
+	_is.endReadEncaps();
 
 	//
 	// DispatchAsync is "pseudo dispatch status", used internally
@@ -283,7 +300,6 @@ final public class Incoming extends IncomingBase
 	    // here.  We do *not* call __finishInvoke(), because
 	    // the call is not finished yet.
 	    //
-	    _is.endReadEncaps();
 	    return;
 	}
 
@@ -326,8 +342,11 @@ final public class Incoming extends IncomingBase
 	    }
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
     }
 
     public BasicStream

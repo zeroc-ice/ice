@@ -41,23 +41,11 @@ exception D
     int dMem;
 };
 
-/*
- * Generates code that cannot be compiled in Java.
- *
-module Mod
-{
-    exception A extends :: A
-    {
-	int a2Mem;
-    };
-};
- */
-
-
 ["ami"] interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
+    bool supportsAssertException();
 
     void throwAasA(int a) throws A;
     void throwAorDasAorD(int a) throws A, D;
@@ -67,16 +55,12 @@ module Mod
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
 
-    //
-    // Not supported in Java.
-    //
-    //void throwModA(int a, int a2) throws Mod::A;
-
     void throwUndeclaredA(int a);
     void throwUndeclaredB(int a, int b);
     void throwUndeclaredC(int a, int b, int c);
     void throwLocalException();
     void throwNonIceException();
+    void throwAssertException();
 };
 
 ["ami"] interface WrongOperation

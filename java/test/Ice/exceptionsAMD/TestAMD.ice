@@ -41,6 +41,7 @@ exception D
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
+    bool supportsAssertException();
 
     void throwAasA(int a) throws A;
     void throwAorDasAorD(int a) throws A, D;
@@ -54,6 +55,7 @@ exception D
     void throwUndeclaredC(int a, int b, int c);
     void throwLocalException();
     void throwNonIceException();
+    void throwAssertException();
 };
 
 ["ami", "amd"] interface WrongOperation

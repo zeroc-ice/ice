@@ -1093,7 +1093,7 @@ public final class Connection extends EventHandler
 	Incoming in = null;
 	try
 	{
-	    while(invoke-- > 0)
+	    while(invoke > 0)
 	    {
 		
 		//
@@ -1110,7 +1110,7 @@ public final class Connection extends EventHandler
 		//
 		if(response)
 		{
-		    assert(invoke == 0); // No further invocations if a response is expected.
+		    assert(invoke == 1); // No further invocations if a response is expected.
 		    os.writeBlob(_replyHdr);
 		    
 		    //
@@ -1124,7 +1124,7 @@ public final class Connection extends EventHandler
 		//
 		// If there are more invocations, we need the stream back.
 		//
-		if(invoke > 0)
+		if(--invoke > 0)
 		{
 		    stream.swap(is);
                 }
@@ -1135,6 +1135,8 @@ public final class Connection extends EventHandler
 	}
 	catch(Ice.LocalException ex)
 	{
+	    assert(invoke > 0);
+
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
@@ -1142,15 +1144,23 @@ public final class Connection extends EventHandler
 	}
 	catch(AssertionError ex)
 	{
+	    assert(invoke > 0);
+
 	    //
 	    // Java only: Upon an assertion, we don't kill the whole
 	    // process, but just print the stack trace and close the
 	    // connection.
 	    //
-	    ex.printStackTrace();
 	    synchronized(this)
 	    {
-		setState(StateClosed, new Ice.UnknownException());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		Ice.UnknownException exc = new Ice.UnknownException();
+		exc.unknown = sw.toString();
+		_logger.error(exc.unknown);
+		setState(StateClosed, exc);
 	    }
 	}
 	finally
@@ -1158,6 +1168,25 @@ public final class Connection extends EventHandler
 	    if(in != null)
 	    {
 		reclaimIncoming(in);
+	    }
+
+	    //
+	    // If invoke() above raised an exception, and therefore
+	    // neither sendResponse() nor sendNoResponse() has been
+	    // called, then we must decrement _dispatchCount here.
+	    //
+	    if(invoke > 0)
+	    {
+		synchronized(this)
+		{
+		    assert(_dispatchCount > 0);
+		    _dispatchCount -= invoke;
+		    assert(_dispatchCount >= 0);
+		    if(_dispatchCount == 0)
+		    {
+			notifyAll();
+		    }
+		}
 	    }
 	}
     }

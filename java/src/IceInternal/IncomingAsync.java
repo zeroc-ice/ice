@@ -62,6 +62,10 @@ public class IncomingAsync extends IncomingBase
 	    _os.pos(save);
 	}
 	
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
     }
 
@@ -196,6 +200,10 @@ public class IncomingAsync extends IncomingBase
             }
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
     }
 

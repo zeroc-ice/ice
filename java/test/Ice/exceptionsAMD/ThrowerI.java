@@ -34,6 +34,12 @@ public final class ThrowerI extends _ThrowerDisp
     }
 
     public void
+    supportsAssertException_async(AMD_Thrower_supportsAssertException cb, Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
+
+    public void
     throwAasA_async(AMD_Thrower_throwAasA cb, int a, Ice.Current current)
         throws A
     {
@@ -117,18 +123,6 @@ public final class ThrowerI extends _ThrowerDisp
     }
 
     public void
-    throwLocalException_async(AMD_Thrower_throwLocalException cb, Ice.Current current)
-    {
-        cb.ice_exception(new Ice.TimeoutException());
-    }
-
-    public void
-    throwNonIceException_async(AMD_Thrower_throwNonIceException cb, Ice.Current current)
-    {
-        throw new RuntimeException();
-    }
-
-    public void
     throwUndeclaredA_async(AMD_Thrower_throwUndeclaredA cb, int a, Ice.Current current)
     {
         A ex = new A();
@@ -153,6 +147,24 @@ public final class ThrowerI extends _ThrowerDisp
         ex.bMem = b;
         ex.cMem = c;
         cb.ice_exception(ex);
+    }
+
+    public void
+    throwLocalException_async(AMD_Thrower_throwLocalException cb, Ice.Current current)
+    {
+        cb.ice_exception(new Ice.TimeoutException());
+    }
+
+    public void
+    throwNonIceException_async(AMD_Thrower_throwNonIceException cb, Ice.Current current)
+    {
+        throw new RuntimeException();
+    }
+
+    public void
+    throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
+    {
+        throw new java.lang.AssertionError();
     }
 
     private Ice.ObjectAdapter _adapter;

@@ -617,6 +617,40 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
+    private static class AMI_Thrower_throwAssertExceptionI extends AMI_Thrower_throwAssertException
+    {
+	public void
+	ice_response()
+	{
+	    test(false);
+	}
+
+	public void
+	ice_exception(Ice.LocalException exc)
+	{
+	    try
+	    {
+		throw exc;
+	    }
+	    catch(Ice.ConnectionLostException ex)
+	    {
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	    callback.called();
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private Callback callback = new Callback();
+    }
+
     private static class AMI_WrongOperation_noSuchOperationI extends AMI_WrongOperation_noSuchOperation
     {
 	public void
@@ -962,6 +996,32 @@ public class AllTests
 	    System.out.println("ok");
 	}
 	
+	if(thrower.supportsAssertException())
+	{
+	    System.out.print("testing assert in the server... ");
+	    System.out.flush();
+	    
+	    try
+	    {
+		thrower.throwAssertException();
+		test(false);
+	    }
+	    catch(java.lang.AssertionError ex)
+	    {
+		assert(collocated);
+	    }
+	    catch(Ice.ConnectionLostException ex)
+	    {
+		assert(!collocated);
+	    }
+	    catch(Exception ex)
+	    {
+		test(false);
+	    }
+	    
+	    System.out.println("ok");
+	}
+
 	System.out.print("catching object not exist exception... ");
 	System.out.flush();
 
@@ -1178,6 +1238,18 @@ public class AllTests
 		System.out.println("ok");
 	    }
 
+	    if(thrower.supportsAssertException())
+	    {
+		System.out.print("testing assert in the server with AMI... ");
+		System.out.flush();
+	    
+		AMI_Thrower_throwAssertExceptionI cb = new AMI_Thrower_throwAssertExceptionI();
+		thrower.throwAssertException_async(cb);
+		test(cb.check());
+	
+		System.out.println("ok");
+	    }
+
 	    System.out.print("catching object not exist exception with AMI... ");
 	    System.out.flush();
 
@@ -1241,7 +1313,6 @@ public class AllTests
 	    test(cb.check());
 	
 	    System.out.println("ok");
-
 	}
 
         return thrower;
