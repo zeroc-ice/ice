@@ -348,7 +348,7 @@ IceInternal::ThreadPool::run()
 		_minFd = _fdIntrRead;
 		if (!_handlerMap.empty())
 		{
-		    _maxFd = max(_maxFd, _handlerMap.rbegin()->first);
+		    _maxFd = max(_maxFd, (--_handlerMap.end())->first);
 		    _minFd = min(_minFd, _handlerMap.begin()->first);
 		}
 		if (_handlerMap.empty() || _servers == 0)
