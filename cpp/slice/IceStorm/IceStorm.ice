@@ -174,6 +174,9 @@ interface Topic
      *
      * @param cost The cost to the linked topic.
      *
+     * @throws LinkExists Raised if a link to the same topic already
+     * exists.
+     *
      **/
     void link(Topic* linkTo, int cost) throws LinkExists;
 
@@ -182,6 +185,8 @@ interface Topic
      * Destroy the link from this topic to the given topic [linkTo].
      *
      * @param link The topic to destroy the link to.
+     *
+     * @throws NoSuchTopic Raised if a link to the topic does not exist.
      *
      **/
     void unlink(Topic* linkTo) throws NoSuchLink;
