@@ -439,7 +439,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         zend_throw_exception_object(zex TSRMLS_CC);
     }
-    catch(const Ice::ProtocolException& e)
+    catch(const Ice::MarshalException& e)
     {
         string name = e.ice_name();
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);

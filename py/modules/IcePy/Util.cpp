@@ -339,8 +339,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     catch(const Ice::UnsupportedProtocolException& e)
     {
         IcePy::PyObjectHandle m;
-        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, "reason", m.get());
         m = PyInt_FromLong(e.badMajor);
         PyObject_SetAttrString(p, "badMajor", m.get());
         m = PyInt_FromLong(e.badMinor);
@@ -353,8 +351,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     catch(const Ice::UnsupportedEncodingException& e)
     {
         IcePy::PyObjectHandle m;
-        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
-        PyObject_SetAttrString(p, "reason", m.get());
         m = PyInt_FromLong(e.badMajor);
         PyObject_SetAttrString(p, "badMajor", m.get());
         m = PyInt_FromLong(e.badMinor);
@@ -372,7 +368,7 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = PyString_FromString(const_cast<char*>(e.type.c_str()));
         PyObject_SetAttrString(p, "type", m.get());
     }
-    catch(const Ice::ProtocolException& e)
+    catch(const Ice::MarshalException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
         PyObject_SetAttrString(p, "reason", m.get());
