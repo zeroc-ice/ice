@@ -754,7 +754,8 @@ IceInternal::BasicStream::read(vector<bool>& v)
     if(sz > 0)
     {
 	checkFixedSeq(sz, 1);
-	vector<bool>(i, i + sz).swap(v);
+	v.resize(sz);
+	copy(i, i + sz, v.begin());
 	i += sz;
     }
     else
