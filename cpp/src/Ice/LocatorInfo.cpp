@@ -133,13 +133,22 @@ IceInternal::LocatorAdapterTable::add(const string& adapter, const ::std::vector
     _adapterEndpointsMap.insert(make_pair(adapter, endpoints));
 }
 
-void
+::std::vector<EndpointPtr>
 IceInternal::LocatorAdapterTable::remove(const string& adapter)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    bool removed = _adapterEndpointsMap.erase(adapter) > 0;
-    assert(removed);
+    std::map<std::string, std::vector<EndpointPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
+    if(p == _adapterEndpointsMap.end())
+    {
+	return std::vector<EndpointPtr>();
+    }
+
+    std::vector<EndpointPtr> endpoints = p->second;
+
+    _adapterEndpointsMap.erase(p);
+    
+    return endpoints;
 }
 
 
@@ -169,12 +178,8 @@ IceInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
     return _locator < rhs._locator;
 }
 
-// TODO: ML: Should be const. I know that I didn't do this correctly
-// for other classes (such as RouterInfo) as well. However, we need to
-// start doing this right :-) Can you please fix const-correctness for the
-// locator and router stuff?
 LocatorPrx
-IceInternal::LocatorInfo::getLocator()
+IceInternal::LocatorInfo::getLocator() const
 {
     //
     // No mutex lock necessary, _locator is immutable.
@@ -195,15 +200,19 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     return _locatorRegistry;
 }
 
-bool 
-IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, ::std::vector<EndpointPtr>& endpoints) const
+std::vector<EndpointPtr>
+IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 {
-    bool cached = false;
+    ::std::vector<EndpointPtr> endpoints;
 
     if(!ref->adapterId.empty())
     {
+	cached = true;
+
 	if(!_adapterTable->get(ref->adapterId, endpoints))
 	{
+	    cached = false;
+
 	    //
 	    // Search the adapter in the location service if we didn't
 	    // find it in the cache.
@@ -223,36 +232,29 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, ::std::vector<En
 		// endpoints and raise a NoEndpointException().
 		//
 	    }
-	}
-	else
-	{
-	    cached = true;	
+
+	    //
+	    // Add to the cache.
+	    //
+	    if(!endpoints.empty())
+	    {
+		_adapterTable->add(ref->adapterId, endpoints);
+	    }
 	}
 
-	// TODO: ML: Don't use size to check for emptyness. Use !endpoints.empty().
-	if(endpoints.size() > 0)
+	if(!endpoints.empty())
 	{
 	    if(ref->instance->traceLevels()->location >= 1)
 	    {
-		// TODO: ML: "object"? You mean "proxy"! Or even
-		// better, since only the endpoints count here, use
-		// "endpoints" instead of "object".
-
 		Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
 		if(cached)
 		{
-		    // TODO: ML: "local locator table"? Isn't this always
-		    // local? I suggest to remove the "local".
-		    out << "found object in local locator table\n";
+		    out << "found endpoints in locator table\n";
 		}
 		else
 		{
-		    // TODO: ML: "found"? Shouldn't this read
-		    // "retrieved endpoints from locator".
-		    out << "found object in locator\n";
+		    out << "retrieved endpoints from locator, adding to locator table\n";
 		}
-		// TODO: ML: Why do you log the identity? What meaning does it have?
-		out << "identity = " << identityToString(ref->identity) << "\n";
 		out << "adapter = " << ref->adapterId << "\n";
 		const char* sep = endpoints.size() > 1 ? ":" : "";
 		ostringstream o;
@@ -262,50 +264,33 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, ::std::vector<En
 	    }
 	}
     }
-
-    return cached;
-}
-
-// TODO: ML: Why a separate operation? Why not add this stuff to
-// getEndpoings() above? What's the point of getting endpoints without
-// caching them?
-void 
-IceInternal::LocatorInfo::addEndpoints(const ReferencePtr& ref, const ::std::vector<EndpointPtr>& endpoints)
-{
-    assert(!endpoints.empty());
-
-    if(!ref->adapterId.empty())
+    else
     {
-	_adapterTable->add(ref->adapterId, endpoints);
-
-	if(ref->instance->traceLevels()->location >= 2)
-	{
-	    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-	    // TODO: Since this function should be removed, no
-	    // separate log message is necessary either. Instead use
-	    // "retrieved endpoints from locator, adding to locator
-	    // table" above.
-	    out << "added adapter to local locator table\n";
-	    out << "adapter = "  << ref->adapterId;
-	}
+	cached = false;
     }
+
+    return endpoints;
 }
 
-// TODO: ML: Should be named to "clearCache".
 void 
-IceInternal::LocatorInfo::removeEndpoints(const ReferencePtr& ref)
+IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 {
     if(!ref->adapterId.empty())
     {
-	_adapterTable->remove(ref->adapterId);
-
-	if(ref->instance->traceLevels()->location >= 2)
+	std::vector<EndpointPtr> endpoints = _adapterTable->remove(ref->adapterId);
+	if(!endpoints.empty())
 	{
-	    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
-	    // TODO: ML: "removed endpoints from locator table"
-	    out << "removed adapter from local locator table\n";
-	    out << "adapter = "  << ref->adapterId;
-	    // TODO: ML: Log endpoints, like in getEndpoints().
-	}    
+	    if(ref->instance->traceLevels()->location >= 1)
+	    {
+		Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+		out << "removed endpoints from locator table\n";
+		out << "adapter = "  << ref->adapterId;
+		const char* sep = endpoints.size() > 1 ? ":" : "";
+		ostringstream o;
+		transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
+			  ::Ice::constMemFun(&Endpoint::toString));
+		out << "endpoints = " << o.str();
+	    }
+	}
     }
 }

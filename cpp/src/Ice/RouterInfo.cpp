@@ -102,7 +102,7 @@ IceInternal::RouterInfo::operator<(const RouterInfo& rhs) const
 }
 
 RouterPrx
-IceInternal::RouterInfo::getRouter()
+IceInternal::RouterInfo::getRouter() const
 {
     //
     // No mutex lock necessary, _router is immutable.
@@ -181,7 +181,7 @@ IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 }
 
 ObjectAdapterPtr
-IceInternal::RouterInfo::getAdapter()
+IceInternal::RouterInfo::getAdapter() const
 {
     IceUtil::Mutex::Lock sync(*this);
     return _adapter;

@@ -495,10 +495,16 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final synchronized int
+    public final int
     __handleException(LocalException ex, int cnt)
     {
-        _delegate = null;
+	//
+	// Only _delegate needs to be mutex protected here.
+	//
+	synchronized(this)
+	{
+	    _delegate = null;
+	}
 
         try
         {
@@ -553,8 +559,7 @@ public class ObjectPrxHelper implements ObjectPrx
 	if(cnt > 0)
 	{
 	    //
-	    // Sleep before retrying. TODO: is it safe to sleep here
-	    // with the mutex locked?
+	    // Sleep before retrying.
 	    //
 	    try
 	    {
@@ -587,6 +592,11 @@ public class ObjectPrxHelper implements ObjectPrx
             throw new LocationForwardIdentityException();
         }
 
+	//
+	// TODO: BENOIT: This is not thread-safe. Everywhere else in the
+	// code, _reference is considered immutable and is not mutex
+	// protected.
+	//
         _reference = _reference.changeAdapterId(h.__reference().adapterId);
         _reference = _reference.changeEndpoints(h.__reference().endpoints);
 

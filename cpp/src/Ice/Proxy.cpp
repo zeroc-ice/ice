@@ -531,9 +531,13 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 void
 IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    _delegate = 0;
+    //
+    // Only _delegate needs to be mutex protected here.
+    //
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	_delegate = 0;
+    }
 
     try
     {
@@ -562,14 +566,13 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	++cnt;
     }
-
+    
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();
     
     const std::vector<int>& retryIntervals = _reference->instance->proxyFactory()->getRetryIntervals();
-
-    // TODO: ML: Loose C-style cast.
-    if(cnt > (int)retryIntervals.size())
+    
+    if(cnt > static_cast<int>(retryIntervals.size()))
     {
 	if(traceLevels->retry >= 1)
 	{
@@ -593,8 +596,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     if(cnt > 0)
     {
 	//
-	// Sleep before retrying. TODO: is it safe to sleep here
-	// with the mutex locked? TODO: ML: Why not sleep outside the mutex lock?</ml>
+	// Sleep before retrying.
 	//
 	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
     }
@@ -612,6 +614,11 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 	throw LocationForwardIdentityException(__FILE__, __LINE__);
     }
 
+    //
+    // TODO: BENOIT: This is not thread-safe. Everywhere else in the
+    // code, _reference is considered immutable and is not mutex
+    // protected.
+    //
     _reference = _reference->changeAdapterId(ex._prx->_reference->adapterId);
     _reference = _reference->changeEndpoints(ex._prx->_reference->endpoints);
 
@@ -872,11 +879,12 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	__connection->incProxyUsageCount();
     }
     else
-    {
+    {	
 	while(true)
 	{
-	    vector<EndpointPtr> endpoints;	
-	    bool cached = false;
+	    bool cached;
+	    vector<EndpointPtr> endpoints;
+
 	    if(__reference->routerInfo)
 	    {
 		//
@@ -892,12 +900,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	    }
 	    else if(__reference->locatorInfo)
 	    {
-		//
-		// TODO: ML: This call is confusing. It should be:
-		// endpoints = __reference->locatorInfo->getEndpoints(__reference, cached);
-		// Please change the signature accordingly.
-		//
-		cached = __reference->locatorInfo->getEndpoints(__reference, endpoints);
+		endpoints = __reference->locatorInfo->getEndpoints(__reference, cached);
 	    }
 
 	    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpoints);
@@ -915,32 +918,28 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	    }
 	    catch(const LocalException& ex)
 	    {
-		if(cached)
-		{
-		    TraceLevelsPtr traceLevels = __reference->instance->traceLevels();
-		    LoggerPtr logger = __reference->instance->logger();
-		    
-		    if(traceLevels->retry >= 2)
-		    {
-			Trace out(logger, traceLevels->retryCat);
-			out << "connection to cached endpoints failed\n"
-			    << "removing endpoints from cache and trying one more time\n" << ex;
-		    }
-		    
+		if(!__reference->routerInfo && __reference->endpoints.empty())
+		{	
 		    assert(__reference->locatorInfo);
-		    __reference->locatorInfo->removeEndpoints(__reference);
-		    continue;
+		    __reference->locatorInfo->clearCache(__reference);
+		    
+		    if(cached)
+		    {
+			TraceLevelsPtr traceLevels = __reference->instance->traceLevels();
+			LoggerPtr logger = __reference->instance->logger();
+			if(traceLevels->retry >= 2)
+			{
+			    Trace out(logger, traceLevels->retryCat);
+			    out << "connection to cached endpoints failed\n"
+				<< "removing endpoints from cache and trying one more time\n" << ex;
+			}
+			continue;
+		    }
 		}
-		else
-		{
-		    throw;
-		}
-	    }   
-
-	    if(__reference->locatorInfo && !cached)
-	    {
-		__reference->locatorInfo->addEndpoints(__reference, endpoints);
+		
+		throw;
 	    }
+
 	    break;
 	}
 

@@ -28,11 +28,10 @@ public final class LocatorAdapterTable
 	_table.put(adapter, endpoints);
     }
 
-    synchronized void
+    synchronized IceInternal.Endpoint[]
     remove(String adapter)
     {
-	Object object = _table.remove(adapter);
-	assert(object != null);
+	return (IceInternal.Endpoint[])_table.remove(adapter);
     }
 
     private java.util.HashMap _table = new java.util.HashMap();

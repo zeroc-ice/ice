@@ -58,13 +58,16 @@ public final class LocatorInfo
     getEndpoints(Reference ref, Ice.BooleanHolder cached)
     {
 	IceInternal.Endpoint[] endpoints = null;
-	cached.value = false;
 
 	if(ref.adapterId.length() > 0)
 	{
+	    cached.value = true;
+	
 	    endpoints = _adapterTable.get(ref.adapterId);
 	    if(endpoints == null)
 	    {
+		cached.value = false;
+
 		//
 		// Search the adapter in the location service if we didn't
 		// find it in the cache.
@@ -84,24 +87,24 @@ public final class LocatorInfo
 		    // endpoints and raise a NoEndpointException().
 		    //
 		}
-	    }
-	    else
-	    {
-		cached.value = true;
+		
+		if(endpoints != null && endpoints.length > 0)
+		{
+		    _adapterTable.add(ref.adapterId, endpoints);
+		}
 	    }
 
-	    if(endpoints != null)
+	    if(endpoints != null && endpoints.length > 0)
 	    {
 		if(ref.instance.traceLevels().location >= 1)
 		{
 		    StringBuffer s = new StringBuffer();
 		    if(cached.value)
-			s.append("found object in local locator table\n");
+			s.append("found endpoints in locator table\n");
 		    else
-			s.append("found object in locator\n");
-		    s.append("identity = " + Ice.Util.identityToString(ref.identity) + "\n");
+			s.append("retrieved endpoints from locator, adding to locator table\n");
 		    s.append("adapter = " + ref.adapterId + "\n");
-		    s.append("endpoints = ");
+ 		    s.append("endpoints = ");
 		    final int sz = endpoints.length;
 		    for(int i = 0; i < sz; i++)
 		    {
@@ -118,33 +121,26 @@ public final class LocatorInfo
     }
 
     public void
-    addEndpoints(Reference ref, IceInternal.Endpoint[] endpoints)
-    {
-	assert(endpoints.length > 0);
-
-	if(ref.adapterId.length() > 0)
-	{
-	    _adapterTable.add(ref.adapterId, endpoints);
-
-	    if(ref.instance.traceLevels().location >= 2)
-	    {
-		String s = "added adapter to local locator table\nadapter = " + ref.adapterId;
-		ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s);
-	    }
-	}
-    }
-
-    public void
-    removeEndpoints(Reference ref)
+    clearCache(Reference ref)
     {
 	if(ref.adapterId.length() > 0)
 	{
-	    _adapterTable.remove(ref.adapterId);
+	    IceInternal.Endpoint[] endpoints = _adapterTable.remove(ref.adapterId);
 
 	    if(ref.instance.traceLevels().location >= 2)
 	    {
-		String s = "removed adapter from local locator table\nadapter = " + ref.adapterId;
-		ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s);
+		StringBuffer s = new StringBuffer();
+		s.append("removed endpoints from locator table\n");
+		s.append("adapter = " + ref.adapterId + "\n");
+		s.append("endpoints = ");
+		final int sz = endpoints.length;
+		for(int i = 0; i < sz; i++)
+		{
+		    s.append(endpoints[i].toString());
+		    if(i + 1 < sz)
+			s.append(":");
+		}
+		ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
 	    }
 	}
     }

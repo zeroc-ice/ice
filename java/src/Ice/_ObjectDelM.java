@@ -250,31 +250,30 @@ public class _ObjectDelM implements _ObjectDel
 		}
 		catch (LocalException ex)
 		{
-		    if(cached.value)
+		    if(__reference.routerInfo == null && __reference.endpoints.length == 0)
 		    {
-			IceInternal.TraceLevels traceLevels = __reference.instance.traceLevels();
-			Logger logger = __reference.instance.logger();
-		    
-			if(traceLevels.retry >= 2)
-			{
-			    String s = "connection to cached endpoints failed\n" +
-				       "removing endpoints from cache and trying one more time\n" + ex;
-			    logger.trace(traceLevels.retryCat, s);
-			}
+			assert(__reference.locatorInfo != null);
+			__reference.locatorInfo.clearCache(__reference);
 			
-			__reference.locatorInfo.removeEndpoints(__reference);
-			continue;
+			if(cached.value)
+			{
+			    IceInternal.TraceLevels traceLevels = __reference.instance.traceLevels();
+			    Logger logger = __reference.instance.logger();
+			    
+			    if(traceLevels.retry >= 2)
+			    {
+				String s = "connection to cached endpoints failed\n" +
+				    "removing endpoints from cache and trying one more time\n" + ex;
+				logger.trace(traceLevels.retryCat, s);
+			    }
+			    
+			    continue;
+			}
 		    }
-		    else
-		    {
-			throw ex;
-		    }
+
+		    throw ex;
 		}   
 
-		if(__reference.locatorInfo != null && !cached.value)
-		{
-		    __reference.locatorInfo.addEndpoints(__reference, endpoints);
-		}
 		break;
 	    }
 

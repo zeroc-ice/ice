@@ -50,7 +50,7 @@ public:
     
     bool get(const std::string&, ::std::vector<EndpointPtr>&) const;
     void add(const std::string&, const ::std::vector<EndpointPtr>&);
-    void remove(const std::string&);
+    ::std::vector<EndpointPtr> remove(const std::string&);
     
 private:
 
@@ -67,12 +67,11 @@ public:
     bool operator!=(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
 
-    ::Ice::LocatorPrx getLocator();
+    ::Ice::LocatorPrx getLocator() const;
     ::Ice::LocatorRegistryPrx getLocatorRegistry();
 
-    bool getEndpoints(const ReferencePtr&, ::std::vector<EndpointPtr>&) const;
-    void addEndpoints(const ReferencePtr&, const ::std::vector<EndpointPtr>&);
-    void removeEndpoints(const ReferencePtr&);
+    std::vector<EndpointPtr> getEndpoints(const ReferencePtr&, bool&);
+    void clearCache(const ReferencePtr&);
 
 private:
 

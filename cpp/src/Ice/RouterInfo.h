@@ -51,14 +51,14 @@ public:
     bool operator!=(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
 
-    ::Ice::RouterPrx getRouter();
+    ::Ice::RouterPrx getRouter() const;
     ::Ice::ObjectPrx getClientProxy();
     void setClientProxy(const ::Ice::ObjectPrx&);
     ::Ice::ObjectPrx getServerProxy();
     void setServerProxy(const ::Ice::ObjectPrx&);
     void addProxy(const ::Ice::ObjectPrx&);
     void setAdapter(const ::Ice::ObjectAdapterPtr&);
-    ::Ice::ObjectAdapterPtr getAdapter();
+    ::Ice::ObjectAdapterPtr getAdapter() const;
 
 private:
 
