@@ -1793,7 +1793,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch (IceInternal.NonRepeatable __ex)";
         out << sb;
-        out << nl << "__rethrowException(__ex.get());";
+        if (op->nonmutating())
+        {
+            out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
+        }
+        else
+        {
+            out << nl << "__rethrowException(__ex.get());";
+        }
         out << eb;
         out << nl << "catch (Ice.LocalException __ex)";
         out << sb;
