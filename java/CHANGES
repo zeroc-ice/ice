@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Exceptions raised while marshaling data for batch requests resulted
+  in a connection deadlock. This has been fixed.
+
 - Fixed tracing of operation mode.
 
 - Fixed a bug that caused marshaling failures when global metadata was
