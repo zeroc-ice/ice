@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEUTIL_TIME_H
-#define ICEUTIL_TIME_H
+#ifndef ICE_UTIL_TIME_H
+#define ICE_UTIL_TIME_H
 
 #include <IceUtil/Config.h>
 
@@ -21,6 +21,10 @@ class ICE_UTIL_API Time
 public:
 
     Time();
+
+    // No copy constructor and assignment operator necessary. The
+    // automatically generated copy constructor and assignment
+    // operator do the right thing.
     
     static Time now();
     static Time seconds(long);
@@ -30,8 +34,6 @@ public:
 #else
     static Time microSeconds(long long);
 #endif
-
-    Time operator=(const Time&);
 
     Time operator-() const;
     Time operator-(const Time&) const;

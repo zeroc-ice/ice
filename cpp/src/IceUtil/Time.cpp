@@ -56,16 +56,6 @@ IceUtil::Time::microSeconds(LongLong t)
 }
 
 Time
-IceUtil::Time::operator=(const Time& rhs)
-{
-    if (this != &rhs)
-    {
-	_usec = rhs._usec;
-    }
-    return *this;
-}
-
-Time
 IceUtil::Time::operator-() const
 {
     return Time(-_usec);
