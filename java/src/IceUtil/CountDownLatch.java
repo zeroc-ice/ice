@@ -26,6 +26,7 @@ public class CountDownLatch
 	{
 	    throw new IllegalArgumentException();
 	}
+	_count = count;
     }
 
     public synchronized void
@@ -40,7 +41,7 @@ public class CountDownLatch
     public synchronized void
     countDown()
     {
-	if(--_count == 0)
+	if(_count > 0 && --_count == 0)
 	{
 	    notifyAll();
 	}
@@ -52,5 +53,5 @@ public class CountDownLatch
 	return _count;
     }
 
-    private long _count;
+    private int _count;
 }

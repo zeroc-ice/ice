@@ -57,6 +57,7 @@ class EvictorElement extends Ice.LocalObjectImpl
     //
     java.util.Iterator evictPosition = null;
     int usageCount = -1;
+    int keepCount = 0;
     boolean stale = false;
 
     //

@@ -602,6 +602,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				}
 			    }
 			}
+
+			if(element. keepCount > 0)
+			{
+			    assert notThere == false;
+			    
+			    element.keepCount = 0;
+			    //
+			    // Add to front of evictor queue
+			    //
+			    // Note that save evicts dead objects
+			    //
+			    _evictorList.addFirst(element);
+			    element.evictPosition = _evictorList.iterator();
+			    //
+			    // Position the iterator "on" the element.
+			    //
+			    element.evictPosition.next();
+			    _currentEvictorSize++;
+			}
 		    }
 		}
 		break; // for(;;)  
@@ -653,6 +672,167 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    //
 	}
     }
+
+    
+    public void
+    keep(Ice.Identity ident)
+    {
+	keepFacet(ident, "");
+    }
+
+    public void
+    keepFacet(Ice.Identity ident, String facet)
+    {
+	boolean notThere = false;
+
+	ObjectStore store = findStore(facet);
+	if(store == null)
+	{
+	    notThere = true;
+	}
+	else
+	{
+	    for(;;)
+	    {
+		EvictorElement element = (EvictorElement) store.cache().pin(ident);
+		if(element == null)
+		{
+		    notThere = true;
+		    break;
+		}
+	    
+		synchronized(this)
+		{
+		
+		    if(_deactivated)
+		    {
+			throw new EvictorDeactivatedException();
+		    }
+		    
+		    if(element.stale)
+		    {
+			//
+			// try again
+			//
+			continue;
+		    }
+		    
+		    synchronized(element)
+		    {
+			if(element.status == EvictorElement.destroyed || element.status == EvictorElement.dead)
+			{
+			    notThere = true;
+			    break;
+			}
+		    }
+		    
+		    //
+		    // Found!
+		    //
+		    
+		    if(element.keepCount == 0)
+		    {
+			if(element.usageCount < 0)
+			{
+			    //
+			    // New object
+			    //
+			    element.usageCount = 0;
+			}
+			else
+			{
+			    assert element.evictPosition != null;
+			    element.evictPosition.remove();
+			    element.evictPosition = null;
+			    _currentEvictorSize--;
+			}
+			element.keepCount = 1;
+		    }
+		    else
+		    {
+			element.keepCount++;
+		    }
+		    break;
+		}
+	    }
+	}
+
+	if(notThere)
+	{
+	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	    ex.kindOfObject = "servant";
+	    ex.id = Ice.Util.identityToString(ident);
+	    if(facet.length() != 0)
+	    {
+		ex.id += " -f " + facet;
+	    }
+	    throw ex;
+	}
+    }
+
+    public void
+    release(Ice.Identity ident)
+    {
+	releaseFacet(ident, "");
+    }
+
+    public void
+    releaseFacet(Ice.Identity ident, String facet)
+    {
+	synchronized(this)
+	{
+	    if(_deactivated)
+	    {
+		throw new EvictorDeactivatedException();
+	    }
+	
+	    ObjectStore store = (ObjectStore) _storeMap.get(facet);
+	    
+	    if(store != null)
+	    {
+	
+		EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+		if(element != null)
+		{
+		    assert !element.stale;
+		    if(element.keepCount > 0) 
+		    {
+			if(--element.keepCount == 0)
+			{
+			    //
+			    // Add to front of evictor queue
+			    //
+			    // Note that the element cannot be destroyed or dead since
+			    // its keepCount was > 0.
+			    //
+			    assert element.evictPosition == null;
+			    _evictorList.addFirst(element);
+			    element.evictPosition = _evictorList.iterator();
+			    //
+			    // Position the iterator "on" the element.
+			    //
+			    element.evictPosition.next();
+			    _currentEvictorSize++;
+			}
+			//
+			// Success
+			//
+			return;
+		    }
+		}
+	    }
+	}
+	
+	Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	ex.kindOfObject = "servant";
+	ex.id = Ice.Util.identityToString(ident);
+	if(facet.length() != 0)
+	{
+	    ex.id += " -f " + facet;
+	}
+	throw ex;
+    }
+    
 
     public EvictorIterator
     getIterator(String facet, int batchSize)
@@ -883,7 +1063,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		{
 		    addToModifiedQueue(element);
 		}
-		else
+		else if(element.usageCount == 0 && element.keepCount == 0)
 		{
 		    //
 		    // Evict as many elements as necessary.
@@ -1254,7 +1434,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    while(p.hasNext())
 		    {
 			EvictorElement element = (EvictorElement) p.next();
-			if(element.usageCount == 0)
+			if(element.usageCount == 0 && element.keepCount == 0)
 			{
 			    //
 			    // Get rid of unused dead elements
@@ -1376,6 +1556,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//
 		
 		assert !element.stale;
+		assert element.keepCount == 0;
 
 		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 		{
@@ -1410,27 +1591,31 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	assert Thread.holdsLock(this);
 
 	assert !element.stale;
-	if(element.usageCount < 0)
-	{
-	    assert element.evictPosition == null;
 
-	    //
-	    // New object
-	    //
-	    element.usageCount = 0;
-	    _currentEvictorSize++;
-	}
-	else
+	if(element.keepCount == 0)
 	{
-	    assert element.evictPosition != null;
-	    element.evictPosition.remove();
+	    if(element.usageCount < 0)
+	    {
+		assert element.evictPosition == null;
+		
+		//
+		// New object
+		//
+		element.usageCount = 0;
+		_currentEvictorSize++;
+	    }
+	    else
+	    {
+		assert element.evictPosition != null;
+		element.evictPosition.remove();
+	    }
+	    _evictorList.addFirst(element);
+	    element.evictPosition = _evictorList.iterator();
+	    //
+	    // Position the iterator "on" the element.
+	    //
+	    element.evictPosition.next();
 	}
-	_evictorList.addFirst(element);
-	element.evictPosition = _evictorList.iterator();
-	//
-	// Position the iterator "on" the element.
-	//
-	element.evictPosition.next();
     }
 
     private void
@@ -1439,6 +1624,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	assert Thread.holdsLock(this);
 
 	assert !element.stale;
+	assert element.keepCount == 0;
 	
 	element.evictPosition.remove();
 	_currentEvictorSize--;
