@@ -271,7 +271,7 @@ CallbackClient::run(int argc, char* argv[])
 	    otherCategoryTwoway->initiateCallback(twowayR, context);
 	    test(false);
 	}
-	catch(const ObjectNotExistException& ex)
+	catch(const ObjectNotExistException&)
 	{
 	    cout << "ok" << endl;
 	}
