@@ -785,6 +785,65 @@ There are no default values for these properties.
 </section>
 
 <!-- ********************************************************************** -->
+<section><title>&IceBox; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>IceBox.Name</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.Name=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the name of the &IceBox; server. This property needs to be set
+if the &IceBox; server is used with the locator to uniquely identify
+the service manager object adapter. It's also used to create a unique
+service manager object identity if the property
+<literal>IceBox.ServiceManager.Identity</literal> is not specified.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.ServiceManager.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.ServiceManager.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints of the &IceBox; service manager interface. The
+service manager endpoints must be accessible to the &IceBox;
+administration tool to shutdown the &IceBox; server.
+</para>
+</section>
+</section>
+
+<section><title>IceBox.ServiceManager.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.ServiceManager.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the service manager interface. If not specified and if
+<literal>IceBox.Name</literal> is specified, the identity will be
+<literal>ServiceManager</literal> prefixed with the value of the
+<literal>IceBox.Name</literal> property. If
+<literal>IceBox.Name</literal> is not specified the default value
+<literal>ServiceManager</literal> is used.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
 <section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
