@@ -171,15 +171,6 @@ On Windows, use this directive:
 
 extension = php_ice.dll
 
-In an Apache configuration, these directives can also be set in Apache's
-configuration using directives as shown below:
-
-php_admin_value extension ice.so
-
-or
-
-php_admin_value extension php_ice.dll
-
 =========================================================================
 Dependencies
 =========================================================================
@@ -214,7 +205,8 @@ and the Ice for C++ tests must be built in the directory specified by
 the ICE_HOME environment variable.
 
 The test scripts require that the CLI version of the PHP interpreter
-be available in your PATH.
+be available in your PATH, and assume that the Ice extension was built
+in a static configuration.
 
 To run all of the tests, do the following:
 
@@ -224,6 +216,13 @@ You can also run tests individually by changing to the test directory
 and running this command:
 
 $ python run.py
+
+In order to run the tests using a dynamic Ice extension, you will need
+to edit the php.ini files in each test directory and add the following
+configuration directives:
+
+extension_dir=<phpdir>/modules
+extension=ice.so
 
 =========================================================================
 Linux Issues
