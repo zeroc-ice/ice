@@ -31,7 +31,12 @@ using namespace std;
 static void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] [dbenv db newdbenv | dbenv newdbenv]\n";
+ 
+//
+// -a is not fully implemented yet
+//  cerr << "Usage: " << n << " [options] [dbenv db newdbenv | dbenv newdbenv]\n";
+//  
+    cerr << "Usage: " << n << " [options] [dbenv db newdbenv] \n";
     cerr <<
         "Options:\n"
         "-h, --help            Show this message.\n"
@@ -43,7 +48,10 @@ usage(const char* n)
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         "-o FILE               Output transformation descriptors into the file FILE.\n"
         "                      Database transformation is not performed.\n"
-        "-a                    Transform all databases in the dbenv\n"
+// 
+// -a is not fully implemented yet
+//
+//      "-a                    Transform all databases in the dbenv\n"
         "-i                    Ignore incompatible type changes.\n"
         "-p                    Purge objects whose types no longer exist.\n"
         "-c                    Use catastrophic recovery on the old database environment.\n"
