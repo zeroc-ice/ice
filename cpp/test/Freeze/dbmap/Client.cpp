@@ -119,7 +119,7 @@ run(int argc, char* argv[], const DBPtr& db)
 
     vector<char>::const_iterator j;
     CharIntMap::iterator p;
-    CharIntMap::iterator cp;
+    CharIntMap::const_iterator cp;
 
     cout << "testing populate... ";
     //
@@ -237,6 +237,15 @@ run(int argc, char* argv[], const DBPtr& db)
     ++p;
 
     test(p2->first == data.first && p2->second == data.second);
+
+    p = m.find('n');
+    p2 = ++p;
+    test(p2->first == p->first);
+
+    char c = p2->first;
+    p2 = p++;
+    test(c == p2->first); // p2 should still be the same
+    test(p2->first != p->first && (++p2)->first == p->first);
 
     cout << "ok" << endl;
 
