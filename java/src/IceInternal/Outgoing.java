@@ -134,7 +134,7 @@ public final class Outgoing
 
                 if (_state == StateLocationForward)
                 {
-                    Ice.ObjectPrx p = _is.readObject();
+                    Ice.ObjectPrx p = _is.readProxy();
                     throw new Ice.LocationForward(p);
                 }
 
