@@ -147,6 +147,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_06F1D121082D4F8CAD1B9753CA46F12C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\PHONEBOOK\\PHONEBOOK.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_074F8A5D368E48FBBBB7D42B16865E01"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICE\\STREAMF.ICE"
@@ -327,6 +333,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_14CB83B57B314B0792B5B82D4C9DB3E6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\VALUE\\VALUE.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_14CCEE61087840CCA22417976498CB92"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICE\\IDENTITY.ICE"
@@ -399,6 +411,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_19DAEC4AA7054D94A998E2C36EEAA069"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\LATENCY\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_19FC62B061424C658153C37FB3371C96"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\BASICSTREAM.H"
@@ -444,6 +462,12 @@
         "MsmKey" = "8:_20156FDC70DF4230B235132129909D6C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\VALUE\\CONFIG"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2092845FDB65448C83CBE46273A9AAAD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\LIBRARY\\BOOKS"
         }
         "Entry"
         {
@@ -525,6 +549,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_28720AD5F3584F7D944E180A75314BB7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\THROUGHPUT\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_28DF70296DEB4E89913D285A9BA9D17D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\LIB\\ICEUTIL.LIB"
@@ -546,6 +576,12 @@
         "MsmKey" = "8:_296C637984984BF3BA6F6B18F99F3064"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\LOCALOBJECT.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2B27F7FA871C408FB9E952D5F4708015"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICEBOX\\HELLO\\HELLO.ICE"
         }
         "Entry"
         {
@@ -603,6 +639,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_35CC8DDF284740389C97AC0F4468BE47"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\BENCH\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_372A44F875F447C98076D8DAF25D0FF2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\BUILD.XML"
@@ -636,6 +678,12 @@
         "MsmKey" = "8:_3AC0684788944575AF648EDB84F12016"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\BUILD.XML"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3ADEB3902BF64341985D6CFB1490F0ED"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\PHONEBOOK\\CONFIG"
         }
         "Entry"
         {
@@ -873,9 +921,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_52C627EDADC84474BBF904A0C5EB30E2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\PHONEBOOK\\CONTACTS"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_532DC3F5DF424D0D8B5CC894C2C1F48A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\FREEZE\\LIBRARY\\DUMMYINCLUDE\\UNISTD.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_53564C186A234D94B1083C7E497D8D07"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\GLACIER\\SESSION\\HELLOSESSION.ICE"
         }
         "Entry"
         {
@@ -984,6 +1044,12 @@
         "MsmKey" = "8:_5C2FD5C5A7BC46DEA4A9468D7CD5114E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\THROUGHPUT\\THROUGHPUTS.VCPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5CCE26D016AF462785940153B4483FDA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\NESTED\\CONFIG"
         }
         "Entry"
         {
@@ -1119,6 +1185,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_69B3F3033A354E6CAAEBFDD9471FCD7D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\HELLO\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_69F7476AB4CA4D85AAD3E83B855E732B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\NESTED\\BUILD.XML"
@@ -1212,6 +1284,12 @@
         "MsmKey" = "8:_757C206033A64A2283905621E143E846"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\FREEZE\\APPLICATION.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_77794C1133E44D6D86D348B3FFDE6E4B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\HELLO\\HELLO.ICE"
         }
         "Entry"
         {
@@ -1314,6 +1392,12 @@
         "MsmKey" = "8:_8238CE2ECEBB4622B6C213B193C57A12"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\FUNCTIONAL.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_824D683C407B48148E4EF2F312C8F4B4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\LIBRARY\\CONFIG"
         }
         "Entry"
         {
@@ -1455,6 +1539,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8BDA4FBC73864C968CA7FEE89368A872"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICEBOX\\HELLO\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8C6912788A6A452CAC6D3EA18AEDEBE6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\FREEZE\\DB.H"
@@ -1476,6 +1566,12 @@
         "MsmKey" = "8:_8D5CDEEFEC224E3987312F3E1E418397"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\GLACIER\\STARTER.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8D9503D9106643399C379D2B5BEA8F3A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\BENCH\\TEST.ICE"
         }
         "Entry"
         {
@@ -1572,6 +1668,12 @@
         "MsmKey" = "8:_9420B90E98EE4E949AEEEAD9CDEBAB34"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\NESTED\\NESTEDI.CPP"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_94BC1FE4A4314306BF6BF4080DB1196D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\LIBRARY\\LIBRARY.ICE"
         }
         "Entry"
         {
@@ -1770,6 +1872,12 @@
         "MsmKey" = "8:_A2BAFB80026C47669C2129DFEF57172D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICESTORM\\CLOCK\\CLOCK.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A2BFE0BA3EAF41D9B6BF1C0282000ACE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\VALUE\\CONFIG"
         }
         "Entry"
         {
@@ -2079,6 +2187,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BE0F1778F8BA463E9456B880D5F774C7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\CALLBACK\\CONFIG"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BE411A89404A4CD088ACE31DDECEDACB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\LIBRARY\\BOOKI.JAVA"
@@ -2142,6 +2256,12 @@
         "MsmKey" = "8:_C4175C9481B3446E86F487999A12DD13"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICESTORM\\ICESTORM.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C46DB2F6767F4F20AB68EFE6A5D276E3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\CALLBACK\\CALLBACK.ICE"
         }
         "Entry"
         {
@@ -2475,6 +2595,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E34596E652154697BFDD480957FEA933"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\NESTED\\CONFIG.SERVER"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E3767FCB31C04BB1ABD589CB5FFEBFC6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\LATENCY\\SERVER.CPP"
@@ -2532,6 +2658,12 @@
         "MsmKey" = "8:_E6803304F1D34C3F964E74C811191C28"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\FREEZE\\EVICTORF.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E7308EA467BD4F59BD5BF0350767C005"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\THROUGHPUT\\THROUGHPUT.ICE"
         }
         "Entry"
         {
@@ -2625,6 +2757,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EED562FD251B485282A4823A3AE45124"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\LATENCY\\LATENCY.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EFDF079295644B9F89E6F7937ADD4EA7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICE\\LOCALEXCEPTION.ICE"
@@ -2694,6 +2832,18 @@
         "MsmKey" = "8:_F68FFB811D5947A4B582317C06D721AF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\FREEZE\\STRATEGY.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F717FB42D5FA4EDFB5CE0841DB620273"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\GLACIER\\SESSION\\CONFIG"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F74A176754C543D6BFE8522D955DAB97"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\CALLBACK\\CONFIG.SERVER"
         }
         "Entry"
         {
@@ -2772,6 +2922,12 @@
         "MsmKey" = "8:_FB6E911DB97241479D0A4F4C4F3648ED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICEUTIL\\RWRECMUTEX.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FB7FC8CABB954C9191FBEF879F5C555B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\NESTED\\NESTED.ICE"
         }
         "Entry"
         {
@@ -3213,7 +3369,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Scanner.java"
             "TargetName" = "8:Scanner.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3254,6 +3410,26 @@
             "TargetName" = "8:slice2docbook.exe"
             "Tag" = "8:"
             "Folder" = "8:_59077D9FF10F43F49AA2AC4A5FE778DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_06F1D121082D4F8CAD1B9753CA46F12C"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\PhoneBook.ice"
+            "TargetName" = "8:PhoneBook.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3313,7 +3489,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3493,7 +3669,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\bench\\StopWatch.java"
             "TargetName" = "8:StopWatch.java"
             "Tag" = "8:"
-            "Folder" = "8:_0F5E2118720344B39242533A1BE76F97"
+            "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3573,7 +3749,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3733,7 +3909,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3868,6 +4044,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_14CB83B57B314B0792B5B82D4C9DB3E6"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\Value.ice"
+            "TargetName" = "8:Value.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_14CCEE61087840CCA22417976498CB92"
             {
             "SourcePath" = "8:..\\..\\..\\slice\\Ice\\Identity.ice"
@@ -3893,7 +4089,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\ThroughputI.java"
             "TargetName" = "8:ThroughputI.java"
             "Tag" = "8:"
-            "Folder" = "8:_C2F55A330B9F49D9AE953E47F53A9CFF"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3993,7 +4189,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4094,6 +4290,26 @@
             "TargetName" = "8:README"
             "Tag" = "8:"
             "Folder" = "8:_E64837A8D7FF4947BBB357E6D6687E85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_19DAEC4AA7054D94A998E2C36EEAA069"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\latency\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4268,6 +4484,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2092845FDB65448C83CBE46273A9AAAD"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\books"
+            "TargetName" = "8:books"
+            "Tag" = "8:"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_20C25844DFFC447187C6E88FC3F9098D"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Ice\\Direct.h"
@@ -4373,7 +4609,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\ContactFactory.java"
             "TargetName" = "8:ContactFactory.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4528,6 +4764,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_28720AD5F3584F7D944E180A75314BB7"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_28DF70296DEB4E89913D285A9BA9D17D"
             {
             "SourcePath" = "8:..\\..\\..\\lib\\iceutil.lib"
@@ -4553,7 +4809,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\latency\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_F8382879BFD245DC8BC041FB9C678D7A"
+            "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4608,12 +4864,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2B27F7FA871C408FB9E952D5F4708015"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\Hello.ice"
+            "TargetName" = "8:Hello.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2B5487D6F90F444F9CBA2D07842A2BB2"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\NestedServer.java"
             "TargetName" = "8:NestedServer.java"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4788,12 +5064,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_35CC8DDF284740389C97AC0F4468BE47"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\bench\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_372A44F875F447C98076D8DAF25D0FF2"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_471F6D87C35445C1925FF82F646DF9CC"
+            "Folder" = "8:_C933A41791704C239F7C1173535B660F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4893,7 +5189,27 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_6FD70EBC0EDE4D12B852568672820548"
+            "Folder" = "8:_3A7125D35B704750BCF929C95E4FA3C5"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3ADEB3902BF64341985D6CFB1490F0ED"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4953,7 +5269,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\InitialI.java"
             "TargetName" = "8:InitialI.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5133,7 +5449,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\HelloServiceI.java"
             "TargetName" = "8:HelloServiceI.java"
             "Tag" = "8:"
-            "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5173,7 +5489,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5253,7 +5569,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\latency\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_F8382879BFD245DC8BC041FB9C678D7A"
+            "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5273,7 +5589,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_941CDD38FEB9458A972F11C740D791FE"
+            "Folder" = "8:_2CAF52312DBF496AAE52E3EEA2BAEBF5"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5291,7 +5607,7 @@
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4A45B344C00A4075BAA9A37FFF956798"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Glacier\\session\\README"
-            "TargetName" = "8:README-CPP"
+            "TargetName" = "8:README"
             "Tag" = "8:"
             "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
             "Condition" = "8:"
@@ -5353,7 +5669,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\HelloSessionManagerI.java"
             "TargetName" = "8:HelloSessionManagerI.java"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5613,7 +5929,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\HelloI.java"
             "TargetName" = "8:HelloI.java"
             "Tag" = "8:"
-            "Folder" = "8:_4E2F306D925B41E8858CF478F4A01D6B"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5668,12 +5984,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_52C627EDADC84474BBF904A0C5EB30E2"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\contacts"
+            "TargetName" = "8:contacts"
+            "Tag" = "8:"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_532DC3F5DF424D0D8B5CC894C2C1F48A"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Freeze\\library\\dummyinclude\\unistd.h"
             "TargetName" = "8:unistd.h"
             "Tag" = "8:"
             "Folder" = "8:_9921BCA3FC3A48DB9F083E85D539CE8F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_53564C186A234D94B1083C7E497D8D07"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\HelloSession.ice"
+            "TargetName" = "8:HelloSession.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5793,7 +6149,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5873,7 +6229,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\PrinterI.java"
             "TargetName" = "8:PrinterI.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6013,7 +6369,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\latency\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_F8382879BFD245DC8BC041FB9C678D7A"
+            "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6034,6 +6390,26 @@
             "TargetName" = "8:throughputS.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_C2F55A330B9F49D9AE953E47F53A9CFF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5CCE26D016AF462785940153B4483FDA"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6093,7 +6469,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6293,7 +6669,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6313,7 +6689,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\RunParser.java"
             "TargetName" = "8:RunParser.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6488,12 +6864,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_69B3F3033A354E6CAAEBFDD9471FCD7D"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_69F7476AB4CA4D85AAD3E83B855E732B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6513,7 +6909,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\RunParser.java"
             "TargetName" = "8:RunParser.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6573,7 +6969,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6613,7 +7009,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\LibraryI.java"
             "TargetName" = "8:LibraryI.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6808,6 +7204,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_77794C1133E44D6D86D348B3FFDE6E4B"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\Hello.ice"
+            "TargetName" = "8:Hello.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_78348FB263914EC5B31F0A6AEC8E81CF"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Ice\\value\\Client.cpp"
@@ -6893,7 +7309,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6913,7 +7329,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\NestedClient.java"
             "TargetName" = "8:NestedClient.java"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7033,7 +7449,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_C2F55A330B9F49D9AE953E47F53A9CFF"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7053,7 +7469,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Collocated.java"
             "TargetName" = "8:Collocated.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7128,6 +7544,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_824D683C407B48148E4EF2F312C8F4B4"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_82848FC287EA4FC68933A3EDD3CC102D"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Glacier\\SessionManager.h"
@@ -7173,7 +7609,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Grammar.java"
             "TargetName" = "8:Grammar.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7213,7 +7649,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\bench\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_0F5E2118720344B39242533A1BE76F97"
+            "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7273,7 +7709,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7293,7 +7729,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7413,7 +7849,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\CallbackReceiverI.java"
             "TargetName" = "8:CallbackReceiverI.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7573,7 +8009,27 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8BDA4FBC73864C968CA7FEE89368A872"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7654,6 +8110,26 @@
             "TargetName" = "8:Starter.h"
             "Tag" = "8:"
             "Folder" = "8:_B3838255085C4F8588C36968F2F4DF3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8D9503D9106643399C379D2B5BEA8F3A"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\bench\\Test.ice"
+            "TargetName" = "8:Test.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7773,7 +8249,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_F209163635A84DE8969AD733F31CF2A7"
+            "Folder" = "8:_81334BAB6ADA48A0AA12FBAD62DDB509"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7833,7 +8309,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\ContactI.java"
             "TargetName" = "8:ContactI.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7974,6 +8450,26 @@
             "TargetName" = "8:NestedI.cpp"
             "Tag" = "8:"
             "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_94BC1FE4A4314306BF6BF4080DB1196D"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Library.ice"
+            "TargetName" = "8:Library.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8253,7 +8749,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Token.java"
             "TargetName" = "8:Token.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8333,7 +8829,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\ObjectFactory.java"
             "TargetName" = "8:ObjectFactory.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8593,7 +9089,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Grammar.java"
             "TargetName" = "8:Grammar.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8634,6 +9130,26 @@
             "TargetName" = "8:Clock.ice"
             "Tag" = "8:"
             "Folder" = "8:_E64837A8D7FF4947BBB357E6D6687E85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A2BFE0BA3EAF41D9B6BF1C0282000ACE"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8793,7 +9309,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9113,7 +9629,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9251,9 +9767,9 @@
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B34EA15E77B847DCA15F35CC3F072BF0"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\README"
-            "TargetName" = "8:README-JAVA"
+            "TargetName" = "8:README"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9413,7 +9929,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Parser.java"
             "TargetName" = "8:Parser.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9553,7 +10069,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9628,12 +10144,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BE0F1778F8BA463E9456B880D5F774C7"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BE411A89404A4CD088ACE31DDECEDACB"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\BookI.java"
             "TargetName" = "8:BookI.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9653,7 +10189,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\PhoneBookI.java"
             "TargetName" = "8:PhoneBookI.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9773,7 +10309,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\HelloI.java"
             "TargetName" = "8:HelloI.java"
             "Tag" = "8:"
-            "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9813,7 +10349,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9834,6 +10370,26 @@
             "TargetName" = "8:IceStorm.ice"
             "Tag" = "8:"
             "Folder" = "8:_96B7434AD7D343DBB4FEDB0A8D2A2C09"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C46DB2F6767F4F20AB68EFE6A5D276E3"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\Callback.ice"
+            "TargetName" = "8:Callback.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9891,9 +10447,9 @@
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C5EB70AAC755490180E8C0A70453762B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\IceBox\\hello\\README"
-            "TargetName" = "8:README-JAVA"
+            "TargetName" = "8:README"
             "Tag" = "8:"
-            "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
+            "Folder" = "8:_8252385DDA574CB98DDBB41624216901"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10113,7 +10669,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\value\\DerivedPrinterI.java"
             "TargetName" = "8:DerivedPrinterI.java"
             "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
+            "Folder" = "8:_00CEF04B01A54EC2AD121C61787B9AF4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10133,7 +10689,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_C2F55A330B9F49D9AE953E47F53A9CFF"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10173,7 +10729,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Parser.java"
             "TargetName" = "8:Parser.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10233,7 +10789,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\CallbackClient.java"
             "TargetName" = "8:CallbackClient.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10293,7 +10849,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\bench\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_0F5E2118720344B39242533A1BE76F97"
+            "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10313,7 +10869,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Scanner.java"
             "TargetName" = "8:Scanner.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10653,7 +11209,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\CallbackI.java"
             "TargetName" = "8:CallbackI.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10693,7 +11249,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\CallbackServer.java"
             "TargetName" = "8:CallbackServer.java"
             "Tag" = "8:"
-            "Folder" = "8:_E6229EDA65EE4F358447AA99172BFABA"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10753,7 +11309,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_4E2F306D925B41E8858CF478F4A01D6B"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10773,7 +11329,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\phonebook\\Collocated.java"
             "TargetName" = "8:Collocated.java"
             "Tag" = "8:"
-            "Folder" = "8:_4F53EC1FACE245E29F837ED0D5799BE9"
+            "Folder" = "8:_57EFC5B32A4B472F842CFF1522F97BB4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10908,6 +11464,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E34596E652154697BFDD480957FEA933"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\config.server"
+            "TargetName" = "8:config.server"
+            "Tag" = "8:"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E3767FCB31C04BB1ABD589CB5FFEBFC6"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Ice\\latency\\Server.cpp"
@@ -10933,7 +11509,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\NestedI.java"
             "TargetName" = "8:NestedI.java"
             "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10953,7 +11529,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\HelloSessionI.java"
             "TargetName" = "8:HelloSessionI.java"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11013,7 +11589,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_4E2F306D925B41E8858CF478F4A01D6B"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11088,12 +11664,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E7308EA467BD4F59BD5BF0350767C005"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\Throughput.ice"
+            "TargetName" = "8:Throughput.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E7317267C70F48129285C4ADB792DC4F"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\Server.java"
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11153,7 +11749,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_EB315C9A0C32468DA8717891B148E20D"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11193,7 +11789,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\hello\\Client.java"
             "TargetName" = "8:Client.java"
             "Tag" = "8:"
-            "Folder" = "8:_4E2F306D925B41E8858CF478F4A01D6B"
+            "Folder" = "8:_38F4F04DC5A143E7B159B93B37D0B14D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11313,7 +11909,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\BookFactory.java"
             "TargetName" = "8:BookFactory.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11388,6 +11984,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EED562FD251B485282A4823A3AE45124"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\latency\\Latency.ice"
+            "TargetName" = "8:Latency.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EFDF079295644B9F89E6F7937ADD4EA7"
             {
             "SourcePath" = "8:..\\..\\..\\slice\\Ice\\LocalException.ice"
@@ -11411,7 +12027,7 @@
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F02D67F9393F424FA4CDAC7AB4966F5A"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\IceBox\\hello\\README"
-            "TargetName" = "8:README-CPP"
+            "TargetName" = "8:README"
             "Tag" = "8:"
             "Folder" = "8:_BFDD24AF48864A83990FBAE429FCD997"
             "Condition" = "8:"
@@ -11593,7 +12209,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\library\\Token.java"
             "TargetName" = "8:Token.java"
             "Tag" = "8:"
-            "Folder" = "8:_5BD203A33A3D454BB93DA4B5ED655DE6"
+            "Folder" = "8:_8800EF9AF9804407ADA30F10E74054DE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11614,6 +12230,46 @@
             "TargetName" = "8:Strategy.ice"
             "Tag" = "8:"
             "Folder" = "8:_427C8631674447359AD28BEBECFB9F0A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F717FB42D5FA4EDFB5CE0841DB620273"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Glacier\\session\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_048D30AE17F149D1978F2CE6A5FE6B53"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F74A176754C543D6BFE8522D955DAB97"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\callback\\config.server"
+            "TargetName" = "8:config.server"
+            "Tag" = "8:"
+            "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11868,6 +12524,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FB7FC8CABB954C9191FBEF879F5C555B"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\nested\\Nested.ice"
+            "TargetName" = "8:Nested.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FC4F67A499D44C438336BD4EB3A35FB5"
             {
             "SourcePath" = "8:..\\..\\..\\include\\IceUtil\\Thread.h"
@@ -11913,7 +12589,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Ice\\throughput\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_C2F55A330B9F49D9AE953E47F53A9CFF"
+            "Folder" = "8:_C99B3982746E485CBCA4CC24DBA2162F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -11993,7 +12669,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\Freeze\\build.xml"
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
-            "Folder" = "8:_12AA183C585948A0A30B6AE84DC2E778"
+            "Folder" = "8:_A4F23961150E41D0A603F38191836418"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12618,6 +13294,215 @@
                     "Property" = "8:_9350309BA5AA4CE0BB4B8FC04C059442"
                         "Folders"
                         {
+                        }
+                    }
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_C933A41791704C239F7C1173535B660F"
+                    {
+                    "Name" = "8:demoj"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_2F03F3EA4360451195B2803420A3DEBB"
+                        "Folders"
+                        {
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2CAF52312DBF496AAE52E3EEA2BAEBF5"
+                            {
+                            "Name" = "8:Glacier"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_4A55EBE1CA39473DB45D2FDE2B8DD641"
+                                "Folders"
+                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_048D30AE17F149D1978F2CE6A5FE6B53"
+                                    {
+                                    "Name" = "8:session"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_E3276D31E8734FAD88BCBBFE3EC4C09E"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_3A7125D35B704750BCF929C95E4FA3C5"
+                            {
+                            "Name" = "8:Ice"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_0B02A292A3934C2CA2B4BF7B448FF579"
+                                "Folders"
+                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_00CEF04B01A54EC2AD121C61787B9AF4"
+                                    {
+                                    "Name" = "8:value"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_6001487381B14617A89F6A5F9FEAC21F"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_38F4F04DC5A143E7B159B93B37D0B14D"
+                                    {
+                                    "Name" = "8:hello"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_C2478BAD7DAC40AAAF50F85F88A1075E"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B767548B35224F1A9F63E09942B7CDE4"
+                                    {
+                                    "Name" = "8:latency"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_6FADB10930F34126AA1FA2BC438EFFCE"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_C99B3982746E485CBCA4CC24DBA2162F"
+                                    {
+                                    "Name" = "8:throughput"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_B04245D92EC644199F1BEF0189573234"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_E95E5B5C8D0C4ADF82DDC68F83DF7C59"
+                                    {
+                                    "Name" = "8:nested"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_179C3E1A2CC04334AB4098AFDED9A9B8"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_FFF6ABFB3F9F402E8B13BA3817EF527B"
+                                    {
+                                    "Name" = "8:callback"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_6124038E16C74036B2DC7EDB962F855F"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_81334BAB6ADA48A0AA12FBAD62DDB509"
+                            {
+                            "Name" = "8:IceBox"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_C05C2EBD42D54584BA6FDA230BDA37CF"
+                                "Folders"
+                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8252385DDA574CB98DDBB41624216901"
+                                    {
+                                    "Name" = "8:hello"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_4EC1C18A4958444CBC4F6309EA1E8E62"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_A4F23961150E41D0A603F38191836418"
+                            {
+                            "Name" = "8:Freeze"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_5DC707AF8E0A4427BB396CE49B1E7B94"
+                                "Folders"
+                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_57EFC5B32A4B472F842CFF1522F97BB4"
+                                    {
+                                    "Name" = "8:phonebook"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_0E8F36BBEB324356AF3F1585D6E03C97"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2770BFBC16924B8A81D22FB433115040"
+                                            {
+                                            "Name" = "8:db"
+                                            "AlwaysCreate" = "11:TRUE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_2D70D3C0F85448848BDDA3591D97E365"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8800EF9AF9804407ADA30F10E74054DE"
+                                    {
+                                    "Name" = "8:library"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_641AB85C72F941108643E31DA88E9091"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B46E0A6D9E31453896F167EB1D92083D"
+                                            {
+                                            "Name" = "8:db"
+                                            "AlwaysCreate" = "11:TRUE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_6496C51D59E44ABBB52A268893BC3A69"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_F18CC681C34F4A7FB681EC6FC95C27FB"
+                                    {
+                                    "Name" = "8:bench"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_0EF5BBD019F54E7FA72D060CA3761056"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_31E46504E55148FEA6E7967F1C6378FD"
+                                            {
+                                            "Name" = "8:db"
+                                            "AlwaysCreate" = "11:TRUE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_4ACDF814D1254378BE59D4C9576128AD"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
