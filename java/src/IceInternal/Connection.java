@@ -83,16 +83,23 @@ public final class Connection extends EventHandler
 		    byte pMinor = is.readByte();
 
 		    //
-		    // We only check the major version number here. The minor version
-		    // number is irrelevant -- no matter what minor version number is offered
-		    // by the server, we can be certain that the server supports at least minor version 0.
-		    // As the client, we are obliged to never produce a message with a minor
-		    // version number that is larger than what the server can understand, but we don't
-		    // care if the server understands more than we do.
+		    // We only check the major version number
+		    // here. The minor version number is irrelevant --
+		    // no matter what minor version number is offered
+		    // by the server, we can be certain that the
+		    // server supports at least minor version 0.  As
+		    // the client, we are obliged to never produce a
+		    // message with a minor version number that is
+		    // larger than what the server can understand, but
+		    // we don't care if the server understands more
+		    // than we do.
 		    //
-		    // Note: Once we add minor versions, we need to modify the client side to never produce
-		    // a message with a minor number that is greater than what the server can handle. Similarly,
-		    // the server side will have to be modified so it never replies with a minor version that is
+		    // Note: Once we add minor versions, we need to
+		    // modify the client side to never produce a
+		    // message with a minor number that is greater
+		    // than what the server can handle. Similarly, the
+		    // server side will have to be modified so it
+		    // never replies with a minor version that is
 		    // greater than what the client can handle.
 		    //
 		    if(pMajor != Protocol.protocolMajor)
@@ -109,8 +116,9 @@ public final class Connection extends EventHandler
 		    byte eMinor = is.readByte();
 
 		    //
-		    // The same applies here as above -- only the major version number
-		    // of the encoding is relevant.
+		    // The same applies here as above -- only the
+		    // major version number of the encoding is
+		    // relevant.
 		    //
 		    if(eMajor != Protocol.encodingMajor)
 		    {
@@ -1211,6 +1219,13 @@ public final class Connection extends EventHandler
             }
         }
 
+	//
+	// We must set the new state before we notify requests of any
+	// exceptions. Otherwise new requests may retry on a
+	// connection that is not yet marked as closed or closing.
+	//
+        setState(state);
+
 	{
 	    java.util.Iterator i = _requests.entryIterator();
 	    while(i.hasNext())
@@ -1232,8 +1247,6 @@ public final class Connection extends EventHandler
 	    }
 	    _asyncRequests.clear();
 	}
-
-        setState(state);
     }
 
     private void

@@ -1,6 +1,9 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Manual retry in the exception() callback of asynchronous requests
+  didn't work. This has been fixed.
+
 - Added Freeze Evictor indices: see the Freeze/phonebook demo.
 
 - Fixed a crash that could happen during shutdown.
