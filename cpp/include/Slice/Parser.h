@@ -128,6 +128,7 @@ namespace Slice
 
 typedef std::list<TypePtr> TypeList;
 typedef std::list<ExceptionPtr> ExceptionList;
+typedef std::set<std::string> StringSet;
 typedef std::list<std::string> StringList;
 typedef std::pair<TypePtr, std::string> TypeString;
 typedef std::list<TypeString> TypeStringList;
@@ -290,6 +291,7 @@ public:
 
     bool operator<(const Contained&) const;
     bool operator==(const Contained&) const;
+    bool operator!=(const Contained&) const;
 
 protected:
 
@@ -346,6 +348,8 @@ public:
     virtual void visit(ParserVisitor*);
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
+    bool addIntroduced(const std::string&, ContainedPtr = 0);
+
 protected:
 
     Container(const UnitPtr&);
@@ -353,6 +357,7 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
 
     ContainedList _contents;
+    std::map<std::string, ContainedPtr> _introducedMap;
 };
 
 // ----------------------------------------------------------------------

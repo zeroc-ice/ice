@@ -185,6 +185,12 @@ Slice::Contained::operator==(const Contained& rhs) const
     return _scoped == rhs._scoped;
 }
 
+bool
+Slice::Contained::operator!=(const Contained& rhs) const
+{
+    return _scoped != rhs._scoped;
+}
+
 Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
     _container(container),
@@ -1234,6 +1240,48 @@ Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 	    dependencies.insert(constructed);
 	    constructed->recDependencies(dependencies);
 	}
+    }
+}
+
+bool
+Slice::Container::addIntroduced(const string& scoped, ContainedPtr namedThing)
+{
+    if(scoped[0] == ':')	// Only unscoped names introduce anything
+    {
+	return true;
+    }
+
+    //
+    // Split off first component of scoped name
+    //
+    string::size_type pos = scoped.find("::");
+    string firstComponent = scoped.substr(0, pos);
+
+    //
+    // If we don't have type, use the Contained for the first component
+    //
+    if(namedThing == 0)
+    {
+	ContainedList cl = lookupContained(firstComponent, false);
+	if(cl.empty())
+	{
+	    return true;	// Ignore types whose creation failed previously
+	}
+	namedThing = cl.front();
+    }
+
+    //
+    // Check if we have the introduced name in the map already...
+    //
+    map<string, ContainedPtr>::const_iterator it = _introducedMap.find(firstComponent);
+    if(it == _introducedMap.end())
+    {
+	_introducedMap[firstComponent] = namedThing;	// No, insert it
+	return true;
+    }
+    else
+    {
+	return it->second == namedThing;		// Return whether it is the same as last time
     }
 }
 

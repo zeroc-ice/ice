@@ -195,6 +195,11 @@ module_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
+    if(!cont->addIntroduced(ident->v, module))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+    	unit->error(msg);
+    }
     unit->pushContainer(module);
     $$ = module;
 }
@@ -244,6 +249,11 @@ exception_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
+    if(!cont->addIntroduced(ident->v, ex))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+	unit->error(msg);
+    }
     unit->pushContainer(ex);
     $$ = ex;
 }
@@ -261,7 +271,13 @@ exception_extends
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->lookupException(scoped->v);
+    ContainedPtr contained = cont->lookupException(scoped->v);
+    if(!cont->addIntroduced(scoped->v))
+    {
+	string msg = "`" + scoped->v + "' has changed meaning";
+    	unit->error(msg);
+    }
+    $$ = contained;
 }
 |
 {
@@ -303,7 +319,13 @@ exception_export
     string ident = tsp->v.second;
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     assert(ex);
-    $$ = ex->createDataMember(ident, type);
+    DataMemberPtr dm = ex->createDataMember(ident, type);
+    if(!unit->currentContainer()->addIntroduced(ident, dm))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+    	unit->error(msg);
+    }
+    $$ = dm;
 }
 | type keyword
 {
@@ -360,6 +382,11 @@ struct_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
+    if(!cont->addIntroduced(ident->v, st))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+    	unit->error(msg);
+    }
     unit->pushContainer(st);
     $$ = st;
 }
@@ -414,7 +441,13 @@ struct_export
     string ident = tsp->v.second;
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     assert(st);
-    $$ = st->createDataMember(ident, type);
+    DataMemberPtr dm = st->createDataMember(ident, type);
+    if(!unit->currentContainer()->addIntroduced(ident, dm))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+    	unit->error(msg);
+    }
+    $$ = dm;
 }
 | type keyword
 {
@@ -482,6 +515,11 @@ class_def
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
+    if(!cont->addIntroduced(ident->v, cl))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+    	unit->error(msg);
+    }
     unit->pushContainer(cl);
     $$ = cl;
 }
@@ -523,6 +561,11 @@ class_extends
 	    }
 	    else
 	    {
+	    	if(!cont->addIntroduced(scoped->v))
+		{
+		    string msg = "`" + scoped->v + "' has changed meaning";
+		    unit->error(msg);
+		}
 		$$ = def;
 	    }
 	}
@@ -584,7 +627,13 @@ class_export
     string ident = tsp->v.second;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    $$ = cl->createDataMember(ident, type);
+    DataMemberPtr dm = cl->createDataMember(ident, type);
+    if(!cl->addIntroduced(ident, dm))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+	unit->error(msg);
+    }
+    $$ = dm;
 }
 | type keyword
 {
@@ -629,6 +678,11 @@ interface_decl
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, true, local->v);
+    if(!cont->addIntroduced(ident->v, cl))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+	unit->error(msg);
+    }
     $$ = cl;
 }
 ;
@@ -646,6 +700,11 @@ interface_def
     if(!cl)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    if(!cont->addIntroduced(ident->v, cl))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+	unit->error(msg);
     }
     unit->pushContainer(cl);
     $$ = cl;
@@ -688,6 +747,11 @@ interface_list
 	    }
 	    else
 	    {
+	    	if(!cont->addIntroduced(scoped->v))
+		{
+		    string msg = "`" + scoped->v + "' has changed meaning";
+		    unit->error(msg);
+		}
 		intfs->v.push_front(def);
 	    }
 	}
@@ -722,6 +786,11 @@ interface_list
 	    }
 	    else
 	    {
+	    	if (!cont->addIntroduced(scoped->v))
+		{
+		    string msg = "`" + scoped->v + "' has changed meaning";
+		    unit->error(msg);
+		}
 		intfs->v.push_front(def);
 	    }
 	}
@@ -797,11 +866,6 @@ exception_list
 // ----------------------------------------------------------------------
 exception
 // ----------------------------------------------------------------------
-/* TODO: builtin exceptions "Exception" and "LocalException"*/
-// ML: Not sure if these should be treated as builtin by the
-// parser. They have no meaning in a Slice definition, so why make
-// them builtin, if they cannot be used anywhere in Slice?
-// MH: Agree -- I don't think anything needs doing here.
 : scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
@@ -810,6 +874,11 @@ exception
     if(!exception)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    if(!cont->addIntroduced(scoped->v, exception))
+    {
+	string msg = "`" + scoped->v + "' has changed meaning";
+	unit->error(msg);
     }
     $$ = exception;
 }
@@ -885,6 +954,11 @@ enum_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v, local->v);
+    if(!cont->addIntroduced(ident->v, en))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+	unit->error(msg);
+    }
     $$ = en;
 }
 '{' enumerator_list '}'
@@ -963,7 +1037,13 @@ operation
     ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    $$ = cl->createOperation(name, returnType, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(name, returnType, inParms->v, outParms->v, throws->v);
+    if(!cl->addIntroduced(name, op))
+    {
+	string msg = "`" + name + "' has changed meaning";
+	unit->error(msg);
+    }
+    $$ = op;
 }
 | ICE_VOID ICE_IDENTIFIER '(' parameters output_parameters ')' throws
 {
@@ -973,7 +1053,13 @@ operation
     ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     assert(cl);
-    $$ = cl->createOperation(ident->v, 0, inParms->v, outParms->v, throws->v);
+    OperationPtr op = cl->createOperation(ident->v, 0, inParms->v, outParms->v, throws->v);
+    if(!unit->currentContainer()->addIntroduced(ident->v, op))
+    {
+	string msg = "`" + ident->v + "' has changed meaning";
+	unit->error(msg);
+    }
+    $$ = op;
 }
 | type keyword '(' parameters output_parameters ')' throws
 {
@@ -1005,14 +1091,32 @@ parameters
 // ----------------------------------------------------------------------
 :  type_id ',' parameters
 {
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($3);
     TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    string ident = typestring->v.second;
+#if 0
+    // TODO: this isn't working yet -- parameter lists need to be in a scope
+    if(!unit->currentContainer()->addIntroduced(ident))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+	unit->error(msg);
+    }
+#endif
+    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($3);
     parms->v.push_front(typestring->v);
     $$ = parms;
 }
 | type_id
 {
     TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    string ident = typestring->v.second;
+#if 0
+    // TODO: this isn't working yet -- parameter lists need to be in a scope
+    if(!unit->currentContainer()->addIntroduced(ident))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+	unit->error(msg);
+    }
+#endif
     TypeStringListTokPtr parms = new TypeStringListTok;
     parms->v.push_front(typestring->v);
     $$ = parms;
@@ -1068,14 +1172,32 @@ output_parameters
 }
 | ICE_OUT type_id ',' output_parameters
 {
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
     TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($2);
+    string ident = typestring->v.second;
+#if 0
+    // TODO: this isn't working yet -- parameter lists need to be in a scope
+    if(!unit->currentContainer()->addIntroduced(ident))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+	unit->error(msg);
+    }
+#endif
+    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
     parms->v.push_front(typestring->v);
     $$ = parms;
 }
 | ICE_OUT type_id
 {
     TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($2);
+    string ident = typestring->v.second;
+#if 0
+    // TODO: this isn't working yet -- parameter lists need to be in a scope
+    if(!unit->currentContainer()->addIntroduced(ident))
+    {
+	string msg = "`" + ident + "' has changed meaning";
+	unit->error(msg);
+    }
+#endif
     TypeStringListTokPtr parms = new TypeStringListTok;
     parms->v.push_front(typestring->v);
     $$ = parms;
@@ -1209,6 +1331,11 @@ type
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
+    if(!cont->addIntroduced(scoped->v))
+    {
+	string msg = "`" + scoped->v + "' has changed meaning";
+	unit->error(msg);
+    }
     $$ = types.front();
 }
 | scoped_name '*'
@@ -1230,6 +1357,11 @@ type
 	    msg += "' must be class or interface";
 	    unit->error(msg);
 	    YYERROR; // Can't continue, jump to next yyerrok
+	}
+	if(!cont->addIntroduced(scoped->v))
+	{
+	    string msg = "`" + scoped->v + "' has changed meaning";
+	    unit->error(msg);
 	}
 	*p = new Proxy(cl);
     }
@@ -1332,6 +1464,11 @@ const_initializer
 	    	msg += "n";
 	    }
 	    msg += " " + kindOf;
+	    unit->error(msg);
+	}
+	if(!unit->currentContainer()->addIntroduced(scoped->v, enumerator))
+	{
+	    string msg = "`" + scoped->v + "' has changed meaning";
 	    unit->error(msg);
 	}
 	basestring->v = make_pair(enumerator, scoped->v);

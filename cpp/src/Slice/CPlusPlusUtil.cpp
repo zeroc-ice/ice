@@ -276,13 +276,14 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] = 
     {       
-	"asm", "auto", "bool", "break", "case", "catch", "char", "class", "const", "const_cast",
-	"continue", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit",
-	"export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long",
-	"mutable", "namespace", "new", "operator", "private", "protected", "public", "register",
-	"reinterpret_cast", "return", "short", "signed", "sizeof", "static", "static_cast", "struct",
-	"switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename", "union",
-	"unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while"
+	"and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", "case", "catch", "char",
+	"class", "compl", "const", "const_cast", "continue", "default", "delete", "do", "double",
+	"dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for",
+	"friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "not", "not_eq",
+	"operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast",
+	"return", "short", "signed", "sizeof", "static", "static_cast", "struct", "switch", "template",
+	"this", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
+	"virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
     };
     bool found =  binary_search(&keywordList[0],
 	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
