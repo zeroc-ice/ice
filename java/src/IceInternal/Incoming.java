@@ -19,14 +19,14 @@ public class Incoming
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
         _current = new Ice.Current();
-        _current.identity = new Ice.Identity();
+        _current.id = new Ice.Identity();
         _cookie = new Ice.LocalObjectHolder();
     }
 
     public void
     invoke(boolean response)
     {
-        _current.identity.__read(_is);
+        _current.id.__read(_is);
         _current.facet = _is.readString();
         _current.operation = _is.readString();
         _current.nonmutating = _is.readBool();
@@ -35,11 +35,11 @@ public class Incoming
         {
             String first = _is.readString();
             String second = _is.readString();
-            if(_current.context == null)
+            if(_current.ctx == null)
             {
-                _current.context = new java.util.HashMap();
+                _current.ctx = new java.util.HashMap();
             }
-            _current.context.put(first, second);
+            _current.ctx.put(first, second);
         }
 
         int statusPos = 0;
@@ -68,11 +68,11 @@ public class Incoming
         {
             if(_adapter != null)
             {
-                servant = _adapter.identityToServant(_current.identity);
+                servant = _adapter.identityToServant(_current.id);
 
-                if(servant == null && _current.identity.category.length() > 0)
+                if(servant == null && _current.id.category.length() > 0)
                 {
-                    locator = _adapter.findServantLocator(_current.identity.category);
+                    locator = _adapter.findServantLocator(_current.id.category);
                     if(locator != null)
                     {
                         servant = locator.locate(_adapter, _current, _cookie);
@@ -133,7 +133,7 @@ public class Incoming
 
 		    if(status == DispatchStatus.DispatchObjectNotExist)
 		    {
-			_current.identity.__write(_os);
+			_current.id.__write(_os);
 		    }
 		    else if(status == DispatchStatus.DispatchFacetNotExist)
 		    {
@@ -184,9 +184,9 @@ public class Incoming
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
-		// Not current.identity.__write(_os), so that the
+		// Not current.id.__write(_os), so that the
 		// identity can be overwritten.
-		ex.identity.__write(_os);
+		ex.id.__write(_os);
             }
 
 	    // Rethrow, so that the caller can print a warning.
@@ -318,9 +318,9 @@ public class Incoming
     {
         _is.reset();
         _os.reset();
-        if(_current.context != null)
+        if(_current.ctx != null)
         {
-            _current.context.clear();
+            _current.ctx.clear();
         }
     }
 

@@ -106,7 +106,7 @@ void
 Ice::ObjectNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject `" << identityToString(identity) << "' does not exist";
+    out << ":\nobject `" << identityToString(id) << "' does not exist";
 }
 
 void

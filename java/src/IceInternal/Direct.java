@@ -20,11 +20,11 @@ public final class Direct
 
         try
         {
-            _servant = _adapter.identityToServant(_current.identity);
+            _servant = _adapter.identityToServant(_current.id);
 
-            if(_servant == null && _current.identity.category.length() > 0)
+            if(_servant == null && _current.id.category.length() > 0)
             {
-                _locator = _adapter.findServantLocator(_current.identity.category);
+                _locator = _adapter.findServantLocator(_current.id.category);
                 if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation
@@ -65,7 +65,7 @@ public final class Direct
         if(_servant == null)
         {
             Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-	    ex.identity = _current.identity;
+	    ex.id = _current.id;
 	    throw ex;
         }
     }

@@ -217,13 +217,13 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 
     EvictorElementPtr element;
 
-    map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(current.identity);
+    map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(current.id);
     if(p != _evictorMap.end())
     {
 	if(_trace >= 2)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
-	    out << "found \"" << current.identity << "\" in the queue";
+	    out << "found \"" << current.id << "\" in the queue";
 	}
 
 	//
@@ -232,7 +232,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	//
 	element = p->second;
 	_evictorList.erase(element->position);
-	_evictorList.push_front(current.identity);
+	_evictorList.push_front(current.id);
 	element->position = _evictorList.begin();
     }
     else
@@ -240,15 +240,15 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	if(_trace >= 2)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
-	    out << "couldn't find \"" << current.identity << "\" in the queue\n"
-		<< "loading \"" << current.identity << "\" from the database";
+	    out << "couldn't find \"" << current.id << "\" in the queue\n"
+		<< "loading \"" << current.id << "\" from the database";
 	}
 
 	//
 	// Load the Ice Object from database and create and add a
 	// Servant for it.
 	//
-	IdentityObjectDict::iterator p = _dict.find(current.identity);
+	IdentityObjectDict::iterator p = _dict.find(current.id);
 	if(p == _dict.end())
 	{
 	    //
@@ -262,14 +262,14 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	// Add the new Servant to the evictor queue.
 	//
 	ObjectPtr servant = p->second;
-	element = add(current.identity, servant);
+	element = add(current.id, servant);
 
 	//
 	// If an initializer is installed, call it now.
 	//
 	if(_initializer)
 	{
-	    _initializer->initialize(adapter, current.identity, servant);
+	    _initializer->initialize(adapter, current.id, servant);
 	}
     }
 
@@ -321,7 +321,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     {
 	if(!current.nonmutating)
 	{
-	    _dict.insert(make_pair(current.identity, servant));
+	    _dict.insert(make_pair(current.id, servant));
 	}
     }
 

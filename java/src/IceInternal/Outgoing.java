@@ -223,8 +223,8 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-		    ex.identity = new Ice.Identity();
-		    ex.identity.__read(_is);
+		    ex.id = new Ice.Identity();
+		    ex.id.__read(_is);
 		    _exception = ex;
                     _fillStackTrace = true;
                     break;

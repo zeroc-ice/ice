@@ -70,25 +70,25 @@ Glacier::ClientBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
     //
     if(!_allowCategories.empty())
     {
-	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.identity.category))
+	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.id.category))
 	{
 	    if(_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
 		out << "rejecting request\n";
-		out << "identity: " << identityToString(current.identity);
+		out << "identity: " << identityToString(current.id);
 	    }
 	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.identity = current.identity;
+	    ex.id = current.id;
 	    throw ex;
 	}
     }
 
-    ObjectPrx proxy = _routingTable->get(current.identity);
+    ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
     {
 	ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.identity = current.identity;
+	ex.id = current.id;
 	throw ex;
     }
 

@@ -1155,11 +1155,11 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 void
 IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool nonmutating, const Context& context)
 {
-    current.identity = __reference->identity;
+    current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
     current.nonmutating = nonmutating;
-    current.context = context;
+    current.ctx = context;
 }
 
 void

@@ -28,7 +28,7 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     //
     // Check whether the path is valid.
     //
-    string path = identityToPath(current.identity);
+    string path = identityToPath(current.id);
 
     if(path.empty()) // Empty paths are not permissible.
     {

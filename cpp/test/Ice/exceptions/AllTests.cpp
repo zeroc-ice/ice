@@ -339,7 +339,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const Ice::ObjectNotExistException& ex)
     {
-	test(ex.identity == id);
+	test(ex.id == id);
     }
     catch (...)
     {

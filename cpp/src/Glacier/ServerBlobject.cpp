@@ -48,7 +48,7 @@ Glacier::ServerBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
 {
     assert(_clientAdapter); // Destroyed?
 
-    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.identity);
+    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.id);
     assert(proxy);
 
     return invoke(proxy, inParams, outParams, current);

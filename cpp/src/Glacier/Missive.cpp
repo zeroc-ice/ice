@@ -21,8 +21,8 @@ Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, 
     _current(current),
     _forwardContext(forwardContext)
 {
-    Context::const_iterator p = current.context.find("_ovrd");
-    if(p != current.context.end())
+    Context::const_iterator p = current.ctx.find("_ovrd");
+    if(p != current.ctx.end())
     {
 	_override = p->second;
     }
@@ -34,7 +34,7 @@ Glacier::Missive::invoke()
     std::vector<Byte> dummy;
     if(_forwardContext)
     {
-	_proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy, _current.context);
+	_proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy, _current.ctx);
     }
     else
     {

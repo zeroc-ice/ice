@@ -143,7 +143,7 @@ local exception LocationForwardIdentityException
 local exception ObjectNotExistException
 {
     /** The identity of the object that does exist. */
-    Identity identity;
+    Identity id;
 };
 
 /**

@@ -164,8 +164,8 @@ class EvictorI implements Evictor
 	// potentially the map).
 	//
 	Ice.Identity ident = new Ice.Identity();
-	ident.name = current.identity.name;
-	ident.category = current.identity.category;
+	ident.name = current.id.name;
+	ident.category = current.id.category;
 	
 	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
 	if(element != null)
@@ -216,7 +216,7 @@ class EvictorI implements Evictor
 	    
 	    //
 	    // Add the new Servant to the evictor
-	    // queue. current.identity is copied
+	    // queue. current.id is copied
 	    //
 	    element = add(ident, servant);
 	    
@@ -273,7 +273,7 @@ class EvictorI implements Evictor
 	{
 	    if(!current.nonmutating)
 	    {
-		_dict.put(current.identity, servant);
+		_dict.put(current.id, servant);
 	    }
 	}
 	

@@ -44,7 +44,7 @@ local struct Current
      * The &&Ice;; object identity.
      *
      **/
-    Identity identity;
+    Identity id;
 
     /**
      *
@@ -65,7 +65,7 @@ local struct Current
      * Set to true if the operation is nonmutating.
      *
      **/
-    bool \nonmutating;
+    bool nonmutating;
 
     /**
      *
@@ -74,7 +74,7 @@ local struct Current
      * @see Context;
      *
      **/
-    Context context;
+    Context ctx;
 };
 
 };

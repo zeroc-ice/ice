@@ -254,7 +254,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		Identity ident;
 		ident.__read(&_is);
 		ObjectNotExistException* ex = new ObjectNotExistException(__FILE__, __LINE__);
-		ex->identity = ident;
+		ex->id = ident;
 		_exception = auto_ptr<LocalException>(ex);
 		break;
 	    }

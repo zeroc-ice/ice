@@ -280,7 +280,7 @@ bool
 PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byte>& outParam,
                             const Ice::Current& current)
 {
-    const Ice::Context& context = current.context;
+    const Ice::Context& context = current.ctx;
 
     Event event;
     event.forwarded = false;

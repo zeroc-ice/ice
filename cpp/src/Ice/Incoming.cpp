@@ -29,7 +29,7 @@ void
 IceInternal::Incoming::invoke(bool response)
 {
     Current current;
-    current.identity.__read(&_is);
+    current.id.__read(&_is);
     _is.read(current.facet);
     _is.read(current.operation);
     _is.read(current.nonmutating);
@@ -37,10 +37,10 @@ IceInternal::Incoming::invoke(bool response)
     _is.readSize(sz);
     while(sz--)
     {
-	pair<string, string> pair;
-	_is.read(pair.first);
-	_is.read(pair.second);
-	current.context.insert(current.context.end(), pair);
+	pair<string, string> pr;
+	_is.read(pr.first);
+	_is.read(pr.second);
+	current.ctx.insert(current.ctx.end(), pr);
     }
 
     BasicStream::Container::size_type statusPos = 0; // Initialize, to keep the compiler happy.
@@ -69,11 +69,11 @@ IceInternal::Incoming::invoke(bool response)
     {
 	if(_adapter)
 	{
-	    servant = _adapter->identityToServant(current.identity);
+	    servant = _adapter->identityToServant(current.id);
 	    
-	    if(!servant && !current.identity.category.empty())
+	    if(!servant && !current.id.category.empty())
 	    {
-		locator = _adapter->findServantLocator(current.identity.category);
+		locator = _adapter->findServantLocator(current.id.category);
 		if(locator)
 		{
 		    servant = locator->locate(_adapter, current, cookie);
@@ -134,7 +134,7 @@ IceInternal::Incoming::invoke(bool response)
 
 		if(status == DispatchObjectNotExist)
 		{
-		    current.identity.__write(&_os);
+		    current.id.__write(&_os);
 		}
 		else if(status == DispatchFacetNotExist)
 		{
@@ -184,7 +184,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
             // Not current.identity.__write(_os), so that the identity
             // can be overwritten.
-	    ex.identity.__write(&_os);
+	    ex.id.__write(&_os);
 	}
 
 	// Rethrow, so that the caller can print a warning.

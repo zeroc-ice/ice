@@ -79,7 +79,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 	    
 	    if(_forwardContext)
 	    {
-		return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
+		return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.ctx);
 	    }
 	    else
 	    {
@@ -115,8 +115,8 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
     }
 
     MissiveQueuePtr missiveQueue;
-    Context::const_iterator p = current.context.find("_fwd");
-    if(p != current.context.end())
+    Context::const_iterator p = current.ctx.find("_fwd");
+    if(p != current.ctx.end())
     {
 	for(unsigned int i = 0; i < p->second.length(); ++i)
 	{

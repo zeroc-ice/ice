@@ -45,7 +45,7 @@ HelloSessionI::HelloSessionI(const string& userId, const HelloSessionManagerIPtr
 void
 HelloSessionI::destroy(const Ice::Current& current)
 {
-    _manager->remove(current.identity);
+    _manager->remove(current.id);
 }
 
 void

@@ -25,11 +25,11 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& curr
 {
     try
     {
-	_servant = _adapter->identityToServant(_current.identity);
+	_servant = _adapter->identityToServant(_current.id);
     
-	if(!_servant && !_current.identity.category.empty())
+	if(!_servant && !_current.id.category.empty())
 	{
-	    _locator = _adapter->findServantLocator(_current.identity.category);
+	    _locator = _adapter->findServantLocator(_current.id.category);
 	    if(_locator)
 	    {
 		_servant = _locator->locate(_adapter, _current, _cookie);
@@ -68,7 +68,7 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& curr
     if(!_servant)
     {
 	ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.identity = _current.identity;
+	ex.id = _current.id;
 	throw ex;
     }
 }

@@ -266,11 +266,11 @@ public class _ObjectDelD implements _ObjectDel
     protected final void
     __initCurrent(Current current, String op, boolean nonmutating, java.util.Map context)
     {
-        current.identity = __reference.identity;
+        current.id = __reference.identity;
         current.facet = __reference.facet;
         current.operation = op;
         current.nonmutating = nonmutating;
-        current.context = context;
+        current.ctx = context;
     }
 
     public void
