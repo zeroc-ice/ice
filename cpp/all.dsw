@@ -1055,6 +1055,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2vb
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name routerC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name routerS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2531,6 +2537,45 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "routerC"=.\test\Glacier2\router\routerC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "routerS"=.\test\Glacier2\router\routerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
