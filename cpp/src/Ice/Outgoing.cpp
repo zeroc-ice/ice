@@ -103,7 +103,7 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
-	    bool timedOut = false;
+	    auto_ptr<LocalException> exception;
 
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -117,11 +117,11 @@ IceInternal::Outgoing::invoke()
 		    if(timeout >= 0)
 		    {	
 			timedWait(IceUtil::Time::milliSeconds(timeout));
+
 			if(_state == StateInProgress)
 			{
-			    timedOut = true;
-			    _state = StateLocalException;
-			    _exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
+			    exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
+			    break;
 			}
 		    }
 		    else
@@ -131,13 +131,28 @@ IceInternal::Outgoing::invoke()
 		}
 	    }
 
-	    if(timedOut)
+	    if(exception.get())
 	    {
 		//
 		// Must be called outside the synchronization of this
 		// object.
 		//
-		_connection->exception(*_exception.get());
+		_connection->exception(*exception.get());
+
+		//
+		// We must wait until the exception set above has
+		// propagated to this Outgoing object.
+		//
+		{
+		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		    
+		    while(_state == StateInProgress)
+		    {
+			wait();
+		    }
+
+		    assert(_exception.get());
+		}
 	    }
 
 	    if(_exception.get())

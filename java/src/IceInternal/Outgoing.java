@@ -65,7 +65,7 @@ public final class Outgoing
         {
             case Reference.ModeTwoway:
             {
-                boolean timedOut = false;
+                Ice.LocalException exception = null;
 
                 synchronized(this)
                 {
@@ -80,11 +80,11 @@ public final class Outgoing
                             if(timeout >= 0)
                             {
                                 wait(timeout);
+
                                 if(_state == StateInProgress)
                                 {
-                                    timedOut = true;
-                                    _state = StateLocalException;
-                                    _exception = new Ice.TimeoutException();
+                                    exception = new Ice.TimeoutException();
+				    break;
                                 }
                             }
                             else
@@ -98,13 +98,33 @@ public final class Outgoing
                     }
                 }
 
-                if(timedOut)
+                if(exception != null)
                 {
                     //
                     // Must be called outside the synchronization of
                     // this object
                     //
-                    _connection.exception(_exception);
+                    _connection.exception(exception);
+
+		    //
+		    // We must wait until the exception set above has
+		    // propagated to this Outgoing object.
+		    //
+		    synchronized(this)
+		    {
+			while(_state == StateInProgress)
+			{
+			    try
+			    {
+				wait();
+			    }
+			    catch(InterruptedException ex)
+			    {
+			    }
+			}
+			
+			assert(_exception != null);
+		    }
                 }
 
                 if(_exception != null)
