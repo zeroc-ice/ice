@@ -337,7 +337,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
         _sslSystem = IceSSL::Factory::getSystem(this);
 
         // Get the SSL system to configure itself
-        // _sslSystem->configure();
+        _sslSystem->configure();
     }
     catch(...)
     {
