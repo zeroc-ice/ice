@@ -242,17 +242,16 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    //
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
+		string param = fixId(q->second);
 		string typeS = typeToString(q->first);
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+		bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+		               || ClassDeclPtr::dynamicCast(q->first);
+		if(!isClass)
 		{
-		    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
+		    _out << nl << typeS << ' ' << param << ';';
 		}
-		else
-		{
-		    _out << nl << typeS << ' ' << fixId(q->second) << ';';
-		    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
-		}
+		writeMarshalUnmarshalCode(_out, q->first, param, false, false, true);
 	    }
 	    if(op->sendsClasses())
 	    {
@@ -364,7 +363,13 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    //
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
-		_out << nl << typeToString(q->first) << ' ' << fixId(q->second) << ';';
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+		               || ClassDeclPtr::dynamicCast(q->first);
+		if(!isClass)
+		{
+		    _out << nl << typeToString(q->first) << ' ' << fixId(q->second) << ';';
+		}
 		writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
 	    }
 	    if(op->sendsClasses())
@@ -383,7 +388,18 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    _out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+		               || ClassDeclPtr::dynamicCast(q->first);
+		if(isClass)
+		{
+		    _out << "(" << typeToString(q->first) << ")";
+		}
 		_out << fixId(q->second);
+		if(isClass)
+		{
+		    _out << "_PP.value";
+		}
 		_out << ", ";
 	    }
 	    _out << "__current);";
