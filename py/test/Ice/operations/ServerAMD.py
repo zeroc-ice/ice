@@ -7,13 +7,31 @@
 #
 # **********************************************************************
 
-import os, sys, threading, traceback, Ice
+import os, sys, traceback, threading
 
-if not os.environ.has_key('ICE_HOME'):
-    print sys.argv[0] + ': ICE_HOME is not defined'
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+sys.path.insert(0, os.path.join(toplevel, "python"))
+sys.path.insert(0, os.path.join(toplevel, "lib"))
+
+import Ice
+
+#
+# Find Slice directory.
+#
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + os.environ['ICE_HOME'] + '/slice TestAMD.ice')
+Ice.loadSlice('-I' + slice_dir + '/slice TestAMD.ice')
 import Test
 
 def test(b):

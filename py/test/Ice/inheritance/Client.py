@@ -7,7 +7,19 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice, AllTests
+import os, sys, traceback
+
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+sys.path.insert(0, os.path.join(toplevel, "python"))
+sys.path.insert(0, os.path.join(toplevel, "lib"))
+
+import Ice, AllTests
 
 def run(args, communicator):
     initial = AllTests.allTests(communicator)
