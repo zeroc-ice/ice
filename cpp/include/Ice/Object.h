@@ -39,7 +39,7 @@ enum DispatchStatus
 namespace Ice
 {
 
-class Current;
+struct Current;
 
 class ICE_API LocationForward
 {

@@ -132,6 +132,10 @@ SOURCE=.\Connector.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Current.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
@@ -405,6 +409,10 @@ SOURCE=.\Ice\Connector.h
 # Begin Source File
 
 SOURCE=.\Ice\ConnectorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Current.h
 # End Source File
 # Begin Source File
 
@@ -752,6 +760,7 @@ SOURCE=..\..\slice\Ice\Communicator.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__COMMU="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Communicator.ice
 
@@ -770,6 +779,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__COMMU="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Communicator.ice
 
@@ -795,6 +805,7 @@ SOURCE=..\..\slice\Ice\CommunicatorF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__COMMUN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\CommunicatorF.ice
 
@@ -808,6 +819,7 @@ InputPath=..\..\slice\Ice\CommunicatorF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__COMMUN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\CommunicatorF.ice
 
@@ -824,10 +836,56 @@ InputPath=..\..\slice\Ice\CommunicatorF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\Current.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__CURRE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Current.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
+	move Current.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__CURRE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Current.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
+	move Current.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\LocalException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__LOCAL="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\LocalException.ice
 
@@ -846,6 +904,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__LOCAL="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\LocalException.ice
 
@@ -871,6 +930,7 @@ SOURCE=..\..\slice\Ice\Logger.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__LOGGE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Logger.ice
 
@@ -889,6 +949,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__LOGGE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Logger.ice
 
@@ -914,6 +975,7 @@ SOURCE=..\..\slice\Ice\LoggerF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__LOGGER="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\LoggerF.ice
 
@@ -927,6 +989,7 @@ InputPath=..\..\slice\Ice\LoggerF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__LOGGER="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\LoggerF.ice
 
@@ -947,6 +1010,7 @@ SOURCE=..\..\slice\Ice\ObjectAdapter.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__OBJEC="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectAdapter.ice
 
@@ -965,6 +1029,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__OBJEC="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectAdapter.ice
 
@@ -990,6 +1055,7 @@ SOURCE=..\..\slice\Ice\ObjectAdapterF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__OBJECT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 
@@ -1003,6 +1069,7 @@ InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__OBJECT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 
@@ -1023,6 +1090,7 @@ SOURCE=..\..\slice\Ice\ObjectFactory.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__OBJECTF="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectFactory.ice
 
@@ -1041,6 +1109,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__OBJECTF="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectFactory.ice
 
@@ -1066,6 +1135,7 @@ SOURCE=..\..\slice\Ice\ObjectFactoryF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__OBJECTFA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 
@@ -1079,6 +1149,7 @@ InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__OBJECTFA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 
@@ -1099,6 +1170,7 @@ SOURCE=..\..\slice\Ice\Properties.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__PROPE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Properties.ice
 
@@ -1117,6 +1189,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__PROPE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Properties.ice
 
@@ -1142,6 +1215,7 @@ SOURCE=..\..\slice\Ice\PropertiesF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__PROPER="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\PropertiesF.ice
 
@@ -1155,6 +1229,7 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__PROPER="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\PropertiesF.ice
 
@@ -1177,6 +1252,7 @@ SOURCE=..\..\slice\Ice\SecurityException.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__SECUR="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\SecurityException.ice
 
@@ -1202,6 +1278,7 @@ SOURCE=..\..\slice\Ice\ServantLocator.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__SERVA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ServantLocator.ice
 
@@ -1220,6 +1297,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__SERVA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ServantLocator.ice
 
@@ -1245,6 +1323,7 @@ SOURCE=..\..\slice\Ice\ServantLocatorF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__SERVAN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ServantLocatorF.ice
 
@@ -1258,6 +1337,7 @@ InputPath=..\..\slice\Ice\ServantLocatorF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__SERVAN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\ServantLocatorF.ice
 
@@ -1278,6 +1358,7 @@ SOURCE=..\..\slice\Ice\Stream.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__STREA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Stream.ice
 
@@ -1296,11 +1377,12 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__STREA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Stream.ice
 
 BuildCmds= \
-'	set PATH=%PATH%;..\..\lib \
+	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stream.ice \
 	move Stream.h ..\..\include\Ice \
 	
@@ -1321,6 +1403,7 @@ SOURCE=..\..\slice\Ice\StreamF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__STREAM="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\StreamF.ice
 
@@ -1334,6 +1417,7 @@ InputPath=..\..\slice\Ice\StreamF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__STREAM="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\StreamF.ice
 
@@ -1354,6 +1438,7 @@ SOURCE=..\..\slice\Ice\UserExceptionFactory.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__USERE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
@@ -1372,6 +1457,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__USERE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
@@ -1397,6 +1483,7 @@ SOURCE=..\..\slice\Ice\UserExceptionFactoryF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__USEREX="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
 
@@ -1410,6 +1497,7 @@ InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__USEREX="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
 
@@ -1419,49 +1507,6 @@ InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
 	move UserExceptionFactoryF.h ..\..\include\Ice 
 	del UserExceptionFactoryF.cpp 
 	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\Current.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Current.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
-	move Current.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Current.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Current.ice \
-	move Current.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Current.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 

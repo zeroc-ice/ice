@@ -25,7 +25,6 @@ namespace Ice
 
 class LocalException;
 class LocationForward;
-class Context;
 
 };
 
