@@ -60,7 +60,6 @@ public:
     // Implicit conversion to a timeval & timespec.
     //
     operator timeval() const;
-    operator timespec() const;
 
 private:
 

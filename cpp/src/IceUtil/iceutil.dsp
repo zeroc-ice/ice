@@ -132,6 +132,10 @@ SOURCE=.\Thread.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Time.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Unicode.cpp
 # End Source File
 # Begin Source File
@@ -201,6 +205,10 @@ SOURCE=..\..\include\IceUtil\Shared.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Thread.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Time.h
 # End Source File
 # Begin Source File
 

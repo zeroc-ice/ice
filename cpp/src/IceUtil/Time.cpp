@@ -142,8 +142,8 @@ IceUtil::Time::operator!=(const Time& other) const
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
-    tv.tv_sec = _usec / 1000000;
-    tv.tv_usec = _usec % 1000000;
+    tv.tv_sec = (long)(_usec / 1000000);
+    tv.tv_usec = (long)(_usec % 1000000);
     return tv;
 }
 

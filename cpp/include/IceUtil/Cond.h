@@ -48,7 +48,7 @@ public:
     ~Semaphore();
 
     void wait() const;
-    bool timedWait(long = -1) const;
+    bool timedWait(const Time&) const;
     void post(int = 1) const;
 
 private:
@@ -183,7 +183,7 @@ private:
 
 	try
 	{
-	    dowait(-1);
+	    dowait();
 	    mutex.lock(state);
 	}
 	catch(...)
