@@ -8,13 +8,12 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <CallbackI.h>
+#include <SessionI.h>
 
 using namespace std;
 using namespace Ice;
-using namespace Demo;
 
-class CallbackServer : public Application
+class SessionServer : public Application
 {
 public:
 
@@ -24,15 +23,16 @@ public:
 int
 main(int argc, char* argv[])
 {
-    CallbackServer app;
-    return app.main(argc, argv, "config.server");
+    SessionServer app;
+    return app.main(argc, argv, "config.sessionserver");
 }
 
 int
-CallbackServer::run(int argc, char* argv[])
+SessionServer::run(int argc, char* argv[])
 {
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Server");
-    adapter->add(new CallbackI, Ice::stringToIdentity("callback"));
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionServer");
+    adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
+//    adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

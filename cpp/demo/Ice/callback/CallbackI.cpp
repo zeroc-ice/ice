@@ -35,9 +35,9 @@ CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& cur
 }
 
 void
-CallbackI::shutdown(const Ice::Current& c)
+CallbackI::shutdown(const Current& c)
 {
-    cout << "Shutting down..." << endl;
+    cout << "shutting down..." << endl;
     try
     {
 	c.adapter->getCommunicator()->shutdown();

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/PermissionsVerifier.h>
+#include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/RouterI.h>
 
@@ -218,14 +219,24 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     if(p != _routersByConnection.end())
     {
 	SessionExistsException ex;
-	ex.existingSession = 0; // TODO
+	ex.existingSession = p->second->getSession();
 	throw ex;
+    }
+
+    //
+    // If we have a session manager configured, we create a
+    // client-visible session object.
+    //
+    SessionPrx session;
+    if(_sessionManager)
+    {
+	session = _sessionManager->create(userId);
     }
 
     //
     // Add a new per-client router.
     //
-    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId);
+    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, session);
     _routersByConnectionHint = _routersByConnection.insert(_routersByConnectionHint,
 							   pair<const ConnectionPtr, RouterIPtr>(current.con, router));
     if(_serverAdapter)
@@ -243,7 +254,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	out << router->toString();
     }
 
-    return 0;
+    return session;
 }
 
 void

@@ -25,7 +25,8 @@ class RouterI : public Router, public IceUtil::Mutex
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&, const std::string&);
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ConnectionPtr&,
+	    const std::string&, const SessionPrx&);
     virtual ~RouterI();
     void destroy();
 
@@ -37,6 +38,8 @@ public:
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;
+
+    SessionPrx getSession() const;
 
     IceUtil::Time getTimestamp() const;
 
@@ -53,6 +56,7 @@ private:
     const ServerBlobjectPtr _serverBlobject;
     const Ice::ConnectionPtr _connection;
     const std::string _userId;
+    const SessionPrx _session;
     mutable IceUtil::Time _timestamp;
     bool _destroy;
 };

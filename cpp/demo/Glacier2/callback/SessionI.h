@@ -7,20 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef DUMMY_PERMISSIONS_VERIFIER_I_H
-#define DUMMY_PERMISSIONS_VERIFIER_I_H
+#ifndef SESSION_I_H
+#define SESSION_I_H
 
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
+#include <Glacier2/Session.h>
 
 class DummyPermissionsVerifierI : public Glacier2::PermissionsVerifier
 {
 public:
 
-    virtual bool checkPermissions(const std::string&, const std::string&, std::string&, const Ice::Current&) const
-    {
-	return true;
-    }
+    virtual bool checkPermissions(const std::string&, const std::string&, std::string&, const Ice::Current&) const;
 };
 
 #endif

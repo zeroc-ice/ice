@@ -52,6 +52,7 @@ private:
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;
+    const SessionManagerPrx _sessionManager;
     const IceUtil::Time _sessionTimeout;
 
     //

@@ -9,13 +9,14 @@
 
 #include <Ice/RoutingTable.h>
 #include <Glacier2/RouterI.h>
+#include <Glacier2/Session.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
-			   const ConnectionPtr& connection, const string& userId) :
+			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session) :
     _communicator(clientAdapter->getCommunicator()),
     _routingTable(new IceInternal::RoutingTable),
     _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
@@ -23,6 +24,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _clientBlobject(new ClientBlobject(_communicator, _routingTable, "")),
     _connection(connection),
     _userId(userId),
+    _session(session),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
@@ -60,6 +62,11 @@ Glacier2::RouterI::destroy()
     if(_serverBlobject)
     {
 	_serverBlobject->destroy();
+    }
+
+    if(_session)
+    {
+	_session->destroy();
     }
 
     _destroy = true;
@@ -141,6 +148,12 @@ Glacier2::RouterI::getServerBlobject() const
     _timestamp = IceUtil::Time::now();
 
     return _serverBlobject;
+}
+
+SessionPrx
+Glacier2::RouterI::getSession() const
+{
+    return _session; // No mutex lock necessary, _session is immutable.
 }
 
 IceUtil::Time

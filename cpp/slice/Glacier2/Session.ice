@@ -15,7 +15,8 @@ module Glacier2
 
 /**
  *
- * A session object, which is tied to the lifecycle of a [Router].
+ * A client-visible session object, which is tied to the lifecycle of
+ * a [Router].
  *
  * @see Router
  * @see SessionManager
@@ -35,7 +36,10 @@ interface Session
 /**
  *
  * The session manager, which is responsible for managing [Session]
- * objects. New session objects are created by the [Router] object.
+ * objects. New session objects are created by the [Router] object
+ * calling on an application-provided session manager. If no session
+ * manager is provided by the application, no client-visible sessions
+ * are passed to the client.
  *
  * @see Router
  * @see Session
@@ -45,7 +49,7 @@ interface SessionManager
 {
     /**
      *
-     * Create a new session object.
+     * Create a new session.
      *
      * @param userId The user id for the session.
      *
