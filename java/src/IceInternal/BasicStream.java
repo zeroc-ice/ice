@@ -26,30 +26,6 @@ public class BasicStream
         _currentWriteEncaps = null;
     }
 
-    //
-    // Copy constructor only for special cases (e.g., tracing)
-    //
-    public
-    BasicStream(BasicStream stream)
-    {
-        _instance = stream._instance;
-        _bufferManager = _instance.bufferManager();
-        //
-        // NOTE: Using duplicate() is more efficient because the
-        // new buffer shares the same underlying storage as the
-        // old one. However, this means any modifications by
-        // either buffer will be seen by both buffers.
-        //
-        _buf = stream._buf.duplicate();
-        _buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
-        _capacity = _buf.capacity();
-        _limit = stream._limit;
-        _buf.position(0);
-
-        _currentReadEncaps = null;
-        _currentWriteEncaps = null;
-    }
-
     protected void
     finalize()
         throws Throwable

@@ -13,75 +13,78 @@ package IceInternal;
 final class TraceUtil
 {
     static void
-    traceHeader(String heading, BasicStream str, Ice.Logger logger,
-                TraceLevels tl)
+    traceHeader(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            BasicStream stream = new BasicStream(str);
+            int p = str.pos();
+            str.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printHeader(s, stream);
+            printHeader(s, str);
             logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
         }
     }
 
     static void
-    traceRequest(String heading, BasicStream str, Ice.Logger logger,
-                 TraceLevels tl)
+    traceRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            BasicStream stream = new BasicStream(str);
+            int p = str.pos();
+            str.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printHeader(s, stream);
-            int requestId = stream.readInt();
+            printHeader(s, str);
+            int requestId = str.readInt();
             s.write("\nrequest id = " + requestId);
             if (requestId == 0)
             {
                 s.write(" (oneway)");
             }
-            printRequestHeader(s, stream);
+            printRequestHeader(s, str);
             logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
         }
     }
 
     static void
-    traceBatchRequest(String heading, BasicStream str, Ice.Logger logger,
-                      TraceLevels tl)
+    traceBatchRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            BasicStream stream = new BasicStream(str);
+            int p = str.pos();
+            str.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printHeader(s, stream);
+            printHeader(s, str);
             int cnt = 0;
-            while (stream.pos() != stream.size())
+            while (str.pos() != str.size())
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
-                printRequestHeader(s, stream);
-                stream.skipEncaps();
+                printRequestHeader(s, str);
+                str.skipEncaps();
             }
             logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
         }
     }
 
     static void
-    traceReply(String heading, BasicStream str, Ice.Logger logger,
-               TraceLevels tl)
+    traceReply(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            BasicStream stream = new BasicStream(str);
+            int p = str.pos();
+            str.pos(0);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printHeader(s, stream);
-            int requestId = stream.readInt();
+            printHeader(s, str);
+            int requestId = str.readInt();
             s.write("\nrequest id = " + requestId);
-            byte status = stream.readByte();
+            byte status = str.readByte();
             s.write("\nreply status = " + (int)status + ' ');
             switch (status)
             {
@@ -127,6 +130,7 @@ final class TraceUtil
                 }
             }
             logger.trace(tl.protocolCat, s.toString());
+            str.pos(p);
         }
     }
 
