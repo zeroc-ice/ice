@@ -141,9 +141,9 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     ParserPtr parser = Parser::createParser(communicator, admin);
     int status = EXIT_SUCCESS;
 
-    if (argc < 2) // No files given, let's use standard input
+    if (argc < 2) // No files given
     {
-	if (!commands.empty())
+	if (!commands.empty()) // Commands were given
 	{
 	    int parseStatus = parser->parse(commands, debug);
 	    if (parseStatus == EXIT_FAILURE)
@@ -151,7 +151,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 		status = EXIT_FAILURE;
 	    }
 	}
-	else
+	else // No commands, let's use standard input
 	{
 	    int parseStatus = parser->parse(stdin, debug);
 	    if (parseStatus == EXIT_FAILURE)

@@ -59,9 +59,11 @@ public:
 
     static ParserPtr createParser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&);
 
+    void usage();
+
     void add(const std::list<std::string>&);
     void remove(const std::list<std::string>&);
-    void getAll();
+    void listAll();
     void shutdown();
 
     void getInput(char*, int&, int);

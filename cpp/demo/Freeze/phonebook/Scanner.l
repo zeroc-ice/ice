@@ -31,22 +31,6 @@ L	[a-zA-Z_]
 
 %%
 
-^"#"{S}*{D}+{S}*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"{S}*{D}+{S}+"\""[^\"]*"\"".*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"{S}*"line"{S}+{D}+{S}*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"{S}*"line"{S}+{D}+{S}+"\""[^\"]*"\"".*$ {
-    parser->scanPosition(yytext);
-}
-
 "//" {
     // C++-style comment
     int c;
@@ -199,20 +183,36 @@ L	[a-zA-Z_]
     return TOK_STRING;
 }
 
+"help" {
+    return TOK_HELP;
+}
+
 "quit"|"exit" {
     return TOK_EXIT;
 }
 
 "add" {
-    return TOK_ADD;
+    return TOK_ADD_ENTRIES;
+}
+
+"find" {
+    return TOK_FIND_ENTRIES;
+}
+
+"next" {
+    return TOK_NEXT_FOUND_ENTRY;
+}
+
+"current" {
+    return TOK_PRINT_CURRENT;
 }
 
 "remove" {
-    return TOK_REMOVE;
+    return TOK_REMOVE_CURRENT;
 }
 
 "list" {
-    return TOK_LIST;
+    return TOK_LIST_NAMES;
 }
 
 {WS}*(\\{WS}*{NL})? {
@@ -243,7 +243,27 @@ L	[a-zA-Z_]
 }
 
 . {
-    return yytext[0];
+    // Simple strings
+    string s;
+    s += yytext[0];
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == EOF)
+	{
+	    break;
+	}
+	else if (isspace(c))
+	{
+	    unput(c);
+	    break;
+	}
+	
+	s += c;
+    }
+    yylvalp->clear();
+    yylvalp->push_back(s);
+    return TOK_STRING;
 }
 
 %%

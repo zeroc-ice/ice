@@ -26,11 +26,15 @@ yyerror(const char* s)
 
 %pure_parser
 
-%token TOK_STRING
+%token TOK_HELP
 %token TOK_EXIT
-%token TOK_ADD
-%token TOK_REMOVE
-%token TOK_LIST
+%token TOK_ADD_ENTRIES
+%token TOK_FIND_ENTRIES
+%token TOK_NEXT_FOUND_ENTRY
+%token TOK_PRINT_CURRENT
+%token TOK_REMOVE_CURRENT
+%token TOK_LIST_NAMES
+%token TOK_STRING
 
 %%
 
@@ -59,21 +63,37 @@ commands
 // ----------------------------------------------------------------------
 command
 // ----------------------------------------------------------------------
-: TOK_EXIT ';'
+: TOK_HELP ';'
+{
+    parser->usage();
+}
+| TOK_EXIT ';'
 {
     return 0;
 }
-| TOK_ADD strings ';'
+| TOK_ADD_ENTRIES strings ';'
 {
-    parser->add($2);
+    parser->addEntries($2);
 }
-| TOK_REMOVE strings ';'
+| TOK_FIND_ENTRIES strings ';'
 {
-    parser->remove($2);
+    parser->findEntries($2);
 }
-| TOK_LIST ';'
+| TOK_NEXT_FOUND_ENTRY ';'
 {
-    parser->getAll();
+    parser->nextFoundEntry();
+}
+| TOK_PRINT_CURRENT ';'
+{
+    parser->printCurrent();
+}
+| TOK_REMOVE_CURRENT ';'
+{
+    parser->removeCurrent();
+}
+| TOK_LIST_NAMES ';'
+{
+    parser->listNames();
 }
 | error ';'
 {

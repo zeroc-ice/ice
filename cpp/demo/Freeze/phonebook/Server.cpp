@@ -8,17 +8,19 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
-#include <PhoneBookI.h>
+#include <Evictor.h>
 
+using namespace Ice;
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], CommunicatorPtr communicator)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
-    Ice::ObjectPtr object = new PhoneBookI(adapter);
-    adapter->add(object, "phonebook");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
+    PhoneBookIPtr phoneBook = new PhoneBookI(adapter);
+    adapter->add(phoneBook, "phonebook");
+    ServantLocatorPtr evictor = new Evictor(phoneBook);
+    adapter->setServantLocator(evictor);
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -28,15 +30,15 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    Ice::CommunicatorPtr communicator;
+    CommunicatorPtr communicator;
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createPropertiesFromFile(argc, argv, "config");
-	communicator = Ice::initializeWithProperties(properties);
+	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
+	communicator = initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -48,7 +50,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

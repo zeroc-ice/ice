@@ -17,7 +17,7 @@ using namespace Slice;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] slice-files ...\n";
+    cerr << "Usage: " << n << " [options] slice-files...\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"

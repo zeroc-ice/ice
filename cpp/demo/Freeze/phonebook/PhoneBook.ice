@@ -13,32 +13,32 @@
 
 class Entry
 {
-    wstring getName();
-    void setName(wstring name);
+    string getName();
+    void setName(string name);
 
-    wstring getAddress();
-    void setAddress(wstring address);
+    string getAddress();
+    void setAddress(string address);
 
-    string getNumber();
-    void setNumber(string number);
+    string getPhone();
+    void setPhone(string phone);
 
     void destroy();
 
-    wstring _name;
-    wstring _address;
-    string _number;
+    string _name;
+    string _address;
+    string _phone;
 };
 
 sequence<Entry*> Entries;
 sequence<string> Identities;
-dictionary<wstring, Identities> NameIdentitiesDict;
-sequence<wstring> Names;
+dictionary<string, Identities> NameIdentitiesDict;
+sequence<string> Names;
 
 class PhoneBook
 {
     Entry* createEntry();
-    Entries findEntries(wstring name);
-    Names listNames();
+    Entries findEntries(string name);
+    Names getAllNames();
 
     NameIdentitiesDict _nameIdentitiesDict;
 };

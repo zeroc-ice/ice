@@ -25,14 +25,14 @@ public:
     EntryI(const std::string& identity, const PhoneBookIPtr&);
     ~EntryI();
 
-    virtual std::wstring getName();
-    virtual void setName(const std::wstring&);
+    virtual std::string getName();
+    virtual void setName(const std::string&);
 
-    virtual std::wstring getAddress();
-    virtual void setAddress(const std::wstring&);
+    virtual std::string getAddress();
+    virtual void setAddress(const std::string&);
 
-    virtual std::string getNumber();
-    virtual void setNumber(const std::string&);
+    virtual std::string getPhone();
+    virtual void setPhone(const std::string&);
 
     virtual void destroy();
 
@@ -50,12 +50,12 @@ public:
     ~PhoneBookI();
 
     virtual EntryPrx createEntry();
-    virtual Entries findEntries(const std::wstring&);
-    virtual Names listNames();
+    virtual Entries findEntries(const std::string&);
+    virtual Names getAllNames();
     
-    void add(const std::string&, const std::wstring&);
-    void remove(const std::string&, const std::wstring&);
-    void move(const std::string&, const std::wstring&, const std::wstring&);
+    void add(const std::string&, const std::string&);
+    void remove(const std::string&, const std::string&);
+    void move(const std::string&, const std::string&, const std::string&);
 
 private:
 

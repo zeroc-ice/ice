@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 using namespace std;
@@ -28,7 +27,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], CommunicatorPtr communicator)
 {
     string commands;
     bool debug = false;
@@ -92,9 +91,9 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    PropertiesPtr properties = communicator->getProperties();
     std::string ref = properties->getProperty("PhoneBook.PhoneBook");
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    ObjectPrx base = communicator->stringToProxy(ref);
     PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(base);
 
     ParserPtr parser = Parser::createParser(communicator, phoneBook);
@@ -148,15 +147,15 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    Ice::CommunicatorPtr communicator;
+    CommunicatorPtr communicator;
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createPropertiesFromFile(argc, argv, "config");
-	communicator = Ice::initializeWithProperties(properties);
+	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
+	communicator = initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const LocalException& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -168,7 +167,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const LocalException& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

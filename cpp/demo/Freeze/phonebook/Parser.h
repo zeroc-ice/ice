@@ -12,6 +12,7 @@
 #define PARSER_H
 
 #include <IceUtil/Handle.h>
+#include <Ice/Ice.h>
 #include <PhoneBook.h>
 #include <list>
 
@@ -51,15 +52,19 @@ public:
 
     static ParserPtr createParser(const Ice::CommunicatorPtr&, const PhoneBookPrx&);
 
-    void add(const std::list<std::string>&);
-    void remove(const std::list<std::string>&);
-    void getAll();
+    void usage();
+
+    void addEntries(const std::list<std::string>&);
+    void findEntries(const std::list<std::string>&);
+    void nextFoundEntry();
+    void printCurrent();
+    void removeCurrent();
+    void listNames();
 
     void getInput(char*, int&, int);
     void nextLine();
     void continueLine();
     char* getPrompt();
-    void scanPosition(const char*);
 
     void error(const char*);
     void error(const std::string&);
@@ -73,6 +78,9 @@ public:
 private:
 
     Parser(const Ice::CommunicatorPtr&, const PhoneBookPrx&);
+
+    Entries _foundEntries;
+    Entries::iterator _current;
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;

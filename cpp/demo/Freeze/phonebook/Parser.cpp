@@ -23,9 +23,21 @@ extern FILE* yyin;
 
 Parser* parser;
 
-// ----------------------------------------------------------------------
-// Parser
-// ----------------------------------------------------------------------
+void
+Parser::usage()
+{
+    cout <<
+	"help          Print this message.\n"
+	"exit, quit    Exit this program.\n"
+	"add names...  Create new entries in the phonebooks.\n"
+	"find name     Find all entries in the phonebook that match the given name.\n"
+	"              Set the current entry to the first one found.\n"
+	"next          Set the current entry to the next one that was found.\n"
+	"current       Display the current entry.\n"
+	"remove        Permanently remove the current entry from the phonebook.\n"
+	"list          List all names in the phonebook.\n"
+	 << endl;
+}
 
 ParserPtr
 Parser::createParser(const CommunicatorPtr& communicator, const PhoneBookPrx& phoneBook)
@@ -34,92 +46,122 @@ Parser::createParser(const CommunicatorPtr& communicator, const PhoneBookPrx& ph
 }
 
 void
-Parser::add(const list<string>& args)
+Parser::addEntries(const std::list<std::string>& args)
 {
     if (args.empty())
     {
-	error("`add' requires at least an object reference as argument");
+	error("`add' requires at least one name as argument\n"
+	      "(type `help' for more info)");
 	return;
     }
 
-/*
     try
     {
-	ServerDescription desc;
-	list<string>::const_iterator p = args.begin();
-	desc.object = _communicator->stringToProxy(*p);
-	desc.regex = false;
-	if (++p != args.end())
+	for(list<string>::const_iterator p = args.begin(); p != args.end(); ++p)
 	{
-	    desc.path = *p;
-	    while (++p != args.end())
-	    {
-		desc.args.push_back(*p);
-	    }
+	    EntryPrx entry = _phoneBook->createEntry();
+	    entry -> setName(*p);
+	    cout << "added new entry for `" << *p << "'" << endl;
 	}
-	_phoneBook->add(desc);
-
     }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
     }
-*/
 }
 
 void
-Parser::remove(const list<string>& args)
+Parser::findEntries(const std::list<std::string>& args)
 {
     if (args.size() != 1)
     {
-	error("`remove' takes exactly one object reference as argument");
+	error("`find' requires exactly one name as argument\n"
+	      "(type `help' for more info)");
 	return;
     }
 
-/*
     try
     {
-	_phoneBook->remove(args.front());
+	_foundEntries = _phoneBook->findEntries(args.front());
+	_current = _foundEntries.begin();
+	cout << "number of entries found: " << _foundEntries.size() << endl;
+	printCurrent();
     }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
     }
-*/
 }
 
 void
-Parser::getAll()
+Parser::nextFoundEntry()
 {
-/*
+    if (_current != _foundEntries.end())
+    {
+	++_current;
+    }
+    printCurrent();
+}
+
+void
+Parser::printCurrent()
+{
     try
     {
-	ServerDescriptions descriptions = _phoneBook->getAll();
-	ServerDescriptions::iterator p = descriptions.begin();
-	while(p != descriptions.end())
+	if (_current != _foundEntries.end())
 	{
-	    cout << "identity = " << p->first << endl;
-	    cout << "object = " << _communicator->proxyToString(p->second.object) << endl;
-	    cout << "regex = " << boolalpha << p->second.regex << endl;
-	    cout << "host = " << p->second.host << endl;
-	    cout << "path = " << p->second.path << endl;
-	    cout << "args =";
-	    for (Args::iterator q = p->second.args.begin(); q != p->second.args.end(); ++q)
-	    {
-		cout << ' ' << *q;
-	    }
-	    cout << endl;
-	    if (++p != descriptions.end())
-	    {
-		cout << endl;
-	    }
+	    cout << "current entry is:" << endl;
+	    cout << "name: " << (*_current)->getName() << endl;
+	    cout << "address: " << (*_current)->getAddress() << endl;
+	    cout << "phone: " << (*_current)->getPhone() << endl;
+	}
+	else
+	{
+	    cout << "no current entry" << endl;
 	}
     }
     catch(const LocalException& ex)
     {
 	error(ex.toString());
     }
-*/
+}
+
+void
+Parser::removeCurrent()
+{
+    try
+    {
+	if (_current != _foundEntries.end())
+	{
+	    (*_current)->destroy();
+	    cout << "removed current entry" << endl;
+	}
+	else
+	{
+	    cout << "no current entry" << endl;
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+Parser::listNames()
+{
+    try
+    {
+	Names names = _phoneBook->getAllNames();
+	for (Names::iterator p = names.begin(); p != names.end(); ++p)
+	{
+	    cout << *p << endl;
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
 }
 
 void
@@ -129,8 +171,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
     {
 	if (_commands == ";")
 	{
-	    buf[0] = EOF;
-	    result = 1;
+	    result = 0;
 	}
 	else
 	{
@@ -153,24 +194,23 @@ Parser::getInput(char* buf, int& result, int maxSize)
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (line && *line)
-	{
-	    add_history(line);
-	}
 	if (!line)
 	{
-	    buf[0] = EOF;
-	    result = 1;
+	    result = 0;
 	}
 	else
 	{
+	    if (*line)
+	    {
+		add_history(line);
+	    }
+
 	    result = strlen(line) + 1;
 	    if (result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
-		buf[0] = EOF;
-		result = 1;
+		result = 0;
 	    }
 	    else
 	    {
@@ -188,8 +228,18 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	while (true)
 	{
 	    char c = static_cast<char>(getc(yyin));
+	    if (c == EOF)
+	    {
+		if (line.size())
+		{
+		    line += '\n';
+		}
+		break;
+	    }
+
 	    line += c;
-	    if (c == '\n' || c == EOF)
+
+	    if (c == '\n')
 	    {
 		break;
 	    }
@@ -245,50 +295,6 @@ Parser::getPrompt()
     else
     {
 	return ">>> ";
-    }
-}
-
-void
-Parser::scanPosition(const char* s)
-{
-    string line(s);
-    string::size_type idx;
-
-    idx = line.find("line");
-    if (idx != string::npos)
-    {
-	line.erase(0, idx + 4);
-    }
-
-    idx = line.find_first_not_of(" \t\r#");
-    if (idx != string::npos)
-    {
-	line.erase(0, idx);
-    }
-
-    _currentLine = atoi(line.c_str()) - 1;
-
-    idx = line.find_first_of(" \t\r");
-    if (idx != string::npos)
-    {
-	line.erase(0, idx);
-    }
-
-    idx = line.find_first_not_of(" \t\r\"");
-    if (idx != string::npos)
-    {
-	line.erase(0, idx);
-
-	idx = line.find_first_of(" \t\r\"");
-	if (idx != string::npos)
-	{
-	    _currentFile = line.substr(0, idx);
-	    line.erase(0, idx + 1);
-	}
-	else
-	{
-	    _currentFile = line;
-	}
     }
 }
 
@@ -350,6 +356,9 @@ Parser::parse(FILE* file, bool debug)
     _continue = false;
     nextLine();
 
+    _foundEntries.clear();
+    _current = _foundEntries.end();
+
     int status = yyparse();
     if (_errors)
     {
@@ -378,6 +387,9 @@ Parser::parse(const std::string& commands, bool debug)
     _currentLine = 0;
     _continue = false;
     nextLine();
+
+    _foundEntries.clear();
+    _current = _foundEntries.end();
 
     int status = yyparse();
     if (_errors)

@@ -150,14 +150,6 @@ public:
 
     void swap(Handle& other) { std::swap(_ptr, other._ptr); }
 
-#ifndef WIN32 // COMPILERBUG: VC++ 6.0 doesn't understand this
- 
-    template<typename Y> friend class Handle;
-
-protected:
-
-#endif
-
     T* _ptr;
 };
 

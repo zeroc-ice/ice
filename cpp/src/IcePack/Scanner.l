@@ -200,6 +200,10 @@ L	[a-zA-Z_]
     return ICE_PACK_STRING;
 }
 
+"help" {
+    return ICE_PACK_HELP;
+}
+
 "quit"|"exit" {
     return ICE_PACK_EXIT;
 }

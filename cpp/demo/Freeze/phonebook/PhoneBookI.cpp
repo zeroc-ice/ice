@@ -24,7 +24,7 @@ EntryI::~EntryI()
 {
 }
 
-wstring
+string
 EntryI::getName()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
@@ -32,14 +32,14 @@ EntryI::getName()
 }
 
 void
-EntryI::setName(const wstring& name)
+EntryI::setName(const string& name)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phoneBook->move(_identity, _name, name);
     _name = name;
 }
 
-wstring
+string
 EntryI::getAddress()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
@@ -47,24 +47,24 @@ EntryI::getAddress()
 }
 
 void
-EntryI::setAddress(const wstring& address)
+EntryI::setAddress(const string& address)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _address = address;
 }
 
 string
-EntryI::getNumber()
+EntryI::getPhone()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
-    return _number;
+    return _phone;
 }
 
 void
-EntryI::setNumber(const string& number)
+EntryI::setPhone(const string& phone)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
-    _number = number;
+    _phone = phone;
 }
 
 void
@@ -74,7 +74,7 @@ EntryI::destroy()
     _phoneBook->remove(_identity, _name);
 }
 
-PhoneBookI::PhoneBookI(const Ice::ObjectAdapterPtr& adapter) :
+PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
 }
@@ -99,7 +99,7 @@ PhoneBookI::createEntry()
     string identity = s.str();
 #endif
     
-    add(identity, L"");
+    add(identity, "");
 
     return EntryPrx::uncheckedCast(_adapter->createProxy(identity));
 }
@@ -124,7 +124,7 @@ private:
 };
 
 Entries
-PhoneBookI::findEntries(const wstring& name)
+PhoneBookI::findEntries(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
@@ -143,12 +143,12 @@ PhoneBookI::findEntries(const wstring& name)
 }
 
 Names
-PhoneBookI::listNames()
+PhoneBookI::getAllNames()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     Names names;
-    for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.begin(); ++p)
+    for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.end(); ++p)
     {
 	//
 	// If there are multiple entries for one name, I want the name
@@ -164,7 +164,7 @@ PhoneBookI::listNames()
 }
 
 void
-PhoneBookI::add(const string& identity, const wstring& name)
+PhoneBookI::add(const string& identity, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
@@ -172,7 +172,7 @@ PhoneBookI::add(const string& identity, const wstring& name)
 }
 
 void
-PhoneBookI::remove(const string& identity, const wstring& name)
+PhoneBookI::remove(const string& identity, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
@@ -183,7 +183,7 @@ PhoneBookI::remove(const string& identity, const wstring& name)
 }
 
 void
-PhoneBookI::move(const string& identity, const wstring& oldName, const wstring& newName)
+PhoneBookI::move(const string& identity, const string& oldName, const string& newName)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 

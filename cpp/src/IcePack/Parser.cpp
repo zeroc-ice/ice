@@ -29,10 +29,6 @@ Parser* parser;
 
 }
 
-// ----------------------------------------------------------------------
-// Parser
-// ----------------------------------------------------------------------
-
 ParserPtr
 IcePack::Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin)
 {
@@ -40,11 +36,26 @@ IcePack::Parser::createParser(const CommunicatorPtr& communicator, const AdminPr
 }
 
 void
+IcePack::Parser::usage()
+{
+    cout <<
+	"help                        Print this message.\n"
+	"exit, quit                  Exit this program.\n"
+	"add proxy [path [args...]]  Add a proxy with an optional path and program\n"
+	"                            arguments.\n"
+	"remove proxy                Remove a proxy.\n"
+	"list                        List all server descriptions.\n"
+	"shutdown                    Shutdown the IcePack server.\n"
+	 << endl;
+}
+
+void
 IcePack::Parser::add(const list<string>& args)
 {
     if (args.empty())
     {
-	error("`add' requires at least an object reference as argument");
+	error("`add' requires at least a proxy argument\n"
+	      "(type `help' for more info)");
 	return;
     }
 
@@ -76,7 +87,8 @@ IcePack::Parser::remove(const list<string>& args)
 {
     if (args.size() != 1)
     {
-	error("`remove' takes exactly one object reference as argument");
+	error("`remove' requires exactly one proxy argument\n"
+	      "(type `help' for more info)");
 	return;
     }
 
@@ -91,7 +103,7 @@ IcePack::Parser::remove(const list<string>& args)
 }
 
 void
-IcePack::Parser::getAll()
+IcePack::Parser::listAll()
 {
     try
     {
@@ -142,8 +154,7 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
     {
 	if (_commands == ";")
 	{
-	    buf[0] = EOF;
-	    result = 1;
+	    result = 0;
 	}
 	else
 	{
@@ -166,24 +177,23 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 #ifdef HAVE_READLINE
 
 	char* line = readline(parser->getPrompt());
-	if (line && *line)
-	{
-	    add_history(line);
-	}
 	if (!line)
 	{
-	    buf[0] = EOF;
-	    result = 1;
+	    result = 0;
 	}
 	else
 	{
+	    if (*line)
+	    {
+		add_history(line);
+	    }
+
 	    result = strlen(line) + 1;
 	    if (result > maxSize)
 	    {
 		free(line);
 		error("input line too long");
-		buf[0] = EOF;
-		result = 1;
+		result = 0;
 	    }
 	    else
 	    {
@@ -201,8 +211,18 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 	while (true)
 	{
 	    char c = static_cast<char>(getc(yyin));
+	    if (c == EOF)
+	    {
+		if (line.size())
+		{
+		    line += '\n';
+		}
+		break;
+	    }
+
 	    line += c;
-	    if (c == '\n' || c == EOF)
+
+	    if (c == '\n')
 	    {
 		break;
 	    }

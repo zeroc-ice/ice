@@ -27,12 +27,13 @@ yyerror(const char* s)
 
 %pure_parser
 
-%token ICE_PACK_STRING
+%token ICE_PACK_HELP
 %token ICE_PACK_EXIT
 %token ICE_PACK_ADD
 %token ICE_PACK_REMOVE
 %token ICE_PACK_LIST
 %token ICE_PACK_SHUTDOWN
+%token ICE_PACK_STRING
 
 %%
 
@@ -61,7 +62,11 @@ commands
 // ----------------------------------------------------------------------
 command
 // ----------------------------------------------------------------------
-: ICE_PACK_EXIT ';'
+: ICE_PACK_HELP ';'
+{
+    parser->usage();
+}
+| ICE_PACK_EXIT ';'
 {
     return 0;
 }
@@ -75,7 +80,7 @@ command
 }
 | ICE_PACK_LIST ';'
 {
-    parser->getAll();
+    parser->listAll();
 }
 | ICE_PACK_SHUTDOWN ';'
 {

@@ -11,8 +11,8 @@
 #ifndef ICE_HANDLE_H
 #define ICE_HANDLE_H
 
+#include <IceUtil/Handle.h>
 #include <Ice/Config.h>
-#include <algorithm>
 
 //
 // "Handle" or "smart pointer" class for classes derived from
@@ -45,6 +45,16 @@ public:
     
     template<typename Y>
     Handle(const Handle<Y>& r) :
+	_ptr(r._ptr)
+    {
+	if (_ptr)
+	{
+	    incRef(_ptr);
+	}
+    }
+
+    template<typename Y>
+    Handle(const ::IceUtil::Handle<Y>& r) :
 	_ptr(r._ptr)
     {
 	if (_ptr)
@@ -114,6 +124,26 @@ public:
 	return *this;
     }
 
+    template<typename Y>
+    Handle& operator=(const ::IceUtil::Handle<Y>& r)
+    {
+	if (_ptr != r._ptr)
+	{
+	    if (r._ptr)
+	    {
+		incRef(r._ptr);
+	    }
+
+	    if (_ptr)
+	    {
+		decRef(_ptr);
+	    }
+	    
+	    _ptr = r._ptr;
+	}
+	return *this;
+    }
+
 #ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
     Handle& operator=(const Handle<T>& r)
@@ -157,14 +187,6 @@ public:
     operator bool() const { return _ptr ? true : false; }
 
     void swap(Handle& other) { std::swap(_ptr, other._ptr); }
-
-#ifndef WIN32 // COMPILERBUG: VC++ 6.0 doesn't understand this
- 
-    template<typename Y> friend class Handle;
-
-protected:
-
-#endif
 
     T* _ptr;
 };
