@@ -35,6 +35,23 @@ public:
     }
 };
 
+
+class FacetFactory : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr
+    create(const string& type)
+    {
+        assert(type == "::Test::Facet");
+        return new Test::FacetI;
+    }
+
+    virtual void
+    destroy()
+    {
+    }
+};
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const string& envName)
 {
@@ -47,6 +64,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const stri
 
     Ice::ObjectFactoryPtr servantFactory = new ServantFactory;
     communicator->addObjectFactory(servantFactory, "::Test::Servant");
+
+    Ice::ObjectFactoryPtr facetFactory = new FacetFactory;
+    communicator->addObjectFactory(facetFactory, "::Test::Facet");
 
     adapter->activate();
 
@@ -65,11 +85,6 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
-        if(argc != 1)
-        {
-            envName = argv[1];
-            envName += "/db";
-        }
         status = run(argc, argv, communicator, envName);
     }
     catch(const Ice::Exception& ex)

@@ -12,11 +12,25 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_OBJECT_RECORD_ICE
-#define FREEZE_OBJECT_RECORD_ICE
+#ifndef FREEZE_EVICTOR_STORAGE_ICE
+#define FREEZE_EVICTOR_STORAGE_ICE
+
+#include <Ice/Identity.ice>
+#include <Ice/Facet.ice>
 
 module Freeze
 {
+
+/**
+ *
+ * The key of the Evictor persistent map.
+ *
+ **/
+struct EvictorStorageKey
+{
+    Ice::Identity identity;
+    Ice::FacetPath facet;
+};
 
 /**
  *
@@ -49,7 +63,7 @@ struct Statistics
 
 /**
  *
- * The evictor uses a map of [Ice::Identity] to [ObjectRecord] as its
+ * The evictor uses a map of [EvictorStorageKey] to [ObjectRecord] as its
  * persistent storage.
  *
  **/

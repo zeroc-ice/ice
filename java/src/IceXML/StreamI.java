@@ -1171,6 +1171,12 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         return value;
     }
 
+    public void
+    marshalFacets(boolean setting)
+    {
+	_marshalFacets = setting;
+    }
+
     private void
     startWrite(String name)
     {
@@ -1324,7 +1330,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
         startWrite(s);
         if(obj != null)
         {
-            obj.__marshal(this);
+            obj.__marshal(this, _marshalFacets);
         }
         endWrite();
     }
@@ -1553,6 +1559,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     }
     private java.util.IdentityHashMap _objects;
     private boolean _dump;
+    private boolean _marshalFacets = true;
 
     private static class DOMTreeErrorReporter implements org.xml.sax.ErrorHandler
     {

@@ -24,11 +24,10 @@ TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 OBJS		= DBException.o \
 		  Evictor.o \
 		  EvictorF.o \
-		  ObjectRecord.o \
+		  EvictorStorage.o \
 	  	  MapI.o \
 		  EvictorI.o \
-                  SharedDbEnv.o \
-		  IdentityObjectRecordDict.o
+                  SharedDbEnv.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -36,12 +35,10 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
                   $(SDIR)/DBException.ice \
 		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/EvictorF.ice \
-		  $(SDIR)/ObjectRecord.ice
+		  $(SDIR)/EvictorStorage.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
-
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -59,14 +56,6 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
-
-../Freeze/IdentityObjectRecordDict.h IdentityObjectRecordDict.cpp: $(SLICE2FREEZE)
-	rm -f IdentityObjectRecordDict.h IdentityObjectRecordDict.cpp
-	$(SLICE2FREEZECMD) --dict Freeze::IdentityObjectRecordDict,Ice::Identity,Freeze::ObjectRecord \
-	    IdentityObjectRecordDict $(slicedir)/Ice/Identity.ice $(slicedir)/Freeze/ObjectRecord.ice
-
-clean::
-	rm -f IdentityObjectRecordDict.h IdentityObjectRecordDict.cpp
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)

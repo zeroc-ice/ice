@@ -29,6 +29,22 @@ public class Server
         }
     }
 
+    static class FacetFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+        public Ice.Object
+        create(String type)
+        {
+            assert(type.equals("::Test::Facet"));
+            return new FacetI();
+        }
+
+        public void
+        destroy()
+        {
+        }
+    }
+
+
     static int
     run(String[] args, Ice.Communicator communicator, String envName)
     {
@@ -41,6 +57,9 @@ public class Server
     
         Ice.ObjectFactory servantFactory = new ServantFactory();
         communicator.addObjectFactory(servantFactory, "::Test::Servant");
+
+	Ice.ObjectFactory facetFactory = new FacetFactory();
+        communicator.addObjectFactory(facetFactory, "::Test::Facet");
     
         adapter.activate();
 
@@ -62,11 +81,6 @@ public class Server
             holder.value = args;
             communicator = Ice.Util.initialize(holder);
             args = holder.value;
-            if(args.length > 0)
-            {
-                envName = args[0];
-                envName += "/db";  
-            }
             status = run(args, communicator, envName);
         }
         catch(Ice.LocalException ex)

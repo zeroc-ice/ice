@@ -18,6 +18,14 @@
 module Test
 {
 
+exception AlreadyRegisteredException
+{
+};
+
+exception NotRegisteredException
+{
+};
+
 class Servant
 {
     nonmutating int getValue();
@@ -26,9 +34,21 @@ class Servant
     ["ami", "amd"] void setValueAsync(int value);
     nonmutating void releaseAsync();
 
+    nonmutating void addFacet(string name, string data) throws AlreadyRegisteredException;
+    nonmutating void removeFacet(string name) throws NotRegisteredException;
+    nonmutating void removeAllFacets();
+
     void destroy();
 
     int value;
+};
+
+class Facet extends Servant
+{
+    nonmutating string getData();
+    void setData(string data);
+
+    string data;
 };
 
 interface RemoteEvictor

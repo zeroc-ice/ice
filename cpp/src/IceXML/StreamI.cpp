@@ -197,7 +197,8 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostrea
     _os(os),
     _level(0),
     _nextId(0),
-    _dump(false)
+    _dump(false),
+    _marshalFacets(true)
 {
 }
 
@@ -205,7 +206,8 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     _communicator(communicator),
     _input(0),
     _nextId(0),
-    _dump(false)
+    _dump(false),
+    _marshalFacets(true)
 {
     //
     // Read the contents of the stream into memory.
@@ -1247,6 +1249,12 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 }
 
 void
+IceXML::StreamI::marshalFacets(bool setting)
+{
+    _marshalFacets = setting;
+}
+
+void
 IceXML::StreamI::startWrite(const string& element)
 {
     _os << se(element);
@@ -1383,7 +1391,7 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
     startWrite(os.str());
     if(obj)
     {
-	obj->__marshal(this);
+	obj->__marshal(this, _marshalFacets);
     }
     endWrite();
 }

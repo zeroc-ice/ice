@@ -221,6 +221,7 @@ SOURCE=.\TestOld.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+
 # Begin Source File
 
 SOURCE=..\..\..\slice\Ice\Identity.ice
@@ -231,8 +232,9 @@ USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"
 # Begin Custom Build
 InputPath=..\..\..\slice\Ice\Identity.ice
 
-"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Ice\Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice
+	move Identity.xsd Ice
 
 # End Custom Build
 
@@ -242,37 +244,71 @@ USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"
 # Begin Custom Build
 InputPath=..\..\..\slice\Ice\Identity.ice
 
-"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Ice\Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice
+	move Identity.xsd Ice	
 
 # End Custom Build
 
 !ENDIF 
 
 # End Source File
+
 # Begin Source File
 
-SOURCE=..\..\..\slice\Freeze\ObjectRecord.ice
+SOURCE=..\..\..\slice\Ice\Facet.ice
 
 !IF  "$(CFG)" == "transformP - Win32 Release"
 
-USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
+InputPath=..\..\..\slice\Ice\Facet.ice
 
-"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice
+"Ice\Facet.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Facet.ice
+	move Facet.xsd Ice
 
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
 
-USERDEP__OBJEC="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=..\..\..\slice\Freeze\ObjectRecord.ice
+InputPath=..\..\..\slice\Ice\Facet.ice
 
-"ObjectRecord.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/ObjectRecord.ice
+"Ice\Facet.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Facet.ice
+	move Facet.xsd Ice	
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+
+# Begin Source File
+
+SOURCE=..\..\..\slice\Freeze\EvictorStorage.ice
+
+!IF  "$(CFG)" == "transformP - Win32 Release"
+
+USERDEP__EVICT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\EvictorStorage.ice
+
+"EvictorStorage.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/EvictorStorage.ice
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
+
+USERDEP__EVICT="..\..\..\bin\slice2xsd.exe"	"..\..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Freeze\EvictorStorage.ice
+
+"EvictorStorage.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\..\bin\slice2xsd.exe -I../../../slice ../../../slice/Freeze/EvictorStorage.ice
 
 # End Custom Build
 

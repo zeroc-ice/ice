@@ -551,7 +551,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     {
 	"Trace.DB",
 	"Trace.Evictor",
-	"Evictor.*"
+	"Evictor.*",
+	"db.*" // Temporary
     };
 
     private static final class ValidProps

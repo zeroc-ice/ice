@@ -50,6 +50,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	servants.push_back(evictor->createServant(i, i));
+	servants[i]->addFacet("facet1", "data");
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1);
+	facet1->setValue(10 * i);
+	facet1->addFacet("facet2", "moreData");
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
+	test(facet2);
+	facet2->setValue(100 * i);
+
 	test(evictor->getLastSavedValue() == -1);
     }
     
@@ -57,7 +66,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // save and verify
     //
     evictor->saveNow();
-    test(evictor->getLastSavedValue() == i - 1);
+    test(evictor->getLastSavedValue() == 100 * (i - 1));
 
 	
     //
@@ -69,6 +78,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getValue() == i);
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1);
+	test(facet1->getValue() == 10 * i);
+	test(facet1->getData() == "data");
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
+	test(facet2);
+	test(facet2->getData() == "moreData");
     }
     
     //
@@ -77,6 +93,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	servants[i]->setValue(i + 100);
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1);
+	facet1->setValue(10 * i + 100);
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
+	test(facet2);
+	facet2->setValue(100 * i + 100);
     }
     
     //
@@ -86,6 +108,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getValue() == i + 100);
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1);
+	test(facet1->getValue() == 10 * i + 100);
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
+	test(facet2);
+	test(facet2->getValue() == 100 * i + 100);
     }
     
     //
@@ -96,6 +124,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getValue() == i + 100);
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1);
+	test(facet1->getValue() == 10 * i + 100);
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(facet1, "facet2");
+	test(facet2);
+	test(facet2->getValue() == 100 * i + 100);
     }
     
     evictor->saveNow();
@@ -140,6 +174,63 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	test(evictor->getLastSavedValue() == i + 200);
 	evictor->saveNow();
 	test(evictor->getLastSavedValue() == i + 300);
+    }
+
+    //
+    // Add duplicate facet and catch corresponding exception
+    // 
+    for(i = 0; i < size; i++)
+    {
+	try
+	{
+	    servants[i]->addFacet("facet1", "foobar");
+	    test(false);
+	}
+	catch(const Test::AlreadyRegisteredException&)
+	{
+	}
+    }
+    
+    //
+    // Remove a facet that does not exist
+    // 
+    try
+    {
+	servants[0]->removeFacet("facet3");
+	test(false);
+    }
+    catch(const Test::NotRegisteredException&)
+    {
+    }
+
+    //
+    // Remove a facet that does exist
+    //
+    servants[0]->removeFacet("facet1");
+    Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[0], "facet1");
+    test(facet1 == 0);
+    
+    //
+    // Remove all facets
+    //
+    for(i = 0; i < size; i++)
+    {
+	servants[i]->removeAllFacets();
+    }
+
+    //
+    // Save and verify
+    //
+    evictor->saveNow();
+    evictor->setSize(0);
+    evictor->setSize(size);
+
+    for(i = 0; i < size; i++)
+    {
+	test(servants[i]->getValue() == i + 300);
+
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1 == 0);
     }
     
     //

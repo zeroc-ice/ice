@@ -46,18 +46,41 @@ public:
 
     virtual void releaseAsync(const Ice::Current& = Ice::Current()) const;
 
+    virtual void addFacet(const std::string&, const std::string&, const Ice::Current& = Ice::Current()) const;
+
+    virtual void removeFacet(const std::string&, const Ice::Current& = Ice::Current()) const;
+
+    virtual void removeAllFacets(const Ice::Current& = Ice::Current()) const;
+
     virtual void destroy(const Ice::Current& = Ice::Current());
 
     virtual void __write(::IceInternal::BasicStream*) const;
 
-    virtual void __marshal(const ::Ice::StreamPtr&) const;
+    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
 
-private:
+protected:
 
     RemoteEvictorIPtr _remoteEvictor;
     Freeze::EvictorPtr _evictor;
     AMD_Servant_setValueAsyncPtr _setValueAsyncCB;
     Ice::Int _setValueAsyncValue;
+};
+
+
+class FacetI : public virtual Facet, public ServantI
+{
+public:
+    FacetI();
+
+    FacetI(const RemoteEvictorIPtr&, const Freeze::EvictorPtr&, Ice::Int, const std::string&);
+
+    virtual std::string getData(const Ice::Current& = Ice::Current()) const;
+
+    virtual void setData(const std::string&, const Ice::Current& = Ice::Current());
+
+    virtual void __write(::IceInternal::BasicStream*) const;
+
+    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
 };
 
 class RemoteEvictorI : virtual public RemoteEvictor

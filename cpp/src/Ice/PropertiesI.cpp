@@ -269,7 +269,8 @@ static const string freezeProps[] =
 {
     "Trace.DB",
     "Trace.Evictor",
-    "Evictor.*"
+    "Evictor.*",
+    "db.*" // Temporary
 };
 
 struct PropertyValues

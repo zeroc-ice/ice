@@ -27,9 +27,24 @@ public final class ServantI extends Test.Servant
 
     void
     init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
-    {
+    {	
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
+
+	String[] facets = ice_facets(null);
+	for(int i = 0; i < facets.length; i++)
+	{
+	    Ice.Object o = ice_findFacet(facets[i]);
+	    if(o instanceof ServantI)
+	    {
+		((ServantI) o).init(remoteEvictor, evictor);
+	    }
+	    else
+	    {
+		assert(o instanceof FacetI);
+		((FacetI) o).init(remoteEvictor, evictor);
+	    }
+	}    
     }
 
     public void
@@ -38,13 +53,13 @@ public final class ServantI extends Test.Servant
         _evictor.destroyObject(current.id);
     }
 
-    public int
+    public synchronized int
     getValue(Ice.Current current)
     {
         return value;
     }
 
-    public void
+    public synchronized void
     setValue(int value, Ice.Current current)
     {
         this.value = value;
@@ -62,12 +77,59 @@ public final class ServantI extends Test.Servant
     {
         if(_setValueAsyncCB != null)
         {
-            value = _setValueAsyncValue;
+	    synchronized(this)
+	    {
+		value = _setValueAsyncValue;
+	    }
             _setValueAsyncCB.ice_response();
             _setValueAsyncCB = null;
         }
     }
 
+    public void
+    addFacet(String name, String data, Ice.Current current)
+	throws Test.AlreadyRegisteredException
+    {
+	String[] facetPath = new String[current.facet.length + 1];
+	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
+	facetPath[facetPath.length - 1] = name;
+
+	FacetI facet = new FacetI(_remoteEvictor, _evictor, value, data);
+	
+	try
+	{
+	    _evictor.addFacet(current.id, facetPath, facet);
+	}
+	catch(Ice.AlreadyRegisteredException ex)
+	{
+	    throw new Test.AlreadyRegisteredException();
+	}
+    }
+
+    public void
+    removeFacet(String name, Ice.Current current)
+	throws Test.NotRegisteredException
+    {
+	String[] facetPath = new String[current.facet.length + 1];
+	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
+	facetPath[facetPath.length - 1] = name;
+	try
+	{
+	    _evictor.removeFacet(current.id, facetPath);
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    throw new Test.NotRegisteredException();
+	}
+   
+    }
+
+    public void
+    removeAllFacets(Ice.Current current)
+    {
+	_evictor.removeAllFacets(current.id);
+    }
+    
     public void
     __write(IceInternal.BasicStream os)
     {
@@ -76,14 +138,14 @@ public final class ServantI extends Test.Servant
     }
 
     public void
-    __marshal(Ice.Stream os)
+    __marshal(Ice.Stream os, boolean marshalFacets)
     {
         _remoteEvictor.setLastSavedValue(value);
-        super.__marshal(os);
+        super.__marshal(os, marshalFacets);
     }
 
-    private RemoteEvictorI _remoteEvictor;
-    private Freeze.Evictor _evictor;
-    private Test.AMD_Servant_setValueAsync _setValueAsyncCB;
-    private int _setValueAsyncValue;
+    RemoteEvictorI _remoteEvictor;
+    Freeze.Evictor _evictor;
+    Test.AMD_Servant_setValueAsync _setValueAsyncCB;
+    int _setValueAsyncValue;
 }

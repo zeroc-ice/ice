@@ -25,7 +25,7 @@ module Ice
  * The facet path.
  *
  **/
-local sequence<string> FacetPath;
+sequence<string> FacetPath;
 
 };
 

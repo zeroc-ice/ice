@@ -196,8 +196,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         //
         // encode
         //
-        out << sp << nl << "public static byte[]" << nl << "encode" << keyValue
-            << "Impl(Object o, Ice.Communicator communicator)";
+        out << sp << nl << "public byte[]" << nl << "encode" << keyValue
+            << "(Object o, Ice.Communicator communicator)";
         out << sb;
         out << nl << "assert(o instanceof " << typeS << ");";
         if(_binary)
@@ -239,17 +239,11 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
         out << eb;
 
-	out << sp << nl << "public byte[]" << nl << "encode" << keyValue
-            << "(Object o, Ice.Communicator communicator)";
-        out << sb;
-        out << nl << "return encode" << keyValue << "Impl(o, communicator);";
-	out << eb;
-
         //
         // decode
         //
-        out << sp << nl << "public static Object" << nl << "decode" << keyValue
-            << "Impl(byte[] b, Ice.Communicator communicator)";
+        out << sp << nl << "public Object" << nl << "decode" << keyValue
+            << "(byte[] b, Ice.Communicator communicator)";
         out << sb;
         if(_binary)
         {
@@ -396,12 +390,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             out << eb;
         }
         out << eb;
-
-	out << sp << nl << "public Object" << nl << "decode" << keyValue
-            << "(byte[] b, Ice.Communicator communicator)";
-        out << sb;
-        out << nl << "return decode" << keyValue << "Impl(b, communicator);";
-	out << eb;
     }
 
     if(!_binary)

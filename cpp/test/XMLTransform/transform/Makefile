@@ -62,8 +62,9 @@ SLICE_SRCS	= TestOld.ice \
 
 SCHEMAS		= TestOld.xsd \
 		  TestNew.xsd \
-		  Identity.xsd \
-		  ObjectRecord.xsd
+                  Ice/Identity.xsd \
+                  Ice/Facet.xsd \
+		  EvictorStorage.xsd
 
 include $(top_srcdir)/config/Make.rules
 
@@ -171,11 +172,16 @@ TestOld.xsd: TestOld.ice $(SLICE2XSD)
 TestNew.xsd: TestNew.ice $(SLICE2XSD)
 	$(SLICE2XSD) TestNew.ice
 
-Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice $(SLICE2XSD)
+Ice/Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice $(SLICE2XSD)
 	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Ice/Identity.ice
+	mv Identity.xsd Ice
 
-ObjectRecord.xsd: $(top_srcdir)/slice/Freeze/ObjectRecord.ice $(SLICE2XSD)
-	$(SLICE2XSD) -I$(top_srcdir)/slice $(top_srcdir)/slice/Freeze/ObjectRecord.ice
+Ice/Facet.xsd: $(top_srcdir)/slice/Ice/Facet.ice $(SLICE2XSD)
+	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Ice/Facet.ice
+	mv Facet.xsd Ice
+
+EvictorStorage.xsd: $(top_srcdir)/slice/Freeze/EvictorStorage.ice $(SLICE2XSD)
+	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Freeze/EvictorStorage.ice
 
 clean::
 	rm -f IntByteMap.h IntByteMap.cpp
@@ -203,7 +209,8 @@ clean::
 	rm -f IntS1MapNew.h IntS1MapNew.cpp
 	rm -f IntC1MapOld.h IntC1MapOld.cpp
 	rm -f IntC1MapNew.h IntC1MapNew.cpp
-	rm -f Identity.xsd
-	rm -f ObjectRecord.xsd
+	rm -f Ice/Identity.xsd
+	rm -f Ice/Facet.xsd
+	rm -f EvictorStorage.xsd
 
 include .depend

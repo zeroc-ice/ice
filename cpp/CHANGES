@@ -189,13 +189,24 @@ Changes since version 1.1.0
        destroyed object. When set to 0, there is no periodic wake up.
        Defaults to 1 minute (60,000 ms).
  
-    The application can also request an immediate save by calling
+    And instead of saving full objects, Freeze now saves on a per facet
+    basis -- but still loads complete objects (with all their facets).
+    Once a persistent object has been created using the Freeze Evictor,
+    it is possible to add or remove persistent facets to this object
+    using the following new Evictor operations:
+  
+      void addFacet(Ice::Identity identity, Ice::FacetPath facet, 
+                    Object servant);
+      void removeFacet(Ice::Identity identity, Ice::FacetPath facet);
+      void removeAllFacets(Ice::Identity identity);
+
+    The application can request an immediate save by calling
     saveNow() on the evictor object. Also, creating a Freeze Evictor
     Iterator triggers an immediate save.
 
-    When saving an object, the background saving thread locks this
-    object. In Java, it locks the object itself; in C++, the object is
-    expected to implement IceUtil::AbstractMutex. Naturally the
+    When saving an object (facet), the background saving thread locks 
+    this object. In Java, it locks the object itself; in C++, the object 
+    is expected to implement IceUtil::AbstractMutex. Naturally the
     application must use the same synchronization to access the
     persistent state of the object.
  

@@ -40,31 +40,40 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
 	    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 	  
-	    try
+	    for(;;)
 	    {
-		if(_dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT) == 0)
+		try
 		{
-		    _current = (Ice.Identity) IdentityObjectRecordDict.decodeKeyImpl(dbKey.get_data(), _communicator);
-		    return true;
+		    if(_dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT) == 0)
+		    {
+			_current = EvictorI.unmarshalKey(dbKey.get_data(), _communicator);
+			if(_current.facet.length == 0)
+			{
+			    return true;
+			}
+			//
+			// Otherwise loop
+			//
+		    }
+		    else
+		    {
+			return false;
+		    }
 		}
-		else
+		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
-		    return false;
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(dx);
+		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
+		    throw ex;
 		}
-	    }
-	    catch(com.sleepycat.db.DbDeadlockException dx)
-	    {
-		DBDeadlockException ex = new DBDeadlockException();
-		ex.initCause(dx);
-		ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
-		throw ex;
-	    }
-	    catch(com.sleepycat.db.DbException dx)
-	    {
-		DBException ex = new DBException();
-		ex.initCause(dx);
-		ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
-		throw ex;
+		catch(com.sleepycat.db.DbException dx)
+		{
+		    DBException ex = new DBException();
+		    ex.initCause(dx);
+		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
+		    throw ex;
+		}
 	    }
 	}
     }
@@ -74,7 +83,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
     {
 	if(hasNext())
 	{
-	    Ice.Identity result = _current;
+	    Ice.Identity result = _current.identity;
 	    _current = null;
 	    return result;
 	}
@@ -146,7 +155,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 
 
     private com.sleepycat.db.Dbc _dbc;
-    private Ice.Identity _current = null;
+    private EvictorStorageKey _current = null;
     private Ice.Communicator _communicator;
     private String _errorPrefix;
 }

@@ -18,8 +18,9 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Freeze/Evictor.h>
-#include <Freeze/IdentityObjectRecordDict.h>
 #include <Freeze/SharedDbEnv.h>
+#include <Freeze/EvictorStorage.h>
+#include <Freeze/DB.h>
 #include <list>
 #include <vector>
 #include <deque>
@@ -43,7 +44,11 @@ public:
     virtual void saveNow();
     
     virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
+    virtual void addFacet(const Ice::Identity&, const Ice::FacetPath&, const Ice::ObjectPtr&);
+    
     virtual void destroyObject(const Ice::Identity&);
+    virtual void removeFacet(const Ice::Identity&, const Ice::FacetPath&);
+    virtual void removeAllFacets(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
     virtual EvictorIteratorPtr getIterator();
@@ -66,25 +71,29 @@ public:
     typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
     typedef std::map<Ice::Identity, EvictorElementPtr> EvictorMap;
 
-    struct EvictorElement : public Ice::LocalObject
+    struct Facet : public Ice::LocalObject
     {
-	//
-	// WARNING: status and rec are protected by mutex
-	// while position and usageCount are protected by the Evictor mutex.
-	// To avoid memory-tearing issues on platforms with aggressive 
-	// memory optimizations such as Alpha/Tru64, it is essential to put 
-	// them in different quadwords (64 bit).
-	//
+	Facet(EvictorElement*);
+
 	IceUtil::Mutex mutex;
 	Ice::Byte status;  
-	ObjectRecord rec;    // 64 bit alignment
+	ObjectRecord rec; // 64 bit alignment
+	EvictorElement* const element;
+    };
+    typedef IceUtil::Handle<Facet> FacetPtr;
+    typedef std::map<Ice::FacetPath, FacetPtr> FacetMap;
+    
+    struct EvictorElement : public IceUtil::Shared
+    {
+	EvictorElement();
+	~EvictorElement();
+	
 	std::list<EvictorMap::iterator>::iterator position;
 	int usageCount;
+	FacetMap facets;
+	const Ice::Identity* identity;
+	FacetPtr mainObject;
     };
-
-private:
-
-    void init(const std::string& envName, const std::string& dbName, bool createDb);
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1200)
 
@@ -127,11 +136,22 @@ private:
 
 #endif
 
+private:
+
+    void init(const std::string& envName, const std::string& dbName, bool createDb);
+
     void evict();
     bool dbHasObject(const Ice::Identity&);
     bool getObject(const Ice::Identity&, ObjectRecord&);
-    void addToModifiedQueue(const EvictorMap::iterator&, const EvictorElementPtr&);
+    void addToModifiedQueue(const FacetMap::iterator&, const FacetPtr&);
     void saveNowNoSync();
+
+    EvictorElementPtr load(const Ice::Identity&);
+    EvictorMap::iterator insertElement(const Ice::ObjectAdapterPtr&, const Ice::Identity&, const EvictorElementPtr&);
+
+    void addFacetImpl(EvictorElementPtr&, const Ice::ObjectPtr&, const Ice::FacetPath&, bool);
+    void removeFacetImpl(FacetMap&,  const Ice::FacetPath&);
+    Ice::ObjectPtr destroyFacetImpl(FacetMap::iterator&, const FacetPtr& facet);
     
     inline void writeObjectRecordToValue(Ice::Long, ObjectRecord&, Value&);
 
@@ -149,11 +169,12 @@ private:
     //
     // The _modifiedQueue contains a queue of all modified objects
     // Each element in the queue "owns" a usage count, to ensure the
-    // pointed element remains in the map.
+    // element containing the pointed element remains in the evictor
+    // map.
     //
     // Note: relies on the stability of iterators in a std::map
     //
-    std::deque<EvictorMap::iterator> _modifiedQueue;
+    std::deque<FacetMap::iterator> _modifiedQueue;
 
     bool _deactivated;
   
@@ -175,6 +196,20 @@ private:
     Ice::Int _saveSizeTrigger;
     IceUtil::Time _savePeriod;
     IceUtil::Time _lastSave;
+
+    //
+    // _generation is incremented after committing changes
+    // to disk, when releasing the usage count of the element
+    // that contains the created/modified/destroyed facets. 
+    // Like the usage count, it is protected by the Evictor mutex.
+    //
+    // It is used to detect updates when loading an element and its
+    // facets without holding the Evictor mutex. If the generation
+    // is the same before the loading and later when the Evictor
+    // mutex is locked again, and the map still does not contain 
+    // this element, then the loaded value is current.
+    //
+    int _generation;
 };
 
 }

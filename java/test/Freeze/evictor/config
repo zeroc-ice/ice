@@ -3,8 +3,8 @@
 #
 Freeze.Evictor.db.Test.SaveSizeTrigger=-1
 Freeze.Evictor.db.Test.SavePeriod=0
-Freeze.Trace.DB=1
-Freeze.Trace.Evictor=1
+#Freeze.Trace.DB=3
+#Freeze.Trace.Evictor=3
 
 
 

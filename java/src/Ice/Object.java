@@ -38,7 +38,7 @@ public interface Object
 
     void __read(IceInternal.BasicStream __is, boolean __rid);
 
-    void __marshal(Ice.Stream __os);
+    void __marshal(Ice.Stream __os, boolean __marshalFacets);
 
     void __unmarshal(Ice.Stream __is);
 

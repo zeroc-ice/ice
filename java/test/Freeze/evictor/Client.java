@@ -38,6 +38,7 @@ public class Client
 
     private static int
     run(String[] args, Ice.Communicator communicator)
+	throws Test.AlreadyRegisteredException, Test.NotRegisteredException
     {
         String ref = "factory:default -p 12345 -t 2000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
@@ -60,6 +61,14 @@ public class Client
 	for(int i = 0; i < size; i++)
 	{
 	    servants[i] = evictor.createServant(i, i);
+	    servants[i].addFacet("facet1", "data");
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 != null);
+	    facet1.setValue(10 * i);
+	    facet1.addFacet("facet2", "moreData");
+	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+	    test(facet2 != null);
+	    facet2.setValue(100 * i);
 	    test(evictor.getLastSavedValue() == -1);
 	}
 	
@@ -67,7 +76,8 @@ public class Client
 	// Save and verify
 	//
 	evictor.saveNow();
-	test(evictor.getLastSavedValue() == size - 1);
+
+	test(evictor.getLastSavedValue() == 100 * (size - 1));
 
 	//
 	// Evict and verify values.
@@ -78,6 +88,13 @@ public class Client
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getValue() == i);
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 != null);
+	    test(facet1.getValue() == 10 * i);
+	    test(facet1.getData().equals("data"));
+	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+	    test(facet2 != null);
+	    test(facet2.getData().equals("moreData"));
 	}
 	
 	//
@@ -85,7 +102,13 @@ public class Client
 	//
 	for(int i = 0; i < size; i++)
 	{
-                servants[i].setValue(i + 100);
+	    servants[i].setValue(i + 100);
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 != null);
+	    facet1.setValue(10 * i + 100);
+	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+	    test(facet2 != null);
+	    facet2.setValue(100 * i + 100);
 	}
 	
 	//
@@ -95,8 +118,30 @@ public class Client
 	for(int i = 0; i < size; i++)
 	{
 	    test(servants[i].getValue() == i + 100);
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 != null);
+	    test(facet1.getValue() == 10 * i + 100);
+	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+	    test(facet2 != null);
+	    test(facet2.getValue() == 100 * i + 100);
 	}
 	
+	//
+	// Evict and verify values.
+	//
+	evictor.setSize(0);
+	evictor.setSize(size);
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getValue() == i + 100);
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 != null);
+	    test(facet1.getValue() == 10 * i + 100);
+	    Test.FacetPrx facet2 = Test.FacetPrxHelper.checkedCast(facet1, "facet2");
+	    test(facet2 != null);
+	    test(facet2.getValue() == 100 * i + 100);
+	}
+
 	evictor.saveNow();
 
 	// 
@@ -147,6 +192,66 @@ public class Client
 	    test(evictor.getLastSavedValue() == i + 200);
 	    evictor.saveNow();
 	    test(evictor.getLastSavedValue() == i + 300);
+	}
+
+
+	//
+	// Add duplicate facet and catch corresponding exception
+	// 
+	for(int i = 0; i < size; i++)
+	{
+	    try
+	    {
+		servants[i].addFacet("facet1", "foobar");
+		test(false);
+	    }
+	    catch(Test.AlreadyRegisteredException ex)
+	    {
+	    }
+	}
+	
+	//
+	// Remove a facet that does not exist
+	// 
+	try
+	{
+	    servants[0].removeFacet("facet3");
+	    test(false);
+	}
+	catch(Test.NotRegisteredException ex)
+	{
+	}
+	
+	//
+	// Remove a facet that does exist
+	//
+	{
+	    servants[0].removeFacet("facet1");
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[0], "facet1");
+	    test(facet1 == null);
+	}
+
+	//
+	// Remove all facets
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].removeAllFacets();
+	}
+
+	//
+	// Save and verify
+	//
+	evictor.saveNow();
+	evictor.setSize(0);
+	evictor.setSize(size);
+	
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getValue() == i + 300);
+	    
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    test(facet1 == null);
 	}
 
 	//
@@ -233,6 +338,16 @@ public class Client
             ex.printStackTrace();
             status = 1;
         }
+	catch(Test.AlreadyRegisteredException ex)
+	{
+	    ex.printStackTrace();
+            status = 1;
+	}
+	catch(Test.NotRegisteredException ex)
+	{
+	    ex.printStackTrace();
+            status = 1;
+	}
 
         if(communicator != null)
         {

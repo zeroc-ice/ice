@@ -135,12 +135,12 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     server = "java -ea Server --Ice.ProgramName=Server "
     client = "java -ea Client --Ice.ProgramName=Client "
 
-    print "starting server...",
+    print "starting server ...",
     serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getAdapterReady(serverPipe)
     print "ok"
     
-    print "starting client...",
+    print "starting client ...",
     clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 

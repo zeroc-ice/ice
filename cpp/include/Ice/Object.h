@@ -86,7 +86,7 @@ public:
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
-    virtual void __marshal(const ::Ice::StreamPtr&) const;
+    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
     virtual void __unmarshal(const ::Ice::StreamPtr&);
 
     void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&);
@@ -94,6 +94,7 @@ public:
 
     void ice_addFacet(const ObjectPtr&, const ::std::string&);
     ObjectPtr ice_removeFacet(const ::std::string&);
+    ObjectPtr ice_updateFacet(const ObjectPtr&, const ::std::string&);
     void ice_removeAllFacets();
     ObjectPtr ice_findFacet(const ::std::string&);
     ObjectPtr ice_findFacetPath(const ::std::vector< ::std::string>&, int);

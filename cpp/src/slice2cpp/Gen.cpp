@@ -2392,7 +2392,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool = true);";
 
 	H << sp;
-	H << nl << "virtual void __marshal(const ::Ice::StreamPtr&) const;";
+	H << nl << "virtual void __marshal(const ::Ice::StreamPtr&, bool) const;";
 	H << nl << "virtual void __unmarshal(const ::Ice::StreamPtr&);";
 	
 	H << sp;
@@ -2430,9 +2430,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2)
-          << "::__marshal(const ::Ice::StreamPtr& __os) const";
+          << "::__marshal(const ::Ice::StreamPtr& __os, bool __marshalFacets) const";
 	C << sb;
-	emitClassBase(base, "__os", "__marshal");
+	emitClassBase(base, "__os, __marshalFacets", "__marshal");
 	writeGenericMarshalCode(C, memberList, 0);
 	C << eb;
 	

@@ -175,6 +175,8 @@ public:
 
     virtual ::Ice::ObjectPtr readObject(const ::std::string&, const ::std::string&, const ::Ice::ObjectFactoryPtr&);
 
+    virtual void marshalFacets(bool setting);
+
 private:
 
     void startWrite(const std::string&);
@@ -232,6 +234,8 @@ private:
     };
     ::std::map<Ice::ObjectPtr, ObjectInfo> _objects;
     bool _dump;
+
+    bool _marshalFacets;
 };
 
 } // End namespace IceXML

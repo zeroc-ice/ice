@@ -1375,9 +1375,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "super.__read(__is, true);";
         out << eb;
 
-        out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os)";
+        out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os, boolean __marshalFacets)";
         out << sb;
-        out << nl << "super.__marshal(__os);"; // Base must come first (due to schema rules).
+        out << nl << "super.__marshal(__os, __marshalFacets);"; // Base must come first (due to schema rules).
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {

@@ -17,8 +17,9 @@
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ServantLocator.ice>
+#include <Ice/Identity.ice>
+#include <Ice/Facet.ice>
 #include <Freeze/DBException.ice>
-#include <Freeze/ObjectRecord.ice>
 
 module Freeze
 {
@@ -151,6 +152,16 @@ local exception EvictorDeactivatedException
 
 /**
  *
+ * This exception is raised if an empty [Ice::FacetPath] is passed to
+ * [Evictor::addFacet] or [Evictor::removeFacet].
+ *
+ **/
+local exception EmptyFacetPathException
+{
+};
+
+/**
+ *
  * An automatic &Ice; object persistence manager, based on the
  * evictor pattern. The evictor is a servant locator implementation
  * that stores the persistent state of its objects in a database. Any
@@ -159,9 +170,6 @@ local exception EvictorDeactivatedException
  * servants reside in a queue; the least recently used servant in the
  * queue is the first to be evicted when a new servant is activated.
  *
- * An evictor is created using the operation [DB::createEvictor] and
- * must be registered with an object adapter just like any other
- * servant locator.
  *
  * @see ServantInitializer
  *
@@ -228,6 +236,32 @@ local interface Evictor extends Ice::ServantLocator
      **/
     void createObject(Ice::Identity identity, Object servant);
 
+
+    /**
+     *
+     * Adds a new persistent facet to this object.
+     *
+     * @param identity The identity of the target &Ice; object
+     *
+     * @param facet The facet path.
+     *
+     * @param servant The servant for the &Ice; object.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     * @throws EmptyFacetPathException Raised if the facet path is
+     * empty.
+     *
+     *
+     * @see Ice::Identity
+     * @see removeFacet
+     *
+     **/
+    void addFacet(Ice::Identity identity, Ice::FacetPath facet, Object servant);
+
     /**
      *
      * Permanently destroy an &Ice; object by removing it from the
@@ -246,6 +280,48 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     void destroyObject(Ice::Identity identity);
+
+    
+    /**
+     *
+     * Permanently remove this facet from the object.
+     *
+     * @param identity The identity of the target &Ice; object.
+     *
+     * @param facet The facet path.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     * @throws EmptyFacetPathException Raised if the facet path is
+     * empty.
+     *
+     * @see Ice::Identity
+     * @see addFacet
+     *
+     **/
+    void removeFacet(Ice::Identity identity, Ice::FacetPath facet);
+    
+
+    /**
+     *
+     * Permanently remove all the facets from the object.
+     *
+     * @param identity The identity of the target &Ice; object.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     * @see Ice::Identity
+     * @see removeFacet
+     *
+     **/
+    void removeAllFacets(Ice::Identity identity);
+
 
     /**
      *

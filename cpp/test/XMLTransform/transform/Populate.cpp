@@ -867,11 +867,11 @@ transformEvictor(const CommunicatorPtr& communicator, DbEnv& dbEnv)
     Freeze::EvictorPtr evictor;
 
     loadOld.push_back("TestOld.xsd");
-    loadOld.push_back("Identity.xsd");
-    loadOld.push_back("ObjectRecord.xsd");
+    loadOld.push_back("Ice/Identity.xsd");
+    loadOld.push_back("EvictorStorage.xsd");
     loadNew.push_back("TestNew.xsd");
-    loadNew.push_back("Identity.xsd");
-    loadNew.push_back("ObjectRecord.xsd");
+    loadNew.push_back("Ice/Identity.xsd");
+    loadNew.push_back("EvictorStorage.xsd");
 
     static string evictorSchema =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -881,7 +881,7 @@ transformEvictor(const CommunicatorPtr& communicator, DbEnv& dbEnv)
         "           xmlns:ice=\"http://www.zeroc.com/schemas\""
         "           targetNamespace=\"http://www.noorg.org/schemas\">"
         "    <xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>"
-        "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
+        "    <xs:element name=\"Key\" type=\"_internal.Freeze.EvictorStorageKeyType\"/>"
         "    <xs:element name=\"Value\" type=\"_internal.Freeze.ObjectRecordType\"/></xs:schema>";
 
     cout << "transforming evictor map... " << flush;

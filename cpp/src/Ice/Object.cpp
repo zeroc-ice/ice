@@ -266,17 +266,26 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
-Ice::Object::__marshal(const ::Ice::StreamPtr& __os) const
+Ice::Object::__marshal(const ::Ice::StreamPtr& __os, bool __marshalFacets) const
 {
-    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
-
-    __os->startWriteDictionary("ice:facets", static_cast<Int>(_activeFacetMap.size()));
-    for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    if(__marshalFacets)
     {
-	__os->startWriteDictionaryElement();
-	__os->writeString("ice:key", p->first);
-	__os->writeObject("ice:value", p->second);
-	__os->endWriteDictionaryElement();
+	IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+	
+	__os->startWriteDictionary("ice:facets", static_cast<Int>(_activeFacetMap.size()));
+	for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+	{
+	    __os->startWriteDictionaryElement();
+	    __os->writeString("ice:key", p->first);
+	   
+	    __os->writeObject("ice:value", p->second);
+	       
+	    __os->endWriteDictionaryElement();
+	}
+    }
+    else
+    {
+	__os->startWriteDictionary("ice:facets", 0);
     }
     __os->endWriteDictionary();
 }
@@ -374,6 +383,40 @@ Ice::Object::ice_removeFacet(const string& name)
 	_activeFacetMap.erase(p);
     }
 
+    return result;
+}
+
+ObjectPtr
+Ice::Object::ice_updateFacet(const ObjectPtr& facet, const string& name)
+{
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    ObjectPtr result;
+
+    map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
+    if(_activeFacetMapHint != _activeFacetMap.end())
+    {
+	if(_activeFacetMapHint->first == name)
+	{
+	    p = _activeFacetMapHint;
+	}
+    }
+    
+    if(p == _activeFacetMap.end())
+    {
+	p = _activeFacetMap.find(name);
+	if(p == _activeFacetMap.end())
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = _kindOfObject;
+	    ex.id = name;
+	    throw ex;
+	}
+    }
+    assert(p != _activeFacetMap.end());
+    
+    result = p->second;
+    p->second = facet;
     return result;
 }
 

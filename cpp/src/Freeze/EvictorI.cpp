@@ -14,10 +14,10 @@
 
 #include <Ice/Object.h> // Not included in Ice/Ice.h
 #include <Freeze/EvictorI.h>
-#include <Freeze/IdentityObjectRecordDict.h>
 #include <Freeze/Initialize.h>
 #include <sys/stat.h>
 #include <IceUtil/AbstractMutex.h>
+#include <IceXML/StreamI.h>
 #include <typeinfo>
 
 using namespace std;
@@ -48,7 +48,7 @@ public:
 private:
 
     Dbc* _dbc;
-    Ice::Identity _current;
+    Freeze::EvictorStorageKey _current;
     bool _currentSet;
     CommunicatorPtr _communicator;
     Key _key;
@@ -79,6 +79,89 @@ initializeDbt(vector<Ice::Byte>& v, Dbt& dbt)
     dbt.set_dlen(0);
     dbt.set_doff(0);
     dbt.set_flags(DB_DBT_USERMEM);
+}
+
+inline bool startWith(Key key, Key root)
+{
+    if(root.size() > key.size())
+    {
+	return false;
+    }
+    return memcmp(&root[0], &key[0], root.size()) == 0;
+}
+
+
+//
+// Marshaling/unmarshaling persistent (key, data) pairs
+//
+// TODO: use template functions
+//
+
+void marshalRoot(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
+{
+    ostringstream ostr;
+    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
+    v.ice_marshal("Key", stream);
+    const string& str = ostr.str();
+
+    //
+    // TODO: fix this!
+    //
+    int index = str.find("</identity>");
+    string root = str.substr(0, index + strlen("</identity>"));
+    
+    bytes.resize(root.size());
+    std::copy(root.begin(), root.end(), bytes.begin());
+}
+
+void marshal(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
+{
+    ostringstream ostr;
+    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
+    v.ice_marshal("Key", stream);
+    const string& str = ostr.str();
+    // cerr << "Marshalled key == " << str << endl;
+    bytes.resize(str.size());
+    std::copy(str.begin(), str.end(), bytes.begin());
+}
+
+void unmarshal(EvictorStorageKey& v, const Key& bytes, const CommunicatorPtr& communicator)
+{
+    string str;
+    str.append("<data>");
+    str.append(reinterpret_cast<const char*>(&bytes[0]), bytes.size());
+    str.append("</data>");
+    // cerr << "esk to unmarshal == " << str << endl;
+    istringstream istr(str);
+    StreamPtr stream = new IceXML::StreamI(communicator, istr, false);
+    v.ice_unmarshal("Key", stream);
+}
+
+void marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
+{
+    std::ostringstream ostr;
+    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
+    stream->marshalFacets(false);
+    v.ice_marshal("Value", stream);
+    const string& str = ostr.str();
+
+    // cerr << "Marshalled object record == " << str << endl;
+
+    bytes.resize(str.size());
+    std::copy(str.begin(), str.end(), bytes.begin());
+}
+
+void unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
+{
+    string str;
+    str.append("<data>");
+    str.append(reinterpret_cast<const char*>(&bytes[0]), bytes.size());
+    str.append("</data>");
+    // cerr << "object record to unmarshal == " << str << endl;
+    std::istringstream istr(str);
+   
+    StreamPtr stream = new IceXML::StreamI(communicator, istr, false);
+    v.ice_unmarshal("Value", stream);
 }
 
 }
@@ -113,7 +196,8 @@ Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator,
     _dbEnv(0),
     _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
     _trace(0),
-    _noSyncAllowed(false)
+    _noSyncAllowed(false),
+    _generation(0)
 {
     _dbEnv = _dbEnvHolder.get();
     init(envName, dbName, createDb);
@@ -128,7 +212,8 @@ Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator,
     _communicator(communicator),
     _dbEnv(&dbEnv),
     _trace(0),
-    _noSyncAllowed(false)
+    _noSyncAllowed(false),
+    _generation(0)
 {
     init("Extern", dbName, createDb);
 }
@@ -251,107 +336,99 @@ Freeze::EvictorI::saveNow()
 void
 Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
-    Lock sync(*this);
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
+    bool triedToLoadElement = false;
 
-    if(_deactivated)
+    for(;;)
     {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
-
-    EvictorMap::iterator p = _evictorMap.find(ident);
-
-    if(p != _evictorMap.end())
-    {
-	EvictorElementPtr& element = p->second;
-
 	{
-	    IceUtil::Mutex::Lock lockRec(element->mutex);
+	    Lock sync(*this);
 	    
-	    switch(element->status)
+	    if(_deactivated)
 	    {
-		case clean:
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+	    
+	    EvictorMap::iterator p = _evictorMap.find(ident);
+	   
+	    if(p == _evictorMap.end() && triedToLoadElement)
+	    {
+		if(loadedElementGeneration == _generation)
 		{
-		    element->status = modified;
-		    addToModifiedQueue(p, element);
-		    break;
+		    if(loadedElement != 0)
+		    {
+			p = insertElement(0, ident, loadedElement);
+		    }
 		}
-		case created:
-		case modified:
+		else
 		{
-		    //
-		    // Nothing to do.
-		    // No need to push it on the modified queue as a created resp
-		    // modified element is either already on the queue or about 
-		    // to be saved. When saved, it becomes clean.
-		    //
-		    break;
-		}  
-		case destroyed:
-		{
-		    element->status = modified;
-		    //
-		    // No need to push it on the modified queue, as a destroyed element
-		    // is either already on the queue or about to be saved. When saved,
-		    // it becomes dead.
-		    //
-		    break;
-		}
-		case dead:
-		{
-		    element->status = created;
-		    addToModifiedQueue(p, element);
-		    break;
-		}
-		default:
-		{
-		    assert(0);
-		    break;
+		    loadedElement = 0;
+		    triedToLoadElement = false;
 		}
 	    }
+	    
+	    bool replacing = (p != _evictorMap.end());
 
-	    element->rec.servant = servant;
+	    if(replacing || triedToLoadElement)
+	    {
+		if(replacing)
+		{
+		    EvictorElementPtr& element = p->second;
+		    
+		    //
+		    // Destroy all existing facets
+		    //
+		    for(FacetMap::iterator q = element->facets.begin(); q != element->facets.end(); q++)
+		    {
+			destroyFacetImpl(q, q->second);
+		    }
+		}
+		else
+		{
+		    //
+		    // Let's insert an empty EvitorElement
+		    //
+		    EvictorElementPtr element = new EvictorElement;
+		    
+		    pair<EvictorMap::iterator, bool> pair = _evictorMap.insert(EvictorMap::value_type(ident, element));
+		    assert(pair.second);
+		    
+		    p = pair.first;
+		    element->identity = &p->first;
+		    
+		    _evictorList.push_front(p);
+		    element->position = _evictorList.begin();
+		}
+		
+		//
+		// Add all the new facets (recursively)
+		//
+		EvictorElementPtr& element = p->second;
+		
+		addFacetImpl(element, servant, FacetPath(), replacing);
+		
+		//
+		// Evict as many elements as necessary.
+		//
+		evict();
+		break; // for(;;)
+	    }
+	    else
+	    {
+		loadedElementGeneration = _generation;
+	    }
 	}
-	_evictorList.erase(element->position);
-	_evictorList.push_front(p);
-	element->position = _evictorList.begin();
+
+	//
+	// Try to load element and try again
+	//
+	assert(loadedElement == 0);
+	assert(triedToLoadElement == false);
+	loadedElement = load(ident);
+	triedToLoadElement = true;
     }
-    else
-    {
-	//
-	// Create a new object
-	//
-	
-	ObjectRecord rec;
-	rec.servant = servant;
-	rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
-	rec.stats.lastSaveTime = 0;
-	rec.stats.avgSaveTime = 0;
-	
-	//
-	// Add an Ice object with its servant to the evictor queue.
-	//
-	
-	EvictorElementPtr element = new EvictorElement;
-	element->rec = rec;
-	element->usageCount = 0;
-	element->status = created;
-	
-	pair<EvictorMap::iterator, bool> pair = _evictorMap.insert(EvictorMap::value_type(ident, element));
-	assert(pair.second);
-
-	_evictorList.push_front(pair.first);
-	element->position = _evictorList.begin();
-	
-	addToModifiedQueue(pair.first, element);
-
-	//
-	// Evict as many elements as necessary.
-	//
-	evict();
-    } 
-
-    sync.release();
-      
+   
     if(_trace >= 1)
     {
 	Trace out(_communicator->getLogger(), "Evictor");
@@ -360,86 +437,175 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 }
 
 void
-Freeze::EvictorI::destroyObject(const Identity& ident)
+Freeze::EvictorI::addFacet(const Identity& ident, const FacetPath& facetPath, const ObjectPtr& servant)
 {
-    Lock sync(*this);
-    
-    if(_deactivated)
+    if(facetPath.size() == 0)
     {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
+	throw EmptyFacetPathException(__FILE__, __LINE__);
     }
 
-    EvictorMap::iterator p = _evictorMap.find(ident);
-    if(p != _evictorMap.end())
-    {
-	EvictorElementPtr& element = p->second;
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
 
-	IceUtil::Mutex::Lock lockRec(element->mutex);
-	    
-	switch(element->status)
+    for(;;)
+    {
 	{
-	    case clean:
+	    Lock sync(*this);
+	
+	    if(_deactivated)
 	    {
-		element->status = destroyed;
-		addToModifiedQueue(p, element);
-		break;
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
 	    }
-	    case created:
-	    {
-		element->status = dead;
-		break;
-	    }
-	    case modified:
-	    {
-		element->status = destroyed;
-		//
-		// Not necessary to push it on the modified queue, as a modified
-		// element is either on the queue already or about to be saved
-		// (at which point it becomes clean)
-		//
-		break;
-	    }
-	    case destroyed:
-	    case dead:
+	    
+	    EvictorMap::iterator p = _evictorMap.find(ident);
+	    
+	    if(p == _evictorMap.end() && loadedElement != 0)
 	    {
 		//
-		// Nothing to do!
+		// If generation matches, load element into map
 		//
-		break;
+		if(loadedElementGeneration == _generation)
+		{
+		    p = insertElement(0, ident, loadedElement);
+		}
+		else
+		{
+		    //
+		    // Discard loaded element
+		    //
+		    loadedElement = 0;
+		}
 	    }
-	    default:
+
+	    if(p != _evictorMap.end())
 	    {
-		assert(0);
-		break;
+		EvictorElementPtr& element = p->second;
+		FacetPath parentPath(facetPath);
+		parentPath.pop_back();
+		FacetMap::iterator q = element->facets.find(parentPath);
+		if(q == element->facets.end())
+		{
+		    throw FacetNotExistException(__FILE__, __LINE__);
+		}
+		
+		{
+		    FacetPtr& facet = q->second;
+		    IceUtil::Mutex::Lock lockFacet(facet->mutex);
+		    
+		    if(facet->status == dead || facet->status == destroyed)
+		    {
+			throw FacetNotExistException(__FILE__, __LINE__);
+		    }
+
+		    //
+		    // Throws AlreadyRegisteredException if the facet is already registered
+		    //
+		    facet->rec.servant->ice_addFacet(servant, facetPath[facetPath.size() - 1]);
+		}
+		//
+		// We may need to replace (nested) dead or destroyed facets
+		//
+		addFacetImpl(element, servant, facetPath, true);
+
+		evict();
+
+		break; // for(;;)
 	    }
+	   
+	    loadedElementGeneration = _generation;
+	}
+
+	assert(loadedElement == 0);
+
+	//
+	// Load object and loop
+	//
+	loadedElement = load(ident);
+	if(loadedElement == 0)
+	{
+	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
     }
-    else
+
+    if(_trace >= 1)
     {
-	//
-	// Set a real ObjectRecord in case this object gets recreated
-	//
-	ObjectRecord rec;
-	rec.servant = 0;
-	rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
-	rec.stats.lastSaveTime = 0;
-	rec.stats.avgSaveTime = 0;
-
-	EvictorElementPtr element = new EvictorElement;
-	element->rec = rec;
-	element->usageCount = 0;
-	element->status = destroyed;
-
-	pair<EvictorMap::iterator, bool> pair = _evictorMap.insert(EvictorMap::value_type(ident, element));
-	assert(pair.second);
-	element->position = _evictorList.insert(_evictorList.end(), pair.first);
-
-	addToModifiedQueue(pair.first, element);
-
-	evict();
+	Trace out(_communicator->getLogger(), "Evictor");
+	out << "added facet to \"" << ident << "\"";
     }
-    
-    sync.release();
+}
+
+void
+Freeze::EvictorI::destroyObject(const Identity& ident)
+{
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
+    bool triedToLoadElement = false;
+
+    for(;;)
+    {
+	{
+	    Lock sync(*this);
+	    
+	    if(_deactivated)
+	    {
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+	    
+	    EvictorMap::iterator p = _evictorMap.find(ident);
+	   
+	    if(p == _evictorMap.end() && triedToLoadElement)
+	    {
+		if(loadedElementGeneration == _generation)
+		{
+		    if(loadedElement != 0)
+		    {
+			p = insertElement(0, ident, loadedElement);
+		    }
+		}
+		else
+		{
+		    loadedElement = 0;
+		    triedToLoadElement = false;
+		}
+	    }
+	    
+	    bool destroying = (p != _evictorMap.end());
+
+	    if(destroying || triedToLoadElement)
+	    {
+		if(destroying)
+		{
+		    EvictorElementPtr& element = p->second;
+		    
+		    //
+		    // Destroy all existing facets
+		    //
+		    for(FacetMap::iterator q = element->facets.begin(); q != element->facets.end(); q++)
+		    {
+			destroyFacetImpl(q, q->second);
+		    }
+		}
+
+		//
+		// Evict as many elements as necessary.
+		//
+		evict();
+		break; // for(;;)
+	    }
+	    else
+	    {
+		loadedElementGeneration = _generation;
+	    }
+	}
+
+	//
+	// Try to load element and try again
+	//
+	assert(loadedElement == 0);
+	assert(triedToLoadElement == false);
+	loadedElement = load(ident);
+	triedToLoadElement = true;
+    }
 
     if(_trace >= 1)
     {
@@ -447,6 +613,194 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
 	out << "destroyed \"" << ident << "\"";
     }
 }
+
+void
+Freeze::EvictorI::removeFacet(const Identity& ident, const FacetPath& facetPath)
+{
+    if(facetPath.size() == 0)
+    {
+	throw EmptyFacetPathException(__FILE__, __LINE__);
+    }
+
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
+
+    for(;;)
+    {
+	{
+	    Lock sync(*this);
+	
+	    if(_deactivated)
+	    {
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+	    
+	    EvictorMap::iterator p = _evictorMap.find(ident);
+	    
+	    if(p == _evictorMap.end() && loadedElement != 0)
+	    {
+		//
+		// If generation matches, load element into map
+		//
+		if(loadedElementGeneration == _generation)
+		{
+		    p = insertElement(0, ident, loadedElement);
+		}
+		else
+		{
+		    //
+		    // Discard loaded element
+		    //
+		    loadedElement = 0;
+		}
+	    }
+
+	    if(p != _evictorMap.end())
+	    {
+		EvictorElementPtr& element = p->second;
+		FacetPath parentPath(facetPath);
+		parentPath.pop_back();
+		FacetMap::iterator q = element->facets.find(parentPath);
+		if(q == element->facets.end())
+		{
+		    throw FacetNotExistException(__FILE__, __LINE__);
+		}
+		
+		{
+		    FacetPtr& facet = q->second;
+		    IceUtil::Mutex::Lock lockFacet(facet->mutex);
+		    
+		    if(facet->status == dead || facet->status == destroyed)
+		    {
+			throw FacetNotExistException(__FILE__, __LINE__);
+		    }
+
+		    //
+		    // Throws NotRegisteredException if the facet is not registered
+		    //
+		    facet->rec.servant->ice_removeFacet(facetPath[facetPath.size() - 1]);
+		}
+		removeFacetImpl(element->facets, facetPath);
+
+		evict();
+
+		break; // for(;;)
+	    }
+	   
+	    loadedElementGeneration = _generation;
+	}
+
+	assert(loadedElement == 0);
+
+	//
+	// Load object and loop
+	//
+	loadedElement = load(ident);
+	if(loadedElement == 0)
+	{
+	    throw ObjectNotExistException(__FILE__, __LINE__);
+	}
+    }
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "Evictor");
+	out << "removed facet from \"" << ident << "\"";
+    }
+}
+
+
+void
+Freeze::EvictorI::removeAllFacets(const Identity& ident)
+{
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
+
+    for(;;)
+    {
+	{
+	    Lock sync(*this);
+	
+	    if(_deactivated)
+	    {
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+	    
+	    EvictorMap::iterator p = _evictorMap.find(ident);
+	    
+	    if(p == _evictorMap.end() && loadedElement != 0)
+	    {
+		//
+		// If generation matches, load element into map
+		//
+		if(loadedElementGeneration == _generation)
+		{
+		    p = insertElement(0, ident, loadedElement);
+		}
+		else
+		{
+		    //
+		    // Discard loaded element
+		    //
+		    loadedElement = 0;
+		}
+	    }
+
+	    if(p != _evictorMap.end())
+	    {
+		EvictorElementPtr& element = p->second;
+		
+		{
+		    FacetPtr& facet = element->mainObject;
+		    IceUtil::Mutex::Lock lockFacet(facet->mutex);
+		    
+		    if(facet->status == dead || facet->status == destroyed)
+		    {
+			throw ObjectNotExistException(__FILE__, __LINE__);
+		    }
+		    facet->rec.servant->ice_removeAllFacets();
+		}
+		
+		{
+		    //
+		    // Destroy all facets except main object
+		    //
+		    for(FacetMap::iterator q = element->facets.begin(); q != element->facets.end(); q++)
+		    {
+			if(q->second != element->mainObject)
+			{
+			    destroyFacetImpl(q, q->second);
+			}
+		    }
+		}
+
+		evict();
+
+		break; // for(;;)
+	    }
+	   
+	    loadedElementGeneration = _generation;
+	}
+
+	assert(loadedElement == 0);
+
+	//
+	// Load object and loop
+	//
+	loadedElement = load(ident);
+	if(loadedElement == 0)
+	{
+	    throw ObjectNotExistException(__FILE__, __LINE__);
+	}
+    }
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "Evictor");
+	out << "removed all facets from \"" << ident << "\"";
+    }
+}
+
 
 void
 Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initializer)
@@ -491,8 +845,8 @@ Freeze::EvictorI::hasObject(const Ice::Identity& ident)
     if(p != _evictorMap.end())
     {
 	EvictorElementPtr& element = p->second;
-	IceUtil::Mutex::Lock lockRec(element->mutex);
-	return (element->status != destroyed && element->status != dead);
+	IceUtil::Mutex::Lock lockFacet(element->mainObject->mutex);
+	return (element->mainObject->status != destroyed && element->mainObject->status != dead);
     }
     else
     {
@@ -509,9 +863,10 @@ Freeze::EvictorI::hasObject(const Ice::Identity& ident)
 ObjectPtr
 Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 {
-    ObjectRecord rec;
-    bool objectLoaded = false;
-
+    EvictorElementPtr loadedElement = 0;
+    int loadedElementGeneration = 0;
+    cookie = 0;
+   
     for(;;)
     {
 	EvictorMap::iterator p;
@@ -527,8 +882,21 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	    assert(!_deactivated);
 	    
 	    p = _evictorMap.find(current.id);
-	    objectFound = (p != _evictorMap.end());
+	   
+	    if(p == _evictorMap.end() && loadedElement != 0)
+	    {
+		if(loadedElementGeneration == _generation)
+		{
+		    p = insertElement(current.adapter, current.id, loadedElement);
+		}
+		else
+		{
+		    loadedElement = 0;
+		}
+	    }
 	    
+	    objectFound = (p != _evictorMap.end());
+
 	    if(objectFound)
 	    {
 		//
@@ -536,58 +904,31 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 		// the evictor list, so that it will be evicted last.
 		//
 		EvictorElementPtr& element = p->second;
-		_evictorList.erase(element->position);
-		_evictorList.push_front(p);
-		element->position = _evictorList.begin();
+		if(element->position != _evictorList.begin())
+		{
+		    _evictorList.erase(element->position);
+		    _evictorList.push_front(p);
+		    element->position = _evictorList.begin();
+		}
+       
 		element->usageCount++;
-		cookie = element;
 
+		FacetMap::iterator q = element->facets.find(current.facet);
+		if(q != element->facets.end())
+		{
+		    cookie = q->second;
+		}
+	
+		evict();
 		//
 		// Later (after releasing the mutex), check that this
 		// object is not dead or destroyed
 		//
 	    }
-	    else if(objectLoaded)
+	    else
 	    {
-		//
-		// Proceed with the object loaded in the previous loop
-		//
-		
-		//
-		// If an initializer is installed, call it now.
-		//
-		if(_initializer)
-		{
-		    _initializer->initialize(current.adapter, current.id, rec.servant);
-		}
-		    
-		//
-		// Add an Ice object with its servant to the evictor queue.
-		//
-		
-		EvictorElementPtr element = new EvictorElement;
-		element->rec = rec;
-		element->usageCount = 1;
-		element->status = clean;
-		
-		pair<EvictorMap::iterator, bool> pair = _evictorMap.insert(
-		    EvictorMap::value_type(current.id, element));
-		assert(pair.second);
-		_evictorList.push_front(pair.first);
-		element->position = _evictorList.begin();
-		
-		cookie = element;
-		
-		//
-		// Evict as many elements as necessary.
-		//
-		evict();
-		
-		return rec.servant;
+		loadedElementGeneration = _generation;
 	    }
-	    //
-	    // Else fall to the after-sync processing
-	    //
 	}
 	
 	if(objectFound)
@@ -603,11 +944,31 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	    //
 	    // Return servant if object not dead or destroyed
 	    //
+	    if(cookie == 0)
 	    {
-		IceUtil::Mutex::Lock lockRec(element->mutex);
-		if(element->status != destroyed && element->status != dead)
+		ObjectPtr result = 0;
 		{
-		    return element->rec.servant;
+		    IceUtil::Mutex::Lock lockFacet(element->mainObject->mutex);
+		    if(element->mainObject->status != destroyed && element->mainObject->status != dead)
+		    {
+			result = element->mainObject->rec.servant;
+		    }
+		}
+		if(_trace >= 2)
+		{
+		    Trace out(_communicator->getLogger(), "Evictor");
+		    out << "\"" << current.id << "\" does not have the desired facet";
+		}
+		Lock sync(*this);
+		element->usageCount--;
+		return result;
+	    }
+	    else
+	    {
+		IceUtil::Mutex::Lock lockFacet(element->mainObject->mutex);
+		if(element->mainObject->status != destroyed && element->mainObject->status != dead)
+		{
+		    return element->mainObject->rec.servant;
 		}
 	    }
 	
@@ -636,20 +997,9 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 		    << "loading \"" << current.id << "\" from the database";
 	    }
 	    
-	    if(getObject(current.id, rec))
+	    loadedElement = load(current.id);
+	    if(loadedElement == 0)
 	    {
-		objectLoaded = true;
-		
-		//
-		// Loop
-		//
-	    }
-	    else
-	    {
-		//
-		// The Ice object with the given identity does not exist,
-		// client will get an ObjectNotExistException.
-		//
 		return 0;
 	    }
 	}
@@ -661,48 +1011,51 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 {
     assert(servant);
 
-    EvictorElementPtr element = EvictorElementPtr::dynamicCast(cookie);
-    assert(element);
-
-    bool enqueue = false;
-
-    if(current.mode != Nonmutating)
+    if(cookie != 0)
     {
-	IceUtil::Mutex::Lock lockRec(element->mutex);
-
-	if(element->status == clean)
+	FacetPtr facet = FacetPtr::dynamicCast(cookie);
+	assert(facet);
+    
+	bool enqueue = false;
+	
+	if(current.mode != Nonmutating)
+	{
+	    IceUtil::Mutex::Lock lockRec(facet->mutex);
+	    
+	    if(facet->status == clean)
+	    {
+		//
+		// Assume this operation updated the object
+		// 
+		facet->status = modified;
+		enqueue = true;
+	    }
+	}
+	
+	Lock sync(*this);
+	
+	assert(!_deactivated);
+	
+	//
+	// Decrease the usage count of the evictor queue element.
+	//
+	assert(facet->element->usageCount >= 1);
+	--facet->element->usageCount;
+	
+	if(enqueue)
+	{
+	    FacetMap::iterator q = facet->element->facets.find(current.facet);
+	    assert(q != facet->element->facets.end());
+	    
+	    addToModifiedQueue(q, facet);
+	}
+	else
 	{
 	    //
-	    // Assume this operation updated the object
-	    // 
-	    element->status = modified;
-	    enqueue = true;
+	    // Evict as many elements as necessary.
+	    //
+	    evict();
 	}
-    }
-    
-    Lock sync(*this);
-
-    assert(!_deactivated);
-
-    //
-    // Decrease the usage count of the evictor queue element.
-    //
-    assert(element->usageCount >= 1);
-    --element->usageCount;
-
-    if(enqueue)
-    {
-	EvictorMap::iterator p = _evictorMap.find(current.id);
-	assert(p != _evictorMap.end());
-	
-	addToModifiedQueue(p, element);
-    }
-    else
-    {
-	//
-	// Evict as many elements as necessary.
-	//
-	evict();
     }
 }
 
@@ -746,6 +1099,7 @@ Freeze::EvictorI::deactivate(const string&)
 	_db.reset();
 	_dbEnv = 0;
 	_dbEnvHolder = 0;
+	_initializer = 0;
     }
 }
 
@@ -754,7 +1108,7 @@ Freeze::EvictorI::run()
 {
     for(;;)
     {
-    	deque<EvictorMap::iterator> allObjects;
+    	deque<FacetMap::iterator> allObjects;
 	size_t saveNowThreadsSize = 0;
 
 	{
@@ -807,12 +1161,6 @@ Freeze::EvictorI::run()
     
 	const size_t size = allObjects.size();
     
-	//
-	// Usage count release
-	//
-	deque<EvictorElementPtr> releaseAfterStreaming;
-	deque<EvictorElementPtr> releaseAfterCommit;
-	
 	deque<StreamedObject> streamedObjectQueue;
 	
 	Long saveStart = IceUtil::Time::now().toMilliSeconds();
@@ -822,31 +1170,24 @@ Freeze::EvictorI::run()
 	//
 	for(size_t i = 0; i < size; i++)
 	{
-	    EvictorElementPtr& element = allObjects[i]->second;
+	    FacetPtr& facet = allObjects[i]->second;
 	    
-	    IceUtil::Mutex::Lock lockRec(element->mutex);
-	    ObjectRecord& rec = element->rec;
+	    IceUtil::Mutex::Lock lockFacet(facet->mutex);
+	    ObjectRecord& rec = facet->rec;
 	    
 	    bool streamIt = true;
-	    Ice::Byte status = element->status;
+	    Ice::Byte status = facet->status;
 	    switch(status)
 	    {
 		case created:
-		{
-		    element->status = clean;
-		    releaseAfterCommit.push_back(element);
-		    break;
-		}   
 		case modified:
 		{
-		    element->status = clean;
-		    releaseAfterStreaming.push_back(element);
+		    facet->status = clean;
 		    break;
-		}
+		}   
 		case destroyed:
 		{
-		    element->status = dead;
-		    releaseAfterCommit.push_back(element);
+		    facet->status = dead;
 		    break;
 		}   
 		default:
@@ -855,7 +1196,6 @@ Freeze::EvictorI::run()
 		    // Nothing to do (could be a duplicate)
 		    //
 		    streamIt = false;
-		    releaseAfterStreaming.push_back(element);
 		    break;
 		}
 	    }
@@ -865,7 +1205,11 @@ Freeze::EvictorI::run()
 		size_t index = streamedObjectQueue.size();
 		streamedObjectQueue.resize(index + 1);
 		StreamedObject& obj = streamedObjectQueue[index];
-		IdentityObjectRecordDictKeyCodec::write(allObjects[i]->first, obj.key, _communicator);
+		EvictorStorageKey esk;
+		esk.identity.name = facet->element->identity->name;
+		esk.identity.category = facet->element->identity->category;
+		esk.facet = allObjects[i]->first;
+		marshal(esk, obj.key, _communicator);
 		obj.status = status;
 		if(status != destroyed)
 		{
@@ -892,19 +1236,6 @@ Freeze::EvictorI::run()
 		}
 	    }    
 	}
-	
-	allObjects.clear();
-	
-	if(releaseAfterStreaming.size() > 0)
-	{
-	    Lock sync(*this);
-	    for(deque<EvictorElementPtr>::iterator q = releaseAfterStreaming.begin();
-		q != releaseAfterStreaming.end(); q++)
-	    {    
-		(*q)->usageCount--;
-	    }
-	    releaseAfterStreaming.clear();
-	}	    
 	
 	//
 	// Now let's save all these streamed objects to disk using a transaction
@@ -937,42 +1268,38 @@ Freeze::EvictorI::run()
 			for(size_t i = 0; i < txSize; i++)
 			{
 			    StreamedObject& obj = streamedObjectQueue[i];
-			    if(obj.status == destroyed)
+
+			    switch(obj.status)
 			    {
-				//
-				// May not exist in the database
-				//
-				
-				Dbt dbKey;
-				initializeDbt(obj.key, dbKey);
-				int err = _db->del(tx, &dbKey, 0);
-				if(err != 0 && err != DB_NOTFOUND)
+				case created:
+				case modified:
 				{
-				    //
-				    // Bug in Freeze
-				    //
-				    throw DBException(__FILE__, __LINE__);
+				    Dbt dbKey;
+				    Dbt dbValue;
+				    initializeDbt(obj.key, dbKey);
+				    initializeDbt(obj.value, dbValue);
+				    u_int32_t flags = (obj.status == created) ? DB_NOOVERWRITE : 0;
+				    int err = _db->put(tx, &dbKey, &dbValue, flags);
+				    if(err != 0)
+				    {
+					throw DBException(__FILE__, __LINE__);
+				    }
+				    break;
 				}
-				
-			    }
-			    else
-			    {
-				//
-				// We can't use NOOVERWRITE as some 'created' objects may
-				// actually be already in the database
-				//
-				
-				Dbt dbKey;
-				Dbt dbValue;
-				initializeDbt(obj.key, dbKey);
-				initializeDbt(obj.value, dbValue);
-				int err = _db->put(tx, &dbKey, &dbValue, 0);
-				if(err != 0)
+				case destroyed:
 				{
-				    //
-				    // Bug in Freeze
-				    //
-				    throw DBException(__FILE__, __LINE__);
+				    Dbt dbKey;
+				    initializeDbt(obj.key, dbKey);
+				    int err = _db->del(tx, &dbKey, 0);
+				    if(err != 0)
+				    {
+					throw DBException(__FILE__, __LINE__);
+				    }
+				    break;
+				}   
+				default:
+				{
+				    assert(0);
 				}
 			    }
 			}
@@ -1012,12 +1339,15 @@ Freeze::EvictorI::run()
 	{
 	    Lock sync(*this);
 	    
-	    for(deque<EvictorElementPtr>::iterator q = releaseAfterCommit.begin();
-		q != releaseAfterCommit.end(); q++)
+	    _generation++;
+
+	    for(deque<FacetMap::iterator>::iterator q = allObjects.begin();
+		q != allObjects.end(); q++)
 	    {
-		(*q)->usageCount--;
+		(*q)->second->element->usageCount--;
 	    }
-	    releaseAfterCommit.clear();
+	    allObjects.clear();
+	    evict();
 	    
 	    if(saveNowThreadsSize > 0)
 	    {
@@ -1082,8 +1412,11 @@ Freeze::EvictorI::evict()
 bool
 Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
 {
-    Key key;
-    IdentityObjectRecordDictKeyCodec::write(ident, key, _communicator);
+    EvictorStorageKey esk;
+    esk.identity = ident;
+    
+    Key key;    
+    marshal(esk, key, _communicator);
     Dbt dbKey;
     initializeDbt(key, dbKey);
     
@@ -1128,83 +1461,13 @@ Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
     }
 }
 
-bool
-Freeze::EvictorI::getObject(const Ice::Identity& ident, ObjectRecord& rec)
-{
-    Key key;
-    IdentityObjectRecordDictKeyCodec::write(ident, key, _communicator);
-    Dbt dbKey;
-    initializeDbt(key, dbKey);
-
-    const size_t defaultValueSize = 1024;
-    Value value(defaultValueSize);
-
-    Dbt dbValue;
-    initializeDbt(value, dbValue);
-
-    for(;;)
-    {
-	try
-	{
-	    int err = _db->get(0, &dbKey, &dbValue, 0);
-	    
-	    if(err == 0)
-	    {
-		value.resize(dbValue.get_size());
-		IdentityObjectRecordDictValueCodec::read(rec, value, _communicator);
-		return true;
-	    }
-	    else if(err == DB_NOTFOUND)
-	    {
-		return false;
-	    }
-	    else
-	    {
-		assert(0);
-		throw DBException(__FILE__, __LINE__);
-	    }
-	}
-	catch(const ::DbMemoryException dx)
-	{
-	    if(dbValue.get_size() > dbValue.get_ulen())
-	    {
-		//
-		// Let's resize value
-		//
-		value.resize(dbValue.get_size());
-		initializeDbt(value, dbValue);
-	    }
-	    else
-	    {
-		//
-		// Real problem
-		//
-		DBException ex(__FILE__, __LINE__);
-		ex.message = dx.what();
-		throw ex;
-	    }
-	}
-	catch(const ::DbDeadlockException&)
-	{
-	    //
-	    // Ignored, try again
-	    //
-	}
-	catch(const ::DbException& dx)
-	{
-	    DBException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-    }
-}
 
 void
-Freeze::EvictorI::addToModifiedQueue(const Freeze::EvictorI::EvictorMap::iterator& p,
-				     const Freeze::EvictorI::EvictorElementPtr& element)
+Freeze::EvictorI::addToModifiedQueue(const Freeze::EvictorI::FacetMap::iterator& q,
+				     const Freeze::EvictorI::FacetPtr& facet)
 {
-    element->usageCount++;
-    _modifiedQueue.push_back(p);
+    facet->element->usageCount++;
+    _modifiedQueue.push_back(q);
     
     if(_saveSizeTrigger >= 0 && static_cast<Int>(_modifiedQueue.size()) >= _saveSizeTrigger)
     {
@@ -1243,9 +1506,500 @@ Freeze::EvictorI::writeObjectRecordToValue(Long saveStart, ObjectRecord& rec, Va
 	stats.lastSaveTime = saveStart - stats.creationTime;
 	stats.avgSaveTime = static_cast<Long>(stats.avgSaveTime * 0.95 + diff * 0.05);
     }
-    IdentityObjectRecordDictValueCodec::write(rec, value, _communicator);
+    
+    marshal(rec, value, _communicator);
 }
 
+
+Freeze::EvictorI::EvictorElementPtr
+Freeze::EvictorI::load(const Identity& ident)
+{
+    Key root;
+    EvictorStorageKey esk;
+    esk.identity = ident;
+    marshalRoot(esk, root, _communicator);
+    
+    const size_t defaultKeySize = 1024;
+    Key key(root);
+    key.reserve(defaultKeySize);
+
+    const size_t defaultValueSize = 1024;
+    Value value(defaultValueSize);
+
+    EvictorElementPtr result;
+
+    for(;;)
+    {
+	result = new EvictorElement;
+
+	Dbc* dbc = 0;
+	int rs = 0;
+
+	try
+	{
+	    //
+	    // Open cursor
+	    //
+	    _db->cursor(0, &dbc, 0);
+
+	    key.resize(key.capacity());
+	    Dbt dbKey;
+	    initializeDbt(key, dbKey);
+	    
+	    value.resize(value.capacity());
+	    Dbt dbValue;
+	    initializeDbt(value, dbValue);
+
+	    //
+	    // Get first pair
+	    //
+	    for(;;)
+	    {
+		try
+		{
+		    rs = dbc->get(&dbKey, &dbValue, DB_SET_RANGE);
+
+		    if(rs == 0)
+		    {
+			key.resize(dbKey.get_size());
+			value.resize(dbValue.get_size());
+		    }
+		    
+		    if(rs != 0 || !startWith(key, root))
+		    {
+			dbc->close();
+
+			if(_trace >= 2)
+			{
+			    Trace out(_communicator->getLogger(), "Evictor");
+			    out << "could not find \"" << ident << "\" in the database";
+			}
+			return 0;
+		    }
+		    
+		    break;
+		}
+		catch(const ::DbMemoryException dx)
+		{
+		    bool resized = false;
+		    if(dbKey.get_size() > dbKey.get_ulen())
+		    {
+			key.resize(dbKey.get_size());
+			initializeDbt(key, dbKey);
+			resized = true;
+		    }
+		   
+		    if(dbValue.get_size() > dbValue.get_ulen())
+		    {
+			value.resize(dbValue.get_size());
+			initializeDbt(value, dbValue);
+			resized = true;
+		    }
+
+		    if(!resized)
+		    {
+			//
+			// Real problem
+			//
+			DBException ex(__FILE__, __LINE__);
+			ex.message = dx.what();
+			throw ex;
+		    }
+		}
+	    }
+
+	    do
+	    {
+		//
+		// Unmarshal key and data and insert it into result's facet map
+		//
+		EvictorStorageKey esk;
+		unmarshal(esk, key, _communicator);
+
+	
+		if(_trace >= 3)
+		{
+		    Trace out(_communicator->getLogger(), "Evictor");
+		    out << "reading facet identity = \"" << esk.identity << "\" ";
+		    if(esk.facet.size() == 0)
+		    {
+			out << "(main object)";
+		    }
+		    else
+		    {
+			out << "facet = \"";
+			for(size_t i = 0; i < esk.facet.size(); i++)
+			{
+			    out << esk.facet[i];
+			    if(i != esk.facet.size() - 1)
+			    {
+				out << ".";
+			    }
+			    else
+			    {
+				out << "\"";
+			    }
+			}
+		    }
+		}
+       
+		FacetPtr facet = new Facet(result.get());
+		facet->status = clean;
+		unmarshal(facet->rec, value, _communicator);
+	
+		pair<FacetMap::iterator, bool> pair = result->facets.insert(FacetMap::value_type(esk.facet, facet));
+		assert(pair.second);
+
+		if(esk.facet.size() == 0)
+		{
+		    result->mainObject = facet;
+		}
+		
+		key.resize(key.capacity());
+		Dbt dbKey;
+		initializeDbt(key, dbKey);
+		
+		value.resize(value.capacity());
+		Dbt dbValue;
+		initializeDbt(value, dbValue);
+
+		//
+		// Next facet
+		//					    
+		for(;;)
+		{
+		    try
+		    {
+			rs = dbc->get(&dbKey, &dbValue, DB_NEXT);
+			if(rs == 0)
+			{
+			    key.resize(dbKey.get_size());
+			    value.resize(dbValue.get_size());
+			}
+			break; // for(;;)
+		    }
+		    catch(const ::DbMemoryException dx)
+		    {
+			bool resized = false;
+			if(dbKey.get_size() > dbKey.get_ulen())
+			{
+			    key.resize(dbKey.get_size());
+			    initializeDbt(key, dbKey);
+			    resized = true;
+			}
+			
+			if(dbValue.get_size() > dbValue.get_ulen())
+			{
+			    value.resize(dbValue.get_size());
+			    initializeDbt(value, dbValue);
+			    resized = true;
+			}
+			
+			if(!resized)
+			{
+			    //
+			    // Real problem
+			    //
+			    DBException ex(__FILE__, __LINE__);
+			    ex.message = dx.what();
+			    throw ex;
+			}
+		    }
+		}
+	    } while(rs == 0 && startWith(key, root));
+
+	    dbc->close();
+	    break; // for (;;)
+	       
+	}
+	catch(const ::DbDeadlockException&)
+	{
+	    if(dbc != 0)
+	    {
+		try
+		{
+		    dbc->close();
+		}
+		catch(...)
+		{
+		}
+	    }
+	    
+	    //
+	    // Try again
+	    //
+	}
+	catch(const ::DbException& dx)
+	{
+	    if(dbc != 0)
+	    {
+		try
+		{
+		    dbc->close();
+		}
+		catch(...)
+		{
+		}
+	    }
+	    DBException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+	catch(...)
+	{
+	    try
+	    {
+		dbc->close();
+	    }
+	    catch(...)
+	    {
+	    }
+	    throw;
+	}
+    }
+
+    //
+    // Let's fix-up the facets tree in result
+    //
+    for(FacetMap::iterator q = result->facets.begin(); q != result->facets.end(); q++)
+    {
+	const FacetPath& facetPath = q->first;
+
+	if(facetPath.size() > 0)
+	{
+	    FacetPath parent(facetPath);
+	    parent.pop_back();
+	    FacetMap::iterator r = result->facets.find(parent);
+	    if(r == result->facets.end())
+	    {
+		// 
+		// TODO: log warning for this orphan facet
+		//
+		assert(0);
+	    }
+	    else
+	    {
+		r->second->rec.servant->ice_addFacet(q->second->rec.servant, facetPath[facetPath.size() - 1]); 
+	    }
+	}
+    }
+    return result;
+}
+
+
+
+Freeze::EvictorI::EvictorMap::iterator
+Freeze::EvictorI::insertElement(const ObjectAdapterPtr& adapter, const Identity& ident, const EvictorElementPtr& element)
+{
+    if(_initializer)
+    {
+	_initializer->initialize(adapter, ident, element->mainObject->rec.servant);
+    }
+
+    pair<EvictorMap::iterator, bool> pair = _evictorMap.insert(EvictorMap::value_type(ident, element));
+    assert(pair.second);
+    EvictorMap::iterator p = pair.first;
+    element->identity = &p->first;
+
+    _evictorList.push_front(p);
+    element->position = _evictorList.begin();
+
+    return p;
+}
+
+
+void
+Freeze::EvictorI::addFacetImpl(EvictorElementPtr& element, const ObjectPtr& servant, const FacetPath& facetPath, bool replacing)
+{
+    FacetMap& facets = element->facets;
+
+    bool insertIt = true;
+
+    if(replacing)
+    {
+	FacetMap::iterator q = facets.find(facetPath);
+	
+	if(q != facets.end())
+	{
+	    FacetPtr& facet = q->second;
+
+	    {
+		IceUtil::Mutex::Lock lockFacet(facet->mutex);
+		
+		switch(facet->status)
+		{
+		    case clean:
+		    {
+			facet->status = modified;
+			addToModifiedQueue(q, facet);
+			break;
+		    }
+		    case created:
+		    case modified:
+		    {
+			//
+			// Nothing to do.
+			// No need to push it on the modified queue as a created resp
+			// modified facet is either already on the queue or about 
+			// to be saved. When saved, it becomes clean.
+			//
+			break;
+		    }  
+		    case destroyed:
+		    {
+			facet->status = modified;
+			//
+			// No need to push it on the modified queue, as a destroyed facet
+			// is either already on the queue or about to be saved. When saved,
+			// it becomes dead.
+			//
+			break;
+		    }
+		    case dead:
+		    {
+			facet->status = created;
+			addToModifiedQueue(q, facet);
+			break;
+		    }
+		    default:
+		    {
+			assert(0);
+			break;
+		    }
+		}
+		facet->rec.servant = servant;
+		insertIt = false;
+	    }
+	}
+    }
+
+    if(insertIt)
+    {
+	FacetPtr facet = new Facet(element.get());
+	facet->status = created;
+
+	ObjectRecord& rec = facet->rec;
+	rec.servant = servant;
+	rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
+	rec.stats.lastSaveTime = 0;
+	rec.stats.avgSaveTime = 0;
+
+	pair<FacetMap::iterator, bool> insertResult = facets.insert(FacetMap::value_type(facetPath, facet));
+	assert(insertResult.second);
+	if(facetPath.size() == 0)
+	{
+	    element->mainObject = facet;
+	}
+	addToModifiedQueue(insertResult.first, facet);
+    }
+
+    
+    if(servant != 0)
+    {
+	//
+	// Add servant's facets
+	//
+	vector<string> facetList = servant->ice_facets();
+	for(vector<string>::iterator r = facetList.begin(); r != facetList.end(); r++)
+	{
+	    FacetPath newFacetPath(facetPath);
+	    newFacetPath.push_back(*r);
+	    addFacetImpl(element, servant->ice_findFacet(*r), newFacetPath, replacing);  
+	}
+    }
+}
+
+
+void
+Freeze::EvictorI::removeFacetImpl(FacetMap& facets, const FacetPath& facetPath)
+{
+    FacetMap::iterator q = facets.find(facetPath);
+    Ice::ObjectPtr servant = 0; 
+
+    if(q != facets.end())
+    {
+	servant = destroyFacetImpl(q, q->second);
+    }
+    //
+    // else should we raise an exception?
+    //
+
+    if(servant != 0)
+    {
+	//
+	// Remove servant's facets
+	//
+	vector<string> facetList = servant->ice_facets();
+	for(vector<string>::iterator r = facetList.begin(); r != facetList.end(); r++)
+	{
+	    FacetPath newFacetPath(facetPath);
+	    newFacetPath.push_back(*r);
+	    removeFacetImpl(facets, newFacetPath);  
+	}
+    }
+}
+
+
+Ice::ObjectPtr
+Freeze::EvictorI::destroyFacetImpl(Freeze::EvictorI::FacetMap::iterator& q, const Freeze::EvictorI::FacetPtr& facet)
+{
+    IceUtil::Mutex::Lock lockFacet(facet->mutex);
+    switch(facet->status)
+    {
+	case clean:
+	{
+	    facet->status = destroyed;
+	    addToModifiedQueue(q, facet);
+	    break;
+	}
+	case created:
+	{
+	    facet->status = dead;
+	    break;
+	}
+	case modified:
+	{
+	    facet->status = destroyed;
+	    //
+	    // Not necessary to push it on the modified queue, as a modified
+	    // element is either on the queue already or about to be saved
+	    // (at which point it becomes clean)
+	    //
+	    break;
+	}
+	case destroyed:
+	case dead:
+	{
+	    //
+	    // Nothing to do!
+	    //
+	    break;
+	}
+	default:
+	{
+	    assert(0);
+	    break;
+	}
+    }
+    return facet->rec.servant;
+}
+
+Freeze::EvictorI::Facet::Facet(EvictorElement* elt) :
+    status(dead),
+    element(elt)
+{
+}
+
+Freeze::EvictorI::EvictorElement::EvictorElement() :
+    usageCount(0),
+    identity(0),
+    mainObject(0)
+{
+}
+
+Freeze::EvictorI::EvictorElement::~EvictorElement()
+{
+}
 
 Freeze::EvictorIteratorI::EvictorIteratorI(Db& db, const CommunicatorPtr& communicator) :
     _dbc(0),
@@ -1286,14 +2040,7 @@ Freeze::EvictorIteratorI::hasNext()
 	return true;
     }
     else
-    {
-	if(_key.size() < _key.capacity())
-	{
-	    _key.resize(_key.capacity());
-	}
-	Dbt dbKey;
-	initializeDbt(_key, dbKey);
-	
+    {	
 	//
 	// Keep 0 length since we're not interested in the data
 	//
@@ -1302,14 +2049,29 @@ Freeze::EvictorIteratorI::hasNext()
 	
 	for(;;)
 	{
+	    if(_key.size() < _key.capacity())
+	    {
+		_key.resize(_key.capacity());
+	    }
+
+	    Dbt dbKey;
+	    initializeDbt(_key, dbKey);
+
 	    try
 	    {
 		if(_dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
 		{
 		    _key.resize(dbKey.get_size());
-		    IdentityObjectRecordDictKeyCodec::read(_current, _key, _communicator);
-		    _currentSet = true;
-		    return true;
+		    unmarshal(_current, _key, _communicator);
+		    
+		    if(_current.facet.size() == 0)
+		    {
+			_currentSet = true;
+			return true;
+		    }
+		    //
+		    // Otherwise loop
+		    //
 		}
 		else
 		{
@@ -1358,7 +2120,7 @@ Freeze::EvictorIteratorI::next()
     if(hasNext())
     {
 	_currentSet = false;
-	return _current;
+	return _current.identity;
     }
     else
     {
@@ -1416,4 +2178,11 @@ Freeze::IteratorDestroyedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\niterator destroyed";
+}
+
+void
+Freeze::EmptyFacetPathException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nempty facet path";
 }

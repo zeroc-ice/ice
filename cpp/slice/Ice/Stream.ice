@@ -776,6 +776,15 @@ local interface Stream
      *
      **/
     Object readObject(string name, string signatureType, ObjectFactory factory);
+
+
+    /**
+     *
+     * When writing an object, this stream may or may not marshal the facets
+     * of the object. By default, the stream must marshal the facets.
+     **/
+    void marshalFacets(bool setting);
+
 };
 
 };

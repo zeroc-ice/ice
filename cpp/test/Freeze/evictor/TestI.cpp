@@ -35,6 +35,12 @@ Test::ServantI::init(const RemoteEvictorIPtr& remoteEvictor, const Freeze::Evict
 {
     _remoteEvictor = remoteEvictor;
     _evictor = evictor;
+
+    vector<string> facets = ice_facets();
+    for(size_t i = 0; i < facets.size(); i++)
+    {
+	dynamic_cast<Test::ServantI*>(ice_findFacet(facets[i]).get())->init(remoteEvictor, evictor);
+    }
 }
 
 Int
@@ -73,6 +79,46 @@ Test::ServantI::releaseAsync(const Current& current) const
 }
 
 void
+Test::ServantI::addFacet(const string& name, const string& data, const Current& current) const
+{
+    FacetPath facetPath(current.facet);
+    facetPath.push_back(name);
+
+    FacetPtr facet = new FacetI(_remoteEvictor, _evictor, value, data);
+
+    try
+    {
+	_evictor->addFacet(current.id, facetPath, facet);
+    }
+    catch(const Ice::AlreadyRegisteredException&)
+    {
+	throw Test::AlreadyRegisteredException();
+    }
+}
+
+void
+Test::ServantI::removeFacet(const string& name, const Current& current) const
+{
+    FacetPath facetPath(current.facet);
+    facetPath.push_back(name);
+    try
+    {
+	_evictor->removeFacet(current.id, facetPath);
+    }
+     catch(const Ice::NotRegisteredException&)
+    {
+	throw Test::NotRegisteredException();
+    }
+   
+}
+
+void
+Test::ServantI::removeAllFacets(const Current& current) const
+{
+    _evictor->removeAllFacets(current.id);
+}
+
+void
 Test::ServantI::destroy(const Current& current)
 {
     _evictor->destroyObject(current.id);
@@ -87,11 +133,51 @@ Test::ServantI::__write(IceInternal::BasicStream* os) const
 }
 
 void
-Test::ServantI::__marshal(const StreamPtr& os) const
+Test::ServantI::__marshal(const StreamPtr& os, bool marshalFacets) const
 {
     assert(_remoteEvictor);
     _remoteEvictor->setLastSavedValue(value);
-    Servant::__marshal(os);
+    Servant::__marshal(os, marshalFacets);
+}
+
+Test::FacetI::FacetI()
+{
+}
+
+Test::FacetI::FacetI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::EvictorPtr& evictor, Ice::Int val, const string& d) :
+    ServantI(remoteEvictor, evictor, val)
+{
+    data = d;
+}
+
+string
+Test::FacetI::getData(const Current&) const
+{
+    Lock sync(*this);
+    return data;
+}
+
+void
+Test::FacetI::setData(const string& d, const Current&)
+{
+    Lock sync(*this);
+    data = d;
+}
+
+void 
+Test::FacetI::__write(::IceInternal::BasicStream* os) const
+{
+    assert(_remoteEvictor);
+    _remoteEvictor->setLastSavedValue(value);
+    Facet::__write(os);
+}
+
+void 
+Test::FacetI::__marshal(const StreamPtr& os, bool marshalFacets) const
+{
+    assert(_remoteEvictor);
+    _remoteEvictor->setLastSavedValue(value);
+    Facet::__marshal(os, marshalFacets);
 }
 
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& category,
@@ -106,6 +192,8 @@ Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const stri
     _evictorAdapter->addServantLocator(evictor, category);
     _evictorAdapter->activate();
 }
+
+
 
 void
 Test::RemoteEvictorI::setSize(Int size, const Current&)
