@@ -36,7 +36,6 @@ class Servant
 
     nonmutating void addFacet(string name, string data) throws AlreadyRegisteredException;
     nonmutating void removeFacet(string name) throws NotRegisteredException;
-    nonmutating void removeAllFacets();
 
     void destroy();
 
@@ -57,7 +56,7 @@ interface RemoteEvictor
     Servant* createServant(int id, int value);
     Servant* getServant(int id);
     void deactivate();
-    void destroyAllServants();
+    void destroyAllServants(string facet);
 };
 
 interface RemoteEvictorFactory

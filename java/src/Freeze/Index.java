@@ -27,26 +27,25 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 			 com.sleepycat.db.Dbt value,
 			 com.sleepycat.db.Dbt result)
     {
-	Ice.Communicator communicator = _evictor.communicator();
+	Ice.Communicator communicator = _store.communicator();
 
-	EvictorStorageKey esk = EvictorI.unmarshalKey(key.get_data(), communicator);
-	if(esk.facet.length == 0)
+	Ice.Identity ident = ObjectStore.unmarshalKey(key.get_data(), communicator);
+	ObjectRecord rec = ObjectStore.unmarshalValue(value.get_data(), communicator);
+
+	byte[] secondaryKey = marshalKey(rec.servant);
+	if(secondaryKey != null)
 	{
-	    ObjectRecord rec = EvictorI.unmarshalValue(value.get_data(), communicator);
-
-	    byte[] secondaryKey = marshalKey(rec.servant);
-	    if(secondaryKey != null)
-	    {
-		result.set_data(secondaryKey);
-		result.set_size(secondaryKey.length);
-		return 0;
-	    }
+	    result.set_data(secondaryKey);
+	    result.set_size(secondaryKey.length);
+	    return 0;
 	}
-
-	//
-	// Don't want to index this one
-	//
-	return com.sleepycat.db.Db.DB_DONOTINDEX;
+	else
+	{
+	    //
+	    // Don't want to index this one
+	    //
+	    return com.sleepycat.db.Db.DB_DONOTINDEX;
+	}
     }
     
     //
@@ -61,9 +60,22 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	return secondaryKeyCreate(secondary, key, value, result);
     }
 
-    protected Index(String name)
+    public String
+    name()
+    {
+	return _name;
+    }
+
+    public String
+    facet()
+    {
+	return _facet;
+    }
+
+    protected Index(String name, String facet)
     {
 	_name = name;
+	_facet = facet;
     }
 
     protected abstract byte[]
@@ -83,8 +95,8 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	// 
 	value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 
-	Ice.Communicator communicator = _evictor.communicator();
-	_evictor.saveNow();
+	Ice.Communicator communicator = _store.communicator();
+	_store.evictor().saveNow();
 
 	java.util.List identities;
 
@@ -101,31 +113,32 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 		    // Move to the first record
 		    // 
 		    dbc = _db.cursor(null, 0);
-		    boolean more = (dbc.pget(key, pkey, value, com.sleepycat.db.Db.DB_SET) == 0);
-		    
-		    while((firstN <= 0 || identities.size() < firstN) && more)
+		    int flags = com.sleepycat.db.Db.DB_SET;
+
+		    boolean found;
+
+		    do
 		    {
-			EvictorStorageKey esk = EvictorI.unmarshalKey(pkey.get_data(), communicator);
-
-			if(esk.facet.length == 0)
+			found = (dbc.pget(key, pkey, value, flags) == 0);
+		    
+			if(found)
 			{
-			    identities.add(esk.identity);
+			    Ice.Identity ident = ObjectStore.unmarshalKey(pkey.get_data(), communicator);
+			    identities.add(ident);
+			    flags = com.sleepycat.db.Db.DB_NEXT_DUP;
 			}
-			//
-			// Else skip "orphan" facet (could be just a temporary inconsistency
-			// on disk)
-			//
-
-			more = (dbc.pget(key, pkey, value, com.sleepycat.db.Db.DB_NEXT_DUP) == 0);
 		    }
-		    break; // for (;;)
+		    while((firstN <= 0 || identities.size() < firstN) && found);
+
+		    break; // for(;;)
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
-		    if(_evictor.deadlockWarning())
+		    if(_store.evictor().deadlockWarning())
 		    {
-			communicator().getLogger().warning
-			    ("Deadlock in Freeze.Index.untypedFindFirst while iterating over Db \"" + _evictor.dbName()
+			communicator.getLogger().warning
+			    ("Deadlock in Freeze.Index.untypedFindFirst while iterating over Db \"" 
+			     + _store.evictor().filename() + "/" + _dbName
 			     + "\"; retrying ...");
 		    }
 
@@ -155,7 +168,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	{
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
-	    ex.message = _evictor.errorPrefix() + "Db.cursor: " + dx.getMessage();
+	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
 	    throw ex;
 	}
 
@@ -185,7 +198,7 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	// dlen is 0, so we should not retrieve any value 
 	// 
 	value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	_evictor.saveNow();
+	_store.evictor().saveNow();
 
 	try
 	{
@@ -208,10 +221,11 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
-		    if(_evictor.deadlockWarning())
+		    if(_store.evictor().deadlockWarning())
 		    {
-			communicator().getLogger().warning
-			    ("Deadlock in Freeze.Index.untypedCount while iterating over Db \"" + _evictor.dbName()
+			_store.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Index.untypedCount while iterating over Db \"" 
+			     + _store.evictor().filename() + "/" + _dbName
 			     + "\"; retrying ...");
 		    }
 
@@ -241,20 +255,25 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	{
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
-	    ex.message = _evictor.errorPrefix() + "Db.cursor: " + dx.getMessage();
+	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
 	    throw ex;
 	}
     }
 
+    protected final Ice.Communicator
+    communicator()
+    {
+	return _store.communicator();
+    }
     
     void
-    associate(EvictorI evictor, com.sleepycat.db.DbTxn txn, boolean createDb, boolean populateIndex)
+    associate(ObjectStore store, com.sleepycat.db.DbTxn txn, boolean createDb, boolean populateIndex)
 	throws com.sleepycat.db.DbException, java.io.FileNotFoundException
     {
 	assert(txn != null);
-	_evictor = evictor;
+	_store = store;
 	
-	_db= new com.sleepycat.db.Db(evictor.dbEnv(), 0);
+	_db= new com.sleepycat.db.Db(_store.evictor().dbEnv(), 0);
 	_db.set_flags(com.sleepycat.db.Db.DB_DUP | com.sleepycat.db.Db.DB_DUPSORT);
 
 	int flags = 0;
@@ -262,14 +281,17 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	{
 	    flags = com.sleepycat.db.Db.DB_CREATE;
 	}
-	_db.open(txn, evictor.dbName() + "." + _name, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+	
+	_dbName = EvictorI.indexPrefix + store.dbName() + "." + _name;
+
+	_db.open(txn, _store.evictor().filename(), _dbName, com.sleepycat.db.Db.DB_BTREE, flags, 0);
 
 	flags = 0;
 	if(populateIndex)
 	{
 	    flags = com.sleepycat.db.Db.DB_CREATE;
 	}
-	evictor.db().associate(txn, _db, this, flags);
+	_store.db().associate(txn, _db, this, flags);
     }
 
     void
@@ -285,33 +307,17 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 	    {
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
-		ex.message = _evictor.errorPrefix() + "Db.close: " + dx.getMessage();
+		ex.message = _store.evictor().errorPrefix() + "Db.close: " + dx.getMessage();
 		throw ex;
 	    }
 	    _db = null;   
 	}
     }
+  
+    private final String _name;
+    private final String _facet;
+    private String _dbName;
 
-    
-    final com.sleepycat.db.Db
-    db()
-    {
-	return _db;
-    }
-
-    final EvictorI
-    evictor()
-    {
-	return _evictor;
-    }
-    
-    final protected Ice.Communicator
-    communicator()
-    {
-	return _evictor.communicator();
-    }
-
-    private String _name;
-    private com.sleepycat.db.Db _db;
-    private EvictorI _evictor;   
+    private com.sleepycat.db.Db _db = null;
+    private ObjectStore _store = null;
 }

@@ -43,13 +43,13 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	}
     }
     
-    EvictorIteratorI(EvictorI evictor, int batchSize, boolean loadServants)
+    EvictorIteratorI(ObjectStore store, int batchSize)
     {
-	_evictor = evictor;
+	_store = store;
+	_more = (store != null);
 	_batchSize = batchSize;
-	_loadServants = loadServants;
 	
-	assert(batchSize > 0);
+	assert batchSize > 0;
 
 	//
 	// We should use DB_DBT_REALLOC, but it's buggy in 4.1.25 
@@ -57,17 +57,10 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	//
 	_key.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 
-	if(_loadServants)
-	{
-	    _value.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
-	}
-	else
-	{
-	    //
-	    // dlen is 0, so we should not retrieve any value 
-	    // 
-	    _value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	}
+	//
+	// dlen is 0, so we should not retrieve any value 
+	// 
+	_value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
     }
 
     private java.util.Iterator
@@ -80,7 +73,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 
 	java.util.List evictorElements = null;
 
-	Ice.Communicator communicator = _evictor.communicator();
+	Ice.Communicator communicator = _store.communicator();
 	
 	byte[] firstKey = null;
 	if(_key.get_size() > 0)
@@ -88,9 +81,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	    firstKey = new byte[_key.get_size()];
 	    System.arraycopy(_key.get_data(), 0, firstKey, 0, firstKey.length);
 	}
-	
-	int loadedGeneration = 0;
-
+       	
 	try
 	{
 	    for(;;)
@@ -98,11 +89,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 		com.sleepycat.db.Dbc dbc = null;
 		
 		_batch = new java.util.ArrayList(); 
-		if(_loadServants)
-		{
-		    evictorElements = new java.util.ArrayList();
-		}
-			
+	
 		try
 		{
 		    //
@@ -117,28 +104,34 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 			//
 			flags = com.sleepycat.db.Db.DB_SET_RANGE;
 		    }
+		    
+		    dbc = _store.db().cursor(null, 0);
 
-		    if(_loadServants)
+		    boolean done = false;
+		    do
 		    {
-			loadedGeneration = _evictor.currentGeneration();
-		    }
-		    dbc = _evictor.db().cursor(null, 0);
-		    _more = (dbc.get(_key, _value, flags) == 0);
+			_more = (dbc.get(_key, _value, flags) == 0);
 
-		    while(_batch.size() < _batchSize && _more)
-		    {
-			//
-			// Even when count is 0, we read one more record (unless we reach the end)
-			//
-			if(_loadServants)
+			if(_more)
 			{
-			    _more = _evictor.load(dbc, _key, _value, _batch, evictorElements);
-			}
-			else
-			{
-			    _more = _evictor.load(dbc, _key, _value, _batch);
+			    flags = com.sleepycat.db.Db.DB_NEXT;
+			    
+			    if(_batch.size() < _batchSize)
+			    {
+				Ice.Identity ident = ObjectStore.unmarshalKey(_key.get_data(), communicator);
+				_batch.add(ident);
+			    }
+			    else
+			    {
+				//
+				// Keep the last element in _key
+				//
+				done = true;
+			    }
 			}
 		    }
+		    while(!done && _more);
+
 		    break; // for (;;)
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
@@ -154,10 +147,11 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 			_key.set_size(0);
 		    }
 
-		    if(_evictor.deadlockWarning())
+		    if(_store.evictor().deadlockWarning())
 		    {
 			communicator.getLogger().warning
-			    ("Deadlock in Freeze.EvictorIteratorI.load while iterating over Db \"" + _evictor.dbName()
+			    ("Deadlock in Freeze.EvictorIteratorI.load while iterating over Db \"" 
+			     + _store.evictor().filename() + "/" + _store.dbName()
 			     + "\"; retrying ...");
 		    }
 		    
@@ -187,7 +181,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	{
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
-	    ex.message = _evictor.errorPrefix() + "Db.cursor: " + dx.getMessage();
+	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
 	    throw ex;
 	}
 
@@ -197,22 +191,16 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	}
 	else
 	{
-	    if(_loadServants)
-	    {
-		_evictor.insert(_batch, evictorElements, loadedGeneration);
-	    }
-
 	    return _batch.listIterator();
 	}
     }
 
-    private EvictorI _evictor;
-    private int _batchSize;
-    private boolean _loadServants;
+    private final ObjectStore _store;
+    private final int _batchSize;
     private java.util.Iterator _batchIterator;
 
-    private com.sleepycat.db.Dbt _key = new com.sleepycat.db.Dbt();
-    private com.sleepycat.db.Dbt _value = new com.sleepycat.db.Dbt();
+    private final com.sleepycat.db.Dbt _key = new com.sleepycat.db.Dbt();
+    private final com.sleepycat.db.Dbt _value = new com.sleepycat.db.Dbt();
     private java.util.List _batch = null;
     private boolean _more = true;
 }

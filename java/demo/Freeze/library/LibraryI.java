@@ -51,7 +51,7 @@ class LibraryI extends _LibraryDisp
 	// This can throw EvictorDeactivatedException (which indicates
 	// an internal error). The exception is currently ignored.
 	//
-	_evictor.createObject(ident, bookI);
+	_evictor.add(bookI, ident);
 
 	try
 	{
@@ -213,7 +213,7 @@ class LibraryI extends _LibraryDisp
 	    // indicates an internal error). The exception is
 	    // currently ignored.
 	    //
-	    _evictor.destroyObject(createBookIdentity(description.isbn));
+	    _evictor.remove(createBookIdentity(description.isbn));
 	}
 	catch(Freeze.DatabaseException ex)
 	{

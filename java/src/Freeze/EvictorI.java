@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
+// Copyright (c) 2003-2004
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -16,32 +16,152 @@ package Freeze;
 
 class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 {
-    public
-    EvictorI(Ice.Communicator communicator, String envName, String dbName, 
-	     Index[] indices, boolean createDb)
-    {
-	_communicator = communicator;
-	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
-	_dbEnv = _dbEnvHolder;
-	_dbName = dbName;
-	_indices = indices;
 
-	init(envName, createDb);
-    }
+    final static String defaultDb = "$default";
+    final static String indexPrefix = "$index:";
 
     public
-    EvictorI(Ice.Communicator communicator, String envName, 
-	     com.sleepycat.db.DbEnv dbEnv, String dbName, 
+    EvictorI(Ice.ObjectAdapter adapter, String envName, String filename,
+	     ServantInitializer initializer,
 	     Index[] indices, boolean createDb)
     {
-	_communicator = communicator;
-	_dbEnvHolder = null;
-	_dbEnv = dbEnv;
-	_dbName = dbName;
-	_indices = indices;
+	_adapter = adapter;
+	_communicator = adapter.getCommunicator();
+	_initializer = initializer;
 	
-	init(envName, createDb);
+	_dbEnvHolder = SharedDbEnv.get(_communicator, envName);
+	_dbEnv = _dbEnvHolder;
+	_filename = filename;
+	_createDb = createDb;
+	
+	init(envName, indices);
     }
+
+    public
+    EvictorI(Ice.ObjectAdapter adapter, String envName, 
+	     com.sleepycat.db.DbEnv dbEnv, String filename, 
+	     ServantInitializer initializer,
+	     Index[] indices, boolean createDb)
+    {
+	_adapter = adapter;
+	_communicator = adapter.getCommunicator();
+	_initializer = initializer;
+	
+	_dbEnv = dbEnv;
+	_filename = filename;
+	_createDb = createDb;
+	
+	init(envName, indices);
+    }
+
+    private void
+    init(String envName, Index[] indices)
+    {
+	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
+	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+
+	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
+
+	String propertyPrefix = "Freeze.Evictor." + envName + '.' + _filename; 
+	
+	// 
+	// By default, we save every minute or when the size of the modified 
+	// queue reaches 10.
+	//
+
+	_saveSizeTrigger = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".SaveSizeTrigger", 10);
+
+	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".SavePeriod", 60 * 1000);
+
+	//
+	// By default, we save at most 10 * SaveSizeTrigger objects per transaction
+	//
+	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault
+	    (propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
+
+	if(_maxTxSize <= 0)
+	{
+	    _maxTxSize = 100;
+	}
+	
+	boolean populateEmptyIndices = (_communicator.getProperties().getPropertyAsIntWithDefault
+					(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
+	
+	//
+	// Instantiate all Dbs in 2 steps:
+	// (1) iterate over the indices and create ObjectStore with indices
+	// (2) open ObjectStores without indices
+	//
+
+	java.util.List dbs = allDbs();
+	//
+	// Add default db in case it's not there
+	//
+	dbs.add(defaultDb);
+
+	
+	if(indices != null)
+	{
+	    for(int i = 0; i < indices.length; ++i)
+	    {
+		String facet = indices[i].facet();
+		
+		if(_storeMap.get(facet) == null)
+		{
+		    java.util.List storeIndices = new java.util.LinkedList();
+		    for(int j = i; j < indices.length; ++j)
+		    {
+			if(indices[j].facet().equals(facet))
+			{
+			    storeIndices.add(indices[j]);
+			}
+		    }
+		    
+		    ObjectStore store = new ObjectStore(facet, _createDb, this, storeIndices,
+							populateEmptyIndices);
+		    _storeMap.put(facet, store);
+		}
+	    }
+	}
+
+	java.util.Iterator p = dbs.iterator();
+	while(p.hasNext())
+	{
+	    String facet = (String) p.next();
+	    if(facet.equals(defaultDb))
+	    {
+		facet = "";
+	    }
+	    
+	    if(_storeMap.get(facet) == null)
+	    {
+		ObjectStore store = new ObjectStore(facet, _createDb, this, new java.util.LinkedList(),
+						    populateEmptyIndices);
+		
+		_storeMap.put(facet, store);
+	    }
+	}
+
+	//
+	// Start saving thread
+	//
+	String threadName;
+	String programName = _communicator.getProperties().getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            threadName = programName + "-";
+        }
+	else
+	{
+	    threadName = "";
+	}
+	threadName += "FreezeEvictorThread(" + envName + '.' + _filename + ")";
+	_thread = new Thread(this, threadName);
+	_thread.start();
+    }
+
    
     protected void
     finalize()
@@ -49,6 +169,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
         if(!_deactivated)
         {
             _communicator.getLogger().warning("evictor has not been deactivated");
+	    deactivate("");
         }
     }
 
@@ -90,21 +211,30 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _evictorSize;
     }
     
-    public void
-    createObject(Ice.Identity ident, Ice.Object servant)
+    public Ice.ObjectPrx
+    add(Ice.Object servant, Ice.Identity ident)
     {
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-	boolean triedToLoadElement = false;
+	return addFacet(servant, ident, "");
+    }
 
+    
+    public Ice.ObjectPrx
+    addFacet(Ice.Object servant, Ice.Identity ident, String facet)
+    {
 	//
-	// Make a copy of ident in case the user later changes it
-	// (used when inserting into list or map)
+	// Need to clone in case the given ident changes.
 	//
-	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = ident.name;
-	identCopy.category = ident.category;
+	try
+	{
+	    ident = (Ice.Identity) ident.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
 
+	ObjectStore store = null;
+    
 	for(;;)
 	{
 	    synchronized(this)
@@ -113,710 +243,485 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		{
 		    throw new EvictorDeactivatedException();
 		}
+		
+		Object o = _storeMap.get(facet);
 
-		EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && triedToLoadElement)
+		if(o == null)
 		{
-		    if(loadedElementGeneration == _generation)
+		    if(store != null)
 		    {
-			if(loadedElement != null)
-			{
-			    element = insertElement(null, identCopy, loadedElement);
-			}
+			_storeMap.put(facet, store);
 		    }
-		    else
-		    {
-			loadedElement = null;
-			triedToLoadElement = false;
-		    }
-		}
-
-		boolean replacing = (element != null);
-
-		if(replacing || triedToLoadElement)
-		{
-		    if(replacing)
-		    {
-			//
-			// Destroy all existing facets
-			//
-			
-			java.util.Iterator p = element.facets.entrySet().iterator();
-
-			while(p.hasNext())
-			{
-			    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-			    destroyFacetImpl((Facet) entry.getValue());
-			}
-		    }
-		    else
-		    {
-			//
-			// Let's insert an empty EvictorElement
-			//
-			element = new EvictorElement();
-			_evictorMap.put(identCopy, element);
-			_evictorList.addFirst(identCopy);
-			element.identity = identCopy;
-			element.position = _evictorList.iterator();
-			element.position.next();
-		    }
-
-		    //
-		    // Add all the new facets (recursively)
-		    //
-		    addFacetImpl(element, servant, new String[0], replacing);
-
-		    //
-		    // Evict as many elements as necessary
-		    //
-		    evict();
-		    break; // for(;;)
 		}
 		else
 		{
-		    loadedElementGeneration = _generation;
+		    if(store != null)
+		    {
+			store.close();
+		    }
+		    store = (ObjectStore) o;
 		}
 	    }
-
-	    //
-	    // Try to load element and try again
-	    //
-	    assert(loadedElement == null);
-	    assert(triedToLoadElement == false);
-	    loadedElement = load(ident);
-	    triedToLoadElement = true;
-	}
-
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "created \"" + Ice.Util.identityToString(ident) + "\"");
-	}
-    }
-
-    public void
-    addFacet(Ice.Identity ident, String[] facetPath, Ice.Object servant)
-    {
-	if(facetPath.length == 0)
-	{
-	    throw new EmptyFacetPathException();
-	}
 	
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-
-	//
-	// Make a copy of ident in case the user later changes it
-	// (used when inserting into list or map)
-	//
-	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = ident.name;
-	identCopy.category = ident.category;
-
+	    if(store == null)
+	    {
+		assert facet.length() > 0;
+		store = new ObjectStore(facet, _createDb, this, new java.util.LinkedList(), false);
+		// loop
+	    }
+	    else
+	    {
+		break; // for(;;)
+	    }
+	}
+   
+	assert store != null;
+	boolean alreadyThere = false;
+	
+	
 	for(;;)
 	{
+	    //
+	    // Create a new entry
+	    //
+	    
+	    EvictorElement element = new EvictorElement(ident, store);
+	    element.status = EvictorElement.dead;
+	    element.rec = new ObjectRecord();
+	    element.rec.stats = new Statistics();
+	    
+	    Object o = store.cache().add(ident, element);
+	    
+	    if(o != null)
+	    {
+		element = (EvictorElement) o;
+	    }
+	    
 	    synchronized(this)
 	    {
 		if(_deactivated)
 		{
 		    throw new EvictorDeactivatedException();
-		}
-
-		EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && loadedElement != null)
-		{
-		    if(loadedElementGeneration == _generation)
-		    {
-			element = insertElement(null, identCopy, loadedElement);
-		    }
-		    else
-		    {
-			//
-			// Discard loadedElement
-			//
-			loadedElement = null;
-		    }
-		}
-
-		if(element != null)
-		{
-		    String[] parentPath = new String[facetPath.length - 1];
-		    System.arraycopy(facetPath, 0, parentPath, 0, facetPath.length - 1);
-		    
-		    Facet facet = (Facet) element.facets.get(new StringArray(parentPath));
-		    if(facet == null)
-		    {
-			throw new Ice.FacetNotExistException();
-		    }
-		    
-		    synchronized(facet)
-		    {
-			if(facet.status == dead || facet.status == destroyed)
-			{
-			    throw new Ice.FacetNotExistException();
-			}
-			
-			//
-			// Throws AlreadyRegisterException if the facet is already registered
-			//
-			facet.rec.servant.ice_addFacet(servant, facetPath[facetPath.length - 1]);
-		    }
-		    
-		    //
-		    // We may need to replace (nested) dead or destroyed facets
-		    //
-		    addFacetImpl(element, servant, facetPath, true);
-		    evict();
-		    break; // for(;;)
 		}
 		
-		loadedElementGeneration = _generation;
+		if(element.stale)
+		{
+		    //
+		    // Try again
+		    // 
+		    continue;
+		}
+		fixEvictPosition(element);
+		
+		synchronized(element)
+		{
+		    switch(element.status)
+		    {
+			case EvictorElement.clean:
+			case EvictorElement.created:
+			case EvictorElement.modified:
+			{
+			    alreadyThere = true;
+			    break;
+			}  
+			case EvictorElement.destroyed:
+			{
+			    element.status = EvictorElement.modified;
+			    element.rec.servant = servant;
+			    
+			    //
+			    // No need to push it on the modified queue, as a destroyed object
+			    // is either already on the queue or about to be saved. When saved,
+			    // it becomes dead.
+			    //
+			    break;
+			}
+			case EvictorElement.dead:
+			{
+			    element.status = EvictorElement.created;
+			    ObjectRecord rec = element.rec;
+			    
+			    rec.servant = servant;
+			    rec.stats.creationTime = System.currentTimeMillis();
+			    rec.stats.lastSaveTime = 0;
+			    rec.stats.avgSaveTime = 0;
+			    
+			    addToModifiedQueue(element);
+			    break;
+			}
+			default:
+			{
+			    assert false;
+			    break;
+			}
+		    }
+		}
 	    }
-
-	    assert(loadedElement == null);
-	    
-	    //
-	    // Load object and loop
-	    //
-	    loadedElement = load(ident);
-	    if(loadedElement == null)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
+	    break; // for(;;)
 	}
-		    
+	
+	if(alreadyThere)
+	{
+	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+	    ex.kindOfObject = "servant";
+	    ex.id = Ice.Util.identityToString(ident);
+	    if(facet.length() != 0)
+	    {
+		ex.id += " -f " + facet;
+	    }
+	    throw ex;
+	}
+	
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "added facet " + facetPathToString(facetPath) 
-					    + " to \"" + Ice.Util.identityToString(ident) + "\"");
+	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+	    if(!facet.equals(""))
+	    {
+		objString += " with facet \"" + facet + "\"";
+	    }
+	    
+	    _communicator.getLogger().trace(
+		"Freeze.Evictor", 
+		"added " + objString + " in the database");
 	}
+	
+	//
+	// TODO: there is currently no way to create an ObjectPrx
+	// with a facet!
+	//
+	return _adapter.createProxy(ident);
+    }
+    
+    public void
+    remove(Ice.Identity ident)
+    {
+	removeFacet(ident, "");
     }
 
     public void
-    destroyObject(Ice.Identity ident)
+    removeFacet(Ice.Identity ident, String facet)
     {
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-	boolean triedToLoadElement = false;
-
 	//
-	// Make a copy of ident in case the user later changes it
-	// (used when inserting into list or map)
+	// Need to clone in case the given ident changes.
 	//
-	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = ident.name;
-	identCopy.category = ident.category;
-
-	for(;;)
+	try
 	{
-	    synchronized(this)
+	    ident = (Ice.Identity) ident.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+
+	ObjectStore store = findStore(facet);
+	boolean notThere = (store == null);
+	
+	if(store != null)
+	{
+	    for(;;)
 	    {
-		if(_deactivated)
+		//
+		// Retrieve object
+		//
+		
+		EvictorElement element = (EvictorElement) store.cache().pin(ident);
+		if(element == null)
 		{
-		    throw new EvictorDeactivatedException();
-		}
-
-		EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && triedToLoadElement)
-		{
-		    if(loadedElementGeneration == _generation)
-		    {
-			if(loadedElement != null)
-			{
-			    element = insertElement(null, identCopy, loadedElement);
-			}
-		    }
-		    else
-		    {
-			loadedElement = null;
-			triedToLoadElement = false;
-		    }
-		}
-
-		boolean destroying = (element != null);
-
-		if(destroying || triedToLoadElement)
-		{
-		    if(destroying)
-		    {
-			//
-			// Destroy all existing facets
-			//
-			java.util.Iterator p = element.facets.entrySet().iterator();
-			while(p.hasNext())
-			{
-			    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-			    destroyFacetImpl((Facet) entry.getValue());
-			}
-		    }
-		    
-		    //
-		    // Evict as many elements as necessary
-		    //
-		    evict();
-		    break; // for(;;)
+		    notThere = true;
 		}
 		else
 		{
-		    loadedElementGeneration = _generation;
+		    synchronized(this)
+		    {
+			if(element.stale)
+			{
+			    //
+			    // Try again
+			    // 
+			    continue;
+			}
+	    
+			fixEvictPosition(element);
+			synchronized(element)
+			{
+			    switch(element.status)
+			    {
+				case EvictorElement.clean:
+				{
+				    element.status = EvictorElement.destroyed;
+				    element.rec.servant = null;
+				    addToModifiedQueue(element);
+				    break;
+				}
+				case EvictorElement.created:
+				{
+				    element.status = EvictorElement.dead;
+				    element.rec.servant = null;
+				    break;
+				}
+				case EvictorElement.modified:
+				{
+				    element.status = EvictorElement.destroyed;
+				    element.rec.servant = null;
+				    //
+				    // Not necessary to push it on the modified queue, as a modified
+				    // element is either on the queue already or about to be saved
+				    // (at which point it becomes clean)
+				    //
+				    break;
+				}  
+				case EvictorElement.destroyed:
+				case EvictorElement.dead:
+				{
+				    notThere = true;
+				    break;
+				}
+				default:
+				{
+				    assert false;
+				    break;
+				}
+			    }
+			}
+		    }
 		}
+		break; // for(;;)  
 	    }
-
-	    //
-	    // Try to load element and try again
-	    //
-	    assert(loadedElement == null);
-	    assert(triedToLoadElement == false);
-	    loadedElement = load(ident);
-	    triedToLoadElement = true;
-	}
-
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "destroyed \"" + Ice.Util.identityToString(ident) + "\"");
-	}
-    }
-
-    public Ice.Object
-    removeFacet(Ice.Identity ident, String facetPath[])
-    {
-	if(facetPath.length == 0)
-	{
-	    throw new EmptyFacetPathException();
 	}
 	
-	Ice.Object result = null;
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-
-	//
-	// Make a copy of ident in case the user later changes it
-	// (used when inserting into list or map)
-	//
-	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = ident.name;
-	identCopy.category = ident.category;
-
-	for(;;)
+	if(notThere)
 	{
-	    synchronized(this)
+	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	    ex.kindOfObject = "servant";
+	    ex.id = Ice.Util.identityToString(ident);
+	    if(facet.length() != 0)
 	    {
-		if(_deactivated)
-		{
-		    throw new EvictorDeactivatedException();
-		}
-
-		EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && loadedElement != null)
-		{
-		    if(loadedElementGeneration == _generation)
-		    {
-			element = insertElement(null, identCopy, loadedElement);
-		    }
-		    else
-		    {
-			//
-			// Discard loadedElement
-			//
-			loadedElement = null;
-		    }
-		}
-
-		if(element != null)
-		{
-		    String[] parentPath = new String[facetPath.length - 1];
-		    System.arraycopy(facetPath, 0, parentPath, 0, facetPath.length - 1);
-		    
-		    Facet facet = (Facet) element.facets.get(new StringArray(parentPath));
-		    if(facet == null)
-		    {
-			throw new Ice.FacetNotExistException();
-		    }
-		    
-		    synchronized(facet)
-		    {
-			if(facet.status == dead || facet.status == destroyed)
-			{
-			    throw new Ice.FacetNotExistException();
-			}
-			
-			//
-			// Throws NotRegisteredException if the facet is not registered
-			//
-			result = facet.rec.servant.ice_removeFacet(facetPath[facetPath.length - 1]);
-		    }
-		    removeFacetImpl(element.facets, facetPath);
-		    evict();
-		    break; // for(;;)
-		}
-		
-		loadedElementGeneration = _generation;
+		ex.id += " -f " + facet;
 	    }
-
-	    assert(loadedElement == null);
-	    
-	    //
-	    // Load object and loop
-	    //
-	    loadedElement = load(ident);
-	    if(loadedElement == null)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	}
-		    
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "removed facet " + facetPathToString(facetPath)
-					    + " from \"" + Ice.Util.identityToString(ident) + "\"");
-	}
-	return result;
-    }
-
-    public void
-    removeAllFacets(Ice.Identity ident)
-    {
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-
-	//
-	// Make a copy of ident in case the user later changes it
-	// (used when inserting into list or map)
-	//
-	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = ident.name;
-	identCopy.category = ident.category;
-
-	for(;;)
-	{
-	    synchronized(this)
-	    {
-		if(_deactivated)
-		{
-		    throw new EvictorDeactivatedException();
-		}
-
-		EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && loadedElement != null)
-		{
-		    if(loadedElementGeneration == _generation)
-		    {
-			element = insertElement(null, identCopy, loadedElement);
-		    }
-		    else
-		    {
-			//
-			// Discard loadedElement
-			//
-			loadedElement = null;
-		    }
-		}
-
-		if(element != null)
-		{
-		    Facet facet =  element.mainObject;
-		    synchronized(facet)
-		    {
-			if(facet.status == dead || facet.status == destroyed)
-			{
-			    throw new Ice.ObjectNotExistException();
-			}
-			facet.rec.servant.ice_removeAllFacets();
-		    }
-		    
-		    //
-		    // Destroy all facets except main object
-		    //
-		    java.util.Iterator p = element.facets.entrySet().iterator();
-		    
-		    while(p.hasNext())
-		    {
-			java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-			if(entry.getValue() != element.mainObject)
-			{
-			    destroyFacetImpl((Facet) entry.getValue());
-			}
-		    }
-
-		    evict();
-		    break; // for(;;)
-		}
-		
-		loadedElementGeneration = _generation;
-	    }
-
-	    assert(loadedElement == null);
-	    
-	    //
-	    // Load object and loop
-	    //
-	    loadedElement = load(ident);
-	    if(loadedElement == null)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	}
-		    
-	if(_trace >= 1)
-	{
-	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "removed all facets from \"" + Ice.Util.identityToString(ident) + "\"");
-	}
-    }
-
-    synchronized public void
-    installServantInitializer(ServantInitializer initializer)
-    {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
+	    throw ex;
 	}
 	
-	_initializer = initializer;
+	if(_trace >= 1)
+	{
+	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+	    if(!facet.equals(""))
+	    {
+		objString += " with facet \"" + facet + "\"";
+	    }
+	    
+	    _communicator.getLogger().trace(
+		"Freeze.Evictor", 
+		"removed " + objString);
+	}
     }
 
+    
     public EvictorIterator
-    getIterator(int batchSize, boolean loadServants)
+    getIterator(String facet, int batchSize)
     {
+	ObjectStore store = null;
 	synchronized(this)
 	{
 	    if(_deactivated)
 	    {
 		throw new EvictorDeactivatedException();
 	    }
-	    saveNowNoSync();
-	}
 
-	return new EvictorIteratorI(this, batchSize, loadServants);
+	    store = (ObjectStore) _storeMap.get(facet);
+	    if(store != null)
+	    {
+		saveNowNoSync();
+	    }
+	}
+	return new EvictorIteratorI(store, batchSize);
     }
 
     public boolean
     hasObject(Ice.Identity ident)
     {
+	return hasFacet(ident, "");
+    }
+
+    public boolean
+    hasFacet(Ice.Identity ident, String facet)
+    {
+	ObjectStore store = null;
+
 	synchronized(this)
 	{
 	    if(_deactivated)
 	    {
 		throw new EvictorDeactivatedException();
 	    }
-
-	    EvictorElement element = (EvictorElement)_evictorMap.get(ident);
+	
+	    store = (ObjectStore) _storeMap.get(facet);
+	    if(store == null)
+	    {
+		return false;
+	    }
+	
+	    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
 	    if(element != null)
 	    {
-		synchronized(element.mainObject)
+		assert !element.stale;    
+		
+		synchronized(element)
 		{
-		    return (element.mainObject.status != destroyed && element.mainObject.status != dead);
+		    return element.status != EvictorElement.dead && 
+			element.status != EvictorElement.destroyed;
 		}
 	    }
 	}
-	
-	return dbHasObject(ident);
+	return store.dbHasObject(ident);
     }
 
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
-	EvictorElement loadedElement = null;
-	int loadedElementGeneration = 0;
-	cookie.value = null;
-
-	//
-	// Need to copy current.id, as Ice caches and reuses it
-	//
-	Ice.Identity ident = new Ice.Identity();
-	ident.name = current.id.name;
-	ident.category = current.id.category;
-   
-	for(;;)
+	Ice.Object result = locateImpl(current, cookie);
+    
+	if(result == null)
 	{
-	    EvictorElement element;
-	    boolean objectFound = false;
-	    boolean newObject = false;
-
+	    //
+	    // If the object exists in another store, throw FacetNotExistException 
+	    // instead of returning null (== ObjectNotExistException)
+	    // 
+	    java.util.Map storeMapCopy;
 	    synchronized(this)
 	    {
-		// 
-		// If this operation is called on a deactivated servant locator,
-		// it's a bug in Ice.
-		//
-		assert(!_deactivated);
+		storeMapCopy = new java.util.HashMap(_storeMap);
+	    }	    
 
-		element = (EvictorElement)_evictorMap.get(ident);
-
-		if(element == null && loadedElement != null)
-		{
-		    if(loadedElementGeneration == _generation)
-		    {
-			element = insertElement(null, ident, loadedElement);
-			newObject = true;
-		    }
-		    else
-		    {
-			//
-			// Discard loadedElement
-			//
-			loadedElement = null;
-		    }
-		}
-
-		objectFound = (element != null);
-
-		if(objectFound)
-		{
-		    //
-		    // Ice object found in evictor map. Push it to the front of
-		    // the evictor list, so that it will be evicted last.
-		    //
-		    if(!newObject)
-		    {
-			element.position.remove();
-			_evictorList.addFirst(ident);
-			element.position = _evictorList.iterator();
-			//
-			// Position the iterator "on" the element.
-			//
-			element.position.next();
-		    }
-
-		    element.usageCount++;
-
-		    assert(current.facet != null);
-		    Facet facet = (Facet) element.facets.get(new StringArray(current.facet));
-		    if(facet != null)
-		    {
-			cookie.value = facet;
-		    }
-		    
-		    evict();
-
-		    //
-		    // Later (after releasing the mutex), check that this
-		    // object is not dead or destroyed
-		    //
-		}
-		else
-		{
-		    loadedElementGeneration = _generation;
-		}
-	    }
-
-	    if(objectFound)
+	    java.util.Iterator p = storeMapCopy.entrySet().iterator();
+	    while(p.hasNext())
 	    {
-		if(_trace >= 2)
-		{
-		    _communicator.getLogger().trace("Freeze.Evictor",
-						    "found \"" + Ice.Util.identityToString(ident) +
-						    "\" in the queue");
-		}
-		
-		if(cookie.value == null)
-		{
-		    Ice.Object result = null;
-		    synchronized(element.mainObject)
-		    {
-			if(element.mainObject.status != destroyed && element.mainObject.status != dead)
-			{
-			    result = element.mainObject.rec.servant;
-			}
+		java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
 
-		    }
-		    if(_trace >= 2)
-		    {
-			_communicator.getLogger().trace("Freeze.Evictor",
-							" \"" + Ice.Util.identityToString(ident) +
-							"\" does not have the desired facet " + facetPathToString(current.facet));
-		    }
+		//
+		// Do not check again the current facet
+		//
+		if(!current.facet.equals(entry.getKey()))
+		{
+		    ObjectStore store = (ObjectStore) entry.getValue();
+		    boolean inCache = false;
+		    
 		    synchronized(this)
 		    {
-			element.usageCount--;
-			return result;
-		    }
-		}
-		else
-		{
-		    synchronized(element.mainObject)
-		    {
-			if(element.mainObject.status != destroyed && element.mainObject.status != dead)
+			EvictorElement element = (EvictorElement) store.cache().getIfPinned(current.id);
+			if(element != null)
 			{
-			    return element.mainObject.rec.servant;
+			    inCache = true;
+			    assert !element.stale;    
+			    
+			    synchronized(element)
+			    {
+				if(element.status != EvictorElement.dead && 
+				   element.status != EvictorElement.destroyed)
+				{
+				    throw new Ice.FacetNotExistException();
+				}
+			    }
 			}
 		    }
-		}
-	
-		//
-		// Object is destroyed or dead: clean-up
-		//
-		if(_trace >= 2)
-		{
-		    _communicator.getLogger().trace("Freeze.Evictor",
-						    "\"" + Ice.Util.identityToString(ident) +
-						    "\" was dead or destroyed");
-		}
-		synchronized(this)
-		{
-		    element.usageCount--;
-		    return null;
-		}
-	    }
-	    else
-	    {
-		//
-		// Load object now and loop
-		//
-		
-		if(_trace >= 2)
-		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue; "
-			+ "loading \"" + Ice.Util.identityToString(ident) + "\" from the database");
-		}
-		
-		loadedElement = load(ident);
-       	
-		if(loadedElement == null)
-		{
-		    //
-		    // The Ice object with the given identity does not exist,
-		    // client will get an ObjectNotExistException.
-		    //
-		    return null;
-		}
+		    if(!inCache)
+		    {
+			if(store.dbHasObject(current.id))
+			{
+			    throw new Ice.FacetNotExistException();
+			}
+		    }
+		}   
 	    }
 	}
+	return result;
+    }
+	
+    Ice.Object
+    locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie)
+    {
+	 cookie.value = null;
+	 
+	 //
+	 // Need to clone as current.id gets reused
+	 //
+	 Ice.Identity ident = null;
+	 try
+	 {
+	      ident = (Ice.Identity) current.id.clone();
+	 }
+	 catch(CloneNotSupportedException ex)
+	 {
+	     assert false;
+	 }
+
+	 ObjectStore store = findStore(current.facet);
+	 if(store == null)
+	 {
+	     return null;
+	 }
+	 
+	 for(;;)
+	 {
+	     EvictorElement element = (EvictorElement) store.cache().pin(ident);
+	     if(element == null)
+	     {
+		 return null;
+	     }
+	     
+	     synchronized(this)
+	     {
+		 assert !_deactivated;
+	     
+		 if(element.stale)
+		 {
+		     //
+		     // try again
+		     //
+		     continue;
+		 }
+	     
+		 synchronized(element)
+		 {
+		     if(element.status == EvictorElement.destroyed || 
+			element.status == EvictorElement.dead)
+		     {
+			 return null;
+		     }
+		 
+		     //
+		     // It's a good one!
+		     //
+		     fixEvictPosition(element);
+		     element.usageCount++;
+		     cookie.value = element;
+		     assert element.rec.servant != null;
+		     return element.rec.servant;
+		 }
+	     }
+	 } 
     }
 
     public void
     finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
     {
-	assert(servant != null);
+	assert servant != null;
 
 	if(cookie != null)
 	{
-	    Facet facet= (Facet)cookie;
-	    assert(facet != null);
-
+	    EvictorElement element = (EvictorElement) cookie;
+    
 	    boolean enqueue = false;
-
+	
 	    if(current.mode != Ice.OperationMode.Nonmutating)
 	    {
-		synchronized(facet)
+		synchronized(element)
 		{
-		    if(facet.status == clean)
+		    if(element.status == EvictorElement.clean)
 		    {
 			//
 			// Assume this operation updated the object
 			// 
-			facet.status = modified;
+			element.status = EvictorElement.modified;
 			enqueue = true;
 		    }
 		}
@@ -824,17 +729,21 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	
 	    synchronized(this)
 	    {
-		assert(!_deactivated);
+		//
+		// Only elements with a usageCount == 0 can become stale and we own 
+		// one count!
+		// 
+		assert !element.stale;
+		assert element.usageCount >= 1;
 		
 		//
 		// Decrease the usage count of the evictor queue element.
 		//
-		assert(facet.element.usageCount >= 1);
-		facet.element.usageCount--;
+		element.usageCount--;
 		
 		if(enqueue)
 		{
-		    addToModifiedQueue(facet);
+		    addToModifiedQueue(element);
 		}
 		else
 		{
@@ -892,33 +801,28 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 	    }
 
-	    try
+	    java.util.Iterator p = _storeMap.values().iterator();
+	    while(p.hasNext())
 	    {
-		_db.close(0);
-		if(_indices != null)
-		{
-		    for(int i = 0; i < _indices.length; ++i)
-		    {
-			_indices[i].close();
-		    }
-		    _indices = null;
-		}
+		ObjectStore store = (ObjectStore) p.next();
+		store.close();
 	    }
-	    catch(com.sleepycat.db.DbException dx)
-	    {
-		DatabaseException ex = new DatabaseException();
-		ex.initCause(dx);
-		ex.message = _errorPrefix + "Db.close: " + dx.getMessage();
-		throw ex;
-	    }
-	    _db = null;
+	    
 	    if(_dbEnvHolder != null)
 	    {
 		_dbEnvHolder.close();
 		_dbEnvHolder = null;
 	    }
 	    _dbEnv = null;
-	    _initializer = null;
+	}
+    }
+
+    void 
+    initialize(Ice.Identity ident, String facet, Ice.Object servant)
+    {
+	if(_initializer != null)
+	{
+	    _initializer.initialize(_adapter, ident, facet, servant);
 	}
     }
 
@@ -930,6 +834,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    for(;;)
 	    {
 		java.util.List allObjects;
+		java.util.List deadObjects = new java.util.LinkedList();
+
 		int saveNowThreadsSize = 0;
 		
 		synchronized(this)
@@ -1000,7 +906,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//
 		for(int i = 0; i < size; i++)
 		{
-		    Facet facet = (Facet) allObjects.get(i);
+		    EvictorElement element = (EvictorElement) allObjects.get(i);
 		    
 		    boolean tryAgain;
 		    
@@ -1009,32 +915,31 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			tryAgain = false;
 			Ice.Object servant = null;
 			
-			synchronized(facet)
+			synchronized(element)
 			{
-			    byte status = facet.status;
+			    byte status = element.status;
 			    
 			    switch(status)
 			    {
-				case created:
-				case modified:
+				case EvictorElement.created:
+				case EvictorElement.modified:
 				{
-				    servant = facet.rec.servant;
+				    servant = element.rec.servant;
 				    break;
 				}   
-				case destroyed:
+				case EvictorElement.destroyed:
 				{
-				    if(_trace >= 3)
-				    {
-					_communicator.getLogger().trace(
-					    "Freeze.Evictor", 
-					    "saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-					    "\" " + facetPathToString(facet.path) + ": destroyed -> dead");
-				    }
-				    
-				    facet.status = dead;
-				    streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+				    streamedObjectQueue.add(stream(element, streamStart));
+
+				    element.status = EvictorElement.dead;
+				    deadObjects.add(element);
 				    break;
 				}   
+				case EvictorElement.dead:
+				{
+				    deadObjects.add(element);
+				    break;
+				}
 				default:
 				{
 				    //
@@ -1053,28 +958,20 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    //
 			    synchronized(servant)
 			    {
-				synchronized(facet)
+				synchronized(element)
 				{
-				    byte status = facet.status;
+				    byte status = element.status;
 				    
 				    switch(status)
 				    {
-					case created:
-					case modified:
+					case EvictorElement.created:
+					case EvictorElement.modified:
 					{
-					    if(servant == facet.rec.servant)
+					    if(servant == element.rec.servant)
 					    {
-						if(_trace >= 3)
-						{
-						    _communicator.getLogger().trace(
-							"Freeze.Evictor", 
-							"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-							"\" " + facetPathToString(facet.path) + ": created or modified -> clean");
-						}
-						
-						facet.status = clean;
-						streamedObjectQueue.add(streamFacet(facet, status, streamStart));
-						
+						streamedObjectQueue.add(stream(element, streamStart));
+
+						element.status = EvictorElement.clean;
 					    }
 					    else
 					    {
@@ -1082,20 +979,19 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					    }
 					    break;
 					}
-					case destroyed:
+					case EvictorElement.destroyed:
 					{
-					    if(_trace >= 3)
-					    {
-						_communicator.getLogger().trace(
-						    "Freeze.Evictor", 
-						    "saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-						    "\" " + facetPathToString(facet.path) + ": destroyed -> dead");
-					    }
+					    streamedObjectQueue.add(stream(element, streamStart));
 					    
-					    facet.status = dead;
-					    streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+					    element.status = EvictorElement.dead;
+					    deadObjects.add(element);
 					    break;
 					}   
+					case EvictorElement.dead:
+					{
+					    deadObjects.add(element);
+					    break;
+					}
 					default:
 					{
 					    //
@@ -1154,37 +1050,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				for(int i = 0; i < txSize; i++)
 				{
 				    StreamedObject obj = (StreamedObject) streamedObjectQueue.get(i);
-				    
-				    switch(obj.status)
-				    {
-					case created:
-					case modified:
-					{
-					    com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
-					    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(obj.value);
-					    int flags = (obj.status == created) ? com.sleepycat.db.Db.DB_NOOVERWRITE : 0;
-					    int err = _db.put(tx, dbKey, dbValue, flags);
-					    if(err != 0)
-					    {
-						throw new DatabaseException();
-					    }
-					    break;
-					}
-					case destroyed:
-					{
-					    com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
-					    int err = _db.del(tx, dbKey, 0);
-					    if(err != 0)
-					    {
-						throw new DatabaseException();
-					    }
-					    break;
-					}
-					default:
-					{
-					    assert(false);
-					}
-				    }
+				    obj.store.save(obj.key, obj.value, obj.status, tx);
 				}
 				
 				com.sleepycat.db.DbTxn toCommit = tx;
@@ -1217,7 +1083,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    if(_deadlockWarning)
 			    {
 				_communicator.getLogger().warning
-				    ("Deadlock in Freeze.EvictorI.run while writing into Db \"" + _dbName 
+				    ("Deadlock in Freeze.EvictorI.run while writing into Db \"" + _filename
 				     + "\"; retrying ...");
 			    }
 			    
@@ -1235,37 +1101,45 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		} while(tryAgain);
 		
 		synchronized(this)
-		{
-		    _generation++;
-		    
+		{  
+		    //
+		    // Release usage count
+		    //
 		    for(int i = 0; i < allObjects.size(); i++)
 		    {    
-			Facet facet = (Facet) allObjects.get(i);
-			facet.element.usageCount--;
-			
-			if(facet != facet.element.mainObject)
+			EvictorElement element = (EvictorElement) allObjects.get(i);
+			element.usageCount--;
+		    }
+		    allObjects.clear();
+
+		    java.util.Iterator p = deadObjects.iterator();
+		    while(p.hasNext())
+		    {
+			EvictorElement element = (EvictorElement) p.next();
+			if(element.usageCount == 0)
 			{
 			    //
-			    // Remove if dead
+			    // Get rid of unused dead elements
 			    //
-			    synchronized(facet)
+			    synchronized(element)
 			    {
-				if(facet.status == dead)
+				if(element.status == EvictorElement.dead)
 				{
-				    facet.element.facets.remove(new StringArray(facet.path));
-				}    
+				    evict(element);
+				}
 			    }
 			}
 		    }
-		    allObjects.clear();
+
+		    deadObjects.clear();
 		    evict();
-		    
+
 		    if(saveNowThreadsSize > 0)
 		    {
 			for(int i = 0; i < saveNowThreadsSize; i++)
 			{
 			    _saveNowThreads.remove(0);
-		    }
+			}
 			notifyAll();
 		    }
 		}
@@ -1283,7 +1157,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    Runtime.getRuntime().halt(1);
 	}
     }
-	
+
+
     final Ice.Communicator
     communicator()
     {
@@ -1296,22 +1171,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _dbEnv;
     }
 
-    final com.sleepycat.db.Db
-    db()
-    {
-	return _db;
-    }
-
     final String
-    dbName()
+    filename()
     {
-	return _dbName;
-    }
-
-    final synchronized int
-    currentGeneration()
-    {
-	return _generation;
+	return _filename;
     }
 
     final String
@@ -1320,6 +1183,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return _errorPrefix;
     }
     
+    final boolean
+    deadlockWarning()
+    {
+	return _deadlockWarning;
+    }    
+
     synchronized void
     saveNow()
     {
@@ -1331,353 +1200,232 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	saveNowNoSync();
     }
 
-    boolean
-    load(com.sleepycat.db.Dbc dbc, com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value, 
-	 java.util.List identities, java.util.List evictorElements)
-	throws com.sleepycat.db.DbException
+    private void
+    saveNowNoSync()
     {
-	EvictorElement elt = new EvictorElement();
-	int rs = 0;
-	byte[] root = null;
-		
+	Thread myself = Thread.currentThread();
+
+	_saveNowThreads.add(myself);
+	notifyAll();
 	do
 	{
-	    //
-	    // Unmarshal key and data and insert it into elt's facet map
-	    //
-	    EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-
-	    if(root == null)
+	    try
 	    {
-		if(esk.facet.length == 0)
-		{
-		    //
-		    // Good, we found the object
-		    //
-		    root = marshalRootKey(esk.identity, _communicator);
-		}
-		else
-		{
-		    //
-		    // Otherwise, skip this orphan facet (could be a temporary
-		    // inconsistency on disk)
-		    //
-
-		    if(_trace >= 3)
-		    {
-			_communicator.getLogger().trace
-			    ("Freeze.Evictor",
-			     "Iterator is skipping orphan facet \"" + Ice.Util.identityToString(esk.identity) 
-			     + "\" " + facetPathToString(esk.facet));
-		    }
-		}
+		wait();
 	    }
-
-	    if(root != null)
+	    catch(InterruptedException ex)
 	    {
-		if(_trace >= 3)
-		{
-		    _communicator.getLogger().trace
-			("Freeze.Evictor",
-			 "Iterator is reading facet \"" + Ice.Util.identityToString(esk.identity) 
-			 + "\" " + facetPathToString(esk.facet));
-		}
-
-		Facet facet = new Facet(elt);
-		facet.status = clean;
-		facet.rec = unmarshalValue(value.get_data(), _communicator);
-		facet.path = esk.facet;
-		assert(facet.path != null);
-		elt.facets.put(new StringArray(esk.facet), facet);
-		
-		if(esk.facet.length == 0)
-		{
-		    identities.add(esk.identity);
-		    elt.mainObject = facet;
-		}
 	    }
-	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
-	}
-	while(rs == 0 && (root == null || startWith(key.get_data(), root)));
+	} while(_saveNowThreads.contains(myself));
+    }
+    
+    private void
+    evict()
+    {
+	assert Thread.holdsLock(this);
 
-	if(root != null)
+	java.util.Iterator p = _evictorList.riterator();
+	while(p.hasNext() && _currentEvictorSize > _evictorSize)
 	{
-	    buildFacetMap(elt.facets);
-	    evictorElements.add(elt);
-	}
-	return (rs == 0);
-    }
-
-    boolean
-    load(com.sleepycat.db.Dbc dbc, com.sleepycat.db.Dbt key, 
-	 com.sleepycat.db.Dbt value, java.util.List identities)
-	throws com.sleepycat.db.DbException
-    {
-	byte[] root = null;
-	int rs = 0;
-	do
-	{ 
-	    if(root == null)
+	    //
+	    // Get the last unused element from the evictor queue.
+	    //
+	    EvictorElement element = (EvictorElement)p.next();
+	    if(element.usageCount == 0)
 	    {
-		EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
+		//
+		// Fine, servant is not in use (and not in the modifiedQueue)
+		//
 		
-		if(esk.facet.length == 0)
-		{
-		    //
-		    // Good, we found a main object
-		    //
-		    root = marshalRootKey(esk.identity, _communicator);
+		assert !element.stale;
 
-		    if(_trace >= 3)
-		    {
-			_communicator.getLogger().trace
-			    ("Freeze.Evictor",
-			     "Iterator read \"" + Ice.Util.identityToString(esk.identity) 
-			     + "\"");
-		    }
-		    identities.add(esk.identity);
-		}
-		else
+		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 		{
-		    //
-		    // Otherwise, skip this orphan facet (could be a temporary
-		    // inconsistency on disk)
-		    //
-
-		    if(_trace >= 3)
+		    String objString = "object \"" + Ice.Util.identityToString(element.identity) + "\"";
+		    String facet = element.store.facet();
+		    if(facet.length() > 0)
 		    {
-			_communicator.getLogger().trace
-			    ("Freeze.Evictor",
-			     "Iterator is skipping orphan facet \"" + Ice.Util.identityToString(esk.identity) 
-			     + "\" " + facetPathToString(esk.facet));
+			objString += " with facet \"" + facet + "\"";
 		    }
-		}
+
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor", 
+			"evicting " + objString + " from the queue; " + "number of elements in the queue: " +
+			_currentEvictorSize);
+		}	
+		
+		//
+		// Remove last unused element from the evictor queue.
+		//
+		element.stale = true;
+		element.store.cache().unpin(element.identity);
+		p.remove();
+		_currentEvictorSize--;	
 	    }
-	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
-	while(rs == 0 && (root == null || startWith(key.get_data(), root)));
-	return (rs == 0);
     }
 
-    void
-    insert(java.util.List identities, java.util.List evictorElements, int loadedGeneration)
+    
+    private void 
+    fixEvictPosition(EvictorElement element)
     {
-	assert(identities.size() == evictorElements.size());
-	
-	int size = identities.size();
-	
-	if(size > 0)
+	assert Thread.holdsLock(this);
+
+	assert !element.stale;
+	if(element.usageCount < 0)
 	{
-	    synchronized(this)
-	    {
-		if(_deactivated)
-		{
-		    throw new EvictorDeactivatedException();
-		}
+	    assert element.evictPosition == null;
 
-		if(_generation == loadedGeneration)
-		{
-		    for(int i = 0; i < size; ++i)
-		    {
-			Ice.Identity ident = (Ice.Identity) identities.get(i);
-			
-			EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-			
-			if(element == null)
-			{
-			    element = insertElement(null, ident, (EvictorElement) evictorElements.get(i));
-			}
-		    }
-		}
-		//
-		// Otherwise we don't insert them
-		//
-	    }
+	    //
+	    // New object
+	    //
+	    element.usageCount = 0;
+	    _currentEvictorSize++;
 	}
-    }
-
-    boolean
-    deadlockWarning()
-    {
-	return _deadlockWarning;
-    }
-
-    static byte[]
-    marshalRootKey(Ice.Identity v, Ice.Communicator communicator)
-    {
-        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            v.__write(os);
-            java.nio.ByteBuffer buf = os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
-            return r;
-        }
-        finally
-        {
-            os.destroy();
-        }
-    }
-
-    static byte[]
-    marshalKey(EvictorStorageKey v, Ice.Communicator communicator)
-    {
-        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            v.__write(os);
-            java.nio.ByteBuffer buf = os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
-            return r;
-        }
-        finally
-        {
-            os.destroy();
-        }
-    }
-
-    static EvictorStorageKey
-    unmarshalKey(byte[] b, Ice.Communicator communicator)
-    {
-        IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            is.resize(b.length, true);
-            java.nio.ByteBuffer buf = is.prepareRead();
-            buf.position(0);
-            buf.put(b);
-            buf.position(0);
-            EvictorStorageKey key = new EvictorStorageKey();
-            key.__read(is);
-            return key;
-        }
-        finally
-        {
-            is.destroy();
-        }
-    }
-
-    static byte[]
-    marshalValue(ObjectRecord v, Ice.Communicator communicator)
-    {
-        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        os.marshalFacets(false);
-        try
-        {
-            os.startWriteEncaps();
-            v.__write(os);
-            os.writePendingObjects();
-            os.endWriteEncaps();
-            java.nio.ByteBuffer buf = os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
-            return r;
-        }
-        finally
-        {
-            os.destroy();
-        }
-    }
-
-    static ObjectRecord
-    unmarshalValue(byte[] b, Ice.Communicator communicator)
-    {
-        IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        is.sliceObjects(false);
-        try
-        {
-            is.resize(b.length, true);
-            java.nio.ByteBuffer buf = is.prepareRead();
-            buf.position(0);
-            buf.put(b);
-            buf.position(0);
-            ObjectRecord rec= new ObjectRecord();
-            is.startReadEncaps();
-            rec.__read(is);
-            is.readPendingObjects();
-            is.endReadEncaps();
-            return rec;
-        }
-        finally
-        {
-            is.destroy();
-        }
+	else
+	{
+	    assert element.evictPosition != null;
+	    element.evictPosition.remove();
+	}
+	_evictorList.addFirst(element);
+	element.evictPosition = _evictorList.iterator();
+	//
+	// Position the iterator "on" the element.
+	//
+	element.evictPosition.next();
     }
 
     private void
-    init(String envName, boolean createDb)
+    evict(EvictorElement element)
     {
-	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
-	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+	assert Thread.holdsLock(this);
 
-	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _dbName + "\"): ";
-
-	String propertyPrefix = "Freeze.Evictor." + envName + '.' + _dbName; 
+	assert !element.stale;
 	
-	// 
-	// By default, we save every minute or when the size of the modified 
-	// queue reaches 10.
-	//
+	element.evictPosition.remove();
+	_currentEvictorSize--;
+	element.stale = true;
+	element.store.cache().unpin(element.identity);
+    }
 
-	_saveSizeTrigger = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".SaveSizeTrigger", 10);
 
-	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".SavePeriod", 60 * 1000);
+    private void
+    addToModifiedQueue(EvictorElement element)
+    {
+	assert Thread.holdsLock(this);
 
-	//
-	// By default, we save at most 10 * SaveSizeTrigger objects per transaction
-	//
-	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
-
-	if(_maxTxSize <= 0)
+	element.usageCount++;
+	_modifiedQueue.add(element);
+	
+	if(_saveSizeTrigger >= 0 && _modifiedQueue.size() >= _saveSizeTrigger)
 	{
-	    _maxTxSize = 100;
+	    notifyAll();
+	}
+    }
+
+    private StreamedObject
+    stream(EvictorElement element, long streamStart)
+    {
+	assert Thread.holdsLock(element);
+
+	assert element.status != EvictorElement.dead;
+    
+	StreamedObject obj = new StreamedObject();
+
+	obj.status = element.status;
+	obj.store = element.store;
+	obj.key = ObjectStore.marshalKey(element.identity, _communicator);
+	
+	if(element.status != EvictorElement.destroyed)
+	{
+	    //
+	    // Update stats first
+	    //
+	    Statistics stats = element.rec.stats;
+	    long diff = streamStart - (stats.creationTime + stats.lastSaveTime);
+	    if(stats.lastSaveTime == 0)
+	    {
+		stats.lastSaveTime = diff;
+		stats.avgSaveTime = diff;
+	    }
+	    else
+	    {
+		stats.lastSaveTime = streamStart - stats.creationTime;
+		stats.avgSaveTime = (long)(stats.avgSaveTime * 0.95 + diff * 0.05);
+	    }
+	    obj.value = ObjectStore.marshalValue(element.rec, _communicator);
+	}
+	return obj;
+    }
+        
+    private synchronized ObjectStore
+    findStore(String facet)
+    {
+	if(_deactivated)
+	{
+	    throw new EvictorDeactivatedException();
 	}
 	
-	boolean populateEmptyIndices = (_communicator.getProperties().getPropertyAsIntWithDefault
-					(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
+	return (ObjectStore) _storeMap.get(facet);
+    }
+
+
+    private java.util.List
+    allDbs()
+    {
+	java.util.List result = new java.util.LinkedList();
 	
-	com.sleepycat.db.DbTxn txn = null;
+	com.sleepycat.db.Db db = null;
+	com.sleepycat.db.Dbc dbc = null;
 
 	try
 	{
+	    db = new com.sleepycat.db.Db(_dbEnv, 0);
+	    db.open(null, _filename, null, com.sleepycat.db.Db.DB_UNKNOWN, com.sleepycat.db.Db.DB_RDONLY, 0);
+	 
+	    dbc = db.cursor(null, 0);
 	    
-	    _db = new com.sleepycat.db.Db(_dbEnv, 0);
+	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt();
+	    key.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 	    
-	    txn = _dbEnv.txn_begin(null, 0);
-
-	    //
-	    // TODO: FREEZE_DB_MODE
-	    //
-	    int flags = 0;
-	    if(createDb)
+	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
+	    value.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	    
+	    boolean more = true;
+	    while(more)
 	    {
-		flags |= com.sleepycat.db.Db.DB_CREATE;
-	    }
-	    _db.open(txn, _dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
-
-	    if(_indices != null)
-	    {
-		for(int i = 0; i < _indices.length; ++i)
+		more = (dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT) == 0);
+		if(more)
 		{
-		    _indices[i].associate(this, txn, createDb, populateEmptyIndices);
+		    //
+		    // Assumes Berkeley-DB encodes the db names in UTF-8!
+		    //
+		    String dbName = new String(key.get_data(), 0, key.get_size(), "UTF8");
+		
+		    if(!dbName.startsWith(indexPrefix))
+		    {
+			result.add(dbName);
+		    }
 		}
 	    }
 
-	    com.sleepycat.db.DbTxn toCommit = txn;
-	    txn = null;
-	    toCommit.commit(0);
+	    dbc.close();
+	    dbc = null;
+	    db.close(0);
+	    db = null;
 	}
-	catch(java.io.FileNotFoundException dx)
+	catch(java.io.UnsupportedEncodingException ix)
 	{
-	    NotFoundException ex = new NotFoundException();
-	    ex.initCause(dx);
-	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
+	    DatabaseException ex = new DatabaseException();
+	    ex.initCause(ix);
+	    ex.message = _errorPrefix + "cannot decode database names";
 	    throw ex;
+	}
+	catch(java.io.FileNotFoundException ix)
+	{
+	    //
+	    // New file
+	    //
 	}
 	catch(com.sleepycat.db.DbException dx)
 	{
@@ -1688,789 +1436,53 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
 	finally
 	{
-	    if(txn != null)
+	    if(dbc != null)
 	    {
 		try
 		{
-		    txn.abort();
+		    dbc.close();
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
+		    // Ignored
 		}
 	    }
-	}
-	
-	//
-	// Start saving thread
-	//
-	String threadName;
-	String programName = _communicator.getProperties().getProperty("Ice.ProgramName");
-        if(programName.length() > 0)
-        {
-            threadName = programName + "-";
-        }
-	else
-	{
-	    threadName = "";
-	}
-	threadName += "FreezeEvictorThread(" + envName + '.' + _dbName + ")";
-	_thread = new Thread(this, threadName);
-	_thread.start();
-    }
 
-    private void
-    evict()
-    {
-	java.util.Iterator p = _evictorList.riterator();
-	while(p.hasNext() && _evictorList.size() > _evictorSize)
-	{
-	    //
-	    // Get the last unused element from the evictor queue.
-	    //
-	    Ice.Identity ident = (Ice.Identity)p.next();
-	    EvictorElement element = (EvictorElement)_evictorMap.get(ident);
-	    assert(element != null);
-	    if(element.usageCount == 0)
+	    if(db != null)
 	    {
-		//
-		// Fine, servant is not in use.
-		//
-		assert(ident != null && element != null);
-
-		//
-		// Remove element from the evictor queue.
-		//
-		p.remove();
-		_evictorMap.remove(ident);
-
-		if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
+		try
 		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor", 
-			"evicted \"" + Ice.Util.identityToString(ident) +
-			"\" from the queue; " + "number of elements in the queue: " +
-			_evictorMap.size());
+		    db.close(0);
 		}
-	    }
-	}
-    }
-
-    private boolean
-    dbHasObject(Ice.Identity ident)
-    {
-	EvictorStorageKey esk = new EvictorStorageKey();
-	esk.identity = ident;
-	esk.facet = null;
-	
-	byte[] key = marshalKey(esk, _communicator);
-
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-		
-	//
-	// Keep 0 length since we're not interested in the data
-	//
-	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-	dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	
-	for(;;)
-	{
-	    try
-	    {	
-		int err = _db.get(null, dbKey, dbValue, 0);
-		
-		if(err == 0)
+		catch(com.sleepycat.db.DbException dx)
 		{
-		    return true;
-		}
-		else if(err == com.sleepycat.db.Db.DB_NOTFOUND)
-		{
-		    return false;
-		}
-		else
-		{
-		    throw new DatabaseException();
-		}
-	    }
-	    catch(com.sleepycat.db.DbDeadlockException deadlock)
-	    {
-		if(_deadlockWarning)
-		{
-		    _communicator.getLogger().warning
-			("Deadlock in Freeze.EvictorI.dhHasObject while reading Db \"" + _dbName 
-			 + "\"; retrying ...");
-		}
-
-		//
-		// Ignored, try again
-		//
-	    }
-	    catch(com.sleepycat.db.DbException dx)
-	    {
-		DatabaseException ex = new DatabaseException();
-		ex.initCause(dx);
-		ex.message = _errorPrefix + "Db.get: " + dx.getMessage();
-		throw ex;
-	    }
-	}
-    }
-
-    private void
-    addToModifiedQueue(Facet facet)
-    {
-	facet.element.usageCount++;
-	_modifiedQueue.add(facet);
-	
-	if(_saveSizeTrigger >= 0 && _modifiedQueue.size() >= _saveSizeTrigger)
-	{
-	    notifyAll();
-	}
-    }
-
-    private StreamedObject
-    streamFacet(Facet facet, byte status, long streamStart)
-    {
-	StreamedObject obj = new StreamedObject();
-	EvictorStorageKey esk = new EvictorStorageKey();
-	esk.identity = facet.element.identity;
-	esk.facet = facet.path;
-	obj.key = marshalKey(esk, _communicator);
-	obj.status = status;
-	if(status != destroyed)
-	{
-	    obj.value = writeObjectRecordToValue(streamStart, facet.rec); 
-	}
-	return obj;
-    }
-
-    
-    private void
-    saveNowNoSync()
-    {
-	checkSavingThread();
-	
-	Thread myself = Thread.currentThread();
-
-	_saveNowThreads.add(myself);
-	notifyAll();
-	do
-	{
-	    try
-	    {
-		//
-		// The timeout is to wake up in the event the saving thread
-		// dies.
-		//
-		wait(15 * 1000);
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	    checkSavingThread();
-	} while(_saveNowThreads.contains(myself));
-    }
-
-    private void
-    checkSavingThread()
-    {
-	if(!_thread.isAlive())
-	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.message = _errorPrefix + "saving thread is dead";
-	    throw ex;
-	}
-    }
-    
-    private byte[]
-    writeObjectRecordToValue(long streamStart, ObjectRecord rec)
-    {
-	//
-	// Update stats first
-	//
-	Statistics stats = rec.stats;
-	long diff = streamStart - (stats.creationTime + stats.lastSaveTime);
-	if(stats.lastSaveTime == 0)
-	{
-	    stats.lastSaveTime = diff;
-	    stats.avgSaveTime = diff;
-	}
-	else
-	{
-	    stats.lastSaveTime = streamStart - stats.creationTime;
-	    stats.avgSaveTime = (long)(stats.avgSaveTime * 0.95 + diff * 0.05);
-	}
-	return marshalValue(rec, _communicator);
-    }
-
-    private EvictorElement
-    load(Ice.Identity ident)
-    {
-        //
-        // This method attempts to restore an object and all of its facets from the database. It works by
-        // iterating over the database keys that match the "root" key. The root key is the encoded portion
-        // of the EvictorStorageKey struct that the object and its facets all have in common, namely the
-        // identity.
-        //
-	byte[] root = marshalRootKey(ident, _communicator);
-
-	com.sleepycat.db.Dbt dbKey;
-	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-
-	EvictorElement result = null;
-	for(;;)
-	{
-	    result = new EvictorElement();
-
-	    com.sleepycat.db.Dbc dbc = null;
-
-	    try
-	    {
-		dbc = _db.cursor(null, 0);
-
-		//
-		// Get first pair
-		//	
-                dbKey = new com.sleepycat.db.Dbt(root);
-		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET_RANGE);
-	
-		while(rs == 0 && startWith(dbKey.get_data(), root))
-		{
-		    //
-		    // Unmarshal key and data and insert it into result's facet map
-		    //
-		    EvictorStorageKey esk = unmarshalKey(dbKey.get_data(), _communicator);
-		    
-		    Facet facet = new Facet(result);
-		    facet.status = clean;
-		    facet.rec = unmarshalValue(dbValue.get_data(), _communicator);
-		    facet.path = esk.facet;
-		    result.facets.put(new StringArray(esk.facet), facet);
-		    if(esk.facet.length == 0)
-		    {
-			result.mainObject = facet;
-		    }
-
-		    //
-		    // Next facet
-		    //
-		    rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT);    
-		}
-		
-		break; // for (;;)
-	    }
-	    catch(com.sleepycat.db.DbDeadlockException deadlock)
-	    {
-		if(_deadlockWarning)
-		{
-		    _communicator.getLogger().warning
-			("Deadlock in Freeze.EvictorI.load while iterating over Db \"" + _dbName 
-			 + "\"; retrying ...");
-		}
-
-		//
-		// Ignored, try again
-		//
-	    }
-	    catch(com.sleepycat.db.DbException dx)
-	    {
-		DatabaseException ex = new DatabaseException();
-		ex.initCause(dx);
-		ex.message = _errorPrefix + "Db.get: " + dx.getMessage();
-		throw ex;
-	    }
-	    finally
-	    {
-		if(dbc != null)
-		{
-		    try
-		    {
-			dbc.close();
-			dbc = null;
-		    }
-		    catch(com.sleepycat.db.DbException dx)
-		    {
-		    }
+		    // Ignored
 		}
 	    }
 	}
 
-	if(result.facets.size() == 0)
-	{ 
-	    if(_trace >= 2)
-	    {
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor", 
-		    "could not find \"" + Ice.Util.identityToString(ident) +
-		    "\" in the database");
-	    }
-	    return null;
-	}
-
-	//
-	// Let's fix-up the facets tree in result
-	//
-	buildFacetMap(result.facets);
-	
 	return result;
     }
-
-    private void
-    buildFacetMap(java.util.Map facets)
-    {
-	java.util.Iterator p = facets.entrySet().iterator();
-	
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-	    
-	    String[] path = ((StringArray) entry.getKey()).array;
-	    
-	    if(path.length > 0)
-	    {
-		String[] parent = new String[path.length - 1];
-		System.arraycopy(path, 0, parent, 0, path.length - 1);
-		Facet parentFacet = (Facet) facets.get(new StringArray(parent));
-		if(parentFacet != null)
-		{
-		    Facet childFacet = (Facet) entry.getValue();
-		    parentFacet.rec.servant.ice_addFacet(childFacet.rec.servant, path[path.length - 1]);
-		}
-		//
-		// otherwise skip disconnected facet (could be a temporary inconsistency on disk)
-		//
-
-	    }
-	}
-    }
     
-    private EvictorElement
-    insertElement(Ice.ObjectAdapter adapter, Ice.Identity ident, EvictorElement element)
+    static class StreamedObject
     {
-	if(_initializer != null)
-	{
-	    _initializer.initialize(adapter, ident, element.mainObject.rec.servant);
-	}
-	
-	_evictorMap.put(ident, element);
-	_evictorList.addFirst(ident);
-       
-	element.position = _evictorList.iterator();	
-	//
-	// Position the iterator "on" the element.
-	//
-	element.position.next();
-	
-	element.identity = ident;
-	return element;
+	byte[] key = null;
+	byte[] value = null;
+	byte status = EvictorElement.dead;
+	ObjectStore store = null;
     }
 
-    private void
-    addFacetImpl(EvictorElement element, Ice.Object servant, String[] facetPath, boolean replacing)
-    {
-	java.util.Map facets = element.facets;
-	
-	boolean insertIt = true;
-
-	StringArray facetPathArray = new StringArray(facetPath);
-
-	if(replacing)
-	{
-	    Facet facet = (Facet) facets.get(facetPathArray);
-	    if(facet != null)
-	    {
-		synchronized(facet)
-		{
-		    switch(facet.status)
-		    {
-			case clean:
-			{
-			    if(_trace >= 3)
-			    {
-				_communicator.getLogger().trace(
-				    "Freeze.Evictor", 
-				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
-				    "\" " + facetPathToString(facetPath) + ": clean -> modified");
-			    }
-
-			    facet.status = modified;
-			    addToModifiedQueue(facet);
-			    break;
-			}
-			case created:
-			case modified:
-			{
-			    if(_trace >= 3)
-			    {
-				_communicator.getLogger().trace(
-				    "Freeze.Evictor", 
-				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
-				    "\" " + facetPathToString(facetPath) + ": created or modified (unchanged)");
-			    }
-
-			    //
-			    // Nothing to do.
-			    // No need to push it on the modified queue as a created resp
-			    // modified facet is either already on the queue or about 
-			    // to be saved. When saved, it becomes clean.
-			    //
-			    break;
-			}
-			case destroyed:
-			{
-			    if(_trace >= 3)
-			    {
-				_communicator.getLogger().trace(
-				    "Freeze.Evictor", 
-				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
-				    "\" " + facetPathToString(facetPath) + ": destroyed -> modified");
-			    }
-			    
-			    facet.status = modified;
-			    //
-			    // No need to push it on the modified queue, as a destroyed facet
-			    // is either already on the queue or about to be saved. When saved,
-			    // it becomes dead.
-			    //
-			    break;
-			}
-			case dead:
-			{
-			    if(_trace >= 3)
-			    {
-				_communicator.getLogger().trace(
-				    "Freeze.Evictor", 
-				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
-				    "\" " + facetPathToString(facetPath) + ": dead -> created");
-			    }
-
-			    facet.status = created;
-			    addToModifiedQueue(facet);
-			    break;			    
-			}
-			default:
-			{
-			    assert(false);
-			    break;
-			}
-		    }
-		    facet.rec.servant = servant;
-		    insertIt = false;
-		}
-	    }
-	}
-	
-	if(insertIt)
-	{
-	    if(_trace >= 3)
-	    {
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor", 
-		    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
-		    "\" " + facetPathToString(facetPath) + ": new facet (created)");
-	    }
-
-	    Facet facet = new Facet(element);
-	    facet.status = created;
-	    facet.path = facetPath;
-
-	    facet.rec = new ObjectRecord();
-	    ObjectRecord rec = facet.rec;
-	    rec.servant = servant;
-	    rec.stats = new Statistics();
-	    rec.stats.creationTime = System.currentTimeMillis();
-	    rec.stats.lastSaveTime = 0;
-	    rec.stats.avgSaveTime = 0;
-
-	    facets.put(facetPathArray, facet);
-	    if(facetPath.length == 0)
-	    {
-		element.mainObject = facet;
-	    }
-	    addToModifiedQueue(facet);  
-	}
-
-	if(servant != null)
-	{
-	    //
-	    // Add servant's facets
-	    //
-	    String[] facetList = servant.ice_facets(null);
-	    for(int i = 0; i < facetList.length; i++)
-	    {
-		String[] newFacetPath = new String[facetPath.length + 1];
-		System.arraycopy(facetPath, 0, newFacetPath, 0, facetPath.length);
-		String currentName = facetList[i];
-		newFacetPath[newFacetPath.length - 1] = currentName;
-		addFacetImpl(element, servant.ice_findFacet(currentName), newFacetPath, replacing);  
-	    }
-	}
-    }
-
-    private void
-    removeFacetImpl(java.util.Map facets, String[] facetPath)
-    {
-	Facet facet = (Facet) facets.get(new StringArray(facetPath));
-	Ice.Object servant = null;
-	
-	if(facet != null)
-	{
-	    servant = destroyFacetImpl(facet);
-	}
-	//
-	// else should we raise an exception?
-	//
-	
-	if(servant != null)
-	{
-	    //
-	    // Remove servant's facets
-	    //
-	    String[] facetList = servant.ice_facets(null);
-	    for(int i = 0; i < facetList.length; i++)
-	    {
-		String[] newFacetPath = new String[facetPath.length + 1];
-		System.arraycopy(facetPath, 0, newFacetPath, 0, facetPath.length);
-		String currentName = facetList[i];
-		newFacetPath[newFacetPath.length - 1] = currentName;
-		removeFacetImpl(facets, newFacetPath);  
-	    }
-	}
-    }
-
-    private Ice.Object
-    destroyFacetImpl(Facet facet)
-    {
-	synchronized(facet)
-	{
-	    switch(facet.status)
-	    {
-		case clean:
-		{
-		    if(_trace >= 3)
-		    {
-			_communicator.getLogger().trace(
-			    "Freeze.Evictor", 
-			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
-			    "\" " + facetPathToString(facet.path) + ": clean -> destroyed");
-		    }
-
-		    facet.status = destroyed;
-		    addToModifiedQueue(facet);
-		    break;
-		}
-		case created:
-		{
-		    if(_trace >= 3)
-		    {
-			_communicator.getLogger().trace(
-			    "Freeze.Evictor", 
-			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
-			    "\" " + facetPathToString(facet.path) + ": created -> dead");
-		    }
-
-		    facet.status = dead;
-		    break;
-		}
-		case modified:
-		{
-		    if(_trace >= 3)
-		    {
-			_communicator.getLogger().trace(
-			    "Freeze.Evictor", 
-			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
-			    "\" " + facetPathToString(facet.path) + ": modified -> destroyed");
-		    }
-
-
-		    facet.status = destroyed;
-		    //
-		    // Not necessary to push it on the modified queue, as a modified
-		    // element is either on the queue already or about to be saved
-		    // (at which point it becomes clean)
-		    //
-		    break;
-		}
-		case destroyed:
-		case dead:
-		{
-		   if(_trace >= 3)
-		   {
-		       _communicator.getLogger().trace(
-			   "Freeze.Evictor", 
-			   "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
-			   "\" " + facetPathToString(facet.path) + ": was already dead or destroyed");
-		   }
-		   
-		   //
-		   // Nothing to do!
-		   //
-		   break;
-		}
-		default:
-		{
-		    assert(false);
-		    break;
-		}
-	    }
-	    return facet.rec.servant;
-	}
-    }
-
-    
-
-    private boolean
-    startWith(byte[] key, byte[] root)
-    {
-	if(key.length >= root.length)
-	{
-	    for(int i = 0; i < root.length; i++)
-	    {
-		if(key[i] != root[i])
-		{
-		    return false;
-		}
-	    }
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-	
-    class StreamedObject
-    {
-	byte[] key;
-	byte[] value;
-	byte status;
-    }
-
-    class EvictorElement
-    {
-	java.util.Iterator position;
-	int usageCount = 0;
-	java.util.Map facets = new java.util.HashMap();
-	Ice.Identity identity;
-	Facet mainObject;
-    }
-    
-    class Facet extends Ice.LocalObjectImpl
-    {
-	Facet(EvictorElement evictorElement)
-	{
-	    element = evictorElement;
-	}
-	byte status;
-	ObjectRecord rec;
-	EvictorElement element;
-	String[] path;
-    }
+    //
+    // Map of string (facet) to ObjectStore
+    //
+    private final java.util.Map _storeMap = new java.util.HashMap();
     
     //
-    // Wrapper to use a String[] as key of a HashMap.
+    // List of EvictorElement with stable iterators
     //
-    class StringArray
-    {
-	StringArray(String[] a)
-	{
-	    assert(a != null);
-	    array = a;
-	}
-
-	public boolean equals(java.lang.Object o)
-	{
-	    if(o instanceof StringArray)
-	    {
-		StringArray rhs = (StringArray) o;
-		if(rhs.array.length == array.length)
-		{
-		    for(int i = 0; i < array.length; i++)
-		    {
-			if(!array[i].equals(rhs.array[i]))
-			{
-			    return false;
-			}
-		    }
-		    return true;
-		}
-	    }
-	    return false;
-	}
-	
-	public int hashCode()
-	{
-	    int result = 0;
-	    for(int i = 0; i < array.length; i++)
-	    {
-		result ^= array[i].hashCode();
-	    }
-	    return result;
-	}
-	
-	String[] array;
-    }
-
-
-    static String
-    facetPathToString(String[] facetPath)
-    {
-	String result = "";
-	if(facetPath.length == 0)
-	{
-	    result = "(main object)";
-	}
-	else
-	{
-	    for(int i = 0; i < facetPath.length - 1; ++i)
-	    {
-		result += facetPath[i] + '/';
-	    }
-	    result += facetPath[facetPath.length - 1];
-	}
-	return result;
-    }
-
-    //
-    // Clean object; can become modified or destroyed
-    //
-    private static final byte clean = 0;
-
-    //
-    // New objects; can become clean, dead or destroyed
-    //
-    private static final byte created = 1;
-
-    //
-    // Modified object; can become clean or destroyed
-    //
-    private static final byte modified = 2;
-
-    //
-    // Being saved. Can become dead or created
-    //
-    private static final byte destroyed = 3;
-
-    //
-    // Exists only in the Evictor; for example the object was created
-    // and later destroyed (without a save in between), or it was
-    // destroyed on disk but is still in use. Can become created.
-    //
-    private static final byte dead = 4;
-
-    //
-    // Map of Ice.Identity to EvictorElement
-    //
-    private java.util.Map _evictorMap = new java.util.HashMap();
+    private final Freeze.LinkedList _evictorList = new Freeze.LinkedList();
     private int _evictorSize = 10;
-
-    //
-    // The C++ Evictor uses std::list<EvictorMap::iterator> which allows
-    // holding of iterators across list changes. Unfortunately, Java
-    // iterators are invalidated as soon as the underlying collection
-    // is changed, so it's not possible to use the same technique.
-    //
-    // This is a list of Ice.Identity.
-    //
-    private Freeze.LinkedList _evictorList = new Freeze.LinkedList();
+    private int _currentEvictorSize = 0;
 
     //
     // The _modifiedQueue contains a queue of all modified facets
@@ -2481,41 +1493,32 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     
     private boolean _deactivated = false;
    
-    private Ice.Communicator _communicator;
-    private SharedDbEnv      _dbEnvHolder;
+    private final Ice.ObjectAdapter _adapter;
+    private final Ice.Communicator _communicator;
+
+    private final ServantInitializer _initializer;
+
+    private SharedDbEnv  _dbEnvHolder;
     private com.sleepycat.db.DbEnv _dbEnv;
-    private com.sleepycat.db.Db _db;
-    private String _dbName;
-    private Index[] _indices;
-    private ServantInitializer _initializer;
+
+    private final String _filename;
+    private final boolean _createDb;
+
     private int _trace = 0;
-    private boolean _deadlockWarning;
-    
+
     //
     // Threads that have requested a "saveNow" and are waiting for
     // its completion
     //
-    private java.util.List _saveNowThreads = new java.util.ArrayList();
+    private final java.util.List _saveNowThreads = new java.util.ArrayList();
 
     private int _saveSizeTrigger;
     private int _maxTxSize;
-
     private long _savePeriod;
 
     private Thread _thread;
+
     private String _errorPrefix;
     
-    //
-    // _generation is incremented after committing changes
-    // to disk, when releasing the usage count of the element
-    // that contains the created/modified/destroyed facets. 
-    // Like the usage count, it is protected by the Evictor mutex.
-    //
-    // It is used to detect updates when loading an element and its
-    // facets without holding the Evictor mutex. If the generation
-    // is the same before the loading and later when the Evictor
-    // mutex is locked again, and the map still does not contain 
-    // this element, then the loaded value is current.
-    //
-    private int _generation = 0;
+    private boolean _deadlockWarning;    
 }

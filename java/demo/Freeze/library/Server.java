@@ -20,20 +20,20 @@ class LibraryServer extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
     
 	//
+	// Create an object adapter
+	//
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Library");
+
+	//
 	// Create an evictor for books.
 	//
-	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "books", null, true);
+	Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "books", null, null, true);
 	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
 	if(evictorSize > 0)
 	{
 	    evictor.setSize(evictorSize);
 	}
     
-	//
-	// Create an object adapter, use the evictor as servant
-	// locator.
-	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Library");
 	adapter.addServantLocator(evictor, "book");
     
 	//

@@ -62,7 +62,7 @@ class ContactI extends Contact
     {
 	try
 	{
-	    _factory.getEvictor().destroyObject(current.id);
+	    _factory.getEvictor().remove(current.id);
 	}
 	catch(Freeze.DatabaseException ex)
 	{

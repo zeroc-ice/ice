@@ -34,7 +34,7 @@ class PhoneBookI extends _PhoneBookDisp
 	// Create a new Ice Object in the evictor, using the new
 	// identity and the new Servant.
 	//
-	_evictor.createObject(ident, contact);
+	_evictor.add(contact, ident);
 
 	return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
     }

@@ -440,7 +440,7 @@ public final class ReferenceFactory
         // For compatibility with the old FacetPath.
         //
         String[] facetPath = s.readStringSeq();
-        String facet = null;
+        String facet = "";
         if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
         {
             facet = facetPath[0];

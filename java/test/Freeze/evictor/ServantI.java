@@ -32,29 +32,12 @@ public class ServantI implements Test._ServantOperations
     {	
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
-
-	String[] facets = _tie.ice_facets(null);
-	for(int i = 0; i < facets.length; i++)
-	{
-	    Ice.Object o = _tie.ice_findFacet(facets[i]);
-	    if(o instanceof Test._ServantTie)
-	    {
-		ServantI servant = (ServantI) ((Test._ServantTie) o).ice_delegate();
-		servant.init(remoteEvictor, evictor);
-	    }
-	    else
-	    {
-		assert(o instanceof Test._FacetTie);
-		FacetI facet = (FacetI) ((Test._FacetTie) o).ice_delegate();
-		facet.init(remoteEvictor, evictor);
-	    }
-	}    
     }
 
     public void
     destroy(Ice.Current current)
     {
-        _evictor.destroyObject(current.id);
+        _evictor.remove(current.id);
     }
 
     public int
@@ -103,16 +86,12 @@ public class ServantI implements Test._ServantOperations
     addFacet(String name, String data, Ice.Current current)
 	throws Test.AlreadyRegisteredException
     {
-	String[] facetPath = new String[current.facet.length + 1];
-	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
-	facetPath[facetPath.length - 1] = name;
-
 	Test._FacetTie tie = new Test._FacetTie();
 	tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
 
 	try
 	{
-	    _evictor.addFacet(current.id, facetPath, tie);
+	    _evictor.addFacet(tie, current.id, name);
 	}
 	catch(Ice.AlreadyRegisteredException ex)
 	{
@@ -124,24 +103,15 @@ public class ServantI implements Test._ServantOperations
     removeFacet(String name, Ice.Current current)
 	throws Test.NotRegisteredException
     {
-	String[] facetPath = new String[current.facet.length + 1];
-	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
-	facetPath[facetPath.length - 1] = name;
 	try
 	{
-	    _evictor.removeFacet(current.id, facetPath);
+	    _evictor.removeFacet(current.id, name);
 	}
 	catch(Ice.NotRegisteredException ex)
 	{
 	    throw new Test.NotRegisteredException();
 	}
    
-    }
-
-    public void
-    removeAllFacets(Ice.Current current)
-    {
-	_evictor.removeAllFacets(current.id);
     }
     
     protected RemoteEvictorI _remoteEvictor;

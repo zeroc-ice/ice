@@ -14,14 +14,47 @@
 
 public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 {
-    RemoteEvictorI(Ice.ObjectAdapter adapter, String category, Freeze.Evictor evictor)
+    static class Initializer extends Ice.LocalObjectImpl implements Freeze.ServantInitializer
     {
-        _adapter = adapter;
+        public void
+        initialize(Ice.ObjectAdapter adapter, Ice.Identity ident, String facet, Ice.Object servant)
+        {
+	    if(facet.length() == 0)
+	    {
+		ServantI servantImpl =  (ServantI) ((Test._ServantTie) servant).ice_delegate();
+		servantImpl.init(_remoteEvictor, _evictor);
+	    }
+	    else
+	    {
+		ServantI servantImpl =  (ServantI) ((Test._FacetTie) servant).ice_delegate();
+		servantImpl.init(_remoteEvictor, _evictor);
+	    }
+        }
+
+        void init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
+        {
+            _remoteEvictor = remoteEvictor;
+            _evictor = evictor;
+        }
+
+        private RemoteEvictorI _remoteEvictor;
+        private Freeze.Evictor _evictor;
+    }
+
+
+    RemoteEvictorI(Ice.ObjectAdapter adapter, String envName, String category)
+    {
+	_adapter = adapter;
         _category = category;
-        _evictor = evictor;
-        Ice.Communicator communicator = adapter.getCommunicator();
-        _evictorAdapter = communicator.createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default");
-        _evictorAdapter.addServantLocator(evictor, category);
+	_evictorAdapter = _adapter.getCommunicator().
+	    createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default");
+
+	Initializer initializer = new Initializer();
+
+	_evictor = Freeze.Util.createEvictor(_adapter, envName, category, initializer, null, true);
+	initializer.init(this, _evictor);
+        
+        _evictorAdapter.addServantLocator(_evictor, category);
         _evictorAdapter.activate();
     }
 
@@ -39,7 +72,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         ident.name = "" + id;
 	Test._ServantTie tie = new Test._ServantTie();
 	tie.ice_delegate(new ServantI(tie, this, _evictor, value));
-        _evictor.createObject(ident, tie);
+        _evictor.add(tie, ident);
         return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
     }
 
@@ -61,7 +94,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
     
     public void
-    destroyAllServants(Ice.Current current)
+    destroyAllServants(String facet, Ice.Current current)
     {
 	//
 	// Only for test purpose: don't use such a small value in 
@@ -69,10 +102,10 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 	//
 	int batchSize = 2;
 
-	Freeze.EvictorIterator p = _evictor.getIterator(batchSize, false);
+	Freeze.EvictorIterator p = _evictor.getIterator(facet, batchSize);
 	while(p.hasNext())
 	{
-	    _evictor.destroyObject((Ice.Identity) p.next());
+	    _evictor.remove((Ice.Identity) p.next());
 	}
     }
 

@@ -194,22 +194,14 @@ public class Client
 	catch(Test.NotRegisteredException ex)
 	{
 	}
-	
-	//
-	// Remove a facet that does exist
-	//
-	{
-	    servants[0].removeFacet("facet1");
-	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[0], "facet1");
-	    test(facet1 == null);
-	}
 
 	//
 	// Remove all facets
 	//
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i].removeAllFacets();
+	    servants[i].removeFacet("facet1");
+	    servants[i].removeFacet("facet2");
 	}
 
 	evictor.setSize(0);
@@ -269,7 +261,10 @@ public class Client
 	//
 	// Clean up.
 	//
-	evictor.destroyAllServants();
+	evictor.destroyAllServants("");
+	evictor.destroyAllServants("facet1");
+	evictor.destroyAllServants("facet2");
+
 	for(int i = 0; i < size; i++)
 	{
 	    try

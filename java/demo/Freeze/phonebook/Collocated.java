@@ -20,10 +20,15 @@ class PhoneBookCollocated extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
     
 	//
-	// Create and install a factory and initializer for contacts.
+	// Create and install a factory for contacts.
 	//
 	ContactFactory contactFactory = new ContactFactory();
 	communicator().addObjectFactory(contactFactory, "::Contact");
+
+	//
+	// Create an object adapter
+	//
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBook");
 
 	//
 	// Create the Name index
@@ -35,7 +40,7 @@ class PhoneBookCollocated extends Ice.Application
 	//
 	// Create an Evictor for contacts.
 	//
-	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "contacts", indices, true);
+	Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "contacts", null, indices, true);
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -48,10 +53,8 @@ class PhoneBookCollocated extends Ice.Application
 	contactFactory.setEvictor(evictor);
 
 	//
-	// Create an Object Adapter, use the Evictor as Servant
-	// Locator.
+	// Register the evictor with the adapter
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBook");
 	adapter.addServantLocator(evictor, "contact");
     
 	//

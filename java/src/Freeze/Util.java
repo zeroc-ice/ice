@@ -18,18 +18,18 @@ public class Util
 {
 
     public static Evictor
-    createEvictor(Ice.Communicator communicator, String envName, String dbName, 
-		  Index[] indices, boolean createDb)
+    createEvictor(Ice.ObjectAdapter adapter, String envName, String filename, 
+		  ServantInitializer initializer, Index[] indices, boolean createDb)
     {
-	return new EvictorI(communicator, envName, dbName, indices, createDb);
+	return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
     } 
 
     public static Evictor
-    createEvictor(Ice.Communicator communicator, String envName, 
-		  com.sleepycat.db.DbEnv dbEnv, String dbName, 
-		  Index[] indices, boolean createDb)
+    createEvictor(Ice.ObjectAdapter adapter, String envName, 
+		  com.sleepycat.db.DbEnv dbEnv, String filename, 
+		  ServantInitializer initializer, Index[] indices, boolean createDb)
     {
-	return new EvictorI(communicator, envName, dbEnv, dbName, indices, createDb);
+	return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
     } 
 
     public static Connection
