@@ -31,7 +31,7 @@ testdir = os.path.join(toplevel, "test", name)
 client = os.path.join(testdir, "client")
 
 print "starting client...",
-clientPipe = os.popen(client + " " + testdir)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir)
 print "ok"
 
 for output in clientPipe.xreadlines():

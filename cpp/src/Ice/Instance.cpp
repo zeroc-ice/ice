@@ -489,7 +489,6 @@ IceInternal::Instance::destroy()
 {
     ThreadPoolPtr clientThreadPool;
     ThreadPoolPtr serverThreadPool;
-    PluginManagerPtr pluginManager;
 
     {
 	IceUtil::RecMutex::Lock sync(*this);
@@ -508,6 +507,47 @@ IceInternal::Instance::destroy()
 	    _objectAdapterFactory = 0;
 	}
 	
+	if(_outgoingConnectionFactory)
+	{
+	    _outgoingConnectionFactory->destroy();
+	    _outgoingConnectionFactory = 0;
+	}
+
+	//
+	// We destroy the thread pool outside the thread
+	// synchronization.
+	//
+	clientThreadPool = _clientThreadPool;
+        _clientThreadPool = 0;
+	serverThreadPool = _serverThreadPool;
+        _serverThreadPool = 0;
+    }
+
+    //
+    // We must destroy the outgoing connection factory before we
+    // destroy the client thread pool.
+    //
+    if(clientThreadPool)
+    {
+	clientThreadPool->waitUntilFinished();
+	clientThreadPool->destroy();
+	clientThreadPool->joinWithAllThreads();
+    }
+
+    //
+    // We must destroy the object adapter factory before we destroy
+    // the server thread pool.
+    //
+    if(serverThreadPool)
+    {
+	serverThreadPool->waitUntilFinished();
+	serverThreadPool->destroy();
+	serverThreadPool->joinWithAllThreads();
+    }
+
+    {
+	IceUtil::RecMutex::Lock sync(*this);
+
 	if(_servantFactoryManager)
 	{
 	    _servantFactoryManager->destroy();
@@ -533,12 +573,6 @@ IceInternal::Instance::destroy()
 	    _proxyFactory = 0;
 	}
 	
-	if(_outgoingConnectionFactory)
-	{
-	    _outgoingConnectionFactory->destroy();
-	    _outgoingConnectionFactory = 0;
-	}
-
 	if(_routerManager)
 	{
 	    _routerManager->destroy();
@@ -557,20 +591,11 @@ IceInternal::Instance::destroy()
 	    _endpointFactoryManager = 0;
 	}
 
-	//
-	// We destroy the thread pool outside the thread
-	// synchronization.
-	//
-	clientThreadPool = _clientThreadPool;
-        _clientThreadPool = 0;
-	serverThreadPool = _serverThreadPool;
-        _serverThreadPool = 0;
-
-        //
-        // We destroy the plugin manager after the thread pools.
-        //
-        pluginManager = _pluginManager;
-        _pluginManager = 0;
+	if(_pluginManager)
+	{
+	    _pluginManager->destroy();
+	    _pluginManager = 0;
+	}
 
 	if(_dynamicLibraryList)
 	{
@@ -578,24 +603,5 @@ IceInternal::Instance::destroy()
 	    // _dynamicLibraryList->destroy();
 	    _dynamicLibraryList = 0;
 	}
-    }
-    
-    if(clientThreadPool)
-    {
-	clientThreadPool->waitUntilFinished();
-	clientThreadPool->destroy();
-	clientThreadPool->joinWithAllThreads();
-    }
-
-    if(serverThreadPool)
-    {
-	serverThreadPool->waitUntilFinished();
-	serverThreadPool->destroy();
-	serverThreadPool->joinWithAllThreads();
-    }
-
-    if(pluginManager)
-    {
-        pluginManager->destroy();
     }
 }

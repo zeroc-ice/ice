@@ -32,10 +32,9 @@ dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 client = os.path.join(testdir, "client")
-clientOptions = ' ' + testdir;
 
 print "starting client...",
-clientPipe = os.popen(client + clientOptions)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir)
 print "ok"
 
 for output in clientPipe.xreadlines():
