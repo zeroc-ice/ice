@@ -143,6 +143,11 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
+    //
+    // NOTE: Not using Ice::Context here because of the additional include
+    // file dependencies.
+    //
+    StringStringD opContext();
 };
 
 ["ami"] class MyDerivedClass extends MyClass

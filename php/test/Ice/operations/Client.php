@@ -370,6 +370,28 @@ function twoways($p)
             }
         }
     }
+
+    {
+        $ctx = array("one" => "ONE", "two" => "TWO", "three" => "THREE");
+        {
+            $r = $p->opContext();
+            test(count($p->ice_getContext()) == 0);
+            test($r != $ctx);
+        }
+        {
+            $r = $p->opContext($ctx);
+            test(count($p->ice_getContext()) == 0);
+            test($r == $ctx);
+        }
+        {
+            $p2 = $p->ice_newContext($ctx)->ice_checkedCast("::Test::MyClass");
+            test($p2->ice_getContext() == $ctx);
+            $r = $p2->opContext();
+            test($r == $ctx);
+            $r = $p2->opContext($ctx);
+            test($r == $ctx);
+        }
+    }
 }
 
 function allTests()
