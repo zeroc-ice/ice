@@ -107,69 +107,38 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
     FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
 
+    /*
+     * icecpp emits dependencies in any of the following formats, depending on the
+     * length of the filenames:
+     *
+     * x.cpp: /path/x.ice /path/y.ice
+     *
+     * x.cpp: /path/x.ice \ 
+     *	/path/y.ice
+     *
+     * x.cpp: /path/x.ice /path/y.ice \ 
+     *	/path/z.ice
+     *
+     * x.cpp: \ 
+     *	/path/x.ice
+     *
+     * x.cpp: \ 
+     *	/path/x.ice \ 
+     *	/path/y.ice
+     *
+     * Spaces embedded within filenames are escaped with a backslash. Note that
+     * Windows filenames may contain colons.
+     *
+     */
     switch(lang)
     {
         case CPlusPlus:
+	case Java: // Java ignores the leading .cpp filename.
 	{
 	    char buf[1024];
 	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
 	    {
 	        fputs(buf, stdout);
-	    }
-	    break;
-	}
-	case Java:
-	{
-	    //
-	    // Remove leading "<file>.cpp:" and make the first following
-	    // file the dependent. For example, "x.cpp: x.ice y.ice"
-	    // is rewritten as "x.ice: y.ice".
-	    //
-	    char buf[1024];
-	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
-	    {
-		bool needNewline = false;
-		char *p = buf;
-		char* pos = strchr(buf, ':');			// Find first colon.
-		if(pos != NULL)
-		{
-		    *pos = '\0';				// Find last dot preceding colon.
-		    char* pos2 = strrchr(buf, '.');
-		    *pos = ':';
-		    if(pos2 != NULL)
-		    {
-			if(strncmp(pos2, ".cpp:", 5) == 0)	// Check for ".cpp:".
-			{
-			    while(isspace(*++pos))		// Move pos to first non-space char following colon.
-			    {
-			        ;
-			    }
-			    char* pos2 = pos;
-			    while(!isspace(*++pos2))		// Move pos2 to first space char following pos.
-			    {
-			        ;
-			    }
-			    *pos2 = '\0';
-			    while(isspace(*++pos2))		// Move pos2 to next non-space char.
-			    {
-			        ;
-			    }
-			    if(*pos2 == '\0')
-			    {
-			        continue;
-			    }
-			    needNewline = *pos2 == '\0';	// Don't lose trailing newline.
-			    fputs(pos, stdout);			// Write first file name following colon.
-			    fputs(": ", stdout);
-			    p = pos2;
-			}
-		    }
-		}
-		fputs(p, stdout);
-		if(needNewline)
-		{
-		    fputs("\n", stdout);
-		}
 	    }
 	    break;
 	}
