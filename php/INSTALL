@@ -23,16 +23,17 @@ Interface (CGI) interpreters, both of which are standalone
 executables. In addition, the build system can package the interpreter
 as a shared library for use as a Web server module.
 
-To further complicate matters, PHP extensions can be either static or
-dynamic. A static extension is compiled into the interpreter, whereas
-a dynamic extension is created as a standalone shared library that is
-installed in PHP via configuration directives.
+To further complicate matters, PHP extensions (such as the Ice
+extension) can be either static or dynamic. A static extension is
+compiled into the interpreter, whereas a dynamic extension is created
+as a standalone shared library that is installed in PHP via
+configuration directives.
 
 The Ice extension for PHP supports both static and dynamic
 configurations. The only supported way to compile the Ice extension
 is as part of the larger PHP build process. Unfortunately, PHP's build
 system does not completely accommodate extensions written in C++,
-therefore some manual intervention is required.
+therefore some manual intervention is required on certain platforms.
 
 Adding the Ice extension
 ------------------------

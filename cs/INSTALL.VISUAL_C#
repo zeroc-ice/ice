@@ -9,10 +9,10 @@ subdirectory.
 
 You can either build the slice2cs compiler from the Ice for C++ source
 distribution, or you can download the Ice binary package for Windows,
-which contains a compiled versions of slice2cs. Make sure that
-the directory containing slice2cs is in your PATH. Note that icecpp.exe
-must be in your path as well, as must be the Ice for C++ run-time libraries
-iceutil and slice).
+which contains a compiled version of slice2cs. Make sure that the
+directory containing slice2cs is in your PATH. Note that icecpp.exe
+must be in your path as well, as must be the Ice for C++ run-time
+libraries iceutil and slice.
 
 Open icecs/All.sln in Visual C# and build the "All" solution (both
 debug and release builds are supported).
@@ -25,9 +25,9 @@ errors for the following projects:
  * helloIcePackS
 
 The work-around is to rebuild (not build) these projects individually
-once you have seen the errors. Thereafter, building the projects seems to
-work fine. (If someone can work out why this is happening, please let us
-know!)
+once you have seen the errors. Thereafter, building the projects seems
+to work fine. (If someone can work out why this is happening, please
+let us know!)
 
 
 Running the tests
@@ -63,8 +63,8 @@ Installation
 You can copy the generated icecs/bin/icecs.dll file where you want it
 and then reference it in your appliation code.
 
-Alternatively, you can add icecs.dll to the global assembly cache.  To
-do this, open Explorer and navigate to C:\WINDOWS\assembly.  Then drag
+Alternatively, you can add icecs.dll to the global assembly cache. To
+do this, open Explorer and navigate to C:\WINDOWS\assembly. Then drag
 and drop (or copy and paste) icecs.dll into the right-hand pane to
 install it in the cache.
 

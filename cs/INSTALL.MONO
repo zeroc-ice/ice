@@ -9,10 +9,11 @@ subdirectory.
 You must build the slice2cs compiler from the Ice for C++ source
 distribution. Make sure that slice2cs is in your PATH or,
 alternatively, place the slice2cs executable into the bin directory of
-the Ice for C# distribution. (You also must ensure that the dynamic
+the Ice for C# distribution. You also must ensure that the dynamic
 libraries that are required by slice2cs (iceutil and slice) are in
 your path. In addition, slice2cs calls icecpp.exe, which must also
-be in your path.
+be in your path, as must be the Ice for C++ run-time libraries iceutil
+and slice.
 
 To build Ice for C#, run
 
@@ -24,17 +25,17 @@ in the top-level directory.
 Configuring Linux to recognize Mono binaries
 --------------------------------------------
 
-Mono binaries are interpreted so, given a binary
-called "foo", you have to run the Mono interpreter
-with an argument "foo" to execute that binary, like so:
+Mono binaries are interpreted so, given a binary called "foo", you
+have to run the Mono interpreter with an argument "foo" to execute
+that binary, like so:
 
 	$ mono foo
 
-If you want to avoid having to explictly invoke the Mono
-interpreter, you can run the following commands (as root)
-to make your kernel recognized Mono binaries and automatically
-launch the interpreter. (Replace /opt/mono/bin/mono with
-the location of your mono interpreter in the commands below.)
+If you want to avoid having to explictly invoke the Mono interpreter,
+you can run the following commands (as root) to make your kernel
+recognize Mono binaries and automatically launch the interpreter.
+(Replace /opt/mono/bin/mono with the location of your mono interpreter
+in the commands below.)
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
 	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
@@ -59,7 +60,7 @@ Running the tests
 -----------------
 
 You must add icecs/bin to your MONO_PATH. (Don't forget to export
-MONO_PATH). Alternatively, you can install the Ice DLLs (in
+MONO_PATH). Alternatively, you can install the Ice DLLs (from
 the bin directory) in the Global Assembly Cache (GAC), using
 gacutil -i <name>. For example:
 
@@ -96,7 +97,7 @@ Put the icecs/bin/icecs.dll file where you want it and add that
 directory to your MONO_PATH. When building applications, you need to
 reference the library with the -r option to mcs.
 
-Alternatively, you can add icecs.dll to the global assembly cache.  To
+Alternatively, you can add icecs.dll to the global assembly cache. To
 do this, use
 
     gacutil -i <path_to_icecs.dll>
@@ -111,9 +112,9 @@ the .exe for your application.
 Known issues
 ------------
 
-On non-Windows platforms, a number of the tests fail, hang, or
-fail intermittently. (These tests pass with Mono on Windows.)
-We are actively working with the Mono developers to get this fixed.
+On non-Windows platforms, a number of the tests fail, hang, or fail
+intermittently. (These tests pass with Mono on Windows.) We are
+actively working with the Mono developers to get this fixed.
 
 Please let us know about any bugs, comments, or feedback in the Ice
 forum at http://www.zeroc.com/vbulletin/.
