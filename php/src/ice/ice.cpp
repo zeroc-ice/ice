@@ -120,6 +120,7 @@ ZEND_RINIT_FUNCTION(ice)
     ICE_G(marshalerMap) = new MarshalerMap;
     ICE_G(profile) = 0;
     ICE_G(properties) = 0;
+    ICE_G(objectFactoryMap) = new ObjectFactoryMap;
 
     //
     // Create the global variable "ICE" to hold the communicator for this request. The
@@ -136,6 +137,18 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
+    //
+    // Invoke destroy() on each registered factory.
+    //
+    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
+    for(ObjectFactoryMap::iterator p = ofm->begin(); p != ofm->end(); ++p)
+    {
+        zval* factory = p->second;
+        zend_call_method_with_0_params(&p->second, NULL, NULL, "destroy", NULL);
+        zval_ptr_dtor(&p->second);
+    }
+    delete ofm;
+
     delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
     delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
 

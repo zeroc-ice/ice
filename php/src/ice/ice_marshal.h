@@ -47,6 +47,11 @@ protected:
 typedef std::map<std::string, MarshalerPtr> MarshalerMap;
 
 //
+// Associates a scoped type id to its factory.
+//
+typedef std::map<std::string, zval*> ObjectFactoryMap;
+
+//
 // We must subclass BasicStream in order to associate some information with it.
 //
 class PHPStream : public IceInternal::BasicStream
@@ -94,15 +99,10 @@ public:
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
 
-    void addObjectFactory(zval*, const std::string& TSRMLS_DC);
-    void removeObjectFactory(const std::string& TSRMLS_DC);
-    void findObjectFactory(const std::string&, zval* TSRMLS_DC);
-
-private:
 #ifdef ZTS
+private:
     TSRMLS_D;
 #endif
-    std::map<std::string, zval*> _factories;
 };
 typedef IceUtil::Handle<PHPObjectFactory> PHPObjectFactoryPtr;
 

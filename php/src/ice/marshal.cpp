@@ -1816,23 +1816,26 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     Profile* profile = static_cast<Profile*>(ICE_G(profile));
     assert(profile);
 
+    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
+    assert(ofm);
+
     //
     // First check our map for a factory registered for this type.
     //
-    map<string, zval*>::iterator p;
-    p = _factories.find(scoped);
-    if(p == _factories.end())
+    ObjectFactoryMap::iterator p;
+    p = ofm->find(scoped);
+    if(p == ofm->end())
     {
         //
         // Next, check for a default factory.
         //
-        p = _factories.find("");
+        p = ofm->find("");
     }
 
     //
     // If we found a factory, invoke create() on the object.
     //
-    if(p != _factories.end())
+    if(p != ofm->end())
     {
         zval* id;
         MAKE_STD_ZVAL(id);
@@ -1913,6 +1916,9 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
         cls = findClassScoped(scoped TSRMLS_CC);
     }
 
+    //
+    // Instantiate the class if it's not abstract.
+    //
     const int abstractFlags = ZEND_ACC_INTERFACE | ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
     if(cls && (cls->ce_flags & abstractFlags) == 0)
     {
@@ -1934,94 +1940,6 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
 void
 IcePHP::PHPObjectFactory::destroy()
 {
-    //
-    // Invoke destroy() on each registered factory.
-    //
-    for(map<string, zval*>::iterator p = _factories.begin(); p != _factories.end(); ++p)
-    {
-        zend_call_method_with_0_params(&p->second, NULL, NULL, "destroy", NULL);
-        zval_ptr_dtor(&p->second);
-    }
-
-    _factories.clear();
-}
-
-void
-IcePHP::PHPObjectFactory::addObjectFactory(zval* factory, const string& id TSRMLS_DC)
-{
-    map<string, zval*>::iterator p = _factories.find(id);
-    if(p != _factories.end())
-    {
-        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
-        ex.id = id;
-        throwException(ex TSRMLS_CC);
-        return;
-    }
-
-    //
-    // Create a new zval with the same object handle as the factory.
-    //
-    zval* zv;
-    MAKE_STD_ZVAL(zv);
-    Z_TYPE_P(zv) = IS_OBJECT;
-    zv->value.obj = factory->value.obj;
-
-    //
-    // Increment the factory's reference count.
-    //
-    Z_OBJ_HT_P(factory)->add_ref(factory TSRMLS_CC);
-
-    //
-    // Update the factory map.
-    //
-    _factories[id] = zv;
-}
-
-void
-IcePHP::PHPObjectFactory::removeObjectFactory(const string& id TSRMLS_DC)
-{
-    map<string, zval*>::iterator p = _factories.find(id);
-    if(p == _factories.end())
-    {
-        Ice::NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
-        ex.id = id;
-        throwException(ex TSRMLS_CC);
-        return;
-    }
-
-    //
-    // Destroy the zval.
-    //
-    zval_ptr_dtor(&p->second);
-
-    //
-    // Update the factory map.
-    //
-    _factories.erase(p);
-}
-
-void
-IcePHP::PHPObjectFactory::findObjectFactory(const string& id, zval* factory TSRMLS_DC)
-{
-    map<string, zval*>::iterator p = _factories.find(id);
-    if(p == _factories.end())
-    {
-        ZVAL_NULL(factory);
-        return;
-    }
-
-    //
-    // Set the zval with the same object handle as the factory.
-    //
-    Z_TYPE_P(factory) = IS_OBJECT;
-    factory->value.obj = p->second->value.obj;
-
-    //
-    // Increment the factory's reference count.
-    //
-    Z_OBJ_HT_P(p->second)->add_ref(p->second TSRMLS_CC);
 }
 
 //

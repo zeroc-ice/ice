@@ -273,14 +273,34 @@ ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
         return;
     }
 
-    //
-    // Retrieve the PHPObjectFactory.
-    //
-    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
-    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
-    assert(phpFactory);
+    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
+    ObjectFactoryMap::iterator p = ofm->find(id);
+    if(p != ofm->end())
+    {
+        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "object factory";
+        ex.id = id;
+        throwException(ex TSRMLS_CC);
+        return;
+    }
 
-    phpFactory->addObjectFactory(zfactory, id TSRMLS_CC);
+    //
+    // Create a new zval with the same object handle as the factory.
+    //
+    zval* zv;
+    MAKE_STD_ZVAL(zv);
+    Z_TYPE_P(zv) = IS_OBJECT;
+    zv->value.obj = zfactory->value.obj;
+
+    //
+    // Increment the factory's reference count.
+    //
+    Z_OBJ_HT_P(zv)->add_ref(zv TSRMLS_CC);
+
+    //
+    // Update the factory map.
+    //
+    ofm->insert(ObjectFactoryMap::value_type(id, zv));
 }
 
 ZEND_FUNCTION(Ice_Communicator_removeObjectFactory)
@@ -306,14 +326,26 @@ ZEND_FUNCTION(Ice_Communicator_removeObjectFactory)
         RETURN_NULL();
     }
 
-    //
-    // Retrieve the PHPObjectFactory.
-    //
-    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
-    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
-    assert(phpFactory);
+    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
+    ObjectFactoryMap::iterator p = ofm->find(id);
+    if(p == ofm->end())
+    {
+        Ice::NotRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "object factory";
+        ex.id = id;
+        throwException(ex TSRMLS_CC);
+        return;
+    }
 
-    phpFactory->removeObjectFactory(id TSRMLS_CC);
+    //
+    // Destroy the zval.
+    //
+    zval_ptr_dtor(&p->second);
+
+    //
+    // Update the factory map.
+    //
+    ofm->erase(p);
 }
 
 ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
@@ -339,14 +371,23 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
         RETURN_NULL();
     }
 
-    //
-    // Retrieve the PHPObjectFactory.
-    //
-    Ice::ObjectFactoryPtr factory = (*_this)->findObjectFactory("");
-    PHPObjectFactoryPtr phpFactory = PHPObjectFactoryPtr::dynamicCast(factory);
-    assert(phpFactory);
+    ObjectFactoryMap* ofm = static_cast<ObjectFactoryMap*>(ICE_G(objectFactoryMap));
+    ObjectFactoryMap::iterator p = ofm->find(id);
+    if(p == ofm->end())
+    {
+        RETURN_NULL();
+    }
 
-    phpFactory->findObjectFactory(id, return_value TSRMLS_CC);
+    //
+    // Set the zval with the same object handle as the factory.
+    //
+    Z_TYPE_P(return_value) = IS_OBJECT;
+    return_value->value.obj = p->second->value.obj;
+
+    //
+    // Increment the factory's reference count.
+    //
+    Z_OBJ_HT_P(p->second)->add_ref(p->second TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_Communicator_flushBatchRequests)
