@@ -236,6 +236,8 @@ public:
     ObjectWriter(zval*, const Slice::SyntaxTreeBasePtr& TSRMLS_DC);
     ~ObjectWriter();
 
+    virtual void ice_preMarshal();
+
     virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
@@ -252,6 +254,8 @@ class ObjectReader : public Ice::Object
 public:
     ObjectReader(zval*, const Slice::ClassDefPtr& TSRMLS_DC);
     ~ObjectReader();
+
+    virtual void ice_postUnmarshal();
 
     virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
@@ -1450,6 +1454,12 @@ IcePHP::ObjectWriter::~ObjectWriter()
 }
 
 void
+IcePHP::ObjectWriter::ice_preMarshal()
+{
+    zend_call_method_with_0_params(&_value, NULL, NULL, "ice_preMarshal", NULL);
+}
+
+void
 IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os, bool) const
 {
     MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
@@ -1531,6 +1541,12 @@ IcePHP::ObjectReader::ObjectReader(zval* val, const Slice::ClassDefPtr& type TSR
 IcePHP::ObjectReader::~ObjectReader()
 {
     zval_ptr_dtor(&_value);
+}
+
+void
+IcePHP::ObjectReader::ice_postUnmarshal()
+{
+    zend_call_method_with_0_params(&_value, NULL, NULL, "ice_postUnmarshal", NULL);
 }
 
 void
