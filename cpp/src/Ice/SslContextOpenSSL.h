@@ -39,6 +39,7 @@ namespace OpenSSL
 {
 
 class System;
+class RSAKeyPair;
 
 class Context : public IceUtil::Shared
 {
@@ -73,7 +74,11 @@ protected:
 
     void setKeyCert(const IceSSL::CertificateDesc&, const std::string&, const std::string&);
 
+    void checkKeyCert();
+
     void addKeyCert(const IceSSL::CertificateFile&, const IceSSL::CertificateFile&);
+
+    void addKeyCert(const RSAKeyPair&);
 
     void addKeyCert(const Ice::ByteSeq&, const Ice::ByteSeq&);
 

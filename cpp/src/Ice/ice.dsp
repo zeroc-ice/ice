@@ -1189,7 +1189,7 @@ InputPath=..\..\slice\Ice\Communicator.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
+	..\..\bin\slice2cpp.exe -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
 	move Communicator.h ..\..\include\Ice \
 	
 
@@ -1208,7 +1208,7 @@ InputPath=..\..\slice\Ice\Communicator.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
+	..\..\bin\slice2cpp.exe -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Communicator.ice \
 	move Communicator.h ..\..\include\Ice \
 	
 

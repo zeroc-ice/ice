@@ -308,11 +308,13 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 
             case SSL_ERROR_WANT_READ:
             {
+                // TODO: Probably don't need this - remove later if not needed.
+
                 // If we get this error here, it HAS to be because
                 // the protocol wants to do something handshake related.
                 // In the case that we might actually get some application data,
                 // we will use the base SSL read method, using the _inBuffer.
-                readSSL(_inBuffer, timeout);
+                // readSSL(_inBuffer, timeout);
                 continue;
             }
 

@@ -342,6 +342,8 @@ local interface Communicator
      **/
     void setDefaultRouter(Router* router);
 
+#ifdef ICE_CPP 
+
     /**
      *
      * Get an SslExtension instance.  The SslExtension instance can then
@@ -364,6 +366,8 @@ local interface Communicator
      *
      **/
     IceSSL::System getSslSystem();
+
+#endif
 
 };
 

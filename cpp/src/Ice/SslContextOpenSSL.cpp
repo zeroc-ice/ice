@@ -229,6 +229,8 @@ IceSSL::OpenSSL::Context::createContext(SslProtocol sslProtocol)
 void
 IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
 {
+    assert(_sslContext != 0);
+
     std::string fileName = certAuth.getCAFileName();
     std::string certPath = certAuth.getCAPath();
 
@@ -311,8 +313,34 @@ IceSSL::OpenSSL::Context::setKeyCert(const CertificateDesc& certDesc,
 }
 
 void
+IceSSL::OpenSSL::Context::checkKeyCert()
+{
+    assert(_sslContext != 0);
+
+    // Check to see if the Private and Public keys that have been
+    // set against the SSL context match up.
+    if (!SSL_CTX_check_private_key(_sslContext))
+    {
+        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Private key does not match the certificate public key.";
+        std::string sslError = sslGetErrors();
+
+        if (!sslError.empty())
+        {
+            contextEx._message += "\n";
+            contextEx._message += sslError;
+        }
+
+        throw contextEx;
+    }
+}
+
+void
 IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const CertificateFile& publicCert)
 {
+    assert(_sslContext != 0);
+
     if (!publicCert.getFileName().empty())
     {
 	std::string publicCertFile = publicCert.getFileName();
@@ -360,48 +388,13 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
 	    throw contextEx;
         }
 
-        // Check to see if the Private and Public keys that have been
-        // set against the SSL context match up.
-        if (!SSL_CTX_check_private_key(_sslContext))
-        {
-            IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-            contextEx._message = "Private key does not match the certificate public key.";
-            std::string sslError = sslGetErrors();
-
-            if (!sslError.empty())
-            {
-                contextEx._message += "\n";
-                contextEx._message += sslError;
-            }
-
-            throw contextEx;
-        }
+        checkKeyCert();
     }
 }
 
-//
-// TODO: Merge base functionality of addKeyCert()'s so they call a base.
-//
-
 void
-IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& publicKey)
+IceSSL::OpenSSL::Context::addKeyCert(const RSAKeyPair& keyPair)
 {
-    Ice::ByteSeq privKey = privateKey;
-
-    if (privKey.empty())
-    {
-        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
-        { 
-            _logger->trace(_traceLevels->securityCat, "WRN No private key specified - using the certificate.");
-        }
-
-        privKey = publicKey;
-    }
-
-    // Make a key pair based on the Base64 encoded strings
-    RSAKeyPair keyPair(privKey, publicKey);
-
     // Janitors to ensure that everything gets cleaned up properly
     RSAJanitor rsaJanitor(keyPair.getRSAPrivateKey());
     X509Janitor x509Janitor(keyPair.getX509PublicKey());
@@ -444,23 +437,28 @@ IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::
 
     rsaJanitor.clear();
 
-    // Check to see if the Private and Public keys that have been
-    // set against the SSL context match up.
-    if (!SSL_CTX_check_private_key(_sslContext))
+    checkKeyCert();
+}
+
+void
+IceSSL::OpenSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& publicKey)
+{
+    Ice::ByteSeq privKey = privateKey;
+
+    if (privKey.empty())
     {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Private key does not match the certificate public key.";
-        std::string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
+        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        { 
+            _logger->trace(_traceLevels->securityCat, "WRN No private key specified - using the certificate.");
         }
 
-        throw contextEx;
+        privKey = publicKey;
     }
+
+    // Make a key pair based on the DER encoded byte sequences.
+    RSAKeyPair keyPair(privKey, publicKey);
+
+    addKeyCert(keyPair);
 }
 
 void
@@ -478,74 +476,17 @@ IceSSL::OpenSSL::Context::addKeyCert(const std::string& privateKey, const std::s
         privKey = publicKey;
     }
 
-    // Make a key pair based on the Base64 encoded strings
+    // Make a key pair based on the Base64 encoded strings.
     RSAKeyPair keyPair(privKey, publicKey);
 
-    // Janitors to ensure that everything gets cleaned up properly
-    RSAJanitor rsaJanitor(keyPair.getRSAPrivateKey());
-    X509Janitor x509Janitor(keyPair.getX509PublicKey());
-
-    // Set which Public Key file to use.
-    if (SSL_CTX_use_certificate(_sslContext, x509Janitor.get()) <= 0)
-    {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Unable to set certificate from memory.";
-        std::string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
-        }
-
-        throw contextEx;
-    }
-
-    x509Janitor.clear();
-
-    // Set which Private Key file to use.
-    if (SSL_CTX_use_RSAPrivateKey(_sslContext, rsaJanitor.get()) <= 0)
-    {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Unable to set private key from memory.";
-        std::string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
-        }
-
-        throw contextEx;
-    }
-
-    rsaJanitor.clear();
-
-    // Check to see if the Private and Public keys that have been
-    // set against the SSL context match up.
-    if (!SSL_CTX_check_private_key(_sslContext))
-    {
-        IceSSL::OpenSSL::ContextException contextEx(__FILE__, __LINE__);
-
-        contextEx._message = "Private key does not match the certificate public key.";
-        std::string sslError = sslGetErrors();
-
-        if (!sslError.empty())
-        {
-            contextEx._message += "\n";
-            contextEx._message += sslError;
-        }
-
-        throw contextEx;
-    }
+    addKeyCert(keyPair);
 }
 
 SSL*
 IceSSL::OpenSSL::Context::createSSLConnection(int socket)
 {
     SSL* sslConnection = SSL_new(_sslContext);
+    assert(sslConnection != 0);
 
     SSL_clear(sslConnection);
 
@@ -557,7 +498,7 @@ IceSSL::OpenSSL::Context::createSSLConnection(int socket)
 void
 IceSSL::OpenSSL::Context::connectionSetup(const ConnectionPtr& connection)
 {
-    // Set the Post-Hanshake Read timeout
+    // Set the Post-Handshake Read timeout
     // This timeout is implemented once on the first read after hanshake.
     int handshakeReadTimeout;
     std::string value = _properties->getProperty(_handshakeTimeoutProperty);

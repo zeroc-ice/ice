@@ -55,6 +55,8 @@ IceSSL::OpenSSL::ServerConnection::ServerConnection(
             const IceSSL::SystemInternalPtr& system) :
                                             Connection(traceLevels, logger, certificateVerifier, connection, system)
 {
+    assert(_sslConnection != 0);
+
     // Set the Accept Connection state for this connection.
     SSL_set_accept_state(_sslConnection);
 }
@@ -72,6 +74,8 @@ IceSSL::OpenSSL::ServerConnection::shutdown()
 int
 IceSSL::OpenSSL::ServerConnection::init(int timeout)
 {
+    assert(_sslConnection != 0);
+
     int retCode = SSL_is_init_finished(_sslConnection);
     
     while (!retCode)

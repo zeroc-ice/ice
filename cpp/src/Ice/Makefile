@@ -155,7 +155,7 @@ clean::
 
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
-	$(SLICECMD) $(SDIR)/Communicator.ice
+	$(SLICECMD) -DICE_CPP $(SDIR)/Communicator.ice
 	mv Communicator.h $(HDIR)
 
 clean::
