@@ -2,9 +2,11 @@
 Requirements
 =========================================================================
 
-- Python 2.3 (http://www.python.org)
+- Python 2.3
 - Ice 1.6.0
 
+If you don't have Python 2.3 on your system, you can download the
+source distribution from http://www.python.org.
 
 =========================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X/AIX)
@@ -34,6 +36,7 @@ Follow these steps to build the Ice extension for Python:
 
    export ICEPY_HOME=/opt/IcePy-1.6.0
    export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
+
 
 =========================================================================
 Building the Ice extension for Python (Windows)
@@ -82,16 +85,8 @@ Tools/Options/Directories/Include files.
 Running the Tests
 =========================================================================
 
-TBD
-
-The test subdirectory contains PHP implementations of the core Ice
-test suite. In order to run these tests, you must have Python 2.2
-or later, and the Ice for C++ tests must be built in the directory
-specified by the ICE_HOME environment variable.
-
-The test scripts require that the CLI version of the PHP interpreter
-be available in your PATH, and assume that the Ice extension was
-built in a static configuration.
+The test subdirectory contains Python implementations of the core Ice
+test suite.
 
 To run all of the tests, do the following:
 
@@ -102,9 +97,12 @@ and running this command:
 
 $ python run.py
 
-In order to run the tests using a dynamic Ice extension, you will
-need to edit the php.ini files in each test directory and add the
-following configuration directives:
 
-extension_dir=<phpdir>/modules
-extension=ice.so
+=========================================================================
+Python Platform Notes (HP-UX)
+=========================================================================
+
+The Python sources need to be compiled with the following options
+in order to successfully load the Ice extension:
+
+./configure --enable-shared --with-cxx="aCC -AA +DAportable" ...
