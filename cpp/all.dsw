@@ -20,9 +20,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2freeze
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -303,9 +300,6 @@ Package=<4>
     Project_Dep_Name Freeze
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name IceBox
     End Project Dependency
 }}}
@@ -333,9 +327,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
 }}}
@@ -355,45 +346,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icecpp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "XMLTransform"=.\src\XMLTransform\XMLTransform.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "XMLTransformC"=.\src\XMLTransform\XMLTransformC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransform
     End Project Dependency
 }}}
 
@@ -648,16 +600,10 @@ Package=<4>
     Project_Dep_Name slice2wsdl
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2xsd
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Glacier
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name encoding
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name loadPEM
@@ -732,18 +678,6 @@ Package=<4>
     Project_Dep_Name sessionS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name transformP
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformV
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransformC
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name evictorC
     End Project Dependency
     Begin Project Dependency
@@ -814,9 +748,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
@@ -1007,9 +938,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1067,33 +995,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "encoding"=.\test\IceXML\encoding\encoding.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2xsd
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1135,9 +1036,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2cpp
@@ -1604,9 +1502,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1627,9 +1522,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
@@ -1750,12 +1642,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransformC
     End Project Dependency
 }}}
 
@@ -1967,9 +1853,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1990,9 +1873,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
@@ -2193,24 +2073,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "slice2xsd"=.\src\slice2xsd\slice2xsd.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Slice
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2323,75 +2185,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name Ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "transformP"=.\test\XMLTransform\transform\transformP.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2xsd
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "transformV"=.\test\XMLTransform\transform\transformV.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformP
     End Project Dependency
 }}}
 
