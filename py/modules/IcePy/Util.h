@@ -117,7 +117,7 @@ void throwPythonException(PyObject* = NULL);
 //
 // Handle the SystemExit exception.
 //
-void handleSystemExit();
+void handleSystemExit(PyObject*);
 
 //
 // Create a Python instance of Ice.Identity.

@@ -522,22 +522,20 @@ IcePy::throwPythonException(PyObject* ex)
 }
 
 void
-IcePy::handleSystemExit()
+IcePy::handleSystemExit(PyObject* ex)
 {
-    PyObjectHandle ex = getPythonException();
-    assert(ex.get() != NULL);
-
     //
     // This code is similar to handle_system_exit in pythonrun.c.
     //
     PyObjectHandle code;
-    if(PyInstance_Check(ex.get()))
+    if(PyInstance_Check(ex))
     {
-        code = PyObject_GetAttrString(ex.get(), "code");
+        code = PyObject_GetAttrString(ex, "code");
     }
     else
     {
         code = ex;
+        Py_INCREF(ex);
     }
 
     int status;
@@ -553,7 +551,6 @@ IcePy::handleSystemExit()
     }
 
     code = 0;
-    ex = 0;
     Py_Exit(status);
 }
 
