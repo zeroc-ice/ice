@@ -21,23 +21,22 @@
 #   pragma warning( disable : 4251 )
 // ... : inherits ... via dominance
 #   pragma warning( disable : 4250 )
+// non dll-interface class ... used as base for dll-interface class ...
+#   pragma warning( disable : 4275 )
 
-#ifdef ICE_EXPORTS
-#   define ICE_API __declspec(dllexport)
-#else
-#   define ICE_API __declspec(dllimport)
-#endif
+#   ifdef ICE_EXPORTS
+#       define ICE_API __declspec(dllexport)
+#   else
+#       define ICE_API __declspec(dllimport)
+#   endif
+
+#   include <windows.h>
 
 #else // !WIN32
 
 #   define ICE_API /**/
 
 #endif
-
-//
-// Ice uses JThreads/C++
-//
-#include <JTC/JTC.h>
 
 //
 // Some include files we need almost everywhere
@@ -50,6 +49,11 @@
 #include <string>
 #include <vector>
 #include <list>
+
+//
+// Ice uses JThreads/C++
+//
+#include <JTC/JTC.h>
 
 //
 // Define Ice and _Ice namespace, for those files which do not include
