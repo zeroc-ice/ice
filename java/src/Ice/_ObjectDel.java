@@ -18,6 +18,15 @@ public interface _ObjectDel
     void ice_ping(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable;
 
+    String[] ice_ids(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable;
+
+    String ice_id(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable;
+
+    String[] ice_facets(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable;
+
     byte[] ice_invoke(String operation, boolean nonmutating, byte[] inParams,
                       java.util.Map context)
         throws LocationForward, IceInternal.NonRepeatable;

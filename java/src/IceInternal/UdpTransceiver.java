@@ -23,7 +23,7 @@ final class UdpTransceiver implements Transceiver
     {
         if (_traceLevels.network >= 1)
         {
-            String s = "closing udp connection\n" + toString();
+            String s = "closing " + _protocolName + " connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 

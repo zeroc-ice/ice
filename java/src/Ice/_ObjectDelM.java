@@ -42,6 +42,54 @@ public class _ObjectDelM implements _ObjectDel
         }
     }
 
+    public String[]
+    ice_ids(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable
+    {
+        IceInternal.Outgoing __out =
+            new IceInternal.Outgoing(__connection, __reference, "ice_ids",
+                                     true, __context);
+        IceInternal.BasicStream __is = __out.is();
+        IceInternal.BasicStream __os = __out.os();
+        if (!__out.invoke())
+        {
+            throw new UnknownUserException();
+        }
+        return __is.readStringSeq();
+    }
+
+    public String
+    ice_id(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable
+    {
+        IceInternal.Outgoing __out =
+            new IceInternal.Outgoing(__connection, __reference, "ice_id",
+                                     true, __context);
+        IceInternal.BasicStream __is = __out.is();
+        IceInternal.BasicStream __os = __out.os();
+        if (!__out.invoke())
+        {
+            throw new UnknownUserException();
+        }
+        return __is.readString();
+    }
+
+    public String[]
+    ice_facets(java.util.Map __context)
+        throws LocationForward, IceInternal.NonRepeatable
+    {
+        IceInternal.Outgoing __out =
+            new IceInternal.Outgoing(__connection, __reference, "ice_facets",
+                                     true, __context);
+        IceInternal.BasicStream __is = __out.is();
+        IceInternal.BasicStream __os = __out.os();
+        if (!__out.invoke())
+        {
+            throw new UnknownUserException();
+        }
+        return __is.readStringSeq();
+    }
+
     public byte[]
     ice_invoke(String operation, boolean nonmutating, byte[] inParams,
                java.util.Map __context)

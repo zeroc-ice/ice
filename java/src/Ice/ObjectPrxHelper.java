@@ -89,6 +89,102 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
+    public String[]
+    ice_ids()
+    {
+        return ice_ids(null);
+    }
+
+    public String[]
+    ice_ids(java.util.Map __context)
+    {
+        int __cnt = 0;
+        while (true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                return __del.ice_ids(__context);
+            }
+            catch (LocationForward __ex)
+            {
+                __locationForward(__ex);
+            }
+            catch (IceInternal.NonRepeatable __ex)
+            {
+                __cnt = __handleException(__ex.get(), __cnt);
+            }
+            catch (LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
+    public String
+    ice_id()
+    {
+        return ice_id(null);
+    }
+
+    public String
+    ice_id(java.util.Map __context)
+    {
+        int __cnt = 0;
+        while (true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                return __del.ice_id(__context);
+            }
+            catch (LocationForward __ex)
+            {
+                __locationForward(__ex);
+            }
+            catch (IceInternal.NonRepeatable __ex)
+            {
+                __cnt = __handleException(__ex.get(), __cnt);
+            }
+            catch (LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
+    public String[]
+    ice_facets()
+    {
+        return ice_facets(null);
+    }
+
+    public String[]
+    ice_facets(java.util.Map __context)
+    {
+        int __cnt = 0;
+        while (true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                return __del.ice_facets(__context);
+            }
+            catch (LocationForward __ex)
+            {
+                __locationForward(__ex);
+            }
+            catch (IceInternal.NonRepeatable __ex)
+            {
+                __cnt = __handleException(__ex.get(), __cnt);
+            }
+            catch (LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
     public final byte[]
     ice_invoke(String operation, boolean nonmutating, byte[] inParams)
     {

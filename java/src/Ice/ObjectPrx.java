@@ -12,49 +12,54 @@ package Ice;
 
 public interface ObjectPrx
 {
-    public int ice_hash();
+    int ice_hash();
 
-    public boolean ice_isA(String __id);
-    public boolean ice_isA(String __id, java.util.Map __context);
+    boolean ice_isA(String __id);
+    boolean ice_isA(String __id, java.util.Map __context);
 
-    public void ice_ping();
-    public void ice_ping(java.util.Map __context);
+    void ice_ping();
+    void ice_ping(java.util.Map __context);
 
-    //public String[] ice_ids();
-    //public String[] ice_ids(java.util.Map __context);
+    String[] ice_ids();
+    String[] ice_ids(java.util.Map __context);
 
-    public byte[] ice_invoke(String operation, boolean nonmutating,
-                             byte[] inParams);
-    public byte[] ice_invoke(String operation, boolean nonmutating,
-                             byte[] inParams, java.util.Map __context);
+    String ice_id();
+    String ice_id(java.util.Map __context);
 
-    public Identity ice_getIdentity();
+    String[] ice_facets();
+    String[] ice_facets(java.util.Map __context);
 
-    public ObjectPrx ice_newIdentity(Identity newIdentity);
+    byte[] ice_invoke(String operation, boolean nonmutating, byte[] inParams);
+    byte[] ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+                      java.util.Map __context);
 
-    public String ice_getFacet();
+    Identity ice_getIdentity();
 
-    public ObjectPrx ice_newFacet(String newFacet);
+    ObjectPrx ice_newIdentity(Identity newIdentity);
 
-    public ObjectPrx ice_twoway();
+    String ice_getFacet();
 
-    public ObjectPrx ice_oneway();
+    ObjectPrx ice_newFacet(String newFacet);
 
-    public ObjectPrx ice_batchOneway();
+    ObjectPrx ice_twoway();
 
-    public ObjectPrx ice_datagram();
+    ObjectPrx ice_oneway();
 
-    public ObjectPrx ice_batchDatagram();
+    ObjectPrx ice_batchOneway();
 
-    public ObjectPrx ice_secure(boolean b);
+    ObjectPrx ice_datagram();
 
-    public ObjectPrx ice_timeout(int t);
+    ObjectPrx ice_batchDatagram();
 
-    public ObjectPrx ice_router(Ice.RouterPrx router);
+    ObjectPrx ice_secure(boolean b);
 
-    public ObjectPrx ice_default();
+    ObjectPrx ice_timeout(int t);
 
-    public void ice_flush();
+    ObjectPrx ice_router(Ice.RouterPrx router);
 
-    public boolean equals(java.lang.Object r);
+    ObjectPrx ice_default();
+
+    void ice_flush();
+
+    boolean equals(java.lang.Object r);
 }

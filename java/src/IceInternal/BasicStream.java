@@ -608,43 +608,15 @@ public class BasicStream
     public void
     writeString(String v)
     {
-        if (_currentWriteEncaps == null) // Lazy initialization
+        final int len = v.length();
+        writeInt(len);
+        if (len > 0)
         {
-            _currentWriteEncaps = new WriteEncaps();
-            _writeEncapsStack.add(_currentWriteEncaps);
-        }
-
-        Integer pos = null;
-        if (_currentWriteEncaps.stringsWritten != null) // Lazy creation
-        {
-            pos = (Integer)_currentWriteEncaps.stringsWritten.get(v);
-        }
-        if (pos != null)
-        {
-            writeInt(pos.intValue());
-        }
-        else
-        {
-            final int len = v.length();
-            writeInt(len);
-            if (len > 0)
+            final char[] arr = v.toCharArray();
+            expand(len);
+            for (int i = 0; i < len; i++)
             {
-                /*
-                if (_currentWriteEncaps.stringsWritten == null)
-                {
-                    _currentWriteEncaps.stringsWritten =
-                        new java.util.HashMap();
-                }
-                int num = _currentWriteEncaps.stringsWritten.size();
-                _currentWriteEncaps.stringsWritten.put(
-                    v, new Integer(-(num + 1)));
-                */
-                final char[] arr = v.toCharArray();
-                expand(len);
-                for (int i = 0; i < len; i++)
-                {
-                    _buf.put((byte)arr[i]);
-                }
+                _buf.put((byte)arr[i]);
             }
         }
     }
@@ -664,59 +636,35 @@ public class BasicStream
     {
         final int len = readInt();
 
-        if (_currentReadEncaps == null) // Lazy initialization
+        if (len == 0)
         {
-            _currentReadEncaps = new ReadEncaps();
-            _readEncapsStack.add(_currentReadEncaps);
-        }
-
-        if (len < 0)
-        {
-            if (_currentReadEncaps.stringsRead == null || // Lazy creation
-                -(len + 1) >= _currentReadEncaps.stringsRead.size())
-            {
-                throw new Ice.IllegalIndirectionException();
-            }
-            return (String)_currentReadEncaps.stringsRead.get(-(len + 1));
+            return "";
         }
         else
         {
-            if (len == 0)
+            try
             {
+                /* TODO: Performance review
+                char[] arr = new char[len];
+                for (int i = 0; i < len; i++)
+                {
+                    arr[i] = (char)_buf.get();
+                }
+                String v = new String(arr);
+                */
+                byte[] arr = new byte[len];
+                _buf.get(arr);
+                String v = new String(arr, "ISO-8859-1");
+                return v;
+            }
+            catch (java.io.UnsupportedEncodingException ex)
+            {
+                assert(false);
                 return "";
             }
-            else
+            catch (java.nio.BufferUnderflowException ex)
             {
-                try
-                {
-                    /* TODO: Performance review
-                    char[] arr = new char[len];
-                    for (int i = 0; i < len; i++)
-                    {
-                        arr[i] = (char)_buf.get();
-                    }
-                    String v = new String(arr);
-                    */
-                    byte[] arr = new byte[len];
-                    _buf.get(arr);
-                    String v = new String(arr, "ISO-8859-1");
-                    if (_currentReadEncaps.stringsRead == null)
-                    {
-                        _currentReadEncaps.stringsRead =
-                            new java.util.ArrayList(10);
-                    }
-                    _currentReadEncaps.stringsRead.add(v);
-                    return v;
-                }
-                catch (java.io.UnsupportedEncodingException ex)
-                {
-                    assert(false);
-                    return "";
-                }
-                catch (java.nio.BufferUnderflowException ex)
-                {
-                    throw new Ice.UnmarshalOutOfBoundsException();
-                }
+                throw new Ice.UnmarshalOutOfBoundsException();
             }
         }
     }
@@ -788,12 +736,11 @@ public class BasicStream
         }
     }
 
-    //
-    // TODO: Can we eliminate the need for a Holder?
-    //
-    public boolean
-    readObject(String signatureType, Ice.ObjectHolder v)
+    public Ice.Object
+    readObject(String signatureType, Ice.ObjectFactory factory)
     {
+        Ice.Object v = null;
+
         if (_currentReadEncaps == null) // Lazy initialization
         {
             _currentReadEncaps = new ReadEncaps();
@@ -809,8 +756,7 @@ public class BasicStream
             {
                 throw new Ice.IllegalIndirectionException();
             }
-            v.value = (Ice.Object)_currentReadEncaps.objectsRead.get(pos);
-            return true;
+            v = (Ice.Object)_currentReadEncaps.objectsRead.get(pos);
         }
         else
         {
@@ -818,54 +764,41 @@ public class BasicStream
 
             if (id.length() == 0)
             {
-                v.value = null;
-                return true;
+                return null;
             }
             else if (id.equals("::Ice::Object"))
             {
-                v.value = new Ice.Object();
-                readObject(v.value);
-                return true;
+                v = new Ice.Object();
             }
             else
             {
-                Ice.ObjectFactory factory =
-                    _instance.servantFactoryManager().find(id);
-                if (factory != null)
+                Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
+                if (userFactory != null)
                 {
-                    v.value = factory.create(id);
-                    if (v.value != null)
-                    {
-                        readObject(v.value);
-                        return true;
-                    }
+                    v = userFactory.create(id);
                 }
 
-                if (id.equals(signatureType))
+                if (v == null && id.equals(signatureType))
                 {
-                    return false;
+                    assert(factory != null);
+                    v = factory.create(id);
+                    assert(v != null);
                 }
 
-                throw new Ice.NoObjectFactoryException();
+                if (v == null)
+                {
+                    throw new Ice.NoObjectFactoryException();
+                }
             }
+            if (_currentReadEncaps.objectsRead == null) // Lazy creation
+            {
+                _currentReadEncaps.objectsRead = new java.util.ArrayList(10);
+            }
+            _currentReadEncaps.objectsRead.add(v);
+            v.__read(this);
         }
-    }
 
-    public void
-    readObject(Ice.Object v)
-    {
-        assert(v != null);
-        if (_currentReadEncaps == null) // Lazy initialization
-        {
-            _currentReadEncaps = new ReadEncaps();
-            _readEncapsStack.add(_currentReadEncaps);
-        }
-        if (_currentReadEncaps.objectsRead == null) // Lazy creation
-        {
-            _currentReadEncaps.objectsRead = new java.util.ArrayList(10);
-        }
-        _currentReadEncaps.objectsRead.add(v);
-        v.__read(this);
+        return v;
     }
 
     public void
@@ -958,7 +891,6 @@ public class BasicStream
     {
         int start;
         byte encoding;
-        java.util.ArrayList stringsRead;
         java.util.ArrayList objectsRead;
     }
 
@@ -966,7 +898,6 @@ public class BasicStream
     {
         int start;
         byte encoding;
-        java.util.HashMap stringsWritten;
         java.util.IdentityHashMap objectsWritten;
     }
 

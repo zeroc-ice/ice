@@ -29,6 +29,21 @@ class PropertiesI implements Properties
         _properties.put(key, value);
     }
 
+    public String[]
+    getCommandLineOptions()
+    {
+        String[] result = new String[_properties.size()];
+        java.util.Iterator p = _properties.entrySet().iterator();
+        int i = 0;
+        while (p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            result[i++] = "--" + entry.getKey() + "=" + entry.getValue();
+        }
+        assert(i == result.length);
+        return result;
+    }
+
     public Properties
     _clone()
     {
@@ -187,7 +202,7 @@ class PropertiesI implements Properties
         int end = -1;
         for (int i = 0; i < arr.length; i++)
         {
-            if (arr[i] == ' ' || arr[i] == '\t' || arr[i] == '=')
+            if (arr[i] == ' ' || arr[i] == '\t' || arr[i] == '\r' || arr[i] == '\n' || arr[i] == '=')
             {
                 end = i;
                 break;
@@ -199,11 +214,20 @@ class PropertiesI implements Properties
         }
 
         String key = s.substring(0, end);
+
+        end = s.indexOf('=', end);
+        if (end == -1)
+        {
+            return;
+        }
+        ++end;
+
         String value = "";
         if (end < s.length())
         {
-            value = s.substring(end + 1).trim();
+            value = s.substring(end).trim();
         }
+
         setProperty(key, value);
     }
 
