@@ -87,6 +87,7 @@ class Subpackage(Package):
 transforms = [ ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 	       ("slice", "share/slice"),
 	       ("ant", "lib/Ice-%version%/ant"),
+	       ("python", "lib/Ice-%version%/python"),
                ("doc", "share/doc/Ice-%version%"),
                ("ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
                ("LICENSE", "share/doc/Ice-%version%/LICENSE")
@@ -172,7 +173,7 @@ fileLists = [
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
-               [("lib", "lib/IcePy.so"), ("dir", "python")]),
+               [("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python",
                "Ice tools for developing Ice applications in Python",
@@ -272,7 +273,7 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config ")
+    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " + distro + "/certs")
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo_" + demoDir)
 
     #
