@@ -24,7 +24,7 @@ select "Build".
 To run these demos, you need to add the Ice bin directory to your PATH,
 for example:
 
-set PATH=C:\Ice-1.1.1\bin;%PATH%
+set PATH=C:\Ice-1.4.0\bin;%PATH%
 
 Then open a Command Prompt, cd to the desired demo subdirectory, and
 type 'server' to start the server. In a separate Command Prompt window,
@@ -41,10 +41,10 @@ Building and running the Java demos
 
 The Java demos are in the demoj directory.
 
-To build the Java demos, you need the Java SDK 1.4.1 and Ant 1.5. They 
+To build the Java demos, you need the Java SDK 1.4.2 and Ant 1.5. They 
 can be downloaded from:
 
-http://java.sun.com/j2se/1.4.1/download.html
+http://java.sun.com/j2se/1.4.2/download.html
 http://ant.apache.org/bindownload.cgi
 
 You also need to set the following environment variables:

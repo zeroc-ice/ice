@@ -17,7 +17,7 @@
         {
         "MsmKey" = "8:_3E13E885AAA3419E911E02DF7FA0C762"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\builds\\ice\\install\\vc70\\MergeModules\\IceRuntimeDebugPDB.msm"
+        "MsmSig" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
         }
         "Entry"
         {
@@ -295,6 +295,7 @@
                 "UseDynamicProperties" = "11:TRUE"
                 "IsDependency" = "11:FALSE"
                 "SourcePath" = "8:..\\MergeModules\\IceRuntimeDebugPDB.msm"
+                "ModuleSignature" = "8:MergeModule.05D62AF072BE4A568B636D3ED4DC95D0"
                     "Properties"
                     {
                         "_B7E87A49239640DCA1DEAE9292E379F6.05D62AF072BE4A568B636D3ED4DC95D0"
@@ -320,18 +321,18 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Ice 1.3.0 PDB Files"
-        "ProductCode" = "8:{177C0EAE-251C-4295-9A6E-9331F3CA8D4B}"
-        "PackageCode" = "8:{2866CC5C-5854-4C1F-8280-4A319C13B1CA}"
-        "UpgradeCode" = "8:{34AFF334-5D5C-45B4-B836-54CDDE95ABB0}"
+        "ProductName" = "8:Ice 1.4.0 PDB Files"
+        "ProductCode" = "8:{BE51204E-3524-42FB-B4F4-034A81935882}"
+        "PackageCode" = "8:{338FE72A-1902-429D-B3AC-CFBFFFBB1E97}"
+        "UpgradeCode" = "8:{510C68CA-F96D-444C-AF4D-D40548C8B1A2}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
-        "ProductVersion" = "8:1.3.0"
+        "ProductVersion" = "8:1.4.0"
         "Manufacturer" = "8:ZeroC, Inc"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Ice™ 1.3.0 PDB files"
+        "Title" = "8:Ice™ 1.4.0 PDB files"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ZeroC, Inc"
         "Keywords" = "8:"
@@ -508,7 +509,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Expat are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Expat are protected by copyright law and international treaties. Please read carefully the license agreement on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -789,7 +790,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Expat are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Expat are protected by copyright law and international treaties. Please read carefully the license agreement on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }

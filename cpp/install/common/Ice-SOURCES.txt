@@ -3,12 +3,4 @@ Source Code
 
 The source distributions of Ice, Berkeley DB, bzip2/libbzip2, OpenSSL and
 Expat used to build this distribution can be downloaded at no cost
-from the following Web sites:
-
-http://www.zeroc.com/download.html (Ice)
-http://www.sleepycat.com/download (Berkeley DB)
-http://sources.redhat.com/bzip2 (bzip2/libbzip2)
-http://www.openssl.org (OpenSSL)
-http://sourceforge.net/projects/expat (Expat)
-
-
+from http://www.zeroc.com/download.html.
