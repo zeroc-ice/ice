@@ -18,29 +18,29 @@
 class C {};
 
 sequence<C> CSeq;
-["java:java.util.ArrayList"] sequence<C> CArray;
-["java:java.util.LinkedList"] sequence<C> CList;
+["java:type:java.util.ArrayList"] sequence<C> CArray;
+["java:type:java.util.LinkedList"] sequence<C> CList;
 
-["java:java.util.ArrayList"] sequence<bool> BoolSeq;
-["java:java.util.ArrayList"] sequence<byte> ByteSeq;
-["java:java.util.ArrayList"] sequence<short> ShortSeq;
-["java:java.util.ArrayList"] sequence<int> IntSeq;
-["java:java.util.ArrayList"] sequence<long> LongSeq;
-["java:java.util.ArrayList"] sequence<float> FloatSeq;
-["java:java.util.ArrayList"] sequence<double> DoubleSeq;
-["java:java.util.ArrayList"] sequence<string> StringSeq;
+["java:type:java.util.ArrayList"] sequence<bool> BoolSeq;
+["java:type:java.util.ArrayList"] sequence<byte> ByteSeq;
+["java:type:java.util.ArrayList"] sequence<short> ShortSeq;
+["java:type:java.util.ArrayList"] sequence<int> IntSeq;
+["java:type:java.util.ArrayList"] sequence<long> LongSeq;
+["java:type:java.util.ArrayList"] sequence<float> FloatSeq;
+["java:type:java.util.ArrayList"] sequence<double> DoubleSeq;
+["java:type:java.util.ArrayList"] sequence<string> StringSeq;
 
 enum E { E1, E2, E3 };
-["java:java.util.ArrayList"] sequence<E> ESeq;
+["java:type:java.util.ArrayList"] sequence<E> ESeq;
 
 struct S
 {
     E en;
 };
-["java:java.util.ArrayList"] sequence<S> SSeq;
+["java:type:java.util.ArrayList"] sequence<S> SSeq;
 
 dictionary<int, string> D;
-["java:java.util.ArrayList"] sequence<D> DSeq;
+["java:type:java.util.ArrayList"] sequence<D> DSeq;
 
 sequence<StringSeq> StringSeqSeq;
 
@@ -64,7 +64,7 @@ class Test
 
     void shutdown();
 
-    ["java:java.util.ArrayList"] CSeq seq;
+    ["java:type:java.util.ArrayList"] CSeq seq;
 };
 
 #endif
