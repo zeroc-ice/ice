@@ -193,12 +193,6 @@ Slice::Gen::generate(const UnitPtr& p)
 	    H << "\n#include <Ice/IncomingAsync.h>";
 	}
 	H << "\n#include <Ice/Direct.h>";
-        if(_stream)
-        {
-            H << "\n#include <Ice/StreamF.h>";
-            C << "\n#include <Ice/Stream.h>";
-        }
-	
 	C << "\n#include <Ice/LocalException.h>";
 	C << "\n#include <Ice/ObjectFactory.h>";
     }
@@ -217,6 +211,21 @@ Slice::Gen::generate(const UnitPtr& p)
     {
 	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <Ice/Object.h>";
+    }
+
+    if(_stream || p->hasNonLocalClassDefs() || p->hasNonLocalExceptions())
+    {
+	H << "\n#include <Ice/StreamF.h>";
+
+	if(!p->hasNonLocalClassDefs())
+	{
+	    C << "\n#include <Ice/LocalException.h>";
+	}
+
+	if(_stream)
+	{
+	    C << "\n#include <Ice/Stream.h>";
+	}
     }
 
     if(_checksum)
@@ -459,11 +468,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
 	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
 
-        if(_stream)
-        {
-            H << sp << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
-        }
+        H << sp << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
+        H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
 
 	TypeStringList memberList;
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -566,6 +572,25 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 C << nl << "#endif";
                 C.restoreIndent();
             }
+            C << eb;
+        }
+        else
+        {
+            //
+            // Emit placeholder functions to catch errors.
+            //
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
+            C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
+            C << nl << "throw ex;";
+            C << eb;
+
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&, bool)";
+            C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"exception " << scoped .substr(2)<< " was not generated with stream support\";";
+            C << nl << "throw ex;";
             C << eb;
         }
 
@@ -2375,11 +2400,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	H << sp;
 	H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
 	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
-	if(_stream)
-	{
-	    H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-	    H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
-	}
+        H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
+        H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
 
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
@@ -2473,6 +2495,26 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C.zeroIndent();
 	    C << nl << "#endif";
 	    C.restoreIndent();
+	    C << eb;
+	}
+        else
+	{
+            //
+            // Emit placeholder functions to catch errors.
+            //
+	    C << sp;
+	    C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
+	    C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            C << nl << "throw ex;";
+	    C << eb;
+	    C << sp;
+	    C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&, bool)";
+	    C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            C << nl << "throw ex;";
 	    C << eb;
 	}
 
