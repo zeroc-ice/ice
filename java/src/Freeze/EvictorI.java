@@ -1214,7 +1214,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Special ice_ping() handling
 	//
-	if(current.operation.equals("ice_ping"))
+	if(current.operation != null && current.operation.equals("ice_ping"))
 	{
 	    if(hasFacet(current.id, current.facet))
 	    {
