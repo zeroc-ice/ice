@@ -27,6 +27,7 @@ SLICEFILES	= ../slice/Ice/LocalException.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ServantLocator.ice \
 		  ../slice/Ice/SecurityException.ice \
+                  ../slice/Ice/SecureUdp.ice \
 		  ../slice/Ice/Identity.ice \
 		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Router.ice \
