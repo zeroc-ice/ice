@@ -57,7 +57,11 @@ public final class DefaultsAndOverrides
 	if(value.length() > 0)
 	{
 	    overrideCompress = true;
-	    overrideCompressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
+	    if(properties.getPropertyAsInt("Ice.Override.Compress") != 0)
+	    {
+		System.err.println("warning: compression not supported, Ice.Override.Compress ignored");
+	    }
+	    overrideCompressValue = false;
 	}
 	else
 	{
