@@ -41,7 +41,6 @@ private:
     SslTransceiver(const InstancePtr&, SOCKET, Connection*);
 
     virtual ~SslTransceiver();
-    void cleanUpSSL();
     friend class SslConnector;
     friend class SslAcceptor;
 

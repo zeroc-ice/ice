@@ -14,7 +14,7 @@
 # protocol. Otherwise TCP is used.
 #
 
-#protocol = "ssl"
+# protocol = "ssl"
 protocol = ""
 
 #

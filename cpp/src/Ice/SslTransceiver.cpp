@@ -42,8 +42,8 @@ IceInternal::SslTransceiver::close()
     }
 
     SOCKET fd = _fd;
-    cleanUpSSL();
     _fd = INVALID_SOCKET;
+    _sslConnection->shutdown();
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
 
@@ -62,6 +62,7 @@ IceInternal::SslTransceiver::shutdown()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
+    _sslConnection->shutdown();
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 
     ICE_METHOD_RET("SslTransceiver::shutdown()");
@@ -82,9 +83,13 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 
     if (!_sslConnection->read(buf, timeout))
     {
-        ConnectionLostException clEx(__FILE__, __LINE__);
-        clEx.error = 0;
-        throw clEx;
+        ICE_WARNING("Connection::read() returning no bytes read.");
+
+        // TODO: Perhaps this should be a NoApplicationDataException ???
+        // ICE_WARNING("Throwing ConnectionLostException.");
+        // ConnectionLostException clEx(__FILE__, __LINE__);
+        // clEx.error = 0;
+        // throw clEx;
     }
 
     ICE_METHOD_RET("SslTransceiver::read()");
@@ -113,15 +118,8 @@ IceInternal::SslTransceiver::~SslTransceiver()
 {
     assert(_fd == INVALID_SOCKET);
 
-    cleanUpSSL();
-}
-
-void
-IceInternal::SslTransceiver::cleanUpSSL()
-{
     if (_sslConnection != 0)
     {
-        _sslConnection->shutdown();
         delete _sslConnection;
         _sslConnection = 0;
     }

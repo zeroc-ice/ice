@@ -29,6 +29,85 @@ namespace OpenSSL
 
 using namespace Ice;
 
+class SafeFlag
+{
+public:
+    SafeFlag(bool flagVal = false)
+    {
+        _flag = flagVal;
+    }
+
+    ~SafeFlag()
+    {
+    }
+
+    bool checkAndSet()
+    {
+        JTCSyncT<JTCMutex> sync(_mutex);
+
+        if (_flag)
+        {
+            return false;
+        }
+        else
+        {
+            _flag = true;
+            return true;
+        }
+    }
+
+    bool check()
+    {
+        JTCSyncT<JTCMutex> sync(_mutex);
+        return _flag;
+    }
+
+    void set()
+    {
+        JTCSyncT<JTCMutex> sync(_mutex);
+        _flag = true;
+    }
+
+    void unset()
+    {
+        JTCSyncT<JTCMutex> sync(_mutex);
+        _flag = false;
+    }
+
+private:
+    JTCMutex _mutex;
+    bool _flag;
+};
+
+
+class HandshakeSentinel
+{
+
+public:
+    HandshakeSentinel(SafeFlag& handshakeFlag) :
+                     _flag(handshakeFlag)
+    {
+        _ownHandshake = _flag.checkAndSet();
+    }
+
+    ~HandshakeSentinel()
+    { 
+        if (_ownHandshake)
+        {
+            _flag.unset();
+        }
+    }
+
+    bool ownHandshake()
+    {
+        return _ownHandshake;
+    }
+
+private:
+    bool _ownHandshake;
+    SafeFlag& _flag;
+};
+
 class Connection : public IceSecurity::Ssl::Connection
 {
 
@@ -54,6 +133,7 @@ protected:
     int connect();
     int accept();
     int renegotiate();
+    int initialize(int timeout);
 
     inline int pending() { return SSL_pending(_sslConnection); };
     inline int getLastError() const { return SSL_get_error(_sslConnection, _lastError); };
@@ -103,7 +183,7 @@ protected:
 
     System* _system;
 
-    JTCMutex _initMutex;
+    SafeFlag _handshakeFlag;
     int _initWantRead;
     int _initWantWrite;
     bool _timeoutEncountered;

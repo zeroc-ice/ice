@@ -1207,7 +1207,7 @@ IceSecurity::Ssl::OpenSSL::System::commonConnectionSetup(Connection* connection)
     }
     else
     {
-        handshakeReadTimeout = 10000;
+        handshakeReadTimeout = 5000;
     }
 
     connection->setHandshakeReadTimeout(handshakeReadTimeout);

@@ -16,6 +16,7 @@
 #endif
 
 #include <openssl/ssl.h>
+#include <time.h>
 
 namespace IceSecurity
 {
@@ -28,6 +29,7 @@ typedef enum
     SECURITY_METHODS,
     SECURITY_EXCEPTIONS,
     SECURITY_PROTOCOL,
+    SECURITY_DEV_DEBUG,
     SECURITY_PROTOCOL_DEBUG
 } SecurityTraceLevel;
 
@@ -39,10 +41,18 @@ typedef enum
 #define GETTHREADID getpid()
 #endif
 
+#define ICE_SECURITY_DISPLAYTHREADS
+
+/*
+    time_t ltime; \
+    time(&ltime); \
+    thread << " " << dec << ltime << " " << hex << (void *)this << " Thread(" << dec << GETTHREADID << ") "; \
+*/
+
 #ifdef ICE_SECURITY_DISPLAYTHREADS
 #define ICE_SECURITY_LOGGER(s) \
     ostringstream thread; \
-    thread << "Thread(" << dec << GETTHREADID << ") "; \
+    thread << hex << (void *)this << " Thread(" << dec << GETTHREADID << ") "; \
     _logger->trace(_traceLevels->securityCat, thread.str() + s);
 #else
 #define ICE_SECURITY_LOGGER(s) _logger->trace(_traceLevels->securityCat, s);
@@ -57,6 +67,7 @@ typedef enum
 #define ICE_SECURITY_LEVEL_EXCEPTIONS (_traceLevels->security >= IceSecurity::SECURITY_EXCEPTIONS)
 #define ICE_SECURITY_LEVEL_PROTOCOL (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
 #define ICE_SECURITY_LEVEL_PROTOCOL_DEBUG (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG)
+#define ICE_SECURITY_LEVEL_DEV_DEBUG (_traceLevels->security >= IceSecurity::SECURITY_DEV_DEBUG)
 
 #define ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL \
     (IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
@@ -106,6 +117,12 @@ typedef enum
 #define ICE_PROTOCOL_DEBUG(s) \
     if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG) \
     { \
+	ICE_SECURITY_LOGGER("PDB " + string(s)); \
+    }
+
+#define ICE_DEV_DEBUG(s) \
+    if (ICE_SECURITY_LEVEL_DEV_DEBUG) \
+    { \
 	ICE_SECURITY_LOGGER("DBG " + string(s)); \
     }
 
@@ -118,6 +135,7 @@ typedef enum
 #define ICE_SECURITY_LEVEL_PROTOCOL false
 #define ICE_SECURITY_LEVEL_PROTOCOL_DEBUG false
 #define ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL false
+#define ICE_SECURITY_LEVEL_DEV_DEBUG false
 
 #define ICE_METHOD_INV(s)
 #define ICE_METHOD_INS(s)
@@ -138,6 +156,7 @@ typedef enum
 #define ICE_EXCEPTION(s)
 #define ICE_PROTOCOL(s)
 #define ICE_PROTOCOL_DEBUG(s)
+#define ICE_DEV_DEBUG(s)
 
 #endif
 

@@ -36,8 +36,6 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::~ClientConnection()
 {
     ICE_METHOD_INV("OpenSSL::ClientConnection::~ClientConnection()");
 
-    shutdown();
-
     ICE_METHOD_RET("OpenSSL::ClientConnection::~ClientConnection()");
 }
 
@@ -45,27 +43,6 @@ void
 IceSecurity::Ssl::OpenSSL::ClientConnection::shutdown()
 {
     ICE_METHOD_INV("OpenSSL::ClientConnection::shutdown()");
-
-    if (_sslConnection != 0)
-    {
-        int shutdown = 0;
-        int retries = 100;
-
-        do
-        {
-            shutdown = SSL_shutdown(_sslConnection);
-            retries--;
-        }
-        while ((shutdown == 0) && (retries > 0));
-
-        if (shutdown <= 0)
-        {
-            ostringstream s;
-            s << "SSL shutdown failure encountered: code[" << shutdown << "] retries[";
-            s << retries << "]\n" << fdToString(SSL_get_fd(_sslConnection));
-            ICE_PROTOCOL_DEBUG(s.str());
-        }
-    }
 
     Connection::shutdown();
 
@@ -75,8 +52,6 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::shutdown()
 int
 IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 {
-    JTCSyncT<JTCMutex> sync(_initMutex);
-
     ICE_METHOD_INV("OpenSSL::ClientConnection::init()");
 
     if (_timeoutEncountered)
@@ -174,12 +149,14 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 
                     if (connectionLost())
                     {
+                        ICE_DEV_DEBUG("ClientConnection::init(): Throwing ConnectionLostException... SslConnectionOpenSSLClient.cpp, 177");
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
                     }
                     else
                     {
+                        ICE_DEV_DEBUG("ClientConnection::init(): Throwing SocketException... SslConnectionOpenSSLClient.cpp, 184");
                         SocketException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
@@ -283,161 +260,176 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
     while (buf.i != buf.b.end())
     {
         // Ensure we're initialized.
-        if (init(timeout))
+        int initReturn = initialize(timeout);
+
+        if (initReturn == -1)
         {
-            // Perform a select on the socket.
-            if (!writeSelect(timeout))
+            // Handshake underway, we should just return with what we've got (even if that's nothing).
+            break;
+        }
+
+        if (initReturn == 0)
+        {
+            // Retry the initialize call
+            continue;
+        }
+
+        // initReturn must be > 0, so we're okay to try a write
+
+        // Perform a select on the socket.
+        if (!writeSelect(timeout))
+        {
+            // We're done here.
+            break;
+        }
+
+        bytesWritten = sslWrite((char *)buf.i, packetSize);
+
+        switch (getLastError())
+        {
+            case SSL_ERROR_NONE:
             {
-                // We're done here.
-                break;
+                if (bytesWritten > 0)
+                {
+                    if (_traceLevels->network >= 3)
+                    {
+                        ostringstream s;
+                        s << "sent " << bytesWritten << " of " << packetSize;
+                        s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
+                       _logger->trace(_traceLevels->networkCat, s.str());
+                    }
+
+                    totalBytesWritten += bytesWritten;
+
+                    buf.i += bytesWritten;
+
+                    if (packetSize > buf.b.end() - buf.i)
+                    {
+                        packetSize = buf.b.end() - buf.i;
+                    }
+                }
+                else
+                {
+                    // TODO: The client application performs a cleanup at this point,
+                    //       not even shutting down SSL - it just frees the SSL
+                    //       structure. I'm ignoring this, at the moment, as I'm sure
+                    //       the demo is handling it in an artificial manner.
+
+                    ICE_PROTOCOL("Error SSL_ERROR_NONE: Repeating as per protocol.");
+                }
+                continue;
             }
 
-            bytesWritten = sslWrite((char *)buf.i, packetSize);
-
-            switch (getLastError())
+            case SSL_ERROR_WANT_WRITE:
             {
-                case SSL_ERROR_NONE:
+                // Repeat with the same arguments! (as in the OpenSSL documentation)
+                // Whatever happened, the last write didn't actually write anything
+                // for us.  This is effectively a retry.
+
+                ICE_PROTOCOL("Error SSL_ERROR_WANT_WRITE: Repeating as per protocol.");
+
+                continue;
+            }
+
+            case SSL_ERROR_WANT_READ:
+            {
+                // If we get this error here, it HAS to be because
+                // the protocol wants to do something handshake related.
+                // In the case that we might actually get some application data,
+                // we will use the base SSL read method, using the _inBuffer.
+
+                ICE_PROTOCOL("Error SSL_ERROR_WANT_READ.");
+
+                readSSL(_inBuffer, timeout);
+
+                continue;
+            }
+
+            case SSL_ERROR_WANT_X509_LOOKUP:
+            {
+                // Perform another read.  The read should take care of this.
+
+                ICE_PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
+
+                continue;
+            }
+
+            case SSL_ERROR_SYSCALL:
+            {
+                // NOTE:  The demo client only throws an exception if there were actually bytes
+                //        written.  This is considered to be an error status requiring shutdown.
+                //        If nothing was written, the demo client stops writing - we continue.
+                //        This is potentially something wierd to watch out for.
+                if (bytesWritten == -1)
                 {
-                    if (bytesWritten > 0)
+                    // IO Error in underlying BIO
+
+                    if (interrupted())
                     {
-	                if (_traceLevels->network >= 3)
-	                {
-                            ostringstream s;
-                            s << "sent " << bytesWritten << " of " << packetSize;
-                            s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
-	                    _logger->trace(_traceLevels->networkCat, s.str());
-                        }
-
-                        totalBytesWritten += bytesWritten;
-
-                        buf.i += bytesWritten;
-
-                        if (packetSize > buf.b.end() - buf.i)
-                        {
-                            packetSize = buf.b.end() - buf.i;
-                        }
-                    }
-                    else
-                    {
-                        // TODO: The client application performs a cleanup at this point,
-                        //       not even shutting down SSL - it just frees the SSL
-                        //       structure. I'm ignoring this, at the moment, as I'm sure
-                        //       the demo is handling it in an artificial manner.
-
-                        ICE_PROTOCOL("Error SSL_ERROR_NONE: Repeating as per protocol.");
-                    }
-                    continue;
-                }
-
-                case SSL_ERROR_WANT_WRITE:
-                {
-                    // Repeat with the same arguments! (as in the OpenSSL documentation)
-                    // Whatever happened, the last write didn't actually write anything
-                    // for us.  This is effectively a retry.
-
-                    ICE_PROTOCOL("Error SSL_ERROR_WANT_WRITE: Repeating as per protocol.");
-
-                    continue;
-                }
-
-                case SSL_ERROR_WANT_READ:
-                {
-                    // If we get this error here, it HAS to be because
-                    // the protocol wants to do something handshake related.
-                    // In the case that we might actually get some application data,
-                    // we will use the base SSL read method, using the _inBuffer.
-
-                    ICE_PROTOCOL("Error SSL_ERROR_WANT_READ.");
-
-                    readSSL(_inBuffer, timeout);
-
-                    continue;
-                }
-
-                case SSL_ERROR_WANT_X509_LOOKUP:
-                {
-                    // Perform another read.  The read should take care of this.
-
-                    ICE_PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
-
-                    continue;
-                }
-
-                case SSL_ERROR_SYSCALL:
-                {
-                    // NOTE:  The demo client only throws an exception if there were actually bytes
-                    //        written.  This is considered to be an error status requiring shutdown.
-                    //        If nothing was written, the demo client stops writing - we continue.
-                    //        This is potentially something wierd to watch out for.
-                    if (bytesWritten == -1)
-                    {
-                        // IO Error in underlying BIO
-
-	                if (interrupted())
-	                {
-		            break;
-	                }
-
-                        if (wouldBlock())
-	                {
-                            break;
-                        }
-
-                        if (connectionLost())
-	                {
-		            ConnectionLostException ex(__FILE__, __LINE__);
-		            ex.error = getSocketErrno();
-		            throw ex;
-	                }
-	                else
-	                {
-		            SocketException ex(__FILE__, __LINE__);
-		            ex.error = getSocketErrno();
-		            throw ex;
-	                }
-                    }
-                    else if (bytesWritten > 0)
-                    {
-                        ProtocolException protocolEx(__FILE__, __LINE__);
-
-                        // Protocol Error: Unexpected EOF
-                        protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
-
-                        ICE_SSLERRORS(protocolEx._message);
-                        ICE_EXCEPTION(protocolEx._message);
-
-                        throw protocolEx;
-                    }
-                    else // bytesWritten == 0
-                    {
-                        // Didn't write anything, continue, should be fine.
-
-                        ICE_PROTOCOL("Error SSL_ERROR_SYSCALL: Repeating as per protocol.");
-
                         break;
                     }
-                }
 
-                case SSL_ERROR_SSL:
+                    if (wouldBlock())
+	            {
+                        break;
+                    }
+
+                    if (connectionLost())
+	            {
+                        ICE_DEV_DEBUG("ClientConnection::write(): Throwing ConnectionLostException... SslConnectionOpenSSLClient.cpp, 390");
+		        ConnectionLostException ex(__FILE__, __LINE__);
+		        ex.error = getSocketErrno();
+		        throw ex;
+	            }
+	            else
+	            {
+                        ICE_DEV_DEBUG("ClientConnection::write(): Throwing SocketException... SslConnectionOpenSSLClient.cpp, 397");
+		        SocketException ex(__FILE__, __LINE__);
+		        ex.error = getSocketErrno();
+		        throw ex;
+	            }
+                }
+                else if (bytesWritten > 0)
                 {
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
-                    protocolEx._message = "Encountered a violation of the SSL Protocol.\n";
+                    // Protocol Error: Unexpected EOF
+                    protocolEx._message = "Encountered an EOF that violates the SSL Protocol.\n";
 
                     ICE_SSLERRORS(protocolEx._message);
                     ICE_EXCEPTION(protocolEx._message);
 
                     throw protocolEx;
                 }
-
-                case SSL_ERROR_ZERO_RETURN:
+                else // bytesWritten == 0
                 {
-                    ICE_EXCEPTION("SSL_ERROR_ZERO_RETURN");
+                    // Didn't write anything, continue, should be fine.
 
-		    ConnectionLostException ex(__FILE__, __LINE__);
-		    ex.error = getSocketErrno();
-		    throw ex;
+                    ICE_PROTOCOL("Error SSL_ERROR_SYSCALL: Repeating as per protocol.");
+
+                    break;
                 }
+            }
+
+            case SSL_ERROR_SSL:
+            {
+                ProtocolException protocolEx(__FILE__, __LINE__);
+
+                protocolEx._message = "Encountered a violation of the SSL Protocol.\n";
+
+                ICE_SSLERRORS(protocolEx._message);
+                ICE_EXCEPTION(protocolEx._message);
+
+                throw protocolEx;
+            }
+
+            case SSL_ERROR_ZERO_RETURN:
+            {
+                ICE_EXCEPTION("SSL_ERROR_ZERO_RETURN");
+
+		ConnectionLostException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
             }
         }
     }
