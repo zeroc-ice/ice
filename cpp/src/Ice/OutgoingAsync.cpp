@@ -34,22 +34,133 @@ void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::OutgoingAsync::OutgoingAsync() :
     __is(0),
-    __os(0),
-    __cnt(0)
+    __os(0)
 {
 }
 
 IceInternal::OutgoingAsync::~OutgoingAsync()
 {
+    assert(!_reference);
     assert(!_connection);
     assert(!__is);
     assert(!__os);
 }
 
 void
-IceInternal::OutgoingAsync::__setup(const ReferencePtr& ref)
+IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
-    const_cast<ReferencePtr&>(_reference) = ref;
+    if(_reference->locatorInfo)
+    {
+	_reference->locatorInfo->clearObjectCache(_reference);
+    }
+
+/*
+    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+    if(proxyFactory)
+    {
+	proxyFactory->checkRetryAfterException(ex, cnt);
+    }
+    else
+    {
+        ex.ice_throw(); // The communicator is already destroyed, so we cannot retry.
+    }
+*/
+
+    try
+    {
+	ice_exception(exc);
+    }
+    catch(const Exception& ex)
+    {
+	warning(ex);
+    }
+    catch(const std::exception& ex)
+    {
+	warning(ex);
+    }
+    catch(...)
+    {
+	warning();
+    }
+
+    assert(_connection);
+    _connection->decProxyCount();
+    _connection = 0;
+    
+    assert(__is);
+    delete __is;
+    __is = 0;
+   
+    assert(__os);
+    delete __os;
+    __os = 0;
+}
+
+bool
+IceInternal::OutgoingAsync::__timedOut() const
+{
+    if(_connection->timeout() >= 0)
+    {
+	return IceUtil::Time::now() >= _absoluteTimeout;
+    }
+    else
+    {
+	return false;
+    }
+}
+
+void
+IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& operation, OperationMode mode,
+				      const Context& context)
+{
+    assert(!_reference);
+    _reference = ref;
+
+    assert(!_connection);
+    _connection = _reference->getConnection();
+    _connection->incProxyCount();
+    
+    assert(!__is);
+    __is = new BasicStream(_reference->instance.get());
+    
+    assert(!__os);
+    __os = new BasicStream(_reference->instance.get());
+
+    _connection->prepareRequest(__os);
+    _reference->identity.__write(__os);
+    __os->write(_reference->facet);
+    __os->write(operation);
+    __os->write(static_cast<Byte>(mode));
+    __os->writeSize(Int(context.size()));
+    Context::const_iterator p;
+    for(p = context.begin(); p != context.end(); ++p)
+    {
+	__os->write(p->first);
+	__os->write(p->second);
+    }
+
+    __os->startWriteEncaps();
+}
+
+void
+IceInternal::OutgoingAsync::__send()
+{
+    if(_connection->timeout() >= 0)
+    {
+	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
+    }
+
+    try
+    {
+	_connection->sendAsyncRequest(__os, this);
+    }
+    catch(const LocalException&)
+    {
+	//
+	// Twoway requests report exceptions using finished().
+	//
+	assert(false);
+    }
 }
 
 void
@@ -153,55 +264,8 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	warning();
     }
 
-    assert(_connection);
-    _connection->decProxyCount();
-    _connection = 0;
-    
-    assert(__is);
-    delete __is;
-    __is = 0;
-   
-    assert(__os);
-    delete __os;
-    __os = 0;
-}
-
-void
-IceInternal::OutgoingAsync::__finished(const LocalException& exc)
-{
-    if(_reference->locatorInfo)
-    {
-	_reference->locatorInfo->clearObjectCache(_reference);
-    }
-
-/*
-    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
-    if(proxyFactory)
-    {
-	proxyFactory->checkRetryAfterException(ex, cnt);
-    }
-    else
-    {
-        ex.ice_throw(); // The communicator is already destroyed, so we cannot retry.
-    }
-*/
-
-    try
-    {
-	ice_exception(exc);
-    }
-    catch(const Exception& ex)
-    {
-	warning(ex);
-    }
-    catch(const std::exception& ex)
-    {
-	warning(ex);
-    }
-    catch(...)
-    {
-	warning();
-    }
+    assert(_reference);
+    _reference = 0;
 
     assert(_connection);
     _connection->decProxyCount();
@@ -214,69 +278,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     assert(__os);
     delete __os;
     __os = 0;
-}
-
-bool
-IceInternal::OutgoingAsync::__timedOut() const
-{
-    if(_connection->timeout() >= 0)
-    {
-	return IceUtil::Time::now() >= _absoluteTimeout;
-    }
-    else
-    {
-	return false;
-    }
-}
-
-void
-IceInternal::OutgoingAsync::__prepare(const string& operation, OperationMode mode, const Context& context)
-{
-    assert(!_connection);
-    _connection = _reference->getConnection();
-    _connection->incProxyCount();
-    
-    assert(!__is);
-    __is = new BasicStream(_reference->instance.get());
-    
-    assert(!__os);
-    __os = new BasicStream(_reference->instance.get());
-
-    _connection->prepareRequest(__os);
-    _reference->identity.__write(__os);
-    __os->write(_reference->facet);
-    __os->write(operation);
-    __os->write(static_cast<Byte>(mode));
-    __os->writeSize(Int(context.size()));
-    Context::const_iterator p;
-    for(p = context.begin(); p != context.end(); ++p)
-    {
-	__os->write(p->first);
-	__os->write(p->second);
-    }
-
-    __os->startWriteEncaps();
-}
-
-void
-IceInternal::OutgoingAsync::__send()
-{
-    if(_connection->timeout() >= 0)
-    {
-	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
-    }
-
-    try
-    {
-	_connection->sendAsyncRequest(__os, this);
-    }
-    catch(const LocalException&)
-    {
-	//
-	// Twoway requests report exceptions using finished().
-	//
-	assert(false);
-    }
 }
 
 void
@@ -310,12 +311,12 @@ IceInternal::OutgoingAsync::warning() const
 }
 
 void
-Ice::AMI_Object_ice_invoke::__invoke(const string& operation, OperationMode mode, const vector<Byte>& inParams,
-				     const Context& context)
+Ice::AMI_Object_ice_invoke::__invoke(const IceInternal::ReferencePtr& ref, const string& operation, OperationMode mode,
+				     const vector<Byte>& inParams, const Context& context)
 {
     try
     {
-	__prepare(operation, mode, context);
+	__prepare(ref, operation, mode, context);
 	__os->writeBlob(inParams);
 	__os->endWriteEncaps();
     }

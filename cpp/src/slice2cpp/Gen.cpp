@@ -1245,8 +1245,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	// Async requests may only be sent twoway.
 	C << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
-	C << nl << "__cb->__setup(__reference());";
-	C << nl << "__cb->__invoke" << spar << argsAMI << "__ctx" << epar << ';';
+	C << nl << "__cb->__invoke" << spar << "__reference()" << argsAMI << "__ctx" << epar << ';';
 	C << eb;
     }
 }
@@ -3342,6 +3341,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     vector<string> paramsDeclInvoke;
     vector<string> argsInvoke;
 
+    paramsInvoke.push_back("const ::IceInternal::ReferencePtr&");
+    paramsDeclInvoke.push_back("const ::IceInternal::ReferencePtr& __ref");
+    argsInvoke.push_back("__ref");
+
     TypePtr ret = p->returnType();
     string retS = inputTypeToString(ret);
     
@@ -3412,7 +3415,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-	C << nl << "__prepare(__operation, " << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
+	C << nl << "__prepare(__ref, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{

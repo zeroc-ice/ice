@@ -530,50 +530,33 @@ void
 IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out)
 {
     Int requestId;
-    auto_ptr<LocalException> exception;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	if(_exception.get())
 	{
-	    //
-	    // __finished() is called outside the thread
-	    // synchronization. See below.
-	    //
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(_exception->ice_clone()));
+	    _exception->ice_throw();
 	}
-	else
-	{
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
-	    
-	    requestId = _nextRequestId++;
-	    if(requestId <= 0)
-	    {
-		_nextRequestId = 1;
-		requestId = _nextRequestId++;
-	    }
-	    
-	    assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
-	    _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
-						       pair<const Int, OutgoingAsyncPtr>(requestId, out));
-	    
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
-	    }
-	}
-    }
 
-    //
-    // Exceptions for asynchronous messages must be handled outside
-    // the thread synchronization, so that nested calls are possible.
-    //
-    if(exception.get())
-    {
-	out->__finished(*_exception.get());
-	return;
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
+	
+	requestId = _nextRequestId++;
+	if(requestId <= 0)
+	{
+	    _nextRequestId = 1;
+	    requestId = _nextRequestId++;
+	}
+	
+	assert(!_endpoint->datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
+	_asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
+						   pair<const Int, OutgoingAsyncPtr>(requestId, out));
+	
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+	}
     }
 
     try
@@ -653,6 +636,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
 	assert(_exception.get());
+	_exception->ice_throw();
     }
 }
 

@@ -16,7 +16,8 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
-#include <IceUtil/Time.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ConnectionF.h>
@@ -40,20 +41,14 @@ public:
 
     virtual void ice_exception(const Ice::Exception&) = 0;
 
-    void __setup(const IceInternal::ReferencePtr&);
-
     void __finished(BasicStream&);
     void __finished(const Ice::LocalException&);
 
     bool __timedOut() const;
 
-    // Inlined for speed optimization.
-    BasicStream* __istream() { return __is; }
-    BasicStream* __ostream() { return __os; }
-
 protected:
 
-    void __prepare(const std::string&, Ice::OperationMode, const Ice::Context&);
+    void __prepare(const IceInternal::ReferencePtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
     void __send();
 
     virtual void __response(bool) = 0;
@@ -61,17 +56,21 @@ protected:
     BasicStream* __is;
     BasicStream* __os;
 
-    int __cnt;
-
 private:
 
     void warning(const Ice::Exception&) const;
     void warning(const std::exception&) const;
     void warning() const;
 
-    const ReferencePtr _reference;
+    ReferencePtr _reference;
     ConnectionPtr _connection;
     IceUtil::Time _absoluteTimeout;
+
+    //
+    // We use a data member mutex instead of deriving from one, so
+    // that user code is free to add mutex by derivation.
+    //
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
 }
@@ -86,7 +85,8 @@ public:
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
     virtual void ice_exception(const Ice::Exception&) = 0;
 
-    void __invoke(const std::string& operation, OperationMode, const std::vector<Byte>&, const Context&);
+    void __invoke(const IceInternal::ReferencePtr&, const std::string& operation, OperationMode,
+		  const std::vector<Byte>&, const Context&);
 
 private:
 
