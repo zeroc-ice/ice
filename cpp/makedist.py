@@ -251,10 +251,14 @@ for x in grammars:
     #
     # Run gmake to create the output files.
     #
-    if file == "cexp.y":
-        os.system("gmake cexp.c")
+    if verbose:
+        quiet = ""
     else:
-        os.system("gmake " + base + ".cpp")
+        quiet = "-s"
+    if file == "cexp.y":
+        os.system("gmake " + quiet + " cexp.c")
+    else:
+        os.system("gmake " + quiet + " " + base + ".cpp")
     #
     # Edit the Makefile to comment out the grammar rules.
     #
@@ -281,7 +285,11 @@ for x in scanners:
     #
     # Run gmake to create the output files.
     #
-    os.system("gmake " + base + ".cpp")
+    if verbose:
+        quiet = ""
+    else:
+        quiet = "-s"
+    os.system("gmake " + quiet + " " + base + ".cpp")
     #
     # Edit the Makefile to comment out the flex rules.
     #
