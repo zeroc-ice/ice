@@ -34,7 +34,7 @@ IceUtil::ThreadControl::ThreadControl() :
     }
 }
 
-IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned id) :
+IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned int id) :
     _handle(handle),
     _id(id),
     _detached(false)
@@ -175,7 +175,7 @@ IceUtil::Thread::start()
     //
     __incRef();
     
-    _handle->handle = (HANDLE)_beginthreadex(0, 0, (unsigned (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+    _handle->handle = (HANDLE)_beginthreadex(0, 0, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
     if(_handle->handle == 0)
     {
 	__decRef();

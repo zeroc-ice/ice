@@ -88,7 +88,12 @@ IceUtil::RecMutex::lock(LockState& state) const
 IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
+#ifdef __linux__ 
     const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE_NP };
+#else
+    const pthread_mutexattr_t attr = { PTHREAD_MUTEX_RECURSIVE };
+#endif
+
     int rc = pthread_mutex_init(&_mutex, &attr);
     if(rc != 0)
     {

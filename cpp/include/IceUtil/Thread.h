@@ -54,7 +54,7 @@ public:
     ThreadControl();
 
 #ifdef _WIN32
-    ThreadControl(const HandleWrapperPtr&, unsigned);
+    ThreadControl(const HandleWrapperPtr&, unsigned int);
 #else
     ThreadControl(pthread_t);
 #endif
@@ -91,10 +91,11 @@ private:
 
 #ifdef _WIN32
     HandleWrapperPtr _handle;
-    unsigned _id;
+    unsigned int _id;
 #else
     pthread_t _id;
 #endif
+
     bool _detached;
 };
 
@@ -102,7 +103,7 @@ class ICE_UTIL_API Thread : virtual public IceUtil::Shared
 {
 public:
 #ifdef _WIN32
-    typedef unsigned ThreadId;
+    typedef unsigned int ThreadId;
 #else
     typedef pthread_t ThreadId;
 #endif
@@ -126,7 +127,7 @@ private:
 
     bool _started;
 #ifdef _WIN32
-    unsigned _id;
+    unsigned int _id;
     HandleWrapperPtr _handle;
 #else
     pthread_t _id;

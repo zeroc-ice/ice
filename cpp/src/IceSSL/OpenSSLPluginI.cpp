@@ -114,7 +114,6 @@ namespace IceSSL
 extern "C"
 {
     void lockingCallback(int, int, const char*, int);
-
     unsigned long idFunction();
 }
 
@@ -145,25 +144,20 @@ void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
     }
 }
 
-unsigned long IceSSL::idFunction()
+unsigned long
+IceSSL::idFunction()
 {
-    unsigned long threadID = 0;
-
 #ifdef _WIN32
-    threadID = GetCurrentThreadId();
-#elif _POSIX_THREADS
-    threadID = pthread_self();
+    return static_cast<unsigned long>(GetCurrentThreadId());
 #else
-    #error You must define a method to return the current thread ID.
+    return static_cast<unsigned long>(pthread_self());
 #endif
-
-    return threadID;
 }
 
 IceSSL::SslLockKeeper::SslLockKeeper()
 {
-    CRYPTO_set_id_callback((unsigned long(*)())IceSSL::idFunction);
-    CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))IceSSL::lockingCallback);
+    CRYPTO_set_id_callback(IceSSL::idFunction);
+    CRYPTO_set_locking_callback(IceSSL::lockingCallback);
 }
 
 IceSSL::SslLockKeeper::~SslLockKeeper()

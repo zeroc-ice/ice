@@ -23,3 +23,6 @@ Changes since version 1.0.0
 
 - Fixed a bug with throwing exceptions in AMI from within
   ice_response().
+
+- For posix threads, PTHREAD_MUTEX_RECURSIVE_NP is now only used if
+  __linux__ is defined. Otherwise, PTHREAD_MUTEX_RECURSIVE is used.
