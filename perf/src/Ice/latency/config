@@ -1,4 +1,4 @@
-Latency.Ping=ping:tcp -p 10000
+Latency.Latency=latency:tcp -p 10000
 Latency.Endpoints=tcp -p 10000
 
 Ice.MonitorConnections=0

@@ -13,8 +13,13 @@
 using namespace std;
 using namespace Demo;
 
-class PingI : public Ping
+class LatencyI : public Latency
 {
+    virtual void
+    ping(const Ice::Current& current)
+    {
+    }
+
     virtual void
     shutdown(const Ice::Current& current)
     {
@@ -26,8 +31,8 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Latency");
-    Ice::ObjectPtr object = new PingI;
-    adapter->add(object, Ice::stringToIdentity("ping"));
+    Ice::ObjectPtr object = new LatencyI;
+    adapter->add(object, Ice::stringToIdentity("latency"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

@@ -13,12 +13,49 @@
 using namespace std;
 using namespace Demo;
 
+class AMI_Latency_pingI : public Demo::AMI_Latency_ping, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    AMI_Latency_pingI() :
+        _finished(false)
+    {
+    }
+
+    void waitFinished()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	while(!_finished)
+	{
+	    wait();
+	}
+    }
+
+private:
+    virtual void ice_response()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	assert(!_finished);
+	_finished = true;
+	notify();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        assert(false);
+    }
+
+    bool _finished;
+};
+
+typedef IceUtil::Handle<AMI_Latency_pingI> AMI_Latency_pingIPtr;
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     bool oneway = false;
     bool batch = false;
     bool twoway = false;
+    bool ami = false;
     int i;
     for(i = 0; i < argc; i++)
     {
@@ -34,13 +71,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    twoway = true;
 	}
+	else if(strcmp(argv[i], "ami") == 0)
+	{
+	    ami = true;
+	}
     }
     if(!oneway && !twoway && !batch)
     {
 	twoway = true;
     }
 
-    int repetitions;
+    int repetitions = 0;
     if(twoway)
     {
 	repetitions = 100000;
@@ -55,7 +96,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Latency.Ping";
+    const char* proxyProperty = "Latency.Latency";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
@@ -64,18 +105,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    PingPrx ping = PingPrx::checkedCast(base);
-    if(!ping)
+    LatencyPrx latency = LatencyPrx::checkedCast(base);
+    if(!latency)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    PingPrx onewayprx = PingPrx::uncheckedCast(base->ice_oneway());
-    PingPrx batchprx = PingPrx::uncheckedCast(base->ice_batchOneway());
+    LatencyPrx onewayprx = LatencyPrx::uncheckedCast(base->ice_oneway());
+    LatencyPrx batchprx = LatencyPrx::uncheckedCast(base->ice_batchOneway());
 
     // Initial ping to setup the connection.
-    ping->ice_ping();
+    latency->ice_ping();
+
+    AMI_Latency_pingIPtr cb = new AMI_Latency_pingI();
 
     IceUtil::Time tm = IceUtil::Time::now();
 
@@ -91,15 +134,23 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
 	if(twoway)
 	{
-	    ping->ice_ping();
+	    if(ami)
+	    {
+	        latency->ping_async(cb);
+		cb->waitFinished();
+	    }
+	    else
+	    {
+	        latency->ping();
+	    }
 	}
 	else if(oneway)
 	{
-	    onewayprx->ice_ping();
+	    onewayprx->ping();
 	}
 	else if(batch)
 	{
-	    batchprx->ice_ping();
+	    batchprx->ping();
 	}
     }
 
@@ -109,12 +160,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
             batchprx->ice_connection()->flushBatchRequests();
         }
-        ping->ice_ping();
+        latency->ping();
     }
 
     tm = IceUtil::Time::now() - tm;
 
-    ping->shutdown();
+    latency->shutdown();
 
     cout << tm * 1000 / repetitions << endl;
     return EXIT_SUCCESS;

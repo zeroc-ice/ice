@@ -129,6 +129,10 @@ def runIcePerfs(expr, i):
     runIcePerf(expr, i, "latency", "latency twoway 4tp", "twoway", threadPoolFour)
     runIcePerf(expr, i, "latency", "latency twoway tc", "twoway " + threadPerConnection, threadPerConnection)
     
+    runIcePerf(expr, i, "latency", "latency twoway AMI 1tp", "twoway ami", threadPoolOne)
+    runIcePerf(expr, i, "latency", "latency twoway AMI 4tp", "twoway ami", threadPoolFour)
+    runIcePerf(expr, i, "latency", "latency twoway AMI tc", "twoway ami " + threadPerConnection, threadPerConnection)
+
     runIcePerf(expr, i, "latency", "latency oneway 1tp", "oneway", threadPoolOne)
     runIcePerf(expr, i, "latency", "latency oneway 4tp", "oneway", threadPoolFour)
     runIcePerf(expr, i, "latency", "latency oneway tc", "oneway " + threadPerConnection, threadPerConnection)

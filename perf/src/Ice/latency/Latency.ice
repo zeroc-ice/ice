@@ -13,8 +13,10 @@
 module Demo
 {
 
-class Ping
+class Latency
 {
+    ["ami"] void ping();
+
     void shutdown();
 };
 
