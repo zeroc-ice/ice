@@ -37,8 +37,7 @@ public final class Network
     {
         try
         {
-            java.nio.channels.ServerSocketChannel fd =
-                java.nio.channels.ServerSocketChannel.open();
+            java.nio.channels.ServerSocketChannel fd = java.nio.channels.ServerSocketChannel.open();
             //
             // It's not possible to set TCP_NODELAY or KEEP_ALIVE
             // on a server socket in Java
@@ -62,8 +61,7 @@ public final class Network
     {
         try
         {
-            java.nio.channels.DatagramChannel fd =
-                java.nio.channels.DatagramChannel.open();
+            java.nio.channels.DatagramChannel fd = java.nio.channels.DatagramChannel.open();
             fd.configureBlocking(false);
             return fd;
         }
@@ -76,8 +74,7 @@ public final class Network
     }
 
     public static java.net.InetSocketAddress
-    doBind(java.nio.channels.ServerSocketChannel fd,
-           java.net.InetSocketAddress addr)
+    doBind(java.nio.channels.ServerSocketChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
@@ -94,8 +91,7 @@ public final class Network
     }
 
     public static java.net.InetSocketAddress
-    doBind(java.nio.channels.DatagramChannel fd,
-           java.net.InetSocketAddress addr)
+    doBind(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr)
     {
         try
         {
@@ -112,8 +108,7 @@ public final class Network
     }
 
     public static void
-    doConnect(java.nio.channels.SocketChannel fd,
-              java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr, int timeout)
     {
         try
         {
@@ -179,8 +174,7 @@ public final class Network
     }
 
     public static void
-    doConnect(java.nio.channels.DatagramChannel fd,
-              java.net.InetSocketAddress addr, int timeout)
+    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr, int timeout)
     {
         try
         {
@@ -237,9 +231,7 @@ public final class Network
                             try
                             {
                                 java.nio.channels.SelectionKey key =
-                                    fd.register(selector,
-                                        java.nio.channels.SelectionKey.
-                                        OP_ACCEPT);
+                                    fd.register(selector, java.nio.channels.SelectionKey.OP_ACCEPT);
                                 int n;
                                 if (timeout > 0)
                                 {
@@ -341,6 +333,30 @@ public final class Network
         }
     }
 
+    public static String
+    getLocalHost(boolean numeric)
+    {
+        String host;
+
+        try
+        {
+            if (!numeric)
+            {
+                host = java.net.InetAddress.getLocalHost().getHostName();
+            }
+            else
+            {
+                host = java.net.InetAddress.getLocalHost().getHostAddress();
+            }
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            throw new Ice.DNSException();
+        }
+
+        return host;
+    }
+
     public static class SocketPair
     {
         public java.nio.channels.spi.AbstractSelectableChannel source;
@@ -418,8 +434,7 @@ public final class Network
 
         if (fd instanceof java.nio.channels.SocketChannel)
         {
-            java.nio.channels.SocketChannel socketChannel =
-                (java.nio.channels.SocketChannel)fd;
+            java.nio.channels.SocketChannel socketChannel = (java.nio.channels.SocketChannel)fd;
             java.net.Socket socket = socketChannel.socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
@@ -428,8 +443,7 @@ public final class Network
         }
         else if (fd instanceof java.nio.channels.DatagramChannel)
         {
-            java.nio.channels.DatagramChannel datagramChannel =
-                (java.nio.channels.DatagramChannel)fd;
+            java.nio.channels.DatagramChannel datagramChannel = (java.nio.channels.DatagramChannel)fd;
             java.net.DatagramSocket socket = datagramChannel.socket();
             localAddr = socket.getLocalAddress();
             localPort = socket.getLocalPort();
