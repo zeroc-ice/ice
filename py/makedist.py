@@ -140,7 +140,8 @@ if verbose:
     quiet = "v"
 else:
     quiet = ""
-os.system("tar c" + quiet + "zf " + icever + ".tar.gz " + icever)
+os.system("tar c" + quiet + "f " + icever + ".tar " + icever)
+os.system("gzip -9 " + icever + ".tar")
 if verbose:
     quiet = ""
 else:
