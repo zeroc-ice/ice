@@ -87,7 +87,7 @@ IcePack::Parser::remove(const list<string>& args)
 
     try
     {
-	_admin->remove(_communicator->stringToProxy(args.front()));
+	_admin->remove(args.front());
     }
     catch(const LocalException& ex)
     {

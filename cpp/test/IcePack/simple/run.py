@@ -25,8 +25,8 @@ icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
 print "starting icepack...",
 icePackPipe = os.popen(icePack + ' --Ice.PrintProcessId --nowarn' + \
-                       r' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 2000"' + \
-                       r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"')
+                       r' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 5000"' + \
+                       r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 5000"')
 output = icePackPipe.readline().strip()
 if not output:
     print "failed!"
@@ -36,8 +36,8 @@ print "ok"
 
 print "registering server with icepack...",
 icePackAdminPipe = os.popen(icePackAdmin + \
-                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
-                            r' -e "add \"test:tcp -p 12345 -t 2000\""')
+                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 5000"' + \
+                            r' -e "add \"test:tcp -p 12345 -t 5000\""')
 icePackAdminPipe.close()
 print "ok"
 
@@ -45,9 +45,36 @@ name = "IcePack/simple"
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 
+if os.name != "nt":
+    testdir = os.path.normpath(toplevel + "/test/IcePack/simple")
+    server = os.path.normpath(testdir + "/server")
+    client = os.path.normpath(testdir + "/client")
+
+    print "registering server with icepack for automatic activation...",
+    icePackAdminPipe = os.popen(icePackAdmin + \
+                                r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 5000"' + \
+                                r' -e "add \"test:tcp -p 12345 -t 5000\" \"' + server + r'\""')
+    icePackAdminPipe.close()
+    print "ok"
+
+    print "starting client...",
+    clientPipe = os.popen(client)
+    output = clientPipe.readline()
+    if not output:
+        print "failed!"
+        TestUtil.killServers()
+        sys.exit(0)
+    print "ok"
+    print output,
+    while 1:
+        output = clientPipe.readline()
+        if not output:
+            break;
+        print output,
+    
 print "shutting down icepack...",
 icePackAdminPipe = os.popen(icePackAdmin + \
-                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
+                            r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 5000"' + \
                             r' -e "shutdown"')
 icePackAdminPipe.close()
 print "ok"

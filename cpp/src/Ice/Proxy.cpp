@@ -151,6 +151,27 @@ IceProxy::Ice::Object::operator<(const Object& r) const
     return _reference->identity < r._reference->identity;
 }
 
+std::string
+IceProxy::Ice::Object::_getIdentity() const
+{
+    return _reference->identity;
+}
+
+::Ice::ObjectPrx
+IceProxy::Ice::Object::_newIdentity(const std::string& newIdentity) const
+{
+    if (newIdentity == _reference->identity)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeIdentity(newIdentity));
+	return proxy;
+    }
+}
+
 ObjectPrx
 IceProxy::Ice::Object::_twoway() const
 {

@@ -203,6 +203,19 @@ IceInternal::Reference::streamWrite(Stream* s) const
 }
 
 ReferencePtr
+IceInternal::Reference::changeIdentity(const string& newIdentity) const
+{
+    if (newIdentity == identity)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return new Reference(instance, newIdentity, origEndpoints, endpoints);
+    }
+}
+
+ReferencePtr
 IceInternal::Reference::changeTimeout(int timeout) const
 {
     vector<EndpointPtr>::const_iterator p;

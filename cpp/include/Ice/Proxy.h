@@ -56,6 +56,9 @@ public:
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
+    std::string _getIdentity() const;
+    ::Ice::ObjectPrx _newIdentity(const std::string&) const;
+
     ::Ice::ObjectPrx _twoway() const;
     ::Ice::ObjectPrx _oneway() const;
     ::Ice::ObjectPrx _secure() const;

@@ -18,8 +18,12 @@ int
 run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 {
     TestPrx allTests(Ice::CommunicatorPtr);
-    TestPrx test = allTests(communicator);
-    test->shutdown();
+    TestPrx obj = allTests(communicator);
+
+    cout << "shutting down server... " << flush;
+    obj->shutdown();
+    cout << "ok" << endl;
+
     return EXIT_SUCCESS;
 }
 

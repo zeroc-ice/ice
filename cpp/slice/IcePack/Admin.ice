@@ -122,27 +122,27 @@ class Admin
      *
      * Remove a server and objects implemented by that server from &IcePack;.
      *
-     * @param object Must match the field <literal>object</literal> of
-     * the <literal>ServerDescription</literal> data to remove.
+     * @param identity Must match the identity of the
+     * <literal>ServerDescription::object</literal>.
      *
      * @see add
      *
      **/
-    void remove(Object* object);
+    void remove(string identity);
 
     /**
      *
      * Find a server and objects implemented by that server from &IcePack;.
      *
-     * @param object Must match the field <literal>object</literal> of
-     * the <literal>ServerDescription</literal> data to find.
+     * @param identity Must match the identity of the
+     * <literal>ServerDescription::object</literal>.
      *
      * @return The server description, or null if no description was found.
      *
      * @see add
      *
      **/
-    ServerDescription find(Object* object);
+    ServerDescription find(string identity);
 
     /**
      *

@@ -24,15 +24,15 @@ public:
     AdminI(const Ice::CommunicatorPtr&);
 
     virtual void add(const ServerDescriptionPtr&);
-    virtual void remove(const Ice::ObjectPrx&);
-    virtual ServerDescriptionPtr find(const Ice::ObjectPrx&);
+    virtual void remove(const std::string&);
+    virtual ServerDescriptionPtr find(const std::string&);
     virtual ServerDescriptions getAll();
     virtual void shutdown();
 
 private:
 
     Ice::CommunicatorPtr _communicator;
-    std::map<Ice::ObjectPrx, ServerDescriptionPtr> _map;
+    std::map<std::string, ServerDescriptionPtr> _map;
 };
 
 }

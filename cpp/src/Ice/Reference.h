@@ -54,6 +54,7 @@ public:
     // Get a new reference, based on the existing one, overwriting
     // certain values.
     //
+    ReferencePtr changeIdentity(const std::string&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;

@@ -40,8 +40,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     //
     // Look up the server description
     //
-    ObjectPrx proxy = adapter->identityToProxy(identity);
-    ServerDescriptionPtr desc = _admin->find(proxy);
+    ServerDescriptionPtr desc = _admin->find(identity);
 
     //
     // If we didn't find a server description, we return null, meaning
@@ -51,6 +50,8 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     {
 	return 0;
     }
+
+    ObjectPrx object = desc->object;
 
 #ifndef WIN32
     //
@@ -95,7 +96,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 		    // server timeout, a crash, or an explicit
 		    // shutdown method.
 		    //
-		    proxy->_ping();
+		    object->_ping();
 
 		    //
 		    // Everything ok, the server is now up and
@@ -142,7 +143,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     }
 #endif
 
-    throw LocationForward(desc->object);
+    throw LocationForward(object);
 }
 
 void
