@@ -37,8 +37,8 @@ name = os.path.join("IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-if os.path.exists(os.path.join(testdir, "db/registry/db")):
-    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry/db"))
+if os.path.exists(os.path.join(testdir, "db/registry")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
 
 #
 # Start IcePack registry
