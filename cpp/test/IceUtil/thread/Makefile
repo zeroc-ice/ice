@@ -24,7 +24,6 @@ OBJS		= TestBase.o \
 		  MonitorMutexTest.o \
 		  MonitorRecMutexTest.o \
                   CountDownLatchTest.o \
-                  GCSharedTest.o \
 		  TestSuite.o \
 		  Client.o
 

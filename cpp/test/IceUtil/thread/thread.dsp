@@ -107,10 +107,6 @@ SOURCE=.\CreateTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GCSharedTest.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\MonitorMutexTest.cpp
 # End Source File
 # Begin Source File
@@ -160,10 +156,6 @@ SOURCE=.\CountDownLatchTest.h
 # Begin Source File
 
 SOURCE=.\CreateTest.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GCSharedTest.h
 # End Source File
 # Begin Source File
 

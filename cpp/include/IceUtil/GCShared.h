@@ -101,7 +101,7 @@ protected:
 	gcRecMutex._m->unlock();
     }
 
-private:
+protected:
 
 #if defined(_WIN32)
     LONG _ref;
@@ -111,6 +111,7 @@ private:
     int _ref;
     Mutex _mutex;
 #endif
+
     bool _noDelete;
 };
 

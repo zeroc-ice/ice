@@ -16,13 +16,16 @@ using namespace Demo;
 
 CallbackSenderI::CallbackSenderI() :
     _destroy(false),
-    _num(0)
+    _num(0),
+    _callbackSenderThread(new CallbackSenderThread(this))
 {
 }
 
 void
 CallbackSenderI::destroy()
 {
+    IceUtil::ThreadPtr callbackSenderThread;
+
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	
@@ -30,9 +33,12 @@ CallbackSenderI::destroy()
 	_destroy = true;
 	
 	notify();
+
+	callbackSenderThread = _callbackSenderThread;
+	_callbackSenderThread = 0; // Resolve cyclic dependency.
     }
 
-    getThreadControl().join();
+    callbackSenderThread->getThreadControl().join();
 }
 
 void
@@ -44,6 +50,12 @@ CallbackSenderI::addClient(const Identity& ident, const Current& current)
 
     CallbackReceiverPrx client = CallbackReceiverPrx::uncheckedCast(current.con->createProxy(ident));
     _clients.insert(client);
+}
+
+void
+CallbackSenderI::start()
+{
+    _callbackSenderThread->start();
 }
 
 void

@@ -206,12 +206,12 @@ public:
 
     Shared();
     virtual ~Shared();
-    virtual void __incRef();
-    virtual void __decRef();
-    virtual int __getRef() const;
-    virtual void __setNoDelete(bool);
+    void __incRef();
+    void __decRef();
+    int __getRef() const;
+    void __setNoDelete(bool);
 
-protected:
+private:
 
 #if defined(_WIN32)
     LONG _ref;

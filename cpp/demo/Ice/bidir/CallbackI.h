@@ -15,7 +15,10 @@
 #include <Callback.h>
 #include <set>
 
-class CallbackSenderI : public Demo::CallbackSender, public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackSenderI;
+typedef IceUtil::Handle<CallbackSenderI> CallbackSenderIPtr;
+
+class CallbackSenderI : public Demo::CallbackSender, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
@@ -25,15 +28,42 @@ public:
 
     virtual void addClient(const Ice::Identity&, const Ice::Current&);
 
-    virtual void run();
+    void start();
+    void run();
 
 private:
 
     bool _destroy;
     Ice::Int _num;
     std::set<Demo::CallbackReceiverPrx> _clients;
-};
 
-typedef IceUtil::Handle<CallbackSenderI> CallbackSenderIPtr;
+    //
+    // We cannot derive CallbackSenderI directly from IceUtil::Thread,
+    // because CallbackSenderI uses IceUtil::GCShared as base, and
+    // IceUtil::Thread uses IceUtil::Shared. These two base classes
+    // are not compatible. Therefore we use this helper class.
+    //
+    class CallbackSenderThread : public IceUtil::Thread
+    {
+    public:
+
+	CallbackSenderThread(const CallbackSenderIPtr& callbackSender) :
+	    _callbackSender(callbackSender)
+	{
+	}
+
+	virtual void run()
+	{
+	    _callbackSender->run();
+	}
+
+    private:
+
+	CallbackSenderIPtr _callbackSender;
+    };
+
+    IceUtil::ThreadPtr _callbackSenderThread;
+
+};
 
 #endif
