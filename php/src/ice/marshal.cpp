@@ -1440,7 +1440,14 @@ patchObject(void* addr, Ice::ObjectPtr& v)
 IcePHP::ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type TSRMLS_DC) :
     _value(value)
 {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
+// Strange Sun C++ 5.3 bug.
+    const IceUtil::HandleBase<Slice::SyntaxTreeBase>& hb = type;
+    _type = Slice::ClassDefPtr::dynamicCast(hb);
+#else
     _type = Slice::ClassDefPtr::dynamicCast(type);
+#endif
+
 
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
