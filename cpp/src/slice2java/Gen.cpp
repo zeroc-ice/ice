@@ -3031,7 +3031,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     static const char* builtinTable[] =
     {
         "Byte",
-        "Boolean",
+        "Bool",
         "Short",
         "Int",
         "Long",
