@@ -35,8 +35,8 @@ ObjectPtr
 Ice::PicklerI::unpickle(std::istream& in)
 {
     Stream s(_instance);
-    s.b.resize(encapsHeaderSize);
-    in.read(s.b.begin(), encapsHeaderSize);
+    s.b.resize(4); // Encapsulation length == Ice::Int
+    in.read(s.b.begin(), 4);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -47,15 +47,13 @@ Ice::PicklerI::unpickle(std::istream& in)
     }
 
     s.i = s.b.begin();	    
-    Byte encVer;
-    s.read(encVer);
     Int sz;
     s.read(sz);
 
     // Don't use s.b.resize() here, otherwise no size sanity checks
     // will be done
-    s.resize(encapsHeaderSize + sz);
-    in.read(s.b.begin() + encapsHeaderSize, sz);
+    s.resize(4 + sz);
+    in.read(s.b.begin() + 4, sz);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);

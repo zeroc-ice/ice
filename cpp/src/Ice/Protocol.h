@@ -27,15 +27,6 @@ namespace IceInternal
 const ::Ice::Int headerSize = 7;
 
 //
-// Size of the Ice encapsulation header
-//
-// Encoding version (Byte)
-// Encapsulation length (Int)
-//
-const ::Ice::Int encapsHeaderSize = 5;
-
-
-//
 // The current Ice protocol and encoding version
 //
 const ::Ice::Byte protocolVersion = 0;

@@ -11,10 +11,10 @@
 #ifndef ICE_PACK_ACTIVATOR_H
 #define ICE_PACK_ACTIVATOR_H
 
-#include <IcePack/AdminF.h>
-
 namespace IcePack
 {
+
+struct ServerDescription;
 
 class Activator : public JTCThread, public JTCMutex
 {
