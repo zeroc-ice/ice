@@ -406,7 +406,7 @@ checkIdentifier(const string& id)
 	unit->warning("illegal underscore in identifier `" + id + "'");
     }
 
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Operations", "Prx", "Ptr" };
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
 	if(id.find(suffixBlacklist[i], id.size() - suffixBlacklist[i].size()) != string::npos)

@@ -805,7 +805,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = p->scoped();
     ClassList bases = p->bases();
     string scope = p->scope();
-    string absolute = getAbsolute(scoped);
+    string absolute = getAbsolute(scoped, "", "_", "Operations");
 
     //
     // Don't generate an Operations interface for non-abstract classes
@@ -815,7 +815,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    if(!open(absolute + "Operations"))
+    if(!open(absolute))
     {
         return false;
     }
@@ -825,7 +825,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Generate the operations interface
     //
-    out << sp << nl << "public interface " << name << "Operations";
+    out << sp << nl << "public interface _" << name << "Operations";
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
@@ -844,7 +844,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     first = false;
                 }
-                out << getAbsolute((*q)->scoped(), scope, "", "Operations");
+                out << getAbsolute((*q)->scoped(), scope, "_", "Operations");
             }
             ++q;
         }
@@ -1087,7 +1087,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "Ice.Object";
         }
-        out << "," << nl << name << "Operations";
+        out << "," << nl << "_" << name << "Operations";
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -1133,7 +1133,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList implements;
         if(p->isAbstract())
         {
-            implements.push_back(name + "Operations");
+            implements.push_back("_" + name + "Operations");
         }
         if(!bases.empty())
         {
@@ -3673,7 +3673,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << " extends " << fixKwd(bases.front()->name()) << 'I';
     }
-    out << " implements " << name << "Operations";
+    out << " implements _" << name << "Operations";
     out << sb;
 
     out << nl << "public" << nl << name << "I()";

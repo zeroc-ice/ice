@@ -24,7 +24,6 @@ const long prx = 0;
 const long PtrA = 0;
 const long HelperA = 0;
 const long HolderA = 0;
-const long OperationsA = 0;
 const long aIce = 0;
 };
 
@@ -38,8 +37,6 @@ const long Helper = 0;
 const long abcHelper = 0;
 const long Holder = 0;
 const long abcHolder = 0;
-const long Operations = 0;
-const long abcOperations = 0;
 const long Ice = 0;
 const long ice = 0;
 const long icea = 0;
