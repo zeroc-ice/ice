@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceUtil", "src\IceUtil\IceUtil.csproj", "{4ACBB09B-D203-4A37-A529-16BCF49A02BE}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Debug.ActiveCfg = Debug|.NET
+		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Debug.Build.0 = Debug|.NET
+		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Release.ActiveCfg = Release|.NET
+		{4ACBB09B-D203-4A37-A529-16BCF49A02BE}.Release.Build.0 = Release|.NET
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
