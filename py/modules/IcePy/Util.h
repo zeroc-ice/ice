@@ -84,22 +84,6 @@ bool dictionaryToContext(PyObject*, Ice::Context&);
 bool contextToDictionary(const Ice::Context&, PyObject*);
 
 //
-// Split up a string using whitespace delimiters.
-//
-bool splitString(const std::string&, Ice::StringSeq&);
-
-//
-// Convert a scoped name into a Python name.
-//
-std::string scopedToName(const std::string&);
-
-//
-// Check the given identifier against PHP's list of reserved words. If it matches
-// a reserved word, then an escaped version is returned with a leading underscore.
-//
-std::string fixIdent(const std::string&);
-
-//
 // Returns a borrowed reference to the Python type object corresponding
 // to the given Python type name.
 //

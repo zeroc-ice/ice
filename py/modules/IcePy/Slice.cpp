@@ -34,7 +34,7 @@ Ice_loadSlice(PyObject* /*self*/, PyObject* args)
     }
 
     Ice::StringSeq argSeq;
-    if(!Slice::Python::splitString(cmd, argSeq))
+    if(!splitString(cmd, argSeq))
     {
         return NULL;
     }

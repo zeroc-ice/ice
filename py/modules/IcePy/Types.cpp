@@ -16,9 +16,11 @@
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapter.h>
+#include <Slice/PythonUtil.h>
 
 using namespace std;
 using namespace IcePy;
+using namespace Slice::Python;
 
 // TODO: Destroyer for maps?
 
