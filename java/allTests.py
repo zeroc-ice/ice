@@ -68,8 +68,8 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \
-#    "Ice/slicing/exceptions", \
-#    "Ice/slicing/objects", \
+    "Ice/slicing/exceptions", \
+    "Ice/slicing/objects", \
     "Ice/custom", \
     "Freeze/dbmap", \
     "Freeze/complex", \
