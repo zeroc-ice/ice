@@ -35,8 +35,8 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     ostringstream defSecondsValid;
     defSecondsValid << dec << IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1);
     string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
-    string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "Washington");
-    string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "DC");
+    string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "DC");
+    string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "Washington");
     string org = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Organization", "Some Company Inc.");
     string orgUnit = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.OranizationalUnit", "Sales");
     string commonName = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.CommonName", "John Doe");
