@@ -70,21 +70,17 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export Python sources from CVS.
+# Export Python and C++ sources from CVS.
+#
+# NOTE: Assumes that the C++ and Python trees will use the same tag.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icepy")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icepy ice/slice ice/config")
 
-#
-# Export C++ sources.
-#
-# NOTE: Assumes that the C++ and Python trees will use the same tag.
-#
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/slice ice/config")
 #
 # Copy Slice directories.
 #
@@ -131,7 +127,7 @@ os.chdir(cwd)
 # Get Ice version.
 #
 config = open(os.path.join("icepy", "config", "Make.rules"), "r")
-version = re.search("VERSION.*= ([0-9\.]*)", config.read()).group(1)
+version = re.search("VERSION[ \t]+=[^\d]*([\d\.]+)", config.read()).group(1)
 
 #
 # Create source archives.
