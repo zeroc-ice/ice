@@ -51,7 +51,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 
 	Initializer initializer = new Initializer();
 
-	_evictor = Freeze.Util.createEvictor(_adapter, envName, category, initializer, null, true);
+	_evictor = Freeze.Util.createEvictor(_evictorAdapter, envName, category, initializer, null, true);
 	initializer.init(this, _evictor);
         
         _evictorAdapter.addServantLocator(_evictor, category);
@@ -66,14 +66,29 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 
     public Test.ServantPrx
     createServant(int id, int value, Ice.Current current)
+	throws Test.AlreadyRegisteredException, Test.EvictorDeactivatedException
     {
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
         ident.name = "" + id;
 	Test._ServantTie tie = new Test._ServantTie();
 	tie.ice_delegate(new ServantI(tie, this, _evictor, value));
-        _evictor.add(tie, ident);
-        return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
+	try
+	{
+	    return Test.ServantPrxHelper.uncheckedCast(_evictor.add(tie, ident));
+	}
+	catch(Ice.AlreadyRegisteredException e)
+	{
+	    throw new Test.AlreadyRegisteredException();
+	}
+	catch(Ice.ObjectAdapterDeactivatedException e)
+	{
+	    throw new Test.EvictorDeactivatedException();
+	}
+	catch(Freeze.EvictorDeactivatedException e)
+	{
+	    throw new Test.EvictorDeactivatedException();
+	}
     }
 
     public Test.ServantPrx

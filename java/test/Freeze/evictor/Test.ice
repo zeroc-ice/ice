@@ -26,9 +26,15 @@ exception NotRegisteredException
 {
 };
 
+exception EvictorDeactivatedException
+{
+};
+
 class Servant
 {
     nonmutating int getValue();
+    ["amd"] nonmutating int slowGetValue();
+
     void setValue(int value);
 
     ["ami", "amd"] void setValueAsync(int value);
@@ -36,6 +42,11 @@ class Servant
 
     nonmutating void addFacet(string name, string data) throws AlreadyRegisteredException;
     nonmutating void removeFacet(string name) throws NotRegisteredException;
+
+    nonmutating int getTransientValue();
+    void setTransientValue(int value);
+    void keepInCache();
+    void release() throws NotRegisteredException;
 
     void destroy();
 
@@ -53,8 +64,12 @@ class Facet extends Servant
 interface RemoteEvictor
 {
     void setSize(int size);
-    Servant* createServant(int id, int value);
+
+    Servant* createServant(int id, int value) 
+	throws AlreadyRegisteredException, EvictorDeactivatedException;
+
     Servant* getServant(int id);
+
     void deactivate();
     void destroyAllServants(string facet);
 };

@@ -20,6 +20,111 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     final static String defaultDb = "$default";
     final static String indexPrefix = "$index:";
 
+    
+    class DeactivateController
+    {
+	synchronized void lock()
+	{
+	    if(_deactivated || _deactivating)
+	    {
+		System.err.println("throw new EvictorDeactivatedException()");
+		throw new EvictorDeactivatedException();
+	    }
+	    _guardCount++;
+	}
+
+	synchronized void unlock()
+	{
+	    _guardCount--;
+	    if(_deactivating && _guardCount == 0)
+	    {
+		//
+		// Notify all the threads -- although we only want to
+		// reach the thread doing the deactivation.
+		//
+		notifyAll();
+	    }
+	}
+	
+	synchronized boolean deactivated()
+	{
+	    return _deactivated || _deactivating;
+	}
+	
+	synchronized boolean deactivate()
+	{   
+	    if(_deactivated)
+	    {
+		return false;
+	    }
+	    
+	    if(_deactivating)
+	    {
+		//
+		// Wait for deactivated
+		//
+		while(!_deactivated)
+		{
+		    try
+		    {
+			wait();
+		    }
+		    catch(InterruptedException e)
+		    {
+			// Ignored
+		    }
+		}
+		return false;
+	    }
+	    else
+	    {
+		_deactivating = true;
+		while(_guardCount > 0)
+		{
+		     if(_trace >= 1)
+		     {
+			 _communicator.getLogger().trace(
+			     "Freeze.Evictor",  "*** Waiting for " + _guardCount 
+			     + " threads to complete before starting deactivation.");
+		     }
+		     
+		     try
+		     {
+			 wait();
+		     }
+		     catch(InterruptedException e)
+		     {
+			 // Ignored
+		     }
+		 }
+
+		 if(_trace >= 1)
+		 {
+		     _communicator.getLogger().trace("Freeze.Evictor", "Starting deactivation.");
+		 }
+		 return true;
+	     }
+	}
+
+	synchronized void deactivationComplete()
+	{
+	    if(_trace >= 1)
+	    {
+		_communicator.getLogger().trace("Freeze.Evictor", "Deactivation complete.");
+	    }
+
+	    _deactivated = true;
+	    _deactivating = false;
+	    notifyAll();
+	}
+
+	private boolean _deactivating = false;
+	private boolean _deactivated = false;
+	private int _guardCount = 0;
+    }
+    
+    
+
     public
     EvictorI(Ice.ObjectAdapter adapter, String envName, String filename,
 	     ServantInitializer initializer,
@@ -166,7 +271,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     protected void
     finalize()
     {
-        if(!_deactivated)
+        if(!_deactivateController.deactivated())
         {
             _communicator.getLogger().warning("evictor has not been deactivated");
 	    deactivate("");
@@ -176,38 +281,37 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     synchronized public void
     setSize(int evictorSize)
     {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
-	}
-	
-	//
-	// Ignore requests to set the evictor size to values smaller than zero.
-	//
-	if(evictorSize < 0)
-	{
-	    return;
-	}
+	_deactivateController.lock();
 
-	//
-	// Update the evictor size.
-	//
-	_evictorSize = evictorSize;
-	
-	//
-	// Evict as many elements as necessary.
-	//
-	evict();
+	try
+	{
+	    //
+	    // Ignore requests to set the evictor size to values smaller than zero.
+	    //
+	    if(evictorSize < 0)
+	    {
+		return;
+	    }
+	    
+	    //
+	    // Update the evictor size.
+	    //
+	    _evictorSize = evictorSize;
+	    
+	    //
+	    // Evict as many elements as necessary.
+	    //
+	    evict();
+	}
+	finally
+	{
+	    _deactivateController.unlock();
+	}
     }
-
+	
     synchronized public int
     getSize()
-    {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
-	}
-	
+    {	
 	return _evictorSize;
     }
     
@@ -222,11 +326,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
 	checkIdentity(ident);
+       
 	if(facet == null)
         {
             facet = "";
         }
-
 
 	//
 	// Need to clone in case the given ident changes.
@@ -240,164 +344,163 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    assert false;
 	}
 
-	ObjectStore store = null;
-    
-	for(;;)
+	_deactivateController.lock();
+
+	try
 	{
-	    synchronized(this)
+	    ObjectStore store = null;
+	    
+	    for(;;)
 	    {
-		if(_deactivated)
-		{
-		    throw new EvictorDeactivatedException();
+		synchronized(this)
+		{ 
+		    Object o = _storeMap.get(facet);
+		    
+		    if(o == null)
+		    {
+			if(store != null)
+			{
+			    _storeMap.put(facet, store);
+			}
+		    }
+		    else
+		    {
+			if(store != null)
+			{
+			    store.close();
+			}
+			store = (ObjectStore) o;
+		    }
 		}
 		
-		Object o = _storeMap.get(facet);
-
-		if(o == null)
+		if(store == null)
 		{
-		    if(store != null)
-		    {
-			_storeMap.put(facet, store);
-		    }
+		    assert facet.length() > 0;
+		    store = new ObjectStore(facet, _createDb, this, new java.util.LinkedList(), false);
+		    // loop
 		}
 		else
 		{
-		    if(store != null)
-		    {
-			store.close();
-		    }
-		    store = (ObjectStore) o;
+		    break; // for(;;)
 		}
 	    }
-	
-	    if(store == null)
+	    
+	    assert store != null;
+	    boolean alreadyThere = false;
+	    
+	    
+	    for(;;)
 	    {
-		assert facet.length() > 0;
-		store = new ObjectStore(facet, _createDb, this, new java.util.LinkedList(), false);
-		// loop
-	    }
-	    else
-	    {
+		//
+		// Create a new entry
+		//
+		
+		EvictorElement element = new EvictorElement(ident, store);
+		element.status = EvictorElement.dead;
+		element.rec = new ObjectRecord();
+		element.rec.stats = new Statistics();
+		
+		Object o = store.cache().putIfAbsent(ident, element);
+		
+		if(o != null)
+		{
+		    element = (EvictorElement) o;
+		}
+		
+		synchronized(this)
+		{	    
+		    if(element.stale)
+		    {
+			//
+			// Try again
+			// 
+			continue;
+		    }
+		    fixEvictPosition(element);
+		    
+		    synchronized(element)
+		    {
+			switch(element.status)
+			{
+			    case EvictorElement.clean:
+			    case EvictorElement.created:
+			    case EvictorElement.modified:
+			    {
+				alreadyThere = true;
+				break;
+			    }  
+			    case EvictorElement.destroyed:
+			    {
+				element.status = EvictorElement.modified;
+				element.rec.servant = servant;
+				
+				//
+				// No need to push it on the modified queue, as a destroyed object
+				// is either already on the queue or about to be saved. When saved,
+				// it becomes dead.
+				//
+				break;
+			    }
+			    case EvictorElement.dead:
+			    {
+				element.status = EvictorElement.created;
+				ObjectRecord rec = element.rec;
+				
+				rec.servant = servant;
+				rec.stats.creationTime = System.currentTimeMillis();
+				rec.stats.lastSaveTime = 0;
+				rec.stats.avgSaveTime = 0;
+				
+				addToModifiedQueue(element);
+				break;
+			    }
+			    default:
+			    {
+				assert false;
+				break;
+			    }
+			}
+		    }
+		}
 		break; // for(;;)
 	    }
-	}
-   
-	assert store != null;
-	boolean alreadyThere = false;
-	
-	
-	for(;;)
-	{
-	    //
-	    // Create a new entry
-	    //
 	    
-	    EvictorElement element = new EvictorElement(ident, store);
-	    element.status = EvictorElement.dead;
-	    element.rec = new ObjectRecord();
-	    element.rec.stats = new Statistics();
-	    
-	    Object o = store.cache().putIfAbsent(ident, element);
-	    
-	    if(o != null)
+	    if(alreadyThere)
 	    {
-		element = (EvictorElement) o;
+		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+		ex.kindOfObject = "servant";
+		ex.id = Ice.Util.identityToString(ident);
+		if(facet.length() > 0)
+		{
+		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+		}
+		throw ex;
 	    }
 	    
-	    synchronized(this)
+	    if(_trace >= 1)
 	    {
-		if(_deactivated)
+		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		if(!facet.equals(""))
 		{
-		    throw new EvictorDeactivatedException();
+		    objString += " with facet \"" + facet + "\"";
 		}
 		
-		if(element.stale)
-		{
-		    //
-		    // Try again
-		    // 
-		    continue;
-		}
-		fixEvictPosition(element);
-		
-		synchronized(element)
-		{
-		    switch(element.status)
-		    {
-			case EvictorElement.clean:
-			case EvictorElement.created:
-			case EvictorElement.modified:
-			{
-			    alreadyThere = true;
-			    break;
-			}  
-			case EvictorElement.destroyed:
-			{
-			    element.status = EvictorElement.modified;
-			    element.rec.servant = servant;
-			    
-			    //
-			    // No need to push it on the modified queue, as a destroyed object
-			    // is either already on the queue or about to be saved. When saved,
-			    // it becomes dead.
-			    //
-			    break;
-			}
-			case EvictorElement.dead:
-			{
-			    element.status = EvictorElement.created;
-			    ObjectRecord rec = element.rec;
-			    
-			    rec.servant = servant;
-			    rec.stats.creationTime = System.currentTimeMillis();
-			    rec.stats.lastSaveTime = 0;
-			    rec.stats.avgSaveTime = 0;
-			    
-			    addToModifiedQueue(element);
-			    break;
-			}
-			default:
-			{
-			    assert false;
-			    break;
-			}
-		    }
-		}
+		_communicator.getLogger().trace(
+		    "Freeze.Evictor", 
+		    "added " + objString + " in the database");
 	    }
-	    break; // for(;;)
-	}
-	
-	if(alreadyThere)
-	{
-	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-	    ex.kindOfObject = "servant";
-	    ex.id = Ice.Util.identityToString(ident);
+	    
+	    Ice.ObjectPrx obj = _adapter.createProxy(ident);
 	    if(facet.length() > 0)
 	    {
-		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+		obj = obj.ice_newFacet(facet);
 	    }
-	    throw ex;
+	    return obj;
 	}
-	
-	if(_trace >= 1)
+	finally
 	{
-	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
-	    if(!facet.equals(""))
-	    {
-		objString += " with facet \"" + facet + "\"";
-	    }
-	    
-	    _communicator.getLogger().trace(
-		"Freeze.Evictor", 
-		"added " + objString + " in the database");
+	    _deactivateController.unlock();
 	}
-	
-	Ice.ObjectPrx obj = _adapter.createProxy(ident);
-	if(facet.length() > 0)
-	{
-	    obj = obj.ice_newFacet(facet);
-	}
-	return obj;
     }
 
 
@@ -421,102 +524,106 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    assert false;
 	}
 
-	ObjectStore store = findStore("");
-	assert store != null;
+	_deactivateController.lock();
 	
-	for(;;)
+	try
 	{
-	    //
-	    // Create a new entry
-	    //
+	    ObjectStore store = findStore("");
+	    assert store != null;
 	    
-	    EvictorElement element = new EvictorElement(ident, store);
-	    element.status = EvictorElement.dead;
-	    element.rec = new ObjectRecord();
-	    element.rec.stats = new Statistics();
-	    
-	    Object o = store.cache().putIfAbsent(ident, element);
-	    
-	    if(o != null)
+	    for(;;)
 	    {
-		element = (EvictorElement) o;
-	    }
-	    
-	    synchronized(this)
-	    {
-		if(_deactivated)
+		//
+		// Create a new entry
+		//
+		
+		EvictorElement element = new EvictorElement(ident, store);
+		element.status = EvictorElement.dead;
+		element.rec = new ObjectRecord();
+		element.rec.stats = new Statistics();
+		
+		Object o = store.cache().putIfAbsent(ident, element);
+		
+		if(o != null)
 		{
-		    throw new EvictorDeactivatedException();
+		    element = (EvictorElement) o;
 		}
 		
-		if(element.stale)
+		synchronized(this)
 		{
-		    //
-		    // Try again
-		    // 
-		    continue;
-		}
-		fixEvictPosition(element);
-		
-		synchronized(element)
-		{
-		    switch(element.status)
+		    if(element.stale)
 		    {
-			case EvictorElement.clean:
+			//
+			// Try again
+			// 
+			continue;
+		    }
+		    fixEvictPosition(element);
+		    
+		    synchronized(element)
+		    {
+			switch(element.status)
 			{
-			    element.status = EvictorElement.modified;
-			    element.rec.servant = servant;
-			    addToModifiedQueue(element);
-			    break;
-			}
-			case EvictorElement.created:
-			case EvictorElement.modified:
-			{
-			    element.rec.servant = servant;
-			    break;
-			}
-			case EvictorElement.destroyed:
-			{
-			    element.status = EvictorElement.modified;
-			    element.rec.servant = servant;
-			    
-			    //
-			    // No need to push it on the modified queue, as a destroyed object
-			    // is either already on the queue or about to be saved. When saved,
-			    // it becomes dead.
-			    //
-			    break;
-			}
-			case EvictorElement.dead:
-			{
-			    element.status = EvictorElement.created;
-			    ObjectRecord rec = element.rec;
-			    
-			    rec.servant = servant;
-			    rec.stats.creationTime = System.currentTimeMillis();
-			    rec.stats.lastSaveTime = 0;
-			    rec.stats.avgSaveTime = 0;
-			    
-			    addToModifiedQueue(element);
-			    break;
-			}
-			default:
-			{
-			    assert false;
-			    break;
+			    case EvictorElement.clean:
+			    {
+				element.status = EvictorElement.modified;
+				element.rec.servant = servant;
+				addToModifiedQueue(element);
+				break;
+			    }
+			    case EvictorElement.created:
+			    case EvictorElement.modified:
+			    {
+				element.rec.servant = servant;
+				break;
+			    }
+			    case EvictorElement.destroyed:
+			    {
+				element.status = EvictorElement.modified;
+				element.rec.servant = servant;
+				
+				//
+				// No need to push it on the modified queue, as a destroyed object
+				// is either already on the queue or about to be saved. When saved,
+				// it becomes dead.
+				//
+				break;
+			    }
+			    case EvictorElement.dead:
+			    {
+				element.status = EvictorElement.created;
+				ObjectRecord rec = element.rec;
+				
+				rec.servant = servant;
+				rec.stats.creationTime = System.currentTimeMillis();
+				rec.stats.lastSaveTime = 0;
+				rec.stats.avgSaveTime = 0;
+				
+				addToModifiedQueue(element);
+				break;
+			    }
+			    default:
+			    {
+				assert false;
+				break;
+			    }
 			}
 		    }
 		}
+		break; // for(;;)
 	    }
-	    break; // for(;;)
+	    
+	    if(_trace >= 1)
+	    {
+		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		_communicator.getLogger().trace(
+		    "Freeze.Evictor", 
+		    "added or updated " + objString + " in the database");
+	    }
 	}
-	
-	if(_trace >= 1)
+	finally
 	{
-	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
-	    _communicator.getLogger().trace(
-		"Freeze.Evictor", 
-		"added or updated " + objString + " in the database");
+	    _deactivateController.unlock();
 	}
     }
 
@@ -547,129 +654,136 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	{
 	    assert false;
 	}
-
-	ObjectStore store = findStore(facet);
-	boolean notThere = (store == null);
 	
-	if(store != null)
-	{
-	    for(;;)
-	    {
-		//
-		// Retrieve object
-		//
-		
-		EvictorElement element = (EvictorElement) store.cache().pin(ident);
-		if(element == null)
-		{
-		    notThere = true;
-		}
-		else
-		{
-		    synchronized(this)
-		    {
-			if(element.stale)
-			{
-			    //
-			    // Try again
-			    // 
-			    continue;
-			}
+	_deactivateController.lock();
+
+	try
+	{    
+	    ObjectStore store = findStore(facet);
+	    boolean notThere = (store == null);
 	    
-			fixEvictPosition(element);
-			synchronized(element)
+	    if(store != null)
+	    {
+		for(;;)
+		{
+		    //
+		    // Retrieve object
+		    //
+		    
+		    EvictorElement element = (EvictorElement) store.cache().pin(ident);
+		    if(element == null)
+		    {
+			notThere = true;
+		    }
+		    else
+		    {
+			synchronized(this)
 			{
-			    switch(element.status)
+			    if(element.stale)
 			    {
-				case EvictorElement.clean:
+				//
+				// Try again
+				// 
+				continue;
+			    }
+			    
+			    fixEvictPosition(element);
+			    synchronized(element)
+			    {
+				switch(element.status)
 				{
-				    element.status = EvictorElement.destroyed;
-				    element.rec.servant = null;
-				    addToModifiedQueue(element);
-				    break;
-				}
-				case EvictorElement.created:
-				{
-				    element.status = EvictorElement.dead;
-				    element.rec.servant = null;
-				    break;
-				}
-				case EvictorElement.modified:
-				{
-				    element.status = EvictorElement.destroyed;
-				    element.rec.servant = null;
-				    //
-				    // Not necessary to push it on the modified queue, as a modified
-				    // element is either on the queue already or about to be saved
-				    // (at which point it becomes clean)
-				    //
-				    break;
-				}  
-				case EvictorElement.destroyed:
-				case EvictorElement.dead:
-				{
-				    notThere = true;
-				    break;
-				}
-				default:
-				{
-				    assert false;
-				    break;
+				    case EvictorElement.clean:
+				    {
+					element.status = EvictorElement.destroyed;
+					element.rec.servant = null;
+					addToModifiedQueue(element);
+					break;
+				    }
+				    case EvictorElement.created:
+				    {
+					element.status = EvictorElement.dead;
+					element.rec.servant = null;
+					break;
+				    }
+				    case EvictorElement.modified:
+				    {
+					element.status = EvictorElement.destroyed;
+					element.rec.servant = null;
+					//
+					// Not necessary to push it on the modified queue, as a modified
+					// element is either on the queue already or about to be saved
+					// (at which point it becomes clean)
+					//
+					break;
+				    }  
+				    case EvictorElement.destroyed:
+				    case EvictorElement.dead:
+				    {
+					notThere = true;
+					break;
+				    }
+				    default:
+				    {
+					assert false;
+					break;
+				    }
 				}
 			    }
-			}
-
-			if(element. keepCount > 0)
-			{
-			    assert notThere == false;
 			    
-			    element.keepCount = 0;
-			    //
-			    // Add to front of evictor queue
-			    //
-			    // Note that save evicts dead objects
-			    //
-			    _evictorList.addFirst(element);
-			    element.evictPosition = _evictorList.iterator();
-			    //
-			    // Position the iterator "on" the element.
-			    //
-			    element.evictPosition.next();
-			    _currentEvictorSize++;
+			    if(element. keepCount > 0)
+			    {
+				assert notThere == false;
+				
+				element.keepCount = 0;
+				//
+				// Add to front of evictor queue
+				//
+				// Note that save evicts dead objects
+				//
+				_evictorList.addFirst(element);
+				element.evictPosition = _evictorList.iterator();
+				//
+				// Position the iterator "on" the element.
+				//
+				element.evictPosition.next();
+				_currentEvictorSize++;
+			    }
 			}
 		    }
+		    break; // for(;;)  
 		}
-		break; // for(;;)  
-	    }
-	}
-	
-	if(notThere)
-	{
-	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-	    ex.kindOfObject = "servant";
-	    ex.id = Ice.Util.identityToString(ident);
-	    if(facet.length() > 0)
-	    {
-		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
-	    }
-	    throw ex;
-	}
-	
-	if(_trace >= 1)
-	{
-	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
-	    if(!facet.equals(""))
-	    {
-		objString += " with facet \"" + facet + "\"";
 	    }
 	    
-	    _communicator.getLogger().trace(
-		"Freeze.Evictor", 
-		"removed " + objString);
+	    if(notThere)
+	    {
+		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		ex.kindOfObject = "servant";
+		ex.id = Ice.Util.identityToString(ident);
+		if(facet.length() > 0)
+		{
+		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+		}
+		throw ex;
+	    }
+	    
+	    if(_trace >= 1)
+	    {
+		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+		if(!facet.equals(""))
+		{
+		    objString += " with facet \"" + facet + "\"";
+		}
+		
+		_communicator.getLogger().trace(
+		    "Freeze.Evictor", 
+		    "removed " + objString);
+	    }
+	}
+	finally
+	{
+	    _deactivateController.unlock();
 	}
     }
-
-
 
     //
     // Deprecated
@@ -707,90 +821,93 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             facet = "";
         }
 
-	boolean notThere = false;
+	_deactivateController.lock();
 
-	ObjectStore store = findStore(facet);
-	if(store == null)
+	try
 	{
-	    notThere = true;
-	}
-	else
-	{
-	    for(;;)
-	    {
-		EvictorElement element = (EvictorElement) store.cache().pin(ident);
-		if(element == null)
-		{
-		    notThere = true;
-		    break;
-		}
+	    boolean notThere = false;
 	    
-		synchronized(this)
+	    ObjectStore store = findStore(facet);
+	    if(store == null)
+	    {
+		notThere = true;
+	    }
+	    else
+	    {
+		for(;;)
 		{
-		
-		    if(_deactivated)
+		    EvictorElement element = (EvictorElement) store.cache().pin(ident);
+		    if(element == null)
 		    {
-			throw new EvictorDeactivatedException();
+			notThere = true;
+			break;
 		    }
 		    
-		    if(element.stale)
+		    synchronized(this)
 		    {
-			//
-			// try again
-			//
-			continue;
-		    }
-		    
-		    synchronized(element)
-		    {
-			if(element.status == EvictorElement.destroyed || element.status == EvictorElement.dead)
+			if(element.stale)
 			{
-			    notThere = true;
-			    break;
+			    //
+			    // try again
+			    //
+			    continue;
 			}
-		    }
-		    
-		    //
-		    // Found!
-		    //
-		    
-		    if(element.keepCount == 0)
-		    {
-			if(element.usageCount < 0)
+			
+			synchronized(element)
 			{
-			    //
-			    // New object
-			    //
-			    element.usageCount = 0;
+			    if(element.status == EvictorElement.destroyed || element.status == EvictorElement.dead)
+			    {
+				notThere = true;
+				break;
+			    }
+			}
+			
+			//
+			// Found!
+			//
+			
+			if(element.keepCount == 0)
+			{
+			    if(element.usageCount < 0)
+			    {
+				//
+				// New object
+				//
+				element.usageCount = 0;
+			    }
+			    else
+			    {
+				assert element.evictPosition != null;
+				element.evictPosition.remove();
+				element.evictPosition = null;
+				_currentEvictorSize--;
+			    }
+			    element.keepCount = 1;
 			}
 			else
 			{
-			    assert element.evictPosition != null;
-			    element.evictPosition.remove();
-			    element.evictPosition = null;
-			    _currentEvictorSize--;
+			    element.keepCount++;
 			}
-			element.keepCount = 1;
+			break;
 		    }
-		    else
-		    {
-			element.keepCount++;
-		    }
-		    break;
 		}
 	    }
-	}
-
-	if(notThere)
-	{
-	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-	    ex.kindOfObject = "servant";
-	    ex.id = Ice.Util.identityToString(ident);
-	    if(facet.length() > 0)
+	    
+	    if(notThere)
 	    {
-		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		ex.kindOfObject = "servant";
+		ex.id = Ice.Util.identityToString(ident);
+		if(facet.length() > 0)
+		{
+		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+		}
+		throw ex;
 	    }
-	    throw ex;
+	}
+	finally
+	{
+	    _deactivateController.unlock();
 	}
     }
 
@@ -809,59 +926,62 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             facet = "";
         }
 
-	synchronized(this)
+	_deactivateController.lock();
+
+	try
 	{
-	    if(_deactivated)
+	    synchronized(this)
 	    {
-		throw new EvictorDeactivatedException();
-	    }
-	
-	    ObjectStore store = (ObjectStore) _storeMap.get(facet);
-	    
-	    if(store != null)
-	    {
-	
-		EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
-		if(element != null)
-		{
-		    assert !element.stale;
-		    if(element.keepCount > 0) 
+		ObjectStore store = (ObjectStore) _storeMap.get(facet);
+		
+		if(store != null)
+		{    
+		    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+		    if(element != null)
 		    {
-			if(--element.keepCount == 0)
+			assert !element.stale;
+			if(element.keepCount > 0) 
 			{
+			    if(--element.keepCount == 0)
+			    {
+				//
+				// Add to front of evictor queue
+				//
+				// Note that the element cannot be destroyed or dead since
+				// its keepCount was > 0.
+				//
+				assert element.evictPosition == null;
+				_evictorList.addFirst(element);
+				element.evictPosition = _evictorList.iterator();
+				//
+				// Position the iterator "on" the element.
+				//
+				element.evictPosition.next();
+				_currentEvictorSize++;
+			    }
 			    //
-			    // Add to front of evictor queue
+			    // Success
 			    //
-			    // Note that the element cannot be destroyed or dead since
-			    // its keepCount was > 0.
-			    //
-			    assert element.evictPosition == null;
-			    _evictorList.addFirst(element);
-			    element.evictPosition = _evictorList.iterator();
-			    //
-			    // Position the iterator "on" the element.
-			    //
-			    element.evictPosition.next();
-			    _currentEvictorSize++;
+			    return;
 			}
-			//
-			// Success
-			//
-			return;
 		    }
 		}
 	    }
+	    
+	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	    ex.kindOfObject = "servant";
+	    ex.id = Ice.Util.identityToString(ident);
+	    if(facet.length() > 0)
+	    {
+		ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+	    }
+	    
+	    throw ex;
 	}
-	
-	Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-	ex.kindOfObject = "servant";
-	ex.id = Ice.Util.identityToString(ident);
-	if(facet.length() > 0)
+	finally
 	{
-	    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+	    _deactivateController.unlock();
 	}
-	
-	throw ex;
     }
     
 
@@ -873,21 +993,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             facet = "";
         }
 
-	ObjectStore store = null;
-	synchronized(this)
-	{
-	    if(_deactivated)
-	    {
-		throw new EvictorDeactivatedException();
-	    }
+	_deactivateController.lock();
 
-	    store = (ObjectStore) _storeMap.get(facet);
-	    if(store != null)
+	try
+	{
+	    ObjectStore store = null;
+	    synchronized(this)
 	    {
-		saveNowNoSync();
+		store = (ObjectStore) _storeMap.get(facet);
+		if(store != null)
+		{
+		    saveNowNoSync();
+		}
 	    }
+	    return new EvictorIteratorI(store, batchSize);
 	}
-	return new EvictorIteratorI(store, batchSize);
+	finally
+	{
+	    _deactivateController.unlock();
+	}
     }
 
     public boolean
@@ -905,95 +1029,108 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             facet = "";
         }
 
-	ObjectStore store = null;
+	_deactivateController.lock();
 
-	synchronized(this)
+	try
 	{
-	    if(_deactivated)
-	    {
-		throw new EvictorDeactivatedException();
-	    }
-	
-	    store = (ObjectStore) _storeMap.get(facet);
-	    if(store == null)
-	    {
-		return false;
-	    }
-	
-	    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
-	    if(element != null)
-	    {
-		assert !element.stale;    
-		
-		synchronized(element)
+	    ObjectStore store = null;
+	    
+	    synchronized(this)
+	    {	
+		store = (ObjectStore) _storeMap.get(facet);
+		if(store == null)
 		{
-		    return element.status != EvictorElement.dead && 
-			element.status != EvictorElement.destroyed;
+		    return false;
+		}
+		
+		EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+		if(element != null)
+		{
+		    assert !element.stale;    
+		    
+		    synchronized(element)
+		    {
+			return element.status != EvictorElement.dead && 
+			    element.status != EvictorElement.destroyed;
+		    }
 		}
 	    }
+	    return store.dbHasObject(ident);
 	}
-	return store.dbHasObject(ident);
+	finally
+	{
+	    _deactivateController.unlock();
+	}
     }
 
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
-	Ice.Object result = locateImpl(current, cookie);
-    
-	if(result == null)
+	_deactivateController.lock();
+
+	try
 	{
-	    //
-	    // If the object exists in another store, throw FacetNotExistException 
-	    // instead of returning null (== ObjectNotExistException)
-	    // 
-	    java.util.Map storeMapCopy;
-	    synchronized(this)
+	    Ice.Object result = locateImpl(current, cookie);
+	    
+	    if(result == null)
 	    {
-		storeMapCopy = new java.util.HashMap(_storeMap);
-	    }	    
-
-	    java.util.Iterator p = storeMapCopy.entrySet().iterator();
-	    while(p.hasNext())
-	    {
-		java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-
 		//
-		// Do not check again the current facet
-		//
-		if(!current.facet.equals(entry.getKey()))
+		// If the object exists in another store, throw FacetNotExistException 
+		// instead of returning null (== ObjectNotExistException)
+		// 
+		java.util.Map storeMapCopy;
+		synchronized(this)
 		{
-		    ObjectStore store = (ObjectStore) entry.getValue();
-		    boolean inCache = false;
+		    storeMapCopy = new java.util.HashMap(_storeMap);
+		}	    
+		
+		java.util.Iterator p = storeMapCopy.entrySet().iterator();
+		while(p.hasNext())
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
 		    
-		    synchronized(this)
+		    //
+		    // Do not check again the current facet
+		    //
+		    if(!current.facet.equals(entry.getKey()))
 		    {
-			EvictorElement element = (EvictorElement) store.cache().getIfPinned(current.id);
-			if(element != null)
+			ObjectStore store = (ObjectStore) entry.getValue();
+			boolean inCache = false;
+			
+			synchronized(this)
 			{
-			    inCache = true;
-			    assert !element.stale;    
-			    
-			    synchronized(element)
+			    EvictorElement element = (EvictorElement) store.cache().getIfPinned(current.id);
+			    if(element != null)
 			    {
-				if(element.status != EvictorElement.dead && 
-				   element.status != EvictorElement.destroyed)
+				inCache = true;
+				assert !element.stale;    
+				
+				synchronized(element)
 				{
-				    throw new Ice.FacetNotExistException();
+				    if(element.status != EvictorElement.dead && 
+				       element.status != EvictorElement.destroyed)
+				    {
+					throw new Ice.FacetNotExistException();
+				    }
 				}
 			    }
 			}
-		    }
-		    if(!inCache)
-		    {
-			if(store.dbHasObject(current.id))
+			if(!inCache)
 			{
-			    throw new Ice.FacetNotExistException();
+			    if(store.dbHasObject(current.id))
+			    {
+				throw new Ice.FacetNotExistException();
+			    }
 			}
-		    }
-		}   
+		    }   
+		}
 	    }
+	    return result;
 	}
-	return result;
+	finally
+	{
+	    _deactivateController.unlock();
+	}
     }
 	
     Ice.Object
@@ -1017,6 +1154,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	 ObjectStore store = findStore(current.facet);
 	 if(store == null)
 	 {
+	     if(_trace >= 2)
+	     {
+		 _communicator.getLogger().trace(
+		     "Freeze.Evictor",
+		     "locate could not find a database for facet \"" + current.facet + "\"");
+	     }
 	     return null;
 	 }
 	 
@@ -1025,13 +1168,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	     EvictorElement element = (EvictorElement) store.cache().pin(ident);
 	     if(element == null)
 	     {
+		 if(_trace >= 2)
+		 {
+		     _communicator.getLogger().trace(
+			 "Freeze.Evictor",
+			 "locate could not find \"" + Ice.Util.identityToString(ident) 
+			 + "\" in database \"" + current.facet + "\"");
+		 }
 		 return null;
 	     }
 	     
 	     synchronized(this)
-	     {
-		 assert !_deactivated;
-	     
+	     {	     
 		 if(element.stale)
 		 {
 		     //
@@ -1045,12 +1193,30 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		     if(element.status == EvictorElement.destroyed || 
 			element.status == EvictorElement.dead)
 		     {
+			 if(_trace >= 2)
+			 {
+			     _communicator.getLogger().trace(
+				 "Freeze.Evictor",
+				 "locate found \"" + Ice.Util.identityToString(ident) 
+				 + "\" in the cache for database \"" + current.facet 
+				 + "\" but it was dead or destroyed");
+			 }
 			 return null;
 		     }
 		 
 		     //
 		     // It's a good one!
 		     //
+		     
+		     
+		     if(_trace >= 2)
+		     {
+			 _communicator.getLogger().trace(
+			     "Freeze.Evictor",
+			     "locate found \"" + Ice.Util.identityToString(ident) 
+			     + "\" in database \"" + current.facet + "\"");
+		     }
+		     
 		     fixEvictPosition(element);
 		     element.usageCount++;
 		     cookie.value = element;
@@ -1066,114 +1232,117 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     {
 	assert servant != null;
 
-	if(cookie != null)
+	_deactivateController.lock();
+
+	try
 	{
-	    EvictorElement element = (EvictorElement) cookie;
-    
-	    boolean enqueue = false;
-	
-	    if(current.mode != Ice.OperationMode.Nonmutating)
+	    if(cookie != null)
 	    {
-		synchronized(element)
+		EvictorElement element = (EvictorElement) cookie;
+		
+		boolean enqueue = false;
+		
+		if(current.mode != Ice.OperationMode.Nonmutating)
 		{
-		    if(element.status == EvictorElement.clean)
+		    synchronized(element)
+		    {
+			if(element.status == EvictorElement.clean)
+			{
+			    //
+			    // Assume this operation updated the object
+			    // 
+			    element.status = EvictorElement.modified;
+			    enqueue = true;
+			}
+		    }
+		}
+		
+		synchronized(this)
+		{
+		    //
+		    // Only elements with a usageCount == 0 can become stale and we own 
+		    // one count!
+		    // 
+		    assert !element.stale;
+		    assert element.usageCount >= 1;
+		    
+		    //
+		    // Decrease the usage count of the evictor queue element.
+		    //
+		    element.usageCount--;
+		    
+		    if(enqueue)
+		    {
+			addToModifiedQueue(element);
+		    }
+		    else if(element.usageCount == 0 && element.keepCount == 0)
 		    {
 			//
-			// Assume this operation updated the object
-			// 
-			element.status = EvictorElement.modified;
-			enqueue = true;
+			// Evict as many elements as necessary.
+			//
+			evict();
 		    }
 		}
 	    }
-	
-	    synchronized(this)
-	    {
-		//
-		// Only elements with a usageCount == 0 can become stale and we own 
-		// one count!
-		// 
-		assert !element.stale;
-		assert element.usageCount >= 1;
-		
-		//
-		// Decrease the usage count of the evictor queue element.
-		//
-		element.usageCount--;
-		
-		if(enqueue)
-		{
-		    addToModifiedQueue(element);
-		}
-		else if(element.usageCount == 0 && element.keepCount == 0)
-		{
-		    //
-		    // Evict as many elements as necessary.
-		    //
-		    evict();
-		}
-	    }
+	}
+	finally
+	{
+	    _deactivateController.unlock();
 	}
     }
 
     public void
     deactivate(String category)
     {
-	boolean joinAndClose = false;
-
-	synchronized(this)
+	if(_deactivateController.deactivate())
 	{
-	    if(!_deactivated)
-	    {    
-		if(_trace >= 1)
+	    try
+	    {
+		synchronized(this)
 		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"deactivating, saving unsaved Ice objects to the database");
+		    saveNowNoSync();
+		    
+		    //
+		    // Set the evictor size to zero, meaning that we will evict
+		    // everything possible.
+		    //
+		    _evictorSize = 0;
+		    evict();
+		    
+		    _savingThreadDone = true;
+		    notifyAll();
 		}
 		
-		saveNowNoSync();
-
-		//
-		// Set the evictor size to zero, meaning that we will evict
-		// everything possible.
-		//
-		_evictorSize = 0;
-		evict();
-
-		_deactivated = true;
-		notifyAll();
-		joinAndClose = true;
-	    }
-	}
-	
-	if(joinAndClose)
-	{
-	    for(;;)
-	    {
-		try
+		for(;;)
 		{
-		    _thread.join();
-		    break;
+		    try
+		    {
+			_thread.join();
+			break;
+		    }
+		    catch(InterruptedException ex)
+		    {
+		    }
 		}
-		catch(InterruptedException ex)
+		
+		java.util.Iterator p = _storeMap.values().iterator();
+		while(p.hasNext())
 		{
+		    ObjectStore store = (ObjectStore) p.next();
+		    store.close();
 		}
+		
+		if(_dbEnvHolder != null)
+		{
+		    _dbEnvHolder.close();
+		    _dbEnvHolder = null;
+		}
+		_dbEnv = null;
 	    }
-
-	    java.util.Iterator p = _storeMap.values().iterator();
-	    while(p.hasNext())
+	    finally
 	    {
-		ObjectStore store = (ObjectStore) p.next();
-		store.close();
+		_deactivateController.deactivationComplete();
 	    }
-	    
-	    if(_dbEnvHolder != null)
-	    {
-		_dbEnvHolder.close();
-		_dbEnvHolder = null;
-	    }
-	    _dbEnv = null;
 	}
     }
 
@@ -1200,7 +1369,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		
 		synchronized(this)
 		{
-		    while((!_deactivated) &&
+		    while(!_savingThreadDone &&
 			  (_saveNowThreads.size() == 0) &&
 			  (_saveSizeTrigger < 0 || _modifiedQueue.size() < _saveSizeTrigger))
 		    {
@@ -1227,14 +1396,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    
 		    saveNowThreadsSize = _saveNowThreads.size();
 		    
-		    if(_deactivated)
+		    if(_savingThreadDone)
 		    {
 			assert(_modifiedQueue.size() == 0);
-			if(saveNowThreadsSize > 0)
-			{
-			    _saveNowThreads.clear();
-			    notifyAll();
-			}
+			assert(saveNowThreadsSize == 0);
 			break; // for(;;)
 		    }
 		    
@@ -1524,6 +1689,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
 
+    final DeactivateController
+    deactivateController()
+    {
+	return _deactivateController;
+    }
+
     final Ice.Communicator
     communicator()
     {
@@ -1556,12 +1727,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
     synchronized void
     saveNow()
-    {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
-	}
-	
+    {	
 	saveNowNoSync();
     }
 
@@ -1734,11 +1900,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private synchronized ObjectStore
     findStore(String facet)
     {
-	if(_deactivated)
-	{
-	    throw new EvictorDeactivatedException();
-	}
-	
 	return (ObjectStore) _storeMap.get(facet);
     }
 
@@ -1884,7 +2045,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     //
     private java.util.List _modifiedQueue = new java.util.ArrayList();
     
-    private boolean _deactivated = false;
+    private boolean              _savingThreadDone = false;
+    private DeactivateController _deactivateController = new DeactivateController();
    
     private final Ice.ObjectAdapter _adapter;
     private final Ice.Communicator _communicator;

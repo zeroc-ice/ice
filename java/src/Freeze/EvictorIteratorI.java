@@ -66,132 +66,142 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
     private java.util.Iterator
     nextBatch()
     {
-	if(!_more)
-	{
-	    return null;
-	}
-
-	java.util.List evictorElements = null;
-
-	Ice.Communicator communicator = _store.communicator();
+	EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
+	deactivateController.lock();
 	
-	byte[] firstKey = null;
-	if(_key.get_size() > 0)
-	{
-	    firstKey = new byte[_key.get_size()];
-	    System.arraycopy(_key.get_data(), 0, firstKey, 0, firstKey.length);
-	}
-       	
 	try
 	{
-	    for(;;)
+	    if(!_more)
 	    {
-		com.sleepycat.db.Dbc dbc = null;
-		
-		_batch = new java.util.ArrayList(); 
-	
-		try
+		return null;
+	    }
+	    
+	    java.util.List evictorElements = null;
+	    
+	    Ice.Communicator communicator = _store.communicator();
+	    
+	    byte[] firstKey = null;
+	    if(_key.get_size() > 0)
+	    {
+		firstKey = new byte[_key.get_size()];
+		System.arraycopy(_key.get_data(), 0, firstKey, 0, firstKey.length);
+	    }
+	    
+	    try
+	    {
+		for(;;)
 		{
-		    //
-		    // Move to the first record
-		    // 
-		    int flags = com.sleepycat.db.Db.DB_NEXT;
-		    if(firstKey != null)
-		    {
-			//
-			// _key represents the next element not yet returned
-			// if it has been deleted, we want the one after
-			//
-			flags = com.sleepycat.db.Db.DB_SET_RANGE;
-		    }
+		    com.sleepycat.db.Dbc dbc = null;
 		    
-		    dbc = _store.db().cursor(null, 0);
-
-		    boolean done = false;
-		    do
+		    _batch = new java.util.ArrayList(); 
+		    
+		    try
 		    {
-			_more = (dbc.get(_key, _value, flags) == 0);
-
-			if(_more)
+			//
+			// Move to the first record
+			// 
+			int flags = com.sleepycat.db.Db.DB_NEXT;
+			if(firstKey != null)
 			{
-			    flags = com.sleepycat.db.Db.DB_NEXT;
+			    //
+			    // _key represents the next element not yet returned
+			    // if it has been deleted, we want the one after
+			    //
+			    flags = com.sleepycat.db.Db.DB_SET_RANGE;
+			}
+			
+			dbc = _store.db().cursor(null, 0);
+			
+			boolean done = false;
+			do
+			{
+			    _more = (dbc.get(_key, _value, flags) == 0);
 			    
-			    if(_batch.size() < _batchSize)
+			    if(_more)
 			    {
-				Ice.Identity ident = ObjectStore.unmarshalKey(_key.get_data(), communicator);
-				_batch.add(ident);
-			    }
-			    else
-			    {
-				//
-				// Keep the last element in _key
-				//
-				done = true;
+				flags = com.sleepycat.db.Db.DB_NEXT;
+				
+				if(_batch.size() < _batchSize)
+				{
+				    Ice.Identity ident = ObjectStore.unmarshalKey(_key.get_data(), communicator);
+				    _batch.add(ident);
+				}
+				else
+				{
+				    //
+				    // Keep the last element in _key
+				    //
+				    done = true;
+				}
 			    }
 			}
+			while(!done && _more);
+			
+			break; // for (;;)
 		    }
-		    while(!done && _more);
-
-		    break; // for (;;)
-		}
-		catch(com.sleepycat.db.DbDeadlockException dx)
-		{
-		    if(firstKey != null)
+		    catch(com.sleepycat.db.DbDeadlockException dx)
 		    {
-			assert(_key.get_data().length >= firstKey.length);
-			System.arraycopy(firstKey, 0, _key.get_data(), 0, firstKey.length);
-			_key.set_size(firstKey.length);
-		    }
-		    else
-		    {
-			_key.set_size(0);
-		    }
-
-		    if(_store.evictor().deadlockWarning())
-		    {
-			communicator.getLogger().warning
-			    ("Deadlock in Freeze.EvictorIteratorI.load while iterating over Db \"" 
-			     + _store.evictor().filename() + "/" + _store.dbName()
-			     + "\"; retrying ...");
-		    }
-		    
-		    //
-		    // Retry
-		    //
-		}
-		finally
-		{
-		    if(dbc != null)
-		    {
-			try
+			if(firstKey != null)
 			{
-			    dbc.close();
+			    assert(_key.get_data().length >= firstKey.length);
+			    System.arraycopy(firstKey, 0, _key.get_data(), 0, firstKey.length);
+			    _key.set_size(firstKey.length);
 			}
-			catch(com.sleepycat.db.DbDeadlockException dx)
+			else
 			{
-			    //
-			    // Ignored
-			    //
+			    _key.set_size(0);
+			}
+			
+			if(_store.evictor().deadlockWarning())
+			{
+			    communicator.getLogger().warning
+				("Deadlock in Freeze.EvictorIteratorI.load while iterating over Db \"" 
+				 + _store.evictor().filename() + "/" + _store.dbName()
+				 + "\"; retrying ...");
+			}
+			
+			//
+			// Retry
+			//
+		    }
+		    finally
+		    {
+			if(dbc != null)
+			{
+			    try
+			    {
+				dbc.close();
+			    }
+			    catch(com.sleepycat.db.DbDeadlockException dx)
+			    {
+				//
+				// Ignored
+				//
+			    }
 			}
 		    }
 		}
 	    }
+	    catch(com.sleepycat.db.DbException dx)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.initCause(dx);
+		ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+		throw ex;
+	    }
+	    
+	    if(_batch.size() == 0)
+	    {
+		return null;
+	    }
+	    else
+	    {
+		return _batch.listIterator();
+	    }
 	}
-	catch(com.sleepycat.db.DbException dx)
+	finally
 	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.initCause(dx);
-	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-	    throw ex;
-	}
-
-	if(_batch.size() == 0)
-	{
-	    return null;
-	}
-	else
-	{
-	    return _batch.listIterator();
+	    deactivateController.unlock();
 	}
     }
 

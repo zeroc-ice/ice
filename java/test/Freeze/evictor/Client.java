@@ -36,9 +36,238 @@ public class Client
         }
     }
 
+    static class ReadThread extends  Thread
+    {
+	ReadThread(Test.ServantPrx[] servants)
+	{
+	    _servants = servants;    
+	} 
+
+	public void run()
+	{
+	    int loops = 10;
+	    while(loops-- > 0)
+	    {
+		try
+		{
+		    _servants[0].getValue();
+		    test(false);
+		}
+		catch(Ice.ObjectNotExistException e)
+		{
+		    // Expected
+		}
+		catch(Exception e)
+		{
+		    test(false);
+		}
+		
+		for(int i = 1; i < _servants.length; ++i)
+		{
+		    test(_servants[i].getValue() == i);
+		}
+	    }
+	}
+	
+	private Test.ServantPrx[] _servants;
+    }
+
+    static class ReadForeverThread extends Thread
+    {
+	ReadForeverThread(Test.ServantPrx[] servants)
+	{
+	    _servants = servants;
+	}
+	
+	public void
+	run()
+	{
+	    for(;;)
+	    {
+		try
+		{
+		    for(int i = 0; i < _servants.length; ++i)
+		    {
+			test(_servants[i].slowGetValue() == i);
+		    }
+		}
+		catch(Ice.ConnectionRefusedException e)
+		{
+		    //
+		    // Expected
+		    //
+		    return;
+		}
+		catch(Ice.LocalException e)
+		{
+		    System.err.println("Caught unexpected : " + e.toString());
+		    test(false);
+		    return;
+		}
+		catch(Exception e)
+		{
+		    test(false);
+		    return;
+		}
+	    }
+	}
+
+	private Test.ServantPrx[] _servants;
+    }
+
+
+    static class AddForeverThread extends Thread
+    {	
+	AddForeverThread(Test.RemoteEvictorPrx evictor, int id)
+	{
+	    _evictor = evictor;
+	    _id = id;
+	}
+
+	public void
+	run()
+	{
+	    int index = _id * 1000;
+	    
+	    for(;;)
+	    {
+		try
+		{
+		    _evictor.createServant(index++, 0);
+		}
+		catch(Test.EvictorDeactivatedException e)
+		{
+		    //
+		    // Expected
+		    //
+		    return;
+		}
+		catch(Ice.ObjectNotExistException e)
+		{
+		    //
+		    // Expected
+		    //
+		    return;
+		}
+		catch(Ice.LocalException e)
+		{
+		    System.err.println("Caught unexpected : " + e.toString());
+		    test(false);
+		    return;
+		}
+		catch(Exception e)
+		{
+		    test(false);
+		    return;
+		}
+	    }
+	}
+
+	private Test.RemoteEvictorPrx _evictor;
+	private int _id;
+    }
+
+
+    static class CreateDestroyThread extends Thread
+    {
+	CreateDestroyThread(Test.RemoteEvictorPrx evictor, int id, int size) 
+	{
+	    _evictor = evictor;
+	    _id = id;
+	    _size = size;
+	}
+		   
+	public void
+	run()
+	{
+	    try
+	    {
+		int loops = 50;
+		while(loops-- > 0)
+		{
+		    for(int i = 0; i < _size; i++)
+		    {
+			if(i == _id)
+			{
+			    //
+			    // Create when odd, destroy when even.
+			    //
+			    
+			    if(loops % 2 == 0)
+			    {
+				Test.ServantPrx servant = _evictor.getServant(i);
+				servant.destroy();
+				
+				//
+				// Twice
+				//
+				try
+				{
+				    servant.destroy();
+				    test(false);
+				}
+				catch(Ice.ObjectNotExistException e)
+				{
+				    // Expected
+				}
+			    }
+			    else
+			    {
+				Test.ServantPrx servant = _evictor.createServant(i, i);
+				
+				//
+				// Twice
+				//
+				try
+				{
+				    servant = _evictor.createServant(i, 0);
+				    test(false);
+				}
+				catch(Test.AlreadyRegisteredException e)
+				{
+				    // Expected
+				}
+			    }
+			}
+			else
+			{
+			    //
+			    // Just read/write the value
+			    //
+			    Test.ServantPrx servant = _evictor.getServant(i);
+			    try
+			    {
+				int val = servant.getValue();
+				test(val == i || val == -i);
+				servant.setValue(-val);
+			    }
+			    catch(Ice.ObjectNotExistException e)
+			    {
+				// Expected from time to time
+			    }
+			}
+		    }
+		}
+	    }
+	    catch(Exception e)
+	    {
+		//
+		// Unexpected!
+		//
+		test(false);
+	    }
+	}
+
+	private Test.RemoteEvictorPrx _evictor;
+	private int _id;
+	private int _size;
+    }
+
+
+
     private static int
     run(String[] args, Ice.Communicator communicator)
-	throws Test.AlreadyRegisteredException, Test.NotRegisteredException
+	throws Test.AlreadyRegisteredException, Test.NotRegisteredException, Test.EvictorDeactivatedException
     {
         String ref = "factory:default -p 12345 -t 30000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
@@ -231,18 +460,111 @@ public class Client
 		// Expected
 	    }
 	}
-	
+
 	//
-	// Allocate space for size+1 servants.
+	// Allocate space for size servants.
 	//
-	servants = new Test.ServantPrx[size + 1];
-	
+	servants = new Test.ServantPrx[size];
+
 	//
-	// Recreate servants.
-	//
+	// Recreate servants, set transient value
+	//  
 	for(int i = 0; i < size; i++)
 	{
 	    servants[i] = evictor.createServant(i, i);
+	    servants[i].setTransientValue(i);
+	}
+    
+	//
+	// Create and destroy 100 servants to make sure we save and evict
+	//
+	for(int i = 0; i < 100; i++)
+	{
+	    Test.ServantPrx servant = evictor.createServant(size + i, size + i);
+	    servant.destroy();
+	}
+	
+	//
+	// Check the transient value
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getTransientValue() == -1);
+	}
+    
+	//
+	// Now with keep
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].keepInCache();
+	    servants[i].keepInCache();
+	    servants[i].setTransientValue(i);
+	}
+	
+	for(int i = 0; i < 100; i++)
+	{
+	    Test.ServantPrx servant = evictor.createServant(size + i, size + i);
+	    servant.destroy();
+	}
+
+    
+	//
+	// Check the transient value
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getTransientValue() == i);
+	}
+	
+	//
+	// Again, after one release
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].release();
+	}
+	for(int i = 0; i < 100; i++)
+	{
+	    Test.ServantPrx servant = evictor.createServant(size + i, size + i);
+	    servant.destroy();
+	}
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getTransientValue() == i);
+	}
+
+	//
+	// Again, after a second release
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].release();
+	}
+	for(int i = 0; i < 100; i++)
+	{
+	    Test.ServantPrx servant = evictor.createServant(size + i, size + i);
+	    servant.destroy();
+	}
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getTransientValue() == -1);
+	}
+		
+	//
+	// Release one more time
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    try
+	    {
+		servants[i].release();
+		test(false);
+	    }
+	    catch(Test.NotRegisteredException e)
+	    {
+		// Expected
+	    }
 	}
 	
 	//
@@ -258,27 +580,194 @@ public class Client
 	    test(servants[i].getValue() == i);
 	}
 	
+
+	//
+	// Test concurrent lookups with a smaller evictor
+	// size and one missing servant
+	//
+	evictor.setSize(size / 2);
+	servants[0].destroy();
+	
+	{
+	    int threadCount = size * 2;
+	    
+	    Thread[] threads = new Thread[threadCount];
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		threads[i] = new ReadThread(servants);
+		threads[i].start();
+	    }
+	    
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		for(;;)
+		{
+		    try
+		    {
+			threads[i].join(0);
+			break;
+		    }
+		    catch(InterruptedException e)
+		    {
+		    }
+		}
+	    }
+	}
+	
 	//
 	// Clean up.
 	//
 	evictor.destroyAllServants("");
 	evictor.destroyAllServants("facet1");
 	evictor.destroyAllServants("facet2");
-
-	for(int i = 0; i < size; i++)
+	
+	//
+	// CreateDestroy threads
+	//
 	{
-	    try
+	    int threadCount = size;;
+	    
+	    Thread[] threads = new Thread[threadCount];
+	    for(int i = 0; i < threadCount; i++)
 	    {
-		servants[i].getValue();
-		test(false);
+		threads[i] = new CreateDestroyThread(evictor, i, size);
+		threads[i].start();
 	    }
-	    catch(Ice.ObjectNotExistException ex)
+	    
+	    for(int i = 0; i < threadCount; i++)
 	    {
-		// Expected
+		for(;;)
+		{
+		    try
+		    {
+			threads[i].join(0);
+			break;
+		    }
+		    catch(InterruptedException e)
+		    {
+		    }
+		}
+	    }
+	    
+	    //
+	    // Verify all destroyed
+	    // 
+	    for(int i = 0; i < size; i++)   
+	    {
+		try
+		{
+		    servants[i].getValue();
+		    test(false);
+		}
+		catch(Ice.ObjectNotExistException e)
+		{
+		    // Expected
+		}
 	    }
 	}
 	
+	//
+	// Recreate servants.
+	//  
+	servants = new Test.ServantPrx[size];
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i] = evictor.createServant(i, i);
+	}
+	
+	//
+	// Deactivate in the middle of remote AMD operations
+	// (really testing Ice here)
+	//
+	{
+	    int threadCount = size;
+	    
+	    Thread[] threads = new Thread[threadCount];
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		threads[i] = new ReadForeverThread(servants);
+		threads[i].start();
+	    }
+	    
+	    try
+	    {
+		Thread.currentThread().sleep(500);
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+
+	    evictor.deactivate();
+	    
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		for(;;)
+		{
+		    try
+		    {
+			threads[i].join(0);
+			break;
+		    }
+		    catch(InterruptedException e)
+		    {
+		    }
+		}
+	    }
+	}
+	
+	//
+	// Resurrect
+	//
+	evictor = factory.createEvictor("Test");
+	evictor.destroyAllServants("");
+	
+	//
+	// Deactivate in the middle of adds
+	//
+	{
+	    int threadCount = size;
+	    
+	    Thread[] threads = new Thread[threadCount];
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		threads[i] = new AddForeverThread(evictor, i);
+		threads[i].start();
+	    }
+	    
+	    try
+	    {
+		Thread.currentThread().sleep(500);
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+	    evictor.deactivate();
+	    
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		for(;;)
+		{
+		    try
+		    {
+			threads[i].join(0);
+			break;
+		    }
+		    catch(InterruptedException e)
+		    {
+		    }
+		}
+	    }
+	}
+	
+	
+	//
+	// Clean up.
+	//
+	evictor = factory.createEvictor("Test");
+	evictor.destroyAllServants("");
 	evictor.deactivate();
+
+
 	System.out.println("ok");
         
         factory.shutdown();
@@ -308,6 +797,11 @@ public class Client
             status = 1;
 	}
 	catch(Test.NotRegisteredException ex)
+	{
+	    ex.printStackTrace();
+            status = 1;
+	}
+	catch(Test.EvictorDeactivatedException ex)
 	{
 	    ex.printStackTrace();
             status = 1;

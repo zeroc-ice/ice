@@ -84,105 +84,115 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
     protected Ice.Identity[]
     untypedFindFirst(byte[] k, int firstN)
     {
-	com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt(k);
+	EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
+	deactivateController.lock();
 	
-	com.sleepycat.db.Dbt pkey = new com.sleepycat.db.Dbt();
-	pkey.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
-	
-	com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
-	//
-	// dlen is 0, so we should not retrieve any value 
-	// 
-	value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-
-	Ice.Communicator communicator = _store.communicator();
-	_store.evictor().saveNow();
-
-	java.util.List identities;
-
 	try
 	{
-	    for(;;)
+	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt(k);
+	    
+	    com.sleepycat.db.Dbt pkey = new com.sleepycat.db.Dbt();
+	    pkey.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
+	    
+	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
+	    //
+	    // dlen is 0, so we should not retrieve any value 
+	    // 
+	    value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	    
+	    Ice.Communicator communicator = _store.communicator();
+	    _store.evictor().saveNow();
+	    
+	    java.util.List identities;
+	    
+	    try
 	    {
-		com.sleepycat.db.Dbc dbc = null;
-		identities = new java.util.ArrayList(); 
-			
-		try
+		for(;;)
 		{
-		    //
-		    // Move to the first record
-		    // 
-		    dbc = _db.cursor(null, 0);
-		    int flags = com.sleepycat.db.Db.DB_SET;
-
-		    boolean found;
-
-		    do
-		    {
-			found = (dbc.pget(key, pkey, value, flags) == 0);
+		    com.sleepycat.db.Dbc dbc = null;
+		    identities = new java.util.ArrayList(); 
 		    
-			if(found)
-			{
-			    Ice.Identity ident = ObjectStore.unmarshalKey(pkey.get_data(), communicator);
-			    identities.add(ident);
-			    flags = com.sleepycat.db.Db.DB_NEXT_DUP;
-			}
-		    }
-		    while((firstN <= 0 || identities.size() < firstN) && found);
-
-		    break; // for(;;)
-		}
-		catch(com.sleepycat.db.DbDeadlockException dx)
-		{
-		    if(_store.evictor().deadlockWarning())
+		    try
 		    {
-			communicator.getLogger().warning
-			    ("Deadlock in Freeze.Index.untypedFindFirst while iterating over Db \"" 
-			     + _store.evictor().filename() + "/" + _dbName
-			     + "\"; retrying ...");
-		    }
-
-		    //
-		    // Retry
-		    //
-		}
-		finally
-		{
-		    if(dbc != null)
-		    {
-			try
+			//
+			// Move to the first record
+			// 
+			dbc = _db.cursor(null, 0);
+			int flags = com.sleepycat.db.Db.DB_SET;
+			
+			boolean found;
+			
+			do
 			{
-			    dbc.close();
+			    found = (dbc.pget(key, pkey, value, flags) == 0);
+			    
+			    if(found)
+			    {
+				Ice.Identity ident = ObjectStore.unmarshalKey(pkey.get_data(), communicator);
+				identities.add(ident);
+				flags = com.sleepycat.db.Db.DB_NEXT_DUP;
+			    }
 			}
-			catch(com.sleepycat.db.DbDeadlockException dx)
+			while((firstN <= 0 || identities.size() < firstN) && found);
+			
+			break; // for(;;)
+		    }
+		    catch(com.sleepycat.db.DbDeadlockException dx)
+		    {
+			if(_store.evictor().deadlockWarning())
 			{
-			    //
-			    // Ignored
-			    //
+			    communicator.getLogger().warning
+				("Deadlock in Freeze.Index.untypedFindFirst while iterating over Db \"" 
+				 + _store.evictor().filename() + "/" + _dbName
+				 + "\"; retrying ...");
+			}
+			
+			//
+			// Retry
+			//
+		    }
+		    finally
+		    {
+			if(dbc != null)
+			{
+			    try
+			    {
+				dbc.close();
+			    }
+			    catch(com.sleepycat.db.DbDeadlockException dx)
+			    {
+				//
+				// Ignored
+				//
+			    }
 			}
 		    }
 		}
 	    }
+	    catch(com.sleepycat.db.DbException dx)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.initCause(dx);
+		ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+		throw ex;
+	    }
+	    
+	    if(identities.size() != 0)
+	    {
+		Ice.Identity[] result = new Ice.Identity[identities.size()];
+		return (Ice.Identity[]) identities.toArray(result);
+	    }
+	    else
+	    {
+		return new Ice.Identity[0];
+	    }
 	}
-	catch(com.sleepycat.db.DbException dx)
+	finally
 	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.initCause(dx);
-	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-	    throw ex;
-	}
-
-	if(identities.size() != 0)
-	{
-	    Ice.Identity[] result = new Ice.Identity[identities.size()];
-	    return (Ice.Identity[]) identities.toArray(result);
-	}
-	else
-	{
-	    return new Ice.Identity[0];
+	    deactivateController.unlock();
 	}
     }
-
+	
     protected Ice.Identity[]
     untypedFind(byte[] key)
     {
@@ -192,71 +202,81 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
     protected int
     untypedCount(byte[] k)
     {
-	com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt(k);
-	com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
-	//
-	// dlen is 0, so we should not retrieve any value 
-	// 
-	value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	_store.evictor().saveNow();
-
+	EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
+	deactivateController.lock();
+	
 	try
 	{
-	    for(;;)
+	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt(k);
+	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
+	    //
+	    // dlen is 0, so we should not retrieve any value 
+	    // 
+	    value.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	    _store.evictor().saveNow();
+	    
+	    try
 	    {
-		com.sleepycat.db.Dbc dbc = null;
-		try
+		for(;;)
 		{
-		    dbc = _db.cursor(null, 0);   
-		    boolean found = (dbc.get(key, value, com.sleepycat.db.Db.DB_SET) == 0);
-		    
-		    if(found)
+		    com.sleepycat.db.Dbc dbc = null;
+		    try
 		    {
-			return dbc.count(0);
-		    }
-		    else
-		    {
-			return 0;
-		    }
-		}
-		catch(com.sleepycat.db.DbDeadlockException dx)
-		{
-		    if(_store.evictor().deadlockWarning())
-		    {
-			_store.communicator().getLogger().warning
-			    ("Deadlock in Freeze.Index.untypedCount while iterating over Db \"" 
-			     + _store.evictor().filename() + "/" + _dbName
-			     + "\"; retrying ...");
-		    }
-
-		    //
-		    // Retry
-		    //
-		}
-		finally
-		{
-		    if(dbc != null)
-		    {
-			try
+			dbc = _db.cursor(null, 0);   
+			boolean found = (dbc.get(key, value, com.sleepycat.db.Db.DB_SET) == 0);
+			
+			if(found)
 			{
-			    dbc.close();
+			    return dbc.count(0);
 			}
-			catch(com.sleepycat.db.DbDeadlockException dx)
+			else
 			{
-			    //
-			    // Ignored
-			    //
+			    return 0;
+			}
+		    }
+		    catch(com.sleepycat.db.DbDeadlockException dx)
+		    {
+			if(_store.evictor().deadlockWarning())
+			{
+			    _store.communicator().getLogger().warning
+				("Deadlock in Freeze.Index.untypedCount while iterating over Db \"" 
+				 + _store.evictor().filename() + "/" + _dbName
+				 + "\"; retrying ...");
+			}
+			
+			//
+			// Retry
+			//
+		    }
+		    finally
+		    {
+			if(dbc != null)
+			{
+			    try
+			    {
+				dbc.close();
+			    }
+			    catch(com.sleepycat.db.DbDeadlockException dx)
+			    {
+				//
+				// Ignored
+				//
+			    }
 			}
 		    }
 		}
 	    }
+	    catch(com.sleepycat.db.DbException dx)
+	    {
+		DatabaseException ex = new DatabaseException();
+		ex.initCause(dx);
+		ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+		throw ex;
+	    }
 	}
-	catch(com.sleepycat.db.DbException dx)
+	finally
 	{
-	    DatabaseException ex = new DatabaseException();
-	    ex.initCause(dx);
-	    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-	    throw ex;
+	    deactivateController.unlock();
 	}
     }
 

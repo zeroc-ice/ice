@@ -14,6 +14,33 @@
 
 public class ServantI implements Test._ServantOperations
 {
+    static class DelayedResponse extends Thread
+    {	
+	DelayedResponse(Test.AMD_Servant_slowGetValue cb, int val)
+	{
+	    _cb = cb;
+	    _val = val;
+	}
+	
+	public void
+        run()
+        { 
+	    try
+	    {
+		sleep(500);
+	    }
+	    catch(InterruptedException e)
+	    {
+		// Ignored
+	    }
+	    _cb.ice_response(_val);
+	}
+
+	private Test.AMD_Servant_slowGetValue _cb;
+	private int _val;
+    }
+
+
     ServantI(Test.Servant tie)
     {
 	_tie = tie;
@@ -46,6 +73,17 @@ public class ServantI implements Test._ServantOperations
 	synchronized(_tie)
 	{
 	    return _tie.value;
+	}
+    }
+    
+    public void
+    slowGetValue_async(Test.AMD_Servant_slowGetValue cb, Ice.Current current)
+    {
+	synchronized(_tie)
+	{
+	    Thread t = new DelayedResponse(cb, _tie.value);
+	    t.setDaemon(true);
+	    t.start();
 	}
     }
 
@@ -113,10 +151,43 @@ public class ServantI implements Test._ServantOperations
 	}
    
     }
-    
+
+    public synchronized int
+    getTransientValue(Ice.Current current)
+    {
+	return _transientValue;
+    }
+
+    public synchronized void
+    setTransientValue(int val, Ice.Current current)
+    {
+	_transientValue = val;
+    }
+
+    public void
+    keepInCache(Ice.Current current)
+    {
+	_evictor.keep(current.id);
+    }
+
+    public void
+    release(Ice.Current current)
+	throws Test.NotRegisteredException
+    {
+	try
+	{
+	    _evictor.release(current.id);
+	}
+	catch(Ice.NotRegisteredException e)
+	{
+	    throw new Test.NotRegisteredException();
+	}
+    }
+
     protected RemoteEvictorI _remoteEvictor;
     protected Freeze.Evictor _evictor;
     protected Test.AMD_Servant_setValueAsync _setValueAsyncCB;
     protected int _setValueAsyncValue;
     protected Test.Servant _tie;
+    private int _transientValue = -1;
 }
