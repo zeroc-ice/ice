@@ -30,6 +30,14 @@
 typedef int socklen_t;
 #endif
 
+#ifndef SOCKET_ERROR
+#   define SOCKET_ERROR -1
+#endif
+
+#ifndef INVALID_SOCKET
+#   define INVALID_SOCKET -1
+#endif
+
 #ifndef SHUT_RD
 #   define SHUT_RD 0
 #endif

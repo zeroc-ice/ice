@@ -31,6 +31,7 @@ class Handle
 public:
     
     typedef T element_type;
+    typedef T I;
     
     Handle(T* p = 0)
 	: ptr_(p)
