@@ -179,12 +179,33 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
 
             case SSL_ERROR_SSL:
             {
-                ProtocolException protocolEx(__FILE__, __LINE__);
+                int verifyError = SSL_get_verify_result(_sslConnection);
 
-                protocolEx._message = "Encountered a violation of the SSL Protocol during handshake.\n";
-                protocolEx._message += sslGetErrors();
+                if (verifyError != X509_V_OK && verifyError != 1)
+	        {
+                    CertificateVerificationException certVerEx(__FILE__, __LINE__);
 
-                throw protocolEx;
+                    certVerEx._message = "SSL certificate verification error.";
+
+                    string errors = sslGetErrors();
+
+                    if (!errors.empty())
+                    {
+                        certVerEx._message += "\n";
+                        certVerEx._message += errors;
+                    }
+
+                    throw certVerEx;
+	        }
+                else
+                {
+                    ProtocolException protocolEx(__FILE__, __LINE__);
+
+                    protocolEx._message = "Encountered a violation of the SSL Protocol during handshake.\n";
+                    protocolEx._message += sslGetErrors();
+
+                    throw protocolEx;
+                }
             }
         }
 

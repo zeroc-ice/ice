@@ -115,9 +115,9 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
         if ((result <= 0) && (BIO_sock_should_retry(result) == 0))
         {
             // Socket can't retry - bad scene, find out why.
-            long verify_error = SSL_get_verify_result(_sslConnection);
+            long verifyError = SSL_get_verify_result(_sslConnection);
 
-            if (verify_error != X509_V_OK)
+            if (verifyError != X509_V_OK)
             {
                 CertificateVerificationException certVerEx(__FILE__, __LINE__);
 

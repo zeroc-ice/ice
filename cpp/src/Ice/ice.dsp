@@ -912,6 +912,10 @@ SOURCE=.\SslConnector.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\SslException.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\SslExtension.h
 # End Source File
 # Begin Source File
