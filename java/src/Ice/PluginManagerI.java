@@ -122,25 +122,32 @@ public final class PluginManagerI implements PluginManager
             }
             catch (ClassCastException ex)
             {
-                _instance.logger().error("PluginManager: class " + className +
-                                         " does not implement Ice.PluginFactory");
-                throw new SystemException();
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "class " + className + " does not implement Ice.PluginFactory";
+                e.initCause(ex);
+                throw e;
             }
         }
         catch (ClassNotFoundException ex)
         {
-            _instance.logger().error("PluginManager: class " + className + " not found");
-            throw new SystemException();
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "class " + className + " not found";
+            e.initCause(ex);
+            throw e;
         }
         catch (IllegalAccessException ex)
         {
-            _instance.logger().error("PluginManager: unable to access default constructor in class " + className);
-            throw new SystemException();
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "unable to access default constructor in class " + className;
+            e.initCause(ex);
+            throw e;
         }
         catch (InstantiationException ex)
         {
-            _instance.logger().error("PluginManager: unable to instantiate class " + className);
-            throw new SystemException();
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "unable to instantiate class " + className;
+            e.initCause(ex);
+            throw e;
         }
 
         //
@@ -153,8 +160,8 @@ public final class PluginManagerI implements PluginManager
         }
         catch (Exception ex)
         {
-            _instance.logger().error("PluginManager: exception in factory " + className);
-            SystemException e = new SystemException();
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "exception in factory " + className;
             e.initCause(ex);
             throw e;
         }
