@@ -57,12 +57,15 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 		java.util.Iterator p = _clients.iterator();
 		while(p.hasNext())
 		{
+		    CallbackReceiverPrx r = (CallbackReceiverPrx)p.next();
 		    try
 		    {
-			((CallbackReceiverPrx)p.next()).callback(_num);
+			r.callback(_num);
 		    }
 		    catch(Exception ex)
 		    {
+			System.out.println("removing client `" + Ice.Util.identityToString(r.ice_getIdentity()) + "':");
+			ex.printStackTrace();
 			p.remove();
 		    }
 		}
