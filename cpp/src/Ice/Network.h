@@ -59,41 +59,41 @@ typedef int socklen_t;
 namespace IceInternal
 {
 
-bool interrupted();
-bool acceptInterrupted();
-bool noBuffers();
-bool wouldBlock();
-bool connectFailed();
-bool connectInProgress();
-bool connectionLost();
-bool notConnected();
+ICE_PROTOCOL_API bool interrupted();
+ICE_PROTOCOL_API bool acceptInterrupted();
+ICE_PROTOCOL_API bool noBuffers();
+ICE_PROTOCOL_API bool wouldBlock();
+ICE_PROTOCOL_API bool connectFailed();
+ICE_PROTOCOL_API bool connectInProgress();
+ICE_PROTOCOL_API bool connectionLost();
+ICE_PROTOCOL_API bool notConnected();
 
-SOCKET createSocket(bool);
-void closeSocket(SOCKET);
+ICE_PROTOCOL_API SOCKET createSocket(bool);
+ICE_PROTOCOL_API void closeSocket(SOCKET);
 
-void setBlock(SOCKET, bool);
-void setTcpNoDelay(SOCKET);
-void setKeepAlive(SOCKET);
-void setSendBufferSize(SOCKET, int);
+ICE_PROTOCOL_API void setBlock(SOCKET, bool);
+ICE_PROTOCOL_API void setTcpNoDelay(SOCKET);
+ICE_PROTOCOL_API void setKeepAlive(SOCKET);
+ICE_PROTOCOL_API void setSendBufferSize(SOCKET, int);
 
-void doBind(SOCKET, struct sockaddr_in&);
-void doListen(SOCKET, int);
-void doConnect(SOCKET, struct sockaddr_in&, int);
-SOCKET doAccept(SOCKET, int);
+ICE_PROTOCOL_API void doBind(SOCKET, struct sockaddr_in&);
+ICE_PROTOCOL_API void doListen(SOCKET, int);
+ICE_PROTOCOL_API void doConnect(SOCKET, struct sockaddr_in&, int);
+ICE_PROTOCOL_API SOCKET doAccept(SOCKET, int);
 
-void getAddress(const std::string&, int, struct sockaddr_in&);
-std::string getLocalHost(bool);
-bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
+ICE_PROTOCOL_API void getAddress(const std::string&, int, struct sockaddr_in&);
+ICE_PROTOCOL_API std::string getLocalHost(bool);
+ICE_PROTOCOL_API bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
 
-void createPipe(SOCKET fds[2]);
+ICE_PROTOCOL_API void createPipe(SOCKET fds[2]);
 
-std::string errorToString(int);
-std::string errorToStringDNS(int);
-std::string lastErrorToString();
-std::string lastErrorToStringDNS();
+ICE_PROTOCOL_API std::string errorToString(int);
+ICE_PROTOCOL_API std::string errorToStringDNS(int);
+ICE_PROTOCOL_API std::string lastErrorToString();
+ICE_PROTOCOL_API std::string lastErrorToStringDNS();
 
-std::string fdToString(SOCKET);
-std::string addrToString(const struct sockaddr_in&);
+ICE_PROTOCOL_API std::string fdToString(SOCKET);
+ICE_PROTOCOL_API std::string addrToString(const struct sockaddr_in&);
 
 }
 
