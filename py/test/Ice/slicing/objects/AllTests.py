@@ -623,6 +623,8 @@ def allTests(communicator):
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
     except Ice.Exception:
+        import traceback
+        traceback.print_exc()
         test(False)
     print "ok"
 
