@@ -281,7 +281,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	string category = router->getServerProxy(current)->ice_getIdentity().category;
 	assert(!category.empty());
 	_routersByCategoryHint = _routersByCategory.insert(_routersByCategoryHint,
-							   pair<string, RouterIPtr>(category, router));
+							   pair<const string, RouterIPtr>(category, router));
     }
     
     if(_traceLevel >= 1)
