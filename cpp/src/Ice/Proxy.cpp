@@ -121,6 +121,12 @@ IceProxy::Ice::Object::ice_hash() const
 }
 
 bool
+IceProxy::Ice::Object::ice_isA(const string& __id)
+{
+    return ice_isA(__id, _reference->context);
+}
+
+bool
 IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     int __cnt = 0;
@@ -140,6 +146,12 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	    __handleException(__ex, __cnt);
 	}
     }
+}
+
+void
+IceProxy::Ice::Object::ice_ping()
+{
+    return ice_ping(_reference->context);
 }
 
 void
@@ -166,6 +178,12 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 }
 
 vector<string>
+IceProxy::Ice::Object::ice_ids()
+{
+    return ice_ids(_reference->context);
+}
+
+vector<string>
 IceProxy::Ice::Object::ice_ids(const Context& __context)
 {
     int __cnt = 0;
@@ -185,6 +203,12 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	    __handleException(__ex, __cnt);
 	}
     }
+}
+
+string
+IceProxy::Ice::Object::ice_id()
+{
+    return ice_id(_reference->context);
 }
 
 string
@@ -210,6 +234,12 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 }
 
 FacetPath
+IceProxy::Ice::Object::ice_facets()
+{
+    return ice_facets(_reference->context);
+}
+
+FacetPath
 IceProxy::Ice::Object::ice_facets(const Context& __context)
 {
     int __cnt = 0;
@@ -229,6 +259,15 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 	    __handleException(__ex, __cnt);
 	}
     }
+}
+
+bool
+IceProxy::Ice::Object::ice_invoke(const string& operation,
+				  OperationMode mode,
+				  const vector<Byte>& inParams,
+				  vector<Byte>& outParams)
+{
+    return ice_invoke(operation, mode, inParams, outParams, _reference->context);
 }
 
 bool
@@ -269,6 +308,15 @@ void
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const string& operation,
 					OperationMode mode,
+					const vector<Byte>& inParams)
+{
+    return ice_invoke_async(cb, operation, mode, inParams, _reference->context);
+}
+
+void
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
+					const string& operation,
+					OperationMode mode,
 					const vector<Byte>& inParams,
 					const Context& context)
 {
@@ -285,6 +333,27 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 	{
 	    __handleException(__ex, __cnt);
 	}
+    }
+}
+
+Context
+IceProxy::Ice::Object::ice_getContext() const
+{
+    return _reference->context;
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
+{
+    if(newContext == _reference->context)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeContext(newContext));
+	return proxy;
     }
 }
 
@@ -765,6 +834,12 @@ Handle< ::IceDelegateD::Ice::Object>
 IceProxy::Ice::Object::__createDelegateD()
 {
     return Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD::Ice::Object);
+}
+
+const Context&
+IceProxy::Ice::Object::__defaultContext() const
+{
+    return _reference->context;
 }
 
 void

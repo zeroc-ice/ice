@@ -90,20 +90,32 @@ public:
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 
-    bool ice_isA(const ::std::string&, const ::Ice::Context& = ::Ice::Context());
-    void ice_ping(const ::Ice::Context& = ::Ice::Context());
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& = ::Ice::Context());
-    ::std::string ice_id(const ::Ice::Context& = ::Ice::Context());
-    ::Ice::FacetPath ice_facets(const ::Ice::Context& = ::Ice::Context());
+    bool ice_isA(const ::std::string&);
+    bool ice_isA(const ::std::string&, const ::Ice::Context&);
+    void ice_ping();
+    void ice_ping(const ::Ice::Context&);
+    ::std::vector< ::std::string> ice_ids();
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
+    ::std::string ice_id();
+    ::std::string ice_id(const ::Ice::Context&);
+    ::Ice::FacetPath ice_facets();
+    ::Ice::FacetPath ice_facets(const ::Ice::Context&);
+    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
+	            ::std::vector< ::Ice::Byte>&); // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
+		    const ::Ice::Context&); // Returns true if ok, false if user exception.
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
+			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&);
     void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-			  const ::Ice::Context& = ::Ice::Context());
+			  const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+
+    ::Ice::Context ice_getContext() const;
+    ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
 
     ::Ice::FacetPath ice_getFacet() const;
     ::Ice::ObjectPrx ice_newFacet(const ::Ice::FacetPath&) const;
@@ -141,6 +153,8 @@ protected:
 
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
     virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
+
+    const ::Ice::Context& __defaultContext() const;
 
 private:
 

@@ -696,6 +696,8 @@ public:
     }
 };
 
+typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
+
 class AMI_MyClass_opIntSI : public Test::AMI_MyClass_opIntS, public CallbackBase
 {
 public:
@@ -724,7 +726,57 @@ private:
 
 typedef IceUtil::Handle<AMI_MyClass_opIntSI> AMI_MyClass_opIntSIPtr;
 
-typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
+class AMI_MyClass_opContextEqualI : public Test::AMI_MyClass_opContext, public CallbackBase
+{
+public:
+
+    AMI_MyClass_opContextEqualI(const Test::StringStringD &d) : _d(d)
+    {
+    }
+
+    virtual void ice_response(const Test::StringStringD& r)
+    {
+	test(r == _d);
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+	test(false);
+    }
+
+private:
+
+    Test::StringStringD _d;
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opContextEqualI> AMI_MyClass_opContextEqualIPtr;
+
+class AMI_MyClass_opContextNotEqualI : public Test::AMI_MyClass_opContext, public CallbackBase
+{
+public:
+
+    AMI_MyClass_opContextNotEqualI(const Test::StringStringD &d) : _d(d)
+    {
+    }
+
+    virtual void ice_response(const Test::StringStringD& r)
+    {
+	test(r != _d);
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+	test(false);
+    }
+
+private:
+
+    Test::StringStringD _d;
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opContextNotEqualI> AMI_MyClass_opContextNotEqualIPtr;
 
 class AMI_MyDerivedClass_opDerivedI : public Test::AMI_MyDerivedClass_opDerived, public CallbackBase
 {
@@ -1034,6 +1086,35 @@ twowaysAMI(const Test::MyClassPrx& p)
 	    }
 	    AMI_MyClass_opIntSIPtr cb = new AMI_MyClass_opIntSI(lengths[l]);
 	    p->opIntS_async(cb, s);
+	    test(cb->check());
+	}
+    }
+
+    {
+	Test::StringStringD ctx;
+	ctx["one"] = "ONE";
+	ctx["two"] = "TWO";
+	ctx["three"] = "THREE";
+	{
+	    AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(ctx);
+	    p->opContext_async(cb);
+	    test(cb->check());
+	}
+	{
+	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
+	    p->opContext_async(cb, ctx);
+	    test(cb->check());
+	}
+	Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	{
+	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
+	    p2->opContext_async(cb);
+	    test(cb->check());
+	}
+	{
+	    Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_newContext(ctx));
+	    AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);
+	    p2->opContext_async(cb, ctx);
 	    test(cb->check());
 	}
     }

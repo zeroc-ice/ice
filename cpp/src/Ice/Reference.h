@@ -65,6 +65,7 @@ public:
     //
     const InstancePtr instance;
     const Ice::Identity identity;
+    const Ice::Context context;
     const Ice::FacetPath facet;
     const Mode mode;
     const bool secure;
@@ -81,6 +82,7 @@ public:
     // certain values.
     //
     ReferencePtr changeIdentity(const Ice::Identity&) const;
+    ReferencePtr changeContext(const Ice::Context&) const;
     ReferencePtr changeFacet(const Ice::FacetPath&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
@@ -95,7 +97,7 @@ public:
  
 private:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const Ice::FacetPath&, Mode, bool,
+    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const Ice::FacetPath&, Mode, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
 	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::ObjectAdapterPtr&, bool);
     friend class ReferenceFactory;

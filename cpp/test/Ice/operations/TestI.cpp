@@ -335,6 +335,12 @@ MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
     return r;
 }
 
+Test::StringStringD
+MyDerivedClassI::opContext(const Ice::Current& c)
+{
+    return c.ctx;
+}
+
 void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {

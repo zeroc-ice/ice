@@ -358,6 +358,13 @@ MyDerivedClassI::opIntS_async(const ::Test::AMD_MyClass_opIntSPtr& cb, const Tes
 }
 
 void
+MyDerivedClassI::opContext_async(const ::Test::AMD_MyClass_opContextPtr& cb, const Ice::Current& c)
+{
+    Test::StringStringD r = c.ctx;
+    cb->ice_response(r);
+}
+
+void
 MyDerivedClassI::opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr& cb,
 				 const Ice::Current&)
 {

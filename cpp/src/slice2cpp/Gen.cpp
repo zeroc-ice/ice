@@ -1296,7 +1296,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     string params = "(";
     string paramsDecl = "("; // With declarators
-    string args = "(";
+    string args;
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -1304,8 +1304,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string classScope = fixKwd(cl->scope());
     string classScopedAMI = classScope + classNameAMI;
 
-    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&, ";
-    string paramsDeclAMI = "(const " + classScopedAMI + '_' + name + "Ptr& __cb, "; // With declarators
+    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&";
+    string paramsDeclAMI = "(const " + classScopedAMI + '_' + name + "Ptr& __cb"; // With declarators
     string argsAMI = "(__cb, ";
 
     ParamDeclList paramList = p->parameters();
@@ -1330,42 +1330,65 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
 	string paramName = fixKwd((*q)->name());
 
+	if(q != paramList.begin())
+	{
+	    params += ", ";
+	    paramsDecl += ", ";
+	    args += ", ";
+	}
 	params += typeString;
-	params += ", ";
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += paramName;
-	paramsDecl += ", ";
 	args += paramName;
-	args += ", ";
 
 	if(!(*q)->isOutParam())
 	{
-	    paramsAMI += typeString;
 	    paramsAMI += ", ";
+	    paramsAMI += typeString;
+	    paramsDeclAMI += ", ";
 	    paramsDeclAMI += typeString;
 	    paramsDeclAMI += ' ';
 	    paramsDeclAMI += paramName;
-	    paramsDeclAMI += ", ";
 	    argsAMI += paramName;
 	    argsAMI += ", ";
 	}
     }
 
-    params += "const ::Ice::Context& = ::Ice::Context())";
-    paramsDecl += "const ::Ice::Context& __context)";
-    args += "__context)";
-
-    paramsAMI += "const ::Ice::Context& = ::Ice::Context())";
-    paramsDeclAMI += "const ::Ice::Context& __context)";
-    argsAMI += "__context)";
-
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
     H << sp;
 
-    H << nl << retS << ' ' << name << params << ';';
+    H << nl << retS << ' ' << name << params << ");";
+
+    H << nl << retS << ' ' << name << params;
+    if(!paramList.empty())
+    {
+	H << ", ";
+    }
+    H << "const ::Ice::Context&);";
+
+    C << sp << nl << retS << nl << "IceProxy" << scoped << paramsDecl << ")";
+    C << sb;
+    C << nl;
+    if(ret)
+    {
+	C << "return ";
+    }
+    C << name << '(' << args;
+    if(!paramList.empty())
+    {
+	C << ", ";
+    }
+    C << "__defaultContext());";
+    C << eb;
+
     C << sp << nl << retS << nl << "IceProxy" << scoped << paramsDecl;
+    if(!paramList.empty())
+    {
+	C << ", ";
+    }
+    C << "const ::Ice::Context& __ctx)";
     C << sb;
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
@@ -1380,7 +1403,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
 	C << "return ";
     }
-    C << "__del->" << name << args << ";";
+    C << "__del->" << name << '(' << args;
+    if(!args.empty())
+    {
+	C << ", ";
+    }
+    C << "__ctx);";
     if(!ret)
     {
 	C << nl << "return;";
@@ -1406,8 +1434,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
-	H << nl << "void " << name << "_async" << paramsAMI << ';';
-	C << sp << nl << "void" << nl << "IceProxy" << scoped << "_async" << paramsDeclAMI;
+	H << nl << "void " << name << "_async" << paramsAMI << ");";
+
+	H << nl << "void " << name << "_async" << paramsAMI << ", const ::Ice::Context&);";
+
+	C << sp << nl << "void" << nl << "IceProxy" << scoped << "_async" << paramsDeclAMI << ")";
+	C << sb;
+	C << nl;
+	C << name << "_async" << argsAMI << "__defaultContext());";
+	C << eb;
+
+	C << sp << nl << "void" << nl << "IceProxy" << scoped << "_async" << paramsDeclAMI
+	  << ", const ::Ice::Context& __ctx)";
 	C << sb;
 	C << nl << "int __cnt = 0;";
 	C << nl << "while(true)";
@@ -1418,7 +1456,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
 	  << thisPointer << ">(__delBase.get());";
 	C << nl;
-	C << "__del->" << name << "_async" << argsAMI << ";";
+	C << "__del->" << name << "_async" << argsAMI << "__ctx);";
 	C << nl << "return;";
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";

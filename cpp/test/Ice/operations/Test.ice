@@ -143,6 +143,8 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
+    StringStringD opContext();
+
 };
 
 ["ami"] class MyDerivedClass extends MyClass
