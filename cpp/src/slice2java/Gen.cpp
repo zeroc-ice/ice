@@ -1101,23 +1101,23 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         // write
         //
         out << sp << nl << "public static void" << nl
-            << "write(Ice.Stream _ice_os, " << name << " _ice_v)";
+            << "write(Ice.Stream ice_os, " << name << " ice_v)";
         out << sb;
         if (sz <= 0x7f)
         {
-            out << nl << "_ice_os.writeByte((byte)_ice_v.value());";
+            out << nl << "ice_os.writeByte((byte)ice_v.value());";
         }
         else if (sz <= 0x7fff)
         {
-            out << nl << "_ice_os.writeShort((short)_ice_v.value());";
+            out << nl << "ice_os.writeShort((short)ice_v.value());";
         }
         else if (sz <= 0x7fffffff)
         {
-            out << nl << "_ice_os.writeInt((int)_ice_v.value());";
+            out << nl << "ice_os.writeInt((int)ice_v.value());";
         }
         else
         {
-            out << nl << "_ice_os.writeLong(_ice_v.value());";
+            out << nl << "ice_os.writeLong(ice_v.value());";
         }
         out << eb;
 
@@ -1125,25 +1125,25 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         // read
         //
         out << sp << nl << "public static " << name << nl
-            << "read(Ice.Stream _ice_is)";
+            << "read(Ice.Stream ice_is)";
         out << sb;
         if (sz <= 0x7f)
         {
-            out << nl << "long _ice_v = _ice_is.readByte();";
+            out << nl << "long ice_v = ice_is.readByte();";
         }
         else if (sz <= 0x7fff)
         {
-            out << nl << "long _ice_v = _ice_is.readShort();";
+            out << nl << "long ice_v = ice_is.readShort();";
         }
         else if (sz <= 0x7fffffff)
         {
-            out << nl << "long _ice_v = _ice_is.readInt();";
+            out << nl << "long ice_v = ice_is.readInt();";
         }
         else
         {
-            out << nl << "long _ice_v = _ice_is.readLong();";
+            out << nl << "long ice_v = ice_is.readLong();";
         }
-        out << nl << "return " << name << ".convert(_ice_v);";
+        out << nl << "return " << name << ".convert(ice_v);";
         out << eb;
 
         out << eb;

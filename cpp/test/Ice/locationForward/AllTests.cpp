@@ -58,7 +58,7 @@ allTests(const Ice::CommunicatorPtr& communicator, int port, int lastPort)
     cout << "testing whether all servers are gone... " << flush;
     try
     {
-	lastObj->_ice_ping();
+	lastObj->ice_ping();
 	test(false);
     }
     catch(const Ice::SocketException&)

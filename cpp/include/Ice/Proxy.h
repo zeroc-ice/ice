@@ -36,26 +36,26 @@ public:
 
     bool operator==(const Object&) const;
     bool operator<(const Object&) const;
-    ::Ice::Int _ice_hash() const;
+    ::Ice::Int ice_hash() const;
 
-    bool _ice_isA(const std::string&);
-    void _ice_ping();
+    bool ice_isA(const std::string&);
+    void ice_ping();
 
-    std::string _ice_getIdentity() const;
-    ::Ice::ObjectPrx _ice_newIdentity(const std::string&) const;
+    std::string ice_getIdentity() const;
+    ::Ice::ObjectPrx ice_newIdentity(const std::string&) const;
 
-    std::string _ice_getFacet() const;
-    ::Ice::ObjectPrx _ice_newFacet(const std::string&) const;
+    std::string ice_getFacet() const;
+    ::Ice::ObjectPrx ice_newFacet(const std::string&) const;
 
-    ::Ice::ObjectPrx _ice_twoway() const;
-    ::Ice::ObjectPrx _ice_oneway() const;
-    ::Ice::ObjectPrx _ice_batchOneway() const;
-    ::Ice::ObjectPrx _ice_datagram() const;
-    ::Ice::ObjectPrx _ice_batchDatagram() const;
-    ::Ice::ObjectPrx _ice_secure(bool) const;
-    ::Ice::ObjectPrx _ice_timeout(int) const;
+    ::Ice::ObjectPrx ice_twoway() const;
+    ::Ice::ObjectPrx ice_oneway() const;
+    ::Ice::ObjectPrx ice_batchOneway() const;
+    ::Ice::ObjectPrx ice_datagram() const;
+    ::Ice::ObjectPrx ice_batchDatagram() const;
+    ::Ice::ObjectPrx ice_secure(bool) const;
+    ::Ice::ObjectPrx ice_timeout(int) const;
 
-    void _ice_flush(); // Flush batch messages
+    void ice_flush(); // Flush batch messages
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
@@ -87,9 +87,9 @@ class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
-    virtual bool _ice_isA(const std::string&) = 0;
-    virtual void _ice_ping() = 0;
-    virtual void _ice_flush() = 0;
+    virtual bool ice_isA(const std::string&) = 0;
+    virtual void ice_ping() = 0;
+    virtual void ice_flush() = 0;
 };
 
 } }
@@ -101,9 +101,9 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool _ice_isA(const std::string&);
-    virtual void _ice_ping();
-    virtual void _ice_flush();
+    virtual bool ice_isA(const std::string&);
+    virtual void ice_ping();
+    virtual void ice_flush();
 
 protected:
 
@@ -125,9 +125,9 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool _ice_isA(const std::string&);
-    virtual void _ice_ping();
-    virtual void _ice_flush();
+    virtual bool ice_isA(const std::string&);
+    virtual void ice_ping();
+    virtual void ice_flush();
 
 protected:
 

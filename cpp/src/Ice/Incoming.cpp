@@ -80,7 +80,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	{
 	    if (!facet.empty())
 	    {
-		ObjectPtr facetServant = servant->_ice_findFacet(facet);
+		ObjectPtr facetServant = servant->ice_findFacet(facet);
 		if (!facetServant)
 		{
 		    _os.write(static_cast<Byte>(DispatchFacetNotExist));
@@ -124,7 +124,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
-	ex._ice_throw();
+	ex.ice_throw();
     }
     catch (const UserException& ex)
     {
@@ -134,7 +134,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownUserException));
-	ex._ice_throw();
+	ex.ice_throw();
     }
     catch (...)
     {

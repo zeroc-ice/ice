@@ -134,9 +134,9 @@ twoways(const Test::MyClassPrx& p)
 	test(c1 == p);
 	test(c2 != p);
 	test(r == p);
-	test(c1->_ice_getIdentity() == "test");
-	test(c2->_ice_getIdentity() == "noSuchIdentity");
-	test(r->_ice_getIdentity() == "test");
+	test(c1->ice_getIdentity() == "test");
+	test(c2->ice_getIdentity() == "noSuchIdentity");
+	test(r->ice_getIdentity() == "test");
 	r->opVoid();
 	c1->opVoid();
 	try

@@ -45,19 +45,19 @@ IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
     d = 0;
     if (b)
     {
-	if (f == b->_ice_getFacet())
+	if (f == b->ice_getFacet())
 	{
 	    d = b;
 	}
 	else
 	{
-	    ObjectPrx bb = b->_ice_newFacet(f);
+	    ObjectPrx bb = b->ice_newFacet(f);
 	    try
 	    {
 #ifdef NDEBUG
-		bb->_ice_isA("::Ice::Object");
+		bb->ice_isA("::Ice::Object");
 #else
-		bool ok = bb->_ice_isA("::Ice::Object");
+		bool ok = bb->ice_isA("::Ice::Object");
 		assert(ok);
 #endif
 		d = bb;
@@ -75,7 +75,7 @@ IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
     d = 0;
     if (b)
     {
-	d = b->_ice_newFacet(f);
+	d = b->ice_newFacet(f);
     }
 }
 
@@ -92,12 +92,12 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 }
 
 Int
-IceProxy::Ice::Object::_ice_hash() const
+IceProxy::Ice::Object::ice_hash() const
 {
     return _reference->hashValue;
 }
 bool
-IceProxy::Ice::Object::_ice_isA(const string& s)
+IceProxy::Ice::Object::ice_isA(const string& s)
 {
     int __cnt = 0;
     while (true)
@@ -105,7 +105,7 @@ IceProxy::Ice::Object::_ice_isA(const string& s)
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->_ice_isA(s);
+	    return __del->ice_isA(s);
 	}
 	catch (const LocationForward& __ex)
 	{
@@ -123,7 +123,7 @@ IceProxy::Ice::Object::_ice_isA(const string& s)
 }
 
 void
-IceProxy::Ice::Object::_ice_ping()
+IceProxy::Ice::Object::ice_ping()
 {
     int __cnt = 0;
     while (true)
@@ -131,7 +131,7 @@ IceProxy::Ice::Object::_ice_ping()
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->_ice_ping();
+	    __del->ice_ping();
 	    return;
 	}
 	catch (const LocationForward& __ex)
@@ -150,13 +150,13 @@ IceProxy::Ice::Object::_ice_ping()
 }
 
 std::string
-IceProxy::Ice::Object::_ice_getIdentity() const
+IceProxy::Ice::Object::ice_getIdentity() const
 {
     return _reference->identity;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_newIdentity(const std::string& newIdentity) const
+IceProxy::Ice::Object::ice_newIdentity(const std::string& newIdentity) const
 {
     if (newIdentity == _reference->identity)
     {
@@ -171,13 +171,13 @@ IceProxy::Ice::Object::_ice_newIdentity(const std::string& newIdentity) const
 }
 
 std::string
-IceProxy::Ice::Object::_ice_getFacet() const
+IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_newFacet(const std::string& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const std::string& newFacet) const
 {
     if (newFacet == _reference->facet)
     {
@@ -192,7 +192,7 @@ IceProxy::Ice::Object::_ice_newFacet(const std::string& newFacet) const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_twoway() const
+IceProxy::Ice::Object::ice_twoway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeTwoway);
     if (ref == _reference)
@@ -208,7 +208,7 @@ IceProxy::Ice::Object::_ice_twoway() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_oneway() const
+IceProxy::Ice::Object::ice_oneway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeOneway);
     if (ref == _reference)
@@ -224,7 +224,7 @@ IceProxy::Ice::Object::_ice_oneway() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_batchOneway() const
+IceProxy::Ice::Object::ice_batchOneway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeBatchOneway);
     if (ref == _reference)
@@ -240,7 +240,7 @@ IceProxy::Ice::Object::_ice_batchOneway() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_datagram() const
+IceProxy::Ice::Object::ice_datagram() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeDatagram);
     if (ref == _reference)
@@ -256,7 +256,7 @@ IceProxy::Ice::Object::_ice_datagram() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_batchDatagram() const
+IceProxy::Ice::Object::ice_batchDatagram() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeBatchDatagram);
     if (ref == _reference)
@@ -272,7 +272,7 @@ IceProxy::Ice::Object::_ice_batchDatagram() const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_secure(bool b) const
+IceProxy::Ice::Object::ice_secure(bool b) const
 {
     ReferencePtr ref = _reference->changeSecure(b);
     if (ref == _reference)
@@ -288,7 +288,7 @@ IceProxy::Ice::Object::_ice_secure(bool b) const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::_ice_timeout(int t) const
+IceProxy::Ice::Object::ice_timeout(int t) const
 {
     ReferencePtr ref = _reference->changeTimeout(t);
     if (ref == _reference)
@@ -304,10 +304,10 @@ IceProxy::Ice::Object::_ice_timeout(int t) const
 }
 
 void
-IceProxy::Ice::Object::_ice_flush()
+IceProxy::Ice::Object::ice_flush()
 {
     Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-    __del->_ice_flush();
+    __del->ice_flush();
 }
 
 ReferencePtr
@@ -333,7 +333,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 
     try
     {
-	ex._ice_throw();
+	ex.ice_throw();
     }
     catch (const CloseConnectionException&)
     {
@@ -367,7 +367,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	    s << "cannot retry operation call because retry limit has been exceeded\n" << ex;
 	    logger->trace(traceLevels->retryCat, s.str());
 	}
-	ex._ice_throw();
+	ex.ice_throw();
     }
 
     if (traceLevels->retry >= 1)
@@ -417,7 +417,7 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 
     _delegate = 0;
 
-    ex._ice_throw();
+    ex.ice_throw();
 }
 
 Handle< ::IceDelegate::Ice::Object>
@@ -467,12 +467,12 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceDelegateM::Ice::Object::_ice_isA(const string& s)
+IceDelegateM::Ice::Object::ice_isA(const string& s)
 {
     Outgoing __out(__emitter, __reference);
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
-    __os->write("_ice_isA");
+    __os->write("ice_isA");
     __os->write(s);
     if (!__out.invoke())
     {
@@ -484,11 +484,11 @@ IceDelegateM::Ice::Object::_ice_isA(const string& s)
 }
 
 void
-IceDelegateM::Ice::Object::_ice_ping()
+IceDelegateM::Ice::Object::ice_ping()
 {
     Outgoing __out(__emitter, __reference);
     BasicStream* __os = __out.os();
-    __os->write("_ice_ping");
+    __os->write("ice_ping");
     if (!__out.invoke())
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -496,7 +496,7 @@ IceDelegateM::Ice::Object::_ice_ping()
 }
 
 void
-IceDelegateM::Ice::Object::_ice_flush()
+IceDelegateM::Ice::Object::ice_flush()
 {
     __emitter->flushBatchRequest();
 }
@@ -555,21 +555,21 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceDelegateD::Ice::Object::_ice_isA(const string& s)
+IceDelegateD::Ice::Object::ice_isA(const string& s)
 {
-    Direct __direct(__adapter, __reference, "_ice_isA");
-    return __direct.facetServant()->_ice_isA(s);
+    Direct __direct(__adapter, __reference, "ice_isA");
+    return __direct.facetServant()->ice_isA(s);
 }
 
 void
-IceDelegateD::Ice::Object::_ice_ping()
+IceDelegateD::Ice::Object::ice_ping()
 {
-    Direct __direct(__adapter, __reference, "_ice_ping");
-    __direct.facetServant()->_ice_ping();
+    Direct __direct(__adapter, __reference, "ice_ping");
+    __direct.facetServant()->ice_ping();
 }
 
 void
-IceDelegateD::Ice::Object::_ice_flush()
+IceDelegateD::Ice::Object::ice_flush()
 {
     // Nothing to do for direct delegates
 }

@@ -61,12 +61,12 @@ public:
 
     bool operator==(const Object&) const;
     bool operator<(const Object&) const;
-    ::Ice::Int _ice_hash() const;
+    ::Ice::Int ice_hash() const;
 
-    virtual bool _ice_isA(const std::string&);
-    virtual void _ice_ping();
-    ::IceInternal::DispatchStatus ____ice_isA(::IceInternal::Incoming&);
-    ::IceInternal::DispatchStatus ____ice_ping(::IceInternal::Incoming&);
+    virtual bool ice_isA(const std::string&);
+    virtual void ice_ping();
+    ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&);
+    ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&);
     virtual const char** __getClassIds() = 0;
 
     static const char* __all[];
@@ -76,10 +76,10 @@ public:
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);
 
-    void _ice_addFacet(const ObjectPtr&, const ::std::string&);
-    void _ice_removeFacet(const ::std::string&);
-    void _ice_removeAllFacets();
-    ObjectPtr _ice_findFacet(const ::std::string&);
+    void ice_addFacet(const ObjectPtr&, const ::std::string&);
+    void ice_removeFacet(const ::std::string&);
+    void ice_removeAllFacets();
+    ObjectPtr ice_findFacet(const ::std::string&);
 
 private:
 

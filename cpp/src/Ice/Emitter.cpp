@@ -64,7 +64,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 
     if (_exception.get())
     {
-	_exception->_ice_throw();
+	_exception->ice_throw();
     }
     assert(_state == StateActive);
     
@@ -99,7 +99,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex._ice_throw();
+	ex.ice_throw();
     }
     
     //
@@ -120,7 +120,7 @@ IceInternal::Emitter::prepareBatchRequest(Outgoing* out)
     if (_exception.get())
     {
 	unlock();
-	_exception->_ice_throw();
+	_exception->ice_throw();
     }
     assert(_state == StateActive);
 
@@ -152,7 +152,7 @@ IceInternal::Emitter::finishBatchRequest(Outgoing* out)
     if (_exception.get())
     {
 	unlock();
-	_exception->_ice_throw();
+	_exception->ice_throw();
     }
     assert(_state == StateActive);
 
@@ -176,7 +176,7 @@ IceInternal::Emitter::flushBatchRequest()
 
     if (_exception.get())
     {
-	_exception->_ice_throw();
+	_exception->ice_throw();
     }
     assert(_state == StateActive);
     
@@ -209,7 +209,7 @@ IceInternal::Emitter::flushBatchRequest()
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex._ice_throw();
+	ex.ice_throw();
     }
 }
 
@@ -408,7 +408,7 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
     
     if (!_exception.get())
     {
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._ice_clone()));
+	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
     }
 
     for (std::map< ::Ice::Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
@@ -490,15 +490,15 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	}
 	catch (const SocketException& ex)
 	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 	catch (const DNSException& ex)
 	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 	catch (const TimeoutException& ex)
 	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex._ice_clone()));
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 
 	++q;
@@ -523,7 +523,7 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     if (!emitter)
     {
 	assert(exception.get());
-	exception->_ice_throw();
+	exception->ice_throw();
     }
 
     return emitter;

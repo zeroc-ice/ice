@@ -21,121 +21,121 @@ Ice::LocalException::LocalException(const char* file, int line) :
 }
 
 void
-Ice::UnknownLocalException::_ice_print(ostream& out) const
+Ice::UnknownLocalException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nunknown local exception";
 }
 
 void
-Ice::UnknownUserException::_ice_print(ostream& out) const
+Ice::UnknownUserException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nunknown user exception";
 }
 
 void
-Ice::UnknownException::_ice_print(ostream& out) const
+Ice::UnknownException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nunknown C++ exception";
 }
 
 void
-Ice::VersionMismatchException::_ice_print(ostream& out) const
+Ice::VersionMismatchException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nIce library version mismatch";
 }
 
 void
-Ice::CommunicatorDestroyedException::_ice_print(ostream& out) const
+Ice::CommunicatorDestroyedException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\ncommunicator object destroyed";
 }
 
 void
-Ice::ObjectAdapterDeactivatedException::_ice_print(ostream& out) const
+Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nobject adapter deactivated";
 }
 
 void
-Ice::NoEndpointException::_ice_print(ostream& out) const
+Ice::NoEndpointException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nno suitable endpoint available";
 }
 
 void
-Ice::EndpointParseException::_ice_print(ostream& out) const
+Ice::EndpointParseException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nerror while parsing endpoint";
 }
 
 void
-Ice::ReferenceParseException::_ice_print(ostream& out) const
+Ice::ReferenceParseException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nerror while parsing reference";
 }
 
 void
-Ice::ReferenceIdentityException::_ice_print(ostream& out) const
+Ice::ReferenceIdentityException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nreference identity mismatch in location forward";
 }
 
 void
-Ice::ObjectNotExistException::_ice_print(ostream& out) const
+Ice::ObjectNotExistException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nobject does not exist";
 }
 
 void
-Ice::FacetNotExistException::_ice_print(ostream& out) const
+Ice::FacetNotExistException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nfacet does not exist";
 }
 
 void
-Ice::OperationNotExistException::_ice_print(ostream& out) const
+Ice::OperationNotExistException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\noperation does not exist";
 }
 
 void
-Ice::SystemException::_ice_print(ostream& out) const
+Ice::SystemException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nsystem exception: " << errorToString(error);
 }
 
 void
-Ice::SocketException::_ice_print(ostream& out) const
+Ice::SocketException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nsocket exception: " << errorToString(error);
 }
 
 void
-Ice::ConnectFailedException::_ice_print(ostream& out) const
+Ice::ConnectFailedException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nconnect failed: " << errorToString(error);
 }
 
 void
-Ice::ConnectionLostException::_ice_print(ostream& out) const
+Ice::ConnectionLostException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nconnection lost: ";
     if (error == 0)
     {
@@ -148,134 +148,134 @@ Ice::ConnectionLostException::_ice_print(ostream& out) const
 }
 
 void
-Ice::DNSException::_ice_print(ostream& out) const
+Ice::DNSException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nDNS error: " << errorToStringDNS(error);
 }
 
 void
-Ice::TimeoutException::_ice_print(ostream& out) const
+Ice::TimeoutException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\ntimeout while sending or receiving data";
 }
 
 void
-Ice::ConnectTimeoutException::_ice_print(ostream& out) const
+Ice::ConnectTimeoutException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\ntimeout while establishing a connection";
 }
 
 void
-Ice::ProtocolException::_ice_print(ostream& out) const
+Ice::ProtocolException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nunknown protocol exception";
 }
 
 void
-Ice::UnmarshalOutOfBoundsException::_ice_print(ostream& out) const
+Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: out of bounds during unmarshaling";
 }
 
 void
-Ice::NoObjectFactoryException::_ice_print(ostream& out) const
+Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: no suitable object factory found";
 }
 
 void
-Ice::NoUserExceptionFactoryException::_ice_print(ostream& out) const
+Ice::NoUserExceptionFactoryException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: no suitable user exception factory found";
 }
 
 void
-Ice::ProxyUnmarshalException::_ice_print(ostream& out) const
+Ice::ProxyUnmarshalException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
 }
 
 void
-Ice::IllegalIndirectionException::_ice_print(ostream& out) const
+Ice::IllegalIndirectionException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: encountered illegal protocol indirection";
 }
 
 void
-Ice::MemoryLimitException::_ice_print(ostream& out) const
+Ice::MemoryLimitException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: memory limit exceeded";
 }
 
 void
-Ice::EncapsulationException::_ice_print(ostream& out) const
+Ice::EncapsulationException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: illegal encapsulation";
 }
 
 void
-Ice::UnsupportedProtocolException::_ice_print(ostream& out) const
+Ice::UnsupportedProtocolException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: unsupported protocol version";
 }
 
 void
-Ice::UnsupportedEncodingException::_ice_print(ostream& out) const
+Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: unsupported encoding version";
 }
 
 void
-Ice::InvalidMessageException::_ice_print(ostream& out) const
+Ice::InvalidMessageException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: invalid message type";
 }
 
 void
-Ice::UnknownMessageException::_ice_print(ostream& out) const
+Ice::UnknownMessageException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: unknown message type";
 }
 
 void
-Ice::UnknownRequestIdException::_ice_print(ostream& out) const
+Ice::UnknownRequestIdException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: unknown request id";
 }
 
 void
-Ice::UnknownReplyStatusException::_ice_print(ostream& out) const
+Ice::UnknownReplyStatusException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: unknown reply status";
 }
 
 void
-Ice::CloseConnectionException::_ice_print(ostream& out) const
+Ice::CloseConnectionException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: connection closed by server";
 }
 
 void
-Ice::AbortBatchRequestException::_ice_print(ostream& out) const
+Ice::AbortBatchRequestException::ice_print(ostream& out) const
 {
-    Exception::_ice_print(out);
+    Exception::ice_print(out);
     out << ":\nprotocol error: batch request was aborted";
 }

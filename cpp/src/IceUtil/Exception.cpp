@@ -29,41 +29,41 @@ IceUtil::Exception::~Exception()
 }
 
 string
-IceUtil::Exception::_ice_name() const
+IceUtil::Exception::ice_name() const
 {
     return "IceUtil::Exception";
 }
 
 void
-IceUtil::Exception::_ice_print(ostream& out) const
+IceUtil::Exception::ice_print(ostream& out) const
 {
     if (_file && _line > 0)
     {
 	out << _file << ':' << _line << ": ";
     }
-    out << _ice_name();
+    out << ice_name();
 }
 
 IceUtil::Exception*
-IceUtil::Exception::_ice_clone() const
+IceUtil::Exception::ice_clone() const
 {
     return new Exception(*this);
 }
 
 void
-IceUtil::Exception::_ice_throw() const
+IceUtil::Exception::ice_throw() const
 {
     throw *this;
 }
 
 const char*
-IceUtil::Exception::_ice_file() const
+IceUtil::Exception::ice_file() const
 {
     return _file;
 }
 
 int
-IceUtil::Exception::_ice_line() const
+IceUtil::Exception::ice_line() const
 {
     return _line;
 }
@@ -71,7 +71,7 @@ IceUtil::Exception::_ice_line() const
 ostream&
 IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
 {
-    ex._ice_print(out);
+    ex.ice_print(out);
     return out;
 }
 
@@ -81,25 +81,25 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
 }
 
 string
-IceUtil::NullHandleException::_ice_name() const
+IceUtil::NullHandleException::ice_name() const
 {
     return "IceUtil::NullHandleException";
 }
 
 string
-IceUtil::NullHandleException::_ice_description() const
+IceUtil::NullHandleException::ice_description() const
 {
     return "operation call on null handle";
 }
 
 IceUtil::Exception*
-IceUtil::NullHandleException::_ice_clone() const
+IceUtil::NullHandleException::ice_clone() const
 {
     return new NullHandleException(*this);
 }
 
 void
-IceUtil::NullHandleException::_ice_throw() const
+IceUtil::NullHandleException::ice_throw() const
 {
     throw *this;
 }

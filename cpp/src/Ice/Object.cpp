@@ -46,46 +46,46 @@ Ice::Object::operator<(const Object& r) const
 }
 
 Int
-Ice::Object::_ice_hash() const
+Ice::Object::ice_hash() const
 {
     return reinterpret_cast<Int>(this);
 }
 
 bool
-Ice::Object::_ice_isA(const string& s)
+Ice::Object::ice_isA(const string& s)
 {
     return s == "::Ice::Object";
 }
 
 void
-Ice::Object::_ice_ping()
+Ice::Object::ice_ping()
 {
     // Nothing to do.
 }
 
 DispatchStatus
-Ice::Object::____ice_isA(Incoming& __in)
+Ice::Object::___ice_isA(Incoming& __in)
 {
     BasicStream* __is = __in.is();
     BasicStream* __os = __in.os();
     string s;
     __is->read(s);
-    bool __ret = _ice_isA(s);
+    bool __ret = ice_isA(s);
     __os->write(__ret);
     return DispatchOK;
 }
 
 DispatchStatus
-Ice::Object::____ice_ping(Incoming&)
+Ice::Object::___ice_ping(Incoming&)
 {
-    _ice_ping();
+    ice_ping();
     return DispatchOK;
 }
 
 const char* Ice::Object::__all[] =
 {
-    "_ice_isA"
-    "_ice_ping"
+    "ice_isA"
+    "ice_ping"
 };
 
 DispatchStatus
@@ -103,11 +103,11 @@ Ice::Object::__dispatch(Incoming& in, const string& s)
     {
 	case 0:
 	{
-	    return ____ice_isA(in);
+	    return ___ice_isA(in);
 	}
 	case 1:
 	{
-	    return ____ice_ping(in);
+	    return ___ice_ping(in);
 	}
     }
 
@@ -159,7 +159,7 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
 }
 
 void
-Ice::Object::_ice_addFacet(const ObjectPtr& facet, const string& name)
+Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
 
@@ -167,7 +167,7 @@ Ice::Object::_ice_addFacet(const ObjectPtr& facet, const string& name)
 }
 
 void
-Ice::Object::_ice_removeFacet(const string& name)
+Ice::Object::ice_removeFacet(const string& name)
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
 
@@ -194,7 +194,7 @@ Ice::Object::_ice_removeFacet(const string& name)
 }
 
 void
-Ice::Object::_ice_removeAllFacets()
+Ice::Object::ice_removeAllFacets()
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
 
@@ -203,7 +203,7 @@ Ice::Object::_ice_removeAllFacets()
 }
 
 ObjectPtr
-Ice::Object::_ice_findFacet(const string& name)
+Ice::Object::ice_findFacet(const string& name)
 {
     JTCSyncT<JTCMutex> sync(_activeFacetMapMutex);
     

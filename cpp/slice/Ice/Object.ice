@@ -39,14 +39,14 @@ interface \Object
      * otherwise.
      *
      **/
-    nonmutating bool _ice_isA(string id);
+    nonmutating bool ice_isA(string id);
 
     /**
      *
      * Check if an object is alive.
      *
      **/
-    nonmutating void _ice_ping();
+    nonmutating void ice_ping();
 };
 
 };

@@ -50,7 +50,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "pinging server... " << flush;
-    obj->_ice_ping();
+    obj->ice_ping();
     cout << "ok" << endl;
 
     return obj;

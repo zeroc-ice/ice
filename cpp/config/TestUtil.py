@@ -13,7 +13,7 @@ import sys, os
 
 protocol = "tcp"
 
-serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60" + \
+serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30" + \
                 " --Ice.Ssl.Config=TOPLEVELDIR/Certs/server_sslconfig.xml --Ice.Protocol=" + protocol
 
 clientOptions = " --Ice.Ssl.Config=TOPLEVELDIR/Certs/client_sslconfig.xml --Ice.Protocol=" + protocol
@@ -55,7 +55,6 @@ def getAdapterReady(serverPipe):
         print "failed!"
         killServers()
         sys.exit(1)
-    
 
 def clientServerTest(toplevel, name):
 
@@ -64,13 +63,14 @@ def clientServerTest(toplevel, name):
     client = os.path.normpath(testdir + "/client")
 
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
+    updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
+
     print "starting server...",
     serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
@@ -92,6 +92,7 @@ def collocatedTest(toplevel, name):
     collocated = os.path.normpath(testdir + "/collocated")
 
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
+
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
     output = collocatedPipe.read().strip()

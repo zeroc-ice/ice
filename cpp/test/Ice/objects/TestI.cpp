@@ -44,17 +44,17 @@ InitialI::shutdown()
     _b1->a = 0;
     _b1->b = 0;
     _b1->c = 0;
-    _b1->_ice_removeAllFacets();
+    _b1->ice_removeAllFacets();
     _b2->a = 0;
     _b2->b = 0;
     _b2->c = 0;
-    _b2->_ice_removeAllFacets();
+    _b2->ice_removeAllFacets();
     _c->b = 0;
-    _c->_ice_removeAllFacets();
+    _c->ice_removeAllFacets();
     _d->a = 0;
     _d->b = 0;
     _d->c = 0;
-    _d->_ice_removeAllFacets();
+    _d->ice_removeAllFacets();
 }
 
 BPtr
@@ -93,8 +93,8 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d)
 void
 InitialI::addFacetsToB1()
 {
-    _b1->_ice_addFacet(_b1, "b1");
-    _b1->_ice_addFacet(_b2, "b2");
-    _b1->_ice_addFacet(_c, "c");
-    _b1->_ice_addFacet(_d, "d");
+    _b1->ice_addFacet(_b1, "b1");
+    _b1->ice_addFacet(_b2, "b2");
+    _b1->ice_addFacet(_c, "c");
+    _b1->ice_addFacet(_d, "d");
 }
