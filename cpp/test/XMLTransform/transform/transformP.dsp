@@ -505,6 +505,43 @@ BuildCmds= \
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\..\slice\Ice\Identity.ice
+
+!IF  "$(CFG)" == "transformP - Win32 Release"
+
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
+	
+
+"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "transformP - Win32 Debug"
+
+USERDEP__IDENT="..\..\..\bin\slice2xsd.exe"	
+# Begin Custom Build
+InputPath=..\..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2xsd.exe --ice -I../../../slice ../../../slice/Ice/Identity.ice \
+	
+
+"Identity.xsd" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project
