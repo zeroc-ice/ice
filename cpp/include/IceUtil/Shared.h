@@ -168,6 +168,7 @@ public:
 	{
 	    if(!_noDelete)
 	    {
+		_noDelete = true;
 		delete this;
 	    }
 	}
@@ -250,6 +251,7 @@ Shared::__decRef()
     if(--_ref == 0)
     {
 	doDelete = !_noDelete;
+	_noDelete = true;
     }
     _mutex.unlock();
     if(doDelete)
@@ -302,6 +304,7 @@ Shared::__decRef()
     assert(InterlockedExchangeAdd(&_ref, 0) > 0);
     if(InterlockedDecrement(&_ref) == 0 && !_noDelete)
     {
+	_noDelete = true;
 	delete this;
     }
 }
@@ -345,6 +348,7 @@ Shared::__decRef()
     assert(ice_atomic_exchange_add(0, &_ref) > 0);
     if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
     {
+	_noDelete = true;
 	delete this;
     }
 }

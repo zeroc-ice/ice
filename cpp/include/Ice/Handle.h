@@ -102,12 +102,13 @@ public:
 		incRef(p);
 	    }
 
-	    if(_ptr)
-	    {
-		decRef(_ptr);
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = p;
+
+	    if(ptr)
+	    {
+		decRef(ptr);
+	    }
 	}
 	return *this;
     }
@@ -122,12 +123,13 @@ public:
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
-	    {
-		decRef(_ptr);
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = r._ptr;
+
+	    if(ptr)
+	    {
+		decRef(ptr);
+	    }
 	}
 	return *this;
     }
@@ -142,12 +144,13 @@ public:
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
-	    {
-		decRef(_ptr);
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = r._ptr;
+
+	    if(ptr)
+	    {
+		decRef(ptr);
+	    }
 	}
 	return *this;
     }
@@ -166,12 +169,13 @@ public:
 		incRef(r._ptr);
 	    }
 
-	    if(_ptr)
-	    {
-		decRef(_ptr);
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = r._ptr;
+
+	    if(ptr)
+	    {
+		decRef(ptr);
+	    }
 	}
 	return *this;
     }

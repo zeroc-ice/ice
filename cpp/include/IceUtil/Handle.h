@@ -183,12 +183,13 @@ public:
 		p->__incRef();
 	    }
 
-	    if(_ptr)
-	    {
-		_ptr->__decRef();
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = p;
+
+	    if(ptr)
+	    {
+		ptr->__decRef();
+	    }
 	}
 	return *this;
     }
@@ -203,12 +204,13 @@ public:
 		r._ptr->__incRef();
 	    }
 
-	    if(_ptr)
-	    {
-		_ptr->__decRef();
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = r._ptr;
+
+	    if(ptr)
+	    {
+		ptr->__decRef();
+	    }
 	}
 	return *this;
     }
@@ -227,12 +229,13 @@ public:
 		r._ptr->__incRef();
 	    }
 
-	    if(_ptr)
-	    {
-		_ptr->__decRef();
-	    }
-	    
+	    T* ptr = _ptr;
 	    _ptr = r._ptr;
+
+	    if(ptr)
+	    {
+		ptr->__decRef();
+	    }
 	}
 	return *this;
     }
