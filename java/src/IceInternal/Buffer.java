@@ -45,6 +45,22 @@ public class Buffer
         }
     }
 
+    public void
+    swap(Buffer r)
+    {
+        byte[] tmpdata = r.data;
+        r.data = data;
+        data = tmpdata;
+
+        int tmppos = r.pos;
+        r.pos = pos;
+        pos = tmppos;
+
+        int tmplen = r.len;
+        r.len = len;
+        len = tmplen;
+    }
+
     public byte[] data;
     public int pos;
     public int len;

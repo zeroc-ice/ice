@@ -46,7 +46,12 @@ public class BasicStream
     swap(BasicStream other)
     {
         assert(_instance == other._instance);
-        // TODO
+
+        _buf.swap(other._buf);
+
+        java.util.LinkedList tmpStack = other._encapsStack;
+        other._encapsStack = _encapsStack;
+        _encapsStack = tmpStack;
     }
 
     private static final int MAX = 1024 * 1024; // TODO: Configurable
@@ -843,13 +848,142 @@ public class BasicStream
     public void
     writeObject(Ice.Object v)
     {
-        // TODO
+        Encaps enc = (Encaps)_encapsStack.getLast();
+        Integer pos = null;
+        if (enc.objectsWritten != null) // Lazy creation
+        {
+            pos = enc.objectsWritten.get(v);
+        }
+        if (pos != null)
+        {
+            writeInt(pos.intValue());
+        }
+        else
+        {
+            writeInt(-1);
+
+            if (v != null)
+            {
+                if (enc.objectsWritten == null)
+                {
+                    enc.objectsWritten = new java.util.HashMap();
+                }
+                int num = enc.objectsWritten.size();
+                enc.objectsWritten.put(v, new Integer(num));
+                writeString(v.__getClassIds()[0]);
+                v.__write(this);
+            }
+            else
+            {
+                writeString("");
+            }
+        }
     }
 
-    public Ice.Object
-    readObject()
+    //
+    // TODO: Can we eliminate the need for a Holder?
+    //
+    public boolean
+    readObject(String signatureType, Ice.ObjectHolder v)
     {
-        // TODO
+        final int pos = readInt();
+
+        if (pos >= 0)
+        {
+            Encaps enc = (Encaps)_encapsStack.getLast();
+            if (enc.objectsRead == null || // Lazy creation
+                pos >= enc.objectsRead.size())
+            {
+                throw new Ice.IllegalIndirectionException();
+            }
+            v.value = (Ice.Object)enc.objectsRead.get(pos);
+            return true;
+        }
+        else
+        {
+            String id = readString();
+
+            if (id.length() == 0)
+            {
+                v.value = null;
+                return true;
+            }
+            else
+            {
+                Encaps enc = (Encaps)_encapsStack.getLast();
+                if (enc.objectsRead == null)
+                {
+                    enc.objectsRead = new java.util.ArrayList(10);
+                }
+
+                Ice.ObjectFactory factory =
+                    _instance.servantFactoryManager().find(id);
+                if (factory != null)
+                {
+                    v.value = factory.create(id);
+                    if (v.value != null)
+                    {
+                        enc.objectsRead.add(v.value);
+                        v.value.__read(this);
+                        return true;
+                    }
+                }
+
+                if (id.equals(signatureType))
+                {
+                    enc.objectsRead.add(v.value);
+                    return false;
+                }
+
+                throw new Ice.NoObjectFactoryException();
+            }
+        }
+    }
+
+    public void
+    writeUserException(Ice.UserException v)
+    {
+        write(v.__getExceptionIds()[0]);
+        v.__write(this);
+    }
+
+    public int
+    throwException(String[] ids)
+        throws Ice.UserException
+    {
+        String id = readString();
+        Ice.UserExceptionFactory factory =
+            _instance.userExceptionFactoryManager().find(id);
+
+        if (factory != null)
+        {
+            try
+            {
+                factory.createAndThrow(id);
+            }
+            catch (Ice.UserException ex)
+            {
+                String[] arr = ex.__getExceptionIds();
+                for (int i = 0; !arr[i].equals("::Ice::UserException"); i++)
+                {
+                    if (java.util.Arrays.binarySearch(ids, arr[i]) >= 0)
+                    {
+                        ex.__read(this);
+                        throw ex;
+                    }
+                }
+
+                throw new Ice.UnknownUserException();
+            }
+        }
+
+        int pos = java.util.Arrays.binarySearch(ids, id);
+        if (pos >= 0)
+        {
+            return pos;
+        }
+
+        throw new Ice.NoUserExceptionFactoryException();
     }
 
     private IceInternal.Instance _instance;
