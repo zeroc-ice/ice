@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added support for g++ builds on Solaris.
+
 - Fixed IcePack node and registry database environment names. They
   have been changed to be the name of the node for IcePack nodes and
   'Registry' for the IcePack registry. This means that you can now

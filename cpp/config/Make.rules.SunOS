@@ -17,7 +17,7 @@
 # comment it out and define CXX=<desired-compiler> in your environment.
 # If CXX is not defined anywhere, the default (from gmake) is g++. 
 #
-#CXX   = CC
+CXX   = CC
 
 ifeq ($(CXX),CC)
 #
@@ -83,6 +83,11 @@ ifeq ($(CXX),gcc)
 endif
 
 ifeq ($(CXX),g++)
+
+    ifeq ($(LP64),yes)
+        CXXARCHFLAGS    := -m64
+    endif
+
     CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
 
     ifeq ($(OPTIMIZE),yes)

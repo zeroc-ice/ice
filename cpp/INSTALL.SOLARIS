@@ -23,6 +23,12 @@ The following Sun compilers are supported:
   new linker scoping feature to reduce the number of symbols exported
   by Ice shared libraries.
 
+Builds with the following compilers are expected to succeed, but these
+compilers are not supported at this time:
+- Sun C++ 5.6 and 5.7 (Sun Studio 9 and Sun Studio 10)
+
+- GCC 3.4.2
+
 
 Third-party libraries
 ---------------------
@@ -64,12 +70,12 @@ GNU Make 3.80 is required to build Ice on SPARC/Solaris. You can
 download GNU Make from http://www.sunfreeware.com.
 
 
-Python 2.2
+Python 2.x
 ----------
 
-To run the automated test suite, you will need Python 2.2. If you have
-no interest in running the test scripts, Python is not required. You
-can download Python from http://www.sunfreeware.com.
+To run the automated test suite, you will need Python 2.2 or greater.
+If you have no interest in running the test scripts, Python is not 
+required. You can download Python from http://www.sunfreeware.com.
 
 
 ======================================================================
@@ -89,6 +95,11 @@ Edit the file config/Make.rules according to the comments in this
 file. Make sure that the paths for the third-party libraries are set
 correctly if they are not installed in the default location /usr/lib
 and /usr/include.
+
+If you want to build with g++ instead of CC, edit 
+config/Make.rules.SunOS and change or comment out the CXX = <compiler>
+line (at the top of the file). The default value for CXX with GNU
+make is g++.
 
 Now you're ready to build Ice:
 
