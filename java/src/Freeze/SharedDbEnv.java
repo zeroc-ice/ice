@@ -247,7 +247,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	//
 	// Deadlock detection
 	//
-	set_lk_detect(com.sleepycat.db.Db.DB_LOCK_MINLOCKS);
+	set_lk_detect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
 
 	int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
 	    com.sleepycat.db.Db.DB_INIT_LOG |
