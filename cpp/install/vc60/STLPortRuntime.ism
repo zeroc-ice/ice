@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{3E7D9115-98E2-496E-AF4D-B3129A95CD5B}</revnumber>
+		<revnumber>{EBE504FB-169D-4346-B883-BEAB015A3609}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>{185DE474-635F-406A-98ED-A3BBEA9E95E4}</td><td>INSTALLDIR.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>STLPortRuntime.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>{185DE474-635F-406A-98ED-A3BBEA9E95E4}</td><td>INSTALLDIR.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -281,7 +281,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -407,7 +407,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td/><td/><td>_D480D1C5_5AEA_4BAC_951E_62BAFCC680EC_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>STLPortRuntime.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td/><td/><td>_D480D1C5_5AEA_4BAC_951E_62BAFCC680EC_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -435,7 +435,7 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>&lt;ISProjectFolder&gt;\install\stlport\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>STLPortRuntime.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>&lt;ISProjectFolder&gt;\install\stlport\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -682,7 +682,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>ID_STRING1</td><td>1033</td><td>STLPort Runtime</td><td>0</td><td/><td>-2129018068</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>STLPort Runtime for Visual Studio 6.0</td><td>0</td><td/><td>429460352</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129048404</td></row>
 	</table>
 
@@ -832,7 +832,7 @@ UwBUAEwAUABPAFIAVABfAFIAVQBOAFQASQBNAEUAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">Component</col>
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
-		<row><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>0</td></row>
+		<row><td>STLPortRuntime.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
 	</table>
 
 	<table name="ModuleConfiguration">
@@ -895,7 +895,7 @@ UwBUAEwAUABPAFIAVABfAFIAVQBOAFQASQBNAEUAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
 		<col def="s32">Version</col>
-		<row><td>STLPortRuntime.5D9DCCDD_3FA7_41AE_9202_6BF567C40448</td><td>0</td><td>1.0.0.0</td></row>
+		<row><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td><td>1.0.0.0</td></row>
 	</table>
 
 	<table name="ModuleSubstitution">

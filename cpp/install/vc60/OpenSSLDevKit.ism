@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{4B38E71A-0125-4C66-A989-ED2B901A492F}</revnumber>
+		<revnumber>{AAEE4822-0BFF-427C-A847-75526BE7A328}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>{84A660C2-3372-4D44-82E1-1294603BF656}</td><td>INSTALLDIR.1EDEFD63_5320_4657_82FE_73F602750180</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>OpenSSLDevKit.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>{84A660C2-3372-4D44-82E1-1294603BF656}</td><td>INSTALLDIR.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -281,7 +281,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR.1EDEFD63_5320_4657_82FE_73F602750180</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -407,7 +407,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td/><td/><td>_C0F55031_4B3F_409F_8399_1764D1357C2D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>OpenSSLDevKit.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td/><td/><td>_C0F55031_4B3F_409F_8399_1764D1357C2D_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -435,7 +435,7 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>&lt;ISProjectFolder&gt;\install\openssl\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>OpenSSLDevKit.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>&lt;ISProjectFolder&gt;\install\openssl\dev</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -682,7 +682,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>ID_STRING1</td><td>1033</td><td>OpenSSL Dev Kit</td><td>0</td><td/><td>-2129067284</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>OpenSSL Dev Kit for Visual Studio 6.0</td><td>0</td><td/><td>429499200</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129046420</td></row>
 	</table>
 
@@ -832,7 +832,7 @@ TwBQAEUATgBTAFMATABfAEQARQBWAF8ASwBJAFQAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">Component</col>
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td></row>
+		<row><td>OpenSSLDevKit.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td></row>
 	</table>
 
 	<table name="ModuleConfiguration">
@@ -895,7 +895,7 @@ TwBQAEUATgBTAFMATABfAEQARQBWAF8ASwBJAFQAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
 		<col def="s32">Version</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td><td>1.0.0.0</td></row>
+		<row><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td><td>1.0.0.0</td></row>
 	</table>
 
 	<table name="ModuleSubstitution">

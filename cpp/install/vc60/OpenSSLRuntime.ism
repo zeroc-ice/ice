@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{5C444C64-6A3F-48CA-8145-438BC33D1B36}</revnumber>
+		<revnumber>{EB661D4F-3C27-4579-816D-25A3B7882479}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>{0978C5F4-57CA-4940-B617-0A6AD54EEC9D}</td><td>INSTALLDIR.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>OpenSSLRuntime.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>{0978C5F4-57CA-4940-B617-0A6AD54EEC9D}</td><td>INSTALLDIR.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -281,7 +281,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -407,7 +407,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td/><td/><td>_99C599E5_19CE_419C_9C46_C567FB1F8BD5_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>OpenSSLRuntime.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td/><td/><td>_99C599E5_19CE_419C_9C46_C567FB1F8BD5_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -435,7 +435,7 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>&lt;ISProjectFolder&gt;\install\openssl\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>OpenSSLRuntime.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>&lt;ISProjectFolder&gt;\install\openssl\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -682,7 +682,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>ID_STRING1</td><td>1033</td><td>OpenSSL Runtime</td><td>0</td><td/><td>-2129018132</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>OpenSSL Runtime for Visual Studio 6.0</td><td>0</td><td/><td>429466528</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129019796</td></row>
 	</table>
 
@@ -832,7 +832,7 @@ TwBQAEUATgBTAFMATABfAFIAVQBOAFQASQBNAEUAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">Component</col>
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
-		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td></row>
+		<row><td>OpenSSLRuntime.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
 	</table>
 
 	<table name="ModuleConfiguration">
@@ -895,7 +895,7 @@ TwBQAEUATgBTAFMATABfAFIAVQBOAFQASQBNAEUAAQBaAEUAUgBPAEMA
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
 		<col def="s32">Version</col>
-		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td><td>1.0.0.0</td></row>
+		<row><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td><td>1.0.0.0</td></row>
 	</table>
 
 	<table name="ModuleSubstitution">

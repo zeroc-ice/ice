@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{F0D8857B-DF5A-42C2-BEB8-554B1D109195}</revnumber>
+		<revnumber>{705EDDD1-370F-48B3-8505-2520D5C79727}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>{5B1BBF20-0E6D-4EA9-AAD3-5956C3826F88}</td><td>INSTALLDIR.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ExpatRuntime.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>{5B1BBF20-0E6D-4EA9-AAD3-5956C3826F88}</td><td>INSTALLDIR.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -281,7 +281,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
 		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
 		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
@@ -407,7 +407,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td/><td/><td>_CD275E88_6594_4A10_A017_2B10E6516185_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ExpatRuntime.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td/><td/><td>_CD275E88_6594_4A10_A017_2B10E6516185_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="ISDLLWrapper">
@@ -435,7 +435,7 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>&lt;ISProjectFolder&gt;\install\expat\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>ExpatRuntime.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>&lt;ISProjectFolder&gt;\install\expat\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
 	<table name="ISFeatureMergeModuleExcludes">
@@ -682,7 +682,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>ID_STRING1</td><td>1033</td><td>Expat Runtime</td><td>0</td><td/><td>-2129059124</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Expat Runtime for Visual Studio 6.0</td><td>0</td><td/><td>429460288</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129015732</td></row>
 	</table>
 
@@ -832,7 +832,7 @@ RQBYAFAAQQBUAF8AUgBVAE4AVABJAE0ARQABAFoARQBSAE8AQwA=
 		<col key="yes" def="s72">Component</col>
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
+		<row><td>ExpatRuntime.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
 	</table>
 
 	<table name="ModuleConfiguration">
@@ -895,7 +895,7 @@ RQBYAFAAQQBUAF8AUgBVAE4AVABJAE0ARQABAFoARQBSAE8AQwA=
 		<col key="yes" def="s72">ModuleID</col>
 		<col key="yes" def="i2">Language</col>
 		<col def="s32">Version</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>1.0.0.0</td></row>
+		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>1.0.0.0</td></row>
 	</table>
 
 	<table name="ModuleSubstitution">

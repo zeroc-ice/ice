@@ -17,11 +17,9 @@
 
 	<!-- Sources -->
 	<property name="ice.dir" value="${top.dir}/stage/Ice-2.1.0"/>
-	<property name="icecs.dir" value="${top.dir}/stage/IceCS-2.1.0"/>
 	<property name="icej.dir" value="${top.dir}/stage/IceJ-2.1.0"/>
 	<property name="icephp.dir" value="${top.dir}/stage/IcePHP-2.1.0"/>
 	<property name="icepy.dir" value="${top.dir}/stage/IcePy-2.1.0"/>
-	<property name="icevb.dir" value="${top.dir}/stage/IceVB-2.1.0"/>
 	<property name="runtime.dir" value="C:/Windows/System32"/>
 	<property name="berkeley.dir" value="${top.dir}/db-4.2.52.NC"/>
 	<property name="bzip2.dir" value="${top.dir}/bzip2-1.0.2"/>
