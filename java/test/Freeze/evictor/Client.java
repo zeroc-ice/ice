@@ -300,6 +300,7 @@ public class Client
 	    try
 	    {
 		facet1.ice_ping();
+		test(false);
 	    }
 	    catch(Ice.FacetNotExistException e)
 	    {
@@ -450,20 +451,6 @@ public class Client
 	{
 	    servants[i].removeFacet("facet1");
 	    servants[i].removeFacet("facet2");
-	}
-
-	for(int i = 0; i < size; i++)
-	{
-	    try
-	    {
-		servants[i].ice_ping();
-	    }
-	    catch(Ice.ObjectNotExistException e)
-	    {
-		//
-		// Expected
-		//
-	    }
 	}
 
 	evictor.setSize(0);

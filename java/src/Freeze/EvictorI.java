@@ -1112,49 +1112,62 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public boolean
     hasFacet(Ice.Identity ident, String facet)
     {
-	checkIdentity(ident);
-	if(facet == null)
-        {
-            facet = "";
-        }
-
 	_deactivateController.lock();
-
 	try
 	{
-	    ObjectStore store = null;
-	    
-	    synchronized(this)
-	    {	
-		store = (ObjectStore) _storeMap.get(facet);
-		if(store == null)
-		{
-		    return false;
-		}
-		
-		EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
-		if(element != null)
-		{
-		    assert !element.stale;    
-		    
-		    synchronized(element)
-		    {
-			return element.status != EvictorElement.dead && 
-			    element.status != EvictorElement.destroyed;
-		    }
-		}
-	    }
-	    return store.dbHasObject(ident);
+	    return hasFacetImpl(ident, facet);
 	}
 	finally
 	{
 	    _deactivateController.unlock();
 	}
     }
+    
+    private boolean
+    hasFacetImpl(Ice.Identity ident, String facet)
+    {
+	//
+	// Must be called with _deactivateController locked.
+	//
+
+	checkIdentity(ident);
+	if(facet == null)
+	{
+	    facet = "";
+	}
+
+	ObjectStore store = null;
+	    
+	synchronized(this)
+	{	
+	    store = (ObjectStore) _storeMap.get(facet);
+	    if(store == null)
+	    {
+		return false;
+	    }
+	    
+	    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+	    if(element != null)
+	    {
+		assert !element.stale;    
+		
+		synchronized(element)
+		{
+		    return element.status != EvictorElement.dead && 
+			element.status != EvictorElement.destroyed;
+		}
+	    }
+	}
+	return store.dbHasObject(ident);
+    }
 
     private boolean
     hasAnotherFacet(Ice.Identity ident, String facet)
     {
+	//
+	// Must be called with _deactivateController locked.
+	//
+
 	//
 	// If the object exists in another store, throw FacetNotExistException 
 	// instead of returning null (== ObjectNotExistException)
@@ -1211,53 +1224,56 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
-	//
-	// Special ice_ping() handling
-	//
-	if(current.operation != null && current.operation.equals("ice_ping"))
-	{
-	    if(hasFacet(current.id, current.facet))
-	    {
-		if(_trace >= 3)
-		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"ice_ping found \"" + Ice.Util.identityToString(current.id)  
-			+ "\" with facet \"" + current.facet + "\"");
-		}
-
-		return _pingObject;
-	    }
-	    else if(hasAnotherFacet(current.id, current.facet))
-	    {
-		if(_trace >= 3)
-		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"ice_ping raises FacetNotExistException for \"" + Ice.Util.identityToString(current.id)  
-			+ "\" with facet \"" + current.facet + "\"");
-		}
-
-		throw new Ice.FacetNotExistException();
-	    }
-	    else
-	    {
-		if(_trace >= 3)
-		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"ice_ping returns null for \"" + Ice.Util.identityToString(current.id)  
-			+ "\" with facet \"" + current.facet + "\"");
-		}
-
-		return null;
-	    }
-	}
-
 	_deactivateController.lock();
-
 	try
 	{
+	    
+	    //
+	    // Special ice_ping() handling
+	    //
+	    if(current.operation != null && current.operation.equals("ice_ping"))
+	    {
+		assert current.mode == Ice.OperationMode.Nonmutating;
+
+		if(hasFacetImpl(current.id, current.facet))
+		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor",
+			    "ice_ping found \"" + Ice.Util.identityToString(current.id)  
+			    + "\" with facet \"" + current.facet + "\"");
+		    }
+		    cookie.value = null;
+		    return _pingObject;
+		}
+		else if(hasAnotherFacet(current.id, current.facet))
+		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor",
+			    "ice_ping raises FacetNotExistException for \"" + Ice.Util.identityToString(current.id)  
+			    + "\" with facet \"" + current.facet + "\"");
+		    }
+		    
+		    throw new Ice.FacetNotExistException();
+		}
+		else
+		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor",
+			    "ice_ping will raise ObjectNotExistException for \"" + Ice.Util.identityToString(current.id)  
+			    + "\" with facet \"" + current.facet + "\"");
+		    }
+		    
+		    return null;
+		}
+	    }
+	    
+
 	    Ice.Object result = locateImpl(current, cookie);
 	    
 	    if(result == null)
