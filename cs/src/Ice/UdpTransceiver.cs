@@ -42,9 +42,37 @@ namespace IceInternal
 	    }
 	    _fd = null;
 	}
-	
-	public void shutdown()
+
+	public void shutdownWrite()
 	{
+	}
+
+	public void shutdownReadWrite()
+	{
+	    if(_traceLevels.network >= 2)
+	    {
+		string s = "shutting down udp connection for reading and writing\n" + ToString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+
+	    //
+	    // Set a flag and then shutdown the socket in order to wake a thread that is
+	    // blocked in read().
+	    //
+	    lock(_shutdownReadWriteMutex)
+	    {
+		_shutdownReadWrite = true;
+
+		Debug.Assert(_fd != null);
+		try
+		{
+		    _fd.Shutdown(SocketShutdown.Both);
+		}
+		catch(System.IO.IOException ex)
+		{
+		    throw new Ice.SocketException(ex);
+		}
+	    }
 	}
 	
 	public void write(BasicStream stream, int timeout)
@@ -145,7 +173,18 @@ namespace IceInternal
 	    stream.resize(packetSize, true);
 	    ByteBuffer buf = stream.prepareRead();
 	    buf.position(0);
-	    
+
+	    //
+	    // Check the shutdown flag.
+	    //
+	    lock(_shutdownReadWriteMutex)
+	    {
+		if(_shutdownReadWrite)
+		{
+		    throw new Ice.ConnectionLostException();
+		}
+	    }
+
 	    try
 	    {
 		int ret;
@@ -287,6 +326,7 @@ namespace IceInternal
 	    _stats = instance.stats();
 	    _connect = connect;
 	    _warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    _shutdownReadWrite = false;
 	    
 	    try
 	    {
@@ -357,8 +397,8 @@ namespace IceInternal
 		    if(sizeRequested > messageSizeMax + _udpOverhead)
 		    {
 			int newSize = System.Math.Min(messageSizeMax, _maxPacketSize) + _udpOverhead;
-			_logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested + " adjusted to "
-                                        + newSize + " (Ice.MessageSizeMax takes precendence)");
+			_logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested +
+					" adjusted to " + newSize + " (Ice.MessageSizeMax takes precendence)");
 			sizeRequested = newSize;
 		    }
 		    
@@ -388,14 +428,14 @@ namespace IceInternal
 			//
 			if(sizeSet < sizeRequested)
 			{
-			    _logger.warning("UDP " + direction + " buffer size: requested size of " + sizeRequested + " adjusted to " + sizeSet);
+			    _logger.warning("UDP " + direction + " buffer size: requested size of " + sizeRequested +
+					    " adjusted to " + sizeSet);
 			}
 		    }
 		}
 	    }
 	}
 
-	
 	~UdpTransceiver()
 	{
 	    Debug.Assert(_fd == null);
@@ -417,6 +457,9 @@ namespace IceInternal
 	//
 	private const int _udpOverhead = 20 + 8;
 	private static readonly int _maxPacketSize = 65535 - _udpOverhead;
+
+	private bool _shutdownReadWrite;
+	private object _shutdownReadWriteMutex = new object();
     }
 
 }

@@ -42,19 +42,38 @@ namespace IceInternal
 	        throw new Ice.SocketException(ex);
 	    }
 	}
-	
-	public void shutdown()
+
+	public void shutdownWrite()
 	{
 	    if(_traceLevels.network >= 2)
 	    {
-		string s = "shutting down tcp connection\n" + ToString();
+		string s = "shutting down tcp connection for writing\n" + ToString();
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
 	    
 	    Debug.Assert(_fd != null);
 	    try
 	    {
-		_fd.Shutdown(SocketShutdown.Send); // Shutdown socket for writing
+		_fd.Shutdown(SocketShutdown.Send);
+	    }
+	    catch(System.IO.IOException ex)
+	    {
+	        throw new Ice.SocketException(ex);
+	    }
+	}
+
+	public void shutdownReadWrite()
+	{
+	    if(_traceLevels.network >= 2)
+	    {
+		string s = "shutting down tcp connection for reading and writing\n" + ToString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+	    
+	    Debug.Assert(_fd != null);
+	    try
+	    {
+		_fd.Shutdown(SocketShutdown.Both);
 	    }
 	    catch(System.IO.IOException ex)
 	    {

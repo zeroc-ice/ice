@@ -14,7 +14,8 @@ namespace IceInternal
     {
 	System.Net.Sockets.Socket fd();
 	void close();
-	void shutdown();
+	void shutdownWrite();
+	void shutdownReadWrite();
 	void write(BasicStream stream, int timeout);
 	void read(BasicStream stream, int timeout);
 	string type();
