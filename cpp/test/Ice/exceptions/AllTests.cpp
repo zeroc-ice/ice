@@ -386,6 +386,39 @@ public:
 
 typedef IceUtil::Handle<AMI_Thrower_throwCasCI> AMI_Thrower_throwCasCIPtr;
 
+
+class AMI_Thrower_throwModAI : public AMI_Thrower_throwModA, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+	test(false);
+    }
+
+    virtual void ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Mod::A& ex)
+	{
+	    test(ex.aMem == 1);
+	    test(ex.a2Mem == 2);
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Thrower_throwModAI> AMI_Thrower_throwModAIPtr;
+
+
+
 class AMI_Thrower_throwUndeclaredAI : public AMI_Thrower_throwUndeclaredA, public CallbackBase
 {
 public:
@@ -731,6 +764,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(false);
     }
 
+    try
+    {
+	thrower->throwModA(1, 2);
+	test(false);
+    }
+    catch(const Mod::A& ex)
+    {
+	test(ex.aMem == 1);
+	test(ex.a2Mem == 2);
+    }
+    catch(...)
+    {
+	test(false);
+    }
+
+
     cout << "ok" << endl;
 
     cout << "catching base types... " << flush;
@@ -758,6 +807,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	test(ex.aMem == 1);
 	test(ex.bMem == 2);
+    }
+    catch(...)
+    {
+	test(false);
+    }
+
+    try
+    {
+	thrower->throwModA(1, 2);
+	test(false);
+    }
+    catch(const A& ex)
+    {
+	test(ex.aMem == 1);
     }
     catch(...)
     {
@@ -1080,6 +1143,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(cb->check());
 	}
 	
+	{
+	    AMI_Thrower_throwModAIPtr cb = new AMI_Thrower_throwModAI;
+	    thrower->throwModA_async(cb, 1, 2);
+	    test(cb->check());
+	}
+
 	cout << "ok" << endl;
 	
 	cout << "catching derived types... " << flush;

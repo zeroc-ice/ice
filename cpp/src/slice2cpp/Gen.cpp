@@ -431,6 +431,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	
     if(!p->isLocal())
     {
+	string flattenedScope;
+
+	for(string::const_iterator r = scope.begin(); r != scope.end(); ++r)
+	{
+	    flattenedScope += ((*r) == ':') ? '_' : *r;
+	}
+
 	string scoped = fixKwd(p->scoped());
 	ExceptionPtr base = p->base();
     
@@ -478,7 +485,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	}
 
-	C << sp << nl << "class __F__" << name << " : public ::IceInternal::UserExceptionFactory";
+	string factoryName = "__F" + flattenedScope + name;
+
+	C << sp << nl << "class " << factoryName << " : public ::IceInternal::UserExceptionFactory";
 	C << sb;
 	C.dec();
 	C << nl << "public:";
@@ -490,32 +499,28 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << eb << ';';
 
-	C << sp << nl << "::IceInternal::UserExceptionFactoryPtr " << scoped.substr(2) << "::_factory = new __F__"
-	  << name << ';';
+	C << sp << nl << "::IceInternal::UserExceptionFactoryPtr " << scoped.substr(2) << "::_factory = new "
+	  << factoryName << ';';
 
-	C << sp << nl << "class __F__" << name << "__Init";
+	C << sp << nl << "class " << factoryName << "__Init";
 	C << sb;
 	C.dec();
 	C << nl << "public:";
 	C.inc();
-	C << sp << nl << "__F__" << name << "__Init()";
+	C << sp << nl << factoryName << "__Init()";
 	C << sb;
 	C << nl << "::Ice::factoryTable->addExceptionFactory(\"" << p->scoped() << "\", " << scoped
 	  << "::ice_factory());";
 	C << eb;
-	C << sp << nl << "~__F__" << name << "__Init()";
+	C << sp << nl << "~" << factoryName << "__Init()";
 	C << sb;
 	C << nl << "::Ice::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
 	C << eb;
 	C << eb << ';';
-	C << sp << nl << "static __F__" << name << "__Init __F__" << name << "__i;";
+	C << sp << nl << "static " << factoryName << "__Init "<< factoryName << "__i;";
 	C << sp << nl << "#ifdef __APPLE__";
-	std::string initfuncname = "__F";
-	for(std::string::const_iterator p = scope.begin(); p != scope.end(); ++p)
-	{
-	    initfuncname += ((*p) == ':') ? '_' : *p;
-	}
-	initfuncname += name + "__initializer";
+	
+	string initfuncname = "__F" + flattenedScope + name + "__initializer";
 	C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	C << nl << "#endif";
     }

@@ -42,6 +42,10 @@ public:
 				 Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
     virtual void throwCasC_async(const AMD_Thrower_throwCasCPtr&,
 				 Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+
+    virtual void throwModA_async(const AMD_Thrower_throwModAPtr&,
+				 Ice::Int, Ice::Int, const Ice::Current&);
+
     virtual void throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr&,
 					Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr&,

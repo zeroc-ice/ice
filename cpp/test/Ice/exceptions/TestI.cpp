@@ -95,6 +95,15 @@ ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 }
 
 void
+ThrowerI::throwModA(Ice::Int a, Ice::Int a2, const Ice::Current&)
+{
+    Mod::A ex;
+    ex.aMem = a;
+    ex.a2Mem = a2;
+    throw ex;
+}
+
+void
 ThrowerI::throwUndeclaredA(Ice::Int a, const Ice::Current&)
 {
     A ex;

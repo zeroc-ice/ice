@@ -37,6 +37,15 @@ exception D
     int dMem;
 };
 
+module Mod
+{
+    exception A extends :: A
+    {
+	int a2Mem;
+    };
+};
+
+
 ["ami", "amd"] interface Thrower
 {
     void shutdown();
@@ -49,6 +58,9 @@ exception D
     void throwBasB(int a, int b) throws B;
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
+
+    void throwModA(int a, int a2) throws Mod::A;
+
     void throwUndeclaredA(int a);
     void throwUndeclaredB(int a, int b);
     void throwUndeclaredC(int a, int b, int c);

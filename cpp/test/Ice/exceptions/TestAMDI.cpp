@@ -118,6 +118,17 @@ ThrowerI::throwCasC_async(const AMD_Thrower_throwCasCPtr& cb,
 }
 
 void
+ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& cb,
+			  Ice::Int a, Ice::Int a2, const Ice::Current&)
+{
+    Mod::A ex;
+    ex.aMem = a;
+    ex.a2Mem = a2;
+    throw ex;
+}
+
+
+void
 ThrowerI::throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr& cb,
 				 Ice::Int a, const Ice::Current&)
 {
