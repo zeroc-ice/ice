@@ -28,7 +28,7 @@ public:
     LocalException& operator=(const LocalException&);
     virtual std::string _name() const;
     virtual std::ostream& _print(std::ostream&) const;
-    virtual LocalException* _clone() const;
+    virtual Exception* _clone() const;
     virtual void _throw() const;
 };
 
@@ -41,7 +41,7 @@ public:
     UserException& operator=(const UserException&);
     virtual std::string _name() const;
     virtual std::ostream& _print(std::ostream&) const;
-    virtual UserException* _clone() const;
+    virtual Exception* _clone() const;
     virtual void _throw() const;
 };
 
@@ -62,6 +62,7 @@ class ConnectTimeoutException;
 class ConnectFailedException;
 class ConnectionLostException;
 class DNSException;
+class ProtocolException;
 class UnmarshalOutOfBoundsException;
 class ServantUnmarshalException;
 class StringEncodingException;
@@ -93,7 +94,6 @@ std::ostream& printException(std::ostream&, const Ice::ReferenceParseException&)
 std::ostream& printException(std::ostream&, const Ice::ReferenceIdentityException&);
 std::ostream& printException(std::ostream&, const Ice::ObjectNotExistException&);
 std::ostream& printException(std::ostream&, const Ice::OperationNotExistException&);
-std::ostream& printException(std::ostream&, const Ice::NoServantFactoryException&);
 std::ostream& printException(std::ostream&, const Ice::SystemException&);
 std::ostream& printException(std::ostream&, const Ice::SocketException&);
 std::ostream& printException(std::ostream&, const Ice::TimeoutException&);
@@ -101,6 +101,7 @@ std::ostream& printException(std::ostream&, const Ice::ConnectTimeoutException&)
 std::ostream& printException(std::ostream&, const Ice::ConnectFailedException&);
 std::ostream& printException(std::ostream&, const Ice::ConnectionLostException&);
 std::ostream& printException(std::ostream&, const Ice::DNSException&);
+std::ostream& printException(std::ostream&, const Ice::ProtocolException&);
 std::ostream& printException(std::ostream&, const Ice::UnmarshalOutOfBoundsException&);
 std::ostream& printException(std::ostream&, const Ice::ServantUnmarshalException&);
 std::ostream& printException(std::ostream&, const Ice::StringEncodingException&);

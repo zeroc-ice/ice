@@ -82,6 +82,14 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
+$(HDIR)/LocalException.h LocalException.cpp: $(SDIR)/LocalException.ice $(SLICE2CPP)
+	rm -f $(HDIR)/LocalException.h LocalException.cpp
+	$(SLICECMD) $(SDIR)/LocalException.ice
+	mv LocalException.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/LocalException.h LocalException.cpp
+
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
 	$(SLICECMD) $(SDIR)/Communicator.ice

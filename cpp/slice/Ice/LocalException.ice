@@ -143,7 +143,7 @@ local exception NoServantFactoryException
  *
  * This exception is raised if a system error occurred in the server
  * or client process. There are many possible causes for such a system
- * exception. For details on the cause, [SystemException::errno]
+ * exception. For details on the cause, [SystemException::error]
  * should be inspected.
  *
  **/
@@ -152,9 +152,9 @@ local exception SystemException
     /**
      *
      * The error number describing the system exception. For C++ and
-     * Unix, this is equivalent to <literal>errno</literal> or
-     * <literal>h_errno</literal>. For C++ and Windows, this is the
-     * value returned by <literal>GetLastError()</literal> or
+     * Unix, this is equivalent to <literal>errno</literal>. For C++
+     * and Windows, this is the value returned by
+     * <literal>GetLastError()</literal> or
      * <literal>WSAGetLastError()</literal>.
      *
      **/
@@ -213,12 +213,21 @@ local exception ConnectionLostException extends SocketException
 
 /**
  *
- * This exception is a specialization of [SystemException], indicating
- * DNS problems.
+ * This exception indicates a DNS problem. For details on the cause,
+ * [DNSException::error] should be inspected.
  *
  **/
-local exception DNSException extends SystemException
+local exception DNSException
 {
+    /**
+     *
+     * The error number describing the DNS problem. For C++ and Unix,
+     * this is equivalent to <literal>h_errno</literal>. For C++ and
+     * Windows, this is the value returned by
+     * <literal>WSAGetLastError()</literal>.
+     *
+     **/
+    int error; // Don't use h_errno, as h_errno is usually a macro.
 };
 
 /**
@@ -234,8 +243,7 @@ local exception ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
- * raised if no suitable servant factory was found during request
- * parameter unmarshaling.
+ * raised if no suitable servant factory was found during unmarshaling.
  *
  * @see ServantFactory
  * @see Communicator::addServantFactory
@@ -244,6 +252,16 @@ local exception ProtocolException
  *
  **/
 local exception ServantUnmarshalException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised if an out-of-bounds condition occurs during unmarshaling.
+ *
+ **/
+local exception UnmarshalOutOfBoundsException extends ProtocolException
 {
 };
 
@@ -261,7 +279,7 @@ local exception StringEncodingException extends ProtocolException
  *
  * This exception is a specialization of [ProtocolException], which is
  * raised if the system-specific memory limit is exceeded during
- * marshaling or unmarshaling parameters.
+ * marshaling or unmarshaling.
  *
  **/
 local exception MemoryLimitException extends ProtocolException

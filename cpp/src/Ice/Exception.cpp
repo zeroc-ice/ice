@@ -44,7 +44,7 @@ Ice::LocalException::_print(ostream& out) const
     return IceUtil::printException(out, *this);
 }
 
-LocalException*
+Exception*
 Ice::LocalException::_clone() const
 {
     return new LocalException(*this);
@@ -85,7 +85,7 @@ Ice::UserException::_print(ostream& out) const
     return IceUtil::printException(out, *this);
 }
 
-UserException*
+Exception*
 Ice::UserException::_clone() const
 {
     return new UserException(*this);
@@ -236,6 +236,13 @@ IceUtil::printException(ostream& out, const DNSException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
     return out << ": DNS error: " + errorToStringDNS(ex.error);
+}
+
+ostream&
+IceUtil::printException(ostream& out, const ProtocolException& ex)
+{
+    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
+    return out << ": unknown protocol exception";
 }
 
 ostream&

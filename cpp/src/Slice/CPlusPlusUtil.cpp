@@ -89,13 +89,13 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     {
 	out << sp;
 	out << "\n#ifdef WIN32";
-	out << "\n#   ifdef " << dllExport.substr(0, dllExport.size() - 1) << "_EXPORTS";
-	out << "\n#       define " << dllExport << "__declspec(dllexport)";
+	out << "\n#   ifdef " << dllExport << "_EXPORTS";
+	out << "\n#       define " << dllExport << " __declspec(dllexport)";
 	out << "\n#   else";
-	out << "\n#       define " << dllExport << "__declspec(dllimport)";
+	out << "\n#       define " << dllExport << " __declspec(dllimport)";
 	out << "\n#   endif";
 	out << "\n#else";
-	out << "\n#   define " << dllExport << "/**/";
+	out << "\n#   define " << dllExport << " /**/";
 	out << "\n#endif";
     }
 }

@@ -296,7 +296,7 @@ public:
     bool hasProxies();
     bool hasClassDecls();
     bool hasClassDefs();
-    bool hasOtherConstructedTypes(); // Other than classes
+    bool hasOtherConstructedOrExceptions(); // Exceptions or constructed types other than classes.
     std::string thisScope();
     void mergeModules();
     void sort();

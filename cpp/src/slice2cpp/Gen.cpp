@@ -100,6 +100,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/LocalObjectF.h>";
+    H << "\n#include <Ice/Exception.h>";
     if (unit->hasProxies())
     {
 	H << "\n#include <Ice/Proxy.h>";
@@ -107,12 +108,11 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
 	H << "\n#include <Ice/Direct.h>";
-	H << "\n#include <Ice/Exception.h>";
     }
     else
     {
 	H << "\n#include <Ice/LocalObject.h>";
-	C << "\n#include <Ice/BasicStream.h>";
+//	C << "\n#include <Ice/BasicStream.h>";
     }
 
     StringList includes = unit->includeFiles();
@@ -169,7 +169,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasOtherConstructedTypes())
+    if (!p->hasOtherConstructedOrExceptions())
     {
 	return false;
     }
@@ -193,6 +193,128 @@ bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
 {
     return false;
+}
+
+bool
+Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    string name = p->name();
+    string scoped = p->scoped();
+    ExceptionPtr base = p->base();
+
+    H << sp;
+    H << nl << "struct " << _dllExport << name << " : ";
+    H.useCurrentPosAsIndent();
+    if (!base)
+    {
+	if (p->isLocal())
+	{
+	    H << "public ::Ice::LocalException";
+	}
+	else
+	{
+	    H << "public ::Ice::UserException";
+	}
+    }
+    else
+    {
+	H << "public " << base->scoped();
+    }
+    H.restoreIndent();
+    H << sb;
+
+    if (p->isLocal())
+    {
+	H << nl << name << "(const char*, int);";
+	C << sp << nl << scoped.substr(2) << "::" << name << "(const char* file, int line) : ";
+	C.inc();
+	if (!base)
+	{
+	    C << nl << "::Ice::LocalException(file, line)";
+	}
+	else
+	{
+	    C << nl << base->scoped() << "(file, line)";
+	}
+	C.dec();
+	C << sb;
+	C << eb;
+    }
+    
+    H << nl << name << "(const " << name << "&);";
+    C << sp << nl << scoped.substr(2) << "::" << name << "(const " << name << "& ex) : ";
+    C.inc();
+    if (!base)
+    {
+	if (p->isLocal())
+	{
+	    C << nl << "::Ice::LocalException(ex)";
+	}
+	else
+	{
+	    C << nl << "::Ice::UserException(ex)";
+	}
+    }
+    else
+    {
+	C << nl << base->scoped() << "(ex)";
+    }
+    C.dec();
+    C << sb;
+    C << eb;
+
+    H << nl << name << "& operator=(const " << name << "&);";
+    C << sp << nl << scoped << '&' << nl << scoped.substr(2) << "::operator=(const " << name << "& ex)";
+    C << sb;
+    if (!base)
+    {
+	if (p->isLocal())
+	{
+	    C << nl << "::Ice::LocalException::operator=(ex);";
+	}
+	else
+	{
+	    C << nl << "::Ice::UserException::operator=(ex);";
+	}
+    }
+    else
+    {
+	C << nl << base->scoped() << "::operator=(ex);";
+    }
+    C << nl << "return *this;";
+    C << eb;
+
+    H << nl << "virtual ::std::string _name() const;";
+    C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::_name() const";
+    C << sb;
+    C << nl << "return \"" << scoped.substr(2) << "\";";
+    C << eb;
+    
+    H << nl << "virtual ::std::ostream& _print(::std::ostream&) const;";
+    C << sp << nl << "::std::ostream&" << nl << scoped.substr(2) << "::_print(::std::ostream& out) const";
+    C << sb;
+    C << nl << "return IceUtil::printException(out, *this);";
+    C << eb;
+
+    H << nl << "virtual ::Ice::Exception* _clone() const;";
+    C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::_clone() const";
+    C << sb;
+    C << nl << "return new " << name << "(*this);";
+    C << eb;
+
+    H << nl << "virtual void _throw() const;";
+    C << sp << nl << "void" << nl << scoped.substr(2) << "::_throw() const";
+    C << sb;
+    C << nl << "throw *this;";
+    C << eb;
+
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    H << eb << ';';
 }
 
 bool
@@ -266,7 +388,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
 	H << sp;
 	H << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name << ");";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
+	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 	C << sp;
 	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const " << scoped

@@ -876,7 +876,7 @@ Slice::Container::hasClassDefs()
 }
 
 bool
-Slice::Container::hasOtherConstructedTypes()
+Slice::Container::hasOtherConstructedOrExceptions()
 {
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -885,8 +885,13 @@ Slice::Container::hasOtherConstructedTypes()
 	    return true;
 	}
 
+	if (ExceptionPtr::dynamicCast(*p))
+	{
+	    return true;
+	}
+
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container->hasOtherConstructedTypes())
+	if (container && container->hasOtherConstructedOrExceptions())
 	{
 	    return true;
 	}
