@@ -168,7 +168,6 @@ Glacier::Router::run(int argc, char* argv[])
     }
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapterFromProperty("Client",
 										     clientEndpointsProperty);
-    clientAdapter->activate();
 
     //
     // Initialize the server object adapter.
@@ -179,7 +178,6 @@ Glacier::Router::run(int argc, char* argv[])
     if (!serverEndpoints.empty())
     {
 	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
-	serverAdapter->activate();
     }
 
     //
@@ -216,7 +214,6 @@ Glacier::Router::run(int argc, char* argv[])
 	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
     RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable);
     routerAdapter->add(router, stringToIdentity(routerIdentity));
-    routerAdapter->activate();
 
 #ifndef _WIN32
     //
@@ -250,9 +247,17 @@ Glacier::Router::run(int argc, char* argv[])
 #endif
 
     //
-    // We're done, let's wait for shutdown.
+    // Everything ok, let's go.
     //
+    shutdownOnInterrupt();
+    clientAdapter->activate();
+    if (serverAdapter)
+    {
+	serverAdapter->activate();
+    }
+    routerAdapter->activate();
     communicator()->waitForShutdown();
+    ignoreInterrupt();
 
     //
     // Destroy the router. The client and server blobjects get

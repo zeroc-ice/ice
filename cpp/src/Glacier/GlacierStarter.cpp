@@ -136,16 +136,18 @@ Glacier::Router::run(int argc, char* argv[])
     }
 
     //
-    // Create the starter object and activate the object adapter.
+    // Create and initialize the starter object.
     //
     StarterPtr starter = new StarterI(communicator(), verifier);
     adapter->add(starter, stringToIdentity("Glacier/starter"));
-    adapter->activate();
 
     //
-    // We're done, let's wait for shutdown.
+    // Everything ok, let's go.
     //
+    shutdownOnInterrupt();
+    adapter->activate();
     communicator()->waitForShutdown();
+    ignoreInterrupt();
 
     //
     // Destroy the starter and the password verifier.
