@@ -202,27 +202,12 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
     _out << sp << nl << "public override bool ice_isA(string s)";
     _out << sb;
-    _out << nl << "if(IceInternal.AssemblyUtil._runtime == IceInternal.AssemblyUtil.Runtime.Mono)"
-                  " // Bug in Mono 1.0 DefaultInvariant";
-    _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
-    _out << eb;
     _out << eb;
 
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current __current)";
     _out << sb;
-    _out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
-    _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
-    _out << eb;
     _out << eb;
 
     _out << sp << nl << "public override string[] ice_ids()";
@@ -576,15 +561,8 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	     << "__dispatch(IceInternal.Incoming __in, Ice.Current __current)";
 	_out << sb;
 	_out << nl << "int pos;";
-	_out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
-	_out << sb;
-	_out << nl << "pos = _System.Array.BinarySearch(__all, __current.operation);";
-	_out << eb;
-	_out << nl << "else";
-	_out << sb;
 	_out << nl << "pos = _System.Array.BinarySearch(__all, __current.operation, "
 	     << "_System.Collections.Comparer.DefaultInvariant);";
-	_out << eb;
 	_out << nl << "if(pos < 0)";
 	_out << sb;
 	_out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
