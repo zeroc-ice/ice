@@ -395,8 +395,9 @@ namespace IceInternal
 	private BasicStream doCompress(BasicStream uncompressed, bool compress)
 	{
             if(_compressionEnabled)
-            {
-                if(uncompressed.size() > 100 && compress)
+	    {
+	        IceInternal.DefaultsAndOverrides dfao = _instance.defaultsAndOverrides();
+	        if(compress && (!dfao.overrideCompress || dfao.overrideCompressValue) && uncompressed.size() >= 100)
                 {
                     BasicStream cstream = null;
 
@@ -639,11 +640,7 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.requestBatchMsg,
-#if COMPRESS
-	    (byte)1, // Default cmopression status: compression supported but not used.
-#else
-	    (byte)0,
-#endif
+            BasicStream.Compressible() ? (byte)1 : (byte)0,
 	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
@@ -981,11 +978,7 @@ namespace IceInternal
 	    Protocol.protocolMajor, Protocol.protocolMinor,
 	    Protocol.encodingMajor, Protocol.encodingMinor,
 	    Protocol.replyMsg,
-#if COMPRESS
-	    (byte)1, // Default compression status: compression supported but not used.
-#else
-	    (byte)0,
-#endif
+            BasicStream.Compressible() ? (byte)1 : (byte)0,
 	    (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
@@ -1030,11 +1023,14 @@ namespace IceInternal
 		    compress = stream.readByte();
 		    if(compress == (byte)2)
 		    {
-#if COMPRESS
-			stream = stream.uncompress();
-#else
-			throw new Ice.CompressionNotSupportedException();
-#endif
+			if(BasicStream.Compressible())
+			{
+			    stream = stream.uncompress();
+			}
+			else
+			{
+			    throw new Ice.CompressionNotSupportedException();
+		        }
 		    }
 		    stream.pos(Protocol.headerSize);
 		    
@@ -1582,11 +1578,7 @@ namespace IceInternal
 		    os.writeByte(Protocol.encodingMajor);
 		    os.writeByte(Protocol.encodingMinor);
 		    os.writeByte(Protocol.closeConnectionMsg);
-#if COMPRESS
-		    os.writeByte((byte)1); // Compression status: compression supported but not used.
-#else
-		    os.writeByte((byte)0); // Compression not supported.
-#endif
+		    os.writeByte(BasicStream.Compressible() ? (byte)1 : (byte)0);
 		    os.writeInt(Protocol.headerSize); // Message size.
 
 		    //
