@@ -9,11 +9,12 @@
 
 import Ice, os, sys, math
 
-if not os.environ.has_key('ICE_HOME'):
-    print sys.argv[0] + ': ICE_HOME is not defined'
+slice_dir = os.getenv('ICEPY_HOME', os.getenv('ICE_HOME', ''))
+if len(slice_dir) == 0:
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
-Ice.loadSlice('-I' + os.environ['ICE_HOME'] + '/slice Test.ice')
+Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
 import Test
 
 def test(b):
@@ -125,7 +126,7 @@ def twoways(p):
     test(not rso.p)
     test(rso.e == Test.MyEnum.enum2)
     test(rso.s.s == "def")
-    #test(so.p == p)
+    test(so.p == p)
     test(so.e == Test.MyEnum.enum3)
     test(so.s.s == "a new string")
     so.p.opVoid()
