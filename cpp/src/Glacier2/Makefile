@@ -21,7 +21,7 @@ TARGETS         = $(LIBTARGETS) $(ROUTER)
 OBJS		= Router.o
 
 ROBJS		= Glacier2Router.o \
-		  ServantLocator.o \
+		  SessionRouterI.o \
 		  RouterI.o \
 		  Blobject.o \
 		  ClientBlobject.o \

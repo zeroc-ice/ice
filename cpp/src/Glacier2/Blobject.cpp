@@ -161,7 +161,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     //
     // Create a new request and add it to the request queue.
     //
-    assert(_requestQueue);
+    assert(_requestQueue); // Destroyed?
     if(proxy->ice_isTwoway())
     {
 	AMI_Object_ice_invokePtr amiCB = new Glacier2CB(amdCB);

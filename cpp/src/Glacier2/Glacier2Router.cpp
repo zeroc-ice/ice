@@ -7,14 +7,12 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Base64.h>
 #include <Ice/Application.h>
-#include <Glacier2/ServantLocator.h>
+#include <Glacier2/SessionRouterI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
-
 
 namespace Glacier2
 {
@@ -74,17 +72,29 @@ Glacier2::RouterApp::run(int argc, char* argv[])
 	cerr << appName() << ": property `" << clientEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier2.Client");
-    ServantLocatorPtr locator = new ClientServantLocator(adapter);
-    adapter->addServantLocator(locator, "");
+    ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
+
+    //
+    // Create a router implementation that can handle sessions, and
+    // add it to the client object adapter.
+    //
+    SessionRouterIPtr sessionRouter = new SessionRouterI(clientAdapter);
+    const char* routerIdProperty = "Glacier2.RouterIdentity";
+    Identity routerId = stringToIdentity(properties->getPropertyWithDefault(routerIdProperty, "Glacier2/router"));
+    clientAdapter->add(sessionRouter, routerId);
 
     //
     // Everything ok, let's go.
     //
     shutdownOnInterrupt();
-    adapter->activate();
+    clientAdapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
+
+    //
+    // Destroy the session router, which destroys everything else.
+    //
+    sessionRouter->destroy();
 
     return EXIT_SUCCESS;
 }

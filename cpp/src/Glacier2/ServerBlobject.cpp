@@ -36,7 +36,6 @@ Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 					  const Current& current)
 {
     assert(_transport); // Destroyed?
-
     ObjectPrx proxy = _transport->createProxy(current.id);
     assert(proxy);
 
