@@ -18,6 +18,7 @@
 #include <StartTest.h>
 #include <MonitorMutexTest.h>
 #include <MonitorRecMutexTest.h>
+#include <GCSharedTest.h>
 
 std::list<TestBasePtr> allTests;
 
@@ -34,4 +35,5 @@ initializeTestSuite()
     allTests.push_back(new StaticMutexTest);
     allTests.push_back(new MonitorMutexTest);
     allTests.push_back(new MonitorRecMutexTest);
+    allTests.push_back(new GCSharedTest);
 }

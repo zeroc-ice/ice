@@ -26,7 +26,7 @@ extern ICE_UTIL_API GCObjectSet gcObjects; // Set of pointers to all existing cl
 
 typedef std::multiset<GCShared*> GCObjectMultiSet;
 
-class ICE_UTIL_API GCShared : public Shared
+class ICE_UTIL_API GCShared : virtual public Shared
 {
 public:
 
