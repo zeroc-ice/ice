@@ -50,18 +50,21 @@ public:
 	// assert(_map.empty());
     }
 
-    int
+    string
     add(const DBEnvironmentPtr& env)
     {
 	IceUtil::Mutex::Lock sync(*this);
 
-	_map.insert(make_pair(_nextId, env));
+	ostringstream os;
+	os << _nextId++;
 
-	return _nextId++;
+	_map.insert(make_pair(os.str(), env));
+
+	return os.str();
     }
     
     void
-    remove(int id)
+    remove(const string& id)
     {
 	IceUtil::Mutex::Lock sync(*this);
 
@@ -69,11 +72,11 @@ public:
     }
   
     DBEnvironmentPtr
-    get(int id)
+    get(const string& id)
     {
 	IceUtil::Mutex::Lock sync(*this);
 	
-	map<int, DBEnvironmentPtr>::iterator p = _map.find(id);
+	map<string, DBEnvironmentPtr>::iterator p = _map.find(id);
 	if(p != _map.end())
 	{
 	    return p->second;
@@ -84,7 +87,7 @@ public:
 
 private:
 
-    map<int, DBEnvironmentPtr> _map;
+    map<string, DBEnvironmentPtr> _map;
     int _nextId;
 };
 
@@ -93,7 +96,7 @@ static DBEnvironmentMap _dbEnvMap;
 static void
 FreezeErrCallFcn(const char* prefix, char* msg)
 {
-    DBEnvironmentPtr dbEnv = _dbEnvMap.get(atoi(prefix));
+    DBEnvironmentPtr dbEnv = _dbEnvMap.get(prefix);
     assert(dbEnv);
 
     Error out(dbEnv->getCommunicator()->getLogger());
@@ -168,10 +171,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     // use the envionment logger to log BerkeleyDB error messages.
     //
     _id = _dbEnvMap.add(this);
-
-    ostringstream os;
-    os << _id;
-    _dbEnv->set_errpfx(_dbEnv, os.str().c_str());
+    _dbEnv->set_errpfx(_dbEnv, _id.c_str());
     _dbEnv->set_errcall(_dbEnv, FreezeErrCallFcn);
 }
 

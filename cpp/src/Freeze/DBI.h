@@ -89,8 +89,8 @@ private:
 
     std::string _name;
     std::string _errorPrefix;
-    int _id;
-
+    std::string _id;
+    
     std::map<std::string, DBPtr> _dbMap;
 };
 
