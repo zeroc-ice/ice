@@ -25,7 +25,7 @@ namespace Slice
 typedef std::map<std::string, int, Slice::CICompare> StringTokenMap;
 static StringTokenMap keywordMap;
 
-void Slice::initScanner();
+void initScanner();
 
 }
 

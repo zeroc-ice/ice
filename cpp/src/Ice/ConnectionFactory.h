@@ -101,8 +101,6 @@ private:
     State _state;
     bool _warn;
     bool _registeredWithPool;
-
-    int _testCount; // TODO: For test only.
 };
 
 }

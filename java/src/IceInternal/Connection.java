@@ -746,11 +746,25 @@ public final class Connection extends EventHandler
 	    if(_adapter != null)
 	    {
 		//
-		// Incoming connections play the active role with
-		// respect to connection validation.
+		// Incoming connections play the active role with respect
+		// to connection validation, and are implicitly validated.
 		//
+		try
+		{
+		    validateConnection();
+		}
+		catch(Ice.LocalException ex)
+		{
+		    if(_warn)
+		    {
+			warning("connection exception", ex);
+		    }
+		    _transceiver.close();
+		    _state = StateClosed;
+		    throw ex;
+		}
+		
 		_connectionValidated = true;
-		validateConnection();
 	    }
 	    else
 	    {

@@ -106,16 +106,15 @@ public class IncomingConnectionFactory extends EventHandler
         //
         // Now accept a new connection.
         //
+	Transceiver transceiver;
         try
         {
-            Transceiver transceiver = _acceptor.accept(0);
-            Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-            connection.activate();
-            _connections.add(connection);
+            transceiver = _acceptor.accept(0);
         }
         catch(Ice.TimeoutException ex)
         {
             // Ignore timeouts.
+	    return;
         }
         catch(Ice.LocalException ex)
         {
@@ -124,7 +123,28 @@ public class IncomingConnectionFactory extends EventHandler
                 warning(ex);
             }
             setState(StateClosed);
+	    return;
         }
+
+	//
+	// Create and activate a connection object for the connection.
+	//
+	try
+	{
+	    assert(transceiver);
+            Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+            connection.activate();
+            _connections.add(connection);
+	}
+        catch(Ice.LocalException ex)
+	{
+	    //
+	    // Ignore all exceptions while creating or activating the
+	    // connection object. Warning or error messages for such
+	    // exceptions must be printed directly in the connection
+	    // object code.
+	    //
+	}
     }
 
     public synchronized void
@@ -138,40 +158,6 @@ public class IncomingConnectionFactory extends EventHandler
         }
         else if(_state == StateClosed)
         {
-//
-// With the new connection validation, this code is not needed
-// anymore.
-//
-/*
-            try
-            {
-                //
-                // Clear listen() backlog properly by accepting all queued
-                // connections, and then shutting them down.
-                //
-                while(true)
-                {
-                    try
-                    {
-                        Transceiver transceiver = _acceptor.accept(0);
-                        Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-                        connection.destroy(Connection.ObjectAdapterDeactivated);
-                    }
-                    catch(Ice.TimeoutException ex)
-                    {
-                        break; // Exit loop on timeout.
-                    }
-                }
-            }
-            catch(Ice.LocalException ex)
-            {
-                if(_warn)
-                {
-                    warning(ex);
-                }
-            }
-*/
-
             _acceptor.close();
 
 	    //

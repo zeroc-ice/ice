@@ -331,30 +331,15 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     //
     // Now accept a new connection.
     //
+    TransceiverPtr transceiver;
     try
     {
-	TransceiverPtr transceiver = _acceptor->accept(0);
-	// Test code: We drop every 2nd connection we accept.
-/*
-	if(++_testCount % 2)
-	{
-	    transceiver->close();
-	}
-	else
-*/	{
-	    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-	    connection->activate();
-	    _connections.push_back(connection);
-	}
-    }
-    catch(const SocketException&)
-    {
-        // TODO: bandaid. Takes care of SSL Handshake problems during
-        // creation of a Transceiver. Ignore, nothing we can do here.
+	transceiver = _acceptor->accept(0);
     }
     catch(const TimeoutException&)
     {
 	// Ignore timeouts.
+	return;
     }
     catch(const LocalException& ex)
     {
@@ -364,6 +349,27 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	}
         setState(StateClosed);
+	return;
+    }
+
+    //
+    // Create and activate a connection object for the connection.
+    //
+    try
+    {
+	assert(transceiver);
+	ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	connection->activate();
+	_connections.push_back(connection);
+    }
+    catch(const LocalException&)
+    {
+	//
+	// Ignore all exceptions while creating or activating the
+	// connection object. Warning or error messages for such
+	// exceptions must be printed directly in the connection
+	// object code.
+	//
     }
 }
 
@@ -380,41 +386,6 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
     }
     else if(_state == StateClosed)
     {
-//
-// With the new connection validation, this code is not needed
-// anymore.
-//
-/*
-	try
-	{
-	    //
-	    // Clear listen() backlog properly by accepting all queued
-	    // connections, and then shutting them down.
-	    //
-	    while(true)
-	    {
-		try
-		{
-		    TransceiverPtr transceiver = _acceptor->accept(0);
-		    ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-		    connection->destroy(Connection::ObjectAdapterDeactivated);
-		}
-		catch(const TimeoutException&)
-		{
-		    break; // Exit loop on timeout.
-		}
-	    }
-	}
-	catch(const LocalException& ex)
-	{
-	    if(_warn)
-	    {
-		Warning out(_instance->logger());
-		out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
-	    }
-	}
-*/
-	
 	_acceptor->close();
 
 	//
@@ -478,7 +449,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	    _acceptor->listen();
 	}
     }
-    catch (...)
+    catch(...)
     {
 	setState(StateClosed);
 	throw;

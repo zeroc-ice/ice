@@ -833,10 +833,25 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 	{
 	    //
 	    // Incoming connections play the active role with respect
-	    // to connection validation.
+	    // to connection validation, and are implicitly validated.
 	    //
+	    try
+	    {
+		validateConnection();
+	    }
+	    catch(const LocalException& ex)
+	    {
+		if(_warn)
+		{
+		    Warning out(_logger);
+		    out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
+		}
+		_transceiver->close();
+		_state = StateClosed;
+		ex.ice_throw();
+	    }
+
 	    _connectionValidated = true;
-	    validateConnection();
 	}
 	else
 	{
