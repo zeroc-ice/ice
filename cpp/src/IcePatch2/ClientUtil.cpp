@@ -326,7 +326,7 @@ IcePatch2::Patcher::prepare()
 	}
 	
 	ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
-	if(checksumSeq.size() != NumPartitions)
+	if(static_cast<int>(checksumSeq.size()) != NumPartitions)
 	{
 	    throw string("server returned illegal value");
 	}
