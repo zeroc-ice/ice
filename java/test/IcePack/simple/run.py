@@ -28,6 +28,7 @@ if not os.environ.has_key('ICE_HOME'):
 
 ice_home = os.environ['ICE_HOME']
 
+testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 name = os.path.join("IcePack", "simple")
 
 #
@@ -39,7 +40,7 @@ additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\"
 #
 # Start IcePack
 # 
-icePackPipe = IcePackAdmin.startIcePack(ice_home, "12346")
+icePackPipe = IcePackAdmin.startIcePack(ice_home, "12346", testdir)
 
 #
 # Test client/server, collocated w/o automatic activation.
@@ -54,7 +55,7 @@ print "testing adapter registration...",
 hasTestAdapter = 0;
 icePackAdminPipe = IcePackAdmin.listAdapters(ice_home);
 for adaptername in icePackAdminPipe.xreadlines():
-    if adaptername == "TestAdapter\n":
+    if adaptername.strip() == "TestAdapter":
         hasTestAdapter = 1
         
 if hasTestAdapter == 0:
@@ -75,28 +76,19 @@ IcePackAdmin.removeAdapter(ice_home, "TestAdapter")
 #
 if TestUtil.isWin32() == 0:
 
-    testdir = os.path.join(toplevel, "test", "IcePack", "simple")
     classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + TestUtil.sep + \
 	os.getenv("CLASSPATH", "")
-    server = "java"
     client = "java -ea -classpath \"" + classpath + "\" Client "
 
-    #
-    # Don't pass Ice.Locator.* properties for the server. The IcePack
-    # activator should take care of this.
-    #
-    updatedClientServerOptions = "-ea -classpath \"" + classpath + "\" Server "
-    updatedClientServerOptions += TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-     
     print "registering server with icepack...",
-    IcePackAdmin.addServer(ice_home, "server", server, "", updatedClientServerOptions, "TestAdapter")
+    IcePackAdmin.addServer(ice_home, "server", "", classpath, os.path.join(testdir, "simple_server.xml"));
     print "ok"
-    
+
     print "testing adapter registration...",
     hasTestAdapter = 0;
     icePackAdminPipe = IcePackAdmin.listAdapters(ice_home);
     for adaptername in icePackAdminPipe.xreadlines():
-        if adaptername == "TestAdapter\n":
+        if adaptername.strip() == "TestAdapter":
             hasTestAdapter = 1
             
     if hasTestAdapter == 0:
