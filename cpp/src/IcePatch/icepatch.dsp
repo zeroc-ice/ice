@@ -128,11 +128,11 @@ SOURCE=.\huffman.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Node.cpp
+SOURCE=.\IcePatch.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NodeDescFactory.cpp
+SOURCE=.\FileDescFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -156,11 +156,11 @@ SOURCE=.\bzlib_private.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch\Node.h
+SOURCE=..\..\include\IcePatch\IcePatch.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IcePatch\NodeDescFactory.h
+SOURCE=..\..\include\IcePatch\FileDescFactory.h
 # End Source File
 # Begin Source File
 
@@ -172,24 +172,24 @@ SOURCE=..\..\include\IcePatch\Util.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=..\..\slice\IcePatch\Node.ice
+SOURCE=..\..\slice\IcePatch\IcePatch.ice
 
 !IF  "$(CFG)" == "IcePatch - Win32 Release"
 
 USERDEP__NODE_="../../bin/slice2cpp.exe"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch\Node.ice
+InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/Node.ice \
-	move Node.h ..\..\include\IcePatch \
+	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	move IcePatch.h ..\..\include\IcePatch \
 	
 
-"..\..\include\IcePatch\Node.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\IcePatch\IcePatch.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Node.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IcePatch.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -197,18 +197,18 @@ BuildCmds= \
 
 USERDEP__NODE_="../../bin/slice2cpp.exe"	
 # Begin Custom Build
-InputPath=..\..\slice\IcePatch\Node.ice
+InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/Node.ice \
-	move Node.h ..\..\include\IcePatch \
+	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	move IcePatch.h ..\..\include\IcePatch \
 	
 
-"..\..\include\IcePatch\Node.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\IcePatch\IcePatch.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Node.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IcePatch.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

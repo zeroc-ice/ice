@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <IcePatch/NodeLocator.h>
+#include <IcePatch/FileLocator.h>
 #include <IcePatch/Util.h>
 
 using namespace std;
@@ -25,8 +25,9 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void removeOrphanedRecursive(const string&);
-    void updateRecursive(const string&);
+
+    static void removeOrphanedRecursive(const string&);
+    static void updateRecursive(const string&);
 };
 
 };
@@ -96,21 +97,21 @@ IcePatch::Server::run(int argc, char* argv[])
 	//
 	removeOrphanedRecursive(".");
 	updateRecursive(".");
-        
+
         //
-        // Create and initialize the object adapter and the node locator.
+        // Create and initialize the object adapter and the file locator.
         //
         ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
-        ServantLocatorPtr nodeLocator = new NodeLocator(adapter);
-        adapter->addServantLocator(nodeLocator, "IcePatch");
+        ServantLocatorPtr fileLocator = new FileLocator(adapter);
+        adapter->addServantLocator(fileLocator, "IcePatch");
         adapter->activate();
-        
+         
         //
         // We're done, let's wait for shutdown.
         //
         communicator()->waitForShutdown();
     }
-    catch (const NodeAccessException& ex)
+    catch (const FileAccessException& ex)
     {
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
@@ -122,15 +123,14 @@ IcePatch::Server::run(int argc, char* argv[])
 void
 IcePatch::Server::removeOrphanedRecursive(const string& path)
 {
-    assert(getFileInfo(path).type == FileTypeDirectory);
+    assert(getFileInfo(path, true).type == FileTypeDirectory);
     
     StringSeq paths = readDirectory(path);
     StringSeq::const_iterator p;
     for (p = paths.begin(); p != paths.end(); ++p)
     {
-	string suffix = getSuffix(*p);
-	if (suffix == "md5" || suffix == "bz2")
-	{
+	if (ignoreSuffix(*p))
+ 	{
 	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
 		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
 	    if (r.first == r.second)
@@ -142,7 +142,7 @@ IcePatch::Server::removeOrphanedRecursive(const string& path)
 	}
 	else
 	{
-	    if (getFileInfo(*p).type == FileTypeDirectory)
+	    if (getFileInfo(*p, true).type == FileTypeDirectory)
 	    {
 		removeOrphanedRecursive(*p);
 	    }
@@ -160,18 +160,12 @@ IcePatch::Server::removeOrphanedRecursive(const string& path)
 void
 IcePatch::Server::updateRecursive(const string& path)
 {
-    string suffix = getSuffix(path);
-    if (suffix == "md5" || suffix == "bz2")
+    if (ignoreSuffix(path))
     {
 	return;
     }
 
-    if (pathToName(path) == tmpName)
-    {
-	return;
-    }
-
-    FileInfo info = getFileInfo(path);
+    FileInfo info = getFileInfo(path, true);
 
     if (info.type == FileTypeDirectory)
     {
@@ -184,21 +178,19 @@ IcePatch::Server::updateRecursive(const string& path)
     }
     else if (info.type == FileTypeRegular)
     {
-	string pathMD5 = path + ".md5";
-	FileInfo infoMD5 = getFileInfo(pathMD5);
+	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
 	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	{
 	    cout << "creating .md5 file for `" << path << "'... " << flush;
-	    createMD5(pathMD5);
+	    createMD5(path);
 	    cout << "ok" << endl;
 	}
 
-	string pathBZ2 = path + ".bz2";
-	FileInfo infoBZ2 = getFileInfo(pathBZ2);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
 	    cout << "creating .bz2 file for `" << path << "'... " << flush;
-	    createBZ2(pathBZ2);
+	    createBZ2(path);
 	    cout << "ok" << endl;
 	}
     }

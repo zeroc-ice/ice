@@ -8,16 +8,16 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH_NODE_DESC_FACTORY_H
-#define ICE_PATCH_NODE_DESC_FACTORY_H
+#ifndef ICE_PATCH_FILE_DESC_FACTORY_H
+#define ICE_PATCH_FILE_DESC_FACTORY_H
 
 #include <Ice/Ice.h>
-#include <IcePatch/Node.h>
+#include <IcePatch/IcePatch.h>
 
 namespace IcePatch
 {
 
-class ICE_PATCH_API NodeDescFactory : public Ice::ObjectFactory
+class ICE_PATCH_API FileDescFactory : public Ice::ObjectFactory
 {
 public:
 

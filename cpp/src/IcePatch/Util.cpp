@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <IcePatch/Util.h>
-#include <IcePatch/Node.h>
 #include <fstream>
 #include <sys/stat.h>
 #include <openssl/md5.h>
@@ -29,9 +28,7 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
-const string IcePatch::tmpName = ".icepatchtemp";
-
-static string
+string
 normalizePath(const string& path)
 {
     string result = path;
@@ -58,6 +55,11 @@ normalizePath(const string& path)
 	result.erase(pos, 2);
     }
 
+    if (result.substr(0, 2) == "./")
+    {
+        result.erase(0, 2);
+    }
+
     return result;
 }
 
@@ -78,20 +80,6 @@ IcePatch::pathToIdentity(const string& path)
 }
 
 string
-IcePatch::pathToName(const string& path)
-{
-    string::size_type pos = path.rfind('/');
-    if (pos == string::npos)
-    {
-	return path;
-    }
-    else
-    {
-	return path.substr(pos + 1);
-    }
-}
-
-string
 IcePatch::getSuffix(const string& path)
 {
     string::size_type pos = path.rfind('.');
@@ -103,6 +91,13 @@ IcePatch::getSuffix(const string& path)
     {
 	return path.substr(pos + 1);
     }
+}
+
+bool
+IcePatch::ignoreSuffix(const string& path)
+{
+    string suffix = getSuffix(path);
+    return suffix == "md5" || suffix == "md5temp" || suffix == "bz2" || suffix == "bz2temp";
 }
 
 string
@@ -120,21 +115,22 @@ IcePatch::removeSuffix(const string& path)
 }
 
 FileInfo
-IcePatch::getFileInfo(const string& path)
+IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
 {
     struct stat buf;
     if (::stat(path.c_str(), &buf) == -1)
     {
-	if (errno == ENOENT)
+	if (!exceptionIfNotExist && errno == ENOENT)
 	{
 	    FileInfo result;
 	    result.size = 0;
 	    result.time = 0;
 	    result.type = FileTypeNotExist;
+            return result;
 	}
 	else
 	{
-	    NodeAccessException ex;
+	    FileAccessException ex;
 	    ex.reason = "cannot stat `" + path + "': " + strerror(errno);
 	    throw ex;
 	}
@@ -163,11 +159,10 @@ IcePatch::getFileInfo(const string& path)
 void
 IcePatch::removeRecursive(const string& path)
 {
-    if (getFileInfo(path).type == FileTypeDirectory)
+    if (getFileInfo(path, true).type == FileTypeDirectory)
     {
 	StringSeq paths = readDirectory(path);
-	StringSeq::const_iterator p;
-	for (p = paths.begin(); p != paths.end(); ++p)
+        for (StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
 	    removeRecursive(*p);
 	}
@@ -175,7 +170,7 @@ IcePatch::removeRecursive(const string& path)
     
     if (::remove(path.c_str()) == -1)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
 	throw ex;
     }
@@ -190,7 +185,7 @@ IcePatch::changeDirectory(const string& path)
     if (chdir(path.c_str()) == -1)
 #endif
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot change to directory `" + path + "': " + strerror(errno);
 	throw ex;
     }
@@ -205,7 +200,7 @@ IcePatch::readDirectory(const string& path)
     long h = _findfirst((path + "/*").c_str(), &data);
     if (h == -1)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
 	throw ex;
     }
@@ -218,7 +213,7 @@ IcePatch::readDirectory(const string& path)
 
 	if (name != ".." && name != ".")
 	{
-	    result.push_back(path + '/' + name);
+	    result.push_back(normalizePath(path + '/' + name));
 	}
 
         if (_findnext(h, &data) == -1)
@@ -228,7 +223,7 @@ IcePatch::readDirectory(const string& path)
                 break;
             }
 
-            NodeAccessException ex;
+            FileAccessException ex;
             ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
             _findclose(h);
             throw ex;
@@ -236,6 +231,8 @@ IcePatch::readDirectory(const string& path)
     }
 
     _findclose(h);
+
+    sort(result.begin(), result.end());
 
     return result;
 
@@ -245,7 +242,7 @@ IcePatch::readDirectory(const string& path)
     int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
     if (n < 0)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
 	throw ex;
     }
@@ -261,7 +258,7 @@ IcePatch::readDirectory(const string& path)
 
 	if (name != ".." && name != ".")
 	{
-	    result.push_back(path + '/' + name);
+	    result.push_back(normalizePath(path + '/' + name));
 	}
     }
     
@@ -280,7 +277,7 @@ IcePatch::createDirectory(const string& path)
     if (::mkdir(path.c_str(), 00777) == -1)
 #endif
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot create directory `" + path + "': " + strerror(errno);
 	throw ex;
     }
@@ -293,7 +290,7 @@ IcePatch::getMD5(const string& path)
     ifstream fileMD5(pathMD5.c_str(), ios::binary);
     if (!fileMD5)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + pathMD5 + "' for reading: " + strerror(errno);
 	throw ex;
     }
@@ -302,24 +299,24 @@ IcePatch::getMD5(const string& path)
     fileMD5.read(&bytesMD5[0], 16);
     if (!fileMD5)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot read `" + pathMD5 + "': " + strerror(errno);
 	throw ex;
     }
     if (fileMD5.gcount() < 16)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "could not read 16 bytes from `" + pathMD5 + "'";
 	throw ex;
     }
+    fileMD5.close();
     return bytesMD5;
 }
 
 void
 IcePatch::createMD5(const string& path)
 {
-    assert(pathToName(path) != tmpName);
-    FileInfo info = getFileInfo(path);
+    FileInfo info = getFileInfo(path, true);
     assert(info.type == FileTypeRegular);
     
     //
@@ -328,28 +325,25 @@ IcePatch::createMD5(const string& path)
     ifstream file(path.c_str(), ios::binary);
     if (!file)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	throw ex;
     }
-
     ByteSeq bytes;
     bytes.resize(info.size);
     file.read(&bytes[0], bytes.size());
     if (!file)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot read `" + path + "': " + strerror(errno);
 	throw ex;
     }
-
     if (file.gcount() < static_cast<int>(bytes.size()))
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "could not read all bytes from `" + path + "'";
 	throw ex;
     }
-
     file.close();
     
     //
@@ -360,70 +354,55 @@ IcePatch::createMD5(const string& path)
     MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
     
     //
-    // Save the MD5 hash value to the MD5 file.
+    // Save the MD5 hash value to a temporary MD5 file.
     //
-    ofstream fileMD5(tmpName.c_str(), ios::binary);
+    string pathMD5 = path + ".md5";
+    string pathMD5Temp = path + ".md5temp";
+    ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
     if (!fileMD5)
     {
-	NodeAccessException ex;
-	ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
+	FileAccessException ex;
+	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
 	throw ex;
     }
-
     fileMD5.write(&bytesMD5[0], 16);
     if (!fileMD5)
     {
-	NodeAccessException ex;
-	ex.reason = "cannot write `" + tmpName + "': " + strerror(errno);
+	FileAccessException ex;
+	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
 	throw ex;
     }
-
     fileMD5.close();
     
     //
-    // Rename the temporary MD5 file to the "real" MD5 file. This
-    // is done so that there can be no partial MD5 files after an
+    // Rename the temporary MD5 file to the final MD5 file. This is
+    // done so that there can be no partial MD5 files after an
     // abortive application termination.
     //
-    string pathMD5 = path + ".md5";
     ::remove(pathMD5.c_str());
-    if (::rename(tmpName.c_str(), pathMD5.c_str()) == -1)
+    if (::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
     {
-	NodeAccessException ex;
-	ex.reason = "cannot rename `" + tmpName + "' to  `" + pathMD5 + "': " + strerror(errno);
+	FileAccessException ex;
+	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
 	throw ex;
     }
-}
-
-Int
-IcePatch::getSizeBZ2(const string& path)
-{
-    struct stat bufBZ2;
-    string pathBZ2 = path + ".bz2";
-    if (::stat(pathBZ2.c_str(), &bufBZ2) == -1)
-    {
-	NodeAccessException ex;
-	ex.reason = "cannot stat `" + path + "': " + strerror(errno);
-	throw ex;
-    }
-    return bufBZ2.st_size;
 }
 
 ByteSeq
-IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
+IcePatch::getBZ2(const string& path, Int pos, Int num)
 {
     string pathBZ2 = path + ".bz2";
     ifstream fileBZ2(pathBZ2.c_str(), ios::binary);
     if (!fileBZ2)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
 	throw ex;
     }
     fileBZ2.seekg(pos);
     if (!fileBZ2)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ostringstream out;
 	out << "cannot seek position " << pos << " in file `" << path << "':" << strerror(errno);
 	ex.reason = out.str();
@@ -434,37 +413,40 @@ IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
     fileBZ2.read(&bytesBZ2[0], bytesBZ2.size());
     if (!fileBZ2 && !fileBZ2.eof())
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot read `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
     }
     bytesBZ2.resize(fileBZ2.gcount());
+    fileBZ2.close();
     return bytesBZ2;
 }
 
 void
 IcePatch::createBZ2(const string& path)
 {
-    assert(pathToName(path) != tmpName);
-    FileInfo info = getFileInfo(path);
+    FileInfo info = getFileInfo(path, true);
     assert(info.type == FileTypeRegular);
 
     //
-    // Read the original file in blocks and write the BZ2 file.
+    // Read the original file in blocks and write a temporary BZ2
+    // file.
     //
     ifstream file(path.c_str(), ios::binary);
     if (!file)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	throw ex;
     }
-    
-    FILE* stdioFileBZ2 = fopen(tmpName.c_str(), "wb");
+
+    string pathBZ2 = path + ".bz2";
+    string pathBZ2Temp = path + ".bz2temp";
+    FILE* stdioFileBZ2 = fopen(pathBZ2Temp.c_str(), "wb");
     if (!stdioFileBZ2)
     {
-	NodeAccessException ex;
-	ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
+	FileAccessException ex;
+	ex.reason = "cannot open `" + pathBZ2Temp + "' for writing: " + strerror(errno);
 	throw ex;
     }
     
@@ -472,7 +454,7 @@ IcePatch::createBZ2(const string& path)
     BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFileBZ2, 5, 0, 0);
     if (bzError != BZ_OK)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "BZ2_bzWriteOpen failed";
 	if (bzError == BZ_IO_ERROR)
 	{
@@ -490,7 +472,7 @@ IcePatch::createBZ2(const string& path)
 	file.read(bytes, num);
 	if (!file && !file.eof())
 	{
-	    NodeAccessException ex;
+	    FileAccessException ex;
 	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
 	    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
 	    fclose(stdioFileBZ2);
@@ -502,7 +484,7 @@ IcePatch::createBZ2(const string& path)
 	    BZ2_bzWrite(&bzError, bzFile, bytes, file.gcount());
 	    if (bzError != BZ_OK)
 	    {
-		NodeAccessException ex;
+		FileAccessException ex;
 		ex.reason = "BZ2_bzWrite failed";
 		if (bzError == BZ_IO_ERROR)
 		{
@@ -518,7 +500,7 @@ IcePatch::createBZ2(const string& path)
     BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
     if (bzError != BZ_OK)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "BZ2_bzWriteClose failed";
 	if (bzError == BZ_IO_ERROR)
 	{
@@ -532,26 +514,25 @@ IcePatch::createBZ2(const string& path)
     file.close();
     
     //
-    // Rename the temporary BZ2 file to the "real" BZ2 file. This
-    // is done so that there can be no partial BZ2 files after an
+    // Rename the temporary BZ2 file to the final BZ2 file. This is
+    // done so that there can be no partial BZ2 files after an
     // abortive application termination.
     //
-    string pathBZ2 = path + ".bz2";
     ::remove(pathBZ2.c_str());
-    if (::rename(tmpName.c_str(), pathBZ2.c_str()) == -1)
+    if (::rename(pathBZ2Temp.c_str(), pathBZ2.c_str()) == -1)
     {
-	NodeAccessException ex;
-	ex.reason = "cannot rename `" + tmpName + "' to  `" + pathBZ2 + "': " + strerror(errno);
+	FileAccessException ex;
+	ex.reason = "cannot rename `" + pathBZ2Temp + "' to  `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
     }
 }
 
 void
-IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
+IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 {
-    string path = identityToPath(filePrx->ice_getIdentity());
+    string path = identityToPath(regular->ice_getIdentity());
     string pathBZ2 = path + ".bz2";
-    Int totalBZ2 = filePrx->getSizeBZ2();
+    Int totalBZ2 = regular->getBZ2Size();
 
     //
     // Get the BZ2 file.
@@ -561,7 +542,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
     if (!fileBZ2)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
 	throw ex;
     }
@@ -572,7 +553,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     {
 	static const Int num = 64 * 1024;
 	
-	bytesBZ2 = filePrx->getBytesBZ2(pos, num);
+	bytesBZ2 = regular->getBZ2(pos, num);
 	if (bytesBZ2.empty())
 	{
 	    break;
@@ -583,7 +564,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
 	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
 	if (!fileBZ2)
 	{
-	    NodeAccessException ex;
+	    FileAccessException ex;
 	    ex.reason = "cannot write `" + pathBZ2 + "': " + strerror(errno);
 	    throw ex;
 	}
@@ -606,7 +587,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     ofstream file(path.c_str(), ios::binary);
     if (!file)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + path + "' for writing: " + strerror(errno);
 	throw ex;
     }
@@ -614,7 +595,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
     if (!stdioFileBZ2)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
 	throw ex;
     }
@@ -623,7 +604,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
     if (bzError != BZ_OK)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "BZ2_bzReadOpen failed";
 	if (bzError == BZ_IO_ERROR)
 	{
@@ -644,7 +625,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
 	int sz = BZ2_bzRead(&bzError, bzFile, bytes, num);
 	if (bzError != BZ_OK && bzError != BZ_STREAM_END)
 	{
-	    NodeAccessException ex;
+	    FileAccessException ex;
 	    ex.reason = "BZ2_bzRead failed";
 	    if (bzError == BZ_IO_ERROR)
 	    {
@@ -663,7 +644,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
 	    file.write(bytes, sz);
 	    if (!file)
 	    {
-		NodeAccessException ex;
+		FileAccessException ex;
 		ex.reason = "cannot write `" + path + "': " + strerror(errno);
 		BZ2_bzReadClose(&bzError, bzFile);
 		fclose(stdioFileBZ2);
@@ -677,7 +658,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     BZ2_bzReadClose(&bzError, bzFile);
     if (bzError != BZ_OK)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "BZ2_bzReadClose failed";
 	if (bzError == BZ_IO_ERROR)
 	{
@@ -695,7 +676,7 @@ IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
     //
     if (::remove(pathBZ2.c_str()) == -1)
     {
-	NodeAccessException ex;
+	FileAccessException ex;
 	ex.reason = "cannot remove file `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
     }

@@ -21,15 +21,15 @@ SERVER		= $(top_srcdir)/bin/icepatchserver
 
 TARGETS		= $(NAME) $(CLIENT) $(SERVER)
 
-OBJS		= Node.o \
-		  NodeDescFactory.o \
+OBJS		= IcePatch.o \
+		  FileDescFactory.o \
 		  Util.o
 
 COBJS		= Client.o
 
 SOBJS		= Server.o \
-		  NodeI.o \
-		  NodeLocator.o
+		  IcePatchI.o \
+		  FileLocator.o
 
 BZOBJS		= blocksort.o \
 		  huffman.o \
@@ -68,12 +68,12 @@ $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS)
 
-$(HDIR)/Node.h Node.cpp: $(SDIR)/Node.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Node.h Node.cpp
-	$(SLICECMD) $(SDIR)/Node.ice
-	mv Node.h $(HDIR)
+$(HDIR)/IcePatch.h IcePatch.cpp: $(SDIR)/IcePatch.ice $(SLICE2CPP)
+	rm -f $(HDIR)/IcePatch.h IcePatch.cpp
+	$(SLICECMD) $(SDIR)/IcePatch.ice
+	mv IcePatch.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/Node.h Node.cpp
+	rm -f $(HDIR)/IcePatch.h IcePatch.cpp
 
 include .depend

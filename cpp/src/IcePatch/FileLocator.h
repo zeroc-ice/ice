@@ -8,19 +8,20 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH_NODE_LOCATOR_H
-#define ICE_PATCH_NODE_LOCATOR_H
+#ifndef ICE_PATCH_FILE_LOCATOR_H
+#define ICE_PATCH_FILE_LOCATOR_H
 
-#include <IcePatch/NodeI.h>
+#include <Ice/Ice.h>
+#include <IcePatch/IcePatch.h>
 
 namespace IcePatch
 {
 
-class NodeLocator: virtual public Ice::ServantLocator
+class FileLocator: virtual public Ice::ServantLocator
 {
 public:
 
-    NodeLocator(const Ice::ObjectAdapterPtr&);
+    FileLocator(const Ice::ObjectAdapterPtr&);
 
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
 
@@ -32,7 +33,7 @@ public:
 private:
 
     DirectoryPtr _directory; // The stateless default servant for all directories.
-    FilePtr _file; // The stateless default servant for all files.
+    RegularPtr _regular; // The stateless default servant for all regular files.
 };
 
 }

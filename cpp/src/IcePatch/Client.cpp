@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <IcePatch/NodeDescFactory.h>
+#include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
 #include <iomanip>
 
@@ -26,7 +26,9 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void patch(const NodeDescSeq&, const string&);
+
+    static string pathToName(const string&);
+    static void patch(const FileDescSeq&, const string&);
 };
 
 };
@@ -93,16 +95,16 @@ IcePatch::Client::run(int argc, char* argv[])
         //
         // Create and install the node description factory.
         //
-        ObjectFactoryPtr factory = new NodeDescFactory;
+        ObjectFactoryPtr factory = new FileDescFactory;
         communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
-        communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
+        communicator()->addObjectFactory(factory, "::IcePatch::RegularDesc");
         
 	//
-	// Patch all nodes.
+	// Patch all files.
 	//
 	Identity identity = pathToIdentity(".");
 	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
-	NodePrx top = NodePrx::checkedCast(topObj);
+	FilePrx top = FilePrx::checkedCast(topObj);
 	assert(top);
 	DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
 	assert(topDesc);
@@ -111,13 +113,27 @@ IcePatch::Client::run(int argc, char* argv[])
 	cout << "|" << endl;
 	patch(topDesc->directory->getContents(), "");
     }
-    catch (const NodeAccessException& ex)
+    catch (const FileAccessException& ex)
     {
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
+}
+
+string
+IcePatch::Client::pathToName(const string& path)
+{
+    string::size_type pos = path.rfind('/');
+    if (pos == string::npos)
+    {
+	return path;
+    }
+    else
+    {
+	return path.substr(pos + 1);
+    }
 }
 
 class MyProgressCB : public ProgressCB
@@ -157,30 +173,30 @@ public:
 };
 
 void
-IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
+IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 {
-    if (nodeDescSeq.empty())
+    if (fileDescSeq.empty())
     {
 	return;
     }
 
-    for (unsigned int i = 0; i < nodeDescSeq.size(); ++i)
+    for (unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;
-	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDescSeq[i]);
-	FileDescPtr fileDesc;
+	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(fileDescSeq[i]);
+	RegularDescPtr regularDesc;
 	if (directoryDesc)
 	{
 	    path = identityToPath(directoryDesc->directory->ice_getIdentity());
 	}
 	else
 	{
-	    fileDesc = FileDescPtr::dynamicCast(nodeDescSeq[i]);
-	    assert(fileDesc);
-	    path = identityToPath(fileDesc->file->ice_getIdentity());
+	    regularDesc = RegularDescPtr::dynamicCast(fileDescSeq[i]);
+	    assert(regularDesc);
+	    path = identityToPath(regularDesc->regular->ice_getIdentity());
 	}
 
-	bool last = (i == nodeDescSeq.size() - 1);
+	bool last = (i == fileDescSeq.size() - 1);
 	
 	if (directoryDesc)
 	{
@@ -195,7 +211,7 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 	    }
 	    cout << indent << "+-" << pathToName(path) << ": " << flush;
 
-	    FileInfo info = getFileInfo(path);
+	    FileInfo info = getFileInfo(path, false);
 	    switch (info.type)
 	    {
 		case FileTypeNotExist:
@@ -236,18 +252,18 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 	}
 	else
 	{
-	    assert(fileDesc);
+	    assert(regularDesc);
 	    cout << indent << "+-" << pathToName(path) << ": " << flush;
 
 	    MyProgressCB progressCB;
 
-	    FileInfo info = getFileInfo(path);
+	    FileInfo info = getFileInfo(path, false);
 	    switch (info.type)
 	    {
 		case FileTypeNotExist:
 		{
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file, progressCB);
+		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 
@@ -256,7 +272,7 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 		    cout << "removing directory... " << flush;
 		    removeRecursive(path);
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file, progressCB);
+		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 
@@ -265,18 +281,18 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 		    ByteSeq md5;
 		    
 		    string pathMD5 = path + ".md5";
-		    FileInfo infoMD5 = getFileInfo(pathMD5);
+		    FileInfo infoMD5 = getFileInfo(pathMD5, false);
 		    if (infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
 		    {
 			md5 = getMD5(path);
 		    }
 
-		    if (md5 != fileDesc->md5)
+		    if (md5 != regularDesc->md5)
 		    {
 			cout << "removing file... " << flush;
 			removeRecursive(path);
 			cout << "getting file... " << flush;
-			getFile(fileDesc->file, progressCB);
+			getRegular(regularDesc->regular, progressCB);
 		    }
 
 		    break;
@@ -287,7 +303,7 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file, progressCB);
+		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 	    }
