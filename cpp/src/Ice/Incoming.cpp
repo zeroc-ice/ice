@@ -11,6 +11,7 @@
 #include <Ice/Incoming.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/Exception.h>
 
@@ -29,8 +30,19 @@ void
 IceInternal::Incoming::invoke()
 {
     Current current;
-    _is.read(current.identity);
-    _is.read(current.facet);
+    Byte gotProxy;
+    _is.read(gotProxy);
+    if (gotProxy)
+    {
+	_is.read(current.proxy);
+	current.identity = current.proxy->ice_getIdentity();
+	current.facet = current.proxy->ice_getFacet();
+    }
+    else
+    {
+	_is.read(current.identity);
+	_is.read(current.facet);
+    }
     _is.read(current.operation);
     Int sz;
     _is.read(sz);

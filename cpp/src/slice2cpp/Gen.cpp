@@ -1103,12 +1103,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "bool __sendRef = false;";
+    C << nl << "bool __sendProxy = false;";
     C << nl << "while (true)";
     C << sb;
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendRef, \"" << name << "\", __context);";
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendProxy, \"" << name << "\", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1167,7 +1167,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch (const ::Ice::ProxyRequested&)";
     C << sb;
-    C << nl << "__sendRef = true;";
+    C << nl << "__sendProxy = true;";
     C << eb;
     C << eb;
     C << eb;

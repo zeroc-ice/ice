@@ -64,7 +64,6 @@ private:
 
     EmitterPtr _emitter;
     ReferencePtr _reference;
-    bool _sendRef;
     std::auto_ptr< ::Ice::LocalException> _exception;
 
     enum

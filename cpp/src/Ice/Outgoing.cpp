@@ -13,6 +13,9 @@
 #include <Ice/Emitter.h>
 #include <Ice/Reference.h>
 #include <Ice/Exception.h>
+#include <Ice/Instance.h>
+#include <Ice/Proxy.h>
+#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace Ice;
@@ -35,11 +38,10 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendRef,
+IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendProxy,
 				const char* operation, const Context& context) :
     _emitter(emitter),
     _reference(ref),
-    _sendRef(sendRef),
     _state(StateUnsent),
     _is(ref->instance),
     _os(ref->instance)
@@ -62,8 +64,18 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
 	}
     }
 
-    _os.write(_reference->identity);
-    _os.write(_reference->facet);
+    if (sendProxy)
+    {
+	_os.write(Byte(1));
+	ObjectPrx proxy = _reference->instance->proxyFactory()->referenceToProxy(_reference);
+	_os.write(proxy);
+    }
+    else
+    {
+	_os.write(Byte(0));
+	_os.write(_reference->identity);
+	_os.write(_reference->facet);
+    }
     _os.write(operation);
     _os.write(Int(context.size()));
     Context::const_iterator p;

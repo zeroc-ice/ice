@@ -513,12 +513,12 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
-    bool __sendRef = false;
+    bool __sendProxy = false;
     while (true)
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendRef, "ice_isA", __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_isA", __context);
 	    BasicStream* __is = __out.is();
 	    BasicStream* __os = __out.os();
 	    __os->write(__id);
@@ -532,7 +532,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	}
 	catch (const ProxyRequested&)
 	{
-	    __sendRef = true;
+	    __sendProxy = true;
 	}
     }
 }
@@ -540,12 +540,12 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
-    bool __sendRef = false;
+    bool __sendProxy = false;
     while (true)
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendRef, "ice_ping", __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_ping", __context);
 	    if (!__out.invoke())
 	    {
 		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -554,7 +554,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 	}
 	catch (const ProxyRequested&)
 	{
-	    __sendRef = true;
+	    __sendProxy = true;
 	}
     }
 }
@@ -565,12 +565,12 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const Context& __context)
 {
-    bool __sendRef = false;
+    bool __sendProxy = false;
     while (true)
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendRef, operation.c_str(), __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, operation.c_str(), __context);
 	    BasicStream* __os = __out.os();
 	    __os->writeBlob(inParams);
 	    __out.invoke();
@@ -584,7 +584,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 	}
 	catch (const ProxyRequested&)
 	{
-	    __sendRef = true;
+	    __sendProxy = true;
 	}
     }
 }
