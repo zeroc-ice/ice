@@ -1,2 +1,5 @@
 Latency.Ping=ping:default -p 10000
 Latency.Endpoints=default -p 10000
+
+Ice.MonitorConnections=0
+Ice.ConnectionIdleTime=0
