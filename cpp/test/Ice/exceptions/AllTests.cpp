@@ -358,7 +358,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const Ice::FacetNotExistException& ex)
     {
-	test(ex.facet == "no such facet");
+	test(ex.facet.front() == "no such facet");
     }
     catch (...)
     {
