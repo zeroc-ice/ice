@@ -1,0 +1,8 @@
+Throughput.Throughput=throughput:default -p 10000
+Throughput.Endpoints=default -p 10000
+
+#Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=./sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=./sslconfig.xml
