@@ -42,12 +42,15 @@ class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:
 
-    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const SubscriberFactoryPtr&,
-	   const Freeze::DBPtr&);
+    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const std::string&,
+           const SubscriberFactoryPtr&, const Freeze::DBPtr&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
+    virtual std::string getType(const Ice::Current&) const;
     virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
+    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
     virtual void unlink(const TopicPrx&, const Ice::Current&);
@@ -57,8 +60,6 @@ public:
 
     // Internal methods
     bool destroyed() const;
-    void subscribe(const Ice::ObjectPrx&, const QoS&);
-    void unsubscribe(const Ice::ObjectPrx&);
 
     void reap();
 
@@ -70,6 +71,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     TraceLevelsPtr _traceLevels;
     std::string _name; // The topic name
+    std::string _type; // The topic type
     SubscriberFactoryPtr _factory;
 
     Ice::ObjectPtr _publisher; // Publisher & associated proxy

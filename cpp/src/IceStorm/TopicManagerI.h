@@ -16,7 +16,7 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/StringBoolDict.h>
+#include <IceStorm/StringStringDict.h>
 
 namespace IceStorm
 {
@@ -48,31 +48,31 @@ class TopicManagerI : public TopicManager, public IceUtil::Mutex
 {
 public:
 
-    TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&,
-		  const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&);
+    TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
+                  const TraceLevelsPtr&, const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&);
     ~TopicManagerI();
 
-    virtual TopicPrx create(const std::string&, const Ice::Current&);
+    virtual TopicPrx create(const std::string&, const std::string&, const Ice::Current&);
     virtual TopicPrx retrieve(const std::string&, const Ice::Current&) const;
     virtual TopicDict retrieveAll(const Ice::Current&) const;
-    virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
 
     void reap();
 
 private:
 
-    void installTopic(const std::string&, const std::string&, bool);
+    void installTopic(const std::string&, const std::string&, const std::string&, bool);
+    static void validateType(const std::string&);
+    static std::string getDatabaseName(const std::string&);
 
     Ice::CommunicatorPtr _communicator;
-    Ice::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _topicAdapter;
+    Ice::ObjectAdapterPtr _publishAdapter;
     TraceLevelsPtr _traceLevels;
     TopicIMap _topicIMap;
     FlusherPtr _flusher;
     SubscriberFactoryPtr _factory;
     Freeze::DBEnvironmentPtr _dbEnv;
-    StringBoolDict _topics;
+    StringStringDict _topics;
 };
 
 typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;
