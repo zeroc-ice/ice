@@ -95,9 +95,10 @@ public abstract class OutgoingAsync
 	{
 	    _connection.sendAsyncRequest(this);
 	}
-	finally
+        catch(RuntimeException ex)
 	{
 	    destroy();
+	    throw ex;
 	}
     }
 

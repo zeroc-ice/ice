@@ -80,16 +80,7 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 void
 IceInternal::OutgoingAsync::__invoke()
 {
-    _connection->incProxyCount();
-    try
-    {
-	_connection->sendAsyncRequest(this, _compress);
-    }
-    catch(...)
-    {
-	_connection->decProxyCount();
-	throw;
-    }
+    _connection->sendAsyncRequest(this, _compress);
 }
 
 void
@@ -200,8 +191,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
 	warning();
     }
-
-    _connection->decProxyCount();
 }
 
 void
@@ -223,8 +212,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     {
 	warning();
     }
-
-    _connection->decProxyCount();
 }
 
 BasicStream*

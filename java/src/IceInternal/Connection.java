@@ -176,10 +176,16 @@ public final class Connection extends EventHandler
     {
 	assert(_proxyCount > 0);
 	--_proxyCount;
-	if(_proxyCount == 0 && _adapter == null)
+
+	//
+	// We close the connection if
+	// - no proxy uses this connection anymore; and
+	// - there are not outstanding asynchronous requests; and
+	// - this is an outgoing connection only.
+	//
+	if(_proxyCount == 0 && _asyncRequests.isEmpty() && _adapter == null)
 	{
 	    assert(_requests.isEmpty());
-	    assert(_asyncRequests.isEmpty());
 	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
     }
@@ -660,6 +666,18 @@ public final class Connection extends EventHandler
 			    if(outAsync == null)
 			    {
 				throw new Ice.UnknownRequestIdException();
+			    }
+
+			    //
+			    // We close the connection if
+			    // - no proxy uses this connection anymore; and
+			    // - there are not outstanding asynchronous requests; and
+			    // - this is an outgoing connection only.
+			    //
+			    if(_proxyCount == 0 && _asyncRequests.isEmpty() && _adapter == null)
+			    {
+				assert(_requests.isEmpty());
+				setState(StateClosing, new Ice.CloseConnectionException());
 			    }
                         }
                         break;

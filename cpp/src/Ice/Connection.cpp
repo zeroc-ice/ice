@@ -201,10 +201,16 @@ IceInternal::Connection::decProxyCount()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     assert(_proxyCount > 0);
     --_proxyCount;
-    if(_proxyCount == 0 && !_adapter)
+
+    //
+    // We close the connection if
+    // - no proxy uses this connection anymore; and
+    // - there are not outstanding asynchronous requests; and
+    // - this is an outgoing connection only.
+    //
+    if(_proxyCount == 0 && _asyncRequests.empty() && !_adapter)
     {
 	assert(_requests.empty());
-	assert(_asyncRequests.empty());
 	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
     }
 }
@@ -925,6 +931,18 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			else
 			{
 			    _asyncRequests.erase(q);
+			}
+
+			//
+			// We close the connection if
+			// - no proxy uses this connection anymore; and
+			// - there are not outstanding asynchronous requests; and
+			// - this is an outgoing connection only.
+			//
+			if(_proxyCount == 0 && _asyncRequests.empty() && !_adapter)
+			{
+			    assert(_requests.empty());
+			    setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
 			}
 		    }
 
