@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/StaticMutex.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Instance.h>
 #include <Ice/Object.h>
@@ -21,6 +22,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Protocol.h>
 #include <Ice/IdentityUtil.h>
+#include <set>
 
 using namespace std;
 using namespace Ice;
@@ -375,5 +377,25 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
+    }
+}
+
+static IceUtil::StaticMutex slicingMutex;
+static set<string> slicingIds;
+
+void
+IceInternal::traceSlicing(const char* kind, const string& typeId,
+	                  const ::Ice::LoggerPtr& logger, const TraceLevelsPtr& tl)
+{
+    if(tl->slicing >= 1)
+    {
+	IceUtil::StaticMutex::Lock lock(slicingMutex);
+	if(slicingIds.insert(typeId).second)
+	{
+	    string s("unknown ");
+	    s += kind;
+	    s += " type `" + typeId + "'";
+	    logger->trace(tl->slicingCat, s);
+	}
     }
 }

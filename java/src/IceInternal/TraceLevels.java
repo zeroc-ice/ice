@@ -23,6 +23,7 @@ public final class TraceLevels
         retryCat = "Retry";
         securityCat = "Security";
 	locationCat = "Location";
+	slicingCat = "Slicing";
 
         final String keyBase = "Ice.Trace.";
 
@@ -31,6 +32,7 @@ public final class TraceLevels
         retry = properties.getPropertyAsInt(keyBase + retryCat);
         security = properties.getPropertyAsInt(keyBase + securityCat);
 	location = properties.getPropertyAsInt(keyBase + locationCat);
+	slicing = properties.getPropertyAsInt(keyBase + slicingCat);
     }
 
     final public int network;
@@ -43,4 +45,6 @@ public final class TraceLevels
     final public String securityCat;
     final public int location;
     final public String locationCat;
+    final public int slicing;
+    final public String slicingCat;
 }

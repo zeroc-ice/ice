@@ -39,6 +39,9 @@ public:
 
     const int location;
     const char* locationCat;
+
+    const int slicing;
+    const char* slicingCat;
 };
 
 }

@@ -38,7 +38,7 @@ public:
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
-    BasicStream(Instance* = 0);
+    BasicStream(Instance *);
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
@@ -204,9 +204,6 @@ private:
     WriteEncaps* _currentWriteEncaps;
     Container::size_type _readSlice;
     Container::size_type _writeSlice;
-
-    static const std::string _iceObjectId;
-    static const std::string _userExceptionId;
 
     void writeInstance(const Ice::ObjectPtr&, Ice::Int);
     void patchPointers(::Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);

@@ -201,6 +201,20 @@ final class TraceUtil
         }
     }
 
+    synchronized static void
+    traceSlicing(String kind, String typeId, Ice.Logger logger, TraceLevels tl)
+    {
+        if(tl.slicing >= 1)
+        {
+	    if(slicingIds.add(typeId))
+	    {
+		java.io.StringWriter s = new java.io.StringWriter();
+		s.write(kind + " type `" + typeId + "'");
+		logger.trace(tl.slicingCat, s.toString());
+	    }
+	}
+    }
+
     public static void
     dumpStream(BasicStream stream)
     {
@@ -425,4 +439,6 @@ final class TraceUtil
             assert(false);
         }
     }
+
+    private static java.util.Set slicingIds = new java.util.HashSet();
 }

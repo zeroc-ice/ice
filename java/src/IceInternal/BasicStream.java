@@ -31,6 +31,9 @@ public class BasicStream
         _writeEncapsStack = null;
         _readEncapsCache = null;
         _writeEncapsCache = null;
+
+	_logger = instance.logger();
+	_traceLevels = instance.traceLevels();
     }
 
 /*
@@ -1134,6 +1137,7 @@ public class BasicStream
                 }
 		if(v == null)
 		{
+		    TraceUtil.traceSlicing("class", id, _logger, _traceLevels);
 		    skipSlice();    // Slice off this derived part -- we don't understand it.
 		    continue;
 		}
@@ -1199,6 +1203,7 @@ public class BasicStream
 	    }
 	    else
 	    {
+	        TraceUtil.traceSlicing("exception", id, _logger, _traceLevels);
 	        skipSlice();		// Slice off what we don't understand
 		id = readString();	// Read type id for next slice
 	    }
@@ -1587,4 +1592,7 @@ public class BasicStream
 
     private int _readSlice;
     private int _writeSlice;
+
+    private final Ice.Logger _logger;
+    private final TraceLevels _traceLevels;
 }

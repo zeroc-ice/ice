@@ -22,6 +22,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <Ice/FactoryTable.h>
+#include <Ice/TraceUtil.h>
 
 template<typename InputIter, typename OutputIter>
 void
@@ -44,8 +45,6 @@ ice_copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::c
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-const string IceInternal::BasicStream::_userExceptionId("::Ice::UserException");
 
 IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
@@ -1087,7 +1086,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     }
     assert(index > 0);
 
-    while(1)
+    while(true)
     {
 	string id;
 	readTypeId(id);
@@ -1113,6 +1112,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	    }
 	    if(!v)
 	    {
+		traceSlicing("class", id, _instance->logger(), _instance->traceLevels());
 		skipSlice();	// Slice off this derived part -- we don't understand it.
 		continue;
 	    }
@@ -1180,6 +1180,7 @@ IceInternal::BasicStream::throwException()
 	}
 	else
 	{
+	    traceSlicing("exception", id, _instance->logger(), _instance->traceLevels());
 	    skipSlice();	// Slice off what we don't understand
 	    read(id);		// Read type id for next slice
 	}

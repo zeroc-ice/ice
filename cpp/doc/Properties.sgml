@@ -28,7 +28,7 @@ Ice.Trace.Network=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The network tracing level:
+The network trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -64,7 +64,7 @@ Ice.Trace.Protocol=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The protocol tracing level:
+The protocol trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -92,7 +92,7 @@ Ice.Trace.Retry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The request retry tracing level:
+The request retry trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -107,6 +107,34 @@ The request retry tracing level:
 <row>
 <entry>2</entry>
 <entry>Also trace &Ice; endpoint usage.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Ice.Trace.Slicing</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Trace.Slicing=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The slicing trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No tracing of slicing activity. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace all exception and class types that are unknown to the receiver and therefore sliced.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1274,7 +1302,7 @@ IcePack.Registry.Trace.NodeRegistry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The node registry tracing level:
+The node registry trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1302,7 +1330,7 @@ IcePack.Registry.Trace.ObjectRegistry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The object registry tracing level:
+The object registry trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1440,7 +1468,7 @@ IcePack.Node.Trace.Server=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The server tracing level:
+The server trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1478,7 +1506,7 @@ IcePack.Node.Trace.Adapter=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The object adapter tracing level:
+The object adapter trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1516,7 +1544,7 @@ IcePack.Node.Trace.Activator=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The activator tracing level:
+The activator trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1589,7 +1617,7 @@ IceStorm.Trace.TopicManager=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The topic manager tracing level:
+The topic manager trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1617,7 +1645,7 @@ IceStorm.Trace.Topic=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The topic tracing level:
+The topic trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1679,7 +1707,7 @@ IceStorm.Trace.Subscriber=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The subscriber tracing level:
+The subscriber trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1787,7 +1815,7 @@ Glacier.Router.Trace.Client=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The client interface tracing level:
+The client interface trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1822,7 +1850,7 @@ Glacier.Router.Trace.Server=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The server interface tracing level:
+The server interface trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -1857,7 +1885,7 @@ Glacier.Router.Trace.RoutingTable=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The routing table tracing level:
+The routing table trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -2118,7 +2146,7 @@ Glacier.Starter.Trace=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The router starter tracing level: (Unix only.)
+The router starter trace level: (Unix only.)
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -2326,7 +2354,7 @@ Freeze.Trace.DB=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The &Freeze; database activity tracing level:
+The &Freeze; database activity trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -2358,7 +2386,7 @@ Freeze.Trace.Evictor=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The &Freeze; evictor activity tracing level:
+The &Freeze; evictor activity trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
