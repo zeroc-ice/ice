@@ -1288,98 +1288,36 @@ local
 ;
 
 // ----------------------------------------------------------------------
-unary_plus_minus
-// ----------------------------------------------------------------------
-: '+'
-{
-    IntegerTokPtr itp = new IntegerTok;
-    itp->v = 1;
-    $$ = itp;
-}
-| '-'
-{
-    IntegerTokPtr itp = new IntegerTok;
-    itp->v = -1;
-    $$ = itp;
-}
-;
-
-// ----------------------------------------------------------------------
-numeric_literal
+const_initializer
 // ----------------------------------------------------------------------
 : ICE_INTEGER_LITERAL
 {
+    BuiltinPtr type = unit->builtin(Builtin::KindLong);
+    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
+    ostringstream sstr;
+    sstr << intVal->v;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    basestring->v = make_pair(type, sstr.str());
+    $$ = basestring;
 }
 | ICE_FLOATING_POINT_LITERAL
 {
-}
-;
-
-// ----------------------------------------------------------------------
-numeric_initializer
-// ----------------------------------------------------------------------
-: unary_plus_minus numeric_initializer
-{
-    IntegerTokPtr sign = IntegerTokPtr::dynamicCast($1);
-    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($2);
-    if(intVal)
-    {
-    	if(sign->v == -1)
-	{
-	    if(intVal->v < 0 && intVal->v == LONG_MIN)
-	    {
-		string msg = "integer constant `" + intVal->v;
-		msg += "' is too large in magnitude to convert to a positive number";
-		unit->error(msg);
-	    }
-	    intVal->v *= -1;
-	}
-    }
-    else
-    {
-	FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($2);
-	assert(floatVal);
-	floatVal->v *= sign->v;
-    }
-    $$ = $2;
-}
-| numeric_literal
-{
-}
-;
-
-// ----------------------------------------------------------------------
-const_initializer
-// ----------------------------------------------------------------------
-: numeric_initializer
-{
-    TypeStringTokPtr typestring = new TypeStringTok;
+    BuiltinPtr type = unit->builtin(Builtin::KindDouble);
+    FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
     ostringstream sstr;
-    BuiltinPtr type;
-    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
-    if(intVal)
-    {
-	type = unit->builtin(Builtin::KindLong);
-	sstr << intVal->v << ends;
-    }
-    else
-    {
-    	FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
-    	assert(floatVal);
-	type = unit->builtin(Builtin::KindDouble);
-	sstr << floatVal->v << ends;
-    }
-    typestring->v = make_pair(type, sstr.str());
-    $$ = typestring;
+    sstr << floatVal->v;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    basestring->v = make_pair(type, sstr.str());
+    $$ = basestring;
 }
 | scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    TypeStringTokPtr typestring = new TypeStringTok;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
     if(cl.empty())
     {
-    	typestring->v = make_pair(TypePtr(0), scoped->v);
+    	basestring->v = make_pair(TypePtr(0), scoped->v);
     }
     else
     {
@@ -1396,37 +1334,33 @@ const_initializer
 	    msg += " " + kindOf;
 	    unit->error(msg);
 	}
-	// Hmmm... there appears to be no way to get from an enumerator
-	// to its parent enumeration (of type EnumPtr).
-	// We need this to do the type checking on the enumerations.
-	EnumPtr type;	// TODO: fix this
-	typestring->v = make_pair(type, scoped->v);
+	basestring->v = make_pair(enumerator, scoped->v);
     }
-    $$ = typestring;
+    $$ = basestring;
 }
 | ICE_STRING_LITERAL
 {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, literal->v);
-    $$ = typestring;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    basestring->v = make_pair(type, literal->v);
+    $$ = basestring;
 }
 | ICE_FALSE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, literal->v);
-    $$ = typestring;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    basestring->v = make_pair(type, literal->v);
+    $$ = basestring;
 }
 | ICE_TRUE
 {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, literal->v);
-    $$ = typestring;
+    SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
+    basestring->v = make_pair(type, literal->v);
+    $$ = basestring;
 }
 ;
 
@@ -1437,8 +1371,13 @@ const_def
 {
     TypePtr const_type = TypePtr::dynamicCast($2);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    TypeStringTokPtr value = TypeStringTokPtr::dynamicCast($5);
+    SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
     $$ = unit->currentContainer()->createConstDef(ident->v, const_type, value->v.first, value->v.second);
+}
+| ICE_CONST type '=' const_initializer
+{
+    unit->error("missing constant name");
+    YYERROR; // Can't continue, jump to next yyerrok
 }
 ;
 

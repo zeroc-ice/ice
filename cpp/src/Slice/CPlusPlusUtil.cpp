@@ -146,6 +146,12 @@ Slice::typeToString(const TypePtr& type)
     {
 	return contained->scoped();
     }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+	return en->scoped();
+    }
 	    
     return "???";
 }

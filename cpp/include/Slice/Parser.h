@@ -33,6 +33,27 @@
 namespace Slice
 {
 
+#if defined(_WIN32)
+#   define STRTOLL(a, b, c) _atoi64(a)
+    typedef __int64 Long;
+    typedef double Double;
+    const Long INT32_MIN = -0x80000000;
+    const Long INT32_MAX =  0x7fffffff;
+#elif(__linux__) && defined(i386)
+#   define STRTOLL(a, b, c) strtoll((a), (b), (c))
+    typedef long long Long;
+    typedef double Double;
+    const Long INT32_MIN = -0x80000000LL;
+    const Long INT32_MAX =  0x7fffffffLL;
+#else
+#   error "Unsupported operating system or platform!"
+#endif
+
+const Long BYTE_MIN = 0x00;
+const Long BYTE_MAX = 0xff;
+const Long INT16_MIN = -0x8000;
+const Long INT16_MAX =  0x7fff;
+
 class GrammarBase;
 class SyntaxTreeBase;
 class Type;
@@ -125,6 +146,7 @@ typedef std::list<EnumPtr> EnumList;
 typedef std::list<OperationPtr> OperationList;
 typedef std::list<DataMemberPtr> DataMemberList;
 typedef std::list<EnumeratorPtr> EnumeratorList;
+typedef std::pair<SyntaxTreeBasePtr, std::string> SyntaxTreeBaseString;
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -303,7 +325,7 @@ public:
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&, bool);
     EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
-    ConstDefPtr createConstDef(const std::string, const TypePtr&, const TypePtr&, const std::string&);
+    ConstDefPtr createConstDef(const std::string, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -347,7 +369,8 @@ private:
     void checkPairIntersections(const StringPartitionList&, const std::string&) const;
 
     bool legalConstType(const std::string&, const TypePtr&, bool = true) const;
-    bool constTypesAreCompatible(const std::string&, const TypePtr&, const TypePtr&, bool = true) const;
+    bool constTypesAreCompatible(const std::string&, const TypePtr&,
+	                         const SyntaxTreeBasePtr&, const std::string&, bool = true) const;
     bool checkRange(const std::string&, const TypePtr&, const std::string&, bool = true) const;
 };
 

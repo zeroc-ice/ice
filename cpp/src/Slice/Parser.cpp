@@ -654,7 +654,7 @@ Slice::Container::createEnumerator(const string& name)
 
 ConstDefPtr
 Slice::Container::createConstDef(const string name, const TypePtr& constType,
-	                         const TypePtr& literalType, const string& value)
+	                         const SyntaxTreeBasePtr& literalType, const string& value)
 {
     //
     // Check that the constant name is legal
@@ -694,7 +694,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the type of the constant is compatible with the type of the initializer
     //
-    if(!constTypesAreCompatible(name, constType, literalType))
+    if(!constTypesAreCompatible(name, constType, literalType, value))
     {
 	return 0;
     }
@@ -1503,7 +1503,8 @@ Slice::Container::legalConstType(const string& name, const TypePtr& constType, b
 bool
 Slice::Container::constTypesAreCompatible(const string& name,
 	                                  const TypePtr& constType,
-					  const TypePtr& literalType,
+					  const SyntaxTreeBasePtr& literalType,
+					  const string& value,
 					  bool printError) const
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
@@ -1513,9 +1514,11 @@ Slice::Container::constTypesAreCompatible(const string& name,
 	switch(ct->kind())
 	{
 	    case Builtin::KindBool:
-	    if(lt->kind() == Builtin::KindBool)
 	    {
-		return true;
+		if(lt->kind() == Builtin::KindBool)
+		{
+		    return true;
+		}
 		break;
 	    }
 	    case Builtin::KindByte:
@@ -1524,47 +1527,58 @@ Slice::Container::constTypesAreCompatible(const string& name,
 	    case Builtin::KindLong:
 	    {
 		if(lt->kind() == Builtin::KindLong)
-		return true;
+		{
+		    return true;
+		}
 		break;
 	    }
 	    case Builtin::KindFloat:
 	    case Builtin::KindDouble:
 	    {
 		if(lt->kind() == Builtin::KindDouble)
-		return true;
+		{
+		    return true;
+		}
 		break;
 	    }
 	    case Builtin::KindString:
 	    {
 		if(lt->kind() == Builtin::KindString)
-		return true;
+		{
+		    return true;
+		}
 		break;
 	    }
 	}
-	string msg = "initializer type `" + lt->kindAsString();
+	string msg = "initializer of type `" + lt->kindAsString();
 	msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
 	_unit->error(msg);
 	return false;
     }
+
     if(ct && !lt)
     {
-	string msg = "initializer type is incompatible with the type `" + ct->kindAsString();
+	string msg = "type of initializer is incompatible with the type `" + ct->kindAsString();
 	msg += "' of constant `" + name + "'";
 	_unit->error(msg);
 	return false;
     }
-    EnumPtr ep = EnumPtr::dynamicCast(literalType);
-    if(ep)
+
+    EnumPtr enumP = EnumPtr::dynamicCast(constType);
+    assert(enumP);
+    EnumeratorPtr enumeratorP = EnumeratorPtr::dynamicCast(literalType);
+    if(!enumeratorP)
     {
-	// TODO: check that the left-hand enum type and the right-hand enum type are the same
-    }
-    // TODO: assert here once the enum problem is fixed -- the right-hand type can only be
-    //       a built-in type or an enumeration; Grammar.y makes sure of that.
-    if(!ep)
-    {
-	// TODO: fix this
-	string msg = "hmmm... can't cast to enumerator!";
+	string msg = "type of initializer is incompatible with the type of constant `" + name + "'";
 	_unit->error(msg);
+	return false;
+    }
+    EnumeratorList elist = enumP->getEnumerators();
+    if(find(elist.begin(), elist.end(), enumeratorP) == elist.end())
+    {
+	string msg = "enumerator `" + value + "' is not defined in enumeration `" + enumP->scoped() + "'";
+	_unit->error(msg);
+	return false;
     }
     return true;
 }
@@ -1580,11 +1594,10 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
     {
 	case Builtin::KindByte:
 	{
-	    // TODO: need to really do all this with 64-bit longs -- what about Windows?
-	    long l = strtol(value.c_str(), 0, 0);
-	    if(l < 0 || l > 255)
+	    Long l = STRTOLL(value.c_str(), 0, 0);
+	    if(l < BYTE_MIN || l > BYTE_MAX)
 	    {
-		string msg = "initializer for constant `" + name + "' out of range for type byte";
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
 		_unit->error(msg);
 		return false;
 	    }
@@ -1592,10 +1605,10 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
 	}
 	case Builtin::KindShort:
 	{
-	    long l = strtol(value.c_str(), 0, 0);
-	    if(l < 32768 || l > 32767)
+	    Long l = STRTOLL(value.c_str(), 0, 0);
+	    if(l < INT16_MIN || l > INT16_MAX)
 	    {
-		string msg = "initializer for constant `" + name + "' out of range for type short";
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
 		_unit->error(msg);
 		return false;
 	    }
@@ -1603,10 +1616,10 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
 	}
 	case Builtin::KindInt:
 	{
-	    long l = strtol(value.c_str(), 0, 0);
-	    if(l < 2147483648 || l > 2147483647)
+	    Long l = STRTOLL(value.c_str(), 0, 0);
+	    if(l < INT32_MIN || l > INT32_MAX)
 	    {
-		string msg = "initializer for constant `" + name + "' out of range for type int";
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";
 		_unit->error(msg);
 		return false;
 	    }

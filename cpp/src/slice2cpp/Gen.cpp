@@ -932,7 +932,57 @@ void
 Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 {
     H << sp;
-    H << nl << "const " << inputTypeToString(p->type()) << " " << p->name() << " = " << p->value() << ";";
+    H << nl << "const " << typeToString(p->type()) << " " << p->name() << " = ";
+
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
+    if(bp && bp->kind() != Builtin::KindString)
+    {
+	H << p->value();
+    }
+    else
+    {
+	//
+	// Expand strings into the basic source character set. We can't use isalpha() and the like
+	// here because they are sensitive to the current locale.
+	//
+	static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+					       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+					       "0123456789"
+					       "_{}[]#()<>%:;,?*+=/^&|~!=,\\\"' \t";
+    	static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+	H << "\"";					// Opening "
+
+	ios_base::fmtflags originalFlags = H.flags();	// Save stream state
+	streamsize originalWidth = H.width();
+	ostream::char_type originalFill = H.fill();
+
+	const string val = p->value();
+	for(string::const_iterator c = val.begin(); c != val.end(); ++c)
+	{
+	    if(charSet.find(*c) == charSet.end())
+	    {
+		unsigned char uc = *c;			// char may be signed, so make it positive
+		H << "\\";    				// Print as octal if not in basic source character set
+		H.flags(ios_base::oct);
+		H.width(3);
+		H.fill('0');
+		H << static_cast<unsigned>(uc);
+	    }
+	    else
+	    {
+		H << *c;				// Print normally if in basic source character set
+	    }
+	}
+
+	H.fill(originalFill);				// Restore stream state
+	H.width(originalWidth);
+	H.flags(originalFlags);
+
+	H << "\"";					// Closing "
+    }
+
+    H << ";";
 }
 
 void

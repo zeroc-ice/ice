@@ -27,6 +27,7 @@ class FloatingTok;
 class ExceptionListTok;
 class ClassListTok;
 class EnumeratorListTok;
+class SyntaxTreeBaseStringTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
@@ -38,6 +39,7 @@ typedef ::IceUtil::Handle<FloatingTok> FloatingTokPtr;
 typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
+typedef ::IceUtil::Handle<SyntaxTreeBaseStringTok> SyntaxTreeBaseStringTokPtr;
 
 // ----------------------------------------------------------------------
 // StringTok
@@ -96,7 +98,7 @@ class SLICE_API IntegerTok : public GrammarBase
 public:
 
     IntegerTok() { }
-    long v;
+    Long v;
 };
 
 // ----------------------------------------------------------------------
@@ -108,7 +110,7 @@ class SLICE_API FloatingTok : public GrammarBase
 public:
 
     FloatingTok() { }
-    double v;
+    Double v;
 };
 
 // ----------------------------------------------------------------------
@@ -157,6 +159,18 @@ public:
 
     EnumeratorListTok() { }
     EnumeratorList v;
+};
+
+// ----------------------------------------------------------------------
+// SyntaxTreeBaseStringTok
+// ----------------------------------------------------------------------
+
+class SLICE_API SyntaxTreeBaseStringTok : public GrammarBase
+{
+public:
+
+    SyntaxTreeBaseStringTok() { }
+    SyntaxTreeBaseString v;
 };
 
 }

@@ -10,8 +10,9 @@
 //
 // **********************************************************************
 
-#include <Slice/GrammarUtil.h> // Before Grammer.h, so that YYSTYPE is defined
+#include <Slice/GrammarUtil.h>	// Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
+
 #include <stdlib.h>
 #include <math.h>
 
@@ -38,7 +39,7 @@ void initScanner();
 %option noyywrap
 %option never-interactive
 
-integer_constant	(\+|-)?(0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+)
+integer_constant	(\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
 fractional_constant	([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
 exponent_part		(e|E)(\+|-)?[[:digit:]]+
 floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fF]?
@@ -256,26 +257,25 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
 		}
 		case 'x':
 		{
-		    unsigned long ul = 0;
-		    next = static_cast<char>(yyinput());
-		    if(isxdigit(next))
+		    Long ull = 0;
+		    while(isxdigit(next = static_cast<char>(yyinput())))
 		    {
-			ul *= 16;
-		    	if(isdigit(next))
+			ull *= 16;
+			if(isdigit(next))
 			{
-		    	    ul += next - '0';
+			    ull += next - '0';
 			}
 			else if(islower(next))
 			{
-			    ul += next - 'a';
+			    ull += next - 'a' + 10;
 			}
 			else
 			{
-			    ul += next - 'A';
+			    ull += next - 'A' + 10;
 			}
 		    }
 		    unput(next);
-		    str->v += static_cast<char>(ul);
+		    str->v += static_cast<char>(ull);
 		    break;
 		}
 	
@@ -301,18 +301,30 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     IntegerTokPtr itp = new IntegerTok;
     *yylvalp = itp;
     errno = 0;
-    itp->v = strtol(yytext, 0, 0);
-//
-// TODO: strtol() is broken under gcc: it returns an error for -2147483648 (but shouldn't)
-//
-    if(errno == ERANGE && (itp->v == LONG_MAX || itp->v == LONG_MIN))
+#if defined(_WIN32)
+    itp->v = _atoi64(yytext);
+    if(itp->v == 0)			// Poor error reporting for _atoi64(), so we have to do it the hard way...
     {
-    	string msg = "integer constant `";
+	errno = 0;
+    	long l = strtol(yytext, 0, 0);
+	if(l != 0 || errno != 0)	// _atoi64() returned zero even though yytext wasn't all zeros
+	{
+	    string msg = "integer constant `";
+	    msg += yytext;
+	    msg += "' out of range";
+	    unit->error(msg);
+	}
+    }
+#else
+    itp->v = strtoll(yytext, 0, 0);
+    if(errno == ERANGE)
+    {
+	string msg = "integer constant `";
 	msg += yytext;
-	msg += "' too ";
-	msg += itp->v == LONG_MAX ? "large (overflow)" : "small (underflow)";
+	msg += "' out of range";
 	unit->error(msg);
     }
+#endif
     return ICE_INTEGER_LITERAL;
 }
 
