@@ -24,10 +24,10 @@ void
 DOMTreeErrorReporter::warning(const SAXParseException& ex)
 {
     ostringstream out;
-    out << "Warning at file \"" << toString(DOMString(ex.getSystemId()))
+    out << "Warning at file \"" << toString(ex.getSystemId())
         << "\", line " << ex.getLineNumber()
         << ", column " << ex.getColumnNumber()
-        << "\n   Message: " << toString(DOMString(ex.getMessage())) << "\n";
+        << "\n   Message: " << toString(ex.getMessage()) << "\n";
     _errors.append(out.str());
 }
 
@@ -35,10 +35,10 @@ void
 DOMTreeErrorReporter::error(const SAXParseException& ex)
 {
     ostringstream out;
-    out << "Error at file \"" << toString(DOMString(ex.getSystemId()))
+    out << "Error at file \"" << toString(ex.getSystemId())
         << "\", line " << ex.getLineNumber()
         << ", column " << ex.getColumnNumber()
-        << "\n   Message: " << toString(DOMString(ex.getMessage())) << "\n";
+        << "\n   Message: " << toString(ex.getMessage()) << "\n";
     _errors.append(out.str());
 }
 
@@ -46,10 +46,10 @@ void
 DOMTreeErrorReporter::fatalError(const SAXParseException& ex)
 {
     ostringstream out;
-    out << "Fatal at file \"" << toString(DOMString(ex.getSystemId()))
+    out << "Fatal at file \"" << toString(ex.getSystemId())
         << "\", line " << ex.getLineNumber()
         << ", column " << ex.getColumnNumber()
-        << "\n   Message: " << toString(DOMString(ex.getMessage())) << "\n";
+        << "\n   Message: " << toString(ex.getMessage()) << "\n";
     _errors.append(out.str());
 }
 
@@ -72,9 +72,9 @@ DOMTreeErrorReporter::getErrors() const
 }
 
 string
-DOMTreeErrorReporter::toString(const DOMString& s)
+DOMTreeErrorReporter::toString(const XMLCh* s)
 {
-    char* t = s.transcode();
+    char* t = XMLString::transcode(s);
     string r(t);
     delete[] t;
     return r;

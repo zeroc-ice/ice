@@ -15,7 +15,7 @@
 #include <IcePack/Admin.h>
 #include <Yellow/Yellow.h>
 
-#include <sax/HandlerBase.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
 
 #include <map>
 #include <vector>

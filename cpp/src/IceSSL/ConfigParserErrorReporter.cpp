@@ -13,14 +13,23 @@
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/TraceLevels.h>
 
-#include <sax/SAXParseException.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
 
 #include <sstream>
 
 using namespace std;
 
-void ::IceInternal::incRef(::IceSSL::ConfigParserErrorReporter* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::ConfigParserErrorReporter* p) { p->__decRef(); }
+//
+// Utility to make the usage of xerces easier.
+//
+static string
+toString(const XMLCh* s)
+{
+    char* t = XMLString::transcode(s);
+    string r(t);
+    delete[] t;
+    return r;
+}
 
 IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceSSL::TraceLevelsPtr& traceLevels,
                                                              const Ice::LoggerPtr& logger) :
@@ -41,11 +50,11 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "ssl configuration file parse error" << endl;
-        s << DOMString(toCatch.getSystemId());
-        s << ", line " << toCatch.getLineNumber();
-        s << ", column " << toCatch.getColumnNumber() << endl;
-        s << "Message " << DOMString(toCatch.getMessage()) << endl;
+        s << "ssl configuration file parse error" << endl
+          << toString(toCatch.getSystemId())
+          << ", line " << toCatch.getLineNumber()
+          << ", column " << toCatch.getColumnNumber() << endl
+          << "Message " << toString(toCatch.getMessage()) << endl;
 
         _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
     }
@@ -56,11 +65,11 @@ IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
 {
     _errorCount++;
 
-    _errors << "ssl configuration file parse error" << endl;
-    _errors << "  " << DOMString(toCatch.getSystemId());
-    _errors << ", line " << toCatch.getLineNumber();
-    _errors << ", column " << toCatch.getColumnNumber() << endl;
-    _errors << "  " << "Message " << DOMString(toCatch.getMessage()) << endl;
+    _errors << "ssl configuration file parse error" << endl
+            << "  " << toString(toCatch.getSystemId())
+            << ", line " << toCatch.getLineNumber()
+            << ", column " << toCatch.getColumnNumber() << endl
+            << "  " << "Message " << toString(toCatch.getMessage()) << endl;
 }
 
 void
@@ -68,11 +77,11 @@ IceSSL::ConfigParserErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     _errorCount++;
 
-    _errors << "ssl configuration file parse error" << endl;
-    _errors << "  " << DOMString(toCatch.getSystemId());
-    _errors << ", line " << toCatch.getLineNumber();
-    _errors << ", column " << toCatch.getColumnNumber() << endl;
-    _errors << "  " << "Message " << DOMString(toCatch.getMessage()) << endl;
+    _errors << "ssl configuration file parse error" << endl
+            << "  " << toString(toCatch.getSystemId())
+            << ", line " << toCatch.getLineNumber()
+            << ", column " << toCatch.getColumnNumber() << endl
+            << "  " << "Message " << toString(toCatch.getMessage()) << endl;
 }
 
 void
@@ -91,13 +100,4 @@ string
 IceSSL::ConfigParserErrorReporter::getErrors() const
 {
     return _errors.str();
-}
-
-std::ostream&
-IceSSL::operator << (std::ostream& target, const DOMString& s)
-{
-    char *p = s.transcode();
-    target << p;
-    delete [] p;
-    return target;
 }

@@ -10,33 +10,29 @@
 
 #include <IceUtil/Config.h>
 
-#include <util/PlatformUtils.hpp>
-#include <util/XMLString.hpp>
-#include <util/XMLUniDefs.hpp>
-#include <framework/XMLFormatter.hpp>
-#include <util/TranscodingException.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
 
-#include <dom/DOM_DOMException.hpp>
-#include <parsers/DOMParser.hpp>
-//#include <dom/DOM.hpp>
+#include <xercesc/dom/DOMException.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
 
-
-#include <sax/ErrorHandler.hpp>
-#include <sax/SAXParseException.hpp>
-#include <dom/DOMString.hpp>
+#include <xercesc/sax/ErrorHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
 
 #include <iostream>
 
 using namespace std;
 
-// Global streaming operator for DOMString is defined in DOMPrint.cpp
-//extern ostream& operator<<(ostream& target, const DOMString& s);
-ostream& operator<< (ostream& target, const DOMString& s)
+//
+// Utility to make the usage of xerces easier.
+//
+static string
+toString(const XMLCh* s)
 {
-    char *p = s.transcode();
-    target << p;
-    delete [] p;
-    return target;
+    char* t = XMLString::transcode(s);
+    string r(t);
+    delete[] t;
+    return r;
 }
 
 class DOMTreeErrorReporter : public ErrorHandler
@@ -50,30 +46,30 @@ public:
     void
     warning(const SAXParseException& toCatch)
     {
-	cerr << "Warning at file \"" << DOMString(toCatch.getSystemId())
+	cerr << "Warning at file \"" << toString(toCatch.getSystemId())
 	     << "\", line " << toCatch.getLineNumber()
 	     << ", column " << toCatch.getColumnNumber()
-	     << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+	     << "\n   Message: " << toString(toCatch.getMessage()) << endl;
     }
     
     void
     error(const SAXParseException& toCatch)
     {
 	_sawErrors = true;
-	cerr << "Error at file \"" << DOMString(toCatch.getSystemId())
+	cerr << "Error at file \"" << toString(toCatch.getSystemId())
 	     << "\", line " << toCatch.getLineNumber()
 	     << ", column " << toCatch.getColumnNumber()
-	     << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+	     << "\n   Message: " << toString(toCatch.getMessage()) << endl;
     }
 
     void
     fatalError(const SAXParseException& toCatch)
     {
 	_sawErrors = true;
-	cerr << "Fatal at file \"" << DOMString(toCatch.getSystemId())
+	cerr << "Fatal at file \"" << toString(toCatch.getSystemId())
 	     << "\", line " << toCatch.getLineNumber()
 	     << ", column " << toCatch.getColumnNumber()
-	     << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
+	     << "\n   Message: " << toString(toCatch.getMessage()) << endl;
     }
 
     void resetErrors()
@@ -110,7 +106,7 @@ main(int argc, char** argv)
     {
         cerr << "Error during Xerces-c Initialization.\n"
              << "  Exception message:"
-             << DOMString(toCatch.getMessage()) << endl;
+             << toString(toCatch.getMessage()) << endl;
         return 1;
     }
 
@@ -154,16 +150,15 @@ main(int argc, char** argv)
         //  The parser will call back to methods of the ErrorHandler if it
         //  discovers errors during the course of parsing the XML document.
         //
-        DOMParser* parser = new DOMParser;
-        parser->setValidationScheme(DOMParser::Val_Auto);
+        XercesDOMParser* parser = new XercesDOMParser;
+        parser->setValidationScheme(XercesDOMParser::Val_Auto);
         parser->setDoNamespaces(true);
         parser->setDoSchema(true);
         parser->setValidationSchemaFullChecking(true);
 
-        DOMTreeErrorReporter *errReporter = new DOMTreeErrorReporter();
-        parser->setErrorHandler(errReporter);
+        DOMTreeErrorReporter errReporter;
+        parser->setErrorHandler(&errReporter);
         parser->setCreateEntityReferenceNodes(false);
-        parser->setToCreateXMLDeclTypeNode(true);
 
         //
         //  Parse the XML file, catching any XML exceptions that might propogate
@@ -179,10 +174,10 @@ main(int argc, char** argv)
         }
         catch(const XMLException& e)
         {
-            cerr << "An error occured during parsing\n   Message: " << DOMString(e.getMessage()) << endl;
+            cerr << "An error occured during parsing\n   Message: " << toString(e.getMessage()) << endl;
             errorsOccured = true;
         }
-        catch(const DOM_DOMException& e)
+        catch(const DOMException& e)
         {
             cerr << "A DOM error occured during parsing\n   DOMException code: " << e.code << endl;
             errorsOccured = true;
@@ -192,7 +187,11 @@ main(int argc, char** argv)
             cerr << "An error occured during parsing\n " << endl;
             errorsOccured = true;
         }
+
+        delete parser;
     }
+
+    XMLPlatformUtils::Terminate();
 
     return (errorsOccured) ? EXIT_FAILURE : EXIT_SUCCESS;
 }

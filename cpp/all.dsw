@@ -417,6 +417,51 @@ Package=<4>
 
 ###############################################################################
 
+Project: "XMLTransform"=.\src\XMLTransform\XMLTransform.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "XMLTransformC"=.\src\XMLTransform\XMLTransformC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransform
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "Yellow"=.\src\Yellow\Yellow.dsp - Package Owner=<4>
 
 Package=<5>
@@ -781,6 +826,18 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name YellowS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformP
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformV
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransform
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransformC
     End Project Dependency
 }}}
 
@@ -2224,6 +2281,75 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "transformP"=.\test\XMLTransform\transform\transformP.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransform
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2xsd
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "transformV"=.\test\XMLTransform\transform\transformV.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformP
     End Project Dependency
 }}}
 

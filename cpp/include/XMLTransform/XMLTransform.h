@@ -14,7 +14,7 @@
 #include <Freeze/DB.h>
 #include <IceUtil/OutputUtil.h>
 
-#include <dom/DOM.hpp>
+#include <xercesc/dom/DOM.hpp>
 
 #ifdef WIN32
 #   ifdef XML_TRANSFORM_API_EXPORTS
@@ -127,15 +127,17 @@ class XML_TRANSFORM_API DocumentInfo : public ::IceUtil::Shared
 {
 public:
 
-    DocumentInfo(const DOM_Document& document, const DOM_Node& root, const ::std::string& targetNamespace = "");
+    DocumentInfo(DOMDocument*, bool, DOMNode*, const ::std::string& = "");
+    ~DocumentInfo();
 
-    DOM_Document getDocument() const;
+    DOMDocument* getDocument() const;
     ::std::string findURI(const ::std::string& prefix) const;
     ::std::string getTargetNamespace() const;
 
 private:
 
-    DOM_Document _document;
+    DOMDocument* _document;
+    bool _releaseDocument;
     PrefixURIMap _nsMap;
     ::std::string _targetNamespace;
 };
@@ -152,7 +154,7 @@ public:
     Transform();
     virtual ~Transform();
 
-    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&, const DOM_Node&) = 0;
+    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&, DOMNode*) = 0;
     virtual ::std::ostream& print(::std::ostream&) = 0;
 };
 
@@ -171,10 +173,10 @@ class XML_TRANSFORM_API Transformer
 {
 public:
 
-    Transformer(const Ice::StringSeq&, const DOM_Document&, const DOM_Document&);
+    Transformer(const Ice::StringSeq&, DOMDocument*, DOMDocument*);
     ~Transformer();
 
-    void transform(::IceUtil::XMLOutput&, const DOM_Document&, bool = true);
+    void transform(::IceUtil::XMLOutput&, DOMDocument*, bool = true);
 
 private:
 

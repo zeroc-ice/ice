@@ -11,9 +11,8 @@
 #ifndef ERROR_REPORTER_H
 #define ERROR_REPORTER_H
 
-#include <sax/ErrorHandler.hpp>
-#include <sax/SAXParseException.hpp>
-#include <dom/DOMString.hpp>
+#include <xercesc/sax/ErrorHandler.hpp>
+#include <xercesc/sax/SAXParseException.hpp>
 
 #include <string>
 
@@ -42,7 +41,7 @@ private:
 
     ::std::string _errors;
 
-    ::std::string toString(const DOMString&);
+    ::std::string toString(const XMLCh*);
 };
 
 }

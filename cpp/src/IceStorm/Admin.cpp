@@ -10,7 +10,7 @@
 
 #include <Ice/Application.h>
 #include <IceStorm/Parser.h>
-#include <util/PlatformUtils.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
 #include <fstream>
 
 using namespace std;

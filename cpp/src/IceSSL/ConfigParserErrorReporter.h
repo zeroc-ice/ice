@@ -13,14 +13,14 @@
 
 #include <Ice/LoggerF.h>
 #include <IceSSL/TraceLevelsF.h>
-#include <util/XercesDefs.hpp>
-#include <dom/DOMString.hpp>
-#include <sax/ErrorHandler.hpp>
+
+//#include <xercesc/util/XercesDefs.hpp>
+#include <xercesc/sax/ErrorHandler.hpp>
 
 namespace IceSSL
 {
 
-class ConfigParserErrorReporter : public ErrorHandler, public IceUtil::Shared
+class ConfigParserErrorReporter : public ErrorHandler
 {
 public:
 
@@ -45,18 +45,6 @@ private:
     std::ostringstream _errors;
     int _errorCount;
 };
-
-typedef IceInternal::Handle<ConfigParserErrorReporter> ConfigParserErrorReporterPtr;
-
-std::ostream& operator << (std::ostream& target, const DOMString& s);
-
-}
-
-namespace IceInternal
-{
-
-void incRef(::IceSSL::ConfigParserErrorReporter*);
-void decRef(::IceSSL::ConfigParserErrorReporter*);
 
 }
 

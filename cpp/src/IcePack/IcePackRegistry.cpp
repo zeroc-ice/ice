@@ -13,7 +13,7 @@
 #include <Ice/Application.h>
 #include <IcePack/Registry.h>
 
-#include <util/PlatformUtils.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
 
 using namespace std;
 using namespace IcePack;

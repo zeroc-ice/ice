@@ -20,7 +20,7 @@
 #include <IcePack/NodeInfo.h>
 #include <IcePack/TraceLevels.h>
 #include <IcePack/Registry.h>
-#include <util/PlatformUtils.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
 
 #include <csignal>
 #include <signal.h>

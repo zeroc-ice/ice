@@ -9,8 +9,8 @@
 // **********************************************************************
 
 #include <IceStorm/WeightedGraph.h>
-#include <parsers/SAXParser.hpp>
-#include <sax/HandlerBase.hpp>
+#include <xercesc/parsers/SAXParser.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
 #include <map>
 #include <list>
 #include <iostream>

@@ -18,7 +18,8 @@
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/TraceLevelsF.h>
-#include <dom/DOM.hpp>
+
+#include <xercesc/dom/DOM.hpp>
 
 namespace IceSSL
 {
@@ -48,7 +49,7 @@ public:
 
 private:
 
-    DOM_Node _root;
+    DOMNode* _root;
     std::string _configFile;
     std::string _configPath;
 
@@ -57,31 +58,31 @@ private:
 
     // Parse tree walking utility methods.
     void popRoot(std::string&, std::string&, std::string&);
-    DOM_Node find(std::string&);
-    DOM_Node find(DOM_Node, std::string&);
+    DOMNode* find(std::string&);
+    DOMNode* find(DOMNode*, std::string&);
 
     // Loading of the base elements of the file.
-    void getGeneral(DOM_Node, GeneralConfig&);
-    void getCertAuth(DOM_Node, CertificateAuthority&);
-    void getBaseCerts(DOM_Node, BaseCertificates&);
-    void getTempCerts(DOM_Node, TempCertificates&);
+    void getGeneral(DOMNode*, GeneralConfig&);
+    void getCertAuth(DOMNode*, CertificateAuthority&);
+    void getBaseCerts(DOMNode*, BaseCertificates&);
+    void getTempCerts(DOMNode*, TempCertificates&);
 
     // Loading of temporary certificates/params (Ephemeral Keys).
-    void loadDHParams(DOM_Node, TempCertificates&);
-    void loadRSACert(DOM_Node, TempCertificates&);
+    void loadDHParams(DOMNode*, TempCertificates&);
+    void loadRSACert(DOMNode*, TempCertificates&);
 
     // Populate with information from the indicated node in the parse tree.
-    void getCert(DOM_Node, CertificateDesc&);
-    void getDHParams(DOM_Node, DiffieHellmanParamsFile&);
+    void getCert(DOMNode*, CertificateDesc&);
+    void getDHParams(DOMNode*, DiffieHellmanParamsFile&);
 
     // Populate a certificate file object, basis of all certificates.
-    void loadCertificateFile(DOM_Node, CertificateFile&);
+    void loadCertificateFile(DOMNode*, CertificateFile&);
 
     // Parses the certificate encoding format from a string representation
     // to the proper integer value used by the underlying SSL framework.
     int parseEncoding(std::string&);
 
-    std::string toString(const DOMString&);
+    std::string toString(const XMLCh*);
 };
 
 }

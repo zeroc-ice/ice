@@ -33,8 +33,8 @@ libdir		= $(top_srcdir)/lib
 includedir	= $(top_srcdir)/include
 slicedir	= $(top_srcdir)/slice
 
-XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
-XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c1_5_2
+XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
+XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c
 
 OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
 OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto

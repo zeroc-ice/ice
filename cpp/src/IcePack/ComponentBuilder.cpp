@@ -12,8 +12,7 @@
 #include <IcePack/ComponentBuilder.h>
 #include <Yellow/Yellow.h>
 
-#include <parsers/SAXParser.hpp>
-#include <sax/HandlerBase.hpp>
+#include <xercesc/parsers/SAXParser.hpp>
 
 #include <sys/stat.h>
 #include <sys/types.h>
