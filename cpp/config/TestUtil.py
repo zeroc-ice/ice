@@ -18,9 +18,9 @@ serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleT
 		" --Ice.Protocol=" + protocol
 
 clientOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml" + \
-		" --Ice.Protocol=" + protocol
+		" --Ice.Protocol=" + protocol + " --Ice.Address=pugdragon"
 
-collocatedOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml" + \
+collocatedOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml" + \
 		    " --Ice.Protocol=" + protocol
 
 serverPids = []
