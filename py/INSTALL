@@ -17,8 +17,13 @@ Follow these steps to build the Ice extension for Python:
 1) Edit config/Make.rules and do the following:
 
    * Modify the installation prefix (if necessary).
+
    * Review the settings for PYTHON_HOME, PYTHON_INCLUDE_DIR and
      PYTHON_LIB_DIR.
+
+     Note: HP-UX users should modify PYTHON_LIB_DIR to enable the
+           linker to find the Python shared library. See Python
+           Platform Notes below for more information.
 
 2) Execute 'python -V' to verify that the Python 2.3 interpreter
    is in your executable search path.
