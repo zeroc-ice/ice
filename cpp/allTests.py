@@ -57,6 +57,7 @@ tests = [ \
     "IceStorm/federation", \
     "IceStorm/federation2", \
     "Transform/dbmap", \
+    "Transform/evictor", \
     ]
 
 #
