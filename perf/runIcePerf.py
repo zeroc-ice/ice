@@ -167,7 +167,7 @@ if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_HOME') and
 results = TestUtil.HostResults(hostname, outputFile)
 
 i = 1        
-while i < niter:
+while i <= niter:
     try:
         if os.environ.has_key('ICE_HOME'):
             runIcePerfs(expr, results, i)
