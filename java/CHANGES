@@ -15,7 +15,7 @@ Changes since version 1.1.1
   (for all connections).
 
 - Added back the connection closure timeout, but only for misbehaving
-  peers. If a timeout is set, and a peer does't react to a close
+  peers. If a timeout is set, and a peer doesn't react to a close
   connection message, the connection is forcefully closed after the
   timeout. However, it is never forcefully closed if requests are
   still outstanding. Doing so would violate ordering guarantees for
@@ -34,16 +34,15 @@ Changes since version 1.1.1
 - Added per-proxy contexts. The change is source-code compatible with
   the previous approach, that is, it is still possible to pass an
   explicit Ice::Context to an operation call as an additional,
-  trailing parameter. However, IceProxy::Ice::Object now contains two
+  trailing parameter. However, Ice.ObjectPrx now contains two
   new operations:
 
   - ice_getContext()
 
     This returns the context currently associated with a particular
-    proxy by value. (By default, the context associated with proxies
-    is empty.)
+    proxy. (By default, the context associated with proxies is empty.)
 
-  - ice_newContext(const ::Ice::Context& context)
+  - ice_newContext(java.util.Map context)
 
     This creates a new proxy that is associated with the passed
     context. Thereafter, calls via the new proxy always pass the
