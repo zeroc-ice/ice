@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>BZip2DevKit.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>{9BED76D6-2273-464C-B63D-CCDEDC50FDD9}</td><td>INSTALLDIR.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BZip2DevKit.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>{7E981083-7FCC-48C3-9345-A671BA2EA5D9}</td><td>INSTALLDIR.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

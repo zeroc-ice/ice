@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>BerkeleyDBDev.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>{14B9DFE0-392D-422B-8F80-D56C85BE8903}</td><td>INSTALLDIR.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBDev.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>{CF2E056B-7D61-4DB1-BACC-39BA6DBE732A}</td><td>INSTALLDIR.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

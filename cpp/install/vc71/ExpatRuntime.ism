@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>{5B1BBF20-0E6D-4EA9-AAD3-5956C3826F88}</td><td>INSTALLDIR.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>{C08E5938-278F-42ED-B956-384F0444C348}</td><td>INSTALLDIR.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

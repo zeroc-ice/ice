@@ -250,6 +250,7 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
+		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -337,8 +338,8 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>CommonDoc</td><td>{5945E51C-B40A-4B0B-BA38-46499EA746B1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>VisualStudioRuntime</td><td>{00E5A9B9-3E93-4C0A-8188-9BD486B642E3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>CommonDoc</td><td>{4DE2986F-6C94-45A2-B7C0-FB91A2F27F09}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>VisualStudioRuntime</td><td>{D7F73B3F-43B0-459D-9740-3D8CCF271161}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
@@ -957,6 +958,10 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
+		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
+		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
+		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
+		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1476,7 +1481,7 @@
 		<col key="yes" def="i2">Language_</col>
 		<row><td>packages</td><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td></row>
-		<row><td>packages</td><td>BerkeleyDBJava.VC71.319B2AAC_26B8_4AAB_8949_6D6267FB67A8</td><td>0</td></row>
+		<row><td>packages</td><td>BerkeleyDBJava.VC71.E61689B8_D32D_4B1B_BDF0_986C33687840</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
@@ -1566,7 +1571,7 @@
 		<col def="I4">ISAttributes</col>
 		<row><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>BerkeleyDBJava.VC71.319B2AAC_26B8_4AAB_8949_6D6267FB67A8</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBJava.VC71.E61689B8_D32D_4B1B_BDF0_986C33687840</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
@@ -2410,6 +2415,10 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
+		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
+		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
+		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
+		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>

@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>{84A660C2-3372-4D44-82E1-1294603BF656}</td><td>INSTALLDIR.1EDEFD63_5320_4657_82FE_73F602750180</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>{5A24A5F9-4CF1-480B-A916-792EEDA51C84}</td><td>INSTALLDIR.1EDEFD63_5320_4657_82FE_73F602750180</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">

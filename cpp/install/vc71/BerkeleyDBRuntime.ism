@@ -187,7 +187,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>BerkeleyDBRuntime.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>{8F443235-E7E0-4F35-86EB-0B267D18413B}</td><td>INSTALLDIR.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>BerkeleyDBRuntime.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>{CE9870E5-2DD3-4105-88D1-A10ADC889D92}</td><td>INSTALLDIR.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
 	<table name="Condition">
