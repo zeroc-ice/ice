@@ -15,7 +15,6 @@ NAME		= $(top_srcdir)/bin/slice2docbook
 TARGETS		= $(NAME)
 
 OBJS		= Gen.o \
-		  GenUtil.o \
 		  Main.o
 
 SRCS		= $(OBJS:.o=.cpp)

@@ -52,9 +52,9 @@ clean::
 	-rm -f Grammer.cpp Grammer.h Grammer.output
 	-rm -f Scanner.cpp lex.yy.c
 
-Shared.cpp: ../../library/Shared.cpp
+Shared.cpp: ../../Ice/Shared.cpp
 	rm -f $@
-	ln -s ../../library/Shared.cpp $@
+	ln -s ../../Ice/Shared.cpp $@
 
 clean::
 	-rm -f Shared.cpp

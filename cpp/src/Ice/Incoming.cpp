@@ -72,7 +72,7 @@ IceInternal::Incoming::invoke(Stream& is)
     catch(const LocationForward& p)
     {
 	*(_os.b.begin() + statusPos) = static_cast<Byte>(DispatchLocationForward);
-	write(&_os, p._prx);
+	_os.write(p._prx);
     }
 
     if (locator)

@@ -13,6 +13,7 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectF.h>
+#include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
 #include <stack>
 #include <set>
@@ -88,6 +89,9 @@ public:
     void write(const std::vector<std::wstring>&);
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
+
+    void write(const ::Ice::ObjectPrx&);
+    void read(::Ice::ObjectPrx&);
 
     void write(const ::Ice::ObjectPtr&);
     void read(::Ice::ObjectPtr&, const std::string&);

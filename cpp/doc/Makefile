@@ -15,15 +15,18 @@ TARGETS		= manual/index.html \
 
 SGMLFILES	= manual.sgml \
 		  ModuleIce.sgml \
+		  ModuleIcePack.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
-SLICEFILES	= ../slice/Ice/Communicator.ice \
+ICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/Pickler.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/ValueFactory.ice
+
+ICEPACKFILES	= ../slice/IcePack/Admin.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -41,9 +44,13 @@ manual.pdf: $(SGMLFILES)
 clean::
 	rm -rf manual manual.out manual.texi
 
-ModuleIce.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
+ModuleIce.sgml: $(ICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
-	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(SLICEFILES)
+	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEFILES)
+
+ModuleIcePack.sgml: $(ICEPACKFILES) $(SLICE2DOCBOOK)
+	rm -f $@
+	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEPACKFILES)
 
 clean::
 	rm -f ModuleIce.sgml

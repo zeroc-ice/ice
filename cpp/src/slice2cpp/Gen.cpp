@@ -10,7 +10,6 @@
 
 #include <Ice/Functional.h>
 #include <Gen.h>
-#include <GenUtil.h>
 #include <limits>
 
 //
@@ -157,6 +156,22 @@ Slice::Gen::generate(const UnitPtr& unit)
     C << "\n#   endif";
     C << "\n#endif";
     C.restoreIndent();
+
+    if (_dllExport.length())
+    {
+	H << sp;
+	H.zeroIndent();
+	H << "\n#ifdef WIN32";
+	H << "\n#   ifdef" << _dllExport << "_EXPORTS";
+	H << "\n#       define" << _dllExport << " __declspec(dllexport)";
+	H << "\n#   else";
+	H << "\n#       define" << _dllExport << " __declspec(dllimport)";
+	H << "\n#   endif";
+	H << "\n#else";
+	H << "\n#   define" << _dllExport << " /**/";
+	H << "\n#endif";
+	H.restoreIndent();
+    }
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
     unit->visit(&proxyDeclVisitor);
@@ -1849,15 +1864,13 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << sp;
     C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, const " << scoped << "Prx& v)";
     C << sb;
-    // TODO: Should be ::Ice::__write
-    C << nl << "::IceInternal::write(__os, ::Ice::ObjectPrx(v));";
+    C << nl << "__os->write(::Ice::ObjectPrx(v));";
     C << eb;
     C << sp;
     C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "Prx& v)";
     C << sb;
     C << nl << "::Ice::ObjectPrx proxy;";
-    // TODO: Should be ::Ice::__read
-    C << nl << "::IceInternal::read(__is, proxy);";
+    C << nl << "__is->read(proxy);";
     C << nl << "if (!proxy)";
     C << sb;
     C << nl << "v = 0;";

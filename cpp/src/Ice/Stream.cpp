@@ -11,6 +11,8 @@
 #include <Ice/Stream.h>
 #include <Ice/Instance.h>
 #include <Ice/Object.h>
+#include <Ice/Proxy.h>
+#include <Ice/ProxyFactory.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/ValueFactoryManager.h>
 #include <Ice/LocalException.h>
@@ -771,6 +773,18 @@ IceInternal::Stream::read(vector<wstring>& v)
 #endif
 	read(v.back());
     }
+}
+
+void
+IceInternal::Stream::write(const ::Ice::ObjectPrx& v)
+{
+    _instance->proxyFactory()->proxyToStream(v, this);
+}
+
+void
+IceInternal::Stream::read(::Ice::ObjectPrx& v)
+{
+    v = _instance->proxyFactory()->streamToProxy(this);
 }
 
 void

@@ -17,16 +17,6 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/Shared.h>
 
-namespace IceInternal
-{
-
-class Stream;
-
-ICE_API void write(Stream*, const ::Ice::ObjectPrx&);
-ICE_API void read(Stream*, ::Ice::ObjectPrx&);
-
-}
-
 namespace Ice
 {
 

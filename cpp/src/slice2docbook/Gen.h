@@ -45,12 +45,20 @@ private:
     void start(const std::string&, const std::string&);
     void end();
 
+    std::string scopedToId(const std::string&);
+    std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&);
+    std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&);
+    std::string toString(const std::string&, const ContainerPtr&);
+
     Output O;
 
     bool _standAlone;
     bool _noGlobals;
     std::string _chapter;
     std::stack<std::string> _elementStack;
+    std::string _idPrefix;
+    std::map<std::string, int> _idMap;
+    int _nextId;
 };
 
 }

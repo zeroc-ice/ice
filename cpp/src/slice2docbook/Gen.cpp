@@ -10,7 +10,6 @@
 
 #include <Ice/Functional.h>
 #include <Gen.h>
-#include <GenUtil.h>
 
 using namespace std;
 using namespace Slice;
@@ -18,13 +17,21 @@ using namespace Slice;
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals) :
     _standAlone(standAlone),
     _noGlobals(noGlobals),
-    _chapter("section") // Could also be "chapter"
+    _chapter("section"), // Could also be "chapter"
+    _nextId(0)
 {
     O.open(file.c_str());
     if (!O)
     {
 	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
 	return;
+    }
+
+    _idPrefix = file;
+    string::size_type pos = _idPrefix.find_last_of("/\\");
+    if(pos != string::npos)
+    {
+	_idPrefix.erase(0, pos + 1);
     }
 }
 
@@ -733,4 +740,130 @@ Slice::Gen::end()
 
     O.dec();
     O << nl << "</" << element << '>';
+}
+
+string
+Slice::Gen::scopedToId(const string& scoped)
+{
+    string s;
+    if (scoped[0] == ':')
+    {
+	s = scoped.substr(2);
+    }
+    else
+    {
+	s = scoped;
+    }
+
+    int id = _idMap[s];
+    if (id == 0)
+    {
+	id = ++_nextId;
+	_idMap[s] = id;
+    }
+
+    ostringstream result;
+    result << '"' << _idPrefix << '.' << id << '"';
+    return result.str();
+}
+
+string
+Slice::Gen::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container)
+{
+    string s = contained->scoped();
+    ContainerPtr p = container;
+    ContainedPtr q;
+
+    while((q = ContainedPtr::dynamicCast(p)))
+    {
+	string s2 = q->scoped();
+	s2 += "::";
+
+	if (s.find(s2) == 0)
+	{
+	    return s.substr(s2.size());
+	}
+
+	p = q->container();
+    }
+
+    return s;
+}
+
+string
+Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
+{
+    static const char* builtinTable[] =
+    {
+	"byte",
+	"bool",
+	"short",
+	"int",
+	"long",
+	"float",
+	"double",
+	"string",
+	"wstring",
+	"Object",
+	"Object*",
+	"LocalObject"
+    };
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    if (builtin)
+    {
+	return "<type>" + string(builtinTable[builtin->kind()]) + "</type>";
+    }
+
+    string tag;
+    string linkend;
+    string s;
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(p);
+    if (proxy)
+    {
+	tag = "classname";
+	linkend = scopedToId(proxy->_class()->scoped());
+	s = getScopedMinimized(proxy->_class(), container);
+	s += "*";
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+    if (cl)
+    {
+	tag = "classname";
+	linkend = scopedToId(cl->scoped());
+	s = getScopedMinimized(cl, container);
+    }
+
+    if (s.empty())
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(p);
+	assert(contained);
+	tag = "type";
+	linkend = scopedToId(contained->scoped());
+	s = getScopedMinimized(contained, container);
+    }
+
+    return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
+}
+
+string
+Slice::Gen::toString(const string& str, const ContainerPtr& container)
+{
+    string s = str;
+
+    TypeList types = container->lookupType(s, false);
+    if (!types.empty())
+    {
+	return toString(types.front(), container);
+    }
+
+    ContainedList contList = container->lookupContained(s, false);
+    if (!contList.empty())
+    {
+	return toString(contList.front(), container);
+    }
+
+    return s;
 }

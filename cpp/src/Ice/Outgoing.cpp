@@ -138,7 +138,7 @@ IceInternal::Outgoing::invoke()
 	    if (_state == StateLocationForward)
 	    {
 		ObjectPrx p;
-		read(&_is, p);
+		_is.read(p);
 		throw LocationForward(p);
 	    }
 

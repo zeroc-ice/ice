@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Proxy.h>
-#include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
@@ -47,18 +46,6 @@ void
 IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy::Ice::Object*& d)
 {
     d = b;
-}
-
-void
-IceInternal::write(Stream* s, const ObjectPrx& v)
-{
-    s->instance()->proxyFactory()->proxyToStream(v, s);
-}
-
-void
-IceInternal::read(Stream* s, ObjectPrx& v)
-{
-    v = s->instance()->proxyFactory()->streamToProxy(s);
 }
 
 Ice::ObjectPrxE::ObjectPrxE(const ObjectPrxE& p) :

@@ -31,7 +31,7 @@ inline int getpid() { return _getpid(); }
 // non dll-interface class ... used as base for dll-interface class ...
 #   pragma warning( disable : 4275 )
 
-#   ifdef ICE_EXPORTS
+#   ifdef ICE_API_EXPORTS
 #       define ICE_API __declspec(dllexport)
 #   else
 #       define ICE_API __declspec(dllimport)
