@@ -532,7 +532,7 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final void
+    public final synchronized void
     __checkTwowayOnly(String name)
     {
         if(!ice_isTwoway())
