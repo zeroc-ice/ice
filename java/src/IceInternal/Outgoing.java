@@ -215,6 +215,7 @@ public final class Outgoing
 	
 	assert(_state <= StateInProgress);
 	
+	_is.swap(is);
 	byte status = _is.readByte();
 	
 	switch((int)status)

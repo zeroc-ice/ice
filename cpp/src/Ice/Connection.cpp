@@ -341,13 +341,10 @@ IceInternal::Connection::monitor()
     // Active connection management for idle connections.
     //
     if(_acmTimeout > 0 &&
-       _requests.empty() &&
-       _asyncRequests.empty() &&
-       !_batchStreamInUse &&
+       _requests.empty() && _asyncRequests.empty() &&
+       !_batchStreamInUse && _batchStream.b.empty() &&
        _dispatchCount == 0)
     {
-	assert(_batchStream.b.empty());
-
 	if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
 	{
 	    setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));

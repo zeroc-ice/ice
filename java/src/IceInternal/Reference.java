@@ -618,9 +618,9 @@ public final class Reference
         {
 	    while(true)
 	    {
-		Endpoint[] endpoints = null;
 		Ice.BooleanHolder cached = new Ice.BooleanHolder();
 		cached.value = false;
+		Endpoint[] endpts = null;
 
 		if(routerInfo != null)
 		{
@@ -629,23 +629,19 @@ public final class Reference
 		    // proxy endpoints.
 		    //
 		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-		    endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+		    endpts = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
 		}
 		else if(endpoints.length > 0)
 		{
-		    endpoints = endpoints;
+		    endpts = endpoints;
 		}
 		else if(locatorInfo != null)
 		{
-		    endpoints = locatorInfo.getEndpoints(this, cached);
+		    endpts = locatorInfo.getEndpoints(this, cached);
 		}
 
-		Endpoint[] filteredEndpoints = null;
-		if(endpoints != null)
-		{
-		    filteredEndpoints = filterEndpoints(endpoints);
-		}
-		if(filteredEndpoints == null || filteredEndpoints.length == 0)
+		Endpoint[] filteredEndpts = filterEndpoints(endpts);
+		if(filteredEndpts == null || filteredEndpts.length == 0)
 		{
 		    Ice.NoEndpointException e = new Ice.NoEndpointException();
 		    e.proxy = toString();
@@ -655,7 +651,7 @@ public final class Reference
 		try
 		{
 		    OutgoingConnectionFactory factory = instance.outgoingConnectionFactory();
-		    connection = factory.create(filteredEndpoints);
+		    connection = factory.create(filteredEndpts);
 		    assert(connection != null);
 		}
 		catch(Ice.LocalException ex)

@@ -109,18 +109,23 @@ public class BasicStream
         ReadEncaps tmpRead = other._readEncapsStack;
         other._readEncapsStack = _readEncapsStack;
         _readEncapsStack = tmpRead;
+
         tmpRead = other._readEncapsCache;
         other._readEncapsCache = _readEncapsCache;
         _readEncapsCache = tmpRead;
+
         WriteEncaps tmpWrite = other._writeEncapsStack;
         other._writeEncapsStack = _writeEncapsStack;
         _writeEncapsStack = tmpWrite;
+
         tmpWrite = other._writeEncapsCache;
         other._writeEncapsCache = _writeEncapsCache;
         _writeEncapsCache = tmpWrite;
+
 	int tmpReadSlice = other._readSlice;
 	other._readSlice = _readSlice;
 	_readSlice = tmpReadSlice;
+
 	int tmpWriteSlice = other._writeSlice;
 	other._writeSlice = _writeSlice;
 	_writeSlice = tmpWriteSlice;

@@ -332,13 +332,10 @@ public final class Connection extends EventHandler
 	// Active connection management for idle connections.
 	//
 	if(_acmTimeout > 0 &&
-	   _requests.isEmpty() &&
-	   _asyncRequests.isEmpty() &&
-	   !_batchStreamInUse &&
+	   _requests.isEmpty() && _asyncRequests.isEmpty() &&
+	   !_batchStreamInUse && _batchStream.isEmpty() &&
 	   _dispatchCount == 0)
 	{
-	    assert(_batchStream.isEmpty());
-
 	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
 	    {
 		setState(StateClosing, new Ice.ConnectionTimeoutException());
