@@ -2182,9 +2182,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
 	    C << sp << nl << "#ifdef __APPLE__";
 	    std::string initfuncname = "__F";
-	    for(std::string::const_iterator p = scope.begin(); p != scope.end(); ++p)
+	    for(std::string::const_iterator q = scope.begin(); q != scope.end(); ++q)
 	    {
-		initfuncname += ((*p) == ':') ? '_' : *p;
+		initfuncname += ((*q) == ':') ? '_' : *q;
 	    }
 	    initfuncname += name + "__initializer";
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
@@ -2398,7 +2398,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    // handler, causing compiler warnings and resulting in the base exception
 	    // being marshaled instead of the derived exception.
 	    //
+
+#if defined(__SUNPRO_CC)
+	    throws.sort(derivedToBaseCompare);
+#else
 	    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	    if(!inParams.empty())
 	    {
@@ -3498,7 +3503,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     // handler, causing compiler warnings and resulting in the base exception
     // being marshaled instead of the derived exception.
     //
+#if defined(__SUNPRO_CC)
+    throws.sort(derivedToBaseCompare);
+#else
     throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
     TypePtr ret = p->returnType();
     string retS = inputTypeToString(ret);

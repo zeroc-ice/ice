@@ -485,7 +485,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    // handler, causing compiler warnings and resulting in the base exception
 	    // being marshaled instead of the derived exception.
 	    //
+#if defined(__SUNPRO_CC)
+	    throws.sort(Slice::derivedToBaseCompare);
+#else
 	    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	    TypeStringList::const_iterator q;
 	    int iter;
@@ -3034,7 +3038,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	// handler, causing compiler warnings and resulting in the base exception
 	// being marshaled instead of the derived exception.
 	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
 	throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
         vector<string> params = getParams(op, package);
 

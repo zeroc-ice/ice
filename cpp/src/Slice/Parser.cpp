@@ -4681,7 +4681,17 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
     {
 	return ::tolower(*p1) < ::tolower(*p2);
     }
-};
+}
+
+#if defined(__SUNPRO_CC)
+bool 
+Slice::cICompare(const std::string& s1, const std::string& s2)
+{
+    CICompare c;
+    return c(s1, s2);
+}
+#endif
+
 
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare
@@ -4691,4 +4701,12 @@ bool
 Slice::DerivedToBaseCompare::operator()(const ExceptionPtr& e1, const ExceptionPtr& e2) const
 {
     return e2->isBaseOf(e1);
-};
+}
+
+#if defined(__SUNPRO_CC)
+bool 
+Slice::derivedToBaseCompare(const ExceptionPtr& e1, const ExceptionPtr& e2)
+{
+    return e2->isBaseOf(e1);
+}
+#endif

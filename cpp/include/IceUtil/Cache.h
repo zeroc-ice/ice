@@ -115,7 +115,7 @@ Cache<Key, Value>::getIfPinned(const Key& key) const
 }
 
 template<typename Key, typename Value> void
-Cache<Key, Value>::unpin(Cache::Position p)
+Cache<Key, Value>::unpin(typename Cache::Position p)
 {
     Mutex::Lock sync(_mutex);
     _map.erase(p);

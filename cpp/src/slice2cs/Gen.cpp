@@ -131,7 +131,11 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     // We sort again to keep the order in the same order as the one
     // expected by System.Collections.Comparer.DefaultInvariant.
     //
+#if defined(__SUNPRO_CC)
+    ids.sort(cICompare);
+#else
     ids.sort(Slice::CICompare());
+#endif
 
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
@@ -358,7 +362,11 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	// the sort order must match the sort order used by System.Array.Sort().
 	// (C# has no notion of the default ASCII ordering.)
 	//
+#if defined(__SUNPRO_CC)
+	allOpNames.sort(Slice::cICompare);
+#else
 	allOpNames.sort(Slice::CICompare());
+#endif
 	allOpNames.unique();
 
 	StringList::const_iterator q;

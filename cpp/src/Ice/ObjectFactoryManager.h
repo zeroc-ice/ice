@@ -31,14 +31,16 @@ public:
     void remove(const std::string&);
     ::Ice::ObjectFactoryPtr find(const std::string&) const;
 
+    typedef std::map<std::string, ::Ice::ObjectFactoryPtr> FactoryMap;
+
 private:
 
     ObjectFactoryManager();
     void destroy();
     friend class Instance;
 
-    std::map<std::string, ::Ice::ObjectFactoryPtr> _factoryMap;
-    mutable std::map<std::string, ::Ice::ObjectFactoryPtr>::iterator _factoryMapHint;
+    FactoryMap _factoryMap;
+    mutable FactoryMap::iterator _factoryMapHint;
 };
 
 }

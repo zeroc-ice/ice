@@ -46,7 +46,7 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    map<string, ObjectFactoryPtr>::iterator p = _factoryMap.end();
+    FactoryMap::iterator p = _factoryMap.end();
     if(_factoryMapHint != _factoryMap.end())
     {
 	if(_factoryMapHint->first == id)
@@ -85,9 +85,11 @@ ObjectFactoryPtr
 IceInternal::ObjectFactoryManager::find(const string& id) const
 {
     IceUtil::Mutex::Lock sync(*this);
-    
-    map<string, ObjectFactoryPtr>::iterator p = const_cast<map<string, ObjectFactoryPtr>&>(_factoryMap).end();
-    if(_factoryMapHint != _factoryMap.end())
+   
+    FactoryMap& factoryMap = const_cast<FactoryMap&>(_factoryMap);
+
+    FactoryMap::iterator p = factoryMap.end();
+    if(_factoryMapHint != factoryMap.end())
     {
 	if(_factoryMapHint->first == id)
 	{
@@ -95,12 +97,12 @@ IceInternal::ObjectFactoryManager::find(const string& id) const
 	}
     }
     
-    if(p == _factoryMap.end())
+    if(p == factoryMap.end())
     {
-	p = const_cast<map<string, ObjectFactoryPtr>&>(_factoryMap).find(id);
+	p = factoryMap.find(id);
     }
     
-    if(p != _factoryMap.end())
+    if(p != factoryMap.end())
     {
 	_factoryMapHint = p;
 	return p->second;

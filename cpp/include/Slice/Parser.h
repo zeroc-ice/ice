@@ -142,6 +142,10 @@ public:
     bool operator()(const std::string&, const std::string&) const;
 };
 
+#if defined(__SUNPRO_CC)
+SLICE_API bool cICompare(const std::string&, const std::string&);
+#endif
+
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare -- function object to do sort exceptions into
 // most-derived to least-derived order.
@@ -153,6 +157,11 @@ public:
 
     bool operator()(const ExceptionPtr&, const ExceptionPtr&) const;
 };
+
+#if defined(__SUNPRO_CC)
+SLICE_API bool derivedToBaseCompare(const ExceptionPtr&, const ExceptionPtr&);
+#endif
+
 
 // ----------------------------------------------------------------------
 // ParserVisitor

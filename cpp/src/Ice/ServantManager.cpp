@@ -117,13 +117,15 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 
     ServantMapMap::iterator p = _servantMapMapHint;
     ServantMap::iterator q;
+    
+    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
-    if(p == _servantMapMap.end() || p->first != ident)
+    if(p == servantMapMap.end() || p->first != ident)
     {
-	p = const_cast<ServantMapMap&>(_servantMapMap).find(ident);
+	p = servantMapMap.find(ident);
     }
     
-    if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
+    if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
 	return 0;
     }
@@ -142,13 +144,14 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
+    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
-    if(p == _servantMapMap.end() || p->first != ident)
+    if(p == servantMapMap.end() || p->first != ident)
     {
-	p = const_cast<ServantMapMap&>(_servantMapMap).find(ident);
+	p = servantMapMap.find(ident);
     }
     
-    if(p == _servantMapMap.end())
+    if(p == servantMapMap.end())
     {
 	return false;
     }
@@ -186,8 +189,11 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     
     assert(_instance); // Must not be called after destruction.
 
-    map<string, ServantLocatorPtr>::iterator p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).end();
-    if(_locatorMapHint != _locatorMap.end())
+    map<string, ServantLocatorPtr>& locatorMap =
+	const_cast<map<string, ServantLocatorPtr>&>(_locatorMap);
+
+    map<string, ServantLocatorPtr>::iterator p = locatorMap.end();
+    if(_locatorMapHint != locatorMap.end())
     {
 	if(_locatorMapHint->first == category)
 	{
@@ -195,12 +201,12 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
 	}
     }
     
-    if(p == _locatorMap.end())
+    if(p == locatorMap.end())
     {
-	p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(category);
+	p = locatorMap.find(category);
     }
     
-    if(p != _locatorMap.end())
+    if(p != locatorMap.end())
     {
 	_locatorMapHint = p;
 	return p->second;
