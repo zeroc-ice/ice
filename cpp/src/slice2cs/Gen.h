@@ -43,7 +43,8 @@ public:
 
     Gen(const std::string&,
         const std::string&,
-        const std::vector<std::string>&);
+        const std::vector<std::string>&,
+	const std::string&);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error

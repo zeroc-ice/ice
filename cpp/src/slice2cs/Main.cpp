@@ -30,6 +30,7 @@ usage(const char* n)
         "-DNAME=DEF              Define NAME as DEF.\n"
         "-UNAME                  Remove any definition for NAME.\n"
         "-IDIR                   Put DIR in the include file search path.\n"
+        "--output-dir DIR        Create files in the directory DIR.\n"
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
@@ -45,6 +46,7 @@ main(int argc, char* argv[])
 {
     string cppArgs;
     vector<string> includePaths;
+    string output;
     bool tie = false;
     bool impl = false;
     bool implTie = false;
@@ -116,6 +118,23 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+        else if(strcmp(argv[idx], "--output-dir") == 0)
+        {
+            if(idx + 1 >= argc)
+            {
+                cerr << argv[0] << ": argument expected for`" << argv[idx]
+                     << "'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            output = argv[idx + 1];
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
 	else if(strcmp(argv[idx], "--case-sensitive") == 0)
 	{
 	    caseSensitive = true;
@@ -221,7 +240,7 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths);
+		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
 		if(!gen)
 		{
 		    p->destroy();
