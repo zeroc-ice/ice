@@ -100,6 +100,7 @@ print "Copying Slice directories..."
 slicedirs = [\
     "Freeze",\
     "Glacier",\
+    "Glacier2",\
     "Ice",\
     "IceBox",\
     "IcePack",\
