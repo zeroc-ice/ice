@@ -343,7 +343,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     //
     // Dispatch operations
     //
-    OperationList ops = p->operations();
+    OperationList ops = p->allOperations();
     OperationList::const_iterator r;
     for (r = ops.begin(); r != ops.end(); ++r)
     {
