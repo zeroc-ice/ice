@@ -99,9 +99,6 @@ struct ServerDescription
     /**
      *
      * Server name.
-     * The server object or object template. Any non-administrative
-     * &IcePack; request that matches the identity of [obj] will be
-     * forwarded to [obj].
      *
      **/
     string name;
