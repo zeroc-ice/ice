@@ -52,7 +52,6 @@ public final class PropertyNames
         "^Ice\\.Trace\\.Slicing$",
         "^Ice\\.UseEventLog$",
         "^Ice\\.UseSyslog$",
-        "^Ice\\.Warn\\.AMICallback$",
         "^Ice\\.Warn\\.Connections$",
         "^Ice\\.Warn\\.Dispatch$",
         "^Ice\\.Warn\\.Leaks$",

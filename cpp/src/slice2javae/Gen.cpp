@@ -88,56 +88,6 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 }
 
 vector<string>
-Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package, bool amd)
-{
-    vector<string> params;
-
-    string name = op->name();
-    ContainerPtr container = op->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string classNameAsync = getAbsolute(cl, package, amd ? "AMD_" : "AMI_", '_' + name);
-    params.push_back(classNameAsync + " __cb");
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if(!(*q)->isOutParam())
-	{
-            StringList metaData = (*q)->getMetaData();
-	    string typeString = typeToString((*q)->type(), TypeModeIn, package, metaData);
-	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
-	}
-    }
-
-    return params;
-}
-
-vector<string>
-Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package)
-{
-    vector<string> params;
-
-    TypePtr ret = op->returnType();
-    if(ret)
-    {
-	string retS = typeToString(ret, TypeModeIn, package, op->getMetaData());
-	params.push_back(retS + " __ret");
-    }
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if((*q)->isOutParam())
-	{
-	    string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData());
-	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
-	}
-    }
-
-    return params;
-}
-
-vector<string>
 Slice::JavaVisitor::getArgs(const OperationPtr& op)
 {
     vector<string> args;
@@ -146,64 +96,6 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op)
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         args.push_back(fixKwd((*q)->name()));
-    }
-
-    return args;
-}
-
-vector<string>
-Slice::JavaVisitor::getArgsAsync(const OperationPtr& op)
-{
-    vector<string> args;
-
-    args.push_back("__cb");
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if(!(*q)->isOutParam())
-	{
-	    args.push_back(fixKwd((*q)->name()));
-	}
-    }
-
-    return args;
-}
-
-vector<string>
-Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
-{
-    vector<string> args;
-
-    TypePtr ret = op->returnType();
-    if(ret)
-    {
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-	{
-	    args.push_back("__ret.value");
-	}
-	else
-	{
-	    args.push_back("__ret");
-	}
-    }
-
-    ParamDeclList paramList = op->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if((*q)->isOutParam())
-	{
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
-	    {
-		args.push_back(fixKwd((*q)->name()) + ".value");
-	    }
-	    else
-	    {
-		args.push_back(fixKwd((*q)->name()));
-	    }
-	}
     }
 
     return args;
@@ -447,25 +339,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 	assert(cl);
 
-	bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
-
 	vector<string> params;
 	vector<string> args;
 	TypePtr ret;
 
-	if(amd)
-	{
-	    opName += "_async";
-	    params = getParamsAsync(op, package, true);
-	    args = getArgsAsync(op);
-	}
-	else
-	{
-	    opName = fixKwd(opName);
-	    ret = op->returnType();
-	    params = getParams(op, package);
-	    args = getArgs(op);
-	}
+	opName = fixKwd(opName);
+	ret = op->returnType();
+	params = getParams(op, package);
+	args = getArgs(op);
 
 	ExceptionList throws = op->throws();
 	throws.sort();
@@ -552,239 +433,157 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
-	bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
-	if(!amd)
+	TypePtr ret = op->returnType();
+	    
+	ParamDeclList inParams;
+	ParamDeclList outParams;
+	ParamDeclList paramList = op->parameters();
+	ParamDeclList::const_iterator pli;
+	for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	{
-	    TypePtr ret = op->returnType();
-	    
-	    ParamDeclList inParams;
-	    ParamDeclList outParams;
-	    ParamDeclList paramList = op->parameters();
-	    ParamDeclList::const_iterator pli;
-	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    if((*pli)->isOutParam())
 	    {
-		if((*pli)->isOutParam())
-		{
-		    outParams.push_back(*pli);
-		}
-		else
-		{
-		    inParams.push_back(*pli);
-		}
+	        outParams.push_back(*pli);
 	    }
+	    else
+	    {
+	        inParams.push_back(*pli);
+	    }
+	}
 	    
-	    ExceptionList throws = op->throws();
-	    throws.sort();
-	    throws.unique();
+	ExceptionList throws = op->throws();
+	throws.sort();
+	throws.unique();
 
-	    //
-	    // Arrange exceptions into most-derived to least-derived order. If we don't
-	    // do this, a base exception handler can appear before a derived exception
-	    // handler, causing compiler warnings and resulting in the base exception
-	    // being marshaled instead of the derived exception.
-	    //
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
 #if defined(__SUNPRO_CC)
-	    throws.sort(Slice::derivedToBaseCompare);
+	throws.sort(Slice::derivedToBaseCompare);
 #else
-	    throws.sort(Slice::DerivedToBaseCompare());
+	throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-	    int iter;
+	int iter;
 	    
-	    if(!inParams.empty())
-	    {
-		out << nl << "IceInternal.BasicStream __is = __in.is();";
-	    }
-	    if(!outParams.empty() || ret || !throws.empty())
-	    {
-		out << nl << "IceInternal.BasicStream __os = __in.os();";
-	    }
-	    
-	    //
-	    // Unmarshal 'in' parameters.
-	    //
-	    iter = 0;
-	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	    {
-                StringList metaData = (*pli)->getMetaData();
-                TypePtr paramType = (*pli)->type();
-                string paramName = fixKwd((*pli)->name());
-		string typeS = typeToString(paramType, TypeModeIn, package, metaData);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-		{
-		    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true,
-					      metaData, string());
-		}
-		else
-		{
-		    out << nl << typeS << ' ' << paramName << ';';
-		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
-		}
-	    }
-	    if(op->sendsClasses())
-	    {
-		out << nl << "__is.readPendingObjects();";
-	    }
-	    
-	    //
-	    // Create holders for 'out' parameters.
-	    //
-	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-	    {
-		string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData());
-		out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
-	    }
-	    
-	    //
-	    // Call on the servant.
-	    //
-	    if(!throws.empty())
-	    {
-		out << nl << "try";
-		out << sb;
-	    }
-	    out << nl;
-	    if(ret)
-	    {
-		string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
-		out << retS << " __ret = ";
-	    }
-	    out << "__obj." << fixKwd(opName) << '(';
-	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	    {
-                TypePtr paramType = (*pli)->type();
-		out << fixKwd((*pli)->name());
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-		{
-		    out << ".value";
-		}
-		out << ", ";
-	    }
-	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-	    {
-		out << fixKwd((*pli)->name()) << ", ";
-	    }
-	    out << "__current);";
-	    
-	    //
-	    // Marshal 'out' parameters and return value.
-	    //
-	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-	    {
-		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, true,
-                                          (*pli)->getMetaData());
-	    }
-	    if(ret)
-	    {
-		writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter, false, opMetaData);
-	    }
-	    if(op->returnsClasses())
-	    {
-		out << nl << "__os.writePendingObjects();";
-	    }
-	    out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
-	    
-	    //
-	    // Handle user exceptions.
-	    //
-	    if(!throws.empty())
-	    {
-		out << eb;
-		ExceptionList::const_iterator t;
-		for(t = throws.begin(); t != throws.end(); ++t)
-		{
-		    string exS = getAbsolute(*t, package);
-		    out << nl << "catch(" << exS << " ex)";
-		    out << sb;
-		    out << nl << "__os.writeUserException(ex);";
-		    out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
-		    out << eb;
-		}
-	    }
-
-	    out << eb;
-	}
-	else
+	if(!inParams.empty())
 	{
-	    ParamDeclList inParams;
-	    ParamDeclList paramList = op->parameters();
-	    ParamDeclList::const_iterator pli;
-	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
-	    {
-		if(!(*pli)->isOutParam())
-		{
-		    inParams.push_back(*pli);
-		}
-	    }
-	    
-	    int iter;
-	    
-	    if(!inParams.empty())
-	    {
-		out << nl << "IceInternal.BasicStream __is = __in.is();";
-	    }
-	    
-	    //
-	    // Unmarshal 'in' parameters.
-	    //
-	    iter = 0;
-	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	    {
-                StringList metaData = (*pli)->getMetaData();
-                TypePtr paramType = (*pli)->type();
-                string paramName = fixKwd((*pli)->name());
-		string typeS = typeToString(paramType, TypeModeIn, package, metaData);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-		{
-		    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true, metaData,
-                                              string());
-		}
-		else
-		{
-		    out << nl << typeS << ' ' << paramName << ';';
-		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
-		}
-	    }
-	    if(op->sendsClasses())
-	    {
-		out << nl << "__is.readPendingObjects();";
-	    }
-	    
-	    //
-	    // Call on the servant.
-	    //
-	    string classNameAMD = "AMD_" + p->name();
-	    out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
-		<< "(__in);";
-            out << nl << "try";
-            out << sb;
-	    out << nl << "__obj." << (amd ? opName + "_async" : fixKwd(opName)) << (amd ? "(__cb, " : "(");
-	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	    {
-                TypePtr paramType = (*pli)->type();
-		out << fixKwd((*pli)->name());
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-		{
-		    out << ".value";
-		}
-		out << ", ";
-	    }
-	    out << "__current);";
-	    out << eb;
-	    out << nl << "catch(java.lang.Exception ex)";
-	    out << sb;
-	    out << nl << "__cb.ice_exception(ex);";
-	    out << eb;
-	    out << nl << "return IceInternal.DispatchStatus.DispatchAsync;";
-
-	    out << eb;
+	    out << nl << "IceInternal.BasicStream __is = __in.is();";
 	}
+	if(!outParams.empty() || ret || !throws.empty())
+	{
+	    out << nl << "IceInternal.BasicStream __os = __in.os();";
+	}
+	    
+	//
+	// Unmarshal 'in' parameters.
+	//
+	iter = 0;
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	{
+            StringList metaData = (*pli)->getMetaData();
+            TypePtr paramType = (*pli)->type();
+            string paramName = fixKwd((*pli)->name());
+	    string typeS = typeToString(paramType, TypeModeIn, package, metaData);
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+	    {
+	        out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+	        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true,
+	    			          metaData, string());
+	    }
+	    else
+	    {
+	        out << nl << typeS << ' ' << paramName << ';';
+	        writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
+	    }
+	}
+	if(op->sendsClasses())
+	{
+	    out << nl << "__is.readPendingObjects();";
+	}
+	    
+	//
+	// Create holders for 'out' parameters.
+	//
+	for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+	{
+	    string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData());
+	    out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
+	}
+	    
+	//
+	// Call on the servant.
+	//
+	if(!throws.empty())
+	{
+	    out << nl << "try";
+	    out << sb;
+	}
+	out << nl;
+	if(ret)
+	{
+	    string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
+	    out << retS << " __ret = ";
+	}
+	out << "__obj." << fixKwd(opName) << '(';
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	{
+            TypePtr paramType = (*pli)->type();
+	    out << fixKwd((*pli)->name());
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+	    {
+	        out << ".value";
+	    }
+	    out << ", ";
+	}
+	for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+	{
+	    out << fixKwd((*pli)->name()) << ", ";
+	}
+	out << "__current);";
+	    
+	//
+	// Marshal 'out' parameters and return value.
+	//
+	for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+	{
+	    writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, true,
+                                      (*pli)->getMetaData());
+	}
+	if(ret)
+	{
+	    writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter, false, opMetaData);
+	}
+	if(op->returnsClasses())
+	{
+	    out << nl << "__os.writePendingObjects();";
+	}
+	out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+	    
+	//
+	// Handle user exceptions.
+	//
+	if(!throws.empty())
+	{
+	    out << eb;
+	    ExceptionList::const_iterator t;
+	    for(t = throws.begin(); t != throws.end(); ++t)
+	    {
+	        string exS = getAbsolute(*t, package);
+	        out << nl << "catch(" << exS << " ex)";
+	        out << sb;
+	        out << nl << "__os.writeUserException(ex);";
+	        out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+	        out << eb;
+	    }
+	}
+
+	out << eb;
     }
 
     OperationList allOps = p->allOperations();
@@ -934,9 +733,6 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
 
     DispatcherVisitor dispatcherVisitor(_dir);
     p->visit(&dispatcherVisitor, false);
-
-    AsyncVisitor asyncVisitor(_dir);
-    p->visit(&asyncVisitor, false);
 }
 
 void
@@ -1106,24 +902,15 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	TypePtr ret;
 	vector<string> params;
 
-	bool amd = !p->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd"));
-
-	if(amd)
-	{
-	    params = getParamsAsync(op, package, true);
-	}
-	else
-	{
-	    params = getParams(op, package);
-	    ret = op->returnType();
-	}
+	params = getParams(op, package);
+	ret = op->returnType();
 
 	string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 	
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params;
+	out << sp << nl << retS << ' ' << fixKwd(name) << spar << params;
 	if(!noCurrent && !p->isLocal())
 	{
 	    out << "Ice.Current __current";
@@ -1253,41 +1040,17 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
 	ContainerPtr container = (*r)->container();
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-	bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-        //
-        // Work around for Sun CC 5.5 bug #4853566
-        //
-	string opName;
-	if(hasAMD)
-	{
-	    opName = (*r)->name() + "_async";
-	}
-	else
-	{
-	   opName = fixKwd((*r)->name());
-	}
-#else	
-        string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
-#endif
+
+	string opName = fixKwd((*r)->name());
+
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData());
 
-        vector<string> params;
-	vector<string> args;
-        if(hasAMD)
-        {
-            params = getParamsAsync((*r), package, true);
-            args = getArgsAsync(*r);
-        }
-        else
-        {
-            params = getParams((*r), package);
-            args = getArgs(*r);
-        }
+        vector<string> params = getParams((*r), package);
+	vector<string> args = getArgs(*r);
 
         out << sp;
-        out << nl << "public " << (hasAMD ? "void" : retS) << nl << opName << spar << params;
+        out << nl << "public " << retS << nl << opName << spar << params;
         if(!p->isLocal())
         {
             out << "Ice.Current __current";
@@ -1300,7 +1063,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeThrowsClause(package, throws);
         out << sb;
         out << nl;
-        if(ret && !hasAMD)
+        if(ret)
         {
             out << "return ";
         }
@@ -2840,31 +2603,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << eb;
         out << eb;
-
-	if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
-	{
-	    vector<string> paramsAMI = getParamsAsync(op, package, false);
-	    vector<string> argsAMI = getArgsAsync(op);
-	    
-	    //
-	    // Write two versions of the operation - with and without a
-	    // context parameter
-	    //
-	    out << sp;
-	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
-	    out << sb;
-	    out << nl << op->name() << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
-	    out << eb;
-
-	    out << sp;
-	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
-		<< epar;
-	    out << sb;
-	    // Async requests may only be sent twoway.
-	    out << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
-	    out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
-	    out << eb;
-	}
     }
 
     out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b)";
@@ -3815,20 +3553,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Map __ctx" << epar;
     writeThrowsClause(package, throws);
     out << ';';
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-	vector<string> paramsAMI = getParamsAsync(p, package, false);
-
-	//
-	// Write two versions of the operation - with and without a
-	// context parameter.
-	//
-	out << sp;
-	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << epar << ';';
-	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
-	    << epar << ';';
-    }
 }
 
 Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir) :
@@ -4199,102 +3923,30 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 
-    if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
+    out << sp << nl << "public " << retS << nl << fixKwd(opName) << spar << params;
+    if(!local)
     {
-	vector<string> paramsAMD = getParamsAsync(op, package, true);
-
-        out << sp << nl << "public void" << nl << opName << "_async" << spar << paramsAMD << "Ice.Current __current"
-	    << epar;
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-	//
-	// Arrange exceptions into most-derived to least-derived order. If we don't
-	// do this, a base exception handler can appear before a derived exception
-	// handler, causing compiler warnings and resulting in the base exception
-	// being marshaled instead of the derived exception.
-	//
-#if defined(__SUNPRO_CC)
-	throws.sort(Slice::derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
-        writeThrowsClause(package, throws);
-
-        out << sb;
-
-        string result = "__r";
-        ParamDeclList paramList = op->parameters();
-        ParamDeclList::const_iterator q;
-        for(q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->name() == result)
-            {
-                result = "_" + result;
-                break;
-            }
-        }
-        if(ret)
-        {
-            writeDecl(out, package, result, ret, opMetaData);
-        }
-        for(q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->isOutParam())
-            {
-                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData());
-            }
-        }
-
-        out << nl << "__cb.ice_response(";
-        if(ret)
-        {
-            out << result;
-        }
-        for(q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if((*q)->isOutParam())
-            {
-                if(ret || q != paramList.begin())
-                {
-                    out << ", ";
-                }
-                out << fixKwd((*q)->name());
-            }
-        }
-        out << ");";
-
-        out << eb;
+        out << "Ice.Current __current";
     }
-    else
+    out << epar;
+
+    ExceptionList throws = op->throws();
+    throws.sort();
+    throws.unique();
+
+    writeThrowsClause(package, throws);
+
+    out << sb;
+
+    //
+    // Return value
+    //
+    if(ret)
     {
-        out << sp << nl << "public " << retS << nl << fixKwd(opName) << spar << params;
-        if(!local)
-        {
-            out << "Ice.Current __current";
-        }
-        out << epar;
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        writeThrowsClause(package, throws);
-
-        out << sb;
-
-        //
-        // Return value
-        //
-        if(ret)
-        {
-            writeReturn(out, ret);
-        }
-
-        out << eb;
+        writeReturn(out, ret);
     }
+
+    out << eb;
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(const string& dir) :
@@ -4449,362 +4101,4 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     close();
 
     return false;
-}
-
-Slice::Gen::AsyncVisitor::AsyncVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-void
-Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
-{
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    
-    if(cl->isLocal())
-    {
-	return;
-    }
-
-    string name = p->name();
-    string classPkg = getPackage(cl);
-    StringList opMetaData = p->getMetaData();
-    
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-	string classNameAMI = "AMI_" + cl->name();
-	string absoluteAMI = getAbsolute(cl, "", "AMI_", "_" + name);
-
-	if(!open(absoluteAMI))
-	{
-	    return;
-	}
-	
-	Output& out = output();
-
-        TypePtr ret = p->returnType();
-
-	ParamDeclList inParams;
-        ParamDeclList outParams;
-	ParamDeclList paramList = p->parameters();
-	ParamDeclList::const_iterator pli;
-	for(pli = paramList.begin(); pli != paramList.end(); ++pli)
-	{
-	    if((*pli)->isOutParam())
-	    {
-		outParams.push_back(*pli);
-	    }
-	    else
-	    {
-		inParams.push_back(*pli);
-	    }
-	}
-
-        ExceptionList throws = p->throws();
-        throws.sort();
-        throws.unique();
-
-	//
-	// Arrange exceptions into most-derived to least-derived order. If we don't
-	// do this, a base exception handler can appear before a derived exception
-	// handler, causing compiler warnings and resulting in the base exception
-	// being marshaled instead of the derived exception.
-	//
-#if defined(__SUNPRO_CC)
-	throws.sort(Slice::derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-        int iter;
-
-	vector<string> params = getParamsAsyncCB(p, classPkg);
-	vector<string> args = getArgsAsyncCB(p);
-
-	vector<string> paramsInvoke = getParamsAsync(p, classPkg, false);
-
-	out << sp << nl << "public abstract class " << classNameAMI << '_' << name
-	    << " extends IceInternal.OutgoingAsync";
-	out << sb;
-	out << sp;
-	out << nl << "public abstract void ice_response" << spar << params << epar << ';';
-	out << nl << "public abstract void ice_exception(Ice.LocalException ex);";
-	if(!throws.empty())
-	{
-	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
-	}
-	
-	out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
-	    << paramsInvoke << "java.util.Map __ctx" << epar;
-	out << sb;
-	out << nl << "try";
-	out << sb;
-	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
-        iter = 0;
-	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	{
-            StringList metaData = (*pli)->getMetaData();
-	    string typeS = typeToString((*pli)->type(), TypeModeIn, classPkg, metaData);
-	    writeMarshalUnmarshalCode(out, classPkg, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
-                                      metaData);
-	}
-	if(p->sendsClasses())
-	{
-	    out << nl << "__os.writePendingObjects();";
-	}
-	out << nl << "__os.endWriteEncaps();";
-	out << eb;
-	out << nl << "catch(Ice.LocalException __ex)";
-	out << sb;
-	out << nl << "__finished(__ex);";
-	out << nl << "return;";
-	out << eb;
-	out << nl << "__send();";
-	out << eb;
-
-	out << sp << nl << "protected final void" << nl << "__response(boolean __ok)";
-	out << sb;
-        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-        {
-            TypePtr paramType = (*pli)->type();
-            string paramName = fixKwd((*pli)->name());
-            string typeS = typeToString(paramType, TypeModeIn, classPkg, (*pli)->getMetaData());
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-	    {
-		out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-	    }
-	    else
-	    {
-		out << nl << typeS << ' ' << paramName << ';';
-	    }
-        }
-        if(ret)
-        {
-	    string retS = typeToString(ret, TypeModeIn, classPkg, opMetaData);
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-	    {
-		out << nl << retS << "Holder __ret = new " << retS << "Holder();";
-	    }
-	    else
-	    {
-		out << nl << retS << " __ret;";
-	    }
-        }
-	out << nl << "try";
-	out << sb;
-	out << nl << "if(!__ok)";
-        out << sb;
-	out << nl << "try";
-	out << sb;
-	out << nl << "__is.throwException();";
-	out << eb;
-	for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-	{
-	    out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
-	    out << sb;
-	    out << nl << "throw __ex;";
-	    out << eb;
-	}
-	out << nl << "catch(Ice.UserException __ex)";
-	out << sb;
-        out << nl << "throw new Ice.UnknownUserException();";
-	out << eb;
-        out << eb;
-        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-        {
-            TypePtr paramType = (*pli)->type();
-            string paramName = fixKwd((*pli)->name());
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
-	    {
-		out << nl << "__is.readObject(" << paramName << ".getPatcher());";
-	    }
-	    else
-	    {
-		writeMarshalUnmarshalCode(out, classPkg, paramType, paramName, false, iter, false,
-                                          (*pli)->getMetaData());
-	    }
-        }
-        if(ret)
-        {
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-	    {
-		out << nl << "__is.readObject(__ret.getPatcher());";
-	    }
-	    else
-	    {
-		writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", false, iter, false, opMetaData);
-	    }
-        }
-	if(p->returnsClasses())
-	{
-	    out << nl << "__is.readPendingObjects();";
-	}
-   	out << eb;
-	out << nl << "catch(Ice.LocalException __ex)";
-	out << sb;
-	out << nl << "__finished(__ex);";
-	out << nl << "return;";
-	out << eb;
-	if(!throws.empty())
-	{
-	    out << nl << "catch(Ice.UserException __ex)";
-	    out << sb;
-	    out << nl << "ice_exception(__ex);";
-	    out << nl << "return;";
-	    out << eb;
-	}
-	out << nl << "ice_response" << spar << args << epar << ';';
-	out << eb;
-	out << eb;
-
-	close();
-    }
-
-    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
-    {
-	string classNameAMD = "AMD_" + cl->name();
-	string absoluteAMD = getAbsolute(cl, "", "AMD_", "_" + name);
-
-	string classNameAMDI = "_AMD_" + cl->name();
-	string absoluteAMDI = getAbsolute(cl, "", "_AMD_", "_" + name);
-
-	vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
-
-	{
-	    if(!open(absoluteAMD))
-	    {
-		return;
-	    }
-
-	    Output& out = output();
-	    
-	    out << sp << nl << "public interface " << classNameAMD << '_' << name;
-	    out << sb;
-	    out << sp << nl << "void ice_response" << spar << paramsAMD << epar << ';';
-	    out << sp << nl << "void ice_exception(java.lang.Exception ex);";
-	    out << eb;
-	    
-	    close();
-	}
-	
-	{
-	    if(!open(absoluteAMDI))
-	    {
-		return;
-	    }
-	    
-	    Output& out = output();
-	    
-	    TypePtr ret = p->returnType();
-	    
-	    ParamDeclList outParams;
-	    ParamDeclList paramList = p->parameters();
-	    ParamDeclList::const_iterator pli;
-	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
-	    {
-		if((*pli)->isOutParam())
-		{
-		    outParams.push_back(*pli);
-		}
-	    }
-	    
-	    ExceptionList throws = p->throws();
-	    throws.sort();
-	    throws.unique();
-
-	    //
-	    // Arrange exceptions into most-derived to least-derived order. If we don't
-	    // do this, a base exception handler can appear before a derived exception
-	    // handler, causing compiler warnings and resulting in the base exception
-	    // being marshaled instead of the derived exception.
-	    //
-#if defined(__SUNPRO_CC)
-	    throws.sort(Slice::derivedToBaseCompare);
-#else
-	    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-	    int iter;
-
-	    out << sp << nl << "final class " << classNameAMDI << '_' << name
-		<< " extends IceInternal.IncomingAsync implements " << classNameAMD << '_' << name;
-	    out << sb;
-
-	    out << sp << nl << "public" << nl << classNameAMDI << '_' << name << "(IceInternal.Incoming in)";
-	    out << sb;
-	    out << nl << "super(in);";
-	    out << eb;
-
-	    out << sp << nl << "public void" << nl << "ice_response" << spar << paramsAMD << epar;
-	    out << sb;
-            iter = 0;
-	    if(ret || !outParams.empty())
-	    {
-		out << nl << "try";
-		out << sb;
-		out << nl << "IceInternal.BasicStream __os = this.__os();";
-		for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-		{
-                    StringList metaData = (*pli)->getMetaData();
-		    string typeS = typeToString((*pli)->type(), TypeModeIn, classPkg, metaData);
-		    writeMarshalUnmarshalCode(out, classPkg, (*pli)->type(), fixKwd((*pli)->name()), true, iter,
-                                              false, metaData);
-		}
-		if(ret)
-		{
-		    string retS = typeToString(ret, TypeModeIn, classPkg, opMetaData);
-		    writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", true, iter, false, opMetaData);
-		}
-		if(p->returnsClasses())
-		{
-		    out << nl << "__os.writePendingObjects();";
-		}
-		out << eb;
-		out << nl << "catch(Ice.LocalException __ex)";
-		out << sb;
-		out << nl << "ice_exception(__ex);";
-		out << eb;
-	    }
-	    out << nl << "__response(true);";
-	    out << eb;
-
-	    out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
-	    out << sb;
-	    if(throws.empty())
-	    {
-		out << nl << "__exception(ex);";
-	    }
-	    else
-	    {
-		out << nl << "try";
-		out << sb;
-		out << nl << "throw ex;";
-		out << eb;
-		ExceptionList::const_iterator r;
-		for(r = throws.begin(); r != throws.end(); ++r)
-		{
-		    string exS = getAbsolute(*r, classPkg);
-		    out << nl << "catch(" << exS << " __ex)";
-		    out << sb;
-		    out << nl << "__os().writeUserException(__ex);";
-		    out << nl << "__response(false);";
-		    out << eb;
-		}
-		out << nl << "catch(java.lang.Exception __ex)";
-		out << sb;
-		out << nl << "__exception(__ex);";
-		out << eb;
-	    }
-	    out << eb;
-
-	    out << eb;
-	    
-	    close();
-	}
-    }
 }

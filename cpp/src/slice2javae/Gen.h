@@ -31,15 +31,11 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-    std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
-    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&);
 
     //
     // Compose the argument lists for an operation.
     //
     std::vector<std::string> getArgs(const OperationPtr&);
-    std::vector<std::string> getArgsAsync(const OperationPtr&);
-    std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     //
     // Generate a throws clause containing only non-local exceptions.
@@ -246,15 +242,6 @@ private:
         ImplTieVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
-    class AsyncVisitor : public JavaVisitor
-    {
-    public:
-
-        AsyncVisitor(const std::string&);
-
-        virtual void visitOperation(const OperationPtr&);
     };
 };
 

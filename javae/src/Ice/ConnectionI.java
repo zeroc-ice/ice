@@ -418,25 +418,10 @@ public final class ConnectionI implements Connection
 	}
 	
 	//
-	// Check for timed out async requests.
-	//
-	java.util.Iterator i = _asyncRequests.entryIterator();
-	while(i.hasNext())
-	{
-	    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-	    IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
-	    if(out.__timedOut())
-	    {
-		setState(StateClosed, new TimeoutException());
-		return;
-	    }
-	}
-
-	//
 	// Active connection management for idle connections.
 	//
 	if(_acmTimeout > 0 &&
-	   _requests.isEmpty() && _asyncRequests.isEmpty() &&
+	   _requests.isEmpty() && 
 	   !_batchStreamInUse && _batchStream.isEmpty() &&
 	   _dispatchCount == 0)
 	{
@@ -575,107 +560,6 @@ public final class ConnectionI implements Connection
 		}
 		else
 		{
-		    throw _exception;
-		}
-	    }
-	}
-	finally
-	{
-	    if(stream != null && stream != os)
-	    {
-		stream.destroy();
-	    }
-	}
-    }
-
-    public void
-    sendAsyncRequest(IceInternal.BasicStream os, IceInternal.OutgoingAsync out, boolean compress)
-    {
-	int requestId = 0;
-	IceInternal.BasicStream stream = null;
-
-	synchronized(this)
-	{
-	    if(_exception != null)
-	    {
-		throw _exception;
-	    }
-
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
-
-	    //
-	    // Create a new unique request ID.
-	    //
-	    requestId = _nextRequestId++;
-	    if(requestId <= 0)
-	    {
-		_nextRequestId = 1;
-		requestId = _nextRequestId++;
-	    }
-	    
-	    //
-	    // Fill in the request ID.
-	    //
-	    os.pos(IceInternal.Protocol.headerSize);
-	    os.writeInt(requestId);
-	    
-	    //
-	    // Add to the async requests map.
-	    //
-	    _asyncRequests.put(requestId, out);
-
-	    stream = doCompress(os, _overrideCompress ? _overrideCompressValue : compress);
-
-	    if(_acmTimeout > 0)
-	    {
-		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
-	    }
-	}
-
-	try
-	{
-	    synchronized(_sendMutex)
-	    {
-		if(_transceiver == null) // Has the transceiver already been closed?
-		{
-		    assert(_exception != null);
-		    throw _exception; // The exception is immutable at this point.
-		}
-
-		//
-		// Send the request.
-		//
-		IceInternal.TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
-		_transceiver.write(stream, _endpoint.timeout());
-	    }
-	}
-	catch(LocalException ex)
-	{
-	    synchronized(this)
-	    {
-		setState(StateClosed, ex);
-		assert(_exception != null);
-		
-		//
-		// If the request has already been removed from the
-		// async request map, we are out of luck. It would
-		// mean that finished() has been called already, and
-		// therefore the exception has been set using the
-		// OutgoingAsync::__finished() callback. In this case,
-		// we cannot throw the exception here, because we must
-		// not both raise an exception and have
-		// OutgoingAsync::__finished() called with an
-		// exception. This means that in some rare cases, a
-		// request will not be retried even though it
-		// could. But I honestly don't know how I could avoid
-		// this, without a very elaborate and complex design,
-		// which would be bad for performance.
-		//
-		IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)_asyncRequests.remove(requestId);
-		if(o != null)
-		{
-		    assert(o == out);
 		    throw _exception;
 		}
 	    }
@@ -1454,7 +1338,6 @@ public final class ConnectionI implements Connection
 	byte compress;
 	IceInternal.ServantManager servantManager;
 	ObjectAdapter adapter;
-	IceInternal.OutgoingAsync outAsync;
     }
 
     private void
@@ -1561,11 +1444,7 @@ public final class ConnectionI implements Connection
 		    }
 		    else
 		    {
-			info.outAsync = (IceInternal.OutgoingAsync)_asyncRequests.remove(info.requestId);
-			if(info.outAsync == null)
-			{
-			    throw new UnknownRequestIdException();
-			}
+		        throw new UnknownRequestIdException();
 		    }
 		    break;
 		}
@@ -1856,7 +1735,6 @@ public final class ConnectionI implements Connection
 	    LocalException exception = null;
 
 	    IceInternal.IntMap requests = null;
-	    IceInternal.IntMap asyncRequests = null;
 
 	    try
 	    {
@@ -1905,8 +1783,8 @@ public final class ConnectionI implements Connection
 
 			//
 			// We cannot simply return here. We have to make sure
-			// that all requests (regular and async) are notified
-			// about the closed connection below.
+			// that all requests are notified about the closed
+			// connection below.
 			//
 			closed = true;
 		    }
@@ -1915,21 +1793,9 @@ public final class ConnectionI implements Connection
 		    {
 			requests = _requests;
 			_requests = new IceInternal.IntMap();
-
-			asyncRequests = _asyncRequests;
-			_asyncRequests = new IceInternal.IntMap();
 		    }
 		}
 
-		//
-		// Asynchronous replies must be handled outside the thread
-		// synchronization, so that nested calls are possible.
-		//
-		if(info.outAsync != null)
-		{
-		    info.outAsync.__finished(info.stream);
-		}
-		
 		//
 		// Method invocation (or multiple invocations for batch messages)
 		// must be done outside the thread synchronization, so that nested
@@ -1946,17 +1812,6 @@ public final class ConnectionI implements Connection
 			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
 			IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
 			out.finished(_exception); // The exception is immutable at this point.
-		    }
-		}
-
-		if(asyncRequests != null)
-		{
-		    java.util.Iterator i = asyncRequests.entryIterator();
-		    while(i.hasNext())
-		    {
-			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-			IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
-			out.__finished(_exception); // The exception is immutable at this point.
 		    }
 		}
 
@@ -2068,7 +1923,6 @@ public final class ConnectionI implements Connection
     private int _nextRequestId;
 
     private IceInternal.IntMap _requests = new IceInternal.IntMap();
-    private IceInternal.IntMap _asyncRequests = new IceInternal.IntMap();
 
     private LocalException _exception;
 

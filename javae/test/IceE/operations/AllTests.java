@@ -64,12 +64,6 @@ public class AllTests
         derived.opDerived();
         System.out.println("ok");
 
-	System.out.print("testing twoway operations with AMI... ");
-	System.out.flush();
-	TwowaysAMI.twowaysAMI(communicator, cl);
-	TwowaysAMI.twowaysAMI(communicator, derived);
-	System.out.println("ok");
-
 	System.out.print("testing batch oneway operations... ");
 	System.out.flush();
 	BatchOneways.batchOneways(cl);

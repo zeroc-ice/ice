@@ -189,15 +189,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
-	if(p->hasContentsWithMetaData("ami"))
-	{
-	    H << "\n#include <Ice/OutgoingAsync.h>";
-	}
 	H << "\n#include <Ice/Incoming.h>";
-	if(p->hasContentsWithMetaData("amd"))
-	{
-	    H << "\n#include <Ice/IncomingAsync.h>";
-	}
 	H << "\n#include <Ice/Direct.h>";
 	C << "\n#include <Ice/LocalException.h>";
     }
@@ -268,12 +260,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
     TypesVisitor typesVisitor(H, C, _dllExport, _stream);
     p->visit(&typesVisitor, false);
-
-    AsyncVisitor asyncVisitor(H, C, _dllExport);
-    p->visit(&asyncVisitor, false);
-
-    AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
-    p->visit(&asyncImplVisitor, false);
 
     ProxyVisitor proxyVisitor(H, C, _dllExport);
     p->visit(&proxyVisitor, false);
@@ -1387,10 +1373,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> paramsDecl;
     vector<string> args;
 
-    vector<string> paramsAMI;
-    vector<string> paramsDeclAMI;
-    vector<string> argsAMI;
-
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -1416,15 +1398,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	params.push_back(typeString);
 	paramsDecl.push_back(typeString + ' ' + paramName);
 	args.push_back(paramName);
-
-	if(!(*q)->isOutParam())
-	{
-	    string inputTypeString = inputTypeToString((*q)->type());
-
-	    paramsAMI.push_back(inputTypeString);
-	    paramsDeclAMI.push_back(inputTypeString + ' ' + paramName);
-	    argsAMI.push_back(paramName);
-	}
     }
 
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
@@ -1485,35 +1458,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
     C << eb;
-
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-	string classNameAMI = "AMI_" + cl->name();
-	string classScope = fixKwd(cl->scope());
-	string classScopedAMI = classScope + classNameAMI;
-
-	H << nl << "void " << name << "_async" << spar << ("const" + classScopedAMI + '_' + name + "Ptr&")
-	  << paramsAMI << epar << ';';
-	H << nl << "void " << name << "_async" << spar << ("const" + classScopedAMI + '_' + name + "Ptr&")
-	  << paramsAMI << "const ::Ice::Context&" << epar << ';';
-
-	C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
-	  << ("const " + classScopedAMI + '_' + name + "Ptr& __cb") << paramsDeclAMI << epar;
-	C << sb;
-	C << nl << name << "_async" << spar << "__cb" << argsAMI << "__defaultContext()" << epar << ';';
-	C << eb;
-
-	C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar
-	  << ("const " + classScopedAMI + '_' + name + "Ptr& __cb") << paramsDeclAMI << "const ::Ice::Context& __ctx"
-	  << epar;
-	C << sb;
-	// Async requests may only be sent twoway.
-	C << nl << "__checkTwowayOnly(\"" << name << "\");";
-	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
-	C << eb;
-    }
 }
 
 Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string& dllExport) :
@@ -2414,19 +2358,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     argsAMD += "__current)";
     
     bool nonmutating = p->mode() == Operation::Nonmutating;
-    bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
 
     H << sp;
-    if(!amd)
-    {
-	H << nl << "virtual " << retS << ' ' << fixKwd(name) << params
-	  << (nonmutating ? " const" : "") << " = 0;";
-    }
-    else
-    {
-	H << nl << "virtual void " << name << "_async" << paramsAMD
-	  << (nonmutating ? " const" : "") << " = 0;";
-    }	
+    H << nl << "virtual " << retS << ' ' << fixKwd(name) << params << (nonmutating ? " const" : "") << " = 0;";
 
     if(!cl->isLocal())
     {
@@ -2437,91 +2371,61 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
 	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
 	C << sb;
-	if(!amd)
-	{
-	    ExceptionList throws = p->throws();
-	    throws.sort();
-	    throws.unique();
 
-	    //
-	    // Arrange exceptions into most-derived to least-derived order. If we don't
-	    // do this, a base exception handler can appear before a derived exception
-	    // handler, causing compiler warnings and resulting in the base exception
-	    // being marshaled instead of the derived exception.
-	    //
+	ExceptionList throws = p->throws();
+	throws.sort();
+	throws.unique();
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
 
 #if defined(__SUNPRO_CC)
-	    throws.sort(derivedToBaseCompare);
+	throws.sort(derivedToBaseCompare);
 #else
-	    throws.sort(Slice::DerivedToBaseCompare());
+	throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-	    if(!inParams.empty())
-	    {
-		C << nl << "::IceInternal::BasicStream* __is = __in.is();";
-	    }
-	    if(ret || !outParams.empty() || !throws.empty())
-	    {
-		C << nl << "::IceInternal::BasicStream* __os = __in.os();";
-	    }
-	    writeAllocateCode(C, inParams, 0);
-	    writeUnmarshalCode(C, inParams, 0);
-	    writeAllocateCode(C, outParams, 0);
-	    if(!throws.empty())
-	    {
-		C << nl << "try";
-		C << sb;
-	    }
-	    C << nl;
-	    if(ret)
-	    {
-		C << retS << " __ret = ";
-	    }
-	    C << fixKwd(name) << args << ';';
-	    writeMarshalCode(C, outParams, ret);
-	    if(!throws.empty())
-	    {
-		C << eb;
-		ExceptionList::const_iterator r;
-		for(r = throws.begin(); r != throws.end(); ++r)
-		{
-		    C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
-		    C << sb;
-		    C << nl << "__os->write(__ex);";
-		    C << nl << "return ::IceInternal::DispatchUserException;";
-		    C << eb;
-		}
-	    }
-	    C << nl << "return ::IceInternal::DispatchOK;";
-	}
-	else
+	if(!inParams.empty())
 	{
-	    if(!inParams.empty())
-	    {
-		C << nl << "::IceInternal::BasicStream* __is = __in.is();";
-	    }
-	    writeAllocateCode(C, inParams, 0);
-	    writeUnmarshalCode(C, inParams, 0);
-	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
-	      << "(__in);";
+	    C << nl << "::IceInternal::BasicStream* __is = __in.is();";
+	}
+	if(ret || !outParams.empty() || !throws.empty())
+	{
+	    C << nl << "::IceInternal::BasicStream* __os = __in.os();";
+	}
+	writeAllocateCode(C, inParams, 0);
+	writeUnmarshalCode(C, inParams, 0);
+	writeAllocateCode(C, outParams, 0);
+	if(!throws.empty())
+	{
 	    C << nl << "try";
 	    C << sb;
-	    C << nl << name << "_async" << argsAMD << ';';
+	}
+	C << nl;
+	if(ret)
+	{
+	    C << retS << " __ret = ";
+	}
+	C << fixKwd(name) << args << ';';
+	writeMarshalCode(C, outParams, ret);
+	if(!throws.empty())
+	{
 	    C << eb;
-	    C << nl << "catch(const ::Ice::Exception& __ex)";
-	    C << sb;
-	    C << nl << "__cb->ice_exception(__ex);";
-	    C << eb;
-	    C << nl << "catch(const ::std::exception& __ex)";
-	    C << sb;
-	    C << nl << "__cb->ice_exception(__ex);";
-	    C << eb;
-	    C << nl << "catch(...)";
-	    C << sb;
-	    C << nl << "__cb->ice_exception();";
-	    C << eb;
-	    C << nl << "return ::IceInternal::DispatchAsync;";
-	}	    
+	    ExceptionList::const_iterator r;
+	    for(r = throws.begin(); r != throws.end(); ++r)
+	    {
+	        C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
+	        C << sb;
+	        C << nl << "__os->write(__ex);";
+	        C << nl << "return ::IceInternal::DispatchUserException;";
+	        C << eb;
+	    }
+	}
+	C << nl << "return ::IceInternal::DispatchOK;";
 	C << eb;
     }	
 }
@@ -3240,598 +3144,101 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = returnTypeToString(ret);
 
-        if(!p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd")))
+        H << sp << nl << "virtual " << retS << ' ' << fixKwd(opName) << '(';
+        H.useCurrentPosAsIndent();
+        ParamDeclList paramList = op->parameters();
+        ParamDeclList::const_iterator q;
+        for(q = paramList.begin(); q != paramList.end(); ++q)
         {
-            H << sp << nl << "virtual void " << opName << "_async(";
-            H.useCurrentPosAsIndent();
-            H << "const " << classScopedAMD << '_' << opName << "Ptr&";
-            ParamDeclList paramList = op->parameters();
-            ParamDeclList::const_iterator q;
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            if(q != paramList.begin())
             {
-                if(!(*q)->isOutParam())
-                {
-                    H << ',' << nl << inputTypeToString((*q)->type());
-                }
+                H << ',' << nl;
             }
-            H << ',' << nl << "const Ice::Current&";
-            H.restoreIndent();
-
-            bool nonmutating = op->mode() == Operation::Nonmutating;
-
-            H << ")" << (nonmutating ? " const" : "") << ';';
-
-            C << sp << nl << "void" << nl << scope << name << "I::" << opName << "_async(";
-            C.useCurrentPosAsIndent();
-            C << "const " << classScopedAMD << '_' << opName << "Ptr& " << opName << "CB";
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if(!(*q)->isOutParam())
-                {
-                    C << ',' << nl << inputTypeToString((*q)->type()) << ' ' << fixKwd((*q)->name());
-                }
-            }
-            C << ',' << nl << "const Ice::Current& current";
-            C.restoreIndent();
-            C << ")" << (nonmutating ? " const" : "");
-            C << sb;
-
-            string result = "r";
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if((*q)->name() == result)
-                {
-                    result = "_" + result;
-                    break;
-                }
-            }
-            if(ret)
-            {
-                writeDecl(C, result, ret);
-            }
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if((*q)->isOutParam())
-                {
-                    writeDecl(C, fixKwd((*q)->name()), (*q)->type());
-                }
-            }
-
-            C << nl << opName << "CB->ice_response(";
-            if(ret)
-            {
-                C << result;
-            }
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if((*q)->isOutParam())
-                {
-                    if(ret || q != paramList.begin())
-                    {
-                        C << ", ";
-                    }
-                    C << fixKwd((*q)->name());
-                }
-            }
-            C << ");";
-
-            C << eb;
-        }
-        else
-        {
-            H << sp << nl << "virtual " << retS << ' ' << fixKwd(opName) << '(';
-            H.useCurrentPosAsIndent();
-            ParamDeclList paramList = op->parameters();
-            ParamDeclList::const_iterator q;
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if(q != paramList.begin())
-                {
-                    H << ',' << nl;
-                }
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-		//
-		// Work around for Sun CC 5.5 bug #4853566
-		//
-		string typeString;
-		if((*q)->isOutParam())
-		{
-		    typeString = outputTypeToString((*q)->type());
-		}
-		else
-		{
-		    typeString = inputTypeToString((*q)->type());
-		}
-#else
-                string typeString = (*q)->isOutParam() ?
-                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-#endif
-                H << typeString;
-            }
-            if(!p->isLocal())
-            {
-                if(!paramList.empty())
-                {
-                    H << ',' << nl;
-                }
-                H << "const Ice::Current&";
-            }
-            H.restoreIndent();
-
-            bool nonmutating = op->mode() == Operation::Nonmutating;
-
-            H << ")" << (nonmutating ? " const" : "") << ';';
-
-            C << sp << nl << retS << nl;
-	    C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
-            C.useCurrentPosAsIndent();
-            for(q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if(q != paramList.begin())
-                {
-                    C << ',' << nl;
-                }
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-		//
-		// Work around for Sun CC 5.5 bug #4853566
-		//
-		string typeString;
-		if((*q)->isOutParam())
-		{
-		    typeString = outputTypeToString((*q)->type());
-		}
-		else
-		{
-		    typeString = inputTypeToString((*q)->type());
-		}
-#else
-                string typeString = (*q)->isOutParam() ?
-                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-#endif
-                C << typeString << ' ' << fixKwd((*q)->name());
-            }
-            if(!p->isLocal())
-            {
-                if(!paramList.empty())
-                {
-                    C << ',' << nl;
-                }
-                C << "const Ice::Current& current";
-            }
-            C.restoreIndent();
-            C << ')';
-	    C << (nonmutating ? " const" : "");
-            C << sb;
-
-            if(ret)
-            {
-                writeReturn(C, ret);
-            }
-
-            C << eb;
-        }
-    }
-
-    H << eb << ';';
-
-    return true;
-}
-
-Slice::Gen::AsyncVisitor::AsyncVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-bool
-Slice::Gen::AsyncVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDecls() || (!p->hasContentsWithMetaData("ami") && !p->hasContentsWithMetaData("amd")))
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::AsyncVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    H << sp << nl << '}';
-}
-
-void
-Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
-{
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    
-    if(cl->isLocal() ||
-       (!cl->hasMetaData("ami") && !p->hasMetaData("ami") && !cl->hasMetaData("amd") && !p->hasMetaData("amd")))
-    {
-	return;
-    }
-
-    string name = p->name();
-    
-    string className = cl->name();
-    string classNameAMI = "AMI_" + className;
-    string classNameAMD = "AMD_" + className;
-    string classScope = fixKwd(cl->scope());
-    string classScopedAMI = classScope + classNameAMI;
-    string classScopedAMD = classScope + classNameAMD;
-    string proxyName = classScope + className + "Prx";
-    
-    vector<string> params;
-    vector<string> paramsDecl;
-    vector<string> args;
-    
-    vector<string> paramsInvoke;
-    vector<string> paramsDeclInvoke;
-
-    paramsInvoke.push_back("const " + proxyName + "&");
-    paramsDeclInvoke.push_back("const " + proxyName + "& __prx");
-
-    TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret);
-    
-    if(ret)
-    {
-	params.push_back(retS);
-	paramsDecl.push_back(retS + " __ret");
-	args.push_back("__ret");
-    }
-    
-    TypeStringList inParams;
-    TypeStringList outParams;
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	string paramName = fixKwd((*q)->name());
-	TypePtr type = (*q)->type();
-	string typeString = inputTypeToString(type);
-
-	if((*q)->isOutParam())
-	{
-	    params.push_back(typeString);
-	    paramsDecl.push_back(typeString + ' ' + paramName);
-	    args.push_back(paramName);
-
-	    outParams.push_back(make_pair(type, paramName));
-	}
-	else
-	{
-	    paramsInvoke.push_back(typeString);
-	    paramsDeclInvoke.push_back(typeString + ' ' + paramName);
-
-	    inParams.push_back(make_pair(type, paramName));
-	}
-    }
-
-    paramsInvoke.push_back("const ::Ice::Context&");
-    paramsDeclInvoke.push_back("const ::Ice::Context& __ctx");
-
-    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
-    {
-	H << sp << nl << "class " << _dllExport << classNameAMI << '_' << name
-	  << " : public ::IceInternal::OutgoingAsync";
-	H << sb;
-	H.dec();
-	H << nl << "public:";
-	H.inc();
-	H << sp;
-	H << nl << "virtual void ice_response" << spar << params << epar << " = 0;";
-	H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
-	H << sp;
-	H << nl << "void __invoke" << spar << paramsInvoke << epar << ';';
-	H << sp;
-	H.dec();
-	H << nl << "protected:";
-	H.inc();
-	H << sp;
-	H << nl << "virtual void __response(bool);";
-	H << eb << ';';
-	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
-	  << '_' << name  << "Ptr;";
-	
-	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
-	  << paramsDeclInvoke << epar;
-	C << sb;
-	C << nl << "try";
-	C << sb;
-	C << nl << "static const ::std::string __operation(\"" << name << "\");";
-	C << nl << "__prepare(__prx, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
-	writeMarshalCode(C, inParams, 0);
-	/* remove.
-	if(p->sendsClasses())
-	{
-	    C << nl << "__os->writePendingObjects();";
-	}
-	*/
-	C << nl << "__os->endWriteEncaps();";
-	C << eb;
-	C << nl << "catch(const ::Ice::LocalException& __ex)";
-	C << sb;
-	C << nl << "__finished(__ex);";
-	C << nl << "return;";
-	C << eb;
-	C << nl << "__send();";
-	C << eb;
-
-	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
-	C << sb;
-	writeAllocateCode(C, outParams, ret);
-	C << nl << "try";
-	C << sb;
-	C << nl << "if(!__ok)";
-	C << sb;
-	C << nl << "__is->throwException();";
-	C << eb;
-	writeUnmarshalCode(C, outParams, ret);
-	C << eb;
-	C << nl << "catch(const ::Ice::LocalException& __ex)";
-	C << sb;
-	C << nl << "__finished(__ex);";
-	C << nl << "return;";
-	C << eb;
-
-	//
-	// Generate a catch block for each legal user exception.
-	// (See comment in DelegateMVisitor::visitOperation() for details.)
-	//
-	ExceptionList throws = p->throws();
-	throws.sort();
-	throws.unique();
-#if defined(__SUNPRO_CC)
-	throws.sort(derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
-	for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-	{
-	    string scoped = (*i)->scoped();
-	    C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& __ex)";
-	    C << sb;
-	    C << nl << "ice_exception(__ex);";
-	    C << nl << "return;";
-	    C << eb;
-	}
-	C << nl << "catch(const ::Ice::UserException&)";
-	C << sb;
-	C << nl << "ice_exception(::Ice::UnknownUserException(__FILE__, __LINE__));";
-	C << nl << "return;";
-	C << eb;
-	C << nl << "ice_response" << spar << args << epar << ';';
-	C << eb;
-    }
-
-    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
-    {
-	H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
-	  << " : virtual public ::IceUtil::Shared";
-	H << sb;
-	H.dec();
-	H << nl << "public:";
-	H.inc();
-	H << sp;
-	H << nl << "virtual void ice_response" << spar << params << epar << " = 0;";
-	H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
-	H << nl << "virtual void ice_exception(const ::std::exception&) = 0;";
-	H << nl << "virtual void ice_exception() = 0;";
-	H << eb << ';';
-	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMD << '_' << name << "> "
-	  << classNameAMD << '_' << name  << "Ptr;";
-    }
-}
-
-Slice::Gen::AsyncImplVisitor::AsyncImplVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllExport(dllExport)
-{
-}
-
-bool
-Slice::Gen::AsyncImplVisitor::visitUnitStart(const UnitPtr& p)
-{
-    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
-    {
-	return false;
-    }
-
-    H << sp << nl << "namespace IceAsync" << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr& p)
-{
-    H << sp << nl << '}';
-}
-    
-bool
-Slice::Gen::AsyncImplVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasNonLocalClassDecls() || !p->hasContentsWithMetaData("amd"))
-    {
-	return false;
-    }
-
-    string name = fixKwd(p->name());
-    
-    H << sp << nl << "namespace " << name << nl << '{';
-
-    return true;
-}
-
-void
-Slice::Gen::AsyncImplVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    H << sp << nl << '}';
-}
-
-void
-Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
-{
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    
-    if(cl->isLocal() || (!cl->hasMetaData("amd") && !p->hasMetaData("amd")))
-    {
-	return;
-    }
-
-    string name = p->name();
-    
-    string classNameAMD = "AMD_" + cl->name();
-    string classScope = fixKwd(cl->scope());
-    string classScopedAMD = classScope + classNameAMD;
-    
-    string params;
-    string paramsDecl;
-    string args;
-    
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-    
-    //
-    // Arrange exceptions into most-derived to least-derived order. If we don't
-    // do this, a base exception handler can appear before a derived exception
-    // handler, causing compiler warnings and resulting in the base exception
-    // being marshaled instead of the derived exception.
-    //
-#if defined(__SUNPRO_CC)
-    throws.sort(derivedToBaseCompare);
-#else
-    throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-    TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret);
-    
-    if(ret)
-    {
-	params += retS;
-	paramsDecl += retS;
-	paramsDecl += ' ';
-	paramsDecl += "__ret";
-	args += "__ret";
-    }
-    
-    TypeStringList outParams;
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-	if((*q)->isOutParam())
-	{
-	    string paramName = fixKwd((*q)->name());
-	    TypePtr type = (*q)->type();
-	    string typeString = inputTypeToString(type);
-	    
-	    if(ret || !outParams.empty())
+	    //
+	    // Work around for Sun CC 5.5 bug #4853566
+	    //
+	    string typeString;
+	    if((*q)->isOutParam())
 	    {
-		params += ", ";
-		paramsDecl += ", ";
-		args += ", ";
+	        typeString = outputTypeToString((*q)->type());
 	    }
-	    
-	    params += typeString;
-	    paramsDecl += typeString;
-	    paramsDecl += ' ';
-	    paramsDecl += paramName;
-	    args += paramName;
-	    
-	    outParams.push_back(make_pair(type, paramName));
-	}
+	    else
+	    {
+	        typeString = inputTypeToString((*q)->type());
+	    }
+#else
+            string typeString = (*q)->isOutParam() ?
+                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
+            H << typeString;
+        }
+        if(!p->isLocal())
+        {
+            if(!paramList.empty())
+            {
+                H << ',' << nl;
+            }
+            H << "const Ice::Current&";
+        }
+        H.restoreIndent();
+
+        bool nonmutating = op->mode() == Operation::Nonmutating;
+
+        H << ")" << (nonmutating ? " const" : "") << ';';
+
+        C << sp << nl << retS << nl;
+	C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
+        C.useCurrentPosAsIndent();
+        for(q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            if(q != paramList.begin())
+            {
+                C << ',' << nl;
+            }
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+	    //
+	    // Work around for Sun CC 5.5 bug #4853566
+	    //
+	    string typeString;
+	    if((*q)->isOutParam())
+	    {
+	        typeString = outputTypeToString((*q)->type());
+	    }
+	    else
+	    {
+	        typeString = inputTypeToString((*q)->type());
+	    }
+#else
+            string typeString = (*q)->isOutParam() ?
+                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+#endif
+            C << typeString << ' ' << fixKwd((*q)->name());
+        }
+        if(!p->isLocal())
+        {
+            if(!paramList.empty())
+            {
+                C << ',' << nl;
+            }
+            C << "const Ice::Current& current";
+        }
+        C.restoreIndent();
+        C << ')';
+	C << (nonmutating ? " const" : "");
+        C << sb;
+
+        if(ret)
+        {
+            writeReturn(C, ret);
+        }
+
+        C << eb;
     }
 
-    H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
-      << " : public " << classScopedAMD  << '_' << name << ", public ::IceInternal::IncomingAsync";
-    H << sb;
-    H.dec();
-    H << nl << "public:";
-    H.inc();
-    
-    H << sp;
-    H << nl << classNameAMD << '_' << name << "(::IceInternal::Incoming&);";
-    
-    H << sp;
-    H << nl << "virtual void ice_response(" << params << ");";
-    H << nl << "virtual void ice_exception(const ::Ice::Exception&);";
-    H << nl << "virtual void ice_exception(const ::std::exception&);";
-    H << nl << "virtual void ice_exception();";
     H << eb << ';';
-    
-    C << sp << nl << "IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
-      << "(::IceInternal::Incoming& in) :";
-    C.inc();
-    C << nl << "IncomingAsync(in)";
-    C.dec();
-    C << sb;
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name << "::ice_response("
-      << paramsDecl << ')';
-    C << sb;
-    if(ret || !outParams.empty())
-    {
-	C << nl << "try";
-	C << sb;
-	C << nl << "::IceInternal::BasicStream* __os = this->__os();";
-	writeMarshalCode(C, outParams, ret);
-	C << eb;
-	C << nl << "catch(const ::Ice::Exception& __ex)";
-	C << sb;
-	C << nl << "__exception(__ex);";
-	C << nl << "return;";
-	C << eb;
-    }
-    C << nl << "__response(true);";
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::Ice::Exception& ex)";
-    C << sb;
-    if(throws.empty())
-    {
-	C << nl << "__exception(ex);";
-    }
-    else
-    {
-	C << nl << "try";
-	C << sb;
-	C << nl << "ex.ice_throw();";
-	C << eb;
-	ExceptionList::const_iterator r;
-	for(r = throws.begin(); r != throws.end(); ++r)
-	{
-	    C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
-	    C << sb;
-	    C << nl << "__os()->write(__ex);";
-	    C << nl << "__response(false);";
-	    C << eb;
-	}
-	C << nl << "catch(const ::Ice::Exception& __ex)";
-	C << sb;
-	C << nl << "__exception(__ex);";
-	C << eb;
-    }
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::std::exception& ex)";
-    C << sb;
-    C << nl << "__exception(ex);";
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception()";
-    C << sb;
-    C << nl << "__exception();";
-    C << eb;
+
+    return true;
 }
 
 void

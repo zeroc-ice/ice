@@ -345,12 +345,6 @@ Package=<4>
     Project_Dep_Name adapterDeactivationS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name exceptionsAMDS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsAMDS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name sliceexC
     End Project Dependency
     Begin Project Dependency
@@ -436,9 +430,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2cs
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexAMDS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name sliceobAMDS
@@ -666,24 +657,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsAMDS"=.\test\ice\exceptions\exceptionsAMDS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "exceptionsC"=.\test\ice\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -811,24 +784,6 @@ Package=<4>
 ###############################################################################
 
 Project: "faulttoleranceS"=.\test\ice\faulttolerance\faulttoleranceS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "gcC"=.\test\ice\gc\gcC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1197,78 +1152,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "objectsC"=.\test\ice\objects\objectsC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "objectsCOL"=.\test\ice\objects\objectsCOL.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "objectsS"=.\test\ice\objects\objectsS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "operationsAMDS"=.\test\ice\operations\operationsAMDS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "operationsC"=.\test\ice\operations\operationsC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1323,24 +1206,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexAMDS"=.\test\ice\slicing\exceptions\sliceexAMDS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "sliceexC"=.\test\ice\slicing\exceptions\sliceexC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1360,60 +1225,6 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceexS"=.\test\ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sliceobAMDS"=.\test\ice\slicing\objects\sliceobAMDS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sliceobC"=.\test\ice\slicing\objects\sliceobC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sliceobS"=.\test\ice\slicing\objects\sliceobS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1525,48 +1336,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "valueC"=.\demo\ice\value\valueC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "valueS"=.\demo\ice\value\valueS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
     End Project Dependency
 }}}
 

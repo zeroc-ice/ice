@@ -30,10 +30,6 @@ public interface ObjectPrx
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map __context);
 
-    void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams);
-    void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-                          java.util.Map context);
-
     Identity ice_getIdentity();
     ObjectPrx ice_newIdentity(Identity newIdentity);
 

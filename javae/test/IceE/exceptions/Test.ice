@@ -39,7 +39,7 @@ exception D
     int dMem;
 };
 
-["ami"] interface Thrower
+interface Thrower
 {
     void shutdown();
     bool supportsUndeclaredExceptions();
@@ -61,7 +61,7 @@ exception D
     void throwAssertException();
 };
 
-["ami"] interface WrongOperation
+interface WrongOperation
 {
     void noSuchOperation();
 };

@@ -139,7 +139,6 @@ Ice:
     Trace.Slicing
     UseEventLog
     UseSyslog
-    Warn.AMICallback
     Warn.Connections
     Warn.Dispatch
     Warn.Leaks

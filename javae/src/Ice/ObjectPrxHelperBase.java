@@ -176,20 +176,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final void
-    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
-    {
-        ice_invoke_async(cb, operation, mode, inParams, null);
-    }
-
-    public final void
-    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-		     java.util.Map context)
-    {
-	__checkTwowayOnly("ice_invoke_async");
-	cb.__invoke(this, operation, mode, inParams, context);
-    }
-
     public final Identity
     ice_getIdentity()
     {

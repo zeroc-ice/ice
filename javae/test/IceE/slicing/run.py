@@ -22,13 +22,8 @@ import TestUtil
 
 name = os.path.join("Ice", "slicing", "exceptions")
 testdir = os.path.join(toplevel, "test", name)
-nameAMD = os.path.join("Ice", "slicing", "exceptionsAMD")
-testdirAMD = os.path.join(toplevel, "test", nameAMD)
 
 print "tests with regular server."
 TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
-
-print "tests with AMD server."
-TestUtil.clientServerTestWithClasspath(os.path.join(testdirAMD, "classes"), os.path.join(testdir, "cclasses"))
 
 sys.exit(0)

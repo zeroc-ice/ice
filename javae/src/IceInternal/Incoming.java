@@ -157,7 +157,7 @@ final public class Incoming extends IncomingBase
 	    }
 	    finally
 	    {
-		if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
+		if(_locator != null && _servant != null)
 		{
 		    _locator.finished(_current, _servant, _cookie.value);
 		}
@@ -377,18 +377,6 @@ final public class Incoming extends IncomingBase
 	//
 
 	_is.endReadEncaps();
-
-	//
-	// DispatchAsync is "pseudo dispatch status", used internally
-	// only to indicate async dispatch.
-	//
-	if(status == DispatchStatus.DispatchAsync)
-	{
-	    //
-	    // If this was an asynchronous dispatch, we're done here.
-	    //
-	    return;
-	}
 
 	if(_response)
 	{

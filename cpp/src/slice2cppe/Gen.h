@@ -263,44 +263,6 @@ private:
         void writeReturn(::IceUtil::Output&, const TypePtr&);
     };
 
-    class AsyncVisitor : public ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-	AsyncVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
-
-	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitOperation(const OperationPtr&);
-
-    private:
-
-	::IceUtil::Output& H;
-	::IceUtil::Output& C;
-
-	std::string _dllExport;
-    };
-
-    class AsyncImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-	AsyncImplVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
-
-	virtual bool visitUnitStart(const UnitPtr&);
-	virtual void visitUnitEnd(const UnitPtr&);
-	virtual bool visitModuleStart(const ModulePtr&);
-	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitOperation(const OperationPtr&);
-
-    private:
-
-	::IceUtil::Output& H;
-	::IceUtil::Output& C;
-
-	std::string _dllExport;
-    };
-
 private:
 
     class MetaDataVisitor : public ParserVisitor

@@ -14,13 +14,11 @@
     <target name="all">
         <ant dir="adapterDeactivation"/>
         <ant dir="exceptions"/>
-        <ant dir="exceptionsAMD"/>
         <ant dir="facets"/>
         <ant dir="faultTolerance"/>
         <ant dir="inheritance"/>
         <ant dir="location"/>
         <ant dir="operations"/>
-        <ant dir="operationsAMD"/>
 	<ant dir="slicing"/> 
         <ant dir="custom"/>
         <ant dir="translator"/>
@@ -32,13 +30,11 @@
     <target name="clean">
         <ant dir="adapterDeactivation" target="clean"/>
         <ant dir="exceptions" target="clean"/>
-        <ant dir="exceptionsAMD" target="clean"/>
         <ant dir="facets" target="clean"/>
         <ant dir="faultTolerance" target="clean"/>
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="operations" target="clean"/>
-        <ant dir="operationsAMD" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>

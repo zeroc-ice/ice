@@ -46,18 +46,10 @@ public final class DispatchStatus
     public static final DispatchStatus DispatchUnknownException =
         new DispatchStatus(_DispatchUnknownException);
 
-    //
-    // "Pseudo dispatch status", used internally only to indicate
-    // async dispatch.
-    //
-    public static final int _DispatchAsync = 8;
-    public static final DispatchStatus DispatchAsync =
-        new DispatchStatus(_DispatchAsync);
-
     public static DispatchStatus
     convert(int val)
     {
-        assert val < 9;
+        assert val < 8;
         return __values[val];
     }
 
