@@ -111,12 +111,12 @@ strToInt64(const char* s, char** endptr, int base)
 	{
 	    int digit = digitVal[toupper(*s) - '0'];
 	    assert(digit != 100);
-	    if(result < INT64MAX / base)
+	    if(result < Int64Max / base)
 	    {
 		result *= base;
 		result += digit;
 	    }
-	    else if((digit <= INT64MAX % base) || (sign == -1 && digit == INT64MAX % base + 1))
+	    else if((digit <= Int64Max % base) || (sign == -1 && digit == Int64Max % base + 1))
 	    {
 		result *= base;
 		result += digit;
@@ -124,7 +124,7 @@ strToInt64(const char* s, char** endptr, int base)
 	    else
 	    {
 		overflow = true;
-		result = sign == -1 ? INT64MIN : INT64MAX;
+		result = sign == -1 ? Int64Min : Int64Max;
 	    }
 	}
 	++s;
