@@ -25,14 +25,14 @@ public final class ThreadPool
     private final static boolean TRACE_STACK_TRACE = false;
 
     public
-    ThreadPool(Instance instance, int threadNum, int timeout, String name)
+    ThreadPool(Instance instance, String prefix, int timeout)
     {
         _instance = instance;
         _destroyed = false;
         _timeout = timeout;
         _multipleThreads = false;
 	_promote = true;
-        _name = name;
+        _prefix = prefix;
 
         Network.SocketPair pair = Network.createPipe();
         _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
@@ -57,9 +57,12 @@ public final class ThreadPool
         //
         _keys = _selector.selectedKeys();
 
+	int threadNum = _instance.properties().getPropertyAsInt(_prefix + ".Size");
+    
 	if(threadNum < 1)
 	{
 	    threadNum = 1;
+	    _instance.properties().setProperty(_prefix + ".Size", "1");
 	}
 
         if(threadNum > 1)
@@ -70,11 +73,11 @@ public final class ThreadPool
         //
         // Use Ice.ProgramName as the prefix for the thread names.
         //
-        String threadNamePrefix = "";
+        String programNamePrefix = "";
         String programName = _instance.properties().getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {
-            threadNamePrefix = programName + "-";
+            programNamePrefix = programName + "-";
         }
 
         try
@@ -82,7 +85,7 @@ public final class ThreadPool
             _threads = new EventHandlerThread[threadNum];
             for(int i = 0; i < threadNum; i++)
             {
-                _threads[i] = new EventHandlerThread(threadNamePrefix + _name + "-" + i);
+                _threads[i] = new EventHandlerThread(programNamePrefix + _prefix + "-" + i);
                 _threads[i].start();
             }
         }
@@ -830,7 +833,7 @@ public final class ThreadPool
     private void
     trace(String msg)
     {
-        System.err.println(_name + ": " + msg);
+        System.err.println(_prefix + ": " + msg);
     }
 
     private String
@@ -894,7 +897,7 @@ public final class ThreadPool
     private boolean _promote;
     private java.lang.Object _promoteMonitor = new java.lang.Object();
     private boolean _multipleThreads;
-    private String _name;
+    private String _prefix;
 
     private final class EventHandlerThread extends Thread
     {

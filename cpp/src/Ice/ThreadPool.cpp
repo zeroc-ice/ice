@@ -21,6 +21,7 @@
 #include <Ice/Functional.h>
 #include <Ice/Protocol.h>
 #include <Ice/ObjectAdapterFactory.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;
@@ -29,7 +30,7 @@ using namespace IceInternal;
 void IceInternal::incRef(ThreadPool* p) { p->__incRef(); }
 void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 
-IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, int threadNum, int timeout) :
+IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
     _destroyed(false),
     _lastFd(INVALID_SOCKET),
@@ -47,9 +48,12 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, int threadNum, 
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
+    int threadNum = _instance->properties()->getPropertyAsInt(prefix + ".Size");
+
     if(threadNum < 1)
     {
 	threadNum = 1;
+	_instance->properties()->setProperty(prefix + ".Size", "1");
     }
 
     if(threadNum > 1)

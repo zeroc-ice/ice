@@ -39,7 +39,7 @@ class ThreadPool : public ::IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    ThreadPool(const InstancePtr&, int, int);
+    ThreadPool(const InstancePtr&, const std::string&, int);
     virtual ~ThreadPool();
 
     void destroy();
