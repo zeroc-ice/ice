@@ -18,6 +18,7 @@
 extern "C"
 {
 ZEND_FUNCTION(Ice_Communicator___construct);
+ZEND_FUNCTION(Ice_Communicator_getProperty);
 ZEND_FUNCTION(Ice_Communicator_stringToProxy);
 ZEND_FUNCTION(Ice_Communicator_proxyToString);
 ZEND_FUNCTION(Ice_Communicator_addObjectFactory);
@@ -27,13 +28,14 @@ ZEND_FUNCTION(Ice_Communicator_flushBatchRequests);
 }
 
 #define ICE_PHP_COMMUNICATOR_FUNCTIONS \
-    ZEND_FE(Ice_Communicator___construct,         NULL) \
-    ZEND_FE(Ice_Communicator_stringToProxy,       NULL) \
-    ZEND_FE(Ice_Communicator_proxyToString,       NULL) \
-    ZEND_FE(Ice_Communicator_addObjectFactory,    NULL) \
-    ZEND_FE(Ice_Communicator_removeObjectFactory, NULL) \
-    ZEND_FE(Ice_Communicator_findObjectFactory,   NULL) \
-    ZEND_FE(Ice_Communicator_flushBatchRequests,  NULL)
+    ZEND_FE(Ice_Communicator___construct,            NULL) \
+    ZEND_FE(Ice_Communicator_getProperty,            NULL) \
+    ZEND_FE(Ice_Communicator_stringToProxy,          NULL) \
+    ZEND_FE(Ice_Communicator_proxyToString,          NULL) \
+    ZEND_FE(Ice_Communicator_addObjectFactory,       NULL) \
+    ZEND_FE(Ice_Communicator_removeObjectFactory,    NULL) \
+    ZEND_FE(Ice_Communicator_findObjectFactory,      NULL) \
+    ZEND_FE(Ice_Communicator_flushBatchRequests,     NULL)
 
 namespace IcePHP
 {

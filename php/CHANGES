@@ -3,6 +3,8 @@ Changes since version 1.1.2
 
 - Compatibility with Ice 2.0.0.
 
+- Added the communicator method getProperty(name[, default]).
+
 - The configuration directives in an INI file are now named
   "ice.config", "ice.slice", and "ice.options", for consistency
   with the global directives. The previous directive names are

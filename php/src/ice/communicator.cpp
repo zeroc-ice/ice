@@ -46,13 +46,14 @@ static void initCommunicator(ice_object* TSRMLS_DC);
 //
 static function_entry _methods[] =
 {
-    {"__construct",         PHP_FN(Ice_Communicator___construct),         NULL},
-    {"stringToProxy",       PHP_FN(Ice_Communicator_stringToProxy),       NULL},
-    {"proxyToString",       PHP_FN(Ice_Communicator_proxyToString),       NULL},
-    {"addObjectFactory",    PHP_FN(Ice_Communicator_addObjectFactory),    NULL},
-    {"removeObjectFactory", PHP_FN(Ice_Communicator_removeObjectFactory), NULL},
-    {"findObjectFactory",   PHP_FN(Ice_Communicator_findObjectFactory),   NULL},
-    {"flushBatchRequests",  PHP_FN(Ice_Communicator_flushBatchRequests),  NULL},
+    {"__construct",            PHP_FN(Ice_Communicator___construct),            NULL},
+    {"getProperty",            PHP_FN(Ice_Communicator_getProperty),            NULL},
+    {"stringToProxy",          PHP_FN(Ice_Communicator_stringToProxy),          NULL},
+    {"proxyToString",          PHP_FN(Ice_Communicator_proxyToString),          NULL},
+    {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
+    {"removeObjectFactory",    PHP_FN(Ice_Communicator_removeObjectFactory),    NULL},
+    {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
+    {"flushBatchRequests",     PHP_FN(Ice_Communicator_flushBatchRequests),     NULL},
     {NULL, NULL, NULL}
 };
 
@@ -146,6 +147,50 @@ IcePHP::getCommunicatorZval(TSRMLS_D)
 ZEND_FUNCTION(Ice_Communicator___construct)
 {
     zend_error(E_ERROR, "Ice_Communicator cannot be instantiated, use the global variable $ICE");
+}
+
+ZEND_FUNCTION(Ice_Communicator_getProperty)
+{
+    if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    char *name;
+    int nameLen;
+    char *def = NULL;
+    int defLen = 0;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &name, &nameLen, &def, &defLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        string val = (*_this)->getProperties()->getProperty(name);
+        if(val.empty() && def)
+        {
+            RETURN_STRING(def, 1);
+        }
+        else
+        {
+            RETURN_STRING(const_cast<char*>(val.c_str()), 1);
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_EMPTY_STRING();
+    }
 }
 
 ZEND_FUNCTION(Ice_Communicator_stringToProxy)
