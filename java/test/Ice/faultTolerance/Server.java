@@ -24,14 +24,9 @@ public class Server
         {
             if(args[i].charAt(0) == '-')
             {
-                //
-                // TODO: Arguments recognized by the communicator are not
-                // removed from the argument list.
-                //
-                //System.err.println("Server: unknown option `" + args[i] + "'");
-                //usage();
-                //return 1;
-                continue;
+                System.err.println("Server: unknown option `" + args[i] + "'");
+                usage();
+                return 1;
             }
 
             if(port > 0)
@@ -61,9 +56,7 @@ public class Server
         }
 
         String endpts = "default -p " + port;
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TestAdapter",
-                                                          endpts);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
         Ice.Object object = new TestI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();
@@ -76,11 +69,12 @@ public class Server
     {
         int status = 0;
         Ice.Communicator communicator = null;
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
 
         try
         {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            communicator = Ice.Util.initialize(argsH);
+            status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)
         {
