@@ -20,7 +20,6 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
-#include <list>
 
 namespace Ice
 {
@@ -39,6 +38,7 @@ public:
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
     BasicStream(Instance *);
+    ~BasicStream();
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
@@ -223,12 +223,7 @@ private:
 	TypeIdReadMap* typeIdMap;
 	Ice::Int typeIdIndex;
 
-    private:
-
-	//
-	// operator=() and operator==() are not allowed.
-	//
-	ReadEncaps& operator=(const ReadEncaps&);
+	ReadEncaps* previous;
     };
 
     class ICE_API WriteEncaps : public ::IceUtil::noncopyable
@@ -245,10 +240,10 @@ private:
 	PtrToIndexMap* marshaledMap;
 	TypeIdWriteMap* typeIdMap;
 	Ice::Int typeIdIndex;
+
+	WriteEncaps* previous;
     };
 
-    std::list<ReadEncaps> _readEncapsStack;
-    std::list<WriteEncaps> _writeEncapsStack;
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;
     Container::size_type _readSlice;
