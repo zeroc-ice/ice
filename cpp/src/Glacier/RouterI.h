@@ -12,17 +12,23 @@
 #define GLACIER_ROUTER_I_H
 
 #include <Ice/RoutingTableF.h>
-#include <Ice/Router.h>
 #include <Ice/Ice.h>
+
+#include <Glacier/Router.h>
+#include <Glacier/SessionManagerF.h>
+
+#include <list>
 
 namespace Glacier
 {
 
-class RouterI : public Ice::Router
+class RouterI : public Router
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&);
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&,
+	    const SessionManagerPrx&, const ::std::string&);
+	    
     virtual ~RouterI();
 
     void destroy();
@@ -31,6 +37,7 @@ public:
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&);
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
+    virtual SessionPrx createSession(const Ice::Current&);
 
 private:
 
@@ -39,6 +46,11 @@ private:
     Ice::LoggerPtr _logger;
     ::IceInternal::RoutingTablePtr _routingTable;
     int _routingTableTraceLevel;
+
+    IceUtil::Mutex _sessionMutex;
+    SessionManagerPrx _sessionManager;
+    ::std::list<SessionPrx> _sessions;
+    ::std::string _userId;
 };
 
 }

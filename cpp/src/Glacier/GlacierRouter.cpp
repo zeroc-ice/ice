@@ -13,6 +13,7 @@
 #include <Glacier/RouterI.h>
 #include <Glacier/ClientBlobject.h>
 #include <Glacier/ServerBlobject.h>
+#include <Glacier/SessionManager.h>
 #include <IceUtil/Base64.h>
 #include <Ice/CertificateVerifierF.h>
 #include <Ice/System.h>
@@ -41,7 +42,7 @@ private:
     ::Ice::ObjectPtr _blobject;
 };
 
-class Router : public Application
+class RouterApp : public Application
 {
 public:
 
@@ -87,7 +88,7 @@ Glacier::ServantLocator::deactivate()
 }
 
 void
-Glacier::Router::usage()
+Glacier::RouterApp::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
@@ -98,7 +99,7 @@ Glacier::Router::usage()
 }
 
 int
-Glacier::Router::run(int argc, char* argv[])
+Glacier::RouterApp::run(int argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
     {
@@ -159,7 +160,7 @@ Glacier::Router::run(int argc, char* argv[])
     //
     // Initialize the client object adapter.
     //
-    const char* clientEndpointsProperty = "Glacier.Client.Endpoints";
+    const char* clientEndpointsProperty = "Glacier.Router.Client.Endpoints";
     string clientEndpoints = properties->getProperty(clientEndpointsProperty);
     if (clientEndpoints.empty())
     {
@@ -172,7 +173,7 @@ Glacier::Router::run(int argc, char* argv[])
     //
     // Initialize the server object adapter.
     //
-    const char* serverEndpointsProperty = "Glacier.Server.Endpoints";
+    const char* serverEndpointsProperty = "Glacier.Router.Server.Endpoints";
     string serverEndpoints = properties->getProperty(serverEndpointsProperty);
     ObjectAdapterPtr serverAdapter;
     if (!serverEndpoints.empty())
@@ -180,11 +181,14 @@ Glacier::Router::run(int argc, char* argv[])
 	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
     }
 
+    const char* allowCategoriesProperty = "Glacier.Router.AllowCategories";
+    string allowCategories = properties->getProperty(allowCategoriesProperty);
+
     //
     // Create the client and server blobjects and the associated
     // servant locators.
     //
-    ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable);
+    ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable, allowCategories);
     Ice::ServantLocatorPtr clientServantLocator = new Glacier::ServantLocator(clientBlobject);
     clientAdapter->addServantLocator(clientServantLocator, "");
     if (serverAdapter)
@@ -204,15 +208,25 @@ Glacier::Router::run(int argc, char* argv[])
 	cerr << appName() << ": property `" << routerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
+
     const char* routerIdentityProperty = "Glacier.Router.Identity";
-    string routerIdentity = properties->getProperty(routerIdentityProperty);
-    if (routerIdentity.empty())
+    string routerIdentity = properties->getPropertyWithDefault(routerIdentityProperty, "Glacier/router");
+
+    const char* sessionManagerProperty = "Glacier.Router.SessionManager";
+    string sessionManager = properties->getProperty(sessionManagerProperty);
+
+    SessionManagerPrx sessionManagerPrx;
+    if (!sessionManager.empty())
     {
-	routerIdentity = "Glacier/router";
+	sessionManagerPrx = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManager));
     }
+
+    const char* userIdProperty = "Glacier.Router.UserId";
+    string userId = properties->getProperty(userIdProperty);
+
     ObjectAdapterPtr routerAdapter =
 	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
-    RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable);
+    RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable, sessionManagerPrx, userId);
     routerAdapter->add(router, stringToIdentity(routerIdentity));
 
 #ifndef _WIN32
@@ -290,6 +304,6 @@ main(int argc, char* argv[])
     }
     defaultProperties->setProperty("Ice.DefaultRouter", "");
 
-    Glacier::Router app;
+    Glacier::RouterApp app;
     return app.main(argc, argv);
 }

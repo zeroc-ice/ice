@@ -9,6 +9,8 @@
 // **********************************************************************
 
 #include <Ice/RoutingTable.h>
+#include <Ice/IdentityUtil.h>
+
 #include <Glacier/ClientBlobject.h>
 
 using namespace std;
@@ -16,13 +18,25 @@ using namespace Ice;
 using namespace Glacier;
 
 Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
-					const IceInternal::RoutingTablePtr& routingTable) :
+					const IceInternal::RoutingTablePtr& routingTable,
+					const string& allowCategories) :
     _communicator(communicator),
     _logger(_communicator->getLogger()),
     _routingTable(routingTable)
 {
     PropertiesPtr properties = _communicator->getProperties();
-    _traceLevel = properties->getPropertyAsInt("Glacier.Trace.Client");
+    _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
+
+    size_t current = 0;
+    const string ws = " \t";
+    do
+    {
+	size_t pos = allowCategories.find_first_of(ws, current);
+	size_t len = (pos == string::npos) ? string::npos : pos - current;
+	_allowCategories.insert(allowCategories.substr(current, len));
+	current = allowCategories.find_first_not_of(ws, pos);
+    }
+    while (current != string::npos);
 }
 
 Glacier::ClientBlobject::~ClientBlobject()
@@ -48,13 +62,33 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 {
     assert(_communicator); // Destroyed?
 
+    //
+    // If there is an allowCategories set then enforce it.
+    //
+    if (!_allowCategories.empty())
+    {
+	if (_allowCategories.find(current.identity.category) == _allowCategories.end())
+	{
+	    if (_traceLevel > 0)
+	    {
+		Trace out(_logger, "Glacier");
+		out << "rejecting request. identity: " << identityToString(current.identity);
+	    }
+	    ObjectNotExistException ex(__FILE__, __LINE__);
+	    ex.identity = current.identity;
+	    throw ex;
+	}
+    }
+
     try
     {
 	ObjectPrx proxy = _routingTable->get(current.identity);
 	
 	if (!proxy)
 	{
-	    throw ObjectNotExistException(__FILE__, __LINE__);
+	    ObjectNotExistException ex(__FILE__, __LINE__);
+	    ex.identity = current.identity;
+	    throw ex;
 	}
 	
 	if (!current.facet.empty())

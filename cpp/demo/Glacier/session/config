@@ -1,15 +1,9 @@
 #
-# The client reads this property to create the reference to the
-# "hello" object in the server.
-#
-Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
-
-#
 # The server creates one single object adapter with the name
 # "helloadapater". The following line sets the endpoints for this
 # adapter
 #
-Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Ice.Adapter.HelloSessionManagerAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -24,7 +18,7 @@ Ice.ConnectionWarnings=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-#Ice.Trace.Network=3
+Ice.Trace.Network=1
 
 #
 # Protocol Tracing
@@ -55,12 +49,20 @@ Ice.SSL.Server.CertPath=../../../certs
 Ice.SSL.Server.Config=sslconfig.xml
 
 #
-# Glacier settings
+# Glacier Router settings
 #
-Glacier.Router.Endpoints=default -p 10005
+Glacier.Router.Endpoints=default
+Glacier.Router.SessionManager=HelloSessionManager:tcp -p 10000:ssl -p 10001
 Glacier.Router.Client.Endpoints=tcp:udp:ssl
 Glacier.Router.Trace.Client=2
 Glacier.Router.Trace.RoutingTable=1
+
+#
+# Glacier Starter settings
+#
+Glacier.Starter.PasswordVerifier=PasswordVerifier:tcp -p 10000:ssl -p 10001
+Glacier.Starter.AddUserToAllowCategories=true
+Glacier.Starter.Endpoints=tcp -p 11000:ssl -p 11001
 
 #
 # Uncomment the following lines if you want to run this demo with Glacier

@@ -13,11 +13,11 @@ Ice.SSL.Server.CertPath=../../../certs
 Ice.SSL.Server.Config=sslconfig.xml
 
 Glacier.Router.Endpoints=default -p 10005
-Glacier.Client.Endpoints=default
-Glacier.Server.Endpoints=default
-Glacier.Trace.Client=2
-Glacier.Trace.Server=2
-Glacier.Trace.RoutingTable=1
+Glacier.Router.Client.Endpoints=default
+Glacier.Router.Server.Endpoints=default
+Glacier.Router.Trace.Client=2
+Glacier.Router.Trace.Server=2
+Glacier.Router.Trace.RoutingTable=1
 
 # Uncomment the following lines if you want to run this demo with Glacier
 #Ice.DefaultRouter=Glacier/router:default -p 10005

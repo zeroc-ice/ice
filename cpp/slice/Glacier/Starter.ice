@@ -11,7 +11,7 @@
 #ifndef GLACIER_ICE
 #define GLACIER_ICE
 
-#include <Ice/Router.ice>
+#include <Glacier/Router.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /**
@@ -71,7 +71,7 @@ interface Starter
      * given user id is not correct.
      *
      **/
-    Ice::Router* startRouter(string userId, string password;
+    Glacier::Router* startRouter(string userId, string password;
 			     Ice::ByteSeq privateKey, Ice::ByteSeq publicKey, Ice::ByteSeq routerCert)
 	throws InvalidPasswordException, CannotStartRouterException;
 };
@@ -96,15 +96,6 @@ interface PasswordVerifier
      **/
     ["nonmutating"]
     bool checkPassword(string userId, string password);
-    
-    /**
-     *
-     * Called when the password verifier is not needed anymore by the
-     * &Glacier; router starter.
-     *
-     **/
-    ["nonmutating"]
-    void destroy();
 };
 
 };

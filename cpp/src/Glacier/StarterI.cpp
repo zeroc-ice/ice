@@ -14,7 +14,7 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/RSAKeyPair.h>
-#include <Glacier/GlacierI.h>
+#include <Glacier/StarterI.h>
 #include <fcntl.h>
 #include <shadow.h>
 
@@ -32,7 +32,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
 {
     assert(_verifier);
 
-    _traceLevel = _properties->getPropertyAsInt("Glacier.Trace.Starter");
+    _traceLevel = _properties->getPropertyAsInt("Glacier.Starter.Trace");
 
     // Set up the Certificate Generation context
     string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
@@ -69,7 +69,7 @@ Glacier::StarterI::destroy()
     _properties = 0;
 }
 
-RouterPrx
+Glacier::RouterPrx
 Glacier::StarterI::startRouter(const string& userId, const string& password, ByteSeq& privateKey, ByteSeq& publicKey,
 			       ByteSeq& routerCert, const Current&)
 {
@@ -118,7 +118,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     //
     // Start a router.
     //
-    string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacier");
+    string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacierrouter");
     string uuid = IceUtil::generateUUID();
     pid_t pid;
     int fds[2];
@@ -178,6 +178,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
         args.push_back("--Ice.SSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
         args.push_back("--Ice.SSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
+	args.push_back("--Glacier.Router.UserId=" + userId);
+	
+	if (!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
+	{
+	    args.push_back("--Glacier.Router.AllowCategories=" +
+			   _properties->getProperty("Glacier.Router.AllowCategories") + string(" ") + userId);
+	}
+
 	ostringstream s;
 	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
 	args.push_back(s.str());

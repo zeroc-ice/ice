@@ -13,7 +13,7 @@
 #endif
 
 #include <Ice/Application.h>
-#include <Glacier/GlacierI.h>
+#include <Glacier/StarterI.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <fstream>
@@ -24,7 +24,7 @@ using namespace Ice;
 namespace Glacier
 {
 
-class Router : public Application
+class RouterApp : public Application
 {
 public:
 
@@ -35,7 +35,7 @@ public:
 };
 
 void
-Glacier::Router::usage()
+Glacier::RouterApp::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
@@ -46,7 +46,7 @@ Glacier::Router::usage()
 }
 
 int
-Glacier::Router::run(int argc, char* argv[])
+Glacier::RouterApp::run(int argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
     {
@@ -88,7 +88,6 @@ Glacier::Router::run(int argc, char* argv[])
     //
     string verifierProperty = properties->getProperty("Glacier.Starter.PasswordVerifier");
     PasswordVerifierPrx verifier;
-    PasswordVerifierPtr verifierImpl;
     if (!verifierProperty.empty())
     {
 	verifier = PasswordVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
@@ -133,7 +132,7 @@ Glacier::Router::run(int argc, char* argv[])
 	    passwords.insert(make_pair(userId, password));
 	}
 
-	verifierImpl = new CryptPasswordVerifierI(passwords);
+	PasswordVerifierPtr verifierImpl = new CryptPasswordVerifierI(passwords);
 	verifier = PasswordVerifierPrx::uncheckedCast(adapter->addWithUUID(verifierImpl));
     }
 
@@ -152,24 +151,11 @@ Glacier::Router::run(int argc, char* argv[])
     ignoreInterrupt();
 
     //
-    // Destroy the starter and the password verifier.
+    // Destroy the starter.
     //
     StarterI* st = dynamic_cast<StarterI*>(starter.get());
     assert(st);
     st->destroy();
-    if (verifierImpl)
-    {
-	//
-	// Can't use proxy to shutdown if the verifier is collocated,
-	// since the object adapter is already shut down at this
-	// point. Thus I have to use the implementation.
-	//
-	verifierImpl->destroy();
-    }
-    else
-    {
-	verifier->destroy();
-    }
 
     return EXIT_SUCCESS;
 }
@@ -211,6 +197,6 @@ main(int argc, char* argv[])
     }
     defaultProperties->setProperty("Ice.DefaultRouter", "");
 
-    Glacier::Router app;
+    Glacier::RouterApp app;
     return app.main(argc, argv);
 }

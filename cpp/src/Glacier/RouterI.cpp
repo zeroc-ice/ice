@@ -10,6 +10,8 @@
 
 #include <Ice/RoutingTable.h>
 #include <Glacier/RouterI.h>
+#include <Glacier/Session.h>
+#include <Glacier/SessionManager.h>
 #include <iostream>
 
 using namespace std;
@@ -18,14 +20,18 @@ using namespace Glacier;
 
 Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 			  const ObjectAdapterPtr& serverAdapter,
-			  const ::IceInternal::RoutingTablePtr& routingTable) :
+			  const ::IceInternal::RoutingTablePtr& routingTable,
+			  const SessionManagerPrx& sessionManager,
+			  const string& userId) :
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
     _logger(_clientAdapter->getCommunicator()->getLogger()),
-    _routingTable(routingTable)
+    _routingTable(routingTable),
+    _sessionManager(sessionManager),
+    _userId(userId)
 {
     PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
-    _routingTableTraceLevel = properties->getPropertyAsInt("Glacier.Trace.RoutingTable");
+    _routingTableTraceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.RoutingTable");
 }
 
 Glacier::RouterI::~RouterI()
@@ -88,4 +94,28 @@ Glacier::RouterI::shutdown(const Current&)
 {
     assert(_routingTable);
     _clientAdapter->getCommunicator()->shutdown();
+
+    IceUtil::Mutex::Lock lock(_sessionMutex);
+
+    for (list<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    {
+	(*p)->stop();
+    }
+    _sessions.clear();
 }
+
+SessionPrx
+Glacier::RouterI::createSession(const Current&)
+{
+    IceUtil::Mutex::Lock lock(_sessionMutex);
+    if (!_sessionManager)
+    {
+	throw NoSessionManagerException();
+    }
+
+    SessionPrx session = _sessionManager->create(_userId); 
+    _sessions.push_back(session);
+
+    return session;
+}
+

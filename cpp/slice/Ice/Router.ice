@@ -20,10 +20,10 @@ module Ice
  * [Communicator::setGlobalRouter], or with [ice_router] on specific
  * Proxies.
  *
- * <note><para> This router interface is intended to be used by Ice
- * internals and by router implementations. Regular user code should
- * not attempt to use any functionality of this interface
- * directly. </para></note>
+ * <note><para> The router interface is not intended to be used by
+ * Ice internals and by router implementations. Regular user code
+ * should not attempt to use any functionality of this interface
+ * directly.</para></note>
  *
  **/
 interface Router
@@ -56,13 +56,6 @@ interface Router
      *
      **/
     void addProxy(Object* proxy);
-
-    /**
-     *
-     * Shutdown the router.
-     *
-     **/
-    void shutdown();
 };
 
 };

@@ -13,7 +13,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/RSACertificateGen.h>
-#include <Glacier/Glacier.h>
+#include <Glacier/Starter.h>
 
 namespace Glacier
 {
@@ -29,12 +29,12 @@ public:
 
     void destroy();
 
-    Ice::RouterPrx startRouter(const std::string&,
-                               const std::string&,
-                               Ice::ByteSeq&,
-                               Ice::ByteSeq&,
-                               Ice::ByteSeq&,
-                               const Ice::Current&);
+    RouterPrx startRouter(const std::string&,
+			  const std::string&,
+			  Ice::ByteSeq&,
+			  Ice::ByteSeq&,
+			  Ice::ByteSeq&,
+			  const Ice::Current&);
 
 private:
 

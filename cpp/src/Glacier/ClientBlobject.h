@@ -14,6 +14,8 @@
 #include <Ice/RoutingTableF.h>
 #include <Ice/Ice.h>
 
+#include <set>
+
 namespace Glacier
 {
 
@@ -21,7 +23,7 @@ class ClientBlobject : public Ice::Blobject
 {
 public:
 
-    ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&);
+    ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const ::std::string&);
     virtual ~ClientBlobject();
 
     void destroy();
@@ -33,6 +35,8 @@ private:
     Ice::LoggerPtr _logger;
     int _traceLevel;
     IceInternal::RoutingTablePtr _routingTable;
+
+    ::std::set< ::std::string> _allowCategories;
 };
 
 }

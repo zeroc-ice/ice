@@ -255,9 +255,9 @@ Ice.DefaultRouter=<replaceable>router</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default router (as stingified object reference to the
-&Glacier; router control interface) which is to be used for all
-Proxies, unless the router is overwritten with the Proxy's
+Specifies a default router (as stingified proxy to the &Glacier;
+router control interface) which is to be used for all Proxies, unless
+the router is overwritten with the Proxy's
 <literal>ice_router()</literal> operation. The default value is no
 router.
 </para>
@@ -273,8 +273,8 @@ Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replacea
 <section>
 <title>Description</title>
 <para>
-Specifies a router (as stingified object reference to the &Glacier;
-router control interface) for the object adapter with the name
+Specifies a router (as stingified proxy to the &Glacier; router
+control interface) for the object adapter with the name
 <replaceable>name</replaceable>. By doing so, the object adapter can
 receive callbacks from this router, using connections which are
 established from this process to the router, instead of the router
@@ -827,12 +827,12 @@ property is 100 ms.
 <section><title>&Glacier; Router Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Glacier.Router.Endpoints, Glacier.Client.Endpoints, Glacier.Server.Endpoints</title>
+<section><title>Glacier.Router.Endpoints, Glacier.Router.Client.Endpoints, Glacier.Router.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier.Router.Endpoints=<replaceable>endpoints</replaceable>
-Glacier.Client.Endpoints=<replaceable>endpoints</replaceable>
-Glacier.Server.Endpoints=<replaceable>endpoints</replaceable>
+Glacier.Router.Client.Endpoints=<replaceable>endpoints</replaceable>
+Glacier.Router.Server.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
@@ -883,10 +883,10 @@ router starter only. It should not be set manually.
 </section>
 </section>
 
-<section><title>Glacier.Trace.Client</title>
+<section><title>Glacier.Router.Trace.Client</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Trace.Client=<replaceable>num</replaceable>
+Glacier.Router.Trace.Client=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -918,10 +918,10 @@ the client to the server.
 </section>
 </section>
 
-<section><title>Glacier.Trace.Server</title>
+<section><title>Glacier.Router.Trace.Server</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Trace.Server=<replaceable>num</replaceable>
+Glacier.Router.Trace.Server=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -953,10 +953,10 @@ callbacks from the server to the client.
 </section>
 </section>
 
-<section><title>Glacier.Trace.RoutingTable</title>
+<section><title>Glacier.Router.Trace.RoutingTable</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Trace.RoutingTable=<replaceable>num</replaceable>
+Glacier.Router.Trace.RoutingTable=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -981,6 +981,53 @@ The routing table tracing level:
 </para>
 </section>
 </section>
+
+<section><title>Glacier.Router.SessionManager</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.SessionManager=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+A stringified proxy to the session manager inteface. If not specified,
+it is not possible to use the <literal>Router::createSession</literal>
+method.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Router.UserId</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.UserId=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The authenticated userId of the remote user.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Router.AllowCategories</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.AllowCategories=<replaceable>list</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+A whitespace seperated list of categories. If this property is set
+then requests are only permitted to identities with a category found
+in this list.
+</para>
+</section>
+</section>
+
 
 </section>
 
@@ -1095,10 +1142,25 @@ only.)
 </section>
 </section>
 
-<section><title>Glacier.Trace.Starter</title>
+<section><title>Glacier.Starter.AddUserToAllowCategories</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Trace.Starter=<replaceable>num</replaceable>
+Glacier.Starter.AddUserToAllowCategories=<replaceable>value</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If present the userId is added to the
+<literal>Glacier.Router.AllowCategories</literal> property.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Starter.Trace</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.Trace=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
