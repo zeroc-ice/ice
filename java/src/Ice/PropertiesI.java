@@ -12,7 +12,7 @@ package Ice;
 
 class PropertiesI implements Properties
 {
-    public String
+    public synchronized String
     getProperty(String key)
     {
         String result = (String)_properties.get(key);
@@ -23,13 +23,28 @@ class PropertiesI implements Properties
         return result;
     }
 
-    public void
+    public synchronized String
+    getPropertyWithDefault(String key, String value)
+    {
+        String result = (String)_properties.get(key);
+        if (result == null)
+        {
+            result = System.getProperty(key);
+        }
+        if (result == null)
+        {
+            result = value;
+        }
+        return result;
+    }
+
+    public synchronized void
     setProperty(String key, String value)
     {
         _properties.put(key, value);
     }
 
-    public String[]
+    public synchronized String[]
     getCommandLineOptions()
     {
         String[] result = new String[_properties.size()];
@@ -44,7 +59,7 @@ class PropertiesI implements Properties
         return result;
     }
 
-    public Properties
+    public synchronized Properties
     _clone()
     {
         PropertiesI p = new PropertiesI(new String[0]);
@@ -228,6 +243,5 @@ class PropertiesI implements Properties
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();
-    private static java.util.HashSet _argumentPrefixes =
-        new java.util.HashSet();
+    private static java.util.HashSet _argumentPrefixes = new java.util.HashSet();
 }
