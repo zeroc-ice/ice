@@ -234,13 +234,14 @@ namespace IceInternal
                     // We must destroy the incoming cache. It is now not
                     // needed anymore.
                     //
-                    _incomingCacheMutex.WaitOne();
-                    while(_incomingCache != null)
+                    lock(_incomingCacheMutex)
                     {
-                        _incomingCache.__destroy();
-                        _incomingCache = _incomingCache.next;
+                        while(_incomingCache != null)
+                        {
+                            _incomingCache.__destroy();
+                            _incomingCache = _incomingCache.next;
+                        }
                     }
-                    _incomingCacheMutex.ReleaseMutex();
 
                     return true;
                 }
@@ -328,13 +329,14 @@ namespace IceInternal
 	    // We must destroy the incoming cache. It is now not
 	    // needed anymore.
 	    //
-	    _incomingCacheMutex.WaitOne();
-	    while(_incomingCache != null)
-	    {
-		_incomingCache.__destroy();
-		_incomingCache = _incomingCache.next;
-	    }
-	    _incomingCacheMutex.ReleaseMutex();
+            lock(_incomingCacheMutex)
+            {
+                while(_incomingCache != null)
+                {
+                    _incomingCache.__destroy();
+                    _incomingCache = _incomingCache.next;
+                }
+            }
 	}
 	
 	public void monitor()
@@ -1242,6 +1244,7 @@ namespace IceInternal
 		    _asyncRequests = new Hashtable();
 		}
 	    }
+
 	    while(inc != null)
 	    {
 		inc.__destroy();
@@ -1577,35 +1580,31 @@ namespace IceInternal
 	{
 	    Incoming inc = null;
 	    
-	    _incomingCacheMutex.WaitOne();
-	    try
-	    {
-		if(_incomingCache == null)
-		{
-		    inc = new Incoming(_instance, this, _adapter, response, compress);
-		}
-		else
-		{
-		    inc = _incomingCache;
-		    _incomingCache = _incomingCache.next;
-		    inc.next = null;
-		    inc.reset(_instance, this, _adapter, response, compress);
-		}
-	    }
-	    finally
-	    {
-		_incomingCacheMutex.ReleaseMutex();
-	    }
+            lock(_incomingCacheMutex)
+            {
+                if(_incomingCache == null)
+                {
+                    inc = new Incoming(_instance, this, _adapter, response, compress);
+                }
+                else
+                {
+                    inc = _incomingCache;
+                    _incomingCache = _incomingCache.next;
+                    inc.next = null;
+                    inc.reset(_instance, this, _adapter, response, compress);
+                }
+            }
 	    
 	    return inc;
 	}
 	
 	private void reclaimIncoming(Incoming inc)
 	{
-	    _incomingCacheMutex.WaitOne();
-	    inc.next = _incomingCache;
-	    _incomingCache = inc;
-	    _incomingCacheMutex.ReleaseMutex();
+            lock(_incomingCacheMutex)
+            {
+                inc.next = _incomingCache;
+                _incomingCache = inc;
+            }
 	}
 	
 	private bool closingOK()
@@ -1670,6 +1669,6 @@ namespace IceInternal
 	private object _sendMutex = new object();
 
 	private Incoming _incomingCache;
-	private Mutex _incomingCacheMutex = new Mutex();
+	private object _incomingCacheMutex = new object();
     }
 }

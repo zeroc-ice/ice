@@ -303,6 +303,8 @@ namespace IceInternal
 	    // in the code below are considered fatal, and must propagate to
 	    // the caller of this operation.
 	    //
+
+	    _is.endReadEncaps();
 	    
 	    //
 	    // DispatchAsync is "pseudo dispatch status", used internally
@@ -315,7 +317,6 @@ namespace IceInternal
 		// here.  We do *not* call __finishInvoke(), because
 		// the call is not finished yet.
 		//
-		_is.endReadEncaps();
 		return;
 	    }
 	    
