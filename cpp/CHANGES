@@ -1,8 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
-- Fixed a bug in the slice2cpp code generator: if a class was forward declared and used as a class member,
-  but the definition of the class was not supplied in the same Slice compilation unit, invalid code was generated.
+- Fixed a bug in the slice2cpp code generator: if a class was forward
+  declared and used as a class member, but the definition of the class
+  was not supplied in the same Slice compilation unit, invalid code
+  was generated.
 
 - Fixed filedescriptor leak in the Glacier router starter.
 
