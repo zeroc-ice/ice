@@ -76,7 +76,7 @@ IceInternal::Instance::communicator()
 PropertiesPtr
 IceInternal::Instance::properties()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    // No mutex lock, immutable.
     return _properties;
 }
 
@@ -97,23 +97,21 @@ IceInternal::Instance::logger(const LoggerPtr& logger)
 TraceLevelsPtr
 IceInternal::Instance::traceLevels()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    // No mutex lock, immutable.
     return _traceLevels;
 }
 
 string
 IceInternal::Instance::defaultProtocol()
 {
-    // No synchronization necessary
-    // IceUtil::Mutex::Lock sync(*this);
+    // No mutex lock, immutable.
     return _defaultProtocol;
 }
 
 string
 IceInternal::Instance::defaultHost()
 {
-    // No synchronization necessary
-    // IceUtil::Mutex::Lock sync(*this);
+    // No mutex lock, immutable.
     return _defaultHost;
 }
 
@@ -356,89 +354,79 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    ThreadPoolPtr threadPool;
 
-    //
-    // Destroy all contained objects. Then set all references to null,
-    // to avoid cyclic object dependencies.
-    //
-
-    if (_communicator)
     {
-	// Don't destroy the communicator -- the communicator destroys
-	// this object, not the other way.
-	_communicator = 0;
-    }
-
-    if (_objectAdapterFactory)
-    {
-	// Don't shut down the object adapters -- the communicator
-	// must do this before it destroys this object.
-	_objectAdapterFactory = 0;
-    }
-    
-    if (_servantFactoryManager)
-    {
-	_servantFactoryManager->destroy();
-	_servantFactoryManager = 0;
-    }
-
-    if (_userExceptionFactoryManager)
-    {
-	_userExceptionFactoryManager->destroy();
-	_userExceptionFactoryManager = 0;
-    }
-
-    if (_referenceFactory)
-    {
-	_referenceFactory->destroy();
-	_referenceFactory = 0;
-    }
-
-    if (_proxyFactory)
-    {
-	// No destroy function defined
-	// _proxyFactory->destroy();
-	_proxyFactory = 0;
-    }
-
-    if (_outgoingConnectionFactory)
-    {
-	_outgoingConnectionFactory->destroy();
-	_outgoingConnectionFactory = 0;
-    }
-
-    if (_routerManager)
-    {
-	_routerManager->destroy();
-	_routerManager = 0;
-    }
-
-    if (_threadPool)
-    {
-	_threadPool->waitUntilFinished();
-	_threadPool->destroy();
-	_threadPool->joinWithAllThreads();
+	IceUtil::Mutex::Lock sync(*this);
+	
+	//
+	// Destroy all contained objects. Then set all references to null,
+	// to avoid cyclic object dependencies.
+	//
+	
+	if (_communicator)
+	{
+	    // Don't destroy the communicator -- the communicator destroys
+	    // this object, not the other way.
+	    _communicator = 0;
+	}
+	
+	if (_objectAdapterFactory)
+	{
+	    // Don't shut down the object adapters -- the communicator
+	    // must do this before it destroys this object.
+	    _objectAdapterFactory = 0;
+	}
+	
+	if (_servantFactoryManager)
+	{
+	    _servantFactoryManager->destroy();
+	    _servantFactoryManager = 0;
+	}
+	
+	if (_userExceptionFactoryManager)
+	{
+	    _userExceptionFactoryManager->destroy();
+	    _userExceptionFactoryManager = 0;
+	}
+	
+	if (_referenceFactory)
+	{
+	    _referenceFactory->destroy();
+	    _referenceFactory = 0;
+	}
+	
+	if (_proxyFactory)
+	{
+	    // No destroy function defined
+	    // _proxyFactory->destroy();
+	    _proxyFactory = 0;
+	}
+	
+	if (_outgoingConnectionFactory)
+	{
+	    _outgoingConnectionFactory->destroy();
+	    _outgoingConnectionFactory = 0;
+	}
+	
+	if (_routerManager)
+	{
+	    _routerManager->destroy();
+	    _routerManager = 0;
+	}
+	
+	//
+	// We destroy the thread pool outside the thread
+	// synchronization.
+	//
+	threadPool = _threadPool;
 	_threadPool = 0;
     }
-
-    if (_properties)
+    
+    if (threadPool)
     {
-	// No destroy function defined
-	// _properties->destroy();
-	_properties = 0;
-    }
-
-    if (_logger)
-    {
-	_logger->destroy();
-	_logger = 0;
-    }
-
-    if (_traceLevels)
-    {
-	// No destroy function defined
-	// _traceLevels->destroy();
-	_traceLevels = 0;
+	threadPool->waitUntilFinished();
+	threadPool->destroy();
+	threadPool->joinWithAllThreads();
     }
 }
