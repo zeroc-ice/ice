@@ -983,7 +983,9 @@ public:
 	TransformMap::const_iterator p = _transforms->find(n);
 	if(p == _transforms->end())
 	{
-	    throw SchemaViolation(__FILE__, __LINE__);
+	    SchemaViolation ex(__FILE__, __LINE__);
+	    ex.reason = "unable to find a transformation for type `" + n + "'";
+	    throw ex;
 	}
 	p->second->transform(os, info, name, node);
     }
