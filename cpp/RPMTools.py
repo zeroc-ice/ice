@@ -104,7 +104,7 @@ class Package:
 	ofile.write('cd /usr\n')
 	for perm, f in self.filelist:
 	    if perm == "dll":
-		ofile.write('gacutil -i ' + f + '\n')
+		ofile.write('gacutil -i ' + f + ' > /dev/null\n')
 		ofile.write('rm ' + f + '\n')
 	ofile.write('\n')
 
@@ -117,7 +117,6 @@ class Package:
 		    #
 		    pipe_stdin, pipe_stdout = os.popen2('monodis --assembly ' + installDir + '/usr/' + f);
 		    lines = pipe_stdout.readlines()
-		    print lines
 		    pipe_stdin.close()
 		    pipe_stdout.close()
 		    assemblyName = ''
@@ -128,7 +127,7 @@ class Package:
 			elif l.startswith('Version:'):
 			    assemblyVersion = l.split(':')[1].strip()
 
-		    ofile.write('gacutil -u ' + assemblyName + ', version=' + assemblyVersion + '\n')
+		    ofile.write('gacutil -u ' + assemblyName + ', version=' + assemblyVersion + ' > /dev/null\n')
 		else:
 		    ofile.write('# Unable to determine assembly information for ' + f)
 		    ofile.write(', please adjust the file manually\n')

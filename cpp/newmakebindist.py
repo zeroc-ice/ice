@@ -236,7 +236,8 @@ def archiveDemoTree(buildDir, version):
     #
     # Remove Windows project files.
     #
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos -regex \".*\.ds[wp]\" ` ; do rm -rf $f ; done'")
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsp\" ` ; do rm -rf $f ; done'")
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
 
@@ -550,16 +551,17 @@ def main():
         for cvs, tarball, demoDir in sourceTarBalls:
             if collectSources:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
-
-            extractDemos(sources, buildDir, version, tarball, demoDir)
+	    if getPlatform() == "linux":
+		extractDemos(sources, buildDir, version, tarball, demoDir)
             makeInstall(sources, buildDir, installDir + "/Ice-" + version, tarball, clean)
 
         #
         # Pack up demos
         #
-        archiveDemoTree(buildDir, version)
-        shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
-        shutil.move(buildDir + "/Ice-" + version + "-demos.zip", installDir + "/Ice-" + version + "-demos.zip")
+	if getPlatform() == "linux":
+	    archiveDemoTree(buildDir, version)
+	    shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
+	    shutil.move(buildDir + "/Ice-" + version + "-demos.zip", installDir + "/Ice-" + version + "-demos.zip")
 
     elif cvsMode:
 	collectSources = False
