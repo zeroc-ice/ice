@@ -35,8 +35,8 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.3.8 using Mac OS
-X default C++ compiler, GCC 3.3.
+This binary distribution was compiled on Mac OS X 10.3.8 using the
+default C++ compiler, GCC 3.3.
 
 This distribution depends on a number of third-party libraries which
 are not included with the system:
@@ -51,7 +51,8 @@ are not included with the system:
   You can download expat from http://sourceforge.net/projects/expat/
 
 You need to download and compile these third party libraries to be
-able to use all the Ice components.
+able to use certain Ice components.
+
 
 Java
 ----
@@ -85,7 +86,7 @@ you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 DYLD_LIBRARY_PATH, as shown in the bash commands below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
-$ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+$ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
 
 C++
