@@ -368,15 +368,15 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     private void
     stopAll()
     {
-        java.util.Iterator r = _services.entrySet().iterator();
-        while(r.hasNext())
+	java.util.Iterator r;
+        do
         {
+	    r = _services.entrySet().iterator();
             java.util.Map.Entry e = (java.util.Map.Entry)r.next();
             String name = (String)e.getKey();
-            ServiceInfo info = (ServiceInfo)e.getValue();
             try
             {
-                info.service.stop();
+		stop(name);
             }
             catch(Exception ex)
             {
@@ -387,6 +387,8 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 _logger.error("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
             }
         }
+	while(r.hasNext());
+
         _services.clear();
     }
 
