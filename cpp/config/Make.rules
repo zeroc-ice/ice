@@ -24,6 +24,7 @@ CXXFLAGS	= -g -fPIC -Wall
 CPPFLAGS	= -I. -I$(includedir) -I$(STLPORT)/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib
 LIBS		= -lIce -lstlport_gcc_debug
+ICE		= $(bindir)/ice
 
 EVERYTHING	= all depend clean
 

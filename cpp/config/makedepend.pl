@@ -26,16 +26,11 @@ while(<STDIN>)
     }
 }
 
-open(UNIX, "> .depend") || die "can't open .depend: $!";
-open(WIN, "> .windep") || die "can't open .windep: $!";
+open(OUT, "> .depend") || die "can't open .depend: $!";
 
 while(($key,$value) = each %map)
 {
-    print UNIX "$key$value\n";
-    $key =~ s/\.o/.obj/;
-    $value =~ s/\//\\/g;
-    print WIN "$key$value\n";
+    print OUT "$key$value\n";
 }
 
-close(UNIX);
-close(WIN);
+close(OUT);

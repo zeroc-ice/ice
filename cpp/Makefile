@@ -12,7 +12,7 @@ top_srcdir	= .
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src
+SUBDIRS		= src test
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
