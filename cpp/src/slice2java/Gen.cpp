@@ -1260,7 +1260,22 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ContainerPtr container = (*r)->container();
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 	bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
+        //
+        // Work around for Sun CC 5.5 bug #4853566
+        //
+	string opName;
+	if(hasAMD)
+	{
+	    opName = (*r)->name() + "_async";
+	}
+	else
+	{
+	   opName = fixKwd((*r)->name());
+	}
+#else	
         string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
+#endif
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData());
 
