@@ -42,6 +42,22 @@ local interface Properties
 
     /**
      *
+     * Get a property by key. If the property does not exist, an empty
+     * string is returned.
+     *
+     * @param key The property key.
+     *
+     * @param value The supplied default value.
+     *
+     * @return The property value or the supplied default value.
+     *
+     * @see setProperty
+     *
+     **/
+    string getPropertyWithDefault(string key, string value);
+
+    /**
+     *
      * Set a property.
      *
      * @param key The property key.

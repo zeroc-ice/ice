@@ -32,6 +32,20 @@ Ice::PropertiesI::getProperty(const string& key)
     }
 }
 
+string
+Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
+{
+    map<string, string>::const_iterator p = _properties.find(key);
+    if (p != _properties.end())
+    {
+	return p->second;
+    }
+    else
+    {
+	return value;
+    }
+}
+
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {

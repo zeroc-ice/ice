@@ -22,6 +22,7 @@ class ICE_API PropertiesI : public Properties
 public:
     
     virtual std::string getProperty(const std::string&);
+    virtual std::string getPropertyWithDefault(const std::string&, const std::string&);
     virtual void setProperty(const std::string&, const std::string&);
     virtual StringSeq getCommandLineOptions();
     virtual PropertiesPtr clone();
