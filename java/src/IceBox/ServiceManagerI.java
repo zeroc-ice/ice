@@ -332,9 +332,17 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         ServiceInfo info = (ServiceInfo)_services.remove(service);
         assert(info != null);
 
+	FailureException failureEx = null;
+
         try
         {
             info.service.stop();
+
+	    if(info.communicator != null)
+	    {
+		info.communicator.shutdown();
+		info.communicator.waitForShutdown();
+	    }
 
 	    if(info.dbEnv != null)
 	    {
@@ -343,39 +351,15 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         }
 	catch(Freeze.DBException ex)
 	{
-	    if(info.communicator != null)
-	    {
-		try
-		{
-		    info.communicator.destroy();
-		}
-		catch(Exception e)
-		{
-		}
-	    }
-
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex;
-            e.initCause(ex);
-            throw e;
+            failureEx = new FailureException();
+            failureEx.reason = "ServiceManager: database exception in stop for service " + service + ": " + ex;
+            failureEx.initCause(ex);
 	}
         catch(Exception ex)
         {
-	    if(info.communicator != null)
-	    {
-		try
-		{
-		    info.communicator.destroy();
-		}
-		catch(Exception e)
-		{
-		}
-	    }
-
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
-            e.initCause(ex);
-            throw e;
+            failureEx = new FailureException();
+            failureEx.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
+            failureEx.initCause(ex);
         }
 
 	if(info.communicator != null)
@@ -386,11 +370,15 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    }
 	    catch(Exception ex)
 	    {
-		FailureException e = new FailureException();
-		e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
-		e.initCause(ex);
-		throw e;
+		failureEx = new FailureException();
+		failureEx.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
+		failureEx.initCause(ex);
 	    }
+	}
+
+	if(failureEx != null)
+	{
+	    throw failureEx;
 	}
     }
 
