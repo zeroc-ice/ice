@@ -624,5 +624,12 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
 	s = "tns:" + internalId + scopeId + di->name() + "Type";
     }
 
+    EnumPtr em = EnumPtr::dynamicCast(p);
+    if (em)
+    {
+	string scopeId = containedToId(em);
+	s = "tns:" + internalId + scopeId + em->name() + "Type";
+    }
+
     return s;
 }
