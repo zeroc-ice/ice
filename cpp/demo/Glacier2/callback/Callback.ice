@@ -10,12 +10,12 @@
 #ifndef CALLBACK_ICE
 #define CALLBACK_ICE
 
-class CallbackReceiver
+interface CallbackReceiver
 {
     void callback();
 };
 
-class Callback
+interface Callback
 {
     void initiateCallback(CallbackReceiver* proxy);
     void shutdown();

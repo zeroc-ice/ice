@@ -12,7 +12,7 @@
 
 #include <Glacier/Session.ice>
 
-interface HelloSession implements Glacier::Session
+interface HelloSession extends Glacier::Session
 {
     void hello();
 };

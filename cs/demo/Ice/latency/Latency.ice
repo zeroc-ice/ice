@@ -10,7 +10,7 @@
 #ifndef LATENCY_ICE
 #define LATENCY_ICE
 
-class Ping
+interface Ping
 {
 };
 

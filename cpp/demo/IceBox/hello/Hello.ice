@@ -10,7 +10,7 @@
 #ifndef HELLO_ICE
 #define HELLO_ICE
 
-class Hello
+interface Hello
 {
     void sayHello();
     void shutdown();

@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Several demos used Slice classes where interface were more
+  appropriate. This has been fixed.
+
 - Fixed a bug in the Windows IcePack registry project that would 
   cause a compilation error if the registry was compiled before the
   node.

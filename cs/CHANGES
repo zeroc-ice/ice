@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Several demos used Slice classes where interface were more
+  appropriate. This has been fixed.
+
 - Ice.Util.initializeWithProperties() now correctly parses the command
   line arguments.
 
