@@ -98,7 +98,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_PACK_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
-LINKWITH        := -lIceBox -lIce -lIceUtil
+LINKWITH        := -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	rm -f $@
@@ -114,15 +114,15 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIceXML -lIcePack -lIceBox $(LIBS) $(READLINE_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIceXML -lIcePack $(LIBS) $(READLINE_LIBS) $(EXPAT_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIcePack -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIcePack -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
