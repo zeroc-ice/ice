@@ -71,9 +71,9 @@ ServerLocator::findAdapterById(const ::std::string& adapter, const ::Ice::Curren
 }
 
 Ice::ObjectPrx
-ServerLocator::findObjectById(const Ice::Identity& identity, const ::Ice::Current&) const
+ServerLocator::findObjectById(const Ice::Identity& id, const ::Ice::Current&) const
 {
-    return _registry->getObject(identity);
+    return _registry->getObject(id);
 }
 
 Ice::LocatorRegistryPrx
