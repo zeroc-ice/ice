@@ -186,7 +186,7 @@ public final class ThreadPool
             _threads = new EventHandlerThread[_threadNum];
             for (int i = 0; i < _threadNum; i++)
             {
-                _threads[i] = new EventHandlerThread(this);
+                _threads[i] = new EventHandlerThread();
                 _threads[i].start();
             }
         }
@@ -896,21 +896,16 @@ public final class ThreadPool
     private RecursiveMutex _threadMutex = new RecursiveMutex();
     private boolean _multipleThreads;
 
-    private final static class EventHandlerThread extends Thread
+    private final class EventHandlerThread extends Thread
     {
-        EventHandlerThread(ThreadPool pool)
-        {
-            _pool = pool;
-        }
-
         public void
         run()
         {
-            BasicStream stream = new BasicStream(_pool._instance);
+            BasicStream stream = new BasicStream(_instance);
 
             try
             {
-                _pool.run(stream);
+		ThreadPool.this.run(stream);
             }
             catch (Ice.LocalException ex)
             {
@@ -919,7 +914,7 @@ public final class ThreadPool
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "exception in thread pool:\n" + sw.toString();
-                _pool._instance.logger().error(s);
+                _instance.logger().error(s);
             }
             catch (RuntimeException ex)
             {
@@ -928,13 +923,13 @@ public final class ThreadPool
                 ex.printStackTrace(pw);
                 pw.flush();
                 String s = "unknown exception in thread pool:\n" + sw.toString();
-                _pool._instance.logger().error(s);
+                _instance.logger().error(s);
             }
 
-            synchronized(_pool)
+            synchronized(ThreadPool.this)
             {
-                --_pool._threadNum;
-                assert(_pool._threadNum >= 0);
+                --_threadNum;
+                assert(_threadNum >= 0);
 
                 //
                 // The notifyAll() shouldn't be needed, *except* if one of the
@@ -944,9 +939,9 @@ public final class ThreadPool
                 // "defensive" programming approach when it comes to
                 // multithreading.
                 //
-                if (_pool._threadNum == 0)
+                if (_threadNum == 0)
                 {
-                    _pool.notifyAll(); // For waitUntil...Finished() methods.
+                    ThreadPool.this.notifyAll(); // For waitUntil...Finished() methods.
                 }
             }
 
@@ -955,13 +950,10 @@ public final class ThreadPool
                 System.err.println("ThreadPool - run() terminated - promoting follower");
             }
 
-            _pool.promoteFollower();
-            _pool = null; // Break cyclic dependency.
+            promoteFollower();
 
             stream.destroy();
         }
-
-        private ThreadPool _pool;
     }
     private EventHandlerThread[] _threads;
     private int _threadNum; // Number of running threads
