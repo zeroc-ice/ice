@@ -20,11 +20,11 @@ C++ compiler
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.2.52 or 4.3.21 configured with --enable-cxx. You
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx. You
   can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
 
-  Note that Ice for Java is not compatible with version 4.3.21,
+  Note that Ice for Java is not compatible with version 4.3,
   therefore if you intend to use Ice for Java with Berkeley DB,
   you must use version 4.2.52 and the option --enable-java.
 
