@@ -84,9 +84,9 @@ IdentAsKeyword.ice:81: keyword `byte' cannot be used as parameter name
 IdentAsKeyword.ice:83: keyword `byte' cannot be used as parameter name
 IdentAsKeyword.ice:84: illegal identifier: `BYTE' differs from keyword `byte' only in capitalization
 IdentAsKeyword.ice:84: keyword `byte' cannot be used as parameter name
-IdentAsKeyword.ice:88: warning: illegal underscore in identifier `_a'
-IdentAsKeyword.ice:89: warning: illegal underscore in identifier `_true'
-IdentAsKeyword.ice:90: warning: illegal underscore in identifier `_true'
-IdentAsKeyword.ice:92: warning: illegal underscore in identifier `b_'
-IdentAsKeyword.ice:93: warning: illegal underscore in identifier `tr_ue'
-IdentAsKeyword.ice:94: warning: illegal underscore in identifier `tr_ue'
+IdentAsKeyword.ice:88: illegal underscore in identifier `_a'
+IdentAsKeyword.ice:89: illegal underscore in identifier `_true'
+IdentAsKeyword.ice:90: illegal underscore in identifier `_true'
+IdentAsKeyword.ice:92: illegal underscore in identifier `b_'
+IdentAsKeyword.ice:93: illegal underscore in identifier `tr_ue'
+IdentAsKeyword.ice:94: illegal underscore in identifier `tr_ue'
