@@ -30,12 +30,12 @@ SUBDIRS		= IceUtil \
 		  IceXML \
 		  IceSSL \
 		  Freeze \
+		  FreezeScript \
 		  IceBox \
 		  IceStorm \
 		  IcePack \
 		  Glacier \
-		  IcePatch \
-		  Transform
+		  IcePatch
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
