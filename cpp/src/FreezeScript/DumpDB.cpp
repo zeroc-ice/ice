@@ -331,7 +331,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    FreezeScript::createCoreSliceTypes(unit);
     FreezeScript::createEvictorSliceTypes(unit);
 
     //
@@ -342,7 +341,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         if(evictor)
         {
-            keyTypeName = "::Freeze::EvictorStorageKey";
+            keyTypeName = "::Ice::Identity";
             valueTypeName = "::Freeze::ObjectRecord";
         }
         else if(keyTypeName.empty() || valueTypeName.empty())

@@ -372,11 +372,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     //
-    // Install the core types in the Slice units.
+    // Install the evictor types in the Slice units.
     //
-    FreezeScript::createCoreSliceTypes(oldUnit);
     FreezeScript::createEvictorSliceTypes(oldUnit);
-    FreezeScript::createCoreSliceTypes(newUnit);
     FreezeScript::createEvictorSliceTypes(newUnit);
 
     //
@@ -392,7 +390,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         string oldKeyName, newKeyName, oldValueName, newValueName;
         if(evictor)
         {
-            oldKeyName = newKeyName = "::Freeze::EvictorStorageKey";
+            oldKeyName = newKeyName = "::Ice::Identity";
             oldValueName = newValueName = "::Freeze::ObjectRecord";
         }
         else

@@ -303,10 +303,6 @@
         <fail test="new.dObject.stringToByteSeq[0] != 0"/>
         <fail test="new.dObject.stringToByteSeq[1] != 255"/>
         <fail test="new.dObject.obj.ice_id != '::C'"/>
-        <fail test="new.dObject.ice_facets.length != 1"/>
-        <fail test="new.dObject.ice_facets['facet1'].stringToEnumSeq.length != 2"/>
-        <fail test="new.dObject.ice_facets['facet1'].stringToEnumSeq[0] != ::New::E1"/>
-        <fail test="new.dObject.ice_facets['facet1'].stringToEnumSeq[1] != ::New::E3"/>
 
     </transform>
 </transformdb>

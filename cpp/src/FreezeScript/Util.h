@@ -57,7 +57,6 @@ private:
 std::string typeName(const Slice::TypePtr&);
 std::string typeToString(const Slice::TypePtr&);
 bool ignoreType(const std::string&);
-void createCoreSliceTypes(const Slice::UnitPtr&);
 void createEvictorSliceTypes(const Slice::UnitPtr&);
 bool parseSlice(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&, const std::string&, bool);
 

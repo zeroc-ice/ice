@@ -32,7 +32,7 @@ public:
 
     ObjectWriter(const ObjectDataPtr&);
 
-    virtual void __write(IceInternal::BasicStream*, bool) const;
+    virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*, bool = true);
 
 private:
@@ -49,7 +49,7 @@ public:
 
     ObjectReader(const DataFactoryPtr&, const Slice::TypePtr&);
 
-    virtual void __write(IceInternal::BasicStream*, bool) const;
+    virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*, bool = true);
 
     ObjectDataPtr getValue() const;
@@ -73,7 +73,7 @@ FreezeScript::ObjectWriter::ObjectWriter(const ObjectDataPtr& value) :
 }
 
 void
-FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os, bool) const
+FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os) const
 {
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(_value->_type);
     Slice::ClassDefPtr type;
@@ -110,7 +110,7 @@ FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os, bool) const
     //
     os->writeTypeId(Ice::Object::ice_staticId());
     os->startWriteSlice();
-    _value->_facetMap->marshal(*os);
+    os->writeSize(0); // For compatibility with the old AFM.
     os->endWriteSlice();
 }
 
@@ -129,7 +129,7 @@ FreezeScript::ObjectReader::ObjectReader(const DataFactoryPtr& factory, const Sl
 }
 
 void
-FreezeScript::ObjectReader::__write(IceInternal::BasicStream*, bool) const
+FreezeScript::ObjectReader::__write(IceInternal::BasicStream*) const
 {
     assert(false);
 }
@@ -189,7 +189,13 @@ FreezeScript::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
         }
     }
     is->startReadSlice();
-    _value->_facetMap->unmarshal(*is);
+    // For compatibility with the old AFM.
+    Ice::Int sz;
+    is->readSize(sz);
+    if(sz != 0)
+    {
+        throw Ice::MarshalException(__FILE__, __LINE__);
+    }
     is->endReadSlice();
 }
 
@@ -2129,15 +2135,6 @@ FreezeScript::DictionaryData::getElements()
 FreezeScript::ObjectData::ObjectData(const DataFactoryPtr& factory, const Slice::TypePtr& type, bool readOnly) :
     Data(factory->getErrorReporter(), readOnly), _type(type), _refCount(0)
 {
-    //
-    // Create a Data object for the facet map. We add this to the _members map so that
-    // the `ice_facets' member is handled like all other members.
-    //
-    Slice::TypeList l = _type->unit()->lookupType("::_FacetMap", false);
-    assert(!l.empty());
-    _facetMap = factory->create(l.front(), readOnly);
-    _members["ice_facets"] = _facetMap;
-
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(type);
     if(decl)
     {

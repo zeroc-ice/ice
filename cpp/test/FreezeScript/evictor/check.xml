@@ -1,5 +1,5 @@
 <transformdb>
-    <database key="::Freeze::EvictorStorageKey" value="::Freeze::ObjectRecord">
+    <database key="::Ice::Identity" value="::Freeze::ObjectRecord">
 	<record>
             <fail test="newvalue.servant.ice_id == '::DerivedMainObject'"/>
             <fail test="newvalue.servant.ice_id == '::DerivedFacetObject'"/>

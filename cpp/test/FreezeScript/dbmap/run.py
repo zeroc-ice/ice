@@ -89,24 +89,39 @@ for oldfile in files:
 
 print "ok"
 
-print "testing default transformations... ",
+print "creating test database... ",
 sys.stdout.flush()
 
 makedb = os.path.join(directory, "makedb") + " " + directory
 os.system(makedb)
+
+print "ok"
 
 testold = os.path.join(directory, "TestOld.ice")
 testnew = os.path.join(directory, "TestNew.ice")
 initxml = os.path.join(directory, "init.xml")
 checkxml = os.path.join(directory, "check.xml")
 
+print "initializing test database... ",
+sys.stdout.flush()
+
 command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db " + init_dbdir
 os.system(command)
 
+print "ok"
+
+print "executing default transformations... ",
+sys.stdout.flush()
+
 command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + init_dbdir + " default.db " + check_dbdir
 stdin, stdout, stderr = os.popen3(command)
-
 stderr.readlines()
+
+print "ok"
+
+print "validating database... ",
+sys.stdout.flush()
+
 command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " default.db " + tmp_dbdir
 os.system(command)
 

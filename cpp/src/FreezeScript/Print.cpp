@@ -195,14 +195,11 @@ FreezeScript::PrintVisitor::visitObject(const ObjectRefPtr& data)
             _objectCount++;
             _out << sb;
 
-            //
-            // Print Ice::Object members.
-            //
             DataMemberMap members = value->getMembers();
-            DataMemberMap::const_iterator q = members.find("ice_facets");
-            assert(q != members.end());
-            _out << nl << q->first << " = ";
-            q->second->visit(*this);
+
+            //
+            // If Ice::Object had any members, this is where we would print them.
+            //
 
             if(decl)
             {

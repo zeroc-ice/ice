@@ -292,10 +292,6 @@
         <set target="new.dObject.stringToByteSeq[0]" value="'0'"/>
         <set target="new.dObject.stringToByteSeq[1]" value="'255'"/>
         <set target="new.dObject.obj" value="new.cObject"/>
-        <add target="new.dObject.ice_facets" key="'facet1'" type="::F"/>
-        <set target="new.dObject.ice_facets['facet1'].stringToEnumSeq" length="2"/>
-        <set target="new.dObject.ice_facets['facet1'].stringToEnumSeq[0]" value="'E1'"/>
-        <set target="new.dObject.ice_facets['facet1'].stringToEnumSeq[1]" value="'E3'"/>
 
     </transform>
 </transformdb>
