@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-#protocol = "ssl"
+protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -161,33 +161,60 @@ else:
 
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
+iceHome = os.environ["ICE_HOME"]
+
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Client.Config=client_sslconfig.xml"
+                           " --IceSSL.Client.KeyStore=" + os.path.join(toplevel, "certs", "client.jks") + \
+                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+                           " --IceSSL.Client.Password=password"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
-                           " --IceSSL.Server.Config=server_sslconfig.xml"
+                           " --IceSSL.Server.KeyStore=" + os.path.join(toplevel, "certs", "server.jks") + \
+                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+                           " --IceSSL.Server.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.KeyStore=" + os.path.join(toplevel, "certs", "client.jks") + \
+                           " --IceSSL.Client.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+                           " --IceSSL.Client.Password=password" + \
+                           " --IceSSL.Server.KeyStore=" + os.path.join(toplevel, "certs", "server.jks") + \
+                           " --IceSSL.Server.Certs=" + os.path.join(toplevel, "certs", "certs.jks") + \
+                           " --IceSSL.Server.Password=password"
+    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
+    cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                              " --IceSSL.Client.CertPath=" + os.path.join(iceHome, "certs") + \
+                              " --IceSSL.Client.Config=client_sslconfig.xml"
+    cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                              " --IceSSL.Server.CertPath=" + os.path.join(iceHome, "certs") + \
+                              " --IceSSL.Server.Config=server_sslconfig.xml"
+    cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(iceHome, "certs") + \
                            " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(iceHome, "certs") + \
                            " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""
     clientServerProtocol = ""
+    cppClientProtocol = ""
+    cppServerProtocol = ""
+    cppClientServerProtocol = ""
 
 if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
+    cppClientProtocol += " --Ice.Override.Compress"
+    cppServerProtocol += " --Ice.Override.Compress"
+    cppClientServerProtocol += " --Ice.Override.Compress"
 
 if threadPerConnection:
     clientProtocol += " --Ice.ThreadPerConnection"
     serverProtocol += " --Ice.ThreadPerConnection"
     clientServerProtocol += " --Ice.ThreadPerConnection"
+    cppClientProtocol += " --Ice.ThreadPerConnection"
+    cppServerProtocol += " --Ice.ThreadPerConnection"
+    cppClientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
@@ -205,6 +232,17 @@ clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
+
+cppCommonClientOptions = " --Ice.Warn.Connections"
+
+cppCommonServerOptions = " --Ice.PrintAdapterReady" + \
+                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
+                         " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
+                         " --Ice.ThreadPool.Server.SizeWarn=0"
+
+cppClientOptions = cppClientProtocol + defaultHost + cppCommonClientOptions
+cppServerOptions = cppServerProtocol + defaultHost + cppCommonServerOptions
+cppClientServerOptions = cppClientServerProtocol + defaultHost + cppCommonServerOptions
 
 def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
@@ -271,12 +309,12 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
+    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -284,7 +322,7 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
 
-    if  clientStatus or serverStatus:
+    if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
 
