@@ -866,17 +866,18 @@ interface Admin
 
     /**
      *
-     * List all the objects registered with the object registry and
-     * which have a stringified identity matching the given expression.
+     * Get the descriptors of all registered objects whose stringified
+     * identities match the given expression.
      *
-     * @param expr The expression to use to match against the
-     * stringified identity of the object.
+     * @param expr The expression to match against the stringified
+     * identities of registered objects. The expression may contain
+     * a trailing wildcard (<literal>*</literal>) character.
      *
      * @return All the object descriptors with a stringified identity
      * matching the given expression.
      *
      **/
-    nonmutating ObjectDescriptorSeq getAllObjectDescriptors(string patt);
+    nonmutating ObjectDescriptorSeq getAllObjectDescriptors(string expr);
     
     /**
      *
