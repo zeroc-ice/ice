@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Ice/SliceChecksum.h>
 #include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
 #include <IcePatch/ClientUtil.h>
@@ -266,6 +267,19 @@ IcePatch::Client::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
+#if 0
+            Ice::SliceChecksumDict serverChecksums = top->getSliceChecksums();
+            for(Ice::SliceChecksumDict::const_iterator q = Ice::sliceChecksums.begin(); q != Ice::sliceChecksums.end();
+                ++q)
+            {
+                Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
+                if(r == serverChecksums.end() || q->second != r->second)
+                {
+                    cerr << appName() << ": server is using different Slice definitions" << endl;
+                }
+            }
+#endif
+
 	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
 	    if(!topDesc)
 	    {
@@ -291,7 +305,7 @@ IcePatch::Client::run(int argc, char* argv[])
 		pos = pos2 + 1;		    
 	    }
 
-	    cout << pathToName(*p);
+	    cout << pathToName(*p) << flush;
 
             string dir = *p;
             if(dir == ".")
@@ -299,43 +313,56 @@ IcePatch::Client::run(int argc, char* argv[])
                 dir = cwd;
             }
 
-            //
-            // Check the local directory before patching. This recursively
-            // updates the MD5 files, including the creation (if necessary)
-            // of an MD5 file for the top-level local directory. We need this
-            // top-level MD5 for two purposes:
-            //
-            // 1. We can compare it with the MD5 of the server's directory, and
-            //    skip the patch altogether if they match.
-            //
-            // 2. We may be able to obtain a download total by passing the MD5
-            //    to the getTotal operation.
-            //
-            // If the top-level MD5 file did not exist, there are two likely
-            // scenarios:
-            //
-            // 1. The local directory is new, in which case the entire server
-            //    tree must be downloaded.
-            //
-            // 2. A previous patch was interrupted (note that we remove a
-            //    directory's MD5 prior to patching it).
-            //
-            // In either case, we calculate a new MD5 for the directory, which
-            // gives us the desired behavior:
-            //
-            // * If the local directory is empty, the MD5 will consist of all zeros,
-            //   for which getTotal returns the download total for the server's
-            //   current tree.
-            //
-            // * If the local directory is not empty, we get an accurate signature
-            //   that will result in getTotal returning either a valid download total,
-            //   or a value of -1 indicating some intermediate state (e.g., the patch
-            //   was interrupted and is being resumed). In the case of a resumed
-            //   patch, we can't accurately provide progress feedback, so a return
-            //   value of -1 correctly causes the feedback to be suppressed.
-            //
-            checkDirectory(dir, _dynamic);
-            ByteSeq md5 = getMD5(dir);
+            ByteSeq md5;
+            try
+            {
+                md5 = getMD5(dir);
+            }
+            catch(const FileAccessException&)
+            {
+                // MD5 file doesn't exist.
+            }
+
+            if(md5.empty())
+            {
+                //
+                // Check the local directory before patching. This recursively
+                // updates the MD5 files, including the creation (if necessary)
+                // of an MD5 file for the top-level local directory. We need this
+                // top-level MD5 for two purposes:
+                //
+                // 1. We can compare it with the MD5 of the server's directory, and
+                //    skip the patch altogether if they match.
+                //
+                // 2. We may be able to obtain a download total by passing the MD5
+                //    to the getTotal operation.
+                //
+                // If the top-level MD5 file did not exist, there are two likely
+                // scenarios:
+                //
+                // 1. The local directory is new, in which case the entire server
+                //    tree must be downloaded.
+                //
+                // 2. A previous patch was interrupted (note that we remove a
+                //    directory's MD5 prior to patching it).
+                //
+                // In either case, we calculate a new MD5 for the directory, which
+                // gives us the desired behavior:
+                //
+                // * If the local directory is empty, the MD5 will consist of all zeros,
+                //   for which getTotal returns the download total for the server's
+                //   current tree.
+                //
+                // * If the local directory is not empty, we get an accurate signature
+                //   that will result in getTotal returning either a valid download total,
+                //   or a value of -1 indicating some intermediate state (e.g., the patch
+                //   was interrupted and is being resumed). In the case of a resumed
+                //   patch, we can't accurately provide progress feedback, so a return
+                //   value of -1 correctly causes the feedback to be suppressed.
+                //
+                checkDirectory(dir, _dynamic);
+                md5 = getMD5(dir);
+            }
 
             if(!_thorough && md5 == topDesc->md5)
             {
