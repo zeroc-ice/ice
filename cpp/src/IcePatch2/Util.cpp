@@ -475,6 +475,24 @@ IcePatch2::readDirectory(const string& pa)
 }
 
 void
+IcePatch2::createDirectory(const string& pa)
+{
+    const string path = normalize(pa);
+
+#ifdef _WIN32
+    if(_mkdir(path.c_str()) == -1)
+#else
+    if(mkdir(path.c_str(), 0777) == -1)
+#endif
+    {
+	if(errno != EEXIST)
+	{
+	    throw "cannot create directory `" + path + "': " + lastError();
+	}
+    }
+}
+
+void
 IcePatch2::createDirectoryRecursive(const string& pa)
 {
     const string path = normalize(pa);

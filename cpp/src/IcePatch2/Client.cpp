@@ -244,11 +244,6 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 	if(!aborted)
 	{
-	    aborted = !patcher->patch("Ice");
-	}
-
-	if(!aborted)
-	{
 	    aborted = !patcher->patch("");
 	}
 

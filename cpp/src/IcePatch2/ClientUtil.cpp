@@ -322,38 +322,26 @@ IcePatch2::Patcher::patch(const string& d)
 	FileInfoSeq remove;
 	for(p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
 	{
-	    if(p->size < 0) // Directory?
+	    if(p->path == dir)
 	    {
-		if(p->path.compare(0, dir.size(), dir) == 0)
-		{
-		    remove.push_back(*p);
-		}
+		remove.push_back(*p);
 	    }
-	    else
+	    else if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
 	    {
-		if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
-		{
-		    remove.push_back(*p);
-		}
+		remove.push_back(*p);
 	    }
 	}
 
 	FileInfoSeq update;
 	for(p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
 	{
-	    if(p->size < 0) // Directory?
+	    if(p->path == dir)
 	    {
-		if(p->path.compare(0, dir.size(), dir) == 0)
-		{
-		    update.push_back(*p);
-		}
+		update.push_back(*p);
 	    }
-	    else
+	    else if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
 	    {
-		if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
-		{
-		    update.push_back(*p);
-		}
+		update.push_back(*p);
 	    }
 	}
 

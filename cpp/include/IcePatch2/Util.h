@@ -34,6 +34,8 @@ ICE_PATCH2_API void remove(const std::string&);
 ICE_PATCH2_API void removeRecursive(const std::string&);
 
 ICE_PATCH2_API Ice::StringSeq readDirectory(const std::string&);
+
+ICE_PATCH2_API void createDirectory(const std::string&);
 ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 
 ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);

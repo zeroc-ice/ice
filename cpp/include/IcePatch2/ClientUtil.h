@@ -14,7 +14,6 @@
 #include <IceUtil/Thread.h>
 #include <IcePatch2/FileServer.h>
 #include <fstream>
-#include <list>
 
 namespace IcePatch2
 {
@@ -36,7 +35,10 @@ public:
 
 typedef IceUtil::Handle<PatcherFeedback> PatcherFeedbackPtr;
 
-class ICE_PATCH2_API Patcher : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+class Decompressor;
+typedef IceUtil::Handle<Decompressor> DecompressorPtr;
+
+class ICE_PATCH2_API Patcher : public IceUtil::Shared
 {
 public:
 
@@ -56,20 +58,19 @@ public:
     // aborted by the user, or raises std::string as an exception if
     // there was an error.
     //
-    bool patch();
+    bool patch(const std::string&);
+
+    void finish();
 
 private:
 
     bool removeFiles(const FileInfoSeq&);
     bool updateFiles(const FileInfoSeq&);
-    bool updateFilesInternal(const FileInfoSeq&);
-
-    virtual void run();
+    bool updateFilesInternal(const FileInfoSeq&, const DecompressorPtr&);
 
     const PatcherFeedbackPtr _feedback;
     const std::string _dataDir;
     const bool _thorough;
-    const bool _dryRun;
     const Ice::Int _chunkSize;
     const FileServerPrx _serverCompress;
     const FileServerPrx _serverNoCompress;
@@ -78,11 +79,7 @@ private:
     FileInfoSeq _updateFiles;
     FileInfoSeq _removeFiles;
 
-    std::ofstream _updateLog;
-
-    bool _decompress;
-    std::string _decompressException;
-    std::list<FileInfo> _decompressList;
+    std::ofstream _log;
 };
 
 typedef IceUtil::Handle<Patcher> PatcherPtr;
