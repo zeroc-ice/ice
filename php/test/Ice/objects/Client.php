@@ -1,6 +1,75 @@
 <?
 Ice_loadProfileWithArgs($argv);
 
+class BI extends B
+{
+    function ice_postUnmarshal()
+    {
+        $this->_postUnmarshalInvoked = true;
+    }
+
+    function postUnmarshalInvoked()
+    {
+        return $this->_postUnmarshalInvoked;
+    }
+
+    var $_postUnmarshalInvoked = false;
+}
+
+class CI extends C
+{
+    function ice_postUnmarshal()
+    {
+        $this->_postUnmarshalInvoked = true;
+    }
+
+    function postUnmarshalInvoked()
+    {
+        return $this->_postUnmarshalInvoked;
+    }
+
+    var $_postUnmarshalInvoked = false;
+}
+
+class DI extends D
+{
+    function ice_postUnmarshal()
+    {
+        $this->_postUnmarshalInvoked = true;
+    }
+
+    function postUnmarshalInvoked()
+    {
+        return $this->_postUnmarshalInvoked;
+    }
+
+    var $_postUnmarshalInvoked = false;
+}
+
+class MyObjectFactory implements Ice_ObjectFactory
+{
+    function create($id)
+    {
+        if($id == "::B")
+        {
+            return new BI();
+        }
+        else if($id == "::C")
+        {
+            return new CI();
+        }
+        else if($id == "::D")
+        {
+            return new DI();
+        }
+        return null;
+    }
+
+    function destroy()
+    {
+    }
+}
+
 function test($b)
 {
     if(!$b)
@@ -68,6 +137,12 @@ function allTests()
     test($b1->theA->theB === $b1);
     test($b1->theA->theC != null);
     test($b1->theA->theC->theB === $b1->theA);
+    test($b1->preMarshalInvoked);
+    test($b1->postUnmarshalInvoked());
+    test($b1->theA->preMarshalInvoked);
+    test($b1->theA->postUnmarshalInvoked());
+    test($b1->theA->theC->preMarshalInvoked);
+    test($b1->theA->theC->postUnmarshalInvoked());
     // More tests possible for b2 and d, but I think this is already sufficient.
     test($b2->theA === $b2);
     test($d->theC == null);
@@ -127,6 +202,14 @@ function allTests()
     test($d->theA === $b1);
     test($d->theB === $b2);
     test($d->theC == null);
+    test($d->preMarshalInvoked);
+    test($d->postUnmarshalInvoked());
+    test($d->theA->preMarshalInvoked);
+    test($d->theA->postUnmarshalInvoked());
+    test($d->theB->preMarshalInvoked);
+    test($d->theB->postUnmarshalInvoked());
+    test($d->theB->theC->preMarshalInvoked);
+    test($d->theB->theC->postUnmarshalInvoked());
     echo "ok\n";
 
     //
@@ -271,6 +354,10 @@ function allTests()
     return $initial;
 }
 
+$factory = new MyObjectFactory();
+$ICE->addObjectFactory($factory, "::B");
+$ICE->addObjectFactory($factory, "::C");
+$ICE->addObjectFactory($factory, "::D");
 $initial = allTests();
 $initial->shutdown();
 exit();
