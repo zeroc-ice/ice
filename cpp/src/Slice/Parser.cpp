@@ -319,15 +319,20 @@ Slice::Container::createModule(const string& name)
     matches.unique();	// ... but we only want one instance of each
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
-	string msg;
+	string msg; // ML: Why not have this local there it is needed?
 	bool differsOnlyInCase = matches.front()->name() != name;
 	ModulePtr module = ModulePtr::dynamicCast(*p);
 	if(module)
 	{
 	    if(_unit->caseSensitive())
 	    {
+		// ML: Continue is unnecessary.
+		// ML: Use (differsOnlyInCase && _unit->caseSensitive()) below instead.
+		// ML: Or even better use this above:
+		// ML: bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name
 		continue;			// Reopening modules is permissible...
 	    }
+	    // ML: Comments should end with '.', and only one space between code and comment.
 	    else if(differsOnlyInCase)		// ... but only if they are capitalized correctly
 	    {
 		msg += "module `" + name + "' is capitalized inconsistently with its previous name: `";
@@ -340,15 +345,18 @@ Slice::Container::createModule(const string& name)
 	    msg = "module `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
 	    _unit->error(msg);
-	    continue;
+	    continue; // ML: Continue unnecessary.
 	}
 	else
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as module";
 	    _unit->error(msg);
-	    return 0;
+	    return 0; // ML: Why return 0 here, but continue above?
 	}
+
+	// ML: What happens if one of the error conditions occur? You
+	// still create a Module below in this case. Shouldn't there be a return 0 here?
     }
 
     ModulePtr q = new Module(this, name);
@@ -378,18 +386,21 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
 	if(def)
 	{
+	    // ML: Move to the end of this block. Otherwise you won't
+	    // catch capitalization errors.
 	    if(_unit->ignRedefs())
 	    {
 		def->updateIncludeLevel();
 		return def;
 	    }
+
 	    if(!differsOnlyInCase)
 	    {
 		msg = "redefinition of ";
 		msg += intf ? "interface" : "class";
 		msg += " `" + name + "'";
 		_unit->error(msg);
-		return 0;
+		return 0; // ML: return 0 here, but now below?
 	    }
 	    else if(!_unit->caseSensitive())
 	    {
@@ -412,11 +423,55 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name() + "' as ";
 	    msg += intf ? "interface" : "class";
 	    _unit->error(msg);
-	    return 0;
+	    return 0; // ML: return 0 unnecessary.
 	}
 	
 	return 0;
     }
+
+/* ML: How about: 
+	bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
+	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
+ 	if(def)
+	{
+	    if(!differsOnlyInCase)
+	    {
+	        string msg = intf ? "interface" : "class";
+		msg += " definition `" + name + "' is capitalized inconsistently with its previous name: `";
+		msg += def->name() + "'";
+		_unit->error(msg);
+	    }
+	    else
+	    {
+		string msg = "redefinition of ";
+		msg += intf ? "interface" : "class";
+		msg += " `" + name + "'";
+		_unit->error(msg);
+	    }
+
+	    if(_unit->ignRedefs())
+	    {
+		def->updateIncludeLevel();
+		return def;
+	    }
+	}
+	else if(!_unit->caseSensitive() && differsOnlyInCase)
+	{
+	    string msg = intf ? "interface" : "class";
+	    msg = " definition `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+	    _unit->error(msg);
+	}
+	else
+	{
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name() + "' as ";
+	    msg += intf ? "interface" : "class";
+	    _unit->error(msg);
+	}
+	
+	return 0;
+*/
+// ML: The same comments apply to the rest of the code.
 
     ClassDecl::checkBasesAreLegal(name, local, bases, _unit);
  
@@ -620,6 +675,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -666,6 +722,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -723,6 +780,7 @@ Slice::Container::createEnum(const string& name, bool local)
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -760,6 +818,7 @@ Slice::Container::createEnumerator(const string& name)
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -786,7 +845,7 @@ Slice::Container::createEnumerator(const string& name)
 
 ConstPtr
 Slice::Container::createConst(const string name, const TypePtr& constType,
-	                         const SyntaxTreeBasePtr& literalType, const string& value)
+			      const SyntaxTreeBasePtr& literalType, const string& value)
 {
     checkPrefix(name);
 
@@ -798,6 +857,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -2123,6 +2183,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -2522,6 +2583,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -2775,6 +2837,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
@@ -3527,6 +3590,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 	{
 	    if(_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 	}
