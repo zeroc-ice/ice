@@ -285,7 +285,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		assert(transceiver);
 	    }	    
 	    connection = new ConnectionI(_instance, transceiver, endpoint, 0);
-    cout << "yyy " << IceUtil::ThreadControl().id() << endl;
 	    connection->validate();
 
 	    if(_instance->defaultsAndOverrides()->overrideCompress)
