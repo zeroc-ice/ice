@@ -17,11 +17,16 @@ package Ice;
 public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
-    LoggerI(String prefix)
+    LoggerI(String prefix, boolean timestamp)
     {
 	if(prefix.length() > 0)
 	{
 	    _prefix = prefix + ": ";
+	}
+
+	if(timestamp)
+	{
+	    _date = new java.text.SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS");
 	}
     }
 
@@ -30,7 +35,17 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     {
 	synchronized(_globalMutex)
 	{
-            StringBuffer s = new StringBuffer("[ " + _prefix + category + ": " + message + " ]");
+            StringBuffer s = new StringBuffer("[ ");
+	    if(_date != null)
+	    {
+		s.append(_date.format(new java.util.Date()));
+		s.append(' ');
+	    }
+	    s.append(_prefix);
+	    s.append(category);
+	    s.append(": ");
+	    s.append(message);
+	    s.append(" ]");
             int idx = 0;
             while((idx = s.indexOf("\n", idx)) != -1)
             {
@@ -46,7 +61,16 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     {
 	synchronized(_globalMutex)
 	{
-	    System.err.println(_prefix + "warning: " + message);
+	    StringBuffer s = new StringBuffer();
+	    if(_date != null)
+	    {
+		s.append(_date.format(new java.util.Date()));
+		s.append(' ');
+	    }
+	    s.append(_prefix);
+	    s.append("warning: ");
+	    s.append(message);
+	    System.err.println(s.toString());
 	}
     }
 
@@ -55,10 +79,20 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     {
 	synchronized(_globalMutex)
 	{
-	    System.err.println(_prefix + "error: " + message);
+	    StringBuffer s = new StringBuffer();
+	    if(_date != null)
+	    {
+		s.append(_date.format(new java.util.Date()));
+		s.append(' ');
+	    }
+	    s.append(_prefix);
+	    s.append("error: ");
+	    s.append(message);
+	    System.err.println(s.toString());
 	}
     }
 
     String _prefix = "";
     static java.lang.Object _globalMutex = new java.lang.Object();
+    java.text.SimpleDateFormat _date = null;
 }

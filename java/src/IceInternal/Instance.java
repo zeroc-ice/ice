@@ -185,7 +185,8 @@ public class Instance
 	    }
 	    else
 	    {
-		_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"));
+		_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
+					  _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 	    }
 
 	    _stats = null; // There is no default statistics callback object.
