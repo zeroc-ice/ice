@@ -335,6 +335,8 @@ public:
     {
 	key_type key;
 	mapped_type value;
+	
+	getCurrentValue(key, value);
 
 	//
 	// !IMPORTANT!
