@@ -16,6 +16,8 @@
 module Ice
 {
 
+local class ObjectLocator;
+
 /**
  *
  * The Object Adapter, which is responsible for receiving requests
@@ -25,6 +27,7 @@ module Ice
  * <literal>createObjectAdapterWithEndpoints</literal> operations.
  *
  * @see Communicator
+ * @see ObjectLocator
  *
  **/
 local class ObjectAdapter
@@ -139,6 +142,31 @@ local class ObjectAdapter
 
     /**
      *
+     * Set an Object Locator for this Object Adapter.
+     *
+     * @param locator The locator to set.     
+     *
+     * @see ObjectLocator
+     * @see getObjectLocator
+     *
+     **/
+    void setObjectLocator(ObjectLocator locator);
+
+    /**
+     *
+     * Get the Object Locator for this Object Adapter.
+     *
+     * @return The locator for this Object Adapter. If no locator is
+     * set, null is returned.
+     *
+     * @see ObjectLocator
+     * @see setObjectLocator
+     *
+     **/
+    ObjectLocator getObjectLocator();
+
+    /**
+     *
      * Look up an Object in this Object Adapter's Active Object Map by
      * its identity.
      *
@@ -228,6 +256,68 @@ local class ObjectAdapter
      *
      **/
     string proxyToIdentity(Object* proxy);
+};
+
+/**
+ *
+ * The Object Locator, which is called by the Object Adapter to locate
+ * objects, which it doesn't find in its Active Object Map. The
+ * locator must be set with the Object Adapter's
+ * <literal>setObjectLocator</literal> operation.
+ *
+ * @see ObjectAdapter
+ * @see ObjectAdapter::setObjectLocator
+ * @see ObjectAdapter::getObjectLocator
+ *
+ **/
+local class ObjectLocator
+{
+    /**
+     *
+     * Called by the Object Adapter before a request, if an object
+     * cannot be found in the Object Adapter's Active Object Map. Note
+     * that the Object Adapter does not automatically insert the
+     * returned object into it's Active Object Map. This must be done
+     * by the locator if desired.
+     *
+     * @param adapter The Object Adapter that calls the locator.
+     *
+     * @param identity The identity of the object to locate.
+     *
+     * @param cookie A "cookie", which is returned to
+     * <literal>finished</literal>.
+     *
+     * @return The located object, or null if no object has been
+     * found.
+     *
+     * @see ObjectAdapter
+     * @see finished
+     *
+     **/
+    Object locate(ObjectAdapter adapter, string identity; Object cookie);
+
+    /**
+     *
+     * Called by the Object Adapter after a request, provided that
+     * <literal>locate</literal> did not return null. This operation
+     * can be used for cleanup after a request.
+     *
+     * @param adapter The Object Adapter that calls the locator.
+     *
+     * @param identity The identity of the object that was located by
+     * <literal>locate</literal>.
+     *
+     * @param object The object that was returned by
+     * <literal>locate</literal>.
+     *
+     * @param cookie The cookie that was returned by
+     * <literal>locate</literal>.
+     *
+     * @see ObjectAdapter
+     * @see locate
+     *
+     **/
+    void finished(ObjectAdapter adapter, string identity, Object object, Object cookie);
 };
 
 };

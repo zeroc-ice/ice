@@ -59,7 +59,18 @@ Proxies.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.5"><type>Pickler</type></link>
+			<link linkend="slice2docbook.5"><type>ObjectLocator</type></link>
+		    </term>
+		    <listitem>
+			<para>
+The Object Locator, which is called by the Object Adapter to locate
+objects, which it doesn't find in its Active Object Map.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<link linkend="slice2docbook.6"><type>Pickler</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -68,7 +79,7 @@ Proxies.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.6"><type>Properties</type></link>
+			<link linkend="slice2docbook.7"><type>Properties</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -77,7 +88,7 @@ Proxies.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.7"><type>ValueFactory</type></link>
+			<link linkend="slice2docbook.8"><type>ValueFactory</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -93,7 +104,7 @@ Proxies.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.8"><type>InputStream</type></link>
+			<link linkend="slice2docbook.9"><type>InputStream</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -102,7 +113,7 @@ Proxies.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.9"><type>OutputStream</type></link>
+			<link linkend="slice2docbook.10"><type>OutputStream</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -112,7 +123,7 @@ Proxies.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.8">
+    <section id="slice2docbook.9">
 	<title>
 	    InputStream
 	</title>
@@ -120,7 +131,7 @@ Proxies.
 	<para>
 	</para>
     </section>
-    <section id="slice2docbook.9">
+    <section id="slice2docbook.10">
 	<title>
 	    OutputStream
 	</title>
@@ -156,13 +167,13 @@ language specific, and not specified in Slice code.
 			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.5"><classname>Pickler</classname></link>
+			<link linkend="slice2docbook.6"><classname>Pickler</classname></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.6"><classname>Properties</classname></link>
+			<link linkend="slice2docbook.7"><classname>Properties</classname></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.7"><classname>ValueFactory</classname></link>
+			<link linkend="slice2docbook.8"><classname>ValueFactory</classname></link>
 		    </member>
 		</simplelist>
 	    </para>
@@ -174,7 +185,7 @@ language specific, and not specified in Slice code.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.10"><type>createObjectAdapter</type></link>
+			<link linkend="slice2docbook.11"><type>createObjectAdapter</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -184,7 +195,7 @@ Create a new object adapter.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.11"><type>createObjectAdapterWithEndpoints</type></link>
+			<link linkend="slice2docbook.12"><type>createObjectAdapterWithEndpoints</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -194,7 +205,7 @@ Create a new object adapter with a list of endpoints.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.12"><type>destroy</type></link>
+			<link linkend="slice2docbook.13"><type>destroy</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -204,7 +215,7 @@ Destroy the Communicator.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.13"><type>getLogger</type></link>
+			<link linkend="slice2docbook.14"><type>getLogger</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -214,7 +225,7 @@ Get the Logger for this Communicator.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.14"><type>getPickler</type></link>
+			<link linkend="slice2docbook.15"><type>getPickler</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -224,7 +235,7 @@ Get the Pickler for this Communicator.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.15"><type>getProperties</type></link>
+			<link linkend="slice2docbook.16"><type>getProperties</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -234,7 +245,7 @@ Get the Properties for this Communicator.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.16"><type>installValueFactory</type></link>
+			<link linkend="slice2docbook.17"><type>installValueFactory</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -244,7 +255,7 @@ Install a new Value Factory.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.17"><type>setLogger</type></link>
+			<link linkend="slice2docbook.18"><type>setLogger</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -254,7 +265,7 @@ Set the Logger for this Communicator.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.18"><type>shutdown</type></link>
+			<link linkend="slice2docbook.19"><type>shutdown</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -265,7 +276,7 @@ application.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.19"><type>stringToProxy</type></link>
+			<link linkend="slice2docbook.20"><type>stringToProxy</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -275,7 +286,7 @@ Convert a string into a Proxy.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.20"><type>waitForShutdown</type></link>
+			<link linkend="slice2docbook.21"><type>waitForShutdown</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -287,7 +298,7 @@ down.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.10">
+    <section id="slice2docbook.11">
 	<title>
 	    createObjectAdapter
 	</title>
@@ -338,13 +349,13 @@ must be unique for the Communicator.
 			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.11"><type>createObjectAdapterWithEndpoints</type></link>
+			<link linkend="slice2docbook.12"><type>createObjectAdapterWithEndpoints</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.11">
+    <section id="slice2docbook.12">
 	<title>
 	    createObjectAdapterWithEndpoints
 	</title>
@@ -406,13 +417,13 @@ must be unique for the Communicator.
 			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.10"><type>createObjectAdapter</type></link>
+			<link linkend="slice2docbook.11"><type>createObjectAdapter</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.12">
+    <section id="slice2docbook.13">
 	<title>
 	    destroy
 	</title>
@@ -432,13 +443,13 @@ shuts down the client-side of an application.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.18"><type>shutdown</type></link>
+			<link linkend="slice2docbook.19"><type>shutdown</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.13">
+    <section id="slice2docbook.14">
 	<title>
 	    getLogger
 	</title>
@@ -455,11 +466,11 @@ Get the Logger for this Communicator.
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.14">
+    <section id="slice2docbook.15">
 	<title>
 	    getPickler
 	</title>
-<synopsis><link linkend="slice2docbook.5"><classname>Pickler</classname></link> <function>getPickler</function>();</synopsis>
+<synopsis><link linkend="slice2docbook.6"><classname>Pickler</classname></link> <function>getPickler</function>();</synopsis>
 	<para>
 Get the Pickler for this Communicator.
 	</para>
@@ -472,11 +483,11 @@ Get the Pickler for this Communicator.
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.15">
+    <section id="slice2docbook.16">
 	<title>
 	    getProperties
 	</title>
-<synopsis><link linkend="slice2docbook.6"><classname>Properties</classname></link> <function>getProperties</function>();</synopsis>
+<synopsis><link linkend="slice2docbook.7"><classname>Properties</classname></link> <function>getProperties</function>();</synopsis>
 	<para>
 Get the Properties for this Communicator.
 	</para>
@@ -489,12 +500,12 @@ Get the Properties for this Communicator.
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.16">
+    <section id="slice2docbook.17">
 	<title>
 	    installValueFactory
 	</title>
 <synopsis><type>void</type> <function>installValueFactory</function>(
-    <link linkend="slice2docbook.7"><classname>ValueFactory</classname></link> <parameter>factory</parameter>,
+    <link linkend="slice2docbook.8"><classname>ValueFactory</classname></link> <parameter>factory</parameter>,
     <type>string</type> <parameter>id</parameter>);</synopsis>
 	<para>
 Install a new Value Factory.
@@ -531,7 +542,7 @@ Install a new Value Factory.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.17">
+    <section id="slice2docbook.18">
 	<title>
 	    setLogger
 	</title>
@@ -560,7 +571,7 @@ Set the Logger for this Communicator.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.18">
+    <section id="slice2docbook.19">
 	<title>
 	    shutdown
 	</title>
@@ -584,16 +595,16 @@ complete. </para></note>
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.12"><type>destroy</type></link>
+			<link linkend="slice2docbook.13"><type>destroy</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.20"><type>waitForShutdown</type></link>
+			<link linkend="slice2docbook.21"><type>waitForShutdown</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.19">
+    <section id="slice2docbook.20">
 	<title>
 	    stringToProxy
 	</title>
@@ -633,7 +644,7 @@ host "some_host", port 10000.
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.20">
+    <section id="slice2docbook.21">
 	<title>
 	    waitForShutdown
 	</title>
@@ -656,10 +667,10 @@ then exits the application.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.18"><type>shutdown</type></link>
+			<link linkend="slice2docbook.19"><type>shutdown</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.12"><type>destroy</type></link>
+			<link linkend="slice2docbook.13"><type>destroy</type></link>
 		    </member>
 		</simplelist>
 	    </para>
@@ -684,7 +695,7 @@ then exits the application.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.21"><type>error</type></link>
+			<link linkend="slice2docbook.22"><type>error</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -693,7 +704,7 @@ then exits the application.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.22"><type>trace</type></link>
+			<link linkend="slice2docbook.23"><type>trace</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -702,7 +713,7 @@ then exits the application.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.23"><type>warning</type></link>
+			<link linkend="slice2docbook.24"><type>warning</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -712,7 +723,7 @@ then exits the application.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.21">
+    <section id="slice2docbook.22">
 	<title>
 	    error
 	</title>
@@ -721,7 +732,7 @@ then exits the application.
 	<para>
 	</para>
     </section>
-    <section id="slice2docbook.22">
+    <section id="slice2docbook.23">
 	<title>
 	    trace
 	</title>
@@ -731,7 +742,7 @@ then exits the application.
 	<para>
 	</para>
     </section>
-    <section id="slice2docbook.23">
+    <section id="slice2docbook.24">
 	<title>
 	    warning
 	</title>
@@ -766,6 +777,9 @@ Proxies. Object Adapters are created with the Communicator's
 		    <member>
 			<link linkend="slice2docbook.2"><classname>Communicator</classname></link>
 		    </member>
+		    <member>
+			<link linkend="slice2docbook.5"><classname>ObjectLocator</classname></link>
+		    </member>
 		</simplelist>
 	    </para>
 	</section>
@@ -776,7 +790,7 @@ Proxies. Object Adapters are created with the Communicator's
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.24"><type>activate</type></link>
+			<link linkend="slice2docbook.25"><type>activate</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -787,7 +801,7 @@ Adapter.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.25"><type>add</type></link>
+			<link linkend="slice2docbook.26"><type>add</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -797,7 +811,7 @@ Add a new Object to this Object Adapter's Active Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.26"><type>addTemporary</type></link>
+			<link linkend="slice2docbook.27"><type>addTemporary</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -808,7 +822,7 @@ Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.27"><type>deactivate</type></link>
+			<link linkend="slice2docbook.28"><type>deactivate</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -819,7 +833,7 @@ Adapter.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.28"><type>getCommunicator</type></link>
+			<link linkend="slice2docbook.29"><type>getCommunicator</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -829,7 +843,7 @@ Get the Communicator this Object Adapter belongs to.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.29"><type>getName</type></link>
+			<link linkend="slice2docbook.30"><type>getName</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -839,7 +853,17 @@ Get the name of this Object Adapter.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.30"><type>hold</type></link>
+			<link linkend="slice2docbook.31"><type>getObjectLocator</type></link>
+		    </term>
+		    <listitem>
+			<para>
+Get the Object Locator for this Object Adapter.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<link linkend="slice2docbook.32"><type>hold</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -849,7 +873,7 @@ Temporarily hold receiving and dispatching requests.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.31"><type>identityToObject</type></link>
+			<link linkend="slice2docbook.33"><type>identityToObject</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -860,7 +884,7 @@ its identity.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.32"><type>identityToProxy</type></link>
+			<link linkend="slice2docbook.34"><type>identityToProxy</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -871,7 +895,7 @@ identity.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.33"><type>objectToIdentity</type></link>
+			<link linkend="slice2docbook.35"><type>objectToIdentity</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -882,7 +906,7 @@ Active Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.34"><type>objectToProxy</type></link>
+			<link linkend="slice2docbook.36"><type>objectToProxy</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -893,7 +917,7 @@ Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.35"><type>proxyToIdentity</type></link>
+			<link linkend="slice2docbook.37"><type>proxyToIdentity</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -903,7 +927,7 @@ Extract the identity from a Proxy.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.36"><type>proxyToObject</type></link>
+			<link linkend="slice2docbook.38"><type>proxyToObject</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -914,7 +938,7 @@ given a Proxy.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.37"><type>remove</type></link>
+			<link linkend="slice2docbook.39"><type>remove</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -922,10 +946,20 @@ Remove an Object from the Object Adapter's Active Object Map.
 			</para>
 		    </listitem>
 		</varlistentry>
+		<varlistentry>
+		    <term>
+			<link linkend="slice2docbook.40"><type>setObjectLocator</type></link>
+		    </term>
+		    <listitem>
+			<para>
+Set an Object Locator for this Object Adapter.
+			</para>
+		    </listitem>
+		</varlistentry>
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.24">
+    <section id="slice2docbook.25">
 	<title>
 	    activate
 	</title>
@@ -942,16 +976,16 @@ requests received through its Endpoints.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.30"><type>hold</type></link>
+			<link linkend="slice2docbook.32"><type>hold</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.27"><type>deactivate</type></link>
+			<link linkend="slice2docbook.28"><type>deactivate</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.25">
+    <section id="slice2docbook.26">
 	<title>
 	    add
 	</title>
@@ -999,16 +1033,16 @@ Add a new Object to this Object Adapter's Active Object Map.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.26"><type>addTemporary</type></link>
+			<link linkend="slice2docbook.27"><type>addTemporary</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.37"><type>remove</type></link>
+			<link linkend="slice2docbook.39"><type>remove</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.26">
+    <section id="slice2docbook.27">
 	<title>
 	    addTemporary
 	</title>
@@ -1060,16 +1094,16 @@ removed with <literal>remove</literal>.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.26"><type>addTemporary</type></link>
+			<link linkend="slice2docbook.27"><type>addTemporary</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.37"><type>remove</type></link>
+			<link linkend="slice2docbook.39"><type>remove</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.27">
+    <section id="slice2docbook.28">
 	<title>
 	    deactivate
 	</title>
@@ -1090,16 +1124,16 @@ deactivation is permanent and <literal>activate</literal> or
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.24"><type>activate</type></link>
+			<link linkend="slice2docbook.25"><type>activate</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.30"><type>hold</type></link>
+			<link linkend="slice2docbook.32"><type>hold</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.28">
+    <section id="slice2docbook.29">
 	<title>
 	    getCommunicator
 	</title>
@@ -1128,7 +1162,7 @@ Get the Communicator this Object Adapter belongs to.
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.29">
+    <section id="slice2docbook.30">
 	<title>
 	    getName
 	</title>
@@ -1152,13 +1186,46 @@ for configuration purposes with Properties.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.6"><classname>Properties</classname></link>
+			<link linkend="slice2docbook.7"><classname>Properties</classname></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.30">
+    <section id="slice2docbook.31">
+	<title>
+	    getObjectLocator
+	</title>
+<synopsis><link linkend="slice2docbook.5"><classname>ObjectLocator</classname></link> <function>getObjectLocator</function>();</synopsis>
+	<para>
+Get the Object Locator for this Object Adapter.
+	</para>
+	<section>
+	    <title>
+		Return Value
+	    </title>
+	    <para>
+		The locator for this Object Adapter. If no locator is
+set, null is returned.
+	    </para>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="slice2docbook.5"><classname>ObjectLocator</classname></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.40"><type>setObjectLocator</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
+    </section>
+    <section id="slice2docbook.32">
 	<title>
 	    hold
 	</title>
@@ -1175,16 +1242,16 @@ operation.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.24"><type>activate</type></link>
+			<link linkend="slice2docbook.25"><type>activate</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.27"><type>deactivate</type></link>
+			<link linkend="slice2docbook.28"><type>deactivate</type></link>
 		    </member>
 		</simplelist>
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.31">
+    <section id="slice2docbook.33">
 	<title>
 	    identityToObject
 	</title>
@@ -1225,7 +1292,7 @@ see objectToIdentity
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.32">
+    <section id="slice2docbook.34">
 	<title>
 	    identityToProxy
 	</title>
@@ -1266,7 +1333,7 @@ see proxyToIdentity
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.33">
+    <section id="slice2docbook.35">
 	<title>
 	    objectToIdentity
 	</title>
@@ -1307,7 +1374,7 @@ see identityToProxy
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.34">
+    <section id="slice2docbook.36">
 	<title>
 	    objectToProxy
 	</title>
@@ -1347,7 +1414,7 @@ see objectToIdentity
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.35">
+    <section id="slice2docbook.37">
 	<title>
 	    proxyToIdentity
 	</title>
@@ -1386,7 +1453,7 @@ see identityToProxy
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.36">
+    <section id="slice2docbook.38">
 	<title>
 	    proxyToObject
 	</title>
@@ -1426,7 +1493,7 @@ see identityToObject
 	    </para>
 	</section>
     </section>
-    <section id="slice2docbook.37">
+    <section id="slice2docbook.39">
 	<title>
 	    remove
 	</title>
@@ -1461,10 +1528,54 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    <para>
 		<simplelist type="inline">
 		    <member>
-			<link linkend="slice2docbook.25"><type>add</type></link>
+			<link linkend="slice2docbook.26"><type>add</type></link>
 		    </member>
 		    <member>
-			<link linkend="slice2docbook.26"><type>addTemporary</type></link>
+			<link linkend="slice2docbook.27"><type>addTemporary</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
+    </section>
+    <section id="slice2docbook.40">
+	<title>
+	    setObjectLocator
+	</title>
+<synopsis><type>void</type> <function>setObjectLocator</function>(
+    <link linkend="slice2docbook.5"><classname>ObjectLocator</classname></link> <parameter>locator</parameter>);</synopsis>
+	<para>
+Set an Object Locator for this Object Adapter.
+	</para>
+	<section>
+	    <title>
+		Parameters
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    locator
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The locator to set.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="slice2docbook.5"><classname>ObjectLocator</classname></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.31"><type>getObjectLocator</type></link>
 		    </member>
 		</simplelist>
 	    </para>
@@ -1472,6 +1583,242 @@ Remove an Object from the Object Adapter's Active Object Map.
     </section>
 </section>
 <section id="slice2docbook.5">
+    <title>
+	Ice::ObjectLocator
+    </title>
+    <section>
+	<title>
+	    Overview
+	</title>
+<synopsis>local class <classname>ObjectLocator</classname></synopsis>
+	<para>
+The Object Locator, which is called by the Object Adapter to locate
+objects, which it doesn't find in its Active Object Map. The
+locator must be set with the Object Adapter's
+<literal>setObjectLocator</literal> operation.
+	</para>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.40"><type>ObjectAdapter::setObjectLocator</type></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.31"><type>ObjectAdapter::getObjectLocator</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
+	<section>
+	    <title>
+		Operation Index
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<link linkend="slice2docbook.41"><type>finished</type></link>
+		    </term>
+		    <listitem>
+			<para>
+Called by the Object Adapter after a request, provided that
+<literal>locate</literal> did not return null.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<link linkend="slice2docbook.42"><type>locate</type></link>
+		    </term>
+		    <listitem>
+			<para>
+Called by the Object Adapter before a request, if an object
+cannot be found in the Object Adapter's Active Object Map.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+    </section>
+    <section id="slice2docbook.41">
+	<title>
+	    finished
+	</title>
+<synopsis><type>void</type> <function>finished</function>(
+    <link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link> <parameter>adapter</parameter>,
+    <type>string</type> <parameter>identity</parameter>,
+    <type>Object</type> <parameter>object</parameter>,
+    <type>Object</type> <parameter>cookie</parameter>);</synopsis>
+	<para>
+Called by the Object Adapter after a request, provided that
+<literal>locate</literal> did not return null. This operation
+can be used for cleanup after a request.
+	</para>
+	<section>
+	    <title>
+		Parameters
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    adapter
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The Object Adapter that calls the locator.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    identity
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The identity of the object that was located by
+<literal>locate</literal>.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    object
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The object that was returned by
+<literal>locate</literal>.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    cookie
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The cookie that was returned by
+<literal>locate</literal>.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.42"><type>locate</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
+    </section>
+    <section id="slice2docbook.42">
+	<title>
+	    locate
+	</title>
+<synopsis><type>Object</type> <function>locate</function>(
+    <link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link> <parameter>adapter</parameter>,
+    <type>string</type> <parameter>identity</parameter>;
+    <type>Object</type> <parameter>cookie</parameter>);</synopsis>
+	<para>
+Called by the Object Adapter before a request, if an object
+cannot be found in the Object Adapter's Active Object Map. Note
+that the Object Adapter does not automatically insert the
+returned object into it's Active Object Map. This must be done
+by the locator if desired.
+	</para>
+	<section>
+	    <title>
+		Parameters
+	    </title>
+	    <variablelist>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    adapter
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The Object Adapter that calls the locator.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    identity
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    The identity of the object to locate.
+			</para>
+		    </listitem>
+		</varlistentry>
+		<varlistentry>
+		    <term>
+			<parameter>
+			    cookie
+			</parameter>
+		    </term>
+		    <listitem>
+			<para>
+			    A "cookie", which is returned to
+<literal>finished</literal>.
+			</para>
+		    </listitem>
+		</varlistentry>
+	    </variablelist>
+	</section>
+	<section>
+	    <title>
+		Return Value
+	    </title>
+	    <para>
+		The located object, or null if no object has been
+found.
+	    </para>
+	</section>
+	<section>
+	    <title>
+		See Also
+	    </title>
+	    <para>
+		<simplelist type="inline">
+		    <member>
+			<link linkend="slice2docbook.4"><classname>ObjectAdapter</classname></link>
+		    </member>
+		    <member>
+			<link linkend="slice2docbook.41"><type>finished</type></link>
+		    </member>
+		</simplelist>
+	    </para>
+	</section>
+    </section>
+</section>
+<section id="slice2docbook.6">
     <title>
 	Ice::Pickler
     </title>
@@ -1489,7 +1836,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.38"><type>pickle</type></link>
+			<link linkend="slice2docbook.43"><type>pickle</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1498,7 +1845,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.39"><type>unpickle</type></link>
+			<link linkend="slice2docbook.44"><type>unpickle</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1508,27 +1855,27 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.38">
+    <section id="slice2docbook.43">
 	<title>
 	    pickle
 	</title>
 <synopsis><type>void</type> <function>pickle</function>(
     <type>Object</type> <parameter>object</parameter>,
-    <link linkend="slice2docbook.9"><type>OutputStream</type></link> <parameter>out</parameter>);</synopsis>
+    <link linkend="slice2docbook.10"><type>OutputStream</type></link> <parameter>out</parameter>);</synopsis>
 	<para>
 	</para>
     </section>
-    <section id="slice2docbook.39">
+    <section id="slice2docbook.44">
 	<title>
 	    unpickle
 	</title>
 <synopsis><type>Object</type> <function>unpickle</function>(
-    <link linkend="slice2docbook.8"><type>InputStream</type></link> <parameter>in</parameter>);</synopsis>
+    <link linkend="slice2docbook.9"><type>InputStream</type></link> <parameter>in</parameter>);</synopsis>
 	<para>
 	</para>
     </section>
 </section>
-<section id="slice2docbook.6">
+<section id="slice2docbook.7">
     <title>
 	Ice::Properties
     </title>
@@ -1546,7 +1893,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.40"><type>getProperty</type></link>
+			<link linkend="slice2docbook.45"><type>getProperty</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1555,7 +1902,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 		</varlistentry>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.41"><type>setProperty</type></link>
+			<link linkend="slice2docbook.46"><type>setProperty</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1565,7 +1912,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.40">
+    <section id="slice2docbook.45">
 	<title>
 	    getProperty
 	</title>
@@ -1574,7 +1921,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	<para>
 	</para>
     </section>
-    <section id="slice2docbook.41">
+    <section id="slice2docbook.46">
 	<title>
 	    setProperty
 	</title>
@@ -1585,7 +1932,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	</para>
     </section>
 </section>
-<section id="slice2docbook.7">
+<section id="slice2docbook.8">
     <title>
 	Ice::ValueFactory
     </title>
@@ -1603,7 +1950,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    <variablelist>
 		<varlistentry>
 		    <term>
-			<link linkend="slice2docbook.42"><type>create</type></link>
+			<link linkend="slice2docbook.47"><type>create</type></link>
 		    </term>
 		    <listitem>
 			<para>
@@ -1613,7 +1960,7 @@ Remove an Object from the Object Adapter's Active Object Map.
 	    </variablelist>
 	</section>
     </section>
-    <section id="slice2docbook.42">
+    <section id="slice2docbook.47">
 	<title>
 	    create
 	</title>
