@@ -21,6 +21,74 @@
 namespace IceInternal
 {
 
+template<typename T> class ProxyHandle;
+
+}
+
+namespace IceProxy 
+{ 
+namespace Ice
+{
+
+class Object;
+
+}
+}
+
+namespace Ice
+{
+
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
+
+}
+
+namespace IceInternal
+{
+
+template<typename P> P 
+checkedCastImpl(const ::Ice::ObjectPrx&);
+
+template<typename P> P 
+uncheckedCastImpl(const ::Ice::ObjectPrx&);
+
+template<typename P> P 
+checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+
+template<typename P> P
+uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+
+//
+// Upcast
+//
+
+template<typename P, typename Y> inline P 
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, typename P::element_type*)
+{
+    return b;
+}
+
+template<typename P, typename Y> inline P 
+uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, typename P::element_type*)
+{
+    return b;
+}
+
+//
+// Downcast
+//
+template<typename P, typename Y> inline P 
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
+{
+    return checkedCastImpl<P>(b);
+}
+
+template<typename P, typename Y> inline P 
+uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
+{
+    return uncheckedCastImpl<P>(b);
+}
+
+
 //
 // Like IceInternal::Handle, but specifically for proxies, with
 // support for checkedCast() and uncheckedCast() instead of
@@ -172,33 +240,27 @@ public:
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r)
     {
-	ProxyHandle p;
-	::IceInternal::checkedCast(r, p);
-	return p;
+	Y* tag = 0;
+	return ::IceInternal::checkedCastHelper<ProxyHandle>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	ProxyHandle p;
-	::IceInternal::checkedCast(r, f, p);
-	return p;
+	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
     {
-	ProxyHandle p;
-	::IceInternal::uncheckedCast(r, p);
-	return p;
+	Y* tag = 0;
+	return::IceInternal:: uncheckedCastHelper<ProxyHandle>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	ProxyHandle p;
-	::IceInternal::uncheckedCast(r, f, p);
-	return p;
+	return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
     }
 };
 

@@ -11,9 +11,7 @@ A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
 C++ compiler
 ------------
 
-- GCC 3.3; or
-
-- GCC 3.2; or
+- GCC 3.2, 3.3 or 3.4; or
 
 - Intel C++ 8.0; or
 

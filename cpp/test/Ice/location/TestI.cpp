@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/Locator.h>
 #include <TestI.h>
 
 ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter) :

@@ -151,7 +151,14 @@ Cache<Key, Value>::pin(const Key& key, const Handle<Value>& obj)
 #else
     std::pair<typename CacheMap::iterator, bool> ir =
 #endif 
+
+#if defined(_MSC_VER)
        _map.insert(CacheMap::value_type(key, CacheValue(obj)));
+#else
+       _map.insert(typename CacheMap::value_type(key, CacheValue(obj)));
+#endif       
+
+
     if(ir.second)
     {
 	pinned(obj, ir.first);
@@ -198,9 +205,14 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 	    std::pair<CacheMap::iterator, bool> ir = 
 #else
 	    std::pair<typename CacheMap::iterator, bool> ir =
-#endif 
-		_map.insert(CacheMap::value_type(key, CacheValue(0)));
+#endif 		
 	    
+#if defined(_MSC_VER)
+      	        _map.insert(CacheMap::value_type(key, CacheValue(0)));
+#else
+      	        _map.insert(typename CacheMap::value_type(key, CacheValue(0)));
+#endif    
+
 	    if(ir.second == false)
 	    {
 		CacheValue& val = ir.first->second;

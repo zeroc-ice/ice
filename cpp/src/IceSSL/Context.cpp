@@ -573,7 +573,8 @@ IceSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& 
     }
 
     // Make a key pair based on the DER encoded byte sequences.
-    addKeyCert(RSAKeyPair(privKey, publicKey));
+    RSAKeyPair rsaKeyPair(privKey, publicKey);
+    addKeyCert(rsaKeyPair);
 }
 
 void
@@ -593,7 +594,8 @@ IceSSL::Context::addKeyCert(const string& privateKey, const string& publicKey)
     }
 
     // Make a key pair based on the Base64 encoded strings.
-    addKeyCert(RSAKeyPair(privKey, publicKey));
+    RSAKeyPair rsaKeyPair(privKey, publicKey);
+    addKeyCert(rsaKeyPair);
 }
 
 SSL*

@@ -1072,12 +1072,20 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     
+    H << nl << nl << "static const ::std::string& ice_staticId();";
+    
     H.dec();
     H << sp << nl << "private: ";
     H.inc();
     H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
     H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
     H << eb << ';';
+
+    C << sp;
+    C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
+    C << sb;
+    C << nl << "return "<< scoped << "::ice_staticId();";
+    C << eb;
 
     C << sp << nl << "::IceInternal::Handle< ::IceDelegateM::Ice::Object>";
     C << nl << "IceProxy" << scoped << "::__createDelegateM()";
@@ -2692,16 +2700,6 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << sp;
 	H << nl << _dllExport << "void incRef(::IceProxy" << scoped << "*);";
 	H << nl << _dllExport << "void decRef(::IceProxy" << scoped << "*);";
-
-	H << sp;
-	H << nl << _dllExport << "void checkedCast(const ::Ice::ObjectPrx&, "
-	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
-	H << nl << _dllExport << "void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
-	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
-	H << nl << _dllExport << "void uncheckedCast(const ::Ice::ObjectPrx&, "
-	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
-	H << nl << _dllExport << "void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
-	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
     }
 }
 
@@ -2734,73 +2732,6 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "void" << nl << "IceInternal::decRef(::IceProxy" << scoped << "* p)";
 	C << sb;
 	C << nl << "p->__decRef();";
-	C << eb;
-
-	C << sp;
-	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, "
-	  << scoped << "Prx& d)";
-	C << sb;
-	C << nl << "d = 0;";
-	C << nl << "if(b.get())"; // COMPILERFIX: 'if(b)' doesn't work for GCC 2.95.3.
-	C << sb;
-	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
-	C << nl << "if(!d && b->ice_isA(\"" << p->scoped() << "\"))";
-	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFrom(b);";
-	C << eb;
-	C << eb;
-	C << eb;
-
-	C << sp;
-	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
-	  << scoped << "Prx& d)";
-	C << sb;
-	C << nl << "d = 0;";
-	C << nl << "if(b)";
-	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->ice_newFacet(f);";
-	C << nl << "try";
-	C << sb;
-	C << nl << "if(bb->ice_isA(\"" << p->scoped() << "\"))";
-	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFrom(bb);";
-	C << eb;
-	C << eb;
-	C << nl << "catch(const ::Ice::FacetNotExistException&)";
-	C << sb;
-	C << eb;
-	C << eb;
-	C << eb;
-
-	C << sp;
-	C << nl << "void" << nl << "IceInternal::uncheckedCast(const ::Ice::ObjectPrx& b, "
-	  << scoped << "Prx& d)";
-	C << sb;
-	C << nl << "d = 0;";
-	C << nl << "if(b)";
-	C << sb;
-	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
-	C << nl << "if(!d)";
-	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFrom(b);";
-	C << eb;
-	C << eb;
-	C << eb;
-
-	C << sp;
-	C << nl << "void" << nl << "IceInternal::uncheckedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
-	  << scoped << "Prx& d)";
-	C << sb;
-	C << nl << "d = 0;";
-	C << nl << "if(b)";
-	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->ice_newFacet(f);";
-	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "d->__copyFrom(bb);";
-	C << eb;
 	C << eb;
     }
 

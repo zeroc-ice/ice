@@ -264,8 +264,8 @@ const char* Slice::Builtin::builtinTable[] =
     };
 
 Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
-    Type(unit),
     SyntaxTreeBase(unit),
+    Type(unit),
     _kind(kind)
 {
     //
@@ -1768,9 +1768,9 @@ Slice::Module::visit(ParserVisitor* visitor)
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name) :
-    Contained(container, name),
+    SyntaxTreeBase(container->unit()),
     Container(container->unit()),
-    SyntaxTreeBase(container->unit())
+    Contained(container, name)
 {
 }
 
@@ -1811,9 +1811,9 @@ Slice::Constructed::dependencies()
 }
 
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :
+    SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
     _local(local)
 {
 }
@@ -1949,10 +1949,10 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool local, const Class
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
-    Constructed(container, name, local),
+    SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
+    Constructed(container, name, local),
     _interface(intf)
 {
 }
@@ -2566,9 +2566,9 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, bool intf, const ClassList& bases,
 			  bool local) :
-    Contained(container, name),
-    Container(container->unit()),
     SyntaxTreeBase(container->unit()),
+    Container(container->unit()),
+    Contained(container, name),
     _interface(intf),
     _hasDataMembers(false),
     _hasOperations(false),
@@ -2616,8 +2616,8 @@ Slice::Proxy::_class() const
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
-    Type(cl->unit()),
-    SyntaxTreeBase(cl->unit()),
+     SyntaxTreeBase(cl->unit()),
+     Type(cl->unit()),
     __class(cl)
 {
 }
@@ -2892,9 +2892,9 @@ Slice::Exception::visit(ParserVisitor* visitor)
 }
 
 Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base, bool local) :
+    SyntaxTreeBase(container->unit()),
     Container(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
     _base(base),
     _local(local)
 {
@@ -3073,11 +3073,11 @@ Slice::Struct::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool local) :
+    SyntaxTreeBase(container->unit()),
     Container(container->unit()),
-    Constructed(container, name, local),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit())
+    Constructed(container, name, local)
 {
 }
 
@@ -3139,10 +3139,10 @@ Slice::Sequence::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type, bool local) :
-    Constructed(container, name, local),
+    SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
+    Constructed(container, name, local),
     _type(type)
 {
 }
@@ -3298,10 +3298,10 @@ Slice::Dictionary::legalKeyType(const TypePtr& type)
 
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
 			      const TypePtr& valueType, bool local) :
-    Constructed(container, name, local),
+    SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit()),
+    Constructed(container, name, local),
     _keyType(keyType),
     _valueType(valueType)
 {
@@ -3371,10 +3371,10 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
-    Constructed(container, name, local),
+    SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit())
+    Constructed(container, name, local)
 {
 }
 
@@ -3407,8 +3407,8 @@ Slice::Enumerator::kindOf() const
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
-    Contained(container, name),
-    SyntaxTreeBase(container->unit())
+    SyntaxTreeBase(container->unit()),
+    Contained(container, name)
 {
 }
 
@@ -3652,8 +3652,10 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
 
 Slice::Const::Const(const ContainerPtr& container, const string& name,
 	                  const TypePtr& type, const string& value) :
+    SyntaxTreeBase(container->unit()), 
     Contained(container, name),
-    SyntaxTreeBase(container->unit()), _type(type), _value(value)
+    _type(type), 
+    _value(value)
 {
 }
 
@@ -3958,9 +3960,9 @@ Slice::Operation::Operation(const ContainerPtr& container,
 	                    const string& name,
 			    const TypePtr& returnType,
 			    Mode mode) :
+    SyntaxTreeBase(container->unit()),
     Contained(container, name),
     Container(container->unit()),
-    SyntaxTreeBase(container->unit()),
     _returnType(returnType),
     _mode(mode)
 {
@@ -4013,8 +4015,8 @@ Slice::ParamDecl::visit(ParserVisitor* visitor)
 }
 
 Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam) :
-    Contained(container, name),
     SyntaxTreeBase(container->unit()),
+    Contained(container, name),
     _type(type),
     _isOutParam(isOutParam)
 {
@@ -4061,8 +4063,8 @@ Slice::DataMember::visit(ParserVisitor* visitor)
 }
 
 Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type) :
-    Contained(container, name),
     SyntaxTreeBase(container->unit()),
+    Contained(container, name),
     _type(type)
 {
 }

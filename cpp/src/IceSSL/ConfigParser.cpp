@@ -311,7 +311,8 @@ IceSSL::ConfigParser::getBaseCerts(const IceXML::NodePtr& rootNode, BaseCertific
 
     getDHParams(find(baseCertsRoot, dhParamsString), dhParams);
 
-    baseCerts = BaseCertificates(rsaCert, dsaCert, dhParams);
+    const BaseCertificates result(rsaCert, dsaCert, dhParams);
+    baseCerts = result;
 }
 
 void

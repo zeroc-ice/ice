@@ -43,20 +43,11 @@ void IceInternal::decRef(::IceDelegateM::Ice::Object* p) { p->__decRef(); }
 void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
 void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
-void
-IceInternal::checkedCast(const ObjectPrx& b, ObjectPrx& d)
-{
-    if(b)
-    {
-        b->__checkTwowayOnly("checkedCast");
-    }
-    d = b;
-}
 
-void
-IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
+::Ice::ObjectPrx
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f)
 {
-    d = 0;
+    ObjectPrx d = 0;
     if(b)
     {
 	ObjectPrx bb = b->ice_newFacet(f);
@@ -74,22 +65,18 @@ IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 	{
 	}
     }
+    return d;
 }
 
-void
-IceInternal::uncheckedCast(const ObjectPrx& b, ObjectPrx& d)
+::Ice::ObjectPrx
+IceInternal::uncheckedCastImpl(const ObjectPrx& b, const string& f)
 {
-    d = b;
-}
-
-void
-IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
-{
-    d = 0;
+    ObjectPrx d = 0;
     if(b)
     {
 	d = b->ice_newFacet(f);
     }
+    return d;
 }
 
 bool

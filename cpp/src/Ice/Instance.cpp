@@ -16,7 +16,9 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/RouterInfo.h>
+#include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/Locator.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>

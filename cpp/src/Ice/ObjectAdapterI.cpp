@@ -31,6 +31,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/Communicator.h>
+#include <Ice/Router.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>

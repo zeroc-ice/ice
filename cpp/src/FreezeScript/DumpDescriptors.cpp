@@ -969,8 +969,9 @@ FreezeScript::ExecutableContainerDescriptor::execute(const SymbolTablePtr& sym, 
 FreezeScript::IfDescriptor::IfDescriptor(const DescriptorPtr& parent, int line, const DataFactoryPtr& factory,
                                          const ErrorReporterPtr& errorReporter,
                                          const IceXML::Attributes& attributes) :
-    ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "if"),
-    Descriptor(parent, line, factory, errorReporter)
+    Descriptor(parent, line, factory, errorReporter),
+    ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "if")
+   
 {
     DescriptorErrorContext ctx(_errorReporter, "if", _line);
 
@@ -1015,8 +1016,9 @@ FreezeScript::IterateDescriptor::IterateDescriptor(const DescriptorPtr& parent, 
                                                    const DataFactoryPtr& factory,
                                                    const ErrorReporterPtr& errorReporter,
                                                    const IceXML::Attributes& attributes) :
-    ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "iterate"),
-    Descriptor(parent, line, factory, errorReporter)
+    Descriptor(parent, line, factory, errorReporter),
+    ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "iterate")
+  
 {
     DescriptorErrorContext ctx(_errorReporter, "iterate", _line);
 
@@ -1157,8 +1159,10 @@ FreezeScript::DumpDescriptor::DumpDescriptor(const DescriptorPtr& parent, int li
                                              const ErrorReporterPtr& errorReporter,
                                              const IceXML::Attributes& attributes,
                                              const Slice::UnitPtr& unit) :
+    Descriptor(parent, line, factory, errorReporter),
     ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "dump"),
-    Descriptor(parent, line, factory, errorReporter), _base(true), _contents(true)
+    _base(true), 
+    _contents(true)
 {
     DescriptorErrorContext ctx(_errorReporter, "dump", _line);
 
@@ -1238,8 +1242,9 @@ FreezeScript::RecordDescriptor::RecordDescriptor(const DescriptorPtr& parent, in
                                                  const ErrorReporterPtr& errorReporter,
                                                  const IceXML::Attributes& attributes,
                                                  const Slice::UnitPtr& unit) :
+    Descriptor(parent, line, factory, errorReporter), 
     ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "record"),
-    Descriptor(parent, line, factory, errorReporter), _unit(unit)
+    _unit(unit)
 {
 }
 
@@ -1343,8 +1348,9 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
                                                      const ErrorReporterPtr& errorReporter,
                                                      const IceXML::Attributes& attributes,
                                                      const Slice::UnitPtr& unit) :
+    Descriptor(parent, line, factory, errorReporter), 
     ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "database"),
-    Descriptor(parent, line, factory, errorReporter), _unit(unit)
+    _unit(unit)
 {
     DescriptorErrorContext ctx(_errorReporter, "database", _line);
 

@@ -48,18 +48,8 @@ namespace IceInternal
 ICE_API void incRef(::IceProxy::Ice::Router*);
 ICE_API void decRef(::IceProxy::Ice::Router*);
 
-ICE_API void checkedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Router>&);
-ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
-ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Router>&);
-ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
-
 ICE_API void incRef(::IceProxy::Ice::Locator*);
 ICE_API void decRef(::IceProxy::Ice::Locator*);
-
-ICE_API void checkedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Locator>&);
-ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
-ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Locator>&);
-ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
 
 }
 
@@ -282,7 +272,153 @@ struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, Objec
     }
 };
 
+class FacetNotExistException;
+
 }
+
+
+namespace IceInternal
+{
+
+//
+// checkedCast and uncheckedCast functions without facet
+//
+
+//
+// Out of line implementations
+//
+template<typename P> P 
+checkedCastImpl(const ::Ice::ObjectPrx& b)
+{
+    P d = 0;
+    if(b.get())
+    {
+	typedef typename P::element_type T;
+
+	d = dynamic_cast<T*>(b.get());
+	if(!d && b->ice_isA(T::ice_staticId()))
+	{
+	    d = new T;
+	    d->__copyFrom(b);
+	}
+    }
+    return d;
+}
+
+template<typename P> P 
+uncheckedCastImpl(const ::Ice::ObjectPrx& b)
+{
+    P d = 0;
+    if(b)
+    {
+	typedef typename P::element_type T;
+
+	d = dynamic_cast<T*>(b.get());
+	if(!d)
+	{
+	    d = new T;
+	    d->__copyFrom(b);
+	}
+    }
+    return d;
+}
+
+// 
+// checkedCast and uncheckedCast with facet:
+//
+
+//
+// Specializations for P = ::Ice::ObjectPrx
+//
+// We have to use inline functions and helpers for broken compilers
+// such as VC7.
+//
+
+ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+ICE_API ::Ice::ObjectPrx uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+
+template<> inline ::Ice::ObjectPrx 
+checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    return checkedCastImpl(b, f);
+}
+
+template<> inline ::Ice::ObjectPrx 
+uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    return uncheckedCastImpl(b, f);
+}
+
+template<typename P> P 
+checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    P d = 0;
+    if(b)
+    {
+	typedef typename P::element_type T;
+
+	::Ice::ObjectPrx bb = b->ice_newFacet(f);
+	try
+	{
+	    if(bb->ice_isA(T::ice_staticId()))
+	    {
+		d = new T;
+		d->__copyFrom(bb);
+	    }
+	}
+	catch(const ::Ice::FacetNotExistException&)
+	{
+	}
+    }
+    return d;
+}
+
+template<typename P> P 
+uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    P d = 0;
+    if(b)
+    {
+	typedef typename P::element_type T;
+
+	::Ice::ObjectPrx bb = b->ice_newFacet(f);
+	d = new T;
+	d->__copyFrom(bb);
+    }
+    return d;
+}
+}
+
+//
+// checkedCast and uncheckedCast functions provided in the global namespace
+// 
+
+template<typename P, typename Y> inline P 
+checkedCast(const ::IceInternal::ProxyHandle<Y>& b)
+{
+    Y* tag = 0;
+    return ::IceInternal::checkedCastHelper<P>(b, tag);
+
+}
+template<typename P, typename Y> inline P
+uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
+{
+    Y* tag = 0;
+    return ::IceInternal::uncheckedCastHelper<P>(b, tag);
+}
+
+template<typename P> inline P 
+checkedCast(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    return ::IceInternal::checkedCastImpl<P>(b, f);
+}
+
+template<typename P> inline P 
+uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
+{
+    return ::IceInternal::checkedCastImpl<P>(b, f);
+}
+
 
 #endif
 
