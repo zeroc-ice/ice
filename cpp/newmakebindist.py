@@ -365,13 +365,8 @@ def getDBfiles(dbLocation):
     pipe_stdin.close()
     pipe_stdout.close()
     fileList.extend(lines)
-
     if getPlatform() == 'aix':
-	pipe_stdin, pipe_stdout = os.popen2('find lib -name "*.a" -type f')
-	lines = pipe_stdout.readlines()
-	pipe_stdin.close()
-	pipe_stdout.close()
-	fileList.extend(lines)
+	fileList.append('lib/libdb_cxx.so')	
 
     os.chdir(cwd)
     return fileList
