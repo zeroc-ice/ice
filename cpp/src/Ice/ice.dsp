@@ -358,6 +358,14 @@ SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SliceChecksum.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SliceChecksumDict.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stats.cpp
 # End Source File
 # Begin Source File
@@ -831,6 +839,14 @@ SOURCE=..\..\include\Ice\ServantManagerF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Service.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SliceChecksum.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\SliceChecksumDict.h
 # End Source File
 # Begin Source File
 

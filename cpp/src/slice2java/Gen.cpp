@@ -854,7 +854,7 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& map)
+Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m)
 {
     //
     // Attempt to open the source file for the checksum class.
@@ -893,7 +893,7 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     out << sp << nl << "static";
     out << sb;
     out << nl << "java.util.Map map = new java.util.HashMap();";
-    for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+    for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
         out << nl << "map.put(\"" << p->first << "\", \"";
         ostringstream str;

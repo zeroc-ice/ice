@@ -156,10 +156,10 @@ Client::run(int argc, char* argv[])
     }
 
     Ice::SliceChecksumDict serverChecksums = manager->getSliceChecksums();
-    for(Ice::SliceChecksumDict::const_iterator p = Ice::sliceChecksums.begin(); p != Ice::sliceChecksums.end(); ++p)
+    for(Ice::SliceChecksumDict::const_iterator q = Ice::sliceChecksums.begin(); q != Ice::sliceChecksums.end(); ++q)
     {
-        Ice::SliceChecksumDict::const_iterator q = serverChecksums.find(p->first);
-        if(q == serverChecksums.end() || p->second != q->second)
+        Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
+        if(r == serverChecksums.end() || q->second != r->second)
         {
             cerr << appName() << ": server is using different Slice definitions" << endl;
         }
