@@ -446,6 +446,17 @@ TopicI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
+    
+    if(subscriber == 0)
+    {
+	if(_traceLevels->topic > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	    out << "unsubscribe with null subscriber.";
+	}
+
+	return;
+    }
 
     Ice::Identity ident = subscriber->ice_getIdentity();
 
