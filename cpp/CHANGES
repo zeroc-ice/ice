@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added support for Visual Studio .NET 2003 aka VC++ 7.1
+
 - In IceUtil, all "try" and "timed" functions now return false when the
   resource could not be acquired (i.e., an expected failure). The "Try"
   from "timedTry" functions was removed, and for consistency the

@@ -19,6 +19,7 @@
 #include <Freeze/StrategyI.h>
 #include <Freeze/Initialize.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 
 using namespace std;
 using namespace Ice;
@@ -160,6 +161,11 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     }
 
     checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
+
+#ifdef _WIN32
+    // Berkeley DB may use a different C++ runtime
+    checkBerkeleyDBReturn(_dbEnv->set_alloc(_dbEnv, ::malloc, ::realloc, ::free), _errorPrefix, "DB_ENV->set_alloc");
+#endif
 
     u_int32_t flags = DB_CREATE | DB_INIT_LOCK | DB_INIT_MPOOL;
     if(txn)

@@ -79,6 +79,12 @@
 #       error "Only unicode libraries can be used with Ice!"
 #   endif
 
+// For some unknown reason, VC++ 7.1 does not pass properly /DUNICODE
+// (needs further investigation)
+#   if defined(_MSC_VER) && (_MSC_VER == 1310) && !defined(UNICODE)
+#       define UNICODE 1
+#   endif
+
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif

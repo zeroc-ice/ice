@@ -76,6 +76,11 @@ class LocalException;
 namespace IceProxy { namespace Ice
 {
 
+#if defined(_MSC_VER) && (_MSC_VER == 1310)
+// Work around for VC++ 7.1 bug
+typedef ::std::map< ::std::string, ::std::string> Context;
+#endif
+
 class ICE_API Object : public ::IceUtil::Shared, ::IceUtil::Mutex
 {
 public:
