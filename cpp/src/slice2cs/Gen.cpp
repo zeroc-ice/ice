@@ -2499,6 +2499,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sp << nl << "public " << retS << " " << opName << spar << params << "Ice.Context __context" << epar;
 	_out << sb;
 
+#if 0
 	//
 	// TODO: Remove this hack once mcs is fixed.
 	//
@@ -2568,6 +2569,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "#endif";
 	    _out.restoreIndent();
 	}
+#endif
 
 	_out << nl << "int __cnt = 0;";
 	_out << nl << "while(true)";
