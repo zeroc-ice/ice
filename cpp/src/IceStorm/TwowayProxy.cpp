@@ -123,40 +123,41 @@ IceStorm::OrderedTwowayProxy::OrderedTwowayProxy(const Ice::ObjectPrx& obj) :
 void
 IceStorm::OrderedTwowayProxy::publish(const EventPtr& event)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
-
-    if(_exception.get())
+    EventPtr e;
     {
-        _exception->ice_throw();
+	IceUtil::Mutex::Lock sync(_mutex);
+	
+	if(_exception.get())
+	{
+	    _exception->ice_throw();
+	}
+	
+	_events.push_back(event);
+	
+	if(_busy)
+	{
+	    return;
+	}
+
+	e = _events.front();
+	_events.erase(_events.begin());
+	_busy = true;
     }
 
-    _events.push_back(event);
-
-    if(_busy)
-    {
-        return;
-    }
-    
-    send(sync);
+    assert(e);
+    send(e);
 }
 
 void
-IceStorm::OrderedTwowayProxy::send(IceUtil::Mutex::Lock& sync)
+IceStorm::OrderedTwowayProxy::send(const EventPtr& e)
 {
-    _busy = true;
-
     try
     {
-	EventPtr event = _events.front();
-	_events.erase(_events.begin());
-	sync.release();
-	deliver(event);
-	sync.acquire();
+	deliver(e);
     }
     catch(const Ice::LocalException& ex)
     {
-        assert(!sync.acquired());
-        sync.acquire();
+	IceUtil::Mutex::Lock sync(_mutex);
         _busy = false;
         _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
         throw;
@@ -167,6 +168,7 @@ void
 IceStorm::OrderedTwowayProxy::exception(const Ice::LocalException& ex)
 {
     IceUtil::Mutex::Lock sync(_mutex);
+    assert(!_exception.get() && _busy);
     _busy = false;
     _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
 }
@@ -174,21 +176,24 @@ IceStorm::OrderedTwowayProxy::exception(const Ice::LocalException& ex)
 void
 IceStorm::OrderedTwowayProxy::response()
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    EventPtr event;
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	
+	assert(!_exception.get() && _busy);
+	
+	if(_events.empty())
+	{
+	    _busy = false;
+	    return;
+	}
 
-    if(_exception.get())
-    {
-	return;
+	event = _events.front();
+	_events.erase(_events.begin());
     }
 
-    if(_events.size() > 0)
-    {
-	send(sync);
-    }
-    else
-    {
-	_busy = false;
-    }
+    assert(event);
+    send(event);
 }
 
 void

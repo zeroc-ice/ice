@@ -48,7 +48,7 @@ public:
 protected:
 
     virtual void deliver(const EventPtr&);
-    void send(IceUtil::Mutex::Lock&);
+    void send(const EventPtr&);
 
 };
 
