@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-vector<int> Vector;
-module Vector { };
+sequence<int> Sequence;
+module Sequence { };
 module Module { };
 module Module { };

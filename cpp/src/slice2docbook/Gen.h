@@ -34,6 +34,7 @@ public:
     virtual void visitModuleStart(const ModulePtr&);
     virtual void visitContainer(const ContainerPtr&);
     virtual void visitClassDefStart(const ClassDefPtr&);
+    virtual void visitStructStart(const StructPtr&);
 
 private:
 

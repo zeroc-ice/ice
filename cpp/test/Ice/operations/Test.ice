@@ -23,29 +23,36 @@ enum MyEnum
 
 class MyClass;
 
-vector<byte> ByteV;
-vector<bool> BoolV;
-vector<short> ShortV;
-vector<int> IntV;
-vector<long> LongV;
-vector<float> FloatV;
-vector<double> DoubleV;
-vector<string> StringV;
-vector<wstring> WStringV;
-vector<MyEnum> MyEnumV;
-vector<MyClass*> MyClassV;
+sequence<byte> ByteS;
+sequence<bool> BoolS;
+sequence<short> ShortS;
+sequence<int> IntS;
+sequence<long> LongS;
+sequence<float> FloatS;
+sequence<double> DoubleS;
+sequence<string> StringS;
+sequence<wstring> WStringS;
+sequence<MyEnum> MyEnumS;
+sequence<MyClass*> MyClassS;
 
-vector<ByteV> ByteVV;
-vector<BoolV> BoolVV;
-vector<ShortV> ShortVV;
-vector<IntV> IntVV;
-vector<LongV> LongVV;
-vector<FloatV> FloatVV;
-vector<DoubleV> DoubleVV;
-vector<StringV> StringVV;
-vector<WStringV> WStringVV;
-vector<MyEnumV> MyEnumVV;
-vector<MyClassV> MyClassVV;
+sequence<ByteS> ByteSS;
+sequence<BoolS> BoolSS;
+sequence<ShortS> ShortSS;
+sequence<IntS> IntSS;
+sequence<LongS> LongSS;
+sequence<FloatS> FloatSS;
+sequence<DoubleS> DoubleSS;
+sequence<StringS> StringSS;
+sequence<WStringS> WStringSS;
+sequence<MyEnumS> MyEnumSS;
+sequence<MyClassS> MyClassSS;
+
+dictionary<byte, bool> ByteBoolD;
+dictionary<short, int> ShortIntD;
+dictionary<long, float> LongFloatD;
+dictionary<double, string> DoubleStringD;
+dictionary<wstring, MyEnum> WStringMyEnumD;
+dictionary<MyClass*, string> MyClassStringD;
 
 class MyClass
 {
@@ -75,78 +82,78 @@ class MyClass
 
     MyClass* opMyClass(MyClass* p1; MyClass* p2);
 
-    ByteV opByteV(ByteV p1, ByteV p2;
-		  ByteV p3);
+    ByteS opByteS(ByteS p1, ByteS p2;
+		  ByteS p3);
 
-    BoolV opBoolV(BoolV p1, BoolV p2;
-		  BoolV p3);	
+    BoolS opBoolS(BoolS p1, BoolS p2;
+		  BoolS p3);	
 
-    LongV opShortIntLongV(Test::ShortV p1, IntV p2, LongV p3;
-			  ::Test::ShortV p4, IntV p5, LongV p6);
+    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3;
+			  ::Test::ShortS p4, IntS p5, LongS p6);
 
-    DoubleV opFloatDoubleV(FloatV p1, DoubleV p2;
-			   FloatV p3, DoubleV p4);
+    DoubleS opFloatDoubleS(FloatS p1, DoubleS p2;
+			   FloatS p3, DoubleS p4);
     
-    StringV opStringV(StringV p1, StringV p2;
-		      StringV p3);
+    StringS opStringS(StringS p1, StringS p2;
+		      StringS p3);
     
-    WStringV opWStringV(WStringV p1, WStringV p2;
-			WStringV p3);
+    WStringS opWStringS(WStringS p1, WStringS p2;
+			WStringS p3);
     
-    ByteVV opByteVV(ByteVV p1, ByteVV p2;
-		    ByteVV p3);
+    ByteSS opByteSS(ByteSS p1, ByteSS p2;
+		    ByteSS p3);
     
-    BoolVV opBoolVV(BoolVV p1, BoolVV p2;
-		    BoolVV p3);
+    BoolSS opBoolSS(BoolSS p1, BoolSS p2;
+		    BoolSS p3);
     
-    LongVV opShortIntLongVV(ShortVV p1, IntVV p2, LongVV p3;
-			    ShortVV p4, IntVV p5, LongVV p6);
+    LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3;
+			    ShortSS p4, IntSS p5, LongSS p6);
     
     
-    DoubleVV opFloatDoubleVV(FloatVV p1, DoubleVV p2;
-			     FloatVV p3, DoubleVV p4);
+    DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2;
+			     FloatSS p3, DoubleSS p4);
     
-    StringVV opStringVV(StringVV p1, StringVV p2;
-			StringVV p3);
+    StringSS opStringSS(StringSS p1, StringSS p2;
+			StringSS p3);
 
-    WStringVV opWStringVV(WStringVV p1, WStringVV p2;
-			  WStringVV p3);
+    WStringSS opWStringSS(WStringSS p1, WStringSS p2;
+			  WStringSS p3);
 
-    void opEx(int p) throws byte, bool, short, int, long, float, double,
-	string, wstring, ByteV, BoolV, ShortV, IntV, LongV, FloatV, DoubleV,
-	StringV, WStringV, ByteVV, BoolVV, ShortVV, IntVV, LongVV, FloatVV,
-	DoubleVV, StringVV, WStringVV, MyClass*;
-    
-/*
-    bool bool_;
-    short short_;
-    int int_;
-    long long_;
-    float float_;
-    double double_;
-    string string_;
-    wstring wstring_;
-
-    ByteV ByteV_;
-    BoolV BoolV_;
-    ShortV ShortV_;
-    IntV IntV_;
-    LongV LongV_;
-    FloatV FloatV_;
-    DoubleV DoubleV_;
-    StringV StringV_;
-    WStringV WStringV_;
-
-    ByteVV ByteVV_;
-    BoolVV BoolVV_;
-    ShortVV ShortVV_;
-    IntVV IntVV_;
-    LongVV LongVV_;
-    FloatVV FloatVV_;
-    DoubleVV DoubleVV_;
-    StringVV StringVV_;
-    WStringVV WStringVV_;
-*/
+    void opEx(int p) throws
+        byte,
+	bool,
+	short,
+	int,
+	long,
+	float,
+	double,
+	string,
+	wstring,
+	ByteS,
+	BoolS,
+	ShortS,
+	IntS,
+	LongS,
+	FloatS,
+	DoubleS,
+	StringS,
+	WStringS,
+	ByteSS,
+	BoolSS,
+	ShortSS,
+	IntSS,
+	LongSS,
+	FloatSS,
+	DoubleSS,
+	StringSS,
+	WStringSS,
+	ByteBoolD,
+	ShortIntD,
+	LongFloatD,
+	DoubleStringD,
+	WStringMyEnumD,
+	MyClassStringD,
+	MyClass*;
 };
 
 class MyDerivedClass extends MyClass

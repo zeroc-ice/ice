@@ -105,7 +105,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(10);
     }
-    catch(const Test::ByteV& ex)
+    catch(const Test::ByteS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == Ice::Byte(0x0f));
@@ -116,7 +116,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(11);
     }
-    catch(const Test::BoolV& ex)
+    catch(const Test::BoolS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == true);
@@ -127,7 +127,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(12);
     }
-    catch(const Test::ShortV& ex)
+    catch(const Test::ShortS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == 1);
@@ -138,7 +138,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(13);
     }
-    catch(const Test::IntV& ex)
+    catch(const Test::IntS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == 3);
@@ -149,7 +149,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(14);
     }
-    catch(const Test::LongV& ex)
+    catch(const Test::LongS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == 5);
@@ -160,7 +160,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(15);
     }
-    catch(const Test::FloatV& ex)
+    catch(const Test::FloatS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == Ice::Float(7.7));
@@ -171,7 +171,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(16);
     }
-    catch(const Test::DoubleV& ex)
+    catch(const Test::DoubleS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == Ice::Double(9.9));
@@ -182,7 +182,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(17);
     }
-    catch(const Test::StringV& ex)
+    catch(const Test::StringS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == "abc");
@@ -193,7 +193,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(18);
     }
-    catch(const Test::WStringV& ex)
+    catch(const Test::WStringS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0] == L"xxx");
@@ -204,7 +204,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(19);
     }
-    catch(const Test::ByteVV& ex)
+    catch(const Test::ByteSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -218,7 +218,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(20);
     }
-    catch(const Test::BoolVV& ex)
+    catch(const Test::BoolSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -232,7 +232,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(21);
     }
-    catch(const Test::ShortVV& ex)
+    catch(const Test::ShortSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -246,7 +246,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(22);
     }
-    catch(const Test::IntVV& ex)
+    catch(const Test::IntSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -260,7 +260,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(23);
     }
-    catch(const Test::LongVV& ex)
+    catch(const Test::LongSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -274,7 +274,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(24);
     }
-    catch(const Test::FloatVV& ex)
+    catch(const Test::FloatSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -288,7 +288,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(25);
     }
-    catch(const Test::DoubleVV& ex)
+    catch(const Test::DoubleSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -302,7 +302,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(26);
     }
-    catch(const Test::StringVV& ex)
+    catch(const Test::StringSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);
@@ -316,7 +316,7 @@ exceptions(Test::MyClassPrx p)
     {
 	p->opEx(27);
     }
-    catch(const Test::WStringVV& ex)
+    catch(const Test::WStringSS& ex)
     {
 	test(ex.size() == 2);
 	test(ex[0].size() == 1);

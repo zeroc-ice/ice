@@ -1,6 +1,6 @@
-WrongProxyType.ice:16: `Vector' must be class or interface
-WrongProxyType.ice:17: `Vector' must be class or interface
-WrongProxyType.ice:18: `Vector' must be class or interface
-WrongProxyType.ice:20: `Map' must be class or interface
-WrongProxyType.ice:21: `Map' must be class or interface
-WrongProxyType.ice:22: `Map' must be class or interface
+WrongProxyType.ice:16: `Sequence' must be class or interface
+WrongProxyType.ice:17: `Sequence' must be class or interface
+WrongProxyType.ice:18: `Sequence' must be class or interface
+WrongProxyType.ice:20: `Dictionary' must be class or interface
+WrongProxyType.ice:21: `Dictionary' must be class or interface
+WrongProxyType.ice:22: `Dictionary' must be class or interface

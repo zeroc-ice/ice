@@ -287,18 +287,26 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	return;
     }
     
-    VectorPtr vec = VectorPtr::dynamicCast(type);
-    if (vec)
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
     {
-	if (BuiltinPtr::dynamicCast(vec->type()))
+	if (BuiltinPtr::dynamicCast(seq->type()))
 	{
 	    out << nl << stream << "->" << func << param << ");";
 	}
 	else
 	{
-	    out << nl << vec->scope() << "::__" << func << stream << ", " << param << ", " << vec->scope()
-		<< "::__U__" << vec->name() << "());";
+	    out << nl << seq->scope() << "::__" << func << stream << ", " << param << ", " << seq->scope()
+		<< "::__U__" << seq->name() << "());";
 	}
+	return;
+    }
+    
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if (dict)
+    {
+	out << nl << dict->scope() << "::__" << func << stream << ", " << param << ", " << dict->scope()
+	    << "::__U__" << dict->name() << "());";
 	return;
     }
     

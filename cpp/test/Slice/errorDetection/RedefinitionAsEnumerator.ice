@@ -9,5 +9,5 @@
 // **********************************************************************
 
 class Class { };
-vector<int> Vector;
-enum Enum { Class, Vector };
+sequence<int> Sequence;
+enum Enum { Class, Sequence };

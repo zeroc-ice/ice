@@ -14,8 +14,8 @@ module Module3 { };
 module Module
 {
 
-vector<Module> Vector;
-map<int, Module> Map;
+sequence<Module> Sequence;
+dictionary<int, Module> Dictionary;
 interface BarIntf extends Module { };
 class BarClass1 extends Module { };
 class BarClass2 implements Module1, Module2, Module3 { };

@@ -49,10 +49,10 @@ void IceInternal::incRef(Operation* p) { p->__incRef(); }
 void IceInternal::decRef(Operation* p) { p->__decRef(); }
 void IceInternal::incRef(DataMember* p) { p->__incRef(); }
 void IceInternal::decRef(DataMember* p) { p->__decRef(); }
-void IceInternal::incRef(Vector* p) { p->__incRef(); }
-void IceInternal::decRef(Vector* p) { p->__decRef(); }
-void IceInternal::incRef(Map* p) { p->__incRef(); }
-void IceInternal::decRef(Map* p) { p->__decRef(); }
+void IceInternal::incRef(Sequence* p) { p->__incRef(); }
+void IceInternal::decRef(Sequence* p) { p->__decRef(); }
+void IceInternal::incRef(Dictionary* p) { p->__incRef(); }
+void IceInternal::decRef(Dictionary* p) { p->__decRef(); }
 void IceInternal::incRef(Enum* p) { p->__incRef(); }
 void IceInternal::decRef(Enum* p) { p->__decRef(); }
 void IceInternal::incRef(Enumerator* p) { p->__incRef(); }
@@ -406,13 +406,13 @@ Slice::Container::createStruct(const string& name)
     return p;
 }
 
-VectorPtr
-Slice::Container::createVector(const string& name, const TypePtr& type)
+SequencePtr
+Slice::Container::createSequence(const string& name, const TypePtr& type)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-	VectorPtr p = VectorPtr::dynamicCast(matches.front());
+	SequencePtr p = SequencePtr::dynamicCast(matches.front());
 	if (p)
 	{
 	    if (_unit->ignRedefs())
@@ -420,7 +420,7 @@ Slice::Container::createVector(const string& name, const TypePtr& type)
 		return p;
 	    }
 
-	    string msg = "redefinition of vector `";
+	    string msg = "redefinition of sequence `";
 	    msg += name;
 	    msg += "'";
 	    _unit->error(msg);
@@ -429,23 +429,23 @@ Slice::Container::createVector(const string& name, const TypePtr& type)
 	
 	string msg = "redefinition of `";
 	msg += name;
-	msg += "' as vector";
+	msg += "' as sequence";
 	_unit->error(msg);
 	return 0;
     }
 
-    VectorPtr p = new Vector(this, name, type);
+    SequencePtr p = new Sequence(this, name, type);
     _contents.push_back(p);
     return p;
 }
 
-MapPtr
-Slice::Container::createMap(const string& name, const TypePtr& keyType, const TypePtr& valueType)
+DictionaryPtr
+Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const TypePtr& valueType)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
-	MapPtr p = MapPtr::dynamicCast(matches.front());
+	DictionaryPtr p = DictionaryPtr::dynamicCast(matches.front());
 	if (p)
 	{
 	    if (_unit->ignRedefs())
@@ -453,7 +453,7 @@ Slice::Container::createMap(const string& name, const TypePtr& keyType, const Ty
 		return p;
 	    }
 
-	    string msg = "redefinition of map `";
+	    string msg = "redefinition of dictionary `";
 	    msg += name;
 	    msg += "'";
 	    _unit->error(msg);
@@ -462,12 +462,12 @@ Slice::Container::createMap(const string& name, const TypePtr& keyType, const Ty
 	
 	string msg = "redefinition of `";
 	msg += name;
-	msg += "' as map";
+	msg += "' as dictionary";
 	_unit->error(msg);
 	return 0;
     }
 
-    MapPtr p = new Map(this, name, keyType, valueType);
+    DictionaryPtr p = new Dictionary(this, name, keyType, valueType);
     _contents.push_back(p);
     return p;
 }
@@ -747,13 +747,13 @@ Slice::Container::structs()
     return result;
 }
 
-VectorList
-Slice::Container::vectors()
+SequenceList
+Slice::Container::sequences()
 {
-    VectorList result;
+    SequenceList result;
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
-	VectorPtr q = VectorPtr::dynamicCast(*p);
+	SequencePtr q = SequencePtr::dynamicCast(*p);
 	if (q)
 	{
 	    result.push_back(q);
@@ -762,13 +762,13 @@ Slice::Container::vectors()
     return result;
 }
 
-MapList
-Slice::Container::maps()
+DictionaryList
+Slice::Container::dictionaries()
 {
-    MapList result;
+    DictionaryList result;
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
-	MapPtr q = MapPtr::dynamicCast(*p);
+	DictionaryPtr q = DictionaryPtr::dynamicCast(*p);
 	if (q)
 	{
 	    result.push_back(q);
@@ -1647,28 +1647,28 @@ Slice::Native::Native(const ContainerPtr& container, const string& name) :
 }
 
 // ----------------------------------------------------------------------
-// Vector
+// Sequence
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::Vector::type()
+Slice::Sequence::type()
 {
     return _type;
 }
 
 Slice::Contained::ContainedType
-Slice::Vector::containedType()
+Slice::Sequence::containedType()
 {
-    return ContainedTypeVector;
+    return ContainedTypeSequence;
 }
 
 void
-Slice::Vector::visit(ParserVisitor* visitor)
+Slice::Sequence::visit(ParserVisitor* visitor)
 {
-    visitor->visitVector(this);
+    visitor->visitSequence(this);
 }
 
-Slice::Vector::Vector(const ContainerPtr& container, const string& name, const TypePtr& type) :
+Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type) :
     Constructed(container, name),
     Type(container->unit()),
     Contained(container, name),
@@ -1678,34 +1678,35 @@ Slice::Vector::Vector(const ContainerPtr& container, const string& name, const T
 }
 
 // ----------------------------------------------------------------------
-// Map
+// Dictionary
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::Map::keyType()
+Slice::Dictionary::keyType()
 {
     return _keyType;
 }
 
 TypePtr
-Slice::Map::valueType()
+Slice::Dictionary::valueType()
 {
     return _valueType;
 }
 
 Slice::Contained::ContainedType
-Slice::Map::containedType()
+Slice::Dictionary::containedType()
 {
-    return ContainedTypeMap;
+    return ContainedTypeDictionary;
 }
 
 void
-Slice::Map::visit(ParserVisitor* visitor)
+Slice::Dictionary::visit(ParserVisitor* visitor)
 {
-    visitor->visitMap(this);
+    visitor->visitDictionary(this);
 }
 
-Slice::Map::Map(const ContainerPtr& container, const string& name, const TypePtr& keyType, const TypePtr& valueType) :
+Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
+			      const TypePtr& valueType) :
     Constructed(container, name),
     Type(container->unit()),
     Contained(container, name),

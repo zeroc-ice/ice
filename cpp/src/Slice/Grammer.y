@@ -45,8 +45,8 @@ yyerror(const char* s)
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
 %token ICE_NATIVE
-%token ICE_VECTOR
-%token ICE_MAP
+%token ICE_SEQUENCE
+%token ICE_DICTIONARY
 %token ICE_ENUM
 %token ICE_NONMUTATING
 %token ICE_IDENTIFIER
@@ -105,10 +105,10 @@ definition
 | native_def
 {
 }
-| vector_def
+| sequence_def
 {
 }
-| map_def
+| dictionary_def
 {
 }
 | enum_def
@@ -706,27 +706,27 @@ native_def
 ;
 
 // ----------------------------------------------------------------------
-vector_def
+sequence_def
 // ----------------------------------------------------------------------
-: ICE_VECTOR '<' type '>' ICE_IDENTIFIER
+: ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($5);
     TypePtr type = TypePtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
-    cont->createVector(ident->v, type);
+    cont->createSequence(ident->v, type);
 }
 ;
 
 // ----------------------------------------------------------------------
-map_def
+dictionary_def
 // ----------------------------------------------------------------------
-: ICE_MAP '<' type ',' type '>' ICE_IDENTIFIER
+: ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($7);
     TypePtr keyType = TypePtr::dynamicCast($3);
     TypePtr valueType = TypePtr::dynamicCast($5);
     ContainerPtr cont = unit->currentContainer();
-    cont->createMap(ident->v, keyType, valueType);
+    cont->createDictionary(ident->v, keyType, valueType);
 }
 ;
 

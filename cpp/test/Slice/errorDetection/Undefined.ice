@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-vector<Foo> FooVector;
-map<Foo, Bar> FooBarMap;
+sequence<Foo> FooSequence;
+dictionary<Foo, Bar> FooBarDictionary;
 interface BarIntf extends Foo { };
 class BarClass1 extends Foo { };
 class BarClass2 implements Foo1, Foo2, Foo3 { };

@@ -280,11 +280,11 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = p->name();
-    TypePtr subtype = p->type();
-    string s = typeToString(subtype);
+    TypePtr type = p->type();
+    string s = typeToString(type);
     if (s[0] == ':')
     {
 	s.insert(0, " ");
@@ -292,7 +292,7 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
     H << sp;
     H << nl << "typedef ::std::vector<" << s << "> " << name << ';';
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(subtype);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if (!builtin)
     {
 	string scoped = p->scoped();
@@ -315,7 +315,7 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
 	C << nl << scoped << "::const_iterator p;";
 	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C << sb;
-	writeMarshalUnmarshalCode(C, subtype, "*p", true);
+	writeMarshalUnmarshalCode(C, type, "*p", true);
 	C << eb;
 	C << eb;
 	C << sp;
@@ -331,7 +331,7 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
 	C.zeroIndent();
 	C << nl << "#ifdef WIN32"; // STLBUG
 	C.restoreIndent();
-	C << nl << "v.push_back(" << typeToString(subtype) << "());";
+	C << nl << "v.push_back(" << typeToString(type) << "());";
 	C.zeroIndent();
 	C << nl << "#else";
 	C.restoreIndent();
@@ -339,10 +339,64 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
 	C.zeroIndent();
 	C << nl << "#endif";
 	C.restoreIndent();
-	writeMarshalUnmarshalCode(C, subtype, "v.back()", false);
+	writeMarshalUnmarshalCode(C, type, "v.back()", false);
 	C << eb;
 	C << eb;
     }
+}
+
+void
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    string name = p->name();
+    TypePtr keyType = p->keyType();
+    TypePtr valueType = p->valueType();
+    string ks = typeToString(keyType);
+    if (ks[0] == ':')
+    {
+	ks.insert(0, " ");
+    }
+    string vs = typeToString(valueType);
+    H << sp;
+    H << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
+
+    string scoped = p->scoped();
+    string scope = p->scope();
+    if (scope.length())
+    {
+	scope.erase(0, 2);
+    }
+    
+    H << sp;
+    H << nl << "class __U__" << name << " { };";
+    H << nl << "void" << _dllExport << " __write(::IceInternal::Stream*, const " << name << "&, __U__" << name << ");";
+    H << nl << "void" << _dllExport << " __read(::IceInternal::Stream*, " << name << "&, __U__" << name << ");";
+    C << sp;
+    C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, const " << scoped << "& v, ::"
+      << scope << "::__U__" << name << ')';
+    C << sb;
+    C << nl << "__os->write(::Ice::Int(v.size()));";
+    C << nl << scoped << "::const_iterator p;";
+    C << nl << "for (p = v.begin(); p != v.end(); ++p)";
+    C << sb;
+    writeMarshalUnmarshalCode(C, keyType, "p->first", true);
+    writeMarshalUnmarshalCode(C, valueType, "p->second", true);
+    C << eb;
+    C << eb;
+    C << sp;
+    C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v, ::" << scope
+      << "::__U__" << name << ')';
+    C << sb;
+    C << nl << "::Ice::Int sz;";
+    C << nl << "__is->read(sz);";
+    C << nl << "while (sz--)";
+    C << sb;
+    C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
+    writeMarshalUnmarshalCode(C, keyType, "pair.first", false);
+    writeMarshalUnmarshalCode(C, valueType, "pair.second", false);
+    C << nl << "v.insert(v.end(), pair);";
+    C << eb;
+    C << eb;
 }
 
 void

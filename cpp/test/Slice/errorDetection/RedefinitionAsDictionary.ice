@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-vector<int> Vector;
-vector<int> Vector;
+class Class { };
+dictionary<string, int> Class;

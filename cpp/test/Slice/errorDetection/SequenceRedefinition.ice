@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-class Class { };
-map<string, int> Class;
+sequence<int> Sequence;
+sequence<int> Sequence;

@@ -142,8 +142,8 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::ByteV bvi1;
-	Test::ByteV bvi2;
+	Test::ByteS bvi1;
+	Test::ByteS bvi2;
 
 	bvi1.push_back(Ice::Byte(0x01));
 	bvi1.push_back(Ice::Byte(0x11));
@@ -155,10 +155,10 @@ twoways(Test::MyClassPrx p)
 	bvi2.push_back(Ice::Byte(0xf3));
 	bvi2.push_back(Ice::Byte(0xf4));
 
-	Test::ByteV bvo;
-	Test::ByteV rvo;
+	Test::ByteS bvo;
+	Test::ByteS rvo;
 
-	rvo = p->opByteV(bvi1, bvi2, bvo);
+	rvo = p->opByteS(bvi1, bvi2, bvo);
 	test(bvo.size() == 4);
 	test(bvo[0] == Ice::Byte(0x22));
 	test(bvo[1] == Ice::Byte(0x12));
@@ -176,8 +176,8 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::BoolV bvi1;
-	Test::BoolV bvi2;
+	Test::BoolS bvi1;
+	Test::BoolS bvi2;
 
 	bvi1.push_back(true);
 	bvi1.push_back(true);
@@ -185,10 +185,10 @@ twoways(Test::MyClassPrx p)
 
 	bvi2.push_back(false);
 
-	Test::BoolV bvo;
-	Test::BoolV rvo;
+	Test::BoolS bvo;
+	Test::BoolS rvo;
 
-	rvo = p->opBoolV(bvi1, bvi2, bvo);
+	rvo = p->opBoolS(bvi1, bvi2, bvo);
 	test(bvo.size() == 4);
 	test(bvo[0]);
 	test(bvo[1]);
@@ -201,9 +201,9 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::ShortV svi;
-	Test::IntV ivi;
-	Test::LongV lvi;
+	Test::ShortS svi;
+	Test::IntS ivi;
+	Test::LongS lvi;
 
 	svi.push_back(1);
 	svi.push_back(2);
@@ -218,12 +218,12 @@ twoways(Test::MyClassPrx p)
 	lvi.push_back(30);
 	lvi.push_back(20);
 
-	Test::ShortV svo;
-	Test::IntV ivo;
-	Test::LongV lvo;
-	Test::LongV rvo;
+	Test::ShortS svo;
+	Test::IntS ivo;
+	Test::LongS lvo;
+	Test::LongS rvo;
 
-	rvo = p->opShortIntLongV(svi, ivi, lvi, svo, ivo, lvo);
+	rvo = p->opShortIntLongS(svi, ivi, lvi, svo, ivo, lvo);
 	test(svo.size() == 3);
 	test(svo[0] == 1);
 	test(svo[1] == 2);
@@ -247,8 +247,8 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::FloatV fvi;
-	Test::DoubleV dvi;
+	Test::FloatS fvi;
+	Test::DoubleS dvi;
 
 	fvi.push_back(Ice::Float(3.14));
 	fvi.push_back(Ice::Float(1.11));
@@ -257,11 +257,11 @@ twoways(Test::MyClassPrx p)
 	dvi.push_back(Ice::Double(1.2E10));
 	dvi.push_back(Ice::Double(1.3E10));
 
-	Test::FloatV fvo;
-	Test::DoubleV dvo;
-	Test::DoubleV rvo;
+	Test::FloatS fvo;
+	Test::DoubleS dvo;
+	Test::DoubleS rvo;
 
-	rvo = p->opFloatDoubleV(fvi, dvi, fvo, dvo);
+	rvo = p->opFloatDoubleS(fvi, dvi, fvo, dvo);
 	test(fvo.size() == 2);
 	test(fvo[0] == ::Ice::Float(3.14));
 	test(fvo[1] == ::Ice::Float(1.11));
@@ -278,8 +278,8 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::StringV svi1;
-	Test::StringV svi2;
+	Test::StringS svi1;
+	Test::StringS svi2;
 
 	svi1.push_back("abc");
 	svi1.push_back("de");
@@ -287,10 +287,10 @@ twoways(Test::MyClassPrx p)
 
 	svi2.push_back("xyz");
 
-	Test::StringV svo;
-	Test::StringV rvo;
+	Test::StringS svo;
+	Test::StringS rvo;
 
-	rvo = p->opStringV(svi1, svi2, svo);
+	rvo = p->opStringS(svi1, svi2, svo);
 	test(svo.size() == 4);
 	test(svo[0] == "abc");
 	test(svo[1] == "de");
@@ -303,8 +303,8 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::WStringV svi1;
-	Test::WStringV svi2;
+	Test::WStringS svi1;
+	Test::WStringS svi2;
 
 	svi1.push_back(L"abc");
 	svi1.push_back(L"de");
@@ -312,10 +312,10 @@ twoways(Test::MyClassPrx p)
 
 	svi2.push_back(L"xyz");
 
-	Test::WStringV svo;
-	Test::WStringV rvo;
+	Test::WStringS svo;
+	Test::WStringS rvo;
 
-	rvo = p->opWStringV(svi1, svi2, svo);
+	rvo = p->opWStringS(svi1, svi2, svo);
 	test(svo.size() == 4);
 	test(svo[0] == L"abc");
 	test(svo[1] == L"de");
@@ -328,9 +328,9 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::ByteVV bvi1;
+	Test::ByteSS bvi1;
 	bvi1.resize(2);
-	Test::ByteVV bvi2;
+	Test::ByteSS bvi2;
 	bvi2.resize(2);
 
 	bvi1[0].push_back(Ice::Byte(0x01));
@@ -342,10 +342,10 @@ twoways(Test::MyClassPrx p)
 	bvi2[1].push_back(Ice::Byte(0xf2));
 	bvi2[1].push_back(Ice::Byte(0xf1));
 
-	Test::ByteVV bvo;
-	Test::ByteVV rvo;
+	Test::ByteSS bvo;
+	Test::ByteSS rvo;
 
-	rvo = p->opByteVV(bvi1, bvi2, bvo);
+	rvo = p->opByteSS(bvi1, bvi2, bvo);
 	test(bvo.size() == 2);
 	test(bvo[0].size() == 1);
 	test(bvo[0][0] == Ice::Byte(0xff));
@@ -368,9 +368,9 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::FloatVV fvi;
+	Test::FloatSS fvi;
 	fvi.resize(3);
-	Test::DoubleVV dvi;
+	Test::DoubleSS dvi;
 	dvi.resize(1);
 
 	fvi[0].push_back(Ice::Float(3.14));
@@ -380,11 +380,11 @@ twoways(Test::MyClassPrx p)
 	dvi[0].push_back(Ice::Double(1.2E10));
 	dvi[0].push_back(Ice::Double(1.3E10));
 
-	Test::FloatVV fvo;
-	Test::DoubleVV dvo;
-	Test::DoubleVV rvo;
+	Test::FloatSS fvo;
+	Test::DoubleSS dvo;
+	Test::DoubleSS rvo;
 
-	rvo = p->opFloatDoubleVV(fvi, dvi, fvo, dvo);
+	rvo = p->opFloatDoubleSS(fvi, dvi, fvo, dvo);
 	test(fvo.size() == 3);
 	test(fvo[0].size() == 1);
 	test(fvo[0][0] == ::Ice::Float(3.14));
@@ -408,9 +408,9 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::StringVV svi1;
+	Test::StringSS svi1;
 	svi1.resize(2);
-	Test::StringVV svi2;
+	Test::StringSS svi2;
 	svi2.resize(3);
 
 	svi1[0].push_back("abc");
@@ -419,10 +419,10 @@ twoways(Test::MyClassPrx p)
 
 	svi2[2].push_back("xyz");
 
-	Test::StringVV svo;
-	Test::StringVV rvo;
+	Test::StringSS svo;
+	Test::StringSS rvo;
 
-	rvo = p->opStringVV(svi1, svi2, svo);
+	rvo = p->opStringSS(svi1, svi2, svo);
 	test(svo.size() == 5);
 	test(svo[0].size() == 1);
 	test(svo[0][0] == "abc");
@@ -441,9 +441,9 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::WStringVV svi1;
+	Test::WStringSS svi1;
 	svi1.resize(2);
-	Test::WStringVV svi2;
+	Test::WStringSS svi2;
 	svi2.resize(3);
 
 	svi1[0].push_back(L"abc");
@@ -452,10 +452,10 @@ twoways(Test::MyClassPrx p)
 
 	svi2[2].push_back(L"xyz");
 
-	Test::WStringVV svo;
-	Test::WStringVV rvo;
+	Test::WStringSS svo;
+	Test::WStringSS rvo;
 
-	rvo = p->opWStringVV(svi1, svi2, svo);
+	rvo = p->opWStringSS(svi1, svi2, svo);
 	test(svo.size() == 5);
 	test(svo[0].size() == 1);
 	test(svo[0][0] == L"abc");

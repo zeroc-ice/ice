@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-map<int, long> Map;
-map<int, long> Map;
+dictionary<int, long> Dictionary;
+dictionary<int, long> Dictionary;

@@ -53,7 +53,8 @@ private:
 
 	virtual void visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
-	virtual void visitVector(const VectorPtr&);
+	virtual void visitSequence(const SequencePtr&);
+	virtual void visitDictionary(const DictionaryPtr&);
 	virtual void visitEnum(const EnumPtr&);
 	virtual void visitNative(const NativePtr&);
 

@@ -8,11 +8,11 @@
 //
 // **********************************************************************
 
-vector<int> Vector;
-vector<int> Vector1;
-vector<int> Vector2;
-vector<int> Vector3;
-interface BarIntf extends Vector { };
-class BarClass1 extends Vector { };
-class BarClass2 implements Vector1, Vector2, Vector3 { };
-class BarClass3 extends Vector implements Vector1, Vector2, Vector3 { };
+sequence<int> Sequence;
+sequence<int> Sequence1;
+sequence<int> Sequence2;
+sequence<int> Sequence3;
+interface BarIntf extends Sequence { };
+class BarClass1 extends Sequence { };
+class BarClass2 implements Sequence1, Sequence2, Sequence3 { };
+class BarClass3 extends Sequence implements Sequence1, Sequence2, Sequence3 { };

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-vector<int> Vector1;
-interface Vector1;
+sequence<int> Sequence1;
+interface Sequence1;
 
-vector<int> Vector2;
-interface Vector2 { };
+sequence<int> Sequence2;
+interface Sequence2 { };

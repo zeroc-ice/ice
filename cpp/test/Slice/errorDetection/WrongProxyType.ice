@@ -8,16 +8,16 @@
 //
 // **********************************************************************
 
-vector<int> Vector;
-map<Vector, int> Map;
+sequence<int> Sequence;
+dictionary<Sequence, int> Dictionary;
 
 interface I
 {
-    Vector* f1();
-    void f2(Vector*);
-    void f3(; Vector*);
+    Sequence* f1();
+    void f2(Sequence*);
+    void f3(; Sequence*);
 
-    Map* f1();
-    void f2(Map*);
-    void f3(; Map*);
+    Dictionary* f1();
+    void f2(Dictionary*);
+    void f3(; Dictionary*);
 };

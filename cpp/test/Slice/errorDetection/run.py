@@ -26,6 +26,7 @@ for file in os.listdir(directory):
     if(regex1.search(file)):
         files.append(file)
 
+files.sort()
 for file in files:
 
     print file + "...",

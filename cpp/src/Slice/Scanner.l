@@ -181,12 +181,12 @@ L	[a-zA-Z_]
     return ICE_NATIVE;
 }
 
-"vector" {
-    return ICE_VECTOR;
+"sequence" {
+    return ICE_SEQUENCE;
 }
 
-"map" {
-    return ICE_MAP;
+"dictionary" {
+    return ICE_DICTIONARY;
 }
 
 "enum" {

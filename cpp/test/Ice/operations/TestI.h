@@ -57,61 +57,61 @@ public:
     virtual Test::MyClassPrx opMyClass(const Test::MyClassPrx&,
 				       Test::MyClassPrx&);
 
-    virtual Test::ByteV opByteV(const Test::ByteV&,
-				const Test::ByteV&,
-				Test::ByteV&);
+    virtual Test::ByteS opByteS(const Test::ByteS&,
+				const Test::ByteS&,
+				Test::ByteS&);
     
-    virtual Test::BoolV opBoolV(const Test::BoolV&,
-				const Test::BoolV&,
-				Test::BoolV&);
+    virtual Test::BoolS opBoolS(const Test::BoolS&,
+				const Test::BoolS&,
+				Test::BoolS&);
     
-    virtual Test::LongV opShortIntLongV(const Test::ShortV&,
-					const Test::IntV&,
-					const Test::LongV&,
-					Test::ShortV&,
-					Test::IntV&,
-					Test::LongV&);
+    virtual Test::LongS opShortIntLongS(const Test::ShortS&,
+					const Test::IntS&,
+					const Test::LongS&,
+					Test::ShortS&,
+					Test::IntS&,
+					Test::LongS&);
     
-    virtual Test::DoubleV opFloatDoubleV(const Test::FloatV&,
-					 const Test::DoubleV&,
-					 Test::FloatV&,
-					 Test::DoubleV&);
+    virtual Test::DoubleS opFloatDoubleS(const Test::FloatS&,
+					 const Test::DoubleS&,
+					 Test::FloatS&,
+					 Test::DoubleS&);
     
-    virtual Test::StringV opStringV(const Test::StringV&,
-				    const Test::StringV&,
-				    Test::StringV&);
+    virtual Test::StringS opStringS(const Test::StringS&,
+				    const Test::StringS&,
+				    Test::StringS&);
     
-    virtual Test::WStringV opWStringV(const Test::WStringV&,
-				      const Test::WStringV&,
-				      Test::WStringV&);
+    virtual Test::WStringS opWStringS(const Test::WStringS&,
+				      const Test::WStringS&,
+				      Test::WStringS&);
     
-    virtual Test::ByteVV opByteVV(const Test::ByteVV&,
-				  const Test::ByteVV&,
-				  Test::ByteVV&);
+    virtual Test::ByteSS opByteSS(const Test::ByteSS&,
+				  const Test::ByteSS&,
+				  Test::ByteSS&);
     
-    virtual Test::BoolVV opBoolVV(const Test::BoolVV&,
-				  const Test::BoolVV&,
-				  Test::BoolVV&);
+    virtual Test::BoolSS opBoolSS(const Test::BoolSS&,
+				  const Test::BoolSS&,
+				  Test::BoolSS&);
     
-    virtual Test::LongVV opShortIntLongVV(const Test::ShortVV&,
-					  const Test::IntVV&,
-					  const Test::LongVV&,
-					  Test::ShortVV&,
-					  Test::IntVV&,
-					  Test::LongVV&);
+    virtual Test::LongSS opShortIntLongSS(const Test::ShortSS&,
+					  const Test::IntSS&,
+					  const Test::LongSS&,
+					  Test::ShortSS&,
+					  Test::IntSS&,
+					  Test::LongSS&);
     
-    virtual Test::DoubleVV opFloatDoubleVV(const Test::FloatVV&,
-					   const Test::DoubleVV&,
-					   Test::FloatVV&,
-					   Test::DoubleVV&);
+    virtual Test::DoubleSS opFloatDoubleSS(const Test::FloatSS&,
+					   const Test::DoubleSS&,
+					   Test::FloatSS&,
+					   Test::DoubleSS&);
     
-    virtual Test::StringVV opStringVV(const Test::StringVV&,
-				      const Test::StringVV&,
-				      Test::StringVV&);
+    virtual Test::StringSS opStringSS(const Test::StringSS&,
+				      const Test::StringSS&,
+				      Test::StringSS&);
 
-    virtual Test::WStringVV opWStringVV(const Test::WStringVV&,
-					const Test::WStringVV&,
-					Test::WStringVV&);
+    virtual Test::WStringSS opWStringSS(const Test::WStringSS&,
+					const Test::WStringSS&,
+					Test::WStringSS&);
     
     virtual void opEx(Ice::Int);
 

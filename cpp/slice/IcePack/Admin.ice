@@ -24,7 +24,7 @@ module IcePack
  * A vector of strings representing command line arguments.
  *
  **/
-vector<string> Args;
+sequence<string> Args;
 
 /**
  *
@@ -96,7 +96,7 @@ class ServerDescription
  * A vector of server descriptions.
  *
  **/
-vector<ServerDescription> ServerDescriptions;
+sequence<ServerDescription> ServerDescriptions;
 
 /**
  *

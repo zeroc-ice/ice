@@ -173,14 +173,60 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	end();
     }
 
-    VectorList vectors = p->vectors();
-    vectors.sort();
-    if (!vectors.empty())
+    StructList structs = p->structs();
+    structs.sort();
+    if (!structs.empty())
     {
-	start("section", "Vector Index");
+	start("section", "Struct Index");
 	start("variablelist");
 	
-	for (VectorList::iterator q = vectors.begin(); q != vectors.end(); ++q)
+	for (StructList::iterator q = structs.begin(); q != structs.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p);
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    SequenceList sequences = p->sequences();
+    sequences.sort();
+    if (!sequences.empty())
+    {
+	start("section", "Sequence Index");
+	start("variablelist");
+	
+	for (SequenceList::iterator q = sequences.begin(); q != sequences.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p);
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    DictionaryList dictionaries = p->dictionaries();
+    dictionaries.sort();
+    if (!dictionaries.empty())
+    {
+	start("section", "Dictionary Index");
+	start("variablelist");
+	
+	for (DictionaryList::iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -245,15 +291,34 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     end();
 
     {
-	for (VectorList::iterator q = vectors.begin(); q != vectors.end(); ++q)
+	for (SequenceList::iterator q = sequences.begin(); q != sequences.end(); ++q)
 	{
 	    TypePtr type = (*q)->type();
 	    
 	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>vector&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name()
+	    O << nl << "<synopsis>sequence&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name()
 	      << "</type>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
+    }
+    
+    {
+	for (DictionaryList::iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
+	{
+	    TypePtr keyType = (*q)->keyType();
+	    TypePtr valueType = (*q)->valueType();
+	    
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>dictionary&lt; " << toString(keyType, p) << ", " << toString(valueType, p)
+	      << " &gt; <type>" << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
 	    
 	    printComment(*q);
@@ -481,6 +546,66 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    end();
 	}
     }
+
+    {
+	for (DataMemberList::iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    TypePtr type = (*q)->type();
+	    
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>" << toString(type, p) << " <structfield>" << (*q)->name()
+	      << "</structfield>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
+    }
+	
+    end();
+}
+
+void
+Slice::Gen::visitStructStart(const StructPtr& p)
+{
+    start(_chapter + " id=" + scopedToId(p->scoped()), p->scoped().substr(2));
+
+    start("section", "Overview");
+    O.zeroIndent();
+    O << nl << "<synopsis>";
+    O << "struct <structname>" << p->name() << "</structname>";
+    O << "</synopsis>";
+    O.restoreIndent();
+
+    printComment(p);
+
+    DataMemberList dataMembers = p->dataMembers();
+    dataMembers.sort();
+    if (!dataMembers.empty())
+    {
+	start("section", "Data Member Index");
+	start("variablelist");
+	
+	for (DataMemberList::iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p);
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    end();
 
     {
 	for (DataMemberList::iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -834,6 +959,14 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 	tag = "classname";
 	linkend = scopedToId(cl->scoped());
 	s = getScopedMinimized(cl, container);
+    }
+
+    StructPtr st = StructPtr::dynamicCast(p);
+    if (st)
+    {
+	tag = "structname";
+	linkend = scopedToId(st->scoped());
+	s = getScopedMinimized(st, container);
     }
 
     if (s.empty())
