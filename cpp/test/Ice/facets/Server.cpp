@@ -16,7 +16,16 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    string endpts("tcp -p 12345 -t 2000");
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
+    string protocol = properties->getProperty("Ice.Protocol");
+
+    if (protocol.empty())
+    {
+        protocol = "tcp";
+    }
+
+    string endpts = protocol + " -p 12345 -t 2000";
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr d = new DI;
     adapter->add(d, "d");

@@ -24,7 +24,9 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     protocol(0),
     protocolCat("Protocol"),
     retry(0),
-    retryCat("Retry")
+    retryCat("Retry"),
+    security(0),
+    securityCat("Security")
 {
     string value;
     const string keyBase = "Ice.Trace.";
@@ -45,6 +47,12 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     if (!value.empty())
     {
 	const_cast<int&>(retry) = atoi(value.c_str());
+    }
+
+    value = properties->getProperty(keyBase + securityCat);
+    if (!value.empty())
+    {
+	const_cast<int&>(security) = atoi(value.c_str());
     }
 }
 

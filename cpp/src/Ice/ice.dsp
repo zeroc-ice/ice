@@ -43,8 +43,8 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I ".." /I "../../include" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /WX /Fr
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "_UNICODE" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "SSL_EXTENSION" /YX /FD /c
+# SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib jtc.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
+# ADD LINK32 ws2_32.lib jtc.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_UNICODE" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "SSL_EXTENSION" /YX /FD /GZ /c
 # SUBTRACT CPP /WX /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib jtcd.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
+# ADD LINK32 ws2_32.lib jtcd.lib libeay32.lib ssleay32.lib xerces-c_1D.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -236,7 +236,63 @@ SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SslBaseCerts.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateAuthority.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateDesc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConfig.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConfigErrorReporter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSL.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSLClient.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSLServer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslConnector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslException.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslGeneralConfig.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslSystem.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslSystemOpenSSL.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslTempCerts.cpp
 # End Source File
 # Begin Source File
 
@@ -532,6 +588,10 @@ SOURCE=..\..\include\Ice\ReferenceF.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Security.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\ServantLocator.h
 # End Source File
 # Begin Source File
@@ -540,15 +600,75 @@ SOURCE=..\..\include\Ice\ServantLocatorF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\SslAcceptor.h
+SOURCE=.\SslAcceptor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\SslConnector.h
+SOURCE=.\SslBaseCerts.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\SslTransceiver.h
+SOURCE=.\SslCertificateAuthority.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslCertificateDesc.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConfigErrorReporter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnection.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSLClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnectionOpenSSLServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslConnector.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslException.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslGeneralConfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslSystem.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslSystemOpenSSL.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslTempCerts.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SslTransceiver.h
 # End Source File
 # Begin Source File
 
@@ -584,11 +704,11 @@ SOURCE=.\Ice\ThreadPoolF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TraceLevels.h
+SOURCE=.\TraceLevels.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\TraceLevelsF.h
+SOURCE=.\TraceLevelsF.h
 # End Source File
 # Begin Source File
 

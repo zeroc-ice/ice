@@ -7,6 +7,15 @@
 // All Rights Reserved
 //
 // **********************************************************************
+#ifdef WIN32
+#pragma warning(disable:4786)
+#endif
+
+#ifdef SSL_EXTENSION
+#include <Ice/SslFactory.h>
+#include <Ice/SslSystem.h>
+#include <Ice/Properties.h>
+#endif
 
 #include <Ice/SslAcceptor.h>
 #include <Ice/SslTransceiver.h>
@@ -16,9 +25,25 @@
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 
+#ifdef SSL_EXTENSION
+#include <Ice/SslException.h>
+#endif
+
+#include <sstream>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+using std::string;
+using std::ostringstream;
+
+#ifdef SSL_EXTENSION
+using IceSecurity::Ssl::Connection;
+using IceSecurity::Ssl::Factory;
+using IceSecurity::Ssl::System;
+using IceSecurity::Ssl::ShutdownException;
+#endif
 
 int
 IceInternal::SslAcceptor::fd()
@@ -87,7 +112,55 @@ IceInternal::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    return new SslTransceiver(_instance, fd);
+#ifdef SSL_EXTENSION
+    // This is the Ice SSL Configuration File on which we will base
+    // all connections in this communicator.
+    string configFile = _instance->properties()->getProperty("Ice.Ssl.Config");
+
+    // Get an instance of the SslSystem singleton.
+    System* sslSystem = Factory::getSystem(configFile);
+
+    if (!sslSystem->isTraceSet())
+    {
+        sslSystem->setTrace(_traceLevels);
+    }
+
+    if (!sslSystem->isLoggerSet())
+    {
+        sslSystem->setLogger(_logger);
+    }
+
+    // Initialize the server (if needed)
+    if (!sslSystem->isConfigLoaded())
+    {
+        sslSystem->loadConfig();
+    }
+
+    Connection* sslConnection = 0;
+
+    try
+    {
+        sslConnection = sslSystem->createServerConnection(fd);
+    }
+    catch (...)
+    {
+        Factory::releaseSystem(sslSystem);
+        sslSystem = 0;
+
+        // Shutdown the connection.
+        throw;
+    }
+
+    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, sslConnection);
+
+    Factory::releaseSystem(sslSystem);
+    sslSystem = 0;
+
+#else
+    TransceiverPtr transPtr = new SslTransceiver(_instance, fd);
+#endif
+
+    return transPtr;
 }
 
 string

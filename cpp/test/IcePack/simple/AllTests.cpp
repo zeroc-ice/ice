@@ -18,7 +18,28 @@ TestPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref("test:tcp -p 12346 -t 5000");
+    string ref;
+    
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
+    string protocol = properties->getProperty("Ice.Protocol");
+    string secure;
+
+    if (protocol.empty())
+    {
+        protocol = "tcp";
+    }
+
+    if (protocol.compare("ssl") == 0)
+    {
+        secure = " -s ";
+    }
+
+    string endpts = protocol + " -p 12345 -t 2000";
+
+
+    ref = "test" + secure + ":" + endpts;
+
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

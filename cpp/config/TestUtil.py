@@ -11,7 +11,10 @@
 
 import sys, os
 
-serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60"
+protocol = "ssl"
+serverOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60 --Ice.Ssl.Config=TOPLEVELDIR/Certs/server_sslconfig.xml"
+clientOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.Ssl.Config=TOPLEVELDIR/Certs/client_sslconfig.xml"
+collocatedOptions = " --Ice.Protocol=" + protocol + " --Ice.Trace.Security=0 --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=60 --Ice.Ssl.Config=TOPLEVELDIR/Certs/sslconfig.xml"
 
 serverPids = []
 
@@ -56,14 +59,18 @@ def clientServerTest(toplevel, name):
     server = os.path.normpath(testdir + "/server")
     client = os.path.normpath(testdir + "/client")
 
+    updatedServerOptions = serverOptions
+    updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
     print "starting server...",
-    serverPipe = os.popen(server + serverOptions)
+    serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
+    updatedClientOptions = clientOptions
+    updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
     print "starting client...",
-    clientPipe = os.popen(client)
+    clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
     if not output:
 	print "failed!"
@@ -82,8 +89,12 @@ def collocatedTest(toplevel, name):
     testdir = os.path.normpath(toplevel + "/test/" + name)
     collocated = os.path.normpath(testdir + "/collocated")
 
+    updatedCollocatedOptions = collocatedOptions
+    updatedCollocatedOptions = updatedCollocatedOptions.replace("TOPLEVELDIR", toplevel)
+
+    command = collocated + " " + updatedCollocatedOptions
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated)
+    collocatedPipe = os.popen(command)
     output = collocatedPipe.read().strip()
     if not output:
         print "failed!"

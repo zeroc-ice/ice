@@ -20,6 +20,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/Exception.h>
+#include <Ice/EndpointF.h>
 
 namespace Ice
 {

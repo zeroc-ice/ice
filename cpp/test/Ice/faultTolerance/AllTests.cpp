@@ -17,12 +17,28 @@ using namespace std;
 void
 allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 {
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
+    string protocol = properties->getProperty("Ice.Protocol");
+
+    if (protocol.empty())
+    {
+        protocol = "tcp";
+    }
+
+    string secure;
+
+    if (protocol.compare("ssl") == 0)
+    {
+        secure = " -s ";
+    }
+
     cout << "testing stringToProxy... " << flush;
     ostringstream ref;
-    ref << "test";
+    ref << "test" << secure;
     for (vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
-	ref << ":tcp -t 2000 -p " << *p;
+	ref << ":" << protocol << " -t 4000 -p " << *p;
     }
     Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
     test(base);

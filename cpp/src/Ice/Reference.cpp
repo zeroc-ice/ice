@@ -17,8 +17,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Reference* p) { p->__incRef(); }
-void IceInternal::decRef(Reference* p) { p->__decRef(); }
+void IceInternal::incRef(::IceInternal::Reference* p) { p->__incRef(); }
+void IceInternal::decRef(::IceInternal::Reference* p) { p->__decRef(); }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, const string& fac, Mode md, bool sec,
 				  const vector<EndpointPtr>& origEndpts, const vector<EndpointPtr>& endpts) :
@@ -72,7 +72,12 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	{
 	    break;
 	}
-	
+
+        if (s[beg] == ':')
+        {
+            break;
+        }
+        
 	end = s.find_first_of(delim + ":", beg);
 	if (end == string::npos)
 	{
@@ -95,7 +100,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	if (argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
 	    beg = argumentBeg;
-	    end = str.find_first_of(delim, beg);
+	    end = str.find_first_of(delim + ":", beg);
 	    if (end == string::npos)
 	    {
 		end = str.length();

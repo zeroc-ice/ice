@@ -22,10 +22,12 @@
 #include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
+#include <Ice/SslException.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+using IceSecurity::SecurityException;
 
 void IceInternal::incRef(Collector* p) { p->__incRef(); }
 void IceInternal::decRef(Collector* p) { p->__decRef(); }
@@ -564,6 +566,16 @@ IceInternal::CollectorFactory::message(BasicStream&)
 	CollectorPtr collector = new Collector(_instance, _adapter, transceiver, _endpoint);
 	collector->activate();
 	_collectors.push_back(collector);
+    }
+    catch (const SecurityException&)
+    {
+        // TODO: bandaid.  Takes care of SSL Handshake problems during creation of a Transceiver
+        // Ignore, nothing we can do here
+    }
+    catch (const SocketException&)
+    {
+        // TODO: bandaid.  Takes care of SSL Handshake problems during creation of a Transceiver
+        // Ignore, nothing we can do here
     }
     catch (const TimeoutException&)
     {

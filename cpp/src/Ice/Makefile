@@ -1,4 +1,4 @@
-# **********************************************************************
+#**********************************************************************
 #
 # Copyright (c) 2001
 # MutableRealms, Inc.
@@ -62,10 +62,25 @@ OBJS		= Application.o \
 		  TcpConnector.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
-		  SslConnector.o \
-		  SslAcceptor.o \
+                  SslConnector.o \
+                  SslAcceptor.o \
 		  SslTransceiver.o \
+                  SslBaseCerts.o \
+                  SslCertificateAuthority.o \
+                  SslCertificateDesc.o \
+                  SslConfig.o \
+                  SslConfigErrorReporter.o \
+                  SslConnectionOpenSSLClient.o \
+                  SslConnectionOpenSSL.o \
+                  SslConnectionOpenSSLServer.o \
+                  SslException.o \
+                  SslFactory.o \
+                  SslGeneralConfig.o \
+                  SslSystem.o \
+                  SslSystemOpenSSL.o \
+                  SslTempCerts.o \
 		  UdpTransceiver.o
+
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -79,7 +94,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
+	$(CXX) $(CXXFLAGS) -DUSE_SOCKETS -DSSL_EXTENSION $(LDFLAGS) -lxerces-c1_5_1 -lcrypto -lssl  -shared -o $@ $(OBJS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

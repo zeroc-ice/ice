@@ -130,7 +130,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy("admin:" + adminEndpoints);
+    string protocol = properties->getProperty("Ice.Protocol");
+    string secureFlag;
+    if (!protocol.compare("ssl"))
+    {
+        secureFlag = " -s ";
+    }
+
+    Ice::ObjectPrx base = communicator->stringToProxy("admin" + secureFlag + ":" + adminEndpoints);
     AdminPrx admin = AdminPrx::checkedCast(base);
     if (!admin)
     {

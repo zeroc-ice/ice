@@ -50,7 +50,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     ostringstream endpts;
-    endpts << "tcp -p " << port;
+    Ice::PropertiesPtr properties = communicator->getProperties();
+
+    string protocol = properties->getProperty("Ice.Protocol");
+
+    if (protocol.empty())
+    {
+        protocol = "tcp";
+    }
+
+    endpts << protocol << " -p " << port;
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts.str());
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, "test");

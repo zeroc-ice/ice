@@ -31,6 +31,8 @@ public:
     const char* protocolCat;
     const int retry;
     const char* retryCat;
+    const int security;
+    const char* securityCat;
 };
 
 }

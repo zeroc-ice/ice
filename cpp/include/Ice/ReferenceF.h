@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Reference;
-void incRef(Reference*);
-void decRef(Reference*);
+ICE_API void incRef(Reference*);
+ICE_API void decRef(Reference*);
 typedef IceInternal::Handle<Reference> ReferencePtr;
 
 }

@@ -477,7 +477,7 @@ IceInternal::ThreadPool::run()
 	    {
 		try
 		{
-		    read(handler);
+                    read(handler);
 		}
 		catch (const TimeoutException&) // Expected.
 		{

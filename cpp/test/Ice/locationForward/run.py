@@ -28,13 +28,19 @@ num = 5
 base = 12340
 
 serverPipes = { }
+if TestUtil.protocol == "ssl":
+    secure = " -s "
+else:
+    secure = ""
+updatedServerOptions = TestUtil.serverOptions
+updatedServerOptions = updatedServerOptions.replace("TOPLEVELDIR", toplevel)
 for i in range(0, num):
-    print "starting server #%d..." % (i + 1),
     if i + 1 < num:
-        s = TestUtil.serverOptions + " --fwd \"test:tcp -t 2000 -p %d\" %d" \
+        s = updatedServerOptions + " --fwd \"test" + secure + ":" + TestUtil.protocol + " -t 2000 -p %d\" %d" \
             % ((base + i + 1), (base + i))
     else:
-        s = TestUtil.serverOptions + " %d" % (base + i)
+        s = updatedServerOptions + " %d" % (base + i)
+    print "starting server #%d..." % (i + 1),
     serverPipes[i] = os.popen(server + " " + s)
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
@@ -42,7 +48,9 @@ for i in range(0, num):
 
 print "starting client...",
 s = "%d %d" % (base, (base + num - 1))
-clientPipe = os.popen(client + " " + s)
+updatedClientOptions = TestUtil.clientOptions
+updatedClientOptions = updatedClientOptions.replace("TOPLEVELDIR", toplevel)
+clientPipe = os.popen(client + updatedClientOptions + " " + s)
 output = clientPipe.readline()
 if not output:
     print "failed!"

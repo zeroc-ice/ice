@@ -30,6 +30,8 @@ slicedir	= $(top_srcdir)/slice
 STLPORT		?= /opt/STLport
 JTC		?= /opt/JTC
 DB		?= /opt/db
+OPENSSL         ?= /opt/openssl
+XERCES          ?= /opt/xerces
 
 #
 # Experts only: You can change the following lines, for example, to
@@ -38,8 +40,8 @@ DB		?= /opt/db
 CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
-CPPFLAGS	= -I$(includedir) -I$(STLPORT)/include/stlport -I$(JTC)/include
-LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib
+CPPFLAGS	= -I$(includedir) -I$(STLPORT)/include/stlport -I$(JTC)/include -I$(OPENSSL)/include -I$(XERCES)/include -DUSE_SOCKETS -DSSL_EXTENSION
+LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCES)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lJTC -lpthread
 LIBS		= -lIce $(BASELIBS)
 
