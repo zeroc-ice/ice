@@ -110,7 +110,6 @@ public:
 	_subscribers.remove(subscriber);
     }
 
-
 private:
 
     void

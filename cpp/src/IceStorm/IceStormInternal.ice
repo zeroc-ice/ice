@@ -47,14 +47,14 @@ interface TopicLink
 {
     /**
      *
-     * Forward an event
+     * Forward an event.
      *
      * @param op The operation name.
      *
      * @param idempotent Flag indicating whether the operation is
      * idempotent.
      *
-     * @param data The encoded for the operation in parameters.
+     * @param data The encoded data for the operation's input parameters.
      *
      * @param context The Ice::Current::Context data from the
      * originating request.
