@@ -1,1 +1,1 @@
-RedefinitionAsEnum.ice:12: redefinition of interface `Class' as enumeration
+RedefinitionAsEnum.ice:12: redefinition of class `Class' as enumeration

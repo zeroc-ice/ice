@@ -333,7 +333,7 @@ struct_def
     assert(st);
     if(st->dataMembers().empty())
     {
-    	unit->error("structs must have at least one member");
+    	unit->error("struct `" + st->name() + "' must have at least one member");
     }
 }
 | ICE_STRUCT keyword
@@ -569,7 +569,7 @@ interface_def
     assert(cd);
     if(cd->operations().empty())
     {
-     	unit->error("interfaces must have at least one operation");
+     	unit->error("interface `" + cd->name() + "' must have at least one operation");
     }
 */
 }

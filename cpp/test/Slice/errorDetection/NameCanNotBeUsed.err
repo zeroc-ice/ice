@@ -3,4 +3,4 @@ NameCanNotBeUsed.ice:19: interfacename `IFoo' cannot be used as operation name
 NameCanNotBeUsed.ice:24: class name `Bar' cannot be used as data member name
 NameCanNotBeUsed.ice:30: exception name `EBar' cannot be used as exception member name
 NameCanNotBeUsed.ice:35: struct name `SBar' cannot be used as member name
-NameCanNotBeUsed.ice:36: structs must have at least one member
+NameCanNotBeUsed.ice:36: struct `SBar' must have at least one member

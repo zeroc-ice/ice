@@ -25,12 +25,11 @@ Unit* unit;
 }
 
 // ----------------------------------------------------------------------
-// to_lower() helper function
+// toLower() helper function
 // ----------------------------------------------------------------------
 
-// TODO: ML: Should be toLower().
 static void
-to_lower(string& s)
+toLower(string& s)
 {
     transform(s.begin(), s.end(), s.begin(), tolower);
 }
@@ -199,6 +198,8 @@ ModulePtr
 Slice::Container::createModule(const string& name)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
+    matches.sort();	// Modules can occur many times...
+    matches.unique();	// ... but we only want one instance of each
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
 	string msg;
@@ -214,16 +215,15 @@ Slice::Container::createModule(const string& name)
 	    {
 		msg += "module `" + name + "' is capitalized inconsistently with its previous name: `";
 		msg += module->name() + "'";
-		_unit->warning(msg);	// TODO: Change to error in stable_39
-		// TODO: ML: continue (or later return 0) missing;
+		_unit->warning(msg);		// TODO: Change to error in stable_39
 	    }
 	}
-	
-	if(differsOnlyInCase)
+	else if(differsOnlyInCase)
 	{
 	    msg = "module `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
 	    _unit->warning(msg);		// TODO: Change to error in stable_39
+	    continue;
 	}
 	else
 	{
@@ -1567,9 +1567,9 @@ Slice::ClassDef::createOperation(const string& name,
 		// already).
 		//
 		string plc = p->second;
-		to_lower(plc);
+		toLower(plc);
 		string qlc = q->second;
-		to_lower(qlc);
+		toLower(qlc);
 		if(p->second == q->second && p->second != "")
 		{
 		    string msg = "duplicate parameter `";
@@ -1602,9 +1602,9 @@ Slice::ClassDef::createOperation(const string& name,
 	return 0;
     }
     string newName = name;
-    to_lower(newName);
+    toLower(newName);
     string thisName = this->name();
-    to_lower(thisName);
+    toLower(thisName);
     if(newName == thisName)
     {
 	string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
@@ -1638,9 +1638,9 @@ Slice::ClassDef::createOperation(const string& name,
 		return 0;
 	    }
 	    string baseName = (*q)->name();
-	    to_lower(baseName);
+	    toLower(baseName);
 	    string newName = name;
-	    to_lower(newName);
+	    toLower(newName);
 	    if(baseName == newName)
 	    {
 		string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
@@ -1698,9 +1698,9 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	return 0;
     }
     string newName = name;
-    to_lower(newName);
+    toLower(newName);
     string thisName = this->name();
-    to_lower(thisName);
+    toLower(thisName);
     if(newName == thisName)
     {
 	string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
@@ -1725,16 +1725,16 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	    {
 		string msg = "data member `" + name;
 		msg += "' is already defined as ";
-		string vowels = "aeiou"; // TODO: ML: Could be static const.
-		msg += find(vowels.begin(), vowels.end(), *((*q)->kindOf().begin())) != vowels.end() ? "an " : "a ";
+		static const string vowels = "aeiou";
+		msg += vowels.find(*((*q)->kindOf().begin())) != vowels.npos ? "an " : "a ";
 		msg += (*q)->kindOf() + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
 	    }
 	    string baseName = (*q)->name();
-	    to_lower(baseName);
+	    toLower(baseName);
 	    string newName = name;
-	    to_lower(newName);
+	    toLower(newName);
 	    if(baseName == newName)
 	    {
 		string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
@@ -1897,9 +1897,11 @@ std::string
 Slice::ClassDef::kindOf() const
 {
     string s;
-    if(isLocal()) // TODO: ML: { } also for one-line statements.
+    if(isLocal())
+    {
 	s += "local ";
-    s += "isInterface()" ? "interface" : "class"; // TODO: ML: Guess the "" around isInterface() are a mistake? :-)
+    }
+    s += isInterface() ? "interface" : "class";
     return s;
 }
 
@@ -2009,9 +2011,9 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 	return 0;
     }
     string newName = name;
-    to_lower(newName);
+    toLower(newName);
     string thisName = this->name();
-    to_lower(thisName);
+    toLower(thisName);
     if(newName == thisName)
     {
 	string msg = "exception member `" + name + "' differs only in capitalization from enclosing exception name `";
@@ -2023,10 +2025,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
     // Check whether any bases have defined a member with the same name already
     //
     ExceptionList bl = allBases();
-    // TODO: ML: Always check your code also with Visual C++. The line
-    // below gives a "redefinition of p" error with Visual C++,
-    // because it uses the old scoping rules.
-    //for(ExceptionList::const_iterator p = bl.begin(); p != bl.end(); ++p)
     for(ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
     {
 	ContainedList cl;
@@ -2041,9 +2039,9 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 		return 0;
 	    }
 	    string baseName = (*r)->name();
-	    to_lower(baseName);
+	    toLower(baseName);
 	    string newName = name;
-	    to_lower(newName);
+	    toLower(newName);
 	    if(baseName == newName)
 	    {
 		string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
@@ -2185,9 +2183,9 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 	return 0;
     }
     string newName = name;
-    to_lower(newName);
+    toLower(newName);
     string thisName = this->name();
-    to_lower(thisName);
+    toLower(thisName);
     if(newName == thisName)
     {
 	string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
@@ -2867,7 +2865,7 @@ void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
     string scopedLowerCase = contained->scoped();
-    to_lower(scopedLowerCase);
+    toLower(scopedLowerCase);
     _contentMap[scopedLowerCase].push_back(contained);
 }
 
@@ -2875,7 +2873,7 @@ void
 Slice::Unit::removeContent(const ContainedPtr& contained)
 {
     string scopedLowerCase = contained->scoped();
-    to_lower(scopedLowerCase);
+    toLower(scopedLowerCase);
     map<string, ContainedList>::iterator p = _contentMap.find(scopedLowerCase);
     assert(p != _contentMap.end());
     ContainedList::iterator q;
@@ -2897,7 +2895,7 @@ Slice::Unit::findContents(const string& scoped) const
     assert(scoped[0] == ':');
 
     string scopedLowerCase = scoped;
-    to_lower(scopedLowerCase);
+    toLower(scopedLowerCase);
 
     map<string, ContainedList>::const_iterator p = _contentMap.find(scopedLowerCase);
     if(p != _contentMap.end())
