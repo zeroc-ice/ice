@@ -162,7 +162,7 @@ StaticMutex::unlock() const
 }
 
 inline void
-StaticMutex::unlock(LockState& state) const
+StaticMutex::unlock(LockState&) const
 {
     assert(_mutexInitialized);
     LeaveCriticalSection(_mutex);

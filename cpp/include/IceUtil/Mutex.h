@@ -158,7 +158,7 @@ Mutex::unlock() const
 }
 
 inline void
-Mutex::unlock(LockState& state) const
+Mutex::unlock(LockState&) const
 {
     LeaveCriticalSection(&_mutex);
 }
