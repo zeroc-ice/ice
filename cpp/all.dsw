@@ -3,353 +3,6 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "all"=.\all.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name interfaceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name interfaceS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name valueC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name valueS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name interfaceCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name html
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2docbook
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name faultToleranceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name faultToleranceS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationForwardC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationForwardS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncFHTC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncFHTS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freezej
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name objectsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name objectsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name objectsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name clockC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name clockS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStorm
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStormC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStormS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name dbmap
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name singleS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name singleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name complex
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name federationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name federationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2java
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name thread
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name GlacierRouter
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name unicode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2wsdl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2xsd
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Glacier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name encoding
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name loadPEM
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateAndKeyParsing
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateVerifier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateVerificationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateVerificationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name configuration
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bench
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatchC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatchS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inputUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloIceBoxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloIceBoxS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBoxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBoxS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceSSL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sessionS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformP
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformV
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name XMLTransformC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icecpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsAMDS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsAMDS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name uuid
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name workqueue
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ctrlCHandler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputS
-    End Project Dependency
-}}}
-
-###############################################################################
 Project: "Freeze"=.\src\Freeze\Freeze.dsp - Package Owner=<4>
 
 Package=<5>
@@ -794,6 +447,350 @@ Package=<4>
 
 ###############################################################################
 
+Project: "all"=.\all.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name interfaceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name interfaceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name valueC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name valueS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name interfaceCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name html
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Slice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inheritanceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inheritanceCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inheritanceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2docbook
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name faultToleranceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name faultToleranceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationForwardC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationForwardS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name asyncFHTC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name asyncFHTS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name phonebookC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name phonebookS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freezej
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name phonebookCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nestedC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nestedS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objectsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objectsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name objectsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name clockC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name clockS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dbmap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name singleS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name singleC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name complex
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name federationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name federationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2java
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name thread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name GlacierRouter
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name unicode
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2wsdl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2xsd
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Glacier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name encoding
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name loadPEM
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateAndKeyParsing
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerifier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerificationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerificationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name configuration
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bench
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inputUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloIceBoxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloIceBoxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformP
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformV
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransform
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name XMLTransformC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name evictorC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name evictorS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icecpp
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name adapterDeactivationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name adapterDeactivationCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name adapterDeactivationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsAMDS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsAMDS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceobC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceobS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uuid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name workqueue
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ctrlCHandler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputS
+    End Project Dependency
+}}}
+
+###############################################################################
 
 Project: "bench"=.\demo\Freeze\bench\bench.dsp - Package Owner=<4>
 
@@ -1356,9 +1353,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
     Begin Project Dependency
@@ -1430,9 +1424,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
@@ -1536,9 +1527,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
     Begin Project Dependency
@@ -1559,9 +1547,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
@@ -2445,9 +2430,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
     Begin Project Dependency
@@ -2469,16 +2451,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name compiler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceSSL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
     End Project Dependency
 }}}
 
