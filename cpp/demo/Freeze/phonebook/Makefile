@@ -17,7 +17,10 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= PhoneBook.o
 
-COBJS		= Client.o
+COBJS		= Grammer.o \
+		  Scanner.o \
+		  Parser.o \
+		  Client.o \
 
 SOBJS		= PhoneBookI.o \
 		  Evictor.o \
@@ -33,11 +36,24 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lreadline -lcurses
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
+
+Grammer.cpp Grammer.h: Grammer.y
+	bison -dvt Grammer.y
+	rm -f Grammer.cpp ; mv Grammer.tab.c Grammer.cpp
+	rm -f Grammer.h ; mv Grammer.tab.h Grammer.h
+
+Scanner.cpp: Scanner.l Grammer.h
+	flex Scanner.l
+	rm -f Scanner.cpp ; mv lex.yy.c Scanner.cpp
+
+clean::
+	-rm -f Grammer.cpp Grammer.h Grammer.output
+	-rm -f Scanner.cpp lex.yy.c
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE)
 	rm -f PhoneBook.h PhoneBook.cpp
