@@ -233,9 +233,12 @@ namespace IceInternal
 	
         public bool __timedOut()
         {
-            _timeoutMutex.WaitOne();
-            long absoluteTimeoutMillis = _absoluteTimeoutMillis;
-            _timeoutMutex.ReleaseMutex();
+	    long absoluteTimeoutMillis;
+
+            lock(_timeoutMutex) // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+	    {
+		absoluteTimeoutMillis = _absoluteTimeoutMillis;
+	    }
 
             if(absoluteTimeoutMillis > 0)
             {
@@ -342,16 +345,17 @@ namespace IceInternal
                             _connection = _reference.getConnection(out _compress);
                         }
 			
-                        _timeoutMutex.WaitOne();
-                        if(_connection.timeout() >= 0)
-                        {
-                            _absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
-                        }
-                        else
-                        {
-                            _absoluteTimeoutMillis = 0;
-                        }
-                        _timeoutMutex.ReleaseMutex();
+			lock(_timeoutMutex) // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+			{
+			    if(_connection.timeout() >= 0)
+			    {
+				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
+			    }
+			    else
+			    {
+				_absoluteTimeoutMillis = 0;
+			    }
+			}
 			
                         try
                         {

@@ -49,6 +49,7 @@ public class ServerManagerI : _ServerManagerDisp
 	{
 	    c.destroy();
 	}
+	_communicators.Clear();
         _adapter.getCommunicator().shutdown();
     }
     

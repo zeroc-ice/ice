@@ -20,7 +20,6 @@ namespace Ice
 
         static SliceChecksums()
         {
-            IceInternal.AssemblyUtil.loadAssemblies(); // Lazy initialization.
             Type[] types = IceInternal.AssemblyUtil.findTypesWithPrefix("IceInternal.SliceChecksums");
             foreach(Type t in types)
             {

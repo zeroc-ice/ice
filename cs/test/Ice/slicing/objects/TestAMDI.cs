@@ -1,4 +1,3 @@
-using System;
 // **********************************************************************
 //
 // Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
@@ -7,6 +6,8 @@ using System;
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
+using System;
 
 public sealed class TestI : _TestDisp
 {

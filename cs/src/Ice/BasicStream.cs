@@ -1771,20 +1771,13 @@ namespace IceInternal
 	    private Type _class;
 	}
 
-	private static Type findTypeForId(string id)
-	{
-	    return AssemblyUtil.findType(typeToClass(id));
-	}
-
 	private Ice.ObjectFactory loadObjectFactory(string id)
 	{
 	    Ice.ObjectFactory factory = null;
 	    
 	    try
 	    {
-		AssemblyUtil.loadAssemblies(); // Lazy initialization
-		
-		Type c = findTypeForId(id);
+		Type c = AssemblyUtil.findType(typeToClass(id));
 		if(c == null)
 		{
 		    return null;
@@ -1864,36 +1857,31 @@ namespace IceInternal
 	{
 	    UserExceptionFactory factory = null;
 
-	    _exceptionFactoryMutex.WaitOne();
-	    factory = (UserExceptionFactory)_exceptionFactories[id];
-	    _exceptionFactoryMutex.ReleaseMutex();
-
-	    if(factory == null)
+	    lock(_exceptionFactories)
 	    {
-		try
+		factory = (UserExceptionFactory)_exceptionFactories[id];
+		if(factory == null)
 		{
-		    AssemblyUtil.loadAssemblies(); // Lazy initialization
-
-		    Type c = findTypeForId(id);
-		    if(c == null)
+		    try
 		    {
-			return null;
+			Type c = AssemblyUtil.findType(typeToClass(id));
+			if(c == null)
+			{
+			    return null;
+			}
+			//
+			// Ensure the class is instantiable.
+			//
+			Debug.Assert(!c.IsAbstract && !c.IsInterface);
+			factory = new DynamicUserExceptionFactory(c);
+			_exceptionFactories[id] = factory;
 		    }
-		    //
-		    // Ensure the class is instantiable.
-		    //
-		    Debug.Assert(!c.IsAbstract && !c.IsInterface);
-		    factory = new DynamicUserExceptionFactory(c);
-		    _exceptionFactoryMutex.WaitOne();
-		    _exceptionFactories[id] = factory;
-		    _exceptionFactoryMutex.ReleaseMutex();
-		}
-		catch(Exception ex)
-		{
-		    throw new Ice.UnknownUserException(ex);
+		    catch(Exception ex)
+		    {
+			throw new Ice.UnknownUserException(ex);
+		    }
 		}
 	    }
-	    
 	    return factory;
 	}
 	
@@ -1972,7 +1960,6 @@ namespace IceInternal
 	private ArrayList _objectList;
 
 	private static Hashtable _exceptionFactories = new Hashtable(); // <type name, factory> pairs.
-	private static Mutex _exceptionFactoryMutex = new Mutex();
 
         private static volatile bool _bzlibInstalled;
 

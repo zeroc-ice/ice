@@ -200,7 +200,7 @@ def createMsg(mono, name):
 def createCmd(mono, bin):
 
     if mono:
-        return "mono " + bin + ".exe"
+        return "mono --debug " + bin + ".exe"
     else:
         return bin
 
