@@ -724,7 +724,8 @@ public final class Connection extends EventHandler
         }
     }
 
-    public String toString()
+    public String
+    toString()
     {
 	return _transceiver.toString();
     }
@@ -752,6 +753,7 @@ public final class Connection extends EventHandler
     {
 	assert(_usageCount == 0);
         assert(_state == StateClosed);
+        assert(_incomingCache == null);
 
         //
         // Destroy the EventHandler's stream, so that its buffer
@@ -906,7 +908,14 @@ public final class Connection extends EventHandler
                     registerWithPool();
                 }
                 unregisterWithPool();
-                destroyIncoming();
+                //
+                // The cache of Incoming objects must be destroyed
+                // outside the synchronization on _mutex to avoid
+                // a potential deadlock with ObjectAdapter.
+                //
+                Incoming cache = _incomingCache;
+                _incomingCache = null;
+                new DestroyIncomingThread(cache).start();
                 break;
             }
         }
@@ -1037,15 +1046,27 @@ public final class Connection extends EventHandler
         _incomingCache = in;
     }
 
-    private void
-    destroyIncoming()
+    //
+    // Must be called outside of synchronization on _mutex.
+    //
+    private static class DestroyIncomingThread extends Thread
     {
-        Incoming in = _incomingCache;
-        while(in != null)
+        DestroyIncomingThread(Incoming cache)
         {
-            in.destroy();
-            in = in.next;
+            _cache = cache;
         }
+
+        public void
+        run()
+        {
+            while(_cache != null)
+            {
+                _cache.destroy();
+                _cache = _cache.next;
+            }
+        }
+
+        private Incoming _cache;
     }
 
     private final Transceiver _transceiver;
