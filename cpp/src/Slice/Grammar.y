@@ -168,6 +168,7 @@ module_def
 	YYERROR; // Can't continue, jump to next yyerrok
     }
     unit->pushContainer(module);
+    $$ = module;
 }
 '{' definitions '}'
 {
@@ -203,6 +204,7 @@ exception_def
 	YYERROR; // Can't continue, jump to next yyerrok
     }
     unit->pushContainer(ex);
+    $$ = ex;
 }
 '{' exception_exports '}'
 {
@@ -291,6 +293,7 @@ struct_def
 	YYERROR; // Can't continue, jump to next yyerrok
     }
     unit->pushContainer(st);
+    $$ = st;
 }
 '{' struct_exports '}'
 {
@@ -346,6 +349,7 @@ class_decl
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, false, local->v);
+    $$ = cl;
 }
 | ICE_CLASS keyword
 {
@@ -373,6 +377,7 @@ class_def
 	YYERROR; // Can't continue, jump to next yyerrok
     }
     unit->pushContainer(cl);
+    $$ = cl;
 }
 '{' class_exports '}'
 {
@@ -486,6 +491,7 @@ interface_decl
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     ClassDeclPtr cl = cont->createClassDecl(ident->v, true, local->v);
+    $$ = cl;
 }
 | ICE_INTERFACE keyword
 {
@@ -508,6 +514,7 @@ interface_def
 	YYERROR; // Can't continue, jump to next yyerrok
     }
     unit->pushContainer(cl);
+    $$ = cl;
 }
 '{' interface_exports '}'
 {
@@ -528,7 +535,6 @@ interface_list
 : scoped_name ',' interface_list
 {
     ClassListTokPtr intfs = ClassListTokPtr::dynamicCast($3);
-    $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
@@ -558,11 +564,11 @@ interface_list
 	    }
 	}
     }
+    $$ = intfs;
 }
 | scoped_name
 {
     ClassListTokPtr intfs = new ClassListTok;
-    $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
     TypeList types = cont->lookupType(scoped->v);
@@ -592,6 +598,7 @@ interface_list
 	    }
 	}
     }
+    $$ = intfs;
 }
 ;
 
@@ -685,7 +692,7 @@ sequence_def
     StringTokPtr ident = StringTokPtr::dynamicCast($5);
     TypePtr type = TypePtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
-    cont->createSequence(ident->v, type, local->v);
+    $$ = cont->createSequence(ident->v, type, local->v);
 }
 | ICE_SEQUENCE '<' type '>' keyword
 {
@@ -703,7 +710,7 @@ dictionary_def
     TypePtr keyType = TypePtr::dynamicCast($3);
     TypePtr valueType = TypePtr::dynamicCast($5);
     ContainerPtr cont = unit->currentContainer();
-    cont->createDictionary(ident->v, keyType, valueType, local->v);
+    $$ = cont->createDictionary(ident->v, keyType, valueType, local->v);
 }
 | ICE_DICTIONARY '<' type ',' type '>' keyword
 {
@@ -762,13 +769,13 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    $$ = ens;
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
     {
 	ens->v.push_front(en);
     }
+    $$ = ens;
 }
 | keyword
 {
@@ -791,7 +798,7 @@ operation
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
-	cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, false);
+	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, false);
     }
 }
 | ICE_NONMUTATING return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
@@ -804,7 +811,7 @@ operation
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
-	cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
+	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
     }
 }
 | return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
@@ -897,18 +904,19 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
-	cl->createDataMember(ident->v, type);
+	$$ = cl->createDataMember(ident->v, type);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if (st)
     {
-	st->createDataMember(ident->v, type);
+	$$ = st->createDataMember(ident->v, type);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if (ex)
     {
-	ex->createDataMember(ident->v, type);
+	$$ = ex->createDataMember(ident->v, type);
     }
+    assert($$);
 }
 | type keyword
 {
@@ -1043,15 +1051,15 @@ string_list
 {
     StringTokPtr str = StringTokPtr::dynamicCast($1);
     StringListTokPtr stringList = StringListTokPtr::dynamicCast($3);
-    $$ = stringList;
     stringList->v.push_back(str->v);
+    $$ = stringList;
 }
 | ICE_STRING_LITERAL
 {
     StringTokPtr str = StringTokPtr::dynamicCast($1);
     StringListTokPtr stringList = new StringListTok;
-    $$ = stringList;
     stringList->v.push_back(str->v);
+    $$ = stringList;
 }
 ;
 
