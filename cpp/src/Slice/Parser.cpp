@@ -265,7 +265,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 		def->updateIncludeLevel();
 		return def;
 	    }
-	    if (!differsOnlyInCase)
+	    if(!differsOnlyInCase)
 	    {
 		string msg = "redefinition of ";
 		msg += intf ? "interface" : "class";
@@ -407,7 +407,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	
 	string msg;
 	bool differsOnlyInCase = matches.front()->name() != name;
-	if (differsOnlyInCase)
+	if(differsOnlyInCase)
 	{
 	    msg = "class declaration `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
@@ -470,7 +470,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as exception";
@@ -503,7 +503,7 @@ Slice::Container::createStruct(const string& name, bool local)
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as struct";
@@ -535,7 +535,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as sequence";
@@ -567,7 +567,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as dictionary";
@@ -599,7 +599,7 @@ Slice::Container::createEnum(const string& name, bool local)
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as enumeration";
@@ -631,7 +631,7 @@ Slice::Container::createEnumerator(const string& name)
 	    }
 	}
 	string msg;
-	if (matches.front()->name() == name)
+	if(matches.front()->name() == name)
 	{
 	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as enumerator";
