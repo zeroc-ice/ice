@@ -73,20 +73,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     createLock(lockfile);
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* refProperty = "IceStorm.TopicManager";
-    std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+    PropertiesPtr properties = communicator->getProperties();
+    const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
+    string managerEndpoints = properties->getProperty(managerEndpointsProperty);
+    if (managerEndpoints.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << argv[0] << ": " << managerEndpointsProperty << " is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if (!manager)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -129,6 +129,7 @@ main(int argc, char* argv[])
 
     try
     {
+	addArgumentPrefix("IceStorm");
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

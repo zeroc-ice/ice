@@ -20,19 +20,20 @@ int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
-    const char* refProperty = "IceStorm.TopicManager";
-    std::string ref = properties->getProperty(refProperty);
-    if (ref.empty())
+
+    const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
+    string managerEndpoints = properties->getProperty(managerEndpointsProperty);
+    if (managerEndpoints.empty())
     {
-	cerr << argv[0] << ": property `" << refProperty << "' not set" << endl;
+	cerr << argv[0] << ": " << managerEndpointsProperty << " is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(ref);
-    TopicManagerPrx manager = TopicManagerPrx::checkedCast(base);
+    ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if (!manager)
     {
-	cerr << argv[0] << ": invalid object reference" << endl;
+	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -73,6 +74,7 @@ main(int argc, char* argv[])
 
     try
     {
+	addArgumentPrefix("IceStorm");
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

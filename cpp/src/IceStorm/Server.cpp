@@ -87,7 +87,7 @@ main(int argc, char* argv[])
 	}
     }
     
-    addArgumentPrefix("IcePack");
+    addArgumentPrefix("IceStorm");
     Server app(dbdir);
     return app.main(argc, argv);
 }

@@ -36,11 +36,13 @@ updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR",
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
+iceStormEndpoint=' --IceStorm.TopicManager.Endpoints="default -p 12345"'
+
 #
 # TODO: --dbdir is a hack
 #
 command = iceStorm + updatedClientServerOptions + \
-          r' --Ice.Adapter.TopicManager.Endpoints="default -p 12345"' + \
+          iceStormEndpoint + \
           r' --dbdir ' + os.path.join(testdir, "db")
 
 print "starting icestorm...",
@@ -49,11 +51,8 @@ TestUtil.getServerPid(iceStormPipe)
 TestUtil.getAdapterReady(iceStormPipe)
 print "ok"
 
-#
-# TODO: Use command line arg, not config file
-#
 command = iceStormAdmin + updatedClientOptions + \
-          r' --Ice.Config=' + os.path.join(testdir, "config") + \
+          iceStormEndpoint + \
           r' -e "create single"'
 print "creating topic...",
 iceStormAdminPipe = os.popen(command)
@@ -73,8 +72,7 @@ try:
 except OSError:
     1 # Ignore
 
-command = subscriber + updatedClientServerOptions + \
-          r' --Ice.Config=' + os.path.join(testdir, "config") + \
+command = subscriber + updatedClientServerOptions + iceStormEndpoint + \
           r' ' + subscriberLockFile
 
 print "starting subscriber...",
@@ -92,8 +90,7 @@ if not os.path.isfile(subscriberLockFile):
 # Start the publisher. This should publish 10 events which eventually
 # causes subscriber to terminate.
 #
-command = publisher + updatedClientOptions + \
-          r' --Ice.Config=' + os.path.join(testdir, "config")
+command = publisher + updatedClientOptions + iceStormEndpoint
 print "starting publisher...",
 publisherPipe = os.popen(command)
 output = publisherPipe.readline()
@@ -123,7 +120,7 @@ while os.path.isfile(subscriberLockFile):
 # Destroy the topic.
 #
 command = iceStormAdmin + updatedClientOptions + \
-          r' --Ice.Config=' + os.path.join(testdir, "config") + \
+          iceStormEndpoint + \
           r' -e "destroy single"'
 print "destroying topic...",
 iceStormAdminPipe = os.popen(command)
@@ -134,7 +131,7 @@ print "ok"
 # Shutdown icestorm.
 #
 command = iceStormAdmin + updatedClientOptions + \
-          r' --Ice.Config=' + os.path.join(testdir, "config") + \
+          iceStormEndpoint + \
           r' -e "shutdown"'
 print "shutting down icestorm...",
 iceStormAdminPipe = os.popen(command)
