@@ -291,7 +291,17 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     void
     finishSetup(StringSeqHolder args)
     {
-        _instance.finishSetup(args);
+	try
+	{
+	    _instance.finishSetup(args);
+	}
+	catch(RuntimeException ex)
+	{
+	    _instance.destroy();
+	    _instance = null;
+	    _destroyed = true;
+	    throw ex;
+	}
     }
 
     //
