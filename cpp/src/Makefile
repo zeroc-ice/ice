@@ -20,6 +20,7 @@ SUBDIRS		= IceUtil \
 		  slice2freezej \
 		  slice2docbook \
 		  slice2java \
+		  slice2py \
 		  Ice \
 		  IceXML \
 		  IceSSL \

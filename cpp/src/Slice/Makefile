@@ -22,7 +22,8 @@ OBJS		= Scanner.o \
 		  CsUtil.o \
 		  JavaUtil.o \
 		  Preprocessor.o \
-		  Checksum.o
+		  Checksum.o \
+		  PythonUtil.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
