@@ -17,13 +17,13 @@
 #endif
 
 #include "ice_communicator.h"
-#include "ice_identity.h"
-#include "ice_proxy.h"
-#include "ice_slice.h"
 #include "ice_marshal.h"
+#include "ice_profile.h"
+#include "ice_proxy.h"
 #include "ice_util.h"
 
 using namespace std;
+using namespace IcePHP;
 
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
@@ -35,7 +35,7 @@ function_entry ice_functions[] =
     ICE_PHP_COMMUNICATOR_FUNCTIONS
     ICE_PHP_IDENTITY_FUNCTIONS
     ICE_PHP_PROXY_FUNCTIONS
-    ICE_PHP_SLICE_FUNCTIONS
+    ICE_PHP_PROFILE_FUNCTIONS
     {NULL, NULL, NULL}
 };
 
@@ -62,7 +62,9 @@ ZEND_GET_MODULE(ice)
 //
 PHP_INI_BEGIN()
   PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, NULL)
-  PHP_INI_ENTRY("ice.parse", "", PHP_INI_SYSTEM, NULL)
+  PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, NULL)
+  PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, NULL)
+  PHP_INI_ENTRY("ice.slice", "", PHP_INI_SYSTEM, NULL)
 PHP_INI_END()
 
 ZEND_MINIT_FUNCTION(ice)
@@ -70,17 +72,17 @@ ZEND_MINIT_FUNCTION(ice)
     REGISTER_INI_ENTRIES();
     ZEND_INIT_MODULE_GLOBALS(ice, NULL, NULL);
 
-    if(!Ice_Communicator_init(TSRMLS_C))
+    if(!profileInit(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Ice_ObjectPrx_init(TSRMLS_C))
+    if(!communicatorInit(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Slice_init(TSRMLS_C))
+    if(!proxyInit(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -94,7 +96,7 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
     int status = SUCCESS;
 
-    if(!Slice_shutdown(TSRMLS_C))
+    if(!profileShutdown(TSRMLS_C))
     {
         status = FAILURE;
     }
@@ -106,14 +108,15 @@ ZEND_RINIT_FUNCTION(ice)
 {
     ICE_G(communicator) = NULL;
     ICE_G(marshalerMap) = new MarshalerMap;
-    ICE_G(coreTypesLoaded) = 0;
+    ICE_G(profile) = 0;
+    ICE_G(properties) = 0;
 
     //
     // Create the global variable "ICE" to hold the communicator for this request. The
     // communicator won't actually be created until the script uses this global variable
     // for the first time.
     //
-    if(!Ice_Communicator_create(TSRMLS_C))
+    if(!createCommunicator(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -124,6 +127,7 @@ ZEND_RINIT_FUNCTION(ice)
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
     delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
+    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
 
     return SUCCESS;
 }

@@ -18,12 +18,12 @@
 
 #include "ice_proxy.h"
 #include "ice_communicator.h"
-#include "ice_identity.h"
 #include "ice_marshal.h"
-#include "ice_slice.h"
+#include "ice_profile.h"
 #include "ice_util.h"
 
 using namespace std;
+using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
@@ -57,12 +57,12 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 //
 // Class entries represent the PHP class implementations we have registered.
 //
-zend_class_entry* Ice_ObjectPrx_entry_ptr;
+zend_class_entry* IcePHP::proxyClassEntry = 0;
 
 //
 // Ice::ObjectPrx support.
 //
-static zend_object_handlers Ice_ObjectPrx_handlers;
+static zend_object_handlers _handlers;
 
 extern "C"
 {
@@ -73,6 +73,9 @@ static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
 static int handleCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
 }
+
+namespace IcePHP
+{
 
 //
 // Encapsulates an operation description.
@@ -88,7 +91,7 @@ public:
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
 
 private:
-    void throwException(IceInternal::BasicStream& TSRMLS_DC);
+    void throwUserException(IceInternal::BasicStream& TSRMLS_DC);
 
     Ice::ObjectPrx _proxy;
     string _name; // Local name, not the on-the-wire name
@@ -131,10 +134,12 @@ private:
     map<string, OperationPtr> _ops;
 };
 
+} // End of namespace IcePHP
+
 //
 // Predefined methods for Ice_ObjectPrx.
 //
-static function_entry Ice_ObjectPrx_methods[] =
+static function_entry _methods[] =
 {
     {"__construct",         PHP_FN(Ice_ObjectPrx___construct),         NULL},
     {"ice_isA",             PHP_FN(Ice_ObjectPrx_ice_isA),             NULL},
@@ -168,33 +173,33 @@ static function_entry Ice_ObjectPrx_methods[] =
 };
 
 bool
-Ice_ObjectPrx_init(TSRMLS_D)
+IcePHP::proxyInit(TSRMLS_D)
 {
     //
     // Register the Ice_ObjectPrx class.
     //
-    zend_class_entry ce_ObjectPrx;
-    INIT_CLASS_ENTRY(ce_ObjectPrx, "Ice_ObjectPrx", Ice_ObjectPrx_methods);
-    ce_ObjectPrx.create_object = handleAlloc;
-    Ice_ObjectPrx_entry_ptr = zend_register_internal_class(&ce_ObjectPrx TSRMLS_CC);
-    memcpy(&Ice_ObjectPrx_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    Ice_ObjectPrx_handlers.clone_obj = handleClone;
-    Ice_ObjectPrx_handlers.get_method = handleGetMethod;
-    Ice_ObjectPrx_handlers.compare_objects = handleCompare;
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, "Ice_ObjectPrx", _methods);
+    ce.create_object = handleAlloc;
+    proxyClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
+    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _handlers.clone_obj = handleClone;
+    _handlers.get_method = handleGetMethod;
+    _handlers.compare_objects = handleCompare;
 
     return true;
 }
 
 bool
-Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p TSRMLS_DC)
+IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p TSRMLS_DC)
 {
-    return Ice_ObjectPrx_create(zv, p, 0 TSRMLS_CC);
+    return createProxy(zv, p, 0 TSRMLS_CC);
 }
 
 bool
-Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr& def TSRMLS_DC)
+IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr& def TSRMLS_DC)
 {
-    if(object_init_ex(zv, Ice_ObjectPrx_entry_ptr) != SUCCESS)
+    if(object_init_ex(zv, proxyClassEntry) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to initialize proxy");
         return false;
@@ -208,7 +213,7 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr
 }
 
 bool
-Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS_DC)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS_DC)
 {
     if(!ZVAL_IS_NULL(zv))
     {
@@ -218,7 +223,7 @@ Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRML
             zend_error(E_ERROR, "unable to retrieve proxy object from object store");
             return false;
         }
-        if(Z_OBJCE_P(zv) != Ice_ObjectPrx_entry_ptr)
+        if(Z_OBJCE_P(zv) != proxyClassEntry)
         {
             zend_error(E_ERROR, "%s(): value is not a proxy", get_active_function_name(TSRMLS_C));
             return false;
@@ -269,7 +274,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETVAL_FALSE;
     }
 }
@@ -291,7 +296,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
     }
 
     RETURN_NULL();
@@ -315,7 +320,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -343,7 +348,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -371,7 +376,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -387,7 +392,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity)
     assert(obj->ptr);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
-    Ice_Identity_create(return_value, _this->getProxy()->ice_getIdentity() TSRMLS_CC);
+    createIdentity(return_value, _this->getProxy()->ice_getIdentity() TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
@@ -401,7 +406,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     assert(obj->ptr);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
-    zend_class_entry* cls = ice_findClass("Ice_Identity" TSRMLS_CC);
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
     assert(cls);
 
     zval *zid;
@@ -412,19 +417,19 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     }
 
     Ice::Identity id;
-    if(Ice_Identity_extract(zid, id TSRMLS_CC))
+    if(extractIdentity(zid, id TSRMLS_CC))
     {
         try
         {
             Ice::ObjectPrx prx = _this->getProxy()->ice_newIdentity(id);
-            if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+            if(!createProxy(return_value, prx TSRMLS_CC))
             {
                 RETURN_NULL();
             }
         }
         catch(const IceUtil::Exception& ex)
         {
-            ice_throwException(ex TSRMLS_CC);
+            throwException(ex TSRMLS_CC);
             RETURN_NULL();
         }
     }
@@ -453,7 +458,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -495,14 +500,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_newFacet(facet);
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -531,14 +536,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
         Ice::FacetPath facet;
 
         Ice::ObjectPrx prx = _this->getProxy()->ice_appendFacet(name);
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -557,14 +562,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_twoway();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -587,7 +592,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isTwoway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -606,14 +611,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_oneway();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -636,7 +641,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isOneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -655,14 +660,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchOneway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_batchOneway();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -685,7 +690,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchOneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -704,14 +709,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_datagram)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_datagram();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -734,7 +739,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isDatagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -753,14 +758,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchDatagram)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_batchDatagram();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -783,7 +788,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -808,14 +813,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_secure(b ? true : false);
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -839,14 +844,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress)
             RETURN_NULL();
         }
         Ice::ObjectPrx prx = _this->getProxy()->ice_compress(b ? true : false);
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -871,14 +876,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
         }
         // TODO: range check?
         Ice::ObjectPrx prx = _this->getProxy()->ice_timeout(l);
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -897,14 +902,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_default)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_default();
-        if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -926,7 +931,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
     }
 }
 
@@ -958,8 +963,13 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     try
     {
-        Slice::UnitPtr unit = Slice_getUnit();
-        Slice::TypeList l = unit->lookupTypeNoBuiltin(id, false);
+        Slice::TypeList l;
+        Profile* profile = static_cast<Profile*>(ICE_G(profile));
+        if(profile)
+        {
+            l = profile->unit->lookupTypeNoBuiltin(id, false);
+        }
+
         if(l.empty())
         {
             zend_error(E_ERROR, "%s(): no Slice definition found for type %s", get_active_function_name(TSRMLS_C), id);
@@ -1007,7 +1017,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         //
         // Verify that the script has compiled the Slice definition for this type.
         //
-        if(ice_findClassScoped(scoped TSRMLS_CC) == 0)
+        if(findClassScoped(scoped TSRMLS_CC) == 0)
         {
             zend_error(E_ERROR, "%s(): the Slice definition for type %s has not been compiled",
                        get_active_function_name(TSRMLS_C), scoped.c_str());
@@ -1032,14 +1042,14 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             }
         }
 
-        if(!Ice_ObjectPrx_create(return_value, prx, def TSRMLS_CC))
+        if(!createProxy(return_value, prx, def TSRMLS_CC))
         {
             RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETVAL_FALSE;
     }
 }
@@ -1054,8 +1064,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
-Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
-                     const IceInternal::InstancePtr& instance TSRMLS_DC) :
+IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
+                             const IceInternal::InstancePtr& instance TSRMLS_DC) :
     _proxy(proxy), _name(name), _op(op), _instance(instance), _zendFunction(0)
 {
 #ifdef ZTS
@@ -1109,12 +1119,12 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slic
     _zendFunction->type = ZEND_INTERNAL_FUNCTION;
     _zendFunction->arg_types = argTypes;
     _zendFunction->function_name = estrndup(const_cast<char*>(name.c_str()), name.length());
-    _zendFunction->scope = Ice_ObjectPrx_entry_ptr;
+    _zendFunction->scope = proxyClassEntry;
     _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
     _zendFunction->handler = ZEND_FN(Ice_ObjectPrx_call);
 }
 
-Operation::~Operation()
+IcePHP::Operation::~Operation()
 {
     if(_zendFunction)
     {
@@ -1125,13 +1135,13 @@ Operation::~Operation()
 }
 
 zend_function*
-Operation::getZendFunction() const
+IcePHP::Operation::getZendFunction() const
 {
     return (zend_function*)_zendFunction;
 }
 
 void
-Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
+IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 {
     Ice::OperationMode mode = (Ice::OperationMode)_op->mode();
     int i;
@@ -1199,7 +1209,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         {
             if(Z_TYPE_PP(args[numParams]) != IS_ARRAY)
             {
-                string s = ice_zendTypeToString(Z_TYPE_PP(args[i]));
+                string s = zendTypeToString(Z_TYPE_PP(args[i]));
                 zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
                            get_active_function_name(TSRMLS_C), s.c_str());
                 return;
@@ -1290,17 +1300,17 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             //
             // Unmarshal and "throw" a user exception.
             //
-            throwException(is TSRMLS_CC);
+            throwUserException(is TSRMLS_CC);
         }
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
     }
 }
 
 void
-Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::Operation::throwUserException(IceInternal::BasicStream& is TSRMLS_DC)
 {
     Slice::UnitPtr unit = _op->unit();
 
@@ -1359,7 +1369,7 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
     throw Ice::UnknownUserException(__FILE__, __LINE__);
 }
 
-Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls TSRMLS_DC) :
+IcePHP::Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls TSRMLS_DC) :
     _proxy(proxy), _class(cls)
 {
 #ifdef ZTS
@@ -1373,11 +1383,11 @@ Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls TSRMLS_D
     // may be destroyed before this proxy, therefore our destructor cannot rely on
     // symbol table lookup when it needs to decrement the reference count.
     //
-    zval* zc = Ice_Communicator_getZval(TSRMLS_C);
+    zval* zc = getCommunicatorZval(TSRMLS_C);
     _communicator = *zc; // This is legal - it simply copies the object's handle
     Z_OBJ_HT(_communicator)->add_ref(&_communicator TSRMLS_CC);
 
-    Ice::CommunicatorPtr communicator = Ice_Communicator_getInstance(TSRMLS_C);
+    Ice::CommunicatorPtr communicator = getCommunicator(TSRMLS_C);
     _instance = IceInternal::getInstance(communicator);
 
     if(cls)
@@ -1386,7 +1396,7 @@ Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls TSRMLS_D
     }
 }
 
-Proxy::~Proxy()
+IcePHP::Proxy::~Proxy()
 {
     //
     // In order to avoid the communicator's "leak warning", we have to ensure that we
@@ -1401,29 +1411,29 @@ Proxy::~Proxy()
 }
 
 const Ice::ObjectPrx&
-Proxy::getProxy() const
+IcePHP::Proxy::getProxy() const
 {
     return _proxy;
 }
 
 const Slice::ClassDefPtr&
-Proxy::getClass() const
+IcePHP::Proxy::getClass() const
 {
     return _class;
 }
 
 OperationPtr
-Proxy::getOperation(const string& name)
+IcePHP::Proxy::getOperation(const string& name)
 {
     OperationPtr result;
 
-    string n = ice_lowerCase(name);
+    string n = lowerCase(name);
     map<string, OperationPtr>::const_iterator p = _ops.find(n);
     if(p == _ops.end())
     {
         for(Slice::OperationList::const_iterator q = _classOps.begin(); q != _classOps.end(); ++q)
         {
-            string opName = ice_lowerCase(ice_fixIdent((*q)->name()));
+            string opName = lowerCase(fixIdent((*q)->name()));
             if(n == opName)
             {
                 result = new Operation(_proxy, opName, *q, _instance TSRMLS_CC);
@@ -1448,11 +1458,11 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    ice_object* obj = ice_newObject(ce TSRMLS_CC);
+    ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, handleDestroy, NULL TSRMLS_CC);
-    result.handlers = &Ice_ObjectPrx_handlers;
+    result.handlers = &_handlers;
 
     return result;
 }
@@ -1490,7 +1500,7 @@ handleClone(zval* zv TSRMLS_DC)
 
     zval* clone;
     MAKE_STD_ZVAL(clone);
-    if(object_init_ex(clone, Ice_ObjectPrx_entry_ptr) != SUCCESS)
+    if(object_init_ex(clone, proxyClassEntry) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to initialize proxy");
         return result;

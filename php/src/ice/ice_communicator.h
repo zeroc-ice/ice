@@ -17,11 +17,6 @@
 
 #include "ice_common.h"
 
-bool Ice_Communicator_init(TSRMLS_D);
-bool Ice_Communicator_create(TSRMLS_D);
-Ice::CommunicatorPtr Ice_Communicator_getInstance(TSRMLS_D);
-zval* Ice_Communicator_getZval(TSRMLS_D);
-
 //
 // Ice_Communicator class methods.
 //
@@ -36,5 +31,16 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString);
     ZEND_FE(Ice_Communicator___construct,   NULL) \
     ZEND_FE(Ice_Communicator_stringToProxy, NULL) \
     ZEND_FE(Ice_Communicator_proxyToString, NULL)
+
+namespace IcePHP
+{
+
+bool communicatorInit(TSRMLS_D);
+
+bool createCommunicator(TSRMLS_D);
+Ice::CommunicatorPtr getCommunicator(TSRMLS_D);
+zval* getCommunicatorZval(TSRMLS_D);
+
+} // End of namespace IcePHP
 
 #endif

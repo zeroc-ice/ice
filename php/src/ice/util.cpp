@@ -17,16 +17,16 @@
 #endif
 
 #include "ice_util.h"
-#include "ice_identity.h"
 #include <algorithm>
 #include <ctype.h>
 
 using namespace std;
+using namespace IcePHP;
 
 static string
 lookupKwd(const string& name)
 {
-    string lower = ice_lowerCase(name); // PHP is case insensitive.
+    string lower = lowerCase(name); // PHP is case insensitive.
 
     //
     // Keyword list. *Must* be kept in alphabetical order.
@@ -80,6 +80,137 @@ splitScopedName(const string& scoped)
     return ids;
 }
 
+ZEND_FUNCTION(Ice_stringToIdentity)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    char* str;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        Ice::Identity id = Ice::stringToIdentity(str);
+        createIdentity(return_value, id TSRMLS_CC);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
+ZEND_FUNCTION(Ice_identityToString)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
+
+    zval *zid;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::Identity id;
+    if(extractIdentity(zid, id TSRMLS_CC))
+    {
+        string s = Ice::identityToString(id);
+        RETURN_STRINGL(const_cast<char*>(s.c_str()), s.length(), 1);
+    }
+}
+
+bool
+IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
+{
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
+
+    if(object_init_ex(zv, cls) != SUCCESS)
+    {
+        zend_error(E_ERROR, "%s(): unable to initialize Ice::Identity", get_active_function_name(TSRMLS_C));
+        return false;
+    }
+
+    add_property_stringl_ex(zv, "name", sizeof("name"), const_cast<char*>(id.name.c_str()),
+                            id.name.length(), 1 TSRMLS_CC);
+    add_property_stringl_ex(zv, "category", sizeof("category"), const_cast<char*>(id.category.c_str()),
+                            id.category.length(), 1 TSRMLS_CC);
+
+    return true;
+}
+
+bool
+IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_OBJECT)
+    {
+        zend_error(E_ERROR, "%s(): value does not contain an object", get_active_function_name(TSRMLS_C));
+        return false;
+    }
+
+    zend_class_entry* cls = findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
+
+    zend_class_entry* ce = Z_OBJCE_P(zv);
+    if(ce != cls)
+    {
+        zend_error(E_ERROR, "%s(): expected an identity but received %s", get_active_function_name(TSRMLS_C), ce->name);
+        return false;
+    }
+
+    //
+    // Category is optional, but name is required.
+    //
+    zval** categoryVal = NULL;
+    zval** nameVal;
+    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), (void**)&nameVal) == FAILURE)
+    {
+        zend_error(E_ERROR, "%s(): identity value does not contain member `name'", get_active_function_name(TSRMLS_C));
+        return false;
+    }
+    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), (void**)&categoryVal);
+
+    if(Z_TYPE_PP(nameVal) != IS_STRING)
+    {
+        string s = zendTypeToString(Z_TYPE_PP(nameVal));
+        zend_error(E_ERROR, "%s(): expected a string value for identity member `name' but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
+        return false;
+    }
+
+    if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING && Z_TYPE_PP(categoryVal) != IS_NULL)
+    {
+        string s = zendTypeToString(Z_TYPE_PP(categoryVal));
+        zend_error(E_ERROR, "%s(): expected a string value for identity member `category' but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
+        return false;
+    }
+
+    id.name = Z_STRVAL_PP(nameVal);
+    if(categoryVal && Z_TYPE_PP(categoryVal) == IS_STRING)
+    {
+        id.category = Z_STRVAL_PP(categoryVal);
+    }
+    else
+    {
+        id.category = "";
+    }
+
+    return true;
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -90,7 +221,7 @@ dtor_wrapper(void* p)
 }
 
 ice_object*
-ice_newObject(zend_class_entry* ce TSRMLS_DC)
+IcePHP::newObject(zend_class_entry* ce TSRMLS_DC)
 {
     ice_object* obj;
     zval* tmp;
@@ -110,7 +241,7 @@ ice_newObject(zend_class_entry* ce TSRMLS_DC)
 }
 
 ice_object*
-ice_getObject(zval* zv TSRMLS_DC)
+IcePHP::getObject(zval* zv TSRMLS_DC)
 {
     if(!zv)
     {
@@ -129,7 +260,7 @@ ice_getObject(zval* zv TSRMLS_DC)
 }
 
 void
-ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
+IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
 {
     try
     {
@@ -138,7 +269,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
     catch(const Ice::UnknownException& e)
     {
         string name = e.ice_name();
-        zend_class_entry* cls = ice_findClassScoped(name TSRMLS_CC);
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
             zend_error(E_ERROR, "unable to find class %s", name.c_str());
@@ -174,7 +305,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
     catch(const Ice::RequestFailedException& e)
     {
         string name = e.ice_name();
-        zend_class_entry* cls = ice_findClassScoped(name TSRMLS_CC);
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
             zend_error(E_ERROR, "unable to find class %s", name.c_str());
@@ -194,7 +325,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         zval* id;
         MAKE_STD_ZVAL(id);
-        if(!Ice_Identity_create(id, e.id TSRMLS_CC))
+        if(!createIdentity(id, e.id TSRMLS_CC))
         {
             return;
         }
@@ -250,7 +381,7 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // All other local exceptions are raised as UnknownLocalException.
         //
-        zend_class_entry* cls = ice_findClass("Ice_UnknownLocalException" TSRMLS_CC);
+        zend_class_entry* cls = findClass("Ice_UnknownLocalException" TSRMLS_CC);
         if(!cls)
         {
             zend_error(E_ERROR, "unable to find class Ice_UnknownLocalException");
@@ -299,10 +430,10 @@ ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
 }
 
 zend_class_entry*
-ice_findClass(const string& flat TSRMLS_DC)
+IcePHP::findClass(const string& flat TSRMLS_DC)
 {
     zend_class_entry** result;
-    string lower = ice_lowerCase(flat);
+    string lower = lowerCase(flat);
     if(zend_lookup_class(const_cast<char*>(lower.c_str()), lower.length(), &result TSRMLS_CC) == FAILURE)
     {
         return 0;
@@ -311,13 +442,13 @@ ice_findClass(const string& flat TSRMLS_DC)
 }
 
 zend_class_entry*
-ice_findClassScoped(const string& scoped TSRMLS_DC)
+IcePHP::findClassScoped(const string& scoped TSRMLS_DC)
 {
-    return ice_findClass(ice_flatten(scoped) TSRMLS_CC);
+    return findClass(flatten(scoped) TSRMLS_CC);
 }
 
 bool
-ice_splitString(const string& str, vector<string>& args)
+IcePHP::splitString(const string& str, vector<string>& args)
 {
     string delim = " \t\n\r";
     string::size_type beg;
@@ -361,7 +492,7 @@ ice_splitString(const string& str, vector<string>& args)
 }
 
 string
-ice_lowerCase(const string& s)
+IcePHP::lowerCase(const string& s)
 {
     string result(s);
     transform(result.begin(), result.end(), result.begin(), ::tolower);
@@ -369,7 +500,7 @@ ice_lowerCase(const string& s)
 }
 
 string
-ice_flatten(const string& scoped)
+IcePHP::flatten(const string& scoped)
 {
     string result = scoped;
     if(result.find("::") == 0)
@@ -383,11 +514,11 @@ ice_flatten(const string& scoped)
         result.replace(pos, 2, "_");
     }
 
-    return ice_fixIdent(result);
+    return fixIdent(result);
 }
 
 string
-ice_fixIdent(const string& ident)
+IcePHP::fixIdent(const string& ident)
 {
     if(ident[0] != ':')
     {
@@ -404,7 +535,7 @@ ice_fixIdent(const string& ident)
 }
 
 std::string
-ice_zendTypeToString(int type)
+IcePHP::zendTypeToString(int type)
 {
     string result;
 
@@ -444,4 +575,36 @@ ice_zendTypeToString(int type)
     }
 
     return result;
+}
+
+bool
+IcePHP::isNativeKey(const Slice::TypePtr& type)
+{
+    //
+    // PHP's native associative array supports only integer and string types for the key.
+    // For Slice dictionaries that meet this criteria, we use the native array type.
+    //
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindBool: // We allow bool even though PHP doesn't support it directly.
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+        case Slice::Builtin::KindString:
+            return true;
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            break;
+        }
+    }
+
+    return false;
 }

@@ -17,13 +17,14 @@
 #endif
 
 #include "ice_marshal.h"
+#include "ice_profile.h"
 #include "ice_proxy.h"
-#include "ice_slice.h"
 #include "ice_util.h"
 
 #include <IceUtil/InputUtil.h>
 
 using namespace std;
+using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
@@ -50,30 +51,29 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // Once the writer is obtained, the marshaler gives it to the stream. Eventually, the
 // stream will invoke __write on the writer, at which point the data members are
 // marshaled. For efficiency, each "slice" of the object's state is marshaled by an
-// ObjectSliceMarshaler, which is cached in the class entry for future reuse.
+// ObjectSliceMarshaler, which is cached for future reuse.
 //
 // Note that a graph of PHP objects does not result in an equivalent graph of writers.
 // Links between objects exist only in the PHP object representation. Furthermore, the
 // lifetime of the writers is bound to the operation, not to the PHP objects. Writers
 // exist only as a bridge to the C++ marshaling facility.
 //
-// The table which associates a PHP object's handle to its writer is stored in a member
-// of our "module globals" (see php_ice.h), which are similar to thread-specific storage.
-// The object map is not created until it is first needed, and is destroyed after each
-// operation.
-//
-// Unmarshaling of Ice objects works in a similar fashion. Before each request, the
-// extension descends the Slice parse tree and installs an object factory for each
-// concrete class type. The same factory instance is registered for all relevant
-// types, including the type "::Ice::Object".
-//
-// When the factory is invoked, it uses the type map to look up the zend_class_entry
-// associated with the given type id, therefore it is capable of creating any object.
+// Unmarshaling of Ice objects works in a similar fashion. A default object factory
+// is installed in the communicator that is capable of instantiating any concrete
+// class type for which a definition is present, including the type "::Ice::Object".
 // It returns an instance of ObjectReader, a subclass of Ice::Object that overrides
 // the __read method to unmarshal object state. The setValue method is eventually
 // called on the ObjectReader in order to transfer its object handle to a different
 // zval value.
 //
+// We use a subclass (PHPStream) of IceInternal::BasicStream to hold some additional
+// information we require during marshaling and unmarshaling. Lazy initialization is
+// used for these members. The cache of marshaler instances is kept in PHP's "module
+// globals", which is similar to thread-specific storage.
+//
+
+namespace IcePHP
+{
 
 //
 // Marshaler subclass definitions.
@@ -283,47 +283,21 @@ private:
     zend_class_entry* _class; // The static class type.
 };
 
-//
-// PHPObjectFactory is an implementation of Ice::ObjectFactory that creates PHP objects.
-// A single instance can be used for all types.
-//
-class PHPObjectFactory : public Ice::ObjectFactory
-{
-public:
-    PHPObjectFactory(TSRMLS_D);
-
-    virtual Ice::ObjectPtr create(const string&);
-    virtual void destroy();
-
-private:
-#ifdef ZTS
-    TSRMLS_D;
-#endif
-};
-
-void
-Marshal_initCommunicator(const Ice::CommunicatorPtr& communicator TSRMLS_DC)
-{
-    //
-    // Register our default object factory with the communicator.
-    //
-    Ice::ObjectFactoryPtr factory = new PHPObjectFactory(TSRMLS_C);
-    communicator->addObjectFactory(factory, "");
-}
+} // End of namespace IcePHP
 
 //
 // Marshaler implementation.
 //
-Marshaler::Marshaler()
+IcePHP::Marshaler::Marshaler()
 {
 }
 
-Marshaler::~Marshaler()
+IcePHP::Marshaler::~Marshaler()
 {
 }
 
 MarshalerPtr
-Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
+IcePHP::Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
 {
     Slice::BuiltinPtr builtin = Slice::BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -395,7 +369,7 @@ Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
     Slice::DictionaryPtr dict = Slice::DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(Slice_isNativeKey(dict->keyType()))
+        if(isNativeKey(dict->keyType()))
         {
             return new NativeDictionaryMarshaler(dict->keyType(), dict->valueType() TSRMLS_CC);
         }
@@ -422,7 +396,7 @@ Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
 }
 
 MarshalerPtr
-Marshaler::createMemberMarshaler(const string& name, const Slice::TypePtr& type TSRMLS_DC)
+IcePHP::Marshaler::createMemberMarshaler(const string& name, const Slice::TypePtr& type TSRMLS_DC)
 {
     MarshalerPtr result;
     MarshalerPtr m = createMarshaler(type TSRMLS_CC);
@@ -434,7 +408,7 @@ Marshaler::createMemberMarshaler(const string& name, const Slice::TypePtr& type 
 }
 
 MarshalerPtr
-Marshaler::createExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC)
+IcePHP::Marshaler::createExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC)
 {
    return new ExceptionMarshaler(ex TSRMLS_CC);
 }
@@ -442,13 +416,13 @@ Marshaler::createExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC)
 //
 // PrimitiveMarshaler implementation.
 //
-PrimitiveMarshaler::PrimitiveMarshaler(const Slice::BuiltinPtr& type) :
+IcePHP::PrimitiveMarshaler::PrimitiveMarshaler(const Slice::BuiltinPtr& type) :
     _type(type)
 {
 }
 
 bool
-PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     switch(_type->kind())
     {
@@ -456,7 +430,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_BOOL)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected boolean value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -468,7 +442,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected byte value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -486,7 +460,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected short value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -504,7 +478,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected int value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -526,7 +500,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         //
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected long value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -554,7 +528,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected float value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -567,7 +541,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected double value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -589,7 +563,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         }
         else
         {
-            string s = ice_zendTypeToString(Z_TYPE_P(zv));
+            string s = zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "%s(): expected string value but received %s", get_active_function_name(TSRMLS_C),
                        s.c_str());
             return false;
@@ -606,7 +580,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     switch(_type->kind())
     {
@@ -695,25 +669,25 @@ PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-PrimitiveMarshaler::destroy()
+IcePHP::PrimitiveMarshaler::destroy()
 {
 }
 
 //
 // SequenceMarshaler implementation.
 //
-SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type TSRMLS_DC) :
+IcePHP::SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type TSRMLS_DC) :
     _type(type)
 {
     _elementMarshaler = createMarshaler(type->type() TSRMLS_CC);
 }
 
 bool
-SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s(): expected array value but received %s", get_active_function_name(TSRMLS_C),
                    s.c_str());
         return false;
@@ -739,7 +713,7 @@ SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     array_init(zv);
 
@@ -763,7 +737,7 @@ SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-SequenceMarshaler::destroy()
+IcePHP::SequenceMarshaler::destroy()
 {
     _elementMarshaler->destroy();
     _elementMarshaler = 0;
@@ -772,17 +746,17 @@ SequenceMarshaler::destroy()
 //
 // ProxyMarshaler implementation.
 //
-ProxyMarshaler::ProxyMarshaler(const Slice::ProxyPtr& type) :
+IcePHP::ProxyMarshaler::ProxyMarshaler(const Slice::ProxyPtr& type) :
     _type(type)
 {
 }
 
 bool
-ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT && Z_TYPE_P(zv) != IS_NULL)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s(): expected proxy value but received %s", get_active_function_name(TSRMLS_C),
                    s.c_str());
         return false;
@@ -792,7 +766,7 @@ ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     Slice::ClassDefPtr def;
     if(!ZVAL_IS_NULL(zv))
     {
-        if(!Ice_ObjectPrx_fetch(zv, proxy, def TSRMLS_CC))
+        if(!fetchProxy(zv, proxy, def TSRMLS_CC))
         {
             return false;
         }
@@ -836,7 +810,7 @@ ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     Ice::ObjectPrx proxy;
     is.read(proxy);
@@ -858,7 +832,7 @@ ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
         def = _type->_class()->definition();
     }
 
-    if(!Ice_ObjectPrx_create(zv, proxy, def TSRMLS_CC))
+    if(!createProxy(zv, proxy, def TSRMLS_CC))
     {
         return false;
     }
@@ -867,20 +841,20 @@ ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-ProxyMarshaler::destroy()
+IcePHP::ProxyMarshaler::destroy()
 {
 }
 
 //
 // MemberMarshaler implementation.
 //
-MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr& marshaler) :
+IcePHP::MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr& marshaler) :
     _name(name), _marshaler(marshaler)
 {
 }
 
 bool
-MemberMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::MemberMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     zval** val;
     if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, (void**)&val) == FAILURE)
@@ -893,7 +867,7 @@ MemberMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     zval* val;
     MAKE_STD_ZVAL(val);
@@ -914,7 +888,7 @@ MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-MemberMarshaler::destroy()
+IcePHP::MemberMarshaler::destroy()
 {
     _marshaler->destroy();
     _marshaler = 0;
@@ -923,10 +897,10 @@ MemberMarshaler::destroy()
 //
 // StructMarshaler implementation.
 //
-StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC) :
+IcePHP::StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC) :
     _type(type)
 {
-    _class = ice_findClassScoped(type->scoped() TSRMLS_CC);
+    _class = findClassScoped(type->scoped() TSRMLS_CC);
     assert(_class);
 
     Slice::DataMemberList members = type->dataMembers();
@@ -939,11 +913,11 @@ StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC) :
 }
 
 bool
-StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s(): expected struct value of type %s but received %s",
                    get_active_function_name(TSRMLS_C), _class->name, s.c_str());
         return false;
@@ -972,7 +946,7 @@ StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     if(object_init_ex(zv, _class) != SUCCESS)
     {
@@ -992,7 +966,7 @@ StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-StructMarshaler::destroy()
+IcePHP::StructMarshaler::destroy()
 {
     vector<MarshalerPtr> members = _members;
     _members.clear();
@@ -1005,19 +979,19 @@ StructMarshaler::destroy()
 //
 // EnumMarshaler implementation.
 //
-EnumMarshaler::EnumMarshaler(const Slice::EnumPtr& type TSRMLS_DC)
+IcePHP::EnumMarshaler::EnumMarshaler(const Slice::EnumPtr& type TSRMLS_DC)
 {
-    _class = ice_findClassScoped(type->scoped() TSRMLS_CC);
+    _class = findClassScoped(type->scoped() TSRMLS_CC);
     assert(_class);
     _count = static_cast<long>(type->getEnumerators().size());
 }
 
 bool
-EnumMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::EnumMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_LONG)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s(): expected long value for enum %s but received %s",
                    get_active_function_name(TSRMLS_C), _class->name, s.c_str());
         return false;
@@ -1051,7 +1025,7 @@ EnumMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-EnumMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::EnumMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     if(_count <= 127)
     {
@@ -1076,15 +1050,15 @@ EnumMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-EnumMarshaler::destroy()
+IcePHP::EnumMarshaler::destroy()
 {
 }
 
 //
 // NativeDictionaryMarshaler implementation.
 //
-NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::TypePtr& keyType, const Slice::TypePtr& valueType
-                                                     TSRMLS_DC)
+IcePHP::NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::TypePtr& keyType,
+                                                             const Slice::TypePtr& valueType TSRMLS_DC)
 {
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(keyType);
     assert(b);
@@ -1094,11 +1068,11 @@ NativeDictionaryMarshaler::NativeDictionaryMarshaler(const Slice::TypePtr& keyTy
 }
 
 bool
-NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s: expected array value but received %s", get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
@@ -1199,7 +1173,7 @@ NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS
 }
 
 bool
-NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     array_init(zv);
 
@@ -1244,7 +1218,7 @@ NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRM
 }
 
 void
-NativeDictionaryMarshaler::destroy()
+IcePHP::NativeDictionaryMarshaler::destroy()
 {
     _keyMarshaler->destroy();
     _keyMarshaler = 0;
@@ -1255,15 +1229,15 @@ NativeDictionaryMarshaler::destroy()
 //
 // ExceptionMarshaler implementation.
 //
-ExceptionMarshaler::ExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC) :
+IcePHP::ExceptionMarshaler::ExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC) :
     _ex(ex)
 {
-    _class = ice_findClassScoped(ex->scoped() TSRMLS_CC);
+    _class = findClassScoped(ex->scoped() TSRMLS_CC);
     assert(_class);
 }
 
 bool
-ExceptionMarshaler::marshal(zval*, IceInternal::BasicStream& TSRMLS_DC)
+IcePHP::ExceptionMarshaler::marshal(zval*, IceInternal::BasicStream& TSRMLS_DC)
 {
     //
     // We never need to marshal an exception.
@@ -1273,7 +1247,7 @@ ExceptionMarshaler::marshal(zval*, IceInternal::BasicStream& TSRMLS_DC)
 }
 
 bool
-ExceptionMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::ExceptionMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     if(object_init_ex(zv, _class) != SUCCESS)
     {
@@ -1311,27 +1285,28 @@ ExceptionMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-ExceptionMarshaler::destroy()
+IcePHP::ExceptionMarshaler::destroy()
 {
 }
 
 //
 // IceObjectSliceMarshaler implementation.
 //
-IceObjectSliceMarshaler::IceObjectSliceMarshaler(TSRMLS_D)
+IcePHP::IceObjectSliceMarshaler::IceObjectSliceMarshaler(TSRMLS_D)
 {
     //
     // Create a marshaler for the ice_facets member.
     //
-    Slice::UnitPtr unit = Slice_getUnit();
-    Slice::TypePtr keyType = unit->builtin(Slice::Builtin::KindString);
-    Slice::TypePtr valueType = unit->builtin(Slice::Builtin::KindObject);
+    Profile* profile = static_cast<Profile*>(ICE_G(profile));
+    assert(profile);
+    Slice::TypePtr keyType = profile->unit->builtin(Slice::Builtin::KindString);
+    Slice::TypePtr valueType = profile->unit->builtin(Slice::Builtin::KindObject);
     MarshalerPtr dict = new NativeDictionaryMarshaler(keyType, valueType TSRMLS_CC);
     _facetMapMarshaler = new MemberMarshaler("ice_facets", dict);
 }
 
 bool
-IceObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::IceObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
@@ -1347,7 +1322,7 @@ IceObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_D
 }
 
 bool
-IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
@@ -1367,7 +1342,7 @@ IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS
 }
 
 void
-IceObjectSliceMarshaler::destroy()
+IcePHP::IceObjectSliceMarshaler::destroy()
 {
     _facetMapMarshaler->destroy();
     _facetMapMarshaler = 0;
@@ -1376,7 +1351,8 @@ IceObjectSliceMarshaler::destroy()
 //
 // ObjectSliceMarshaler implementation.
 //
-ObjectSliceMarshaler::ObjectSliceMarshaler(const string& scoped, const Slice::DataMemberList& members TSRMLS_DC) :
+IcePHP::ObjectSliceMarshaler::ObjectSliceMarshaler(const string& scoped,
+                                                   const Slice::DataMemberList& members TSRMLS_DC) :
     _scoped(scoped)
 {
     for(Slice::DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -1388,7 +1364,7 @@ ObjectSliceMarshaler::ObjectSliceMarshaler(const string& scoped, const Slice::Da
 }
 
 bool
-ObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::ObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
@@ -1407,7 +1383,7 @@ ObjectSliceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-ObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::ObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
@@ -1430,7 +1406,7 @@ ObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC
 }
 
 void
-ObjectSliceMarshaler::destroy()
+IcePHP::ObjectSliceMarshaler::destroy()
 {
     vector<MarshalerPtr> members = _members;
     _members.clear();
@@ -1461,7 +1437,7 @@ patchObject(void* addr, Ice::ObjectPtr& v)
 //
 // ObjectWriter implementation.
 //
-ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type TSRMLS_DC) :
+IcePHP::ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type TSRMLS_DC) :
     _value(value)
 {
     _type = Slice::ClassDefPtr::dynamicCast(type);
@@ -1473,13 +1449,13 @@ ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type TSR
     Z_OBJ_HT_P(_value)->add_ref(_value TSRMLS_CC);
 }
 
-ObjectWriter::~ObjectWriter()
+IcePHP::ObjectWriter::~ObjectWriter()
 {
     Z_OBJ_HT_P(_value)->del_ref(_value TSRMLS_CC);
 }
 
 void
-ObjectWriter::__write(IceInternal::BasicStream* os) const
+IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os) const
 {
     MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
@@ -1537,7 +1513,7 @@ ObjectWriter::__write(IceInternal::BasicStream* os) const
 }
 
 void
-ObjectWriter::__read(IceInternal::BasicStream* is, bool rid)
+IcePHP::ObjectWriter::__read(IceInternal::BasicStream* is, bool rid)
 {
     zend_error(E_ERROR, "ObjectWriter::__read should never be called");
 }
@@ -1545,7 +1521,7 @@ ObjectWriter::__read(IceInternal::BasicStream* is, bool rid)
 //
 // ObjectReader implementation.
 //
-ObjectReader::ObjectReader(zend_class_entry* cls, const Slice::ClassDefPtr& type TSRMLS_DC) :
+IcePHP::ObjectReader::ObjectReader(zend_class_entry* cls, const Slice::ClassDefPtr& type TSRMLS_DC) :
     _class(cls), _type(type)
 {
 #ifdef ZTS
@@ -1563,20 +1539,20 @@ ObjectReader::ObjectReader(zend_class_entry* cls, const Slice::ClassDefPtr& type
     object_init_ex(_value, _class);
 }
 
-ObjectReader::~ObjectReader()
+IcePHP::ObjectReader::~ObjectReader()
 {
     Z_OBJ_HT_P(_value)->del_ref(_value TSRMLS_CC);
     efree(_value);
 }
 
 void
-ObjectReader::__write(IceInternal::BasicStream* os) const
+IcePHP::ObjectReader::__write(IceInternal::BasicStream* os) const
 {
     zend_error(E_ERROR, "ObjectReader::__write should never be called");
 }
 
 void
-ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
+IcePHP::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
 {
     MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
@@ -1657,7 +1633,7 @@ ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
 }
 
 void
-ObjectReader::setValue(zend_class_entry* ce, zval* zv)
+IcePHP::ObjectReader::setValue(zend_class_entry* ce, zval* zv)
 {
     //
     // Compare the class entries. The argument "ce" represents the formal type.
@@ -1693,7 +1669,7 @@ ObjectReader::setValue(zend_class_entry* ce, zval* zv)
 //
 // ObjectMarshaler implementation.
 //
-ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC) :
+IcePHP::ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC) :
     _def(def)
 {
     //
@@ -1702,18 +1678,18 @@ ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC) :
     if(def)
     {
         string scoped = def->scoped();
-        _class = ice_findClassScoped(scoped TSRMLS_CC);
+        _class = findClassScoped(scoped TSRMLS_CC);
     }
     else
     {
-        _class = ice_findClass("Ice_ObjectImpl" TSRMLS_CC);
+        _class = findClass("Ice_ObjectImpl" TSRMLS_CC);
     }
 
     assert(_class);
 }
 
 bool
-ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+IcePHP::ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) == IS_NULL)
     {
@@ -1723,7 +1699,7 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        string s = ice_zendTypeToString(Z_TYPE_P(zv));
+        string s = zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "%s(): expected object value of type %s but received %s",
                    get_active_function_name(TSRMLS_C), _class ? _class->name : "ice_object",
                    s.c_str());
@@ -1766,7 +1742,14 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     //
     // Retrieve the ClassDef for the actual type. This may fail if the type is Ice::Object.
     //
-    Slice::ClassDefPtr def = Slice_getClassDef(ce->name);
+    Profile* profile = static_cast<Profile*>(ICE_G(profile));
+    assert(profile);
+    Slice::ClassDefPtr def;
+    Profile::ClassMap::iterator p = profile->classes.find(ce->name);
+    if(p != profile->classes.end())
+    {
+        def = p->second;
+    }
 
     //
     // Initialize the object map if necessary.
@@ -1779,15 +1762,15 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     }
     else
     {
-        PHPStream::ObjectMap::iterator p = po->objectMap->find(Z_OBJ_HANDLE_P(zv));
-        if(p == po->objectMap->end())
+        PHPStream::ObjectMap::iterator q = po->objectMap->find(Z_OBJ_HANDLE_P(zv));
+        if(q == po->objectMap->end())
         {
             writer = new ObjectWriter(zv, def TSRMLS_CC);
             po->objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
         }
         else
         {
-            writer = p->second;
+            writer = q->second;
         }
     }
 
@@ -1800,7 +1783,7 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 }
 
 bool
-ObjectMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::ObjectMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     PHPStream* pi = static_cast<PHPStream*>(&is);
 
@@ -1831,14 +1814,14 @@ ObjectMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 }
 
 void
-ObjectMarshaler::destroy()
+IcePHP::ObjectMarshaler::destroy()
 {
 }
 
 //
 // PHPObjectFactory implementation.
 //
-PHPObjectFactory::PHPObjectFactory(TSRMLS_D)
+IcePHP::PHPObjectFactory::PHPObjectFactory(TSRMLS_D)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -1846,7 +1829,7 @@ PHPObjectFactory::PHPObjectFactory(TSRMLS_D)
 }
 
 Ice::ObjectPtr
-PHPObjectFactory::create(const string& scoped)
+IcePHP::PHPObjectFactory::create(const string& scoped)
 {
     Ice::ObjectPtr result;
 
@@ -1859,15 +1842,21 @@ PHPObjectFactory::create(const string& scoped)
     Slice::ClassDefPtr def;
     if(scoped == Ice::Object::ice_staticId())
     {
-        cls = ice_findClass("Ice_ObjectImpl" TSRMLS_CC);
+        cls = findClass("Ice_ObjectImpl" TSRMLS_CC);
     }
     else
     {
-        cls = ice_findClassScoped(scoped TSRMLS_CC);
+        cls = findClassScoped(scoped TSRMLS_CC);
     }
     if(cls && (cls->ce_flags & ZEND_CE_ABSTRACT) == 0)
     {
-        def = Slice_getClassDef(cls->name);
+        Profile* profile = static_cast<Profile*>(ICE_G(profile));
+        assert(profile);
+        Profile::ClassMap::iterator p = profile->classes.find(cls->name);
+        if(p != profile->classes.end())
+        {
+            def = p->second;
+        }
         result = new ObjectReader(cls, def TSRMLS_CC);
     }
 
@@ -1875,19 +1864,19 @@ PHPObjectFactory::create(const string& scoped)
 }
 
 void
-PHPObjectFactory::destroy()
+IcePHP::PHPObjectFactory::destroy()
 {
 }
 
 //
 // PHPStream implementation.
 //
-PHPStream::PHPStream(IceInternal::Instance* instance) :
+IcePHP::PHPStream::PHPStream(IceInternal::Instance* instance) :
     IceInternal::BasicStream(instance), objectMap(0), patchList(0)
 {
 }
 
-PHPStream::~PHPStream()
+IcePHP::PHPStream::~PHPStream()
 {
     delete objectMap;
     if(patchList)

@@ -22,18 +22,19 @@
 #include "ice_util.h"
 
 using namespace std;
+using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
 //
 // Class entries represent the PHP class implementations we have registered.
 //
-static zend_class_entry* Ice_Communicator_entry_ptr;
+static zend_class_entry* _communicatorClassEntry;
 
 //
 // Ice::Communicator support.
 //
-static zend_object_handlers Ice_Communicator_handlers;
+static zend_object_handlers _handlers;
 
 extern "C"
 {
@@ -48,7 +49,7 @@ static void initCommunicator(ice_object* TSRMLS_DC);
 //
 // Function entries for Ice::Communicator methods.
 //
-static function_entry Ice_Communicator_methods[] =
+static function_entry _methods[] =
 {
     {"__construct",   PHP_FN(Ice_Communicator___construct),   NULL},
     {"stringToProxy", PHP_FN(Ice_Communicator_stringToProxy), NULL},
@@ -57,24 +58,24 @@ static function_entry Ice_Communicator_methods[] =
 };
 
 bool
-Ice_Communicator_init(TSRMLS_D)
+IcePHP::communicatorInit(TSRMLS_D)
 {
     //
     // Register the Ice_Communicator class.
     //
-    zend_class_entry ce_Communicator;
-    INIT_CLASS_ENTRY(ce_Communicator, "Ice_Communicator", Ice_Communicator_methods);
-    ce_Communicator.create_object = handleAlloc;
-    Ice_Communicator_entry_ptr = zend_register_internal_class(&ce_Communicator TSRMLS_CC);
-    memcpy(&Ice_Communicator_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    Ice_Communicator_handlers.clone_obj = handleClone;
-    Ice_Communicator_handlers.get_method = handleGetMethod;
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, "Ice_Communicator", _methods);
+    ce.create_object = handleAlloc;
+    _communicatorClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
+    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _handlers.clone_obj = handleClone;
+    _handlers.get_method = handleGetMethod;
 
     return true;
 }
 
 bool
-Ice_Communicator_create(TSRMLS_D)
+IcePHP::createCommunicator(TSRMLS_D)
 {
     zval* global;
     MAKE_STD_ZVAL(global);
@@ -83,7 +84,7 @@ Ice_Communicator_create(TSRMLS_D)
     // Create the global variable for the communicator, but delay creation of the communicator
     // itself until it is first used (see handleGetMethod).
     //
-    if(object_init_ex(global, Ice_Communicator_entry_ptr) != SUCCESS)
+    if(object_init_ex(global, _communicatorClassEntry) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to create object for communicator");
         return false;
@@ -99,14 +100,14 @@ Ice_Communicator_create(TSRMLS_D)
 }
 
 Ice::CommunicatorPtr
-Ice_Communicator_getInstance(TSRMLS_D)
+IcePHP::getCommunicator(TSRMLS_D)
 {
     Ice::CommunicatorPtr result;
 
     zval **zv;
     if(zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv) == SUCCESS)
     {
-        ice_object* obj = ice_getObject(*zv TSRMLS_CC);
+        ice_object* obj = getObject(*zv TSRMLS_CC);
         assert(obj);
 
         //
@@ -135,7 +136,7 @@ Ice_Communicator_getInstance(TSRMLS_D)
 }
 
 zval*
-Ice_Communicator_getZval(TSRMLS_D)
+IcePHP::getCommunicatorZval(TSRMLS_D)
 {
     zval **zv = NULL;
     zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
@@ -150,7 +151,7 @@ ZEND_FUNCTION(Ice_Communicator___construct)
 
 ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 {
-    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         return;
@@ -178,11 +179,11 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 
-    if(!Ice_ObjectPrx_create(return_value, proxy TSRMLS_CC))
+    if(!createProxy(return_value, proxy TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -190,7 +191,7 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 
 ZEND_FUNCTION(Ice_Communicator_proxyToString)
 {
-    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         return;
@@ -205,14 +206,14 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
 
     zval* zprx;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, Ice_ObjectPrx_entry_ptr) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, proxyClassEntry) == FAILURE)
     {
         RETURN_EMPTY_STRING();
     }
 
     Ice::ObjectPrx proxy;
     Slice::ClassDefPtr def;
-    if(!Ice_ObjectPrx_fetch(zprx, proxy, def TSRMLS_CC))
+    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
     {
         RETURN_EMPTY_STRING();
     }
@@ -224,7 +225,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throwException(ex TSRMLS_CC);
+        throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
     }
 }
@@ -237,11 +238,11 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    ice_object* obj = ice_newObject(ce TSRMLS_CC);
+    ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, handleDestroy, NULL TSRMLS_CC);
-    result.handlers = &Ice_Communicator_handlers;
+    result.handlers = &_handlers;
 
     return result;
 }
@@ -306,7 +307,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
             }
             catch(const IceUtil::Exception& ex)
             {
-                ice_throwException(ex TSRMLS_CC);
+                throwException(ex TSRMLS_CC);
             }
         }
     }
@@ -322,21 +323,16 @@ initCommunicator(ice_object* obj TSRMLS_DC)
 {
     assert(!obj->ptr);
 
-    Ice::PropertiesPtr props = Ice::createProperties();
-
-    char* config = INI_STR("ice.config");
-    if(config && strlen(config) > 0)
-    {
-        props->load(config);
-    }
+    Ice::PropertiesPtr* properties = static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
 
     int argc = 0;
     char** argv = 0;
-    Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, props);
+    Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, *properties);
     obj->ptr = new Ice::CommunicatorPtr(communicator);
 
     //
-    // Allow the marshaling code to prepare the communicator.
+    // Register our default object factory with the communicator.
     //
-    Marshal_initCommunicator(communicator TSRMLS_CC);
+    Ice::ObjectFactoryPtr factory = new PHPObjectFactory(TSRMLS_C);
+    communicator->addObjectFactory(factory, "");
 }

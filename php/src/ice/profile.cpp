@@ -16,29 +16,29 @@
 #include "config.h"
 #endif
 
-#include "ice_slice.h"
-#include "ice_marshal.h"
+#include "ice_profile.h"
 #include "ice_util.h"
 
 #include <Slice/Preprocessor.h>
+#include <fstream>
 
 using namespace std;
+using namespace IcePHP;
 
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
 //
-// In order for a script to have access to Slice types, the classes for those types must be
-// defined prior to script execution. We initially tried creating internal classes for
-// the Slice types, because we would only have to create them once, during module startup.
-// However, we eventually realized that these classes should not be internal classes - the
-// extension is not implementing these classes, it is simply defining them. In other words,
-// the extension needs to create classes just like PHP's parser does.
+// The name we give to the default profile.
 //
-// To do this, we descend the Slice parse tree immediately after parsing and "generate" PHP
-// code into a string. Eventually, the script will invoke the Ice_compileSlice global function,
-// at which point we "compile" all of the code we generated previously by having the PHP
-// interpreter evaluate it.
+static const char* _defaultProfileName = "__default__";
+
 //
+// The table of profiles.
+//
+static map<string, Profile*> _profiles;
+
+namespace IcePHP
+{
 
 //
 // CodeVisitor descends the Slice parse tree and generates PHP code for certain Slice types.
@@ -46,7 +46,7 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 class CodeVisitor : public Slice::ParserVisitor
 {
 public:
-    CodeVisitor(ostream&);
+    CodeVisitor(ostream&, Profile::ClassMap&);
 
     virtual void visitClassDecl(const Slice::ClassDeclPtr&);
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
@@ -65,29 +65,19 @@ private:
     string getTypeHint(const Slice::TypePtr&);
 
     ostream& _out;
+    Profile::ClassMap& _classes;
 };
 
-//
-// The Slice parse tree. This is static because the Slice files are parsed only once,
-// when the module is loaded.
-//
-static Slice::UnitPtr _unit;
-
-//
-// The code we've generated from the Slice definitions.
-//
-static string _code;
-
-//
-// This map associates a flattened type id to a ClassDef. It is populated by CodeVisitor.
-//
-static map<string, Slice::ClassDefPtr> _classDefs;
+} // End of namespace IcePHP
 
 //
 // This PHP code defines the core types we need. We supply a few of the common
 // local exception subclasses; all other local exceptions are mapped to
 // UnknownLocalException. We don't define Ice::Identity here because it's
-// possible the user will have included its definition (see Slice_init).
+// possible the user will have included its definition (see createProfile).
+//
+// NOTE: If a local exception is added or removed here, then changes are also
+// necessary to IcePHP::throwException.
 //
 static const char* _coreTypes =
     "define(\"ICE_STRING_VERSION\", \"1.1.0\");\n"
@@ -155,10 +145,10 @@ static const char* _coreTypes =
 // Parse the Slice files that define the types and operations available to a PHP script.
 //
 static bool
-parseSlice(const string& argStr)
+parseSlice(const string& argStr, Slice::UnitPtr& unit)
 {
     vector<string> args;
-    if(!ice_splitString(argStr, args))
+    if(!splitString(argStr, args))
     {
         return false;
     }
@@ -193,7 +183,7 @@ parseSlice(const string& argStr)
         }
         else if(arg[0] == '-')
         {
-            zend_error(E_ERROR, "unknown option `%s' in ice.parse", arg.c_str());
+            zend_error(E_ERROR, "unknown option `%s' in ice.slice", arg.c_str());
             return false;
         }
         else
@@ -204,13 +194,13 @@ parseSlice(const string& argStr)
 
     if(files.empty())
     {
-        zend_error(E_ERROR, "no Slice files specified in ice.parse");
+        zend_error(E_ERROR, "no Slice files specified in ice.slice");
         return false;
     }
 
     bool ignoreRedefs = false;
     bool all = true;
-    _unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
+    unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
     bool status = true;
 
     for(p = files.begin(); p != files.end(); ++p)
@@ -224,7 +214,7 @@ parseSlice(const string& argStr)
             break;
         }
 
-        int parseStatus = _unit->parse(cppHandle, debug);
+        int parseStatus = unit->parse(cppHandle, debug);
 
         if(!icecpp.close())
         {
@@ -242,16 +232,47 @@ parseSlice(const string& argStr)
     return status;
 }
 
-bool
-Slice_init(TSRMLS_D)
+static bool
+createProfile(const string& name, const string& config, const string& options, const string& slice)
 {
-    //
-    // Parse the Slice files.
-    //
-    char* parse = INI_STR("ice.parse");
-    if(parse && strlen(parse) > 0)
+    map<string, Profile*>::iterator p = _profiles.find(name);
+    if(p != _profiles.end())
     {
-        if(!parseSlice(parse))
+        zend_error(E_ERROR, "profile `%s' already exists", name.c_str());
+        return false;
+    }
+
+    Ice::PropertiesPtr properties = Ice::createProperties();
+
+    if(!config.empty())
+    {
+        try
+        {
+            properties->load(config);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            ostringstream ostr;
+            ex.ice_print(ostr);
+            zend_error(E_ERROR, "unable to load Ice configuration file %s:\n%s", config.c_str(), ostr.str().c_str());
+            return false;
+        }
+    }
+
+    if(!options.empty())
+    {
+        Ice::StringSeq args;
+        if(!splitString(options, args))
+        {
+            return false;
+        }
+        properties->parseCommandLineOptions("", args);
+    }
+
+    Slice::UnitPtr unit;
+    if(!slice.empty())
+    {
+        if(!parseSlice(slice, unit))
         {
             return false;
         }
@@ -261,7 +282,7 @@ Slice_init(TSRMLS_D)
         //
         // We must be allowed to obtain builtin types, as well as create Ice::Identity if necessary.
         //
-        _unit = Slice::Unit::createUnit(false, false, true, false);
+        unit = Slice::Unit::createUnit(false, false, true, false);
     }
 
     //
@@ -269,14 +290,14 @@ Slice_init(TSRMLS_D)
     // be created automatically by CodeVisitor.
     //
     string scoped = "::Ice::Identity";
-    Slice::TypeList l = _unit->lookupTypeNoBuiltin(scoped, false);
+    Slice::TypeList l = unit->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
-        Slice::ContainedList c = _unit->lookupContained("Ice", false);
+        Slice::ContainedList c = unit->lookupContained("Ice", false);
         Slice::ModulePtr module;
         if(c.empty())
         {
-            module = _unit->createModule("Ice");
+            module = unit->createModule("Ice");
         }
         else
         {
@@ -288,37 +309,165 @@ Slice_init(TSRMLS_D)
             }
         }
         Slice::StructPtr identity = module->createStruct("Identity", false);
-        Slice::TypePtr str = _unit->builtin(Slice::Builtin::KindString);
+        Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
         identity->createDataMember("category", str);
         identity->createDataMember("name", str);
     }
 
     //
-    // Descend the parse tree, create PHP code, and store it in the _code map.
+    // Descend the parse tree to create PHP code.
     //
     ostringstream out;
-    CodeVisitor visitor(out);
-    _unit->visit(&visitor);
-    _code = out.str();
+    Profile::ClassMap classes;
+    CodeVisitor visitor(out, classes);
+    unit->visit(&visitor);
+
+    Profile* profile = new Profile;
+    profile->name = name;
+    profile->unit = unit;
+    profile->code = out.str();
+    profile->classes = classes;
+    profile->properties = properties;
+
+    _profiles[name] = profile;
 
     return true;
 }
 
 bool
-Slice_shutdown(TSRMLS_D)
+IcePHP::profileInit(TSRMLS_D)
 {
-    if(_unit)
+    //
+    // The default profile is configured using ice.config, ice.options and ice.slice. Named profiles
+    // are contained in a separate INI file, whose name is defined by ice.profiles.
+    //
+    char* config = INI_STR("ice.config");
+    char* options = INI_STR("ice.options");
+    char* profiles = INI_STR("ice.profiles");
+    char* slice = INI_STR("ice.slice");
+
+    if(!createProfile(_defaultProfileName, config, options, slice))
     {
-        try
+        return false;
+    }
+
+    if(strlen(profiles) > 0)
+    {
+        //
+        // The Zend engine doesn't export a function for loading an INI file, so we
+        // have to do it ourselves. The format is:
+        //
+        // [profile-name]
+        // config = config-file
+        // options = args
+        // slice = slice-args
+        //
+        ifstream in(profiles);
+        if(!in)
         {
-            _unit->destroy();
-            _unit = 0;
+            zend_error(E_ERROR, "unable to open Ice profiles in %s", profiles);
+            return false;
         }
-        catch(const IceUtil::Exception& ex)
+
+        string currentName, currentConfig, currentOptions, currentSlice;
+        char line[1024];
+        while(in.getline(line, 1024))
         {
-            ostringstream ostr;
-            ex.ice_print(ostr);
-            zend_error(E_ERROR, "unable to destroy Slice parse tree:\n%s", ostr.str().c_str());
+            const string delim = " \t\r\n";
+            string s = line;
+
+            string::size_type idx = s.find(';');
+            if(idx != string::npos)
+            {
+                s.erase(idx);
+            }
+
+            idx = s.find_last_not_of(delim);
+            if(idx != string::npos && idx + 1 < s.length())
+            {
+                s.erase(idx + 1);
+            }
+
+            string::size_type beg = s.find_first_not_of(delim);
+            if(beg == string::npos)
+            {
+                continue;
+            }
+
+            if(s[beg] == '[')
+            {
+                beg++;
+                string::size_type end = s.find_first_of(" \t]", beg);
+                if(end == string::npos || s[s.length() - 1] != ']')
+                {
+                    zend_error(E_ERROR, "invalid profile section in file %s:\n%s\n", profiles, line);
+                    return false;
+                }
+
+                if(!currentName.empty())
+                {
+                    if(!createProfile(currentName, currentConfig, currentOptions, currentSlice))
+                    {
+                        return false;
+                    }
+                    currentConfig.clear();
+                    currentOptions.clear();
+                    currentSlice.clear();
+                }
+
+                currentName = s.substr(beg, end - beg);
+            }
+            else
+            {
+                string::size_type end = s.find_first_of(delim + "=", beg);
+                assert(end != string::npos);
+
+                string key = s.substr(beg, end - beg);
+
+                end = s.find('=', end);
+                if(end == string::npos)
+                {
+                    zend_error(E_ERROR, "invalid profile entry in file %s:\n%s\n", profiles, line);
+                    return false;
+                }
+                ++end;
+
+                string value;
+                beg = s.find_first_not_of(delim, end);
+                if(beg != string::npos)
+                {
+                    end = s.length();
+                    value = s.substr(beg, end - beg);
+                }
+
+                if(key == "config")
+                {
+                    currentConfig = value;
+                }
+                else if(key == "options")
+                {
+                    currentOptions = value;
+                }
+                else if(key == "slice")
+                {
+                    currentSlice = value;
+                }
+                else
+                {
+                    zend_error(E_ERROR, "unknown profile entry in file %s:\n%s\n", profiles, line);
+                    return false;
+                }
+
+                if(currentName.empty())
+                {
+                    zend_error(E_ERROR, "no section for profile entry in file %s:\n%s\n", profiles, line);
+                    return false;
+                }
+            }
+        }
+
+        if(!currentName.empty() && !createProfile(currentName, currentConfig, currentOptions, currentSlice))
+        {
             return false;
         }
     }
@@ -326,76 +475,188 @@ Slice_shutdown(TSRMLS_D)
     return true;
 }
 
-Slice::UnitPtr
-Slice_getUnit()
-{
-    return _unit;
-}
-
 bool
-Slice_isNativeKey(const Slice::TypePtr& type)
+IcePHP::profileShutdown(TSRMLS_D)
 {
-    //
-    // PHP's native associative array supports only integer and string types for the key.
-    // For Slice dictionaries that meet this criteria, we use the native array type.
-    //
-    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-    if(b)
+    for(map<string, Profile*>::iterator p = _profiles.begin(); p != _profiles.end(); ++p)
     {
-        switch(b->kind())
+        try
         {
-        case Slice::Builtin::KindByte:
-        case Slice::Builtin::KindBool: // We allow bool even though PHP doesn't support it directly.
-        case Slice::Builtin::KindShort:
-        case Slice::Builtin::KindInt:
-        case Slice::Builtin::KindLong:
-        case Slice::Builtin::KindString:
-            return true;
-
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-        case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
-        case Slice::Builtin::KindLocalObject:
-            break;
+            p->second->unit->destroy();
         }
+        catch(const IceUtil::Exception& ex)
+        {
+            ostringstream ostr;
+            ex.ice_print(ostr);
+            zend_error(E_ERROR, "error while destroying Slice parse tree:\n%s\n", ostr.str().c_str());
+        }
+
+        delete p->second;
     }
 
-    return false;
+    return true;
 }
 
-Slice::ClassDefPtr
-Slice_getClassDef(const string& flat)
+static bool
+do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
 {
-    return _classDefs[ice_lowerCase(flat)];
-}
+    Profile* profile = static_cast<Profile*>(ICE_G(profile));
 
-ZEND_FUNCTION(Ice_compileSlice)
-{
-    if(!ICE_G(coreTypesLoaded))
+    if(profile)
     {
-        if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to create core types");
-            return;
-        }
-        ICE_G(coreTypesLoaded) = 1;
+        zend_error(E_ERROR, "an Ice profile (`%s') has already been loaded", profile->name.c_str());
+        return false;
     }
 
-    if(zend_eval_string(const_cast<char*>(_code.c_str()), NULL, "__slice" TSRMLS_CC) == FAILURE)
+    string profileName = name;
+    if(profileName.empty())
     {
-        zend_error(E_ERROR, "unable to create Slice types:\n%s", _code.c_str());
+        profileName = _defaultProfileName;
+    }
+
+    map<string, Profile*>::iterator p = _profiles.find(profileName);
+    if(p == _profiles.end())
+    {
+        zend_error(E_ERROR, "profile `%s' not found", profileName.c_str());
+        return false;
+    }
+    profile = p->second;
+
+    //
+    // Compile the core types.
+    //
+    if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
+    {
+        zend_error(E_ERROR, "unable to create core types:\n%s\n", _coreTypes);
+        return false;
+    }
+
+    //
+    // Compile the user-defined types.
+    //
+    if(zend_eval_string(const_cast<char*>(profile->code.c_str()), NULL, "__slice" TSRMLS_CC) == FAILURE)
+    {
+        zend_error(E_ERROR, "unable to create Slice types:\n%s\n", profile->code.c_str());
+        return false;
+    }
+
+    //
+    // Make a copy of the profile's properties, and include any command-line arguments.
+    //
+    Ice::PropertiesPtr properties = Ice::createProperties();
+    properties->parseCommandLineOptions("", profile->properties->getCommandLineOptions());
+    properties->parseCommandLineOptions("", args);
+    ICE_G(properties) = new Ice::PropertiesPtr(properties);
+
+    ICE_G(profile) = profile;
+}
+
+ZEND_FUNCTION(Ice_loadProfile)
+{
+    if(ZEND_NUM_ARGS() > 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    char* name = "";
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &len) == FAILURE)
+    {
         return;
     }
+
+    Ice::StringSeq args;
+    do_load(name, args TSRMLS_CC);
 }
 
-CodeVisitor::CodeVisitor(ostream& out) :
-    _out(out)
+ZEND_FUNCTION(Ice_loadProfileWithArgs)
+{
+    if(ZEND_NUM_ARGS() > 2)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    zval* zv;
+    char* name = "";
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|s", &zv, &name, &len) == FAILURE)
+    {
+        return;
+    }
+
+    //
+    // Extract the command-line arguments from the array.
+    //
+    Ice::StringSeq args;
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+        if(Z_TYPE_PP(val) != IS_STRING)
+        {
+            zend_error(E_ERROR, "%s(): argument array must contain strings", get_active_function_name(TSRMLS_C));
+            return;
+        }
+        args.push_back(Z_STRVAL_PP(val));
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    do_load(name, args TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_dumpProfile)
+{
+    Profile* profile = static_cast<Profile*>(ICE_G(profile));
+    Ice::PropertiesPtr* properties = static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
+
+    if(!profile)
+    {
+        zend_error(E_ERROR, "no profile has been loaded");
+        return;
+    }
+
+    ostringstream out;
+    out << "Ice profile: " << profile->name << endl;
+
+    Ice::PropertyDict props = (*properties)->getPropertiesForPrefix("");
+    if(!props.empty())
+    {
+        out << endl << "Ice configuration properties:" << endl << endl;
+        for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
+        {
+            out << p->first << "=" << p->second << endl;
+        }
+    }
+    else
+    {
+        out << endl << "Ice configuration properties: <none>" << endl;
+    }
+
+    if(!profile->code.empty())
+    {
+        out << endl << "PHP code for Slice types:" << endl << endl;
+        out << profile->code;
+    }
+    else
+    {
+        out << endl << "PHP code for Slice types: <none>" << endl;
+    }
+
+    string s = out.str();
+    PUTS(s.c_str());
+}
+
+IcePHP::CodeVisitor::CodeVisitor(ostream& out, map<string, Slice::ClassDefPtr>& classes) :
+    _out(out), _classes(classes)
 {
 }
 
 void
-CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
+IcePHP::CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
 {
     Slice::ClassDefPtr def = p->definition();
     if(!def)
@@ -407,11 +668,11 @@ CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
 }
 
 bool
-CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
+IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 {
-    string flat = ice_flatten(p->scoped());
+    string flat = flatten(p->scoped());
 
-    _classDefs[ice_lowerCase(flat)] = p;
+    _classes[lowerCase(flat)] = p;
 
     Slice::ClassList bases = p->bases();
 
@@ -426,7 +687,7 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 {
                     _out << ",";
                 }
-                _out << ice_flatten((*q)->scoped());
+                _out << flatten((*q)->scoped());
             }
         }
         else if(p->isLocal())
@@ -447,7 +708,7 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         _out << "class " << flat << " extends ";
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            _out << ice_flatten(bases.front()->scoped());
+            _out << flatten(bases.front()->scoped());
             bases.pop_front();
         }
         else if(p->isLocal())
@@ -467,7 +728,7 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 {
                     _out << ",";
                 }
-                _out << ice_flatten((*q)->scoped());
+                _out << flatten((*q)->scoped());
             }
         }
     }
@@ -478,15 +739,15 @@ CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 }
 
 void
-CodeVisitor::visitClassDefEnd(const Slice::ClassDefPtr& p)
+IcePHP::CodeVisitor::visitClassDefEnd(const Slice::ClassDefPtr& p)
 {
     _out << '}' << endl;
 }
 
 bool
-CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
+IcePHP::CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 {
-    string flat = ice_flatten(p->scoped());
+    string flat = flatten(p->scoped());
     Slice::ExceptionPtr base = p->base();
 
     _out << "class " << flat << " extends ";
@@ -503,7 +764,7 @@ CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     }
     else
     {
-        _out << ice_flatten(base->scoped());
+        _out << flatten(base->scoped());
     }
 
     _out << endl << '{' << endl;
@@ -512,32 +773,32 @@ CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 }
 
 void
-CodeVisitor::visitExceptionEnd(const Slice::ExceptionPtr& p)
+IcePHP::CodeVisitor::visitExceptionEnd(const Slice::ExceptionPtr& p)
 {
     _out << '}' << endl;
 }
 
 bool
-CodeVisitor::visitStructStart(const Slice::StructPtr& p)
+IcePHP::CodeVisitor::visitStructStart(const Slice::StructPtr& p)
 {
-    string flat = ice_flatten(p->scoped());
+    string flat = flatten(p->scoped());
 
-    _out << "class " << ice_flatten(p->scoped()) << endl;
+    _out << "class " << flatten(p->scoped()) << endl;
     _out << '{' << endl;
 
     return true;
 }
 
 void
-CodeVisitor::visitStructEnd(const Slice::StructPtr& p)
+IcePHP::CodeVisitor::visitStructEnd(const Slice::StructPtr& p)
 {
     _out << '}' << endl;
 }
 
 void
-CodeVisitor::visitOperation(const Slice::OperationPtr& p)
+IcePHP::CodeVisitor::visitOperation(const Slice::OperationPtr& p)
 {
-    string name = ice_fixIdent(p->name());
+    string name = fixIdent(p->name());
 
     Slice::ParamDeclList params = p->parameters();
 
@@ -568,22 +829,22 @@ CodeVisitor::visitOperation(const Slice::OperationPtr& p)
                 _out << hint << ' ';
             }
         }
-        _out << '$' << ice_fixIdent(param->name());
+        _out << '$' << fixIdent(param->name());
     }
     _out << ");" << endl;
 }
 
 void
-CodeVisitor::visitDataMember(const Slice::DataMemberPtr& p)
+IcePHP::CodeVisitor::visitDataMember(const Slice::DataMemberPtr& p)
 {
-    _out << "var $" << ice_fixIdent(p->name()) << ';' << endl;
+    _out << "var $" << fixIdent(p->name()) << ';' << endl;
 }
 
 void
-CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
+IcePHP::CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
     Slice::TypePtr keyType = p->keyType();
-    if(!Slice_isNativeKey(keyType))
+    if(!isNativeKey(keyType))
     {
         //
         // TODO: Generate class.
@@ -594,9 +855,9 @@ CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 }
 
 void
-CodeVisitor::visitEnum(const Slice::EnumPtr& p)
+IcePHP::CodeVisitor::visitEnum(const Slice::EnumPtr& p)
 {
-    string flat = ice_flatten(p->scoped());
+    string flat = flatten(p->scoped());
 
     _out << "class " << flat << endl;
     _out << '{' << endl;
@@ -609,17 +870,17 @@ CodeVisitor::visitEnum(const Slice::EnumPtr& p)
     long i;
     for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
     {
-        string name = ice_fixIdent((*q)->name());
-        _out << "const " << ice_fixIdent((*q)->name()) << " = " << i << ';' << endl;
+        string name = fixIdent((*q)->name());
+        _out << "const " << fixIdent((*q)->name()) << " = " << i << ';' << endl;
     }
 
     _out << '}' << endl;
 }
 
 void
-CodeVisitor::visitConst(const Slice::ConstPtr& p)
+IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
 {
-    string flat = ice_flatten(p->scoped());
+    string flat = flatten(p->scoped());
     Slice::TypePtr type = p->type();
     string value = p->value();
 
@@ -735,7 +996,7 @@ CodeVisitor::visitConst(const Slice::ConstPtr& p)
         {
             if((*q)->name() == value)
             {
-                _out << ice_flatten(en->scoped()) << "::" << ice_fixIdent(value) << ");" << endl;
+                _out << flatten(en->scoped()) << "::" << fixIdent(value) << ");" << endl;
                 return;
             }
         }
@@ -744,7 +1005,7 @@ CodeVisitor::visitConst(const Slice::ConstPtr& p)
 }
 
 string
-CodeVisitor::getTypeHint(const Slice::TypePtr& type)
+IcePHP::CodeVisitor::getTypeHint(const Slice::TypePtr& type)
 {
     //
     // Currently, the Zend engine does not allow an argument with a type hint to have
@@ -753,7 +1014,7 @@ CodeVisitor::getTypeHint(const Slice::TypePtr& type)
     Slice::StructPtr st = Slice::StructPtr::dynamicCast(type);
     if(st)
     {
-        return ice_flatten(st->scoped());
+        return flatten(st->scoped());
     }
 
     return string();

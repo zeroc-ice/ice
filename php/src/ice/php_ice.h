@@ -46,7 +46,8 @@ ZEND_MINFO_FUNCTION(ice);
 ZEND_BEGIN_MODULE_GLOBALS(ice)
     zval* communicator;
     void* marshalerMap;
-    int coreTypesLoaded;
+    void* profile;
+    void* properties;
 ZEND_END_MODULE_GLOBALS(ice)
 
 #ifdef ZTS

@@ -18,7 +18,8 @@
 #include "ice_common.h"
 #include <Slice/Parser.h>
 
-void Marshal_initCommunicator(const Ice::CommunicatorPtr& TSRMLS_DC);
+namespace IcePHP
+{
 
 class Marshaler;
 typedef IceUtil::Handle<Marshaler> MarshalerPtr;
@@ -80,5 +81,25 @@ public:
 class AbortMarshaling
 {
 };
+
+//
+// PHPObjectFactory is an implementation of Ice::ObjectFactory that creates PHP objects.
+// A single instance can be used for all types.
+//
+class PHPObjectFactory : public Ice::ObjectFactory
+{
+public:
+    PHPObjectFactory(TSRMLS_D);
+
+    virtual Ice::ObjectPtr create(const std::string&);
+    virtual void destroy();
+
+private:
+#ifdef ZTS
+    TSRMLS_D;
+#endif
+};
+
+} // End of namespace IcePHP
 
 #endif

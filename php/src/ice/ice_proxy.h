@@ -18,16 +18,6 @@
 #include "ice_common.h"
 #include <Slice/Parser.h>
 
-bool Ice_ObjectPrx_init(TSRMLS_D);
-bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx& TSRMLS_DC);
-bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx&, const Slice::ClassDefPtr& TSRMLS_DC);
-bool Ice_ObjectPrx_fetch(zval*, Ice::ObjectPrx&, Slice::ClassDefPtr& TSRMLS_DC);
-
-//
-// Class entry.
-//
-extern zend_class_entry* Ice_ObjectPrx_entry_ptr;
-
 //
 // Ice_ObjectPrx class methods.
 //
@@ -57,9 +47,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_secure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
-//ZEND_FUNCTION(Ice_ObjectPrx_ice_router);
-//ZEND_FUNCTION(Ice_ObjectPrx_ice_locator);
-//ZEND_FUNCTION(Ice_ObjectPrx_ice_collocationOptimization);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_default);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_flush);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
@@ -95,5 +82,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
     ZEND_FE(Ice_ObjectPrx_ice_flush,             NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
+
+namespace IcePHP
+{
+
+bool proxyInit(TSRMLS_D);
+
+bool createProxy(zval*, const Ice::ObjectPrx& TSRMLS_DC);
+bool createProxy(zval*, const Ice::ObjectPrx&, const Slice::ClassDefPtr& TSRMLS_DC);
+bool fetchProxy(zval*, Ice::ObjectPrx&, Slice::ClassDefPtr& TSRMLS_DC);
+
+//
+// Class entry.
+//
+extern zend_class_entry* proxyClassEntry;
+
+} // End of namespace IcePHP
 
 #endif
