@@ -69,6 +69,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
+    cout << "testing checked cast with context... " << flush;
+    string cref = "test:default -p 12346 -t 10000";
+    Ice::ObjectPrx cbase = communicator->stringToProxy(cref);
+    test(cbase);
+
+    Test::TestCheckedCastPrx tccp = Test::TestCheckedCastPrx::checkedCast(cbase);
+    Ice::Context c = tccp->getContext();
+    test(c.size() == 0);
+
+    c["one"] = "hello";
+    c["two"] = "world";
+    tccp = Test::TestCheckedCastPrx::checkedCast(cbase, c);
+    Ice::Context c2 = tccp->getContext();
+    test(c == c2);
+    cout << "ok" << endl;
+
     cout << "testing twoway operations... " << flush;
     void twoways(const Test::MyClassPrx&);
     twoways(cl);

@@ -75,6 +75,39 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
     return 0;
 }
 
+::Ice::ObjectPrx
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& ctx)
+{
+//
+// Without this work-around, release VC7.0 build crash when FacetNotExistException
+// is raised
+//
+#if defined(_MSC_VER) && (_MSC_VER == 1300)
+    ObjectPrx fooBar;
+#endif
+
+    if(b)
+    {
+	ObjectPrx bb = b->ice_newFacet(f);
+	try
+	{
+	    if(bb->ice_isA(typeId, ctx))
+	    {
+		return bb;
+	    }
+#ifndef NDEBUG
+	    else
+	    {
+		assert(typeId != "::Ice::Object");
+	    }
+#endif
+	}
+	catch(const FacetNotExistException&)
+	{
+	}
+    }
+    return 0;
+}
 
 bool
 IceProxy::Ice::Object::operator==(const Object& r) const

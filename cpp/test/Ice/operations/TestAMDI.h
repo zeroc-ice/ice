@@ -138,4 +138,36 @@ private:
     IceUtil::ThreadPtr _opVoidThread;
 };
 
+class AMD_TestCheckedCast_getContextI : Test::AMD_TestCheckedCast_getContext
+{
+};
+
+class TestCheckedCastI : public Test::TestCheckedCast
+{
+public:
+
+    virtual void TestCheckedCastI::getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb,
+                                                    const Ice::Current&);
+    void setContext(const Ice::Context& c);
+
+private:
+    Ice::Context _ctx;
+};
+
+typedef IceUtil::Handle<TestCheckedCastI> TestCheckedCastIPtr;
+
+class CheckedCastLocator : public Ice::ServantLocator
+{
+public:
+
+    CheckedCastLocator();
+    virtual Ice::ObjectPtr locate(const Ice::Current& c, Ice::LocalObjectPtr&);
+    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
+    virtual void deactivate(const ::std::string&);
+
+private:
+
+    TestCheckedCastIPtr _servant;
+};
+
 #endif

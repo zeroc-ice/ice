@@ -17,6 +17,7 @@ namespace IceInternal
 {
 
 template<typename T> class ProxyHandle;
+template<typename T> class Handle;
 
 }
 
@@ -35,6 +36,10 @@ namespace Ice
 
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
+class ObjectAdapter;
+typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
+
+typedef ::std::map< ::std::string, ::std::string> Context;
 }
 
 namespace IceInternal
@@ -44,10 +49,16 @@ template<typename P> P
 checkedCastImpl(const ::Ice::ObjectPrx&);
 
 template<typename P> P 
-uncheckedCastImpl(const ::Ice::ObjectPrx&);
+checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
 
 template<typename P> P 
-checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+checkedCastImpl(const ::Ice::ObjectPrx&, const ::Ice::Context&);
+
+template<typename P> P 
+checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const ::Ice::Context&);
+
+template<typename P> P 
+uncheckedCastImpl(const ::Ice::ObjectPrx&);
 
 template<typename P> P
 uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
@@ -57,6 +68,12 @@ uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
 //
 template<typename T, typename Y> inline ProxyHandle<T> 
 checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*)
+{
+    return b;
+}
+
+template<typename T, typename Y> inline ProxyHandle<T> 
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*, const ::Ice::Context&)
 {
     return b;
 }
@@ -74,6 +91,18 @@ template<typename T, typename Y> inline ProxyHandle<T>
 checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
 {
     return checkedCastImpl<ProxyHandle<T> >(b);
+}
+
+template<typename T, typename Y> inline ProxyHandle<T> 
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& ctx)
+{
+    return checkedCastImpl<ProxyHandle<T> >(b, ctx);
+}
+
+template<typename T, typename Y> inline ProxyHandle<T> 
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void* v, const ::Ice::Context& ctx)
+{
+    return checkedCastImpl<ProxyHandle<T> >(b, v, ctx);
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
@@ -242,6 +271,19 @@ public:
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
 	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f);
+    }
+
+    template<class Y>
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const ::Ice::Context& ctx)
+    {
+	Y* tag = 0;
+	return ::IceInternal::checkedCastHelper<T>(r, ctx);
+    }
+
+    template<class Y>
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f, const ::Ice::Context& ctx)
+    {
+	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
     }
 
     template<class Y>
