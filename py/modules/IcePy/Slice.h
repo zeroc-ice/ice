@@ -10,7 +10,7 @@
 #ifndef ICEPY_SLICE_H
 #define ICEPY_SLICE_H
 
-#include <Python.h>
+#include <Config.h>
 
 extern "C" PyObject* IcePy_loadSlice(PyObject*, PyObject*);
 

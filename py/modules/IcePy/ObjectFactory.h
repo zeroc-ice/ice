@@ -10,7 +10,7 @@
 #ifndef ICEPY_OBJECT_FACTORY_H
 #define ICEPY_OBJECT_FACTORY_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectFactory.h>
 #include <IceUtil/Mutex.h>

@@ -10,7 +10,7 @@
 #ifndef ICEPY_UTIL_H
 #define ICEPY_UTIL_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Current.h>
 #include <Ice/Exception.h>

@@ -10,7 +10,7 @@
 #ifndef ICEPY_PROXY_H
 #define ICEPY_PROXY_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/ProxyF.h>
 #include <Ice/CommunicatorF.h>
 

@@ -10,7 +10,7 @@
 #ifndef ICEPY_TYPES_H
 #define ICEPY_TYPES_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Util.h>
 #include <Ice/Stream.h>
 #include <IceUtil/OutputUtil.h>

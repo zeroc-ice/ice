@@ -10,7 +10,7 @@
 #ifndef ICEPY_LOGGER_H
 #define ICEPY_LOGGER_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/LoggerF.h>
 
 namespace IcePy

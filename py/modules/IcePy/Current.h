@@ -10,7 +10,7 @@
 #ifndef ICEPY_CURRENT_H
 #define ICEPY_CURRENT_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/Current.h>
 
 namespace IcePy

@@ -16,6 +16,8 @@
 # the system.
 #
 PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
+PYTHON_INCLUDE_DIR	= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
+PYTHON_LIB_DIR		= $(PYTHON_HOME)/lib
 PYTHON_LIBS		= -F$(PYTHON_LIB_DIR) -framework Python
 
 CXX	                = c++

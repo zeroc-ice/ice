@@ -10,7 +10,7 @@
 #ifndef ICEPY_OPERATION_H
 #define ICEPY_OPERATION_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Current.h>
 #include <Ice/Object.h>

@@ -10,7 +10,7 @@
 #ifndef ICEPY_CONNECTION_H
 #define ICEPY_CONNECTION_H
 
-#include <Python.h>
+#include <Config.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/CommunicatorF.h>
 
