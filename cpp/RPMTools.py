@@ -49,6 +49,8 @@ class Package:
 	ofile.write("\n")
 	if installDir <> "":
 	    ofile.write("BuildRoot: " + installDir + "\n")
+	else:
+	    ofile.write('BuildRoot: /var/tmp/Ice-' + version + '-' + release + '-buildroot\n')
 	ofile.write("\n")
 	ofile.write("%description\n")
 	ofile.write("\n")
@@ -277,7 +279,7 @@ fileLists = [
                "Development/Libraries",
                "",
 	       "",
-               [("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
+               [("lib", "lib/IcePy.so.VERSION"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python = %version%",
                "Ice tools for developing Ice applications in Python",
@@ -285,6 +287,7 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2py"),
+	        ("lib", "lib/IcePy.so"),
 	        ("dir", "share/doc/Ice-%version%/demopy")])
     ]
 
@@ -474,7 +477,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/doc
 cd $RPM_BUILD_DIR/Ice-%{version}
 gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice.jar
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT/usr
 cd $RPM_BUILD_DIR/IcePy-%{version}
 gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
 cd $RPM_BUILD_DIR/IceCS-%{version}
@@ -492,29 +495,29 @@ def writeTransformCommands(ofile, version):
     for type, source, dest in transforms:
 	dest = dest.replace('%version%', version)
 	if type == 'file':
-	    ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
-	    ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+	    ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
+	    ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
 	elif type == 'dir':
 	    if os.path.dirname(dest) <> '' and source.split('/')[0] == dest.split('/')[0]:
 		ofile.write('mkdir -p $RPM_BUILD_ROOT/arraftmp\n')
-		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/arraftmp/' + source + '\n')
-		ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
-		ofile.write('mv $RPM_BUILD_ROOT/arraftmp/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/arraftmp/' + source + '\n')
+		ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/arraftmp/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
 		ofile.write('rm -rf $RPM_BUILD_ROOT/arraftmp\n')
 	    elif os.path.dirname(dest) <> '':
-		ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
-		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+		ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
 	    else:
-		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
 
 def writeDemoPkgCommands(ofile, version):
     ofile.write('#\n')
     ofile.write('# Extract the contents of the demo packaged into the installed location.\n')
     ofile.write('#\n')
-    ofile.write('mkdir -p $RPM_BUILD_ROOT/share/doc/Ice-%{version}\n')
-    ofile.write('tar xvfz $RPM_SOURCE_DIR/Ice-%{version}-demos.tar.gz -C $RPM_BUILD_ROOT/share/doc\n')
-    ofile.write('cp -pR $RPM_BUILD_ROOT/share/doc/Ice-%{version}-demos/* $RPM_BUILD_ROOT/share/doc/Ice-%{version}\n')
-    ofile.write('rm -rf $RPM_BUILD_ROOT/share/doc/Ice-%{version}-demos\n')
+    ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
+    ofile.write('tar xvfz $RPM_SOURCE_DIR/Ice-%{version}-demos.tar.gz -C $RPM_BUILD_ROOT/usr/share/doc\n')
+    ofile.write('cp -pR $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos/* $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
+    ofile.write('rm -rf $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos\n')
 	
 if __name__ == "main":
     print 'Ice RPM Tools module'
