@@ -212,7 +212,7 @@ const Int64 Int64Min = INT64_MIN;
 #   else
 const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 #   endif
-#   ifdef INT64_MIN
+#   ifdef INT64_MAX
 const Int64 Int64Max = INT64_MAX;
 #   else
 const Int64 Int64Max = 0x7fffffffffffffffLL;
