@@ -74,6 +74,15 @@ IceInternal::TcpAcceptor::accept(int timeout)
     return new TcpTransceiver(_instance, fd);
 }
 
+void
+IceInternal::TcpAcceptor::connectToSelf()
+{
+    SOCKET fd = createSocket(false);
+    setBlock(fd, false);
+    doConnect(fd, _addr, -1);
+    closeSocket(fd);
+}
+
 string
 IceInternal::TcpAcceptor::toString() const
 {

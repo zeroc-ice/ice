@@ -33,6 +33,7 @@ public:
     virtual void close();
     virtual void listen();
     virtual TransceiverPtr accept(int);
+    virtual void connectToSelf();
     virtual std::string toString() const;
 
     bool equivalent(const std::string&, int) const;

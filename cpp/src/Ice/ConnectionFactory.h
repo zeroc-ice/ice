@@ -119,7 +119,8 @@ private:
 	IncomingConnectionFactoryPtr _factory;
     };
     friend class ThreadPerAcceptor;
-    
+    IceUtil::ThreadPtr _threadPerAcceptor;
+
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;

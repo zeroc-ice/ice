@@ -74,6 +74,15 @@ IceSSL::SslAcceptor::accept(int timeout)
     return _plugin->createTransceiver(IceSSL::Server, fd, timeout);
 }
 
+void
+IceSSL::SslAcceptor::connectToSelf()
+{
+    SOCKET fd = createSocket(false);
+    setBlock(fd, false);
+    doConnect(fd, _addr, -1);
+    closeSocket(fd);
+}
+
 string
 IceSSL::SslAcceptor::toString() const
 {

@@ -147,6 +147,8 @@ private:
 	ConnectionIPtr _connection;
     };
     friend class ThreadPerConnection;
+    // Defined as mutable because "isFinished() const" sets this to 0.
+    mutable IceUtil::ThreadPtr _threadPerConnection;
 
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
