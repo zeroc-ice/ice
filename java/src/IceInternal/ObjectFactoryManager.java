@@ -24,7 +24,7 @@ public final class ObjectFactoryManager
 	{
 	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 	    ex.id = id;
-	    ex.kindOfObject = "user exception factory";
+	    ex.kindOfObject = "object factory";
 	    throw ex;
 	}
         _factoryMap.put(id, factory);
@@ -38,9 +38,12 @@ public final class ObjectFactoryManager
 	{
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.id = id;
-	    ex.kindOfObject = "user exception factory";
+	    ex.kindOfObject = "object factory";
 	    throw ex;
 	}
+
+        ((Ice.ObjectFactory)o).destroy();
+
         _factoryMap.remove(id);
     }
 
@@ -57,7 +60,7 @@ public final class ObjectFactoryManager
     {
     }
 
-    void
+    synchronized void
     destroy()
     {
         java.util.Iterator i = _factoryMap.values().iterator();

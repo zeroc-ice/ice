@@ -25,28 +25,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     clone()
         throws java.lang.CloneNotSupportedException
     {
-        //
-        // Use super.clone() to perform a shallow copy of all members,
-        // and then clone the facets manually.
-        //
-        ObjectImpl result = (ObjectImpl)super.clone();
-
-        result._activeFacetMap = new java.util.HashMap();
-        synchronized(_activeFacetMap)
-        {
-            if(!_activeFacetMap.isEmpty())
-            {
-                java.util.Iterator p = _activeFacetMap.entrySet().iterator();
-                while(p.hasNext())
-                {
-                    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-                    Object facet = (Object)e.getValue();
-                    result._activeFacetMap.put(e.getKey(), facet.clone());
-                }
-            }
-        }
-
-        return result;
+        return super.clone();
     }
 
     public int
@@ -120,27 +99,6 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         return IceInternal.DispatchStatus.DispatchOK;
     }
 
-    public final String[]
-    ice_facets(Current current)
-    {
-        synchronized(_activeFacetMap)
-        {
-	    java.util.Set keySet = _activeFacetMap.keySet();
-	    String[] v = new String[keySet.size()];
-	    keySet.toArray(v);
-	    return v;
-	}
-    }
-
-    public static IceInternal.DispatchStatus
-    ___ice_facets(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
-    {
-        IceInternal.BasicStream __os = __in.os();
-        String[] __ret = __obj.ice_facets(__current);
-        __os.writeStringSeq(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
-    }
-
     public static String
     ice_staticId()
     {
@@ -159,7 +117,6 @@ public class ObjectImpl implements Object, java.lang.Cloneable
 
     private final static String[] __all =
     {
-        "ice_facets",
         "ice_id",
         "ice_ids",
         "ice_isA",
@@ -179,21 +136,17 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         {
             case 0:
             {
-                return ___ice_facets(this, in, current);
+                return ___ice_id(this, in, current);
             }
             case 1:
             {
-                return ___ice_id(this, in, current);
+                return ___ice_ids(this, in, current);
             }
             case 2:
             {
-                return ___ice_ids(this, in, current);
-            }
-            case 3:
-            {
                 return ___ice_isA(this, in, current);
             }
-            case 4:
+            case 3:
             {
                 return ___ice_ping(this, in, current);
             }
@@ -204,161 +157,31 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public void
-    __write(IceInternal.BasicStream __os, boolean __marshalFacets)
+    __write(IceInternal.BasicStream __os)
     {
         __os.writeTypeId(ice_staticId());
         __os.startWriteSlice();
-
-        if(__marshalFacets)
-        {
-            synchronized(_activeFacetMap)
-            {
-                final int sz = _activeFacetMap.size();
-                __os.writeSize(sz);
-
-                java.util.Set set = _activeFacetMap.keySet();
-                String[] keys = new String[sz];
-                set.toArray(keys);
-                for(int i = 0; i < sz; i++)
-                {
-                    __os.writeString(keys[i]);
-                    __os.writeObject((Object)_activeFacetMap.get(keys[i]));
-                }
-            }
-        }
-        else
-        {
-            __os.writeSize(0);
-        }
-
+        __os.writeSize(0); // For compatibility with the old AFM.
         __os.endWriteSlice();
-    }
-
-    private class Patcher implements IceInternal.Patcher
-    {
-	Patcher(String key)
-	{
-	   __key = key;
-	}
-
-        public void
-	patch(Ice.Object v)
-	{
-	    _activeFacetMap.put(__key, v);
-	}
-
-	public String
-	type()
-	{
-	    return ice_staticId();
-	}
-
-	private String __key;
     }
 
     public void
     __read(IceInternal.BasicStream __is, boolean __rid)
     {
-        synchronized(_activeFacetMap)
+        if(__rid)
         {
-	    if(__rid)
-	    {
-	        String myId = __is.readTypeId();
-	    }
-
-	    __is.startReadSlice();
-
-            int sz = __is.readSize();
-
-            _activeFacetMap.clear();
-
-            while(sz-- > 0)
-            {
-                String key = __is.readString();
-		__is.readObject(new Patcher(key));
-            }
-
-	    __is.endReadSlice();
+            String myId = __is.readTypeId();
         }
-    }
 
-    public final void
-    ice_addFacet(Object facet, String name)
-    {
-        synchronized(_activeFacetMap)
+        __is.startReadSlice();
+
+        // For compatibility with the old AFM.
+        int sz = __is.readSize();
+        if(sz != 0)
         {
-	    Object o = (Object)_activeFacetMap.get(name);
-	    if(o != null)
-	    {
-	        Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = name;
-		ex.kindOfObject = "facet";
-		throw ex;
-	    }
-            _activeFacetMap.put(name, facet);
+            throw new MarshalException();
         }
+
+        __is.endReadSlice();
     }
-
-    public final Object
-    ice_removeFacet(String name)
-    {
-        synchronized(_activeFacetMap)
-        {
-	    Object o = (Object)_activeFacetMap.get(name);
-	    if(o == null)
-	    {
-	        Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-		ex.id = name;
-		ex.kindOfObject = "facet";
-		throw ex;
-	    }
-            return (Object)_activeFacetMap.remove(name);
-        }
-    }
-
-    public final void
-    ice_removeAllFacets()
-    {
-        synchronized(_activeFacetMap)
-        {
-            _activeFacetMap.clear();
-        }
-    }
-
-    public final Object
-    ice_findFacet(String name)
-    {
-        synchronized(_activeFacetMap)
-        {
-            return (Object)_activeFacetMap.get(name);
-	}
-    }
-
-    public final Object
-    ice_findFacetPath(String[] path, int start)
-    {
-	int sz = path.length;
-	
-	if(start > sz)
-	{
-	    return null;
-	}
-	
-	if(start == sz)
-	{
-	    return this;
-	}
-
-	Object f = ice_findFacet(path[start]);
-	if(f != null)
-	{
-	    return f.ice_findFacetPath(path, start + 1);
-	}
-	else
-	{
-	    return f;
-        }
-    }
-
-    private java.util.HashMap _activeFacetMap = new java.util.HashMap();
 }

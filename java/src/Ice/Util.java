@@ -131,7 +131,7 @@ public final class Util
         if(slash == -1)
         {
             StringHolder token = new StringHolder();
-            if(!IceInternal.StringUtil.decodeString(s, 0, s.length(), token))
+            if(!IceUtil.StringUtil.unescapeString(s, 0, s.length(), token))
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = s;
@@ -143,7 +143,7 @@ public final class Util
         else
         {
             StringHolder token = new StringHolder();
-            if(!IceInternal.StringUtil.decodeString(s, 0, slash, token))
+            if(!IceUtil.StringUtil.unescapeString(s, 0, slash, token))
             {
                 IdentityParseException ex = new IdentityParseException();
                 ex.str = s;
@@ -152,7 +152,7 @@ public final class Util
             ident.category = token.value;
             if(slash + 1 < s.length())
             {
-                if(!IceInternal.StringUtil.decodeString(s, slash + 1, s.length(), token))
+                if(!IceUtil.StringUtil.unescapeString(s, slash + 1, s.length(), token))
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = s;
@@ -174,12 +174,12 @@ public final class Util
     {
         if(ident.category.length() == 0)
         {
-            return IceInternal.StringUtil.encodeString(ident.name, "/");
+            return IceUtil.StringUtil.escapeString(ident.name, "/");
         }
         else
         {
-            return IceInternal.StringUtil.encodeString(ident.category, "/") + '/' +
-                IceInternal.StringUtil.encodeString(ident.name, "/");
+            return IceUtil.StringUtil.escapeString(ident.category, "/") + '/' +
+                IceUtil.StringUtil.escapeString(ident.name, "/");
         }
     }
 
@@ -265,29 +265,21 @@ public final class Util
 		return n;
 	    }
 	    
-	    String[] lhsFacet = lhs.ice_getFacet();
-	    String[] rhsFacet = rhs.ice_getFacet();
-	    int i;
-	    for(i = 0; i < lhsFacet.length && i < rhsFacet.length; i++)
-	    {
-		if((n = lhsFacet[i].compareTo(rhsFacet[i])) != 0)
-		{
-		    return n;
-		}
-	    }
-	    
-	    if(lhsFacet.length == rhsFacet.length)
-	    {
-		return 0;
-	    }
-	    else if(lhsFacet.length < rhsFacet.length)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
+	    String lhsFacet = lhs.ice_getFacet();
+	    String rhsFacet = rhs.ice_getFacet();
+            if(lhsFacet == null && rhsFacet == null)
+            {
+                return 0;
+            }
+            else if(lhsFacet == null)
+            {
+                return -1;
+            }
+            else if(rhsFacet == null)
+            {
+                return 1;
+            }
+            return lhsFacet.compareTo(rhsFacet);
 	}
     }
 

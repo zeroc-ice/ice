@@ -117,33 +117,6 @@ public class _ObjectDelM implements _ObjectDel
         }
     }
 
-    public String[]
-    ice_facets(java.util.Map __context)
-        throws IceInternal.NonRepeatable
-    {
-        IceInternal.Outgoing __out = getOutgoing("ice_facets", OperationMode.Nonmutating, __context);
-        try
-        {
-            IceInternal.BasicStream __is = __out.is();
-            if(!__out.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readStringSeq();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
-        }
-        finally
-        {
-            reclaimOutgoing(__out);
-        }
-    }
-
     public boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.NonRepeatable

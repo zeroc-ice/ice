@@ -246,7 +246,7 @@ public final class Outgoing
 		// oneway requests as blobs.
 		//
 		_is.startReadEncaps();
-		_state = StateOK;
+		_state = StateOK; // The state must be set last, in case there is an exception.
 		break;
 	    }
 	    
@@ -258,7 +258,7 @@ public final class Outgoing
 		// oneway requests as blobs.
 		//
 		_is.startReadEncaps();
-		_state = StateUserException;
+		_state = StateUserException; // The state must be set last, in case there is an exception.
 		break;
 	    }
 	    
@@ -266,8 +266,6 @@ public final class Outgoing
 	    case DispatchStatus._DispatchFacetNotExist:
 	    case DispatchStatus._DispatchOperationNotExist:
 	    {
-		_state = StateLocalException;
-		
 		Ice.RequestFailedException ex = null;
 		switch((int)status)
 		{
@@ -298,9 +296,20 @@ public final class Outgoing
 		
 		ex.id = new Ice.Identity();
 		ex.id.__read(_is);
-		ex.facet = _is.readStringSeq();
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                String[] facetPath = _is.readStringSeq();
+                if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+                {
+                    ex.facet = facetPath[0];
+                }
+
 		ex.operation = _is.readString();
 		_exception = ex;
+
+		_state = StateLocalException; // The state must be set last, in case there is an exception.
 		break;
 	    }
 	    
@@ -308,8 +317,6 @@ public final class Outgoing
 	    case DispatchStatus._DispatchUnknownLocalException:
 	    case DispatchStatus._DispatchUnknownUserException:
 	    {
-		_state = StateLocalException;
-		
 		Ice.UnknownException ex = null;
 		switch((int)status)
 		{
@@ -340,13 +347,15 @@ public final class Outgoing
 		
 		ex.unknown = _is.readString();
 		_exception = ex;
+
+		_state = StateLocalException; // The state must be set last, in case there is an exception.
 		break;
 	    }
 	    
 	    default:
 	    {
-		_state = StateLocalException;
 		_exception = new Ice.UnknownReplyStatusException();
+		_state = StateLocalException;
 		break;
 	    }
 	}
@@ -400,9 +409,24 @@ public final class Outgoing
         }
 
         _reference.identity.__write(_os);
-        _os.writeStringSeq(_reference.facet);
+
+        //
+        // For compatibility with the old FacetPath.
+        //
+        if(_reference.facet == null)
+        {
+            _os.writeStringSeq(null);
+        }
+        else
+        {
+            String[] facetPath = { _reference.facet };
+            _os.writeStringSeq(facetPath);
+        }
+
         _os.writeString(operation);
+
         _os.writeByte((byte)mode.value());
+
         if(context == null)
         {
             _os.writeSize(0);

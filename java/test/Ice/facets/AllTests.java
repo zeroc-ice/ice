@@ -30,22 +30,22 @@ public class AllTests
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
 	Ice.Object obj = new EmptyI();
         adapter.add(obj, Ice.Util.stringToIdentity("d"));
-	obj.ice_addFacet(obj, "facetABCD");
+	adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
 	boolean gotException = false;
 	try
 	{
-	    obj.ice_addFacet(obj, "facetABCD");
+            adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
 	}
 	catch(Ice.AlreadyRegisteredException ex)
 	{
 	    gotException = true;
 	}
 	test(gotException);
-	obj.ice_removeFacet("facetABCD");
+	adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
 	gotException = false;
 	try
 	{
-	    obj.ice_removeFacet("facetABCD");
+            adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
 	}
 	catch(Ice.NotRegisteredException ex)
 	{
@@ -53,6 +53,8 @@ public class AllTests
 	}
 	test(gotException);
         System.out.println("ok");
+
+        adapter.deactivate();
 
         System.out.print("testing stringToProxy... ");
         System.out.flush();
@@ -94,7 +96,7 @@ public class AllTests
         test(ff.callF().equals("F"));
         System.out.println("ok");
 
-        System.out.print("testing facet G, which is a sub-facet of E and F... ");
+        System.out.print("testing facet G... ");
         System.out.flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
@@ -112,5 +114,3 @@ public class AllTests
         return gf;
     }
 }
-
-

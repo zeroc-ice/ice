@@ -12,7 +12,7 @@
 //
 // **********************************************************************
 
-package IceInternal;
+package IceUtil;
 
 public final class StringUtil
 {
@@ -81,7 +81,7 @@ public final class StringUtil
     }
 
     private static void
-    encodeChar(byte b, StringBuffer s, String special)
+    escapeChar(byte b, StringBuffer s, String special)
     {
         switch(b)
         {
@@ -148,7 +148,7 @@ public final class StringUtil
             else if(special != null && special.indexOf((char)b) != -1)
             {
                 s.append('\\');
-                encodeChar(b, s, null);
+                escapeChar(b, s, null);
             }
             else
             {
@@ -159,11 +159,11 @@ public final class StringUtil
     }
 
     //
-    // Encodes a string into UTF8, escaping all characters outside the range [32-126]
-    // as well as any special characters determined by the caller.
+    // Add escape sequences (like "\n", or "\0xxx") to make a string
+    // readable in ASCII.
     //
     public static String
-    encodeString(String s, String special)
+    escapeString(String s, String special)
     {
         byte[] bytes = null;
         try
@@ -180,20 +180,17 @@ public final class StringUtil
 
         for(int i = 0; i < bytes.length; i++)
         {
-            encodeChar(bytes[i], result, special);
+            escapeChar(bytes[i], result, special);
         }
 
         return result.toString();
     }
 
     //
-    // Decodes a UTF8 string. Decoding starts at the given start position
-    // (inclusive) and stops at the given end position (exclusive). Upon success,
-    // the result parameter holds the decoded string and true is returned.
-    // A return value of false indicates an error was detected in the encoding.
+    // Remove escape sequences added by escapeString.
     //
     public static boolean
-    decodeString(String s, int start, int end, Ice.StringHolder result)
+    unescapeString(String s, int start, int end, Ice.StringHolder result)
     {
         final int len = s.length();
         assert(start >= 0);

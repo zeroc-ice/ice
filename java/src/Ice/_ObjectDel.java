@@ -28,9 +28,6 @@ public interface _ObjectDel
     String ice_id(java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    String[] ice_facets(java.util.Map context)
-        throws IceInternal.NonRepeatable;
-
     boolean ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map context)
         throws IceInternal.NonRepeatable;

@@ -34,7 +34,6 @@ public class BasicStream
 	
 	_traceSlicing = -1;
 
-        _marshalFacets = true;
         _sliceObjects = true;
 
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
@@ -1376,12 +1375,6 @@ public class BasicStream
     }
 
     public void
-    marshalFacets(boolean b)
-    {
-        _marshalFacets = b;
-    }
-
-    public void
     sliceObjects(boolean b)
     {
         _sliceObjects = b;
@@ -1406,7 +1399,7 @@ public class BasicStream
             pw.flush();
             _instance.logger().warning(sw.toString());
         }
-        v.__write(this, _marshalFacets);
+        v.__write(this);
     }
 
     void
@@ -1736,7 +1729,6 @@ public class BasicStream
     private int _traceSlicing;
     private String _slicingCat;
 
-    private boolean _marshalFacets;
     private boolean _sliceObjects;
 
     private int _messageSizeMax;

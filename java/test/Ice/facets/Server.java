@@ -21,16 +21,15 @@ public class Server
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object d = new DI();
         adapter.add(d, Ice.Util.stringToIdentity("d"));
-        d.ice_addFacet(d, "facetABCD");
+        adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
 	Ice.Object f = new FI();
-        d.ice_addFacet(f, "facetEF");
+        adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
 	Ice.Object h = new HI(communicator);
-        f.ice_addFacet(h, "facetGH");
+        adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
 
         adapter.activate();
         communicator.waitForShutdown();
 
-        d.ice_removeAllFacets(); // Break cyclic dependencies
         return 0;
     }
 

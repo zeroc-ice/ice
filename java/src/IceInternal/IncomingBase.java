@@ -94,6 +94,7 @@ public class IncomingBase
 	{
 	    assert(_current.id != null);
 	    _current.adapter = adapter;
+            _current.facet = null;
 
 	    if(_current.ctx != null)
 	    {
@@ -164,8 +165,7 @@ public class IncomingBase
 	out.setUseTab(false);
 	out.print("dispatch exception:");
 	out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	out.print("\nfacet: ");
-	IceInternal.ValueWriter.write(_current.facet, out);
+	out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
 	out.print("\noperation: " + _current.operation);
 	out.print("\n");
 	ex.printStackTrace(pw);

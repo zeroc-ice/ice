@@ -59,7 +59,7 @@ public final class Reference
 	    return false;
 	}
 
-        if(!java.util.Arrays.equals(facet, r.facet))
+        if(!facet.equals(r.facet))
         {
             return false;
         }
@@ -130,7 +130,18 @@ public final class Reference
         // write the identity.
         //
 
-        s.writeStringSeq(facet);
+        //
+        // For compatibility with the old FacetPath.
+        //
+        if(facet == null)
+        {
+            s.writeStringSeq(null);
+        }
+        else
+        {
+            String[] facetPath = { facet };
+            s.writeStringSeq(facetPath);
+        }
 
         s.writeByte((byte)mode);
 
@@ -167,7 +178,7 @@ public final class Reference
         // the identity string in quotes.
         //
         String id = Ice.Util.identityToString(identity);
-        if(StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+        if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
         {
             s.append('"');
             s.append(id);
@@ -178,26 +189,16 @@ public final class Reference
             s.append(id);
         }
 
-        if(facet.length > 0)
+        if(facet != null && facet.length() > 0)
         {
-            StringBuffer f = new StringBuffer();
-            for(int i = 0; i < facet.length ; i++)
-            {
-                f.append(StringUtil.encodeString(facet[i], "/"));
-                if(i < facet.length - 1)
-                {
-                    f.append('/');
-                }
-            }
-
             //
             // If the encoded facet string contains characters which
             // the reference parser uses as separators, then we enclose
             // the facet string in quotes.
             //
             s.append(" -f ");
-            String fs = f.toString();
-            if(StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+            String fs = IceUtil.StringUtil.escapeString(facet, "");
+            if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
             {
                 s.append('"');
                 s.append(fs);
@@ -263,14 +264,14 @@ public final class Reference
 	}
         else
         {
-            String a = StringUtil.encodeString(adapterId, null);
+            String a = IceUtil.StringUtil.escapeString(adapterId, null);
             //
             // If the encoded adapter id string contains characters which
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
             s.append(" @ ");
-            if(StringUtil.findFirstOf(a, " \t\n\r") != -1)
+            if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
             {
                 s.append('"');
                 s.append(a);
@@ -291,7 +292,7 @@ public final class Reference
     final public Instance instance;
     final public Ice.Identity identity;
     final public java.util.Map context;
-    final public String[] facet;
+    final public String facet;
     final public int mode;
     final public boolean secure;
     final public String adapterId;
@@ -337,9 +338,9 @@ public final class Reference
     }
 
     public Reference
-    changeFacet(String[] newFacet)
+    changeFacet(String newFacet)
     {
-        if(java.util.Arrays.equals(facet, newFacet))
+        if(facet.equals(newFacet))
         {
             return this;
         }
@@ -568,7 +569,7 @@ public final class Reference
         RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
         LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 
-        return instance.referenceFactory().create(identity, context, new String[0], ModeTwoway, false, adapterId,
+        return instance.referenceFactory().create(identity, context, "", ModeTwoway, false, adapterId,
 						  endpoints, routerInfo, locatorInfo, null, true);
     }
 
@@ -823,7 +824,7 @@ public final class Reference
     Reference(Instance inst,
               Ice.Identity ident,
 	      java.util.Map ctx,
-              String[] fac,
+              String fac,
               int md,
               boolean sec,
 	      String adptId,
@@ -867,13 +868,10 @@ public final class Reference
 
 	h = 5 * h + context.entrySet().hashCode();
 
-        for(int i = 0; i < facet.length; i++)
-        {
-	    sz = facet[i].length();
-	    for(int j = 0; j < sz; j++)
-	    {
-		h = 5 * h + (int)facet[i].charAt(j);
-	    }
+        sz = facet.length();
+        for(int i = 0; i < sz; i++)
+        {   
+            h = 5 * h + (int)facet.charAt(i);
         }
 
         h = 5 * h + mode;

@@ -19,7 +19,7 @@ public final class ReferenceFactory
     public synchronized Reference
     create(Ice.Identity ident,
            java.util.Map context,
-           String[] facet,
+           String facet,
            int mode,
            boolean secure,
 	   String adapterId,
@@ -90,7 +90,7 @@ public final class ReferenceFactory
         int beg;
         int end = 0;
 
-        beg = StringUtil.findFirstNotOf(s, delim, end);
+        beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
         if(beg == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -103,7 +103,7 @@ public final class ReferenceFactory
         // or double quotation marks.
         //
         String idstr = null;
-        end = StringUtil.checkQuote(s, beg);
+        end = IceUtil.StringUtil.checkQuote(s, beg);
         if(end == -1)
         {
             Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -112,7 +112,7 @@ public final class ReferenceFactory
         }
         else if(end == 0)
         {
-            end = StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
             if(end == -1)
             {
                 end = s.length();
@@ -156,7 +156,7 @@ public final class ReferenceFactory
             // a null proxy, but only if nothing follows the
             // quotes.
             //
-            else if(StringUtil.findFirstNotOf(s, delim, end) != -1)
+            else if(IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = s;
@@ -168,14 +168,14 @@ public final class ReferenceFactory
             }
         }
 
-        java.util.ArrayList facet = new java.util.ArrayList();
+        String facet = "";
         int mode = Reference.ModeTwoway;
         boolean secure = false;
 	String adapter = "";
 
         while(true)
         {
-            beg = StringUtil.findFirstNotOf(s, delim, end);
+            beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
             if(beg == -1)
             {
                 break;
@@ -186,7 +186,7 @@ public final class ReferenceFactory
                 break;
             }
 
-            end = StringUtil.findFirstOf(s, delim + ":@", beg);
+            end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
             if(end == -1)
             {
                 end = s.length();
@@ -211,14 +211,14 @@ public final class ReferenceFactory
             // quotation marks.
             //
             String argument = null;
-            int argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+            int argumentBeg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
             if(argumentBeg != -1)
             {
                 final char ch = s.charAt(argumentBeg);
                 if(ch != '@' && ch != ':' && ch != '-')
                 {
                     beg = argumentBeg;
-                    end = StringUtil.checkQuote(s, beg);
+                    end = IceUtil.StringUtil.checkQuote(s, beg);
                     if(end == -1)
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -227,7 +227,7 @@ public final class ReferenceFactory
                     }
                     else if(end == 0)
                     {
-                        end = StringUtil.findFirstOf(s, delim + ":@", beg);
+                        end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
                         if(end == -1)
                         {
                             end = s.length();
@@ -258,56 +258,15 @@ public final class ReferenceFactory
 			throw e;
                     }
 
-                    final int argLen = argument.length();
-                    Ice.StringHolder token = new Ice.StringHolder();
-
-                    int argBeg = 0;
-                    while(argBeg < argLen)
-                    {
-                        //
-                        // Skip slashes
-                        //
-                        argBeg = StringUtil.findFirstNotOf(argument, "/", argBeg);
-                        if(argBeg == -1)
-                        {
-                            break;
-                        }
-
-                        //
-                        // Find unescaped slash
-                        //
-                        int argEnd = argBeg;
-                        while((argEnd = argument.indexOf('/', argEnd)) != -1)
-                        {
-                            if(argument.charAt(argEnd - 1) != '\\')
-                            {
-                                break;
-                            }
-                            argEnd++;
-                        }
-
-                        if(argEnd == -1)
-                        {
-                            argEnd = argLen;
-                        }
-
-                        if(!IceInternal.StringUtil.decodeString(argument, argBeg, argEnd, token))
-                        {
-                            Ice.ProxyParseException e = new Ice.ProxyParseException();
-			    e.str = s;
-			    throw e;
-                        }
-                        facet.add(token.value);
-                        argBeg = argEnd + 1;
-                    }
-
-                    if(facet.size() == 0)
+                    Ice.StringHolder facetH = new Ice.StringHolder();
+                    if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.length(), facetH))
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
 			e.str = s;
 			throw e;
                     }
 
+                    facet = facetH.value;
                     break;
                 }
 
@@ -416,7 +375,7 @@ public final class ReferenceFactory
 	    }
 	    else if(s.charAt(beg) == '@')
 	    {
-                beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
+                beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
                 if(beg == -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -424,7 +383,7 @@ public final class ReferenceFactory
 		    throw e;
                 }
 
-                end = StringUtil.checkQuote(s, beg);
+                end = IceUtil.StringUtil.checkQuote(s, beg);
                 if(end == -1)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -433,7 +392,7 @@ public final class ReferenceFactory
                 }
                 else if(end == 0)
                 {
-                    end = StringUtil.findFirstOf(s, delim, beg);
+                    end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
                     if(end == -1)
                     {
                         end = s.length();
@@ -445,7 +404,7 @@ public final class ReferenceFactory
                 }
 
                 Ice.StringHolder token = new Ice.StringHolder();
-                if(!IceInternal.StringUtil.decodeString(s, beg, end, token) || token.value.length() == 0)
+                if(!IceUtil.StringUtil.unescapeString(s, beg, end, token) || token.value.length() == 0)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
 		    e.str = s;
@@ -458,13 +417,10 @@ public final class ReferenceFactory
         Endpoint[] endp = new Endpoint[endpoints.size()];
         endpoints.toArray(endp);
 
-        String[] fac = new String[facet.size()];
-        facet.toArray(fac);
-
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, new java.util.HashMap(), fac, mode, secure,
-	              adapter, endp, routerInfo, locatorInfo, null, true);
+        return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, endp, routerInfo, locatorInfo,
+                      null, true);
     }
 
     public Reference
@@ -480,7 +436,15 @@ public final class ReferenceFactory
             return null;
         }
 
-        String[] facet = s.readStringSeq();
+        //
+        // For compatibility with the old FacetPath.
+        //
+        String[] facetPath = s.readStringSeq();
+        String facet = null;
+        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+        {
+            facet = facetPath[0];
+        }
 
         int mode = (int)s.readByte();
         if(mode < 0 || mode > Reference.ModeLast)

@@ -39,15 +39,6 @@ public final class InitialI extends Initial
     }
 
     public void
-    addFacetsToB1(Ice.Current current)
-    {
-        _b1.ice_addFacet(_b1, "b1");
-        _b1.ice_addFacet(_b2, "b2");
-        _b2.ice_addFacet(_c, "c");
-        _b2.ice_addFacet(_d, "d");
-    }
-
-    public void
     getAll(BHolder b1, BHolder b2, CHolder c, DHolder d, Ice.Current current)
     {
         _b1.preMarshalInvoked = false;
@@ -101,24 +92,6 @@ public final class InitialI extends Initial
     shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
-
-        //
-        // Break cyclic dependencies
-        //
-        _b1.theA = null;
-        _b1.theB = null;
-        _b1.theC = null;
-        _b1.ice_removeAllFacets();
-        _b2.theA = null;
-        _b2.theB = null;
-        _b2.theC = null;
-        _b2.ice_removeAllFacets();
-        _c.theB = null;
-        _c.ice_removeAllFacets();
-        _d.theA = null;
-        _d.theB = null;
-        _d.theC = null;
-        _d.ice_removeAllFacets();
     }
 
     private Ice.ObjectAdapter _adapter;

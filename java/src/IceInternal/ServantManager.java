@@ -17,45 +17,105 @@ package IceInternal;
 public final class ServantManager extends Thread
 {
     public synchronized void
-    addServant(Ice.Object servant, Ice.Identity ident)
+    addServant(Ice.Object servant, Ice.Identity ident, String facet)
     {
 	assert(_instance != null); // Must not be called after destruction.
-	
-	Ice.Object o = (Ice.Object)_servantMap.get(ident);
-	if(o != null)
-	{
-	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-	    ex.id = Ice.Util.identityToString(ident);
-	    ex.kindOfObject = "servant";
-	    throw ex;
-	}
 
-        _servantMap.put(ident, servant);
+        if(facet == null)
+        {
+            facet = "";
+        }
+
+        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        if(m == null)
+        {
+            m = new java.util.HashMap();
+            _servantMap.put(ident, m);
+        }
+        else
+        {
+            if(m.containsKey(facet))
+            {
+                Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+                ex.id = Ice.Util.identityToString(ident);
+                ex.kindOfObject = "servant";
+                if(facet.length() > 0)
+                {
+                    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+                }
+                throw ex;
+            }
+        }
+
+        m.put(facet, servant);
     }
 
     public synchronized void
-    removeServant(Ice.Identity ident)
+    removeServant(Ice.Identity ident, String facet)
     {
 	assert(_instance != null); // Must not be called after destruction.
-	
-	Ice.Object o = (Ice.Object)_servantMap.get(ident);
-	if(o == null)
+
+        if(facet == null)
+        {
+            facet = "";
+        }
+
+        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        Ice.Object obj = null;
+        if(m == null || (obj = (Ice.Object)m.get(facet)) == null)
 	{
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.id = Ice.Util.identityToString(ident);
 	    ex.kindOfObject = "servant";
+            if(facet.length() > 0)
+            {
+                ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
+            }
 	    throw ex;
 	}
 
-        _servantMap.remove(ident);
+        m.remove(facet);
+        if(m.isEmpty())
+        {
+            _servantMap.remove(ident);
+        }
     }
 
     public synchronized Ice.Object
-    findServant(Ice.Identity ident)
+    findServant(Ice.Identity ident, String facet)
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-        return (Ice.Object)_servantMap.get(ident);
+        if(facet == null)
+        {
+            facet = "";
+        }
+
+        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        Ice.Object obj = null;
+        if(m != null)
+        {
+            obj = (Ice.Object)m.get(facet);
+        }
+
+        return obj;
+    }
+
+    public synchronized boolean
+    hasServant(Ice.Identity ident)
+    {
+	assert(_instance != null); // Must not be called after destruction.
+
+        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        if(m == null)
+        {
+            return false;
+        }
+        else
+        {
+            assert(!m.isEmpty());
+            return true;
+        }
     }
 
     public synchronized void
@@ -67,7 +127,7 @@ public final class ServantManager extends Thread
 	if(l != null)
 	{
 	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-	    ex.id = category;
+	    ex.id = IceUtil.StringUtil.escapeString(category, "");
 	    ex.kindOfObject = "servant locator";
 	    throw ex;
 	}

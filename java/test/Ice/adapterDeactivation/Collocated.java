@@ -24,19 +24,7 @@ public class Collocated
             Ice.ServantLocator locator = new ServantLocatorI();
             adapter.addServantLocator(locator, "");
 
-            TestPrx obj = AllTests.allTests(communicator());
-
-            System.out.print("testing whether server is gone... ");
-            System.out.flush();
-            try
-            {
-                obj.ice_ping();
-                throw new RuntimeException();
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.out.println("ok");
-            }
+            AllTests.allTests(communicator());
 
             adapter.waitForDeactivate();
             return 0;

@@ -15,6 +15,18 @@
 public final class TestI extends _TestDisp
 {
     public void
+    _transient(Ice.Current current)
+    {
+        Ice.Communicator communicator = current.adapter.getCommunicator();
+
+        Ice.ObjectAdapter adapter =
+            communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+        adapter.activate();
+        adapter.deactivate();
+        adapter.waitForDeactivate();
+    }
+
+    public void
     deactivate(Ice.Current current)
     {
         current.adapter.deactivate();

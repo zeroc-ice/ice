@@ -67,7 +67,16 @@ final public class Incoming extends IncomingBase
 	// Read the current.
 	//
         _current.id.__read(_is);
-        _current.facet = _is.readStringSeq();
+
+        //
+        // For compatibility with the old FacetPath.
+        //
+        String[] facetPath = _is.readStringSeq();
+        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+        {
+            _current.facet = facetPath[0];
+        }
+
         _current.operation = _is.readString();
         _current.mode = Ice.OperationMode.convert(_is.readByte());
         int sz = _is.readSize();
@@ -103,7 +112,7 @@ final public class Incoming extends IncomingBase
         {
 	    if(servantManager != null)
 	    {
-		_servant = servantManager.findServant(_current.id);
+		_servant = servantManager.findServant(_current.id, _current.facet);
 		
 		if(_servant == null && _current.id.category.length() > 0)
 		{
@@ -126,26 +135,18 @@ final public class Incoming extends IncomingBase
 
             if(_servant == null)
             {
-                status = DispatchStatus.DispatchObjectNotExist;
-            }
-            else
-            {
-                if(_current.facet.length > 0)
+                if(servantManager.hasServant(_current.id))
                 {
-                    Ice.Object facetServant = _servant.ice_findFacetPath(_current.facet, 0);
-                    if(facetServant == null)
-                    {
-                        status = DispatchStatus.DispatchFacetNotExist;
-                    }
-                    else
-                    {
-                        status = facetServant.__dispatch(this, _current);
-                    }
+                    status = DispatchStatus.DispatchFacetNotExist;
                 }
                 else
                 {
-                    status = _servant.__dispatch(this, _current);
+                    status = DispatchStatus.DispatchObjectNotExist;
                 }
+            }
+            else
+            {
+                status = _servant.__dispatch(this, _current);
             }
         }
         catch(Ice.RequestFailedException ex)
@@ -191,7 +192,20 @@ final public class Incoming extends IncomingBase
 		    assert(false);
 		}
 		ex.id.__write(_os);
-		_os.writeStringSeq(ex.facet);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(ex.facet == null)
+                {
+                    _os.writeStringSeq(null);
+                }
+                else
+                {
+                    String[] facetPath2 = { ex.facet };
+                    _os.writeStringSeq(facetPath2);
+                }
+
 		_os.writeString(ex.operation);
             }
 
@@ -287,7 +301,20 @@ final public class Incoming extends IncomingBase
 		_os.writeByte((byte)status.value());
 		
 		_current.id.__write(_os);
-		_os.writeStringSeq(_current.facet);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(_current.facet == null)
+                {
+                    _os.writeStringSeq(null);
+                }
+                else
+                {
+                    String[] facetPath2 = { _current.facet };
+                    _os.writeStringSeq(facetPath2);
+                }
+
 		_os.writeString(_current.operation);
 	    }
 	    else

@@ -294,14 +294,10 @@ final class TraceUtil
 
             String[] facet = stream.readStringSeq();
             out.write("\nfacet = ");
-	    for(int i = 0; i < facet.length ; i++)
-	    {
-		out.write(StringUtil.encodeString(facet[i], "/"));
-		if(i < facet.length - 1)
-		{
-		    out.write('/');
-		}
-	    }
+            if(facet.length > 0)
+            {
+		out.write(IceUtil.StringUtil.escapeString(facet[0], ""));
+            }
 
             String operation = stream.readString();
             out.write("\noperation = " + operation);

@@ -30,9 +30,6 @@ public interface ObjectPrx
     String ice_id();
     String ice_id(java.util.Map __context);
 
-    String[] ice_facets();
-    String[] ice_facets(java.util.Map __context);
-
     // Returns true if ok, false if user exception.
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams);
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
@@ -48,9 +45,8 @@ public interface ObjectPrx
     java.util.Map ice_getContext();
     ObjectPrx ice_newContext(java.util.Map newContext);
 
-    String[] ice_getFacet();
-    ObjectPrx ice_newFacet(String[] newFacet);
-    ObjectPrx ice_appendFacet(String f);
+    String ice_getFacet();
+    ObjectPrx ice_newFacet(String newFacet);
 
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();

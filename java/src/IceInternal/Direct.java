@@ -38,7 +38,7 @@ public final class Direct
 
         try
         {
-	    _servant = servantManager.findServant(_current.id);
+	    _servant = servantManager.findServant(_current.id, _current.facet);
 	    
 	    if(_servant == null && _current.id.category.length() > 0)
 	    {
@@ -62,25 +62,23 @@ public final class Direct
 	    
 	    if(_servant == null)
 	    {
-		Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-		ex.id = _current.id;
-		ex.facet = _current.facet;
-		ex.operation = _current.operation;
-		throw ex;
-	    }
-	    
-            if(_current.facet.length > 0)
-            {
-                _facetServant = _servant.ice_findFacetPath(_current.facet, 0);
-                if(_facetServant == null)
+                if(servantManager.hasServant(_current.id))
                 {
-		    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-		    ex.id = _current.id;
-		    ex.facet = _current.facet;
-		    ex.operation = _current.operation;
-		    throw ex;
+                    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
+                    ex.id = _current.id;
+                    ex.facet = _current.facet;
+                    ex.operation = _current.operation;
+                    throw ex;
                 }
-            }
+                else
+                {
+                    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+                    ex.id = _current.id;
+                    ex.facet = _current.facet;
+                    ex.operation = _current.operation;
+                    throw ex;
+                }
+	    }
         }
         catch(RuntimeException ex)
         {
@@ -119,21 +117,13 @@ public final class Direct
     }
 
     public Ice.Object
-    facetServant()
+    servant()
     {
-        if(_facetServant != null)
-        {
-            return _facetServant;
-        }
-        else
-        {
-            return _servant;
-        }
+        return _servant;
     }
 
     private final Ice.Current _current;
     private Ice.Object _servant;
-    private Ice.Object _facetServant;
     private Ice.ServantLocator _locator;
     private Ice.LocalObjectHolder _cookie;
 }

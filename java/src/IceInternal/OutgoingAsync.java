@@ -46,56 +46,96 @@ public abstract class OutgoingAsync
 		    }
 		    
 		    case DispatchStatus._DispatchObjectNotExist:
-		    {
-			Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readStringSeq();
-			ex.operation = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus._DispatchFacetNotExist:
-		    {
-			Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readStringSeq();
-			ex.operation = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus._DispatchOperationNotExist:
 		    {
-			Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readStringSeq();
-			ex.operation = __is.readString();
+			Ice.Identity id = new Ice.Identity();
+			id.__read(__is);
+
+                        //
+                        // For compatibility with the old FacetPath.
+                        //
+                        String[] facetPath = __is.readStringSeq();
+                        String facet = null;
+                        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+                        {
+                            facet = facetPath[0];
+                        }
+
+			String operation = __is.readString();
+
+			Ice.RequestFailedException ex = null;
+                        switch(status)
+                        {
+                        case DispatchStatus._DispatchObjectNotExist:
+                        {
+                            ex = new Ice.ObjectNotExistException();
+                            break;
+                        }
+
+                        case DispatchStatus._DispatchFacetNotExist:
+                        {
+                            ex = new Ice.FacetNotExistException();
+                            break;
+                        }
+
+                        case DispatchStatus._DispatchOperationNotExist:
+                        {
+                            ex = new Ice.OperationNotExistException();
+                            break;
+                        }
+
+                        default:
+                        {
+                            assert(false);
+                            break;
+                        }
+                        }
+
+			ex.id = id;
+			ex.facet = facet;
+			ex.operation = operation;
 			throw ex;
 		    }
-		    
+
 		    case DispatchStatus._DispatchUnknownException:
-		    {
-			Ice.UnknownException ex = new Ice.UnknownException();
-			ex.unknown = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus._DispatchUnknownLocalException:
-		    {
-			Ice.UnknownLocalException ex = new Ice.UnknownLocalException();
-			ex.unknown = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus._DispatchUnknownUserException:
 		    {
-			Ice.UnknownUserException ex = new Ice.UnknownUserException();
-			ex.unknown = __is.readString();
+			String unknown = __is.readString();
+
+                        Ice.UnknownException ex = null;
+                        switch(status)
+                        {
+                        case DispatchStatus._DispatchUnknownException:
+                        {
+                            ex = new Ice.UnknownException();
+                            break;
+                        }
+
+                        case DispatchStatus._DispatchUnknownLocalException:
+                        {
+                            ex = new Ice.UnknownLocalException();
+                            break;
+                        }
+
+                        case DispatchStatus._DispatchUnknownUserException:
+                        {
+                            ex = new Ice.UnknownUserException();
+                            break;
+                        }
+
+                        default:
+                        {
+                            assert(false);
+                            break;
+                        }
+                        }
+
+			ex.unknown = unknown;
 			throw ex;
 		    }
-		    
+
 		    default:
 		    {
 			throw new Ice.UnknownReplyStatusException();
@@ -247,9 +287,24 @@ public abstract class OutgoingAsync
 		_connection.prepareRequest(__os);
 		
 		ref.identity.__write(__os);
-		__os.writeStringSeq(ref.facet);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(ref.facet == null)
+                {
+                    __os.writeStringSeq(null);
+                }
+                else
+                {
+                    String[] facetPath = { ref.facet };
+                    __os.writeStringSeq(facetPath);
+                }
+
 		__os.writeString(operation);
+
 		__os.writeByte((byte)mode.value());
+
 		if(context == null)
 		{
 		    __os.writeSize(0);

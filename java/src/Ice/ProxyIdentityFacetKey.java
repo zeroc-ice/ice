@@ -32,10 +32,7 @@ public class ProxyIdentityFacetKey
         _identity = proxy.ice_getIdentity();
         _facet = proxy.ice_getFacet();
         int h = _identity.hashCode();
-        for(int i = 0; i < _facet.length; i++)
-        {
-            h = 5 * h + _facet[i].hashCode();
-        }
+        h = 5 * h + _facet.hashCode();
         _hashCode = h;
     }
 
@@ -49,8 +46,7 @@ public class ProxyIdentityFacetKey
     equals(java.lang.Object obj)
     {
         ProxyIdentityFacetKey other = (ProxyIdentityFacetKey)obj;
-        return (_hashCode == other._hashCode) && _identity.equals(other._identity) &&
-            java.util.Arrays.equals(_facet, other._facet);
+        return (_hashCode == other._hashCode) && _identity.equals(other._identity) && _facet.equals(other._facet);
     }
 
     public Ice.ObjectPrx
@@ -61,6 +57,6 @@ public class ProxyIdentityFacetKey
 
     final private Ice.ObjectPrx _proxy;
     final private Ice.Identity _identity;
-    final private String[] _facet;
+    final private String _facet;
     final private int _hashCode;
 }

@@ -189,7 +189,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         //
         String className;
         String[] args;
-        int pos = IceInternal.StringUtil.findFirstOf(value, " \t\n");
+        int pos = IceUtil.StringUtil.findFirstOf(value, " \t\n");
         if(pos == -1)
         {
             className = value;

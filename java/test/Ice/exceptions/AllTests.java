@@ -165,51 +165,7 @@ public class AllTests
 	    }
 	    catch(Ice.FacetNotExistException ex)
 	    {
-		test(ex.facet.length == 1);
-		test(ex.facet[0].equals("no such facet"));
-	    }
-	    catch(Exception ex)
-	    {
-		test(false);
-	    }
-	    callback.called();
-	}
-
-	public void
-	ice_exception(Ice.UserException exc)
-	{
-	    test(false);
-	}
-
-	public boolean
-	check()
-	{
-	    return callback.check();
-	}
-
-	private Callback callback = new Callback();
-    }
-
-    private static class AMI_Thrower_throwAasAFacetNotExist2I extends AMI_Thrower_throwAasA
-    {
-	public void
-	ice_response()
-	{
-	    test(false);
-	}
-
-	public void
-	ice_exception(Ice.LocalException exc)
-	{
-	    try
-	    {
-		throw exc;
-	    }
-	    catch(Ice.FacetNotExistException ex)
-	    {
-		test(ex.facet.length == 2);
-		test(ex.facet[0].equals("no such facet"));
-		test(ex.facet[1].equals("no such facet either"));
+		test(ex.facet.equals("no such facet"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -1042,21 +998,7 @@ public class AllTests
 	    }
 	    catch(Ice.FacetNotExistException ex)
 	    {
-		test(ex.facet.length == 1);
-		test(ex.facet[0].equals("no such facet"));
-	    }
-
-	    ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(thrower2, "no such facet either");
-	    try
-	    {
-		thrower3.ice_ping();
-		test(false);
-	    }
-	    catch(Ice.FacetNotExistException ex)
-	    {
-		test(ex.facet.length == 2);
-		test(ex.facet[0].equals("no such facet"));
-		test(ex.facet[1].equals("no such facet either"));
+		test(ex.facet.equals("no such facet"));
 	    }
 	}
         catch(Exception ex)
@@ -1258,13 +1200,6 @@ public class AllTests
 		{
 		    AMI_Thrower_throwAasAFacetNotExistI cb = new AMI_Thrower_throwAasAFacetNotExistI();
 		    thrower2.throwAasA_async(cb, 1);
-		    test(cb.check());
-		}
-		
-		ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(thrower2, "no such facet either");
-		{
-		    AMI_Thrower_throwAasAFacetNotExist2I cb = new AMI_Thrower_throwAasAFacetNotExist2I();
-		    thrower3.throwAasA_async(cb, 1);
 		    test(cb.check());
 		}
 	    }

@@ -19,20 +19,7 @@ public class Client
         public int
         run(String[] args)
         {
-            TestPrx obj = AllTests.allTests(communicator());
-
-            System.out.print("testing whether server is gone... ");
-            System.out.flush();
-            try
-            {
-                obj.ice_ping();
-                throw new RuntimeException();
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.out.println("ok");
-            }
-
+            AllTests.allTests(communicator());
             return 0;
         }
     }

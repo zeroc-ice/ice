@@ -27,7 +27,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.facetServant().ice_isA(__id, __current);
+		return __direct.servant().ice_isA(__id, __current);
             }
             finally
             {
@@ -47,7 +47,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		__direct.facetServant().ice_ping(__current);
+		__direct.servant().ice_ping(__current);
 		return;
             }
             finally
@@ -68,7 +68,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.facetServant().ice_ids(__current);
+		return __direct.servant().ice_ids(__current);
             }
             finally
             {
@@ -88,27 +88,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.facetServant().ice_id(__current);
-            }
-            finally
-            {
-                __direct.destroy();
-            }
-        }
-    }
-
-    public String[]
-    ice_facets(java.util.Map __context)
-        throws IceInternal.NonRepeatable
-    {
-        Current __current = new Current();
-        __initCurrent(__current, "ice_facets", OperationMode.Nonmutating, __context);
-        while(true)
-        {
-            IceInternal.Direct __direct = new IceInternal.Direct(__current);
-            try
-            {
-		return __direct.facetServant().ice_facets(__current);
+		return __direct.servant().ice_id(__current);
             }
             finally
             {

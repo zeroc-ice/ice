@@ -30,24 +30,11 @@ public interface Object
 
     String ice_id(Current current);
 
-    String[] ice_facets(Current current);
-
     void ice_preMarshal();
     void ice_postUnmarshal();
 
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 
-    void __write(IceInternal.BasicStream __os, boolean __marshalFacets);
-
+    void __write(IceInternal.BasicStream __os);
     void __read(IceInternal.BasicStream __is, boolean __rid);
-
-    void ice_addFacet(Object facet, String name);
-
-    Object ice_removeFacet(String name);
-
-    void ice_removeAllFacets();
-
-    Object ice_findFacet(String name);
-
-    Object ice_findFacetPath(String[] path, int start);
 }

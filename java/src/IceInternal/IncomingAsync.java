@@ -118,7 +118,20 @@ public class IncomingAsync extends IncomingBase
 		    assert(false);
 		}
 		ex.id.__write(_os);
-		_os.writeStringSeq(ex.facet);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(ex.facet == null)
+                {
+                    _os.writeStringSeq(null);
+                }
+                else
+                {
+                    String[] facetPath = { ex.facet };
+                    _os.writeStringSeq(facetPath);
+                }
+
 		_os.writeString(ex.operation);
             }
         }

@@ -17,6 +17,8 @@
 
 interface Test
 {
+    void transient();
+
     void deactivate();
 };
 
