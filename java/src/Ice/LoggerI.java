@@ -15,7 +15,7 @@ public class LoggerI implements Logger
     public synchronized void
     trace(String category, String message)
     {
-        String s = "[ " + category + ": ";
+        String s = "[ " + category + ": Thread(" + Thread.currentThread().getName() + ") ";
         // TODO: Better way to do this?
         int start = 0;
         int next;
@@ -40,11 +40,5 @@ public class LoggerI implements Logger
     error(String message)
     {
         System.err.println("error: " + message);
-    }
-
-    public void
-    destroy()
-    {
-        // Nothing to do
     }
 }
