@@ -56,7 +56,7 @@ public final class Util
     stringToIdentity(String s)
     {
         Identity ident = new Identity();
-        int pos = s.indexOf('#');
+        int pos = Math.min(s.indexOf('#'), s.indexOf('/'));
         if (pos != -1)
         {
             ident.category = s.substring(0, pos);
@@ -79,7 +79,7 @@ public final class Util
         }
         else
         {
-            return ident.category + '#' + ident.name;
+            return ident.category + '/' + ident.name;
         }
     }
 
