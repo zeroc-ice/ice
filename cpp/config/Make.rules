@@ -38,8 +38,8 @@ XERCESC         ?= /opt/xerces-c
 # set different compilation options for debug or optimization
 #
 CXX		= c++
-#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
+CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
+#CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT)/include/stlport -I$(JTC)/include
 LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCESC)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lJTC -lpthread
