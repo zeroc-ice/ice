@@ -410,7 +410,7 @@ Ice.Evictor.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Overrides the default cache size for evictors. If this property is not set, the default cache size is 1000.
-Values less than 1 are ignored.
+Values less than 0 are ignored.
 </para>
 </section>
 </section>
@@ -427,7 +427,7 @@ Values less than 1 are ignored.
 Specifies the evictor cache size for an evictor attached to an object adapter with the name
 <replaceable>name</replaceable>, provided that the evictor is the default evictor (registered
 for the empty category) or that the evictor's size has not been set with a category-specific property).
-Values less than 1 are ignored.
+Values less than 0 are ignored.
 This property overrides the value of <literal>Ice.Evictor.Size</literal>.
 </para>
 </section>
@@ -444,7 +444,7 @@ This property overrides the value of <literal>Ice.Evictor.Size</literal>.
 <para>
 Specifies the evictor cache size for an evictor attached to an object adapter with the name
 <replaceable>name</replaceable> and for the object identity category <replaceable>category</replaceable>.
-Values less than 1 are ignored.
+Values less than 0 are ignored.
 This property overrides the value of <literal><replaceable>name</replaceable>.Evictor.Size</literal> and
 <literal>Ice.Evictor.Size</literal>.
 </para>

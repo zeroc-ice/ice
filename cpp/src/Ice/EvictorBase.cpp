@@ -37,7 +37,7 @@ Ice::EvictorBase::EvictorBase()
 void
 Ice::EvictorBase::setSize(Int size)
 {
-    if(size < 1)
+    if(size < 0)
     {
 	return; // Ignore stupid values.
     }
@@ -247,20 +247,20 @@ Ice::EvictorBase::initialize(const Current& c)
     //
     // Check evictor size properties.
     //
-    if((num = p->getPropertyAsInt("Ice.Evictor.Size")) > 0)
+    if((num = p->getPropertyAsInt("Ice.Evictor.Size")) >= 0)
     {
 	_size = num;
     }
-    if((num = p->getPropertyAsInt(c.adapter->getName() + ".Evictor.Size")) > 0)
+    if((num = p->getPropertyAsInt(c.adapter->getName() + ".Evictor.Size")) >= 0)
     {
 	_size = num;
     }
     if(!c.id.category.empty()
-	&& (num = p->getPropertyAsInt(c.adapter->getName() + "." + c.id.category + ".Evictor.Size")) > 0)
+	&& (num = p->getPropertyAsInt(c.adapter->getName() + "." + c.id.category + ".Evictor.Size")) >= 0)
     {
 	_size = num;
     }
-    if(_size < 1)
+    if(_size < 0)
     {
 	_size = defaultSize;
     }

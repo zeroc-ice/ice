@@ -41,7 +41,7 @@ local interface Evictor extends ServantLocator
 {
     /**
      *
-     * Change the size of the evictor cache. (Sizes less than 1
+     * Change the size of the evictor cache. (Sizes less than 0
      * are ignored.) Reducing the size of the cache by [n] slots
      * causes eviction of the least-recently-used [n] servants.
      * (The actual eviction may be delayed because servants are evicted
