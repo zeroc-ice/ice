@@ -16,7 +16,8 @@ SUBDIRS		= hello \
 		  throughput \
 		  value \
 		  callback \
-		  nested
+		  nested \
+		  invoke
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

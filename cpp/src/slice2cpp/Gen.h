@@ -29,6 +29,7 @@ public:
 	const std::string&,
 	const std::string&,
         bool,
+        bool,
         bool);
     ~Gen();
 
@@ -52,12 +53,13 @@ private:
     std::string _dllExport;
     bool _impl;
     bool _checksum;
+    bool _stream;
 
     class TypesVisitor : public ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	TypesVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
+	TypesVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -80,6 +82,7 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+        bool _stream;
     };
 
     class ProxyDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
@@ -212,7 +215,7 @@ private:
     {
     public:
 
-	ObjectVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
+	ObjectVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -233,6 +236,7 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+        bool _stream;
     };
 
     class IceInternalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
@@ -258,7 +262,7 @@ private:
     {
     public:
 
-	HandleVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
+	HandleVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -271,6 +275,7 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+        bool _stream;
     };
 
     class ImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor

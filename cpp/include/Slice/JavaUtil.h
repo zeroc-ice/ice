@@ -108,18 +108,32 @@ protected:
                              const StringList& = StringList()) const;
 
     //
-    // Generate code to marshal or unmarshal a type
+    // Generate code to marshal or unmarshal a type.
     //
     void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
                                    bool, int&, bool = false, const StringList& = StringList(),
 				   const std::string& patchParams = "");
 
     //
-    // Generate code to marshal or unmarshal a sequence type
+    // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
                                            const std::string&, bool, int&, bool,
                                            const StringList& = StringList());
+
+    //
+    // Generate code to marshal or unmarshal a type using the public stream API.
+    //
+    void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
+                                         bool, int&, bool = false, const StringList& = StringList(),
+				         const std::string& patchParams = "");
+
+    //
+    // Generate code to marshal or unmarshal a sequence type using the public stream API.
+    //
+    void writeStreamSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
+                                                 const std::string&, bool, int&, bool,
+                                                 const StringList& = StringList());
 
     //
     // Find custom sequence metadata.

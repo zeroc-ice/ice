@@ -69,6 +69,7 @@ tests = [ \
     "Ice/slicing/objects", \
     "Ice/gc", \
     "Ice/checksum", \
+    "Ice/stream", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

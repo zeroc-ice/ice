@@ -148,6 +148,22 @@ private:
 };
 typedef ::IceInternal::Handle< ObjectWriter > ObjectWriterPtr;
 
+class ICE_API ReadObjectCallbackI : public ReadObjectCallback
+{
+public:
+
+    typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
+
+    ReadObjectCallbackI(PatchFunc, void*);
+
+    virtual void invoke(const ::Ice::ObjectPtr&);
+
+private:
+
+    PatchFunc _func;
+    void* _arg;
+};
+
 }
 
 #endif

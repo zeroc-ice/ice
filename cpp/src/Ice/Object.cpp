@@ -11,6 +11,7 @@
 #include <Ice/Incoming.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/LocalException.h>
+#include <Ice/Stream.h>
 
 using namespace std;
 using namespace Ice;
@@ -221,6 +222,35 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
+Ice::Object::__write(const OutputStreamPtr& __out) const
+{
+    __out->writeTypeId(ice_staticId());
+    __out->startSlice();
+    __out->writeSize(0); // For compatibility with the old AFM.
+    __out->endSlice();
+}
+
+void
+Ice::Object::__read(const InputStreamPtr& __in, bool __rid)
+{
+    if(__rid)
+    {
+	__in->readTypeId();
+    }
+
+    __in->startSlice();
+
+    // For compatibility with the old AFM.
+    Int sz = __in->readSize();
+    if(sz != 0)
+    {
+	throw Ice::MarshalException(__FILE__, __LINE__);
+    }
+
+    __in->endSlice();
+}
+
+void
 Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
 {
     ObjectPtr* p = static_cast<ObjectPtr*>(__addr);
@@ -270,4 +300,17 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
 	cb->ice_exception();
     }
     return DispatchAsync;
+}
+
+void
+Ice::ice_writeObject(const OutputStreamPtr& out, const ObjectPtr& p)
+{
+    out->writeObject(p);
+}
+
+void
+Ice::ice_readObject(const InputStreamPtr& in, ObjectPtr& p)
+{
+    Ice::ReadObjectCallbackPtr cb = new ReadObjectCallbackI(__patch__ObjectPtr, &p);
+    in->readObject(cb);
 }

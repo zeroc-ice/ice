@@ -41,6 +41,12 @@ SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<
 				  const TypePtr&);
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
 				 const TypePtr&);
+SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+                                               const std::string& = "");
+SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
+                                      const TypePtr&);
+SLICE_API void writeStreamUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
+                                        const TypePtr&);
 
 }
 

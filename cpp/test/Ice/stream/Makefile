@@ -7,26 +7,28 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+CLIENT		= client
+
+TARGETS		= $(CLIENT)
+
+OBJS		= Test.o
+
+COBJS		= Client.o
+
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= operations \
-		  exceptions \
-		  inheritance \
-		  facets \
-		  objects \
-		  faultTolerance \
-		  location \
-		  adapterDeactivation \
-		  slicing \
-		  gc \
-		  checksum \
-		  stream
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(OBJS) $(COBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+
+include .depend

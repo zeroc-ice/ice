@@ -22,6 +22,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
+#include <Ice/Stream.h>
 
 using namespace std;
 using namespace Ice;
@@ -1154,4 +1155,16 @@ Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 	
 	return false;
     }
+}
+
+void
+Ice::ice_writeObjectPrx(const OutputStreamPtr& out, const ObjectPrx& v)
+{
+    out->writeProxy(v);
+}
+
+void
+Ice::ice_readObjectPrx(const InputStreamPtr& in, ObjectPrx& v)
+{
+    v = in->readProxy();
 }

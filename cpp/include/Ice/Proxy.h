@@ -23,6 +23,7 @@
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
+#include <Ice/StreamF.h>
 
 namespace IceProxy
 {
@@ -55,6 +56,9 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
 class LocalException;
+
+ICE_API void ice_writeObjectPrx(const ::Ice::OutputStreamPtr&, const ObjectPrx&);
+ICE_API void ice_readObjectPrx(const ::Ice::InputStreamPtr&, ObjectPrx&);
 
 }
 

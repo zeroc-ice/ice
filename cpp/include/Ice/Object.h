@@ -16,6 +16,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Current.h>
+#include <Ice/StreamF.h>
 
 namespace IceInternal
 {
@@ -80,6 +81,9 @@ public:
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool);
 
+    virtual void __write(const ::Ice::OutputStreamPtr&) const;
+    virtual void __read(const ::Ice::InputStreamPtr&, bool);
+
     virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const {}
     virtual void __gcClear() {}
 };
@@ -101,6 +105,9 @@ public:
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
+
+ICE_API void ice_writeObject(const OutputStreamPtr&, const ObjectPtr&);
+ICE_API void ice_readObject(const InputStreamPtr&, ObjectPtr&);
 
 }
 
