@@ -94,6 +94,11 @@ protected:
                                    const std::string&, bool, int&,
                                    bool = false);
 
+    //
+    // Generate code to compute a hash code for a type
+    //
+    void writeHashCode(Output&, const TypePtr&, const std::string&, int&);
+
 private:
 
     void printHeader();

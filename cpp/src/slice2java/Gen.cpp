@@ -971,6 +971,103 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(Output& out, const string& scope,
 }
 
 void
+Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type,
+                                  const string& name, int& iter)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
+    {
+        switch (builtin->kind())
+        {
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindLong:
+            {
+                out << nl << "__h = 5 * __h + (int)" << name << ';';
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                out << nl << "__h = 5 * __h + (" << name << " ? 1 : 0);";
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                out << nl << "__h = 5 * __h + " << name << ';';
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                out << nl << "__h = 5 * __h + "
+                    << "java.lang.Float.floatToIntBits(" << name << ");";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                out << nl << "__h = 5 * __h + (int)"
+                    << "java.lang.Double.doubleToLongBits(" << name << ");";
+                break;
+            }
+            case Builtin::KindString:
+            case Builtin::KindWString:
+            {
+                out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+                break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                out << nl << "if (" << name << " != null)";
+                out << sb;
+                out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+                out << eb;
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if (prx)
+    {
+        out << nl << "if (" << name << " != null)";
+        out << sb;
+        out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+        out << eb;
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if (cl)
+    {
+        out << nl << "if (" << name << " != null)";
+        out << sb;
+        out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+        out << eb;
+        return;
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
+    {
+        out << nl << "for (int __i" << iter << " = 0; __i" << iter
+            << " < " << name << ".length; __i" << iter << "++)";
+        out << sb;
+	ostringstream elem;
+        elem << name << "[__i" << iter << ']';
+        iter++;
+        writeHashCode(out, seq->type(), elem.str(), iter);
+        out << eb;
+        return;
+    }
+
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert(constructed);
+    out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+}
+
+void
 Slice::JavaVisitor::printHeader()
 {
     static const char* header =
@@ -1129,6 +1226,55 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sb;
+
+    //
+    // hashCode
+    //
+    if (!p->isInterface())
+    {
+        bool baseHasDataMembers = false;
+        ClassList l = p->bases();
+        while (!l.empty() && !l.front()->isInterface())
+        {
+            if (l.front()->hasDataMembers())
+            {
+                baseHasDataMembers = true;
+                break;
+            }
+            l = l.front()->bases();
+        }
+
+        if (p->hasDataMembers() || baseHasDataMembers)
+        {
+            out << sp << nl << "public int"
+                << nl << "hashCode()";
+            out << sb;
+            if (p->hasDataMembers())
+            {
+                DataMemberList members = p->dataMembers();
+                DataMemberList::const_iterator d;
+                int iter;
+
+                out << nl << "int __h = 0;";
+                iter = 0;
+                for (d = members.begin(); d != members.end(); ++d)
+                {
+                    string memberName = fixKwd((*d)->name());
+                    writeHashCode(out, (*d)->type(), memberName, iter);
+                }
+                if (baseHasDataMembers)
+                {
+                    out << nl << "__h = 5 * __h + super.hashCode();";
+                }
+                out << nl << "return __h;";
+            }
+            else
+            {
+                out << nl << "return super.hashCode();";
+            }
+            out << eb;
+        }
+    }
 
     if (!p->isInterface() && !p->isLocal())
     {
@@ -1548,38 +1694,53 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
 
         //
-        // TODO: hashCode?
+        // hashCode
         //
+        out << sp << nl << "public int"
+            << nl << "hashCode()";
+        out << sb;
+        out << nl << "int __h = 0;";
+        iter = 0;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = fixKwd((*d)->name());
+            writeHashCode(out, (*d)->type(), memberName, iter);
+        }
+        out << nl << "return __h;";
+        out << eb;
     }
 
-    //
-    // __write
-    //
-    out << sp << nl << "public void"
-        << nl << "__write(IceInternal.BasicStream __os)";
-    out << sb;
-    iter = 0;
-    for (d = members.begin(); d != members.end(); ++d)
+    if (!p->isLocal())
     {
-        writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                  fixKwd((*d)->name()), true, iter, false);
-    }
-    out << eb;
+        //
+        // __write
+        //
+        out << sp << nl << "public void"
+            << nl << "__write(IceInternal.BasicStream __os)";
+        out << sb;
+        iter = 0;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
+                                      fixKwd((*d)->name()), true, iter, false);
+        }
+        out << eb;
 
-    //
-    // __read
-    //
-    out << sp << nl << "public void"
-        << nl << "__read(IceInternal.BasicStream __is)";
-    out << sb;
-    iter = 0;
-    for (d = members.begin(); d != members.end(); ++d)
-    {
-        writeMarshalUnmarshalCode(out, scope, (*d)->type(),
-                                  fixKwd((*d)->name()), false, iter,
-                                  false);
+        //
+        // __read
+        //
+        out << sp << nl << "public void"
+            << nl << "__read(IceInternal.BasicStream __is)";
+        out << sb;
+        iter = 0;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            writeMarshalUnmarshalCode(out, scope, (*d)->type(),
+                                      fixKwd((*d)->name()), false, iter,
+                                      false);
+        }
+        out << eb;
     }
-    out << eb;
 
     out << eb;
     close();
@@ -1647,46 +1808,49 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "__values[val] = this;";
     out << eb;
 
-    //
-    // write
-    //
-    out << sp << nl << "public void" << nl
-        << "__write(IceInternal.BasicStream __os)";
-    out << sb;
-    if (sz <= 0x7f)
+    if (!p->isLocal())
     {
-        out << nl << "__os.writeByte((byte)__value);";
-    }
-    else if (sz <= 0x7fff)
-    {
-        out << nl << "__os.writeShort((short)__value);";
-    }
-    else
-    {
-        out << nl << "__os.writeInt(__value);";
-    }
-    out << eb;
+        //
+        // write
+        //
+        out << sp << nl << "public void" << nl
+            << "__write(IceInternal.BasicStream __os)";
+        out << sb;
+        if (sz <= 0x7f)
+        {
+            out << nl << "__os.writeByte((byte)__value);";
+        }
+        else if (sz <= 0x7fff)
+        {
+            out << nl << "__os.writeShort((short)__value);";
+        }
+        else
+        {
+            out << nl << "__os.writeInt(__value);";
+        }
+        out << eb;
 
-    //
-    // read
-    //
-    out << sp << nl << "public static " << name << nl
-        << "__read(IceInternal.BasicStream __is)";
-    out << sb;
-    if (sz <= 0x7f)
-    {
-        out << nl << "int __v = __is.readByte();";
+        //
+        // read
+        //
+        out << sp << nl << "public static " << name << nl
+            << "__read(IceInternal.BasicStream __is)";
+        out << sb;
+        if (sz <= 0x7f)
+        {
+            out << nl << "int __v = __is.readByte();";
+        }
+        else if (sz <= 0x7fff)
+        {
+            out << nl << "int __v = __is.readShort();";
+        }
+        else
+        {
+            out << nl << "int __v = __is.readInt();";
+        }
+        out << nl << "return " << name << ".convert(__v);";
+        out << eb;
     }
-    else if (sz <= 0x7fff)
-    {
-        out << nl << "int __v = __is.readShort();";
-    }
-    else
-    {
-        out << nl << "int __v = __is.readInt();";
-    }
-    out << nl << "return " << name << ".convert(__v);";
-    out << eb;
 
     out << eb;
     close();
@@ -2052,6 +2216,14 @@ void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     //
+    // Don't generate helper for a sequence of a local type
+    //
+    if (p->isLocal())
+    {
+        return;
+    }
+
+    //
     // Determine sequence depth
     //
     int depth = 0;
@@ -2072,17 +2244,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         b->kind() != Builtin::KindObjectProxy)
     {
         return;
-    }
-
-    //
-    // Don't generate helper for a sequence of a local type
-    //
-    {
-        ClassDeclPtr c = ClassDeclPtr::dynamicCast(origContent);
-        if (c && c->isLocal())
-        {
-            return;
-        }
     }
 
     string name = fixKwd(p->name());
@@ -2162,18 +2323,16 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
     //
-    // Don't generate helper for dictionary containing a local type
+    // Don't generate helper for a dictionary containing a local type
     //
-    ClassDeclPtr ck = ClassDeclPtr::dynamicCast(key);
-    ClassDeclPtr cv = ClassDeclPtr::dynamicCast(value);
-    if ((ck && ck->isLocal()) || (cv && cv->isLocal()))
+    if (p->isLocal())
     {
         return;
     }
+
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
 
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
@@ -2300,6 +2459,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             //
             // Optimization to avoid excessive allocation of ObjectHolder
             //
+            ClassDeclPtr ck = ClassDeclPtr::dynamicCast(key);
+            ClassDeclPtr cv = ClassDeclPtr::dynamicCast(value);
             BuiltinPtr bk = BuiltinPtr::dynamicCast(key);
             BuiltinPtr bv = BuiltinPtr::dynamicCast(value);
             if (ck || cv ||
@@ -2881,6 +3042,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         iter = 0;
         for (q = inParams.begin(); q != inParams.end(); ++q)
         {
+            string typeS = typeToString(q->first, TypeModeIn, scope);
+            out << nl << typeS << ' ' << fixKwd(q->second) << ';';
             writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
                                       false, iter);
         }
@@ -3010,11 +3173,27 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             if (opName == "ice_isA")
             {
-                out << nl << "return ice_isA(_delegate, in, current);";
+                if (p->isInterface())
+                {
+                    out << nl << "return ice_isA((Ice.Object)_delegate, in, "
+                        << "current);";
+                }
+                else
+                {
+                    out << nl << "return ice_isA(_delegate, in, current);";
+                }
             }
             else if (opName == "ice_ping")
             {
-                out << nl << "return ice_ping(_delegate, in, current);";
+                if (p->isInterface())
+                {
+                    out << nl << "return ice_ping((Ice.Object)_delegate, in, "
+                        << "current);";
+                }
+                else
+                {
+                    out << nl << "return ice_ping(_delegate, in, current);";
+                }
             }
             else
             {
