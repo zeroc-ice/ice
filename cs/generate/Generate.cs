@@ -81,7 +81,23 @@ namespace Generate
 		Environment.Exit(1);
 	    }
 
-	    string slice2cs = iceHome == null ? "slice2cs" : Path.Combine(Path.Combine(iceHome, "bin"), "slice2cs");
+	    string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), "slice2cs");
+	    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
+	    {
+		if(iceHome != null)
+		{
+		    slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), "slice2cs");
+		    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
+		    {
+			slice2cs = "slice2cs";
+		    }
+		}
+		else
+		{
+		    slice2cs = "slice2cs";
+		}
+	    }
+
 	    string outputDir = Path.Combine(projDir, "generated");
 	    string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
 
