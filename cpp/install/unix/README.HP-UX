@@ -54,19 +54,22 @@ Java
 Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for HP-UX is
 available from HP at http://www.hp.com/products1/unix/java
 
+
 Python
 ------
 
 The Ice extension for Python included in this distribution requires
 Python 2.4. We built Python 2.4 using the source distribution from
-http://www.python.org.
+http://www.python.org. If you build Python 2.4 from source, you need
+to use the configure option --enable-shared.
+
 
 ======================================================================
 Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.2.52. The C++ runtime was built using HP aC++ version A.03.37. 
+4.2.52. The C++ run time was built using HP aC++ version A.03.37. 
 The Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
@@ -107,7 +110,7 @@ to the compiler with the -I option, and $ICE_HOME/lib with the -L
 option. Furthermore, a C++ program needs to link with at least libIce
 and libIceUtil, so a typical link command would look like this:
 
-$ CC -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+$ aCC -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
 such as IcePack or Glacier2.
