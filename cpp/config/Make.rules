@@ -31,12 +31,8 @@ OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
 
 #
-# Define DEBUG as yes if you want to build with debug information. 
-#
-DEBUG=yes
-
-#
-# Define OPTIMIZE as yes if you want to build with optimization.
+# Define OPTIMIZE as yes if you want to build with
+# optimization. Otherwise Ice is build with debug information.
 #
 #OPTIMIZE=yes
 
@@ -52,7 +48,7 @@ slicedir	= $(top_srcdir)/slice
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
-    ifeq ($(DEBUG),yes)
+    ifeq ($(OPTIMIZE),yes)
         STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc
     else
         STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc_stldebug
@@ -66,37 +62,28 @@ OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
 OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 
 #
-# Experts only: You can change the following lines to set different
-# compiler options.
+# Don't change anything below this line!
 #
 
 CXX		= c++
 CXXFLAGS 	= -ftemplate-depth-128 -fPIC -Wall
-DBG_CXXFLAGS	= -g
-OPT_CXXFLAGS	= -O3 -DNDEBUG
-CPPFLAGS	= $(STLPORT_FLAGS)
-LDFLAGS		= 
+ifeq ($(OPTIMIZE),yes)
+    CXXFLAGS	:= -O3 -DNDEBUG $(CXXFLAGS)
+else
+    CXXFLAGS	:= -g $(CXXFLAGS)
+endif
+
+CPPFLAGS	= -I$(includedir) $(STLPORT_FLAGS)
+ICECPPFLAGS	= -I$(slicedir)
+
+LDFLAGS		= -L$(libdir)
 SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
+
 LIBEXT		= so
+
 BASELIBS	= -lIceUtil -lpthread -luuid $(STLPORT_LIBS)
 LIBS		= -lIce -ldl -lbz2 $(BASELIBS)
 SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
-
-#
-# Don't change anything below this line!
-#
-
-CPPFLAGS	:= -I$(includedir) $(CPPFLAGS)
-LDFLAGS		:= -L$(libdir) $(LDFLAGS)
-ICECPPFLAGS	= -I$(slicedir)
-
-ifeq ($(OPTIMIZE),yes)
-CXXFLAGS	:= $(OPT_CXXFLAGS) $(CXXFLAGS)
-endif
-
-ifeq ($(DEBUG),yes)
-CXXFLAGS	:= $(DBG_CXXFLAGS) $(CXXFLAGS)
-endif
 
 SLICE2CPP	= $(bindir)/slice2cpp
 SLICE2XSD	= $(bindir)/slice2xsd
