@@ -24,7 +24,7 @@ void
 ServerManagerI::startServer(const Ice::Current&)
 {
     int argc = 0;
-    char* argv[1] = { 0 };
+    char** argv = 0;
 
     //
     // Simulate a server: create a new communicator and object

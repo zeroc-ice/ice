@@ -267,7 +267,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	else
 	{
 	    int argc = 0;
-	    char *argv[1] = { 0 };
+	    char **argv = 0;
 	    
 	    PropertiesPtr serviceProperties = properties->clone();
 
