@@ -127,14 +127,22 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	// is the directory where this descriptor is located.
 	//
 	string baseDir = getAttributeValueWithDefault(attrs, "basedir", "");
-	string::size_type end = _filename.find_last_of('/');
-	if(end != string::npos)
+	if(baseDir.empty() || baseDir[0] != '/')
 	{
-	    baseDir = _filename.substr(0, end) + (baseDir.empty() ? "" : "/") + baseDir;
-	}
-	else
-	{
-	    baseDir = ".";
+	    if(!baseDir.empty())
+	    {
+		baseDir = "/" + baseDir;
+	    }
+
+	    string::size_type end = _filename.find_last_of('/');
+	    if(end != string::npos)
+	    {
+		baseDir = _filename.substr(0, end) + baseDir;
+	    }
+	    else
+	    {
+		baseDir = "." + baseDir;
+	    }
 	}
 	_variables.back()["basedir"] = baseDir;
     }
@@ -748,13 +756,51 @@ DescriptorHandler::hasVariable(const string& name) const
 bool
 DescriptorHandler::isTargetDeployable(const string& target) const
 {
+    string application = getVariable("application");
+    string node = getVariable("node");
+    string server = getVariable("server");
     string service = getVariable("service");
-    const string fqn = getVariable("server") + (service.empty() ? "" : ".") + service;
 
+    //
+    // Compute the current fully qualified name of the component.
+    //
+    string fqn;
+    if(!application.empty())
+    {
+	fqn = application;
+	if(!node.empty())
+	{
+	    fqn += "." + node;
+	}
+    }
+    else
+    {
+	if(!node.empty())
+	{
+	    fqn = node;
+	}
+    }
+    if(!server.empty())
+    {
+	assert(!node.empty());
+	fqn += "." + server;
+    }
+    if(!service.empty())
+    {
+	assert(!server.empty());
+	fqn += "." + service;
+    }
+
+    //
+    // Go through the list of supplied targets and see if we can match one with the current component + target.
+    //
     for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
     {
 	if((*p) == target)
 	{
+	    //
+	    // A supplied target without any component prefix is matching the target.
+	    //
 	    return true;
 	}
 	else
@@ -764,9 +810,8 @@ DescriptorHandler::isTargetDeployable(const string& target) const
 	    while(end != string::npos)
 	    {
 		//
-		// Add the first component name from the component
-		// fully qualified name to the target and see if
-		// matches.
+		// Add the first component name from the component fully qualified name to the 
+		// target and see if matches.
 		//
 		end = fqn.find('.', end);
 		if(end == string::npos)

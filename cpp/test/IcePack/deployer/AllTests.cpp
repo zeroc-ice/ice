@@ -170,7 +170,6 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     cout << "pinging server objects... " << flush;
 
     TestPrx obj;
-
     admin->setServerActivation("Server1", IcePack::Manual);
     try
     {
@@ -183,6 +182,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     admin->startServer("Server1");
     
     obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    test(obj->getProperty("Mode") == "manual");
     obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
 
     cout << "ok" << endl;

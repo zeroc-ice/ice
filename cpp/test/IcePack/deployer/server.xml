@@ -8,8 +8,9 @@
   <option>--Test.Test1=0</option>
 
   <target name="manual">
-    <activation mode="manual"/>
-    <property name="Mode" value="manual"/>
+    <properties>
+      <property name="Mode" value="manual"/>
+    </properties>
   </target>
 
   <adapters>
