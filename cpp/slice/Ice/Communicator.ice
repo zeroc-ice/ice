@@ -26,6 +26,12 @@ module Ice
  * instantiated for an Ice application. Communicator instantiation is
  * language specific, and not specified in Slice code.
  *
+ * @see Logger
+ * @see ObjectAdapter
+ * @see Pickler
+ * @see Properties
+ * @see ValueFactory
+ *
  **/
 local class Communicator
 {
@@ -50,7 +56,7 @@ local class Communicator
      * Adapters. Calling <code>shutdown()</code> more than once is not
      * permissible, and will cause a local Ice exception to be
      * thrown. <em>Note:</em> shutdown is not immediate, i.e., after
-     * <code>shutdown()</code> return, the server-side of the
+     * <code>shutdown()</code> returns, the server-side of the
      * application might still be active. You can use
      * <code>waitForShutdown</code> to wait until shutdown is
      * complete.
@@ -100,7 +106,8 @@ local class Communicator
      * <code>ice.adapter.<name>.endpoints</code>, with
      * <code><name></name> being the name of the object adapter.
      *
-     * @param name The name to use for the object adapter.
+     * @param name The name to use for the object adapter. This name
+     * must be unique for the Communicator.
      *
      * @return The new Object Adapter.
      *
@@ -116,7 +123,8 @@ local class Communicator
      * contrast to <code>createObjectAdapter</code>, the endpoints to
      * use are passed explicitly as a parameter.
      *
-     * @param name The name to use for the object adapter.
+     * @param name The name to use for the object adapter. This name
+     * must be unique for the Communicator.
      *
      * @param endpts The list of endpoints for the object adapter.
      *
