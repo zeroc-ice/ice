@@ -348,41 +348,8 @@ namespace IceInternal
 		newEndpoints[i] = endpoints[i].timeout(newTimeout);
 	    }
 	    
-	    //
-	    // If we have a router, we also change the timeout settings on the
-	    // router and the router's client proxy.
-	    //
-	    RouterInfo newRouterInfo = null;
-	    if(routerInfo != null)
-	    {
-		try
-		{
-		    Ice.RouterPrx newRouter =
-			Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
-		    Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(newTimeout);
-		    newRouterInfo = instance.routerManager().get(newRouter);
-		    newRouterInfo.setClientProxy(newClientProxy);
-		}
-		catch(Ice.NoEndpointException)
-		{
-		    // Ignore non-existing client proxies.
-		}
-	    }
-	    
-	    //
-	    // If we have a locator, we also change the timeout settings
-	    // on the locator.
-	    //
-	    LocatorInfo newLocatorInfo = null;
-	    if(locatorInfo != null)
-	    {
-		Ice.LocatorPrx newLocator =
-		    Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
-		newLocatorInfo = instance.locatorManager().get(newLocator);
-	    }
-	    
 	    return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      newEndpoints, newRouterInfo, newLocatorInfo,
+						      newEndpoints, routerInfo, locatorInfo,
 						      fixedConnections, collocationOptimization);
 	}
 	
@@ -425,41 +392,8 @@ namespace IceInternal
 		newEndpoints[i] = endpoints[i].compress(newCompress);
 	    }
 	    
-	    //
-	    // If we have a router, we also change the compress settings on the
-	    // router and the router's client proxy.
-	    //
-	    RouterInfo newRouterInfo = null;
-	    if(routerInfo != null)
-	    {
-		try
-		{
-		    Ice.RouterPrx newRouter =
-			Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
-		    Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_compress(newCompress);
-		    newRouterInfo = instance.routerManager().get(newRouter);
-		    newRouterInfo.setClientProxy(newClientProxy);
-		}
-		catch(Ice.NoEndpointException)
-		{
-		    // Ignore non-existing client proxies.
-		}
-	    }
-	    
-	    //
-	    // If we have a locator, we also change the compress settings
-	    // on the locator.
-	    //
-	    LocatorInfo newLocatorInfo = null;
-	    if(locatorInfo != null)
-	    {
-		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-						locatorInfo.getLocator().ice_compress(newCompress));
-		newLocatorInfo = instance.locatorManager().get(newLocator);
-	    }
-	    
 	    return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      newEndpoints, newRouterInfo, newLocatorInfo,
+						      newEndpoints, routerInfo, locatorInfo,
 						      fixedConnections, collocationOptimization);
 	}
 	

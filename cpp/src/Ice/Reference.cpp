@@ -432,39 +432,8 @@ IceInternal::Reference::changeTimeout(int newTimeout) const
 	newEndpoints.push_back((*p)->timeout(newTimeout));
     }
     
-    //
-    // If we have a router, we also change the timeout settings on the
-    // router and the router's client proxy.
-    //
-    RouterInfoPtr newRouterInfo;
-    if(routerInfo)
-    {
-	try
-	{
-	    RouterPrx newRouter = RouterPrx::uncheckedCast(routerInfo->getRouter()->ice_timeout(newTimeout));
-	    ObjectPrx newClientProxy = routerInfo->getClientProxy()->ice_timeout(newTimeout);
-	    newRouterInfo = instance->routerManager()->get(newRouter);
-	    newRouterInfo->setClientProxy(newClientProxy);
-	}
-	catch(const NoEndpointException&)
-	{
-	    // Ignore non-existing client proxies.
-	}
-    }
-
-    //
-    // If we have a locator, we also change the timeout settings on the
-    // locator.
-    //
-    LocatorInfoPtr newLocatorInfo;
-    if(locatorInfo)
-    {
-	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_timeout(newTimeout));
-	newLocatorInfo = instance->locatorManager()->get(newLocator);
-    }
-
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
+						newEndpoints, routerInfo, locatorInfo, fixedConnections,
 						collocationOptimization);
 }
 
@@ -512,39 +481,8 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 	newEndpoints.push_back((*p)->compress(newCompress));
     }
     
-    //
-    // If we have a router, we also change the compress settings on the
-    // router and the router's client proxy.
-    //
-    RouterInfoPtr newRouterInfo;
-    if(routerInfo)
-    {
-	try
-	{
-	    RouterPrx newRouter = RouterPrx::uncheckedCast(routerInfo->getRouter()->ice_compress(newCompress));
-	    ObjectPrx newClientProxy = routerInfo->getClientProxy()->ice_compress(newCompress);
-	    newRouterInfo = instance->routerManager()->get(newRouter);
-	    newRouterInfo->setClientProxy(newClientProxy);
-	}
-	catch(const NoEndpointException&)
-	{
-	    // Ignore non-existing client proxies.
-	}
-    }
-
-    //
-    // If we have a locator, we also change the compress settings on the
-    // locator.
-    //
-    LocatorInfoPtr newLocatorInfo;
-    if(locatorInfo)
-    {
-	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_compress(newCompress));
-	newLocatorInfo = instance->locatorManager()->get(newLocator);
-    }
-
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
+						newEndpoints, routerInfo, locatorInfo, fixedConnections,
 						collocationOptimization);
 }
 
