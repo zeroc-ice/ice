@@ -62,7 +62,7 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
 
     while(true)
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	switch(_state)
 	{
 	case Inactive:
@@ -137,7 +137,7 @@ ServerI::stop(const Ice::Current& current)
 {
     while(true)
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	switch(_state)
 	{
 	case Inactive:
@@ -205,7 +205,7 @@ ServerI::destroy(const Ice::Current& current)
 
     while(true)
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	switch(_state)
 	{
 	case Inactive:
@@ -261,7 +261,7 @@ ServerI::terminated(const Ice::Current& current)
     ServerAdapterPrxDict adpts;
     while(true)
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	switch(_state)
 	{
 	case Inactive:
@@ -685,30 +685,19 @@ ServerI::stopInternal(const Ice::Current& current)
 	process = _process;
     }
 
-    //
-    // Deactivate the server.
-    //
     try
     {
+	//
+	// Deactivate the server.
+	//
 	_activator->deactivate(name, process);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	Ice::Warning out(_traceLevels->logger);
-	out << "deactivation failed for server `" << name << "':\n";
-	out << ex;
-	
-	setState(Active, current);
-	return;
-    }
 
-    //
-    // Wait for the server to be inactive (the activator monitors the
-    // process and should notify us when it detects the process
-    // termination by calling the terminated() method).
-    //
-    {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	//
+	// Wait for the server to be inactive (the activator monitors
+	// the process and should notify us when it detects the
+	// process termination by calling the terminated() method).
+	//
+	Lock sync(*this);
 
 #ifndef NDEBUG
 	ServerState oldState = _state;
@@ -735,13 +724,20 @@ ServerI::stopInternal(const Ice::Current& current)
 		break;
 	    }
 	}
+
+	if(_traceLevels->server > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	    out << "graceful server shutdown timed out, killing server `" << name << "'";
+	}
     }
-    
-    if(_traceLevels->server > 1)
+    catch(const Ice::Exception& ex)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	out << "graceful server shutdown failed, killing server `" << name << "'";
+	Ice::Warning out(_traceLevels->logger);
+	out << "graceful server shutdown failed, killing server `" << name << "':\n";
+	out << ex;
     }
+
     
     //
     // The server is still not inactive, kill it.
