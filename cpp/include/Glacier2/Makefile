@@ -7,26 +7,20 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Freeze \
-		  Glacier \
-		  Glacier2 \
-		  Ice \
-		  IceBox \
-		  IcePack \
-		  IcePatch \
-		  IceSSL \
-		  IceStorm \
-		  IceUtil \
-		  IceXML \
-		  Slice
+install::
+	@if test ! -d $(install_includedir)/Glacier2 ; \
+	then \
+	    echo "Creating $(install_includedir)/Glacier2..." ; \
+	    mkdir $(install_includedir)/Glacier2 ; \
+	    chmod a+rx $(install_includedir)/Glacier2 ; \
+	fi
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
+	@for i in *.h ; \
 	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(install_includedir)/Glacier2/$$i ; \
 	done
