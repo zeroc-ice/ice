@@ -398,13 +398,12 @@ public:
 	finishedDownload(total);
         if(_patchTotal > 0)
         {
-            Long l = _runningTotal + _fileTotal;
-            Ice::Int percent = (l * 100) / _patchTotal;
+            Long percent = ((_runningTotal + _fileTotal) * 100) / _patchTotal;
             if(percent > 100)
             {
                 percent = 100;
             }
-            cout << " (" << percent << "% complete)";
+            cout << " (" << static_cast<Int>(percent) << "% complete)";
         }
 	cout << endl;
     }

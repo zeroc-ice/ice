@@ -17,6 +17,9 @@
 #include <IcePatch/FileLocator.h>
 #include <IcePatch/IcePatchI.h>
 #include <IcePatch/Util.h>
+#ifdef _WIN32
+#   include <direct.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -75,12 +78,44 @@ IcePatch::IcePatchService::IcePatchService() :
 void
 IcePatch::IcePatchService::usage(const string& name)
 {
-    cerr << "Usage: " << name << " [options]\n";
-    cerr <<     
+    string options =
         "Options:\n"
         "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        ;
+        "-v, --version        Display the Ice version.";
+#ifdef _WIN32
+    if(!win9x())
+    {
+        options.append(
+        "\n"
+        "\n"
+        "--service NAME       Run as the Windows service NAME.\n"
+        "\n"
+        "--install NAME [--display DISP] [--executable EXEC] [args]\n"
+        "                     Install as Windows service NAME. If DISP is\n"
+        "                     provided, use it as the display name,\n"
+        "                     otherwise NAME is used. If EXEC is provided,\n"
+        "                     use it as the service executable, otherwise\n"
+        "                     this executable is used. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service at startup.\n"
+        "--uninstall NAME     Uninstall Windows service NAME.\n"
+        "--start NAME [args]  Start Windows service NAME. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service.\n"
+        "--stop NAME          Stop Windows service NAME."
+        );
+    }
+#else
+    options.append(
+        "\n"
+        "\n"
+        "--daemon             Run as a daemon.\n"
+        "--noclose            Do not close open file descriptors.\n"
+        "--nochdir            Do not change the current working directory."
+    );
+#endif
+    cerr << "Usage: " << name << " [options]" << endl;
+    cerr << options << endl;
 }
 
 bool

@@ -934,7 +934,7 @@ IcePatch::getTotalMap(const CommunicatorPtr& communicator, const string& path)
 }
 
 void
-IcePatch::putTotalMap(const CommunicatorPtr& communicator, const string& path, const TotalMap& map)
+IcePatch::putTotalMap(const CommunicatorPtr& communicator, const string& path, const TotalMap& tot)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream os(instance.get());
@@ -942,8 +942,8 @@ IcePatch::putTotalMap(const CommunicatorPtr& communicator, const string& path, c
     //
     // Marshal the map.
     //
-    os.writeSize(static_cast<Int>(map.size()));
-    for(TotalMap::const_iterator p = map.begin(); p != map.end(); ++p)
+    os.writeSize(static_cast<Int>(tot.size()));
+    for(TotalMap::const_iterator p = tot.begin(); p != tot.end(); ++p)
     {
         os.write(p->first);
         os.write(p->second);
