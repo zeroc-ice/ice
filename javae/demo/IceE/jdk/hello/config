@@ -38,25 +38,3 @@ Ice.Trace.Network=0
 # 1 = trace protocol messages
 #
 Ice.Trace.Protocol=0
-
-#
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace warning messages
-# 2 = config file parsing warnings
-#
-IceSSL.Trace.Security=0
-
-#
-# SSL Configuration
-#
-Ice.Plugin.IceSSL=IceSSL.PluginFactory
-Ice.ThreadPerConnection=1
-IceSSL.Client.Keystore=../../../certs/client.jks
-IceSSL.Client.Password=password
-IceSSL.Client.Certs=../../../certs/certs.jks
-IceSSL.Server.Keystore=../../../certs/server.jks
-IceSSL.Server.Password=password
-IceSSL.Server.ClientAuth=1
-IceSSL.Server.Certs=../../../certs/certs.jks
