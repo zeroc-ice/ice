@@ -88,6 +88,7 @@ struct ExecuteInfo
     Ice::CommunicatorPtr communicator;
     Db* db;
     DbTxn* txn;
+    string facet;
     SymbolTablePtr symbolTable;
     DumpMap dumpMap;
     Slice::TypePtr keyType;
@@ -1283,6 +1284,8 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
             Destroyer<DataPtr> keyDataDestroyer(keyData);
             DataPtr valueData = _factory->create(info->valueType, true);
             Destroyer<DataPtr> valueDataDestroyer(valueData);
+            DataPtr facetData = _factory->createString(info->facet, true);
+            Destroyer<DataPtr> facetDataDestroyer(facetData);
 
             //
             // Unmarshal the key and value.
@@ -1309,6 +1312,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
                 SymbolTablePtr st = new SymbolTableI(_factory, _unit, _errorReporter, info, info->symbolTable);
                 st->add("key", keyData);
                 st->add("value", valueData);
+                st->add("facet", facetData);
                 ExecutableContainerDescriptor::execute(st, info);
             }
         }
@@ -1466,11 +1470,12 @@ FreezeScript::DumpDBDescriptor::execute(const SymbolTablePtr&, ExecuteInfo*)
 }
 
 void
-FreezeScript::DumpDBDescriptor::dump(const Ice::CommunicatorPtr& communicator, Db* db, DbTxn* txn)
+FreezeScript::DumpDBDescriptor::dump(const Ice::CommunicatorPtr& communicator, Db* db, DbTxn* txn, const string& facet)
 {
     _info->communicator = communicator;
     _info->db = db;
     _info->txn = txn;
+    _info->facet = facet;
 
     try
     {

@@ -446,7 +446,11 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             if(evictor)
             {
                 //
-                // Open the database and collect the names of the embedded databases.
+                // The evictor database file contains multiple databases. We must first
+                // determine the names of those databases, ignoring any whose names
+                // begin with "$index:". Each database represents a separate facet, with
+                // the facet name used as the database name. The database named "$default"
+                // represents the main object.
                 //
                 vector<string> dbNames;
                 {
@@ -473,19 +477,27 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                     db.close(0);
                 }
 
+                //
+                // Dump each database.
+                //
                 for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
                 {
+                    string name = *p;
+                    string facet = (name == "$default" ? "" : name);
                     Db db(&dbEnv, 0);
-                    db.open(txn, dbName.c_str(), p->c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
-                    descriptor->dump(communicator, &db, txn);
+                    db.open(txn, dbName.c_str(), name.c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+                    descriptor->dump(communicator, &db, txn, facet);
                     db.close(0);
                 }
             }
             else
             {
+                //
+                // Dump a map database.
+                //
                 Db db(&dbEnv, 0);
                 db.open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
-                descriptor->dump(communicator, &db, txn);
+                descriptor->dump(communicator, &db, txn, "");
                 db.close(0);
             }
         }
@@ -501,19 +513,34 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     catch(...)
     {
+        try
+        {
+            if(txn)
+            {
+                txn->abort();
+            }
+            dbEnv.close(0);
+        }
+        catch(const DbException& ex)
+        {
+            cerr << argv[0] << ": database error: " << ex.what() << endl;
+        }
+        throw;
+    }
+
+    try
+    {
         if(txn)
         {
             txn->abort();
         }
         dbEnv.close(0);
-        throw;
     }
-
-    if(txn)
+    catch(const DbException& ex)
     {
-        txn->abort();
+        cerr << argv[0] << ": database error: " << ex.what() << endl;
+        status = EXIT_FAILURE;
     }
-    dbEnv.close(0);
 
     return status;
 }

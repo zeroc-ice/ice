@@ -292,7 +292,7 @@ public:
     virtual void validate();
     virtual void execute(const SymbolTablePtr&, ExecuteInfo*);
 
-    void dump(const Ice::CommunicatorPtr&, Db*, DbTxn*);
+    void dump(const Ice::CommunicatorPtr&, Db*, DbTxn*, const std::string&);
 
 private:
 
