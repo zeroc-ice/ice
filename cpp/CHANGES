@@ -1,8 +1,16 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Several incompatible IceStorm changes:
+  * Moved the subscribe and unsubscribe operations to the Topic
+    interface.
+  * Added a type attribute to Topic to support the use of
+    checkedCast on Topic publisher objects.
+  * Added an object adapter to host publisher objects, and hence
+    a new configuration property IceStorm.Publish.Endpoints.
+
 - Added dynamic thread pools, i.e., thread pools that grow and shrink
-  based on a calculated load factory. Please see the section about
+  based on a calculated load factor. Please see the section about
   thread pools in the manual for further details.
 
 - Structs and sequences which hold other structs or sequences are now
