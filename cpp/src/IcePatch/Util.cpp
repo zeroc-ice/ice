@@ -532,7 +532,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     while(pos < totalBZ2)
     {
 	static const Int num = 64 * 1024;
-	
+
 	bytesBZ2 = regular->getBZ2(pos, num);
 	if (bytesBZ2.empty())
 	{
