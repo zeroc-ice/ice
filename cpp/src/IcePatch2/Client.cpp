@@ -238,7 +238,10 @@ Client::run(int argc, char* argv[])
 	    aborted = !patcher->patch("");
 	}
 
-	patcher->finish();
+	if(!aborted)
+	{
+	    patcher->finish();
+	}
     }
     catch(const string& ex)
     {

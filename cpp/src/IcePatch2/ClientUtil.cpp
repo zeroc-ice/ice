@@ -156,12 +156,14 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	const_cast<Int&>(_chunkSize) = 1;
     }
 
-    if(_dataDir[0] != '/')
-    {
 #ifdef _WIN32
+    if(_dataDir[0] != '/' && !(_dataDir.size() > 1 && isalpha(_dataDir[0]) && _dataDir[1] == ':'))
+    {
 	char cwd[_MAX_PATH];
 	if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
+    if(_dataDir[0] != '/')
+    {
 	char cwd[PATH_MAX];
 	if(getcwd(cwd, PATH_MAX) == NULL)
 #endif

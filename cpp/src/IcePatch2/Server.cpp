@@ -120,12 +120,14 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     try
     {
-	if(dataDir[0] != '/')
-	{
 #ifdef _WIN32
+	if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
+	{
 	    char cwd[_MAX_PATH];
 	    if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
+	if(dataDir[0] != '/')
+	{
 	    char cwd[PATH_MAX];
 	    if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
