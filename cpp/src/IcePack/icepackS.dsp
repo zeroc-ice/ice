@@ -121,10 +121,6 @@ SOURCE=.\Server.cpp
 
 SOURCE=.\ServerManager.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\ServerManagerI.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 

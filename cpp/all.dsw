@@ -206,6 +206,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Yellow
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -565,24 +571,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name locationForwardS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name asyncFHTC

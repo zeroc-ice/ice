@@ -43,7 +43,6 @@ tests = [ \
     "IceSSL/certificateVerifier", \
     "IceSSL/certificateVerification", \
     "IceXML/encoding", \
-    "IcePack/simple", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
@@ -58,6 +57,7 @@ tests = [ \
 #
 if TestUtil.isWin32() == 0:
     tests += [ \
+        "IcePack/simple", \
         "Glacier/starter", \
         ]
 
