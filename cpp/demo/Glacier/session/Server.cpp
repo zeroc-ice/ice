@@ -18,12 +18,12 @@
 
 using namespace std;
 
-class PasswordVerifierI : public Glacier::PasswordVerifier
+class PermissionsVerifierI : public Glacier::PermissionsVerifier
 {
 public:
 
     virtual bool
-    checkPassword(const string& userId, const string& password, const Ice::Current&) const
+    checkPermissions(const string& userId, const string& password, string&, const Ice::Current&) const
     {
 	return userId == password;
     }
@@ -41,10 +41,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     adapter->add(object, Ice::stringToIdentity("HelloSessionManager"));
 
     //
-    // Create the PasswordVerifier.
+    // Create the PermissionsVerifier.
     //
-    Ice::ObjectPtr passwdVerifier = new PasswordVerifierI;
-    adapter->add(passwdVerifier, Ice::stringToIdentity("PasswordVerifier"));
+    Ice::ObjectPtr passwdVerifier = new PermissionsVerifierI;
+    adapter->add(passwdVerifier, Ice::stringToIdentity("PermissionsVerifier"));
 
     adapter->activate();
     communicator->waitForShutdown();

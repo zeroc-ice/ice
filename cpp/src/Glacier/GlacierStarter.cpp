@@ -87,89 +87,63 @@ Glacier::RouterApp::run(int argc, char* argv[])
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier.Starter");
 
     //
-    // Get the permissions or password verifier. Create a password
-    // verifier if a verifier isn't specified.
+    // Get the permissions verifier, or create one if no verifier is
+    // specified.
     //
-    StarterPtr starter;
     string verifierProperty = properties->getProperty("Glacier.Starter.PermissionsVerifier");
+    PermissionsVerifierPrx verifier;
     if(!verifierProperty.empty())
     {
-	PermissionsVerifierPrx permissionsVerifier = PermissionsVerifierPrx::checkedCast(
-            communicator()->stringToProxy(verifierProperty));
-	if(!permissionsVerifier)
+	verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+	if(!verifier)
 	{
 	    cerr << appName() << ": permissions verifier `" << verifierProperty << "' is invalid" << endl;
 	    return EXIT_FAILURE;
 	}
-
-	//
-	// Create the starter object.
-	//
-	starter = new StarterI(communicator(), permissionsVerifier);
     }
     else
     {
-	string verifierProperty = properties->getProperty("Glacier.Starter.PasswordVerifier");
-	PasswordVerifierPrx passwordVerifier;
-	if(!verifierProperty.empty())
-	{
-	    passwordVerifier = PasswordVerifierPrx::checkedCast(
-                communicator()->stringToProxy(verifierProperty));
-	    if(!passwordVerifier)
-	    {
-		cerr << appName() << ": password verifier `" << verifierProperty << "' is invalid" << endl;
-		return EXIT_FAILURE;
-	    }
-	}
-	else
-	{
-	    string passwordsProperty = properties->getPropertyWithDefault(
-                "Glacier.Starter.CryptPasswords", "passwords");
+	string passwordsProperty = properties->getPropertyWithDefault("Glacier.Starter.CryptPasswords", "passwords");
 
-	    ifstream passwordFile(passwordsProperty.c_str());
+	ifstream passwordFile(passwordsProperty.c_str());
+	if(!passwordFile)
+	{
+	    cerr << appName() << ": cannot open `" << passwordsProperty << "' for reading: " << strerror(errno)
+		 << endl;
+	    return EXIT_FAILURE;
+	}
+
+	map<string, string> passwords;
+
+	while(true)
+	{
+	    string userId;
+	    passwordFile >> userId;
 	    if(!passwordFile)
 	    {
-		cerr << appName() << ": cannot open `" << passwordsProperty << "' for reading: " << strerror(errno)
-		     << endl;
-		return EXIT_FAILURE;
+		break;
 	    }
 
-	    map<string, string> passwords;
-
-	    while(true)
+	    string password;
+	    passwordFile >> password;
+	    if(!passwordFile)
 	    {
-		string userId;
-		passwordFile >> userId;
-		if(!passwordFile)
-		{
-		    break;
-		}
-
-		string password;
-		passwordFile >> password;
-		if(!passwordFile)
-		{
-		    break;
-		}
-
-		assert(!userId.empty());
-		assert(!password.empty());
-		passwords.insert(make_pair(userId, password));
+		break;
 	    }
 
-	    PasswordVerifierPtr verifierImpl = new CryptPasswordVerifierI(passwords);
-	    passwordVerifier = PasswordVerifierPrx::uncheckedCast(adapter->addWithUUID(verifierImpl));
+	    assert(!userId.empty());
+	    assert(!password.empty());
+	    passwords.insert(make_pair(userId, password));
 	}
 
-	//
-	// Create the starter object.
-	//
-	starter = new StarterI(communicator(), passwordVerifier);
+	PermissionsVerifierPtr verifierImpl = new CryptPasswordVerifierI(passwords);
+	verifier = PermissionsVerifierPrx::uncheckedCast(adapter->addWithUUID(verifierImpl));
     }
 
     //
-    // Initialize the starter object.
+    // Create and initialize the starter object.
     //
+    StarterPtr starter = new StarterI(communicator(), verifier);
     adapter->add(starter, stringToIdentity("Glacier/starter"));
 
     //

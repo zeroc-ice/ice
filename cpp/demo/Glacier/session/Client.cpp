@@ -81,7 +81,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cerr << argv[0] << ": " << ex << ":\n" << ex.reason << endl;
 	    return EXIT_FAILURE;
 	}
-	catch(const Glacier::InvalidPasswordException&)
+	catch(const Glacier::PermissionDeniedException&)
 	{
 	    cout << "password is invalid, try again" << endl;
 	    continue;

@@ -146,7 +146,7 @@ IcePatch::Client::run(int argc, char* argv[])
 		    cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 		    return EXIT_FAILURE;
 		}
-		catch(const Glacier::InvalidPasswordException&)
+		catch(const Glacier::PermissionDeniedException&)
 		{
 		    cout << "password is invalid, try again" << endl;
 		}

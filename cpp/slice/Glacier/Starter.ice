@@ -31,15 +31,6 @@ module Glacier
 
 /**
  *
- * This exception is raised if an incorrect password was given.
- *
- **/
-exception InvalidPasswordException
-{
-};
-
-/**
- *
  * This exception is raised if router access is denied.
  *
  **/
@@ -73,10 +64,10 @@ interface Starter
 {
     /**
      *
-     * Start a new &Glacier; router. If the password for the given
-     * user id is incorrect, an [InvalidPasswordException] is
-     * raised. Otherwise a new router is started, and a proxy to that
-     * router is returned to the caller.
+     * Start a new &Glacier; router. If the password for the given user
+     * id is incorrect, or if the user isn't allowed access, an
+     * [PermissionDeniedException] is raised. Otherwise a new router is
+     * started, and a proxy to that router is returned to the caller.
      *
      * @param userId The user id for which to check the password.
      *
@@ -93,35 +84,13 @@ interface Starter
      *
      * @return A proxy to the router that has been started.
      *
-     * @throws InvalidPasswordException Raised if the password for the
-     * given user id is not correct.
+     * @throws PermissionDeniedException Raised if the password for the
+     * given user id is not correct or if the user isn't allowed access.
      *
      **/
     Glacier::Router* startRouter(string userId, string password,
 				 out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
-	throws InvalidPasswordException, PermissionDeniedException, CannotStartRouterException;
-};
-
-/**
- *
- * The &Glacier; router starter password verifier.
- *
- **/
-interface PasswordVerifier
-{
-    /**
-     *
-     * Check whether a password is valid.
-     *
-     * @param userId The user id for which to check the password.
-     *
-     * @param password The password to check.
-     *
-     * @return true if the password is valid, or false otherwise.
-     *
-     **/
-    nonmutating
-    bool checkPassword(string userId, string password);
+	throws PermissionDeniedException, CannotStartRouterException;
 };
 
 /**

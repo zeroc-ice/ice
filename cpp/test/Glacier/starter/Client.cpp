@@ -84,7 +84,7 @@ CallbackClient::run(int argc, char* argv[])
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
-    catch(const Glacier::InvalidPasswordException& ex)
+    catch(const Glacier::PermissionDeniedException& ex)
     {
 	cerr << appName() << ": " << ex << endl;
 	return EXIT_FAILURE;
