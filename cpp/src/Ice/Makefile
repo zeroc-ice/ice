@@ -28,6 +28,7 @@ OBJS		= Initialize.o \
 		  Logger.o \
 		  LoggerUtil.o \
 		  LoggerI.o \
+		  Stats.o \
 		  SysLoggerI.o \
 		  Stream.o \
 		  BuiltinSequences.o \

@@ -35,6 +35,18 @@ public class Instance
         _logger = logger;
     }
 
+    public synchronized Ice.Stats
+    stats()
+    {
+        return _stats;
+    }
+
+    public synchronized void
+    stats(Ice.Stats stats)
+    {
+        _stats = stats;
+    }
+
     public TraceLevels
     traceLevels()
     {
@@ -175,6 +187,8 @@ public class Instance
 	    {
 		_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"));
 	    }
+
+	    _stats = null; // There is no default statistics callback object.
 
             _traceLevels = new TraceLevels(_properties);
 
@@ -365,6 +379,7 @@ public class Instance
     private boolean _destroyed;
     private Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
+    private Ice.Stats _stats; // Not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private RouterManager _routerManager;

@@ -330,6 +330,10 @@ SOURCE=.\ServantManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Stats.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Stream.cpp
 # End Source File
 # Begin Source File
@@ -791,6 +795,14 @@ SOURCE=.\ServantManager.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ServantManagerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Stats.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\StatsF.h
 # End Source File
 # Begin Source File
 
@@ -1773,6 +1785,81 @@ InputPath=..\..\slice\Ice\ServantLocatorF.ice
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
 	move ServantLocatorF.h ..\..\include\Ice 
 	del ServantLocatorF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Stats.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__LOGGE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stats.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stats.ice \
+	move Stats.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stats.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stats.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__LOGGE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Stats.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Stats.ice \
+	move Stats.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Stats.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Stats.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\StatsF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__STATS="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StatsF.ice
+
+"..\..\include\Ice\StatsF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StatsF.ice 
+	move StatsF.h ..\..\include\Ice 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__STATS="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\StatsF.ice
+
+"..\..\include\Ice\StatsF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StatsF.ice 
+	move StatsF.h ..\..\include\Ice 
+	del StatsF.cpp 
 	
 # End Custom Build
 

@@ -53,6 +53,9 @@ public:
     virtual LoggerPtr getLogger();
     virtual void setLogger(const LoggerPtr&);
 
+    virtual StatsPtr getStats();
+    virtual void setStats(const StatsPtr&);
+
     virtual void setDefaultRouter(const RouterPrx&);
 
     virtual void setDefaultLocator(const LocatorPrx&);

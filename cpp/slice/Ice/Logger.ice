@@ -20,9 +20,9 @@ module Ice
 
 /**
  *
- * The &Ice; message logger. Applications can provide their own Logger
+ * The &Ice; message logger. Applications can provide their own logger
  * by implementing this interface and installing it with with a
- * Communicator.
+ * communicator.
  *
  **/
 local interface Logger

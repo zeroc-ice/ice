@@ -16,6 +16,7 @@
 #define ICE_COMMUNICATOR_ICE
 
 #include <Ice/LoggerF.ice>
+#include <Ice/StatsF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/ObjectFactoryF.ice>
@@ -39,6 +40,7 @@ module Ice
  * language specific, and not specified in Slice code.
  *
  * @see Logger
+ * @see Stats
  * @see ObjectAdapter
  * @see Properties
  * @see ObjectFactory
@@ -322,6 +324,29 @@ local interface Communicator
      *
      **/
     void setLogger(Logger log);
+
+    /**
+     *
+     * Get the statistics callback object for this communicator.
+     *
+     * @return This communicator's statistics callback object.
+     *
+     * @see Stats
+     *
+     **/
+    Stats getStats();
+
+    /**
+     *
+     * Set the statistics callback object for this communicator.
+     *
+     * @param st The statistics callback object to use for this
+     * communicator.
+     *
+     * @see Stats
+     *
+     **/
+    void setStats(Stats st);
 
     /**
      *

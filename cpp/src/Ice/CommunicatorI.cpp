@@ -254,6 +254,28 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
     _instance->logger(logger);
 }
 
+StatsPtr
+Ice::CommunicatorI::getStats()
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->stats();
+}
+
+void
+Ice::CommunicatorI::setStats(const StatsPtr& stats)
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->stats(stats);
+}
+
 void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {

@@ -59,6 +59,7 @@ the Free Software Foundation.
                 <include name="Facet.ice" />
                 <include name="LocalException.ice" />
                 <include name="Logger.ice" />
+                <include name="Stats.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
                 <include name="Plugin.ice" />

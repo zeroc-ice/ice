@@ -22,6 +22,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/StatsF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
@@ -49,13 +50,15 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public ::IceUtil::Shared, public ::IceUtil::RecMutex
+class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
 
-    ::Ice::PropertiesPtr properties();
-    ::Ice::LoggerPtr logger();
-    void logger(const ::Ice::LoggerPtr&);
+    Ice::PropertiesPtr properties();
+    Ice::LoggerPtr logger();
+    void logger(const Ice::LoggerPtr&);
+    Ice::StatsPtr stats();
+    void stats(const Ice::StatsPtr&);
     TraceLevelsPtr traceLevels();
     DefaultsAndOverridesPtr defaultsAndOverrides();
     RouterManagerPtr routerManager();
@@ -71,19 +74,20 @@ public:
     ThreadPoolPtr serverThreadPool();
     EndpointFactoryManagerPtr endpointFactoryManager();
     DynamicLibraryListPtr dynamicLibraryList();
-    ::Ice::PluginManagerPtr pluginManager();
+    Ice::PluginManagerPtr pluginManager();
     
 private:
 
-    Instance(const ::Ice::CommunicatorPtr&, int&, char*[], const ::Ice::PropertiesPtr&);
+    Instance(const Ice::CommunicatorPtr&, int&, char*[], const Ice::PropertiesPtr&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
     void destroy();
-    friend class ::Ice::CommunicatorI;
+    friend class Ice::CommunicatorI;
 
     bool _destroyed;
-    ::Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
-    ::Ice::LoggerPtr _logger; // Not reset by destroy().
+    Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
+    Ice::LoggerPtr _logger; // Not reset by destroy().
+    Ice::StatsPtr _stats; // Not reset by destroy().
     TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
@@ -99,14 +103,14 @@ private:
     ThreadPoolPtr _serverThreadPool;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
-    ::Ice::PluginManagerPtr _pluginManager;
+    Ice::PluginManagerPtr _pluginManager;
 
     //
     // Global state management
     //
     friend class GlobalStateMutexDestroyer;
     static int _globalStateCounter;
-    static ::IceUtil::Mutex* _globalStateMutex;
+    static IceUtil::Mutex* _globalStateMutex;
 #ifndef _WIN32
     static std::string _identForOpenlog;
 #endif

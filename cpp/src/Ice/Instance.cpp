@@ -107,6 +107,20 @@ IceInternal::Instance::logger(const LoggerPtr& logger)
     _logger = logger;
 }
 
+StatsPtr
+IceInternal::Instance::stats()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _stats;
+}
+
+void
+IceInternal::Instance::stats(const StatsPtr& stats)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    _stats = stats;
+}
+
 TraceLevelsPtr
 IceInternal::Instance::traceLevels()
 {
@@ -335,6 +349,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 #else
 	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
 #endif
+
+	_stats = 0; // There is no default statistics callback object.
 
 	_traceLevels = new TraceLevels(_properties);
 
