@@ -14,13 +14,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final int
     hashCode()
     {
-        return _reference.hashValue;
+        return _reference.hashCode();
     }
 
     public final int
     ice_hash()
     {
-        return _reference.hashValue;
+        return _reference.hashCode();
     }
 
     public final boolean
@@ -193,13 +193,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Identity
     ice_getIdentity()
     {
-        return _reference.identity;
+        return _reference.getIdentity();
     }
 
     public final ObjectPrx
     ice_newIdentity(Identity newIdentity)
     {
-        if(newIdentity.equals(_reference.identity))
+        if(newIdentity.equals(_reference.getIdentity()))
         {
             return this;
         }
@@ -214,13 +214,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final java.util.Map
     ice_getContext()
     {
-        return _reference.context;
+        return _reference.getContext();
     }
 
     public final ObjectPrx
     ice_newContext(java.util.Map newContext)
     {
-        if(newContext.equals(_reference.context))
+        if(newContext.equals(_reference.getContext()))
         {
             return this;
         }
@@ -235,7 +235,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final String
     ice_getFacet()
     {
-        return _reference.facet;
+        return _reference.getFacet();
     }
 
     public final ObjectPrx
@@ -246,7 +246,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             newFacet = "";
         }
 
-        if(newFacet.equals(_reference.facet))
+        if(newFacet.equals(_reference.getFacet()))
         {
             return this;
         }
@@ -277,7 +277,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isTwoway()
     {
-	return _reference.mode == IceInternal.Reference.ModeTwoway;
+	return _reference.getMode() == IceInternal.Reference.ModeTwoway;
     }
 
     public final ObjectPrx
@@ -299,7 +299,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isOneway()
     {
-	return _reference.mode == IceInternal.Reference.ModeOneway;
+	return _reference.getMode() == IceInternal.Reference.ModeOneway;
     }
 
     public final ObjectPrx
@@ -321,7 +321,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchOneway()
     {
-	return _reference.mode == IceInternal.Reference.ModeBatchOneway;
+	return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
     }
 
     public final ObjectPrx
@@ -343,7 +343,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isDatagram()
     {
-	return _reference.mode == IceInternal.Reference.ModeDatagram;
+	return _reference.getMode() == IceInternal.Reference.ModeDatagram;
     }
 
     public final ObjectPrx
@@ -365,7 +365,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchDatagram()
     {
-	return _reference.mode == IceInternal.Reference.ModeBatchDatagram;
+	return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
     }
 
     public final ObjectPrx
@@ -573,12 +573,19 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    _delegate = null;
 	}
 
-	if(_reference.locatorInfo != null)
+	try
 	{
-	    _reference.locatorInfo.clearObjectCache(_reference);
+	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
+	    if(ir != null && ir.getLocatorInfo() != null)
+	    {
+	        ir.getLocatorInfo().clearObjectCache(ir);
+	    }
+	}
+	catch(ClassCastException e)
+	{
 	}
 
-	IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 	if(proxyFactory != null)
 	{
 	    return proxyFactory.checkRetryAfterException(ex, cnt);
@@ -594,9 +601,16 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         _delegate = null;
 
-	if(_reference.locatorInfo != null)
+	try
 	{
-	    _reference.locatorInfo.clearObjectCache(_reference);
+	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
+	    if(ir != null && ir.getLocatorInfo() != null)
+	    {
+	        ir.getLocatorInfo().clearObjectCache(ir);
+	    }
+	}
+	catch(ClassCastException e)
+	{
 	}
 
         throw ex;
@@ -623,9 +637,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         if(_delegate == null)
         {
-	    if(_reference.collocationOptimization)
+	    if(_reference.getCollocationOptimization())
 	    {
-		ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
+		ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
 		if(adapter != null)
 		{
 		    _ObjectDelD delegate = __createDelegateD();
@@ -645,10 +659,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 // using a router, then add this proxy to the router info
                 // object.
                 //
-                if(_reference.routerInfo != null)
-                {
-                    _reference.routerInfo.addProxy(this);
-                }
+		try
+		{
+		    IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+		    if(rr != null && rr.getRouterInfo() != null)
+		    {
+		        rr.getRouterInfo().addProxy(this);
+		    }
+		}
+		catch(ClassCastException e)
+		{
+		}
             }
         }
 
@@ -670,7 +691,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     protected java.util.Map
     __defaultContext()
     {
-        return _reference.context;
+        return _reference.getContext();
     }
 
     //

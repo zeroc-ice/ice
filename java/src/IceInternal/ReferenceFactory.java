@@ -17,11 +17,8 @@ public final class ReferenceFactory
            String facet,
            int mode,
            boolean secure,
-	   String adapterId,
            Endpoint[] endpoints,
            RouterInfo routerInfo,
-           LocatorInfo locatorInfo,
-           Ice.ConnectionI[] fixedConnections,
 	   boolean collocationOptimization)
     {
         if(_instance == null)
@@ -35,41 +32,82 @@ public final class ReferenceFactory
         }
 
         //
-        // Create a new reference
+        // Create new reference
         //
-        Reference ref = new Reference(_instance, ident, context, facet, mode, secure, adapterId,
-				      endpoints, routerInfo, locatorInfo, fixedConnections, collocationOptimization);
+        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode, secure,
+						  endpoints, routerInfo, collocationOptimization);
+	return updateCache(ref);
+    }
 
-        //
-        // If we already have an equivalent reference, use such equivalent
-        // reference. Otherwise add the new reference to the reference
-        // set.
-        //
-        // Java implementation note: A WeakHashMap is used to hold References,
-        // allowing References to be garbage collected automatically. A
-        // Reference serves as both key and value in the map. The
-        // WeakHashMap class internally creates a weak reference for the
-        // key, and we use a weak reference for the value as well.
-        //
-        java.lang.ref.WeakReference w = (java.lang.ref.WeakReference)_references.get(ref);
-        if(w != null)
+    public synchronized Reference
+    create(Ice.Identity ident,
+           java.util.Map context,
+           String facet,
+           int mode,
+           boolean secure,
+           String adapterId,
+           RouterInfo routerInfo,
+	   LocatorInfo locatorInfo,
+	   boolean collocationOptimization)
+    {
+        if(_instance == null)
         {
-            Reference r = (Reference)w.get();
-            if(r != null)
-            {
-                ref = r;
-            }
-            else
-            {
-                _references.put(ref, new java.lang.ref.WeakReference(ref));
-            }
-        }
-        else
-        {
-            _references.put(ref, new java.lang.ref.WeakReference(ref));
+            throw new Ice.CommunicatorDestroyedException();
         }
 
-        return ref;
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
+
+        //
+        // Create new reference
+        //
+        IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
+						    adapterId, routerInfo, locatorInfo, collocationOptimization);
+	return updateCache(ref);
+    }
+
+    public synchronized Reference
+    create(Ice.Identity ident,
+           java.util.Map context,
+           String facet,
+           int mode,
+           boolean secure,
+	   boolean collocationOptimization,
+	   Ice.ConnectionI[] fixedConnections)
+    {
+        if(_instance == null)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
+
+        //
+        // Create new reference
+        //
+        FixedReference ref = new FixedReference(_instance, ident, context, facet, mode, secure, fixedConnections);
+	return updateCache(ref);
+    }
+
+    public synchronized Reference
+    copy(Reference r)
+    {
+        if(_instance == null)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
+	Ice.Identity ident = r.getIdentity();
+	if(ident.name.length() == 0 && ident.category.length() == 0)
+	{
+	    return null;
+	}
+	return (Reference)r.clone();
     }
 
     public Reference
@@ -240,7 +278,7 @@ public final class ReferenceFactory
 
             //
             // If any new options are added here,
-            // IceInternal::Reference::toString() must be updated as well.
+            // IceInternal::Reference::toString() and its derived classes must be updated as well.
             //
             switch(option.charAt(1))
             {
@@ -346,76 +384,82 @@ public final class ReferenceFactory
             }
         }
 
-        java.util.ArrayList endpoints = new java.util.ArrayList();
-        if(beg != -1)
-        {
-	    if(s.charAt(beg) == ':')
-	    {
-                end = beg;
+	RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
+	LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
 
-                while(end < s.length() && s.charAt(end) == ':')
-                {
-		    beg = end + 1;
-		    
-		    end = s.indexOf(':', beg);
-		    if(end == -1)
-		    {
-			end = s.length();
-		    }
-		    
-		    String es = s.substring(beg, end);
-		    Endpoint endp = _instance.endpointFactoryManager().create(es);
-		    endpoints.add(endp);
-		}
-	    }
-	    else if(s.charAt(beg) == '@')
-	    {
-                beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
-                if(beg == -1)
-                {
-                    Ice.ProxyParseException e = new Ice.ProxyParseException();
-		    e.str = s;
-		    throw e;
-                }
-
-                end = IceUtil.StringUtil.checkQuote(s, beg);
-                if(end == -1)
-                {
-                    Ice.ProxyParseException e = new Ice.ProxyParseException();
-		    e.str = s;
-		    throw e;
-                }
-                else if(end == 0)
-                {
-                    end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
-                    if(end == -1)
-                    {
-                        end = s.length();
-                    }
-                }
-                else
-                {
-                    beg++; // Skip leading quote
-                }
-
-                Ice.StringHolder token = new Ice.StringHolder();
-                if(!IceUtil.StringUtil.unescapeString(s, beg, end, token) || token.value.length() == 0)
-                {
-                    Ice.ProxyParseException e = new Ice.ProxyParseException();
-		    e.str = s;
-		    throw e;
-                }
-                adapter = token.value;
-	    }
+	if(beg == -1)
+	{
+	    return create(ident, new java.util.HashMap(), facet, mode, secure, "", routerInfo, locatorInfo, true);
 	}
 
-        Endpoint[] endp = new Endpoint[endpoints.size()];
-        endpoints.toArray(endp);
+        java.util.ArrayList endpoints = new java.util.ArrayList();
 
-        RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, endp, routerInfo, locatorInfo,
-                      new Ice.ConnectionI[0], true);
+	if(s.charAt(beg) == ':')
+	{
+	    end = beg;
+
+	    while(end < s.length() && s.charAt(end) == ':')
+	    {
+		beg = end + 1;
+		
+		end = s.indexOf(':', beg);
+		if(end == -1)
+		{
+		    end = s.length();
+		}
+		
+		String es = s.substring(beg, end);
+		Endpoint endp = _instance.endpointFactoryManager().create(es);
+		endpoints.add(endp);
+	    }
+	    Endpoint[] endp = new Endpoint[endpoints.size()];
+	    endpoints.toArray(endp);
+	    return create(ident, new java.util.HashMap(), facet, mode, secure, endp, routerInfo, true);
+	}
+	else if(s.charAt(beg) == '@')
+	{
+	    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
+	    if(beg == -1)
+	    {
+		Ice.ProxyParseException e = new Ice.ProxyParseException();
+		e.str = s;
+		throw e;
+	    }
+
+	    end = IceUtil.StringUtil.checkQuote(s, beg);
+	    if(end == -1)
+	    {
+		Ice.ProxyParseException e = new Ice.ProxyParseException();
+		e.str = s;
+		throw e;
+	    }
+	    else if(end == 0)
+	    {
+		end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
+		if(end == -1)
+		{
+		    end = s.length();
+		}
+	    }
+	    else
+	    {
+		beg++; // Skip leading quote
+	    }
+
+	    Ice.StringHolder token = new Ice.StringHolder();
+	    if(!IceUtil.StringUtil.unescapeString(s, beg, end, token) || token.value.length() == 0)
+	    {
+		Ice.ProxyParseException e = new Ice.ProxyParseException();
+		e.str = s;
+		throw e;
+	    }
+	    adapter = token.value;
+	    return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, routerInfo, locatorInfo, true);
+	}
+
+	Ice.ProxyParseException ex = new Ice.ProxyParseException();
+	ex.str = s;
+	throw ex;
     }
 
     public Reference
@@ -460,6 +504,9 @@ public final class ReferenceFactory
         Endpoint[] endpoints;
 	String adapterId = "";
 
+        RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
+        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+
         int sz = s.readSize();
 	if(sz > 0)
 	{
@@ -468,17 +515,15 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
+	    return create(ident, new java.util.HashMap(), facet, mode, secure, endpoints, routerInfo, true);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
+	    return create(ident, new java.util.HashMap(), facet, mode, secure,
+	                  adapterId, routerInfo, locatorInfo, true);
 	}
-
-        RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, new java.util.HashMap(), facet, mode, secure,
-	              adapterId, endpoints, routerInfo, locatorInfo, new Ice.ConnectionI[0], true);
     }
 
     public synchronized void
@@ -525,6 +570,41 @@ public final class ReferenceFactory
         _defaultRouter = null;
         _defaultLocator = null;
         _references.clear();
+    }
+
+    private Reference
+    updateCache(Reference ref)
+    {
+        //
+        // If we already have an equivalent reference, use such equivalent
+        // reference. Otherwise add the new reference to the reference
+        // set.
+        //
+        // Java implementation note: A WeakHashMap is used to hold References,
+        // allowing References to be garbage collected automatically. A
+        // Reference serves as both key and value in the map. The
+        // WeakHashMap class internally creates a weak reference for the
+        // key, and we use a weak reference for the value as well.
+        //
+        java.lang.ref.WeakReference w = (java.lang.ref.WeakReference)_references.get(ref);
+        if(w != null)
+        {
+            Reference r = (Reference)w.get();
+            if(r != null)
+            {
+                ref = r;
+            }
+            else
+            {
+                _references.put(ref, new java.lang.ref.WeakReference(ref));
+            }
+        }
+        else
+        {
+            _references.put(ref, new java.lang.ref.WeakReference(ref));
+        }
+
+        return ref;
     }
 
     private Instance _instance;

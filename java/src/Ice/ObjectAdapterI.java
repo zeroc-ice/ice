@@ -379,7 +379,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        return findFacet(ref.identity, ref.facet);
+        return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
     public synchronized void
@@ -447,7 +447,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         connections.toArray(arr);
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
                                                                         IceInternal.Reference.ModeTwoway,
-                                                                        false, "", endpoints, null, null, arr, true);
+                                                                        false, true, arr);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
@@ -464,7 +464,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             // adapter.
             //
             ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-            IceInternal.Endpoint[] endpoints = proxy.__reference().endpoints;
+            IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
             for(int i = 0; i < endpoints.length; ++i)
             {
                 _routerEndpoints.add(endpoints[i]);
@@ -525,15 +525,22 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        final IceInternal.Endpoint[] endpoints = ref.endpoints;
+        final IceInternal.Endpoint[] endpoints = ref.getEndpoints();
 
-	if(!ref.adapterId.equals(""))
+	try
 	{
-	    //
-	    // Proxy is local if the reference adapter id matches this
-	    // adapter name.
-	    //
-	    return ref.adapterId.equals(_id);
+	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)ref;
+	    if(ir.getAdapterId().length() != 0)
+	    {
+		//
+		// Proxy is local if the reference adapter id matches this
+		// adapter name.
+		//
+		return ir.getAdapterId().equals(_id);
+	    }
+	}
+	catch(ClassCastException e)
+	{
 	}
 
         //
@@ -756,8 +763,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new java.util.HashMap(), facet,
-		                                    IceInternal.Reference.ModeTwoway, false, _id, endpoints, null,
-                                                    _locatorInfo, connections, true);
+		                                    IceInternal.Reference.ModeTwoway, false, _id, null,
+                                                    _locatorInfo, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
     }
@@ -805,7 +812,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         ConnectionI[] connections = new ConnectionI[0];
         IceInternal.Reference reference =
 	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, IceInternal.Reference.ModeTwoway,
-                                                false, "", endpoints, null, _locatorInfo, connections, true);
+                                                false, endpoints, null, true);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 

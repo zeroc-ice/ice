@@ -950,12 +950,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         // Create a reference and return a reverse proxy for this
         // reference.
         //
-        IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
         ConnectionI[] connections = new ConnectionI[1];
         connections[0] = this;
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
-                                                                        IceInternal.Reference.ModeTwoway, false, "",
-                                                                        endpoints, null, null, connections, true);
+                                                                        IceInternal.Reference.ModeTwoway, false,
+                                                                        true, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 

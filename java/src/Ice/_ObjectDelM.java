@@ -125,7 +125,7 @@ public class _ObjectDelM implements _ObjectDel
                 __os.writeBlob(inParams);
             }
             boolean ok = __out.invoke();
-            if(__reference.mode == IceInternal.Reference.ModeTwoway)
+            if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
                 try
                 {
@@ -193,7 +193,8 @@ public class _ObjectDelM implements _ObjectDel
 	assert(__connection == null);
 
 	__reference = ref;
-	__connection = __reference.getConnection();
+	BooleanHolder compress = new BooleanHolder();
+	__connection = __reference.getConnection(compress);
     }
     
     protected IceInternal.Outgoing

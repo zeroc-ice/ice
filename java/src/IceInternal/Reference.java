@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public final class Reference
+public abstract class Reference implements Cloneable
 {
     public final static int ModeTwoway = 0;
     public final static int ModeOneway = 1;
@@ -18,100 +18,173 @@ public final class Reference
     public final static int ModeBatchDatagram = 4;
     public final static int ModeLast = ModeBatchDatagram;
 
-    public int
+    public final int
+    getMode()
+    {
+        return _mode;
+    }
+    public final Ice.Identity
+    getIdentity()
+    {
+        return _identity;
+    }
+
+    public java.util.Map
+    getContext()
+    {
+        return _context;
+    }
+
+    public final String
+    getFacet()
+    {
+        return _facet;
+    }
+
+    public final boolean
+    getSecure()
+    {
+        return _secure;
+    }
+
+    public final Instance
+    getInstance()
+    {
+        return _instance;
+    }
+
+    public Reference
+    changeMode(int newMode)
+    {
+        if(newMode == _mode)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._mode = newMode;
+	return r;
+    }
+
+    public Reference
+    changeIdentity(Ice.Identity newIdentity)
+    {
+        if(newIdentity.equals(_identity))
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._identity = newIdentity;
+	return r;
+    }
+
+    public Reference
+    changeContext(java.util.Map newContext)
+    {
+        if(newContext.equals(_context))
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._context = newContext;
+	return r;
+    }
+
+    public Reference
+    changeFacet(String newFacet)
+    {
+        if(newFacet.equals(_facet))
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._facet = newFacet;
+	return r;
+    }
+
+    public Reference
+    changeSecure(boolean newSecure)
+    {
+        if(newSecure == _secure)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._secure = newSecure;
+	return r;
+    }
+
+    public synchronized int
     hashCode()
     {
-        return hashValue;
+	if(_hashInitialized)
+	{
+	    return _hashValue;
+	}
+        
+        int h = _mode;
+
+        int sz = _identity.name.length();
+        for(int i = 0; i < sz; i++)
+        {   
+            h = 5 * h + (int)_identity.name.charAt(i);
+        }
+
+        sz = _identity.category.length();
+        for(int i = 0; i < sz; i++)
+        {   
+            h = 5 * h + (int)_identity.category.charAt(i);
+        }
+
+	h = 5 * h + _context.entrySet().hashCode();
+
+        sz = _facet.length();
+        for(int i = 0; i < sz; i++)
+        {   
+            h = 5 * h + (int)_facet.charAt(i);
+        }
+
+        h = 5 * h + (_secure ? 1 : 0);
+
+	_hashValue = h;
+	_hashInitialized = true;
+
+        return h;
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
-        Reference r = (Reference)obj;
+	//
+	// Note: if(this == obj) and type test are performed by each non-abstract derived class.
+	//
 
-        if(r == null)
+        Reference r = (Reference)obj; // Guaranteed to succeed.
+
+        if(_mode != r._mode)
         {
             return false;
         }
 
-        if(this == r)
-        {
-            return true;
-        }
-
-        if(!identity.category.equals(r.identity.category))
+        if(!_identity.equals(r._identity))
         {
             return false;
         }
 
-        if(!identity.name.equals(r.identity.name))
-        {
-            return false;
-        }
-
-	if(!context.equals(r.context))
+	if(!_context.equals(r._context))
 	{
 	    return false;
 	}
 
-        if(!facet.equals(r.facet))
+        if(!_facet.equals(r._facet))
         {
             return false;
         }
 
-        if(mode != r.mode)
+        if(_secure != r._secure)
         {
             return false;
         }
 
-        if(secure != r.secure)
-        {
-            return false;
-        }
-
-	if(!adapterId.equals(r.adapterId))
-	{
-	    return false;
-	}
-	
-        if(!compare(endpoints, r.endpoints))
-        {
-            return false;
-        }
-
-        if(routerInfo != r.routerInfo)
-        {
-            return false;
-        }
-
-        if(routerInfo != null && r.routerInfo != null &&
-	   !routerInfo.equals(r.routerInfo))
-        {
-            return false;
-        }
-
-        if(locatorInfo != r.locatorInfo)
-        {
-            return false;
-        }
-
-        if(locatorInfo != null && r.locatorInfo != null &&
-	   !locatorInfo.equals(r.locatorInfo))
-        {
-            return false;
-        }
-
-        if(fixedConnections != null && r.fixedConnections != null &&
-           !java.util.Arrays.equals(fixedConnections, r.fixedConnections))
-        {
-            return false;
-        }
-
-        if(collocationOptimization != r.collocationOptimization)
-        {
-            return false;
-        }
-	
         return true;
     }
 
@@ -129,35 +202,21 @@ public final class Reference
         //
         // For compatibility with the old FacetPath.
         //
-        if(facet.length() == 0)
+        if(_facet.length() == 0)
         {
             s.writeStringSeq(null);
         }
         else
         {
-            String[] facetPath = { facet };
+            String[] facetPath = { _facet };
             s.writeStringSeq(facetPath);
         }
 
-        s.writeByte((byte)mode);
+        s.writeByte((byte)_mode);
 
-        s.writeBool(secure);
+        s.writeBool(_secure);
 
-	s.writeSize(endpoints.length);
-
-	if(endpoints.length > 0)
-	{
-	    assert(adapterId.equals(""));
-	    
-            for(int i = 0; i < endpoints.length; i++)
-            {
-                endpoints[i].streamWrite(s);
-            }
-	}
-        else
-        {
-	    s.writeString(adapterId);
-        }
+	// Derived class writes the remainder of the reference.
     }
 
     //
@@ -173,7 +232,7 @@ public final class Reference
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        String id = Ice.Util.identityToString(identity);
+        String id = Ice.Util.identityToString(_identity);
         if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
         {
             s.append('"');
@@ -185,7 +244,7 @@ public final class Reference
             s.append(id);
         }
 
-        if(facet.length() > 0)
+        if(_facet.length() > 0)
         {
             //
             // If the encoded facet string contains characters which
@@ -193,7 +252,7 @@ public final class Reference
             // the facet string in quotes.
             //
             s.append(" -f ");
-            String fs = IceUtil.StringUtil.escapeString(facet, "");
+            String fs = IceUtil.StringUtil.escapeString(_facet, "");
             if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
             {
                 s.append('"');
@@ -206,7 +265,7 @@ public final class Reference
             }
         }
 
-        switch(mode)
+        switch(_mode)
         {
             case ModeTwoway:
             {
@@ -239,386 +298,68 @@ public final class Reference
             }
         }
 
-        if(secure)
+        if(_secure)
         {
             s.append(" -s");
         }
 
-	if(endpoints.length > 0)
-	{
-	    assert(adapterId.equals(""));
-
-	    for(int i = 0; i < endpoints.length; i++)
-	    {
-		String endp = endpoints[i].toString();
-		if(endp != null && endp.length() > 0)
-		{
-		    s.append(':');
-		    s.append(endp);
-		}
-	    }
-	}
-        else
-        {
-            String a = IceUtil.StringUtil.escapeString(adapterId, null);
-            //
-            // If the encoded adapter id string contains characters which
-            // the reference parser uses as separators, then we enclose
-            // the adapter id string in quotes.
-            //
-            s.append(" @ ");
-            if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
-            {
-                s.append('"');
-                s.append(a);
-                s.append('"');
-            }
-            else
-            {
-                s.append(a);
-            }
-        }
-
         return s.toString();
+
+	// Derived class writes the remainder of the string.
     }
 
-    //
-    // All members are treated as const, because References are immutable.
-    //
-    final public Instance instance;
-    final public Ice.Identity identity;
-    final public java.util.Map context;
-    final public String facet;
-    final public int mode;
-    final public boolean secure;
-    final public String adapterId;
-    final public Endpoint[] endpoints;
-    final public RouterInfo routerInfo; // Null if no router is used.
-    final public LocatorInfo locatorInfo; // Null if no locator is used.
-    final public Ice.ConnectionI[] fixedConnections; // For using fixed connections, otherwise empty.
-    final public boolean collocationOptimization;
-    final public int hashValue;
-
-    //
-    // Get a new reference, based on the existing one, overwriting
-    // certain values.
-    //
-    public Reference
-    changeIdentity(Ice.Identity newIdentity)
+    public Object clone()
     {
-        if(newIdentity.equals(identity))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(newIdentity, context, facet, mode, secure, adapterId,
- 						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeContext(java.util.Map newContext)
-    {
-        if(newContext.equals(context))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, newContext, facet, mode, secure, adapterId,
- 						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeFacet(String newFacet)
-    {
-        if(facet.equals(newFacet))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, newFacet, mode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeTimeout(int newTimeout)
-    {
-        //
-        // We change the timeout settings in all endpoints.
-        //
-        Endpoint[] newEndpoints = new Endpoint[endpoints.length];
-        for(int i = 0; i < endpoints.length; i++)
-        {
-            newEndpoints[i] = endpoints[i].timeout(newTimeout);
-        }
-
-        return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
-						  newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						  collocationOptimization);
-    }
-
-    public Reference
-    changeMode(int newMode)
-    {
-        if(newMode == mode)
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, newMode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeSecure(boolean newSecure)
-    {
-        if(newSecure == secure)
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, mode, newSecure, adapterId,
-						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeCompress(boolean newCompress)
-    {
-        //
-        // We change the compress settings in all endpoints.
-        //
-        Endpoint[] newEndpoints = new Endpoint[endpoints.length];
-        for(int i = 0; i < endpoints.length; i++)
-        {
-            newEndpoints[i] = endpoints[i].compress(newCompress);
-        }
-
-        return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
-						  newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						  collocationOptimization);
-    }
-
-    public Reference
-    changeAdapterId(String newAdapterId)
-    {
-	if(adapterId.equals(newAdapterId))
+	Object o = null;
+	try
 	{
-	    return this;
+	    o = super.clone();
 	}
-	else
+	catch(CloneNotSupportedException ex)
 	{
-	    return instance.referenceFactory().create(identity, context, facet, mode, secure, newAdapterId,
-						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
 	}
+	return o;
     }
 
-    public Reference
-    changeEndpoints(Endpoint[] newEndpoints)
+    private Instance _instance;
+
+    private int _mode;
+    private Ice.Identity _identity;
+    private java.util.Map _context;
+    private String _facet;
+    private boolean _secure;
+
+    private int _hashValue;
+    private boolean _hashInitialized;
+
+    protected
+    Reference(Instance inst,
+              Ice.Identity ident,
+	      java.util.Map ctx,
+              String fac,
+              int md,
+              boolean sec)
     {
-        if(compare(newEndpoints, endpoints))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeRouter(Ice.RouterPrx newRouter)
-    {
-        RouterInfo newRouterInfo = instance.routerManager().get(newRouter);
-
-        if((routerInfo == newRouterInfo) ||
-            (routerInfo != null && newRouterInfo != null && newRouterInfo.equals(routerInfo)))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, newRouterInfo, locatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeLocator(Ice.LocatorPrx newLocator)
-    {
-        LocatorInfo newLocatorInfo = instance.locatorManager().get(newLocator);
-
-        if((locatorInfo == newLocatorInfo) ||
-            (locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(locatorInfo)))
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, routerInfo, newLocatorInfo, fixedConnections,
-						      collocationOptimization);
-        }
-    }
-
-    public Reference
-    changeCollocationOptimization(boolean newCollocationOptimization)
-    {
-        if(newCollocationOptimization == collocationOptimization)
-        {
-            return this;
-        }
-        else
-        {
-            return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, fixedConnections,
-						      newCollocationOptimization);
-        }
-    }
-
-    public Reference
-    changeDefault()
-    {
-        RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
-        LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
-
-        return instance.referenceFactory().create(identity, context, "", ModeTwoway, false, adapterId,
-						  endpoints, routerInfo, locatorInfo, new Ice.ConnectionI[0], true);
-    }
-
-    //
-    // Get a suitable connection for this reference.
-    //
-    public Ice.ConnectionI
-    getConnection()
-    {
-	Ice.ConnectionI connection;
-
         //
-        // If we have a fixed connection, we return such fixed connection.
+        // Validate string arguments.
         //
-        if(fixedConnections.length > 0)
-        {
-            Ice.ConnectionI[] filteredConns = filterConnections(fixedConnections);
-            if(filteredConns.length == 0)
-            {
-                Ice.NoEndpointException e = new Ice.NoEndpointException();
-		e.proxy = toString();
-		throw e;
-            }
+        assert(ident.name != null);
+        assert(ident.category != null);
+        assert(fac != null);
 
-            connection = filteredConns[0];
-        }
-        else
-        {
-	    while(true)
-	    {
-		Ice.BooleanHolder cached = new Ice.BooleanHolder();
-		cached.value = false;
-		Endpoint[] endpts = null;
-
-		if(routerInfo != null)
-		{
-		    //
-		    // If we route, we send everything to the router's client
-		    // proxy endpoints.
-		    //
-		    Ice.ObjectPrx clientProxy = routerInfo.getClientProxy();
-		    endpts = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().endpoints;
-		}
-		else if(endpoints.length > 0)
-		{
-		    endpts = endpoints;
-		}
-		else if(locatorInfo != null)
-		{
-		    endpts = locatorInfo.getEndpoints(this, cached);
-		}
-
-		Endpoint[] filteredEndpts = null;
-                if(endpts != null)
-                {
-                    filteredEndpts = filterEndpoints(endpts);
-                }
-		if(filteredEndpts == null || filteredEndpts.length == 0)
-		{
-		    Ice.NoEndpointException e = new Ice.NoEndpointException();
-		    e.proxy = toString();
-		    throw e;
-		}
-
-		try
-		{
-		    OutgoingConnectionFactory factory = instance.outgoingConnectionFactory();
-		    connection = factory.create(filteredEndpts);
-		    assert(connection != null);
-		}
-		catch(Ice.LocalException ex)
-		{
-		    if(routerInfo == null && endpoints.length == 0)
-		    {
-			assert(locatorInfo != null);
-			locatorInfo.clearCache(this);
-			
-			if(cached.value)
-			{
-			    TraceLevels traceLevels = instance.traceLevels();
-			    Ice.Logger logger = instance.logger();
-			    
-			    if(traceLevels.retry >= 2)
-			    {
-				String s = "connection to cached endpoints failed\n" +
-				    "removing endpoints from cache and trying one more time\n" + ex;
-				logger.trace(traceLevels.retryCat, s);
-			    }
-			    
-			    continue;
-			}
-		    }
-
-		    throw ex;
-		}   
-
-		break;
-	    }
-
-            //
-            // If we have a router, set the object adapter for this
-            // router (if any) to the new connection, so that
-            // callbacks from the router can be received over this new
-            // connection.
-            //
-            if(routerInfo != null)
-            {
-                connection.setAdapter(routerInfo.getAdapter());
-            }
-        }
-
-	assert(connection != null);
-	return connection;
+        _instance = inst;
+        _mode = md;
+        _identity = ident;
+	_context = ctx;
+        _facet = fac;
+        _secure = sec;
+	_hashInitialized = false;
     }
 
     //
     // Filter endpoints based on criteria from this reference.
     //
-    public Endpoint[]
+    protected Endpoint[]
     filterEndpoints(Endpoint[] allEndpoints)
     {
         java.util.ArrayList endpoints = new java.util.ArrayList();
@@ -634,7 +375,7 @@ public final class Reference
             }
         }
 
-        switch(mode)
+        switch(_mode)
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -685,7 +426,7 @@ public final class Reference
         // secure endpoints by partitioning the endpoint vector, so that
         // non-secure endpoints come first.
         //
-        if(secure)
+        if(_secure)
         {
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
@@ -733,6 +474,30 @@ public final class Reference
     
     private static EndpointComparator _endpointComparator = new EndpointComparator();
 
+    protected boolean
+    compare(Endpoint[] arr1, Endpoint[] arr2)
+    {
+        if(arr1 == arr2)
+        {
+            return true;
+        }
+
+        if(arr1.length == arr2.length)
+        {
+            for(int i = 0; i < arr1.length; i++)
+            {
+                if(!arr1[i].equals(arr2[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     //
     // Filter connections based on criteria from this reference.
     //
@@ -741,7 +506,7 @@ public final class Reference
     {
         java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
 
-        switch(mode)
+        switch(_mode)
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -790,7 +555,7 @@ public final class Reference
         // secure endpoints by partitioning the endpoint vector, so that
         // non-secure endpoints come first.
         //
-        if(secure)
+        if(_secure)
         {
             java.util.Iterator i = connections.iterator();
             while(i.hasNext())
@@ -838,104 +603,13 @@ public final class Reference
     
     private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 
-    //
-    // Only for use by ReferenceFactory
-    //
-    Reference(Instance inst,
-              Ice.Identity ident,
-	      java.util.Map ctx,
-              String fac,
-              int md,
-              boolean sec,
-	      String adptId,
-              Endpoint[] endpts,
-              RouterInfo rtrInfo,
-	      LocatorInfo locInfo,
-              Ice.ConnectionI[] fixedConns,
-	      boolean collocationOpt)
-    {
-        //
-        // Validate string arguments.
-        //
-        assert(ident.name != null);
-        assert(ident.category != null);
-        assert(fac != null);
-        assert(adptId != null);
-
-	//
-	// It's either adapter id or endpoints, it can't be both.
-	//
-	assert(!(!adptId.equals("") && !(endpts.length == 0)));
-
-        instance = inst;
-        identity = ident;
-	context = ctx;
-        facet = fac;
-        mode = md;
-        secure = sec;
-	adapterId = adptId;
-        endpoints = endpts;
-        routerInfo = rtrInfo;
-        locatorInfo = locInfo;
-        fixedConnections = fixedConns;
-	collocationOptimization = collocationOpt;
-
-        int h = 0;
-
-        int sz = identity.name.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)identity.name.charAt(i);
-        }
-
-        sz = identity.category.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)identity.category.charAt(i);
-        }
-
-	h = 5 * h + context.entrySet().hashCode();
-
-        sz = facet.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)facet.charAt(i);
-        }
-
-        h = 5 * h + mode;
-
-        h = 5 * h + (secure ? 1 : 0);
-
-        //
-        // TODO: Should we also take the endpoints into account for hash
-        // calculation? Perhaps not, the code above should be good enough
-        // for a good hash value.
-        //
-
-	hashValue = h;
-    }
-
-    private boolean
-    compare(Endpoint[] arr1, Endpoint[] arr2)
-    {
-        if(arr1 == arr2)
-        {
-            return true;
-        }
-
-        if(arr1.length == arr2.length)
-        {
-            for(int i = 0; i < arr1.length; i++)
-            {
-                if(!arr1[i].equals(arr2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
+    public abstract Endpoint[] getEndpoints();
+    public abstract boolean getCollocationOptimization();
+    public abstract Reference changeRouter(Ice.RouterPrx newRouter);
+    public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
+    public abstract Reference changeDefault();
+    public abstract Reference changeCompress(boolean newCompress);
+    public abstract Reference changeTimeout(int newTimeout);
+    public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
+    public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
 }

@@ -18,8 +18,8 @@ public final class Outgoing
         _connection = connection;
         _reference = ref;
         _state = StateUnsent;
-        _is = new BasicStream(ref.instance);
-        _os = new BasicStream(ref.instance);
+        _is = new BasicStream(ref.getInstance());
+        _os = new BasicStream(ref.getInstance());
 
         writeHeader(operation, mode, context);
     }
@@ -69,7 +69,7 @@ public final class Outgoing
 
         _os.endWriteEncaps();
 
-        switch(_reference.mode)
+        switch(_reference.getMode())
         {
             case Reference.ModeTwoway:
             {
@@ -234,7 +234,8 @@ public final class Outgoing
 	// must notify the connection about that we give up ownership
 	// of the batch stream.
 	//
-	if(_reference.mode == Reference.ModeBatchOneway || _reference.mode == Reference.ModeBatchDatagram)
+	int mode = _reference.getMode();
+	if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
 	{
 	    _connection.abortBatchRequest();
 
@@ -253,7 +254,7 @@ public final class Outgoing
     public synchronized void
     finished(BasicStream is)
     {
-	assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
 	
 	assert(_state <= StateInProgress);
 	
@@ -398,7 +399,7 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-	assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
 	
 	assert(_state <= StateInProgress);
 
@@ -422,7 +423,7 @@ public final class Outgoing
     private void
     writeHeader(String operation, Ice.OperationMode mode, java.util.Map context)
     {
-        switch(_reference.mode)
+        switch(_reference.getMode())
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
@@ -440,18 +441,19 @@ public final class Outgoing
             }
         }
 
-        _reference.identity.__write(_os);
+        _reference.getIdentity().__write(_os);
 
         //
         // For compatibility with the old FacetPath.
         //
-        if(_reference.facet == null || _reference.facet.length() == 0)
+	String facet = _reference.getFacet();
+        if(facet == null || facet.length() == 0)
         {
             _os.writeStringSeq(null);
         }
         else
         {
-            String[] facetPath = { _reference.facet };
+            String[] facetPath = { facet };
             _os.writeStringSeq(facetPath);
         }
 

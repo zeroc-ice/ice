@@ -87,9 +87,11 @@ public class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(Endpoint[] endpoints)
+    create(Endpoint[] endpoints, Ice.BooleanHolder compress)
     {
 	assert(endpoints.length > 0);
+
+        compress.value = false; // TODO: compression is not supported yet.
 
 	synchronized(this)
 	{
@@ -363,7 +365,7 @@ public class OutgoingConnectionFactory
             Ice.ObjectPrx proxy = routerInfo.getClientProxy();
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
+            Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
             for(int i = 0; i < endpoints.length; i++)
             {
 		Endpoint endpoint = endpoints[i];

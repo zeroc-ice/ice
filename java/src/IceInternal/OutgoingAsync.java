@@ -175,9 +175,13 @@ public abstract class OutgoingAsync
 	{
 	    if(_reference != null)
 	    {
-		if(_reference.locatorInfo != null)
+		try
 		{
-		    _reference.locatorInfo.clearObjectCache(_reference);
+		    IndirectReference ir = (IndirectReference)_reference;
+		    ir.getLocatorInfo().clearObjectCache(ir);
+		}
+		catch(ClassCastException ex)
+		{
 		}
 		
 		boolean doRetry = false;
@@ -196,7 +200,7 @@ public abstract class OutgoingAsync
 		{
 		    try
 		    {
-			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 			if(proxyFactory != null)
 			{
 			    _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
@@ -279,36 +283,46 @@ public abstract class OutgoingAsync
 		
 		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();
 		assert(_connection == null);
-		_connection = _reference.getConnection();
+		Ice.BooleanHolder compress = new Ice.BooleanHolder();
+		_connection = _reference.getConnection(compress);
 		_cnt = 0;
 		_mode = mode;
 		assert(__is == null);
-		__is = new BasicStream(_reference.instance);
+		__is = new BasicStream(_reference.getInstance());
 		assert(__os == null);
-		__os = new BasicStream(_reference.instance);
+		__os = new BasicStream(_reference.getInstance());
 		
                 //
                 // If we are using a router, then add the proxy to the router info object.
                 //
-                if(_reference.routerInfo != null)
-                {
-                    _reference.routerInfo.addProxy(prx);
-                }
+		try
+		{
+		    RoutableReference rr = (RoutableReference)_reference;
+		    if(rr != null && rr.getRouterInfo() != null)
+		    {
+		        rr.getRouterInfo().addProxy(prx);
+		    }
+
+		}
+		catch(ClassCastException ex)
+		{
+		}
 
 		_connection.prepareRequest(__os);
 		
-		_reference.identity.__write(__os);
+		_reference.getIdentity().__write(__os);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(_reference.facet == null || _reference.facet.length() == 0)
+		String facet = _reference.getFacet();
+                if(facet == null || facet.length() == 0)
                 {
                     __os.writeStringSeq(null);
                 }
                 else
                 {
-                    String[] facetPath = { _reference.facet };
+                    String[] facetPath = { facet };
                     __os.writeStringSeq(facetPath);
                 }
 
@@ -357,7 +371,8 @@ public abstract class OutgoingAsync
 		{
 		    if(_connection == null)
 		    {
-			_connection = _reference.getConnection();
+		        Ice.BooleanHolder compress = new Ice.BooleanHolder();
+			_connection = _reference.getConnection(compress);
 		    }
 		    
 		    if(_connection.timeout() >= 0)
@@ -384,12 +399,19 @@ public abstract class OutgoingAsync
 		    }
 		    catch(Ice.LocalException ex)
 		    {
-			if(_reference.locatorInfo != null)
+			try
 			{
-			    _reference.locatorInfo.clearObjectCache(_reference);
+			    IndirectReference ir = (IndirectReference)_reference;
+			    if(ir != null && ir.getLocatorInfo() != null)
+			    {
+			        ir.getLocatorInfo().clearObjectCache(ir);
+			    }
+			}
+			catch(ClassCastException e)
+			{
 			}
 			
-			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 			if(proxyFactory != null)
 			{
 			    _cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
@@ -417,7 +439,7 @@ public abstract class OutgoingAsync
     {
 	if(_reference != null) // Don't print anything if cleanup() was already called.
 	{
-	    if(_reference.instance.properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	    if(_reference.getInstance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	    {
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -426,7 +448,7 @@ public abstract class OutgoingAsync
 		out.print("exception raised by AMI callback:\n");
 		ex.printStackTrace(pw);
 		pw.flush();
-		_reference.instance.logger().warning(sw.toString());
+		_reference.getInstance().logger().warning(sw.toString());
 	    }
 	}
     }

@@ -136,8 +136,8 @@ public class _ObjectDelD implements _ObjectDel
     __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map context)
     {
         current.adapter = __adapter;
-        current.id = __reference.identity;
-        current.facet = __reference.facet;
+        current.id = __reference.getIdentity();
+        current.facet = __reference.getFacet();
         current.operation = op;
         current.mode = mode;
         current.ctx = context;
