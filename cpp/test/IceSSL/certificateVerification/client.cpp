@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <Ice/System.h>
 #include <Ice/SslException.h>
+#include <Ice/SslExtension.h>
 #include <TestCommon.h>
 #include <Pinger.h>
 
@@ -40,11 +41,23 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     properties->setProperty("Ice.SSL.Client.CertPath","../certs");
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
 
+    bool singleCertVerifier = false;
+    if (properties->getProperty("Ice.SSL.Client.CertificateVerifier") == "singleCert")
+    {
+        singleCertVerifier = true;
+    }
+
     cout << "client and server do not trust each other... ";
 
     // Neither Client nor Server will trust.
     sslSystem->configure(IceSSL::Client);
     sslSystem->addTrustedCertificate(IceSSL::Client, serverUntrustedCert);
+    if (singleCertVerifier)
+    {
+        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
+        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(serverUntrustedCert);
+        sslSystem->setCertificateVerifier(IceSSL::Client, certVerifier);
+    }
     sslSystem->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
@@ -89,6 +102,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Client trusts, Server does not.
     sslSystem->configure(IceSSL::Client);
     sslSystem->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
+    if (singleCertVerifier)
+    {
+        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
+        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(serverTrustedCert);
+        sslSystem->setCertificateVerifier(IceSSL::Client, certVerifier);
+    }
     sslSystem->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
@@ -104,8 +123,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //       generating this exception.
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& localEx)
     {
+        cout << localEx << endl;
         km->shutdown();
         test(false);
     }

@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <Ice/RSACertificateGen.h>
 #include <Ice/RSAKeyPair.h>
+#include <Ice/SslExtension.h>
 #include <Ice/System.h>
 #include <Pinger.h>
 
@@ -98,7 +99,10 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.ConnectionWarnings", "0");
+
+    // Test crashes if I put this in.
+    // properties->setProperty("Ice.ConnectionWarnings", "0");
+
     properties->setProperty("Ice.SSL.Client.CertPath","../certs");
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_8.xml");
 
@@ -149,6 +153,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     sslSystem->addTrustedCertificate(IceSSL::Server, trustedCertificate);
     sslSystem->setRSAKeys(IceSSL::Server, serverKey, serverCertificate);
+
+    if (properties->getProperty("Ice.SSL.Server.CertificateVerifier") == "singleCert")
+    {
+        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
+        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(trustedCertificate);
+        sslSystem->setCertificateVerifier(IceSSL::Server, certVerifier);
+    }
 
     string kmEndpts = "tcp -p 12344 -t 2000";
     Ice::ObjectAdapterPtr kmAdapter = communicator->createObjectAdapterWithEndpoints("KeyManagerAdapter", kmEndpts);

@@ -23,5 +23,12 @@ import TestUtil
 
 name = os.path.join("IceSSL", "certificateVerification")
 
+print "testing default certificate verifier."
 TestUtil.clientServerTest(toplevel, name)
+
+print "testing single-certificate certificate verifier."
+TestUtil.clientProtocol += " --Ice.SSL.Client.CertificateVerifier=singleCert"
+TestUtil.serverProtocol += " --Ice.SSL.Server.CertificateVerifier=singleCert"
+TestUtil.clientServerTest(toplevel, name)
+
 sys.exit(0)

@@ -111,6 +111,11 @@ def clientServerTest(toplevel, name):
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
 
+    print "server: "
+    print server + updatedServerOptions
+    print "client: "
+    print client + updatedClientOptions
+
     print "starting server...",
     serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
