@@ -155,10 +155,10 @@ BuildCmds= \
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -180,10 +180,10 @@ BuildCmds= \
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

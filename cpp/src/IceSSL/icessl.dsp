@@ -532,6 +532,7 @@ SOURCE=..\..\slice\IceSSL\Exception.ice
 
 !IF  "$(CFG)" == "IceSSL - Win32 Release"
 
+USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Exception.ice
 
@@ -541,7 +542,7 @@ BuildCmds= \
 	move Exception.h ..\..\include\IceSSL \
 	
 
-"..\..\include\Ice\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\IceSSL\Exception.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -550,7 +551,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceSSL - Win32 Debug"
 
-USERDEP__EXCEP="../../bin/slice2cpp.exe"	
+USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IceSSL\Exception.ice
 

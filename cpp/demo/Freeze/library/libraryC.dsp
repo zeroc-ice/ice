@@ -182,14 +182,14 @@ SOURCE=.\Library.ice
 
 !IF  "$(CFG)" == "libraryC - Win32 Release"
 
-USERDEP__LIBRA="..\.\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
+USERDEP__LIBRA="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\Library.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
 	..\..\..\bin\slice2cpp.exe Library.ice \
-	..\..\..\bin\slice2freeze.exe --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ..\..\..\slice\Ice\BuiltinSequences.ice Library.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes ../../../slice/Ice/BuiltinSequences.ice Library.ice \
 	
 
 "LibraryTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
