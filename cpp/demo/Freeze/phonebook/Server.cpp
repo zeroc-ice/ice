@@ -81,7 +81,7 @@ using namespace Freeze;
 using namespace std;
 
 int
-run(int argc, char* argv[], const DBEnvPtr& dbenv)
+run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 {
     cout << "starting up..." << endl;
     ignoreInterrupt();
@@ -92,7 +92,7 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     //
     // Open the phonebook database.
     //
-    DBPtr db = dbenv->openDB("phonebook");
+    DBPtr db = dbEnv->openDB("phonebook");
 
     //
     // Create an Evictor.
@@ -148,14 +148,14 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    DBEnvPtr dbenv;
+    DBEnvironmentPtr dbEnv;
 
     try
     {
 	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
 	communicator = Ice::initializeWithProperties(properties);
-	dbenv = Freeze::initialize(communicator, "db");
-	status = run(argc, argv, dbenv);
+	dbEnv = Freeze::initialize(communicator, "db");
+	status = run(argc, argv, dbEnv);
     }
     catch(const LocalException& ex)
     {
@@ -168,11 +168,11 @@ main(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
-    if (dbenv)
+    if (dbEnv)
     {
 	try
 	{
-	    dbenv->close();
+	    dbEnv->close();
 	}
 	catch(const LocalException& ex)
 	{

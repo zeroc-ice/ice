@@ -31,7 +31,7 @@ public:
 
     virtual std::string getName();
     virtual DBPtr openDB(const std::string&);
-    virtual DBTransactionPtr startDBTransaction();
+    virtual DBTransactionPtr startTransaction();
     virtual void close();
 
 private:

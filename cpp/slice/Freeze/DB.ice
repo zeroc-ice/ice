@@ -46,7 +46,6 @@ struct DBException
  * @see DBException
  * @see DBTransaction
  * @see DB
- * @see DBForServants
  *
  **/
 local interface DBEnvironment
@@ -62,9 +61,9 @@ local interface DBEnvironment
      
     /**
      *
-     * Open and return a basic key/value database object. If the
-     * database has been opened before, the previously returned
-     * database object is returned again.
+     * Open and return a database object. If the database has been
+     * opened before, the previously returned database object is
+     * returned again.
      *
      * @param name The database name.
      *
@@ -75,22 +74,6 @@ local interface DBEnvironment
      *
      **/
     DB openDB(string name) throws DBException;
-
-    /**
-     *
-     * Open and return a databae for identity/Servant pairs. If the
-     * database has been opened before, the previously returned
-     * database object is returned again.
-     *
-     * @param name The database name.
-     *
-     * @return The database object.
-     *
-     * @see DBForServant
-     * @see DBForServant::close
-     *
-     **/
-    DB openDBForServant(string name) throws DBException;
 
     /**
      *
@@ -156,18 +139,6 @@ sequence<byte> Value;
 
 /**
  *
- * The base class for databases.
- *
- * @see DBEnvironment::openDB
- * @see DBException
- *
- **/
-local interface DBBase
-{
-};
-
-/**
- *
  * A database that can store basic key/value pairs, or
  * identity/servant pairs. In case the database is used to store both
  * key/value and identity/Servant pairs, it is the application's
@@ -184,7 +155,7 @@ local interface DBBase
  * @see Evictor
  *
  **/
-local interface DBForKeyValues extends DBBase
+local interface DB
 {
     /**
      *

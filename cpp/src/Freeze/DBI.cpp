@@ -387,23 +387,13 @@ Freeze::DBI::put(const Key& key, const Value& value, bool txn)
 	throw ex;
     }
 
-    if (!servant)
-    {
-	return;
-    }
-
-    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-    IceInternal::Stream stream(instance);
-    stream.write(servant);
-
     DBT dbKey, dbData;
-
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.c_str()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
     dbKey.size = key.size();
-    dbData.data = stream.b.begin();
-    dbData.size = stream.b.size();
+    dbData.data = const_cast<void*>(static_cast<const void*>(value.begin()));
+    dbData.size = value.size();
 
     while (true)
     {
@@ -416,7 +406,7 @@ Freeze::DBI::put(const Key& key, const Value& value, bool txn)
 	if (_trace >= 1)
 	{
 	    ostringstream s;
-	    s << "writing value for key \"" << key << "\" in database \"" << _name << "\"";
+	    s << "writing value in database \"" << _name << "\"";
 	    _logger->trace("DB", s.str());
 	}
 
@@ -494,13 +484,13 @@ Freeze::DBI::get(const Key& key)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.c_str()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
     dbKey.size = key.size();
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "reading value for key \"" << key << "\" from database \"" << _name << "\"";
+	s << "reading value from database \"" << _name << "\"";
 	_logger->trace("DB", s.str());
     }
     
@@ -513,21 +503,10 @@ Freeze::DBI::get(const Key& key)
 	    //
 	    // Everything ok
 	    //
-	    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-	    IceInternal::Stream stream(instance);
-	    stream.b.resize(dbData.size);
-	    stream.i = stream.b.begin();
-	    memcpy(stream.b.begin(), dbData.data, dbData.size);
-	    
-	    ObjectPtr servant;
-	    stream.read(servant, "::Ice::Object");
-
-	    if (!servant)
-	    {
-		throw NoServantFactoryException(__FILE__, __LINE__);
-	    }
-
-	    return servant;
+	    Value value;
+	    value.resize(dbData.size);
+	    memcpy(value.begin(), dbData.data, dbData.size);
+	    return value;
 	}
 
 	case DB_NOTFOUND:
@@ -535,7 +514,7 @@ Freeze::DBI::get(const Key& key)
 	    //
 	    // Key does not exist, return a null servant
 	    //
-	    return 0;
+	    return Value();
 	}
 	
 	default:
@@ -565,13 +544,13 @@ Freeze::DBI::del(const Key& key)
 
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(key.c_str()));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
     dbKey.size = key.size();
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "deleting value for key \"" << key << "\" from database \"" << _name << "\"";
+	s << "deleting value from database \"" << _name << "\"";
 	_logger->trace("DB", s.str());
     }
     
@@ -599,7 +578,7 @@ Freeze::DBI::del(const Key& key)
 }
 
 void
-Freeze::DBI::put(const string& identity, const ObjectPtr& servant, bool txn)
+Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant, bool txn)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -622,7 +601,6 @@ Freeze::DBI::put(const string& identity, const ObjectPtr& servant, bool txn)
     stream.write(servant);
 
     DBT dbKey, dbData;
-
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
     dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
@@ -703,7 +681,7 @@ Freeze::DBI::put(const string& identity, const ObjectPtr& servant, bool txn)
 }
 
 ObjectPtr
-Freeze::DBI::get(const string& identity)
+Freeze::DBI::getServant(const string& identity)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -775,7 +753,7 @@ Freeze::DBI::get(const string& identity)
 }
 
 void
-Freeze::DBI::del(const string& identity)
+Freeze::DBI::delServant(const string& identity)
 {
     JTCSyncT<JTCMutex> sync(*this);
 

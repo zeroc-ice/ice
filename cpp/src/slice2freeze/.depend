@@ -1,2 +1,2 @@
-Main.o: Main.cpp ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/Slice/OutputUtil.h
-GenUtil.o: ../slice2cpp/GenUtil.cpp GenUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/Slice/OutputUtil.h
+Main.o: Main.cpp ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/Slice/OutputUtil.h GenUtil.h
+GenUtil.o: GenUtil.cpp GenUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/Slice/OutputUtil.h
