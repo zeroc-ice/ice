@@ -31,7 +31,7 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if(   (_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
+    if((_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
        || _factoryMap.find(id) != _factoryMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
@@ -40,7 +40,7 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
 	throw ex;
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ObjectFactoryPtr>(id, factory));
 }
 
 void
@@ -125,7 +125,7 @@ IceInternal::ObjectFactoryManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
-	     Ice::secondVoidMemFun<string, ObjectFactory>(&ObjectFactory::destroy));
+	     Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
     _factoryMap.clear();
     _factoryMapHint = _factoryMap.end();
 }

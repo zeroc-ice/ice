@@ -124,7 +124,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 	{
 	    if(ignoreSuffix(*p))
 	    {
-		pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
+		pair<StringSeq::iterator, StringSeq::iterator> r =
 		    equal_range(paths.begin(), paths.end(), removeSuffix(*p));
 		if(r.first == r.second)
 		{
@@ -134,7 +134,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 			syncUpgraded = true;
 		    }
 		    StringSeq paths2 = readDirectory(path);
-		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
+		    pair<StringSeq::iterator, StringSeq::iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if(r2.first == r2.second)
 		    {

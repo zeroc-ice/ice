@@ -22,11 +22,12 @@
 #   include <readline/history.h>
 #endif
 
+extern FILE* yyin;
+extern int yydebug;
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
-
-extern FILE* yyin;
 
 namespace IceStorm
 {
@@ -593,7 +594,6 @@ Parser::warning(const string& s)
 int
 Parser::parse(FILE* file, bool debug)
 {
-    extern int yydebug;
     yydebug = debug ? 1 : 0;
 
     assert(!parser);
@@ -622,7 +622,6 @@ Parser::parse(FILE* file, bool debug)
 int
 Parser::parse(const std::string& commands, bool debug)
 {
-    extern int yydebug;
     yydebug = debug ? 1 : 0;
 
     assert(!parser);

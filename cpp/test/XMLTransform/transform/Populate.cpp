@@ -99,7 +99,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntByteMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, i));
+                map.insert(IntByteMap::value_type(i, i));
             }
         }
         db->close();
@@ -124,7 +124,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntShortMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, i));
+                map.insert(IntShortMap::value_type(i, i));
             }
         }
         db->close();
@@ -149,7 +149,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntIntMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, i));
+                map.insert(IntIntMap::value_type(i, i));
             }
         }
         db->close();
@@ -174,7 +174,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntLongMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, i));
+                map.insert(IntLongMap::value_type(i, i));
             }
         }
         db->close();
@@ -199,7 +199,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntFloatMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, static_cast<float>(i)));
+                map.insert(IntFloatMap::value_type(i, static_cast<float>(i)));
             }
         }
         db->close();
@@ -224,11 +224,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntLongMap map(db);
             Long l;
             l = SCHAR_MIN;
-            map.insert(make_pair(0, l));
-            map.insert(make_pair(1, l - 1)); // Out of range for byte.
+            map.insert(IntLongMap::value_type(0, l));
+            map.insert(IntLongMap::value_type(1, l - 1)); // Out of range for byte.
             l = SCHAR_MAX;
-            map.insert(make_pair(2, l));
-            map.insert(make_pair(3, l + 1)); // Out of range for byte.
+            map.insert(IntLongMap::value_type(2, l));
+            map.insert(IntLongMap::value_type(3, l + 1)); // Out of range for byte.
         }
         db->close();
         db = 0;
@@ -258,11 +258,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntLongMap map(db);
             Long l;
             l = SHRT_MIN;
-            map.insert(make_pair(0, l));
-            map.insert(make_pair(1, l - 1)); // Out of range for short.
+            map.insert(IntLongMap::value_type(0, l));
+            map.insert(IntLongMap::value_type(1, l - 1)); // Out of range for short.
             l = SHRT_MAX;
-            map.insert(make_pair(2, l));
-            map.insert(make_pair(3, l + 1)); // Out of range for short.
+            map.insert(IntLongMap::value_type(2, l));
+            map.insert(IntLongMap::value_type(3, l + 1)); // Out of range for short.
         }
         db->close();
         db = 0;
@@ -292,11 +292,11 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntLongMap map(db);
             Long l;
             l = INT_MIN;
-            map.insert(make_pair(0, l));
-            map.insert(make_pair(1, l - 1)); // Out of range for int.
+            map.insert(IntLongMap::value_type(0, l));
+            map.insert(IntLongMap::value_type(1, l - 1)); // Out of range for int.
             l = INT_MAX;
-            map.insert(make_pair(2, l));
-            map.insert(make_pair(3, l + 1)); // Out of range for int.
+            map.insert(IntLongMap::value_type(2, l));
+            map.insert(IntLongMap::value_type(3, l + 1)); // Out of range for int.
         }
         db->close();
         db = 0;
@@ -359,7 +359,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             {
                 seq.push_back(i);
             }
-            map.insert(make_pair(0, seq));
+            map.insert(IntSeq1Map::value_type(0, seq));
         }
         db->close();
         db = 0;
@@ -386,7 +386,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             {
                 seq.push_back(i);
             }
-            map.insert(make_pair(0, seq));
+            map.insert(IntSeq2Map::value_type(0, seq));
         }
         db->close();
         db = 0;
@@ -413,7 +413,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             {
                 seq.push_back(i);
             }
-            map.insert(make_pair(0, seq));
+            map.insert(IntSeq3Map::value_type(0, seq));
         }
         db->close();
         db = 0;
@@ -440,7 +440,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             {
                 seq.push_back(i);
             }
-            map.insert(make_pair(0, seq));
+            map.insert(IntSeq4Map::value_type(0, seq));
         }
         db->close();
         db = 0;
@@ -470,7 +470,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
             l = SCHAR_MAX;
             seq.push_back(l);
             seq.push_back(l + 1); // Out of range for byte.
-            map.insert(make_pair(0, seq));
+            map.insert(IntSeq4Map::value_type(0, seq));
         }
         db->close();
         db = 0;
@@ -526,8 +526,8 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
 
         {
             IntE1Map map(db);
-            map.insert(make_pair(0, Test::one));
-            map.insert(make_pair(1, Test::two));
+            map.insert(IntE1Map::value_type(0, Test::one));
+            map.insert(IntE1Map::value_type(1, Test::two));
         }
         db->close();
         db = 0;
@@ -549,9 +549,9 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
 
         {
             IntE1Map map(db);
-            map.insert(make_pair(0, Test::one));
-            map.insert(make_pair(1, Test::two));
-            map.insert(make_pair(2, Test::three));
+            map.insert(IntE1Map::value_type(0, Test::one));
+            map.insert(IntE1Map::value_type(1, Test::two));
+            map.insert(IntE1Map::value_type(2, Test::three));
         }
         db->close();
         db = 0;
@@ -610,7 +610,7 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
             Test::D1 dict;
             dict.insert(make_pair(string("one"), Test::one));
             dict.insert(make_pair(string("two"), Test::two));
-            map.insert(make_pair(0, dict));
+            map.insert(IntD1Map::value_type(0, dict));
         }
         db->close();
         db = 0;
@@ -636,7 +636,7 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
             dict.insert(make_pair(string("one"), Test::one));
             dict.insert(make_pair(string("two"), Test::two));
             dict.insert(make_pair(string("three"), Test::three));
-            map.insert(make_pair(0, dict));
+            map.insert(IntD1Map::value_type(0, dict));
         }
         db->close();
         db = 0;
@@ -695,13 +695,13 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
             Test::S1 s1;
             s1.b = false;
             s1.i = 0;
-            map.insert(make_pair(0, s1));
+            map.insert(IntS1Map::value_type(0, s1));
             s1.b = true;
             s1.i = 1;
-            map.insert(make_pair(1, s1));
+            map.insert(IntS1Map::value_type(1, s1));
             s1.b = true;
             s1.i = 2;
-            map.insert(make_pair(2, s1));
+            map.insert(IntS1Map::value_type(2, s1));
         }
         db->close();
         db = 0;
@@ -726,13 +726,13 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
             Test::S1 s1;
             s1.b = false;
             s1.i = SCHAR_MIN;
-            map.insert(make_pair(0, s1));
+            map.insert(IntS1Map::value_type(0, s1));
             s1.b = true;
             s1.i = SCHAR_MAX;
-            map.insert(make_pair(1, s1));
+            map.insert(IntS1Map::value_type(1, s1));
             s1.b = true;
             s1.i = ((Int)SCHAR_MAX) + 1; // Out of range for byte
-            map.insert(make_pair(2, s1));
+            map.insert(IntS1Map::value_type(2, s1));
         }
         db->close();
         db = 0;
@@ -811,7 +811,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->i = 0;
             c2->l = 0;
             c2->d = 0;
-            map.insert(make_pair(0, c2));
+            map.insert(IntC1Map::value_type(0, c2));
             c2 = new Test::C2;
             c2->s = "1";
             c2->f = 1;
@@ -819,7 +819,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->i = 1;
             c2->l = 1;
             c2->d = 1;
-            map.insert(make_pair(1, c2));
+            map.insert(IntC1Map::value_type(1, c2));
             c2 = new Test::C2;
             c2->s = "2";
             c2->f = 2;
@@ -827,7 +827,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->i = 2;
             c2->l = 2;
             c2->d = 2;
-            map.insert(make_pair(2, c2));
+            map.insert(IntC1Map::value_type(2, c2));
 
             //
             // Add an object with facets.
@@ -864,7 +864,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c1Facet->b = 0;
             c2Facet->ice_addFacet(c1Facet, "c2-0"); // Nested facet
             c2->ice_addFacet(c2Facet, "c1-2");
-            map.insert(make_pair(3, c2));
+            map.insert(IntC1Map::value_type(3, c2));
         }
         db->close();
         db = 0;
@@ -894,7 +894,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->i = 0;
             c2->l = INT_MIN;
             c2->d = 0;
-            map.insert(make_pair(0, c2));
+            map.insert(IntC1Map::value_type(0, c2));
             c2 = new Test::C2;
             c2->s = "1";
             c2->f = 1;
@@ -902,7 +902,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->i = 1;
             c2->l = INT_MAX;
             c2->d = 1;
-            map.insert(make_pair(1, c2));
+            map.insert(IntC1Map::value_type(1, c2));
             c2 = new Test::C2;
             c2->s = "2";
             c2->f = 2;
@@ -911,7 +911,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
             c2->l = INT_MAX;
             c2->l++; // Out of range for int
             c2->d = 2;
-            map.insert(make_pair(2, c2));
+            map.insert(IntC1Map::value_type(2, c2));
         }
         db->close();
         db = 0;

@@ -386,7 +386,7 @@ WeightedGraph::addEdge(const string& from, const string& to, int cost)
 	_edges.resize(_vertices.size()*_vertices.size(), -1);
 	for(unsigned int i = 0; i < _vertices.size(); ++i)
 	{
-	    _vlookup.insert(make_pair(_vertices[i], i));
+	    _vlookup.insert(pair<const string, int>(_vertices[i], i));
 	}
     }
 

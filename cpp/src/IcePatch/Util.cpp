@@ -44,7 +44,7 @@
 //
 // Sun-OS doesn't have scandir() or alphasort().
 //
-#ifdef SUNOS
+#ifdef __sun
 
 static int
 scandir(const char* dir, struct dirent*** namelist,

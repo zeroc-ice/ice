@@ -19,6 +19,8 @@
 CXX			= CC
 CXXFLAGS		= -KPIC -mt +w +p
 
+TEMPLATE_REPOSITORY     = SunWS_cache
+
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
 else

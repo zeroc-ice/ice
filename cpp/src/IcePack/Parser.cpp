@@ -22,11 +22,12 @@
 
 #include <iterator>
 
+extern FILE* yyin;
+extern int yydebug;
+
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
-
-extern FILE* yyin;
 
 namespace IcePack
 {
@@ -867,7 +868,6 @@ IcePack::Parser::warning(const string& s)
 int
 IcePack::Parser::parse(FILE* file, bool debug)
 {
-    extern int yydebug;
     yydebug = debug ? 1 : 0;
 
     assert(!parser);
@@ -896,7 +896,6 @@ IcePack::Parser::parse(FILE* file, bool debug)
 int
 IcePack::Parser::parse(const std::string& commands, bool debug)
 {
-    extern int yydebug;
     yydebug = debug ? 1 : 0;
 
     assert(!parser);

@@ -144,6 +144,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     //
     // Save the Ice object's initial state and add it to the queue.
     //
+
     save(ident, servant);
     add(ident, servant);
 
@@ -397,7 +398,7 @@ Freeze::EvictorI::save(const Identity& ident, const ObjectPtr& servant)
     // NOTE: Do not synchronize on the evictor mutex or else
     // deadlocks may occur.
     //
-    _dict.insert(make_pair(ident, servant));
+    _dict.insert(pair<const Identity, const ObjectPtr>(ident, servant));
 }
 
 void
@@ -434,6 +435,7 @@ Freeze::EvictorI::evict()
 	}
 	Identity ident = *p;
 	EvictorElementPtr element = q->second;
+
 
         //
         // Notify the persistence strategy about the evicted object.

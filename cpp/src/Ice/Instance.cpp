@@ -42,7 +42,7 @@
 #endif
 
 #ifndef _WIN32
-#   include <csignal>
+#   include <signal.h>
 #   include <syslog.h>
 #   include <pwd.h>
 #   include <sys/types.h>
@@ -590,7 +590,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
     }
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__sun) 
     //
     // daemon() must be called after any plug-ins have been
     // installed. For example, an SSL plug-in might want to

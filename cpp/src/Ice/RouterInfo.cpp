@@ -38,7 +38,7 @@ IceInternal::RouterManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<RouterPrx, RouterInfo>(&RouterInfo::destroy));
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const RouterPrx, RouterInfo>(&RouterInfo::destroy));
 
     _table.clear();
     _tableHint = _table.end();
@@ -73,7 +73,7 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     if(p == _table.end())
     {
-	_tableHint = _table.insert(_tableHint, make_pair(router, new RouterInfo(router)));
+	_tableHint = _table.insert(_tableHint, pair<const RouterPrx, RouterInfoPtr>(router, new RouterInfo(router)));
     }
     else
     {

@@ -12,6 +12,10 @@
 //
 // **********************************************************************
 
+#ifdef __sun
+#define _POSIX_PTHREAD_SEMANTICS
+#endif
+
 #include <Ice/Ice.h>
 #include <IcePack/ComponentBuilder.h>
 #include <IcePack/Internal.h>
@@ -81,50 +85,51 @@ public:
 	    // through this task so other directories should be
 	    // removed by another task).
 	    //
-	    struct dirent **namelist;
-	    int n = ::scandir(_name.c_str(), &namelist, 0, alphasort);
-	    if(n > 0)
+
+	    DIR* dir = opendir(_name.c_str());
+	    
+	    if (dir == 0)
 	    {
-		Ice::StringSeq entries;
-		entries.reserve(n);
-		for(int i = 0; i < n; ++i)
-		{
-		    string name = namelist[i]->d_name;
-		    free(namelist[i]);
-		    entries.push_back(_name + "/" + name);
-		}
-		free(namelist);
-		
-		for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
-		{
-		    struct stat buf;
-		    
-		    if(::stat(p->c_str(), &buf) != 0)
-		    {
-			if(errno != ENOENT)
-			{
-			    //
-			    // TODO: log error
-			    //
-			}
-		    }
-		    else if(S_ISREG(buf.st_mode))
-		    {
-			if(unlink(p->c_str()) != 0)
-			{
-			    //
-			    // TODO: log error
-			    //
-			}
-		    }
-		}
+		// TODO: log a warning, throw an exception?
+		return;
 	    }
-	    else if(n < 0)
+	    
+	    
+	    // TODO: make the allocation/deallocation exception-safe
+	    struct dirent* entry = static_cast<struct dirent*>(malloc(pathconf(_name.c_str(), _PC_NAME_MAX) + 1));
+
+	    Ice::StringSeq entries;
+	   
+	    while(readdir_r(dir, entry, &entry) == 0 && entry != 0)
 	    {
-		//
-		// TODO: something seems to be wrong if we can't scan
-		// the directory. Print a warning.
-		//
+		string name = entry->d_name;
+		entries.push_back(_name + "/" + name);
+	    }
+	    free(entry);
+	    closedir(dir);
+		
+	    for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
+	    {
+		struct stat buf;
+		
+		if(::stat(p->c_str(), &buf) != 0)
+		{
+		    if(errno != ENOENT)
+		    {
+			//
+			// TODO: log error
+			//
+		    }
+		}
+		else if(S_ISREG(buf.st_mode))
+		{
+		    if(unlink(p->c_str()) != 0)
+		    {
+			//
+			// TODO: log error
+			//
+		    }
+		}
 	    }
 	}
 
@@ -254,10 +259,10 @@ public:
 	    ostringstream os;
 	    os << "couldn't remove the object:\n" << ex << ends;
 
-	    ObjectDeploymentException ex;
-	    ex.reason = os.str();
-	    ex.proxy = _desc.proxy;
-	    throw ex;
+	    ObjectDeploymentException ode;
+	    ode.reason = os.str();
+	    ode.proxy = _desc.proxy;
+	    throw ode;
 	}	
 	catch(const Ice::LocalException& lex)
 	{
@@ -280,7 +285,7 @@ private:
 }
 
 IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg,
-                                                          const ICE_XERCES_NS Locator*const locator)
+                                                          const ICE_XERCES_NS Locator* locator)
     : SAXParseException(ICE_XERCES_NS XMLString::transcode(msg.c_str()), *locator)
 {
 }

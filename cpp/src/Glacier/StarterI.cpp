@@ -16,18 +16,19 @@
 #   error Sorry, the Glacier Starter is not yet supported on WIN32.
 #endif
 
-#include <IceUtil/UUID.h>
-#include <IceSSL/RSAKeyPair.h>
-#include <Glacier/StarterI.h>
-#include <fcntl.h>
-
 //
 // crypt.h is necessary on older Linux distributions, but not with
 // OpenSSL 0.96x.
 //
-#if defined(__linux__) && OPENSSL_VERSION_NUMBER >= 0x0090700fL
+#if (defined(__linux__) || defined(__sun))
 #   include <crypt.h>
 #endif
+
+
+#include <IceUtil/UUID.h>
+#include <IceSSL/RSAKeyPair.h>
+#include <Glacier/StarterI.h>
+#include <fcntl.h>
 
 using namespace std;
 using namespace Ice;

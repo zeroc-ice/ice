@@ -449,7 +449,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
     //
     if(!_endpoint->datagram() && !oneway)
     {
-	_requestsHint = _requests.insert(_requests.end(), make_pair(requestId, out));
+	_requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
     }
 
     if(_acmTimeout > 0)
@@ -547,7 +547,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
     //
     // Only add to the request map if there was no exception.
     //
-    _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(), make_pair(requestId, out));
+    _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(), pair<const Int, OutgoingAsyncPtr>(requestId, out));
 
     if(_acmTimeout > 0)
     {

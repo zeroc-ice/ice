@@ -57,7 +57,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 			 (&Connection::destroy), Connection::CommunicatorDestroyed));
 #else
     for_each(_connections.begin(), _connections.end(),
-	     bind2nd(Ice::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
+	     bind2nd(Ice::secondVoidMemFun1<const EndpointPtr, Connection, Connection::DestructionReason>
 		     (&Connection::destroy), Connection::CommunicatorDestroyed));
 #endif
 
@@ -83,7 +83,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     // finished.
     //
     for_each(_connections.begin(), _connections.end(),
-	     Ice::secondVoidMemFun<EndpointPtr, Connection>(&Connection::waitUntilFinished));
+	     Ice::secondVoidMemFun<const EndpointPtr, Connection>(&Connection::waitUntilFinished));
 
     //
     // We're done, now we can throw away all connections.
@@ -144,8 +144,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
-	    pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
-		 multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(*q);
+	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
+		 multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(*q);
 	    
 	    while(r.first != r.second)
 	    {
@@ -201,8 +201,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	{	
 	    for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	    {
-		pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
- 		     multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(*q);
+		pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
+ 		     multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(*q);
 		
 		while(r.first != r.second)
 		{
@@ -295,7 +295,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	}
 	else
 	{
-	    _connections.insert(_connections.end(), make_pair(connection->endpoint(), connection));
+	    _connections.insert(_connections.end(), pair<const EndpointPtr, ConnectionPtr>(connection->endpoint(), connection));
 
 	    if(_destroyed)
 	    {
@@ -350,8 +350,8 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		endpoint = endpoint->compress(defaultsAndOverrides->overrideCompressValue);
 	    }
 
-	    pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
-		 multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(endpoint);
+	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
+		 multimap<EndpointPtr, ConnectionPtr>::iterator> r = _connections.equal_range(endpoint);
 	    
 	    while(r.first != r.second)
 	    {

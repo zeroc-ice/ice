@@ -78,6 +78,18 @@ prefix			= /opt/Ice-$(VERSION)
 #E2FSPROGS_HOME		?= /opt/e2fsprogs
 
 
+
+#
+# If readline is not installed in a standard location where the
+# compiler can find it, AND you want to use readline,
+# set READLINE_HOME to the readline installation directory.
+#
+#
+
+USE_READLINE            : = 1
+#READLINE_HOME		?= /opt/readline
+
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -148,6 +160,16 @@ else
     E2FSPROGS_LIBS	= -luuid
 endif
 
+ifneq ($(USE_READLINE),)
+    ifneq ($(READLINE_HOME),)
+
+       READLINE_FLAGS	= -I$(READLINE_HOME)/include
+       READLINE_LIBS	= -L$(READLINE_HOME)/lib -lreadline -lncurses
+    else
+       READLINE_FLAGS	=
+       READLINE_LIBS	= -lreadline -lncurses
+    endif
+endif
 
 #
 # Platform specific definitions
@@ -237,6 +259,11 @@ ifneq ($(HDIR),)
 clean::
 	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
 	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
+endif
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
 endif
 
 install::

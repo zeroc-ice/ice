@@ -215,7 +215,7 @@ PhoneBookI::createContact(const Ice::Current&)
 	}
 	
 	identities.push_back(ident);
-	_nameIdentitiesDict.insert(make_pair(string("N"), identities));
+	_nameIdentitiesDict.insert(NameIdentitiesDict::value_type(string("N"), identities));
 	
 	//
 	// Turn the identity into a Proxy and return the Proxy to the
@@ -318,7 +318,7 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
 	    identities = p->second;
 	}
 	identities.push_back(ident);
-	_nameIdentitiesDict.insert(make_pair("N" + newName, identities));
+	_nameIdentitiesDict.insert(NameIdentitiesDict::value_type("N" + newName, identities));
     }
     catch(const Freeze::DBNotFoundException&)
     {
@@ -382,7 +382,7 @@ PhoneBookI::getNewIdentity()
 	ids.clear();
 	ids.push_back(id);
 
-	_nameIdentitiesDict.insert(make_pair(string("ID"), ids));
+	_nameIdentitiesDict.insert(NameIdentitiesDict::value_type(string("ID"), ids));
 
 	id.name = s;
 	id.category = "contact";
@@ -431,6 +431,6 @@ PhoneBookI::removeI(const Identity& ident, const string& name)
 	// See the comment in getNewIdentity why the prefix "N" is
 	// needed.
 	//
-	_nameIdentitiesDict.insert(make_pair("N" + name, identities));
+	_nameIdentitiesDict.insert(NameIdentitiesDict::value_type("N" + name, identities));
     }
 }

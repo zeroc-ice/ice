@@ -14,6 +14,10 @@
 
 #include <Ice/Application.h>
 
+#ifndef _WIN32
+#include <signal.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 

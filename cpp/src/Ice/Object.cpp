@@ -164,7 +164,7 @@ string Ice::Object::__all[] =
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
-    pair<const string*, const string*> r =
+    pair<string*, string*> r =
 	equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
 
     if(r.first == r.second)
@@ -226,8 +226,8 @@ Ice::Object::__read(::IceInternal::BasicStream* __is)
 
     while(sz-- > 0)
     {
-	pair<string, ObjectPtr> v;
-	__is->read(v.first);
+	pair<const string, ObjectPtr> v;
+	__is->read(const_cast<string&>(v.first));
 	__is->read("", 0, v.second);
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
     }
@@ -263,8 +263,8 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
     while(sz-- > 0)
     {
 	__is->startReadDictionaryElement();
-	pair<string, ObjectPtr> v;
-	v.first = __is->readString("ice:key");
+	pair<const string, ObjectPtr> v;
+	const_cast<string&>(v.first) = __is->readString("ice:key");
 	v.second = __is->readObject("ice:value", "", 0);
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
 	__is->endReadDictionaryElement();
@@ -298,7 +298,7 @@ Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 	throw ex;
     }
 
-    _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, make_pair(name, facet));
+    _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, pair<const string, ObjectPtr>(name, facet));
 }
 
 ObjectPtr

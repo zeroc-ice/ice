@@ -31,7 +31,17 @@ using namespace Slice;
 void
 yyerror(const char* s)
 {
-    unit->error(s);
+    // yacc and recent versions of Bison use "syntax error" instead
+    // of "parse error".
+
+    if (strcmp(s, "parse error") == 0)
+    {
+	unit->error("syntax error");
+    }
+    else
+    {
+	unit->error(s);
+    }
 }
 
 %}
@@ -1391,7 +1401,7 @@ const_initializer
     ostringstream sstr;
     sstr << intVal->v;
     SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = make_pair(type, sstr.str());
+    basestring->v = pair<SyntaxTreeBasePtr,string>(type, sstr.str());
     $$ = basestring;
 }
 | ICE_FLOATING_POINT_LITERAL
@@ -1401,7 +1411,7 @@ const_initializer
     ostringstream sstr;
     sstr << floatVal->v;
     SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = make_pair(type, sstr.str());
+    basestring->v = pair<SyntaxTreeBasePtr,string>(type, sstr.str());
     $$ = basestring;
 }
 | scoped_name
@@ -1411,7 +1421,7 @@ const_initializer
     ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
     if(cl.empty())
     {
-    	basestring->v = make_pair(TypePtr(0), scoped->v);
+    	basestring->v = pair<SyntaxTreeBasePtr,string>(TypePtr(0), scoped->v);
     }
     else
     {
@@ -1429,7 +1439,7 @@ const_initializer
 	    unit->error(msg);
 	}
 	unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-	basestring->v = make_pair(enumerator, scoped->v);
+	basestring->v = pair<SyntaxTreeBasePtr,string>(enumerator, scoped->v);
     }
     $$ = basestring;
 }
@@ -1438,7 +1448,7 @@ const_initializer
     BuiltinPtr type = unit->builtin(Builtin::KindString);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = make_pair(type, literal->v);
+    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
     $$ = basestring;
 }
 | ICE_FALSE
@@ -1446,7 +1456,7 @@ const_initializer
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = make_pair(type, literal->v);
+    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
     $$ = basestring;
 }
 | ICE_TRUE
@@ -1454,7 +1464,7 @@ const_initializer
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
     StringTokPtr literal = StringTokPtr::dynamicCast($1);
     SyntaxTreeBaseStringTokPtr basestring = new SyntaxTreeBaseStringTok;
-    basestring->v = make_pair(type, literal->v);
+    basestring->v = pair<SyntaxTreeBasePtr,string>(type, literal->v);
     $$ = basestring;
 }
 ;

@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Ice now builds on Solaris 9/Sun C++ 5.4 ... but not all tests pass.
+
 - Replaced the Freeze::EvictorPersistenceMode enumeration with the
   interface Freeze::PersistenceStrategy.
 

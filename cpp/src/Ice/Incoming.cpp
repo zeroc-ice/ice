@@ -143,8 +143,8 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     _is.readSize(sz);
     while(sz--)
     {
-	pair<string, string> pr;
-	_is.read(pr.first);
+	pair<const string, string> pr;
+	_is.read(const_cast<string&>(pr.first));
 	_is.read(pr.second);
 	_current.ctx.insert(_current.ctx.end(), pr);
     }

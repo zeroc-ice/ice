@@ -85,7 +85,7 @@ populate(const DBPtr& db)
 	Complex::Key k;
 	k.expression = expressions[i];
 	k.result = root->calc();
-	m.insert(make_pair(k, root));
+	m.insert(pair<const Complex::Key, const Complex::NodePtr>(k, root));
     }
     cout << "ok" << endl;
 

@@ -16,7 +16,7 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <Gen.h>
 #include <limits>
-#include <iterator>
+#include <IceUtil/Iterator.h>
 
 #include <sys/stat.h>
 
@@ -398,7 +398,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	ExceptionList allBases = p->allBases();
 	StringList exceptionIds;
 	transform(allBases.begin(), allBases.end(), back_inserter(exceptionIds),
-		  ::IceUtil::constMemFun(&Exception::scoped));
+		  ::IceUtil::constMemFun(&Contained::scoped));
 	exceptionIds.push_front(p->scoped());
 	exceptionIds.push_back("::Ice::UserException");
 	
@@ -787,8 +787,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "__is->readSize(sz);";
 	C << nl << "while(sz--)";
 	C << sb;
-	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
-	writeMarshalUnmarshalCode(C, keyType, "pair.first", false);
+	C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
+	string pf = string("const_cast<") + ks + "&>(pair.first)";
+	writeMarshalUnmarshalCode(C, keyType, pf, false);
 	writeMarshalUnmarshalCode(C, valueType, "pair.second", false);
 	C << nl << "v.insert(v.end(), pair);";
 	C << eb;
@@ -816,9 +817,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "::Ice::Int sz = __is->startReadDictionary(__name);";
 	C << nl << "while(sz--)";
 	C << sb;
-	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
+	C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
 	C << nl << "__is->startReadDictionaryElement();";
-	writeGenericMarshalUnmarshalCode(C, keyType, "pair.first", false, "\"key\"");
+	writeGenericMarshalUnmarshalCode(C, keyType, pf, false, "\"key\"");
 	writeGenericMarshalUnmarshalCode(C, valueType, "pair.second", false, "\"value\"");
 	C << nl << "__is->endReadDictionaryElement();";
 	C << nl << "v.insert(v.end(), pair);";
@@ -2061,7 +2062,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
 	ClassList allBases = p->allBases();
 	StringList ids;
-	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&ClassDef::scoped));
+	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
 	StringList other;
 	other.push_back(p->scoped());
 	other.push_back("::Ice::Object");
@@ -2071,7 +2072,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList::const_iterator firstIter = ids.begin();
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
         assert(scopedIter != ids.end());
-        int scopedPos = distance(firstIter, scopedIter);
+        int scopedPos = ice_distance(firstIter, scopedIter);
 
 	StringList::const_iterator q;
 
@@ -2164,7 +2165,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-		      ::IceUtil::constMemFun(&Operation::name));
+		      ::IceUtil::constMemFun(&Contained::name));
 	    allOpNames.push_back("ice_facets");
 	    allOpNames.push_back("ice_id");
 	    allOpNames.push_back("ice_ids");
@@ -2196,7 +2197,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
 	      << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
 	    C << sb;
-	    C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
+	  
+	    // COMPILERBUG: Sun C++ 5.4 and GCC 3.2 won't compile without a 
+            // space between < and ::
+	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
 	      << "::std::equal_range(__all, __all + " << allOpNames.size() << ", current.operation);";
 	    C << nl << "if(r.first == r.second)";
 	    C << sb;

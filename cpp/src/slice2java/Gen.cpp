@@ -15,6 +15,8 @@
 #include <IceUtil/Functional.h>
 #include <Gen.h>
 #include <limits>
+#include <IceUtil/Algorithm.h>
+#include <IceUtil/Iterator.h>
 
 using namespace std;
 using namespace Slice;
@@ -204,8 +206,8 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& 
     //
     // Don't include local exceptions in the throws clause
     //
-    ExceptionList::size_type localCount = count_if(throws.begin(), throws.end(),
-						   IceUtil::constMemFun(&Exception::isLocal));
+    ExceptionList::size_type localCount = ice_count_if(throws.begin(), throws.end(),
+						       IceUtil::constMemFun(&Exception::isLocal));
 
     Output& out = output();
     if(throws.size() - localCount > 0)
@@ -375,7 +377,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&ClassDef::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -385,7 +387,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    int scopedPos = distance(firstIter, scopedIter);
+    int scopedPos = ice_distance(firstIter, scopedIter);
 
     StringList::const_iterator q;
 
@@ -616,7 +618,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     if(!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Operation::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
         allOpNames.push_back("ice_facets");
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
@@ -1370,7 +1372,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         StringList exceptionIds;
         transform(allBases.begin(), allBases.end(),
                   back_inserter(exceptionIds),
-                  ::IceUtil::constMemFun(&Exception::scoped));
+                  ::IceUtil::constMemFun(&Contained::scoped));
         exceptionIds.push_front(scoped);
         exceptionIds.push_back("::Ice::UserException");
 

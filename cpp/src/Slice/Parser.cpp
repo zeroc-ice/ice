@@ -232,7 +232,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 void
 Slice::Container::destroy()
 {
-    for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&Contained::destroy));
+    for_each(_contents.begin(), _contents.end(), ::IceUtil::voidMemFun(&SyntaxTreeBase::destroy));
     _contents.clear();
     _introducedMap.clear();
     SyntaxTreeBase::destroy();
@@ -313,7 +313,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    }
 	    if(!differsOnlyInCase)
 	    {
-		string msg = "redefinition of ";
+		msg = "redefinition of ";
 		msg += intf ? "interface" : "class";
 		msg += " `" + name + "'";
 		_unit->error(msg);
@@ -1535,9 +1535,21 @@ Slice::Constructed::isLocal() const
 ConstructedList
 Slice::Constructed::dependencies()
 {
-    set<ConstructedPtr> result;
-    recDependencies(result);
-    return ConstructedList(result.begin(), result.end());
+    set<ConstructedPtr> resultSet;
+    recDependencies(resultSet);
+
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+    // TODO: find a more usable work-around for this std lib limitation
+    ConstructedList result;
+    set<ConstructedPtr>::iterator it = resultSet.begin();
+    while(it != resultSet.end())
+    {
+        result.push_back(*it++);
+    }
+    return result;
+#else
+    return ConstructedList(resultSet.begin(), resultSet.end());
+#endif
 }
 
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :

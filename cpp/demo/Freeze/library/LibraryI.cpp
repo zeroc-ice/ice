@@ -121,7 +121,9 @@ BookI::returnBook(const Ice::Current&)
     rentalCustomerName.clear();;
 }
 
-static Ice::Identity
+// Needs to be extern for the Sun C++ 5.4 compiler
+//
+extern Ice::Identity
 createBookIdentity(const string& isbn)
 {
     //
@@ -213,7 +215,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     }
 
     isbnSeq.push_back(description.isbn);
-    _authors.insert(make_pair(description.authors, isbnSeq));
+    _authors.insert(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
 
     return book;
 }
@@ -320,7 +322,7 @@ LibraryI::remove(const BookDescription& description)
 	    //
 	    // Otherwise, write back the new record.
 	    //
-	    _authors.insert(make_pair(description.authors, isbnSeq));
+	    _authors.insert(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
 	}
 
 	//

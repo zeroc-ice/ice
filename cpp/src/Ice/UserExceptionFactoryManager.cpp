@@ -37,7 +37,7 @@ IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& fac
 	throw ex;
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, UserExceptionFactoryPtr>(id, factory));
 }
 
 void
@@ -101,7 +101,7 @@ IceInternal::UserExceptionFactoryManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
-	     Ice::secondVoidMemFun<string, UserExceptionFactory>(&UserExceptionFactory::destroy));
+	     Ice::secondVoidMemFun<const string, UserExceptionFactory>(&UserExceptionFactory::destroy));
     _factoryMap.clear();
     _factoryMapHint = _factoryMap.end();
 }

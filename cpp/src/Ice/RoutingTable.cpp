@@ -65,7 +65,7 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
 
     if(p == _table.end())
     {
-	_tableHint = _table.insert(_tableHint, make_pair(proxy->ice_getIdentity(), proxy));
+	_tableHint = _table.insert(_tableHint, pair<const Identity, ObjectPrx>(proxy->ice_getIdentity(), proxy));
 	return true;
     }
     else

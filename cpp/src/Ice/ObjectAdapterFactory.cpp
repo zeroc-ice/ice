@@ -39,7 +39,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
     }
     
     for_each(_adapters.begin(), _adapters.end(),
-	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
+	     IceUtil::secondVoidMemFun<const string, ObjectAdapterI>(&ObjectAdapter::deactivate));
     
     _instance = 0;
     _communicator = 0;
@@ -76,7 +76,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     // Now we wait for deactivation of each object adapter.
     //
     for_each(_adapters.begin(), _adapters.end(),
-	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::waitForDeactivate));
+	     IceUtil::secondVoidMemFun<const string, ObjectAdapterI>(&ObjectAdapter::waitForDeactivate));
     
     //
     // We're done, now we can throw away the object adapters.

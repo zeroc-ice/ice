@@ -42,7 +42,7 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
     //
     // Add the object to the object dictionary.
     //
-    _objects.insert(make_pair(id, obj));
+    _objects.insert(pair<const Ice::Identity, const ObjectDescription>(id, obj));
 
     //
     // Add the object to the interface dictionary.
@@ -61,7 +61,7 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
 	
 	if(q == _types.end())
 	{
-	    _types.insert(make_pair(obj.type, seq));
+	    _types.insert(pair<const string, const Ice::ObjectProxySeq>(obj.type, seq));
 	}
 	else
 	{

@@ -48,7 +48,7 @@ IceInternal::LocatorManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
 
     _table.clear();
     _tableHint = _table.end();
@@ -98,10 +98,10 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
 	if(t == _locatorTables.end())
 	{
 	    t = _locatorTables.insert(_locatorTables.begin(),
-				      make_pair(locator->ice_getIdentity(), new LocatorTable()));
+				      pair<const Identity, LocatorTablePtr>(locator->ice_getIdentity(), new LocatorTable()));
 	}
 
-	_tableHint = _table.insert(_tableHint, make_pair(locator, new LocatorInfo(locator, t->second)));
+	_tableHint = _table.insert(_tableHint, pair<const LocatorPrx, LocatorInfoPtr>(locator, new LocatorInfo(locator, t->second)));
     }
     else
     {

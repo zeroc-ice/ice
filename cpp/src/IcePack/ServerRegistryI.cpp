@@ -52,7 +52,7 @@ IcePack::ServerRegistryI::add(const string& name, const ServerPrx& server, const
 	throw ServerExistsException();
     }
     
-    _dict.insert(make_pair(name, server));
+    _dict.insert(pair<const string, const Ice::ObjectPrx>(name, server));
 
     if(_traceLevels->serverRegistry > 0)
     {

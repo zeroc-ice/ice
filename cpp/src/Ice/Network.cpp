@@ -603,6 +603,10 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = inet_addr(host.c_str());
 
+#ifdef __sun
+#define INADDR_NONE -1
+#endif
+
     if(addr.sin_addr.s_addr == INADDR_NONE)
     {
 	IceUtil::Mutex::Lock sync(getHostByNameMutex);

@@ -1,4 +1,4 @@
 ClassRedefinition.ice:17: redefinition of class `Class1'
-ClassRedefinition.ice:17: parse error
+ClassRedefinition.ice:17: syntax error
 ClassRedefinition.ice:21: redefinition of class `Class2'
-ClassRedefinition.ice:21: parse error
+ClassRedefinition.ice:21: syntax error

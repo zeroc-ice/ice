@@ -41,7 +41,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 	throw ex;
     }
     
-    _servantMapHint = _servantMap.insert(_servantMapHint, make_pair(ident, object));
+    _servantMapHint = _servantMap.insert(_servantMapHint, ObjectDict::value_type(ident, object));
 }
 
 void
@@ -71,7 +71,7 @@ IceInternal::ServantManager::findServant(const Identity& ident) const
 
     assert(_instance); // Must not be called after destruction.
 
-    if(_servantMapHint != _servantMap.end())
+    if(_servantMap.end() != _servantMapHint)
     {
 	if(_servantMapHint->first == ident)
 	{
@@ -80,7 +80,7 @@ IceInternal::ServantManager::findServant(const Identity& ident) const
     }
     
     ObjectDict::iterator p = const_cast<Ice::ObjectDict&>(_servantMap).find(ident);
-    if(p != _servantMap.end())
+    if(_servantMap.end() != p)
     {
 	_servantMapHint = p;
 	return p->second;
@@ -106,7 +106,7 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
 	throw ex;
     }
     
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, make_pair(prefix, locator));
+    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(prefix, locator));
 }
 
 void
@@ -144,7 +144,7 @@ IceInternal::ServantManager::findServantLocator(const string& prefix) const
     
     assert(_instance); // Must not be called after destruction.
 
-    if(_locatorMapHint != _locatorMap.end())
+    if(_locatorMap.end() != _locatorMapHint)
     {
 	if(_locatorMapHint->first == prefix)
 	{
@@ -153,7 +153,7 @@ IceInternal::ServantManager::findServantLocator(const string& prefix) const
     }
     
     map<string, ServantLocatorPtr>::iterator p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(prefix);
-    if(p != _locatorMap.end())
+    if(_locatorMap.end() != p)
     {
 	_locatorMapHint = p;
 	return p->second;

@@ -51,7 +51,7 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 	}
 	throw AdapterExistsException();
     }
-    _dict.insert(make_pair(id, adapter));
+    _dict.insert(pair<const string, const Ice::ObjectPrx>(id, adapter));
 
     if(_traceLevels->adapterRegistry > 0)
     {

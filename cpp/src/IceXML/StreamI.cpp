@@ -1217,7 +1217,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	// Add the object to the readObjects map, move to the first
 	// child node & unmarshal the object.
 	//
-	_input->readObjects.insert(map<string, ::Ice::ObjectPtr>::value_type(id, value));
+	_input->readObjects.insert(pair<const string, ::Ice::ObjectPtr>(id, value));
 	_input->current = _input->current->getFirstChild();
 	value->__unmarshal(this);
     }
