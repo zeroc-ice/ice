@@ -11,12 +11,6 @@
 #include <Ice/Ice.h>
 #include <IcePack/Parser.h>
 
-#ifdef WIN32
-#   include <io.h>
-#   define isatty _isatty
-#   define fileno _fileno
-#endif
-
 #ifdef HAVE_READLINE
 #   include <readline/readline.h>
 #   include <readline/history.h>
