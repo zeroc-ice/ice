@@ -50,11 +50,17 @@ IceInternal::OutgoingAsync::~OutgoingAsync()
 void
 IceInternal::OutgoingAsync::__finished(BasicStream& is)
 {
+    assert(_reference);
+    assert(_connection);
+    assert(__is);
+    assert(__os);
+
     DispatchStatus status;
     
     try
     {
 	__is->swap(is);
+
 	Byte b;
 	__is->read(b);
 	status = static_cast<DispatchStatus>(b);
@@ -147,13 +153,15 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
 	warning();
     }
-
-    cleanup();
 }
 
 void
 IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
+    assert(_reference);
+    assert(_connection);
+    assert(__is);
+    assert(__os);
 
     if(_reference->locatorInfo)
     {
@@ -194,7 +202,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 
     if(doRetry)
     {
-	_connection->decProxyCount();
 	_connection = 0;
 	__send();
     }
@@ -202,6 +209,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     {
 	try
 	{
+	    __cleanup();
 	    ice_exception(exc);
 	}
 	catch(const Exception& ex)
@@ -216,8 +224,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	{
 	    warning();
 	}
-	
-	cleanup();
     }
 }
 
@@ -239,16 +245,13 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 				      const Context& context)
 {
     assert(!_reference);
-    _reference = ref;
-
     assert(!_connection);
-    _connection = _reference->getConnection();
-    _connection->incProxyCount();
-
     assert(!__is);
-    __is = new BasicStream(_reference->instance.get());
-    
     assert(!__os);
+
+    _reference = ref;
+    _connection = _reference->getConnection();
+    __is = new BasicStream(_reference->instance.get());
     __os = new BasicStream(_reference->instance.get());
 
     _cnt = 0;
@@ -273,6 +276,11 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 void
 IceInternal::OutgoingAsync::__send()
 {
+    assert(_reference);
+    //assert(_connection); // Might be 0, in case we retry from __finished().
+    assert(__is);
+    assert(__os);
+
     try
     {
 	while(true)
@@ -280,7 +288,6 @@ IceInternal::OutgoingAsync::__send()
 	    if(!_connection)
 	    {
 		_connection = _reference->getConnection();
-		_connection->incProxyCount();
 	    }
 
 	    if(_connection->timeout() >= 0)
@@ -311,7 +318,6 @@ IceInternal::OutgoingAsync::__send()
 		}
 	    }
 
-	    _connection->decProxyCount();
 	    _connection = 0;
 	}
     }
@@ -319,6 +325,22 @@ IceInternal::OutgoingAsync::__send()
     {
 	__finished(ex);
     }
+}
+
+void
+IceInternal::OutgoingAsync::__cleanup()
+{
+    assert(_reference);
+    assert(_connection);
+    assert(__is);
+    assert(__os);
+
+    _reference = 0;
+    _connection = 0;
+    delete __is;
+    __is = 0;
+    delete __os;
+    __os = 0;
 }
 
 void
@@ -349,25 +371,6 @@ IceInternal::OutgoingAsync::warning() const
 	Warning out(_reference->instance->logger());
 	out << "unknown exception raised by AMI callback";
     }
-}
-
-void
-IceInternal::OutgoingAsync::cleanup()
-{
-    assert(_reference);
-    _reference = 0;
-
-    assert(_connection);
-    _connection->decProxyCount();
-    _connection = 0;
-    
-    assert(__is);
-    delete __is;
-    __is = 0;
-    
-    assert(__os);
-    delete __os;
-    __os = 0;
 }
 
 void
@@ -402,5 +405,6 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
 	__finished(ex);
 	return;
     }
+    __cleanup();
     ice_response(ok, outParams);
 }

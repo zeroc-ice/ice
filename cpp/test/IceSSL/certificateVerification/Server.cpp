@@ -167,7 +167,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     kmAdapter->add(object, Ice::stringToIdentity("keyManager"));
     kmAdapter->activate();
 
-    properties->setProperty("PingerAdapter.Endpoints", "ssl -p 12345 -t 2000");
+    const string pingerEndpoints =
+	"ssl -p 12345 -t 2000"
+	":ssl -p 12346 -t 2000"
+	":ssl -p 12347 -t 2000"
+	":ssl -p 12348 -t 2000"
+	":ssl -p 12349 -t 2000";
+    properties->setProperty("PingerAdapter.Endpoints", pingerEndpoints);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PingerAdapter");
     adapter->add(new PingerI(), Ice::stringToIdentity("pinger"));
     adapter->activate();

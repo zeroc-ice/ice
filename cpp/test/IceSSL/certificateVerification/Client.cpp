@@ -23,7 +23,11 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "pinger:ssl -p 12345 -t 2000";
+    const string ref1 = "pinger:ssl -p 12345 -t 2000";
+    const string ref2 = "pinger:ssl -p 12346 -t 2000";
+    const string ref3 = "pinger:ssl -p 12347 -t 2000";
+    const string ref4 = "pinger:ssl -p 12348 -t 2000";
+    const string ref5 = "pinger:ssl -p 12349 -t 2000";
 
     KeyManagerPrx km = KeyManagerPrx::checkedCast(communicator->stringToProxy("keyManager:tcp -p 12344 -t 2000"));
 
@@ -64,8 +68,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         sslPlugin->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
         try
         {
-            PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
-            pinger->ping();
+            PingerPrx pinger1 = PingerPrx::checkedCast(communicator->stringToProxy(ref1));
+            pinger1->ping();
             cout << "ok" << endl;
         }
         catch(const Ice::LocalException& ex)
@@ -91,8 +95,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
-        PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
-        pinger->ping();
+        PingerPrx pinger2 = PingerPrx::checkedCast(communicator->stringToProxy(ref2));
+        pinger2->ping();
         km->shutdown();
         test(false);
     }
@@ -112,8 +116,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
     try
     {
-        PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
-        pinger->ping();
+        PingerPrx pinger3 = PingerPrx::checkedCast(communicator->stringToProxy(ref3));
+        pinger3->ping();
         km->shutdown();
         test(false);
     }
@@ -140,8 +144,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
-        PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
-        pinger->ping();
+        PingerPrx pinger4 = PingerPrx::checkedCast(communicator->stringToProxy(ref4));
+        pinger4->ping();
         km->shutdown();
         test(false);
     }
@@ -164,8 +168,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
-	pinger->ping();
+        PingerPrx pinger5 = PingerPrx::checkedCast(communicator->stringToProxy(ref5));
+	pinger5->ping();
 	cout << "ok" << endl;
     }
     catch(const Ice::LocalException&)

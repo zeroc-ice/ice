@@ -346,6 +346,13 @@ IceInternal::Instance::messageSizeMax() const
     return _messageSizeMax;
 }
 
+int
+IceInternal::Instance::connectionIdleTime() const
+{
+    // No mutex lock, immutable.
+    return _connectionIdleTime;
+}
+
 void
 IceInternal::Instance::flushBatchRequests()
 {
@@ -474,19 +481,31 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_properties);
 
-	static const int defaultMessageSizeMax = 1024;
-	Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-	if(num < 1)
 	{
-	    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+	    static const int defaultMessageSizeMax = 1024;
+	    Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+	    if(num < 1)
+	    {
+		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore stupid values.
+	    }
+	    else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+	    {
+		const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+	    }
+	    else
+	    {
+		// Property is in kilobytes, _messageSizeMax in bytes.
+		const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+	    }
 	}
-	else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+
 	{
-	    _messageSizeMax = static_cast<size_t>(0x7fffffff);
-	}
-	else
-	{
-	    _messageSizeMax = static_cast<size_t>(num) * 1024; // Property is in kilobytes, _messageSizeMax in bytes.
+	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
+	    if(num < 0)
+	    {
+		num = 0;
+	    }
+	    const_cast<Int&>(_connectionIdleTime) = num;
 	}
 
 	_routerManager = new RouterManager;
@@ -618,8 +637,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Start connection monitor if necessary.
     //
-    int acmTimeout = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
-    int interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+    Int interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
     if(interval > 0)
     {
 	_connectionMonitor = new ConnectionMonitor(this, interval);

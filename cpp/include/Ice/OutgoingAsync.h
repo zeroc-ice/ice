@@ -48,7 +48,7 @@ protected:
 
     void __prepare(const IceInternal::ReferencePtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
     void __send();
-    void __ice_exception(const Ice::Exception&);
+    void __cleanup();
 
     virtual void __response(bool) = 0;
 
@@ -60,8 +60,6 @@ private:
     void warning(const Ice::Exception&) const;
     void warning(const std::exception&) const;
     void warning() const;
-
-    void cleanup();
 
     ReferencePtr _reference;
     ConnectionPtr _connection;

@@ -37,14 +37,14 @@ public:
 
 private:
 
-    ConnectionMonitor(const InstancePtr&, int);
+    ConnectionMonitor(const InstancePtr&, Ice::Int);
     virtual ~ConnectionMonitor();
     friend class Instance;
 
     virtual void run();
 
     InstancePtr _instance;
-    const int _interval;
+    const Ice::Int _interval;
     std::set<ConnectionPtr> _connections;
 };
 

@@ -65,9 +65,6 @@ public:
 
     void monitor();
 
-    void incProxyCount();
-    void decProxyCount();
-
     void prepareRequest(BasicStream*);
     void sendRequest(BasicStream*, Outgoing*);
     void sendAsyncRequest(BasicStream*, const OutgoingAsyncPtr&);
@@ -131,8 +128,6 @@ private:
     static void doCompress(BasicStream&, BasicStream&);
     static void doUncompress(BasicStream&, BasicStream&);
 
-    bool closingOK() const;
-
     TransceiverPtr _transceiver;
     const std::string _desc;
     const EndpointPtr _endpoint;
@@ -146,9 +141,9 @@ private:
     bool _registeredWithPool;
     const ThreadPoolPtr _threadPool;
 
-    bool _warn;
+    const bool _warn;
 
-    int _acmTimeout;
+    const int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;
 
     const std::vector<Ice::Byte> _requestHdr;
@@ -168,8 +163,6 @@ private:
     bool _batchFlushInProgress;
 
     int _dispatchCount;
-
-    int _proxyCount;
 
     State _state; // The current state.
     IceUtil::Time _stateTime; // The time when the state was changed the last time.

@@ -795,9 +795,12 @@ Ice.ConnectionIdleTime=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-&Ice; connections that have been idle for
-<replaceable>num</replaceable> seconds are closed. The default value
-is zero, meaning that idle connections are not automatically closed.
+ACM (Active Connection Management) is enabled. This means that
+connections are automatically closed after they have been idle for
+<replaceable>num</replaceable> seconds. This is transparent to user
+code, i.e., closed connections are automatically reestablished in case
+they are needed again. The default value is 60, meaning that idle
+connections are not automatically closed after one minute.
 </para>
 </section>
 </section>

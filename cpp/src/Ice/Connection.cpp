@@ -41,15 +41,7 @@ IceInternal::Connection::validate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(_exception.get())
-    {
-	_exception->ice_throw();
-    }
-
-    if(_state != StateNotValidated)
-    {
-	return;
-    }
+    assert(_state == StateNotValidated);
 
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
@@ -178,24 +170,9 @@ IceInternal::Connection::validate()
 	}
     }
 
-    //
-    // We only print warnings after successful connection validation.
-    //
-    _warn = _instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0;
-
-    //
-    // We only use active connection management after successful
-    // connection validation. We don't use active connection
-    // management for datagram connections at all, because such
-    // "virtual connections" cannot be reestablished.
-    //
-    if(!_endpoint->datagram())
+    if(_acmTimeout > 0)
     {
-	_acmTimeout = _instance->properties()->getPropertyAsInt("Ice.ConnectionIdleTime");
-	if(_acmTimeout > 0)
-	{
-	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
-	}
+	_acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
     }
 
     //
@@ -363,34 +340,17 @@ IceInternal::Connection::monitor()
     //
     // Active connection management for idle connections.
     //
-    if(_acmTimeout > 0 && closingOK())
+    if(_acmTimeout > 0 &&
+       _requests.empty() &&
+       _asyncRequests.empty() &&
+       _batchStream.b.empty() &&
+       _dispatchCount == 0)
     {
 	if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
 	{
 	    setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
 	    return;
 	}
-    }
-}
-
-void
-IceInternal::Connection::incProxyCount()
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    assert(_proxyCount >= 0);
-    ++_proxyCount;
-}
-
-void
-IceInternal::Connection::decProxyCount()
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    assert(_proxyCount > 0);
-    --_proxyCount;
-
-    if(_proxyCount == 0 && !_adapter && closingOK())
-    {
-	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
     }
 }
 
@@ -934,11 +894,6 @@ IceInternal::Connection::flushBatchRequest()
 	_batchRequestNum = 0;
 	_batchFlushInProgress = false;
 	notifyAll();
-
-	if(_proxyCount == 0 && !_adapter && closingOK())
-	{
-	    setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
-	}
     }
 }
 
@@ -1016,6 +971,8 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+	assert(_state > StateNotValidated);
+
 	try
 	{
 	    if(--_dispatchCount == 0)
@@ -1045,6 +1002,8 @@ IceInternal::Connection::sendNoResponse()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
+    assert(_state > StateNotValidated);
+
     try
     {
 	if(--_dispatchCount == 0)
@@ -1178,6 +1137,8 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+	assert(_state > StateNotValidated);
+
 	if(_state == StateClosed)
 	{
 	    threadPool->promoteFollower();
@@ -1222,6 +1183,8 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
+	assert(_state > StateNotValidated);
+
 	if(_state == StateClosed)
 	{
 	    return;
@@ -1347,11 +1310,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			else
 			{
 			    _asyncRequests.erase(q);
-			}
-
-			if(_proxyCount == 0 && !_adapter && closingOK())
-			{
-			    setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
 			}
 		    }
 
@@ -1559,8 +1517,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _logger(_instance->logger()), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
-    _warn(false),
-    _acmTimeout(0),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+    _acmTimeout(_endpoint->datagram() ?	0 : _instance->connectionIdleTime()),
     _requestHdr(headerSize + sizeof(Int), 0),
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _replyHdr(headerSize, 0),
@@ -1571,7 +1529,6 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchRequestNum(0),
     _batchFlushInProgress(false),
     _dispatchCount(0),
-    _proxyCount(0),
     _state(StateNotValidated),
     _stateTime(IceUtil::Time::now())
 {
@@ -1628,7 +1585,6 @@ IceInternal::Connection::~Connection()
     assert(_state == StateClosed);
     assert(!_transceiver);
     assert(_dispatchCount == 0);
-    assert(_proxyCount == 0);
 }
 
 void
@@ -2011,14 +1967,4 @@ IceInternal::Connection::doUncompress(BasicStream& compressed, BasicStream& unco
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
-}
-
-bool
-IceInternal::Connection::closingOK() const
-{
-    return
-	_requests.empty() &&
-	_asyncRequests.empty() &&
-	_batchStream.b.empty() &&
-	_dispatchCount == 0;
 }

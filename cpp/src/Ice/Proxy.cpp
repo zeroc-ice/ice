@@ -22,7 +22,6 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Instance.h>
-#include <Ice/Connection.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
@@ -801,10 +800,6 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 
 IceDelegateM::Ice::Object::~Object()
 {
-    if(__connection)
-    {
-	__connection->decProxyCount();
-    }
 }
 
 bool
@@ -959,19 +954,6 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
     assert(!__reference);
     assert(!__connection);
 
-    if(from->__connection)
-    {
-	from->__connection->incProxyCount();
-    }
-
-// Can not happen, __connection must be null.
-/*
-    if(__connection)
-    {
-	__connection->decProxyCount();
-    }
-*/
-
     __reference = from->__reference;
     __connection = from->__connection;
 }
@@ -989,7 +971,6 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 
     __reference = ref;
     __connection = __reference->getConnection();
-    __connection->incProxyCount();
 }
 
 bool
