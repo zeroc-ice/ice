@@ -12,7 +12,6 @@
 #include <Ice/DynamicLibrary.h>
 #include <IceBox/ServiceManagerI.h>
 #include <Freeze/Initialize.h>
-#include <Freeze/DB.h>
 
 using namespace Ice;
 using namespace IceInternal;
@@ -132,12 +131,25 @@ IceBox::ServiceManagerI::run()
             cout << bundleName << " ready" << endl;
         }
 
-        //
-        // Start request dispatching after we've started the services.
-        //
-        adapter->activate();
-
+	//
+	// Don't move after the adapter activation. This allow
+	// applications to wait for the service manager to be
+	// reachable before sending a signal to shutdown the
+	// IceBox.
+	//
 	_server->shutdownOnInterrupt();
+
+	try
+	{
+	    adapter->activate();
+	}
+	catch(const ObjectAdapterDeactivatedException&)
+	{
+	    //
+	    // Expected if the communicator has been shutdown.
+	    //
+	}
+
         _server->communicator()->waitForShutdown();
 	_server->ignoreInterrupt();
 
@@ -412,7 +424,7 @@ IceBox::ServiceManagerI::stopAll()
     {
         try
         {
-            stop((*r++).first);
+            stop(string((*r++).first));
         }
         catch(const FailureException& ex)
         {

@@ -45,11 +45,6 @@ IcePack::ServerI::getServerDescription(const Ice::Current&)
 bool
 IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 {
-    if(act < activation)
-    {
-	return false;
-    }
-
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -57,6 +52,11 @@ IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 	{
 	case Inactive:
 	{
+	    if(act < activation)
+	    {
+	        return false;
+	    }
+
 	    _state = Activating;
 	    break;
 	}

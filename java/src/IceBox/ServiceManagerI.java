@@ -106,12 +106,28 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 System.out.println(bundleName + " ready");
             }
 
+	    //
+	    // Don't move after the adapter activation. This allow
+	    // applications to wait for the service manager to be
+	    // reachable before sending a signal to shutdown the
+	    // IceBox.
+	    //
+            _server.shutdownOnInterrupt();
+
             //
             // Start request dispatching after we've started the services.
             //
-            adapter.activate();
+	    try
+	    {
+		adapter.activate();
+	    }
+	    catch(Ice.ObjectAdapterDeactivatedException ex)
+	    {
+		//
+		// Expected if the communicator has been shutdown.
+		//
+	    }
 
-            _server.shutdownOnInterrupt();
             _server.communicator().waitForShutdown();
 	    _server.ignoreInterrupt();
 
@@ -366,6 +382,10 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    }
 	    catch(Exception ex)
 	    {
+		FailureException e = new FailureException();
+		e.reason = "ServiceManager: exception in stop for service " + service + ": " + ex;
+		e.initCause(ex);
+		throw e;
 	    }
 	}
     }

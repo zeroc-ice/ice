@@ -122,6 +122,25 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("Service2.DebugProperty") == "");
     test(obj->getProperty("Service1.DebugProperty") == "");
     
+    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
+	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+    test(admin);
+
+    //
+    // Ping the icebox service manager to avoid terminating the icebox
+    // too soon (before the icebox is fully initialized) and some
+    // connection warnings message (caused by the fact the termination
+    // handler is not yet installed and communicator not properly
+    // shutdown).
+    //
+    IcePack::ServerDescription desc;
+
+    desc = admin->getServerDescription("IceBox1");
+    desc.serviceManager->ice_ping();
+
+    desc = admin->getServerDescription("IceBox2");
+    desc.serviceManager->ice_ping();
+
     cout << "ok" << endl;
 }
 
@@ -149,6 +168,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     }
     admin->startServer("Server1");
     
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
     obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
 
     cout << "ok" << endl;
@@ -157,6 +177,16 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
 
     obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
     test(obj->getProperty("Service1.DebugProperty") == "debug");
+
+    //
+    // Ping the icebox service manager to avoid terminating the icebox
+    // too soon (before the icebox is fully initialized) and some
+    // connection warnings message (caused by the fact the termination
+    // handler is not yet installed and communicator not properly
+    // shutdown).
+    //
+    IcePack::ServerDescription desc = admin->getServerDescription("IceBox1");
+    desc.serviceManager->ice_ping();
 
     cout << "ok" << endl;
 }

@@ -147,6 +147,35 @@ public class AllTests
 	test(obj.getProperty("Service2.DebugProperty").equals(""));
 	test(obj.getProperty("Service1.DebugProperty").equals(""));
     
+	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
+	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	test(admin != null);
+
+	//
+	// Ping the icebox service manager to avoid terminating the
+	// icebox too soon (before the icebox is fully initialized)
+	// and some connection warnings message (caused by the fact
+	// the termination handler is not yet installed and
+	// communicator not properly shutdown).
+	//
+	try
+        {
+	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox1");
+	    desc.serviceManager.ice_ping();
+	}
+	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	try
+        {
+	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox2");
+	    desc.serviceManager.ice_ping();
+	}
+	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
 	System.out.println("ok");
     }
 
@@ -194,6 +223,7 @@ public class AllTests
 	    test(false);
 	}
 
+	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server-Server1"));
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server-Server2"));
 
 	System.out.println("ok");
@@ -202,6 +232,23 @@ public class AllTests
 
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
 	test(obj.getProperty("Service1.DebugProperty").equals("debug"));
+
+	//
+	// Ping the icebox service manager to avoid terminating the
+	// icebox too soon (before the icebox is fully initialized)
+	// and some connection warnings message (caused by the fact
+	// the termination handler is not yet installed and
+	// communicator not properly shutdown).
+	//
+	try
+        {
+	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox1");
+	    desc.serviceManager.ice_ping();
+	}
+	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
 
 	System.out.println("ok");
     }

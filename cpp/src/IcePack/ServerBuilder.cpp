@@ -460,7 +460,14 @@ IcePack::ServerBuilder::undo()
 	    }
 	}
     }
-    
+
+    //
+    // Set the server activation mode to manual (to avoid it to be
+    // restarted on demand) and stop it before removing its
+    // components.
+    //
+    _server->setActivationMode(Manual);
+    _server->stop();
 
     //
     // Remove all the server components.
@@ -471,12 +478,15 @@ IcePack::ServerBuilder::undo()
     {	
 	_server->destroy();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& lex)
     {
-	//
-	// This shouldn't happen. TODO: print a warning if this
-	// happens.
-	//
+        ostringstream os;
+        os << "couldn't destroy the server:\n" << lex;
+      
+        ServerDeploymentException ex;
+        ex.server = _description.name;
+        ex.reason = os.str();
+        throw ex;
     }
 }
 
@@ -534,7 +544,7 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     {
 	throw DeploySAXParseException("empty adapter id", _locator);
     }
-    
+
     //
     // A server adapter object will be created with the server when
     // the server is created (see ServerBuilder::execute()
@@ -631,10 +641,10 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 	{
 	    _description.path = "java";
 	}
-
+	
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		"IceBox/" + _variables["name"] + "@" + _variables["name"] + "ServiceManagerAdapter"));
+		_variables["name"] + "/ServiceManager @ IceBox.ServiceManager-" + _variables["name"]));
 
 	_className = "IceBox.Server";
 
@@ -649,7 +659,7 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		"IceBox/" + _variables["name"] + "@" + _variables["name"] + "ServiceManagerAdapter"));
+		_variables["name"] + "/ServiceManager @ IceBox.ServiceManager-" + _variables["name"]));
 
 	break;
     }

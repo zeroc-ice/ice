@@ -19,8 +19,14 @@ public class Server extends Ice.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Server");
         Ice.Object object = new TestI(adapter, properties);
         adapter.add(object, Ice.Util.stringToIdentity(name));
-        adapter.activate();
 	shutdownOnInterrupt();
+	try
+	{
+	    adapter.activate();
+	}
+	catch(Ice.ObjectAdapterDeactivatedException ex)
+	{
+	}
         communicator().waitForShutdown();
 	ignoreInterrupt();
         return 0;

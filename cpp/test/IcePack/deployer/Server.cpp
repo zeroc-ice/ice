@@ -31,8 +31,14 @@ int
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, Ice::stringToIdentity(name));
-    adapter->activate();
     shutdownOnInterrupt();
+    try
+    {
+        adapter->activate();
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+    }
     communicator()->waitForShutdown();
     ignoreInterrupt();
     return EXIT_SUCCESS;
