@@ -10,7 +10,7 @@
 #include <IceUtil/UUID.h>
 #include <IceSSL/RSAKeyPair.h>
 #include <Glacier/StarterI.h>
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 #ifndef _WIN32
 #   include <fcntl.h>
 #endif

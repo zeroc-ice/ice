@@ -13,7 +13,7 @@
 #include <IcePack/DescriptorUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 
 using namespace std;
 using namespace Ice;

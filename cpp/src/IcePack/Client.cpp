@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 #include <IcePack/Parser.h>
 #include <fstream>
 

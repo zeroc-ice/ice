@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 
 using namespace std;
 using namespace Ice;

@@ -9,7 +9,7 @@
 
 #include <IcePatch/IcePatchI.h>
 #include <IcePatch/Util.h>
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 #include <fstream>
 
 using namespace std;

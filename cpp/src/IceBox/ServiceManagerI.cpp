@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
-#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksums.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;

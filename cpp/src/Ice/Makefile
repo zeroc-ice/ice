@@ -89,7 +89,7 @@ OBJS		= Initialize.o \
 		  Process.o \
 		  FacetMap.o \
 		  SliceChecksumDict.o \
-		  SliceChecksum.o
+		  SliceChecksums.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

@@ -219,7 +219,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(_checksum)
     {
-        C << "\n#include <Ice/SliceChecksum.h>";
+        C << "\n#include <Ice/SliceChecksums.h>";
     }
 
     StringList includes = p->includeFiles();

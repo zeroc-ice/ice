@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libbz2.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /machine:I386 /out:"Release/ice14.dll" /implib:"Release/ice.lib"
+# ADD LINK32 ws2_32.lib libbz2.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /machine:I386 /out:"Release/ice15.dll" /implib:"Release/ice.lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\ice.lib ..\..\lib	copy $(OutDir)\ice14.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\ice.lib ..\..\lib	copy $(OutDir)\ice15.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 ws2_32.lib libbz2d.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /debug /machine:I386 /out:"Debug/ice14d.dll" /implib:"Debug/iced.lib"
+# ADD LINK32 ws2_32.lib libbz2d.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /debug /machine:I386 /out:"Debug/ice15d.dll" /implib:"Debug/iced.lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iced.lib ..\..\lib	copy $(OutDir)\ice14d.pdb ..\..\bin	copy $(OutDir)\ice14d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iced.lib ..\..\lib	copy $(OutDir)\ice15d.pdb ..\..\bin	copy $(OutDir)\ice15d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
@@ -358,7 +358,7 @@ SOURCE=.\Service.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SliceChecksum.cpp
+SOURCE=.\SliceChecksums.cpp
 # End Source File
 # Begin Source File
 
@@ -842,7 +842,7 @@ SOURCE=..\..\include\Ice\Service.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\SliceChecksum.h
+SOURCE=..\..\include\Ice\SliceChecksums.h
 # End Source File
 # Begin Source File
 
