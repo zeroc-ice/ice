@@ -23,7 +23,7 @@ import TestUtil
 name = os.path.join("Ice", "exceptions")
 
 print "tests with regular server."
-TestUtil.clientServerTest(name)
+TestUtil.clientServerTestWithOptions(name, "", " --Ice.Warn.Connections=0")
 #print "tests with AMD server."
 #TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "serveramd", "client")
 print "tests with collocated server."

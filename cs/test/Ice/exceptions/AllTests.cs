@@ -159,16 +159,8 @@ public class AllTests
 	private Callback callback;
     }
     
-    private class AMI_Thrower_throwAasAFacetNotExistI:AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAFacetNotExistI : AMI_Thrower_throwAasA
     {
-	public AMI_Thrower_throwAasAFacetNotExistI()
-	{
-	    InitBlock();
-	}
-	private void InitBlock()
-	{
-	    callback = new Callback();
-	}
 	public override void ice_response()
 	{
 	    AllTests.test(false);
@@ -182,8 +174,7 @@ public class AllTests
 	    }
 	    catch(Ice.FacetNotExistException ex)
 	    {
-		AllTests.test(ex.facet.length == 1);
-		AllTests.test(ex.facet[0].Equals("no such facet"));
+		AllTests.test(ex.facet.Equals("no such facet"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -202,54 +193,7 @@ public class AllTests
 	    return callback.check();
 	}
 	
-	private Callback callback;
-    }
-    
-    private class AMI_Thrower_throwAasAFacetNotExist2I:AMI_Thrower_throwAasA
-    {
-	public AMI_Thrower_throwAasAFacetNotExist2I()
-	{
-	    InitBlock();
-	}
-	private void InitBlock()
-	{
-	    callback = new Callback();
-	}
-	public override void ice_response()
-	{
-	    AllTests.test(false);
-	}
-	
-	public virtual void ice_exception(Ice.LocalException exc)
-	{
-	    try
-	    {
-		throw exc;
-	    }
-	    catch(Ice.FacetNotExistException ex)
-	    {
-		AllTests.test(ex.facet.length == 2);
-		AllTests.test(ex.facet[0].Equals("no such facet"));
-		AllTests.test(ex.facet[1].Equals("no such facet either"));
-	    }
-	    catch(Exception ex)
-	    {
-		AllTests.test(false);
-	    }
-	    callback.called();
-	}
-	
-	public virtual void ice_exception(Ice.UserException exc)
-	{
-	    AllTests.test(false);
-	}
-	
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
-	
-	private Callback callback;
+	private Callback callback new Callback();;
     }
     
     private class AMI_Thrower_throwAorDasAorDI:AMI_Thrower_throwAorDasAorD
@@ -1032,8 +976,6 @@ public class AllTests
         
         if(thrower.supportsUndeclaredExceptions())
         {
-            test(!collocated);
-            
             Console.Write("catching unknown user exception... ");
             Console.Out.Flush();
             
@@ -1042,8 +984,22 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
+	    catch(A ex)
+	    {
+	        //
+		// We get the original exception with collocation
+		// optimization.
+		//
+		test(collocated);
+		test(ex.aMem == 1);
+	    }
             catch(Ice.UnknownUserException)
             {
+	        //
+		// We get an unknown user exception without collocation
+		// optimization.
+		//
+		test(!collocated);
             }
             catch(Exception)
             {
@@ -1055,8 +1011,23 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
+	    catch(B ex)
+	    {
+	        //
+		// We get the original exception with collocation
+		// optimization.
+		//
+		test(collocated);
+		test(ex.aMem == 1);
+		test(ex.bMem == 2);
+	    }
             catch(Ice.UnknownUserException)
             {
+	        //
+		// We get an unknown user exception without collocation
+		// optimization.
+		//
+		test(!collocated);
             }
             catch(Exception)
             {
@@ -1068,8 +1039,24 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
+	    catch(C ex)
+	    {
+	        //
+		// We get the original exception with collocation
+		// optimization.
+		//
+		test(collocated);
+		test(ex.aMem == 1);
+		test(ex.bMem == 2);
+		test(ex.cMem == 3);
+	    }
             catch(Ice.UnknownUserException)
             {
+	        //
+		// We get an unknown user exception without collocation
+		// optimization.
+		//
+		test(!collocated);
             }
             catch(Exception)
             {

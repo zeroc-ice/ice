@@ -248,15 +248,35 @@ namespace IceInternal
 		return;
 	    }
 
-	    /* Not possible in Java - UserExceptions are checked exceptions // TODO
 	    catch(Ice.UserException ex)
 	    {
-	    // ...
+	        _is.endReadEncaps();
+		
+		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		{
+		    __warning(ex);
+		}
+		
+		if(_response)
+		{
+		    _os.endWriteEncaps();
+		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+		    _os.writeString(ex.ToString());
+		}
+		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
+		__finishInvoke();
+		return;
 	    }
-	    */
 
 	    catch(System.Exception ex)
 	    {
+		_is.endReadEncaps();
+
 		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
@@ -270,8 +290,11 @@ namespace IceInternal
 		    _os.writeString(ex.ToString());
 		}
 		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
 		__finishInvoke();
-		_is.endReadEncaps();
 		return;
 	    }
 	    

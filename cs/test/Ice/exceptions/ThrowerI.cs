@@ -24,7 +24,7 @@ public sealed class ThrowerI : Thrower_Disp
     
     public override bool supportsUndeclaredExceptions(Ice.Current current)
     {
-        return false;
+        return true;
     }
 
     public override bool supportsAssertException(Ice.Current current)
@@ -94,7 +94,7 @@ public sealed class ThrowerI : Thrower_Disp
     
     public override void throwNonIceException(Ice.Current current)
     {
-        throw new Exception();
+        throw new System.Exception();
     }
 
     public override void throwAssertException(Ice.Current current)
@@ -104,20 +104,26 @@ public sealed class ThrowerI : Thrower_Disp
     
     public override void throwUndeclaredA(int a, Ice.Current current)
     {
-        // Not possible in Java. TODO: can be done in C#
-        throw new Ice.UnknownUserException();
+	A ex = new A();
+	ex.aMem = a;
+        throw ex;
     }
     
     public override void throwUndeclaredB(int a, int b, Ice.Current current)
     {
-        // Not possible in Java. TODO: can be done in C#
-        throw new Ice.UnknownUserException();
+        B ex = new B();
+	ex.aMem = a;
+	ex.bMem = b;
+	throw ex;
     }
     
     public override void throwUndeclaredC(int a, int b, int c, Ice.Current current)
     {
-        // Not possible in Java. TODO: can be done in C#
-        throw new Ice.UnknownUserException();
+        C ex = new C();
+	ex.aMem = a;
+	ex.bMem = b;
+	ex.cMem = c;
+	throw ex;
     }
     
     private Ice.ObjectAdapter _adapter;
