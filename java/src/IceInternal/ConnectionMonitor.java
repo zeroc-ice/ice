@@ -21,10 +21,7 @@ public class ConnectionMonitor extends Thread
     {
 	synchronized(this)
 	{
-	    if(_instance == null)
-	    {
-		return;
-	    }
+	    assert(_instance != null);
 	    
 	    _instance = null;
 	    _connections.clear();
@@ -49,22 +46,14 @@ public class ConnectionMonitor extends Thread
     public synchronized void
     add(Connection connection)
     {
-	if(_instance == null)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
+	assert(_instance != null);
 	_connections.add(connection);
     }
     
     public synchronized void
     remove(Connection connection)
     {
-	if(_instance == null)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
+	assert(_instance != null);
 	_connections.remove(connection);
     }
 

@@ -115,36 +115,7 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
             throw new CommunicatorDestroyedException();
         }
 
-	ObjectAdapter adapter;
-
-	if(name.length() == 0)
-	{
-	    adapter = _instance.objectAdapterFactory().createObjectAdapter("", "", "");
-	}
-	else
-	{
-	    String id = _instance.properties().getProperty(name + ".AdapterId");
-
-	    String endpts = _instance.properties().getProperty(name + ".Endpoints");
-
-	    adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts, id);
-
-	    String router = _instance.properties().getProperty(name + ".Router");
-	    if(router.length() > 0)
-	    {
-		adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
-	    }
-
-	    String locator = _instance.properties().getProperty(name + ".Locator");
-	    if(locator.length() > 0)
-	    {
-		adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
-	    }
-	    else
-	    {
-		adapter.setLocator(_instance.referenceFactory().getDefaultLocator());
-	    }
-	}
+	ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name);
 
 	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{

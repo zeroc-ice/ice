@@ -103,7 +103,7 @@ public final class ObjectAdapterFactory
     }
     
     public synchronized Ice.ObjectAdapter
-    createObjectAdapter(String name, String endpts, String id)
+    createObjectAdapter(String name)
     {
 	if(_instance == null)
 	{
@@ -116,7 +116,7 @@ public final class ObjectAdapterFactory
             return adapter;
         }
 
-        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpts, id);
+        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name);
         _adapters.put(name, adapter);
         return adapter;
     }

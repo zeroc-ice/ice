@@ -526,30 +526,30 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpts, String id)
+    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name)
     {
         _instance = instance;
 	_communicator = communicator;
 	_printAdapterReadyDone = false;
         _name = name;
-	_id = id;
+	_id = instance.properties().getProperty(name + ".AdapterId");
         _logger = instance.logger();
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
-	String s = endpts.toLowerCase();
-
-        int beg = 0;
-        int end;
-
         try
         {
+	    String endpts = _instance.properties().getProperty(name + ".Endpoints").toLowerCase();
+	    
+	    int beg = 0;
+	    int end;
+
             while(true)
             {
-                end = s.indexOf(':', beg);
+                end = endpts.indexOf(':', beg);
                 if(end == -1)
                 {
-                    end = s.length();
+                    end = endpts.length();
                 }
 
                 if(end == beg)
@@ -557,14 +557,14 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                     break;
                 }
 
-                String es = s.substring(beg, end);
+                String s = endpts.substring(beg, end);
 
                 //
                 // Don't store the endpoint in the adapter. The Connection
                 // might change it, for example, to fill in the real port
                 // number if a zero port number is given.
                 //
-                IceInternal.Endpoint endp = instance.endpointFactoryManager().create(es);
+                IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
                 _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
 
                 if(end == s.length())
@@ -574,10 +574,27 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
                 beg = end + 1;
             }
+
+	    String router = _instance.properties().getProperty(name + ".Router");
+	    if(router.length() > 0)
+	    {
+		addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
+	    }
+
+	    String locator = _instance.properties().getProperty(name + ".Locator");
+	    if(locator.length() > 0)
+	    {
+		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+	    }
+	    else
+	    {
+		setLocator(_instance.referenceFactory().getDefaultLocator());
+	    }
         }
         catch(LocalException ex)
         {
 	    deactivate();
+	    waitForDeactivate();
             throw ex;
         }
     }

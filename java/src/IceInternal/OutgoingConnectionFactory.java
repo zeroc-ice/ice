@@ -40,7 +40,7 @@ public class OutgoingConnectionFactory
 	//
 	// First we wait until the factory is destroyed.
 	//
-	while(!_destroyed)
+	while(!_destroyed || !_pending.isEmpty())
 	{
 	    try
 	    {
@@ -217,7 +217,6 @@ public class OutgoingConnectionFactory
 		}
 		connection = new Connection(_instance, transceiver, endpoint, null);
 		connection.validate();
-		connection.activate();
 		break;
 	    }
 	    catch(Ice.LocalException ex)
@@ -245,16 +244,6 @@ public class OutgoingConnectionFactory
 	
 	synchronized(this)
 	{
-	    if(_destroyed)
-	    {
-		if(connection != null)
-		{
-		    connection.destroy(Connection.CommunicatorDestroyed);
-		}
-		
-		throw new Ice.CommunicatorDestroyedException();
-	    }
-
 	    //
 	    // Signal other threads that we are done with trying to
 	    // establish connections to our endpoints.
@@ -273,6 +262,16 @@ public class OutgoingConnectionFactory
 	    else
 	    {
 		_connections.put(connection.endpoint(), connection);
+
+		if(_destroyed)
+		{
+		    connection.destroy(Connection.CommunicatorDestroyed);
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+		else
+		{
+		    connection.activate();
+		}
 	    }
 	}
 	

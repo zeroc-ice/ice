@@ -31,6 +31,7 @@ public final class ThreadPool
         {
             trace("adding handler of type " + handler.getClass().getName() + " for channel " + fd);
         }
+	assert(!_destroyed);
         _changes.add(new FdHandlerPair(fd, handler));
         setInterrupt(0);
     }
@@ -61,6 +62,7 @@ public final class ThreadPool
             }
         }
 
+	assert(!_destroyed);
         _changes.add(new FdHandlerPair(fd, null));
         setInterrupt(0);
     }

@@ -220,15 +220,15 @@ public class IncomingConnectionFactory extends EventHandler
             _connections.add(connection);
 	}
 
+	assert(connection != null);
+	
 	//
 	// We validate and activate outside the thread
 	// synchronization, to not block the factory.
 	//
 	try
 	{
-	    assert(connection != null);
 	    connection.validate();
-            connection.activate(); // The factory must be active at this point, so we activate the connection, too.
 	}
         catch(Ice.LocalException ex)
 	{
@@ -239,6 +239,12 @@ public class IncomingConnectionFactory extends EventHandler
 	    // connection object code.
 	    //
 	}
+
+	//
+	// The factory must be active at this point, so we activate
+	// the connection, too.
+	//
+	connection.activate();
     }
 
     public synchronized void
@@ -303,7 +309,7 @@ public class IncomingConnectionFactory extends EventHandler
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
 		connection.validate();
                 _connections.add(connection);
-            }
+	    }
             else
             {
                 h.value = _endpoint;

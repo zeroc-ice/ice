@@ -1113,7 +1113,7 @@ public final class Connection extends EventHandler
 		{
 		    //
 		    // If we are registered with the thread pool, we
-		    // unregister. finish() will then do the close.
+		    // unregister. finished() will then do the close.
 		    //
 		    unregisterWithPool();
 		}
