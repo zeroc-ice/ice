@@ -70,13 +70,13 @@ class LibraryServer extends Freeze.Application
 	//
 	// Create the library, and add it to the Object Adapter.
 	//
-	LibraryI phoneBook = new LibraryI(adapter, dbAuthors, evictor);
-	adapter.add(phoneBook, Ice.Util.stringToIdentity("library"));
+	LibraryI library = new LibraryI(adapter, dbAuthors, evictor);
+	adapter.add(library, Ice.Util.stringToIdentity("library"));
     
 	//
 	// Create and install a factory and initializer for books.
 	//
-	Ice.ObjectFactory bookFactory = new BookFactory(phoneBook, evictor);
+	Ice.ObjectFactory bookFactory = new BookFactory(library);
 	communicator().addObjectFactory(bookFactory, "::Book");
     
 	//

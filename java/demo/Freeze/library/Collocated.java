@@ -8,9 +8,9 @@
 //
 // **********************************************************************
 
-class PhoneBookCollocated extends Freeze.Application
+class LibraryCollocated extends Freeze.Application
 {
-    PhoneBookCollocated(String dbEnvName)
+    LibraryCollocated(String dbEnvName)
     {
 	super(dbEnvName);
     }
@@ -70,13 +70,13 @@ class PhoneBookCollocated extends Freeze.Application
 	//
 	// Create the library, and add it to the Object Adapter.
 	//
-	LibraryI phoneBook = new LibraryI(adapter, dbAuthors, evictor);
-	adapter.add(phoneBook, Ice.Util.stringToIdentity("library"));
+	LibraryI library = new LibraryI(adapter, dbAuthors, evictor);
+	adapter.add(library, Ice.Util.stringToIdentity("library"));
     
 	//
 	// Create and install a factory and initializer for books.
 	//
-	Ice.ObjectFactory bookFactory = new BookFactory(phoneBook, evictor);
+	Ice.ObjectFactory bookFactory = new BookFactory(library);
 	communicator().addObjectFactory(bookFactory, "::Book");
     
 	//
@@ -94,7 +94,7 @@ public class Collocated
     static public void
     main(String[] args)
     {
-	PhoneBookCollocated app = new PhoneBookCollocated("db");
-	app.main("test.Freeze.phonebook.Collocated", args, "config");
+	LibraryCollocated app = new LibraryCollocated("db");
+	app.main("test.Freeze.library.Collocated", args, "config");
     }
 }
