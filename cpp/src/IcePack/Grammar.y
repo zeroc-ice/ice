@@ -219,10 +219,6 @@ command
 {
     parser->describeObject($3);
 }
-| ICE_PACK_OBJECT ICE_PACK_LIST ';'
-{
-    parser->listObject(YYSTYPE());
-}
 | ICE_PACK_SHUTDOWN ';'
 {
     parser->shutdown();
@@ -265,10 +261,6 @@ optional_strings
 {
     $$ = $2;
     $$.push_front($1.front());
-}
-| ICE_PACK_STRING
-{
-    $$ = $1;
 }
 |
 {
