@@ -90,8 +90,9 @@ at http://www.mono-project.com/Downloads:
 
 mono-core-1.0.6-1.novell.9.1.i386.rpm
 
-Note that this RPM depends on libicu-2.6.2-1.1.fc3.rf.i386.rpm
-available at http://dag.wieers.com/packages/icu/.
+Note that this RPM depends on libicu 2.6, which can be obtained by
+installing libicu-2.6.2-1.1.fc3.rf.i386.rpm, available from
+http://dag.wieers.com/packages/icu/.
 
 
 ======================================================================
