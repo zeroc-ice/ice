@@ -476,56 +476,55 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 {
     BasicStream& stream = handler->_stream;
     
-    if (stream.b.size() < static_cast<BasicStream::Container::size_type>(headerSize)) // Read header?
+    if (stream.b.size() == 0)
     {
-	if (stream.b.size() == 0)
-	{
-	    stream.b.resize(headerSize);
-	    stream.i = stream.b.begin();
-	}
-	
-	handler->read(stream);
-	if (stream.i != stream.b.end())
-	{
-	    return;
-	}
-    }
-    
-    if (stream.b.size() >= static_cast<BasicStream::Container::size_type>(headerSize)) // Interpret header?
-    {
-	int pos = stream.i - stream.b.begin();
+	stream.b.resize(headerSize);
 	stream.i = stream.b.begin();
-	Byte protVer;
-	stream.read(protVer);
-	if (protVer != protocolVersion)
-	{
-	    throw UnsupportedProtocolException(__FILE__, __LINE__);
-	}
-	Byte encVer;
-	stream.read(encVer);
-	if (encVer != encodingVersion)
-	{
-	    throw UnsupportedEncodingException(__FILE__, __LINE__);
-	}
-	Byte messageType;
-	stream.read(messageType);
-	Int size;
-	stream.read(size);
-        if (size < headerSize)
-        {
-            throw IllegalMessageSizeException(__FILE__, __LINE__);
-        }
-	if (size > 1024 * 1024) // TODO: configurable
-	{
-	    throw MemoryLimitException(__FILE__, __LINE__);
-	}
-	stream.b.resize(size);
-	stream.i = stream.b.begin() + pos;
     }
-    
-    if (stream.b.size() > static_cast<BasicStream::Container::size_type>(headerSize) && stream.i != stream.b.end())
+
+    if (stream.i != stream.b.end())
     {
 	handler->read(stream);
+	assert(stream.i == stream.b.end());
+    }
+    
+    int pos = stream.i - stream.b.begin();
+    assert(pos >= headerSize);
+    stream.i = stream.b.begin();
+    Byte protVer;
+    stream.read(protVer);
+    if (protVer != protocolVersion)
+    {
+	throw UnsupportedProtocolException(__FILE__, __LINE__);
+    }
+    Byte encVer;
+    stream.read(encVer);
+    if (encVer != encodingVersion)
+    {
+	throw UnsupportedEncodingException(__FILE__, __LINE__);
+    }
+    Byte messageType;
+    stream.read(messageType);
+    Int size;
+    stream.read(size);
+    if (size < headerSize)
+    {
+	throw IllegalMessageSizeException(__FILE__, __LINE__);
+    }
+    if (size > 1024 * 1024) // TODO: configurable
+    {
+	throw MemoryLimitException(__FILE__, __LINE__);
+    }
+    if (size > static_cast<Int>(stream.b.size()))
+    {
+	stream.b.resize(size);
+    }
+    stream.i = stream.b.begin() + pos;
+    
+    if (stream.i != stream.b.end())
+    {
+	handler->read(stream);
+	assert(stream.i == stream.b.end());
     }
 }
 

@@ -19,11 +19,12 @@ includedir	= $(top_srcdir)/include
 slicedir	= $(top_srcdir)/slice
 
 #
-# The locations of STLport, JThreads/C++, and Berkeley DB.
+# The locations of STLport, Berkeley DB, and other libraries used by
+# Ice.
 #
 # The values below can be overwritten by defining them as environment
 # variables. For example, if you are using a bourne shell or
-# compatible, you can overwrite the location of STLPORT like this:
+# compatible, you can overwrite the location of STLport like this:
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
@@ -37,8 +38,8 @@ XERCESC_HOME    ?= /opt/xerces-c
 # set different compilation options for debug or optimization
 #
 CXX		= c++
-#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
+CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
+#CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread
