@@ -58,8 +58,8 @@ elif sys.platform == "cygwin":
 else:
     sep = ":"
 
-commonServerOptions = " --Ice.ServerThreadPool.Size=3 --Ice.PrintAdapterReady --Ice.ConnectionWarnings" + \
-                      " --Ice.ServerIdleTime=30"
+commonServerOptions = " --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
+                      " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
 serverOptions = commonServerOptions + serverProtocol
 clientOptions = clientProtocol + defaultHost
