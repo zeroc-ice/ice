@@ -22,7 +22,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
     public void
     destroy()
     {
-	synchronized(_lock)
+	synchronized(_lock) // TODO: Make the method synchronized, remove _lock
 	{
 	    System.out.println("destroying callback sender");
 	    _destroy = true;
@@ -47,7 +47,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
     public void
     run()
     {
-	while(!_destroy)
+	while(!_destroy) // TODO: Bug, check is not in synchronization.
 	{
 	    synchronized(_lock)
 	    {
@@ -72,7 +72,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 			}
 			catch(Exception ex)
 			{
-			    p.remove();
+			    p.remove(); // TODO: Check if it is legal to remove the current iterator.
 			}
 		    }
 		}
@@ -82,6 +82,6 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 
     private boolean _destroy;
     private int _num;
-    private java.lang.Object _lock;
+    private java.lang.Object _lock; // TODO: remove.
     private java.util.Vector _clients;
 }
