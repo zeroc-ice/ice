@@ -142,7 +142,7 @@ class TestCheckedCastI : public Test::TestCheckedCast
 {
 public:
 
-    virtual void TestCheckedCastI::getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb,
+    virtual void getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb,
                                                     const Ice::Current&);
     void setContext(const Ice::Context& c);
 
