@@ -77,8 +77,8 @@ Changes since version 1.3.0
 
   * The object adapter is now used to register facets instead of the
     active facet map. The following operations have been added to
-    Ice::ObjectAdapter: addFacet, addFacetWithUUID, removeFacet, and
-    findFacet.
+    Ice::ObjectAdapter: addFacet, addFacetWithUUID, removeFacet,
+    removeAllFacets, and findFacet.
 
     Please see the reference manual for more information. For naming
     consistency, the following object adapter operations have been
