@@ -5,6 +5,11 @@
 IceStorm.TopicManager.Endpoints=default -p 10000
 
 #
+# This property is used by the clients to connect to IceStorm.
+#
+IceStorm.TopicManager=IceStorm.TopicManager: default -p 10000
+
+#
 # TopicManager Tracing
 #
 # 0 = no tracing

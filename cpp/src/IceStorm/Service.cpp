@@ -76,9 +76,9 @@ IceStorm::Service::start(const string& name,
 
     TraceLevelsPtr traceLevels = new TraceLevels(name, properties, communicator->getLogger());
     string endpoints = properties->getProperty(name + ".TopicManager.Endpoints");
-    _adapter = communicator->createObjectAdapterWithEndpoints("TopicManager", endpoints);
+    _adapter = communicator->createObjectAdapterWithEndpoints(name + ".TopicManagerAdapter", endpoints);
     _manager = new TopicManagerI(communicator, _adapter, traceLevels, dbEnv, dbTopicManager);
-    _adapter->add(_manager, stringToIdentity("TopicManager"));
+    _adapter->add(_manager, stringToIdentity(name + ".TopicManager"));
 
     _adapter->activate();
 }

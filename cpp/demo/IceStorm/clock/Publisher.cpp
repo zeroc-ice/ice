@@ -34,15 +34,15 @@ Publisher::run(int argc, char* argv[])
 {
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
-    static const string endpointsProperty = "IceStorm.TopicManager.Endpoints";
-    string endpoints = properties->getProperty(endpointsProperty);
-    if(endpoints.empty())
+    static const string referenceProperty = "IceStorm.TopicManager";
+    string reference = properties->getProperty(referenceProperty);
+    if(reference.empty())
     {
-	cerr << appName() << ": property `" << endpointsProperty << "' not set" << endl;
+	cerr << appName() << ": property `" << referenceProperty << "' not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy("TopicManager:" + endpoints);
+    Ice::ObjectPrx base = communicator()->stringToProxy(reference);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
