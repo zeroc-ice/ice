@@ -379,7 +379,7 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar x " + distro + "/demo " + distro + "/config " \
+    os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -532,7 +532,7 @@ def makeInstall(buildDir, installDir, distro, clean):
         shutil.rmtree(distro, True)
         
     if not os.path.exists(distro):
-        os.system("gzip -dc sources/" + distro + ".tar.gz | tar x")
+        os.system("gzip -dc sources/" + distro + ".tar.gz | tar xf -")
         
     os.chdir(distro)
 
