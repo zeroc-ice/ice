@@ -198,7 +198,7 @@ Ice::PropertiesI::parse(istream& in)
 void
 Ice::PropertiesI::parseLine(const string& line)
 {
-    const string delim = " \t";
+    static const string delim = " \t\r\n";
     string s = line;
     
     string::size_type idx = s.find('#');

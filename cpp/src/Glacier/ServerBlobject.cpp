@@ -31,8 +31,10 @@ Glacier::ServerBlobject::~ServerBlobject()
 void
 Glacier::ServerBlobject::destroy()
 {
+    //
     // No mutex protection necessary, destroy is only called after all
     // object adapters have shut down.
+    //
     _clientAdapter = 0;
     _logger = 0;
 }

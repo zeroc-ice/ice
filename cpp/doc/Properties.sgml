@@ -16,7 +16,7 @@ string is interpreted as zero.
 </para>
 
 <!-- ********************************************************************** -->
-<section><title>Tracing</title>
+<section><title>&Ice; Tracing Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Trace.Network</title>
@@ -34,7 +34,7 @@ The network tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No network tracing.</entry>
+<entry>No network tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -70,7 +70,7 @@ The protocol tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No protocol tracing.</entry>
+<entry>No protocol tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -98,7 +98,7 @@ The request retry tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No request retry tracing.</entry>
+<entry>No request retry tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -130,7 +130,7 @@ The Security extension tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No security tracing.</entry>
+<entry>No security tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -152,7 +152,7 @@ configuration file parse step.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Object Adapter</title>
+<section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
@@ -176,7 +176,7 @@ has been created with
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Thread Pool</title>
+<section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.ThreadPool.MaxConnections</title>
@@ -214,7 +214,7 @@ The number of threads in the thread pool. Default is 10.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Security</title>
+<section><title>&Ice; Security Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Security.Ssl.CertPath</title>
@@ -275,7 +275,7 @@ application data before the connection times-out and resets.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Protocol</title>
+<section><title>&Ice; Protocol Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.DefaultProtocol</title>
@@ -314,7 +314,7 @@ instead. The default value is the local host name.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Routing</title>
+<section><title>&Ice; Routing Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.DefaultRouter</title>
@@ -326,8 +326,8 @@ Ice.DefaultRouter=<replaceable>router</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default &Glacier; router (as stingified object reference
-to the &Glacier; router control interface) which is to be used for all
+Specifies a default router (as stingified object reference to the
+&Glacier; router control interface) which is to be used for all
 Proxies, unless the router is overwritten with the Proxy's
 <literal>ice_router()</literal> operation. The default value is no
 router.
@@ -344,10 +344,10 @@ Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replacea
 <section>
 <title>Description</title>
 <para>
-Specifies a &Glacier; router (as stingified object reference to the
-&Glacier; router control interface) for the object adapter with the
-name <replaceable>name</replaceable>. By doing so, the object adapter
-can receive callbacks from this router, using connections which are
+Specifies a router (as stingified object reference to the &Glacier;
+router control interface) for the object adapter with the name
+<replaceable>name</replaceable>. By doing so, the object adapter can
+receive callbacks from this router, using connections which are
 established from this process to the router, instead of the router
 having to establish a connection back to the named object adapter.
 <note><para> You can only specify a particular router for one single
@@ -361,7 +361,7 @@ router. </para></note>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Miscellaneous</title>
+<section><title>&Ice; Miscellaneous Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
@@ -547,7 +547,7 @@ The topic manager tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No topic manager tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -575,13 +575,13 @@ IceStorm.Trace.Topic=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The Topic tracing level:
+The topic tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No topic tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -609,7 +609,7 @@ Trace information on the thread that flushes batch reliability events to subscri
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No flush tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -631,13 +631,13 @@ IceStorm.Trace.Subscriber=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The Subscriber tracing level:
+The subscriber tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No subscriber tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -671,7 +671,7 @@ property is 100 ms.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Glacier; Properties</title>
+<section><title>&Glacier; Router Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Glacier.Router.Endpoints, Glacier.Client.Endpoints, Glacier.Server.Endpoints</title>
@@ -745,7 +745,7 @@ The client interface tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No client interface tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -780,7 +780,7 @@ The server interface tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No server interface tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -815,11 +815,123 @@ The routing table tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing.</entry>
+<entry>No routing table tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
 <entry>Trace additions to the &Glacier; routing table.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Glacier; Router Starter Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Glacier.Starter.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints of the &Glacier; router starter. (Unix only.)
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Starter.RouterPath</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.RouterPath=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Sets the path of the &Glacier; router executable to be started. The
+default is <literal>glacier</literal>. (Unix only.)
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Starter.PropertiesOverwrite</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.PropertiesOverwrite=<replaceable>overwrites</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+By default, the &Glacier; router starter starts new routers with the
+exact same property set as for the router
+starter. <replaceable>overwrites</replaceable> can contain a list
+(separated by whitespace) of properties for the router, which are used
+in addition to the router starter's properties, or which overwrite the
+router starter's properties. For example, in many cases it is
+desirable to set the property <literal>Ice.ServerIdleTime</literal>
+for the router, but not for the router starter. For an idle time of 60
+seconds, this can be done by setting
+<literal>Glacier.Starter.PropertiesOverwrite=Ice.SeverIdleTime=60</literal>. (Unix
+only.)
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Starter.StartupTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.StartupTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the number of seconds the &Glacier;
+router starter will wait for the router to start up. If this timeout
+expires, a <literal>Glacier::CannotStartRouterException</literal> is
+returned to the caller. The default value is 10 seconds. Timeout
+values smaller than one second are silently changed to 1 second. (Unix
+only.)
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Trace.Starter</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Trace.Starter=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The router starter tracing level: (Unix only.)
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No router starter tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace router startup exceptions.
+</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Trace also each successful router startup.
 </entry>
 </row>
 </tbody>
@@ -850,7 +962,7 @@ The &Freeze; database activity tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No database activity tracing.</entry>
+<entry>No database activity tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -882,7 +994,7 @@ The &Freeze; evictor activity tracing level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No evictor activity tracing.</entry>
+<entry>No evictor activity tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>

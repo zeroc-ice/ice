@@ -206,6 +206,15 @@ Glacier::Router::run(int argc, char* argv[])
 	{
 	    cerr << appName() << ": cannot write stringified router proxy to filedescriptor " << fd << ": "
 		 << strerror(errno) << endl;
+
+	    //
+	    // Destroy the router. The client and server blobjects get
+	    // destroyed by ServantLocator::deactivate.
+	    //
+	    RouterI* rtr = dynamic_cast<RouterI*>(router.get());
+	    assert(rtr);
+	    rtr->destroy();
+
 	    return EXIT_FAILURE;
 	}
 	close(fd);

@@ -85,6 +85,14 @@ Glacier::Router::run(int argc, char* argv[])
     // We're done, let's wait for shutdown.
     //
     communicator()->waitForShutdown();
+
+    //
+    // Destroy the starter.
+    //
+    StarterI* st = dynamic_cast<StarterI*>(starter.get());
+    assert(st);
+    st->destroy();
+
     return EXIT_SUCCESS;
 }
 

@@ -22,13 +22,30 @@ using namespace Ice;
 using namespace Glacier;
 
 Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
-    _communicator(communicator)
+    _communicator(communicator),
+    _logger(_communicator->getLogger()),
+    _properties(_communicator->getProperties())
 {
+    _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
+}
+
+void
+Glacier::StarterI::destroy()
+{
+    //
+    // No mutex protection necessary, destroy is only called after all
+    // object adapters have shut down.
+    //
+    _communicator = 0;
+    _logger = 0;
+    _properties = 0;
 }
 
 RouterPrx
 Glacier::StarterI::startRouter(const string& userId, const string& password, const Current&)
 {
+    assert(_communicator); // Destroyed?
+
     //
     // TODO: userId/password check
     //
@@ -36,82 +53,131 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     //
     // Start a router
     //
+    string path = _properties->getProperty("Glacier.Starter.RouterPath");
+    if (path.empty())
+    {
+	path = "glacier";
+    }
+
     string uuid = IceUtil::generateUUID();
-    char buf[4*1024];
+    pid_t pid;
+    int fds[2];
+
     try
     {
-	int fds[2];
 	if (pipe(fds) != 0)
 	{
 	    SystemException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
-	pid_t pid = fork();
+	pid = fork();
 	if (pid == -1)
 	{
 	    SystemException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
-	if (pid == 0) // Child process
+    }
+    catch(const LocalException& ex)
+    {
+	ostringstream s;
+	s << ex;
+	_logger->error(s.str());
+
+	ex.ice_throw();
+    }
+
+    if (pid == 0) // Child process
+    {
+	//
+	// Close all filedescriptors, except for standard input,
+	// standard output, standard error output, and the write side
+	// of the newly created pipe.
+	//
+	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+	for (int fd = 3; fd < maxFd; ++fd)
 	{
-	    //
-	    // Close all filedescriptors, except for standard input,
-	    // standard output, standard error output, and the write side
-	    // of the newly created pipe.
-	    //
-	    int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	    for (int fd = 3; fd < maxFd; ++fd)
+	    if (fd != fds[1])
 	    {
-		if (fd != fds[1])
-		{
-		    close(fd);
-		}
-	    }
-	    
-	    //
-	    // Setup arguments to start the router with.
-	    //
-	    StringSeq args = _communicator->getProperties()->getCommandLineOptions();
-	    args.push_back("--Glacier.Router.Identity=" + uuid);
-	    ostringstream s;
-	    s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
-	    args.push_back(s.str());
-	    
-	    //
-	    // Convert to standard argc/argv.
-	    //
-	    int argc = args.size() + 1;
-	    char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
-	    StringSeq::iterator p;
-	    int i;
-	    for (p = args.begin(), i = 1; p != args.end(); ++p, ++i)
-	    {
-		assert(i < argc);
-		argv[i] = strdup(p->c_str());
-	    }
-	    assert(i == argc);
-	    argv[0] = strdup("glacier"); // TODO: Property
-	    argv[argc] = 0;
-	    
-	    //
-	    // Try to start the router.
-	    //
-	    if (execvp(argv[0], argv) == -1)
-	    {
-		//
-		// Send any errors to the parent process, using the write
-		// end of the pipe.
-		//
-		ostringstream s;
-		s << "can't execute `" << argv[0] << "': " << strerror(errno);
-		write(fds[1], s.str().c_str(), s.str().length());
-		close(fds[1]);
-		exit(EXIT_FAILURE);
+		close(fd);
 	    }
 	}
-	else // Parent process
+	
+	//
+	// Setup arguments to start the router with.
+	//
+	StringSeq args = _properties->getCommandLineOptions();
+	args.push_back("--Glacier.Router.Identity=" + uuid);
+	ostringstream s;
+	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
+	args.push_back(s.str());
+	string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverwrite");
+	if (!overwrite.empty())
+	{
+	    string::size_type end = 0;
+	    while (end != string::npos)
+	    {
+		static const string delim = " \t\r\n";
+		
+		string::size_type beg = overwrite.find_first_not_of(delim, end);
+		if (beg == string::npos)
+		{
+		    break;
+		}
+		
+		end = overwrite.find_first_of(delim, beg);
+		string arg;
+		if (end == string::npos)
+		{
+		    arg = overwrite.substr(beg);
+		}
+		else
+		{
+		    arg = overwrite.substr(beg, end - beg);
+		}
+		if (arg.find("--") != 0)
+		{
+		    arg = "--" + arg;
+		}
+		args.push_back(arg);
+	    }
+	}
+	
+	//
+	// Convert to standard argc/argv.
+	//
+	int argc = args.size() + 1;
+	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
+	StringSeq::iterator p;
+	int i;
+	for (p = args.begin(), i = 1; p != args.end(); ++p, ++i)
+	{
+	    assert(i < argc);
+	    argv[i] = strdup(p->c_str());
+	}
+	assert(i == argc);
+	argv[0] = strdup(path.c_str());
+	argv[argc] = 0;
+	
+	//
+	// Try to start the router.
+	//
+	if (execvp(argv[0], argv) == -1)
+	{
+	    //
+	    // Send any errors to the parent process, using the write
+	    // end of the pipe.
+	    //
+	    string msg = "can't execute `" + path + "': " + strerror(errno);
+	    write(fds[1], msg.c_str(), msg.length());
+	    close(fds[1]);
+	    exit(EXIT_FAILURE);
+	}
+    }
+    else // Parent process
+    {
+	try
 	{
 	    //
 	    // Close the write side of the newly created pipe
@@ -136,7 +202,19 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 	    FD_ZERO(&fdSet);
 	    FD_SET(fds[0], &fdSet);
 	    struct timeval tv;
-	    tv.tv_sec = 5; // TODO: Property
+	    string timeout = _properties->getProperty("Glacier.Starter.StartupTimeout");
+	    if (timeout.empty())
+	    {
+		tv.tv_sec = 10; // 10 seconds default.
+	    }
+	    else
+	    {
+		tv.tv_sec = atoi(timeout.c_str());
+		if (tv.tv_sec < 1)
+		{
+		    tv.tv_sec = 1; // One second is minimum.
+		}
+	    }
 	    tv.tv_usec = 0;
 	    int ret = ::select(fds[0] + 1, &fdSet, 0, 0, &tv);
 	    
@@ -154,7 +232,9 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 	    
 	    if (ret == 0) // Timeout
 	    {
-		assert(false); // TODO: Handle this situation.
+		CannotStartRouterException ex;
+		ex.reason = "timeout while starting `" + path + "'";
+		throw ex;
 	    }
 
 	    assert(FD_ISSET(fds[0], &fdSet));
@@ -162,6 +242,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 	    //
 	    // Read the response
 	    //
+	    char buf[4*1024];
 	    ssize_t sz = read(fds[0], buf, sizeof(buf)/sizeof(char) - 1);
 	    if(sz == -1)
 	    {
@@ -169,33 +250,63 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
 		ex.error = getSystemErrno();
 		throw ex;
 	    }
-	    assert(sz != 0); // TODO: Handle EOF
+
+	    if (sz == 0) // EOF?
+	    {
+		CannotStartRouterException ex;
+		ex.reason = "got EOF from `" + path + "'";
+		throw ex;
+	    }
+
 	    buf[sz] = '\0'; // Terminate the string we got back.
+
+	    if (strncmp(buf, uuid.c_str(), uuid.length()) == 0)
+	    {
+		//
+		// We got the stringified router proxy.
+		//
+		RouterPrx router = RouterPrx::uncheckedCast(_communicator->stringToProxy(buf));
+
+		if (_traceLevel >= 2)
+		{
+		    ostringstream s;
+		    s << "started new router:\n" << _communicator->proxyToString(router);
+		    _logger->trace("Glacier", s.str());
+		}
+
+		return router;
+	    }
+	    else
+	    {
+		//
+		// We got something else.
+		//
+		CannotStartRouterException ex;
+		ex.reason = buf;
+		throw ex;
+	    }
+	}
+	catch(const CannotStartRouterException& ex)
+	{
+	    if (_traceLevel >= 1)
+	    {
+		ostringstream s;
+		s << "router starter exception:\n" << ex << ":\n" << ex.reason;
+		_logger->trace("Glacier", s.str());
+	    }
+	    
+	    ex.ice_throw();
+	}
+	catch(const Exception& ex)
+	{
+	    ostringstream s;
+	    s << ex;
+	    _logger->error(s.str());
+
+	    ex.ice_throw();
 	}
     }
-    catch(const LocalException& ex)
-    {
-	// TODO: Log exception or print warning
-	cerr << ex << endl;
-	ex.ice_throw();
-    }
 
-    if (strncmp(buf, uuid.c_str(), uuid.length()) == 0)
-    {
-	//
-	// We got the stringified router proxy.
-	//
-	return RouterPrx::uncheckedCast(_communicator->stringToProxy(buf));
-    }
-    else
-    {
-	//
-	// We got something else.
-	//
-	CannotStartRouterException ex;
-	ex.reason = buf;
-	// TODO: Log exception.
-	cerr << ex << endl;
-	throw ex;
-    }
+    assert(false); // Should never be reached.
+    return 0; // To keep the compiler from complaining.
 }

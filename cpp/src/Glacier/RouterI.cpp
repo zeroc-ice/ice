@@ -35,8 +35,10 @@ Glacier::RouterI::~RouterI()
 void
 Glacier::RouterI::destroy()
 {
+    //
     // No mutex protection necessary, destroy is only called after all
     // object adapters have shut down.
+    //
     _clientAdapter = 0;
     _serverAdapter = 0;
     _logger = 0;
@@ -74,8 +76,7 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
     if (_routingTableTraceLevel)
     {
 	ostringstream s;
-	s << "adding proxy to routing table:\n"
-	  << _clientAdapter->getCommunicator()->proxyToString(proxy);
+	s << "adding proxy to routing table:\n" << _clientAdapter->getCommunicator()->proxyToString(proxy);
 	_logger->trace("Glacier", s.str());
     }
 

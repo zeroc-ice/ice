@@ -23,11 +23,16 @@ public:
 
     StarterI(const Ice::CommunicatorPtr&);
 
+    void destroy();
+
     Ice::RouterPrx startRouter(const std::string&, const std::string&, const Ice::Current&);
 
 private:
 
     Ice::CommunicatorPtr _communicator;
+    Ice::LoggerPtr _logger;
+    Ice::PropertiesPtr _properties;
+    int _traceLevel;
 };
 
 }
