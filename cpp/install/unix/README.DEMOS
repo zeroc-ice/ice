@@ -1,34 +1,36 @@
+RPM Notes
+=========
+
 When installing from RPMs, the demos for a particular language mapping
 are included with the appropriate 'devel' RPM. For example, the Java
 demos are included in the ice-java-devel RPM.
+
+We recommend that you copy the demo subdirectories from the RPM
+installation directory to your home directory.
 
 
 Building the Demos
 ==================
 
-For your convenience, the Ice demo distribution includes all of the
-demos included in the Ice source distribution. These demos can be
-built against a pre-existing Ice distribution.
-
-If you have installed Ice from RPM packages, you can build the demos
-by visiting each demo directory (e.g., demo, demoj, democs) and
-running 'gmake' or 'ant' as appropriate. The Ice for Python demos do
-not need to be compiled.
-
 These instructions assume that you have correctly configured your
-environment according to the directions contained in the included
-platform-specific README file.
+environment according to the directions in the README or platform-
+specific INSTALL file included with your Ice installation.
 
-gmake 3.80 is required to build the C++ or C# demos.  Ant
-1.6.2 is required to build the Java demos. Ant can be downloaded from:
+You can build the demos by visiting each demo directory (e.g., demo,
+demoj, democs) and running 'gmake' or 'ant' as appropriate. The Ice
+for Python demos do not need to be compiled.
+
+gmake 3.80 is required to build the C++ or C# demos. Ant 1.6 is
+required to build the Java demos. Ant can be downloaded from:
 
 http://ant.apache.org/bindownload.cgi
+
 
 Running the Ice Demos
 =====================
 
 Most demos consist of a single server and client. The instructions to
-run the demo depend on the programming language. Instructions for each
+run a demo depend on the programming language. Instructions for each
 language are included below.  Some demo directories contain README
 files if additional steps are necessary.
 
@@ -36,9 +38,8 @@ files if additional steps are necessary.
 Running the C++ demos
 =====================
 
-To run a demo, open a terminal terminal window, change to
-the desired demo directory, and enter the following command
-to run the server:
+To run a demo, open a terminal terminal window, change to the desired
+demo directory, and enter the following command to run the server:
 
 $ ./server
 
@@ -69,10 +70,10 @@ $ java Client
 Running the C# demos
 ====================
 
-The C# demos are only officially supported under Linux or Windows. The
-C# runtime is only provided under the Linux and Windows
-distributions. For the adventurous you may download the runtime source
-from the ZeroC website.
+The C# demos are only officially supported under Linux or Windows,
+therefore the Ice for C# run time is only included the Linux and
+Windows distributions. The adventurous may download the run time
+source from the ZeroC website.
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
