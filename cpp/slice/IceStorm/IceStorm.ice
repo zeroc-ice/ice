@@ -84,7 +84,7 @@ interface Topic
      * @see TopicManager::subscribe
      *
      **/
-    nonmutating string getName();
+    ["nonmutating"] string getName();
     
     /**
      *
@@ -96,7 +96,7 @@ interface Topic
      * @return A proxy to publish data on this Topic.
      *
      **/
-    nonmutating Object* getPublisher();
+    ["nonmutating"] Object* getPublisher();
 
     /**
      *
@@ -127,7 +127,7 @@ interface Topic
      * @return A sequence of LinkInfo objects.
      *
      **/
-    nonmutating LinkInfoSeq getLinkInfoSeq();
+    ["nonmutating"] LinkInfoSeq getLinkInfoSeq();
 
     /**
      *
@@ -226,7 +226,7 @@ interface TopicManager
      * @throws NoSuchTopic Raised if the Topic doesn't exist.
      *
      **/
-    nonmutating Topic* retrieve(string name) throws NoSuchTopic;
+    ["nonmutating"] Topic* retrieve(string name) throws NoSuchTopic;
 
     /**
      *
@@ -235,7 +235,7 @@ interface TopicManager
      * @return A dictionary of string, Topic proxy pairs.
      *
      **/
-    nonmutating TopicDict retrieveAll();
+    ["nonmutating"] TopicDict retrieveAll();
 
     /**
      *

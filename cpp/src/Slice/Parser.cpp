@@ -1204,8 +1204,7 @@ Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType,
 				 const TypeStringList& inParams,
 				 const TypeStringList& outParams,
-				 const ExceptionList& throws,
-				 bool nonmutating)
+				 const ExceptionList& throws)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1274,7 +1273,7 @@ Slice::ClassDef::createOperation(const string& name,
 	return 0;
     }
 
-    OperationPtr p = new Operation(this, name, returnType, inParams, outParams, throws, nonmutating);
+    OperationPtr p = new Operation(this, name, returnType, inParams, outParams, throws);
     _contents.push_back(p);
     return p;
 }
@@ -1943,12 +1942,6 @@ Slice::Operation::throws()
     return _throws;
 }
 
-bool
-Slice::Operation::nonmutating()
-{
-    return _nonmutating;
-}
-
 Contained::ContainedType
 Slice::Operation::containedType()
 {
@@ -2008,14 +2001,13 @@ Slice::Operation::visit(ParserVisitor* visitor)
 
 Slice::Operation::Operation(const ContainerPtr& container, const string& name, const TypePtr& returnType,
 			    const TypeStringList& inParams, const TypeStringList& outParams,
-			    const ExceptionList& throws, bool nonmutating) :
+			    const ExceptionList& throws) :
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _returnType(returnType),
     _inParams(inParams),
     _outParams(outParams),
-    _throws(throws),
-    _nonmutating(nonmutating)
+    _throws(throws)
 {
 }
 

@@ -36,7 +36,7 @@ interface Router
      * @return The router's client proxy.
      *
      **/
-    nonmutating Object* getClientProxy();
+    ["nonmutating"] Object* getClientProxy();
 
     /**
      *
@@ -46,7 +46,7 @@ interface Router
      * @return The router's server proxy.
      *
      **/
-    nonmutating Object* getServerProxy();
+    ["nonmutating"] Object* getServerProxy();
 
     /**
      *

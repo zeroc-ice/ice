@@ -20,4 +20,3 @@ IllegalUseOfKeyword.ice:57: keyword cannot be used as enum name
 IllegalUseOfKeyword.ice:64: keyword cannot be used as enumerator
 IllegalUseOfKeyword.ice:65: keyword cannot be used as enumerator
 IllegalUseOfKeyword.ice:66: keyword cannot be used as enumerator
-IllegalUseOfKeyword.ice:67: keyword cannot be used as enumerator

@@ -63,6 +63,5 @@ enum E
 {
     sequence,
     dictionary,
-    enum,
-    nonmutating
+    enum
 };

@@ -51,7 +51,6 @@ yyerror(const char* s)
 %token ICE_STRING
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
-%token ICE_NONMUTATING
 
 //
 // Other tokens.
@@ -798,27 +797,10 @@ operation
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
-	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, false);
-    }
-}
-| ICE_NONMUTATING return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
-{
-    TypePtr returnType = TypePtr::dynamicCast($2);
-    StringTokPtr name = StringTokPtr::dynamicCast($3);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
-    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    if (cl)
-    {
-	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
+	$$ = cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v);
     }
 }
 | return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
-{
-    unit->error("keyword cannot be used as operation name");
-}
-| ICE_NONMUTATING return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
 {
     unit->error("keyword cannot be used as operation name");
 }
@@ -916,7 +898,6 @@ data_member
     {
 	$$ = ex->createDataMember(ident->v, type);
     }
-    assert($$);
 }
 | type keyword
 {
@@ -1130,9 +1111,6 @@ keyword
 {
 }
 | ICE_ENUM
-{
-}
-| ICE_NONMUTATING
 {
 }
 ;

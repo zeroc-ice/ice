@@ -434,10 +434,9 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    O.zeroIndent();
 	    O << nl << "<synopsis>";
 	    printMetaData(*q);
-	    bool nonmutating = (*q)->nonmutating();
 	    TypePtr returnType = (*q)->returnType();
-	    O << (nonmutating ? "nonmutating " : "") << (returnType ? toString(returnType, p) : "<type>void</type>")
-	      << " <function>" << (*q)->name() << "</function>(";
+	    O << (returnType ? toString(returnType, p) : "<type>void</type>") << " <function>" << (*q)->name()
+	      << "</function>(";
 	    O.inc();
 	    TypeStringList inputParams = (*q)->inputParameters();
 	    TypeStringList::const_iterator r = inputParams.begin();

@@ -343,14 +343,6 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
-"nonmutating" {
-    return ICE_NONMUTATING;
-}
-
-"nonmutating"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
 \\?[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
     if (*yytext == '\\')

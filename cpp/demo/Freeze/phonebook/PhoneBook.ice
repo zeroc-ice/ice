@@ -16,13 +16,13 @@
 
 class Contact
 {
-    nonmutating string getName() throws Freeze::DBException;
+    ["nonmutating"] string getName() throws Freeze::DBException;
     void setName(string name) throws Freeze::DBException;
 
-    nonmutating string getAddress() throws Freeze::DBException;
+    ["nonmutating"] string getAddress() throws Freeze::DBException;
     void setAddress(string address) throws Freeze::DBException;
 
-    nonmutating string getPhone() throws Freeze::DBException;
+    ["nonmutating"] string getPhone() throws Freeze::DBException;
     void setPhone(string phone) throws Freeze::DBException;
 
     //
@@ -30,7 +30,7 @@ class Contact
     // the Contact. It removes the Contact completely, but doesn't
     // touch state.
     //
-    nonmutating void destroy();
+    ["nonmutating"] void destroy();
 
     string _name;
     string _address;
@@ -43,9 +43,9 @@ sequence<Ice::Identity> Identities; // Needed for slice2freeze
 interface PhoneBook
 {
     Contact* createContact() throws Freeze::DBException;
-    nonmutating Contacts findContacts(string name) throws Freeze::DBException;
+    ["nonmutating"] Contacts findContacts(string name) throws Freeze::DBException;
     void setEvictorSize(int size) throws Freeze::DBException;
-    nonmutating void shutdown() throws Freeze::DBException;
+    ["nonmutating"] void shutdown() throws Freeze::DBException;
 };
 
 #endif

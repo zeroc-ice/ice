@@ -385,7 +385,7 @@ public:
 
     virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-				 const ExceptionList&, bool);
+				 const ExceptionList&);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassDeclPtr declaration();
     ClassList bases();
@@ -573,7 +573,6 @@ public:
     TypeStringList inputParameters();
     TypeStringList outputParameters();
     ExceptionList throws();
-    bool nonmutating();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
@@ -581,14 +580,13 @@ public:
 protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-	      const ExceptionList&, bool);
+	      const ExceptionList&);
     friend class SLICE_API ClassDef;
 
     TypePtr _returnType;
     TypeStringList _inParams;
     TypeStringList _outParams;
     ExceptionList _throws;
-    bool _nonmutating;
 };
 
 // ----------------------------------------------------------------------

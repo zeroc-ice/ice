@@ -1216,7 +1216,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch (const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
-    if (p->nonmutating())
+    list<string> metaData = p->getMetaData();
+    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+    if (nonmutating)
     {
 	C << nl << "__handleException(*__ex.get(), __cnt);";
     }
@@ -1495,8 +1497,10 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << name << "\");";
+    list<string> metaData = p->getMetaData();
+    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
     C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
-      << (p->nonmutating() ? "true" : "false") << ", __context);";
+      << (nonmutating ? "true" : "false") << ", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1696,7 +1700,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
     C << nl << "::Ice::Current __current;";
-    C << nl << "__initCurrent(__current, \"" << name << "\", " << (p->nonmutating() ? "true" : "false")
+    list<string> metaData = p->getMetaData();
+    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+    C << nl << "__initCurrent(__current, \"" << name << "\", " << (nonmutating ? "true" : "false")
       << ", __context);";
     C << nl << "while (true)";
     C << sb;
