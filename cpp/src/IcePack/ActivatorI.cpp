@@ -1270,10 +1270,16 @@ IcePack::ActivatorI::terminationListener()
                     }
                             
 		    CloseHandle(hnd);
-		    CloseHandle(p->outHandle);
-		    if(!_redirectErrToOut)
+		    if(_outputDir.size() > 0)
 		    {
-			CloseHandle(p->errHandle);
+			//
+			// STDOUT and STDERR should not be closed
+			//
+			CloseHandle(p->outHandle);
+			if(!_redirectErrToOut)
+			{
+			    CloseHandle(p->errHandle);
+			}
 		    }
                     _processes.erase(p);
                     break;
