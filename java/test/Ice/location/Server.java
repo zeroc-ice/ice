@@ -18,8 +18,10 @@ public class Server
 	// 'server' (a server isn't a different process, it's just a new
 	// communicator and object adapter).
 	//
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerManagerAdapter", 
-										  "default -p 12345");
+	Ice.Properties properties = communicator.getProperties();
+	properties.setProperty("Ice.Adapter.ServerManagerAdapter.Endpoints", "default -p 12345");
+
+	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
 	Ice.Object object = new ServerManagerI(adapter);
 	adapter.add(object, Ice.Util.stringToIdentity("servermanager"));

@@ -13,8 +13,11 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	String endpts = "default -t 2000";
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
+	Ice.Properties properties = communicator.getProperties();
+	properties.setProperty("Ice.Adapter.TestAdapter.Endpoints", "default -t 2000");
+	properties.setProperty("Ice.Adapter.TestAdapter.Locator", properties.getProperty("Ice.Default.Locator"));
+
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();

@@ -57,11 +57,15 @@ public class ObjectAdapterI implements ObjectAdapter
 		}
 		catch(Ice.AdapterNotRegistered ex)
 		{
-		    throw new ObjectAdapterNotRegisteredException();
+		    ObjectAdapterNotRegisteredException ex1 = new ObjectAdapterNotRegisteredException();
+		    ex1.name = _name;
+		    throw ex1;
 		}
 		catch(Ice.AdapterAlreadyActive ex)
 		{
-		    throw new ObjectAdapterActiveException();
+		    ObjectAdapterNameInUseException ex1 = new ObjectAdapterNameInUseException();
+		    ex1.name = _name;
+		    throw ex1;
 		}
 	    }
 	}
