@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZerocC, Inc.")]
 [assembly: AssemblyProduct("Ice for C# Pre-Build Event Program")]
-[assembly: AssemblyCopyright("2005")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2005, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyVersion("1.0")]
