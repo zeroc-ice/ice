@@ -429,7 +429,6 @@ IceInternal::Collector::setState(State state)
 		_threadPool->_register(_transceiver->fd(), this);
 	    }
 	    _threadPool->unregister(_transceiver->fd(), true);
-	    break;
 	}
     }
 
