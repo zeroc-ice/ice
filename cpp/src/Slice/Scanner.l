@@ -30,6 +30,8 @@ typedef std::map<std::string, int, Slice::CICompare> StringTokenMap;
 static StringTokenMap keywordMap;
 
 void initScanner();
+void checkIdentifier(const string&);
+int checkKeyword(string&);
 
 }
 
@@ -122,44 +124,25 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     return ICE_SCOPE_DELIMITER;
 }
 
+{identifier}[[:space:]]*"(" {
+    StringTokPtr ident = new StringTok;
+    ident->v = *yytext == '\\' ? yytext + 1 : yytext;
+    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
+    *yylvalp = ident;
+    checkIdentifier(ident->v);
+    if(*yytext == '\\')
+    {
+        return ICE_IDENT_OP;
+    }
+    return checkKeyword(ident->v) == ICE_IDENTIFIER ? ICE_IDENT_OP : ICE_KEYWORD_OP;
+}
+
 {identifier} {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
-
-    if(ident->v.find('_') != string::npos)
-    {
-        unit->warning("illegal underscore in identifier `" + ident->v + "'");
-    }
-
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Operations", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
-    {
-    	if(ident->v.find(suffixBlacklist[i], ident->v.size() - suffixBlacklist[i].size()) != string::npos)
-	{
-	    unit->error("illegal identifier `" + ident->v + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-	}
-    }
-
-    if(*yytext == '\\')
-    {
-	return ICE_IDENTIFIER;
-    }
-
-    StringTokenMap::const_iterator pos = keywordMap.find(ident->v);
-    if(pos != keywordMap.end())
-    {
-    	if(pos->first != ident->v)
-	{
-	    string msg;
-	    msg = "illegal identifier: `" + ident->v + "' differs from keyword `";
-	    msg += pos->first + "' only in capitalization";
-	    unit->error(msg);
-	    ident->v = pos->first;
-	}
-	return pos->second;
-    }
-    return ICE_IDENTIFIER;
+    checkIdentifier(ident->v);
+    return *yytext == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
 }
 
 \" {
@@ -404,6 +387,54 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["nonmutating"] = ICE_NONMUTATING;
+}
+
+//
+// Check if an identifier is well-formed.
+//
+
+void
+checkIdentifier(const string& id)
+{
+    if(id.find('_') != string::npos)
+    {
+	unit->warning("illegal underscore in identifier `" + id + "'");
+    }
+
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Operations", "Prx", "Ptr" };
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    {
+	if(id.find(suffixBlacklist[i], id.size() - suffixBlacklist[i].size()) != string::npos)
+	{
+	    unit->error("illegal identifier `" + id + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+	}
+    }
+}
+
+//
+// Check if an identifier looks like a keyword.
+// If the identifier is a keyword, return the
+// corresponding keyword token; otherwise, return
+// an identifier token.
+//
+
+int
+checkKeyword(string& id)
+{
+    StringTokenMap::const_iterator pos = keywordMap.find(id);
+    if(pos != keywordMap.end())
+    {
+    	if(pos->first != id)
+	{
+	    string msg;
+	    msg = "illegal identifier: `" + id + "' differs from keyword `";
+	    msg += pos->first + "' only in capitalization";
+	    unit->error(msg);
+	    id = pos->first;
+	}
+	return pos->second;
+    }
+    return ICE_IDENTIFIER;
 }
 
 }

@@ -33,14 +33,6 @@ yyerror(const char* s)
 %pure_parser
 
 //
-// Need precedence declarations to avoid shift/reduce conflicts for nonmutating qualifier.
-// By default, we'd get a shift, but we want a reduce. (Note: excess line length is
-// necessary here because bison doesn't recognize backslash-newline as a continuation sequence.)
-//
-%nonassoc ICE_BYTE ICE_BOOL ICE_SHORT ICE_INT ICE_LONG ICE_FLOAT ICE_DOUBLE ICE_STRING ICE_OBJECT ICE_LOCAL_OBJECT ICE_SCOPE_DELIMITER ICE_IDENTIFIER
-%nonassoc ICE_NONMUTATING
-
-//
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
 // keyword to the keyword table in Scanner.l.
@@ -82,6 +74,8 @@ yyerror(const char* s)
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
+%token ICE_IDENT_OP
+%token ICE_KEYWORD_OP
 
 %%
 
@@ -291,34 +285,22 @@ exception_exports
 ;
 
 // ----------------------------------------------------------------------
-exception_export
+type_id
 // ----------------------------------------------------------------------
-: type_id
-{
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($1);
-    TypePtr type = tsp->v.first;
-    string ident = tsp->v.second;
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    assert(ex);
-    DataMemberPtr dm = ex->createDataMember(ident, type);
-    unit->currentContainer()->checkIntroduced(ident, dm);
-    $$ = dm;
-}
-| type keyword
+: type ICE_IDENTIFIER
 {
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = ex->createDataMember(ident->v, type);
+    TypeStringTokPtr typestring = new TypeStringTok;
+    typestring->v = make_pair(type, ident->v);
+    $$ = typestring;
 }
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
-    unit->error("missing data member name");
-    $$ = ex->createDataMember("", type);
-}
+;
+
+// ----------------------------------------------------------------------
+exception_export
+// ----------------------------------------------------------------------
+: data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -407,34 +389,7 @@ struct_exports
 // ----------------------------------------------------------------------
 struct_export
 // ----------------------------------------------------------------------
-: type_id
-{
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($1);
-    TypePtr type = tsp->v.first;
-    string ident = tsp->v.second;
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    DataMemberPtr dm = st->createDataMember(ident, type);
-    unit->currentContainer()->checkIntroduced(ident, dm);
-    $$ = dm;
-}
-| type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    unit->error("keyword `" + ident->v + "' cannot be used as data member name");
-    $$ = st->createDataMember(ident->v, type);
-}
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
-    assert(st);
-    unit->error("missing data member name");
-    $$ = st->createDataMember("", type);
-}
+: data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -576,66 +531,175 @@ class_exports
 ;
 
 // ----------------------------------------------------------------------
-class_export
+data_member
 // ----------------------------------------------------------------------
-: nonmutating_qualifier type_id
+: type_id
 {
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
-    TypePtr type = tsp->v.first;
-    string ident = tsp->v.second;
+    TypePtr type = TypeStringTokPtr::dynamicCast($1)->v.first;
+    string name = TypeStringTokPtr::dynamicCast($1)->v.second;
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    DataMemberPtr dm = cl->createDataMember(ident, type);
-    cl->checkIntroduced(ident, dm);
+    DataMemberPtr dm;
+    if(cl)
+    {
+	dm = cl->createDataMember(name, type);
+    }
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    if(st)
+    {
+	dm = st->createDataMember(name, type);
+    }
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    if(ex)
+    {
+	dm = ex->createDataMember(name, type);
+    }
+    unit->currentContainer()->checkIntroduced(name, dm);
     $$ = dm;
 }
-| operation_preamble '(' parameters ')'
+| type keyword
+{
+    TypePtr type = TypePtr::dynamicCast($1);
+    string name = StringTokPtr::dynamicCast($2)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    if(cl)
+    {
+	$$ = cl->createDataMember(name, type);
+    }
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    if(st)
+    {
+	$$ = st->createDataMember(name, type);
+    }
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    if(ex)
+    {
+	$$ = ex->createDataMember(name, type);
+    }
+    assert($$);
+    unit->error("keyword `" + name + "' cannot be used as data member name");
+}
+| type
+{
+    TypePtr type = TypePtr::dynamicCast($1);
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    if(cl)
+    {
+        $$ = cl->createDataMember(IceUtil::generateUUID(), type);
+    }
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    if(st)
+    {
+	$$ = st->createDataMember(IceUtil::generateUUID(), type);
+    }
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
+    if(ex)
+    {
+	$$ = ex->createDataMember(IceUtil::generateUUID(), type);
+    }
+    assert($$);
+    unit->error("missing data member name");
+}
+;
+
+// ----------------------------------------------------------------------
+return_type
+// ----------------------------------------------------------------------
+: type
+| ICE_VOID
+{
+    $$ = 0;
+}
+;
+
+// ----------------------------------------------------------------------
+operation_preamble
+// ----------------------------------------------------------------------
+: return_type ICE_IDENT_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($1);
+    string name = StringTokPtr::dynamicCast($2)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, false);
+    cl->checkIntroduced(name, op);
+    unit->pushContainer(op);
+    $$ = op;
+}
+| ICE_NONMUTATING return_type ICE_IDENT_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    string name = StringTokPtr::dynamicCast($3)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, true);
+    cl->checkIntroduced(name, op);
+    unit->pushContainer(op);
+    $$ = op;
+}
+| return_type ICE_KEYWORD_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($1);
+    string name = StringTokPtr::dynamicCast($2)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, false);
+    unit->pushContainer(op);
+    unit->error("keyword `" + name + "' cannot be used as operation name");
+    $$ = op;
+}
+| ICE_NONMUTATING return_type ICE_KEYWORD_OP
+{
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    string name = StringTokPtr::dynamicCast($3)->v;
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(cl);
+    OperationPtr op = cl->createOperation(name, returnType, true);
+    unit->pushContainer(op);
+    unit->error("keyword `" + name + "' cannot be used as operation name");
+    $$ = op;
+}
+;
+
+// ----------------------------------------------------------------------
+operation
+// ----------------------------------------------------------------------
+: operation_preamble parameters ')'
 {
     unit->popContainer();
     $$ = $1;
 }
 throws
 {
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    OperationPtr op = OperationPtr::dynamicCast($4);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($5);
     assert(el);
     if(op)
     {
         op->setExceptionList(el->v);
     }
 }
-| operation_preamble '(' error ')'
+| operation_preamble error ')'
 {
     unit->popContainer();
     yyerrok;
 }
 throws
 {
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
+    OperationPtr op = OperationPtr::dynamicCast($4);
+    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($5);
     assert(el);
     if(op)
     {
         op->setExceptionList(el->v);
     }
 }
-| nonmutating_qualifier type keyword
-{
-    TypePtr type = TypePtr::dynamicCast($2);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    unit->error("keyword `" + ident->v + "' cannot be used as data member name");
-    $$ = cl->createDataMember(ident->v, type);
-}
-| nonmutating_qualifier type
-{
-    TypePtr type = TypePtr::dynamicCast($2);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    unit->error("missing data member name");
-    $$ = cl->createDataMember("", type);
-}
+;
+
+// ----------------------------------------------------------------------
+class_export
+// ----------------------------------------------------------------------
+: data_member
+| operation
 ;
 
 // ----------------------------------------------------------------------
@@ -807,36 +871,7 @@ interface_exports
 // ----------------------------------------------------------------------
 interface_export
 // ----------------------------------------------------------------------
-: operation_preamble '(' parameters ')'
-{
-    unit->popContainer();
-    $$ = $1;
-}
-throws
-{
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
-    assert(el);
-    if(op)
-    {
-        op->setExceptionList(el->v);
-    }
-}
-| operation_preamble '(' error ')'
-{
-    unit->popContainer();
-    yyerrok;
-}
-throws
-{
-    OperationPtr op = OperationPtr::dynamicCast($5);
-    ExceptionListTokPtr el = ExceptionListTokPtr::dynamicCast($6);
-    assert(el);
-    if(op)
-    {
-        op->setExceptionList(el->v);
-    }
-}
+: operation
 ;
 
 // ----------------------------------------------------------------------
@@ -1010,86 +1045,6 @@ enumerator
 {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens;
-}
-;
-
-// ----------------------------------------------------------------------
-nonmutating_qualifier
-// ----------------------------------------------------------------------
-: ICE_NONMUTATING
-{
-    BoolTokPtr nonmutating = new BoolTok;
-    nonmutating->v = true;
-    $$ = nonmutating;
-}
-| %prec ICE_NONMUTATING
-{
-    BoolTokPtr nonmutating = new BoolTok;
-    nonmutating->v = false;
-    $$ = nonmutating;
-}
-;
-
-// ----------------------------------------------------------------------
-type_id
-// ----------------------------------------------------------------------
-: type ICE_IDENTIFIER
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringTokPtr typestring = new TypeStringTok;
-    typestring->v = make_pair(type, ident->v);
-    $$ = typestring;
-}
-;
-
-// ----------------------------------------------------------------------
-operation_preamble
-// ----------------------------------------------------------------------
-: nonmutating_qualifier type_id
-{
-    BoolTokPtr nonmutating = BoolTokPtr::dynamicCast($1);
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
-    TypePtr returnType = tsp->v.first;
-    string name = tsp->v.second;
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    OperationPtr op = cl->createOperation(name, returnType, nonmutating->v);
-    cl->checkIntroduced(name, op);
-    unit->pushContainer(op);
-    $$ = op;
-}
-| nonmutating_qualifier ICE_VOID ICE_IDENTIFIER
-{
-    BoolTokPtr nonmutating = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    OperationPtr op = cl->createOperation(ident->v, 0, nonmutating->v);
-    unit->currentContainer()->checkIntroduced(ident->v, op);
-    unit->pushContainer(op);
-    $$ = op;
-}
-| nonmutating_qualifier type keyword
-{
-    TypePtr returnType = TypePtr::dynamicCast($2);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    OperationPtr op = cl->createOperation(ident->v, returnType, false);
-    unit->pushContainer(op);
-    $$ = op;
-}
-| nonmutating_qualifier ICE_VOID keyword
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(cl);
-    unit->error("keyword `" + ident->v + "' cannot be used as operation name");
-    OperationPtr op = cl->createOperation(ident->v, 0, false);
-    unit->pushContainer(op);
-    $$ = op;
 }
 ;
 
