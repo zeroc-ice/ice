@@ -49,7 +49,6 @@ yyerror(const char* s)
 %token ICE_FLOAT
 %token ICE_DOUBLE
 %token ICE_STRING
-%token ICE_WSTRING
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
 %token ICE_NONMUTATING
@@ -927,10 +926,6 @@ type
 {
     $$ = unit->builtin(Builtin::KindString);
 }
-| ICE_WSTRING
-{
-    $$ = unit->builtin(Builtin::KindWString);
-}
 | ICE_OBJECT
 {
     $$ = unit->builtin(Builtin::KindObject);
@@ -1045,9 +1040,6 @@ keyword
 {
 }
 | ICE_STRING
-{
-}
-| ICE_WSTRING
 {
 }
 | ICE_OBJECT

@@ -108,15 +108,6 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
-	wstring s;
-	wstring r;
-
-	r = p->opWString(L"hello", L"world", s);
-	test(s == L"world hello");
-	test(r == L"hello world");
-    }
-
-    {
 	Test::MyEnum e;
 	Test::MyEnum r;
 	
@@ -366,31 +357,6 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
-	Test::WStringS ssi1;
-	Test::WStringS ssi2;
-
-	ssi1.push_back(L"abc");
-	ssi1.push_back(L"de");
-	ssi1.push_back(L"fghi");
-
-	ssi2.push_back(L"xyz");
-
-	Test::WStringS sso;
-	Test::WStringS rso;
-
-	rso = p->opWStringS(ssi1, ssi2, sso);
-	test(sso.size() == 4);
-	test(sso[0] == L"abc");
-	test(sso[1] == L"de");
-	test(sso[2] == L"fghi");
-	test(sso[3] == L"xyz");
-	test(rso.size() == 3);
-	test(rso[0] == L"fghi");
-	test(rso[1] == L"de");
-	test(rso[2] == L"abc");
-    }
-
-    {
 	Test::ByteSS bsi1;
 	bsi1.resize(2);
 	Test::ByteSS bsi2;
@@ -504,39 +470,6 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
-	Test::WStringSS ssi1;
-	ssi1.resize(2);
-	Test::WStringSS ssi2;
-	ssi2.resize(3);
-
-	ssi1[0].push_back(L"abc");
-	ssi1[1].push_back(L"de");
-	ssi1[1].push_back(L"fghi");
-
-	ssi2[2].push_back(L"xyz");
-
-	Test::WStringSS sso;
-	Test::WStringSS rso;
-
-	rso = p->opWStringSS(ssi1, ssi2, sso);
-	test(sso.size() == 5);
-	test(sso[0].size() == 1);
-	test(sso[0][0] == L"abc");
-	test(sso[1].size() == 2);
-	test(sso[1][0] == L"de");
-	test(sso[1][1] == L"fghi");
-	test(sso[2].size() == 0);
-	test(sso[3].size() == 0);
-	test(sso[4].size() == 1);
-	test(sso[4][0] == L"xyz");
-	test(rso.size() == 3);
-	test(rso[0].size() == 1);
-	test(rso[0][0] == L"xyz");
-	test(rso[1].size() == 0);
-	test(rso[2].size() == 0);
-    }
-
-    {
 	Test::ByteBoolD di1;
 	di1[10] = true;
 	di1[100] = false;
@@ -637,23 +570,23 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
-	Test::WStringMyEnumD di1;
-	di1[L"abc"] = Test::enum1;
-	di1[L""] = Test::enum2;
-	Test::WStringMyEnumD di2;
-	di2[L"abc"] = Test::enum1;
-	di2[L"qwerty"] = Test::enum3;
-	di2[L"Hello!!"] = Test::enum2;
+	Test::StringMyEnumD di1;
+	di1["abc"] = Test::enum1;
+	di1[""] = Test::enum2;
+	Test::StringMyEnumD di2;
+	di2["abc"] = Test::enum1;
+	di2["qwerty"] = Test::enum3;
+	di2["Hello!!"] = Test::enum2;
 
-	Test::WStringMyEnumD _do;
-	Test::WStringMyEnumD ro = p->opWStringMyEnumD(di1, di2, _do);
+	Test::StringMyEnumD _do;
+	Test::StringMyEnumD ro = p->opStringMyEnumD(di1, di2, _do);
 
 	test(_do == di1);
 	test(ro.size() == 4);
-	test(ro[L"abc"] == Test::enum1);
-	test(ro[L"qwerty"] == Test::enum3);
-	test(ro[L""] == Test::enum2);
-	test(ro[L"Hello!!"] == Test::enum2);
+	test(ro["abc"] == Test::enum1);
+	test(ro["qwerty"] == Test::enum3);
+	test(ro[""] == Test::enum2);
+	test(ro["Hello!!"] == Test::enum2);
     }
 
     {

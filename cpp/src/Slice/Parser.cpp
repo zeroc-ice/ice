@@ -550,7 +550,6 @@ Slice::Container::lookupType(const string& scoped, bool printError)
 	"float",
 	"double",
 	"string",
-	"wstring",
 	"Object",
 	"Object*",
 	"LocalObject"

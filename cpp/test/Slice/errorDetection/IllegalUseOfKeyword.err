@@ -14,11 +14,10 @@ IllegalUseOfKeyword.ice:47: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:48: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:49: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:50: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:51: keyword cannot be used as data member name
-IllegalUseOfKeyword.ice:54: keyword cannot be used as sequence name
-IllegalUseOfKeyword.ice:56: keyword cannot be used as dictionary name
-IllegalUseOfKeyword.ice:58: keyword cannot be used as enum name
+IllegalUseOfKeyword.ice:53: keyword cannot be used as sequence name
+IllegalUseOfKeyword.ice:55: keyword cannot be used as dictionary name
+IllegalUseOfKeyword.ice:57: keyword cannot be used as enum name
+IllegalUseOfKeyword.ice:64: keyword cannot be used as enumerator
 IllegalUseOfKeyword.ice:65: keyword cannot be used as enumerator
 IllegalUseOfKeyword.ice:66: keyword cannot be used as enumerator
 IllegalUseOfKeyword.ice:67: keyword cannot be used as enumerator
-IllegalUseOfKeyword.ice:68: keyword cannot be used as enumerator

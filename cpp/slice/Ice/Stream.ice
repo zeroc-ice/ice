@@ -38,9 +38,6 @@ sequence<double> DoubleSeq;
 /** A sequence of strings. **/
 sequence<string> StringSeq;
 
-/** A sequence of wstrings. **/
-sequence<wstring> WStringSeq;
-
 /**
  *
  * A stream for marshaling and unmarshaling data.
@@ -373,42 +370,6 @@ local interface Stream
      *
      **/
     void readStringSeq(; StringSeq value);
-
-    /**
-     *
-     * Write a single wstring.
-     *
-     * @param value The wstring to write.
-     *
-     **/
-    void writeWString(wstring value);
-
-    /**
-     *
-     * Write a sequence of wstrings.
-     *
-     * @param value The sequence of wstrings to write.
-     *
-     **/
-    void writeWStringSeq(WStringSeq value);
-
-    /**
-     *
-     * Read a single wstring.
-     *
-     * @param value The wstring that has been read.
-     *
-     **/
-    void readWString(; wstring value);
-
-    /**
-     *
-     * Read a sequence of wstrings.
-     *
-     * @param value The wstrings that have been read.
-     *
-     **/
-    void readWStringSeq(; WStringSeq value);
 
     /**
      *

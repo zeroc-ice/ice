@@ -52,11 +52,6 @@ public:
 				 std::string&,
 				 const Ice::Current&);
     
-    virtual std::wstring opWString(const std::wstring&,
-				   const std::wstring&,
-				   std::wstring&,
-				   const Ice::Current&);
-    
     virtual Test::MyEnum opMyEnum(Test::MyEnum,
 				  Test::MyEnum&,
 				  const Ice::Current&);
@@ -98,11 +93,6 @@ public:
 				    Test::StringS&,
 				    const Ice::Current&);
     
-    virtual Test::WStringS opWStringS(const Test::WStringS&,
-				      const Test::WStringS&,
-				      Test::WStringS&,
-				      const Ice::Current&);
-    
     virtual Test::ByteSS opByteSS(const Test::ByteSS&,
 				  const Test::ByteSS&,
 				  Test::ByteSS&,
@@ -132,11 +122,6 @@ public:
 				      Test::StringSS&,
 				      const Ice::Current&);
 
-    virtual Test::WStringSS opWStringSS(const Test::WStringSS&,
-					const Test::WStringSS&,
-					Test::WStringSS&,
-					const Ice::Current&);
-    
     virtual Test::ByteBoolD opByteBoolD(const Test::ByteBoolD&, const Test::ByteBoolD&, 
 					Test::ByteBoolD&,
 					const Ice::Current&);
@@ -157,9 +142,9 @@ public:
 						Test::StringStringD&,
 						const Ice::Current&);
 
-    virtual Test::WStringMyEnumD opWStringMyEnumD(const Test::WStringMyEnumD&, const Test::WStringMyEnumD&,
-						  Test::WStringMyEnumD&,
-						  const Ice::Current&);
+    virtual Test::StringMyEnumD opStringMyEnumD(const Test::StringMyEnumD&, const Test::StringMyEnumD&,
+						Test::StringMyEnumD&,
+						const Ice::Current&);
 
     virtual Test::MyClassStringD opMyClassStringD(const Test::MyClassStringD&, const Test::MyClassStringD&,
 						  Test::MyClassStringD&,

@@ -200,7 +200,6 @@ public:
 	KindFloat,
 	KindDouble,
 	KindString,
-	KindWString,
 	KindObject,
 	KindObjectProxy,
 	KindLocalObject

@@ -48,14 +48,13 @@ class Bar
     float long;
     double float;
     string double;
-    wstring string;
 };
 
 sequence<int> Object;
 
 dictionary<int, int> LocalObject;
 
-enum wstring
+enum string
 {
     a, b, c
 };

@@ -681,7 +681,7 @@ IceInternal::BasicStream::write(const string& v)
 	_currentWriteEncaps = &_encapsStack.back();
     }
 
-    map<const char*, Int>::const_iterator p = _currentWriteEncaps->stringsWritten.find(v);
+    map<string, Int>::const_iterator p = _currentWriteEncaps->stringsWritten.find(v);
     if (p != _currentWriteEncaps->stringsWritten.end())
     {
 	write(p->second);
@@ -729,7 +729,7 @@ IceInternal::BasicStream::read(string& v)
 
     if (len < 0)
     {
-	if (static_cast<vector<const char*>::size_type>(-(len + 1)) >= _currentReadEncaps->stringsRead.size())
+	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _currentReadEncaps->stringsRead.size())
 	{
 	    throw IllegalIndirectionException(__FILE__, __LINE__);
 	}
@@ -772,109 +772,6 @@ IceInternal::BasicStream::read(vector<string>& v)
 }
 
 void
-IceInternal::BasicStream::write(const wstring& v)
-{
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-    if (!_currentWriteEncaps) // Lazy initialization
-    {
-	_writeEncapsStack.resize(1);
-	_currentWriteEncaps = &_encapsStack.back();
-    }
-
-    map<const wchar_t*, Int>::const_iterator p = _currentWriteEncaps->wstringsWritten.find(v);
-    if (p != _currentWriteEncaps->wstringsWritten.end())
-    {
-	write(p->second);
-    }
-    else
-#endif
-    {
-	Int len = v.size();
-	write(len);
-	if (len > 0)
-	{
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-	    Int num = _currentWriteEncaps->wstringsWritten.size();
-	    _currentWriteEncaps->wstringsWritten[v] = -(num + 1);
-#endif
-	    wstring::const_iterator p;
-	    for (p = v.begin(); p != v.end(); ++p)
-	    {
-		write(static_cast<Short>(*p));
-	    }
-	}
-    }
-}
-
-void
-IceInternal::BasicStream::write(const vector<wstring>& v)
-{
-    write(Int(v.size()));
-    vector<wstring>::const_iterator p;
-    for (p = v.begin(); p != v.end(); ++p)
-    {
-	write(*p);
-    }
-}
-
-void
-IceInternal::BasicStream::read(wstring& v)
-{
-    if (!_currentReadEncaps) // Lazy initialization
-    {
-	_readEncapsStack.resize(1);
-	_currentReadEncaps = &_readEncapsStack.back();
-    }
-
-    Int len;
-    read(len);
-
-    if (len < 0)
-    {
-	if (static_cast<vector<const wchar_t*>::size_type>(-(len + 1)) >= _currentReadEncaps->wstringsRead.size())
-	{
-	    throw IllegalIndirectionException(__FILE__, __LINE__);
-	}
-	v = _currentReadEncaps->wstringsRead[-(len + 1)];
-    }
-    else
-    {
-	v.erase();
-	if (len > 0)
-	{
-	    while (len--)
-	    {
-		Short s;
-		read(s);
-		v += static_cast<wchar_t>(s);
-	    }
-	    _currentReadEncaps->wstringsRead.push_back(v.c_str());
-	}
-    }
-}
-
-void
-IceInternal::BasicStream::write(const wchar_t* v)
-{
-    write(wstring(v));
-}
-
-void
-IceInternal::BasicStream::read(vector<wstring>& v)
-{
-    Int sz;
-    read(sz);
-    // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
-    // checked whether sz is a reasonable value
-    while (sz--)
-    {
-	wstring s;
-	read(s);
-	v.push_back(s);
-    }
-}
-
-void
 IceInternal::BasicStream::write(const ObjectPrx& v)
 {
     _instance->proxyFactory()->proxyToStream(v, this);
@@ -895,7 +792,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	_currentWriteEncaps = &_writeEncapsStack.back();
     }
 
-    map<Object*, Int>::const_iterator p = _currentWriteEncaps->objectsWritten.find(v.get());
+    map<ObjectPtr, Int>::const_iterator p = _currentWriteEncaps->objectsWritten.find(v.get());
     if (p != _currentWriteEncaps->objectsWritten.end())
     {
 	write(p->second);

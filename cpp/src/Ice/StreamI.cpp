@@ -261,30 +261,6 @@ Ice::StreamI::readStringSeq(StringSeq& value)
 }
 
 void
-Ice::StreamI::writeWString(const wstring& value)
-{
-    _stream.write(value);
-}
-
-void
-Ice::StreamI::writeWStringSeq(const WStringSeq& value)
-{
-    _stream.write(value);
-}
-
-void
-Ice::StreamI::readWString(wstring& value)
-{
-    _stream.read(value);
-}
-
-void
-Ice::StreamI::readWStringSeq(WStringSeq& value)
-{
-    _stream.read(value);
-}
-
-void
 Ice::StreamI::writeProxy(const ObjectPrx& value)
 {
     _stream.write(value);

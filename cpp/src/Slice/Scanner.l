@@ -327,14 +327,6 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
-"wstring" {
-    return ICE_WSTRING;
-}
-
-"wstring"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
 "Object" {
     return ICE_OBJECT;
 }

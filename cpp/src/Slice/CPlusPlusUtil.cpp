@@ -113,7 +113,6 @@ Slice::typeToString(const TypePtr& type)
 	"::Ice::Float",
 	"::Ice::Double",
 	"::std::string",
-	"::std::wstring",
 	"::Ice::ObjectPtr",
 	"::Ice::ObjectPrx",
 	"::Ice::LocalObjectPtr"
@@ -170,7 +169,6 @@ Slice::inputTypeToString(const TypePtr& type)
 	"::Ice::Float",
 	"::Ice::Double",
 	"const ::std::string&",
-	"const ::std::wstring&",
 	"const ::Ice::ObjectPtr&",
 	"const ::Ice::ObjectPrx&",
 	"const ::Ice::LocalObjectPtr&"
@@ -222,7 +220,6 @@ Slice::outputTypeToString(const TypePtr& type)
 	"::Ice::Float&",
 	"::Ice::Double&",
 	"::std::string&",
-	"::std::wstring&",
 	"::Ice::ObjectPtr&",
 	"::Ice::ObjectPrx&",
 	"::Ice::LocalObjectPtr&"

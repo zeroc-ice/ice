@@ -43,7 +43,6 @@ sequence<long> LongS;
 sequence<float> FloatS;
 sequence<double> DoubleS;
 sequence<string> StringS;
-sequence<wstring> WStringS;
 sequence<MyEnum> MyEnumS;
 sequence<MyClass*> MyClassS;
 
@@ -55,7 +54,6 @@ sequence<LongS> LongSS;
 sequence<FloatS> FloatSS;
 sequence<DoubleS> DoubleSS;
 sequence<StringS> StringSS;
-sequence<WStringS> WStringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
 
@@ -64,7 +62,7 @@ dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
 dictionary<double, string> DoubleStringD;
 dictionary<string, string> StringStringD;
-dictionary<wstring, MyEnum> WStringMyEnumD;
+dictionary<string, MyEnum> StringMyEnumD;
 dictionary<MyClass*, string> MyClassStringD;
 
 class MyClass
@@ -88,9 +86,6 @@ class MyClass
     string opString(string p1, string p2;
 		    string p3);
 
-    wstring opWString(wstring p1, wstring p2;
-		      wstring p3);
-
     MyEnum opMyEnum(MyEnum p1; MyEnum p2);
 
     MyClass* opMyClass(MyClass* p1; MyClass* p2, MyClass* p3);
@@ -113,9 +108,6 @@ class MyClass
     StringS opStringS(StringS p1, StringS p2;
 		      StringS p3);
     
-    WStringS opWStringS(WStringS p1, WStringS p2;
-			WStringS p3);
-    
     ByteSS opByteSS(ByteSS p1, ByteSS p2;
 		    ByteSS p3);
     
@@ -132,9 +124,6 @@ class MyClass
     StringSS opStringSS(StringSS p1, StringSS p2;
 			StringSS p3);
 
-    WStringSS opWStringSS(WStringSS p1, WStringSS p2;
-			  WStringSS p3);
-
     ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2;
 			  ByteBoolD p3);
 
@@ -150,8 +139,8 @@ class MyClass
     StringStringD opStringStringD(StringStringD p1, StringStringD p2;
 				  StringStringD p3);
 
-    WStringMyEnumD opWStringMyEnumD(WStringMyEnumD p1, WStringMyEnumD p2;
-				    WStringMyEnumD p3);
+    StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2;
+				  StringMyEnumD p3);
 
     MyClassStringD opMyClassStringD(MyClassStringD p1, MyClassStringD p2;
 				    MyClassStringD p3);

@@ -63,10 +63,6 @@ public:
     virtual void writeStringSeq(const StringSeq&);
     virtual void readString(::std::string&);
     virtual void readStringSeq(StringSeq&);
-    virtual void writeWString(const ::std::wstring&);
-    virtual void writeWStringSeq(const WStringSeq&);
-    virtual void readWString(::std::wstring&);
-    virtual void readWStringSeq(WStringSeq&);
     virtual void writeProxy(const ObjectPrx&);
     virtual void readProxy(ObjectPrx&);
     virtual void writeObject(const ObjectPtr&);

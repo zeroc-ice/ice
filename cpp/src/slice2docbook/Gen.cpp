@@ -1185,7 +1185,6 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 	"float",
 	"double",
 	"string",
-	"wstring",
 	"Object",
 	"Object*",
 	"LocalObject"

@@ -74,7 +74,7 @@ subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
 try:
     os.remove(subscriberLockFile)
 except:
-    pass # Ignore errors if the lock file is not present
+    pass # Ignore errors if the lockfile is not present
 
 print "starting subscriber...",
 command = subscriber + updatedClientServerOptions + iceStormEndpoint + r' ' + subscriberLockFile
@@ -83,10 +83,12 @@ TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
 print "ok"
 
+print "checking subscriber lockfile creation...",
 if not os.path.isfile(subscriberLockFile):
-    print "subscriber lock file missing. failed!"
+    print "failed!"
     TestUtil.killServers()
     sys.exit(1)
+print "ok"
 
 #
 # Start the publisher. This should publish events which eventually
@@ -105,18 +107,16 @@ print "ok"
 #
 # Verify that the subscriber has terminated.
 #
+print "checking subscriber lockfile removal...",
 lockCount = 0
 while os.path.isfile(subscriberLockFile):
-    #
-    # TODO: debugging
-    #
-    print "lock file still present: ", lockCount
     if lockCount > 10:
-        print "subscriber didn't terminate, failed!"
-#        TestUtil.killServers()
+        print "failed!"
+        TestUtil.killServers()
         sys.exit(1)
     time.sleep(1)
     lockCount = lockCount + 1    
+print "ok"
 
 #
 # Destroy the topic.

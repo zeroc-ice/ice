@@ -284,8 +284,7 @@ Slice::JavaVisitor::typeToString(const TypePtr& type, TypeMode mode,
         "long",
         "float",
         "double",
-        "String", // string
-        "String", // wstring
+        "String",
         "Ice.Object",
         "Ice.ObjectPrx",
         "Ice.LocalObject"
@@ -299,8 +298,7 @@ Slice::JavaVisitor::typeToString(const TypePtr& type, TypeMode mode,
         "Ice.LongHolder",
         "Ice.FloatHolder",
         "Ice.DoubleHolder",
-        "Ice.StringHolder", // string
-        "Ice.StringHolder", // wstring
+        "Ice.StringHolder",
         "Ice.ObjectHolder",
         "Ice.ObjectPrxHolder",
         "Ice.LocalObjectHolder"
@@ -643,18 +641,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(Output& out, const string& scope,
                 }
                 break;
             }
-            case Builtin::KindWString:
-            {
-                if (marshal)
-                {
-                    out << nl << stream << ".writeWString(" << v << ");";
-                }
-                else
-                {
-                    out << nl << v << " = " << stream << ".readWString();";
-                }
-                break;
-            }
             case Builtin::KindObject:
             {
                 if (marshal)
@@ -900,19 +886,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(Output& out, const string& scope,
                     }
                     break;
                 }
-                case Builtin::KindWString:
-                {
-                    if (marshal)
-                    {
-                        out << nl << stream << ".writeWStringSeq(" << v << ");";
-                    }
-                    else
-                    {
-                        out << nl << v << " = " << stream
-                            << ".readWStringSeq();";
-                    }
-                    break;
-                }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 {
@@ -1009,7 +982,6 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type,
                 break;
             }
             case Builtin::KindString:
-            case Builtin::KindWString:
             {
                 out << nl << "__h = 5 * __h + " << name << ".hashCode();";
                 break;
@@ -1665,7 +1637,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     }
 
                     case Builtin::KindString:
-                    case Builtin::KindWString:
                     case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
                     case Builtin::KindLocalObject:
@@ -2422,7 +2393,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                         break;
                     }
                     case Builtin::KindString:
-                    case Builtin::KindWString:
                     case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
                     {
@@ -2539,12 +2509,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                     {
                         out << nl << "java.lang.String " << arg
                             << " = __is.readString();";
-                        break;
-                    }
-                    case Builtin::KindWString:
-                    {
-                        out << nl << "java.lang.String " << arg
-                            << " = __is.readWString();";
                         break;
                     }
                     case Builtin::KindObject:

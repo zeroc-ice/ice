@@ -92,12 +92,6 @@ public:
     void read(std::string&);
     void read(std::vector<std::string>&);
 
-    void write(const std::wstring&);
-    void write(const wchar_t*);
-    void write(const std::vector<std::wstring>&);
-    void read(std::wstring&);
-    void read(std::vector<std::wstring>&);
-
     void write(const Ice::ObjectPrx&);
     void read(Ice::ObjectPrx&);
 
@@ -120,19 +114,17 @@ private:
     {
 	Container::size_type start;
 	Ice::Byte encoding;
-	std::vector<const char*> stringsRead;
-	std::vector<const wchar_t*> wstringsRead;
-	std::vector<Ice::Object*> objectsRead;
+	std::vector<std::string> stringsRead;
+	std::vector<Ice::ObjectPtr> objectsRead;
     };
 
     struct WriteEncaps
     {
 	Container::size_type start;
 #ifdef ICE_ACTIVE_STRING_INDIRECTION
-	std::map<const char*, Ice::Int> stringsWritten;
-	std::map<const wchar_t*, Ice::Int> wstringsWritten;
+	std::map<std::string, Ice::Int> stringsWritten;
 #endif
-	std::map<Ice::Object*, Ice::Int> objectsWritten;
+	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
     };
 
     std::vector<ReadEncaps> _readEncapsStack;

@@ -85,16 +85,6 @@ MyDerivedClassI::opString(const std::string& p1,
     return p1 + " " + p2;
 }
 
-std::wstring
-MyDerivedClassI::opWString(const std::wstring& p1,
-			   const std::wstring& p2,
-			   std::wstring& p3,
-			   const Ice::Current&)
-{
-    p3 = p2 + L" " + p1;
-    return p1 + L" " + p2;
-}
-
 Test::MyEnum
 MyDerivedClassI::opMyEnum(Test::MyEnum p1,
 			  Test::MyEnum& p2,
@@ -200,20 +190,6 @@ MyDerivedClassI::opStringS(const Test::StringS& p1,
     return r;
 }
 
-Test::WStringS
-MyDerivedClassI::opWStringS(const Test::WStringS& p1,
-			    const Test::WStringS& p2,
-			    Test::WStringS& p3,
-			    const Ice::Current&)
-{
-    p3 = p1;
-    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
-    Test::WStringS r;
-    r.resize(p1.size());
-    std::reverse_copy(p1.begin(), p1.end(), r.begin());
-    return r;
-}
-
 Test::ByteSS
 MyDerivedClassI::opByteSS(const Test::ByteSS& p1,
 			  const Test::ByteSS& p2,
@@ -287,20 +263,6 @@ MyDerivedClassI::opStringSS(const Test::StringSS& p1,
     return r;
 }
 
-Test::WStringSS
-MyDerivedClassI::opWStringSS(const Test::WStringSS& p1,
-			     const Test::WStringSS& p2,
-			     Test::WStringSS& p3,
-			     const Ice::Current&)
-{
-    p3 = p1;
-    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
-    Test::WStringSS r;
-    r.resize(p2.size());
-    std::reverse_copy(p2.begin(), p2.end(), r.begin());
-    return r;
-}
-
 Test::ByteBoolD
 MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1,
 			     const Test::ByteBoolD& p2,
@@ -361,14 +323,14 @@ MyDerivedClassI::opStringStringD(const Test::StringStringD& p1,
     return r;
 }
 
-Test::WStringMyEnumD
-MyDerivedClassI::opWStringMyEnumD(const Test::WStringMyEnumD& p1,
-				  const Test::WStringMyEnumD& p2,
-				  Test::WStringMyEnumD& p3,
-				  const Ice::Current&)
+Test::StringMyEnumD
+MyDerivedClassI::opStringMyEnumD(const Test::StringMyEnumD& p1,
+				 const Test::StringMyEnumD& p2,
+				 Test::StringMyEnumD& p3,
+				 const Ice::Current&)
 {
     p3 = p1;
-    Test::WStringMyEnumD r = p1;
+    Test::StringMyEnumD r = p1;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
