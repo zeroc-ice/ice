@@ -286,7 +286,8 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _dbEnv(SharedDbEnv::get(_communicator, envName, dbEnv)),
     _filename(filename),
     _createDb(createDb),
-    _trace(0)
+    _trace(0),
+    _pingObject(new Ice::Object)
 {
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
@@ -1022,9 +1023,18 @@ Freeze::EvictorI::hasObject(const Identity& ident)
 bool
 Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
 {
-    checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
+    return hasFacetImpl(ident, facet);
+}
 
+bool
+Freeze::EvictorI::hasFacetImpl(const Identity& ident, const string& facet)
+{
+    //
+    // Must be called with _deactivateController locked.
+    //
+
+    checkIdentity(ident);
     ObjectStore* store = 0;
 
     {
@@ -1051,66 +1061,125 @@ Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
     return store->dbHasObject(ident);
 }
 
+bool
+Freeze::EvictorI::hasAnotherFacet(const Identity& ident, const string& facet)
+{
+    //
+    // Must be called with _deactivateController locked.
+    //
+
+    //
+    // If the object exists in another store, throw FacetNotExistException 
+    // instead of returning 0 (== ObjectNotExistException)
+    // 
+    StoreMap storeMapCopy;
+    {
+	Lock sync(*this);
+	storeMapCopy = _storeMap;
+    }	    
+	
+    for(StoreMap::iterator p = storeMapCopy.begin(); p != storeMapCopy.end(); ++p)
+    {
+	//
+	// Do not check again the given facet
+	//
+	if((*p).first != facet)
+	{ 
+	    ObjectStore* store = (*p).second;
+	    
+	    bool inCache = false;
+	    {
+		Lock sync(*this);
+		
+		EvictorElementPtr element = store->getIfPinned(ident);
+		if(element != 0)
+		{
+		    inCache = true;
+		    assert(!element->stale);    
+		    
+		    IceUtil::Mutex::Lock lock(element->mutex);
+		    if(element->status != EvictorElement::dead && 
+		       element->status != EvictorElement::destroyed)
+		    {
+			return true;
+		    }
+		}
+	    }
+	    if(!inCache)
+	    {
+		if(store->dbHasObject(ident))
+		{
+		    return true;
+		}
+	    }
+	}
+    }
+    return false;
+}
+    
 
 ObjectPtr
 Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 {
     //
-    // If only Ice calls locate/finished/deactivate, then it cannot be deactivated.
+    // We need this guard because the application may call locate/finished/deactivate
+    // directly.
     //
     DeactivateController::Guard deactivateGuard(_deactivateController);
 
+    //
+    // Special ice_ping() handling
+    //
+    if(current.operation == "ice_ping")
+    {
+	assert(current.mode == Nonmutating);
+
+	if(hasFacetImpl(current.id, current.facet))
+	{
+	    if(_trace >= 3)
+	    {
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
+		out << "ice_ping found \"" << identityToString(current.id)  
+		    << "\" with facet \"" << current.facet + "\"";
+	    }
+	    
+	    cookie = 0;
+	    return _pingObject;
+	}
+	else if(hasAnotherFacet(current.id, current.facet))
+	{
+	    if(_trace >= 3)
+	    {
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
+		out << "ice_ping raises FacetNotExistException for \"" << identityToString(current.id)  
+		    << "\" with facet \"" << current.facet + "\"";
+	    }
+	    throw FacetNotExistException(__FILE__, __LINE__);
+	}
+	else
+	{
+	    if(_trace >= 3)
+	    {
+		if(_trace >= 3)
+		{
+		    Trace out(_communicator->getLogger(), "Freeze.Evictor");
+		    out << "ice_ping will raise ObjectNotExistException for \"" << identityToString(current.id)  
+			<< "\" with facet \"" << current.facet + "\"";
+		}
+	    }
+	    return 0;
+	}
+    }
+    
     ObjectPtr result = locateImpl(current, cookie);
     
     if(result == 0)
     {
-	//
-	// If the object exists in another store, throw FacetNotExistException 
-	// instead of returning 0 (== ObjectNotExistException)
-	// 
-	StoreMap storeMapCopy;
+	if(hasAnotherFacet(current.id, current.facet))
 	{
-	    Lock sync(*this);
-	    storeMapCopy = _storeMap;
-	}	    
-	for(StoreMap::iterator p = storeMapCopy.begin(); p != storeMapCopy.end(); ++p)
-	{
-	    //
-	    // Do not check again the current facet
-	    //
-	    if((*p).first != current.facet)
-	    { 
-		ObjectStore* store = (*p).second;
-
-		bool inCache = false;
-		{
-		    Lock sync(*this);
-		    
-		    EvictorElementPtr element = store->getIfPinned(current.id);
-		    if(element != 0)
-		    {
-			inCache = true;
-			assert(!element->stale);    
-			
-			IceUtil::Mutex::Lock lock(element->mutex);
-			if(element->status != EvictorElement::dead && 
-			   element->status != EvictorElement::destroyed)
-			{
-			    throw FacetNotExistException(__FILE__, __LINE__);
-			}
-		    }
-		}
-		if(!inCache)
-		{
-		    if(store->dbHasObject(current.id))
-		    {
-			throw FacetNotExistException(__FILE__, __LINE__);
-		    }
-		}
-	    }
+	    throw FacetNotExistException(__FILE__, __LINE__);
 	}
     }
-    
     return result;
 }
 

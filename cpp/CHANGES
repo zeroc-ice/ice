@@ -1,6 +1,10 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added ice_ping optimization in the Freeze evictor: for operation
+  "ice_ping", the object is not loaded in the cache, Freeze only
+  checks if the object is in the cache or the database.
+
 - Fixed a slice2cpp failure when the --output-dir option specified a
   directory containing backslashes.
 

@@ -177,6 +177,8 @@ public:
 private:
 
     Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&);
+    bool hasFacetImpl(const Ice::Identity&, const std::string&);
+    bool hasAnotherFacet(const Ice::Identity&, const std::string&);
 
     void evict();
     void evict(const EvictorElementPtr&);
@@ -236,6 +238,8 @@ private:
     IceUtil::Time _savePeriod;
 
     bool _deadlockWarning;
+
+    Ice::ObjectPtr _pingObject;
 };
 
 

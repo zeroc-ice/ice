@@ -303,8 +303,22 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < size; i++)
     {
 	servants.push_back(evictor->createServant(i, i));
+	servants[i]->ice_ping();
+	
+	Test::FacetPrx facet1 = Test::FacetPrx::uncheckedCast(servants[i], "facet1");
+	try
+	{
+	    facet1->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::FacetNotExistException&)
+	{
+	    // Expected
+	}
+
 	servants[i]->addFacet("facet1", "data");
-	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	facet1->ice_ping();
+	facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
 	test(facet1);
 	facet1->setValue(10 * i);
 	facet1->addFacet("facet2", "moreData");
@@ -425,7 +439,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants[i]->removeFacet("facet1");
 	servants[i]->removeFacet("facet2");
     }
-    
+
     //
     // Check they are all gone
     //
@@ -437,11 +451,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	test(facet2 == 0);
     }
 
-
     evictor->setSize(0);
     evictor->setSize(size);
-
-   
 
     for(i = 0; i < size; i++)
     {
@@ -460,6 +471,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    servants[i]->getValue();
+	    test(false);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    // Expected
+	}
+
+	try
+	{
+	    servants[i]->ice_ping();
 	    test(false);
 	}
 	catch(const Ice::ObjectNotExistException&)
