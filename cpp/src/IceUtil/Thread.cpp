@@ -35,7 +35,8 @@ IceUtil::ThreadControl::ThreadControl() :
 
 IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned id) :
     _handle(handle),
-    _id(id)
+    _id(id),
+    _detached(false)
 {
 }
 
@@ -62,11 +63,29 @@ IceUtil::ThreadControl::join()
 {
     if(_handle->handle)
     {
+	if (_detached)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
+	_detached = true;
 	int rc = WaitForSingleObject(_handle->handle, INFINITE);
 	if(rc != WAIT_OBJECT_0)
 	{
 	    throw ThreadSyscallException(__FILE__, __LINE__);
 	}
+    }
+}
+
+void
+IceUtil::ThreadControl::detach()
+{
+    if(_handle->handle)
+    {
+	if (_detached)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
+	_detached = true;
     }
 }
 
@@ -220,6 +239,19 @@ IceUtil::ThreadControl::join()
     {
 	void* ignore = 0;
 	int rc = pthread_join(_id, &ignore);
+	if(rc != 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
+    }
+}
+
+void
+IceUtil::ThreadControl::detach()
+{
+    if(_id)
+    {
+	int rc = pthread_detach(_id);
 	if(rc != 0)
 	{
 	    throw ThreadSyscallException(__FILE__, __LINE__);

@@ -73,6 +73,14 @@ public:
     //
     void join();
 
+    //
+    // Detach a thread. Once a thread is detached, it cannot be detached
+    // again, nor can it be joined with. Every thread must either be
+    // joined with or detached exactly once. Failing to do so results
+    // in resource leaks.
+    //
+    void detach();
+
     static void sleep(const Time&);
     static void yield();
 
@@ -81,6 +89,7 @@ private:
 #ifdef _WIN32
     HandleWrapperPtr _handle;
     unsigned _id;
+    bool _detached;
 #else
     pthread_t _id;
 #endif
