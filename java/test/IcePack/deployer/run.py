@@ -77,7 +77,7 @@ print "ok"
 #
 print "deploying application with target...",
 IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), \
-                            "debug localnode.Server1.manual ice.dir=" + toplevel + " test.dir=" + testdir);
+                            "debug test.localnode.Server1.manual ice.dir=" + toplevel + " test.dir=" + testdir);
 print "ok"
 
 startClient("-t")

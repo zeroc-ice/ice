@@ -237,6 +237,7 @@ public class AllTests
 	}
 
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	test(obj.getProperty("Mode").equals("manual"));
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
 
 	System.out.println("ok");
