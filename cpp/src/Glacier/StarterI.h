@@ -51,6 +51,8 @@ private:
     RSACertificateGen _certificateGenerator;
 };
 
+typedef IceUtil::Handle<StarterI> StarterIPtr;
+
 class CryptPasswordVerifierI : public PermissionsVerifier, public IceUtil::Mutex
 {
 public:

@@ -13,81 +13,109 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Freeze/Freeze.h>
-#include <Ice/Application.h>
+#include <Ice/Service.h>
 #include <IcePack/Registry.h>
 
 using namespace std;
 using namespace IcePack;
 
-class RegistryServer : public Ice::Application
+namespace IcePack
+{
+
+class RegistryService : public Ice::Service
 {
 public:
 
-    void usage();
-    virtual int run(int argc, char* argv[]);
+    RegistryService();
 
+    virtual bool start(int, char**);
+
+private:
+
+    void usage(const std::string&);
+
+    std::auto_ptr<Registry> _registry;
 };
 
-int
-main(int argc, char* argv[])
-{
-    RegistryServer app;
-    int rc = app.main(argc, argv);
+} // End of namespace IcePack
 
-    return rc;
+IcePack::RegistryService::RegistryService()
+{
 }
 
-void
-RegistryServer::usage()
-{
-    cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<	
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.\n"
-	"--nowarn             Don't print any security warnings.\n"
-	;
-}
-
-int
-RegistryServer::run(int argc, char* argv[])
+bool
+IcePack::RegistryService::start(int argc, char** argv)
 {
     bool nowarn = false;
     for(int i = 1; i < argc; ++i)
     {
-	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage();
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "--nowarn") == 0)
-	{
-	    nowarn = true;
-	}
-	else
-	{
-	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
-	    usage();
-	    return EXIT_FAILURE;
-	}
-    }
-    
-    Registry registry(communicator());
-    if(!registry.start(nowarn, false))
-    {
-	return EXIT_FAILURE;
+        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+        {
+            usage(argv[0]);
+            return false;
+        }
+        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+        {
+            trace(ICE_STRING_VERSION);
+            return false;
+        }
+        else if(strcmp(argv[i], "--nowarn") == 0)
+        {
+            nowarn = true;
+        }
+        else
+        {
+            error("unknown option `" + string(argv[i]) + "'");
+            usage(argv[0]);
+            return false;
+        }
     }
 
-    shutdownOnInterrupt();
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
-    
-    return EXIT_SUCCESS;
+    _registry = auto_ptr<Registry>(new Registry(_communicator));
+    if(!_registry->start(nowarn, false))
+    {
+        return false;
+    }
+
+    return true;
 }
 
+void
+IcePack::RegistryService::usage(const string& appName)
+{
+    string options =
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.\n"
+	"--nowarn             Don't print any security warnings.";
+#ifdef _WIN32
+    if(!_win9x)
+    {
+        options.append(
+	"\n"
+	"\n"
+	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
+	"                     Install as Windows service NAME. If DISP is\n"
+	"                     provided, use it as the display name, otherwise\n"
+	"                     NAME is used. If EXEC is provided, use it as the\n"
+	"                     service executable, otherwise this executable is\n"
+	"                     used. Any additional arguments are passed\n"
+	"                     unchanged to the service at startup.\n"
+	"\n"
+	"--uninstall NAME     Uninstall Windows service NAME.\n"
+	"--start NAME [args]  Start Windows service NAME. Any additional\n"
+	"                     arguments are passed unchanged to the service.\n"
+	"--stop NAME          Stop Windows service NAME."
+        );
+    }
+#endif
+    cerr << "Usage: " << appName << " [options]" << endl;
+    cerr << options << endl;
+}
+
+int
+main(int argc, char* argv[])
+{
+    RegistryService svc;
+    return svc.main(argc, argv);
+}

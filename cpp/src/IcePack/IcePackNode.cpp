@@ -12,10 +12,11 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
-#include <IceUtil/CtrlCHandler.h>
-#include <Ice/Application.h>
-#include <Freeze/Freeze.h>
+#include <Ice/Ice.h>
+#include <Ice/Service.h>
+#include <IcePack/Activator.h>
+#include <IcePack/WaitQueue.h>
+#include <IcePack/Registry.h>
 #include <IcePack/ActivatorI.h>
 #include <IcePack/ServerFactory.h>
 #include <IcePack/AdapterFactory.h>
@@ -24,7 +25,7 @@
 #include <IcePack/NodeI.h>
 #include <IcePack/NodeInfo.h>
 #include <IcePack/TraceLevels.h>
-#include <IcePack/Registry.h>
+#include <IceUtil/UUID.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -44,26 +45,30 @@
 using namespace std;
 using namespace IcePack;
 
-//
-// The activator needs to be global since it's used by the interupt
-// signal handler to shut it down. We can't use the mechanism provided
-// by Ice or Freeze Application because we need to perform some
-// shutdown tasks that require to do collocated invocations.
-//
-ActivatorPtr activator;
-
-void
-usage(const char* appName)
+namespace IcePack
 {
-    cerr << "Usage: " << appName << " [options]\n";
-    cerr <<	
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.\n"
-	"--deploy descriptor [target1 [target2 ...]]\n"
-	"--nowarn             Don't print any security warnings.\n"
-	;
-}
+
+class NodeService : public Ice::Service
+{
+public:
+
+    NodeService();
+
+    virtual bool start(int, char**);
+    virtual bool shutdown();
+    virtual void waitForShutdown();
+    virtual bool stop();
+
+private:
+
+    void usage(const std::string&);
+
+    ActivatorPtr _activator;
+    WaitQueuePtr _waitQueue;
+    std::auto_ptr<Registry> _registry;
+};
+
+} // End of namespace IcePack
 
 #ifndef _WIN32
 extern "C"
@@ -94,247 +99,12 @@ childHandler(int)
 }
 #endif
 
-static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
-
-static void
-shutdownCallback(int)
+IcePack::NodeService::NodeService()
 {
-    assert(activator);
-    activator->shutdown();
 }
 
-
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const string& envName)
-{
-    Ice::PropertiesPtr properties = communicator->getProperties();
-
-    bool nowarn = false;
-    string descriptor;
-    vector<string> targets;
-    for(int i = 1; i < argc; ++i)
-    {
-	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "--nowarn") == 0)
-	{
-	    nowarn = true;
-	}
-	else if(strcmp(argv[i], "--deploy") == 0)
-	{
-	    if(i + 1 >= argc)
-	    {
-		Ice::Error out(communicator->getLogger());
-		out << "missing descriptor argument for option `" << argv[i] << "'";
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
-
-	    descriptor = argv[++i];
-	    
-	    while(i + 1 < argc && argv[++i][0] != '-')
-	    {
-		targets.push_back(argv[i]);
-	    }
-	}
-    }
-
-    //
-    // Check that required properties are set and valid.
-    //
-    if(properties->getProperty("IcePack.Node.Endpoints").empty())
-    {
-	Ice::Error out(communicator->getLogger());
-	out << "property `IcePack.Node.Endpoints' is not set";
-	return EXIT_FAILURE;
-    }
-
-    string name = properties->getProperty("IcePack.Node.Name");
-    if(name.empty())
-    {
-	char host[1024 + 1];
-	if(gethostname(host, 1024) != 0)
-	{
-	    Ice::Error out(communicator->getLogger());
-	    out << "property `IcePack.Node.Name' is not set and couldn't get the hostname: "
-		<< strerror(getSystemErrno());
-	    return EXIT_FAILURE;
-	}
-	else if(!nowarn)
-	{
-	    Ice::Warning out(communicator->getLogger());
-	    out << "property `IcePack.Node.Name' is not set, using hostname: " << host ;
-	}
-    }
-
-    //
-    // Set the adapter id for this node and create the node object
-    // adapter.
-    //
-    properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node-" + name);
-
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("IcePack.Node");
-	
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator->getLogger());
-	
-    //
-    // Create the activator.
-    //
-    activator = new ActivatorI(traceLevels, properties);
-
-    //
-    // Create the wait queue.
-    //
-    WaitQueuePtr waitQueue = new WaitQueue();
-    waitQueue->start();
-
-    //
-    // Creates the server factory. The server factory creates server
-    // and server adapter persistent objects. It also takes care of
-    // installing the evictors and object factory necessary to persist
-    // and create these objects.
-    //
-    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, activator, waitQueue);
-    
-    //
-    // Create the node object and the node info. Because of circular
-    // dependencies on the node info we need to create the proxy for
-    // the server registry and deployer now.
-    //
-    Ice::Identity deployerId;
-    deployerId.name = IceUtil::generateUUID();
-
-    NodePtr node = new NodeI(activator, name, ServerDeployerPrx::uncheckedCast(adapter->createProxy(deployerId)));
-    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
-	
-    NodeInfoPtr nodeInfo = new NodeInfo(communicator, serverFactory, node, traceLevels);
-
-    //
-    // Create the server deployer.
-    //
-    ServerDeployerPtr deployer = new ServerDeployerI(nodeInfo);
-    adapter->add(deployer, deployerId);
-
-    //
-    // Register this node with the node registry.
-    //
-    try
-    {
-	NodeRegistryPrx nodeRegistry = NodeRegistryPrx::checkedCast(
-	    communicator->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
-	nodeRegistry->add(name, nodeProxy);
-    }
-    catch(const NodeActiveException&)
-    {
-	Ice::Error out(communicator->getLogger());
-	out << "a node with the same name is already registered and active";
-	throw;
-    }
-    catch(const Ice::LocalException&)
-    {
-	Ice::Error out(communicator->getLogger());
-	out << "couldn't contact the IcePack registry:";
-	throw;
-    }
-
-    //
-    // Start the activator.
-    //
-    activator->start();
-    
-    //
-    // We are ready to go! Activate the object adapter.
-    //
-    adapter->activate();
-
-    //
-    // Deploy application descriptor if a descriptor is passed as
-    // a command line option.
-    //
-    if(!descriptor.empty())
-    {
-	AdminPrx admin;
-	try
-	{
-	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Warning out(communicator->getLogger());
-	    out << "couldn't contact IcePack admin interface to deploy application `" << descriptor << "':";
-	    out << ex;
-	}
-
-	if(admin)
-	{
-	    try
-	    {
-		admin->addApplication(descriptor, targets);
-	    }
-	    catch(const ServerDeploymentException& ex)
-	    {
-		Ice::Warning out(communicator->getLogger());
-		out << "failed to deploy application `" << descriptor << "':\n";
-		out << ex << ": " << ex.server << ": " << ex.reason;
-	    }
-	    catch(const DeploymentException& ex)
-	    {
-		Ice::Warning out(communicator->getLogger());
-		out << "failed to deploy application `" << descriptor << "':\n";
-		out << ex << ": " << ex.component << ": " << ex.reason;
-	    }
-	    catch(const Ice::LocalException& ex)
-	    {
-		Ice::Warning out(communicator->getLogger());
-		out << "failed to deploy application `" << descriptor << "':\n";
-		out << ex;
-	    }
-	}
-    }
-
-    string bundleName = properties->getProperty("IcePack.Node.PrintServersReady");
-    if(!bundleName.empty())
-    {
-	cout << bundleName << " ready" << endl;
-    }
-    
-    //
-    // Wait for the activator shutdown. Once the run method returns
-    // all the servers have been deactivated.
-    //
-    _ctrlCHandler->setCallback(shutdownCallback);
-    activator->waitForShutdown();
-    _ctrlCHandler->setCallback(0);
-
-    activator->destroy();
-
-    //
-    // The wait queue must be destroyed after the activator and before
-    // the communicator is shutdown.
-    //
-    waitQueue->destroy();
-
-    //
-    // We can now safelly shutdown the communicator.
-    //
-    communicator->shutdown();
-    communicator->waitForShutdown();
-
-    activator = 0;
-
-    return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
+bool
+IcePack::NodeService::start(int argc, char** argv)
 {
 #ifndef _WIN32
     //
@@ -348,182 +118,417 @@ main(int argc, char* argv[])
     sigaction(SIGCHLD, &action, 0);
 #endif
 
-    Ice::CommunicatorPtr communicator;
+    bool nowarn = false;
+    string descriptor;
+    vector<string> targets;
+    for(int i = 1; i < argc; ++i)
+    {
+        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+        {
+            usage(argv[0]);
+            return false;
+        }
+        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+        {
+            trace(ICE_STRING_VERSION);
+            return false;
+        }
+        else if(strcmp(argv[i], "--nowarn") == 0)
+        {
+            nowarn = true;
+        }
+        else if(strcmp(argv[i], "--deploy") == 0)
+        {
+            if(i + 1 >= argc)
+            {
+                error("missing descriptor argument for option `" + string(argv[i]) + "'");
+                usage(argv[0]);
+                return false;
+            }
 
-    int status;
+            descriptor = argv[++i];
+
+            while(i + 1 < argc && argv[++i][0] != '-')
+            {
+                targets.push_back(argv[i]);
+            }
+        }
+    }
+
+    Ice::PropertiesPtr properties = _communicator->getProperties();
+
+    //
+    // Disable server idle time. Otherwise, the adapter would be
+    // shutdown prematurely and the deactivation would fail.
+    // Deactivation of the node relies on the object adapter
+    // to be active since it needs to terminate servers.
+    //
+    // TODO: implement Ice.ServerIdleTime in the activator
+    // termination listener instead?
+    //
+    properties->setProperty("Ice.ServerIdleTime", "0");
+
+    //
+    // Collocate the IcePack registry if we need to.
+    //
+    if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
+    {
+        _registry = auto_ptr<Registry>(new Registry(_communicator));
+        if(!_registry->start(nowarn, true))
+        {
+            return false;
+        }
+
+        //
+        // The node needs a different thread pool to avoid
+        // deadlocks in connection validation.
+        //
+        if(properties->getPropertyAsInt("IcePack.Node.ThreadPool.Size") == 0)
+        {
+            int size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+
+            ostringstream os1;
+            os1 << static_cast<int>(size / 3);
+            properties->setProperty("IcePack.Node.ThreadPool.Size", os1.str());
+
+            ostringstream os2;
+            os2 << size - static_cast<int>(size / 3);
+            properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
+        }
+
+        //
+        // Set the Ice.Default.Locator property to point to the
+        // collocated locator (this property is passed by the
+        // activator to each activated server).
+        //
+        string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Client.Endpoints");
+        properties->setProperty("Ice.Default.Locator", locatorPrx);
+    }
+    else if(properties->getProperty("Ice.Default.Locator").empty())
+    {
+        error("property `Ice.Default.Locator' is not set");
+        return false;
+    }
+
+    //
+    // Initialize the database environment (first setup the directory structure if needed).
+    //
+    string envName;
+    string dataPath = properties->getProperty("IcePack.Node.Data");
+    if(dataPath.empty())
+    {
+        error("property `IcePack.Node.Data' is not set");
+        return false;
+    }
+    else
+    {
+#ifdef _WIN32
+        struct _stat filestat;
+        if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+        {
+            error("property `IcePack.Node.Data' is not set to a valid directory path");
+            return EXIT_FAILURE;
+        }            
+#else
+        struct stat filestat;
+        if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+        {
+            error("property `IcePack.Node.Data' is not set to a valid directory path");
+            return EXIT_FAILURE;
+        }            
+#endif
+
+        //
+        // Creates subdirectories db and servers in the IcePack.Node.Data
+        // directory if they don't already exist.
+        //
+        if(dataPath[dataPath.length() - 1] != '/')
+        {
+            dataPath += "/"; 
+        }
+
+        envName = dataPath + "db";
+        string serversPath = dataPath + "servers";
+
+#ifdef _WIN32
+        if(::_stat(envName.c_str(), &filestat) != 0)
+        {
+            _mkdir(envName.c_str());
+        }
+        if(::_stat(serversPath.c_str(), &filestat) != 0)
+        {
+            _mkdir(serversPath.c_str());
+        }
+#else
+        if(::stat(envName.c_str(), &filestat) != 0)
+        {
+            mkdir(envName.c_str(), 0755);
+        }
+        if(::stat(serversPath.c_str(), &filestat) != 0)
+        {
+            mkdir(serversPath.c_str(), 0755);
+        }
+#endif
+    }
+
+    //
+    // Check that required properties are set and valid.
+    //
+    if(properties->getProperty("IcePack.Node.Endpoints").empty())
+    {
+        error("property `IcePack.Node.Endpoints' is not set");
+        return false;
+    }
+
+    string name = properties->getProperty("IcePack.Node.Name");
+    if(name.empty())
+    {
+        char host[1024 + 1];
+        if(gethostname(host, 1024) != 0)
+        {
+            syserror("property `IcePack.Node.Name' is not set and couldn't get the hostname:");
+            return false;
+        }
+        else if(!nowarn)
+        {
+            warning("property `IcePack.Node.Name' is not set, using hostname: " + string(host));
+        }
+    }
+
+    //
+    // Set the adapter id for this node and create the node object
+    // adapter.
+    //
+    properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node-" + name);
+
+    Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("IcePack.Node");
+
+    TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger());
+
+    //
+    // Create the activator.
+    //
+    _activator = new ActivatorI(traceLevels, properties);
+
+    //
+    // Create the wait queue.
+    //
+    _waitQueue = new WaitQueue();
+    _waitQueue->start();
+
+    //
+    // Create the server factory. The server factory creates persistent objects
+    // for the server and server adapter. It also takes care of installing the
+    // evictors and object factories necessary to store these objects.
+    //
+    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, _activator, _waitQueue);
+
+    //
+    // Create the node object and the node info. Because of circular
+    // dependencies on the node info we need to create the proxy for
+    // the server registry and deployer now.
+    //
+    Ice::Identity deployerId;
+    deployerId.name = IceUtil::generateUUID();
+
+    NodePtr node = new NodeI(_activator, name, ServerDeployerPrx::uncheckedCast(adapter->createProxy(deployerId)));
+    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
+
+    NodeInfoPtr nodeInfo = new NodeInfo(_communicator, serverFactory, node, traceLevels);
+
+    //
+    // Create the server deployer.
+    //
+    ServerDeployerPtr deployer = new ServerDeployerI(nodeInfo);
+    adapter->add(deployer, deployerId);
+
+    //
+    // Register this node with the node registry.
+    //
     try
     {
-        //
-	// Handles CTRL+C like signals. Initially, just ignore them
-	//
-	IceUtil::CtrlCHandler ctrlCHandler;
-	_ctrlCHandler = &ctrlCHandler;
-
-	//
-	// Initialize the communicator.
-	//
-	communicator = Ice::initialize(argc, argv);
-	
-	
-	Ice::PropertiesPtr properties = communicator->getProperties();
-
-	//
-	// Disable server idle time. Otherwise, the adapter would be
-	// shutdown prematurely and the deactivation would fail.
-        // Deactivation of the node relies on the object adapter
-	// to be active since it needs to terminate servers.
-	//
-	// TODO: implement Ice.ServerIdleTime in the activator
-	// termination listener instead?
-	//
-	properties->setProperty("Ice.ServerIdleTime", "0");
-
-	bool nowarn = false;
-	for(int i = 1; i < argc; ++i)
-	{
-	    if(strcmp(argv[i], "--nowarn") == 0)
-	    {
-		nowarn = true;
-		break;
-	    }
-	}
-
-	//
-	// Collocate the IcePack registry if we need to.
-	//
-	auto_ptr<Registry> registry;
-	if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
-	{
-	    registry = auto_ptr<Registry>(new Registry(communicator));
-	    if(!registry->start(nowarn, true))
-	    {
-		return EXIT_FAILURE;
-	    }
-	    
-	    //
-	    // The node needs a different thread pool to avoid
-	    // deadlocks in connection validation.
-	    //
-	    if(properties->getPropertyAsInt("IcePack.Node.ThreadPool.Size") == 0)
-	    {
-		int size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
-
-		ostringstream os1;
-		os1 << static_cast<int>(size / 3);
-		properties->setProperty("IcePack.Node.ThreadPool.Size", os1.str());
-
-		ostringstream os2;
-		os2 << size - static_cast<int>(size / 3);
-		properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
-	    }
-
-	    //
-	    // Set the Ice.Default.Locator property to point to the
-	    // collocated locator (this property is passed by the
-	    // activator to each activated server).
-	    //
-	    string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Client.Endpoints");
-	    properties->setProperty("Ice.Default.Locator", locatorPrx);
-	}
-	else if(properties->getProperty("Ice.Default.Locator").empty())
-	{
-	    cerr << argv[0] << ": property `Ice.Default.Locator' is not set" << endl;
-	    return EXIT_FAILURE;
-	}
-
-	//
-	// Initialize the database environment (first setup the
-	// directory structure if needed).
-	//
-	string envName;
-	string dataPath = properties->getProperty("IcePack.Node.Data");
-	if(dataPath.empty())
-	{
-	    cerr << argv[0] << ": property `IcePack.Node.Data' is not set" << endl;
-	    return EXIT_FAILURE;
-	}
-	else
-	{
-#ifdef _WIN32
-	    struct _stat filestat;
-	    if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
-	    {
-		cerr << argv[0] << ": property `IcePack.Node.Data' is not set to a valid directory path" << endl;
-		return EXIT_FAILURE;
-	    }	    
-#else
-	    struct stat filestat;
-	    if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
-	    {
-		cerr << argv[0] << ": property `IcePack.Node.Data' is not set to a valid directory path" << endl;
-		return EXIT_FAILURE;
-	    }	    
-#endif
-
-	    //
-	    // Creates subdirectories db and servers in the IcePack.Node.Data
-	    // directory if they don't already exist.
-	    //
-	    if(dataPath[dataPath.length() - 1] != '/')
-	    {
-		dataPath += "/"; 
-	    }
-	    
-	    envName = dataPath + "db";
-	    string serversPath = dataPath + "servers";
-    
-#ifdef _WIN32
-	    if(::_stat(envName.c_str(), &filestat) != 0)
-	    {
-		_mkdir(envName.c_str());
-	    }
-	    if(::_stat(serversPath.c_str(), &filestat) != 0)
-	    {
-		_mkdir(serversPath.c_str());
-	    }
-#else
-	    if(::stat(envName.c_str(), &filestat) != 0)
-	    {
-		mkdir(envName.c_str(), 0755);
-	    }
-	    if(::stat(serversPath.c_str(), &filestat) != 0)
-	    {
-		mkdir(serversPath.c_str(), 0755);
-	    }
-#endif
-	}
-
-	status = run(argc, argv, communicator, envName);
+        NodeRegistryPrx nodeRegistry = NodeRegistryPrx::checkedCast(
+            _communicator->stringToProxy("IcePack/NodeRegistry@IcePack.Registry.Internal"));
+        nodeRegistry->add(name, nodeProxy);
     }
-    catch(const Ice::Exception& ex)
+    catch(const NodeActiveException&)
     {
-	cerr << argv[0] << ": " << ex << endl;
-	status = EXIT_FAILURE;
+        error("a node with the same name is already registered and active");
+        return false;
+    }
+    catch(const Ice::LocalException&)
+    {
+        error("couldn't contact the IcePack registry");
+        return false;
+    }
+
+    //
+    // Start the activator.
+    //
+    _activator->start();
+
+    //
+    // We are ready to go! Activate the object adapter.
+    //
+    adapter->activate();
+
+    //
+    // Deploy application if a descriptor is passed as a command-line option.
+    //
+    if(!descriptor.empty())
+    {
+        AdminPrx admin;
+        try
+        {
+            admin = AdminPrx::checkedCast(_communicator->stringToProxy("IcePack/Admin"));
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            ostringstream ostr;
+            ostr << "couldn't contact IcePack admin interface to deploy application `" << descriptor << "':" << endl
+                 << ex;
+            warning(ostr.str());
+        }
+
+        if(admin)
+        {
+            try
+            {
+                admin->addApplication(descriptor, targets);
+            }
+            catch(const ServerDeploymentException& ex)
+            {
+                ostringstream ostr;
+                ostr << "failed to deploy application `" << descriptor << "':" << endl
+                     << ex << ": " << ex.server << ": " << ex.reason;
+                warning(ostr.str());
+            }
+            catch(const DeploymentException& ex)
+            {
+                ostringstream ostr;
+                ostr << "failed to deploy application `" << descriptor << "':" << endl
+                     << ex << ": " << ex.component << ": " << ex.reason;
+                warning(ostr.str());
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                ostringstream ostr;
+                ostr << "failed to deploy application `" << descriptor << "':" << endl
+                     << ex;
+                warning(ostr.str());
+            }
+        }
+    }
+
+    string bundleName = properties->getProperty("IcePack.Node.PrintServersReady");
+    if(!bundleName.empty())
+    {
+	cout << bundleName << " ready" << endl;
+    }
+
+    return true;
+}
+
+bool
+IcePack::NodeService::shutdown()
+{
+    assert(_activator);
+    _activator->shutdown();
+    return true;
+}
+
+void
+IcePack::NodeService::waitForShutdown()
+{
+    //
+    // Wait for the activator shutdown. Once the run method returns
+    // all the servers have been deactivated.
+    //
+    enableInterrupt();
+    _activator->waitForShutdown();
+    disableInterrupt();
+}
+
+bool
+IcePack::NodeService::stop()
+{
+    try
+    {
+        _activator->destroy();
     }
     catch(...)
     {
-	cerr << argv[0] << ": unknown exception" << endl;
-	status = EXIT_FAILURE;
     }
 
-    if(communicator)
+    //
+    // The wait queue must be destroyed after the activator and before
+    // the communicator is shutdown.
+    //
+    try
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	communicator = 0;
+        _waitQueue->destroy();
+    }
+    catch(...)
+    {
     }
 
-    return status;
+    //
+    // We can now safely shutdown the communicator.
+    //
+    try
+    {
+        _communicator->shutdown();
+        _communicator->waitForShutdown();
+    }
+    catch(...)
+    {
+    }
+
+    _activator = 0;
+
+    return true;
+}
+
+void
+IcePack::NodeService::usage(const string& appName)
+{
+    string options =
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.\n"
+	"--nowarn             Don't print any security warnings.\n"
+	"\n"
+	"--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
+	"                     Deploy descriptor in file DESCRIPTOR, with\n"
+	"                     optional targets.";
+#ifdef _WIN32
+    if(!_win9x)
+    {
+        options.append(
+	"\n"
+	"\n"
+	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
+	"                     Install as Windows service NAME. If DISP is\n"
+	"                     provided, use it as the display name, otherwise\n"
+	"                     NAME is used. If EXEC is provided, use it as the\n"
+	"                     service executable, otherwise this executable is\n"
+	"                     used. Any additional arguments are passed\n"
+	"                     unchanged to the service at startup.\n"
+	"\n"
+	"--uninstall NAME     Uninstall Windows service NAME.\n"
+	"--start NAME [args]  Start Windows service NAME. Any additional\n"
+	"                     arguments are passed unchanged to the service.\n"
+	"--stop NAME          Stop Windows service NAME."
+        );
+    }
+#endif
+    cerr << "Usage: " << appName << " [options]" << endl;
+    cerr << options << endl;
+}
+
+int
+main(int argc, char* argv[])
+{
+    NodeService svc;
+    return svc.main(argc, argv);
 }

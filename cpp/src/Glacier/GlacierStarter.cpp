@@ -12,7 +12,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Service.h>
 #include <Glacier/StarterI.h>
 #include <fstream>
 
@@ -22,68 +22,99 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 
 namespace Glacier
 {
 
-class RouterApp : public Application
+class StarterService : public Ice::Service
 {
 public:
 
-    void usage();
-    virtual int run(int, char*[]);
+    StarterService();
+
+    virtual bool start(int, char**);
+    virtual bool stop();
+    virtual void initializeCommunicator(int&, char**);
+
+private:
+
+    void usage(const std::string&);
+
+    StarterIPtr _starter;
 };
 
-};
+} // End of namespace Glacier
 
-void
-Glacier::RouterApp::usage()
+#ifndef _WIN32
+extern "C"
 {
-    cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<     
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        ;
+
+static void
+childHandler(int)
+{
+    //
+    // Call wait to de-allocate any resources allocated for the child
+    // process and avoid zombie processes. See man wait or waitpid for
+    // more information.
+    //
+    int olderrno = errno;
+
+    pid_t pid;
+    do
+    {
+	pid = waitpid(-1, 0, WNOHANG);
+    }
+    while(pid > 0);
+
+    assert(pid != -1 || errno == ECHILD);
+
+    errno = olderrno;
 }
 
-int
-Glacier::RouterApp::run(int argc, char* argv[])
+}
+#endif
+
+Glacier::StarterService::StarterService()
+{
+}
+
+bool
+Glacier::StarterService::start(int argc, char** argv)
 {
     for(int i = 1; i < argc; ++i)
     {
-	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage();
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else
-	{
-	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
-	    usage();
-	    return EXIT_FAILURE;
-	}
+        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+        {
+            usage(argv[0]);
+            return false;
+        }
+        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+        {
+            trace(ICE_STRING_VERSION);
+            return false;
+        }
+        else
+        {
+            error("unknown option `" + string(argv[i]) + "'");
+            usage(argv[0]);
+            return false;
+        }
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = _communicator->getProperties();
 
     //
     // Initialize the object adapter (and make sure this object
     // adapter doesn't register itself with the locator).
     // 
-    const char* endpointsProperty = "Glacier.Starter.Endpoints";
+    const string endpointsProperty = "Glacier.Starter.Endpoints";
     if(properties->getProperty(endpointsProperty).empty())
     {
-	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+	error("property `" + endpointsProperty + "' is not set");
+	return false;
     }
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier.Starter");
+
+    Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("Glacier.Starter");
 
     //
     // Get the permissions verifier, or create one if no verifier is
@@ -93,11 +124,11 @@ Glacier::RouterApp::run(int argc, char* argv[])
     PermissionsVerifierPrx verifier;
     if(!verifierProperty.empty())
     {
-	verifier = PermissionsVerifierPrx::checkedCast(communicator()->stringToProxy(verifierProperty));
+	verifier = PermissionsVerifierPrx::checkedCast(_communicator->stringToProxy(verifierProperty));
 	if(!verifier)
 	{
-	    cerr << appName() << ": permissions verifier `" << verifierProperty << "' is invalid" << endl;
-	    return EXIT_FAILURE;
+	    error("permissions verifier `" + verifierProperty + "' is invalid");
+	    return false;
 	}
     }
     else
@@ -107,9 +138,9 @@ Glacier::RouterApp::run(int argc, char* argv[])
 	ifstream passwordFile(passwordsProperty.c_str());
 	if(!passwordFile)
 	{
-	    cerr << appName() << ": cannot open `" << passwordsProperty << "' for reading: " << strerror(errno)
-		 << endl;
-	    return EXIT_FAILURE;
+            string err = strerror(errno);
+	    error("cannot open `" + passwordsProperty + "' for reading: " + err);
+	    return false;
 	}
 
 	map<string, string> passwords;
@@ -142,44 +173,72 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     // Create and initialize the starter object.
     //
-    StarterPtr starter = new StarterI(communicator(), verifier);
-    adapter->add(starter, stringToIdentity("Glacier/starter"));
+    _starter = new StarterI(_communicator, verifier);
+    adapter->add(_starter, Ice::stringToIdentity("Glacier/starter"));
 
     //
     // Everything ok, let's go.
     //
-    shutdownOnInterrupt();
     adapter->activate();
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
 
+    return true;
+}
+
+bool
+Glacier::StarterService::stop()
+{
     //
     // Destroy the starter.
     //
-    StarterI* st = dynamic_cast<StarterI*>(starter.get());
-    assert(st);
-    st->destroy();
+    assert(_starter);
+    _starter->destroy();
 
-    return EXIT_SUCCESS;
+    return true;
 }
 
-#ifndef _WIN32
-extern "C"
-{
-
-static void
-childHandler(int)
+void
+Glacier::StarterService::initializeCommunicator(int& argc, char** argv)
 {
     //
-    // Call wait to de-allocate any ressources allocated for the child
-    // process and avoid zombie processes. See man wait or waitpid for
-    // more information.
+    // Make sure that this process doesn't use a router.
     //
-    wait(0);
+    Ice::PropertiesPtr defaultProperties = Ice::getDefaultProperties(argc, argv);
+    defaultProperties->setProperty("Ice.Default.Router", "");
+
+    Service::initializeCommunicator(argc, argv);
 }
 
-}
+void
+Glacier::StarterService::usage(const string& appName)
+{
+    string options =
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-v, --version        Display the Ice version.";
+#ifdef _WIN32
+    if(!_win9x)
+    {
+        options.append(
+	"\n"
+	"\n"
+	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
+	"                     Install as Windows service NAME. If DISP is\n"
+	"                     provided, use it as the display name, otherwise\n"
+	"                     NAME is used. If EXEC is provided, use it as the\n"
+	"                     service executable, otherwise this executable is\n"
+	"                     used. Any additional arguments are passed\n"
+	"                     unchanged to the service at startup.\n"
+	"\n"
+	"--uninstall NAME     Uninstall Windows service NAME.\n"
+	"--start NAME [args]  Start Windows service NAME. Any additional\n"
+	"                     arguments are passed unchanged to the service.\n"
+	"--stop NAME          Stop Windows service NAME."
+        );
+    }
 #endif
+    cerr << "Usage: " << appName << " [options]" << endl;
+    cerr << options << endl;
+}
 
 int
 main(int argc, char* argv[])
@@ -197,20 +256,6 @@ main(int argc, char* argv[])
     sigaction(SIGCHLD, &action, 0);
 #endif
 
-    //
-    // Make sure that this process doesn't use a router.
-    //
-    try
-    {
-	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-	defaultProperties->setProperty("Ice.Default.Router", "");
-    }
-    catch(const Ice::Exception& e)
-    {
-	cerr << e << endl;
-	exit(EXIT_FAILURE);
-    }
-
-    Glacier::RouterApp app;
-    return app.main(argc, argv);
+    Glacier::StarterService svc;
+    return svc.main(argc, argv);
 }
