@@ -684,7 +684,7 @@ public class AllTests
     }
 
     public static ThrowerPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator)
     {
         {
 	    System.out.print("testing servant registration exceptions... ");
@@ -917,8 +917,6 @@ public class AllTests
 
 	if(thrower.supportsUndeclaredExceptions())
 	{
-	    test(!collocated);
-
 	    System.out.print("catching unknown user exception... ");
 	    System.out.flush();
 	    
@@ -974,13 +972,8 @@ public class AllTests
 		thrower.throwAssertException();
 		test(false);
 	    }
-	    catch(java.lang.AssertionError ex)
-	    {
-		assert(collocated);
-	    }
 	    catch(Ice.ConnectionLostException ex)
 	    {
-		assert(!collocated);
 	    }
 	    catch(Exception ex)
 	    {
@@ -1064,21 +1057,8 @@ public class AllTests
             thrower.throwLocalException();
             test(false);
         }
-        catch(Ice.TimeoutException ex)
-        {
-	    //
-	    // We get the original exception with collocation
-	    // optimization.
-	    //
-	    test(collocated);
-	}
         catch(Ice.UnknownLocalException ex)
         {
-	    //
-	    // We get an unknown local exception without collocation
-	    // optimization.
-	    //
-	    test(!collocated);
 	}
         catch(Exception ex)
         {
@@ -1097,25 +1077,10 @@ public class AllTests
         }
         catch(Ice.UnknownException ex)
         {
-	    //
-	    // We get the an unknown exception without collocation
-	    // optimization.
-	    //
-	    test(!collocated);
-        }
-        catch(RuntimeException ex)
-        {
-	    //
-	    // We get the original exception with collocation
-	    // optimization.
-	    //
-	    test(collocated);
         }
 
         System.out.println("ok");
 
-	if(!collocated)
-	{
 	    System.out.print("catching exact types with AMI... ");
 	    System.out.flush();
 
@@ -1281,7 +1246,6 @@ public class AllTests
 	    test(cb.check());
 	
 	    System.out.println("ok");
-	}
 
         return thrower;
     }

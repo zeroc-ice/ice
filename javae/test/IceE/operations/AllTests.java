@@ -19,7 +19,7 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator)
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();
@@ -64,20 +64,17 @@ public class AllTests
         derived.opDerived();
         System.out.println("ok");
 
-	if(!collocated)
-	{
-	    System.out.print("testing twoway operations with AMI... ");
-	    System.out.flush();
-	    TwowaysAMI.twowaysAMI(communicator, cl);
-	    TwowaysAMI.twowaysAMI(communicator, derived);
-	    System.out.println("ok");
+	System.out.print("testing twoway operations with AMI... ");
+	System.out.flush();
+	TwowaysAMI.twowaysAMI(communicator, cl);
+	TwowaysAMI.twowaysAMI(communicator, derived);
+	System.out.println("ok");
 
-	    System.out.print("testing batch oneway operations... ");
-	    System.out.flush();
-	    BatchOneways.batchOneways(cl);
-	    BatchOneways.batchOneways(derived);
-	    System.out.println("ok");
-	}
+	System.out.print("testing batch oneway operations... ");
+	System.out.flush();
+	BatchOneways.batchOneways(cl);
+	BatchOneways.batchOneways(derived);
+	System.out.println("ok");
 
         return cl;
     }

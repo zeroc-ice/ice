@@ -35,12 +35,6 @@ public class FixedReference extends Reference
         return new Endpoint[0];
     }
 
-    public boolean
-    getCollocationOptimization()
-    {
-        return false;
-    }
-
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
@@ -49,12 +43,6 @@ public class FixedReference extends Reference
 
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
-    {
-        return this;
-    }
-
-    public Reference
-    changeCollocationOptimization(boolean newCollocationOptimization)
     {
         return this;
     }

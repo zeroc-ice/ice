@@ -14,7 +14,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        ThrowerPrx thrower = AllTests.allTests(communicator, false);
+        ThrowerPrx thrower = AllTests.allTests(communicator);
         thrower.shutdown();
         return 0;
     }

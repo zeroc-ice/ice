@@ -16,8 +16,9 @@ public class Collocated
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ThrowerI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("thrower"));
+	adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator);
 
         return 0;
     }

@@ -21,6 +21,7 @@ public class Collocated
         adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
 	Ice.Object h = new HI(communicator);
         adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
+	adapter.activate();
  
         AllTests.allTests(communicator);
 

@@ -17,8 +17,7 @@ public final class ReferenceFactory
            String facet,
            int mode,
            Endpoint[] endpoints,
-           RouterInfo routerInfo,
-	   boolean collocationOptimization)
+           RouterInfo routerInfo)
     {
         if(_instance == null)
         {
@@ -33,8 +32,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode,
-						  endpoints, routerInfo, collocationOptimization);
+        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode, endpoints, routerInfo);
 	return updateCache(ref);
     }
 
@@ -45,8 +43,7 @@ public final class ReferenceFactory
            int mode,
            String adapterId,
            RouterInfo routerInfo,
-	   LocatorInfo locatorInfo,
-	   boolean collocationOptimization)
+	   LocatorInfo locatorInfo)
     {
         if(_instance == null)
         {
@@ -62,7 +59,7 @@ public final class ReferenceFactory
         // Create new reference
         //
         IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode,
-						      adapterId, routerInfo, locatorInfo, collocationOptimization);
+						      adapterId, routerInfo, locatorInfo);
 	return updateCache(ref);
     }
 
@@ -348,7 +345,7 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, new java.util.HashMap(), facet, mode, "", routerInfo, locatorInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, "", routerInfo, locatorInfo);
 	}
 
         java.util.ArrayList endpoints = new java.util.ArrayList();
@@ -373,7 +370,7 @@ public final class ReferenceFactory
 	    }
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.toArray(endp);
-	    return create(ident, new java.util.HashMap(), facet, mode, endp, routerInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, endp, routerInfo);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -413,7 +410,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, new java.util.HashMap(), facet, mode, adapter, routerInfo, locatorInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, adapter, routerInfo, locatorInfo);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -472,14 +469,13 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, new java.util.HashMap(), facet, mode, endpoints, routerInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, endpoints, routerInfo);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, new java.util.HashMap(), facet, mode,
-	                  adapterId, routerInfo, locatorInfo, true);
+	    return create(ident, new java.util.HashMap(), facet, mode, adapterId, routerInfo, locatorInfo);
 	}
     }
 

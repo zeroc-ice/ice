@@ -32,18 +32,11 @@ public abstract class RoutableReference extends Reference
 	return new Endpoint[0];
     }
 
-    public final boolean
-    getCollocationOptimization()
-    {
-        return _collocationOptimization;
-    }
-
     public Reference
     changeDefault()
     {
 	RoutableReference r = (RoutableReference)super.changeDefault();
 	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
-	r._collocationOptimization = false;
 	return r;
     }
 
@@ -61,18 +54,6 @@ public abstract class RoutableReference extends Reference
 	return r;
     }
 
-    public Reference
-    changeCollocationOptimization(boolean newCollocationOptimization)
-    {
-        if(newCollocationOptimization == _collocationOptimization)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._collocationOptimization = newCollocationOptimization;
-	return r;
-    }
-
     public boolean
     equals(java.lang.Object obj)
     {
@@ -85,10 +66,6 @@ public abstract class RoutableReference extends Reference
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
-	if(_collocationOptimization != rhs._collocationOptimization)
-	{
-	    return false;
-	}
 	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -98,14 +75,11 @@ public abstract class RoutableReference extends Reference
 		      java.util.Map ctx,
 		      String fac,
 		      int md,
-		      RouterInfo rtrInfo,
-		      boolean collocationOpt)
+		      RouterInfo rtrInfo)
     {
         super(inst, ident, ctx, fac, md);
 	_routerInfo = rtrInfo;
-	_collocationOptimization = collocationOpt;
     }
 
     private RouterInfo _routerInfo; // Null if no router is used.
-    private boolean _collocationOptimization;
 }

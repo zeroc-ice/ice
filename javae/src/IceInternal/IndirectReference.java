@@ -19,10 +19,9 @@ public class IndirectReference extends RoutableReference
 		      int md,
 		      String adptid,
 		      RouterInfo rtrInfo,
-		      LocatorInfo locInfo,
-		      boolean collocationOpt)
+		      LocatorInfo locInfo)
     {
-    	super(inst, ident, ctx, fs, md, rtrInfo, collocationOpt);
+    	super(inst, ident, ctx, fs, md, rtrInfo);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
     }
@@ -55,7 +54,7 @@ public class IndirectReference extends RoutableReference
 	if(loc == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway,
-							   new Endpoint[0], getRouterInfo(), false);
+							   new Endpoint[0], getRouterInfo());
 	}
 	else
 	{
@@ -74,8 +73,7 @@ public class IndirectReference extends RoutableReference
 	if(newLocator == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   new Endpoint[0], getRouterInfo(),
-							   getCollocationOptimization());
+							   new Endpoint[0], getRouterInfo());
 	}
 	else
 	{

@@ -18,6 +18,7 @@ public class Collocated
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             Ice.ServantLocator locator = new ServantLocatorI();
             adapter.addServantLocator(locator, "");
+	    adapter.activate();
 
             AllTests.allTests(communicator());
 

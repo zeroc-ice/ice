@@ -61,7 +61,6 @@ public abstract class Reference implements Cloneable
     }
 
     public abstract Endpoint[] getEndpoints();
-    public abstract boolean getCollocationOptimization();
 
     //
     // The change* methods (here and in derived classes) create
@@ -159,7 +158,6 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeCompress(boolean newCompress);
     public abstract Reference changeTimeout(int newTimeout);
-    public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
 
     public final synchronized int
     hashCode()

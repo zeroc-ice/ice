@@ -404,22 +404,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
-    ice_collocationOptimization(boolean b)
-    {
-        IceInternal.Reference ref = _reference.changeCollocationOptimization(b);
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-    }
-
-    public final ObjectPrx
     ice_default()
     {
         IceInternal.Reference ref = _reference.changeDefault();
@@ -471,22 +455,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
         IceInternal.Reference ref = null;
-        _ObjectDelM delegateM = null;
-        _ObjectDelD delegateD = null;
+        _ObjectDel delegate = null;
 
         synchronized(from)
         {
             ref = h._reference;
             try
             {
-                delegateM = (_ObjectDelM)h._delegate;
-            }
-            catch(ClassCastException ex)
-            {
-            }
-            try
-            {
-                delegateD = (_ObjectDelD)h._delegate;
+                delegate = (_ObjectDel)h._delegate;
             }
             catch(ClassCastException ex)
             {
@@ -503,17 +479,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
         _reference = ref;
 
-        if(delegateD != null)
+        if(delegate != null)
         {
-            _ObjectDelD delegate = __createDelegateD();
-            delegate.__copyFrom(delegateD);
-            _delegate = delegate;
-        }
-        else if(delegateM != null)
-        {
-            _ObjectDelM delegate = __createDelegateM();
-            delegate.__copyFrom(delegateM);
-            _delegate = delegate;
+            _delegate = __createDelegate();
+            _delegate.__copyFrom(delegate);
         }
     }
 
@@ -611,55 +580,35 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         if(_delegate == null)
         {
-	    if(_reference.getCollocationOptimization())
+            _ObjectDel delegate = __createDelegate();
+            delegate.setup(_reference);
+            _delegate = delegate;
+
+            //
+            // If this proxy is for a non-local object, and we are
+            // using a router, then add this proxy to the router info
+            // object.
+            //
+	    try
 	    {
-		ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-		if(adapter != null)
-		{
-		    _ObjectDelD delegate = __createDelegateD();
-		    delegate.setup(_reference, adapter);
-		    _delegate = delegate;
-		}
+	        IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+	        if(rr != null && rr.getRouterInfo() != null)
+	        {
+	            rr.getRouterInfo().addProxy(this);
+	        }
 	    }
-
-	    if(_delegate == null)
-            {
-                _ObjectDelM delegate = __createDelegateM();
-                delegate.setup(_reference);
-                _delegate = delegate;
-
-                //
-                // If this proxy is for a non-local object, and we are
-                // using a router, then add this proxy to the router info
-                // object.
-                //
-		try
-		{
-		    IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-		    if(rr != null && rr.getRouterInfo() != null)
-		    {
-		        rr.getRouterInfo().addProxy(this);
-		    }
-		}
-		catch(ClassCastException e)
-		{
-		}
-            }
+	    catch(ClassCastException e)
+	    {
+	    }
         }
 
         return _delegate;
     }
 
-    protected _ObjectDelM
-    __createDelegateM()
+    protected _ObjectDel
+    __createDelegate()
     {
-        return new _ObjectDelM();
-    }
-
-    protected _ObjectDelD
-    __createDelegateD()
-    {
-        return new _ObjectDelD();
+        return new _ObjectDel();
     }
 
     protected java.util.Map

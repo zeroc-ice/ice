@@ -55,7 +55,6 @@ public interface ObjectPrx
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_router(Ice.RouterPrx router);
     ObjectPrx ice_locator(Ice.LocatorPrx locator);
-    ObjectPrx ice_collocationOptimization(boolean b);
     ObjectPrx ice_default();
 
     Connection ice_connection();

@@ -16,6 +16,7 @@ public class Collocated
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
         adapter.add(object, Ice.Util.stringToIdentity("test"));
+	adapter.activate();
 
 	//
 	// Make a separate adapter with a servant locator. We use this to test
@@ -25,8 +26,9 @@ public class Collocated
 	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
 	Ice.ServantLocator checkedCastLocator = new CheckedCastLocator();
 	adapter.addServantLocator(checkedCastLocator, "");
+	adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator);
 
         return 0;
     }
@@ -39,6 +41,16 @@ public class Collocated
 
         try
         {
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+
+            //
+            // We must set MessageSizeMax to an explicit values,
+            // because we run tests to check whether
+            // Ice.MemoryLimitException is raised as expected.
+            //
+            properties.setProperty("Ice.MessageSizeMax", "100");
+
             communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
