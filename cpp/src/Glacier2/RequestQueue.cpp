@@ -54,6 +54,17 @@ Glacier2::Request::invoke()
     }
 }
 
+void
+Glacier2::Request::abort()
+{
+    //
+    // Abort the call with a dummy response.
+    //
+    bool ok = true;
+    vector<Byte> outParams;
+    _amdCB->ice_response(ok, outParams);
+}
+
 bool
 Glacier2::Request::override(const RequestPtr& other) const
 {
@@ -140,18 +151,23 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 
     for(vector<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
+	//
+        // If the new request overrides an old one, then abort the old
+        // request and replace it with the new request.
+	//
         if(request->override(*p))
         {
-            *p = request; // Replace old request if this is an override.
-
+	    (*p)->abort();
+            *p = request;
 	    return true;
         }
     }
 
-    _requests.push_back(request); // No override, add new request.
-
+    //
+    // No override, we add the new request.
+    //
+    _requests.push_back(request);
     notify();
-
     return false;
 }
 
