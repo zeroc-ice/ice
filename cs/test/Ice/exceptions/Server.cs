@@ -10,6 +10,10 @@
 
 public sealed class DummyLogger : Ice.LocalObjectImpl, Ice.Logger
 {
+    public void print(string message)
+    {
+    }
+
     public void trace(string category, string message)
     {
     }

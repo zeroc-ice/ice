@@ -27,6 +27,14 @@ namespace Ice
 	    }
 	}
 	
+	public void print(string message)
+	{
+	    lock(_globalMutex)
+	    {
+		System.Console.Error.WriteLine(message);
+	    }
+	}
+
 	public void trace(string category, string message)
 	{
 	    lock(_globalMutex)

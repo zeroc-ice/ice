@@ -34,6 +34,11 @@ namespace Ice
 	    }
 	}
 	
+	public void print(string message)
+	{
+	    log(LOG_INFO, message);
+	}
+
 	public void trace(string category, string message)
 	{
 	    log(LOG_INFO, category + ": " + message);
