@@ -2387,6 +2387,81 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icepatch2
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dumpdb
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name glacier2router
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icebox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceboxC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceboxS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepack
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepackC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepacknode
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepackregistry
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2C
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2calc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icepatch2S
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icestorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icestormC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icestormS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icexml
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2docbook
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2freezej
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2java
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2py
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2vb
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name transformdb
+    End Project Dependency
 }}}
 
 ###############################################################################
