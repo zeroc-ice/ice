@@ -4378,6 +4378,40 @@ comparing directories with the server. The default value is 1.
 <section><title>&Glacier2; Properties</title>
 <!-- ********************************************************************** -->
 
+<section><title>Glacier2.AddUserToAllowCategories</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.AddUserToAllowCategories=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies whether to add an authenticated user id to the
+<literal>Glacier2.AllowCategories</literal> property upon the
+creation of a new session. The legal values are shown below:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>Do not add the user id. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Add the user id.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Add the user id with a leading underscore.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>Glacier2.Admin.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4429,6 +4463,26 @@ Glacier2.AdminIdentity=<replaceable>identity</replaceable>
 <para>
 The identity of the &Glacier2; admin interface. If not specified the
 default value <literal>Glacier2/admin</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.AllowCategories</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.AllowCategories=<replaceable>list</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a whitespace-separated list of identity categories.
+If this property is defined, then the &Glacier2; router only
+allows requests to &Ice; objects with an identity that matches
+one of the categories from this list.
+If <literal>Glacier2.AddUserToAllowCategories</literal> is
+defined with a non-zero value, the router automatically adds
+the user id of each session to this list.
 </para>
 </section>
 </section>
