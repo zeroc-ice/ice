@@ -91,7 +91,8 @@ Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _communicator(communicator),
     _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
     _envName(envName),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map"))
+    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
+    _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
 {
     _dbEnv = _dbEnvHolder.get();
 }
@@ -102,7 +103,8 @@ Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
     _communicator(communicator),
     _dbEnv(&dbEnv),
     _envName(envName),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map"))
+    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
+    _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
 {
 }
 

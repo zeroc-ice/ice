@@ -65,7 +65,7 @@ public:
     //
     // Thread
     //
-    virtual void run();
+    virtual void run() throw ();
 
 
     //
@@ -94,6 +94,10 @@ public:
     typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
     typedef std::map<Ice::Identity, EvictorElementPtr> EvictorMap;
 
+    struct Facet;
+    typedef IceUtil::Handle<Facet> FacetPtr;
+    typedef std::map<Ice::FacetPath, FacetPtr> FacetMap;
+
     struct Facet : public Ice::LocalObject
     {
 	Facet(EvictorElement*);
@@ -102,9 +106,12 @@ public:
 	Ice::Byte status;  
 	ObjectRecord rec; // 64 bit alignment
 	EvictorElement* const element;
+
+	//
+	// Position in element->facets
+	//
+	FacetMap::iterator position;
     };
-    typedef IceUtil::Handle<Facet> FacetPtr;
-    typedef std::map<Ice::FacetPath, FacetPtr> FacetMap;
     
     struct EvictorElement : public IceUtil::Shared
     {
@@ -200,7 +207,8 @@ public:
 
 #endif
 
-    
+    bool
+    deadlockWarning() const;
 
 private:
 
@@ -209,7 +217,7 @@ private:
     void evict();
     bool dbHasObject(const Ice::Identity&);
     bool getObject(const Ice::Identity&, ObjectRecord&);
-    void addToModifiedQueue(const FacetMap::iterator&, const FacetPtr&);
+    void addToModifiedQueue(const FacetPtr&);
     void streamFacet(const FacetPtr&, const Ice::FacetPath&, Ice::Byte, Ice::Long, StreamedObject&);
 
     void saveNowNoSync();
@@ -219,7 +227,7 @@ private:
   
     void addFacetImpl(EvictorElementPtr&, const Ice::ObjectPtr&, const Ice::FacetPath&, bool);
     void removeFacetImpl(FacetMap&,  const Ice::FacetPath&);
-    Ice::ObjectPtr destroyFacetImpl(FacetMap::iterator&, const FacetPtr& facet);
+    Ice::ObjectPtr destroyFacetImpl(const FacetPtr& facet);
 
     void buildFacetMap(const FacetMap&);
     
@@ -242,9 +250,7 @@ private:
     // element containing the pointed element remains in the evictor
     // map.
     //
-    // Note: relies on the stability of iterators in a std::map
-    //
-    std::deque<FacetMap::iterator> _modifiedQueue;
+    std::deque<FacetPtr> _modifiedQueue;
 
     bool _deactivated;
   
@@ -286,6 +292,8 @@ private:
     // this element, then the loaded value is current.
     //
     int _generation;
+
+    bool _deadlockWarning;
 };
 
 inline const Ice::CommunicatorPtr&
@@ -317,6 +325,12 @@ EvictorI::currentGeneration() const
 {
     Lock sync(*this);
     return _generation;
+}
+
+inline bool
+EvictorI::deadlockWarning() const
+{
+    return _deadlockWarning;
 }
 
 inline bool 

@@ -698,6 +698,13 @@ Freeze::MapHelperI::find(const Key& k, bool readOnly) const
 	    }
 	    else
 	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::find on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
 		//
 		// Ignored, try again
 		//
@@ -749,6 +756,13 @@ Freeze::MapHelperI::put(const Key& key, const Value& value)
 	    }
 	    else
 	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::put on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
 		//
 		// Ignored, try again
 		//
@@ -805,6 +819,13 @@ Freeze::MapHelperI::erase(const Key& key)
 	    }
 	    else
 	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::erase on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
 		//
 		// Ignored, try again
 		//
@@ -861,6 +882,13 @@ Freeze::MapHelperI::count(const Key& key) const
 	    }
 	    else
 	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::count on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
 		//
 		// Ignored, try again
 		//
@@ -904,6 +932,13 @@ Freeze::MapHelperI::clear()
 	    }
 	    else
 	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::clear on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
 		//
 		// Ignored, try again
 		//

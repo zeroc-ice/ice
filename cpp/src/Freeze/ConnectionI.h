@@ -81,6 +81,9 @@ public:
     Ice::Int
     trace() const;
 
+    bool
+    deadlockWarning() const;
+
 private:
 
     Ice::CommunicatorPtr _communicator;
@@ -90,6 +93,7 @@ private:
     TransactionIPtr _transaction;
     std::list<MapHelperI*> _mapList;
     Ice::Int _trace;
+    bool _deadlockWarning;
 };  
 
 inline void
@@ -133,6 +137,12 @@ inline Ice::Int
 ConnectionI::trace() const
 {
     return _trace;
+}
+
+inline bool
+ConnectionI::deadlockWarning() const
+{
+    return _deadlockWarning;
 }
 
 }

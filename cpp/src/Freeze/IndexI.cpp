@@ -143,6 +143,14 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 			//
 		    }
 		}
+
+		if(_evictor->deadlockWarning())
+		{
+		    Warning out(_evictor->communicator()->getLogger());
+		    out << "Deadlock in Freeze::IndexI::untypedFindFirst while searching \"" 
+			<< _evictor->dbName() << "\"; retrying ...";
+		}
+
 		//
 		// Retry
 		//
@@ -236,6 +244,14 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 			//
 		    }
 		}
+
+		if(_evictor->deadlockWarning())
+		{
+		    Warning out(_evictor->communicator()->getLogger());
+		    out << "Deadlock in Freeze::IndexI::untypedCount while searching \"" 
+			<< _evictor->dbName() << "\"; retrying ...";
+		}
+
 		//
 		// Retry
 		//
