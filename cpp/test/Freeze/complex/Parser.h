@@ -30,6 +30,12 @@
 YY_DECL;
 int yyparse();
 
+//
+// unput() isn't needed. This prevents the function being defined, and
+// the resulting compiler warning.
+//
+#define YY_NO_UNPUT
+
 class Parser
 {
 public:
