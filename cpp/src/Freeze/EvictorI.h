@@ -30,6 +30,57 @@
 namespace Freeze
 {
 
+class EvictorI;
+
+//
+// Helper class to prevent deactivation while the Evictor is in use,
+// and to queue deactivate() calls.
+//
+class DeactivateController : private IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    //
+    // Prevents deactivation; the constructor raises 
+    // EvictorDeactivatedException if _deactivated or _deactivating is true.
+    //
+    class Guard
+    {
+    public:
+	Guard(DeactivateController&);
+	~Guard();
+
+    private:
+	DeactivateController& _controller;
+    };
+
+    DeactivateController(EvictorI*);    
+    
+    //
+    // Used mostly in asserts
+    //
+    bool deactivated() const;
+
+    //
+    // Returns true if this thread is supposed to do the deactivation and
+    // call deactivationComplete() once done.
+    //
+    bool deactivate();
+
+    void deactivationComplete();
+
+private:
+    
+    friend class Guard;
+
+    EvictorI* _evictor;
+    bool _deactivating;
+    bool _deactivated;
+    int _guardCount;
+};
+
+
+
 class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Thread
 {
 public:
@@ -77,11 +128,14 @@ public:
     //
     void saveNow();
 
+    DeactivateController& deactivateController();
     const Ice::CommunicatorPtr& communicator() const;
     DbEnv* dbEnv() const;
     const std::string& filename() const;
 
     bool deadlockWarning() const;
+    Ice::Int trace() const;
+
 
     void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
 
@@ -135,7 +189,8 @@ private:
     //
     std::deque<EvictorElementPtr> _modifiedQueue;
 
-    bool _deactivated;
+    DeactivateController _deactivateController;
+    bool _savingThreadDone;
 
     Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
@@ -163,6 +218,13 @@ private:
     bool _deadlockWarning;
 };
 
+
+inline DeactivateController&
+EvictorI::deactivateController()
+{
+    return _deactivateController;
+}
+
 inline const Ice::CommunicatorPtr&
 EvictorI::communicator() const
 {
@@ -179,6 +241,12 @@ inline bool
 EvictorI::deadlockWarning() const
 {
     return _deadlockWarning;
+}
+
+inline Ice::Int
+EvictorI::trace() const
+{
+    return _trace;
 }
 
 }

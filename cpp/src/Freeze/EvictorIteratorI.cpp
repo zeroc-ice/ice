@@ -64,6 +64,9 @@ Freeze::EvictorIteratorI::next()
 vector<Identity>::const_iterator
 Freeze::EvictorIteratorI::nextBatch()
 {
+    DeactivateController::Guard 
+	deactivateGuard(_store->evictor()->deactivateController());
+
     _batch.clear();
 
     if(!_more)

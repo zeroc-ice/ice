@@ -18,12 +18,39 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceUtil;
 
-Test::ServantI::ServantI()
+
+class DelayedResponse : public Thread
+{
+public:
+
+    DelayedResponse(const Test::AMD_Servant_slowGetValuePtr& cb, int val) :
+	_cb(cb),
+	_val(val)
+    {
+    }
+    
+    virtual void
+    run()
+    {
+	ThreadControl::sleep(Time::milliSeconds(500));
+	_cb->ice_response(_val);
+    }
+
+private:
+    Test::AMD_Servant_slowGetValuePtr _cb;
+    int _val;
+};
+
+
+Test::ServantI::ServantI() :
+    _transientValue(-1)
 {
 }
 
 Test::ServantI::ServantI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::EvictorPtr& evictor, Ice::Int val) :
+    _transientValue(-1),
     _remoteEvictor(remoteEvictor),
     _evictor(evictor)
 {
@@ -43,6 +70,24 @@ Test::ServantI::getValue(const Current&) const
     Lock sync(*this);
     return value;
 }
+
+Int
+Test::ServantI::slowGetValue(const Current&) const
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+    Lock sync(*this);
+    return value;
+}
+
+void
+Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
+				   const Current&) const
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+    Lock sync(*this);
+    (new DelayedResponse(cb, value))->start().detach();
+}
+
 
 void
 Test::ServantI::setValue(Int val, const Current&)
@@ -100,10 +145,51 @@ Test::ServantI::removeFacet(const string& name, const Current& current) const
     }
 }
 
+
+Ice::Int
+Test::ServantI::getTransientValue(const Current& current) const
+{
+    Lock sync(*this);
+    return _transientValue;
+}
+
+void
+Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
+{
+    Lock sync(*this);
+    _transientValue = val;
+}
+
+void
+Test::ServantI::keepInCache(const Current& current)
+{
+    _evictor->keep(current.id);
+}
+
+void
+Test::ServantI::release(const Current& current)
+{
+    try
+    {
+	_evictor->release(current.id);
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+	throw NotRegisteredException();
+    }
+}
+
 void
 Test::ServantI::destroy(const Current& current)
 {
-    _evictor->remove(current.id);
+    try
+    {
+	_evictor->remove(current.id);
+    }
+    catch(const Ice::NotRegisteredException& e)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 }
 
 
@@ -190,8 +276,23 @@ Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
     ostr << id;
     ident.name = ostr.str();
     ServantPtr servant = new ServantI(this, _evictor, value);
-    _evictor->add(servant, ident);
-    return ServantPrx::uncheckedCast(_evictorAdapter->createProxy(ident));
+    try
+    {
+	return ServantPrx::uncheckedCast(_evictor->add(servant, ident));
+    }
+    catch(const Ice::AlreadyRegisteredException&)
+    {
+	throw AlreadyRegisteredException();
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+	throw EvictorDeactivatedException();
+    }
+    catch(const Freeze::EvictorDeactivatedException& ex)
+    {
+	throw EvictorDeactivatedException();
+    }
+
 }
 
 Test::ServantPrx
@@ -213,6 +314,7 @@ Test::RemoteEvictorI::deactivate(const Current& current)
     _evictorAdapter->waitForDeactivate();
     _adapter->remove(stringToIdentity(_category));
 }
+
 
 void
 Test::RemoteEvictorI::destroyAllServants(const string& facetName, const Current&)

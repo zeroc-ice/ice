@@ -69,6 +69,205 @@ private:
     vector<Test::ServantPrx>& _servants;
 };
 
+class ReadForeverThread : public Thread
+{
+public:
+
+    ReadForeverThread(vector<Test::ServantPrx>& servants) :
+	_servants(servants)
+    {
+    }
+    
+    virtual void
+    run()
+    {
+	for(;;)
+	{
+	    try
+	    {
+		for(int i = 0; i < static_cast<int>(_servants.size()); ++i)
+		{
+		    test(_servants[i]->slowGetValue() == i);
+		}
+	    }
+	    catch(const Ice::ConnectionRefusedException& cr)
+	    {
+		//
+		// Expected
+		//
+		return;
+	    }
+	    catch(const Ice::LocalException& e)
+	    {
+		cerr << "Caught unexpected : " << e << endl;
+		test(false);
+		return;
+	    }
+	    catch(...)
+	    {
+		test(false);
+		return;
+	    }
+	}
+    }
+
+private:
+    vector<Test::ServantPrx>& _servants;
+};
+
+class AddForeverThread : public Thread
+{
+public:
+
+    AddForeverThread(const Test::RemoteEvictorPrx& evictor, int id) :
+	_evictor(evictor),
+	_id(id)
+    {
+    }
+    
+    virtual void
+    run()
+    {
+	int index = _id * 1000;
+
+	for(;;)
+	{
+	    try
+	    {
+		_evictor->createServant(index++, 0);
+	    }
+	    catch(const Test::EvictorDeactivatedException&)
+	    {
+		//
+		// Expected
+		//
+		return;
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+		//
+		// Expected
+		//
+		return;
+	    }
+	    catch(const Ice::LocalException& e)
+	    {
+		cerr << "Caught unexpected : " << e << endl;
+		test(false);
+		return;
+	    }
+	    catch(...)
+	    {
+		test(false);
+		return;
+	    }
+	}
+    }
+
+private:
+    Test::RemoteEvictorPrx _evictor;
+    int _id;
+};
+
+
+
+class CreateDestroyThread : public Thread
+{
+public:
+
+    CreateDestroyThread(const Test::RemoteEvictorPrx& evictor, int id, int size) :
+	_evictor(evictor),
+	_id(id),
+	_size(size)
+    {
+    }
+    
+    virtual void
+    run()
+    {
+	try
+	{
+	    int loops = 50;
+	    while(loops-- > 0)
+	    {
+		for(int i = 0; i < _size; i++)
+		{
+		    if(i == _id)
+		    {
+			//
+			// Create when odd, destroy when even.
+			//
+			
+			if(loops % 2 == 0)
+			{
+			    Test::ServantPrx servant = _evictor->getServant(i);
+			    servant->destroy();
+			    
+			    //
+			    // Twice
+			    //
+			    try
+			    {
+				servant->destroy();
+				test(false);
+			    }
+			    catch(const Ice::ObjectNotExistException&)
+			    {
+				// Expected
+			    }
+			}
+			else
+			{
+			    Test::ServantPrx servant = _evictor->createServant(i, i);
+			    
+			    //
+			    // Twice
+			    //
+			    try
+			    {
+				servant = _evictor->createServant(i, 0);
+				test(false);
+			    }
+			    catch(const Test::AlreadyRegisteredException&)
+			    {
+				// Expected
+			    }
+			}
+		    }
+		    else
+		    {
+			//
+			// Just read/write the value
+			//
+			Test::ServantPrx servant = _evictor->getServant(i);
+			try
+			{
+			    int val = servant->getValue();
+			    test(val == i || val == -i);
+			    servant->setValue(-val);
+			}
+			catch(const Ice::ObjectNotExistException&)
+			{
+			    // Expected from time to time
+			}
+		    }
+		}
+	    }
+	}
+	catch(...)
+	{
+	    //
+	    // Unexpected!
+	    //
+	    test(false);
+	}
+    }
+private:
+    Test::RemoteEvictorPrx _evictor;
+    int _id;
+    int _size;
+};
+
 
 
 int
@@ -259,20 +458,113 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    // Expected
 	}
     }
-    
+          
     //
-    // Allocate space for size+1 servants.
-    //
+    // Recreate servants, set transient value
+    //  
     servants.clear();
-    
-    //
-    // Recreate servants.
-    //
     for(i = 0; i < size; i++)
     {
 	servants.push_back(evictor->createServant(i, i));
+	servants[i]->setTransientValue(i);
     }
     
+    //
+    // Create and destroy 100 servants to make sure we save and evict
+    //
+    for(i = 0; i < 100; i++)
+    {
+	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
+	servant->destroy();
+    }
+    
+    //
+    // Check the transient value
+    //
+    for(i = 0; i < size; i++)
+    {
+	test(servants[i]->getTransientValue() == -1);
+    }
+    
+    //
+    // Now with keep
+    //
+    for(i = 0; i < size; i++)
+    {
+	servants[i]->keepInCache();
+	servants[i]->keepInCache();
+	servants[i]->setTransientValue(i);
+    }
+
+    //
+    // Create and destroy 100 servants to make sure we save and evict
+    //
+    for(i = 0; i < 100; i++)
+    {
+	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
+	servant->destroy();
+    }
+    
+    //
+    // Check the transient value
+    //
+    for(i = 0; i < size; i++)
+    {
+	test(servants[i]->getTransientValue() == i);
+    }
+
+    //
+    // Again, after one release
+    //
+    for(i = 0; i < size; i++)
+    {
+	servants[i]->release();
+    }
+    for(i = 0; i < 100; i++)
+    {
+	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
+	servant->destroy();
+    }
+    for(i = 0; i < size; i++)
+    {
+	test(servants[i]->getTransientValue() == i);
+    }
+
+    //
+    // Again, after a second release
+    //
+    for(i = 0; i < size; i++)
+    {
+	servants[i]->release();
+    }
+    for(i = 0; i < 100; i++)
+    {
+	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
+	servant->destroy();
+    }
+    for(i = 0; i < size; i++)
+    {
+	test(servants[i]->getTransientValue() == -1);
+    }
+
+
+    //
+    // Release one more time
+    //
+    for(i = 0; i < size; i++)
+    {
+	try
+	{
+	    servants[i]->release();
+	    test(false);
+	}
+	catch(const Test::NotRegisteredException&)
+	{
+	    // Expected
+	}
+    }
+
+
     //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.
@@ -295,18 +587,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     evictor->setSize(size / 2);
     servants[0]->destroy();
 
-    const int threadCount = size * 2;
-
-    ThreadPtr threads[threadCount];
-    for(i = 0; i < threadCount; i++)
     {
-	threads[i] = new ReadThread(servants);
-	threads[i]->start();
-    }
-
-    for(i = 0; i < threadCount; i++)
-    {
-	threads[i]->getThreadControl().join();
+	const int threadCount = size * 2;
+	
+	ThreadPtr threads[threadCount];
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i] = new ReadThread(servants);
+	    threads[i]->start();
+	}
+	
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->getThreadControl().join();
+	}
     }
     
     //
@@ -316,20 +610,109 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     evictor->destroyAllServants("facet1");
     evictor->destroyAllServants("facet2");
 
-    for(i = 0; i < size; i++)
+    //
+    // CreateDestroy threads
+    //
     {
-	try
+	const int threadCount = size;;
+	
+	ThreadPtr threads[threadCount];
+	for(i = 0; i < threadCount; i++)
 	{
-	    servants[i]->getValue();
-	    test(false);
+	    threads[i] = new CreateDestroyThread(evictor, i, size);
+	    threads[i]->start();
 	}
-	catch(const Ice::ObjectNotExistException&)
+	
+	for(i = 0; i < threadCount; i++)
 	{
-	    // Expected
+	    threads[i]->getThreadControl().join();
+	}
+
+	//
+	// Verify all destroyed
+	// 
+	for(i = 0; i < size; i++)   
+	{
+	    try
+	    {
+		servants[i]->getValue();
+		test(false);
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+		// Expected
+	    }
 	}
     }
 
+    //
+    // Recreate servants.
+    //  
+    servants.clear();
+    for(i = 0; i < size; i++)
+    {
+	servants.push_back(evictor->createServant(i, i));
+    }
+
+    //
+    // Deactivate in the middle of remote AMD operations
+    // (really testing Ice here)
+    //
+    {
+	const int threadCount = size;
+	
+	ThreadPtr threads[threadCount];
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i] = new ReadForeverThread(servants);
+	    threads[i]->start();
+	}
+
+	ThreadControl::sleep(Time::milliSeconds(500));
+	evictor->deactivate();
+
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->getThreadControl().join();
+	}
+    }
+
+    //
+    // Resurrect
+    //
+    evictor = factory->createEvictor("Test");
+    evictor->destroyAllServants("");
+
+    //
+    // Deactivate in the middle of adds
+    //
+    {
+	const int threadCount = size;
+	
+	ThreadPtr threads[threadCount];
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i] = new AddForeverThread(evictor, i);
+	    threads[i]->start();
+	}
+
+	ThreadControl::sleep(Time::milliSeconds(500));
+	evictor->deactivate();
+	
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->getThreadControl().join();
+	}
+    }
+    
+    
+    //
+    // Clean up.
+    //
+    evictor = factory->createEvictor("Test");
+    evictor->destroyAllServants("");
     evictor->deactivate();
+
     cout << "ok" << endl;
 
     factory->shutdown();

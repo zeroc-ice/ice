@@ -78,6 +78,110 @@ checkIdentity(const Identity& ident)
 }
 
 //
+// DeactivateController
+//
+
+Freeze::DeactivateController::Guard::Guard(DeactivateController& controller) :
+    _controller(controller)
+{
+    Lock sync(controller);
+    if(controller._deactivated || _controller._deactivating)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+    controller._guardCount++;
+}
+
+Freeze::DeactivateController::Guard::~Guard()
+{
+    Lock sync(_controller);
+    _controller._guardCount--;
+    if(_controller._deactivating && _controller._guardCount == 0)
+    {
+	//
+	// Notify all the threads -- although we only want to
+	// reach the thread doing the deactivation.
+	//
+	_controller.notifyAll();
+    }
+}
+
+Freeze::DeactivateController::DeactivateController(EvictorI* evictor) :
+    _evictor(evictor),
+    _deactivating(false),
+    _deactivated(false),
+    _guardCount(0)
+{
+}
+
+bool
+Freeze::DeactivateController::deactivated() const
+{
+    Lock sync(*this);
+    return _deactivated || _deactivating;
+}
+
+bool
+Freeze::DeactivateController::deactivate()
+{
+    Lock sync(*this);
+
+    if(_deactivated)
+    {
+	return false;
+    }
+    
+    if(_deactivating)
+    {
+	//
+	// Wait for deactivated
+	//
+	while(!_deactivated)
+	{
+	    wait();
+	}
+	return false;
+    }
+    else
+    {
+	_deactivating = true;
+	while(_guardCount > 0)
+	{
+	    if(_evictor->trace() >= 1)
+	    {
+		Trace out(_evictor->communicator()->getLogger(), "Freeze.Evictor");
+		out << "*** Waiting for " << _guardCount << " threads to complete before starting deactivation.";
+	    }
+
+	    wait();
+	}
+
+	if(_evictor->trace() >= 1)
+	{
+	    Trace out(_evictor->communicator()->getLogger(), "Freeze.Evictor");
+	    out << "Starting deactivation.";
+	}
+	return true;
+    }
+}
+
+void
+Freeze::DeactivateController::deactivationComplete()
+{
+    if(_evictor->trace() >= 1)
+    {
+	Trace out(_evictor->communicator()->getLogger(), "Freeze.Evictor");
+	out << "Deactivation complete.";
+    }
+
+    Lock sync(*this);
+    _deactivated = true;
+    _deactivating = false;
+    notifyAll();
+}
+
+
+//
 // EvictorI
 //
 
@@ -89,7 +193,8 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
 			   bool createDb) :
     _evictorSize(10),
     _currentEvictorSize(0),
-    _deactivated(false),
+    _deactivateController(this),
+    _savingThreadDone(false),
     _adapter(adapter),
     _communicator(adapter->getCommunicator()),
     _initializer(initializer),
@@ -114,7 +219,8 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     
     _evictorSize(10),
     _currentEvictorSize(0),
-    _deactivated(false),
+    _deactivateController(this),
+    _savingThreadDone(false),
     _adapter(adapter),
     _communicator(adapter->getCommunicator()),
     _initializer(initializer),
@@ -228,7 +334,7 @@ Freeze::EvictorI::init(const string& envName, const vector<IndexPtr>& indices)
 
 Freeze::EvictorI::~EvictorI()
 {
-    if(!_deactivated)
+    if(!_deactivateController.deactivated())
     {
 	Warning out(_communicator->getLogger());
 	out << "evictor has not been deactivated";
@@ -251,12 +357,9 @@ Freeze::EvictorI::~EvictorI()
 void
 Freeze::EvictorI::setSize(Int evictorSize)
 {
-    Lock sync(*this);
+    DeactivateController::Guard deactivateGuard(_deactivateController);
 
-    if(_deactivated)
-    {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
+    Lock sync(*this);
 
     //
     // Ignore requests to set the evictor size to values smaller than zero.
@@ -280,13 +383,8 @@ Freeze::EvictorI::setSize(Int evictorSize)
 Int
 Freeze::EvictorI::getSize()
 {
+    DeactivateController::Guard deactivateGuard(_deactivateController);
     Lock sync(*this);
-
-    if(_deactivated)
-    {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
-
     return static_cast<Int>(_evictorSize);
 }
 
@@ -301,19 +399,15 @@ Ice::ObjectPrx
 Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
-
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+   
     ObjectStore* store = 0;
     
     for(;;)
     {
 	{
 	    Lock sync(*this);
-	    
-	    if(_deactivated)
-	    {
-		throw EvictorDeactivatedException(__FILE__, __LINE__);
-	    }
-	    
+	     
 	    StoreMap::iterator p = _storeMap.find(facet);
 	    if(p == _storeMap.end())
 	    {
@@ -362,11 +456,6 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 
 	{
 	    Lock sync(*this);
-
-	    if(_deactivated)
-	    {
-		throw EvictorDeactivatedException(__FILE__, __LINE__);
-	    }
 
 	    if(element->stale)
 	    {
@@ -460,7 +549,8 @@ void
 Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 {
     checkIdentity(ident);
-
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+  
     ObjectStore* store = findStore("");
     assert(store != 0);
   
@@ -481,11 +571,6 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 
 	{
 	    Lock sync(*this);
-
-	    if(_deactivated)
-	    {
-		throw EvictorDeactivatedException(__FILE__, __LINE__);
-	    }
 
 	    if(element->stale)
 	    {
@@ -565,7 +650,8 @@ void
 Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
-
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+   
     ObjectStore* store = findStore(facet);
     bool notThere = (store == 0);
 
@@ -708,6 +794,7 @@ void
 Freeze::EvictorI::keepFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
+    DeactivateController::Guard deactivateGuard(_deactivateController);
 
     bool notThere = false;
 
@@ -728,10 +815,6 @@ Freeze::EvictorI::keepFacet(const Identity& ident, const string& facet)
 	    }
 	    
 	    Lock sync(*this);
-	    if(_deactivated)
-	    {
-		throw EvictorDeactivatedException(__FILE__, __LINE__);
-	    }
 	    
 	    if(element->stale)
 	    {
@@ -802,14 +885,10 @@ void
 Freeze::EvictorI::releaseFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
+    DeactivateController::Guard deactivateGuard(_deactivateController);
 
     {
 	Lock sync(*this);
-	
-	if(_deactivated)
-	{
-	    throw EvictorDeactivatedException(__FILE__, __LINE__);
-	}
 	
 	StoreMap::iterator p = _storeMap.find(facet);
 	if(p != _storeMap.end())
@@ -856,13 +935,11 @@ Freeze::EvictorI::releaseFacet(const Identity& ident, const string& facet)
 EvictorIteratorPtr
 Freeze::EvictorI::getIterator(const string& facet, Int batchSize)
 {
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+
     ObjectStore* store = 0;
     {
 	Lock sync(*this);
-	if(_deactivated)
-	{
-	    throw EvictorDeactivatedException(__FILE__, __LINE__);
-	}
 	
 	StoreMap::iterator p = _storeMap.find(facet);
 	if(p != _storeMap.end())
@@ -884,16 +961,13 @@ bool
 Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+
     ObjectStore* store = 0;
 
     {
 	Lock sync(*this);
-	
-	if(_deactivated)
-	{
-	    throw EvictorDeactivatedException(__FILE__, __LINE__);
-	}
-	
+       
 	StoreMap::iterator p = _storeMap.find(facet);
 	if(p == _storeMap.end())
 	{
@@ -977,6 +1051,11 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 ObjectPtr
 Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
 {
+    //
+    // If only Ice calls locate/finished/deactivate, then it cannot be deactivated.
+    //
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+
     cookie = 0;
 
     ObjectStore* store = findStore(current.facet);
@@ -994,7 +1073,6 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
 	}
 	
 	Lock sync(*this);
-	assert(!_deactivated);
 
 	if(element->stale)
 	{
@@ -1027,6 +1105,11 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 {
     assert(servant);
 
+    //
+    // If only Ice calls locate/finished/deactivate, then it cannot be deactivated.
+    //
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+
     if(cookie != 0)
     {
 	EvictorElementPtr element = EvictorElementPtr::dynamicCast(cookie);
@@ -1049,7 +1132,7 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 	}
 	
 	Lock sync(*this);
-	
+
 	//
 	// Only elements with a usageCount == 0 can become stale and we own 
 	// one count!
@@ -1079,42 +1162,41 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 void
 Freeze::EvictorI::deactivate(const string&)
 {
-    Lock sync(*this);
-    
-    //
-    // TODO: wait until all outstanding requests have completed
-    //
-
-    if(!_deactivated)
-    { 	
-	if(_trace >= 1)
+    if(_deactivateController.deactivate())
+    {
+	try
 	{
-	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
-	    out << "deactivating, saving unsaved Ice objects to the database";
+	    Lock sync(*this);
+
+	    saveNowNoSync();
+	    
+	    //
+	    // Set the evictor size to zero, meaning that we will evict
+	    // everything possible.
+	    //
+	    _evictorSize = 0;
+	    evict();
+	    
+	    _savingThreadDone = true;
+	    notifyAll();
+	    sync.release();
+	    getThreadControl().join();
+	    
+	    for(StoreMap::iterator p = _storeMap.begin(); p != _storeMap.end(); ++p)
+	    {
+		(*p).second->close();
+	    }
+	    
+	    _dbEnv = 0;
+	    _dbEnvHolder = 0;
+	    _initializer = 0;
 	}
-
-	saveNowNoSync();
-	
-	//
-	// Set the evictor size to zero, meaning that we will evict
-	// everything possible.
-	//
-	_evictorSize = 0;
-	evict();
-	
-	_deactivated = true;
-	notifyAll();
-	sync.release();
-	getThreadControl().join();
-
-	for(StoreMap::iterator p = _storeMap.begin(); p != _storeMap.end(); ++p)
+	catch(...)
 	{
-	    (*p).second->close();
+	    _deactivateController.deactivationComplete();
+	    throw;
 	}
-
-	_dbEnv = 0;
-	_dbEnvHolder = 0;
-	_initializer = 0;
+	_deactivateController.deactivationComplete();
     }
 }
 
@@ -1143,7 +1225,8 @@ Freeze::EvictorI::run()
 	    
 	    {
 		Lock sync(*this);
-		while(!_deactivated &&
+
+		while(!_savingThreadDone &&
 		      (_saveNowThreads.size() == 0) &&
 		      (_saveSizeTrigger < 0 || static_cast<Int>(_modifiedQueue.size()) < _saveSizeTrigger))
 		{
@@ -1162,14 +1245,10 @@ Freeze::EvictorI::run()
 		
 		saveNowThreadsSize = _saveNowThreads.size();
 		
-		if(_deactivated)
+		if(_savingThreadDone)
 		{
 		    assert(_modifiedQueue.size() == 0);
-		    if(saveNowThreadsSize > 0)
-		    {
-			_saveNowThreads.clear();
-			notifyAll();
-		    }
+		    assert(saveNowThreadsSize == 0);
 		    break; // for(;;)
 		}
 		
@@ -1501,12 +1580,6 @@ void
 Freeze::EvictorI::saveNow()
 {
     Lock sync(*this);
-
-    if(_deactivated)
-    {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
-
     saveNowNoSync();
 }
 
@@ -1670,11 +1743,7 @@ Freeze::ObjectStore*
 Freeze::EvictorI::findStore(const string& facet) const
 {
     Lock sync(*this);
-    if(_deactivated)
-    {
-	throw EvictorDeactivatedException(__FILE__, __LINE__);
-    }
-
+  
     StoreMap::const_iterator p = _storeMap.find(facet);
     if(p == _storeMap.end())
     {

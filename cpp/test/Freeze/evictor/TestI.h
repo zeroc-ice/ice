@@ -39,6 +39,15 @@ public:
 
     virtual ::Ice::Int getValue(const Ice::Current& = Ice::Current()) const;
 
+    //
+    // Used only if you remove ["amd"] from Test.ice
+    // 
+    virtual ::Ice::Int slowGetValue(const Ice::Current& = Ice::Current()) const;
+
+    
+    virtual void slowGetValue_async(const AMD_Servant_slowGetValuePtr&,
+				    const Ice::Current& = Ice::Current()) const;
+
     virtual void setValue(::Ice::Int, const Ice::Current& = Ice::Current());
 
     virtual void setValueAsync_async(const AMD_Servant_setValueAsyncPtr&, Ice::Int,
@@ -50,10 +59,17 @@ public:
 
     virtual void removeFacet(const std::string&, const Ice::Current& = Ice::Current()) const;
 
+
+    virtual Ice::Int getTransientValue(const Ice::Current& = Ice::Current()) const;
+    virtual void setTransientValue(Ice::Int, const Ice::Current& = Ice::Current());
+    virtual void keepInCache(const Ice::Current& = Ice::Current());
+    virtual void release(const Ice::Current& = Ice::Current());
+
     virtual void destroy(const Ice::Current& = Ice::Current());
 
 protected:
 
+    Ice::Int _transientValue;
     RemoteEvictorIPtr _remoteEvictor;
     Freeze::EvictorPtr _evictor;
     AMD_Servant_setValueAsyncPtr _setValueAsyncCB;

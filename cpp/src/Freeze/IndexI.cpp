@@ -41,6 +41,9 @@ Freeze::IndexI::IndexI(Index& index) :
 vector<Identity>
 Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 {
+    DeactivateController::Guard 
+	deactivateGuard(_store->evictor()->deactivateController());
+
     Dbt dbKey;
     initializeInDbt(bytes, dbKey);
 
@@ -174,7 +177,9 @@ Freeze::IndexI::untypedFind(const Key& bytes) const
 Int
 Freeze::IndexI::untypedCount(const Key& bytes) const
 {
- 
+    DeactivateController::Guard 
+	deactivateGuard(_store->evictor()->deactivateController());
+
     Dbt dbKey;
     initializeInDbt(bytes, dbKey);
     
