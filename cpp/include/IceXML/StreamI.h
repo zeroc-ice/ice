@@ -15,7 +15,6 @@
 #include <Ice/CommunicatorF.h>
 #include <IceXML/Output.h>
 
-#include <list>
 #include <map>
 
 #ifdef WIN32
@@ -211,9 +210,9 @@ private:
     Output _os;
 
     //
-    // Stack of started elements.
+    // Current document level.
     //
-    ::std::stack<std::string> _elementStack;
+    int _level;
 
     //
     // Next id for marshaling objects.

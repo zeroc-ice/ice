@@ -28,14 +28,33 @@
 namespace IceXML
 {
 
+class ICE_XML_API StartElement
+{
+public:
+
+    StartElement(const std::string& name)
+	: _name(name)
+    {
+    }
+    
+    ~StartElement()
+    {
+    }
+
+    const std::string& getName() const { return _name; }
+
+private:
+
+    const std::string _name;
+};
+
 class ICE_XML_API NextLine { };
-class ICE_XML_API StartBlock { };
-class ICE_XML_API EndBlock { };
+class ICE_XML_API EndElement { };
 class ICE_XML_API Separator { };
 
 extern ICE_XML_API NextLine nl;
-extern ICE_XML_API StartBlock sb;
-extern ICE_XML_API EndBlock eb;
+typedef StartElement se;
+extern ICE_XML_API EndElement ee;
 extern ICE_XML_API Separator sp;
 
 // ----------------------------------------------------------------------
@@ -50,8 +69,6 @@ public:
     Output(std::ostream&);
     Output(const char*);
 
-    void setBeginBlock(const char *); // what do we use at block starts?
-    void setEndBlock(const char *);   // what do we use the block end?
     void setIndent(int);              // what is the indent level?
     void setUseTab(bool);             // should we output tabs?
 
@@ -67,8 +84,8 @@ public:
     void restoreIndent(); // Restore indentation
 
     void nl(); // Print newline
-    void sb(); // Start a block
-    void eb(); // End a block
+    void se(const std::string&); // Start an element
+    void ee(); // End an element
     void sp(); // Print separator
 
     bool operator!() const; // Check whether the output state is ok
@@ -80,10 +97,10 @@ private:
     int _pos;
     int _indent;
     std::stack<int> _indentSave;
+    std::stack<std::string> _elementStack;
     bool _separator;
+    bool _printed;
 
-    std::string _blockStart;
-    std::string _blockEnd;
     bool _useTab;
     int  _indentSize;
 };
@@ -108,17 +125,17 @@ operator<<(Output& o, const NextLine&)
 
 template<>
 inline Output&
-operator<<(Output& o, const StartBlock&)
+operator<<(Output& o, const StartElement& e)
 {
-    o.sb();
+    o.se(e.getName());
     return o;
 }
 
 template<>
 inline Output&
-operator<<(Output& o, const EndBlock&)
+operator<<(Output& o, const EndElement&)
 {
-    o.eb();
+    o.ee();
     return o;
 }
 

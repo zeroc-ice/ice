@@ -59,6 +59,7 @@ LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 #
 
 SLICE2CPP	= $(bindir)/slice2cpp
+SLICE2XSD	= $(bindir)/slice2xsd
 SLICE2FREEZE	= $(bindir)/slice2freeze
 SLICE2DOCBOOK	= $(bindir)/slice2docbook
 

@@ -1,0 +1,40 @@
+# **********************************************************************
+#
+# Copyright (c) 2001
+# MutableRealms, Inc.
+# Huntsville, AL, USA
+#
+# All Rights Reserved
+#
+# **********************************************************************
+
+top_srcdir	= ../../..
+
+CLIENT		= client
+
+TARGETS		= $(CLIENT)
+
+OBJS		= Test.o Client.o \
+
+SRCS		= $(OBJS:.o=.cpp)
+
+include $(top_srcdir)/config/Make.rules
+
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+
+$(CLIENT): $(OBJS) $(COBJS) Test.xsd
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lIceXML
+
+Test.xsd: Test.ice $(SLICE2XSD)
+	rm -f Test.xsd
+	$(SLICE2XSD) Test.ice
+
+Test.h Test.cpp: Test.ice $(SLICE2CPP)
+	rm -f Test.h Test.cpp
+	$(SLICE2CPP) Test.ice
+
+clean::
+	rm -f Test.h Test.cpp
+
+include .depend

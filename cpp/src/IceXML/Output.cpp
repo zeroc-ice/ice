@@ -17,8 +17,9 @@ namespace IceXML
 {
 
 NextLine nl;
-StartBlock sb;
-EndBlock eb;
+//StartBlock sb;
+//EndBlock eb;
+EndElement ee;
 Separator sp;
 
 }
@@ -32,8 +33,7 @@ IceXML::Output::Output() :
     _pos(0),
     _indent(0),
     _separator(true),
-    _blockStart("{"),
-    _blockEnd("}"),
+    _printed(true),
     _useTab(true),
     _indentSize(4)
 {
@@ -44,8 +44,7 @@ IceXML::Output::Output(ostream& os) :
     _pos(0),
     _indent(0),
     _separator(true),
-    _blockStart("{"),
-    _blockEnd("}"),
+    _printed(true),
     _useTab(true),
     _indentSize(4)
 {
@@ -56,8 +55,7 @@ IceXML::Output::Output(const char* s) :
     _pos(0),
     _indent(0),
     _separator(true),
-    _blockStart("{"),
-    _blockEnd("}"),
+    _printed(true),
     _useTab(true),
     _indentSize(4)
 {
@@ -73,6 +71,11 @@ IceXML::Output::open(const char* s)
 void
 IceXML::Output::print(const char* s)
 {
+    if (!_printed)
+    {
+	_out << '>';
+	_printed = true;
+    }
     for (unsigned int i = 0; i < strlen(s); ++i)
     {
 	if (s[i] == '\n')
@@ -124,18 +127,6 @@ IceXML::Output::restoreIndent()
 }
 
 void 
-IceXML::Output::setBeginBlock(const char *bb)
-{
-    _blockStart = bb;
-}
-
-void 
-IceXML::Output::setEndBlock(const char *eb)
-{
-    _blockEnd = eb;
-}
-
-void 
 IceXML::Output::setIndent(int indentSize)
 {
     _indentSize = indentSize; 
@@ -150,6 +141,12 @@ IceXML::Output::setUseTab(bool useTab)
 void
 IceXML::Output::nl()
 {
+    if (!_printed)
+    {
+	_printed = true;
+	_out << '>';
+    }
+
     _out << '\n';
     _pos = 0;
     _separator = true;
@@ -186,28 +183,51 @@ IceXML::Output::nl()
 }
 
 void
-IceXML::Output::sb()
+IceXML::Output::se(const std::string& element)
 {
-    if (_blockStart.length())
+    nl();
+
+    //
+    // The output of the '>' character is deferred until either the
+    //end-element (in which case a /> is emitted) or until something
+    //is displayed.
+    //
+    _out << '<' << element;
+
+    string::size_type pos = element.find_first_of(" \t");
+    if (pos == string::npos)
     {
-        nl();
-        _out << _blockStart;
+	_elementStack.push(element);
     }
-    ++_pos;
+    else
+    {
+	_elementStack.push(element.substr(0, pos));
+    }
+
+    ++_pos; // TODO: ???
     inc();
     _separator = false;
+    _printed = false;
 }
 
 void
-IceXML::Output::eb()
+IceXML::Output::ee()
 {
+    string element = _elementStack.top();
+    _elementStack.pop();
+
     dec();
-    if (_blockEnd.length())
+    if (!_printed)
     {
-        nl();
-        _out << _blockEnd;
+	_out << "/>";
     }
-    --_pos;
+    else
+    {
+	nl();
+	_out << "</" << element << '>';
+    }
+    --_pos; // TODO: ???
+    _printed = true;
 }
 
 void

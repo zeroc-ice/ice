@@ -16,6 +16,8 @@
 
 #include <IceXML/StreamI.h>
 
+#include <list>
+
 //
 // For input streaming
 //
@@ -168,6 +170,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostrea
     _communicator(communicator),
     _input(0),
     _os(os),
+    _level(0),
     _nextId(0)
 {
     ::Ice::LoggerPtr logger = communicator->getLogger();
@@ -342,6 +345,7 @@ void
 IceXML::StreamI::startReadDictionaryElement()
 {
     startRead(seqElementName);
+    _input->current = _input->current.getFirstChild();
 }
 
 void
@@ -921,7 +925,61 @@ IceXML::StreamI::writeString(const string& name, const string& value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+    string v = value;
+
+    //
+    // Find out whether there is a reserved character to avoid
+    // conversion if not necessary.
+    //
+    static const string allReserved = "<>'\"&";
+    if (v.find_first_of(allReserved) != string::npos)
+    {
+	//
+	// First convert all & to &amp;
+	//
+	size_t pos = 0;
+	while ((pos = v.find_first_of('&', pos)) != string::npos)
+	{
+	    v.insert(pos+1, "amp;");
+	    pos += 4;
+	}
+
+	//
+	// Next convert remaining reserved characters.
+	//
+	static const string reserved = "<>'\"";
+	pos = 0;
+	while ((pos = v.find_first_of(reserved, pos)) != string::npos)
+	{
+	    string replace;
+	    switch(v[pos])
+	    {
+	    case '>':
+		replace = "&gt;";
+		break;
+
+	    case '<':
+		replace = "&lt;";
+		break;
+
+	    case '\'':
+		replace = "&apos;";
+		break;
+
+	    case '"':
+		replace = "&quot;";
+		break;
+
+	    default:
+		assert(false);
+	    }
+	    v.erase(pos, 1);
+	    v.insert(pos, replace);
+	    pos += replace.size();
+	}
+    }
+    
+    _os << nl << "<" << name << ">" << v << "</" << name << ">";
 }
 
 void
@@ -1014,7 +1072,7 @@ IceXML::StreamI::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
     // If at the top level of the document then the object itself must
     // be written, otherwise write a reference.
     //
-    bool writeReference = (_elementStack.size() != 0);
+    bool writeReference = (_level != 0);
 
     //
     // If the object doesn't exist in the map add it.
@@ -1159,30 +1217,18 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 void
 IceXML::StreamI::startWrite(const string& element)
 {
-    _os << nl << '<' << element << '>';
-    _os.inc();
-
-    string::size_type pos = element.find_first_of(" \t");
-    if (pos == string::npos)
-    {
-	_elementStack.push(element);
-    }
-    else
-    {
-	_elementStack.push(element.substr(0, pos));
-    }
+    _os << se(element);
+    ++_level;
 }
 
 void
 IceXML::StreamI::endWrite()
 {
-    string element = _elementStack.top();
-    _elementStack.pop();
+    --_level;
 
-    _os.dec();
-    _os << nl << "</" << element << '>';
+    _os << ee;
 
-    if (_elementStack.size() == 0)
+    if (_level == 0)
     {
 	dumpUnwrittenObjects();
     }
@@ -1198,7 +1244,6 @@ IceXML::StreamI::startRead(const ::std::string& element)
     }
     if (_input->current.isNull())
     {
-	cout << "element: " << element << endl;
 	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
     }
     
@@ -1225,7 +1270,7 @@ IceXML::StreamI::dumpUnwrittenObjects()
     //
     // Precondition: Must be at the top-level.
     //
-    assert(_elementStack.size() == 0);
+    assert(_level == 0);
 
     //
     // It's necessary to run through the set of unwritten objects

@@ -8,17 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice \
-		  IceXML \
-		  IceStorm \
-		  IcePack \
-		  Freeze \
-		  Glacier
+SUBDIRS		= encoding
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

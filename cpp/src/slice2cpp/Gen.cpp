@@ -785,8 +785,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << scoped << "::const_iterator p;";
 	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C << sb;
+	C << nl << "__os->startWriteDictionaryElement();";
 	writeGenericMarshalUnmarshalCode(C, keyType, "p->first", true, "\"key\"");
 	writeGenericMarshalUnmarshalCode(C, valueType, "p->second", true, "\"value\"");
+	C << nl << "__os->endWriteDictionaryElement();";
 	C << eb;
 	C << nl << "__os->endWriteDictionary();";
 	C << eb;
@@ -799,8 +801,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "while (sz--)";
 	C << sb;
 	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
+	C << nl << "__is->startReadDictionaryElement();";
 	writeGenericMarshalUnmarshalCode(C, keyType, "pair.first", false, "\"key\"");
 	writeGenericMarshalUnmarshalCode(C, valueType, "pair.second", false, "\"value\"");
+	C << nl << "__is->endReadDictionaryElement();";
 	C << nl << "v.insert(v.end(), pair);";
 	C << eb;
 	C << nl << "__is->endReadDictionary();";
