@@ -20,35 +20,36 @@ class PhoneBookCollocated extends Freeze.Application
     {
 	Ice.Properties properties = communicator().getProperties();
     
-	Freeze.DB dbPhoneBook = dbEnv.openDB("phonebook", true);
-	Freeze.DB dbContacts = dbEnv.openDB("contacts", true);
+	Freeze.DB dbBooks = dbEnv.openDB("books", true);
+	Freeze.DB dbAuthors = dbEnv.openDB("authors", true);
     
 	//
-	// Create an Evictor for contacts.
+	// Create an Evictor for books.
 	//
-	Freeze.Evictor evictor;
+	Freeze.EvictorPersistenceMode mode;
 	int v = 0;
         try
         {
-            v = Integer.parseInt(properties.getProperty("PhoneBook.SaveAfterMutatingOperation"));
+            v = Integer.parseInt(properties.getProperty("Library.SaveAfterMutatingOperation"));
         }
         catch (NumberFormatException ex)
         {
-        }
+	}
 
 	if(v != 0)
 	{
-	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
+	    mode = Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation;
 	}
 	else
 	{
-	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
+	    mode = Freeze.EvictorPersistenceMode.SaveUponEviction;
 	}
+	Freeze.Evictor evictor = dbBooks.createEvictor(mode);
 
 	v = 0;
         try
         {
-            v = Integer.parseInt(properties.getProperty("PhoneBook.EvictorSize"));
+            v = Integer.parseInt(properties.getProperty("Library.EvictorSize"));
         }
         catch (NumberFormatException ex)
         {
@@ -63,22 +64,20 @@ class PhoneBookCollocated extends Freeze.Application
 	// Create an Object Adapter, use the Evictor as Servant
 	// Locator.
 	//
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBookAdapter");
-	adapter.addServantLocator(evictor, "contact");
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("LibraryAdapter");
+	adapter.addServantLocator(evictor, "book");
     
 	//
-	// Create the phonebook, and add it to the Object Adapter.
+	// Create the library, and add it to the Object Adapter.
 	//
-	PhoneBookI phoneBook = new PhoneBookI(adapter, dbPhoneBook, evictor);
-	adapter.add(phoneBook, Ice.Util.stringToIdentity("phonebook"));
+	LibraryI phoneBook = new LibraryI(adapter, dbAuthors, evictor);
+	adapter.add(phoneBook, Ice.Util.stringToIdentity("library"));
     
 	//
-	// Create and install a factory and initializer for contacts.
+	// Create and install a factory and initializer for books.
 	//
-	Ice.ObjectFactory contactFactory = new ContactFactory(phoneBook, evictor);
-	Freeze.ServantInitializer contactInitializer = (Freeze.ServantInitializer)contactFactory;
-	communicator().addObjectFactory(contactFactory, "::Contact");
-	evictor.installServantInitializer(contactInitializer);
+	Ice.ObjectFactory bookFactory = new BookFactory(phoneBook, evictor);
+	communicator().addObjectFactory(bookFactory, "::Book");
     
 	//
 	// Everything ok, let's go.

@@ -161,7 +161,7 @@ class TestApp extends Freeze.Application
     }
 
     void
-    GeneratedRead(IntIntMap m, int reads, Generator gen)
+    generatedRead(IntIntMap m, int reads, Generator gen)
     {
 	_watch.start();
 	for (int i = 0; i < reads; ++i)
@@ -203,15 +203,15 @@ class TestApp extends Freeze.Application
 	//
 	// Do some read tests.
 	//
-	GeneratedRead(m, _repetitions, new SequentialGenerator(1000, 1000));
-	GeneratedRead(m, _repetitions, new SequentialGenerator(2000, 2009));
-	GeneratedRead(m, _repetitions, new SequentialGenerator(3000, 3099));
-	GeneratedRead(m, _repetitions, new SequentialGenerator(4000, 4999));
+	generatedRead(m, _repetitions, new SequentialGenerator(1000, 1000));
+	generatedRead(m, _repetitions, new SequentialGenerator(2000, 2009));
+	generatedRead(m, _repetitions, new SequentialGenerator(3000, 3099));
+	generatedRead(m, _repetitions, new SequentialGenerator(4000, 4999));
 
 	//
 	// Do a random read test.
 	//
-	GeneratedRead(m, _repetitions, new RandomGenerator(0, 10000));
+	generatedRead(m, _repetitions, new RandomGenerator(0, 10000));
 
 	//
 	// Remove each record.

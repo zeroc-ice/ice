@@ -303,7 +303,6 @@ class PhoneBookI extends _PhoneBookDisp
     }
 
     private Ice.ObjectAdapter _adapter;
-    private Freeze.DB _db;
     private Freeze.Evictor _evictor;
     private NameIdentitiesDict _nameIdentitiesDict;
 }

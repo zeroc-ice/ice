@@ -63,7 +63,7 @@ class RunParser
 	}
 
 	Ice.Properties properties = communicator.getProperties();
-	String refProperty = "PhoneBook.PhoneBook";
+	String refProperty = "Library.Library";
 	String ref = properties.getProperty(refProperty);
 	if (ref.length() == 0)
 	{
@@ -72,14 +72,14 @@ class RunParser
 	}
 
 	Ice.ObjectPrx base = communicator.stringToProxy(ref);
-	PhoneBookPrx phoneBook = PhoneBookPrxHelper.checkedCast(base);
-	if (phoneBook == null)
+	LibraryPrx library = LibraryPrxHelper.checkedCast(base);
+	if (library == null)
 	{
 	    System.err.println(appName + ": invalid object reference");
 	    return 1;
 	}
 
-	Parser parser = new Parser(communicator, phoneBook);
+	Parser parser = new Parser(communicator, library);
 	int status;
 
 	if (file == null)

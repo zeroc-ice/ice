@@ -117,11 +117,10 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     public FileSet
     createFileset()
     {
-        if (_fileSet == null) 
-        {
-            _fileSet = new FileSet();
-        }
-        return _fileSet;
+	FileSet fileset = new FileSet();
+	_fileSets.add(fileset);
+
+	return fileset;
     }
 
     public Dict
@@ -147,21 +146,24 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	boolean build = false;
 	java.util.List sliceFiles = new java.util.LinkedList();
 
-	if (_fileSet != null)
+	java.util.Iterator p = _fileSets.iterator();
+	while (p.hasNext())
 	{
-	    DirectoryScanner scanner = _fileSet.getDirectoryScanner(project);
+	    FileSet fileset = (FileSet)p.next();
+
+	    DirectoryScanner scanner = fileset.getDirectoryScanner(project);
 	    String[] files = scanner.getIncludedFiles();
 	    
 	    for (int i = 0; i < files.length; i++)
 	    {
-		File slice = new File(_fileSet.getDir(project), files[i]);
+		File slice = new File(fileset.getDir(project), files[i]);
 		sliceFiles.add(slice);
 	    }
 	}
 	
 	java.util.List tagFiles = new java.util.LinkedList();
 	
-	java.util.Iterator p = _dicts.iterator();
+	p = _dicts.iterator();
 	while (p.hasNext())
 	{
 	    //
@@ -289,7 +291,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     private File _tagDir = new File(".");
     private File _outputDir = null;
     private Path _includePath = null;
-    private FileSet _fileSet = null;
+    private java.util.List _fileSets = new java.util.LinkedList();
 
     public class Dict
     {

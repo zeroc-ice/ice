@@ -45,6 +45,7 @@ class PhoneBookServer extends Freeze.Application
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
 	}
 
+	v = 0;
         try
         {
             v = Integer.parseInt(properties.getProperty("PhoneBook.EvictorSize"));

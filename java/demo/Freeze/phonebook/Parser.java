@@ -296,8 +296,11 @@ class Parser
     public String
     getInput()
     {
-	System.out.print(">>> ");
-	System.out.flush();
+	if (_interactive)
+	{
+	    System.out.print(">>> ");
+	    System.out.flush();
+	}
 
 	try
 	{
@@ -316,6 +319,22 @@ class Parser
 	_current = 0;
 
 	_in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+	_interactive = true;
+
+	Grammar g = new Grammar(this);
+	g.parse();
+
+	return 0;
+    }
+
+    public int
+    parse(java.io.BufferedReader in)
+    {
+	_foundContacts = new ContactPrx[0];
+	_current = 0;
+
+	_in = in;
+	_interactive = false;
 
 	Grammar g = new Grammar(this);
 	g.parse();
@@ -330,4 +349,5 @@ class Parser
     private PhoneBookPrx _phoneBook;
 
     private java.io.BufferedReader _in;
+    private boolean _interactive;
 }

@@ -47,17 +47,18 @@ public abstract class Application
 
         try
         {
+	    StringSeqHolder argHolder = new StringSeqHolder(args);
             if (configFile != null)
             {
                 Properties properties =
-                    Util.createPropertiesFromFile(args, configFile);
+                    Util.createPropertiesFromFile(argHolder, configFile);
                 _communicator = Util.initializeWithProperties(properties);
             }
             else
             {
-                _communicator = Util.initialize(args);
+                _communicator = Util.initialize(argHolder);
             }
-            status = run(args);
+            status = run(argHolder.value);
         }
         catch(LocalException ex)
         {
