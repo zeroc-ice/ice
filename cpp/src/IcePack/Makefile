@@ -44,6 +44,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IcePack
+LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
 SLICECMD	= $(SLICE2CPP) --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
 
@@ -99,14 +100,14 @@ $(HDIR)/AdminF.h: $(SDIR)/AdminF.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/AdminF.h
 
-AdapterManager.h AdapterManager.cpp: AdapterManager.ice $(SLICE2CPP)
+$(LOCAL_HDIR)/AdapterManager.h AdapterManager.cpp: AdapterManager.ice $(SLICE2CPP)
 	rm -f AdapterManager.h AdapterManager.cpp
 	$(SLICECMD) -I.. AdapterManager.ice
 
 clean::
 	rm -f AdapterManager.h AdapterManager.cpp
 
-AdapterManagerF.h: AdapterManagerF.ice $(SLICE2CPP)
+$(LOCAL_HDIR)/AdapterManagerF.h: AdapterManagerF.ice $(SLICE2CPP)
 	rm -f AdapterManagerF.h AdapterManagerF.cpp
 	$(SLICECMD) -I.. AdapterManagerF.ice
 	rm -f AdapterManagerF.cpp
@@ -114,14 +115,14 @@ AdapterManagerF.h: AdapterManagerF.ice $(SLICE2CPP)
 clean::
 	rm -f AdapterManagerF.h
 
-ServerManager.h ServerManager.cpp: ServerManager.ice $(SLICE2CPP)
+$(LOCAL_HDIR)/ServerManager.h ServerManager.cpp: ServerManager.ice $(SLICE2CPP)
 	rm -f ServerManager.h ServerManager.cpp
 	$(SLICECMD) -I.. ServerManager.ice
 
 clean::
 	rm -f ServerManager.h ServerManager.cpp
 
-ServerManagerF.h: ServerManagerF.ice $(SLICE2CPP)
+$(LOCAL_HDIR)/ServerManagerF.h: ServerManagerF.ice $(SLICE2CPP)
 	rm -f ServerManagerF.h ServerManagerF.cpp
 	$(SLICECMD) -I.. ServerManagerF.ice
 	rm -f ServerManagerF.cpp
@@ -129,7 +130,7 @@ ServerManagerF.h: ServerManagerF.ice $(SLICE2CPP)
 clean::
 	rm -f ServerManagerF.h
 
-Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
+$(LOCAL_HDIR)/Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
 	rm -f Activator.h Activator.cpp
 	$(SLICECMD) -I.. Activator.ice
 

@@ -107,11 +107,11 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocatorAdminI.cpp
+SOURCE=.\LocatorI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocatorI.cpp
+SOURCE=.\LocatorRegistryI.cpp
 # End Source File
 # Begin Source File
 
@@ -135,10 +135,6 @@ SOURCE=.\Activator.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ActivatorI.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\AdapterManager.h
 # End Source File
 # Begin Source File
@@ -155,11 +151,11 @@ SOURCE=.\AdminI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocatorAdminI.h
+SOURCE=.\LocatorI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocatorI.h
+SOURCE=.\LocatorRegistryI.h
 # End Source File
 # Begin Source File
 
