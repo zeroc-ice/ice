@@ -63,7 +63,8 @@ public abstract class Application
                 _communicator = Util.initialize(argHolder);
             }
 
-            // The default is to shutdown when a signal is received
+            //
+            // The default is to shutdown when a signal is received.
             //
             shutdownOnInterrupt();
 
@@ -209,7 +210,13 @@ public abstract class Application
             synchronized(_doneMutex)
             {
 		setInterrupt();
-                communicator().shutdown();
+
+                Communicator communicator = communicator();
+                if(communicator != null)
+                {
+                    communicator.shutdown();
+                }
+
                 while(!_done)
                 {
                     try
