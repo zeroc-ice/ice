@@ -620,7 +620,7 @@ namespace IceInternal
 			    Debug.Assert(_running <= sz);
 			    if(_running < sz)
 			    {
-				ArrayList newThreads = new ArrayList();
+				ArrayList liveThreads = new ArrayList();
 				foreach(EventHandlerThread thread in _threads)
 				{
 				    if(!thread.IsAlive)
@@ -628,14 +628,17 @@ namespace IceInternal
 					try
 					{
 					    thread.Join();
-					    newThreads.Add(thread);
 					}
 					catch(System.Threading.ThreadInterruptedException)
 					{
 					}
 				    }
+				    else
+				    {
+					liveThreads.Add(thread);
+				    }
 				}
-				_threads = newThreads;
+				_threads = liveThreads;
 			    }
 			    
 			    //
@@ -848,67 +851,56 @@ namespace IceInternal
 	
 	private sealed class EventHandlerThread : SupportClass.ThreadClass
 	{
-	    private void InitBlock(ThreadPool enclosingInstance)
-	    {
-		this.enclosingInstance = enclosingInstance;
-	    }
+	    private ThreadPool _threadPool;
 
-	    private ThreadPool enclosingInstance;
-	    public ThreadPool Enclosing_Instance
+	    internal EventHandlerThread(ThreadPool threadPool, string name)
+		: base()
 	    {
-		get
-		{
-		    return enclosingInstance;
-		}
-	    }
-
-	    internal EventHandlerThread(ThreadPool enclosingInstance, string name) : base()
-	    {
-		InitBlock(enclosingInstance);
+		_threadPool = threadPool;
 		Name = name;
 	    }
-	    
+
 	    override public void Run()
 	    {
-		BasicStream stream = new BasicStream(Enclosing_Instance._instance);
+		BasicStream stream = new BasicStream(_threadPool._instance);
 		
 		bool promote;
 		
 		try
 		{
-		    promote = Enclosing_Instance.run(stream);
+		    promote = _threadPool.run(stream);
 		}
 		catch(Ice.LocalException ex)
 		{
-		    string s = "exception in `" + Enclosing_Instance._prefix + "' thread " + Name + ":\n" + ex;
-		    Enclosing_Instance._instance.logger().error(s);
+		    string s = "exception in `" + _threadPool._prefix + "' thread " + Name + ":\n" + ex;
+		    _threadPool._instance.logger().error(s);
 		    promote = true;
 		}
 		catch(System.Exception ex)
 		{
-		    string s = "unknown exception in `" + Enclosing_Instance._prefix + "' thread " + Name + ":\n" + ex;
-		    Enclosing_Instance._instance.logger().error(s);
+		    string s = "unknown exception in `" + _threadPool._prefix + "' thread " + Name + ":\n" + ex;
+		    _threadPool._instance.logger().error(s);
 		    promote = true;
 		}
 		
-		if(promote && Enclosing_Instance._sizeMax > 1)
+		if(promote && _threadPool._sizeMax > 1)
 		{
 		    //
 		    // Promote a follower, but w/o modifying _inUse or
 		    // creating new threads.
 		    //
-		    lock(Enclosing_Instance)
+		    lock(_threadPool)
 		    {
-			Debug.Assert(!Enclosing_Instance._promote);
-			Enclosing_Instance._promote = true;
-			System.Threading.Monitor.Pulse(Enclosing_Instance);
+			Debug.Assert(!_threadPool._promote);
+			_threadPool._promote = true;
+			System.Threading.Monitor.Pulse(_threadPool);
 		    }
 		}
 		
 		stream.destroy();
        
 		#if TRACE_THREAD
-		    Enclosing_Instance.trace("run() terminated");
+		    _threadPool.trace("run() terminated");
 		#endif
 	    }
 	}
