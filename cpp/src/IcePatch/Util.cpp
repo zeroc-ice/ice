@@ -229,6 +229,21 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	
 	result.size = buf.st_size;
 	result.time = buf.st_mtime;
+
+        if(S_ISDIR(buf.st_mode))
+        {
+            result.type = FileTypeDirectory;
+        }
+        else if(S_ISREG(buf.st_mode))
+        {
+            result.type = FileTypeRegular;
+        }
+        else
+        {
+            FileAccessException ex;
+            ex.reason = "file type of `" + path + "' is not supported";
+            throw ex;
+        }
 	
 	if(IceUtil::Time::seconds(result.time) <= IceUtil::Time::now())
 	{
@@ -271,7 +286,54 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 
 	//
 	// Now we reset the time of the file to the current time.
+        //
+        // Note that utime() fails for directories in Windows, so we
+        // have to use a workaround on NT/2000/XP.
+        //
+        // See http://www.cygwin.com/ml/cygwin/1997-12/msg00350.html
 	//
+#if defined(_WIN32) && defined(FILE_FLAG_BACKUP_SEMANTICS)
+        if(result.type == FileTypeDirectory)
+        {
+            HANDLE hDir = CreateFile(
+                path.c_str(),
+                GENERIC_READ,
+                FILE_SHARE_READ|FILE_SHARE_DELETE,
+                NULL,
+                OPEN_EXISTING,
+                FILE_FLAG_BACKUP_SEMANTICS,
+                NULL
+            );
+            if(hDir == NULL)
+            {
+                FileAccessException ex;
+                ex.reason = "cannot access `" + path + "'";
+                throw ex;
+            }
+
+            FILETIME now;
+            GetSystemTimeAsFileTime(&now);
+
+            if(!SetFileTime(hDir, &now, &now, &now))
+            {
+                FileAccessException ex;
+                ex.reason = "cannot set file time for `" + path + "'";
+                throw ex;
+            }
+        }
+        else
+        {
+            if(::utime(path.c_str(), 0) == -1)
+            {
+                if(errno != ENOENT)
+                {
+                    FileAccessException ex;
+                    ex.reason = "cannot utime `" + path + "': " + strerror(errno);
+                    throw ex;
+                }
+            }
+        }
+#else
 	if(::utime(path.c_str(), 0) == -1)
 	{
 	    if(errno != ENOENT)
@@ -281,25 +343,11 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 		throw ex;
 	    }
 	}
+#endif
 
 	//
 	// Now we do the loop again.
 	//
-    }
-
-    if(S_ISDIR(buf.st_mode))
-    {
-	result.type = FileTypeDirectory;
-    }
-    else if(S_ISREG(buf.st_mode))
-    {
-	result.type = FileTypeRegular;
-    }
-    else
-    {
-	FileAccessException ex;
-	ex.reason = "file type of `" + path + "' is not supported";
-	throw ex;
     }
     
     return result;
