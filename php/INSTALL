@@ -65,7 +65,7 @@ If you want to build a dynamic Ice extension, use this version of the
 
 $ ./configure --with-ice=shared,$ICE_HOME ...
 
-Note that additional configuration options are generally necessary.
+Note that additional configuration options may be generally necessary.
 Please refer to the PHP documentation for more information.
 
 If you are using Solaris with Sun CC, please refer to the section
@@ -105,7 +105,7 @@ the file <phpdir>/Makefile and make the following changes:
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
   well as in the rule for "libs/libphp5.bundle" below.
 
-Note that PHP 5.0.0b1 cannot be compiled using Sun CC 5.3.
+Note that PHP 5 cannot be compiled using Sun CC 5.3.
 
 
 
