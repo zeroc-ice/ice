@@ -94,31 +94,36 @@ Changes since version 1.1.1
     environment is now always transactional. New configuration
     variables:
 
-      - Freeze.<envName>.DbHome provides the path to the DB home, and
-        defaults to <envName>.
+      - Freeze.DbEnv.<envName>.DbHome provides the path to the DB home, 
+        and defaults to <envName>.
 
-      - Freeze.<envName>.DbRecoverFatal triggers "fatal recovery" when
-        set to a value other than 0 (defaults to 0).
+      - Freeze.DbEnv.<envName>.DbRecoverFatal triggers "fatal recovery" 
+        when set to a value other than 0 (defaults to 0).
 
-      - Freeze.<envName>.DbPrivate when set to a value other than 0
+      - Freeze.DbEnv.<envName>.DbPrivate when set to a value other than 0
         tells Berkeley DB to use process private memory instead of
         shared memory. Defaults to 1. Set it to 0 when you want to run
-        db_stat (or another Berkeley DB utility) on a running
+        db_archive (or another Berkeley DB utility) on a running
         environment.
 
-      - Freeze.<envName>.DbCheckpointPeriod: each Berkeley DB
+      - Freeze.DbEnv.<envName>.DbCheckpointPeriod: each Berkeley DB
         environment created by Freeze has an associated thread that
-        checkpoints this environment every DbCheckpointPeriod minutes.
-        Defaults to 3 minutes.
+        checkpoints this environment every DbCheckpointPeriod seconds.
+        Defaults to 120 seconds.
 
-      - Freeze.<envName>.PeriodicCheckpointMinSize defines the minimum
-        size in kbytes for the periodic checkpoint (see above). This
-        value is passed to Berkeley DB's checkpoint function. Defaults
+      - Freeze.DbEnv.<envName>.PeriodicCheckpointMinSize defines the 
+        minimum size in kbytes for the periodic checkpoint (see above). 
+        This value is passed to Berkeley DB's checkpoint function. Defaults
         to 0 (no minimum).
 
-      - Freeze.<envName>.OldLogsAutoDelete: when set to a value other
-        than 0, old transactional logs no longer in use are deleted
+      - Freeze.DbEnv.<envName>.OldLogsAutoDelete: when set to a value 
+        other than 0, old transactional logs no longer in use are deleted
         after each periodic checkpoint. Defaults to 1.
+
+       - Freeze.Trace.Map: trace the Map operations
+
+       - Freeze.Trace.DbEnv: trace the operations on the DbEnv, which
+         is shared between Maps and Evictors.
 
      Such a Freeze-created Berkeley DB environment is created and
      opened when the first Freeze Map or Evictor using it is created,
