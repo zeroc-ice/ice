@@ -27,7 +27,7 @@ public class Server
         
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties(ref args);
+            Ice.Properties properties = Ice.Util.createProperties();
             properties.load("config");
             communicator = Ice.Util.initializeWithProperties(ref args, properties);
             status = run(args, communicator);

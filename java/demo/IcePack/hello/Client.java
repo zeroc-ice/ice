@@ -170,7 +170,7 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties(args);
+            Ice.Properties properties = Ice.Util.createProperties();
             properties.load("config");
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);

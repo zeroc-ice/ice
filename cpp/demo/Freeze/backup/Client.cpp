@@ -32,7 +32,7 @@ testFailed(const char* expr, const char* file, unsigned int line)
 int
 main(int argc, char* argv[])
 {
-    PropertiesPtr properties = Ice::createProperties(argc, argv);
+    PropertiesPtr properties = Ice::createProperties();
     properties->load("config");
 
     CommunicatorPtr communicator = initializeWithProperties(argc, argv, properties);
