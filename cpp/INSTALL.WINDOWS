@@ -48,10 +48,11 @@ If you have downloaded an Ice binary installer, you already have all
 of the required third-party libraries and do not need to download any
 additional packages, nor do you need to compile the Ice source code.
 
-If you use Visual C++ .NET 2003 and wish to compile the Ice source
-code, you can download an installer containing binaries for all of the
-required third-party libraries from
-http://www.zeroc.com/download.html.
+If you wish to compile the Ice source code, you can download an
+installer containing binaries for all of the required third-party
+libraries from the ZeroC web site at
+
+http://www.zeroc.com/download.html
 
 Finally, if you prefer to download and install the third-party
 dependencies yourself, you can find them at the following locations:
@@ -72,8 +73,8 @@ library to "libbz2d.lib". This is also what the Ice project files
 expect if you build a debug version of Ice.
 
 If you compile the third-party libraries from source code, we
-recommend that you use the same Visual C++ version to build all of the
-third-party libraries.
+recommend that you use the same Visual C++ version to build all of
+the third-party libraries.
 
 Users of Visual C++ 6.0 must configure Visual Studio to use STLPort
 before building Berkeley DB:
@@ -132,12 +133,12 @@ third-party packages (include files, libraries, and DLLs):
   bzip2.
 
   If you used the binary installer for expat, then the proper include
-  directory is C:\Expat-1.95.6\Source\lib.
+  directory is C:\Expat-1.95.8\Source\lib.
 
   For Visual C++ 6.0, also add the include directory for STLport. Note
   that you must add the "include\stlport" directory, not just
-  "include" and that (This directory must precede any of the Visual
-  C++ include directories.)
+  "include", and that this directory must precede any of the Visual
+  C++ include directories.
 
 - Select "Library files".
 
@@ -145,7 +146,7 @@ third-party packages (include files, libraries, and DLLs):
   bzip2 (and STLport, if required).
 
   If you used the binary installer for expat, then the proper library
-  directory is C:\Expat-1.95.6\Libs.
+  directory is C:\Expat-1.95.8\Libs.
 
 - Select "Executable files".
 
