@@ -443,7 +443,7 @@ class Application(object):
 
         try:
             if configFile:
-                properties = createProperties(args)
+                properties = createProperties()
                 properties.load(configFile)
                 Application._communicator = initializeWithProperties(args, properties)
             else:
