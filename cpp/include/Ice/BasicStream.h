@@ -161,7 +161,7 @@ private:
     //
     Instance* _instance;
 
-    class ReadEncaps
+    class ICE_API ReadEncaps
     {
     public:
 	ReadEncaps();
@@ -177,7 +177,7 @@ private:
 	TypeIdReadMap* typeIdMap;
     };
 
-    class WriteEncaps
+    class ICE_API WriteEncaps
     {
     public:
 
