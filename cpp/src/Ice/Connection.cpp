@@ -828,7 +828,10 @@ IceInternal::Connection::readable() const
 void
 IceInternal::Connection::read(BasicStream& stream)
 {
-    _transceiver->read(stream, 0);
+    if(_transceiver)
+    {
+	_transceiver->read(stream, 0);
+    }
 
     //
     // Updating _acmAbsoluteTimeout is to expensive here, because we

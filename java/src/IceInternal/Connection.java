@@ -671,11 +671,14 @@ public final class Connection extends EventHandler
     public void
     read(BasicStream stream)
     {
-        _transceiver.read(stream, 0);
+	if(_transceiver != null)
+	{
+	    _transceiver.read(stream, 0);
+	}
 
 	//
-	// Updating _acmAbsoluteTimeoutMillis is to expensive here, because
-	// we would have to acquire a lock just for this
+	// Updating _acmAbsoluteTimeoutMillis is to expensive here,
+	// because we would have to acquire a lock just for this
 	// purpose. Instead, we update _acmAbsoluteTimeoutMillis in
 	// message().
 	//
