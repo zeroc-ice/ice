@@ -416,6 +416,48 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name GlacierRouter
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "callbackC"=.\demo\Ice\callback\callbackC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "callbackS"=.\demo\Ice\callback\callbackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
 }}}
 
 ###############################################################################
