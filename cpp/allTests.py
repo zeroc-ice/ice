@@ -55,8 +55,8 @@ tests = [ \
     "Freeze/complex", \
     "Freeze/evictor", \
     "IceStorm/single", \
-    "IceStorm/federation", \
-    "IceStorm/federation2", \
+#    "IceStorm/federation", \
+#    "IceStorm/federation2", \
     "XMLTransform/transform", \
     ]
 

@@ -97,7 +97,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\ssleay32.dll"
             "TargetName" = "8:ssleay32.dll"
             "Tag" = "8:"
-            "Folder" = "8:_3933AC32F5F14A6DA10846660573D088"
+            "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -117,7 +117,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\LICENSE"
             "TargetName" = "8:OpenSSL-LICENSE"
             "Tag" = "8:"
-            "Folder" = "8:_E82B9365C2D140E1B342BFF669EC736B"
+            "Folder" = "8:_FB65C60981A84F8A878AE7BDEC05F7C9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -137,7 +137,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\libeay32.dll"
             "TargetName" = "8:libeay32.dll"
             "Tag" = "8:"
-            "Folder" = "8:_3933AC32F5F14A6DA10846660573D088"
+            "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -157,7 +157,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\openssl-0.9.7b\\out32dll\\openssl.exe"
             "TargetName" = "8:openssl.exe"
             "Tag" = "8:"
-            "Folder" = "8:_3933AC32F5F14A6DA10846660573D088"
+            "Folder" = "8:_2DA0904B4553447D8F5E1680A7583627"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -178,32 +178,29 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_3933AC32F5F14A6DA10846660573D088"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\bin"
-            "DisplayName" = "8:Module Retargetable Folder"
-            "Description" = "8:"
-            "Name" = "8:bin"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
-                "Folders"
-                {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_E82B9365C2D140E1B342BFF669EC736B"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_FB65C60981A84F8A878AE7BDEC05F7C9"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:license"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY2"
+            "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2DA0904B4553447D8F5E1680A7583627"
+                    {
+                    "Name" = "8:bin"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_3A5FA8C896894DD794ECFFA6931B6058"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }

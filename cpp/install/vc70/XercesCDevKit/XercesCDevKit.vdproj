@@ -7161,7 +7161,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Debug\\xerces-c_2D.lib"
             "TargetName" = "8:xerces-c_2D.lib"
             "Tag" = "8:"
-            "Folder" = "8:_2439294A94C041B58B0099C6D33F3F6B"
+            "Folder" = "8:_99EACC523304429CB48046E4CA13ACEE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7821,7 +7821,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Release\\xerces-c_2.lib"
             "TargetName" = "8:xerces-c_2.lib"
             "Tag" = "8:"
-            "Folder" = "8:_2439294A94C041B58B0099C6D33F3F6B"
+            "Folder" = "8:_99EACC523304429CB48046E4CA13ACEE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8842,18 +8842,238 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_2439294A94C041B58B0099C6D33F3F6B"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_3CCD763C2E5C474A8C2E6B391EA336B6"
             {
-            "DefaultLocation" = "8:[TARGETDIR]\\lib"
+            "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:lib"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY2"
+            "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_99EACC523304429CB48046E4CA13ACEE"
+                    {
+                    "Name" = "8:lib"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_DCCE7D37B7A345B7978FA69A693680E4"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_A59B69B41C854AC291524448F1E9BF7A"
+                    {
+                    "Name" = "8:include"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_7443D0118BCF4F8C8EC2DD925501C8DB"
+                        "Folders"
+                        {
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_89D421F141B14FC797F50A5C9391DFD3"
+                            {
+                            "Name" = "8:xercesc"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_1A7B0C67BD3544E8BBDBADA6B65A5CD4"
+                                "Folders"
+                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_0A89D98F83F143F5AB355F8EA8D81559"
+                                    {
+                                    "Name" = "8:internal"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_AEFF12320543437C95D860EDA88EB800"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_14F25B19F3304C62AD9C2375C6EC9ABD"
+                                    {
+                                    "Name" = "8:util"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_42981C422D9F4ACD8F1011FE5521AB93"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_1E44EF70BA78427BA43AED52B35B5363"
+                                            {
+                                            "Name" = "8:Compilers"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_6385EC0BD6E8493BB4F0810DF91DA46E"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_7DF4479BB6E842558E4191A5F8C9AE19"
+                                            {
+                                            "Name" = "8:Platforms"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_B2B954B0323C47A88AC842C6320B9F56"
+                                                "Folders"
+                                                {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B1B28444991C41AD84AFED164888C38A"
+                                                    {
+                                                    "Name" = "8:Win32"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_A65F6A7AC6604EA19E0CB7D2E3B6607D"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_3A4BC94E96304FCDA2D6116CDDDEB255"
+                                    {
+                                    "Name" = "8:sax"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_43970149A9B247409026B5110DB21F32"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_473FFBFA31B74929B64DC751EA8A3963"
+                                    {
+                                    "Name" = "8:com"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_FD263D48DFDB42BB9D0D40461B86BB39"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_A6D6095A522D4FCB9747B2506CE423FC"
+                                    {
+                                    "Name" = "8:sax2"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_A9F617D67ED648FAA57F61E6205524FB"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_BD50EC3E10804C4C82D62DBDA7F42784"
+                                    {
+                                    "Name" = "8:validators"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_171C1057B47A4DF49400AF7F219C6142"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_269BEB89EE9C49CBBFC9355104A49467"
+                                            {
+                                            "Name" = "8:schema"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_5109A6D4760545F4A22BF6830DDFE76A"
+                                                "Folders"
+                                                {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_AFB57370BAAB4FCA953AD4C3EC3939A4"
+                                                    {
+                                                    "Name" = "8:identity"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_4C4E51C64AC2484A878748EA2F680277"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8438FE6E7D8F402BB5E54DCC68450A88"
+                                            {
+                                            "Name" = "8:DTD"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_4FFCBDB618664C489508E3E7365D7C72"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8FDC8FCF3D6044FEAC01A22D53512AB2"
+                                            {
+                                            "Name" = "8:common"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_E42EFE557C144945AF2947CDBE0BAB27"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_E7D592C98D7A4672B6DC41193C2E150E"
+                                            {
+                                            "Name" = "8:datatype"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_757B387A58594120A1F8FB909203493A"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_C6179EE41E654B95BAB896F3B49E6D7A"
+                                    {
+                                    "Name" = "8:dom"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_CA15EB29536349A19B8A116A08D859EC"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_D5B3CDA831364E57A7AAC00C76CB9623"
+                                    {
+                                    "Name" = "8:parsers"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_3D7D330BF98344FA8A3812C689B74D37"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_F53B5A7E798640CBB0EE59E347B779B8"
+                                    {
+                                    "Name" = "8:framework"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_68567553177640359AEA96DF4B7571CD"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_70C0420F5ADA4598BBDA4E85171F64A2"
@@ -8865,218 +9085,6 @@
             "Property" = "8:CommonFilesFolder"
                 "Folders"
                 {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_D5AC02B21E7845E794877132CA2CD590"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\include"
-            "DisplayName" = "8:Module Retargetable Folder"
-            "Description" = "8:"
-            "Name" = "8:include"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
-                "Folders"
-                {
-                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_755BAD2560224AE3B834900961E37FB8"
-                    {
-                    "Name" = "8:xercesc"
-                    "AlwaysCreate" = "11:FALSE"
-                    "Condition" = "8:"
-                    "Transitive" = "11:FALSE"
-                    "Property" = "8:_1A7B0C67BD3544E8BBDBADA6B65A5CD4"
-                        "Folders"
-                        {
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_0A89D98F83F143F5AB355F8EA8D81559"
-                            {
-                            "Name" = "8:internal"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_AEFF12320543437C95D860EDA88EB800"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_14F25B19F3304C62AD9C2375C6EC9ABD"
-                            {
-                            "Name" = "8:util"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_42981C422D9F4ACD8F1011FE5521AB93"
-                                "Folders"
-                                {
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_1E44EF70BA78427BA43AED52B35B5363"
-                                    {
-                                    "Name" = "8:Compilers"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_6385EC0BD6E8493BB4F0810DF91DA46E"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_7DF4479BB6E842558E4191A5F8C9AE19"
-                                    {
-                                    "Name" = "8:Platforms"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_B2B954B0323C47A88AC842C6320B9F56"
-                                        "Folders"
-                                        {
-                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B1B28444991C41AD84AFED164888C38A"
-                                            {
-                                            "Name" = "8:Win32"
-                                            "AlwaysCreate" = "11:FALSE"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "Property" = "8:_A65F6A7AC6604EA19E0CB7D2E3B6607D"
-                                                "Folders"
-                                                {
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_3A4BC94E96304FCDA2D6116CDDDEB255"
-                            {
-                            "Name" = "8:sax"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_43970149A9B247409026B5110DB21F32"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_473FFBFA31B74929B64DC751EA8A3963"
-                            {
-                            "Name" = "8:com"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_FD263D48DFDB42BB9D0D40461B86BB39"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_A6D6095A522D4FCB9747B2506CE423FC"
-                            {
-                            "Name" = "8:sax2"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_A9F617D67ED648FAA57F61E6205524FB"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_BD50EC3E10804C4C82D62DBDA7F42784"
-                            {
-                            "Name" = "8:validators"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_171C1057B47A4DF49400AF7F219C6142"
-                                "Folders"
-                                {
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_269BEB89EE9C49CBBFC9355104A49467"
-                                    {
-                                    "Name" = "8:schema"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_5109A6D4760545F4A22BF6830DDFE76A"
-                                        "Folders"
-                                        {
-                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_AFB57370BAAB4FCA953AD4C3EC3939A4"
-                                            {
-                                            "Name" = "8:identity"
-                                            "AlwaysCreate" = "11:FALSE"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "Property" = "8:_4C4E51C64AC2484A878748EA2F680277"
-                                                "Folders"
-                                                {
-                                                }
-                                            }
-                                        }
-                                    }
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8438FE6E7D8F402BB5E54DCC68450A88"
-                                    {
-                                    "Name" = "8:DTD"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_4FFCBDB618664C489508E3E7365D7C72"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8FDC8FCF3D6044FEAC01A22D53512AB2"
-                                    {
-                                    "Name" = "8:common"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_E42EFE557C144945AF2947CDBE0BAB27"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_E7D592C98D7A4672B6DC41193C2E150E"
-                                    {
-                                    "Name" = "8:datatype"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_757B387A58594120A1F8FB909203493A"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_C6179EE41E654B95BAB896F3B49E6D7A"
-                            {
-                            "Name" = "8:dom"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_CA15EB29536349A19B8A116A08D859EC"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_D5B3CDA831364E57A7AAC00C76CB9623"
-                            {
-                            "Name" = "8:parsers"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_3D7D330BF98344FA8A3812C689B74D37"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_F53B5A7E798640CBB0EE59E347B779B8"
-                            {
-                            "Name" = "8:framework"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_68567553177640359AEA96DF4B7571CD"
-                                "Folders"
-                                {
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

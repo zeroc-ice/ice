@@ -115,7 +115,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\db_cxx.h"
             "TargetName" = "8:db_cxx.h"
             "Tag" = "8:"
-            "Folder" = "8:_1C84F3A453F345859679FAA3677CD4A2"
+            "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -135,7 +135,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\dbinc\\cxx_common.h"
             "TargetName" = "8:cxx_common.h"
             "Tag" = "8:"
-            "Folder" = "8:_1C84F3A453F345859679FAA3677CD4A2"
+            "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -155,7 +155,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Debug\\libdb41d.lib"
             "TargetName" = "8:libdb41d.lib"
             "Tag" = "8:"
-            "Folder" = "8:_6F260F8F627E47138A2F9C7B60365022"
+            "Folder" = "8:_9EBB450083A64417830CE5A529F489E9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -175,7 +175,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\db.h"
             "TargetName" = "8:db.h"
             "Tag" = "8:"
-            "Folder" = "8:_1C84F3A453F345859679FAA3677CD4A2"
+            "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -195,7 +195,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Release\\libdb41.lib"
             "TargetName" = "8:libdb41.lib"
             "Tag" = "8:"
-            "Folder" = "8:_6F260F8F627E47138A2F9C7B60365022"
+            "Folder" = "8:_9EBB450083A64417830CE5A529F489E9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -215,7 +215,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\dbinc\\cxx_except.h"
             "TargetName" = "8:cxx_except.h"
             "Tag" = "8:"
-            "Folder" = "8:_1C84F3A453F345859679FAA3677CD4A2"
+            "Folder" = "8:_1FB536E1F7AF491CB56D186108621C30"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -236,32 +236,40 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_1C84F3A453F345859679FAA3677CD4A2"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_573942613A654CC0B7A3817F0A0EB435"
             {
-            "DefaultLocation" = "8:[TARGETDIR]\\include"
-            "DisplayName" = "8:Module Retargetable Folder"
-            "Description" = "8:"
-            "Name" = "8:include"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
-                "Folders"
-                {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_6F260F8F627E47138A2F9C7B60365022"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\lib"
+            "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:lib"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY2"
+            "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_1FB536E1F7AF491CB56D186108621C30"
+                    {
+                    "Name" = "8:include"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_29581A82E0994D169918DCCA851AEFE8"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_9EBB450083A64417830CE5A529F489E9"
+                    {
+                    "Name" = "8:lib"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_B24C44CC74F4464AB692F2A32F2C04AF"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_7C284C9F690245BCBBFF92BA2DA449C7"

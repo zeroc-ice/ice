@@ -91,7 +91,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Release\\xerces-c_2_2_0.dll"
             "TargetName" = "8:xerces-c_2_2_0.dll"
             "Tag" = "8:"
-            "Folder" = "8:_4C2A4C6885DB40408EC00BACDE6C8F47"
+            "Folder" = "8:_CBC6714983D0420997D148C866E12656"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -111,7 +111,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\LICENSE"
             "TargetName" = "8:XercesC-LICENSE"
             "Tag" = "8:"
-            "Folder" = "8:_DED30272A8164F3A884F0AB24471F8CA"
+            "Folder" = "8:_0A7A7D6961984C299E04CDCA5FA090F6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -132,32 +132,29 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_4C2A4C6885DB40408EC00BACDE6C8F47"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\bin"
-            "DisplayName" = "8:Module Retargetable Folder"
-            "Description" = "8:"
-            "Name" = "8:bin"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
-                "Folders"
-                {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_DED30272A8164F3A884F0AB24471F8CA"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_0A7A7D6961984C299E04CDCA5FA090F6"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:license"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY2"
+            "Property" = "8:NEWRETARGETABLEPROPERTY3"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_CBC6714983D0420997D148C866E12656"
+                    {
+                    "Name" = "8:bin"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_9825DF624C974F7199DF350078F2FAF5"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }

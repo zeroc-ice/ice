@@ -73,7 +73,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\xerces-c-src2_2_0\\Build\\Win32\\VC7\\Debug\\xerces-c_2_2_0D.dll"
             "TargetName" = "8:xerces-c_2_2_0D.dll"
             "Tag" = "8:"
-            "Folder" = "8:_347ECEC4B0704752B144FA29181B114A"
+            "Folder" = "8:_190DF1B611884CDFBE2CDC556900D766"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -94,18 +94,29 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_347ECEC4B0704752B144FA29181B114A"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_FCEEFB941B514A589C0CAC327EB3D16E"
             {
-            "DefaultLocation" = "8:[TARGETDIR]\\bin"
-            "DisplayName" = "8:Module Retargetable Folder"
+            "DefaultLocation" = "8:[TARGETDIR]"
+            "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:bin"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+            "Transitive" = "11:TRUE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_190DF1B611884CDFBE2CDC556900D766"
+                    {
+                    "Name" = "8:bin"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_A0E95CB7CA2D4E91AB2086B22233D0DF"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }

@@ -91,7 +91,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\libbz2d.lib"
             "TargetName" = "8:libbz2d.lib"
             "Tag" = "8:"
-            "Folder" = "8:_143BFBD3319F4821A06DFA20ED4070EF"
+            "Folder" = "8:_656705CA84BB45998225649FB02F6074"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -111,7 +111,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\libbz2.lib"
             "TargetName" = "8:libbz2.lib"
             "Tag" = "8:"
-            "Folder" = "8:_143BFBD3319F4821A06DFA20ED4070EF"
+            "Folder" = "8:_656705CA84BB45998225649FB02F6074"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -131,7 +131,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\LICENSE"
             "TargetName" = "8:BZIP2-LICENSE"
             "Tag" = "8:"
-            "Folder" = "8:_632D6E9084E647BC836197ACC76662E6"
+            "Folder" = "8:_E965AA47BF04440C8579B501140C6AA9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -151,7 +151,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\bzip2-1.0.2\\bzlib.h"
             "TargetName" = "8:bzlib.h"
             "Tag" = "8:"
-            "Folder" = "8:_FC54F375D622492E848B3721BD985515"
+            "Folder" = "8:_7759137B292D492E9DF40FC0D7A632D6"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -172,46 +172,40 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_143BFBD3319F4821A06DFA20ED4070EF"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\lib"
-            "DisplayName" = "8:Retargetable Folder #1"
-            "Description" = "8:"
-            "Name" = "8:lib"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY2"
-                "Folders"
-                {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_632D6E9084E647BC836197ACC76662E6"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_E965AA47BF04440C8579B501140C6AA9"
             {
             "DefaultLocation" = "8:[TARGETDIR]"
             "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:license"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:TRUE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY3"
-                "Folders"
-                {
-                }
-            }
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_FC54F375D622492E848B3721BD985515"
-            {
-            "DefaultLocation" = "8:[TARGETDIR]\\include"
-            "DisplayName" = "8:Module Retargetable Folder"
-            "Description" = "8:"
-            "Name" = "8:include"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+            "Property" = "8:NEWRETARGETABLEPROPERTY4"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_656705CA84BB45998225649FB02F6074"
+                    {
+                    "Name" = "8:lib"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_460C82AB659B4735A6AB3857998DDCBB"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_7759137B292D492E9DF40FC0D7A632D6"
+                    {
+                    "Name" = "8:include"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_80D34448661546DEB02E5A3219AED9F9"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }

@@ -73,7 +73,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Debug\\libdb41d.dll"
             "TargetName" = "8:libdb41d.dll"
             "Tag" = "8:"
-            "Folder" = "8:_F2C4E5014B5B43DAA8116A81DD775EA7"
+            "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -94,18 +94,29 @@
         }
         "Folder"
         {
-            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_F2C4E5014B5B43DAA8116A81DD775EA7"
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_28D9A93C72B347ED90A0256E6A900174"
             {
-            "DefaultLocation" = "8:[TARGETDIR]\\bin"
-            "DisplayName" = "8:Module Retargetable Folder"
+            "DefaultLocation" = "8:[TARGETDIR]"
+            "DisplayName" = "8:Retargetable Folder #1"
             "Description" = "8:"
-            "Name" = "8:bin"
+            "Name" = "8:Module Retargetable Folder"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
-            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+            "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_41C668252C5E45BC856D33ED6359A0AA"
+                    {
+                    "Name" = "8:bin"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_45B94121487F4F02B486A573CA3221E3"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }
