@@ -20,10 +20,6 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("TestAdapter.Endpoints", "default -t 2000");
-    properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, Ice::stringToIdentity("test"));
