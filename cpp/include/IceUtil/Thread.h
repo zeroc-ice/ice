@@ -20,9 +20,20 @@ namespace IceUtil
 #ifdef WIN32
 struct HandleWrapper : public Shared
 {
-    HandleWrapper(HANDLE);
+    // Inline for performance reasons.
+    HandleWrapper(HANDLE h) :
+	handle(h)
+    {
+    }
 
-    ~HandleWrapper();
+    // Inline for performance reasons.
+    virtual ~HandleWrapper()
+    {
+	if (handle != 0)
+	{
+	    CloseHandle(handle);
+	}
+    }
 
     HANDLE handle;
 };

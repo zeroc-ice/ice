@@ -15,19 +15,6 @@ using namespace std;
 
 #ifdef WIN32
 
-IceUtil::HandleWrapper::HandleWrapper(HANDLE h) :
-    handle(h)
-{
-}
-
-IceUtil::HandleWrapper::~HandleWrapper()
-{
-    if (handle != 0)
-    {
-	CloseHandle(handle);
-    }
-}
-
 IceUtil::ThreadControl::ThreadControl() :
     _handle(new HandleWrapper(0)),
     _id(GetCurrentThreadId())
