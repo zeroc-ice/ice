@@ -33,6 +33,9 @@ void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),
     _destroyed(false),
+    _size(0),
+    _sizeMax(0),
+    _sizeWarn(0),
     _prefix(prefix),
     _inUse(0),
     _lastFd(INVALID_SOCKET),
