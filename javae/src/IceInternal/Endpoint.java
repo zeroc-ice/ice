@@ -40,19 +40,6 @@ public interface Endpoint extends java.lang.Comparable
     Endpoint timeout(int t);
 
     //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
-    boolean compress();
-    
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
-    Endpoint compress(boolean co);
-
-    //
     // Return true if the endpoint type is unknown.
     //
     boolean unknown();

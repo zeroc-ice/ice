@@ -47,7 +47,6 @@ public interface ObjectPrx
     ObjectPrx ice_batchOneway();
     boolean ice_isBatchOneway();
 
-    ObjectPrx ice_compress(boolean co);
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_router(Ice.RouterPrx router);
     ObjectPrx ice_locator(Ice.LocatorPrx locator);

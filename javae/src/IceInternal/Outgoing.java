@@ -13,14 +13,13 @@ public final class Outgoing
 {
     public
     Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
-	     java.util.Map context, boolean compress)
+	     java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
         _state = StateUnsent;
         _is = new BasicStream(ref.getInstance());
         _os = new BasicStream(ref.getInstance());
-        _compress = compress;
 
         writeHeader(operation, mode, context);
     }
@@ -82,7 +81,7 @@ public final class Outgoing
 		// call back on this object, so we don't need to lock
 		// the mutex, keep track of state, or save exceptions.
 		//
-		_connection.sendRequest(_os, this, _compress);
+		_connection.sendRequest(_os, this);
 
 		//
 		// Wait until the request has completed, or until the
@@ -205,7 +204,7 @@ public final class Outgoing
                 // violating "at-most-once".
 		//
 		_state = StateInProgress;
-		_connection.sendRequest(_os, null, _compress);
+		_connection.sendRequest(_os, null);
                 break;
             }
 
@@ -217,7 +216,7 @@ public final class Outgoing
 		// apply.
 		//
 		_state = StateInProgress;
-                _connection.finishBatchRequest(_os, _compress);
+                _connection.finishBatchRequest(_os);
                 break;
             }
         }
@@ -502,8 +501,6 @@ public final class Outgoing
 
     private BasicStream _is;
     private BasicStream _os;
-
-    private boolean _compress;
 
     public Outgoing next; // For use by Ice._ObjectDelM
 }

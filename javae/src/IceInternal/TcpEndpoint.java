@@ -14,13 +14,12 @@ final class TcpEndpoint implements Endpoint
     final static short TYPE = 1;
 
     public
-    TcpEndpoint(Instance instance, String ho, int po, int ti, boolean co)
+    TcpEndpoint(Instance instance, String ho, int po, int ti)
     {
         _instance = instance;
         _host = ho;
         _port = po;
         _timeout = ti;
-	_compress = co;
         calcHashValue();
     }
 
@@ -31,7 +30,6 @@ final class TcpEndpoint implements Endpoint
         _host = null;
         _port = 0;
         _timeout = -1;
-	_compress = false;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -119,18 +117,11 @@ final class TcpEndpoint implements Endpoint
                     break;
                 }
 
-                case 'z':
-                {
-                    if(argument != null)
-                    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
-                    }
-
-                    _compress = true;
-                    break;
-                }
+		case 'z':
+		{
+		    // Ignore compression flag.
+		    break;
+		}
 
                 default:
                 {
@@ -157,7 +148,7 @@ final class TcpEndpoint implements Endpoint
         _host = s.readString();
         _port = s.readInt();
         _timeout = s.readInt();
-	_compress = s.readBool();
+	boolean compress = s.readBool();
         s.endReadEncaps();
         calcHashValue();
     }
@@ -173,7 +164,7 @@ final class TcpEndpoint implements Endpoint
         s.writeString(_host);
         s.writeInt(_port);
         s.writeInt(_timeout);
-	s.writeBool(_compress);
+	s.writeBool(false);
         s.endWriteEncaps();
     }
 
@@ -188,10 +179,6 @@ final class TcpEndpoint implements Endpoint
         {
             s += " -t " + _timeout;
         }
-	if(_compress)
-	{
-	    s += " -z";
-	}
         return s;
     }
 
@@ -228,35 +215,7 @@ final class TcpEndpoint implements Endpoint
         }
         else
         {
-            return new TcpEndpoint(_instance, _host, _port, timeout, _compress);
-        }
-    }
-
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
-    public boolean
-    compress()
-    {
-        return _compress;
-    }
-
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
-    public Endpoint
-    compress(boolean compress)
-    {
-        if(compress == _compress)
-        {
-            return this;
-        }
-        else
-        {
-            return new TcpEndpoint(_instance, _host, _port, _timeout, compress);
+            return new TcpEndpoint(_instance, _host, _port, timeout);
         }
     }
 
@@ -314,7 +273,7 @@ final class TcpEndpoint implements Endpoint
     acceptor(EndpointHolder endpoint)
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(), _timeout, _compress);
+        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(), _timeout);
         return p;
     }
 
@@ -395,15 +354,6 @@ final class TcpEndpoint implements Endpoint
             return 1;
         }
 
-        if(!_compress && p._compress)
-        {
-            return -1;
-        }
-        else if(!p._compress && _compress)
-        {
-            return 1;
-        }
-
         if(!_host.equals(p._host))
         {
             //
@@ -463,13 +413,11 @@ final class TcpEndpoint implements Endpoint
         _hashCode = _host.hashCode();
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + _timeout;
-        _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
     }
 
     private Instance _instance;
     private String _host;
     private int _port;
     private int _timeout;
-    private boolean _compress;
     private int _hashCode;
 }

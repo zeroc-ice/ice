@@ -176,12 +176,10 @@ public class _ObjectDel
 
         __reference = from.__reference;
         __connection = from.__connection;
-        __compress = from.__compress;
     }
 
     protected IceInternal.Reference __reference;
     protected ConnectionI __connection;
-    protected boolean __compress;
 
     public void
     setup(IceInternal.Reference ref)
@@ -195,9 +193,7 @@ public class _ObjectDel
 	assert(__connection == null);
 
 	__reference = ref;
-	BooleanHolder compress = new BooleanHolder();
-	__connection = __reference.getConnection(compress);
-        __compress = compress.value;
+	__connection = __reference.getConnection();
     }
     
     protected IceInternal.Outgoing
@@ -209,7 +205,7 @@ public class _ObjectDel
         {
             if(__outgoingCache == null)
             {
-                out = new IceInternal.Outgoing(__connection, __reference, operation, mode, context, __compress);
+                out = new IceInternal.Outgoing(__connection, __reference, operation, mode, context);
             }
             else
             {

@@ -75,27 +75,6 @@ final class UnknownEndpoint implements Endpoint
     }
     
     //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
-    public boolean
-    compress()
-    {
-        return false;
-    }
-
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
-    public Endpoint
-    compress(boolean compress)
-    {
-	return this;
-    }
-
-    //
     // Return true if the endpoint type is unknown.
     //
     public boolean

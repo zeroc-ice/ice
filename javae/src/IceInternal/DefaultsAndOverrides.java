@@ -53,24 +53,6 @@ public final class DefaultsAndOverrides
 	    overrideConnectTimeoutValue = -1;
 	}
 
-	value = properties.getProperty("Ice.Override.Compress");
-	if(value.length() > 0)
-	{
-	    overrideCompress = true;
-	    boolean b = properties.getPropertyAsInt("Ice.Override.Compress") > 0;
-	    if(!BasicStream.compressible() && b)
-	    {
-		System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
-		b = false;
-	    }
-	    overrideCompressValue = b;
-	}
-	else
-	{
-	    overrideCompress = !BasicStream.compressible();
-	    overrideCompressValue = false;
-	}
-
 	defaultLocator = properties.getProperty("Ice.Default.Locator");
     }
 
@@ -83,6 +65,4 @@ public final class DefaultsAndOverrides
     final public int overrideTimeoutValue;
     final public boolean overrideConnectTimeout;
     final public int overrideConnectTimeoutValue;
-    final public boolean overrideCompress;
-    final public boolean overrideCompressValue;
 }

@@ -156,7 +156,6 @@ public abstract class Reference implements Cloneable
 
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-    public abstract Reference changeCompress(boolean newCompress);
     public abstract Reference changeTimeout(int newTimeout);
 
     public final synchronized int
@@ -299,7 +298,7 @@ public abstract class Reference implements Cloneable
 	// Derived class writes the remainder of the string.
     }
 
-    public abstract Ice.ConnectionI getConnection(Ice.BooleanHolder comp);
+    public abstract Ice.ConnectionI getConnection();
 
     public boolean
     equals(java.lang.Object obj)

@@ -430,10 +430,9 @@ public final class ConnectionI implements Connection
     }
 
     public void
-    sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out, boolean compress)
+    sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
     {
 	int requestId = 0;
-	IceInternal.BasicStream stream = null;
 
 	synchronized(this)
 	{
@@ -472,7 +471,17 @@ public final class ConnectionI implements Connection
 		_requests.put(requestId, out);
 	    }
 
-	    stream = doCompress(os, _overrideCompress ? _overrideCompressValue : compress);
+	    //
+	    // Compression not supported.
+	    //
+	    os.pos(9);
+	    os.writeByte((byte)(0));
+
+	    //
+	    // Fill in the message size.
+	    //
+	    os.pos(10);
+	    os.writeInt(os.size());
 	}
 
 	try
@@ -489,7 +498,7 @@ public final class ConnectionI implements Connection
 		// Send the request.
 		//
 		IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
-		_transceiver.write(stream, _endpoint.timeout());
+		_transceiver.write(os, _endpoint.timeout());
 	    }
 	}
 	catch(LocalException ex)
@@ -528,13 +537,6 @@ public final class ConnectionI implements Connection
 		{
 		    throw _exception;
 		}
-	    }
-	}
-	finally
-	{
-	    if(stream != null && stream != os)
-	    {
-		stream.destroy();
 	    }
 	}
     }
@@ -600,7 +602,7 @@ public final class ConnectionI implements Connection
     }
 
     public synchronized void
-    finishBatchRequest(IceInternal.BasicStream os, boolean compress)
+    finishBatchRequest(IceInternal.BasicStream os)
     {
 	//
 	// Get the batch stream back and increment the number of
@@ -608,15 +610,6 @@ public final class ConnectionI implements Connection
         //
 	_batchStream.swap(os);
 	++_batchRequestNum;
-
-	//
-	// We compress the whole batch if there is at least one compressed
-	// message.
-	//
-	if(compress)
-	{
-	    _batchRequestCompress = true;
-	}
 
 	//
 	// Notify about the batch stream not being in use anymore.
@@ -637,7 +630,6 @@ public final class ConnectionI implements Connection
 	_batchStream.destroy();
 	_batchStream = new IceInternal.BasicStream(_instance);
 	_batchRequestNum = 0;
-	_batchRequestCompress = false;
 
 	//
 	// Notify about the batch stream not being in use anymore.
@@ -650,8 +642,6 @@ public final class ConnectionI implements Connection
     public void
     flushBatchRequests()
     {
-	IceInternal.BasicStream stream = null;
-
 	synchronized(this)
 	{
 	    while(_batchStreamInUse && _exception == null)
@@ -689,7 +679,11 @@ public final class ConnectionI implements Connection
 	    //
 	    _batchStream.writeInt(_batchRequestNum);
 
-	    stream = doCompress(_batchStream, _overrideCompress ? _overrideCompressValue : _batchRequestCompress);
+	    //
+	    // Compression not supported.
+	    //
+	    _batchStream.pos(9);
+	    _batchStream.writeByte((byte)(0));
 
 	    //
 	    // Prevent that new batch requests are added while we are
@@ -712,7 +706,7 @@ public final class ConnectionI implements Connection
 		// Send the batch request.
 		//
 		IceInternal.TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-		_transceiver.write(stream, _endpoint.timeout());
+		_transceiver.write(_batchStream, _endpoint.timeout());
 	    }
 	}
 	catch(LocalException ex)
@@ -729,13 +723,6 @@ public final class ConnectionI implements Connection
 		throw _exception;
 	    }
 	}
-	finally
-	{
-	    if(stream != null && stream != _batchStream)
-	    {
-		stream.destroy();
-	    }
-	}
 
 	synchronized(this)
 	{
@@ -745,16 +732,14 @@ public final class ConnectionI implements Connection
 	    _batchStream.destroy();
 	    _batchStream = new IceInternal.BasicStream(_instance);
 	    _batchRequestNum = 0;
-	    _batchRequestCompress = false;
 	    _batchStreamInUse = false;
 	    notifyAll();
 	}
     }
 
     public void
-    sendResponse(IceInternal.BasicStream os, byte compressFlag)
+    sendResponse(IceInternal.BasicStream os)
     {
-	IceInternal.BasicStream stream = null;
 	try
 	{
 	    synchronized(_sendMutex)
@@ -765,13 +750,23 @@ public final class ConnectionI implements Connection
 		    throw _exception; // The exception is immutable at this point.
 		}
 
-		stream = doCompress(os, compressFlag != 0);
+	        //
+	        // Compression not supported.
+	        //
+	        os.pos(9);
+	        os.writeByte((byte)(0));
+
+	        //
+	        // Fill in the message size.
+	        //
+	        os.pos(10);
+	        os.writeInt(os.size());
 
 		//
 		// Send the reply.
 		//
 		IceInternal.TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
-		_transceiver.write(stream, _endpoint.timeout());
+		_transceiver.write(os, _endpoint.timeout());
 	    }
 	}
 	catch(LocalException ex)
@@ -779,13 +774,6 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
-	    }
-	}
-	finally
-	{
-	    if(stream != os)
-	    {
-		stream.destroy();
 	    }
 	}
 
@@ -962,7 +950,6 @@ public final class ConnectionI implements Connection
         _batchStream = new IceInternal.BasicStream(instance);
 	_batchStreamInUse = false;
 	_batchRequestNum = 0;
-	_batchRequestCompress = false;
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
@@ -1011,9 +998,6 @@ public final class ConnectionI implements Connection
 	    e.initCause(ex);
 	    throw e;
 	}
-
-	_overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
-	_overrideCompressValue = _instance.defaultsAndOverrides().overrideCompressValue;
     }
 
     protected void
@@ -1189,7 +1173,7 @@ public final class ConnectionI implements Connection
 	    os.writeByte(IceInternal.Protocol.encodingMajor);
 	    os.writeByte(IceInternal.Protocol.encodingMinor);
 	    os.writeByte(IceInternal.Protocol.closeConnectionMsg);
-	    os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
+	    os.writeByte((byte)0); // Compression not supported.
 	    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 		
 	    //
@@ -1209,56 +1193,6 @@ public final class ConnectionI implements Connection
 	}
     }
 
-    private IceInternal.BasicStream
-    doCompress(IceInternal.BasicStream uncompressed, boolean compress)
-    {
-	if(_compressionSupported)
-	{
-	    if(compress && uncompressed.size() >= 100)
-	    {
-		//
-		// Do compression.
-		//
-		IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize);
-		if(cstream != null)
-		{
-		    //
-		    // Set compression status.
-		    //
-		    cstream.pos(9);
-		    cstream.writeByte((byte)2);
-
-		    //
-		    // Write the size of the compressed stream into the header.
-		    //
-		    cstream.pos(10);
-		    cstream.writeInt(cstream.size());
-
-		    //
-		    // Write the compression status and size of the compressed stream into the header of the
-		    // uncompressed stream -- we need this to trace requests correctly.
-		    //
-		    uncompressed.pos(9);
-		    uncompressed.writeByte((byte)2);
-		    uncompressed.writeInt(cstream.size());
-
-		    return cstream;
-		}
-	    }
-	}
-
-	uncompressed.pos(9);
-	uncompressed.writeByte((byte)((_compressionSupported && compress) ? 1 : 0));
-
-	//
-	// Not compressed, fill in the message size.
-	//
-	uncompressed.pos(10);
-	uncompressed.writeInt(uncompressed.size());
-
-	return uncompressed;
-    }
-
     private static class MessageInfo
     {
 	MessageInfo(IceInternal.BasicStream stream)
@@ -1270,7 +1204,6 @@ public final class ConnectionI implements Connection
 	boolean destroyStream;
 	int invokeNum;
 	int requestId;
-	byte compress;
 	IceInternal.ServantManager servantManager;
 	ObjectAdapter adapter;
     }
@@ -1290,22 +1223,10 @@ public final class ConnectionI implements Connection
 	    assert(info.stream.pos() == info.stream.size());
 	    info.stream.pos(8);
 	    byte messageType = info.stream.readByte();
-	    info.compress = info.stream.readByte();
-	    if(info.compress == (byte)2)
+	    byte compress = info.stream.readByte();
+	    if(compress == (byte)2)
 	    {
-		if(_compressionSupported)
-		{
-		    IceInternal.BasicStream ustream = info.stream.uncompress(IceInternal.Protocol.headerSize);
-		    if(ustream != info.stream)
-		    {
-			info.destroyStream = true;
-			info.stream = ustream;
-		    }
-		}
-		else
-		{
-		    throw new CompressionNotSupportedException();
-		}
+	        throw new CompressionNotSupportedException();
 	    }
 	    info.stream.pos(IceInternal.Protocol.headerSize);
 
@@ -1427,7 +1348,7 @@ public final class ConnectionI implements Connection
     };
 
     private void
-    invokeAll(IceInternal.BasicStream stream, int invokeNum, int requestId, byte compress,
+    invokeAll(IceInternal.BasicStream stream, int invokeNum, int requestId,
 	      IceInternal.ServantManager servantManager, ObjectAdapter adapter)
     {
 	//
@@ -1445,7 +1366,7 @@ public final class ConnectionI implements Connection
 		// Prepare the invocation.
 		//
 		boolean response = requestId != 0;
-		in = getIncoming(adapter, response, compress);
+		in = getIncoming(adapter, response);
 		IceInternal.BasicStream is = in.is();
 		stream.swap(is);
 		IceInternal.BasicStream os = in.os();
@@ -1731,7 +1652,7 @@ public final class ConnectionI implements Connection
 		// must be done outside the thread synchronization, so that nested
 		// calls are possible.
 		//
-		invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
+		invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager,
 			  info.adapter);
 
 		if(requests != null)
@@ -1784,7 +1705,7 @@ public final class ConnectionI implements Connection
     }
 
     private IceInternal.Incoming
-    getIncoming(ObjectAdapter adapter, boolean response, byte compress)
+    getIncoming(ObjectAdapter adapter, boolean response)
     {
         IceInternal.Incoming in = null;
 
@@ -1792,14 +1713,14 @@ public final class ConnectionI implements Connection
         {
             if(_incomingCache == null)
             {
-                in = new IceInternal.Incoming(_instance, this, adapter, response, compress);
+                in = new IceInternal.Incoming(_instance, this, adapter, response);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_instance, this, adapter, response, compress);
+                in.reset(_instance, this, adapter, response);
             }
         }
 
@@ -1856,7 +1777,6 @@ public final class ConnectionI implements Connection
     private IceInternal.BasicStream _batchStream;
     private boolean _batchStreamInUse;
     private int _batchRequestNum;
-    private boolean _batchRequestCompress;
 
     private int _dispatchCount;
 
@@ -1871,9 +1791,4 @@ public final class ConnectionI implements Connection
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
-
-    private static boolean _compressionSupported = IceInternal.BasicStream.compressible();
-
-    private boolean _overrideCompress;
-    private boolean _overrideCompressValue;
 }

@@ -48,16 +48,6 @@ public class FixedReference extends Reference
     }
 
     public Reference
-    changeCompress(boolean newCompress)
-    {
-	// TODO: FixedReferences should probably have a _compress flag,
-	// that gets its default from the fixed connection this reference
-	// refers to. This should be changable with changeCompress(), and
-	// reset in changeDefault().
-        return this;
-    }
-
-    public Reference
     changeTimeout(int newTimeout)
     {
 	return this;
@@ -73,7 +63,7 @@ public class FixedReference extends Reference
     }
 
     public Ice.ConnectionI
-    getConnection(Ice.BooleanHolder compress)
+    getConnection()
     {
 	if(_fixedConnections.length == 0)
 	{
@@ -87,7 +77,6 @@ public class FixedReference extends Reference
 	//
 	Ice.ConnectionI connection = _fixedConnections[_rand.nextInt(_fixedConnections.length)];
 	assert(connection != null);
-	compress.value = connection.endpoint().compress();
 
 	return connection;
     }

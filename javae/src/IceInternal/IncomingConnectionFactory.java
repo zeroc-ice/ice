@@ -208,11 +208,6 @@ public final class IncomingConnectionFactory
 	    _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	}
 
-	if(defaultsAndOverrides.overrideCompress)
-	{
-	    _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
-	}
-
 	EndpointHolder h = new EndpointHolder();
 	h.value = _endpoint;
 	_transceiver = _endpoint.serverTransceiver(h);

@@ -76,19 +76,6 @@ public class DirectReference extends RoutableReference
     }
 
     public Reference
-    changeCompress(boolean newCompress)
-    {
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        Endpoint[] newEndpoints = new Endpoint[_endpoints.length];
-        for(int i = 0; i < _endpoints.length; i++)
-        {
-            newEndpoints[i] = _endpoints[i].compress(newCompress);
-        }
-	r._endpoints = newEndpoints;
-	return r;
-    }
-
-    public Reference
     changeTimeout(int newTimeout)
     {
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
@@ -140,7 +127,7 @@ public class DirectReference extends RoutableReference
     }
 
     public Ice.ConnectionI
-    getConnection(Ice.BooleanHolder comp)
+    getConnection()
     {
         Endpoint[] endpts = super.getRoutedEndpoints();
 	if(endpts.length == 0)
@@ -156,7 +143,7 @@ public class DirectReference extends RoutableReference
 	}
 
 	OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-	Ice.ConnectionI connection = factory.create(filteredEndpoints, comp);
+	Ice.ConnectionI connection = factory.create(filteredEndpoints);
 
 	//
 	// If we have a router, set the object adapter for this router

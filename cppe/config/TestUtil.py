@@ -9,14 +9,6 @@
 # **********************************************************************
 
 #
-# Set compressed to 1 in case you want to run the tests with
-# protocol compression.
-#
-
-#compress = 0
-compress = 1
-
-#
 # If you don't set "host" below, then the Ice library will try to find
 # out the IP address of this host. For the Ice test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -191,11 +183,6 @@ else:
 clientProtocol = ""
 serverProtocol = ""
 clientServerProtocol = ""
-
-if compress:
-    clientProtocol += " --Ice.Override.Compress"
-    serverProtocol += " --Ice.Override.Compress"
-    clientServerProtocol += " --Ice.Override.Compress"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

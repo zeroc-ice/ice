@@ -114,7 +114,6 @@ Ice:
     MessageSizeMax
     Nohup
     NullHandleAbort
-    Override.Compress
     Override.ConnectTimeout
     Override.Timeout
     Package.<any>

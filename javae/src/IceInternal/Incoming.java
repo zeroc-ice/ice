@@ -12,9 +12,9 @@ package IceInternal;
 final public class Incoming extends IncomingBase
 {
     public
-    Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response)
     {
-	super(instance, connection, adapter, response, compress);
+	super(instance, connection, adapter, response);
 
         _is = new BasicStream(instance);
     }
@@ -41,7 +41,7 @@ final public class Incoming extends IncomingBase
     // reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response)
     {
 	if(_is == null)
 	{
@@ -52,7 +52,7 @@ final public class Incoming extends IncomingBase
 	    _is.reset();
 	}
 
-	super.reset(instance, connection, adapter, response, compress);
+	super.reset(instance, connection, adapter, response);
     }
 
     public void
@@ -224,7 +224,7 @@ final public class Incoming extends IncomingBase
 
 		_os.writeString(ex.operation);
 
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -248,7 +248,7 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -272,7 +272,7 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
 		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -296,7 +296,7 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -325,7 +325,7 @@ final public class Incoming extends IncomingBase
 		ex.printStackTrace(pw);
 		pw.flush();
 		_os.writeString(sw.toString());
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -360,7 +360,7 @@ final public class Incoming extends IncomingBase
 		ex.printStackTrace(pw);
 		pw.flush();
 		_os.writeString(sw.toString());
-		_connection.sendResponse(_os, _compress);
+		_connection.sendResponse(_os);
 	    }
 	    else
 	    {
@@ -416,7 +416,7 @@ final public class Incoming extends IncomingBase
 		_os.pos(save);
 	    }
 
-	    _connection.sendResponse(_os, _compress);
+	    _connection.sendResponse(_os);
 	}
 	else
 	{

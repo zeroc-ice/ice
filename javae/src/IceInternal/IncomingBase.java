@@ -12,11 +12,9 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
-                 byte compress)
+    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response)
     {
 	_response = response;
-        _compress = compress;
         _os = new BasicStream(instance);
 	_connection = connection;
 
@@ -47,9 +45,6 @@ public class IncomingBase
 	_response = in._response;
 	in._response = false;
 
-	_compress = in._compress;
-	in._compress = 0;
-
 	_os = in._os;
 	in._os = null;
 
@@ -76,7 +71,7 @@ public class IncomingBase
     // This function allows this object to be reused, rather than reallocated.
     //
     public void
-    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response)
     {
         //
         // Don't recycle the Current object, because servants may keep a reference to it.
@@ -100,8 +95,6 @@ public class IncomingBase
 	}
 
 	_response = response;
-
-        _compress = compress;
 
 	if(_os == null)
 	{
@@ -140,7 +133,6 @@ public class IncomingBase
     protected Ice.LocalObjectHolder _cookie;
 
     protected boolean _response;
-    protected byte _compress;
 
     protected BasicStream _os;
 

@@ -76,23 +76,6 @@ endif
 
 #STLPORT_HOME		?= /opt/STLport
 
-
-#
-# If libbzip2 is not installed in a standard location where the compiler 
-# can find it, set BZIP2_HOME to the bzip2 installation directory.
-#
-
-#BZIP2_HOME		?= /opt/bzip2
-
-
-#
-# If Berkeley DB is not installed in a standard location where the
-# compiler can find it, set DB_HOME to the Berkeley DB installation
-# directory.
-#
-
-#DB_HOME		?= /opt/db
-
 #
 # If expat is not installed in a standard location where the
 # compiler can find it, set EXPAT_HOME to the expat
@@ -165,22 +148,6 @@ ifneq ($(STLPORT_HOME),)
 else
     STLPORT_FLAGS	=
     STLPORT_LIBS	=
-endif
-
-ifneq ($(BZIP2_HOME),)
-    BZIP2_FLAGS		= -I$(BZIP2_HOME)/include
-    BZIP2_LIBS		= -L$(BZIP2_HOME)/$(libsubdir) -lbz2
-else
-    BZIP2_FLAGS		=
-    BZIP2_LIBS		= -lbz2
-endif
-
-ifneq ($(DB_HOME),)
-    DB_FLAGS		= -I$(DB_HOME)/include
-    DB_LIBS		= -L$(DB_HOME)/$(libsubdir) -ldb_cxx
-else
-    DB_FLAGS		=
-    DB_LIBS		= -ldb_cxx
 endif
 
 ifneq ($(EXPAT_HOME),)

@@ -90,19 +90,6 @@ public class IndirectReference extends RoutableReference
     }
 
     public Reference
-    changeCompress(boolean newCompress)
-    {
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	if(_locatorInfo != null)
-	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-	    					_locatorInfo.getLocator().ice_compress(newCompress));
-	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
-	}
-	return r;
-    }
-
-    public Reference
     changeTimeout(int newTimeout)
     {
         IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
@@ -159,7 +146,7 @@ public class IndirectReference extends RoutableReference
     }
 
     public Ice.ConnectionI
-    getConnection(Ice.BooleanHolder comp)
+    getConnection()
     {
 	Ice.ConnectionI connection;
 
@@ -182,7 +169,7 @@ public class IndirectReference extends RoutableReference
 	    try
 	    {
 		OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-		connection = factory.create(filteredEndpoints, comp);
+		connection = factory.create(filteredEndpoints);
 		assert(connection != null);
 	    }
 	    catch(Ice.LocalException ex)

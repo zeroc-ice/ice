@@ -17,11 +17,6 @@ Hello.Endpoints=tcp -p 10000
 Ice.Warn.Connections=1
 
 #
-# We want a faster ACM for this demo.
-#
-Ice.ConnectionIdleTime=10
-
-#
 # Network Tracing
 #
 # 0 = no network tracing
