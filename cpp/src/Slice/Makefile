@@ -21,7 +21,8 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= Scanner.o \
 		  Grammar.o \
 		  Parser.o \
-		  CPlusPlusUtil.o
+		  CPlusPlusUtil.o \
+		  JavaUtil.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

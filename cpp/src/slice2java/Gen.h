@@ -11,14 +11,12 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include <Slice/Parser.h>
-#include <IceUtil/OutputUtil.h>
-//#include <JavaUtil.h>
+#include <Slice/JavaUtil.h>
 
 namespace Slice
 {
 
-class JavaVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+class JavaVisitor : public JavaGenerator, public ParserVisitor
 {
 public:
 
@@ -27,44 +25,6 @@ public:
 protected:
 
     JavaVisitor(const std::string&, const std::string&);
-
-    //
-    // Given the fully-scoped Java class name, create any intermediate
-    // package directories and open the class file
-    //
-    bool open(const std::string&);
-    void close();
-
-    ::IceUtil::Output& output() const;
-
-    //
-    // Check a symbol against any of the Java keywords. If a
-    // match is found, return the symbol with a leading underscore.
-    //
-    std::string fixKwd(const std::string&) const;
-
-    //
-    // Convert a scoped name into a Java class name. If an optional
-    // scope is provided, the scope will be removed from the result.
-    //
-    std::string getAbsolute(const std::string&,
-                            const std::string& = std::string(),
-                            const std::string& = std::string(),
-                            const std::string& = std::string()) const;
-
-    //
-    // Get the Java name for a type. If an optional scope is provided,
-    // the scope will be removed from the result if possible.
-    //
-    enum TypeMode
-    {
-        TypeModeIn,
-        TypeModeOut,
-        TypeModeMember,
-        TypeModeReturn
-    };
-    std::string typeToString(const TypePtr&, TypeMode mode,
-                             const std::string& = std::string()) const;
 
     //
     // Compose the parameter list for an operation
@@ -88,20 +48,6 @@ protected:
     void writeDelegateThrowsClause(const std::string&, const ExceptionList&);
 
     //
-    // Generate code to marshal or unmarshal a type
-    //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
-                                   const std::string&, bool, int&,
-                                   bool = false);
-
-    //
-    // Generate generic code to marshal or unmarshal a type
-    //
-    void writeGenericMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
-                                          const std::string&, const std::string&, bool, int&,
-                                          bool = false);
-
-    //
     // Generate code to compute a hash code for a type
     //
     void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
@@ -110,15 +56,6 @@ protected:
     // Generate dispatch methods for a class or interface
     //
     void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
-
-private:
-
-    void printHeader();
-
-    std::string _dir;
-    std::string _package;
-
-    ::IceUtil::Output* _out;
 };
 
 class Gen : public ::IceUtil::noncopyable
