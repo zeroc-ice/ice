@@ -26,7 +26,6 @@ public class Client
             "D: send greeting as batch datagram\n" +
             "f: flush all batch requests\n" +
             "T: set a timeout\n" +
-            "S: switch secure mode on/off\n" +
             "x: exit\n" +
             "?: help\n");
     }
@@ -117,7 +116,6 @@ public class Client
         HelloSessionPrx datagram = HelloSessionPrxHelper.uncheckedCast(twoway.ice_datagram());
         HelloSessionPrx batchDatagram = HelloSessionPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
-        boolean secure = false;
         int timeout = -1;
 
         menu();
@@ -180,25 +178,6 @@ public class Client
                     else
                     {
                         System.out.println("timeout is now set to 2000ms");
-                    }
-                }
-                else if(line.equals("S"))
-                {
-                    secure = !secure;
-
-                    twoway = HelloSessionPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-                    oneway = HelloSessionPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-                    batchOneway = HelloSessionPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-                    datagram = HelloSessionPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-                    batchDatagram = HelloSessionPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
-
-                    if(secure)
-                    {
-                        System.out.println("secure mode is now on");
-                    }
-                    else
-                    {
-                        System.out.println("secure mode is now off");
                     }
                 }
                 else if(line.equals("x"))
