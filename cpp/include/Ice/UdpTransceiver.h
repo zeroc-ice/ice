@@ -23,9 +23,9 @@
 namespace __Ice
 {
 
-class UdpEndpointI;
+class UdpEndpoint;
 
-class UdpTransceiverI : public TransceiverI
+class UdpTransceiver : public Transceiver
 {
 public:
 
@@ -38,18 +38,18 @@ public:
     
 private:
 
-    UdpTransceiverI(Instance, const std::string&, int);
-    UdpTransceiverI(Instance, int);
-    virtual ~UdpTransceiverI();
-    friend class UdpEndpointI;
+    UdpTransceiver(Instance_ptr, const std::string&, int);
+    UdpTransceiver(Instance_ptr, int);
+    virtual ~UdpTransceiver();
+    friend class UdpEndpoint;
 
-    Instance instance_;
+    Instance_ptr instance_;
     bool sender_;
     int fd_;
     struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 

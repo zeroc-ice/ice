@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class ProxyFactoryI;
-void incRef(ProxyFactoryI*);
-void decRef(ProxyFactoryI*);
-typedef __Ice::Handle<ProxyFactoryI> ProxyFactory;
+class ProxyFactory;
+void incRef(ProxyFactory*);
+void decRef(ProxyFactory*);
+typedef __Ice::Handle<ProxyFactory> ProxyFactory_ptr;
 
 }
 

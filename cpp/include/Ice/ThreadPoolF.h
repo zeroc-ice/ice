@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class ThreadPoolI;
-void incRef(ThreadPoolI*);
-void decRef(ThreadPoolI*);
-typedef __Ice::Handle<ThreadPoolI> ThreadPool;
+class ThreadPool;
+void incRef(ThreadPool*);
+void decRef(ThreadPool*);
+typedef __Ice::Handle<ThreadPool> ThreadPool_ptr;
 
 }
 

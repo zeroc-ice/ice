@@ -22,22 +22,22 @@ namespace __Ice
 
 class Stream;
 
-class ProxyFactoryI : public Shared
+class ProxyFactory : public Shared
 {
 public:
     
     ::Ice::Object_pptr stringToProxy(const std::string&);
     ::Ice::Object_pptr streamToProxy(Stream*);
-    ::Ice::Object_pptr referenceToProxy(const Reference&);
+    ::Ice::Object_pptr referenceToProxy(const Reference_ptr&);
     void proxyToStream(const ::Ice::Object_pptr&, Stream*);
 
 private:
 
-    ProxyFactoryI(const Instance&);
-    virtual ~ProxyFactoryI();
-    friend class InstanceI;
+    ProxyFactory(const Instance_ptr&);
+    virtual ~ProxyFactory();
+    friend class Instance;
 
-    Instance instance_;
+    Instance_ptr instance_;
 };
 
 }

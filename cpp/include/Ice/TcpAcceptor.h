@@ -24,9 +24,9 @@
 namespace __Ice
 {
 
-class TcpEndpointI;
+class TcpEndpoint;
 
-class TcpAcceptorI : public AcceptorI
+class TcpAcceptor : public Acceptor
 {
 public:
 
@@ -34,22 +34,22 @@ public:
     virtual void close();
     virtual void shutdown();
     virtual void listen();
-    virtual Transceiver accept(int);
+    virtual Transceiver_ptr accept(int);
     virtual std::string toString() const;
 
 private:
 
-    TcpAcceptorI(Instance, int);
-    virtual ~TcpAcceptorI();
-    friend class TcpEndpointI;
+    TcpAcceptor(Instance_ptr, int);
+    virtual ~TcpAcceptor();
+    friend class TcpEndpoint;
 
-    Instance instance_;
+    Instance_ptr instance_;
     int fd_;
     int backlog_;
     struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 

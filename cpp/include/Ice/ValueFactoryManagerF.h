@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class ValueFactoryManagerI;
-void incRef(ValueFactoryManagerI*);
-void decRef(ValueFactoryManagerI*);
-typedef __Ice::Handle<ValueFactoryManagerI> ValueFactoryManager;
+class ValueFactoryManager;
+void incRef(ValueFactoryManager*);
+void decRef(ValueFactoryManager*);
+typedef __Ice::Handle<ValueFactoryManager> ValueFactoryManager_ptr;
 
 }
 

@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class TraceLevelsI;
-void incRef(TraceLevelsI*);
-void decRef(TraceLevelsI*);
-typedef __Ice::Handle<TraceLevelsI> TraceLevels;
+class TraceLevels;
+void incRef(TraceLevels*);
+void decRef(TraceLevels*);
+typedef __Ice::Handle<TraceLevels> TraceLevels_ptr;
 
 }
 

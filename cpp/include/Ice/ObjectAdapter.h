@@ -24,12 +24,12 @@
 namespace Ice
 {
 
-class ICE_API ObjectAdapterI : public ::__Ice::Shared, public JTCMutex
+class ICE_API ObjectAdapter : public ::__Ice::Shared, public JTCMutex
 {
 public:
 
     std::string name() const;
-    Communicator communicator() const;
+    Communicator_ptr communicator() const;
 
     void activate();
     void hold();
@@ -42,19 +42,19 @@ public:
 
     Object_pptr proxy(const std::string&);
 
-    ::__Ice::Instance __instance() const;
+    ::__Ice::Instance_ptr __instance() const;
     Object_iptr __findServant(const std::string&) const;
 
 private:
 
-    ObjectAdapterI(const ::__Ice::Instance&, const std::string&,
+    ObjectAdapter(const ::__Ice::Instance_ptr&, const std::string&,
 		   const std::string&);
-    virtual ~ObjectAdapterI();
-    friend CommunicatorI;
+    virtual ~ObjectAdapter();
+    friend Communicator;
 
-    ::__Ice::Instance instance_;
+    ::__Ice::Instance_ptr instance_;
     std::string name_;
-    std::vector< __Ice::CollectorFactory> collectorFactories_;
+    std::vector< __Ice::CollectorFactory_ptr> collectorFactories_;
     std::map<std::string, Object_iptr> objects_;
 };
 

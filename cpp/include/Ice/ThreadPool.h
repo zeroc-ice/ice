@@ -22,11 +22,11 @@ namespace __Ice
 
 class Stream;
 
-class ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
+class ThreadPool : public Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 
-    void _register(int, const EventHandler&);
+    void _register(int, const EventHandler_ptr&);
     void unregister(int);
     void promoteFollower();
     void waitUntilServerFinished();
@@ -35,26 +35,26 @@ public:
     
 private:
 
-    ThreadPoolI(const Instance&);
-    virtual ~ThreadPoolI();
+    ThreadPool(const Instance_ptr&);
+    virtual ~ThreadPool();
     void destroy();
-    friend class InstanceI;
+    friend class Instance;
 
     void clearInterrupt();
     void setInterrupt();
 
     void run();
-    void read(const EventHandler&);
+    void read(const EventHandler_ptr&);
 
-    Instance instance_;
+    Instance_ptr instance_;
     int lastFd_;
     int maxFd_;
     int fdIntrRead_;
     int fdIntrWrite_;
     fd_set fdSet_;
-    std::vector<std::pair<int, EventHandler> > adds_;
+    std::vector<std::pair<int, EventHandler_ptr> > adds_;
     std::vector<int> removes_;
-    std::map<int, EventHandler> handlers_;
+    std::map<int, EventHandler_ptr> handlers_;
     int servers_;
     JTCMutex threadMutex_;
 
@@ -62,12 +62,12 @@ private:
     {
     public:
 	
-	EventHandlerThread(ThreadPool pool) : pool_(pool) { }
+	EventHandlerThread(ThreadPool_ptr pool) : pool_(pool) { }
 	virtual void run();
 
     private:
 
-	ThreadPool pool_;
+	ThreadPool_ptr pool_;
     };
     friend class EventHandlerThread;
     std::vector<JTCThreadHandle> threads_;

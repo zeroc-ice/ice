@@ -25,35 +25,35 @@
 namespace __Ice
 {
 
-class InstanceI : public Shared, public JTCMutex
+class Instance : public Shared, public JTCMutex
 {
 public:
 
-    ::Ice::Communicator communicator();
-    ::Ice::Properties properties();
-    ::Ice::Logger logger();
-    void logger(const ::Ice::Logger&);
-    TraceLevels traceLevels();
-    ProxyFactory proxyFactory();
-    ThreadPool threadPool();
-    EmitterFactory emitterFactory();
-    ValueFactoryManager valueFactoryManager();
+    ::Ice::Communicator_ptr communicator();
+    ::Ice::Properties_ptr properties();
+    ::Ice::Logger_ptr logger();
+    void logger(const ::Ice::Logger_ptr&);
+    TraceLevels_ptr traceLevels();
+    ProxyFactory_ptr proxyFactory();
+    ThreadPool_ptr threadPool();
+    EmitterFactory_ptr emitterFactory();
+    ValueFactoryManager_ptr valueFactoryManager();
     
 private:
 
-    InstanceI(const ::Ice::Communicator&, const ::Ice::Properties&);
-    virtual ~InstanceI();
+    Instance(const ::Ice::Communicator_ptr&, const ::Ice::Properties_ptr&);
+    virtual ~Instance();
     void destroy();
-    friend class ::Ice::CommunicatorI;
+    friend class ::Ice::Communicator;
 
-    ::Ice::Communicator communicator_;
-    ::Ice::Properties properties_;
-    ::Ice::Logger logger_;
-    TraceLevels traceLevels_;
-    ProxyFactory proxyFactory_;
-    ThreadPool threadPool_;
-    EmitterFactory emitterFactory_;
-    ValueFactoryManager valueFactoryManager_;
+    ::Ice::Communicator_ptr communicator_;
+    ::Ice::Properties_ptr properties_;
+    ::Ice::Logger_ptr logger_;
+    TraceLevels_ptr traceLevels_;
+    ProxyFactory_ptr proxyFactory_;
+    ThreadPool_ptr threadPool_;
+    EmitterFactory_ptr emitterFactory_;
+    ValueFactoryManager_ptr valueFactoryManager_;
 
     //
     // Global state management

@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class ConnectorI;
-void incRef(ConnectorI*);
-void decRef(ConnectorI*);
-typedef __Ice::Handle<ConnectorI> Connector;
+class Connector;
+void incRef(Connector*);
+void decRef(Connector*);
+typedef __Ice::Handle<Connector> Connector_ptr;
 
 }
 

@@ -29,7 +29,7 @@ class ICE_API Outgoing : noncopyable, public JTCMonitorT< JTCMutex >
 {
 public:
 
-    Outgoing(const Emitter&, const Reference&);
+    Outgoing(const Emitter_ptr&, const Reference_ptr&);
     ~Outgoing();
 
     void invoke();
@@ -41,8 +41,8 @@ public:
 
 private:
 
-    Emitter emitter_;
-    Reference reference_;
+    Emitter_ptr emitter_;
+    Reference_ptr reference_;
     std::auto_ptr< ::Ice::LocalException> exception_;
 
     enum

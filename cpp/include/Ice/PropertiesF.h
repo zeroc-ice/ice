@@ -13,20 +13,20 @@
 
 #include <Ice/Handle.h>
 
-namespace Ice { class PropertiesI; }
+namespace Ice { class Properties; }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::PropertiesI*);
-void ICE_API decRef(::Ice::PropertiesI*);
+void ICE_API incRef(::Ice::Properties*);
+void ICE_API decRef(::Ice::Properties*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<PropertiesI> Properties;
+typedef __Ice::Handle<Properties> Properties_ptr;
 
 }
 

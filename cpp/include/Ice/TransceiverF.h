@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class TransceiverI;
-void incRef(TransceiverI*);
-void decRef(TransceiverI*);
-typedef __Ice::Handle<TransceiverI> Transceiver;
+class Transceiver;
+void incRef(Transceiver*);
+void decRef(Transceiver*);
+typedef __Ice::Handle<Transceiver> Transceiver_ptr;
 
 }
 

@@ -44,7 +44,7 @@ public:
     ::Ice::Object_pptr _datagram() const;
     ::Ice::Object_pptr _timeout(int) const;
 
-    ::__Ice::Reference __reference() const;
+    ::__Ice::Reference_ptr __reference() const;
     void __copyTo(Object*) const;
 
 protected:
@@ -57,12 +57,12 @@ protected:
 
 private:
 
-    void setup(const ::__Ice::Reference&);
+    void setup(const ::__Ice::Reference_ptr&);
 
-    ::__Ice::Reference reference_;
+    ::__Ice::Reference_ptr reference_;
     ::__Ice::Handle< ::__IceDelegate::Ice::Object> delegate_;
 
-    friend class ::__Ice::ProxyFactoryI;
+    friend class ::__Ice::ProxyFactory;
 };
 
 } }
@@ -83,7 +83,7 @@ protected:
 
 private:
 
-    virtual void setup(const ::__Ice::Reference&) = 0;
+    virtual void setup(const ::__Ice::Reference_ptr&) = 0;
     friend class ::__IceProxy::Ice::Object;
 };
 
@@ -103,15 +103,15 @@ protected:
     Object();
     virtual ~Object();
 
-    const ::__Ice::Emitter& __emitter(); // const...& for performance
-    const ::__Ice::Reference& __reference(); // const...& for performance
+    const ::__Ice::Emitter_ptr& __emitter(); // const...& for performance
+    const ::__Ice::Reference_ptr& __reference(); // const...& for performance
 
 private:
 
-    ::__Ice::Emitter emitter_;
-    ::__Ice::Reference reference_;
+    ::__Ice::Emitter_ptr emitter_;
+    ::__Ice::Reference_ptr reference_;
 
-    virtual void setup(const ::__Ice::Reference&);
+    virtual void setup(const ::__Ice::Reference_ptr&);
     friend class ::__IceProxy::Ice::Object;
 };
 

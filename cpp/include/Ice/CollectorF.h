@@ -16,15 +16,15 @@
 namespace __Ice
 {
 
-class CollectorI;
-void incRef(CollectorI*);
-void decRef(CollectorI*);
-typedef __Ice::Handle<CollectorI> Collector;
+class Collector;
+void incRef(Collector*);
+void decRef(Collector*);
+typedef __Ice::Handle<Collector> Collector_ptr;
 
-class CollectorFactoryI;
-void incRef(CollectorFactoryI*);
-void decRef(CollectorFactoryI*);
-typedef __Ice::Handle<CollectorFactoryI> CollectorFactory;
+class CollectorFactory;
+void incRef(CollectorFactory*);
+void decRef(CollectorFactory*);
+typedef __Ice::Handle<CollectorFactory> CollectorFactory_ptr;
 
 }
 

@@ -18,12 +18,12 @@
 namespace __Ice
 {
 
-class TraceLevelsI : public Shared
+class TraceLevels : public Shared
 {
 public:
 
-    TraceLevelsI(const ::Ice::Properties&);
-    virtual ~TraceLevelsI();
+    TraceLevels(const ::Ice::Properties_ptr&);
+    virtual ~TraceLevels();
 
     const int network;
     const char* networkCat;

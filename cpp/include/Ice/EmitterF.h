@@ -16,15 +16,15 @@
 namespace __Ice
 {
 
-class EmitterI;
-void incRef(EmitterI*);
-void decRef(EmitterI*);
-typedef __Ice::Handle<EmitterI> Emitter;
+class Emitter;
+void incRef(Emitter*);
+void decRef(Emitter*);
+typedef __Ice::Handle<Emitter> Emitter_ptr;
 
-class EmitterFactoryI;
-void incRef(EmitterFactoryI*);
-void decRef(EmitterFactoryI*);
-typedef __Ice::Handle<EmitterFactoryI> EmitterFactory;
+class EmitterFactory;
+void incRef(EmitterFactory*);
+void decRef(EmitterFactory*);
+typedef __Ice::Handle<EmitterFactory> EmitterFactory_ptr;
 
 }
 

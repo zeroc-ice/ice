@@ -23,9 +23,9 @@ class ICE_API Stream : public Buffer
 {
 public:
 
-    Stream(const Instance&);
+    Stream(const Instance_ptr&);
 
-    Instance instance() const;
+    Instance_ptr instance() const;
 
     void swap(Stream&);
 
@@ -93,7 +93,7 @@ public:
 
 private:
 
-    Instance instance_;
+    Instance_ptr instance_;
     bool bigendian_;
     std::stack<bool> bigendianStack_;
     std::stack<int> encapsStartStack_;

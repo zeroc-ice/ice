@@ -18,7 +18,7 @@
 namespace __Ice
 {
 
-class AcceptorI : public Shared
+class Acceptor : public Shared
 {
 public:
 
@@ -26,13 +26,13 @@ public:
     virtual void close() = 0;
     virtual void shutdown() = 0;
     virtual void listen() = 0;
-    virtual Transceiver accept(int) = 0;
+    virtual Transceiver_ptr accept(int) = 0;
     virtual std::string toString() const = 0;
 
 protected:
 
-    AcceptorI() { }
-    virtual ~AcceptorI() { }
+    Acceptor() { }
+    virtual ~Acceptor() { }
 };
 
 }

@@ -19,10 +19,10 @@
 namespace __Ice
 {
 
-class TcpConnectorI;
-class TcpAcceptorI;
+class TcpConnector;
+class TcpAcceptor;
 
-class TcpTransceiverI : public TransceiverI
+class TcpTransceiver : public Transceiver
 {
 public:
 
@@ -35,18 +35,18 @@ public:
     
 private:
 
-    TcpTransceiverI(Instance, int);
-    virtual ~TcpTransceiverI();
-    friend class TcpConnectorI;
-    friend class TcpAcceptorI;
+    TcpTransceiver(Instance_ptr, int);
+    virtual ~TcpTransceiver();
+    friend class TcpConnector;
+    friend class TcpAcceptor;
 
-    Instance instance_;
+    Instance_ptr instance_;
     int fd_;
     fd_set rFdSet;
     fd_set wFdSet;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 

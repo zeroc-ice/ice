@@ -21,7 +21,7 @@ class ICE_API Incoming : noncopyable
 {
 public:
 
-    Incoming(const ::Ice::ObjectAdapter&);
+    Incoming(const ::Ice::ObjectAdapter_ptr&);
     ~Incoming();
 
     void invoke(Stream&);
@@ -31,7 +31,7 @@ public:
 
 private:
 
-    ::Ice::ObjectAdapter adapter_;
+    ::Ice::ObjectAdapter_ptr adapter_;
 
     Stream is_;
     Stream os_;

@@ -21,11 +21,11 @@ namespace __Ice
 class Stream;
 
 void traceHeader(const char*, const Stream&,
-		 const ::Ice::Logger&, const TraceLevels&);
+		 const ::Ice::Logger_ptr&, const TraceLevels_ptr&);
 void traceRequest(const char*, const Stream&,
-		  const ::Ice::Logger&, const TraceLevels&);
+		  const ::Ice::Logger_ptr&, const TraceLevels_ptr&);
 void traceReply(const char*, const Stream&,
-		const ::Ice::Logger&, const TraceLevels&);
+		const ::Ice::Logger_ptr&, const TraceLevels_ptr&);
 
 }
 

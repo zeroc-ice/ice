@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class EventHandlerI;
-void incRef(EventHandlerI*);
-void decRef(EventHandlerI*);
-typedef __Ice::Handle<EventHandlerI> EventHandler;
+class EventHandler;
+void incRef(EventHandler*);
+void decRef(EventHandler*);
+typedef __Ice::Handle<EventHandler> EventHandler_ptr;
 
 }
 

@@ -19,7 +19,7 @@ namespace __Ice
 
 class Buffer;
 
-class TransceiverI : public Shared
+class Transceiver : public Shared
 {
 public:
 
@@ -32,8 +32,8 @@ public:
     
 protected:
 
-    TransceiverI() { }
-    virtual ~TransceiverI() { }
+    Transceiver() { }
+    virtual ~Transceiver() { }
 };
 
 }

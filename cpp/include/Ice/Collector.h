@@ -35,7 +35,7 @@ namespace __Ice
 
 class Incoming;
 
-class CollectorI : public EventHandlerI, public JTCRecursiveMutex
+class Collector : public EventHandler, public JTCRecursiveMutex
 {
 public:
 
@@ -47,7 +47,7 @@ public:
     void sendReply(Incoming*);
 
     //
-    // Operations from EventHandlerI
+    // Operations from EventHandler
     //
     virtual bool server() const;
     virtual bool readable() const;
@@ -58,13 +58,13 @@ public:
 
 private:
 
-    CollectorI(const CollectorI&);
-    void operator=(const CollectorI&);
+    Collector(const Collector&);
+    void operator=(const Collector&);
 
-    CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&,
-	       const Endpoint&);
-    virtual ~CollectorI();
-    friend class CollectorFactoryI;
+    Collector(const ::Ice::ObjectAdapter_ptr&, const Transceiver_ptr&,
+	       const Endpoint_ptr&);
+    virtual ~Collector();
+    friend class CollectorFactory;
 
     enum State
     {
@@ -78,19 +78,19 @@ private:
     void closeConnection();
     void warning(const ::Ice::LocalException&) const;
 
-    ::Ice::ObjectAdapter adapter_;
-    Transceiver transceiver_;
-    Endpoint endpoint_;
-    ThreadPool threadPool_;
+    ::Ice::ObjectAdapter_ptr adapter_;
+    Transceiver_ptr transceiver_;
+    Endpoint_ptr endpoint_;
+    ThreadPool_ptr threadPool_;
     int responseCount_;
     State state_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 
-class CollectorFactoryI : public EventHandlerI, public JTCMutex
+class CollectorFactory : public EventHandler, public JTCMutex
 {
 public:
 
@@ -98,10 +98,10 @@ public:
     void hold();
     void activate();
 
-    Endpoint endpoint() const;
+    Endpoint_ptr endpoint() const;
 
     //
-    // Operations from EventHandlerI
+    // Operations from EventHandler
     //
     virtual bool server() const;
     virtual bool readable() const;
@@ -112,12 +112,12 @@ public:
     
 private:
 
-    CollectorFactoryI(const CollectorFactoryI&);
-    void operator=(const CollectorFactoryI&);
+    CollectorFactory(const CollectorFactory&);
+    void operator=(const CollectorFactory&);
 
-    CollectorFactoryI(const ::Ice::ObjectAdapter&, const Endpoint&);
-    virtual ~CollectorFactoryI();
-    friend class ::Ice::ObjectAdapterI;
+    CollectorFactory(const ::Ice::ObjectAdapter_ptr&, const Endpoint_ptr&);
+    virtual ~CollectorFactory();
+    friend class ::Ice::ObjectAdapter;
 
     enum State
     {
@@ -131,15 +131,15 @@ private:
     void clearBacklog();
     void warning(const ::Ice::LocalException&) const;
 
-    ::Ice::ObjectAdapter adapter_;
-    Acceptor acceptor_;
-    Endpoint endpoint_;
-    ThreadPool threadPool_;
-    std::list<Collector> collectors_;
+    ::Ice::ObjectAdapter_ptr adapter_;
+    Acceptor_ptr acceptor_;
+    Endpoint_ptr endpoint_;
+    ThreadPool_ptr threadPool_;
+    std::list<Collector_ptr> collectors_;
     State state_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 

@@ -24,7 +24,7 @@
 namespace Ice
 {
 
-class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCRecursiveMutex
+class ICE_API Communicator : public ::__Ice::Shared, public JTCRecursiveMutex
 {
 public:
     
@@ -34,35 +34,35 @@ public:
 
     Object_pptr stringToProxy(const std::string&);
 
-    ObjectAdapter createObjectAdapter(const std::string&);
-    ObjectAdapter createObjectAdapter(const std::string&, const std::string&);
+    ObjectAdapter_ptr createObjectAdapter(const std::string&);
+    ObjectAdapter_ptr createObjectAdapter(const std::string&, const std::string&);
 
-    void installValueFactory(const ValueFactory&);
+    void installValueFactory(const ValueFactory_ptr&);
 
-    Properties properties();
+    Properties_ptr properties();
 
-    Logger logger();
-    void logger(const Logger&);
+    Logger_ptr logger();
+    void logger(const Logger_ptr&);
 
 private:
 
-    CommunicatorI(const Properties&);
-    virtual ~CommunicatorI();
+    Communicator(const Properties_ptr&);
+    virtual ~Communicator();
 
     // The following operations may create CommunicatorIs
-    friend ICE_API Communicator initialize(int&, char*[]);
-    friend ICE_API Communicator initialize(int&, char*[], const Properties&);
+    friend ICE_API Communicator_ptr initialize(int&, char*[]);
+    friend ICE_API Communicator_ptr initialize(int&, char*[], const Properties_ptr&);
 
-    ::__Ice::Instance instance_;
-    std::map<std::string, ObjectAdapter> adapters_;
+    ::__Ice::Instance_ptr instance_;
+    std::map<std::string, ObjectAdapter_ptr> adapters_;
 };
 
-ICE_API Communicator initialize(int&, char*[]);
-ICE_API Communicator initialize(int&, char*[], const Properties&);
+ICE_API Communicator_ptr initialize(int&, char*[]);
+ICE_API Communicator_ptr initialize(int&, char*[], const Properties_ptr&);
 
-ICE_API Properties createProperties();
-ICE_API Properties createProperties(const Properties&);
-ICE_API Properties createProperties(const std::string&);
+ICE_API Properties_ptr createProperties();
+ICE_API Properties_ptr createProperties(const Properties_ptr&);
+ICE_API Properties_ptr createProperties(const std::string&);
 
 }
 

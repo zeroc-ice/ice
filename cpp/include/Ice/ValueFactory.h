@@ -18,11 +18,11 @@
 namespace Ice
 {
 
-class ICE_API ValueFactoryI : public ::__Ice::Shared
+class ICE_API ValueFactory : public ::__Ice::Shared
 {
 public:
 
-    ValueFactoryI() { }
+    ValueFactory() { }
     virtual std::vector<std::string> ids() = 0;
     virtual Ice::Object_iptr create(const std::string&) = 0;
 };

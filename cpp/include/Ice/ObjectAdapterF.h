@@ -13,20 +13,20 @@
 
 #include <Ice/Handle.h>
 
-namespace Ice { class ObjectAdapterI; }
+namespace Ice { class ObjectAdapter; }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::ObjectAdapterI*);
-void ICE_API decRef(::Ice::ObjectAdapterI*);
+void ICE_API incRef(::Ice::ObjectAdapter*);
+void ICE_API decRef(::Ice::ObjectAdapter*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<ObjectAdapterI> ObjectAdapter;
+typedef __Ice::Handle<ObjectAdapter> ObjectAdapter_ptr;
 
 }
 

@@ -18,17 +18,17 @@
 namespace __Ice
 {
 
-class ConnectorI : public Shared
+class Connector : public Shared
 {
 public:
     
-    virtual Transceiver connect(int) = 0;
+    virtual Transceiver_ptr connect(int) = 0;
     virtual std::string toString() const = 0;
     
 protected:
 
-    ConnectorI() { }
-    virtual ~ConnectorI() { }
+    Connector() { }
+    virtual ~Connector() { }
 };
 
 }

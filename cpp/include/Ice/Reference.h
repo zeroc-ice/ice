@@ -21,21 +21,21 @@ namespace __Ice
 
 class Stream;
 
-class ReferenceI : public Shared
+class Reference : public Shared
 {
 public:
 
-    ReferenceI(const Instance&, const std::string&,
-	       const std::vector<Endpoint>&);
-    ReferenceI(const Instance&, const std::string&);
-    ReferenceI(Stream*);
+    Reference(const Instance_ptr&, const std::string&,
+	       const std::vector<Endpoint_ptr>&);
+    Reference(const Instance_ptr&, const std::string&);
+    Reference(Stream*);
 
     void streamWrite(Stream*) const;
 
     //
     // All  members are const, because References are immutable.
     //
-    const Instance instance;
+    const Instance_ptr instance;
     const std::string identity;
 
     enum Mode
@@ -46,18 +46,18 @@ public:
     };
     const Mode mode;
 
-    const std::vector<Endpoint> endpoints;
+    const std::vector<Endpoint_ptr> endpoints;
 
     //
     // Get a new reference, based on the existing one, overwriting
     // certain values.
     //
-    Reference changeTimeout(int) const;
-    Reference changeMode(Mode) const;
+    Reference_ptr changeTimeout(int) const;
+    Reference_ptr changeMode(Mode) const;
  
-    bool operator==(const ReferenceI&) const;
-    bool operator!=(const ReferenceI&) const;
-    bool operator<(const ReferenceI&) const;
+    bool operator==(const Reference&) const;
+    bool operator!=(const Reference&) const;
+    bool operator<(const Reference&) const;
 };
 
 }

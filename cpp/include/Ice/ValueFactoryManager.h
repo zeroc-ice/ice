@@ -19,20 +19,20 @@
 namespace __Ice
 {
 
-class ValueFactoryManagerI : public Shared, public JTCMutex
+class ValueFactoryManager : public Shared, public JTCMutex
 {
 public:
 
-    void install(const ::Ice::ValueFactory&);
-    ::Ice::ValueFactory lookup(const std::string&);
+    void install(const ::Ice::ValueFactory_ptr&);
+    ::Ice::ValueFactory_ptr lookup(const std::string&);
 
 private:
 
-    ValueFactoryManagerI();
+    ValueFactoryManager();
     void destroy();
-    friend class InstanceI;
+    friend class Instance;
 
-    std::map<std::string, ::Ice::ValueFactory> factories_;
+    std::map<std::string, ::Ice::ValueFactory_ptr> factories_;
 };
 
 }

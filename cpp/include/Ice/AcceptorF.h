@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class AcceptorI;
-void incRef(AcceptorI*);
-void decRef(AcceptorI*);
-typedef __Ice::Handle<AcceptorI> Acceptor;
+class Acceptor;
+void incRef(Acceptor*);
+void decRef(Acceptor*);
+typedef __Ice::Handle<Acceptor> Acceptor_ptr;
 
 }
 

@@ -27,7 +27,7 @@ class LocalException;
 namespace __Ice
 {
 
-class EventHandlerI : public Shared
+class EventHandler : public Shared
 {
 public:
     
@@ -67,16 +67,16 @@ public:
 
 protected:
     
-    EventHandlerI(const Instance& instance)
+    EventHandler(const Instance_ptr& instance)
 	: instance_(instance), stream_(instance) { }
-    virtual ~EventHandlerI() { }
+    virtual ~EventHandler() { }
 
-    Instance instance_;
+    Instance_ptr instance_;
 
 private:
 
-    // ThreadPoolI may use the following private data member
-    friend ThreadPoolI;
+    // ThreadPool may use the following private data member
+    friend ThreadPool;
     Stream stream_;
 };
 

@@ -13,20 +13,20 @@
 
 #include <Ice/Handle.h>
 
-namespace Ice { class ValueFactoryI; }
+namespace Ice { class ValueFactory; }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::ValueFactoryI*);
-void ICE_API decRef(::Ice::ValueFactoryI*);
+void ICE_API incRef(::Ice::ValueFactory*);
+void ICE_API decRef(::Ice::ValueFactory*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<ValueFactoryI> ValueFactory;
+typedef __Ice::Handle<ValueFactory> ValueFactory_ptr;
 
 }
 

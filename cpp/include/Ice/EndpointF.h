@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class EndpointI;
-void incRef(EndpointI*);
-void decRef(EndpointI*);
-typedef __Ice::Handle<EndpointI> Endpoint;
+class Endpoint;
+void incRef(Endpoint*);
+void decRef(Endpoint*);
+typedef __Ice::Handle<Endpoint> Endpoint_ptr;
 
 }
 

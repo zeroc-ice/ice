@@ -34,7 +34,7 @@ namespace __Ice
 
 class Outgoing;
 
-class EmitterI : public EventHandlerI, public JTCMutex
+class Emitter : public EventHandler, public JTCMutex
 {
 public:
 
@@ -44,7 +44,7 @@ public:
     int timeout() const;
 
     //
-    // Operations from EventHandlerI
+    // Operations from EventHandler
     //
     virtual bool server() const;
     virtual bool readable() const;
@@ -55,12 +55,12 @@ public:
 
 private:
 
-    EmitterI(const EmitterI&);
-    void operator=(const EmitterI&);
+    Emitter(const Emitter&);
+    void operator=(const Emitter&);
 
-    EmitterI(const Instance&, const Transceiver&, const Endpoint&);
-    virtual ~EmitterI();
-    friend class EmitterFactoryI;
+    Emitter(const Instance_ptr&, const Transceiver_ptr&, const Endpoint_ptr&);
+    virtual ~Emitter();
+    friend class EmitterFactory;
 
     enum State
     {
@@ -72,37 +72,37 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
 
-    Transceiver transceiver_;
-    Endpoint endpoint_;
-    ThreadPool threadPool_;
+    Transceiver_ptr transceiver_;
+    Endpoint_ptr endpoint_;
+    ThreadPool_ptr threadPool_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
     std::auto_ptr< ::Ice::LocalException> exception_;
     State state_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 
-class EmitterFactoryI : public Shared, public JTCMutex
+class EmitterFactory : public Shared, public JTCMutex
 {
 public:
 
-    Emitter create(const Endpoint&);
+    Emitter_ptr create(const Endpoint_ptr&);
 
 private:
 
-    EmitterFactoryI(const EmitterFactoryI&);
-    void operator=(const EmitterFactoryI&);
+    EmitterFactory(const EmitterFactory&);
+    void operator=(const EmitterFactory&);
 
-    EmitterFactoryI(const Instance&);
-    virtual ~EmitterFactoryI();
+    EmitterFactory(const Instance_ptr&);
+    virtual ~EmitterFactory();
     void destroy();
-    friend class InstanceI;
+    friend class Instance;
 
-    Instance instance_;
-    std::map<Endpoint, Emitter> emitters_;
+    Instance_ptr instance_;
+    std::map<Endpoint_ptr, Emitter_ptr> emitters_;
 };
 
 }

@@ -16,10 +16,10 @@
 namespace __Ice
 {
 
-class ReferenceI;
-void incRef(ReferenceI*);
-void decRef(ReferenceI*);
-typedef __Ice::Handle<ReferenceI> Reference;
+class Reference;
+void incRef(Reference*);
+void decRef(Reference*);
+typedef __Ice::Handle<Reference> Reference_ptr;
 
 }
 

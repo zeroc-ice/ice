@@ -27,21 +27,21 @@ const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short UdpEndpointType = 2;
 
-class EndpointI : public Shared
+class Endpoint : public Shared
 {
 public:
 
-    EndpointI() { }
+    Endpoint() { }
 
     //
     // Create an endpoint from a string
     //
-    static Endpoint endpointFromString(const std::string&);
+    static Endpoint_ptr endpointFromString(const std::string&);
     
     //
     // Unmarshal an endpoint
     //
-    static void streamRead(Stream*, Endpoint&);
+    static void streamRead(Stream*, Endpoint_ptr&);
     
     //
     // Marshal the endpoint
@@ -69,7 +69,7 @@ public:
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    virtual Endpoint timeout(::Ice::Int) const = 0;
+    virtual Endpoint_ptr timeout(::Ice::Int) const = 0;
 
     //
     // Return true if the endpoint is datagram-based.
@@ -83,48 +83,48 @@ public:
 
     //
     // Return client- and server-side Transceivers for the endpoint,
-    // or null if a Transceiver can only be created by Acceptors or
+    // or null if a Transceiver_ptr can only be created by Acceptors or
     // Connectors.
     //
-    virtual Transceiver clientTransceiver(const Instance&) const = 0;
-    virtual Transceiver serverTransceiver(const Instance&) const = 0;
+    virtual Transceiver_ptr clientTransceiver(const Instance_ptr&) const = 0;
+    virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const = 0;
 
     //
     // Return Acceptors and Connectors for the endpoint, or null if no
     // Acceptors and Connectors are available.
     //
-    virtual Connector connector(const Instance&) const = 0;
-    virtual Acceptor acceptor(const Instance&) const = 0;
+    virtual Connector_ptr connector(const Instance_ptr&) const = 0;
+    virtual Acceptor_ptr acceptor(const Instance_ptr&) const = 0;
 
     //
     // Compare endpoints for sorting purposes
     //
-    virtual bool operator==(const EndpointI&) const = 0;
-    virtual bool operator!=(const EndpointI&) const = 0;
-    virtual bool operator<(const EndpointI&) const = 0;
+    virtual bool operator==(const Endpoint&) const = 0;
+    virtual bool operator!=(const Endpoint&) const = 0;
+    virtual bool operator<(const Endpoint&) const = 0;
 };
 
-class UnknownEndpointI : public EndpointI
+class UnknownEndpoint : public Endpoint
 {
 public:
 
-    UnknownEndpointI(Stream*);
+    UnknownEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
-    virtual Endpoint timeout(::Ice::Int) const;
+    virtual Endpoint_ptr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual Transceiver clientTransceiver(const Instance&) const;
-    virtual Transceiver serverTransceiver(const Instance&) const;
-    virtual Connector connector(const Instance&) const;
-    virtual Acceptor acceptor(const Instance&) const;
+    virtual Transceiver_ptr clientTransceiver(const Instance_ptr&) const;
+    virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
+    virtual Connector_ptr connector(const Instance_ptr&) const;
+    virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
 
-    virtual bool operator==(const EndpointI&) const;
-    virtual bool operator!=(const EndpointI&) const;
-    virtual bool operator<(const EndpointI&) const;
+    virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
+    virtual bool operator<(const Endpoint&) const;
 
 private:
 
@@ -134,29 +134,29 @@ private:
     const std::vector< ::Ice::Byte> rawBytes_;
 };
 
-class TcpEndpointI : public EndpointI
+class TcpEndpoint : public Endpoint
 {
 public:
 
-    TcpEndpointI(const std::string&, ::Ice::Int, ::Ice::Int);
-    TcpEndpointI(const std::string&);
-    TcpEndpointI(Stream*);
+    TcpEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
+    TcpEndpoint(const std::string&);
+    TcpEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
-    virtual Endpoint timeout(::Ice::Int) const;
+    virtual Endpoint_ptr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual Transceiver clientTransceiver(const Instance&) const;
-    virtual Transceiver serverTransceiver(const Instance&) const;
-    virtual Connector connector(const Instance&) const;
-    virtual Acceptor acceptor(const Instance&) const;
+    virtual Transceiver_ptr clientTransceiver(const Instance_ptr&) const;
+    virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
+    virtual Connector_ptr connector(const Instance_ptr&) const;
+    virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
 
-    virtual bool operator==(const EndpointI&) const;
-    virtual bool operator!=(const EndpointI&) const;
-    virtual bool operator<(const EndpointI&) const;
+    virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
+    virtual bool operator<(const Endpoint&) const;
 
 private:
 
@@ -168,29 +168,29 @@ private:
     const ::Ice::Int timeout_;
 };
 
-class UdpEndpointI : public EndpointI
+class UdpEndpoint : public Endpoint
 {
 public:
 
-    UdpEndpointI(const std::string&, ::Ice::Int);
-    UdpEndpointI(const std::string&);
-    UdpEndpointI(Stream*);
+    UdpEndpoint(const std::string&, ::Ice::Int);
+    UdpEndpoint(const std::string&);
+    UdpEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
-    virtual Endpoint timeout(::Ice::Int) const;
+    virtual Endpoint_ptr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual Transceiver clientTransceiver(const Instance&) const;
-    virtual Transceiver serverTransceiver(const Instance&) const;
-    virtual Connector connector(const Instance&) const;
-    virtual Acceptor acceptor(const Instance&) const;
+    virtual Transceiver_ptr clientTransceiver(const Instance_ptr&) const;
+    virtual Transceiver_ptr serverTransceiver(const Instance_ptr&) const;
+    virtual Connector_ptr connector(const Instance_ptr&) const;
+    virtual Acceptor_ptr acceptor(const Instance_ptr&) const;
 
-    virtual bool operator==(const EndpointI&) const;
-    virtual bool operator!=(const EndpointI&) const;
-    virtual bool operator<(const EndpointI&) const;
+    virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
+    virtual bool operator<(const Endpoint&) const;
 
 private:
 

@@ -24,26 +24,26 @@
 namespace __Ice
 {
 
-class TcpEndpointI;
+class TcpEndpoint;
 
-class TcpConnectorI : public ConnectorI
+class TcpConnector : public Connector
 {
 public:
     
-    virtual Transceiver connect(int);
+    virtual Transceiver_ptr connect(int);
     virtual std::string toString() const;
     
 private:
     
-    TcpConnectorI(Instance, const std::string&, int);
-    virtual ~TcpConnectorI();
-    friend class TcpEndpointI;
+    TcpConnector(Instance_ptr, const std::string&, int);
+    virtual ~TcpConnector();
+    friend class TcpEndpoint;
 
-    Instance instance_;
+    Instance_ptr instance_;
     struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE
-    TraceLevels traceLevels_;
-    ::Ice::Logger logger_;
+    TraceLevels_ptr traceLevels_;
+    ::Ice::Logger_ptr logger_;
 #endif
 };
 
