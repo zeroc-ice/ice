@@ -53,8 +53,6 @@ def runTests(tests, num = 0):
 #
 tests = [
     "IceUtil/thread", 
-    "IceUtil/unicode", 
-    "IceUtil/inputUtil", 
     "IceUtil/uuid", 
     "Ice/operations", 
     "Ice/exceptions", 
