@@ -23,7 +23,7 @@ using namespace IcePatch2;
 namespace IcePatch2
 {
 
-class Decompressor : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -232,6 +232,66 @@ private:
     const PatcherFeedbackPtr _feedback;
 };
 
+class GetFileInfoSeqCB : public AMI_FileServer_getFileInfo1Seq, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    GetFileInfoSeqCB() :
+	_done(false)
+    {
+    }
+
+    FileInfoSeq
+    getFileInfoSeq()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	while(!_done)
+	{
+	    wait();
+	}
+
+	_done = false;
+
+	if(_exception.get())
+	{
+	    auto_ptr<Exception> ex = _exception;
+	    _fileInfoSeq.clear();
+	    ex->ice_throw();
+	}
+
+	FileInfoSeq fileInfoSeq;
+	fileInfoSeq.swap(_fileInfoSeq);
+	return fileInfoSeq;
+    }
+
+    virtual void
+    ice_response(const FileInfoSeq& fileInfoSeq)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	_fileInfoSeq = fileInfoSeq;
+	_done = true;
+	notify();
+    }
+
+    virtual void
+    ice_exception(const Exception& ex)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	_exception = auto_ptr<Exception>(ex.ice_clone());
+	_done = true;
+	notify();
+    }
+
+private:
+
+    bool _done;
+    FileInfoSeq _fileInfoSeq;
+    auto_ptr<Exception> _exception;
+};
+
+typedef IceUtil::Handle< ::GetFileInfoSeqCB> GetFileInfoSeqCBPtr;
+
 bool
 IcePatch2::Patcher::prepare()
 {
@@ -292,11 +352,40 @@ IcePatch2::Patcher::prepare()
 	    throw string("server returned illegal value");
 	}
 	
+	::GetFileInfoSeqCBPtr curCB;
+	::GetFileInfoSeqCBPtr nxtCB;
+
 	for(int node0 = 0; node0 < 256; ++node0)
 	{
 	    if(tree0.nodes[node0].checksum != checksum0Seq[node0])
 	    {
-		FileInfoSeq files = _serverCompress->getFileInfo1Seq(node0);
+		if(!curCB)
+		{
+		    assert(!nxtCB);
+		    curCB = new ::GetFileInfoSeqCB;
+		    nxtCB = new ::GetFileInfoSeqCB;
+		    _serverCompress->getFileInfo1Seq_async(curCB, node0);
+		}
+		else
+		{
+		    assert(nxtCB);
+		    swap(nxtCB, curCB);
+		}
+		
+		int node0Nxt = node0 + 1;
+		
+		while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksum0Seq[node0Nxt])
+		{
+		    ++node0Nxt;
+		}
+
+		if(node0Nxt < 256)
+		{
+		    _serverNoCompress->getFileInfo1Seq_async(nxtCB, node0Nxt);
+		}
+
+//		FileInfoSeq files = _serverCompress->getFileInfo1Seq(node0);
+		FileInfoSeq files = curCB->getFileInfoSeq();
 		
 		sort(files.begin(), files.end(), FileInfoLess());
 		files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
@@ -504,6 +593,66 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
     return result;
 }
 
+class GetBytesCB : public AMI_FileServer_getFileCompressed, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    GetBytesCB() :
+	_done(false)
+    {
+    }
+
+    ByteSeq
+    getBytes()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	while(!_done)
+	{
+	    wait();
+	}
+
+	_done = false;
+
+	if(_exception.get())
+	{
+	    auto_ptr<Exception> ex = _exception;
+	    _bytes.clear();
+	    ex->ice_throw();
+	}
+
+	ByteSeq bytes;
+	bytes.swap(_bytes);
+	return bytes;
+    }
+
+    virtual void
+    ice_response(const ByteSeq& bytes)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	_bytes = bytes;
+	_done = true;
+	notify();
+    }
+
+    virtual void
+    ice_exception(const Exception& ex)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	_exception = auto_ptr<Exception>(ex.ice_clone());
+	_done = true;
+	notify();
+    }
+
+private:
+
+    bool _done;
+    ByteSeq _bytes;
+    auto_ptr<Exception> _exception;
+};
+
+typedef IceUtil::Handle<GetBytesCB> GetBytesCBPtr;
+
 bool
 IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
 {
@@ -520,6 +669,9 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 	}
     }
     
+    GetBytesCBPtr curCB;
+    GetBytesCBPtr nxtCB;
+
     for(p = files.begin(); p != files.end(); ++p)
     {
 	if(p->size < 0) // Directory?
@@ -567,11 +719,44 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 	    
 		while(pos < p->size)
 		{
+		    if(!curCB)
+		    {
+			assert(!nxtCB);
+			curCB = new GetBytesCB;
+			nxtCB = new GetBytesCB;
+			_serverNoCompress->getFileCompressed_async(curCB, p->path, pos, _chunkSize);
+		    }
+		    else
+		    {
+			assert(nxtCB);
+			swap(nxtCB, curCB);
+		    }
+		    
+		    if(pos + _chunkSize < p->size)
+		    {
+			_serverNoCompress->getFileCompressed_async(nxtCB, p->path, pos + _chunkSize, _chunkSize);
+		    }
+		    else
+		    {
+			FileInfoSeq::const_iterator q = p + 1;
+			
+			while(q != files.end() && q->size <= 0)
+			{
+			    ++q;
+			}
+			
+			if(q != files.end())
+			{
+			    _serverNoCompress->getFileCompressed_async(nxtCB, q->path, 0, _chunkSize);
+			}
+		    }
+
 		    ByteSeq bytes;
 		
 		    try
 		    {
-			bytes = _serverNoCompress->getFileCompressed(p->path, pos, _chunkSize);
+//			bytes = _serverNoCompress->getFileCompressed(p->path, pos, _chunkSize);
+			bytes = curCB->getBytes();
 		    }
 		    catch(const FileAccessException& ex)
 		    {

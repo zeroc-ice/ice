@@ -28,14 +28,14 @@ exception FileAccessException
 
 interface FileServer
 {
-    nonmutating FileInfoSeq getFileInfo1Seq(int node0)
+    ["ami"] nonmutating FileInfoSeq getFileInfo1Seq(int node0)
 	throws NodeOutOfRangeException;
 
     nonmutating ByteSeqSeq getChecksum0Seq();
 
     nonmutating Ice::ByteSeq getChecksum();
 
-    nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)
+    ["ami"] nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)
 	throws FileAccessException;
 };
 
