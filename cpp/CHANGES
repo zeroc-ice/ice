@@ -1,28 +1,27 @@
 Changes since version 1.3.0
 ---------------------------
 
-- Modified the Ice::Service class to support the Ice.Nohup
-  property, rename the win9x function to checkSystem, and
-  add more flexibility in configuring services. See the
-  reference manual for more information.
+- Modified the Ice::Service class to support the Ice.Nohup property,
+  rename the win9x function to checkSystem, and add more flexibility
+  in configuring services. See the reference manual for more
+  information.
 
 - Added unsupported FreeBSD port.
 
 - Ice now builds with GCC 3.4.0.
 
-- Fixed a bug when making asynchronous invocations on a routed
-  proxy.
+- Fixed a bug when making asynchronous invocations on a routed proxy.
 
 - Removed slice2wsdl.
 
 - Changed the way sequences are unmarshaled to protect against
   malicous messages with faked very large sequence count values.
   While even with previous versions of Ice, buffer overruns were
-  impossible, malicious messages could cause large amounts of
-  memory to be preallocated, causing the receiving process to
-  run out of memory. This is no longer possible -- the total
-  amount of memory preallocated for sequences during unmarshaling
-  is now capped at Ice.MessageSizeMax.
+  impossible, malicious messages could cause large amounts of memory
+  to be preallocated, causing the receiving process to run out of
+  memory. This is no longer possible -- the total amount of memory
+  preallocated for sequences during unmarshaling is now capped at
+  Ice.MessageSizeMax.
 
 - Freeze Evictor changes to adapt to the facet redesign, and 
   make several improvements:
