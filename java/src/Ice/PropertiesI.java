@@ -96,7 +96,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	// a logger because no logger may be established at the time the property
 	// is parsed.)
 	//
-	if(key == null || key.length == 0)
+	if(key == null || key.length() == 0)
 	{
 	    return;
 	}
