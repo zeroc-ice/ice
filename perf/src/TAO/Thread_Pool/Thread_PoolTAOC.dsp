@@ -37,7 +37,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "_DEBUG"
@@ -45,7 +45,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\client.exe" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\PortableServer"
+# ADD LINK32 advapi32.lib user32.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib IceUtil.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\client.exe" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Thread_PoolTAOC - Win32 Release"
@@ -58,7 +58,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /I "$(ICE_HOME)\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "NDEBUG"
@@ -66,7 +66,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO.lib TAO_ValueType.lib TAO_Messaging.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer"
+# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO.lib TAO_ValueType.lib TAO_Messaging.lib ACE.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"client.exe" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
 
 !ENDIF 
 
@@ -83,12 +83,24 @@ SOURCE="client.cpp"
 # End Source File
 # Begin Source File
 
+SOURCE=.\Roundtrip_Handler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE="TestC.cpp"
+# End Source File
+# Begin Source File
+
+SOURCE=.\TestS.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hh"
+# Begin Source File
+
+SOURCE=.\Roundtrip_Handler.h
+# End Source File
 # Begin Source File
 
 SOURCE="TestC.h"
@@ -151,7 +163,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -188,7 +200,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

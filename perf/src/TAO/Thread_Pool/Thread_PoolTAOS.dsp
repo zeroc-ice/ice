@@ -66,7 +66,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib TAO_Messaging.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 
 !ENDIF 
 
@@ -171,7 +171,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -211,7 +211,7 @@ InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
