@@ -149,12 +149,25 @@ public class _ObjectDelM implements _ObjectDel
             new IceInternal.Endpoint[endpoints.size()];
         endpoints.toArray(arr);
 
-        // TODO
-        //random_shuffle(endpoints.begin(), endpoints.end());
+        random_shuffle(arr);
 
         IceInternal.EmitterFactory factory =
             __reference.instance.emitterFactory();
         __emitter = factory.create(arr);
         assert(__emitter != null);
+    }
+
+    private static java.util.Random __random = new java.util.Random();
+
+    private static void
+    random_shuffle(IceInternal.Endpoint[] arr)
+    {
+        for (int i = 0; i < arr.length; i++)
+        {
+            int pos = Math.abs(__random.nextInt() % arr.length);
+            IceInternal.Endpoint tmp = arr[pos];
+            arr[pos] = arr[i];
+            arr[i] = tmp;
+        }
     }
 }
