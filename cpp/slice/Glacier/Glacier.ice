@@ -66,7 +66,8 @@ interface Starter
      * given user id is not correct.
      *
      **/
-    Ice::Router* startRouter(string userId, string password; Ice::ByteSeq privateKey, Ice::ByteSeq publicKey, Ice::ByteSeq routerCert)
+    Ice::Router* startRouter(string userId, string password;
+			     Ice::ByteSeq privateKey, Ice::ByteSeq publicKey, Ice::ByteSeq routerCert)
 	throws InvalidPasswordException, CannotStartRouterException;
 };
 

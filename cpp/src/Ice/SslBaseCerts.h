@@ -19,8 +19,8 @@ namespace IceSSL
 
 class BaseCertificates
 {
-
 public:
+
     BaseCertificates();
     BaseCertificates(CertificateDesc&, CertificateDesc&, DiffieHellmanParamsFile&);
     BaseCertificates(BaseCertificates&);
@@ -31,6 +31,7 @@ public:
     const DiffieHellmanParamsFile& getDHParams() const;
 
 protected:
+
     CertificateDesc _rsaCert;
     CertificateDesc _dsaCert;
     DiffieHellmanParamsFile _dhParams;

@@ -195,7 +195,7 @@ IceInternal::BasicStream::writeSize(Int v)
 {
     if (v > 0x7f)
     {
-	write(Byte(255));
+	write(Byte(0xff));
 	write(v);
     }
     else
@@ -215,7 +215,7 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
     }
     else
     {
-	v = static_cast<Int>(b);       
+	v = static_cast<Int>(b);     
     }
 }
 
