@@ -131,7 +131,7 @@ Ice::Service::interrupt()
 }
 
 int
-Ice::Service::main(int argc, char* argv[])
+Ice::Service::main(int& argc, char* argv[])
 {
     _name = argv[0];
 
@@ -404,7 +404,7 @@ Ice::Service::checkSystem() const
 }
 
 int
-Ice::Service::run(int argc, char* argv[])
+Ice::Service::run(int& argc, char* argv[])
 {
     if(_service)
     {
@@ -1121,7 +1121,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     catch(const Ice::Exception& ex)
     {
         // TODO: Enable delete when we figure out why it can cause a crash.
-        //delete[] args;
+        delete[] args;
         ostringstream ostr;
         ostr << ex;
         error(ostr.str());
@@ -1187,7 +1187,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     }
 
     // TODO: Enable delete when we figure out why it can cause a crash.
-    //delete[] args;
+    delete[] args;
 
     try
     {

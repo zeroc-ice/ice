@@ -53,12 +53,13 @@ public:
     //
     // If --service or --daemon are specified, the program runs as
     // a service, otherwise the program runs as a regular foreground
-    // process.
+    // process. Any service-specific (and Ice-specific) options
+    // are stripped from argv (just as for Ice::initialize()).
     //
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
-    int main(int, char*[]);
+    int main(int&, char*[]);
 
     //
     // Returns the communicator created by the service.
@@ -100,7 +101,7 @@ public:
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
-    int run(int, char*[]);
+    int run(int&, char*[]);
 
 #ifdef _WIN32
 
