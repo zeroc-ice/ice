@@ -213,8 +213,13 @@ main(int argc, char* argv[])
 	    }
 	}
 
-	string absDataDirWithSlash = absDataDir + '/';
-	
+	//
+	// We must call simplify() here: under Cygwin, any path starting with
+	// a double slash simply doesn't work. But, if dataDir is "/", we end
+	// up with paths that start with "//" unless we call simplify().
+	//
+	string absDataDirWithSlash = simplify(absDataDir + '/');
+
 	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	{
 	    if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)

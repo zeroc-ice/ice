@@ -190,7 +190,7 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	}
 #endif
     
-	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
+	const_cast<string&>(_dataDir) = simplify(string(cwd) + '/' + _dataDir);
     }
 	
     PropertiesPtr properties = communicator->getProperties();
@@ -475,7 +475,7 @@ IcePatch2::Patcher::patch(const string& d)
     }
     else
     {
-	string dirWithSlash = dir + '/';
+	string dirWithSlash = simplify(dir + '/');
 
 	FileInfoSeq::const_iterator p;
 
@@ -706,12 +706,12 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
 	    if(p->size == 0)
 	    {
-		string path = _dataDir + '/' + p->path;
+		string path = simplify(_dataDir + '/' + p->path);
 		ofstream file(path.c_str(), ios::binary);
 	    }
 	    else
 	    {
-		string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
+		string pathBZ2 = simplify(_dataDir + '/' + p->path + ".bz2");
 	    
 		string dir = getDirname(pathBZ2);
 		if(!dir.empty())

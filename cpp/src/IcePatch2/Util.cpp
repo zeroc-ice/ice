@@ -247,9 +247,20 @@ IcePatch2::simplify(const string& path)
 	result.erase(0, 2);
     }
 
+    if(result == "/." ||
+       result.size() == 4 && isalpha(result[0]) && result[1] == ':' && result[2] == '/' && result[3] == '.')
+    {
+       return result.substr(0, result.size() - 1);
+    }
+
     if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
     {
 	result.erase(result.size() - 2, 2);
+    }
+
+    if(result == "/" || result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/')
+    {
+        return result;
     }
 
     if(result.size() >= 1 && result[result.size() - 1] == '/')
@@ -272,6 +283,17 @@ IcePatch2::isAbsolute(const string& pa)
     return pa[i] == '\\' || pa[i] == '/' || pa.size() > i + 1 && isalpha(pa[i]) && pa[i + 1] == ':';
 #else
     return pa[i] == '/';
+#endif
+}
+
+bool
+IcePatch2::isRoot(const string& pa)
+{
+    string path = simplify(pa);
+#ifdef _WIN32
+    return path == "/" || path.size() == 3 && isalpha(path[0]) && path[1] == ':' && path[2] == '/';
+#else
+    return path == "/";
 #endif
 }
 
@@ -417,13 +439,16 @@ IcePatch2::removeRecursive(const string& pa)
 	    removeRecursive(path + '/' + *p);
 	}
 
-#ifdef _WIN32
-	if(_rmdir(path.c_str()) == -1)
-#else
-	if(rmdir(path.c_str()) == -1)
-#endif
+	if(!isRoot(path))
 	{
-	    throw "cannot remove directory `" + path + "':\n" + lastError();
+#ifdef _WIN32
+	    if(_rmdir(path.c_str()) == -1)
+#else
+	    if(rmdir(path.c_str()) == -1)
+#endif
+	    {
+		throw "cannot remove directory `" + path + "':\n" + lastError();
+	    }
 	}
     }
     else
@@ -443,7 +468,7 @@ IcePatch2::readDirectory(const string& pa)
 #ifdef _WIN32
 
     struct _finddata_t data;
-    long h = _findfirst((path + "/*").c_str(), &data);
+    long h = _findfirst(simplify((path + "/*")).c_str(), &data);
     if(h == -1)
     {
 	throw "cannot read directory `" + path + "':\n" + lastError();
@@ -698,7 +723,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	return true;
     }
 
-    const string path = basePath + '/' + relPath;
+    const string path = simplify(basePath + '/' + relPath);
 
     if(ignoreSuffix(path))
     {
