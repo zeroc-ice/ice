@@ -25,6 +25,7 @@
             </includepath>
             <fileset dir="${slice.dir}/Ice">
                 <include name="Communicator.ice" />
+                <include name="LocalException.ice" />
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />
                 <include name="ObjectFactory.ice" />
