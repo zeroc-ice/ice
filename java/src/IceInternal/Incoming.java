@@ -25,14 +25,29 @@ final public class Incoming extends IncomingBase
     }
 
     //
+    // Do NOT use a finalizer, this would cause a severe performance
+    // penalty! We must make sure that __destroy() is called instead,
+    // to reclaim resources.
+    //
+    public void
+    __destroy()
+    {
+	if(_is != null)
+	{
+	    _is.destroy();
+	    _is = null;
+	}
+
+	super.__destroy();
+    }
+
+    //
     // This function allows this object to be reused, rather than
     // reallocated.
     //
     public void
     reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
-	super.reset(instance, connection, adapter, response, compress);
-
 	if(_is == null)
 	{
 	    _is = new BasicStream(instance);
@@ -41,6 +56,8 @@ final public class Incoming extends IncomingBase
 	{
 	    _is.reset();
 	}
+
+	super.reset(instance, connection, adapter, response, compress);
     }
 
     public void
@@ -298,21 +315,6 @@ final public class Incoming extends IncomingBase
     os()
     {
         return _os;
-    }
-
-    //
-    // Reclaim resources.
-    //
-    public void
-    __destroy()
-    {
-	super.__destroy();
-
-	if(_is != null)
-	{
-	    _is.destroy();
-	    _is = null;
-	}
     }
 
     Incoming next; // For use by Connection.

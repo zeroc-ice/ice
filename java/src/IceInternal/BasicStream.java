@@ -40,23 +40,22 @@ public class BasicStream
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
     }
 
-/*
- * Do NOT use a finalizer for BasicStream - this causes a
- * severe performance penalty!
- *
-    protected void
-    finalize()
-        throws Throwable
+    //
+    // Do NOT use a finalizer, this would cause a severe performance
+    // penalty! We must make sure that destroy() is called instead, to
+    // reclaim resources.
+    //
+    public void
+    destroy()
     {
-        if(_buf != null)
-        {
-            _bufferManager.reclaim(_buf);
-        }
-
-        super.finalize();
+        _bufferManager.reclaim(_buf);
+        _buf = null;
     }
-*/
 
+    //
+    // This function allows this object to be reused, rather than
+    // reallocated.
+    //
     public void
     reset()
     {
@@ -71,16 +70,6 @@ public class BasicStream
             _readEncapsCache = _readEncapsStack;
             _readEncapsStack = null;
         }
-    }
-
-    //
-    // Must be called in order to reclaim the buffer
-    //
-    public void
-    destroy()
-    {
-        _bufferManager.reclaim(_buf);
-        _buf = null;
     }
 
     public IceInternal.Instance

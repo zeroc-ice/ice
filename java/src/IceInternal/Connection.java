@@ -1646,27 +1646,6 @@ public final class Connection extends EventHandler
         }
     }
 
-// TODO: This function doesn't seem to be needed?
-/*
-    private void
-    destroyIncomingCache()
-    {
-        Incoming in = null;
-
-        synchronized(_incomingCacheMutex)
-        {
-            in = _incomingCache;
-            _incomingCache = null;
-        }
-
-        while(in != null)
-        {
-            in.__destroy();
-            in = in.next;
-        }
-    }
-*/
-
     private Transceiver _transceiver;
     private final String _desc;
     private final Endpoint _endpoint;

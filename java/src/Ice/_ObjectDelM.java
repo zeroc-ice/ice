@@ -241,12 +241,6 @@ public class _ObjectDelM implements _ObjectDel
     protected void
     reclaimOutgoing(IceInternal.Outgoing out)
     {
-	//
-	// TODO: Is this code necessary? Shouldn't __outgoingCache be
-	// empty, i.e., shouldn't this be assert(__outgoingCache ==
-	// null), just like for _incomingCache in
-	// IceInternal::Connection?
-	//
         synchronized(__outgoingMutex)
         {
             out.next = __outgoingCache;

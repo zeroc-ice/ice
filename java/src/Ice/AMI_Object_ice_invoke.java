@@ -17,20 +17,36 @@ package Ice;
 public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 {
     public abstract void ice_response(boolean ok, byte[] outParams);
-    public abstract void ice_exception(Ice.LocalException ex);
+    public abstract void ice_exception(LocalException ex);
+
+    public final void __invoke(IceInternal.Reference ref, String operation, OperationMode mode,
+			       byte[] inParams, java.util.Map context)
+    {
+	try
+	{
+	    __prepare(ref, operation, mode, context);
+	    __os.writeBlob(inParams);
+	    __os.endWriteEncaps();
+	}
+	catch(LocalException ex)
+	{
+	    __finished(ex);
+	    return;
+	}
+	__send();
+    }
 
     protected final void __response(boolean ok) // ok == true means no user exception.
     {
 	byte[] outParams;
 	try
 	{
-	    IceInternal.BasicStream __is = this.__is();
 	    int sz = __is.getReadEncapsSize();
 	    outParams = __is.readBlob(sz);
 	}
 	catch(LocalException ex)
 	{
-	    ice_exception(ex);
+	    __finished(ex);
 	    return;
 	}
 	ice_response(ok, outParams);

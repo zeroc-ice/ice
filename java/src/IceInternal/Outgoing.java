@@ -28,6 +28,22 @@ public final class Outgoing
         writeHeader(operation, mode, context);
     }
 
+    //
+    // Do NOT use a finalizer, this would cause a severe performance
+    // penalty! We must make sure that destroy() is called instead,
+    // to reclaim resources.
+    //
+    public void
+    destroy()
+    {
+        _os.destroy();
+        _is.destroy();
+    }
+
+    //
+    // This function allows this object to be reused, rather than
+    // reallocated.
+    //
     public void
     reset(String operation, Ice.OperationMode mode, java.util.Map context)
     {
@@ -38,13 +54,6 @@ public final class Outgoing
         _os.reset();
 
         writeHeader(operation, mode, context);
-    }
-
-    public void
-    destroy()
-    {
-        _os.destroy();
-        _is.destroy();
     }
 
     // Returns true if ok, false if user exception.
