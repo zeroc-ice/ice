@@ -50,8 +50,8 @@ else:
 commonServerOptions = \
 " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
-serverOptions = commonServerOptions + serverProtocol
-clientOptions = clientProtocol + defaultHost
+serverOptions = commonServerOptions + serverProtocol + "--Ice.Trace.Network=3"
+clientOptions = clientProtocol + defaultHost + "--Ice.Trace.Network=3"
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 

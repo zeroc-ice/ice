@@ -122,31 +122,38 @@ Glacier::Router::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    string clientPrivKey = properties->getProperty("Ice.SSL.Client.Overrides.RSA.PrivateKey");
-    string clientPubKey  = properties->getProperty("Ice.SSL.Client.Overrides.RSA.Certificate");
-    string serverPrivKey = properties->getProperty("Ice.SSL.Server.Overrides.RSA.PrivateKey");
-    string serverPubKey  = properties->getProperty("Ice.SSL.Server.Overrides.RSA.Certificate");
+    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
+    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
 
-    IceSSL::ContextType contextType = IceSSL::ClientServer;
+    // Only do this if we've been configured for SSL
+    if (!clientConfig.empty() && !serverConfig.empty())
+    {
+        string clientPrivKey = properties->getProperty("Ice.SSL.Client.Overrides.RSA.PrivateKey");
+        string clientPubKey  = properties->getProperty("Ice.SSL.Client.Overrides.RSA.Certificate");
+        string serverPrivKey = properties->getProperty("Ice.SSL.Server.Overrides.RSA.PrivateKey");
+        string serverPubKey  = properties->getProperty("Ice.SSL.Server.Overrides.RSA.Certificate");
 
-    // Get our SSL System and an instance of the SSL Extension itself
-    IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
-    IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
+        IceSSL::ContextType contextType = IceSSL::ClientServer;
 
-    // The system must configure itself (using config files as specified)
-    sslSystem->configure(contextType);
+        // Get our SSL System and an instance of the SSL Extension itself
+        IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+        IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-    // Set the keys we will be using.
-    sslSystem->setRSAKeysBase64(IceSSL::Client, clientPrivKey, clientPubKey);
-    sslSystem->setRSAKeysBase64(IceSSL::Server, serverPrivKey, serverPubKey);
+        // The system must configure itself (using config files as specified)
+        sslSystem->configure(contextType);
 
-    // Install a Certificate Verifier that only accepts the client's certificate.
-    string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
-    Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
-    sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
+        // Set the keys we will be using.
+        sslSystem->setRSAKeysBase64(IceSSL::Client, clientPrivKey, clientPubKey);
+        sslSystem->setRSAKeysBase64(IceSSL::Server, serverPrivKey, serverPubKey);
 
-    // Add the Client's certificate as a trusted certificate.
-    sslSystem->addTrustedCertificateBase64(contextType, clientCertBase64);
+        // Install a Certificate Verifier that only accepts the client's certificate.
+        string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
+        Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
+        sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
+        
+        // Add the Client's certificate as a trusted certificate.
+        sslSystem->addTrustedCertificateBase64(contextType, clientCertBase64);
+    }
 
     //
     // Create routing table

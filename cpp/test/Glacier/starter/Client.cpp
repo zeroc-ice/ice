@@ -88,22 +88,28 @@ CallbackClient::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
-    string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
-    string routerCertString = IceUtil::Base64::encode(routerCert);
+    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
+    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
 
-    IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
-    IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
+    if (!clientConfig.empty() && !serverConfig.empty())
+    {
+        string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
+        string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
+        string routerCertString = IceUtil::Base64::encode(routerCert);
 
-    // Configure Server, client is already configured
-    sslSystem->configure(IceSSL::Server);
+        IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+        IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-    sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
+        // Configure Server, client is already configured
+        sslSystem->configure(IceSSL::Server);
 
-    // Set the keys overrides.
-    sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
+        sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
 
-    sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
+        // Set the keys overrides.
+        sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
+
+        sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
+    }
 
     test(router);
     cout << "ok" << endl;
