@@ -104,6 +104,8 @@ public:
     template<typename Y> friend class Handle;
 */
 
+    T* get() const { return ptr_; }
+
     T& operator*() { return *ptr_; }
     const T& operator*() const { return *ptr_; }
     T* operator->() { return ptr_; }
@@ -111,9 +113,7 @@ public:
     operator T*() { return ptr_; }
     operator const T*() const { return ptr_; }
 
-    T* get() const { return ptr_; }
-
-    void swap(Handle<T>& other) { std::swap(ptr_,other.ptr_); }
+    void swap(Handle<T>& other) { std::swap(ptr_, other.ptr_); }
 
 private:
 
