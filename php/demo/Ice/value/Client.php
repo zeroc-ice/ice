@@ -1,7 +1,7 @@
 <?php
 Ice_loadProfile();
 
-class PrinterI extends Printer
+class PrinterI extends Demo_Printer
 {
     function printBackwards()
     {
@@ -9,7 +9,7 @@ class PrinterI extends Printer
     }
 }
 
-class DerivedPrinterI extends DerivedPrinter
+class DerivedPrinterI extends Demo_DerivedPrinter
 {
     function printBackwards()
     {
@@ -26,12 +26,12 @@ class ObjectFactory extends Ice_LocalObjectImpl implements Ice_ObjectFactory
 {
     function create($type)
     {
-        if($type == "::Printer")
+        if($type == "::Demo::Printer")
         {
             return new PrinterI;
         }
 
-        if($type == "::DerivedPrinter")
+        if($type == "::Demo::DerivedPrinter")
         {
             return new DerivedPrinterI;
         }
@@ -48,7 +48,7 @@ class ObjectFactory extends Ice_LocalObjectImpl implements Ice_ObjectFactory
 try
 {
     $base = $ICE->stringToProxy("initial:default -p 10000");
-    $initial = $base->ice_checkedCast("::Initial");
+    $initial = $base->ice_checkedCast("::Demo::Initial");
 
     echo "\n";
     echo "Let's first transfer a simple object, for a class without\n";
@@ -98,7 +98,7 @@ try
     fgets(STDIN);
 
     $factory = new ObjectFactory;
-    $ICE->addObjectFactory($factory, "::Printer");
+    $ICE->addObjectFactory($factory, "::Demo::Printer");
 
     $initial->getPrinter($printer, $printerProxy);
     echo "==> ",$printer->message,"\n";
@@ -123,14 +123,14 @@ try
     echo "\n";
     echo "Next, we transfer a derived object from the server as a base\n";
     echo "object. Since we haven't yet installed a factory for the derived\n";
-    echo "class, the derived class (::DerivedPrinter) is sliced\n";
-    echo "to its base class (::Printer).\n";
+    echo "class, the derived class (::Demo::DerivedPrinter) is sliced\n";
+    echo "to its base class (::Demo::Printer).\n";
     echo "[press enter]\n";
     fgets(STDIN);
 
     $derivedAsBase = $initial->getDerivedPrinter();
     echo "==> The type ID of the received object is \"",get_class($derivedAsBase),"\"\n";
-    assert($derivedAsBase instanceof Printer);
+    assert($derivedAsBase instanceof Demo_Printer);
 
     echo "\n";
     echo "Now we install a factory for the derived class, and try again.\n";
@@ -139,10 +139,10 @@ try
     echo "[press enter]\n";
     fgets(STDIN);
 
-    $ICE->addObjectFactory($factory, "::DerivedPrinter");
+    $ICE->addObjectFactory($factory, "::Demo::DerivedPrinter");
 
     $derivedAsBase = $initial->getDerivedPrinter();
-    assert($derivedAsBase instanceof DerivedPrinter);
+    assert($derivedAsBase instanceof Demo_DerivedPrinter);
     $derived = $derivedAsBase;
     echo "==> dynamic_cast<> to derived object succeeded\n";
     echo "==> The type ID of the received object is \"",get_class($derived),"\"\n";
@@ -170,7 +170,7 @@ try
     {
         $initial->throwDerivedPrinter();
     }
-    catch(DerivedPrinterException $ex)
+    catch(Demo_DerivedPrinterException $ex)
     {
         $derived = $ex->derived;
         assert($derived != null);
