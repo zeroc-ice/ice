@@ -26,7 +26,7 @@ public:
     }
 };
 
-class CallbackClient : public Application
+class ChatClient : public Application
 {
 public:
 
@@ -152,7 +152,7 @@ private:
 int
 main(int argc, char* argv[])
 {
-    CallbackClient app;
+    ChatClient app;
     return app.main(argc, argv, "config");
 }
 
