@@ -229,7 +229,9 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
 }
 
+#ifdef WIN32
 extern "C"
+#endif
 static zend_object_value
 handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
@@ -244,7 +246,9 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     return result;
 }
 
+#ifdef WIN32
 extern "C"
+#endif
 static void
 handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
@@ -268,7 +272,9 @@ handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
     zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
 
+#ifdef WIN32
 extern "C"
+#endif
 static zend_object_value
 handleClone(zval* zv TSRMLS_DC)
 {
@@ -278,7 +284,9 @@ handleClone(zval* zv TSRMLS_DC)
     return result;
 }
 
+#ifdef WIN32
 extern "C"
+#endif
 static union _zend_function*
 handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 {

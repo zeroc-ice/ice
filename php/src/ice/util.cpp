@@ -79,7 +79,9 @@ splitScopedName(const string& scoped)
     return ids;
 }
 
+#ifdef WIN32
 extern "C"
+#endif
 static void
 dtor_wrapper(void* p)
 {
