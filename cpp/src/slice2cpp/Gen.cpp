@@ -4266,7 +4266,6 @@ Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
 void
 Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    cerr << "validating " << p->name() << endl;
     validate(p);
 }
 
