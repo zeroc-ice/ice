@@ -16,9 +16,6 @@
 #include <Ice/Application.h>
 #include <IcePatch/FileLocator.h>
 #include <IcePatch/IcePatchI.h>
-#ifdef _WIN32
-#   include <direct.h>
-#endif
 
 using namespace std;
 using namespace Ice;

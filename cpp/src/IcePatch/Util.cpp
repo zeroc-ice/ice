@@ -351,14 +351,20 @@ IcePatch::removeRecursive(const string& path, const Ice::LoggerPtr& logger)
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
+    return readDirectory(path, path);
+}
+
+StringSeq
+IcePatch::readDirectory(const string& realPath, const string& prependPath)
+{
 #ifdef _WIN32
 
     struct _finddata_t data;
-    long h = _findfirst((path + "/*").c_str(), &data);
+    long h = _findfirst((realPath + "/*").c_str(), &data);
     if(h == -1)
     {
 	FileAccessException ex;
-	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+	ex.reason = "cannot read directory `" + realPath + "': " + strerror(errno);
 	throw ex;
     }
     
@@ -371,7 +377,7 @@ IcePatch::readDirectory(const string& path)
 
 	if(name != ".." && name != ".")
 	{
-	    result.push_back(normalizePath(path + '/' + name));
+	    result.push_back(normalizePath(prependPath + '/' + name));
 	}
 
         if(_findnext(h, &data) == -1)
@@ -382,7 +388,7 @@ IcePatch::readDirectory(const string& path)
             }
 
             FileAccessException ex;
-            ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+            ex.reason = "cannot read directory `" + realPath + "': " + strerror(errno);
             _findclose(h);
             throw ex;
         }
@@ -397,11 +403,11 @@ IcePatch::readDirectory(const string& path)
 #else
 
     struct dirent **namelist;
-    int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
+    int n = ::scandir(realPath.c_str(), &namelist, 0, alphasort);
     if(n < 0)
     {
 	FileAccessException ex;
-	ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+	ex.reason = "cannot read directory `" + realPath + "': " + strerror(errno);
 	throw ex;
     }
 
@@ -417,7 +423,7 @@ IcePatch::readDirectory(const string& path)
 
 	if(name != ".." && name != ".")
 	{
-	    result.push_back(normalizePath(path + '/' + name));
+	    result.push_back(normalizePath(prependPath + '/' + name));
 	}
     }
     

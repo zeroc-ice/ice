@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- The IcePatch server now doesn't change the working directory
+  anymore. This avoids potential problems with core files being
+  generated in the data directory.
+
 - Ice now uses gethostbyname_r() if available.
 
 - Errors during close() or shutdown() on connections now cause

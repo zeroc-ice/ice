@@ -35,6 +35,7 @@ protected:
     const Ice::ObjectAdapterPtr _adapter;
     const Ice::LoggerPtr _fileTraceLogger;
     const IceUtil::Time _busyTimeout;
+    const std::string _dir;
 };
 
 class DirectoryI : virtual public Directory,

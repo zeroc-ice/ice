@@ -25,8 +25,13 @@ IcePatch::FileLocator::FileLocator(const Ice::ObjectAdapterPtr& adapter) :
     _regular(new RegularI(adapter)),
     _logger(adapter->getCommunicator()->getLogger()),
     _fileTraceLogger(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files") > 0 ?
-		     _logger : LoggerPtr())
+		     _logger : LoggerPtr()),
+    _dir(adapter->getCommunicator()->getProperties()->getProperty("IcePatch.Directory"))
 {
+    if(!_dir.empty() && _dir[_dir.length() - 1] != '/')
+    {
+	const_cast<string&>(_dir) += '/';
+    }
 }
 
 ObjectPtr
@@ -71,7 +76,7 @@ IcePatch::FileLocator::locate(const Current& current, LocalObjectPtr&)
     FileInfo info;
     try
     {
-	info = getFileInfo(path, true, _fileTraceLogger);
+	info = getFileInfo(_dir + path, true, _fileTraceLogger);
     }
     catch(const FileAccessException& ex)
     {

@@ -40,6 +40,7 @@ private:
 
     const Ice::LoggerPtr _logger;
     const Ice::LoggerPtr _fileTraceLogger;
+    const std::string _dir;
 };
 
 }
