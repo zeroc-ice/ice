@@ -137,17 +137,17 @@ IceInternal::Connection::monitor()
 	//
 	// Active connection management for idle connections.
 	//
-	if(_acmTimeout > 0)
+	if(_acmTimeout > 0 &&
+	   _requests.empty() && _asyncRequests.empty() &&
+	   _batchStream.b.empty() &&
+	   _dispatchCount == 0)
 	{
-	    if(_requests.empty() && _asyncRequests.empty() && _batchStream.b.empty() && _dispatchCount == 0)
+	    if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
 	    {
-		if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
-		{
-		    setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
-		    return;
-		}
+		setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
+		return;
 	    }
-	}	    
+	}
     }
     catch(const IceUtil::ThreadLockedException&)
     {
@@ -499,21 +499,26 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
     }
     assert(_state < StateClosing);
 
-    //
-    // The Connection now belongs to the caller, until
-    // finishBatchRequest() is called.
-    //
-
     if(_batchStream.b.empty())
     {
-	_batchStream.writeBlob(_requestBatchHdr);
+	try
+	{
+	    _batchStream.writeBlob(_requestBatchHdr);
+	}
+	catch(const LocalException& ex)
+	{
+	    setState(StateClosed, ex);
+	    unlock();
+	    ex.ice_throw();
+	}
     }
 
-    //
-    // Give the batch stream to the caller, until finishBatchRequest()
-    // or abortBatchRequest() is called.
-    //
     _batchStream.swap(*os);
+
+    //
+    // The Connection and _batchStream now belongs to the caller,
+    // until finishBatchRequest() or abortBatchRequest() is called.
+    //
 }
 
 void
@@ -543,6 +548,11 @@ IceInternal::Connection::flushBatchRequest(bool compress)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
+    if(_batchStream.b.empty())
+    {
+	return; // Nothing to send.
+    }
+
     if(_exception.get())
     {
 	_exception->ice_throw();
@@ -551,11 +561,6 @@ IceInternal::Connection::flushBatchRequest(bool compress)
     
     try
     {
-	if(_batchStream.b.empty())
-	{
-	    return; // Nothing to send.
-	}
-
 	_batchStream.i = _batchStream.b.begin();
 	
 	//
