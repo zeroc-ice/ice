@@ -1,0 +1,136 @@
+======================================================================
+The Internet Communications Engine
+======================================================================
+
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, Java, Python,
+PHP, C#, and Visual Basic mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
+
+Ice is available under the terms of the GNU General Public License
+(GPL) (see LICENSE file). Commercial licenses are available for
+customers who wish to use Ice with proprietary products. Please
+contact sales@zeroc.com for more information about licensing Ice.
+
+
+======================================================================
+About this distribution
+======================================================================
+
+This distribution is a binary release of Ice 2.1.0 for AIX 5.2 and
+includes the following components:
+
+- The Ice run time, including executables for the Ice services, HTML
+  documentation and Slice files.
+- Run time libraries for C++ and Java. These libraries enable you to 
+  execute Ice applications.
+- Tools and libraries for developing Ice applications.
+
+
+======================================================================
+Requirements
+======================================================================
+
+This binary distribution was compiled on AIX 5.2 using IBM VisualAge 
+version 6 with the April 2004 PTF.
+
+This distribution was built using the following AIX binary packages 
+from 
+http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html:
+- bzip2-1.0.2-2.aix4.3.ppc.rpm
+- expat-1.95.7-1.aix5.1.ppc.rpm 
+- expat-devel-1.95.7-1.aix5.1.ppc.rpm (not required to use Ice)
+- openssl-0.9.7d-1.aix5.1.ppc.rpm
+- openssl-devel-0.9.7d-1.aix5.1.ppc.rpm
+
+We recommend that you install these packages to use Ice.
+
+This distribution includes Berkeley DB 4.2.52 binaries. Berkeley DB
+was configured with --enable-cxx and --enable-java, and built using
+IBM VisualAge 6.
+
+Java
+----
+
+Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available 
+from IBM at:
+http://www-128.ibm.com/developerworks/java/jdk/aix/
+
+
+======================================================================
+64 bit builds
+======================================================================
+
+This distribution only contains 32-bit binaries. If you need a 64-bit
+version, you can download the Ice sources from the ZeroC web site at
+http://www.zeroc.com/download.html and build Ice in 64-bit mode. See
+the INSTALL.AIX file of the source distribution for more details.
+
+
+======================================================================
+Setting up your environment to use Ice
+======================================================================
+
+
+General
+-------
+
+The discussion below assumes you have defined the ICE_HOME variable
+with the directory of your Ice installation.
+
+In order to use Ice services and tools such as Slice translators,
+you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+LIBPATH, as shown in the bash commands below:
+
+$ export PATH=$ICE_HOME/bin:$PATH
+$ export LIBPATH=$ICE_HOME/lib:$LIBPATH
+
+
+C++
+---
+
+When compiling Ice for C++ programs, you must pass $ICE_HOME/include
+to the compiler with the -I option, and $ICE_HOME/lib with the -L
+option. Furthermore, a C++ program needs to link with at least libIce
+and libIceUtil, so a typical link command would look like this:
+
+$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+
+Additional libraries are necessary if you are using an Ice service
+such as IcePack or Glacier2.
+
+
+Java
+----
+
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
+
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+Note that the Freeze component of Ice for Java requires Berkeley DB.
+In order to use Freeze, you must add db.jar to your CLASSPATH. In
+addition, the JVM requires the directory containing the Berkeley DB
+libraries to be listed in java.library.path, therefore you must add
+this directory to your LIBPATH (even if the libraries reside in 
+/usr/lib).
+
+
+======================================================================
+Demos and documentation
+======================================================================
+
+Sample programs are provided in the Ice-2.1.0-demos.tar.gz package,
+which can be downloaded from the ZeroC web site at
+
+http://www.zeroc.com/download.html
+
+Please refer to the README.DEMOS file included in that package for
+more information.
+
+See doc/README.html for information on the documentation included with
+this distribution.
