@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
+#include <IceUtil/CtrlCHandler.h>
 #include <Ice/Application.h>
 #include <Freeze/Freeze.h>
 #include <IcePack/ActivatorI.h>
@@ -73,40 +74,17 @@ childHandler(int)
     wait(0);
 }
 
+}
+
+static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
+
 static void
-interruptHandler(int)
+shutdownCallback(int)
 {
     assert(activator);
     activator->shutdown();
 }
-}
 
-void
-shutdownActivatorOnInterrupt()
-{
-    struct sigaction action;
-    action.sa_handler = interruptHandler;
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGHUP);
-    sigaddset(&action.sa_mask, SIGINT);
-    sigaddset(&action.sa_mask, SIGTERM);
-    action.sa_flags = 0;
-    sigaction(SIGHUP, &action, 0);
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
-}
-
-void
-ignoreInterrupt()
-{
-    struct sigaction action;
-    action.sa_handler = SIG_IGN;
-    sigemptyset(&action.sa_mask);
-    action.sa_flags = 0;
-    sigaction(SIGHUP, &action, 0);
-    sigaction(SIGINT, &action, 0);
-    sigaction(SIGTERM, &action, 0);
-}
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Freeze::DBEnvironmentPtr& dbEnv)
@@ -314,9 +292,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     // Wait for the activator shutdown. Once, the run method returns
     // all the servers have been deactivated.
     //
-    shutdownActivatorOnInterrupt();
+    _ctrlCHandler->setCallback(shutdownCallback);
     activator->waitForShutdown();
-    ignoreInterrupt();
+    _ctrlCHandler->setCallback(0);
 
     activator->destroy();
 
@@ -350,6 +328,11 @@ main(int argc, char* argv[])
     sigaddset(&action.sa_mask, SIGCHLD);
     action.sa_flags = 0;
     sigaction(SIGCHLD, &action, 0);
+
+    // Handles CTRL+C like signals
+    // Initially, just ignore them
+    IceUtil::CtrlCHandler ctrlCHandler;
+    _ctrlCHandler = &ctrlCHandler;
 
     //
     // Initialize Xerces.
