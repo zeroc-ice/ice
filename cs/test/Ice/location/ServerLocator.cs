@@ -20,7 +20,8 @@ public class ServerLocator : Ice.Locator_Disp
         _registryPrx = registryPrx;
     }
     
-    // TODO: These should be AMD operations.
+    // TODO: These should be AMD operations. This makes things compile, but prevents the
+    // tests from running because it causes deadlock.
 
     public override Ice.ObjectPrx findAdapterById(string adapter, Ice.Current current)
     {

@@ -499,6 +499,7 @@ namespace IceInternal
 
 	public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
 	{
+	    /*
 	    //
 	    // Use Poll() in preference to Select() if there is only a single socket to monitor.
 	    //
@@ -545,6 +546,7 @@ namespace IceInternal
 	    //
 	    // More than one socket is being monitored, so we have to use Select().
 	    //
+	    */
 	    ArrayList cr = null;
 	    ArrayList cw = null;
 	    ArrayList ce = null;

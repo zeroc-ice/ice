@@ -96,7 +96,7 @@ namespace Ice
 		// exception?
 		//
 		try {
-		    Identity ident = new Identity();
+		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
 		     locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident));

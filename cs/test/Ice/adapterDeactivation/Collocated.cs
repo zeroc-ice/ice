@@ -12,12 +12,17 @@
 //
 // **********************************************************************
 
-public class Client
+public class Collocated
 {
     internal class TestClient : Ice.Application
     {
         public override int run(string[] args)
         {
+	    communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	    Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+	    Ice.ServantLocator locator = new ServantLocatorI();
+	    adapter.addServantLocator(locator, "");
+
             TestPrx obj = AllTests.allTests(communicator());
             
             System.Console.Out.Write("testing whether server is gone... ");
@@ -37,6 +42,7 @@ public class Client
 		return 1;
 	    }
             
+	    adapter.waitForDeactivate();
             return 0;
         }
     }

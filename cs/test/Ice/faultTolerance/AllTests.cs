@@ -46,7 +46,7 @@ public class AllTests
         Console.Out.WriteLine("ok");
         
         int oldPid = 0;
-        for(int i = 1, j = 0; i <= ports.Count; ++i, j = j >= 3?0:j + 1)
+        for(int i = 1, j = 0; i <= ports.Count; ++i, j = j >= 3 ? 0 : j + 1)
         {
             Console.Out.Write("testing server #" + i + "... ");
             Console.Out.Flush();

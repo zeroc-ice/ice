@@ -39,7 +39,9 @@ namespace IceInternal
 	{
 	    if(!_type.IsInstanceOfType(v))
 	    {
-		throw new Ice.NoObjectFactoryException();
+		Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException();
+		nof.type = type();
+		throw nof;
 	    }
 	    value = v;
 	}

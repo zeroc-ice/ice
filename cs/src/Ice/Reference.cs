@@ -741,7 +741,7 @@ namespace IceInternal
 	    //
 	    // Randomize the order of endpoints.
 	    //
-	    for(int i = 0; i < endpoints.Count - 1; ++i)
+	    for(int i = 0; i < endpoints.Count - 2; ++i)
 	    {
 		int r = _rand.Next(endpoints.Count - i) + i;
 		Debug.Assert(r >= i && r < endpoints.Count);

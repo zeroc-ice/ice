@@ -1554,7 +1554,7 @@ namespace IceInternal
 	
 	private void warning(string msg, System.Exception ex)
 	{
-	    _logger.warning(msg + ":\n" + ex.StackTrace.ToString() + "\n" + _transceiver.ToString());
+	    _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 	}
 	
 	private Incoming getIncoming(bool response, byte compress)

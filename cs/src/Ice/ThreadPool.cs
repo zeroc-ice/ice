@@ -40,8 +40,11 @@ namespace IceInternal
 	    _instance = instance;
 	    _destroyed = false;
 	    _prefix = prefix;
-	    _handlerMap = new Hashtable();
-	    _timeout = timeout > 0 ? timeout * 1000 : -1;
+	    _timeout = timeout;
+	    _size = 0;
+	    _sizeMax = 0;
+	    _sizeWarn = 0;
+	    _messageSizeMax = 0;
 	    _threadIndex = 0;
 	    _running = 0;
 	    _inUse = 0;
@@ -64,8 +67,6 @@ namespace IceInternal
 	    _fdIntrWrite = pair.sink;
 	    Network.setBlock(_fdIntrRead, false);
 	    
-	    _changes = new IceUtil.LinkedList();
-
 	    //
 	    // We use just one thread as the default. This is the fastest
 	    // possible setting, still allows one level of nesting, and
@@ -83,7 +84,8 @@ namespace IceInternal
 		sizeMax = size;
 	    }
 	    
-	    int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
+	    int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
+	                                                                      sizeMax * 80 / 100);
 	    _size = size;
 	    _sizeMax = sizeMax;
 	    _sizeWarn = sizeWarn;
@@ -95,7 +97,8 @@ namespace IceInternal
 		_threads = new ArrayList();
 		for(int i = 0; i < _size; ++i)
 		{
-		    EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix + _prefix + "-" + _threadIndex++);
+		    EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix + _prefix + "-" +
+		                                                       _threadIndex++);
 		    _threads.Add(thread);
 		    thread.Start();
 		    ++_running;
@@ -114,8 +117,16 @@ namespace IceInternal
 	
 	~ThreadPool()
 	{
-	    Network.closeSocket(_fdIntrWrite);
-	    Network.closeSocket(_fdIntrRead);
+	    Debug.Assert(_destroyed);
+
+	    try
+	    {
+		Network.closeSocket(_fdIntrWrite);
+		Network.closeSocket(_fdIntrRead);
+	    }
+	    catch(System.Exception)
+	    {
+	    }
 	}
 	
 	public void destroy()
@@ -190,8 +201,8 @@ namespace IceInternal
 			if(_inUse == _sizeWarn)
 			{
 			    string s = "thread pool `" + _prefix + "' is running low on threads\n"
-					      + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", "
-					      + "SizeWarn=" + _sizeWarn;
+				       + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", "
+				       + "SizeWarn=" + _sizeWarn;
 			    _instance.logger().warning(s);
 			}
 			
@@ -200,9 +211,8 @@ namespace IceInternal
 			{
 			    try
 			    {
-				EventHandlerThread thread = new EventHandlerThread(this,
-										   _programNamePrefix
-										   + _prefix + "-" + _threadIndex++);
+				EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix +
+				                                                   _prefix + "-" + _threadIndex++);
 				_threads.Add(thread);
 				thread.Start();
 				++_running;
@@ -357,13 +367,7 @@ namespace IceInternal
 		readList.Add(_fdIntrRead);
 		readList.AddRange(_handlerMap.Keys);
 
-		#if TRACE_SELECT
-		    trace("calling Select(), _promote = " + _promote);
-		#endif
-		Network.doSelect(readList, null, null, _timeout);
-		#if TRACE_SELECT
-		    trace("Select() returned");
-		#endif
+		Network.doSelect(readList, null, null, _timeout > 0 ? _timeout * 1000 : -1);
 
 		EventHandler handler = null;
 		bool finished = false;
@@ -371,9 +375,6 @@ namespace IceInternal
 
 		lock(this)
 		{
-		    #if TRACE_SELECT
-			trace("After Select, entered critical region");
-		    #endif
 		    if(readList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
 		    {
 			#if TRACE_SELECT
@@ -386,20 +387,6 @@ namespace IceInternal
 		    }
 		    else
 		    {
-			#if TRACE_SELECT || TRACE_INTERRUPT
-			    System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			    sb.Append("readable sockets:");
-			    foreach(Socket s in readList)
-			    {
-				sb.Append(" " + s.Handle);
-				    if(_handlerMap[s] != null)
-				    {
-					sb.Append(" (" + _handlerMap[s].GetType().FullName + ") ");
-				    }
-			    }
-			    trace("readable sockets: " + sb.ToString());
-			#endif
-
 			if(readList.Contains(_fdIntrRead))
 			{
 			    #if TRACE_SELECT || TRACE_INTERRUPT
@@ -424,8 +411,9 @@ namespace IceInternal
 				#endif
 				
 				//
-				// Don't clear the interrupt fd if destroyed,
-				// so that the other threads exit as well.
+				// Don't clear the interrupt fd if
+				// destroyed, so that the other threads
+				// exit as well.
 				//
 				return true;
 			    }
@@ -570,9 +558,6 @@ namespace IceInternal
 				}
 				catch(Ice.TimeoutException) // Expected.
 				{
-				    #if TRACE_EXCEPTION
-					trace("restarting after a timeout exception");
-				    #endif
 				    continue;
 				}
 				catch(Ice.DatagramLimitException) // Expected.
@@ -855,9 +840,9 @@ namespace IceInternal
 	private Socket _fdIntrRead;
 	private Socket _fdIntrWrite;
 	
-	private IceUtil.LinkedList _changes;
+	private IceUtil.LinkedList _changes = new IceUtil.LinkedList();
 	
-	private Hashtable _handlerMap;
+	private Hashtable _handlerMap = new Hashtable();
 	
 	private int _timeout;
 	
