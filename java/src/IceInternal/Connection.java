@@ -237,17 +237,12 @@ public final class Connection extends EventHandler
     isFinished()
     {
 	//
-	// No synchronization necessary, _transceiver is declared
-	// volatile. Synchronization is not possible here anyway,
-	// because this function must not block.
+	// No synchronization necessary, _transceiver and
+	// _dispatchCount are declared volatile. Synchronization is
+	// not possible here anyway, because this function must not
+	// block.
 	//
-
-	//
-	// If _transceiver is null, then _dispatchCount must also be 0;
-	//
-	assert(!(_transceiver == null && _dispatchCount != 0));
-
-	return _transceiver == null;
+	return _transceiver == null && _dispatchCount == 0;
     }
 
     public synchronized void
@@ -679,15 +674,14 @@ public final class Connection extends EventHandler
     {
 	try
 	{
-	    if(_state == StateClosed)
-	    {
-		assert(_dispatchCount == 0);
-		return;
-	    }
-
 	    if(--_dispatchCount == 0)
 	    {
 		notifyAll();
+	    }
+
+	    if(_state == StateClosed)
+	    {
+		return;
 	    }
 
 	    //
@@ -724,17 +718,16 @@ public final class Connection extends EventHandler
     {
 	try
 	{
-	    if(_state == StateClosed)
-	    {
-		assert(_dispatchCount == 0);
-		return;
-	    }
-
 	    if(--_dispatchCount == 0)
 	    {
 		notifyAll();
 	    }
 	    
+	    if(_state == StateClosed)
+	    {
+		return;
+	    }
+
 	    if(_state == StateClosing && _dispatchCount == 0)
 	    {
 		initiateShutdown();
@@ -1312,12 +1305,6 @@ public final class Connection extends EventHandler
             case StateClosed:
             {
 		//
-		// If we do a hard close, all outstanding requests are
-		// disregarded.
-		//
-		_dispatchCount = 0;
-
-		//
 		// If we change from not validated, we can close right
 		// away. Otherwise we first must make sure that we are
 		// registered, then we unregister, and let finished()
@@ -1530,8 +1517,9 @@ public final class Connection extends EventHandler
     private boolean _batchStreamInUse;
     private int _batchRequestNum;
 
-    private int _dispatchCount; // The number of requests currently being dispatched.
-    private int _proxyCount; // The number of proxies using this connection.
+    private volatile int _dispatchCount; // Must be volatile, see comment in isDestroyed().
+
+    private int _proxyCount;
 
     private volatile int _state; // Must be volatile, see comment in isDestroyed().
 

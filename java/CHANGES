@@ -1,6 +1,8 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Fixed a crash that could happen during shutdown.
+
 - Fixed a deadlock that could happen during connection establishment.
 
 - Fixed deadlock during shutdown that can happen if a thread pool with

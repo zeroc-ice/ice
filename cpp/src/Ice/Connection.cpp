@@ -236,7 +236,6 @@ IceInternal::Connection::isValidated() const
 {
     // See _queryMutex comment in header file.
     IceUtil::Mutex::Lock sync(_queryMutex);
-
     return _state > StateNotValidated;
 }
 
@@ -245,7 +244,6 @@ IceInternal::Connection::isDestroyed() const
 {
     // See _queryMutex comment in header file.
     IceUtil::Mutex::Lock sync(_queryMutex);
-
     return _state >= StateClosing;
 }
 
@@ -254,13 +252,7 @@ IceInternal::Connection::isFinished() const
 {
     // See _queryMutex comment in header file.
     IceUtil::Mutex::Lock sync(_queryMutex);
-
-    //
-    // If _transceiver is 0, then _dispatchCount must also be 0;
-    //
-    assert(!(_transceiver == 0 && _dispatchCount != 0));
-
-    return _transceiver == 0;
+    return _transceiver == 0 && _dispatchCount == 0;
 }
 
 void
@@ -771,15 +763,20 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
     
     try
     {
-	if(_state == StateClosed)
 	{
-	    assert(_dispatchCount == 0);
-	    return;
+	    // See _queryMutex comment in header file.
+	    IceUtil::Mutex::Lock sync(_queryMutex);
+	    --_dispatchCount;
 	}
-	
-	if(--_dispatchCount == 0)
+
+	if(_dispatchCount == 0)
 	{
 	    notifyAll();
+	}
+
+	if(_state == StateClosed)
+	{
+	    return;
 	}
 
 	bool compress;
@@ -857,15 +854,20 @@ IceInternal::Connection::sendNoResponse()
     
     try
     {
-	if(_state == StateClosed)
 	{
-	    assert(_dispatchCount == 0);
-	    return;
+	    // See _queryMutex comment in header file.
+	    IceUtil::Mutex::Lock sync(_queryMutex);
+	    --_dispatchCount;
 	}
-	
-	if(--_dispatchCount == 0)
+
+	if(_dispatchCount == 0)
 	{
 	    notifyAll();
+	}
+
+	if(_state == StateClosed)
+	{
+	    return;
 	}
 
 	if(_state == StateClosing && _dispatchCount == 0)
@@ -1059,7 +1061,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			traceRequest("received request", stream, _logger, _traceLevels);
 			stream.read(requestId);
 			invoke = 1;
-			++_dispatchCount;
+			{
+			    // See _queryMutex comment in header file.
+			    IceUtil::Mutex::Lock sync(_queryMutex);
+			    ++_dispatchCount;
+			}
 		    }
 		    break;
 		}
@@ -1080,7 +1086,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			{
 			    throw NegativeSizeException(__FILE__, __LINE__);
 			}
-			_dispatchCount += invoke;
+			{
+			    // See _queryMutex comment in header file.
+			    IceUtil::Mutex::Lock sync(_queryMutex);
+			    _dispatchCount += invoke;
+			}
 		    }
 		    break;
 		}
@@ -1406,6 +1416,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 
 IceInternal::Connection::~Connection()
 {
+    // See _queryMutex comment in header file.
+    IceUtil::Mutex::Lock sync(_queryMutex);
     assert(_state == StateClosed);
     assert(!_transceiver);
     assert(_dispatchCount == 0);
@@ -1526,12 +1538,6 @@ IceInternal::Connection::setState(State state)
 	
 	case StateClosed:
 	{
-	    //
-	    // If we do a hard close, all outstanding requests are
-	    // disregarded.
-	    //
-	    _dispatchCount = 0;
-
 	    //
 	    // If we change from not validated, we can close right
 	    // away. Otherwise we first must make sure that we are

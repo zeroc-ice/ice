@@ -166,8 +166,9 @@ private:
     BasicStream _batchStream;
     int _batchRequestNum;
 
-    int _dispatchCount; // The number of requests currently being dispatched.
-    int _proxyCount; // The number of proxies using this connection.
+    int _dispatchCount;
+
+    int _proxyCount;
 
     State _state;
 
