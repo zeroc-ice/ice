@@ -43,11 +43,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	TestPrx allTestsWithDeploy(const Ice::CommunicatorPtr&);
 	obj = allTestsWithDeploy(communicator);
-    }
 
-    cout << "shutting down server... " << flush;
-    obj->shutdown();
-    cout << "ok" << endl;
+	cout << "shutting down server... " << flush;
+	obj->shutdown();
+	cout << "ok" << endl;
+    }
 
     return EXIT_SUCCESS;
 }
