@@ -27,7 +27,7 @@ const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short SslEndpointType = 2;
 const ::Ice::Short UdpEndpointType = 3;
-const ::Ice::Short SUdpEndpointType = 4;
+// const ::Ice::Short SUdpEndpointType = 4;
 
 class Endpoint : public ::IceUtil::Shared
 {
@@ -280,6 +280,7 @@ private:
     const bool _connect;
 };
 
+/*
 class SUdpEndpoint : public Endpoint
 {
 public:
@@ -317,6 +318,7 @@ private:
     const ::Ice::Int _port;
     const bool _connect;
 };
+*/
 
 }
 

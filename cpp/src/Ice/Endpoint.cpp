@@ -17,7 +17,7 @@
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/UdpTransceiver.h>
-#include <Ice/SUdpTransceiver.h>
+// #include <Ice/SUdpTransceiver.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -68,10 +68,12 @@ IceInternal::Endpoint::endpointFromString(const InstancePtr& instance, const str
 	return new UdpEndpoint(instance, str.substr(end));
     }
 
+/*
     if (protocol == "sudp")
     {
 	return new SUdpEndpoint(instance, str.substr(end));
     }
+*/
 
     throw EndpointParseException(__FILE__, __LINE__);
 }
@@ -102,11 +104,13 @@ IceInternal::Endpoint::streamRead(BasicStream* s, EndpointPtr& v)
 	    break;
 	}
 
+/*
 	case SUdpEndpointType:
 	{
 	    v = new SUdpEndpoint(s);
 	    break;
 	}
+*/
 
 	default:
 	{
@@ -565,10 +569,12 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	    return false; // tcp is not "less than" udp
 	}
 
+/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // tcp is not "less than" sudp
 	}
+*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -905,10 +911,12 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	    return false; // ssl is not "less than" udp
 	}
 
+/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // ssl is not "less than" sudp
 	}
+*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -1240,10 +1248,12 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	    return true; // udp is "less than" tcp
 	}
 
+/*
 	if (dynamic_cast<const SUdpEndpoint*>(&r))
 	{
 	    return false; // udp is not "less than" sudp
 	}
+*/
 
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
@@ -1298,6 +1308,7 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
+/*
 IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const string& ho, Int po) :
     _instance(instance),
     _host(ho),
@@ -1632,3 +1643,4 @@ IceInternal::SUdpEndpoint::operator<(const Endpoint& r) const
 
     return false;
 }
+*/

@@ -49,8 +49,8 @@ private:
     virtual ~UdpTransceiver();
 
     friend class UdpEndpoint;
-    friend class SUdpEndpoint; // TODO: Remove as soon as SUdpEndpoint uses SUdpTransceiver.
-    friend class SUdpTransceiver;
+//    friend class SUdpEndpoint; // TODO: Remove as soon as SUdpEndpoint uses SUdpTransceiver.
+//    friend class SUdpTransceiver;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
