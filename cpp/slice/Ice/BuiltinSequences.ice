@@ -38,6 +38,15 @@ sequence<double> DoubleSeq;
 /** A sequence of strings. **/
 sequence<string> StringSeq;
 
+/** A sequence of objects. **/
+sequence<Object> ObjectSeq;
+
+/** A sequence of object proxies. **/
+sequence<Object*> ObjectProxySeq;
+
+/** A sequence of local objects. **/
+local sequence<Object*> LocalObjectSeq;
+
 };
 
 #endif

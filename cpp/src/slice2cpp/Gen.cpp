@@ -597,7 +597,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     H << sp << nl << "typedef ::std::vector<" << s << "> " << name << ';';
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if (!builtin && !p->isLocal())
+    if (!p->isLocal() &&
+	(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy))
     {
 	string scoped = p->scoped();
 	string scope = p->scope();
