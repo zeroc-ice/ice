@@ -363,6 +363,12 @@ Ice::Service::trace(const std::string& msg) const
 #ifdef _WIN32
 
 bool
+Ice::Service::win9x() const
+{
+    return _win9x;
+}
+
+bool
 Ice::Service::checkService(int argc, char* argv[], int& status)
 {
     if(_win9x)

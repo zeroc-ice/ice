@@ -91,7 +91,7 @@ IcePack::RegistryService::usage(const string& appName)
 	"-v, --version        Display the Ice version.\n"
 	"--nowarn             Don't print any security warnings.";
 #ifdef _WIN32
-    if(!_win9x)
+    if(!win9x())
     {
         options.append(
 	"\n"
