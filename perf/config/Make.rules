@@ -11,7 +11,7 @@
 # If you want to compile TAO performance tests, set TAO_HOME to the
 # TAO source distribution directory.
 #
-#TAO_HOME	?=
+#TAO_ROOT	?=
 
 #
 # If you want to compile Ice performance tests, set ICE_HOME to the
