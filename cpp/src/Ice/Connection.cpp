@@ -996,19 +996,63 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	return;
     }
 
-    OutgoingAsyncPtr outAsync;
+    //
+    // We need a special handling for close connection messages. If we
+    // get a close connection message, we must *first* set the state
+    // to closed, and *then* promote a follower thread. Otherwise we get
+    // lots of bogus warnings about connections being lost.
+    //
+    if(messageType == closeConnectionMsg)
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
+	if(_state == StateClosed)
+	{
+	    threadPool->promoteFollower();
+	    return;
+	}
+
+	try
+	{
+	    traceHeader("received close connection", stream, _logger, _traceLevels);
+	    if(_endpoint->datagram())
+	    {
+		if(_warn)
+		{
+		    Warning out(_logger);
+		    out << "ignoring close connection message for datagram connection:\n"
+			<< _transceiver->toString();
+		}
+	    }
+	    else
+	    {
+		setState(StateClosed, CloseConnectionException(__FILE__, __LINE__));
+	    }
+	}
+	catch(const LocalException& ex)
+	{
+	    setState(StateClosed, ex);
+	}
+
+	threadPool->promoteFollower();
+	return;
+    }
+
+    //
+    // For all other messages, we can promote a follower right away,
+    // without setting the state first, or holding the mutex lock.
+    //
+    threadPool->promoteFollower();
+	
+    OutgoingAsyncPtr outAsync;
     Int invoke = 0;
     Int requestId = 0;
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	
-	threadPool->promoteFollower();
-	
 	if(_state == StateClosed)
 	{
-	    IceUtil::ThreadControl::yield();
 	    return;
 	}
 	
@@ -1165,20 +1209,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		
 		case closeConnectionMsg:
 		{
-		    traceHeader("received close connection", stream, _logger, _traceLevels);
-		    if(_endpoint->datagram())
-		    {
-			if(_warn)
-			{
-			    Warning out(_logger);
-			    out << "ignoring close connection message for datagram connection:\n"
-				<< _transceiver->toString();
-			}
-		    }
-		    else
-		    {
-			throw CloseConnectionException(__FILE__, __LINE__);
-		    }
+		    assert(false); // Message has special handling above.
 		    break;
 		}
 		
@@ -1261,6 +1292,8 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 void
 IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 {
+    threadPool->promoteFollower();
+
     auto_ptr<LocalException> closeException;
     
     map<Int, Outgoing*> requests;
@@ -1268,8 +1301,6 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	
-	threadPool->promoteFollower();
 	
 	if(_state == StateActive || _state == StateClosing)
 	{

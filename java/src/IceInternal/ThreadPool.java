@@ -627,6 +627,12 @@ public final class ThreadPool
 
 		promoteFollower();
 		factory.shutdown();
+
+		//
+		// No "continue", because we want shutdown to be done in
+		// its own thread from this pool. Therefore we called
+		// promoteFollower().
+		//
 	    }
 	    else
 	    {
@@ -650,6 +656,13 @@ public final class ThreadPool
 			    sw.toString() + "\n" + handler.toString();
 			_instance.logger().error(s);
 		    }
+
+		    //
+		    // No "continue", because we want finished() to be
+		    // called in its own thread from this pool. Note
+		    // that this means that finished() must call
+		    // promoteFollower().
+		    //
 		}
 		else
 		{
@@ -690,7 +703,30 @@ public final class ThreadPool
 			    assert(stream.pos() == stream.size());
 			}
 			    
-			handler.message(stream, this);
+			//
+			// Provide a new mesage to the handler.
+			//
+			try
+			{
+			    handler.message(stream, this);
+			}
+			catch(Ice.LocalException ex)
+			{
+			    java.io.StringWriter sw = new java.io.StringWriter();
+			    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+			    ex.printStackTrace(pw);
+			    pw.flush();
+			    String s = "exception in `" + _prefix + "' while calling finished():\n" +
+				sw.toString() + "\n" + handler.toString();
+			    _instance.logger().error(s);
+			}
+
+			//
+			// No "continue", because we want message() to
+			// be called in its own thread from this
+			// pool. Note that this means that message()
+			// must call promoteFollower().
+			//
 		    }
 		    finally
 		    {

@@ -15,10 +15,13 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
-#include <fstream>
 
 #ifdef _WIN32
 #   include <io.h>
+#else
+#   include <sys/types.h>
+#   include <sys/stat.h>
+#   include <fcntl.h>
 #endif
 
 using namespace std;
@@ -53,17 +56,23 @@ private:
 void
 createLock(const string& name)
 {
-    ofstream f(name.c_str());
+#ifdef _WIN32
+    int ret = _open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL);
+#else
+    int ret = open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL);
+#endif
+    assert(ret != -1);
 }
 
 void
 deleteLock(const string& name)
 {
 #ifdef _WIN32
-    _unlink(name.c_str());
+    int ret = _unlink(name.c_str());
 #else
-    unlink(name.c_str());
+    int ret = unlink(name.c_str());
 #endif
+    assert(ret != -1);
 }
 
 int
