@@ -27,7 +27,7 @@ IceInternal::Direct::Direct(const Current& current) :
     try
     {
 	_servant = _current.adapter->identityToServant(_current.id);
-    
+	
 	if(!_servant && !_current.id.category.empty())
 	{
 	    _locator = _current.adapter->findServantLocator(_current.id.category);
@@ -36,7 +36,7 @@ IceInternal::Direct::Direct(const Current& current) :
 		_servant = _locator->locate(_current, _cookie);
 	    }
 	}
-
+	
 	if(!_servant)
 	{
 	    _locator = _current.adapter->findServantLocator("");

@@ -255,12 +255,20 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
+	//
+	// Don't check whether deactivation has been initiated. This
+	// operation might be called (e.g., from Incoming or Direct)
+	// after deactivation has been initiated, but before
+	// deactivation has been completed.
+	//
+	/*
         if(_instance == null)
         {
             ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
 	    e.name = _name;
 	    throw e;
         }
+	*/
 
         return (ServantLocator)_locatorMap.get(prefix);
     }
@@ -268,7 +276,29 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
+	//
+	// Don't check whether deactivation has been initiated. This
+	// operation might be called (e.g., from Incoming or Direct)
+	// after deactivation has been initiated, but before
+	// deactivation has been completed.
+	//
+	/*
+        if(_instance == null)
+        {
+            ObjectAdapterDeactivatedException e = new ObjectAdapterDeactivatedException();
+	    e.name = _name;
+	    throw e;
+        }
+	*/
+
+	//
+	// Don't call checkIdentity. We simply want null to be
+	// returned (e.g., for Direct, Incoming) in case the identity
+	// is incorrect and therefore no servant can be found.
+	//
+	/*
         checkIdentity(ident);
+	*/
 
         return (Ice.Object)_activeServantMap.get(ident);
     }
@@ -424,11 +454,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     incUsageCount()
     {
-	if(_instance == null)
-	{
-	    throw new ObjectAdapterDeactivatedException();
-	}
-
+	//
+	// Don't check whether deactivation has been initiated. This
+	// operation might be called (e.g., from Incoming or Direct)
+	// after deactivation has been initiated, but before
+	// deactivation has been completed.
+	//
+	/*
+	assert(_instance != null);
+	*/
 	assert(_usageCount >= 0);
 	++_usageCount;
     }
@@ -437,8 +471,9 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     decUsageCount()
     {
 	//
-	// The object adapter may already be deactivated when the usage
-	// count is decremented, thus no check for prior deactivation.
+	// The object adapter may already be deactivated when the
+	// usage count is decremented, thus no check for prior
+	// deactivation.
 	//
 
 	assert(_usageCount > 0);

@@ -288,12 +288,20 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
+    //
+    // Don't check whether deactivation has been initiated. This
+    // operation might be called (e.g., from Incoming or Direct)
+    // after deactivation has been initiated, but before
+    // deactivation has been completed.
+    //
+    /*
     if(!_instance)
     {
 	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
 	ex.name = _name;
 	throw ex;
     }
+    */
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
@@ -324,9 +332,31 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
-    checkIdentity(ident);
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    //
+    // Don't check whether deactivation has been initiated. This
+    // operation might be called (e.g., from Incoming or Direct)
+    // after deactivation has been initiated, but before
+    // deactivation has been completed.
+    //
+    /*
+    if(!_instance)
+    {
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
+    }
+    */
+    
+    //
+    // Don't call checkIdentity. We simply want null to be
+    // returned (e.g., for Direct, Incoming) in case the identity
+    // is incorrect and therefore no servant can be found.
+    //
+    /*
+    checkIdentity(ident);
+    */
 
     if(_activeServantMapHint != _activeServantMap.end())
     {
@@ -499,11 +529,15 @@ Ice::ObjectAdapterI::incUsageCount()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
  
-    if(!_instance)
-    {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
-    }
-
+    //
+    // Don't check whether deactivation has been initiated. This
+    // operation might be called (e.g., from Incoming or Direct)
+    // after deactivation has been initiated, but before
+    // deactivation has been completed.
+    //
+    /*
+    assert(_instance);
+    */
     assert(_usageCount >= 0);
     ++_usageCount;
 }
@@ -515,7 +549,8 @@ Ice::ObjectAdapterI::decUsageCount()
 
     //
     // The object adapter may already be deactivated when the usage
-    // count is decremented, thus no check for prior deactivation.
+    // count is decremented, thus no check for prior deactivation,
+    // i.e., no assert(_instance).
     //
 
     assert(_usageCount > 0);

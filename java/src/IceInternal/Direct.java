@@ -21,27 +21,27 @@ public final class Direct
 
         try
         {
-            _servant = _current.adapter.identityToServant(_current.id);
-
-            if(_servant == null && _current.id.category.length() > 0)
-            {
-                _locator = _current.adapter.findServantLocator(_current.id.category);
-                if(_locator != null)
-                {
-                    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
-                    _servant = _locator.locate(_current, _cookie);
-                }
-            }
-
-            if(_servant == null)
-            {
-                _locator = _current.adapter.findServantLocator("");
-                if(_locator != null)
-                {
-                    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
-                    _servant = _locator.locate(_current, _cookie);
-                }
-            }
+	    _servant = _current.adapter.identityToServant(_current.id);
+	    
+	    if(_servant == null && _current.id.category.length() > 0)
+	    {
+		_locator = _current.adapter.findServantLocator(_current.id.category);
+		if(_locator != null)
+		{
+		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
+		    _servant = _locator.locate(_current, _cookie);
+		}
+	    }
+	    
+	    if(_servant == null)
+	    {
+		_locator = _current.adapter.findServantLocator("");
+		if(_locator != null)
+		{
+		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation
+		    _servant = _locator.locate(_current, _cookie);
+		}
+	    }
 	    
 	    if(_servant == null)
 	    {
@@ -51,7 +51,7 @@ public final class Direct
 		ex.operation = _current.operation;
 		throw ex;
 	    }
-
+	    
             if(_current.facet.length > 0)
             {
                 _facetServant = _servant.ice_findFacetPath(_current.facet, 0);

@@ -53,7 +53,7 @@ public class Incoming
 
             if(_current.adapter != null)
             {
-                ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
+		((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
             }
         }
     }
