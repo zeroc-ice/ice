@@ -24,25 +24,29 @@ import sys, os
 protocol = ""
 
 #
-# Set the host to the host name the test servers are running on. If not
-# set, the local host is used.
+# Set the host to the host name the test servers are running on. If
+# not set, Ice will try to find out the IP address for the
+# hostname. If you DNS isn't set up propertly, you should therefore
+# use "localhost".
 #
 
 #host = "someotherhost"
-host = ""
+host = "localhost"
 
 #
 # Don't change anything below this line!
 #
 
 if protocol == "ssl":
-    clientProtocol = " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
-    serverProtocol = " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
-    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
+    print "No SSL available for Ice for Java."
+    sys.exit(1)
+#    clientProtocol = " --Ice.Default.Protocol=ssl" + \
+#    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
+#    serverProtocol = " --Ice.Default.Protocol=ssl" + \
+#    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
+#    clientServerProtocol = " --Ice.Default.Protocol=ssl" + \
+#    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
+#    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""
@@ -65,10 +69,10 @@ else:
 commonServerOptions = " --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
                       " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
 
-serverOptions = commonServerOptions + serverProtocol
 clientOptions = clientProtocol + defaultHost
-clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
-collocatedOptions = clientServerProtocol
+serverOptions = serverProtocol + defaultHost + commonServerOptions
+clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
+collocatedOptions = clientServerProtocol + defaultHost
 
 def isCygwin():
 
