@@ -1,0 +1,518 @@
+// **********************************************************************
+//
+// Copyright (c) 2001
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#include <Slice/XsdVisitor.h>
+#include <IceUtil/Functional.h>
+#include <Slice/CPlusPlusUtil.h> // TODO: ???
+
+using namespace std;
+using namespace Slice;
+using namespace IceUtil;
+
+static const string internalId = "_internal.";
+
+Slice::XsdVisitor::XsdVisitor() :
+    _emitElements(true)
+{
+}
+
+Slice::XsdVisitor::XsdVisitor(::std::ostream& os) :
+    O(os),
+    _emitElements(true)
+{
+}
+
+void
+Slice::XsdVisitor::emitElements(bool emitElements)
+{
+    _emitElements = emitElements;
+}
+
+bool
+Slice::XsdVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    O << sp;
+
+    string scopeId = containedToId(p);
+
+    //
+    // Emit class-name-type
+    //
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    O << se(os.str());
+
+    annotate("class");
+
+    O << se("xs:complexContent");
+    
+    string extension = "xs:extension base=\"";
+    ClassList bases = p->bases();
+    if (bases.empty() || bases.front()->isInterface())
+    {
+	extension += "ice:_internal.object";
+    }
+    else
+    {
+	extension += "tns:";
+	ClassDefPtr base = bases.front();
+	extension += internalId + containedToId(base) + base->name();
+    }
+    extension += "Type\"";
+    
+    O << se(extension);
+
+    DataMemberList dataMembers = p->dataMembers();
+    O << se("xs:sequence");
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	emitElement(*q);
+    }
+    O << ee; // xs:sequence
+
+    O << ee; // xs:extension
+    O << ee; // xs:complexContent
+    O << ee; // xs:complexType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
+	  << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\" nillable=\"true\"/>";
+    }
+
+    return true;
+}
+
+bool
+Slice::XsdVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    O << sp;
+
+    string scopeId = containedToId(p);
+
+    //
+    // Emit exception-name-type
+    //
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    O << se(os.str());
+
+    annotate("exception");
+
+    //
+    // Emit base Data
+    //
+    ExceptionPtr base = p->base();
+    if (base)
+    {
+	string baseScopeId = containedToId(base);
+
+	O << se("xs:complexContent");
+
+	string extension = "xs:extension base=\"";
+	extension += "tns:";
+	extension += internalId + baseScopeId + base->name();
+	extension += "Type\"";
+	O << se(extension);
+    }
+
+    DataMemberList dataMembers = p->dataMembers();
+
+    O << se("xs:sequence");
+    
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	emitElement(*q);
+    }
+    
+    O << ee; // xs:sequence
+
+    if (base)
+    {
+	O << ee; // xs:extension
+	O << ee; // xs:complexContent
+    }
+
+    O << ee; // xs:complexType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
+	  << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
+    }
+
+    return true;
+}
+
+bool
+Slice::XsdVisitor::visitStructStart(const StructPtr& p)
+{
+    O << sp;
+
+    string scopeId = containedToId(p);
+
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    O << se(os.str());
+
+    annotate("struct");
+
+    DataMemberList dataMembers = p->dataMembers();
+    O << se("xs:sequence");
+    
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
+	O << toString((*q)->type());
+	O << "\"/>";
+    }
+    
+    O << ee; // xs:sequence
+    
+    O << ee; // xs:complexType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
+	  << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
+    }
+
+    return true;
+}
+
+void
+Slice::XsdVisitor::visitOperation(const OperationPtr& p)
+{
+    TypeStringList in = p->inputParameters();
+    TypeStringList out = p->outputParameters();
+    TypePtr ret = p->returnType();
+    string scopeId = containedToId(p);
+    ostringstream os;
+
+    O << sp;
+
+    os << "xs:element name=\"" << scopeId << "request." << p->name() << "\"";
+    O << se(os.str());
+    O << se("xs:complexType");
+
+    annotate("operation");
+
+    O << se("xs:sequence");
+    TypeStringList::const_iterator q;
+    for (q = in.begin(); q != in.end(); ++q)
+    {
+	emitElement(*q);
+    }
+    O << ee; // xs:sequence
+
+    O << ee; // xs:complexType
+    O << ee; // xs:element
+
+    os.str(""); // Reset stream
+
+    O << sp;
+
+    os << "xs:element name=\"" << scopeId << "reply." << p->name() << "\"";
+    O << se(os.str());
+    O << se("xs:complexType");
+
+    annotate("operation");
+
+    O << se("xs:sequence");
+    if (ret)
+    {
+	O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
+    }
+    for (q = out.begin(); q != out.end(); ++q)
+    {
+	emitElement(*q);
+    }
+    O << ee; // xs:sequence
+
+    O << ee; // xs:complexType
+    O << ee; // xs:element
+}
+
+void
+Slice::XsdVisitor::visitEnum(const EnumPtr& p)
+{
+    string scopeId = containedToId(p);
+
+    O << sp;
+
+    ostringstream os;
+    os << "xs:simpleType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    O << se(os.str());
+
+    annotate("enumeration");
+
+    EnumeratorList enumerators = p->getEnumerators();
+    assert (!enumerators.empty());
+
+    O << se("xs:restriction base=\"xs:string\"");
+
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    {
+	O << nl << "<xs:enumeration value=\"" << (*q)->name() << "\"/>";
+    }
+    
+    O << ee; // xs:restriction
+    O << ee; // xs:simpleType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
+	  << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
+    }
+}
+
+void
+Slice::XsdVisitor::visitSequence(const SequencePtr& p)
+{
+    O << sp;
+
+    string scopeId = containedToId(p);
+
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+
+    O << se(os.str());
+
+    annotate("sequence");
+
+    O << se("xs:sequence");
+
+    O << nl << "<xs:element name=\"e\" type=\"" << toString(p->type())
+      << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
+
+    O << ee; // xs:sequence
+
+    O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
+
+    O << ee; // xs:complexType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name() << "\" type=\"tns:"
+	  << internalId << scopeId << p->name() << "Type\"/>";
+    }
+}
+
+void
+Slice::XsdVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    O << sp;
+
+    string scopeId = containedToId(p);
+
+    //
+    // First the dictionary content.
+    //
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "ContentType\"";
+    O << se(os.str());
+
+    annotate("dictionaryContent");
+
+    O << se("xs:sequence");
+
+    O.inc();
+    O << nl << "<xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"/>";
+    O << nl << "<xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"/>";
+    O.dec();
+
+    O << ee; // xs:sequence
+    O << ee; // xs:complexType
+
+    O << sp;
+
+    //
+    // Next the dictionary sequence data.
+    //
+    os.str("");
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    O << se(os.str());
+
+    annotate("dictionary");
+
+    O << se("xs:sequence");
+
+    O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\""
+      << " minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
+
+    O << ee; // xs:sequence
+
+    O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
+
+    O << ee; // xs:complexType
+
+    if (_emitElements)
+    {
+	O << sp << nl << "<xs:element name=\"" << scopeId << p->name() << "\" type=\"tns:"
+	  << internalId << scopeId << p->name() << "Type\"/>";
+    }
+}
+
+void
+Slice::XsdVisitor::annotate(const ::std::string& type)
+{
+    O << se("xs:annotation");
+    O << se("xs:appinfo");
+    O << nl << "<type>" << type << "</type>";
+    O << ee; // xs:annotation
+    O << ee; // xs:appinfo
+}
+
+void
+Slice::XsdVisitor::emitElement(const DataMemberPtr& q)
+{
+    ostringstream os;
+    os << "xs:element name=\"" << q->name() << "\" type=\"" << toString(q->type()) << '"';
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(q->type());
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
+}
+
+void
+Slice::XsdVisitor::emitElement(const TypeString& q)
+{
+    ostringstream os;
+    os << "xs:element name=\"" << q.second << "\" type=\"" << toString(q.first) << '"';
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(q.first);
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
+}
+
+string
+Slice::XsdVisitor::containedToId(const ContainedPtr& contained)
+{
+    assert(contained);
+
+    string scoped = contained->scope();
+    if (scoped[0] == ':')
+    {
+	scoped.erase(0, 2);
+    }
+
+    string id;
+
+    id.reserve(scoped.size());
+
+    for (unsigned int i = 0; i < scoped.size(); ++i)
+    {
+	if (scoped[i] == ':')
+	{
+	    id += '.';
+	    ++i;
+	}
+	else
+	{
+	    id += scoped[i];
+	}
+    }
+
+    return id;
+}
+
+string
+Slice::XsdVisitor::toString(const SyntaxTreeBasePtr& p)
+{
+    string tag;
+    string linkend;
+    string s;
+
+    static const char* builtinTable[] =
+    {
+	"xs:byte",
+	"xs:boolean",
+	"xs;short",
+	"xs:int",
+	"xs:long",
+	"xs:float",
+	"xs:double",
+	"xs:string",
+	"ice:_internal.reference", /* Object */
+	"ice:_internal.proxyType", /* Object* */
+	"???" /* LocalObject */
+    };
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    if (builtin)
+    {
+	s = builtinTable[builtin->kind()];
+	//tag = "type";
+    }
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(p);
+    if (proxy)
+    {
+	s = "ice:_internal.proxyType";
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+    if (cl)
+    {
+	string scopeId = containedToId(cl);
+	//s = "tns:" + internalId + scopeId + cl->name() + "Type";
+	s = "ice:_internal.reference";
+    }
+
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+    if (ex)
+    {
+	string scopeId = containedToId(ex);
+	s = "tns:" + internalId + scopeId + ex->name() + "Type";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(p);
+    if (st)
+    {
+	string scopeId = containedToId(st);
+	s = "tns:" + internalId + scopeId + st->name() + "Type";
+    }
+
+    EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
+    if (en)
+    {
+	string scopeId = containedToId(en);
+	s = "tns:" + internalId + scopeId + en->name() + "Type";
+    }
+
+    SequencePtr sq = SequencePtr::dynamicCast(p);
+    if (sq)
+    {
+	string scopeId = containedToId(sq);
+	s = "tns:" + internalId + scopeId + sq->name() + "Type";
+    }
+
+    DictionaryPtr di = DictionaryPtr::dynamicCast(p);
+    if (di)
+    {
+	string scopeId = containedToId(di);
+	s = "tns:" + internalId + scopeId + di->name() + "Type";
+    }
+
+    EnumPtr em = EnumPtr::dynamicCast(p);
+    if (em)
+    {
+	string scopeId = containedToId(em);
+	s = "tns:" + internalId + scopeId + em->name() + "Type";
+    }
+
+    return s;
+}
