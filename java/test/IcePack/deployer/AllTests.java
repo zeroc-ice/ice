@@ -171,12 +171,20 @@ public class AllTests
 	{
 	    test(false);
 	}
+	catch(IcePack.NodeUnreachableException ex)
+	{
+	    test(false);
+	}
 	try
         {
 	    IcePack.ServerDescription desc = admin.getServerDescription("IceBox2");
 	    desc.serviceManager.ice_ping();
 	}
 	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	catch(IcePack.NodeUnreachableException ex)
 	{
 	    test(false);
 	}
@@ -206,7 +214,10 @@ public class AllTests
 	{
 	    test(false);
 	}
-
+	catch(IcePack.NodeUnreachableException ex)
+	{
+	    test(false);
+	}
 
 	TestPrx obj;
 	try
@@ -223,6 +234,10 @@ public class AllTests
 	    admin.startServer("Server1");
 	}
 	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	catch(IcePack.NodeUnreachableException ex)
 	{
 	    test(false);
 	}
@@ -250,6 +265,10 @@ public class AllTests
 	    desc.serviceManager.ice_ping();
 	}
 	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	catch(IcePack.NodeUnreachableException ex)
 	{
 	    test(false);
 	}
