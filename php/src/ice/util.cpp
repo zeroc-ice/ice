@@ -292,7 +292,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Throw the exception.
         //
-        EG(exception) = zex;
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -349,7 +349,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Throw the exception.
         //
-        EG(exception) = zex;
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::NoObjectFactoryException& e)
     {
@@ -377,7 +377,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Throw the exception.
         //
-        EG(exception) = zex;
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::LocalException& e)
     {
@@ -425,7 +425,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Throw the exception.
         //
-        EG(exception) = zex;
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::UserException&)
     {

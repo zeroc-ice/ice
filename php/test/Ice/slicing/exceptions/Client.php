@@ -28,7 +28,7 @@ function allTests()
         catch(Base $b)
         {
             test($b->b == "Base.b");
-            test(get_class($b) == "base");
+            test(get_class($b) == "Base");
             $gotException = true;
         }
         test($gotException);
@@ -46,7 +46,7 @@ function allTests()
         catch(Base $b)
         {
             test($b->b == "UnknownDerived.b");
-            test(get_class($b) == "base");
+            test(get_class($b) == "Base");
             $gotException = true;
         }
         test($gotException);
@@ -65,7 +65,7 @@ function allTests()
         {
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
-            test(get_class($k) == "knownderived");
+            test(get_class($k) == "KnownDerived");
             $gotException = true;
         }
         test($gotException);
@@ -84,7 +84,7 @@ function allTests()
         {
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
-            test(get_class($k) == "knownderived");
+            test(get_class($k) == "KnownDerived");
             $gotException = true;
         }
         test($gotException);
@@ -102,7 +102,7 @@ function allTests()
         catch(Base $b)
         {
             test($b->b == "UnknownIntermediate.b");
-            test(get_class($b) == "base");
+            test(get_class($b) == "Base");
             $gotException = true;
         }
         test($gotException);
@@ -121,7 +121,7 @@ function allTests()
         {
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
-            test(get_class($ki) == "knownintermediate");
+            test(get_class($ki) == "KnownIntermediate");
             $gotException = true;
         }
         test($gotException);
@@ -141,7 +141,7 @@ function allTests()
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "knownmostderived");
+            test(get_class($kmd) == "KnownMostDerived");
             $gotException = true;
         }
         test($gotException);
@@ -160,7 +160,7 @@ function allTests()
         {
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
-            test(get_class($ki) == "knownintermediate");
+            test(get_class($ki) == "KnownIntermediate");
             $gotException = true;
         }
         test($gotException);
@@ -180,7 +180,7 @@ function allTests()
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "knownmostderived");
+            test(get_class($kmd) == "KnownMostDerived");
             $gotException = true;
         }
         test($gotException);
@@ -200,7 +200,7 @@ function allTests()
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
             test($kmd->kmd == "KnownMostDerived.kmd");
-            test(get_class($kmd) == "knownmostderived");
+            test(get_class($kmd) == "KnownMostDerived");
             $gotException = true;
         }
         test($gotException);
@@ -219,7 +219,7 @@ function allTests()
         {
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
-            test(get_class($ki) == "knownintermediate");
+            test(get_class($ki) == "KnownIntermediate");
             $gotException = true;
         }
         test($gotException);
@@ -238,7 +238,7 @@ function allTests()
         {
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
-            test(get_class($ki) == "knownintermediate");
+            test(get_class($ki) == "KnownIntermediate");
             $gotException = true;
         }
         test($gotException);
@@ -256,7 +256,7 @@ function allTests()
         catch(Base $b)
         {
             test($b->b == "UnknownMostDerived2.b");
-            test(get_class($b) == "base");
+            test(get_class($b) == "Base");
             $gotException = true;
         }
         test($gotException);

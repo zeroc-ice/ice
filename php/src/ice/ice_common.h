@@ -33,6 +33,8 @@ extern "C"
 #include "php.h"
 #include "php_ini.h"
 #include "ext/standard/info.h"
+#include "zend_interfaces.h"
+#include "zend_exceptions.h"
 }
 
 #include "php_ice.h"

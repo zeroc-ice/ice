@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- PHP5.0.0b2 (http://www.php.net/downloads.php)
+- PHP5.0.0b4 (http://www.php.net/downloads.php)
 - Ice 1.2.0
 
 
@@ -23,7 +23,7 @@ a dynamic extension is created as a standalone shared library that is
 installed in PHP via configuration directives.
 
 The Ice extension for PHP supports both static and dynamic
-configurations.  The only supported way to compile the Ice extension
+configurations. The only supported way to compile the Ice extension
 is as part of the larger PHP build process. Unfortunately, PHP's build
 system does not completely accommodate extensions written in C++, such
 as the Ice extension. On some platforms (currently only Solaris with

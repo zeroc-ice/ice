@@ -22,7 +22,7 @@ function allTests()
     {
         $o = $test->SBaseAsObject();
         test($o != null);
-        test(get_class($o) == "sbase");
+        test(get_class($o) == "SBase");
         test($o->sb == "SBase.sb");
     }
     echo "ok\n";
@@ -40,7 +40,7 @@ function allTests()
     {
         $sb = $test->SBSKnownDerivedAsSBase();
         test($sb->sb == "SBSKnownDerived.sb");
-        test(get_class($sb) == "sbsknownderived");
+        test(get_class($sb) == "SBSKnownDerived");
         test($sb->sbskd == "SBSKnownDerived.sbskd");
     }
     echo "ok\n";
@@ -65,7 +65,7 @@ function allTests()
     flush();
     {
         $o = $test->SUnknownAsObject();
-        test(get_class($o) == "ice_objectimpl");
+        test(get_class($o) == "Ice_ObjectImpl");
     }
     echo "ok\n";
 
@@ -74,7 +74,7 @@ function allTests()
     {
         $b = $test->oneElementCycle();
         test($b != null);
-        test(get_class($b) == "b");
+        test(get_class($b) == "B");
         test($b->sb == "B1.sb");
         test($b->pb === $b); // Object identity comparison
 
@@ -90,12 +90,12 @@ function allTests()
     {
         $b1 = $test->twoElementCycle();
         test($b1 != null);
-        test(get_class($b1) == "b");
+        test(get_class($b1) == "B");
         test($b1->sb == "B1.sb");
 
         $b2 = $b1->pb;
         test($b2 != null);
-        test(get_class($b2) == "b");
+        test(get_class($b2) == "B");
         test($b2->sb == "B2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -111,7 +111,7 @@ function allTests()
     {
         $b1 = $test->D1AsB();
         test($b1 != null);
-        test(get_class($b1) == "d1");
+        test(get_class($b1) == "D1");
         test($b1->sb == "D1.sb");
         test($b1->pb != null);
         test($b1->pb !== $b1); // Object identity comparison
@@ -125,7 +125,7 @@ function allTests()
         test($b2 != null);
         test($b2->pb === $b1); // Object identity comparison
         test($b2->sb == "D2.sb");
-        test(get_class($b2) == "b");
+        test(get_class($b2) == "B");
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -139,14 +139,14 @@ function allTests()
     {
         $d1 = $test->D1AsD1();
         test($d1 != null);
-        test(get_class($d1) == "d1");
+        test(get_class($d1) == "D1");
         test($d1->sb == "D1.sb");
         test($d1->pb != null);
         test($d1->pb !== $d1); // Object identity comparison
 
         $b2 = $d1->pb;
         test($b2 != null);
-        test(get_class($b2) == "b");
+        test(get_class($b2) == "B");
         test($b2->sb == "D2.sb");
         test($b2->pb === $d1); // Object identity comparison
 
@@ -162,14 +162,14 @@ function allTests()
     {
         $b2 = $test->D2AsB();
         test($b2 != null);
-        test(get_class($b2) == "b");
+        test(get_class($b2) == "B");
         test($b2->sb == "D2.sb");
         test($b2->pb != null);
         test($b2->pb !== $b2); // Object identity comparison
 
         $b1 = $b2->pb;
         test($b1 != null);
-        test(get_class($b1) == "d1");
+        test(get_class($b1) == "D1");
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -191,7 +191,7 @@ function allTests()
         $test->paramTest1($b1, $b2);
 
         test($b1 != null);
-        test(get_class($b1) == "d1");
+        test(get_class($b1) == "D1");
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -200,7 +200,7 @@ function allTests()
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "b"); // No factory, must be sliced
+        test(get_class($b2) == "B"); // No factory, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -217,7 +217,7 @@ function allTests()
         $test->paramTest2($b2, $b1);
 
         test($b1 != null);
-        test(get_class($b1) == "d1");
+        test(get_class($b1) == "D1");
         test($b1->sb == "D1.sb");
         test($b1->pb === $b2); // Object identity comparison
         $d1 = $b1;
@@ -226,7 +226,7 @@ function allTests()
         test($d1->pd1 === $b2); // Object identity comparison
 
         test($b2 != null);
-        test(get_class($b2) == "b"); // No factory, must be sliced
+        test(get_class($b2) == "B"); // No factory, must be sliced
         test($b2->sb == "D2.sb");
         test($b2->pb === $b1); // Object identity comparison
 
@@ -281,7 +281,7 @@ function allTests()
 
         test($b1 != null);
         test($b1->sb == "D1.sb");
-        test(get_class($b1) == "d1");
+        test(get_class($b1) == "D1");
         $p1 = $b1;
         test($p1 != null);
         test($p1->sd1 == "D1.sd1");
@@ -290,7 +290,7 @@ function allTests()
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D3.sb");
-        test(get_class($b2) == "b"); // Sliced by server
+        test(get_class($b2) == "B"); // Sliced by server
         test($b2->pb === $b1); // Object identity comparison
         test(!($b2 instanceof D3));
 
@@ -327,13 +327,13 @@ function allTests()
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "b"); // Sliced by server
+        test(get_class($b1) == "B"); // Sliced by server
         test(!($b1 instanceof D3));
 
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D1.sb");
-        test(get_class($b2) == "d1");
+        test(get_class($b2) == "D1");
         test($b2->pb === $b1); // Object identity comparison
         $p3 = $b2;
         test($p3 instanceof D1);
@@ -373,13 +373,13 @@ function allTests()
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "b"); // Sliced by server
+        test(get_class($b1) == "B"); // Sliced by server
         test(!($b1 instanceof D3));
 
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D1.sb");
-        test(get_class($b2) == "d1");
+        test(get_class($b2) == "D1");
         test($b2->pb === $b1); // Object identity comparison
         $p3 = $b2;
         test($p3 instanceof D1);
@@ -411,17 +411,17 @@ function allTests()
         test($p1 != null);
         test($p1->sb == "D2.sb (p1 1)");
         test($p1->pb == null);
-        test(get_class($p1) == "b");
+        test(get_class($p1) == "B");
 
         test($p2 != null);
         test($p2->sb == "D2.sb (p2 1)");
         test($p2->pb == null);
-        test(get_class($p2) == "b");
+        test(get_class($p2) == "B");
 
         test($ret != null);
         test($ret->sb == "D1.sb (p2 2)");
         test($ret->pb === null);
-        test(get_class($ret) == "d1");
+        test(get_class($ret) == "D1");
     }
     echo "ok\n";
 
@@ -433,12 +433,12 @@ function allTests()
         test($b != null);
         test($b->sb == "D4.sb (1)");
         test($b->pb == null);
-        test(get_class($b) == "b");
+        test(get_class($b) == "B");
 
         test($ret != null);
         test($ret->sb == "B.sb (2)");
         test($ret->pb === null);
-        test(get_class($ret) == "b");
+        test(get_class($ret) == "B");
     }
     echo "ok\n";
 
@@ -462,7 +462,7 @@ function allTests()
         $r = $test->returnTest3($d3, $b2);
 
         test($r != null);
-        test(get_class($r) == "b");
+        test(get_class($r) == "B");
         test($r->sb == "D3.sb");
         test($r->pb === $r);
 
@@ -500,7 +500,7 @@ function allTests()
 
         $r = $test->returnTest3($d3, $d12);
         test($r != null);
-        test(get_class($r) == "b");
+        test(get_class($r) == "B");
         test($r->sb == "D3.sb");
         test($r->pb === $r);
 
@@ -592,13 +592,13 @@ function allTests()
         test($ss2d1->pb === $ss2b);
         test($ss2d3->pb === $ss2b);
 
-        test(get_class($ss1b) == "b");
-        test(get_class($ss1d1) == "d1");
-        test(get_class($ss1d3) == "b");
+        test(get_class($ss1b) == "B");
+        test(get_class($ss1d1) == "D1");
+        test(get_class($ss1d3) == "B");
 
-        test(get_class($ss2b) == "b");
-        test(get_class($ss2d1) == "d1");
-        test(get_class($ss2d3) == "b");
+        test(get_class($ss2b) == "B");
+        test(get_class($ss2d1) == "D1");
+        test(get_class($ss2d3) == "B");
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -680,7 +680,7 @@ function allTests()
         }
         catch(BaseException $e)
         {
-            test(get_class($e) == "baseexception");
+            test(get_class($e) == "BaseException");
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb");
@@ -704,7 +704,7 @@ function allTests()
         }
         catch(DerivedException $e)
         {
-            test(get_class($e) == "derivedexception");
+            test(get_class($e) == "DerivedException");
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb1");
@@ -736,7 +736,7 @@ function allTests()
         }
         catch(DerivedException $e)
         {
-            test(get_class($e) == "derivedexception");
+            test(get_class($e) == "DerivedException");
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb1");
@@ -768,7 +768,7 @@ function allTests()
         }
         catch(BaseException $e)
         {
-            test(get_class($e) == "baseexception");
+            test(get_class($e) == "BaseException");
             test($e->sbe == "sbe");
             test($e->pb != null);
             test($e->pb->sb == "sb d2");

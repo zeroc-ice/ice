@@ -212,7 +212,7 @@ static const char* _coreTypes =
     "    var $ice_facets = array();\n"
     "}\n"
     "\n"
-    "interface Ice_ObjectFactory implements Ice_LocalObject\n"
+    "interface Ice_ObjectFactory extends Ice_LocalObject\n"
     "{\n"
     "    function create($id);\n"
     "    function destroy();\n"
@@ -751,13 +751,13 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 {
     string flat = flatten(p->scoped());
 
-    _classes[lowerCase(flat)] = p;
+    _classes[flat] = p;
 
     Slice::ClassList bases = p->bases();
 
     if(p->isInterface())
     {
-        _out << "interface " << flat << " implements ";
+        _out << "interface " << flat << " extends ";
         if(!bases.empty())
         {
             for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q)

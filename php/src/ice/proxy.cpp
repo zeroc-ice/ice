@@ -67,7 +67,7 @@ static zend_object_handlers _handlers;
 extern "C"
 {
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
-static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static void handleFreeStorage(zend_object* TSRMLS_DC);
 static zend_object_value handleClone(zval* TSRMLS_DC);
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
 static int handleCompare(zval*, zval* TSRMLS_DC);
@@ -1364,7 +1364,7 @@ IcePHP::Operation::throwUserException(IceInternal::BasicStream& is TSRMLS_DC)
                 {
                     is.readPendingObjects();
                 }
-                EG(exception) = zex;
+                zend_throw_exception_object(zex TSRMLS_CC);
             }
             else
             {
@@ -1480,7 +1480,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, handleDestroy, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, NULL, handleFreeStorage, NULL TSRMLS_CC);
     result.handlers = &_handlers;
 
     return result;
@@ -1490,14 +1490,14 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 extern "C"
 #endif
 static void
-handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
+handleFreeStorage(zend_object* p TSRMLS_DC)
 {
-    ice_object* obj = static_cast<ice_object*>(p);
+    ice_object* obj = (ice_object*)p;
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
+    zend_objects_free_object_storage(p TSRMLS_CC);
 }
 
 #ifdef WIN32

@@ -773,33 +773,21 @@ IcePHP::ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC
 
         if(_type)
         {
+            string scoped = _type->_class()->scoped();
             if(def)
             {
-                string scoped = _type->_class()->scoped();
-                if(def->scoped() != scoped)
+                if(!def->isA(scoped))
                 {
-                    Slice::ClassList bases = def->allBases();
-                    Slice::ClassList::iterator p;
-                    for(p = bases.begin(); p != bases.end(); ++p)
-                    {
-                        if(scoped == (*p)->scoped())
-                        {
-                            break;
-                        }
-                    }
-                    if(p == bases.end())
-                    {
-                        string s = def->scoped();
-                        zend_error(E_ERROR, "%s(): expected a proxy of type %s but received %s",
-                                   get_active_function_name(TSRMLS_C), scoped.c_str(), s.c_str());
-                        return false;
-                    }
+                    string s = def->scoped();
+                    zend_error(E_ERROR, "%s(): expected a proxy of type %s but received %s",
+                               get_active_function_name(TSRMLS_C), scoped.c_str(), s.c_str());
+                    return false;
                 }
             }
             else
             {
-                string s = _type->_class()->scoped();
-                zend_error(E_ERROR, "%s(): expected a proxy of type %s", get_active_function_name(TSRMLS_C), s.c_str());
+                zend_error(E_ERROR, "%s(): expected a proxy of type %s", get_active_function_name(TSRMLS_C),
+                           scoped.c_str());
                 return false;
             }
         }
@@ -1842,29 +1830,14 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     //
     if(p != _factories.end())
     {
-        zval** args[1];
         zval* id;
         MAKE_STD_ZVAL(id);
         ZVAL_STRINGL(id, const_cast<char*>(scoped.c_str()), scoped.length(), 1);
-        args[0] = &id;
 
         zval* zresult = NULL;
 
-        zend_fcall_info fci;
-        fci.size = sizeof(fci);
-        fci.function_table = NULL;
-        MAKE_STD_ZVAL(fci.function_name);
-        ZVAL_STRINGL(fci.function_name, "create", sizeof("create") - 1, 1);
-        fci.symbol_table = NULL;
-        fci.retval_ptr_ptr = &zresult;
-        fci.param_count = 1;
-        fci.params = args;
-        fci.object_pp = &p->second;
-        fci.no_separation = 0;
+        zend_call_method_with_1_params(&p->second, NULL, NULL, "create", &zresult, id);
 
-        int status = zend_call_function(&fci, NULL TSRMLS_CC);
-
-        zval_ptr_dtor(&fci.function_name);
         zval_ptr_dtor(&id);
 
         AutoDestroy destroyResult(zresult);
@@ -1960,28 +1933,7 @@ IcePHP::PHPObjectFactory::destroy()
     //
     for(map<string, zval*>::iterator p = _factories.begin(); p != _factories.end(); ++p)
     {
-        zval* result = NULL;
-
-        zend_fcall_info fci;
-        fci.size = sizeof(fci);
-        fci.function_table = NULL;
-        MAKE_STD_ZVAL(fci.function_name);
-        ZVAL_STRINGL(fci.function_name, "destroy", sizeof("destroy") - 1, 1);
-        fci.symbol_table = NULL;
-        fci.retval_ptr_ptr = &result;
-        fci.param_count = 0;
-        fci.params = NULL;
-        fci.object_pp = &p->second;
-        fci.no_separation = 0;
-
-        int status = zend_call_function(&fci, NULL TSRMLS_CC);
-
-        zval_ptr_dtor(&fci.function_name);
-        if(result)
-        {
-            zval_ptr_dtor(&result);
-        }
-
+        zend_call_method_with_0_params(&p->second, NULL, NULL, "destroy", NULL);
         Z_OBJ_HT_P(p->second)->del_ref(p->second TSRMLS_CC);
         zval_ptr_dtor(&p->second);
     }
