@@ -592,12 +592,22 @@ IcePy::throwPythonException(PyObject* ex)
     }
     else
     {
+        ostringstream ostr;
+
         PyObject* cls = (PyObject*)((PyInstanceObject*)ex)->in_class;
-        IcePy::PyObjectHandle str = PyObject_Str(cls);
-        assert(str.get() != NULL);
+        IcePy::PyObjectHandle className = PyObject_Str(cls);
+        assert(className.get() != NULL);
+
+        ostr << PyString_AsString(className.get());
+
+        IcePy::PyObjectHandle msg = PyObject_Str(ex);
+        if(msg.get() != NULL && strlen(PyString_AsString(msg.get())) > 0)
+        {
+            ostr << ": " << PyString_AsString(msg.get());
+        }
 
         Ice::UnknownException e(__FILE__, __LINE__);
-        e.unknown = PyString_AsString(str.get());
+        e.unknown = ostr.str();
         throw e;
     }
 }
