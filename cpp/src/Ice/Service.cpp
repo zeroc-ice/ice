@@ -103,18 +103,13 @@ typedef IceUtil::Handle<ServiceStatusThread> ServiceStatusThreadPtr;
 Ice::Service::Service()
 {
     assert(_instance == 0);
-    _instance = this;
     _nohup = true;
-
-#ifdef _WIN32
-    //
-    // Check for Windows 9x/ME.
-    //
-    OSVERSIONINFO ver;
-    ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&ver);
-    _win9x = (ver.dwPlatformId != VER_PLATFORM_WIN32_NT);
     _service = false;
+    _instance = this;
+
+#ifndef _WIN32
+    _changeDirectory = true;
+    _closeFiles = true;
 #endif
 }
 
@@ -143,21 +138,292 @@ Ice::Service::interrupt()
 int
 Ice::Service::main(int argc, char* argv[])
 {
-    _prog = argv[0];
+    _name = argv[0];
 
-    int status;
 #ifdef _WIN32
-    if(checkService(argc, argv, status))
+    //
+    // First check for the --service option.
+    //
+    string name;
+    int idx = 1;
+    while(idx < argc)
     {
-        return status;
+        if(strcmp(argv[idx], "--service") == 0)
+        {
+            if(idx + 1 >= argc)
+            {
+                error("service name argument expected for `" + string(argv[idx]) + "'");
+                return EXIT_FAILURE;
+            }
+
+            name = argv[idx + 1];
+
+            for(int i = idx; i + 2 < argc; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    //
+    // Next check for service control options.
+    //
+    string op;
+    idx = 1;
+    while(idx < argc)
+    {
+        if(strcmp(argv[idx], "--install") == 0 ||
+           strcmp(argv[idx], "--uninstall") == 0 ||
+           strcmp(argv[idx], "--start") == 0 ||
+           strcmp(argv[idx], "--stop") == 0)
+        {
+            if(!op.empty())
+            {
+                error("cannot specify `" + op + "' and `" + string(argv[idx]) + "'");
+                return EXIT_FAILURE;
+            }
+
+            if(!name.empty())
+            {
+                error("cannot specify `--service' and `" + string(argv[idx]) + "'");
+                return EXIT_FAILURE;
+            }
+
+            if(idx + 1 >= argc)
+            {
+                error("service name argument expected for `" + string(argv[idx]) + "'");
+                return EXIT_FAILURE;
+            }
+
+            op = argv[idx];
+            name = argv[idx + 1];
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    if(!op.empty())
+    {
+        if(op == "--install")
+        {
+            //
+            // Check for --display, --executable.
+            //
+            string display, executable;
+            idx = 1;
+            while(idx < argc)
+            {
+                if(strcmp(argv[idx], "--display") == 0)
+                {
+                    if(idx + 1 >= argc)
+                    {
+                        error("argument expected for `" + string(argv[idx]) + "'");
+                        return EXIT_FAILURE;
+                    }
+
+                    display = argv[idx + 1];
+
+                    for(int i = idx ; i + 2 < argc ; ++i)
+                    {
+                        argv[i] = argv[i + 2];
+                    }
+                    argc -= 2;
+                }
+                else if(strcmp(argv[idx], "--executable") == 0)
+                {
+                    if(idx + 1 >= argc)
+                    {
+                        error("argument expected for `" + string(argv[idx]) + "'");
+                        return EXIT_FAILURE;
+                    }
+
+                    executable = argv[idx + 1];
+
+                    for(int i = idx ; i + 2 < argc ; ++i)
+                    {
+                        argv[i] = argv[i + 2];
+                    }
+                    argc -= 2;
+                }
+                else
+                {
+                    ++idx;
+                }
+            }
+
+            vector<string> args;
+            for(idx = 1; idx < argc; ++idx)
+            {
+                args.push_back(argv[idx]);
+            }
+            //
+            // Append the arguments "--service NAME" so that the service
+            // starts properly.
+            //
+            args.push_back("--service");
+            args.push_back(name);
+            return installService(name, display, executable, args);
+        }
+        else if(op == "--uninstall")
+        {
+            return uninstallService(name);
+        }
+        else if(op == "--start")
+        {
+            vector<string> args;
+            for(idx = 1; idx < argc; ++idx)
+            {
+                args.push_back(argv[idx]);
+            }
+            return startService(name, args);
+        }
+        else
+        {
+            assert(op == "--stop");
+            return stopService(name);
+        }
+    }
+
+    if(!name.empty())
+    {
+        configureService(name);
     }
 #else
-    if(checkDaemon(argc, argv, status))
+    //
+    // Check for --daemon, --noclose and --nochdir.
+    //
+    bool daemonize = false;
+    bool closeFiles = true;
+    bool changeDirectory = true;
+    int idx = 1;
+    while(idx < argc)
     {
-        return status;
+        if(strcmp(argv[idx], "--daemon") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            daemonize = true;
+        }
+        else if(strcmp(argv[idx], "--noclose") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            closeFiles = false;
+        }
+        else if(strcmp(argv[idx], "--nochdir") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            changeDirectory = false;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    if(!closeFiles && !daemonize)
+    {
+        cerr << argv[0] << ": --noclose must be used with --daemon" << endl;
+        return EXIT_FAILURE;
+    }
+
+    if(!changeDirectory && !daemonize)
+    {
+        cerr << argv[0] << ": --nochdir must be used with --daemon" << endl;
+        return EXIT_FAILURE;
+    }
+
+    if(daemonize)
+    {
+        configureDaemon(changeDirectory, closeFiles);
     }
 #endif
 
+    return run(argc, argv);
+}
+
+Ice::CommunicatorPtr
+Ice::Service::communicator() const
+{
+    return _communicator;
+}
+
+Ice::Service*
+Ice::Service::instance()
+{
+    return _instance;
+}
+
+bool
+Ice::Service::service() const
+{
+    return _service;
+}
+
+string
+Ice::Service::name() const
+{
+    return _name;
+}
+
+bool
+Ice::Service::checkSystem() const
+{
+#ifdef _WIN32
+    //
+    // Check Windows version.
+    //
+    OSVERSIONINFO ver;
+    ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&ver);
+    return (ver.dwPlatformId == VER_PLATFORM_WIN32_NT);
+#else
+    return true;
+#endif
+}
+
+int
+Ice::Service::run(int argc, char* argv[])
+{
+    if(_service)
+    {
+#ifdef _WIN32
+        return runService(argc, argv);
+#else
+        return runDaemon(argc, argv);
+#endif
+    }
+
+    //
+    // Run as a foreground process.
+    //
+    int status = EXIT_FAILURE;
     try
     {
         //
@@ -186,7 +452,6 @@ Ice::Service::main(int argc, char* argv[])
         //
         // Start the service.
         //
-        status = EXIT_FAILURE;
         if(start(argc, argv))
         {
             //
@@ -225,394 +490,29 @@ Ice::Service::main(int argc, char* argv[])
     return status;
 }
 
-Ice::CommunicatorPtr
-Ice::Service::communicator() const
-{
-    return _communicator;
-}
-
-Ice::Service*
-Ice::Service::instance()
-{
-    return _instance;
-}
-
-void
-Ice::Service::handleInterrupt(int sig)
-{
-#ifdef _WIN32
-    if(_nohup && sig == CTRL_LOGOFF_EVENT)
-    {
-        return;
-    }
-#else
-    if(_nohup && sig == SIGHUP)
-    {
-        return;
-    }
-#endif
-
-    interrupt();
-}
-
-void
-Ice::Service::waitForShutdown()
-{
-    if(_communicator)
-    {
-        enableInterrupt();
-        _communicator->waitForShutdown();
-        disableInterrupt();
-    }
-}
-
-bool
-Ice::Service::stop()
-{
-    return true;
-}
-
-Ice::CommunicatorPtr
-Ice::Service::initializeCommunicator(int& argc, char* argv[])
-{
-    return Ice::initialize(argc, argv);
-}
-
-void
-Ice::Service::enableInterrupt()
-{
-    _ctrlCHandler->setCallback(ctrlCHandlerCallback);
-}
-
-void
-Ice::Service::disableInterrupt()
-{
-    _ctrlCHandler->setCallback(0);
-}
-
-void
-Ice::Service::syserror(const std::string& msg) const
-{
-    string errmsg;
-#ifdef _WIN32
-    int err = GetLastError();
-    if(err < WSABASEERR)
-    {
-        LPVOID lpMsgBuf = 0;
-        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                 FORMAT_MESSAGE_FROM_SYSTEM |
-                                 FORMAT_MESSAGE_IGNORE_INSERTS,
-                                 NULL,
-                                 err,
-                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                                 (LPTSTR)&lpMsgBuf,
-                                 0,
-                                 NULL);
-        if(ok)
-        {
-            LPCTSTR str = (LPCTSTR)lpMsgBuf;
-            assert(str && strlen((const char*)str) > 0);
-            errmsg = (const char*)str;
-            LocalFree(lpMsgBuf);
-        }
-    }
-#else
-    int err = errno;
-    errmsg = strerror(err);
-#endif
-    if(_logger)
-    {
-        ostringstream ostr;
-        if(!msg.empty())
-        {
-            ostr << msg << endl;
-        }
-        if(!errmsg.empty())
-        {
-            ostr << errmsg;
-        }
-        _logger->error(ostr.str());
-    }
-    else
-    {
-        cerr << _prog << ": ";
-        if(!msg.empty())
-        {
-            cerr << msg << endl;
-        }
-        if(!errmsg.empty())
-        {
-            cerr << errmsg;
-        }
-    }
-}
-
-void
-Ice::Service::error(const std::string& msg) const
-{
-    if(_logger)
-    {
-        _logger->error(msg);
-    }
-    else
-    {
-        cerr << _prog << ": error: " << msg << endl;
-    }
-}
-
-void
-Ice::Service::warning(const std::string& msg) const
-{
-    if(_logger)
-    {
-        _logger->warning(msg);
-    }
-    else
-    {
-        cerr << _prog << ": warning: " << msg << endl;
-    }
-}
-
-void
-Ice::Service::trace(const std::string& msg) const
-{
-    if(_logger)
-    {
-        _logger->trace("", msg);
-    }
-    else
-    {
-        cerr << msg << endl;
-    }
-}
-
 #ifdef _WIN32
 
-bool
-Ice::Service::win9x() const
+void
+Ice::Service::configureService(const string& name)
 {
-    return _win9x;
-}
-
-bool
-Ice::Service::checkService(int argc, char* argv[], int& status)
-{
-    if(_win9x)
-    {
-        return false;
-    }
-
-    string name;
-
-    //
-    // First check for the --service option.
-    //
-    int idx = 1;
-    while(idx < argc)
-    {
-        if(strcmp(argv[idx], "--service") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                error("service name argument expected for `" + string(argv[idx]) + "'");
-                status = EXIT_FAILURE;
-                return true;
-            }
-
-            name = argv[idx + 1];
-
-            for(int i = idx; i + 2 < argc; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-
-            _service = true;
-        }
-        else
-        {
-            ++idx;
-        }
-    }
-
-    //
-    // Next check for service control options.
-    //
-    string op;
-    idx = 1;
-    while(idx < argc)
-    {
-        if(strcmp(argv[idx], "--install") == 0 ||
-           strcmp(argv[idx], "--uninstall") == 0 ||
-           strcmp(argv[idx], "--start") == 0 ||
-           strcmp(argv[idx], "--stop") == 0)
-        {
-            if(_service)
-            {
-                error("cannot specify `--service' and `" + string(argv[idx]) + "'");
-                status = EXIT_FAILURE;
-                return true;
-            }
-
-            if(!op.empty())
-            {
-                error("cannot specify `" + op + "' and `" + string(argv[idx]) + "'");
-                status = EXIT_FAILURE;
-                return true;
-            }
-
-            if(idx + 1 >= argc)
-            {
-                error("service name argument expected for `" + string(argv[idx]) + "'");
-                status = EXIT_FAILURE;
-                return true;
-            }
-
-            op = argv[idx];
-            name = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else
-        {
-            ++idx;
-        }
-    }
-
-    if(!op.empty())
-    {
-        if(op == "--install")
-        {
-            status = installService(name, argc, argv);
-        }
-        else if(op == "--uninstall")
-        {
-            status = uninstallService(name, argc, argv);
-        }
-        else if(op == "--start")
-        {
-            status = startService(name, argc, argv);
-        }
-        else
-        {
-            assert(op == "--stop");
-            status = stopService(name, argc, argv);
-        }
-        return true;
-    }
-
-    //
-    // Run as a service.
-    //
-    if(_service)
-    {
-        //
-        // When running as a service, we need an event logger in order to report
-        // failures that occur prior to initializing a communicator. After we have
-        // a communicator, we can use the configured logger instead.
-        //
-        // We postpone the initialization of the communicator until serviceMain so
-        // that we can incorporate the executable's arguments and the service's
-        // arguments into one vector.
-        //
-        try
-        {
-            _logger = new EventLoggerI(name);
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            ostringstream ostr;
-            ostr << ex;
-            error("unable to create EventLogger:\n" + ostr.str());
-            status = EXIT_FAILURE;
-            return true;
-        }
-
-        //
-        // Arguments passed to the executable are not passed to the service's main function,
-        // so save them now and serviceMain will merge them later.
-        //
-        for(idx = 1; idx < argc; ++idx)
-        {
-            _serviceArgs.push_back(argv[idx]);
-        }
-
-        SERVICE_TABLE_ENTRY ste[] =
-        {
-            { const_cast<char*>(name.c_str()), (LPSERVICE_MAIN_FUNCTIONA)Ice_Service_ServiceMain },
-            { NULL, NULL },
-        };
-
-        if(!StartServiceCtrlDispatcher(ste))
-        {
-            syserror("unable to start service control dispatcher");
-            status = EXIT_FAILURE;
-            return true;
-        }
-
-        status = EXIT_SUCCESS;
-        return true;
-    }
-
-    return false;
+    _service = true;
+    _name = name;
 }
 
 int
-Ice::Service::installService(const std::string& name, int argc, char* argv[])
+Ice::Service::installService(const string& name, const string& display, const string& executable,
+                             const vector<string>& args)
 {
-    string display;
-    string executable;
-    int idx = 1;
-    while(idx < argc)
+    string disp, exec;
+
+    disp = display;
+    if(disp.empty())
     {
-        if(strcmp(argv[idx], "--display") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                error("argument expected for `" + string(argv[idx]) + "'");
-                return EXIT_FAILURE;
-            }
-
-            display = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--executable") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                error("argument expected for `" + string(argv[idx]) + "'");
-                return EXIT_FAILURE;
-            }
-
-            executable = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else
-        {
-            ++idx;
-        }
+        disp = name;
     }
 
-    if(display.empty())
-    {
-        display = name;
-    }
-
-    if(executable.empty())
+    exec = executable;
+    if(exec.empty())
     {
         //
         // Use this executable if none is specified.
@@ -623,7 +523,7 @@ Ice::Service::installService(const std::string& name, int argc, char* argv[])
             error("unable to obtain file name of executable");
             return EXIT_FAILURE;
         }
-        executable = buf;
+        exec = buf;
     }
 
     //
@@ -634,38 +534,26 @@ Ice::Service::installService(const std::string& name, int argc, char* argv[])
     if(executable.find(' ') != string::npos)
     {
         command.push_back('"');
-        command.append(executable);
+        command.append(exec);
         command.push_back('"');
     }
     else
     {
-        command = executable;
+        command = exec;
     }
-    command.append(" --service ");
-    if(name.find(' ') != string::npos)
-    {
-        command.push_back('"');
-        command.append(name);
-        command.push_back('"');
-    }
-    else
-    {
-        command.append(name);
-    }
-    for(idx = 1; idx < argc; ++idx)
+    for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
     {
         command.push_back(' ');
 
-        string arg = argv[idx];
-        if(arg.find_first_of(" \t\n\r") != string::npos)
+        if(p->find_first_of(" \t\n\r") != string::npos)
         {
             command.push_back('"');
-            command.append(arg);
+            command.append(*p);
             command.push_back('"');
         }
         else
         {
-            command.append(arg);
+            command.append(*p);
         }
     }
 
@@ -678,7 +566,7 @@ Ice::Service::installService(const std::string& name, int argc, char* argv[])
     SC_HANDLE hService = CreateService(
         hSCM,
         name.c_str(),
-        display.c_str(),
+        disp.c_str(),
         SC_MANAGER_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
         SERVICE_AUTO_START,
@@ -704,14 +592,8 @@ Ice::Service::installService(const std::string& name, int argc, char* argv[])
 }
 
 int
-Ice::Service::uninstallService(const std::string& name, int argc, char* argv[])
+Ice::Service::uninstallService(const string& name)
 {
-    if(argc > 1)
-    {
-        error("unknown option `" + string(argv[1]) + "'");
-        return EXIT_FAILURE;
-    }
-
     SC_HANDLE hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if(hSCM == NULL)
     {
@@ -744,7 +626,7 @@ Ice::Service::uninstallService(const std::string& name, int argc, char* argv[])
 }
 
 int
-Ice::Service::startService(const std::string& name, int argc, char* argv[])
+Ice::Service::startService(const string& name, const vector<string>& args)
 {
     SC_HANDLE hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if(hSCM == NULL)
@@ -764,16 +646,28 @@ Ice::Service::startService(const std::string& name, int argc, char* argv[])
     //
     // Create argument vector.
     //
-    LPCSTR* args = new LPCSTR[argc];
-    args[0] = const_cast<char*>(name.c_str());
-    for(int i = 1; i < argc; ++i)
+    const int argc = args.size() + 1;
+    LPCSTR* argv = new LPCSTR[argc];
+    argv[0] = strdup(name.c_str());
+    int i = 1;
+    for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
     {
-        args[i] = argv[i];
+        argv[i++] = strdup(p->c_str());
     }
 
-    BOOL b = StartService(hService, argc, args);
+    //
+    // Start service.
+    //
+    BOOL b = StartService(hService, argc, argv);
 
-    delete[] args;
+    //
+    // Clean up argument vector.
+    //
+    for(i = 0; i < argc; ++i)
+    {
+        free(const_cast<char*>(argv[i]));
+    }
+    delete[] argv;
 
     if(!b)
     {
@@ -882,7 +776,7 @@ Ice::Service::startService(const std::string& name, int argc, char* argv[])
 }
 
 int
-Ice::Service::stopService(const std::string& name, int argc, char* argv[])
+Ice::Service::stopService(const string& name)
 {
     SC_HANDLE hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if(hSCM == NULL)
@@ -921,6 +815,234 @@ Ice::Service::stopService(const std::string& name, int argc, char* argv[])
          << "  Check point: " << status.dwCheckPoint << endl
          << "  Wait hint: " << status.dwWaitHint;
     trace(ostr.str());
+
+    return EXIT_SUCCESS;
+}
+
+#else
+
+void
+Ice::Service::configureDaemon(bool changeDirectory, bool closeFiles)
+{
+    _service = true;
+    _changeDirectory = changeDirectory;
+    _closeFiles = closeFiles;
+}
+
+#endif
+
+void
+Ice::Service::handleInterrupt(int sig)
+{
+#ifdef _WIN32
+    if(_nohup && sig == CTRL_LOGOFF_EVENT)
+    {
+        return;
+    }
+#else
+    if(_nohup && sig == SIGHUP)
+    {
+        return;
+    }
+#endif
+
+    interrupt();
+}
+
+void
+Ice::Service::waitForShutdown()
+{
+    if(_communicator)
+    {
+        enableInterrupt();
+        _communicator->waitForShutdown();
+        disableInterrupt();
+    }
+}
+
+bool
+Ice::Service::stop()
+{
+    return true;
+}
+
+Ice::CommunicatorPtr
+Ice::Service::initializeCommunicator(int& argc, char* argv[])
+{
+    return Ice::initialize(argc, argv);
+}
+
+void
+Ice::Service::syserror(const string& msg)
+{
+    string errmsg;
+#ifdef _WIN32
+    int err = GetLastError();
+    if(err < WSABASEERR)
+    {
+        LPVOID lpMsgBuf = 0;
+        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                 FORMAT_MESSAGE_FROM_SYSTEM |
+                                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL,
+                                 err,
+                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                                 (LPTSTR)&lpMsgBuf,
+                                 0,
+                                 NULL);
+        if(ok)
+        {
+            LPCTSTR str = (LPCTSTR)lpMsgBuf;
+            assert(str && strlen((const char*)str) > 0);
+            errmsg = (const char*)str;
+            LocalFree(lpMsgBuf);
+        }
+    }
+#else
+    int err = errno;
+    errmsg = strerror(err);
+#endif
+    if(_logger)
+    {
+        ostringstream ostr;
+        if(!msg.empty())
+        {
+            ostr << msg << endl;
+        }
+        if(!errmsg.empty())
+        {
+            ostr << errmsg;
+        }
+        _logger->error(ostr.str());
+    }
+    else
+    {
+        cerr << _name << ": ";
+        if(!msg.empty())
+        {
+            cerr << msg << endl;
+        }
+        if(!errmsg.empty())
+        {
+            cerr << errmsg;
+        }
+    }
+}
+
+void
+Ice::Service::error(const string& msg)
+{
+    if(_logger)
+    {
+        _logger->error(msg);
+    }
+    else
+    {
+        cerr << _name << ": error: " << msg << endl;
+    }
+}
+
+void
+Ice::Service::warning(const string& msg)
+{
+    if(_logger)
+    {
+        _logger->warning(msg);
+    }
+    else
+    {
+        cerr << _name << ": warning: " << msg << endl;
+    }
+}
+
+void
+Ice::Service::trace(const string& msg)
+{
+    if(_logger)
+    {
+        _logger->trace("", msg);
+    }
+    else
+    {
+        cerr << msg << endl;
+    }
+}
+
+void
+Ice::Service::enableInterrupt()
+{
+    _ctrlCHandler->setCallback(ctrlCHandlerCallback);
+}
+
+void
+Ice::Service::disableInterrupt()
+{
+    _ctrlCHandler->setCallback(0);
+}
+
+#ifdef _WIN32
+
+int
+Ice::Service::runService(int argc, char* argv[])
+{
+    assert(_service);
+
+    if(_win9x)
+    {
+        error("Win32 service not supported on Windows 9x/ME");
+        return EXIT_FAILURE;
+    }
+
+    if(_name.empty())
+    {
+        error("invalid name for Win32 service");
+        return EXIT_FAILURE;
+    }
+
+    //
+    // When running as a service, we need an event logger in order to report
+    // failures that occur prior to initializing a communicator. After we have
+    // a communicator, we can use the configured logger instead.
+    //
+    // We postpone the initialization of the communicator until serviceMain so
+    // that we can incorporate the executable's arguments and the service's
+    // arguments into one vector.
+    //
+    try
+    {
+        _logger = new EventLoggerI(_name);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        ostringstream ostr;
+        ostr << ex;
+        error("unable to create EventLogger:\n" + ostr.str());
+        return EXIT_FAILURE;
+    }
+
+    //
+    // Arguments passed to the executable are not passed to the service's main function,
+    // so save them now and serviceMain will merge them later.
+    //
+    for(int idx = 1; idx < argc; ++idx)
+    {
+        _serviceArgs.push_back(argv[idx]);
+    }
+
+    SERVICE_TABLE_ENTRY ste[] =
+    {
+        { const_cast<char*>(_name.c_str()), (LPSERVICE_MAIN_FUNCTIONA)Ice_Service_ServiceMain },
+        { NULL, NULL },
+    };
+
+    //
+    // Start the service.
+    //
+    if(!StartServiceCtrlDispatcher(ste))
+    {
+        syserror("unable to start service control dispatcher");
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -1143,72 +1265,10 @@ Ice::ServiceStatusThread::stop(DWORD state, DWORD exitCode)
 
 #else
 
-bool
-Ice::Service::checkDaemon(int argc, char* argv[], int& status)
+int
+Ice::Service::runDaemon(int argc, char* argv[])
 {
-    //
-    // Check for --daemon, --noclose and --nochdir.
-    //
-    bool daemonize = false;
-    bool noClose = false;
-    bool noChdir = false;
-    int idx = 1;
-    while(idx < argc)
-    {
-        if(strcmp(argv[idx], "--daemon") == 0)
-        {
-            for(int i = idx; i + 1 < argc; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            argc -= 1;
-
-            daemonize = true;
-        }
-        else if(strcmp(argv[idx], "--noclose") == 0)
-        {
-            for(int i = idx; i + 1 < argc; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            argc -= 1;
-
-            noClose = true;
-        }
-        else if(strcmp(argv[idx], "--nochdir") == 0)
-        {
-            for(int i = idx; i + 1 < argc; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            argc -= 1;
-
-            noChdir = true;
-        }
-        else
-        {
-            ++idx;
-        }
-    }
-
-    if(noClose && !daemonize)
-    {
-        cerr << argv[0] << ": --noclose must be used with --daemon" << endl;
-        status = EXIT_FAILURE;
-        return true;
-    }
-
-    if(noChdir && !daemonize)
-    {
-        cerr << argv[0] << ": --nochdir must be used with --daemon" << endl;
-        status = EXIT_FAILURE;
-        return true;
-    }
-
-    if(!daemonize)
-    {
-        return false;
-    }
+    assert(_service);
 
     //
     // Create a pipe that is used to notify the parent when the child is ready.
@@ -1223,8 +1283,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     if(pid < 0)
     {
         cerr << argv[0] << ": " << strerror(errno) << endl;
-        status = EXIT_FAILURE;
-        return true;
+        return EXIT_FAILURE;
     }
 
     if(pid != 0)
@@ -1253,8 +1312,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
                 }
 
                 cerr << argv[0] << ": " << strerror(errno) << endl;
-                status = EXIT_FAILURE;
-                return true;
+                return EXIT_FAILURE;
             }
             break;
         }
@@ -1278,21 +1336,16 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
 
                     cerr << argv[0] << ": I/O error while reading error message from child:" << endl
                          << strerror(errno) << endl;
-                    status = EXIT_FAILURE;
-                    return true;
+                    return EXIT_FAILURE;
                 }
                 pos += n;
                 break;
             }
             cerr << argv[0] << ": failure occurred in daemon:" << endl << msg << endl;
-            status = EXIT_FAILURE;
-        }
-        else
-        {
-            status = EXIT_SUCCESS;
+            return EXIT_FAILURE;
         }
 
-        return true;
+        return EXIT_SUCCESS;
     }
 
     //
@@ -1300,6 +1353,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     //
 
     string errMsg;
+    int status = EXIT_FAILURE;
     try
     {
         //
@@ -1346,7 +1400,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         //
         umask(0);
 
-        if(!noChdir)
+        if(_changeDirectory)
         {
             //
             // Change the working directory.
@@ -1361,7 +1415,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
 
         fd_set fdsToClose;
         int fdMax;
-        if(!noClose)
+        if(_closeFiles)
         {
             //
             // Take a snapshot of the open file descriptors. We don't actually close these
@@ -1402,7 +1456,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
         //
         _communicator = initializeCommunicator(argc, argv);
 
-        if(!noClose)
+        if(_closeFiles)
         {
             //
             // Close unnecessary file descriptors.
@@ -1531,7 +1585,7 @@ Ice::Service::checkDaemon(int argc, char* argv[], int& status)
     {
     }
 
-    return true;
+    return status;
 }
 
 #endif

@@ -11,7 +11,6 @@
 //
 // **********************************************************************
 
-
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
@@ -29,71 +28,218 @@ public:
     Service();
     virtual ~Service();
 
+    //
+    // Shutdown the service. The default implementation invokes shutdown()
+    // on the communicator.
+    //
     virtual bool shutdown();
+
+    //
+    // Notify the service about a signal interrupt. The default
+    // implementation invokes shutdown().
+    //
     virtual void interrupt();
 
+    //
+    // The primary entry point for services. This function examines
+    // the given argument vector for reserved options and takes the
+    // appropriate action. The reserved options are shown below.
+    //
+    // Win32:
+    //
+    // --install NAME [--display DISP] [--executable EXEC]
+    // --uninstall NAME
+    // --start NAME [args ...]
+    // --stop NAME
+    // --service NAME
+    //
+    // Unix:
+    //
+    // --daemon [--nochdir] [--noclose]
+    //
+    // If --service or --daemon are specified, the program runs as
+    // a service, otherwise the program runs as a regular foreground
+    // process.
+    //
+    // The return value is an exit status code: EXIT_FAILURE or
+    // EXIT_SUCCESS.
+    //
     int main(int, char*[]);
+
+    //
+    // Returns the communicator created by the service.
+    //
     Ice::CommunicatorPtr communicator() const;
 
+    //
+    // Returns the Service singleton.
+    //
     static Service* instance();
 
-    void handleInterrupt(int);
+    //
+    // Indicates whether the program is running as a Win32 service or
+    // Unix daemon.
+    //
+    bool service() const;
 
-protected:
+    //
+    // Returns the program name. If the program is running as a Win32
+    // service, the return value is the service name. Otherwise the
+    // return value is the executable name (i.e., argv[0]).
+    //
+    std::string name() const;
 
-    virtual bool start(int, char*[]) = 0;
-    virtual void waitForShutdown();
-    virtual bool stop();
-    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[]);
+    //
+    // Returns true if the operating system supports running the
+    // program as a Win32 service or Unix daemon.
+    //
+    bool checkSystem() const;
 
-    void enableInterrupt();
-    void disableInterrupt();
-
-    void syserror(const std::string&) const;
-    void error(const std::string&) const;
-    void warning(const std::string&) const;
-    void trace(const std::string&) const;
+    //
+    // Alternative entry point for services that use their own
+    // command-line options. Instead of invoking main(), the
+    // program processes its command-line options and invokes
+    // run(). To run as a Win32 service or Unix daemon, the
+    // program must first invoke configureService() or
+    // configureDaemon(), respectively.
+    //
+    // The return value is an exit status code: EXIT_FAILURE or
+    // EXIT_SUCCESS.
+    //
+    int run(int, char*[]);
 
 #ifdef _WIN32
 
-    bool win9x() const;
+    //
+    // Configures the program to run as a Win32 service with the
+    // given name.
+    //
+    void configureService(const std::string&);
+
+    //
+    // Installs a Win32 service.
+    //
+    int installService(const std::string&, const std::string&, const std::string&, const std::vector<std::string>&);
+
+    //
+    // Uninstalls a Win32 service.
+    //
+    int uninstallService(const std::string&);
+
+    //
+    // Starts a Win32 service. The argument vector is passed to the
+    // service at startup.
+    //
+    int startService(const std::string&, const std::vector<std::string>&);
+
+    //
+    // Stops a running Win32 service.
+    //
+    int stopService(const std::string&);
+
+#else
+
+    //
+    // Configures the program to run as a Unix daemon. The first
+    // argument indicates whether the daemon should change its
+    // working directory to the root directory. The second
+    // argument indicates whether extraneous file descriptors are
+    // closed.
+    //
+    void configureDaemon(bool, bool);
+
+#endif
+
+    //
+    // Invoked by the CtrlCHandler.
+    //
+    virtual void handleInterrupt(int);
+
+protected:
+
+    //
+    // Prepare a service for execution, including the creation and
+    // activation of object adapters and servants.
+    //
+    virtual bool start(int, char*[]) = 0;
+
+    //
+    // Blocks until the service shuts down. The default implementation
+    // invokes waitForShutdown() on the communicator.
+    //
+    virtual void waitForShutdown();
+
+    //
+    // Clean up resources after shutting down.
+    //
+    virtual bool stop();
+
+    //
+    // Initialize a communicator.
+    //
+    virtual Ice::CommunicatorPtr initializeCommunicator(int&, char*[]);
+
+    //
+    // Log a system error, which includes a description of the
+    // current system error code.
+    //
+    virtual void syserror(const std::string&);
+
+    //
+    // Log an error.
+    //
+    virtual void error(const std::string&);
+
+    //
+    // Log a warning.
+    //
+    virtual void warning(const std::string&);
+
+    //
+    // Log trace information.
+    //
+    virtual void trace(const std::string&);
+
+    //
+    // Enable the CtrlCHandler to invoke interrupt() when a signal occurs.
+    //
+    void enableInterrupt();
+
+    //
+    // Ignore signals.
+    //
+    void disableInterrupt();
 
 private:
 
-    bool checkService(int, char*[], int&);
-    int installService(const std::string&, int, char*[]);
-    int uninstallService(const std::string&, int, char*[]);
-    int startService(const std::string&, int, char*[]);
-    int stopService(const std::string&, int, char*[]);
+    Ice::LoggerPtr _logger;
+    Ice::CommunicatorPtr _communicator;
+    bool _nohup;
+    bool _service;
+    std::string _name;
+    static Service* _instance;
+
+#ifdef _WIN32
+
+    int runService(int, char*[]);
+
+    SERVICE_STATUS_HANDLE _statusHandle;
+    SERVICE_STATUS _status;
+    std::vector<std::string> _serviceArgs;
 
 public:
 
     void serviceMain(int, char*[]);
     void control(int);
 
-private:
-
-    bool _service;
-    bool _win9x; // Are we running on Windows 9x/ME?
-    SERVICE_STATUS_HANDLE _statusHandle;
-    SERVICE_STATUS _status;
-    std::vector<std::string> _serviceArgs;
-
 #else
 
-private:
+    int runDaemon(int, char*[]);
 
-    bool checkDaemon(int, char*[], int&);
+    bool _changeDirectory;
+    bool _closeFiles;
 
 #endif
-
-private:
-
-    std::string _prog;
-    Ice::LoggerPtr _logger;
-    Ice::CommunicatorPtr _communicator;
-    bool _nohup;
-    static Service* _instance;
 };
 
 } // End of namespace Ice
