@@ -504,6 +504,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     dbInfo.info.theTopic = topic;
     dbInfo.info.name = name;
     dbInfo.info.cost = cost;
+    _links.insert(pair<const Ice::Identity, const LinkDB>(ident, dbInfo));
 
     //
     // Create the subscriber object and add it to the set of subscribers.
