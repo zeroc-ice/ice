@@ -5,6 +5,12 @@ Requirements
 - PHP 5.0.3 (http://www.php.net/downloads.php)
 - Ice 2.1.0
 
+HP-UX NOTE:
+
+  PHP 5.0.3 cannot be built on HP-UX using aCC, therefore we
+  recommend reverting to PHP 5.0.2. A version of the configure
+  script that works for PHP 5.0.2 is provided as the file
+  configure-hpux.gz.
 
 
 =========================================================================
@@ -55,6 +61,8 @@ replacement script that you can install:
 $ cd <phpdir>
 $ cp <icephpdir>/configure.gz .
 $ gunzip configure
+
+On HP-UX, use configure-hpux.gz instead of configure.gz.
 
 Alternatively, you can regenerate the configure script yourself if
 you have the necessary utilities installed on your system:
