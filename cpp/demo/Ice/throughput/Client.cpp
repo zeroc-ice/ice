@@ -18,15 +18,19 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"toggle type of data to send\n"
-	"  1: sequence of bytes (default)\n"
-	"  2: sequence of strings (\"hello\")\n"
-	"  3: sequence of structs with a string (\"hello\") and a double\n"
-	"select test to run\n"
-	"  t: send sequence as twoway\n"
-	"  o: send sequence as oneway\n"
-	"  r: receive sequence\n"
-	"  e: echo (send and receive) sequence\n"
+	"\n"
+	"toggle type of data to send:\n"
+	"1: sequence of bytes (default)\n"
+	"2: sequence of strings (\"hello\")\n"
+	"3: sequence of structs with a string (\"hello\") and a double\n"
+	"\n"
+	"select test to run:\n"
+	"t: Send sequence as twoway\n"
+	"o: Send sequence as oneway\n"
+	"r: Receive sequence\n"
+	"e: Echo (send and receive) sequence\n"
+	"\n"
+	"other commands:\n"
 	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
@@ -54,7 +58,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
     int byteSeqSize = 500000;
-    int stringSeqSize = 100000;
+    int stringSeqSize = 50000;
     int structSeqSize = 50000;
 
     ByteSeq byteSeq(byteSeqSize, 0);
