@@ -1,6 +1,8 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Added Freeze Evictor indices: see the Freeze/phonebook demo.
+
 - Fixed a crash that could happen during shutdown.
 
 - Fixed a deadlock that could happen during connection establishment.
