@@ -536,7 +536,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
 	    if(p->size == 0)
 	    {
-		string path = _dataDir + '/' + p->path + ".bz2";
+		string path = _dataDir + '/' + p->path;
 		ofstream file(path.c_str(), ios::binary);
 	    }
 	    else
