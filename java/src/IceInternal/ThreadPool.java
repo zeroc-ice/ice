@@ -442,6 +442,7 @@ public final class ThreadPool
 
                     assert(_timeout > 0);
                     _timeout = 0;
+                    _timeoutMillis = 0;
                     shutdown = true;
                     continue repeatSelect;
                 }
