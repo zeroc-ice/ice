@@ -1536,7 +1536,7 @@ Slice::Unit::ignRedefs()
 void
 Slice::Unit::setComment(const std::string& comment)
 {
-    _currentComment.clear();
+    _currentComment = "";
 
     string::size_type end = 0;
     while (true)
@@ -1754,7 +1754,7 @@ Slice::Unit::parse(FILE* file, bool debug)
     assert(!Slice::unit);
     Slice::unit = this;
 
-    _currentComment.clear();
+    _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
     _currentFile = "<standard input>";
