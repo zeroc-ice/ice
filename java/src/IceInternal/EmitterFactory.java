@@ -63,7 +63,7 @@ public final class EmitterFactory
                 {
                     Connector connector = endpoints[i].connector(_instance);
                     assert(connector != null);
-                    transceiver = connector.connect(endpoints[i].timeout);
+                    transceiver = connector.connect(endpoints[i].timeout());
                     assert(transceiver != null);
                 }
                 emitter = new Emitter(_instance, transceiver, endpoints[i]);

@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-final class ObjectFactoryManager
+public final class ObjectFactoryManager
 {
     public synchronized void
     add(Ice.ObjectFactory factory, String id)

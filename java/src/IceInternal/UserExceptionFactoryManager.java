@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-final class UserExceptionFactoryManager
+public final class UserExceptionFactoryManager
 {
     public synchronized void
     add(Ice.UserExceptionFactory factory, String id)

@@ -15,7 +15,7 @@ public interface Transceiver
     java.nio.channels.SelectableChannel fd();
     void close();
     void shutdown();
-    void write(Buffer buffer, int timeout);
-    void read(Buffer buffer, int timeout);
+    void write(java.nio.ByteBuffer buffer, int timeout);
+    void read(java.nio.ByteBuffer buffer, int timeout);
     String toString();
 }

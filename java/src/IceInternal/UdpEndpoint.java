@@ -25,7 +25,7 @@ public final class UdpEndpoint extends Endpoint
         _host = null;
         _port = 0;
 
-        String[] arr = init.split("[ \t\n\r]+");
+        String[] arr = str.split("[ \t\n\r]+");
 
         int i = 0;
         while (i < arr.length)
@@ -51,7 +51,7 @@ public final class UdpEndpoint extends Endpoint
                         throw new Ice.EndpointParseException();
                     }
 
-                    host = argument;
+                    _host = argument;
                     break;
                 }
 
@@ -194,7 +194,8 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     clientTransceiver(Instance instance)
     {
-        return new UdpTransceiver(instance, _host, _port);
+        //return new UdpTransceiver(instance, _host, _port);
+        return null;
     }
 
     //
@@ -207,9 +208,12 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     serverTransceiver(Instance instance, EndpointHolder endpoint)
     {
+        /*
         UdpTransceiver p = new UdpTransceiver(instance, _port);
         endpoint.value = new UdpEndpoint(_host, p.effectivePort());
         return p;
+        */
+        return null;
     }
 
     //
@@ -243,6 +247,7 @@ public final class UdpEndpoint extends Endpoint
     public boolean
     equivalent(Transceiver transceiver)
     {
+        /*
         UdpTransceiver udpTransceiver = null;
         try
         {
@@ -253,6 +258,8 @@ public final class UdpEndpoint extends Endpoint
             return false;
         }
         return udpTransceiver.equivalent(_host, _port);
+        */
+        return false;
     }
 
     public boolean

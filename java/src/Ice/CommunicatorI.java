@@ -188,7 +188,7 @@ class CommunicatorI implements Communicator
     }
     */
 
-    CommunicatorI(Properties propertites)
+    CommunicatorI(Properties properties)
     {
         _instance = new IceInternal.Instance(this, properties);
         _threadPool = _instance.threadPool();

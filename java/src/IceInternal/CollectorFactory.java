@@ -97,25 +97,25 @@ public class CollectorFactory extends EventHandler
         //
         try
         {
-            Transceive transceiver = _acceptor.accept(0);
+            Transceiver transceiver = _acceptor.accept(0);
             Collector collector = new Collector(_instance, _adapter,
                                                 transceiver, _endpoint);
             collector.activate();
             _collectors.add(collector);
         }
-        catch (SecurityException ex)
+        catch (java.lang.SecurityException ex)
         {
             // Ignore, nothing we can do here
         }
-        catch (SocketException ex)
+        catch (Ice.SocketException ex)
         {
             // Ignore, nothing we can do here
         }
-        catch (TimeoutException ex)
+        catch (Ice.TimeoutException ex)
         {
             // Ignore timeouts
         }
-        catch (LocalException ex)
+        catch (Ice.LocalException ex)
         {
             warning(ex);
             setState(StateClosed);
@@ -181,17 +181,20 @@ public class CollectorFactory extends EventHandler
 
         try
         {
-            _transceiver = _endpoint.serverTransceiver(_instance, _endpoint);
+            EndpointHolder endpointH = new EndpointHolder();
+            _transceiver = _endpoint.serverTransceiver(_instance, endpointH);
             if (_transceiver != null)
             {
+                _endpoint = endpointH.value;
                 Collector collector = new Collector(_instance, _adapter,
                                                     _transceiver, _endpoint);
                 _collectors.add(collector);
             }
             else
             {
-                _acceptor = _endpoint.acceptor(_instance, _endpoint);
+                _acceptor = _endpoint.acceptor(_instance, endpointH);
                 assert(_acceptor != null);
+                _endpoint = endpointH.value;
                 _acceptor.listen();
                 _threadPool = instance.threadPool();
             }

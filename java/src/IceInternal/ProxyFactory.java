@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-final class ProxyFactory
+public final class ProxyFactory
 {
     public Ice.ObjectPrx
     stringToProxy(String s)
@@ -44,7 +44,7 @@ final class ProxyFactory
     public Ice.ObjectPrx
     referenceToProxy(Reference reference)
     {
-        Ice.ObjectPrx proxy = new Ice.ProxyForObject();
+        Ice.ObjectPrx proxy = new Ice.ObjectPrx();
         proxy.setup(reference);
         return proxy;
     }

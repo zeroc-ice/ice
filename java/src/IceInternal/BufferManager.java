@@ -61,7 +61,7 @@ final class BufferManager
             _nodeCache = _nodeCache.next;
         }
         node.buf = buf;
-        node.size = buf.capacity();
+        node.capacity = buf.capacity();
         node.next = _head;
         _head = node;
     }
@@ -73,7 +73,7 @@ final class BufferManager
         BufferNode prev = null;
         while (node != null)
         {
-            if (size <= node.size)
+            if (size <= node.capacity)
             {
                 break;
             }

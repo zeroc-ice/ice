@@ -86,7 +86,7 @@ public final class Emitter extends EventHandler
                 }
                 TraceUtil.traceRequest("sending request", os, _logger,
                                        _traceLevels);
-                _transceiver.write(os, _endpoint.timeout());
+                _transceiver.write(os.prepareWrite(), _endpoint.timeout());
             }
             catch (Ice.LocalException ex)
             {
@@ -112,11 +112,11 @@ public final class Emitter extends EventHandler
     public void
     prepareBatchRequest(Outgoing out)
     {
-        lock();
+        _mutex.lock();
 
         if (_exception != null)
         {
-            unlock();
+            _mutex.unlock();
             throw _exception;
         }
         assert(_state == StateActive);
@@ -148,13 +148,13 @@ public final class Emitter extends EventHandler
     {
         if (_exception != null)
         {
-            unlock();
+            _mutex.unlock();
             throw _exception;
         }
         assert(_state == StateActive);
 
         _batchStream.swap(out.os()); // Get the batch stream back
-        unlock(); // Give the Emitter back
+        _mutex.unlock(); // Give the Emitter back
 
         _batchStream.endWriteEncaps();
     }
@@ -162,8 +162,8 @@ public final class Emitter extends EventHandler
     public void
     abortBatchRequest()
     {
-        state(StateClosed, new Ice.AbortBatchRequestException());
-        unlock();
+        setState(StateClosed, new Ice.AbortBatchRequestException());
+        _mutex.unlock();
     }
 
     public void
@@ -180,7 +180,7 @@ public final class Emitter extends EventHandler
 
             try
             {
-                if (_batch.size() == 0)
+                if (_batchStream.size() == 0)
                 {
                     return; // Nothing to send
                 }
@@ -194,7 +194,8 @@ public final class Emitter extends EventHandler
                 TraceUtil.traceBatchRequest("sending batch request",
                                             _batchStream, _logger,
                                             _traceLevels);
-                _transceiver.write(_batchStream, _endpoint.timeout());
+                _transceiver.write(_batchStream.prepareWrite(),
+                                   _endpoint.timeout());
 
                 //
                 // Reset _batchStream so that new batch messages can be sent.
@@ -235,9 +236,10 @@ public final class Emitter extends EventHandler
     }
 
     public void
-    read(BasicStream is)
+    read(BasicStream stream)
     {
-        _transceiver.read(stream, 0);
+        // TODO - implement
+        //_transceiver.read(stream, 0);
     }
 
     public void
@@ -369,7 +371,7 @@ public final class Emitter extends EventHandler
         }
         finally
         {
-            unlock();
+            _mutex.unlock();
         }
     }
 

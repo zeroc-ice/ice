@@ -126,11 +126,12 @@ public abstract class Object
 
             _activeFacetMap.clear();
 
+            Ice.ObjectHolder h = new Ice.ObjectHolder();
             while (sz-- > 0)
             {
                 String key = __is.readString();
-                Object value = __is.readObject("");
-                _activeFacetMap.put(key, value);
+                __is.readObject("", h);
+                _activeFacetMap.put(key, h.value);
             }
         }
     }

@@ -59,7 +59,7 @@ public final class Outgoing
 
     public boolean
     invoke()
-        throws NonRepeatable
+        throws Ice.LocationForward, NonRepeatable
     {
         switch (_reference.mode)
         {

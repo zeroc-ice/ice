@@ -86,12 +86,14 @@ public class Collector extends EventHandler
     public void
     read(BasicStream is)
     {
-        _transceiver.read(is, 0);
+        // TODO - implement
+        //_transceiver.read(is, 0);
     }
 
     public void
     message(BasicStream stream)
     {
+        /* TODO
         Incoming in = new Incoming(_instance, _adapter);
         BasicStream os = in.os();
         boolean invoke = false;
@@ -302,6 +304,7 @@ public class Collector extends EventHandler
                 _mutex.unlock();
             }
         }
+        */
     }
 
     public void
@@ -315,7 +318,7 @@ public class Collector extends EventHandler
                 return;
             }
 
-            if (ex instanceof ConnectionLostException)
+            if (ex instanceof Ice.ConnectionLostException)
             {
                 warning(ex);
             }
@@ -512,8 +515,9 @@ public class Collector extends EventHandler
     }
 
     private void
-    closeConection()
+    closeConnection()
     {
+        /*
         BasicStream os = new BasicStream(_instance);
         os.writeByte(Protocol.protocolVersion);
         os.writeByte(Protocol.encodingVersion);
@@ -524,6 +528,7 @@ public class Collector extends EventHandler
                               _traceLevels);
         _transceiver.write(os, _endpoint.timeout());
         _transceiver.shutdown();
+        */
     }
 
     private void
@@ -544,7 +549,7 @@ public class Collector extends EventHandler
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private ThreadPool _threadPool;
-    private _responseCount;
+    private int _responseCount;
     private int _state;
     private boolean _warnAboutExceptions;
     private RecursiveMutex _mutex = new RecursiveMutex();

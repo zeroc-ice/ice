@@ -27,7 +27,7 @@ public final class TcpEndpoint extends Endpoint
         _port = 0;
         _timeout = -1;
 
-        String[] arr = init.split("[ \t\n\r]+");
+        String[] arr = str.split("[ \t\n\r]+");
 
         int i = 0;
         while (i < arr.length)
@@ -53,7 +53,7 @@ public final class TcpEndpoint extends Endpoint
                         throw new Ice.EndpointParseException();
                     }
 
-                    host = argument;
+                    _host = argument;
                     break;
                 }
 
@@ -265,9 +265,12 @@ public final class TcpEndpoint extends Endpoint
     public Acceptor
     acceptor(Instance instance, EndpointHolder endpoint)
     {
+        /* TODO - implement
         TcpAcceptor p = new TcpAcceptor(instance, _port);
         endpoint.value = new TcpEndpoint(_host, p.effectivePort(), _timeout);
         return p;
+        */
+        return null;
     }
 
     //
@@ -283,6 +286,7 @@ public final class TcpEndpoint extends Endpoint
     public boolean
     equivalent(Acceptor acceptor)
     {
+        /* TODO - implement
         TcpAcceptor tcpAcceptor = null;
         try
         {
@@ -293,6 +297,8 @@ public final class TcpEndpoint extends Endpoint
             return false;
         }
         return tcpAcceptor.equivalent(_host, _port);
+        */
+        return false;
     }
     
     //

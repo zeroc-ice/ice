@@ -494,7 +494,7 @@ public final class Reference
         }
         else
         {
-            return new Reference(instance, identity, facet, mode, newSecure,
+            return new Reference(instance, identity, facet, mode, secure,
                                  origEndpoints, newEndpoints);
         }
     }
@@ -504,13 +504,13 @@ public final class Reference
     {
         int h = 0;
 
-        int sz = identity.size();
+        int sz = identity.length();
         for (int i = 0; i < sz; i++)
         {   
             h = 5 * h + (int)identity.charAt(i);
         }
 
-        sz = facet.size();
+        sz = facet.length();
         for (int i = 0; i < sz; i++)
         {   
             h = 5 * h + (int)facet.charAt(i);
@@ -538,10 +538,10 @@ public final class Reference
         if (_checkEndpointsEqual)
         {
             _endpointsEqual = compare(origEndpoints, endpoints);
-            _checkEndpointEqual = false;
+            _checkEndpointsEqual = false;
         }
 
-        return _endpointEqual;
+        return _endpointsEqual;
     }
 
     private boolean

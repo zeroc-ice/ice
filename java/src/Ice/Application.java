@@ -10,7 +10,7 @@
 
 package Ice;
 
-public class Application
+public abstract class Application
 {
     public
     Application()
@@ -28,7 +28,7 @@ public class Application
     public final int
     main(String appName, String[] args)
     {
-        main(args, null);
+        return main(appName, args, null);
     }
 
     public final int
@@ -36,7 +36,7 @@ public class Application
     {
         if (_communicator != null)
         {
-            System.err.println(appName + ": only one instance of the "
+            System.err.println(appName + ": only one instance of the " +
                                "Application class can be used");
             return 1;
         }

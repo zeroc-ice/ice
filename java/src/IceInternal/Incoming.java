@@ -12,6 +12,7 @@ package IceInternal;
 
 public final class Incoming
 {
+    /*
     public
     Incoming(Instance instance, Ice.ObjectAdapter adapter)
     {
@@ -175,4 +176,5 @@ public final class Incoming
 
     private BasicStream _is;
     private BasicStream _os;
+    */
 }

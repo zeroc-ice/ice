@@ -68,7 +68,7 @@ final class TraceUtil
             s.write(heading);
             printHeader(s, stream);
             int cnt = 0;
-            while (true /* stream.i != stream.b.end() */ )
+            while (stream.pos() != pos)
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
@@ -154,41 +154,48 @@ final class TraceUtil
     private static void
     printHeader(java.io.Writer out, BasicStream stream)
     {
-        byte protVer = stream.readByte();
-        out.write("\nprotocol version = " + (int)protVer);
-        byte encVer = stream.readByte();
-        out.write("\nencoding version = " + (int)encVer);
-        byte type = stream.readByte();
-        out.write("\nmessage type = " + (int)type + ' ');
-        switch (type)
+        try
         {
-            case Protocol.requestMsg:
+            byte protVer = stream.readByte();
+            out.write("\nprotocol version = " + (int)protVer);
+            byte encVer = stream.readByte();
+            out.write("\nencoding version = " + (int)encVer);
+            byte type = stream.readByte();
+            out.write("\nmessage type = " + (int)type + ' ');
+            switch (type)
             {
-                out.write("(request)");
-                break;
+                case Protocol.requestMsg:
+                {
+                    out.write("(request)");
+                    break;
+                }
+                case Protocol.requestBatchMsg:
+                {
+                    out.write("(batch request)");
+                    break;
+                }
+                case Protocol.replyMsg:
+                {
+                    out.write("(reply)");
+                    break;
+                }
+                case Protocol.closeConnectionMsg:
+                {
+                    out.write("(close connection)");
+                    break;
+                }
+                default:
+                {
+                    out.write("(unknown)");
+                    break;
+                }
             }
-            case Protocol.requestBatchMsg:
-            {
-                out.write("(batch request)");
-                break;
-            }
-            case Protocol.replyMsg:
-            {
-                out.write("(reply)");
-                break;
-            }
-            case Protocol.closeConnectionMsg:
-            {
-                out.write("(close connection)");
-                break;
-            }
-            default:
-            {
-                out.write("(unknown)");
-                break;
-            }
+            int size = stream.readInt();
+            out.write("\nmessage size = " + size);
         }
-        int size = stream.readInt();
-        out.write("\nmessage size = " + size);
+        catch (java.io.IOException ex)
+        {
+            assert(false);
+        }
     }
 }

@@ -113,24 +113,33 @@ class PropertiesI implements Properties
         try
         {
             java.io.FileReader fr = new java.io.FileReader(file);
-            java.io.BufferedReader br = new java.io.BufferedReader(br);
+            java.io.BufferedReader br = new java.io.BufferedReader(fr);
             parse(br);
         }
         catch (java.io.IOException ex)
         {
-            SystemException ex = new SystemException();
-            ex.initCause(ex); // Exception chaining
-            throw ex;
+            SystemException se = new SystemException();
+            se.initCause(ex); // Exception chaining
+            throw se;
         }
     }
 
     private void
     parse(java.io.BufferedReader in)
     {
-        String line;
-        while ((line = in.readLine()) != null)
+        try
         {
-            parseLine(line);
+            String line;
+            while ((line = in.readLine()) != null)
+            {
+                parseLine(line);
+            }
+        }
+        catch (java.io.IOException ex)
+        {
+            SystemException se = new SystemException();
+            se.initCause(ex); // Exception chaining
+            throw se;
         }
     }
 

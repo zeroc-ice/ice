@@ -19,8 +19,9 @@ public final class Network
         {
             java.nio.channels.SocketChannel fd =
                 java.nio.channels.SocketChannel.open();
-            fd.setTcpNoDelay(true);
-            fd.setKeepAlive(true);
+            java.net.Socket socket = fd.socket();
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
             fd.configureBlocking(false);
             return fd;
         }
@@ -233,7 +234,7 @@ public final class Network
         s.append(localPort);
         if (remoteAddr == null)
         {
-            s.append("\nremote address = "<not connected>");
+            s.append("\nremote address = <not connected>");
         }
         else
         {

@@ -19,13 +19,13 @@ public class LoggerI implements Logger
         // TODO: Better way to do this?
         int start = 0;
         int next;
-        while((next = msg.indexOf('\n', start)) != -1)
+        while((next = message.indexOf('\n', start)) != -1)
         {
-            s += msg.substring(start, next + 1);
+            s += message.substring(start, next + 1);
             s += "  ";
             start = next + 1;
         }
-        s += msg.substring(start);
+        s += message.substring(start);
         s += " ]";
         System.err.println(s);
     }

@@ -76,7 +76,7 @@ public final class ThreadPool
             {
                 wait();
             }
-            catcH (InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }
@@ -136,7 +136,6 @@ public final class ThreadPool
     //
     // Only for use by Instance
     //
-    void
     ThreadPool(Instance instance)
     {
         _instance = instance;
@@ -351,7 +350,7 @@ public final class ThreadPool
                                     java.nio.channels.SelectionKey.OP_READ,
                                     info);
                             }
-                            catch (java.io.ClosedChannelException ex)
+                            catch (java.nio.channels.ClosedChannelException ex)
                             {
                                 assert(false);
                             }

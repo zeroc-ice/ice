@@ -46,5 +46,5 @@ public final class Util
         return new CommunicatorI(properties);
     }
 
-    private static _defaultProperties = null;
+    private static Properties _defaultProperties = null;
 }

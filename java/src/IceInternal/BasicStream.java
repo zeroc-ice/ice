@@ -73,10 +73,11 @@ public class BasicStream
 
     private static final int MAX = 1024 * 1024; // TODO: Configurable
 
-    /*
     public void
     resize(int total)
     {
+        // TODO
+        /*
         if (total > MAX)
         {
             throw new Ice.MemoryLimitException();
@@ -86,8 +87,8 @@ public class BasicStream
             // TODO - Get new buffer
         }
         _buf.limit(total);
+        */
     }
-    */
 
     /* TODO - Remove?
     public void
@@ -512,7 +513,7 @@ public class BasicStream
         Integer pos = null;
         if (enc.stringsWritten != null) // Lazy creation
         {
-            pos = enc.stringsWritten.get(v);
+            pos = (Integer)enc.stringsWritten.get(v);
         }
         if (pos != null)
         {
@@ -594,6 +595,11 @@ public class BasicStream
                     enc.stringsRead.add(v);
                     return v;
                 }
+                catch (java.io.UnsupportedEncodingException ex)
+                {
+                    assert(false);
+                    return "";
+                }
                 catch (java.nio.BufferUnderflowException ex)
                 {
                     throw new Ice.UnmarshalOutOfBoundsException();
@@ -613,6 +619,7 @@ public class BasicStream
         {
             v[i] = readString();
         }
+        return v;
     }
 
     public void
@@ -622,7 +629,7 @@ public class BasicStream
         Integer pos = null;
         if (enc.wstringsWritten != null) // Lazy creation
         {
-            pos = enc.wstringsWritten.get(v);
+            pos = (Integer)enc.wstringsWritten.get(v);
         }
         if (pos != null)
         {
@@ -716,6 +723,7 @@ public class BasicStream
         {
             v[i] = readWString();
         }
+        return v;
     }
 
     public void
@@ -737,7 +745,7 @@ public class BasicStream
         Integer pos = null;
         if (enc.objectsWritten != null) // Lazy creation
         {
-            pos = enc.objectsWritten.get(v);
+            pos = (Integer)enc.objectsWritten.get(v);
         }
         if (pos != null)
         {

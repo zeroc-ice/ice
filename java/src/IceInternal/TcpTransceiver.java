@@ -147,7 +147,7 @@ final class TcpTransceiver implements Transceiver
     public String
     toString()
     {
-        return fdToString(_fd);
+        return Network.fdToString(_fd);
     }
 
     //
