@@ -336,6 +336,12 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     {
 	transceiver = _acceptor->accept(0);
     }
+    catch(const SocketException&)
+    {
+        // TODO: bandaid. Takes care of SSL Handshake problems during
+        // creation of a Transceiver. Ignore, nothing we can do here.
+	return;
+    }
     catch(const TimeoutException&)
     {
 	// Ignore timeouts.
