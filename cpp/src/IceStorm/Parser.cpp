@@ -17,6 +17,10 @@
 #include <IceStorm/WeightedGraph.h>
 #include <algorithm>
 
+#ifdef GPL_BUILD
+#   include <IcePack/GPL.h>
+#endif
+
 #ifdef HAVE_READLINE
 #   include <readline/readline.h>
 #   include <readline/history.h>
@@ -54,6 +58,10 @@ Parser::usage()
         "unlink FROM TO              Unlink TO from FROM.\n"
         "graph DATA COST             Construct the link graph as described in DATA with COST\n"
         "list [TOPICS]               Display information on TOPICS or all topics.\n"
+#ifdef GPL_BUILD
+	"show copying                Show conditions for redistributing copies of this program.\n"
+	"show warranty               Show the warranty for this program.\n"
+#endif
         ;
 }
 
@@ -377,6 +385,35 @@ Parser::graph(const list<string>& _args)
 	s << ex;
 	error(s.str());
     }
+}
+
+void
+Parser::showBanner()
+{
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2004 ZeroC, Inc." << endl;
+#ifdef GPL_BUILD
+    cout << gplBanner << endl;
+#endif
+}
+
+void
+Parser::showCopying()
+{
+#if defined(GPL_BUILD)
+    cout << gplCopying << endl;
+#else
+    cout << "This command is not implemented yet." << endl;
+#endif
+}
+
+void
+Parser::showWarranty()
+{
+#if defined(GPL_BUILD)
+    cout << gplWarranty << endl;
+#else
+    cout << "This command is not implemented yet." << endl;
+#endif
 }
 
 void

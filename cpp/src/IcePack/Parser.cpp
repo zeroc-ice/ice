@@ -15,6 +15,10 @@
 #include <Ice/Ice.h>
 #include <IcePack/Parser.h>
 
+#ifdef GPL_BUILD
+#   include <IcePack/GPL.h>
+#endif
+
 #ifdef HAVE_READLINE
 #   include <readline/readline.h>
 #   include <readline/history.h>
@@ -87,8 +91,14 @@ IcePack::Parser::usage()
 	"object remove IDENTITY      Remove an object from the object registry.\n"
 	"object find TYPE            Find all objects with the type TYPE.\n"
 	"\n"
-        "shutdown                    Shut the IcePack registry down.\n";
+        "shutdown                    Shut the IcePack registry down.\n"
+#ifdef GPL_BUILD
+	"show copying                Show conditions for redistributing copies of this program.\n"
+	"show warranty               Show the warranty for this program.\n"
+#endif
+	;
 }
+
 
 void
 IcePack::Parser::addApplication(const list<string>& args)
@@ -701,6 +711,36 @@ IcePack::Parser::shutdown()
 	error(s.str());
     }
 }
+
+void
+IcePack::Parser::showBanner()
+{
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2004 ZeroC, Inc." << endl;
+#ifdef GPL_BUILD
+    cout << gplBanner << endl;
+#endif
+}
+
+void
+IcePack::Parser::showCopying()
+{
+#if defined(GPL_BUILD)
+    cout << gplCopying << endl;
+#else
+    cout << "This command is not implemented yet." << endl;
+#endif
+}
+
+void
+IcePack::Parser::showWarranty()
+{
+#if defined(GPL_BUILD)
+    cout << gplWarranty << endl;
+#else
+    cout << "This command is not implemented yet." << endl;
+#endif
+}
+
 
 void
 IcePack::Parser::getInput(char* buf, int& result, int maxSize)

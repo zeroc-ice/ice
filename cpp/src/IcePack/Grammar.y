@@ -63,6 +63,9 @@ yyerror(const char* s)
 %token ICE_PACK_ACTIVATION
 %token ICE_PACK_OBJECT
 %token ICE_PACK_FIND
+%token ICE_PACK_SHOW
+%token ICE_PACK_COPYING
+%token ICE_PACK_WARRANTY
 
 %%
 
@@ -190,6 +193,14 @@ command
 | ICE_PACK_SHUTDOWN ';'
 {
     parser->shutdown();
+}
+| ICE_PACK_SHOW ICE_PACK_COPYING ';'
+{
+    parser->showCopying();
+}
+| ICE_PACK_SHOW ICE_PACK_WARRANTY ';'
+{
+    parser->showWarranty();
 }
 | error ';'
 {

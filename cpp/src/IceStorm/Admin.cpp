@@ -174,6 +174,8 @@ Client::run(int argc, char* argv[])
 	}
 	else // No commands, let's use standard input
 	{
+	    p->showBanner();
+
 	    int parseStatus = p->parse(stdin, debug);
 	    if(parseStatus == EXIT_FAILURE)
 	    {

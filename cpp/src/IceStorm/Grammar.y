@@ -48,6 +48,9 @@ yyerror(const char* s)
 %token ICE_STORM_UNLINK
 %token ICE_STORM_GRAPH
 %token ICE_STORM_STRING
+%token ICE_STORM_SHOW
+%token ICE_STORM_COPYING
+%token ICE_STORM_WARRANTY
 
 %%
 
@@ -112,6 +115,14 @@ command
 | ICE_STORM_LIST strings ';'
 {
     parser->dolist($2);
+}
+| ICE_STORM_SHOW ICE_STORM_COPYING ';'
+{
+    parser->showCopying();
+}
+| ICE_STORM_SHOW ICE_STORM_WARRANTY ';'
+{
+    parser->showWarranty();
 }
 | error ';'
 {

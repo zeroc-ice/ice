@@ -76,6 +76,10 @@ public:
     void unlink(const std::list<std::string>&);
     void graph(const std::list<std::string>&);
 
+    void showBanner();
+    void showCopying();
+    void showWarranty();
+
     void getInput(char*, int&, int);
     void nextLine();
     void continueLine();

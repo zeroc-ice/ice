@@ -100,6 +100,10 @@ public:
 
     void shutdown();
 
+    void showBanner();
+    void showCopying();
+    void showWarranty();
+
     void getInput(char*, int&, int);
     void nextLine();
     void continueLine();

@@ -184,11 +184,25 @@ NL	[\n]
 
 "object" {
     return ICE_PACK_OBJECT;
-
 }
+
 "find" {
     return ICE_PACK_FIND;
 }
+
+"show" {
+    return ICE_PACK_SHOW;
+}
+
+"copying" {
+    return ICE_PACK_COPYING;
+}
+
+"warranty" {
+    return ICE_PACK_WARRANTY;
+}
+
+
 
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);

@@ -130,6 +130,18 @@ NL	[\n]
     return ICE_STORM_GRAPH;
 }
 
+"show" {
+    return ICE_STORM_SHOW;
+}
+
+"copying" {
+    return ICE_STORM_COPYING;
+}
+
+"warranty" {
+    return ICE_STORM_WARRANTY;
+}
+
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
