@@ -9,12 +9,31 @@
 # **********************************************************************
 
 #
+# Set protocol to "ssl" in case you want to run the tests with the SSL
+# protocol. Otherwise TCP is used.
+#
+
+protocol = ""
+#protocol = "ssl"
+
+#
 # Set compressed to 1 in case you want to run the tests with
 # protocol compression.
 #
 
 compress = 0
 #compress = 1
+
+#
+# Set threadPerConnection to 1 in case you want to run the tests in
+# thread per connection mode, or if you are using SSL.
+#
+
+threadPerConnection = 0
+#threadPerConnection = 1
+
+if protocol == "ssl":
+    threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -142,23 +161,42 @@ else:
 
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
-clientProtocol = ""
-serverProtocol = ""
-clientServerProtocol = ""
+if protocol == "ssl":
+    plugin		 = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
+    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Config=client_sslconfig.xml"
+    serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Config=server_sslconfig.xml"
+    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Config=sslconfig.xml" + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Config=sslconfig.xml"
+else:
+    clientProtocol = ""
+    serverProtocol = ""
+    clientServerProtocol = ""
 
 if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
 
+if threadPerConnection:
+    clientProtocol += " --Ice.ThreadPerConnection"
+    serverProtocol += " --Ice.ThreadPerConnection"
+    clientServerProtocol += " --Ice.ThreadPerConnection"
+
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
 else:
     defaultHost = ""
 
-commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
+commonClientOptions = " --Ice.Warn.Connections"
 
-commonServerOptions = " --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
+commonServerOptions = " --Ice.PrintAdapterReady" + \
                       " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
