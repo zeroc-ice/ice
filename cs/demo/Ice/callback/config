@@ -19,5 +19,3 @@ Glacier.Router.Trace.Server=2
 Glacier.Router.Trace.RoutingTable=1
 Glacier.Router.Server.ForwardContext=1
 Glacier.Router.Client.ForwardContext=1
-Glacier.Router.Server.BatchSleepTime=2000
-Glacier.Router.Client.BatchSleepTime=2000
