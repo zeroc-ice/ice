@@ -18,6 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
+    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -45,11 +46,14 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
+skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
+    elif x == "-d":
+        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -79,7 +83,8 @@ if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icepy ice/slice ice/config")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag +
+          " icepy ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
 
 #
 # Copy Slice directories.
@@ -109,14 +114,76 @@ filesToRemove = [ \
     os.path.join("icepy", "makebindist.py"), \
     os.path.join("icepy", "certs", "makecerts"), \
     ]
+filesToRemove.extend(find("icepy", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 shutil.rmtree(os.path.join("icepy", "certs", "openssl"))
 
 #
+# Generate HTML documentation. We need to build icecpp
+# and slice2docbook first.
+#
+if not skipDocs:
+    print "Generating documentation..."
+    cwd = os.getcwd()
+    os.chdir(os.path.join("ice", "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "doc"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.mkdir(os.path.join("icepy", "doc"))
+    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icepy", "doc", "reference"))
+    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icepy", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icepy", "doc", "images"))
+
+#
+# Build slice2py.
+#
+print "Building translator..."
+cwd = os.getcwd()
+os.chdir(os.path.join("ice", "src", "icecpp"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "IceUtil"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "Slice"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "slice2py"))
+os.system("gmake")
+os.chdir(cwd)
+
+sys.path.append(os.path.join("ice", "config"))
+import TestUtil
+
+os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
+
+if TestUtil.isHpUx():
+    os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
+elif TestUtil.isDarwin():
+    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+elif TestUtil.isAIX():
+    os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
+else:
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
+
+#
 # Translate Slice files.
 #
-print "Translating..."
+print "Generating Python code..."
 cwd = os.getcwd()
 os.chdir(os.path.join("icepy", "python"))
 if verbose:
@@ -135,7 +202,7 @@ version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group
 #
 # Create source archives.
 #
-print "Creating distribution..."
+print "Creating distribution archives..."
 icever = "IcePy-" + version
 os.rename("icepy", icever)
 if verbose:
