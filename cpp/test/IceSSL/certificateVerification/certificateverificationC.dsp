@@ -42,8 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /c
-# SUBTRACT CPP /YX /Yc /Yu
+# ADD CPP /nologo /MD /Ze /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -67,8 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /ZI /Od /I "." /I "../../../include" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
-# SUBTRACT CPP /YX /Yc /Yu
+# ADD CPP /nologo /MDd /Ze /W3 /WX /Gm /GR /GX /ZI /Od /I "." /I "../../../include" /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -90,13 +88,6 @@ LINK32=link.exe
 # Begin Source File
 
 SOURCE=.\Client.cpp
-
-!IF  "$(CFG)" == "certificateVerificationC - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "certificateVerificationC - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
