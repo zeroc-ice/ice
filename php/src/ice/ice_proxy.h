@@ -16,7 +16,6 @@
 #define ICE_PHP_ICE_PROXY_H
 
 #include "ice_common.h"
-#include <Slice/Parser.h>
 
 //
 // Ice_ObjectPrx class methods.

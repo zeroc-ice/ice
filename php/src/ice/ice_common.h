@@ -22,6 +22,7 @@
 #endif
 
 #include <Ice/Ice.h>
+#include <Slice/Parser.h>
 
 #ifdef WIN32
 #include <crtdbg.h>
