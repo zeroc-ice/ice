@@ -39,19 +39,19 @@ This binary distribution was compiled on Mac OS X 10.3.8 using the
 default C++ compiler, GCC 3.3.
 
 This distribution depends on a number of third-party libraries which
-are not included with the system:
+are not included with the operating system:
 
-- Berkeley DB 4.2.52 configured with --enable-cxx and --enable-java.
+- Berkeley DB 4.2.52
 
-  You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
+  This distribution includes Berkeley DB 4.2.52, configured with
+  --enable-cxx and --enable-java, and built with GCC 3.3.
 
 - expat 1.95.8 
 
-  You can download expat from http://sourceforge.net/projects/expat/
+  You need to download and compile expat in order to use certain
+  Ice components. The expat source code is available at
 
-You need to download and compile these third party libraries to be
-able to use certain Ice components.
+  http://sourceforge.net/projects/expat/
 
 
 Java
