@@ -32,9 +32,9 @@ local dictionary<string, string> PropertyDict;
 
 /**
  *
- * A property set to configure &Ice; and applications based on
- * &Ice;. Properties are key/value pairs, with both keys and values
- * being strings. By conventions, property keys should have the form
+ * A property set used to configure &Ice; and &Ice; applications.
+ * Properties are key/value pairs, with both keys and values
+ * being [string]s. By convention, property keys should have the form
  * <replaceable>application-name</replaceable>\[.<replaceable>category</replaceable>\[.<replaceable>sub-category</replaceable>]].<replaceable>name</replaceable>.
  *
  **/
@@ -56,14 +56,15 @@ local interface Properties
 
     /**
      *
-     * Get a property by key. If the property does not exist, a
-     * default value is returned.
+     * Get a property by key. If the property does not exist, the
+     * given default value is returned.
      *
      * @param key The property key.
      *
-     * @param value The supplied default value.
+     * @param value The default value to use if the property does not
+     * exist.
      *
-     * @return The property value or the supplied default value.
+     * @return The property value or the default value.
      *
      * @see setProperty
      *
@@ -77,7 +78,7 @@ local interface Properties
      *
      * @param key The property key.
      *
-     * @return The property value interpreted as integer.
+     * @return The property value interpreted as an integer.
      *
      * @see setProperty
      *
@@ -86,15 +87,16 @@ local interface Properties
 
     /**
      *
-     * Get a property as an integer. If the property does not exist, a
-     * default value is returned.
+     * Get a property as an integer. If the property does not exist, the
+     * given default value is returned.
      *
      * @param key The property key.
      *
-     * @param value The supplied default value.
+     * @param value The default value to use if the property does not
+     * exist.
      *
-     * @return The property value interpreted as integer or the
-     * supplied default value.
+     * @return The property value interpreted as an integer, or the
+     * default value.
      *
      * @see setProperty
      *
@@ -128,7 +130,9 @@ local interface Properties
     /**
      *
      * Get a sequence of command-line options that is equivalent to
-     * this property set.
+     * this property set. Each element of the returned sequence is
+     * a command-line option of the form
+     * [--<replaceable>key</replaceable>=<replaceable>value</replaceable>].
      *
      * @return The command line options for this property set.
      *
@@ -138,18 +142,17 @@ local interface Properties
     /**
      *
      * Convert a sequence of command-line options into properties.
-     * All options which begin with
-     * <screen>--<emphasis>prefix</emphasis>.</screen> will be
+     * All options that begin with
+     * [--<replaceable>prefix</replaceable>.] are
      * converted into properties. If the prefix is empty, all options
-     * that begin with <screen>--</screen> will be converted to
-     * properties.
+     * that begin with [--] are converted to properties.
      *
      * @param prefix The property prefix, or an empty string to
-     * convert all options starting with <screen>--</screen>.
+     * convert all options starting with [--].
      *
      * @param options The command-line options.
      *
-     * @return The command-line options which were not converted,
+     * @return The command-line options that were not converted,
      * in the same order.
      *
      **/

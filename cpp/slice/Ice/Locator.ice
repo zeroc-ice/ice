@@ -22,7 +22,7 @@ module Ice
 
 /**
  *
- * This exception is raised if an adapter can't be found.
+ * This exception is raised if an adapter cannot be found.
  *
  **/
 exception AdapterNotFoundException
@@ -32,7 +32,7 @@ exception AdapterNotFoundException
 /**
  *
  * This exception is raised if a server tries to set endpoints for
- * an adapter which is already active.
+ * an adapter that is already active.
  *
  **/
 exception AdapterAlreadyActiveException
@@ -41,7 +41,7 @@ exception AdapterAlreadyActiveException
 
 /**
  *
- * This exception is raised if an object can't be found.
+ * This exception is raised if an object cannot be found.
  *
  **/
 exception ObjectNotFoundException
@@ -53,7 +53,7 @@ interface LocatorRegistry;
 /**
  *
  * The &Ice; locator interface. This interface is used by clients to
- * lookup adapters and objects. It's also used by servers to get the
+ * lookup adapters and objects. It is also used by servers to get the
  * locator registry proxy.
  *
  * <note><para> The [Locator] interface is intended to be used by
@@ -70,9 +70,9 @@ interface Locator
      *
      * @param id The identity.
      *
-     * @return The proxy or null if the object is not active.
+     * @return The proxy, or null if the object is not active.
      *
-     * @throws ObjectNotFoundException Raised if the object can't
+     * @throws ObjectNotFoundException Raised if the object cannot
      * be found.
      *
      **/
@@ -82,13 +82,13 @@ interface Locator
     /**
      *
      * Find an adapter by id and return its proxy (a dummy direct
-     * proxy created with the adapter).
+     * proxy created by the adapter).
      *
      * @param id The adapter id.
      *
-     * @return The adapter proxy or null if the adapter is not active.
+     * @return The adapter proxy, or null if the adapter is not active.
      * 
-     * @throws AdapterNotFoundException Raised if the adapter can't be
+     * @throws AdapterNotFoundException Raised if the adapter cannot be
      * found.
      *
      **/
@@ -125,7 +125,7 @@ interface LocatorRegistry
      * @param id The adapter id.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
-     * with the adapter). The direct proxy contains the adapter
+     * by the adapter). The direct proxy contains the adapter
      * endpoints.
      *
      * @throws AdapterNotFound Raised if the locator only allows
@@ -135,7 +135,7 @@ interface LocatorRegistry
      * @throws AdapterAlreadyActive Raised if an adapter with the same
      * id is already active.
      *
-     * @throws AdapterNotFoundException Raised if the adapter can't be
+     * @throws AdapterNotFoundException Raised if the adapter cannot be
      * found.
      *
      */

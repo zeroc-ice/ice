@@ -21,9 +21,13 @@ module Ice
 /**
  *
  * A factory for user exceptions. User exception factories are
- * necessary if a user exception derived from an exception declared in
- * an operation's <literal>throws</literal> clause is raised, and
- * exception truncation to the base exception is not desireable.
+ * necessary in order to unmarshal an exception that is derived
+ * from an exception declared in the operation's
+ * <literal>throws</literal> clause. &Ice; does not support
+ * exception truncation, therefore if the actual type of the
+ * exception does not match those in the <literal>throws</literal>
+ * clause and a factory is not found, the client receives
+ * [NoUserExceptionFactoryException].
  *
  * @see ObjectFactory
  *

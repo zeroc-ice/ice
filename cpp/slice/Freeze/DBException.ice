@@ -50,7 +50,7 @@ local exception DBNotFoundException extends DBException
 
 /**
  *
- * A Freeze database deadlock exception. Transactions can react to
+ * A Freeze database deadlock exception. Applications can react to
  * this exception by aborting and trying the transaction again.
  *
  **/

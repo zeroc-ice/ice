@@ -29,9 +29,8 @@ module IceSSL
  * either Client or Server roles.  The <literal>Context</literal> represents a
  * role-specific configuration.
  *
- * When making calls against the [Plugin] that require us to identify which
- * <literal>Context</literal> to address, we use a <literal>ContextType</literal>
- * as a parameter in the call.
+ * Some [Plugin] operations require a <literal>ContextType</literal> argument to
+ * identify the <literal>Context</literal>.
  *
  **/
 enum ContextType
@@ -48,23 +47,22 @@ enum ContextType
 
 /**
  *
- * This is the main interface to a Communicator-specific instance of
- * the SSL subsystem, which supports programmatic configuration of the
- * SSL subsystem.
+ * The interface for the SSL plug-in. This interface is typically
+ * used to perform programmatic configuration of the plug-in.
  *
  **/
 local interface Plugin extends Ice::Plugin
 {
     /**
      *
-     * Tell the Plugin to configure itself. If the Plugin is left in a
-     * non-configured state, it will load its configuration from
+     * Configure the plug-in. If the plug-in is left in an
+     * unconfigured state, it will load its configuration from
      * the properties <literal>IceSSL.Server.Config</literal> or
      * <literal>IceSSL.Client.Config</literal>, depending on the context
      * type.
      *
-     * Configuration property settings will also be loaded as part of
-     * this call, with the property values overriding those of the
+     * Configuration property settings will also be loaded during
+     * this operation, with the property values overriding those of the
      * configuration file.
      *
      * @param contextType The <literal>Context</literal>(s) to configure.
@@ -74,22 +72,22 @@ local interface Plugin extends Ice::Plugin
 
     /**
      *
-     * Tell the Plugin to configure the indicated <literal>Context</literal>
-     * using the settings in the indicated configuration file.
+     * Configure the plug-in for the given <literal>Context</literal>
+     * using the settings in the given configuration file.
      *
-     * If the Plugin is left in a non-configured state, it
+     * If the plug-in is left in an unconfigured state, it
      * will load its configuration from the property
      * <literal>IceSSL.Server.Config</literal> or
      * <literal>IceSSL.Client.Config</literal>, depending on
      * the context type.
      *
      * Configuration property settings will also be loaded as part of
-     * this call, with the property values overriding those of the
+     * this operation, with the property values overriding those of the
      * configuration file.
      *
-     * @param contextType The <literal>Context</literal>(s) which to configure.
+     * @param contextType The <literal>Context</literal> to configure.
      *
-     * @param configFile The file which contains the SSL configuration
+     * @param configFile The file containing the SSL configuration
      * information.
      *
      * @param certPath The path where certificates referenced in
@@ -101,11 +99,11 @@ local interface Plugin extends Ice::Plugin
     /**
      *
      * Set the [CertificateVerifier] used for the indicated [ContextType]
-     * role. All Plugin <literal>Context</literal>s are created with default
-     * [CertificateVerifier] objects configured. Replacement
-     * [CertificateVerifier]s can be specified with this method.
+     * role. All plug-in <literal>Context</literal>s are created with default
+     * [CertificateVerifier] objects installed. Replacement
+     * [CertificateVerifier]s can be specified using this operation.
      *
-     * This method only affects new connections -- existing
+     * This operation only affects new connections -- existing
      * connections are left unchanged.
      *
      * @param contextType The <literal>Context</literal>(s) in which to install the
@@ -120,11 +118,11 @@ local interface Plugin extends Ice::Plugin
 
     /**
      *
-     * Add a trusted certificate to the Plugin's default certificate
-     * store. The provided certificate (passed in Base64 encoded
-     * binary DER format, as per the PEM format) will be added to the
-     * trust list, so that it, and all certificates signed by the
-     * corresponding private key, will be trusted.
+     * Add a trusted certificate to the plug-in's default certificate
+     * store. The provided certificate (passed in Base64-encoded
+     * binary DER format, as per the PEM format) is added to the
+     * trust list so that the certificate, and all certificates signed
+     * by its private key, are trusted.
      *
      * This method only affects new connections -- existing
      * connections are left unchanged.
@@ -132,18 +130,18 @@ local interface Plugin extends Ice::Plugin
      * @param contextType The <literal>Context</literal>(s) in which to add
      * the trusted certificate.
      *
-     * @param certificate The certificate, in Base64 encoded binary
-     * DER format, to be trusted.
+     * @param certificate The certificate to be trusted, in Base64-encoded
+     * binary DER format.
      *
      **/
     void addTrustedCertificateBase64(ContextType cType, string certificate);
 
     /**
      *
-     * Add a trusted certificate to the Plugin's default certificate
+     * Add a trusted certificate to the plug-in's default certificate
      * store.  The provided certificate (passed in binary DER format)
-     * will be added to the trust list, so that it, and all certificates
-     * signed by the corresponding private key, will be trusted.
+     * is added to the trust list so that the certificate, and
+     * all certificates signed by its private key, are trusted.
      *
      * This method only affects new connections -- existing
      * connections are left unchanged.
@@ -158,7 +156,7 @@ local interface Plugin extends Ice::Plugin
 
     /**
      *
-     * Set the RSA keys to be used by the Plugin when operating in
+     * Set the RSA keys to be used by the plug-in when operating in
      * the context mode specified by [contextType].
      *
      * This method only affects new connections -- existing
@@ -167,10 +165,10 @@ local interface Plugin extends Ice::Plugin
      * @param contextType The <literal>Context</literal>(s) in which to
      * set/replace the RSA keys.
      *
-     * @param privateKey The RSA private key, in Base64 encoded binary
+     * @param privateKey The RSA private key, in Base64-encoded binary
      * DER format.
      *
-     * @param publicKey The RSA public key, in Base64 encoded binary
+     * @param publicKey The RSA public key, in Base64-encoded binary
      * DER format.
      *
      **/
@@ -178,7 +176,7 @@ local interface Plugin extends Ice::Plugin
 
     /**
      *
-     * Set the RSA keys to be used by the Plugin when operating in
+     * Set the RSA keys to be used by the plug-in when operating in
      * the context mode specified by [contextType].
      *
      * This method only affects new connections -- existing
@@ -196,8 +194,8 @@ local interface Plugin extends Ice::Plugin
 
     /**
      *
-     * Retrieves an instance of the stock [CertificateVerifier] that is
-     * installed by default in all Plugin instances.
+     * Retrieves an instance of the [CertificateVerifier] that is
+     * installed by default in all plug-in instances.
      *
      * @return CertificateVerifier
      *

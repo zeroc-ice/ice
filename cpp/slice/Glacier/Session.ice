@@ -20,7 +20,7 @@ module Glacier
 
 /**
  *
- * A session object, which is tied to the lifecycle of an [Router].
+ * A session object, which is tied to the lifecycle of a [Router].
  *
  * @see Router
  * @see SessionManager

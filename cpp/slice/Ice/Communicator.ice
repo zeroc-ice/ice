@@ -36,7 +36,7 @@ module Ice
 /**
  *
  * The central object in &Ice;. One or more communicators can be
- * instantiated for an &Ice; application. communicator instantiation is
+ * instantiated for an &Ice; application. Communicator instantiation is
  * language specific, and not specified in Slice code.
  *
  * @see Logger
@@ -52,9 +52,9 @@ local interface Communicator
     /**
      *
      * Destroy the communicator. This operation calls [shutdown]
-     * implicitly.  Calling [destroy] cleans up memory, and shuts the
-     * client-side of an application down. Subsequent calls to
-     * [destroy] are ignored.
+     * implicitly.  Calling [destroy] cleans up memory, and shuts
+     * down this communicator's client functionality. Subsequent
+     * calls to [destroy] are ignored.
      *
      * @see shutdown
      *
@@ -63,9 +63,9 @@ local interface Communicator
 
     /**
      *
-     * Shut the server-side of an application down. [shutdown]
-     * deactivates all object adapters. Subsequent calls to [shutdown]
-     * are ignored.
+     * Shuts down this communicator's server functionality, including
+     * the deactivation of all object adapters. Subsequent calls to
+     * [shutdown] are ignored.
      *
      * <note><para> After [shutdown] returns, no new requests are
      * processed. However, requests that have been started before
@@ -84,14 +84,14 @@ local interface Communicator
     /**
      *
      * A signal-safe variant of [shutdown]. For systems that support
-     * Unix-style signals, this is the only operation that might be
+     * Unix-style signals, this is the only operation that may be
      * called from a signal handler. No other &Ice; function is
      * signal-safe. For systems that do not have Unix-style signals,
      * this operation is equivalent to [shutdown].
      *
      * <important><para> The signal-safe variant for [shutdown] is not
-     * immediate, i.e., after [signalShutdown] returns, the
-     * server-side of the application might still be active for some
+     * immediate, i.e., after [signalShutdown] returns, the server
+     * functionality of this communicator may remain active for some
      * time, and process new requests. You can use [waitForShutdown]
      * to wait until shutdown is complete. </para></important>
      *
@@ -105,15 +105,15 @@ local interface Communicator
 
     /**
      *
-     * Wait until the server-side of an application has shut
-     * down. Calling [shutdown] initiates server-side shutdown, and
+     * Wait until this communicator's server functionality has shut
+     * down completely. Calling [shutdown] initiates shutdown, and
      * [waitForShutdown] only returns when all outstanding requests
      * have completed. A typical use of this operation is to call it
      * from the main thread, which then waits until some other thread
-     * calls [shutdown]. After such shutdown is complete, the main
-     * thread returns and can do some cleanup work before it finally
-     * calls [destroy] to also shut the client-side of the application
-     * down, and then exits the application.
+     * calls [shutdown]. After shutdown is complete, the main thread
+     * returns and can do some cleanup work before it finally
+     * calls [destroy] to also shut down the client functionality,
+     * and then exits the application.
      *
      * @see shutdown
      * @see signalShutdown
@@ -132,7 +132,7 @@ local interface Communicator
      * "MyCategory", with the server running on host "some_host", port
      * 10000.
      *
-     * @param str The string to turn into a proxy.
+     * @param str The string to convert into a proxy.
      *
      * @return The proxy.
      *
@@ -145,7 +145,7 @@ local interface Communicator
      *
      * Convert a proxy into a string.
      *
-     * @param obj The proxy to turn into a string.
+     * @param obj The proxy to convert into a string.
      *
      * @return The "stringified" proxy.
      *
@@ -194,8 +194,8 @@ local interface Communicator
 
     /**
      *
-     * Add a Servant factory to this communicator. Installing a
-     * factory with an id for which a factory is installed already
+     * Add a servant factory to this communicator. Installing a
+     * factory with an id for which a factory is already registered
      * throws [AlreadyRegisteredException].
      *
      * @param factory The factory to add.
@@ -212,8 +212,8 @@ local interface Communicator
 
     /**
      *
-     * Remove a Servant factory from this communicator. Removing an id
-     * for which no factory is installed throws [NotRegisteredException].
+     * Remove a servant factory from this communicator. Removing an id
+     * for which no factory is registered throws [NotRegisteredException].
      *
      * @param id The type id for which the factory can create
      * instances.
@@ -227,12 +227,12 @@ local interface Communicator
 
     /**
      *
-     * Find a Servant factory installed with this communicator.
+     * Find a servant factory registered with this communicator.
      *
      * @param id The type id for which the factory can create
      * instances.
      *
-     * @return The Servant factory, or null if no Servant factory was
+     * @return The servant factory, or null if no servant factory was
      * found for the given id.
      *
      * @see addObjectFactory
@@ -245,7 +245,7 @@ local interface Communicator
     /**
      *
      * Add a user exception factory to this communicator. Adding a
-     * factory with an id for which a factory is registered already
+     * factory with an id for which a factory is already registered
      * throws [AlreadyRegisteredException].
      *
      * @param factory The factory to add.
@@ -263,7 +263,7 @@ local interface Communicator
     /**
      *
      * Remove a user exception factory from this communicator. Removing
-     * an id for which no factory is installed throws [NotRegisteredException].
+     * an id for which no factory is registered throws [NotRegisteredException].
      *
      * @param id The type id for which the factory can create user
      * exceptions.
@@ -277,7 +277,7 @@ local interface Communicator
 
     /**
      *
-     * Find a user exception factory installed with this communicator.
+     * Find a user exception factory registered with this communicator.
      *
      * @param id The type id for which the factory can create user
      * exceptions.
@@ -350,14 +350,13 @@ local interface Communicator
 
     /**
      *
-     * Set a default &Glacier; router for this communicator. All newly
+     * Set a default router for this communicator. All newly
      * created proxies will use this default router. To disable the
-     * default router, null can be passed as argument. Note that this
-     * operation has no effect on already existing proxies.
+     * default router, null can be used. Note that this
+     * operation has no effect on existing proxies.
      *
      * <note><para> You can also set a router for an individual proxy
-     * by calling the operation [ice_router] on such
-     * proxy.</para></note>
+     * by calling the operation [ice_router] on the proxy.</para></note>
      *
      * @param rtr The default router to use for this communicator.
      *
@@ -371,14 +370,14 @@ local interface Communicator
      *
      * Set a default &Ice; locator for this communicator. All newly
      * created proxy and object adapters will use this default
-     * locator. To disable the default locator, null can be passed as
-     * argument. Note that this operation has no effect on already
-     * existing proxies or object adapters.
+     * locator. To disable the default locator, null can be used.
+     * Note that this operation has no effect on existing proxies or
+     * object adapters.
      *
      * <note><para> You can also set a locator for an individual proxy
-     * by calling the operation [ice_locator] on such proxy or for an
-     * object adapter by calling the operation [setLocator] on such
-     * object adapter</para></note>
+     * by calling the operation [ice_locator] on the proxy, or for an
+     * object adapter by calling the operation [setLocator] on the
+     * object adapter.</para></note>
      *
      * @param loc The default locator to use for this communicator.
      *

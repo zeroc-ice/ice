@@ -69,6 +69,9 @@ interface Starter
      * @param publicKey The RSA Public Key (DER encoded) for the
      * client to use. (Only for SSL.)
      *
+     * @param routerCert The trusted certificate of the router.
+     * (Only for SSL.)
+     *
      * @return A proxy to the router that has been started.
      *
      * @throws InvalidPasswordException Raised if the password for the
@@ -95,7 +98,7 @@ interface PasswordVerifier
      *
      * @param password The password to check.
      *
-     * @return True if the password is valid, or false otherwise.
+     * @return true if the password is valid, or false otherwise.
      *
      **/
     nonmutating

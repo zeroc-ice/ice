@@ -27,7 +27,7 @@ module Ice
 /**
  *
  * The object adapter, which is responsible for receiving requests
- * from Endpoints, and for mapping between Servant, Identities, and
+ * from endpoints, and for mapping between servants, identities, and
  * proxies.
  *
  * @see Communicator
@@ -58,9 +58,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Activate all Endpoints that belong to this object
+     * Activate all endpoints that belong to this object
      * adapter. After activation, the object adapter can dispatch
-     * requests received through its Endpoints.
+     * requests received through its endpoints.
      *
      * @see hold
      * @see deactivate
@@ -89,7 +89,7 @@ local interface ObjectAdapter
      *
      * Wait until the object adapter holds requests. Calling [hold]
      * initiates holding of requests, and [waitForHold] only returns
-     * when such holding of requests has been completed.
+     * when holding of requests has been completed.
      *
      * @see hold
      * @see waitForDeactivate
@@ -100,12 +100,12 @@ local interface ObjectAdapter
 
     /**
      *
-     * Deactivate all Endpoints that belong to this object
+     * Deactivate all endpoints that belong to this object
      * adapter. After deactivation, the object adapter stops receiving
-     * requests through its Endpoints. object adapter's that have been
+     * requests through its endpoints. Object adapters that have been
      * deactivated must not be reactivated again, i.e., the
      * deactivation is permanent and [activate] or [hold] must not be
-     * called after calling [deactivate]. Attempting to do so results
+     * called after calling [deactivate]; attempting to do so results
      * in an [ObjectAdapterDeactivatedException] being thrown. Calls
      * to [deactivate] on an already deactivated object adapter are
      * ignored.
@@ -129,7 +129,7 @@ local interface ObjectAdapter
      *
      * Wait until the object adapter has deactivated. Calling
      * [deactivate] initiates object adapter deactivation, and
-     * [waitForDeactivate] only returns when such deactivation has
+     * [waitForDeactivate] only returns when deactivation has
      * been completed.
      *
      * @see deactivate
@@ -141,16 +141,16 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a Servant to this object adapter's Active Servant Map. Note
-     * that one Servant can implement several &Ice; objects by
-     * registering the Servant with multiple identities. Adding a
+     * Add a servant to this object adapter's Active Servant Map. Note
+     * that one servant can implement several &Ice; objects by
+     * registering the servant with multiple identities. Adding a
      * servant with an identity that is in the map already throws
      * [AlreadyRegisteredException].
      *
-     * @param servant The Servant to add.
+     * @param servant The servant to add.
      *
      * @param id The identity of the &Ice; object that is
-     * implemented by the Servant.
+     * implemented by the servant.
      *
      * @return A proxy that matches the given identity and this object
      * adapter.
@@ -164,12 +164,12 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a Servant to this object adapter's Active Servant Map,
-     * using an automatically generated UUID as identity. Note that
+     * Add a servant to this object adapter's Active Servant Map,
+     * using an automatically generated UUID as its identity. Note that
      * the generated UUID identity can be accessed using the proxy's
      * [ice_getIdentity] operation.
      *
-     * @param servant The Servant to add.
+     * @param servant The servant to add.
      *
      * @return A proxy that matches the generated UUID identity and
      * this object adapter.
@@ -183,11 +183,11 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a Servant from the object adapter's Active Servant Map.
+     * Remove a servant from the object adapter's Active Servant Map.
      *
      * @param id The identity of the &Ice; object that is
-     * implemented by the Servant. If the Servant implements multiple
-     * &Ice; objects, [remove] has to be called for all such &Ice;
+     * implemented by the servant. If the servant implements multiple
+     * &Ice; objects, [remove] has to be called for all those &Ice;
      * objects. Removing an identity that is not in the map throws
      * [NotRegisteredException].
      *
@@ -201,41 +201,41 @@ local interface ObjectAdapter
     /**
      *
      * Add a Servant Locator to this object adapter. Adding a servant
-     * locator for a catogory for which a servant locator is installed
-     * already throws [AlreadyRegisteredException]. To dispatch
-     * operation calls on Servants, the object adapter tries to find a
-     * Servant for a given &Ice; object identity in the following order:
+     * locator for a category for which a servant locator is already
+     * registered throws [AlreadyRegisteredException]. To dispatch
+     * operation calls on servants, the object adapter tries to find a
+     * servant for a given &Ice; object identity in the following order:
      *
      * <orderedlist>
      *
-     * <listitem><para>The object adapter tries to find a Servant for
+     * <listitem><para>The object adapter tries to find a servant for
      * the identity in the Active Servant Map.</para></listitem>
      *
-     * <listitem><para>If no Servant has been found in the Active
+     * <listitem><para>If no servant has been found in the Active
      * Servant Map, the object adapter tries to find a locator for the
      * category component of the identity. If a locator is found, the
-     * object adapter tries to find a Servant using this
+     * object adapter tries to find a servant using this
      * locator.</para></listitem>
      *
-     * <listitem><para>If no Servant has been found by any of the
+     * <listitem><para>If no servant has been found by any of the
      * preceding steps, the object adapter tries to find a locator for
      * an empty category, regardless of the category contained in the
      * identity. If a locator is found, the object adapter tries to
-     * find a Servant using this locator.</para></listitem>
+     * find a servant using this locator.</para></listitem>
      *
-     * <listitem><para>If no Servant has been found with any of the
+     * <listitem><para>If no servant has been found with any of the
      * preceding steps, the object adapter gives up and the caller
-     * will receive an [ObjectNotExistException].</para></listitem>
+     * receives [ObjectNotExistException].</para></listitem>
      *
      * </orderedlist>
      *
-     * <note><para>Only one locator for an empty category can be
+     * <note><para>Only one locator for the empty category can be
      * installed.</para></note>
      *
      * @param locator The locator to add.
      *
      * @param category The category for which the Servant Locator can
-     * locate Servants, or an empty string if the Servant Locator does
+     * locate servants, or an empty string if the Servant Locator does
      * not belong to any specific category.
      *
      * @see Identity
@@ -249,7 +249,7 @@ local interface ObjectAdapter
     /**
      *
      * Remove a Servant Locator from this object adapter. Removing
-     * a category for which no servant locator is installed throws
+     * a category for which no servant locator is registered throws
      * [NotRegisteredException].
      *
      * @param category The category for which the Servant Locator can
@@ -269,7 +269,7 @@ local interface ObjectAdapter
      * Find a Servant Locator installed with this object adapter.
      *
      * @param category The category for which the Servant Locator can
-     * locate Servants, or an empty string if the Servant Locator does
+     * locate servants, or an empty string if the Servant Locator does
      * not belong to any specific category.
      *
      * @return The Servant Locator, or null if no Servant Locator was
@@ -285,18 +285,18 @@ local interface ObjectAdapter
 
     /**
      *
-     * Look up a Servant in this object adapter's Active Servant Map
+     * Look up a servant in this object adapter's Active Servant Map
      * by the identity of the &Ice; object it implements.
      *
-     * <note><para>This operation only tries to lookup a Servant in
-     * the Active Servant Map. It does not attempt to find a Servant
+     * <note><para>This operation only tries to lookup a servant in
+     * the Active Servant Map. It does not attempt to find a servant
      * by using any installed [ServantLocator].</para></note>
      *
      * @param id The identity of the &Ice; object for which the
-     * Servant should be returned.
+     * servant should be returned.
      *
-     * @return The Servant that implements the &Ice; object with the
-     * given identity, or null if no such Servant has been found.
+     * @return The servant that implements the &Ice; object with the
+     * given identity, or null if no such servant has been found.
      *
      * @see Identity
      * @see proxyToServant
@@ -306,17 +306,17 @@ local interface ObjectAdapter
 
     /**
      *
-     * Look up a Servant in this object adapter's Active Servant Map,
+     * Look up a servant in this object adapter's Active Servant Map,
      * given a proxy.
      *
-     * <note><para>This operation only tries to lookup a Servant in
-     * the Active Servant Map. It does not attempt to find a Servant
+     * <note><para>This operation only tries to lookup a servant in
+     * the Active Servant Map. It does not attempt to find a servant
      * via any installed [ServantLocator]s.</para></note>
      *
-     * @param proxy The proxy for which the Servant should be returned.
+     * @param proxy The proxy for which the servant should be returned.
      *
-     * @return The Servant that matches the proxy, or null if no such
-     * Servant has been found.
+     * @return The servant that matches the proxy, or null if no such
+     * servant has been found.
      *
      * see identityToServant
      *
@@ -381,11 +381,11 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a &Glacier; router to this object adapter. By doing so,
-     * this object adapter can receive callbacks from this router,
-     * using connections which are established from this process to
-     * the router, instead of the router having to establish a
-     * connection back to this object adapter.
+     * Add a router to this object adapter. By doing so,
+     * this object adapter can receive callbacks from this router
+     * over connections that are established from this process to
+     * the router. This avoids the need for the router to establish
+     * a separate connection back to this object adapter.
      *
      * <note><para> You can only add a particular router to one single
      * object adapter. Adding a router to more than one object adapter
@@ -404,8 +404,8 @@ local interface ObjectAdapter
     /**
      * Set an &Ice; locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
-     * when it's activated for the first time and the proxies created
-     * with the object adapter will contain the adapter name instead
+     * when it is activated for the first time. Furthermore, the proxies
+     * created by this object adapter will contain the adapter name instead
      * of its endpoints.
      *
      * @param loc The locator used by this object adapter.

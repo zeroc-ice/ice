@@ -26,8 +26,8 @@ module Ice
  *
  * A request context. [Context] is used to transmit metadata about a
  * request from the server to the client, such as Quality-of-Service
- * (QoS) parameters. Each method on the client as a [Context] as last
- * parameter implicitly.
+ * (QoS) parameters. Each operation on the client has a [Context] as
+ * its implicit final parameter.
  *
  **/
 local dictionary<string, string> Context;
@@ -43,7 +43,7 @@ local dictionary<string, string> Context;
  **/
 //
 // Note: The order of definitions here *must* match the order of
-// defininitions for ::Slice::Operation::Mode in include/Slice/Parser.h!
+// definitions for ::Slice::Operation::Mode in include/Slice/Parser.h!
 //
 enum OperationMode
 {
@@ -54,12 +54,12 @@ enum OperationMode
      * has different semantics than invoking it
      * once. The Ice run time guarantees that it
      * will not violate at-most-once semantics for
-     * such operations.
+     * [Normal] operations.
      */
     Normal,
 
     /**
-     * Operations that use the Slice nonmutating
+     * Operations that use the Slice [nonmutating]
      * keyword must not modify object state. For C++,
      * nonmutating operations generate [const]
      * member functions in the skeleton. In addition,
@@ -71,7 +71,7 @@ enum OperationMode
     \Nonmutating,
 
     /**
-     * Operations that use the Slice idempotent
+     * Operations that use the Slice [idempotent]
      * keyword can modify object state, but invoking
      * an operation twice in a row must result in
      * the same object state as invoking it once.
@@ -88,10 +88,9 @@ enum OperationMode
 /**
  *
  * Information about the current method invocation for servers. Each
- * method on the server has a [Current] as last parameter
- * implicitly. [Current] is mostly used for &Ice; services, such as
- * &IceStorm;. "Regular" user applications normally ignore this last
- * parameter.
+ * operation on the server has a [Current] as its implicit final
+ * parameter. [Current] is mostly used for &Ice; services, such as
+ * &IceStorm;. Most applications ignore this parameter.
  *
  * @see IceStorm
  *

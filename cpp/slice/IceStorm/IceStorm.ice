@@ -162,14 +162,14 @@ exception TopicExists
 /**
  *
  * This exception indicates that an attempt was made to retrieve a
- * Topic that doesn't exist.
+ * Topic that does not exist.
  *
  **/
 exception NoSuchTopic
 {
     /**
      *
-     * The name of the Topic that doesn't exist.
+     * The name of the Topic that does not exist.
      *
      */
     string name;
@@ -214,7 +214,7 @@ interface TopicManager
      *
      * @return A proxy to the Topic instance.
      *
-     * @throws NoSuchTopic Raised if the Topic doesn't exist.
+     * @throws NoSuchTopic Raised if the Topic does not exist.
      *
      **/
     nonmutating Topic* retrieve(string name) throws NoSuchTopic;
@@ -239,7 +239,7 @@ interface TopicManager
      * subscription. The only currently supported QoS is
      * "reliability", which can be either "oneway" or "batch".
      *
-     * @param tmpl The proxy to which to send events.
+     * @param subscriber The proxy to which to send events.
      *
      * @see unsubscribe
      *
@@ -250,9 +250,7 @@ interface TopicManager
      *
      * Unsubscribe the given [subscriber].
      *
-     * @param id The identity of the given subscriber.
-     *
-     * @param topics The topics to which to unsubscribe.
+     * @param subscriber The proxy of the given subscriber.
      *
      * @see subscribe
      *

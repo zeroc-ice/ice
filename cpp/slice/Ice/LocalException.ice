@@ -25,8 +25,8 @@ module Ice
  *
  * This exception is raised if an operation call on a server raises an
  * unknown exception. For example, for C++, this exception is raised
- * if the server throws a C++ exception that is not directly or
- * indirectly derived from <literal>Ice::LocalException</literal> or
+ * if the server throws a C++ exception that is not directly or indirectly
+ * derived from <literal>Ice::LocalException</literal> or
  * <literal>Ice::UserException</literal>.
  *
  **/
@@ -34,11 +34,11 @@ local exception UnknownException
 {
     /**
      *
-     * The unknown exception as textual representation. This field may
+     * A textual representation of the unknown exception. This field may
      * or may not be set, depending on the security policy of the
      * server. Some servers may give this information to clients for
-     * debugging purposes, while others don't provide this information
-     * to prevent any information about the server internals.
+     * debugging purposes, while others may not wish to disclose
+     * information about server internals.
      *
      **/
     string unknown;
@@ -62,7 +62,7 @@ local exception UnknownLocalException extends UnknownException
 /**
  *
  * This exception is raised if an operation call on a server raises a
- * user exception which is not declared in the exception's
+ * user exception that is not declared in the exception's
  * <literal>throws</literal> clause. Such undeclared exceptions are
  * not transmitted from the server to the client by the &Ice; protocol,
  * but instead the client just gets an [UnknownUserException]. This is
@@ -77,7 +77,7 @@ local exception UnknownUserException extends UnknownException
 
 /**
  *
- * This exception is raised if the &Ice; library version doesn't match
+ * This exception is raised if the &Ice; library version does not match
  * the &Ice; header files version.
  *
  **/
@@ -117,9 +117,9 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
- * This exception is raised an [ObjectAdapter] can't be activated
+ * This exception is raised if an [ObjectAdapter] cannot be activated
  * because the [Locator] detected another active [ObjectAdapter] with
- * the same id.
+ * the same adapter id.
  *
  **/
 local exception ObjectAdapterIdInUseException
@@ -158,7 +158,7 @@ local exception EndpointParseException
 {
     /**
      *
-     * The string which couldn't be parsed.
+     * The string that could not be parsed.
      *
      **/
     string str;
@@ -174,7 +174,7 @@ local exception IdentityParseException
 {
     /**
      *
-     * The string which couldn't be parsed.
+     * The string that could not be parsed.
      *
      **/
     string str;
@@ -190,7 +190,7 @@ local exception ProxyParseException
 {
     /**
      *
-     * The string which couldn't be parsed.
+     * The string that could not be parsed.
      *
      **/
     string str;
@@ -214,17 +214,17 @@ local exception IllegalIdentityException
 /**
  *
  * This exception is raised if a request failed. This exception, and
- * all exceptions derived from [RequestFailedException], is
- * transmitted by the &Ice; protocol, even though it is declared
+ * all exceptions derived from [RequestFailedException], are
+ * transmitted by the &Ice; protocol, even though they are declared
  * [local].
  *
  **/
 local exception RequestFailedException
 {
-    /** The identity of the Ice Object to which the request was sent to. */
+    /** The identity of the Ice Object to which the request was sent. */
     Identity id;
 
-    /** The facet to which the request was sent to. */
+    /** The facet to which the request was sent. */
     FacetPath facet;
 
     /** The operation name of the request. */
@@ -333,7 +333,7 @@ local exception DNSException
 
     /**
      *
-     * The host name which couldn't be resolved.
+     * The host name that could not be resolved.
      *
      **/
     string host;
@@ -436,7 +436,7 @@ local exception UnknownRequestIdException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating that an unknown reply status been received.
+ * indicating that an unknown reply status has been received.
  *
  **/
 local exception UnknownReplyStatusException extends ProtocolException
@@ -450,10 +450,10 @@ local exception UnknownReplyStatusException extends ProtocolException
  * server. The operation call that caused this exception has not been
  * executed by the server. In most cases you will not get this
  * exception, because the client will automatically retry the
- * operation call in case the the server shut down the
- * connection. However, if upon retry the server shuts down the
- * connection again, and the retry limit has been reached, then this
- * exception is propagated to the application code.
+ * operation call in case the server shut down the connection. However,
+ * if upon retry the server shuts down the connection again, and the
+ * retry limit has been reached, then this exception is propagated to
+ * the application code.
  *
  **/
 local exception CloseConnectionException extends ProtocolException
@@ -483,9 +483,9 @@ local exception IllegalMessageSizeException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException], which is
+ * This exception is a specialization of [ProtocolException] that is
  * raised if a compressed protocol message has been received by an
- * &Ice; version which does not support compression.
+ * &Ice; version that does not support compression.
  *
  **/
 local exception CompressionNotSupportedException extends ProtocolException
@@ -494,7 +494,7 @@ local exception CompressionNotSupportedException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException], which is
+ * This exception is a specialization of [ProtocolException] that is
  * raised if there is a problem with compressing or uncompressing
  * data.
  *
@@ -511,8 +511,8 @@ local exception CompressionException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException], which is
- * raised upon an error during marshalling or unmarshaling data.
+ * This exception is a specialization of [ProtocolException] that is
+ * raised upon an error during marshaling or unmarshaling data.
  *
  **/
 local exception MarshalException extends ProtocolException
@@ -521,7 +521,7 @@ local exception MarshalException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if no suitable object factory was found during object
  * unmarshaling.
  *
@@ -536,7 +536,7 @@ local exception NoObjectFactoryException extends MarshalException
     /**
      *
      * The absolute Slice type name of the object for which we
-     * couldn't find a factory.
+     * could not find a factory.
      *
      **/
     string type;
@@ -544,7 +544,7 @@ local exception NoObjectFactoryException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if no suitable user exception factory was found during user
  * exception unmarshaling.
  *
@@ -559,7 +559,7 @@ local exception NoUserExceptionFactoryException extends MarshalException
     /**
      *
      * The absolute Slice type name of the exception for which we
-     * couldn't find a factory.
+     * could not find a factory.
      *
      **/
     string type;
@@ -567,7 +567,7 @@ local exception NoUserExceptionFactoryException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if inconsistent data is received while unmarshaling a proxy.
  *
  **/
@@ -577,7 +577,7 @@ local exception ProxyUnmarshalException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if an out-of-bounds condition occurs during unmarshaling.
  *
  **/
@@ -588,7 +588,7 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 /**
  *
  * This exception is a specialization of [MarshalException],
- * indicating an illegal indirection during unmarshalling.
+ * indicating an illegal indirection during unmarshaling.
  *
  **/
 local exception IllegalIndirectionException extends MarshalException
@@ -597,7 +597,7 @@ local exception IllegalIndirectionException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if the system-specific memory limit is exceeded during
  * marshaling or unmarshaling.
  *
@@ -618,7 +618,7 @@ local exception EncapsulationException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException], which is
+ * This exception is a specialization of [MarshalException] that is
  * raised if a negative size (e.g., a negative sequence size) is
  * received.
  *

@@ -25,7 +25,7 @@ module IceBox
     
 /**
  *
- * Used to indicate failure. For example, if a service encounters
+ * Indicates a failure occurred. For example, if a service encounters
  * an error during initialization, or if the service manager is
  * unable to load a service executable.
  *
@@ -43,37 +43,6 @@ local exception FailureException
 /**
  *
  * Base interface for an application service managed by a [ServiceManager].
- * The * [ServiceManager] will invoke [init] on all services prior to
- * calling [start], and will invoke [stop] on all services when
- * [ServiceManager::shutdown] is called. The order in which the
- * services are invoked is not defined. The service lifecycle
- * operations are described below:
- *
- * <itemizedlist>
- *
- * <listitem><para>[init] - This is the opportunity for the service to
- * create a Communicator or object adapter, register servants,
- * etc.</para></listitem>
- *
- * <listitem><para>[start] - Perform any client-side activities which
- * might result in an invocation on a collocated service.
- * </para></listitem>
- *
- * <listitem><para>[stop] - Destroy Communicators, deactivate Object
- * Adapters, clean up resources, etc. The [ServiceManager] guarantees
- * that [stop] will be invoked on all services whose [init] has been
- * invoked.</para></listitem>
- *
- * </itemizedlist>
- *
- * <note><para>If the service requires an object adapter, it should be
- * created and activated in [init]. However, the service should
- * refrain from any client-side activities which might result in an
- * invocation on a collocated service, because the order of service
- * configuration is not defined and therefore the target service may
- * not be active yet. Client-side activities can be safely performed
- * in [start], as the [ServiceManager] guarantees that all services
- * will be configured before [start] is invoked.  </para></note>
  *
  * @see ServiceManager
  * @see Service
@@ -88,14 +57,6 @@ local interface ServiceBase
      *
      **/
     void stop();
-
-#if 0
-    //
-    // Potential future operations
-    //
-    Ice::StringSeq getParameters() throws ServiceNotExist; // Need better return type
-    void setParameter(string param, string value) throws FailureException; // Use a different except?
-#endif
 };
 
 /**
@@ -109,9 +70,10 @@ local interface Service extends ServiceBase
 {
     /**
      *
-     * Initialize the service. The given Communicator is created by
-     * the [ServiceManager]. It may be shared by other services
-     * depending on the service configuration.
+     * Start the service. The given Communicator is created by
+     * the [ServiceManager] for use by the service. This Communicator
+     * may also be used by other services, depending on the service
+     * configuration.
      *
      * <note><para>The [ServiceManager] owns this Communicator, and is
      * responsible for destroying it.</para></note>
@@ -119,27 +81,21 @@ local interface Service extends ServiceBase
      * @param name The service's name, as determined by the
      * configuration.
      *
-     * @param communicator The [ServiceManager]'s Communicator
-     * instance.
+     * @param communicator A Communicator for use by the service.
      *
-     * @param args The service arguments which were not converted into
+     * @param args The service arguments that were not converted into
      * properties.
      *
-     * @throws FailureException Raised if [init] failed.
-     *
-     * @see start
+     * @throws FailureException Raised if [start] failed.
      *
      **/
     void start(string name, Ice::Communicator communicator, Ice::StringSeq args)
         throws FailureException;
-
 };
 
 /**
  * 
- * A Freeze application service managed by the [ServiceManager]. It takes
- * care of the the initialization and shutdown of the Freeze database for
- * the application.
+ * A Freeze application service managed by a [ServiceManager].
  *
  * @see ServiceBase
  * 
@@ -148,27 +104,27 @@ local interface FreezeService extends ServiceBase
 {
     /**
      *
-     * Initialize the service. The given Communicator is created by
-     * the [ServiceManager]. It may be shared by other services
-     * depending on the service configuration.
+     * Start the service. The given Communicator is created by
+     * the [ServiceManager] for use by the service. This Communicator
+     * may also be used by other services, depending on the service
+     * configuration. The database environment is created by the
+     * [ServiceManager] for the exclusive use of the service.
      *
-     * <note><para>The [ServiceManager] owns this Communicator, and is
-     * responsible for destroying it.</para></note>
+     * <note><para>The [ServiceManager] owns the Communicator and
+     * the database environment, and is responsible for destroying
+     * them.</para></note>
      *
      * @param name The service's name, as determined by the
      * configuration.
      *
-     * @param communicator The [ServiceManager]'s Communicator
-     * instance.
+     * @param communicator A Communicator for use by the service.
      *
-     * @param args The service arguments which were not converted into
+     * @param args The service arguments that were not converted into
      * properties.
      *
      * @param dbEnv The Freeze database environment.
      *
-     * @throws FailureException Raised if [init] failed.
-     *
-     * @see ServiceBase
+     * @throws FailureException Raised if [start] failed.
      *
      **/
     void start(string name, Ice::Communicator communicator, Ice::StringSeq args, Freeze::DBEnvironment dbEnv)
@@ -190,20 +146,7 @@ interface ServiceManager
      * invoked on all configured services.
      *
      **/
-    // ML: I don't like the name shutdown. Shouldn't this be stopAll(), as below?
     void shutdown();
-
-#if 0
-    //
-    // Potential future operations
-    //
-    Ice::StringSeq getServices();
-    void start(string service, string exec, Ice::StringSeq args) throws FailureException;
-    void stop(string service) throws ServiceNotExist; // Allow service to override this?
-    void stopAll();
-    Ice::StringSeq getParameters(string service) throws ServiceNotExist; // Need better return type
-    void setParameter(string service, string param, string value) throws ServiceNotExist, FailureException; // Use a different except?
-#endif
 };
 
 };

@@ -230,7 +230,7 @@ local interface Stream
 
     /**
      *
-     * Start the writing of an exception
+     * Start the writing of an exception.
      *
      * @param name The name of the parameter.
      *
@@ -241,7 +241,7 @@ local interface Stream
 
     /**
      *
-     * End the writing of an exception
+     * End the writing of an exception.
      *
      * @see startWriteException
      *
@@ -250,7 +250,7 @@ local interface Stream
 
     /**
      *
-     * Start the reading of an exception
+     * Start the reading of an exception.
      *
      * @param name The name of the parameter.
      *
@@ -261,7 +261,7 @@ local interface Stream
 
     /**
      *
-     * End the reading of an exception
+     * End the reading of an exception.
      *
      * @see startReadException
      *
@@ -328,7 +328,7 @@ local interface Stream
      *
      * Read a single byte.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The byte that has been read.
      *
@@ -341,7 +341,7 @@ local interface Stream
      *
      * Read a sequence of bytes.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The bytes that have been read.
      *
@@ -380,7 +380,7 @@ local interface Stream
      *
      * Read a single bool.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The bool that has been read.
      *
@@ -393,7 +393,7 @@ local interface Stream
      *
      * Read a sequence of bools.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The bools that have been read.
      *
@@ -432,7 +432,7 @@ local interface Stream
      *
      * Read a single short.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The short that has been read.
      *
@@ -445,7 +445,7 @@ local interface Stream
      *
      * Read a sequence of shorts.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The shorts that have been read.
      *
@@ -484,7 +484,7 @@ local interface Stream
      *
      * Read a single int.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The int that has been read.
      *
@@ -497,7 +497,7 @@ local interface Stream
      *
      * Read a sequence of ints.
      *
-     * @param name The name of the parameter that has been read..
+     * @param name The name of the parameter.
      *
      * @return The ints that have been read.
      *
@@ -588,7 +588,7 @@ local interface Stream
      *
      * Read a single float.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The float that has been read.
      *
@@ -601,7 +601,7 @@ local interface Stream
      *
      * Read a sequence of floats.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The floats that have been read.
      *
@@ -640,7 +640,7 @@ local interface Stream
      *
      * Read a single double.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The double that has been read.
      *
@@ -653,7 +653,7 @@ local interface Stream
      *
      * Read a sequence of doubles.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The doubles that have been read.
      *
@@ -692,7 +692,7 @@ local interface Stream
      *
      * Read a single string.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The string that has been read.
      *
@@ -705,7 +705,7 @@ local interface Stream
      *
      * Read a sequence of strings.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The strings that have been read.
      *
@@ -731,7 +731,7 @@ local interface Stream
      *
      * Read a single proxy.
      *
-     * @param name The name of the parameter that has been read.
+     * @param name The name of the parameter.
      *
      * @return The proxy that has been read.
      *
@@ -755,18 +755,20 @@ local interface Stream
 
     /**
      *
-     * Read a single object. Uses the provided [factory] if there is
-     * no suitable factory for the object available and then
+     * Read a single object. The provided [factory] is used if no
+     * suitable factory for the object is found and the
      * [signatureType] parameter matches the type of the object being
-     * read. If no suitable factory is available, and if the
-     * [signatureType] parameter doesn't match the type of the object
+     * read. If no suitable factory is found, and if the
+     * [signatureType] parameter does not match the type of the object
      * that has been read, [NoObjectFactoryException] is raised.
      *
      * @param name The name of the parameter.
      *
-     * @param signatureType The signature type, as described above.
+     * @param signatureType The signature type for the default object
+     * factory.
      *
-     * @param factory The object factory to use as desribed above.
+     * @param factory The default object factory to use if no suitable
+     * factory is found and [signatureType] matches the object type.
      *
      * @return The object that has been read.
      *

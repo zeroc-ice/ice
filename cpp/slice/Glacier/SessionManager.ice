@@ -23,7 +23,7 @@ module Glacier
 /**
  *
  * The Session Manager, which is responsible for managing [Session]
- * objects. New session objects are created from the [Router] object.
+ * objects. New session objects are created by the [Router] object.
  *
  * @see Session
  *
@@ -37,8 +37,6 @@ interface SessionManager
      * @param userId The user id for the session.
      *
      * @return A proxy to the newly created Session.
-     *
-     * @see Properties
      *
      **/
     Session* create(string userId);

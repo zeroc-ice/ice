@@ -24,7 +24,7 @@ module Ice
 /**
  *
  * The Servant Locator, which is called by the object adapter to
- * locate a Servant which is not found in its Active Servant Map.
+ * locate a servant that is not found in its Active Servant Map.
  *
  * @see ObjectAdapter
  * @see ObjectAdapter::addServantLocator
@@ -36,26 +36,26 @@ local interface ServantLocator
 {
     /**
      *
-     * Called by the object adapter before a request is made, in case
-     * a Servant cannot be found in the object adapter's Active
+     * Called by the object adapter before a request is made when
+     * a servant cannot be found in the object adapter's Active
      * Servant Map. Note that the object adapter does not
-     * automatically insert the returned Servant into it's Active
-     * Servant Map. This must be done by the Servant Locator's
+     * automatically insert the returned servant into its Active
+     * Servant Map. This must be done by the Servant Locator
      * implementation, if this is desired.
      *
      * <important><para>If you call [locate] from your own code, you
      * must also call [finished] when you have finished using the
-     * Servant, provided that a non-null Servant was
+     * servant, provided that a non-null servant was
      * returned. Otherwise you will get undefined behavior if you use
      * Servant Locators such as the
      * [Freeze::Evictor].</para></important>
      *
-     * @param curr Information about the current operation call to
-     * locate a Servant for.
+     * @param curr Information about the current operation for which
+     * a servant is required.
      *
-     * @param cookie A "cookie", which will be passed to [finished].
+     * @param cookie A "cookie" that will be passed to [finished].
      *
-     * @return The located Servant, or null if no suitable Servant has
+     * @return The located servant, or null if no suitable servant has
      * been found.
      *
      * @see ObjectAdapter
@@ -75,7 +75,7 @@ local interface ServantLocator
      * @param curr Information about the current operation call for
      * which a servant was lcoated by [locate].
      *
-     * @param servant The Servant that was returned by [locate].
+     * @param servant The servant that was returned by [locate].
      *
      * @param cookie The cookie that was returned by [locate].
      *

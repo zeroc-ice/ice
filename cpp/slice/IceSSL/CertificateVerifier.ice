@@ -26,14 +26,13 @@ module IceSSL
  * from [CertificateVerifier].  The methods defined in derived interfaces will
  * depend upon the requirements of the underlying SSL implementation.
  *
- * Existing stock certificate verifiers can be objtained by obtaining an
- * [SslExtension] instance and calling the appropriate method to obtain the
- * desired certificate verifier instance.
+ * Default certificate verifier implementations can be obtained via the
+ * [Plugin].
  *
  * As this is simply a base class for purposes of derivation, no methods are
  * defined.
  *
- * @see SslExtension
+ * @see Plugin
  *
  **/
 local interface CertificateVerifier

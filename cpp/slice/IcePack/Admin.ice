@@ -54,7 +54,7 @@ enum ServerState
     /**
      *
      * The server is being activated and will change to the Active
-     * state if the server fork succeed or to the Inactive state if it
+     * state if the server fork succeeded or to the Inactive state if it
      * failed.
      *
      **/
@@ -98,8 +98,8 @@ enum ServerActivation
 {
     /**
      *
-     * The server is activated on demand when a client requests one of
-     * the adapter endpoints and if the server isn't already running.
+     * The server is activated on demand if a client requests one of
+     * the server's adapter endpoints and the server is not already running.
      *
      **/
     OnDemand,
@@ -173,7 +173,7 @@ struct ServerDescription
     /**
      *
      * The &IceBox; service manager proxy if the server is an
-     * &IceBox; or a null proxy otherwise.
+     * &IceBox; service, otherwise a null proxy.
      *
      **/
     IceBox::ServiceManager* serviceManager;
@@ -197,11 +197,10 @@ interface Admin
      * 
      * @param targets The optional targets to deploy. A target is a list
      * of components separated by dots and a target name. For example,
-     * the "debug" target of the "service1" in the "server1" will be
+     * the "debug" target of "service1" in "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
      *
-     * @throws DeploymentException Raised if the deployment of the
-     * application failed.
+     * @throws DeploymentException Raised if application deployment failed.
      *
      * @see removeApplication
      *
@@ -232,25 +231,24 @@ interface Admin
      *
      * @param path The server path. For C++ servers, this is the path
      * of the executable. For C++ icebox, this is the path of the C++
-     * icebox executable or if empty IcePack will rely on the path to
-     * find it. For Java server or Java icebox, this is the path of
-     * the java command or if empty IcePack will rely on the path to
-     * find it.
+     * icebox executable or, if empty, IcePack will rely on the PATH to
+     * find it. For a Java server or Java icebox, this is the path of
+     * the <literal>java</literal> command or, if empty, IcePack will
+     * rely on the PATH to find it.
      *
      * @param librarypath Specify the LD_LIBRARY_PATH value for C++
      * servers or the CLASSPATH value for Java servers.
      *
-     * @param desciptor The server deployment descriptor.
+     * @param descriptor The server deployment descriptor.
      *
      * @param targets The optional targets to deploy. A target is a list
      * of components separated by dots and a target name. For example,
-     * the "debug" target of the "service1" in the "server1" will be
+     * the "debug" target of "service1" in "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
      *
-     * @throws DeploymentException Raised if the deployment of the
-     * server failed.
+     * @throws DeploymentException Raised if server deployment failed.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see removeServer
@@ -271,7 +269,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see addServer
@@ -282,7 +280,7 @@ interface Admin
 
     /**
      *
-     * Get a server description.
+     * Get a server's description.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -291,7 +289,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see getServerState
@@ -304,7 +302,7 @@ interface Admin
     
     /**
      *
-     * Get a server state.
+     * Get a server's state.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -313,7 +311,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see getServerDescription
@@ -326,9 +324,8 @@ interface Admin
     
     /**
      *
-     * Get a server system process id. The process id is system
-     * dependent and might mean different things depending on the
-     * operating system the server is running.
+     * Get a server's system process id. The process id is operating
+     * system dependent.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -337,7 +334,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see getServerDescription
@@ -350,7 +347,7 @@ interface Admin
 
     /**
      *
-     * Get the server activation mode.
+     * Get the server's activation mode.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -359,7 +356,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see getServerDescription
@@ -372,7 +369,7 @@ interface Admin
 
     /**
      *
-     * Set the server activation mode.
+     * Set the server's activation mode.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -381,7 +378,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      * @see getServerDescription
@@ -404,7 +401,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      **/
@@ -420,7 +417,7 @@ interface Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws NodeUnreachableException Raised if the node couldn't be
+     * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
      **/
@@ -456,9 +453,9 @@ interface Admin
 
     /**
      *
-     * Get all the adapter identities registered with &IcePack;.
+     * Get all the adapter ids registered with &IcePack;.
      *
-     * @return The adapter idendities.
+     * @return The adapter ids.
      *
      **/
     nonmutating Ice::StringSeq getAllAdapterIds();
@@ -471,9 +468,9 @@ interface Admin
      *
      * @param obj The object to be added to the registry.
      *
-     * @throws ObjectDeploymentException Raised if an error occured
+     * @throws ObjectDeploymentException Raised if an error occurred
      * while trying to register this object. This can occur if the
-     * type of the object can't be determine because the object is not
+     * type of the object cannot be determined because the object is not
      * reachable.
      *
      * @throws ObjectExistsException Raised if the object is already
@@ -485,12 +482,12 @@ interface Admin
 
     /**
      *
-     * Add an object to the object registry and explicitly specifies
+     * Add an object to the object registry and explicitly specify
      * its type.
      *
      * @param obj The object to be added to the registry.
      *
-     * @param type The obect type.
+     * @param type The object type.
      *
      * @throws ObjectExistsException Raised if the object is already
      * registered.
@@ -505,7 +502,7 @@ interface Admin
      *
      * @param obj The object to be removed from the registry.
      *
-     * @throws ObjectNotExistException Raised if the object can't be
+     * @throws ObjectNotExistException Raised if the object cannot be
      * found.
      *
      **/
@@ -514,7 +511,7 @@ interface Admin
 
     /**
      *
-     * Ping an &IcePack; node to see if it's active.
+     * Ping an &IcePack; node to see if it is active.
      *
      * @return true if the node ping succeeded, false otherwise.
      * 

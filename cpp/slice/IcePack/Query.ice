@@ -26,7 +26,7 @@ module IcePack
 /**
  *
  * The &IcePack; query interface. This interface is accessible to
- * &Ice; clients to lookup objects.
+ * &Ice; clients who wish to lookup objects.
  *
  **/
 interface Query
@@ -75,7 +75,6 @@ interface Query
      **/
     nonmutating Ice::ObjectProxySeq findAllObjectsWithType(string type)
 	throws ObjectNotExistException;
-    
 };
 
 };

@@ -68,7 +68,7 @@ local interface DBEnvironment
      * @param name The database name.
      *
      * @param create Flag that determines whether the database is
-     * created, if necessary.
+     * created if it does not exist.
      *
      * @return The database object.
      *
@@ -96,7 +96,7 @@ local interface DBEnvironment
      * @param name The database name.
      *
      * @param create Flag that determines whether the database is
-     * created, if necessary.
+     * created if it does not exist.
      *
      * @return The database object.
      *
@@ -114,7 +114,7 @@ local interface DBEnvironment
     /**
      *
      * Start a new transaction in this database environment, and
-     * return the transaction object for such new transaction.
+     * return the transaction object.
      *
      * @return The transaction object.
      *
@@ -191,7 +191,7 @@ enum EvictorPersistenceMode
     /**
      *
      * This mode instructs the Evictor to save a Servant to persistent
-     * store when it is evicted, or when the Evictor is deactivated.
+     * storage when it is evicted, or when the Evictor is deactivated.
      *
      * @see Ice::ServantLocator::deactivate
      *
@@ -201,8 +201,8 @@ enum EvictorPersistenceMode
     /**
      *
      * This mode instructs the Evictor to save a Servant after each
-     * mutating operation call. A mutating operation call is a call to
-     * any operation that has not been declared as nonmutating.
+     * mutating operation. A mutating operation is one that has not
+     * been declared as nonmutating.
      *
      **/
     SaveAfterMutatingOperation
@@ -217,7 +217,7 @@ sequence<byte> Key;
 
 /**
  *
- * A database value, represented as a sequence of bytes
+ * A database value, represented as a sequence of bytes.
  *
  **/
 sequence<byte> Value;
@@ -225,7 +225,8 @@ sequence<byte> Value;
 /**
  *
  * A database cursor provides a way to iterate through all key/value
- * pairs in the database.
+ * pairs in the database. A cursor must be closed before its database
+ * is closed.
  *
  * @see DB
  * @see DB::getCursor
@@ -238,7 +239,7 @@ local interface DBCursor
      *
      * Get the Communicator for this cursor.
      *
-     * @return The Communicator for this database.
+     * @return The Communicator for this cursor.
      *
      **/
     Ice::Communicator getCommunicator();
@@ -248,7 +249,7 @@ local interface DBCursor
      * Return the element to which the cursor currently refers.
      *
      * @param k The key of the next element.
-     * @param v The value of the next element
+     * @param v The value of the next element.
      *
      * @throws DBNotFoundException If there are no further elements in
      * the database.
@@ -265,7 +266,7 @@ local interface DBCursor
      *
      * Overwrite the data to which the cursor currently refers.
      *
-     * @param v The value to write into the database
+     * @param v The value to write into the database.
      *
      * @throws DBDeadlockException Raised if a deadlock occurred.
      *
@@ -344,17 +345,7 @@ local interface DBCursor
 
 /**
  *
- * A database that can store basic key/value pairs. In addition a
- * database can be used in conjunction with an Evictor (which stores
- * identity/Servant pairs) to provide automatic persistence of servant
- * state. In case the database is used in conjunction with an evictor
- * it is the application's responsbility to make sure that there is no
- * overlap between keys and identities. Identities are simply strings,
- * while values are sequence of bytes. This means that no byte
- * representation of identity strings may be equal to any of the
- * keys. Due to the difficulty to avoid this in practice, the use of
- * one single database to store both key/value and identity/Servant
- * pairs is discouraged.
+ * A database of key/value pairs.
  *
  * @see DBEnvironment
  * @see DBCursor
@@ -383,7 +374,7 @@ local interface DB
 
     /**
      *
-     * Get number of key/value pairs in the database.
+     * Get the number of key/value pairs in the database.
      *
      * @return The number of pairs.
      *
@@ -398,7 +389,7 @@ local interface DB
      *
      * <note><para>Care must be taken to not to close this database,
      * or the database environment this database belongs to, before
-     * the Cursor has been properly closed.</para></note>
+     * the cursor has been properly closed.</para></note>
      *
      * @return A database cursor.
      *
@@ -415,13 +406,13 @@ local interface DB
     /**
      *
      * Create a cursor for this database. Calling [curr] on the cursor
-     * will return the key/value pair for the given key.
+     * returns the key/value pair for the given key.
      *
      * <note><para>Care must be taken to not to close this database,
      * or the database environment this database belongs to, before
-     * the Cursor has been properly closed.</para></note>
+     * the cursor has been properly closed.</para></note>
      *
-     * @param k The key under which the cursor will be opened.
+     * @param k The key under which the cursor is opened.
      *
      * @return A database cursor.
      *
@@ -443,7 +434,7 @@ local interface DB
      *
      * Save a value in the database under a given key.
      *
-     * @param k The key under which the value will be stored in
+     * @param k The key under which the value is stored in
      * the database.
      *
      * @param v The value to store.
@@ -465,7 +456,7 @@ local interface DB
      *
      * @param k The key to check.
      *
-     * @return True if the key is contained in the database, false otherwise.
+     * @return true if the key is contained in the database, false otherwise.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -483,11 +474,11 @@ local interface DB
 
     /**
      *
-     * Get a value from a database by it's key.
+     * Get a value associated with a key.
      *
-     * @param k The key under which the value is stored in the database
+     * @param k The key under which the value is stored in the database.
      *
-     * @return The value from the database.
+     * @return The value associated with the key.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -505,11 +496,10 @@ local interface DB
 
     /**
      *
-     * Remove a key and the corresponding value from the database. If
-     * the key does not exist, this operation will do nothing.
+     * Remove a key and its corresponding value from the database. If
+     * the key does not exist, this operation does nothing.
      *
-     * @param k The key to remove together with the corresponding
-     * value.
+     * @param k The key of the key/value pair to be removed.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -528,14 +518,14 @@ local interface DB
     /**
      *
      * Create a transactional cursor for this database. The cursor
-     * operations will be transaction protected.
+     * operations are transaction-protected.
      *
      * <note><para>Care must be taken to not to close this database,
      * or the database environment this database belongs to, before
-     * the Cursor has been properly closed.</para></note>
+     * the cursor has been properly closed.</para></note>
      *
      * <note><para>The cursor must be closed before the transaction is
-     * commited or aborted.</para></note>
+     * committed or aborted.</para></note>
      *
      * @param txn The transaction context in which the cursor may be
      * used.
@@ -555,7 +545,7 @@ local interface DB
     /**
      *
      * Create a transactional cursor for this database. Calling [curr]
-     * on the cursor will return the key/value pair for the given
+     * on the cursor returns the key/value pair for the given
      * key. The cursor operations will be transaction protected.
      *
      * <note><para>Care must be taken to not to close this database,
@@ -570,7 +560,7 @@ local interface DB
      * @param txn The transaction context in which the cursor may be
      * used.
      *
-     * @param k The key under which the cursor will be opened.
+     * @param k The key under which the cursor is opened.
      *
      * @throws DBNotFoundException If the key was not found in the
      * database.
@@ -593,7 +583,7 @@ local interface DB
      *
      * @param txn The transaction context.
      *
-     * @param k The key under which the value will be stored in
+     * @param k The key under which the value is stored in
      * the database.
      *
      * @param v The value to store.
@@ -618,7 +608,7 @@ local interface DB
      *
      * @param k The key to check.
      *
-     * @return True if the key is contained in the database, false otherwise.
+     * @return true if the key is contained in the database, false otherwise.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -636,14 +626,14 @@ local interface DB
 
     /**
      *
-     * Get a value from a database by it's key within the context of a
+     * Get the value associated with a key, within the context of a
      * transaction.
      *
      * @param txn The transaction context.
      *
-     * @param k The key under which the value is stored in the database
+     * @param k The key under which the value is stored in the database.
      *
-     * @return The value from the database.
+     * @return The value associated with the key.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -661,14 +651,13 @@ local interface DB
 
     /**
      *
-     * Remove a key and the corresponding value from the database
+     * Remove a key and its corresponding value from the database
      * within the context of a transaction. If the key does not exist,
-     * this operation will do nothing.
+     * this operation does nothing.
      *
      * @param txn The transaction context.
      *
-     * @param k The key to remove together with the corresponding
-     * value.
+     * @param k The key of the key/value pair to be removed.
      *
      * @throws DBNotFoundException Raised if the key was not found in
      * the database.
@@ -709,8 +698,8 @@ local interface DB
 
     /**
      *
-     * Remove the database and destroy this database
-     * object. Subsequent calls to [remove] or [close] have no effect.
+     * Remove the database and destroy this database object. Subsequent
+     * calls to [remove] or [close] have no effect.
      *
      * @throws DBException Raised if a database failure occurred.
      *
@@ -724,12 +713,12 @@ local interface DB
     /**
      *
      * Flush any cached information to the disk. Calling [sync]
-     * reduces the risk of loosing data if the database is not closed
+     * reduces the risk of losing data if the database is not closed
      * properly.
      *
      * <note><para>If all the modifications to the database are done
-     * within the context of a transaction it's not necessary to call
-     * [sync]. The transaction system ensure that all these
+     * within the context of a transaction, it is not necessary to call
+     * [sync]. The transaction system ensures that all these
      * modifications will be recoverable.</para></note>
      *
      * @see DB::sync
@@ -740,14 +729,14 @@ local interface DB
     /**
      *
      * Create a new Evictor that uses this database to store
-     * identity/Servant pairs.
+     * Identity/Servant pairs.
      *
      * <note><para>Care must be taken to not to close this database,
      * or the database environment this database belongs to, before
      * the Evictor has been properly deactivated. The Evictor is
      * deactivated by calling [Ice::ObjectAdapter::deactivate] on the
-     * object adapter this Evictor is installed with, or by shutting
-     * down all Object Adapters with [Ice::Communicator::shutdown]
+     * object adapter in which this Evictor is installed, or by shutting
+     * down all object adapters with [Ice::Communicator::shutdown]
      * followed by [Ice::Communicator::waitForShutdown].</para></note>
      *
      * @param mode The persistence mode for the new Evictor.
