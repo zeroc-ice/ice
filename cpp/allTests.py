@@ -37,6 +37,7 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "Ice/location", \
+    "Ice/adapterDeactivation", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

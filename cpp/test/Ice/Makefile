@@ -19,7 +19,8 @@ SUBDIRS		= operations \
 		  objects \
 		  faultTolerance \
 		  locationForward \
-		  location
+		  location \
+		  adapterDeactivation
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -384,7 +384,11 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     incUsageCount()
     {
-	assert(_instance != null); // Must not be called after deactivation.
+	if(_instance == null)
+	{
+	    throw new ObjectAdapterDeactivatedException();
+	}
+
 	assert(_usageCount >= 0);
 	++_usageCount;
     }
