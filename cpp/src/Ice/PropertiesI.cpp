@@ -293,12 +293,8 @@ static const PropertyValues validProps[] =
     PropertyValues("Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0])),
     PropertyValues("IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0])),
     PropertyValues("IcePatch", icePatchProps, sizeof(icePatchProps) / sizeof(icePatchProps[0])),
+    PropertyValues("IceSSL", iceSSLProps, sizeof(iceSSLProps) / sizeof(iceSSLProps[0])),
     PropertyValues("IceStorm", iceStormProps, sizeof(iceStormProps) / sizeof(iceStormProps[0]))
-
-    //
-    // IceSSL is *not* in the above list because IceSSL is a plug-in. The properties for plug-ins are
-    // initialized by PluginManager, so there is no need to initialize them here.
-    //
 };
 
 static const size_t validPropsSize = sizeof(validProps) / sizeof(validProps[0]);
@@ -416,9 +412,13 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
     args = parseCommandLineOptions("IceBox", args);
     args = parseCommandLineOptions("IcePack", args);
     args = parseCommandLineOptions("IcePatch", args);
-    args = parseCommandLineOptions("IceSSL", args);
     args = parseCommandLineOptions("IceStorm", args);
     return args;
+
+    //
+    // IceSSL is *not* in the above list because IceSSL is a plug-in. The properties for plug-ins are
+    // initialized by PluginManager, so there is no need to initialize them here.
+    //
 }
 
 void
