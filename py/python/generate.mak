@@ -228,8 +228,11 @@ IcePack_Query_ice.py: $(slicedir)/IcePack/Query.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePack_ $(slicedir)/IcePack/Query.ice
 
 
-IcePatch_IcePatch_ice.py: $(slicedir)/IcePatch/IcePatch.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch_ $(slicedir)/IcePatch/IcePatch.ice
+IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileInfo.ice
+
+IcePatch2_FileServer_ice.py: $(slicedir)/IcePatch2/FileServer.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePatch2_ $(slicedir)/IcePatch2/FileServer.ice
 
 
 IceStorm_IceStorm_ice.py: $(slicedir)/IceStorm/IceStorm.ice
