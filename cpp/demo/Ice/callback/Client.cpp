@@ -106,7 +106,7 @@ CallbackClient::run(int argc, char* argv[])
 		context["_fwd"] = "o" + secureStr;
 		if (!overwrite.empty())
 		{
-		    context["_ovwt"] = overwrite;
+		    context["ovrd"] = overwrite;
 		}
 		oneway->initiateCallback(onewayR, context);
 	    }
@@ -116,7 +116,7 @@ CallbackClient::run(int argc, char* argv[])
 		context["_fwd"] = "O" + secureStr;
 		if (!overwrite.empty())
 		{
-		    context["_ovwt"] = overwrite;
+		    context["ovrd"] = overwrite;
 		}
 		batchOneway->initiateCallback(onewayR, context);
 	    }
@@ -132,7 +132,7 @@ CallbackClient::run(int argc, char* argv[])
 		context["_fwd"] = "D" + secureStr;
 		if (!overwrite.empty())
 		{
-		    context["_ovwt"] = overwrite;
+		    context["ovrd"] = overwrite;
 		}
 		batchDatagram->initiateCallback(datagramR, context);
 	    }

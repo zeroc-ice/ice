@@ -21,7 +21,7 @@ Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, 
     _current(current),
     _forwardContext(forwardContext)
 {
-    Context::const_iterator p = current.context.find("_ovwt");
+    Context::const_iterator p = current.context.find("_ovrd");
     if (p != current.context.end())
     {
 	_override = p->second;
