@@ -104,7 +104,7 @@ readValue(const DBPtr& db, const Freeze::Key& k, const Freeze::Value& v, char& k
 static int
 run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 {
-    DBPtr db = dbEnv->openDB("test");
+    DBPtr db = dbEnv->openDB("test", true);
     IceInternal::InstancePtr instance = IceInternal::getInstance(db->getCommunicator());
 
     //

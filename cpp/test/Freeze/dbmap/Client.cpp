@@ -335,7 +335,7 @@ main(int argc, char* argv[])
 	    dbEnvDir += "db";
 	}
 	dbEnv = Freeze::initialize(communicator, dbEnvDir);
-	db = dbEnv->openDB("test");
+	db = dbEnv->openDB("test", true);
 	status = run(argc, argv, db);
     }
     catch(const Ice::Exception& ex)
