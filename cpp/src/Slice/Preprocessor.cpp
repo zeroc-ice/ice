@@ -85,7 +85,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
 }
 
 void
-Slice::Preprocessor::printMakefileDependencies(const string& suffix)
+Slice::Preprocessor::printMakefileDependencies(Language lang)
 {
     if(!checkInputFile())
     {
@@ -101,40 +101,114 @@ Slice::Preprocessor::printMakefileDependencies(const string& suffix)
     
     cmd += " -M " + _args + " " + _fileName;
 
-    //
-    // Change the suffix for non-C++ dependency files (such as for C#)
-    //
-    const char* cSuffix = suffix.c_str();
-
 #ifdef _WIN32
     FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else
     FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
 
-    char buf[1024];
-    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+    switch(lang)
     {
-	char* dot;
-	char* colon = strchr(buf, ':');
-	if(colon != NULL)
+        case CPlusPlus:
 	{
-	    *colon = '\0';
-	    dot = strrchr(buf, '.');
-	    *colon = ':';
-	    if(dot != NULL)
+	    char buf[1024];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
 	    {
-		if(strncmp(dot, ".cpp:", 5) == 0)
+	        fputs(buf, stdout);
+	    }
+	    break;
+	}
+	case Java:
+	{
+	    //
+	    // Remove leading "<file>.cpp:" and make the first following
+	    // file the dependent. For example, "x.cpp: x.ice y.ice"
+	    // is rewritten as "x.ice: y.ice".
+	    //
+	    char buf[1024];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+		bool needNewline = false;
+		char *p = buf;
+		char* pos = strchr(buf, ':');			// Find first colon.
+		if(pos != NULL)
 		{
-		    *dot = '\0';
-		    fputs(buf, stdout);
-		    fputs(cSuffix, stdout);
-		    fputs(colon, stdout);
-		    continue;
+		    *pos = '\0';				// Find last dot preceding colon.
+		    char* pos2 = strrchr(buf, '.');
+		    *pos = ':';
+		    if(pos2 != NULL)
+		    {
+			if(strncmp(pos2, ".cpp:", 5) == 0)	// Check for ".cpp:".
+			{
+			    while(isspace(*++pos))		// Move pos to first non-space char following colon.
+			    {
+			        ;
+			    }
+			    char* pos2 = pos;
+			    while(!isspace(*++pos2))		// Move pos2 to first space char following pos.
+			    {
+			        ;
+			    }
+			    *pos2 = '\0';
+			    while(isspace(*++pos2))		// Move pos2 to next non-space char.
+			    {
+			        ;
+			    }
+			    if(*pos2 == '\0')
+			    {
+			        continue;
+			    }
+			    needNewline = *pos2 == '\0';	// Don't lose trailing newline.
+			    fputs(pos, stdout);			// Write first file name following colon.
+			    fputs(": ", stdout);
+			    p = pos2;
+			}
+		    }
+		}
+		fputs(p, stdout);
+		if(needNewline)
+		{
+		    fputs("\n", stdout);
 		}
 	    }
+	    break;
 	}
-	fputs(buf, stdout);
+	case CSharp:
+	{
+	    //
+	    // Change .cpp suffix to .cs suffix.
+	    //
+	    char buf[1024];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+		char* dot;
+		char* colon = strchr(buf, ':');
+		if(colon != NULL)
+		{
+		    *colon = '\0';
+		    dot = strrchr(buf, '.');
+		    *colon = ':';
+		    if(dot != NULL)
+		    {
+			if(strncmp(dot, ".cpp:", 5) == 0)
+			{
+			    *dot = '\0';
+			    fputs(buf, stdout);
+			    fputs(".cs", stdout);
+			    fputs(colon, stdout);
+			    continue;
+			}
+		    }
+		}
+		fputs(buf, stdout);
+	    }
+	    break;
+	}
+	default:
+	{
+	    abort();
+	    break;
+	}
     }
 }
 
