@@ -300,7 +300,7 @@ ZEND_FUNCTION(Ice_Communicator_removeObjectFactory)
     char* id;
     int len;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -333,7 +333,7 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
     char* id;
     int len;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
     {
         RETURN_NULL();
     }
