@@ -18,7 +18,17 @@
 
 using namespace std;
 using namespace Slice;
-using namespace IceUtil;
+
+//
+// Don't use "using namespace IceUtil", or stupid VC++ 6.0 complains
+// about ambigious symbols for constructs like
+// "IceUtil::constMemFun(&Slice::Exception::isLocal)".
+//
+using IceUtil::Output;
+using IceUtil::nl;
+using IceUtil::sp;
+using IceUtil::sb;
+using IceUtil::eb;
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(const OperationPtr& op)
