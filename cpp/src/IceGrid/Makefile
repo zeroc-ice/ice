@@ -168,7 +168,7 @@ clean::
 
 $(LOCAL_HDIR)/StringServerDescriptorDict.h StringServerDescriptorDict.cpp: $(SLICE2FREEZE)
 	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringServerDescriptorDict,string,IcePacK::ServerDescriptor \
+	$(SLICE2FREEZECMD) --dict IceGrid::StringServerDescriptorDict,string,IceGrid::ServerDescriptor \
 	StringServerDescriptorDict ../../slice/IceGrid/Admin.ice
 
 clean::

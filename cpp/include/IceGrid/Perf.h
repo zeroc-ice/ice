@@ -19,7 +19,7 @@ namespace IcePerf
 //
 // Obtain performance data for the local system/processes
 //
-ICE_PERF_API PerfDataSeq getPerfData(const Ice::StringSeq&);
+ICE_GRID_API PerfDataSeq getPerfData(const Ice::StringSeq&);
 
 }
 
