@@ -333,6 +333,12 @@ Slice::Contained::file() const
 }
 
 string
+Slice::Contained::line() const
+{
+    return _line;
+}
+
+string
 Slice::Contained::comment() const
 {
     return _comment;
@@ -400,6 +406,9 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     assert(_unit);
     _unit->addContent(this);
     _file = _unit->currentFile();
+    ostringstream s;
+    s << _unit->currentLine();
+    _line = s.str();
     _comment = _unit->currentComment();
     _includeLevel = _unit->currentIncludeLevel();
 }
@@ -549,14 +558,14 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local);
+    ClassDeclPtr decl = createClassDecl(name, intf, local, true);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local)
+Slice::Container::createClassDecl(const string& name, bool intf, bool local, bool implicit)
 {
     checkPrefix(name);
 
@@ -605,7 +614,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	}
     }
 
-    if(!nameIsLegal(name, intf ? "interface" : "class"))
+    if(!nameIsLegal(name, intf ? "interface" : "class", implicit))
     {
 	return 0;
     }
@@ -1841,17 +1850,20 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     return true;
 }
 
+//
+// TODO: remove the suppressWarnings parameter once deprecrecated features are outlawed.
+//
 bool
-Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
+Slice::Container::nameIsLegal(const string& newName, const char* newConstruct, bool suppressWarnings)
 {
+    ModulePtr module = ModulePtr::dynamicCast(this);
+
     //
-    // Check whether enclosing module has the same name.
+    // Check whether the enclosing module has the same name.
     //
-    if(ModulePtr::dynamicCast(this))
+    if(module)
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(this);
-	assert(contained);
-	if(newName == contained->name())
+	if(newName == module->name())
 	{
 	    string msg = newConstruct;
 	    msg += " name `" + newName + "' must differ from the name of its immediately enclosing module";
@@ -1862,18 +1874,85 @@ Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
 	{
 	    string name = newName;
 	    toLower(name);
-	    string thisName = contained->name();
+	    string thisName = module->name();
 	    toLower(thisName);
 	    if(name == thisName)
 	    {
 		string msg = newConstruct;
 		msg += " name `" + name + "' cannot differ only in capitalization from its immediately enclosing "
-		       "module name `" + contained->name() + "'";
+		       "module name `" + module->name() + "'";
 		_unit->error(msg);
 		return false;
 	    }
 	}
+	module = ModulePtr::dynamicCast(module->container()); // Get enclosing module for test below.
     }
+
+    //
+    // Check whether any of the enclosing modules have the same name.
+    //
+    // TODO: Remove the test for deprecated features and turn this into a permanent hard error
+    //       once reusing a name for a nested scope is outlawed.
+    //
+    while(module)
+    {
+	if(newName == module->name())
+	{
+	    if(_unit->disallowDeprecatedFeatures())
+	    {
+		string msg = newConstruct;
+		msg += " name `" + newName + "' must differ from the name of enclosing module `" + module->name()
+		       + "' (first defined at " + module->file() + ":" + module->line() + ")";
+		_unit->error(msg);
+		return false;
+	    }
+	    else
+	    {
+		if(!suppressWarnings)
+		{
+		    string msg = newConstruct;
+		    msg += " name `" + newName + "': using the name of an enclosing module for nested types is "
+			   + "deprecated. (Module `" + module->name() + "' was first defined at " + module->file() + ":"
+		           + module->line() + ")";
+		    _unit->warning(msg);
+		    return true;
+		}
+	    }
+	    return true;
+	}
+	if(!_unit->caseSensitive())
+	{
+	    string name = newName;
+	    toLower(name);
+	    string thisName = module->name();
+	    toLower(thisName);
+	    if(name == thisName)
+	    {
+		if(_unit->disallowDeprecatedFeatures())
+		{
+		    string msg = newConstruct;
+		    msg += " name `" + name + "' cannot differ only in capitalization from enclosing module `"
+			   + module->name() + "' (first defined at " + module->file() + ":" + module->line() + ")";
+		    _unit->error(msg);
+		    return false;
+		}
+		else
+		{
+		    if(!suppressWarnings)
+		    {
+			string msg = newConstruct;
+			msg += " name `" + newName + "': using the name of an enclosing module for nested types is "
+			       + "deprecated. (Module `" + module->name() + "' was first defined at "
+			       + module->file() + ":" + module->line() + " and differs only in capitalization.)";
+			_unit->warning(msg);
+			return true;
+		    }
+		}
+	    }
+	}
+	module = ModulePtr::dynamicCast(module->container());
+    }
+
     return true;
 }
 
@@ -1882,7 +1961,7 @@ Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct
 {
     if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
     {
-	if(_unit->hardErrorForGlobals())
+	if(_unit->disallowDeprecatedFeatures())
 	{
 	    static const string vowels = "aeiou";
 	    string glottalStop;
@@ -4919,9 +4998,9 @@ Slice::Unit::usesConsts() const
 }
 
 bool
-Slice::Unit::hardErrorForGlobals() const
+Slice::Unit::disallowDeprecatedFeatures() const
 {
-    return _hardErrorForGlobals;
+    return _disallowDeprecatedFeatures;
 }
 
 StringList
@@ -4934,14 +5013,14 @@ Slice::Unit::includeFiles() const
 // TODO: remove third parameter once global definitions are outlawed.
 //
 int
-Slice::Unit::parse(FILE* file, bool debug, bool hardErrorForGlobals)
+Slice::Unit::parse(FILE* file, bool debug, bool disallowDeprecatedFeatures)
 {
     slice_debug = debug ? 1 : 0;
 
     assert(!Slice::unit);
     Slice::unit = this;
 
-    _hardErrorForGlobals = hardErrorForGlobals; // TODO: remove this once global definitions are outlawed.
+    _disallowDeprecatedFeatures = disallowDeprecatedFeatures; // TODO: remove this once global definitions are outlawed.
 
     _currentComment = "";
     _currentLine = 1;

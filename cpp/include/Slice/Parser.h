@@ -321,6 +321,7 @@ public:
     std::string scoped() const;
     std::string scope() const;
     std::string file() const;
+    std::string line() const;
     std::string comment() const;
 
     int includeLevel() const;
@@ -363,6 +364,7 @@ protected:
     std::string _name;
     std::string _scoped;
     std::string _file;
+    std::string _line;
     std::string _comment;
     int _includeLevel;
     std::list<std::string> _metaData;
@@ -379,7 +381,8 @@ public:
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, const ClassList&, bool);
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
+    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
+    ClassDeclPtr createClassDecl(const std::string&, bool, bool, bool = false);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool);
     StructPtr createStruct(const std::string&, bool);
     SequencePtr createSequence(const std::string&, const TypePtr&, bool);
@@ -418,7 +421,8 @@ public:
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
-    bool nameIsLegal(const std::string&, const char *);
+    // TODO: remove final (defaulted) bool parameter once deprecated features are outlawed.
+    bool nameIsLegal(const std::string&, const char *, bool = false);
     bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
@@ -925,7 +929,7 @@ public:
     bool usesProxies() const;
     bool usesNonLocals() const;
     bool usesConsts() const;
-    bool hardErrorForGlobals() const; // TODO: remove this once global definitions are outlawed.
+    bool disallowDeprecatedFeatures() const; // TODO: remove this once global definitions are outlawed.
 
     StringList includeFiles() const;
 
@@ -944,7 +948,7 @@ private:
     bool _all;
     bool _allowIcePrefix;
     bool _caseSensitive;
-    bool _hardErrorForGlobals; // TODO: remove this once global definitions are outlawed.
+    bool _disallowDeprecatedFeatures; // TODO: remove this once global definitions are outlawed.
     int _errors;
     std::string _currentComment;
     int _currentLine;
