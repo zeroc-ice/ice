@@ -50,8 +50,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     ref = "test" + secure + ":" + endpts;
 
-    cout << "ref: " << ref << endl;
-
     timeval tv1;
 #ifdef WIN32
     struct _timeb tb1;

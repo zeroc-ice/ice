@@ -419,12 +419,13 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 {
                     if (bytesRead > 0)
                     {
-                        ostringstream s;
-
-                        s << "received " << bytesRead << " of " << packetSize;
-                        s << " bytes via SSL\n" << fdToString(SSL_get_fd(_sslConnection));
-
-                        ICE_PROTOCOL(s.str());
+	                if (_traceLevels->network >= 3)
+	                {
+                            ostringstream s;
+                            s << "received " << bytesRead << " of " << packetSize;
+                            s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
+	                    _logger->trace(_traceLevels->networkCat, s.str());
+                        }
 
                         totalBytesRead += bytesRead;
 

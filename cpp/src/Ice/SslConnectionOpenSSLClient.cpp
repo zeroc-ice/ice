@@ -289,12 +289,13 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
                 {
                     if (bytesWritten > 0)
                     {
-                        ostringstream s;
-
-                        s << "sent " << bytesWritten << " of " << packetSize;
-                        s << " bytes via SSL\n" << fdToString(SSL_get_fd(_sslConnection));
-
-                        ICE_PROTOCOL(s.str());
+	                if (_traceLevels->network >= 3)
+	                {
+                            ostringstream s;
+                            s << "sent " << bytesWritten << " of " << packetSize;
+                            s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
+	                    _logger->trace(_traceLevels->networkCat, s.str());
+                        }
 
                         totalBytesWritten += bytesWritten;
 
