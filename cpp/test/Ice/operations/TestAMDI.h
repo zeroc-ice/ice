@@ -138,10 +138,6 @@ private:
     IceUtil::ThreadPtr _opVoidThread;
 };
 
-class AMD_TestCheckedCast_getContextI : Test::AMD_TestCheckedCast_getContext
-{
-};
-
 class TestCheckedCastI : public Test::TestCheckedCast
 {
 public:
