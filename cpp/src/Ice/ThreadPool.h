@@ -17,6 +17,10 @@
 #include <Ice/EventHandlerF.h>
 #include <list>
 
+#ifndef WIN32
+#   define SOCKET int
+#endif
+
 namespace IceInternal
 {
 
