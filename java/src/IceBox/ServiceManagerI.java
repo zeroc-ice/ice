@@ -19,6 +19,12 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         _argv = args;
     }
 
+    public java.util.Map
+    getSliceChecksums(Ice.Current current)
+    {
+        return SliceChecksums.checksums;
+    }
+
     public void
     shutdown(Ice.Current current)
     {

@@ -25,6 +25,7 @@
         <ant dir="slicing"/>
         <ant dir="custom"/>
         <ant dir="translator"/>
+        <ant dir="checksum"/>
     </target>
 
     <target name="clean">
@@ -41,6 +42,7 @@
         <ant dir="slicing" target="clean"/>
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>
+        <ant dir="checksum" target="clean"/>
     </target>
 
 </project>

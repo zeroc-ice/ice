@@ -72,12 +72,7 @@
                 <include name="ServantLocator.ice" />
 		<include name="Locator.ice" />
 		<include name="FacetMap.ice" />
-            </fileset>
-            <fileset dir="${slice.dir}/Glacier">
-                <include name="Router.ice" />
-                <include name="Starter.ice" />
-                <include name="Session.ice" />
-                <include name="SessionManager.ice" />
+                <include name="SliceChecksumDict.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
@@ -87,14 +82,46 @@
                 <include name="Evictor.ice" />
                 <include name="EvictorStorage.ice" />
             </fileset>
+        </slice2java>
+
+        <!-- Generate Slice checksums for the Ice services. -->
+
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier.SliceChecksums">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Glacier">
+                <include name="Router.ice" />
+                <include name="Starter.ice" />
+                <include name="Session.ice" />
+                <include name="SessionManager.ice" />
+            </fileset>
+        </slice2java>
+
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
             <fileset dir="${slice.dir}/IceBox">
                 <include name="IceBox.ice" />
             </fileset>
+        </slice2java>
+
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IcePack.SliceChecksums">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
             <fileset dir="${slice.dir}/IcePack">
                 <include name="Admin.ice" />
                 <include name="Query.ice" />
                 <include name="Exception.ice" />
             </fileset>
+        </slice2java>
+
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />
             </fileset>

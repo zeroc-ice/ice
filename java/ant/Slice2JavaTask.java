@@ -67,6 +67,7 @@ public class Slice2JavaTask extends SliceTask
     {
         _translator = null;
         _tie = false;
+        _checksum = null;
     }
 
     public void
@@ -79,6 +80,12 @@ public class Slice2JavaTask extends SliceTask
     setTie(boolean tie)
     {
         _tie = tie;
+    }
+
+    public void
+    setChecksum(String checksum)
+    {
+        _checksum = checksum;
     }
 
     public void
@@ -196,6 +203,14 @@ public class Slice2JavaTask extends SliceTask
                 cmd.append(" --tie");
             }
 
+            //
+            // Add --checksum
+            //
+            if(_checksum != null && _checksum.length() > 0)
+            {
+                cmd.append(" --checksum " + _checksum);
+            }
+
 	    //
 	    // Add --ice
 	    //
@@ -308,4 +323,5 @@ public class Slice2JavaTask extends SliceTask
 
     private File _translator;
     private boolean _tie;
+    private String _checksum;
 }
