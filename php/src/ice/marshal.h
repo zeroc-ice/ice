@@ -39,8 +39,6 @@ public:
 
     virtual void destroy() = 0;
 
-    static std::string zendTypeToString(int);
-
 protected:
     Marshaler();
 };

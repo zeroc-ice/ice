@@ -60,4 +60,9 @@ std::string ice_flatten(const std::string&);
 //
 std::string ice_fixIdent(const std::string&);
 
+//
+// Convert a Zend type (e.g., IS_BOOL, etc.) to a string for use in error messages.
+//
+std::string ice_zendTypeToString(int);
+
 #endif

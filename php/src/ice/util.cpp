@@ -204,3 +204,46 @@ ice_fixIdent(const string& ident)
     }
     return result.str();
 }
+
+std::string
+ice_zendTypeToString(int type)
+{
+    string result;
+
+    switch(type)
+    {
+    case IS_NULL:
+        result = "null";
+        break;
+
+    case IS_LONG:
+        result = "long";
+        break;
+
+    case IS_DOUBLE:
+        result = "double";
+        break;
+
+    case IS_STRING:
+        result = "string";
+        break;
+
+    case IS_ARRAY:
+        result = "array";
+        break;
+
+    case IS_OBJECT:
+        result = "object";
+        break;
+
+    case IS_BOOL:
+        result = "bool";
+        break;
+
+    default:
+        result = "unknown";
+        break;
+    }
+
+    return result;
+}

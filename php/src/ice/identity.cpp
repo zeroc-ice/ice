@@ -18,7 +18,7 @@
 
 #include "identity.h"
 #include "exception.h"
-#include "marshal.h"
+#include "util.h"
 
 using namespace std;
 
@@ -85,14 +85,14 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
 
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
-        string s = Marshaler::zendTypeToString(Z_TYPE_PP(nameVal));
+        string s = ice_zendTypeToString(Z_TYPE_PP(nameVal));
         zend_error(E_ERROR, "expected a string value for identity member `name' but received %s", s.c_str());
         return false;
     }
 
     if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING)
     {
-        string s = Marshaler::zendTypeToString(Z_TYPE_PP(categoryVal));
+        string s = ice_zendTypeToString(Z_TYPE_PP(categoryVal));
         zend_error(E_ERROR, "expected a string value for identity member `category' but received %s", s.c_str());
         return false;
     }

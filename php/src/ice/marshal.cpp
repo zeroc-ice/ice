@@ -466,49 +466,6 @@ Marshaler::createExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC)
    return new ExceptionMarshaler(ex TSRMLS_CC);
 }
 
-std::string
-Marshaler::zendTypeToString(int type)
-{
-    string result;
-
-    switch(type)
-    {
-    case IS_NULL:
-        result = "null";
-        break;
-
-    case IS_LONG:
-        result = "long";
-        break;
-
-    case IS_DOUBLE:
-        result = "double";
-        break;
-
-    case IS_STRING:
-        result = "string";
-        break;
-
-    case IS_ARRAY:
-        result = "array";
-        break;
-
-    case IS_OBJECT:
-        result = "object";
-        break;
-
-    case IS_BOOL:
-        result = "bool";
-        break;
-
-    default:
-        result = "unknown";
-        break;
-    }
-
-    return result;
-}
-
 //
 // PrimitiveMarshaler implementation.
 //
@@ -533,7 +490,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_BOOL)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected boolean value but received %s", s.c_str());
             return false;
         }
@@ -544,7 +501,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected byte value but received %s", s.c_str());
             return false;
         }
@@ -561,7 +518,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected short value but received %s", s.c_str());
             return false;
         }
@@ -578,7 +535,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected int value but received %s", s.c_str());
             return false;
         }
@@ -599,7 +556,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         //
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected long value but received %s", s.c_str());
             return false;
         }
@@ -625,7 +582,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected float value but received %s", s.c_str());
             return false;
         }
@@ -637,7 +594,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected double value but received %s", s.c_str());
             return false;
         }
@@ -658,7 +615,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         }
         else
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
+            string s = ice_zendTypeToString(Z_TYPE_P(zv));
             zend_error(E_ERROR, "expected string value but received %s", s.c_str());
             return false;
         }
@@ -781,7 +738,7 @@ SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected array value but received %s", s.c_str());
         return false;
     }
@@ -849,7 +806,7 @@ ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT && Z_TYPE_P(zv) != IS_NULL)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected proxy value but received %s", s.c_str());
         return false;
     }
@@ -977,7 +934,7 @@ StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected struct value of type %s but received %s", _class->name, s.c_str());
         return false;
     }
@@ -1057,7 +1014,7 @@ EnumMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_LONG)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected long value for enum %s but received %s", _class->name, s.c_str());
         return false;
     }
@@ -1136,7 +1093,7 @@ NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected array value but received %s", s.c_str());
         return false;
     }
@@ -1663,7 +1620,7 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        string s = zendTypeToString(Z_TYPE_P(zv));
+        string s = ice_zendTypeToString(Z_TYPE_P(zv));
         zend_error(E_ERROR, "expected object value of type %s but received %s", _class ? _class->name : "ice_object",
                    s.c_str());
         return false;
