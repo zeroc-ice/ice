@@ -2,8 +2,8 @@
 Requirements
 =========================================================================
 
-- PHP5.0.0RC1 (http://www.php.net/downloads.php)
-- Ice 1.3.0
+- PHP5.0.0RC3 (http://www.php.net/downloads.php)
+- Ice 1.4.0
 
 
 
@@ -87,13 +87,8 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-There are issues in the PHP 5.0.0RC2 sources that must be fixed by
-applying a patch provided in the IcePHP source distribution:
-
-$ cd <phpdir>
-$ patch -p0 < <icephpdir>/patch.txt
-
-Solaris users should run 'gpatch' instead of 'patch'.
+No source patches are necessary to compile PHP 5.0.0RC3 on the
+supported platforms.
 
 Platform-specific Issues
 ------------------------
