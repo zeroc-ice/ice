@@ -103,7 +103,7 @@ IceInternal::Connection::waitUntilFinished() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    while(_transceiver)
+    while(_transceiver || _dispatchCount > 0)
     {
 	wait();
     }

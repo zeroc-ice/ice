@@ -81,7 +81,7 @@ public final class Connection extends EventHandler
     public synchronized void
     waitUntilFinished()
     {
-	while(_transceiver != null)
+	while(_transceiver != null || _dispatchCount > 0)
 	{
 	    try
 	    {
