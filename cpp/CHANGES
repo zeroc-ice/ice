@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed bug in IcePack that would prevent dynamically added adapters
+  to be used again after the IcePack registry was restarted.
+
 - Fixed tracing of operation mode.
 
 - Fixed bug in slice2cpp: for statically linked binaries under

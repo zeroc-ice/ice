@@ -34,35 +34,51 @@ void
 IcePack::ServerRegistryI::add(const string& name, 
 			      const ServerPrx& server,
 			      const ServerDescriptorPtr& descriptor,
-			      const Ice::Current&)
+			      const Ice::Current& current)
 {
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringObjectProxyDict dict(connection, _dbName); 
-    StringServerDescriptorDict dictDescriptor(connection, _dbDescriptorName);
-
-    StringObjectProxyDict::iterator p = dict.find(name);
-    if(p != dict.end())
+    while(true)
     {
+	ServerPrx oldServer;
 	try
 	{
-	    p->second->ice_ping();
+	    oldServer = findByName(name, current);
+	    oldServer->ice_ping();
 	    throw ServerExistsException();
+	}
+	catch(const ServerNotExistException&)
+	{
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
 	}
 	catch(const Ice::LocalException&)
 	{
+	    throw ServerExistsException();
 	}
-    }
-    
-    dict.put(pair<const string, const Ice::ObjectPrx>(name, server));
-    dictDescriptor.put(pair<const string, const ServerDescriptorPtr>(name, descriptor));
+	
+	Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+	StringObjectProxyDict dict(connection, _dbName); 
+	StringServerDescriptorDict dictDescriptor(connection, _dbDescriptorName);
+	
+	StringObjectProxyDict::iterator p = dict.find(name);
+	if(p != dict.end())
+	{
+	    if(oldServer && oldServer != p->second)
+	    {
+		continue;
+	    }
+	}
 
-    if(_traceLevels->serverRegistry > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->serverRegistryCat);
-	out << "added server `" << name << "'";
+	dict.put(pair<const string, const Ice::ObjectPrx>(name, server));
+	dictDescriptor.put(pair<const string, const ServerDescriptorPtr>(name, descriptor));
+	
+	if(_traceLevels->serverRegistry > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverRegistryCat);
+	    out << "added server `" << name << "'";
+	}
+
+	break;
     }
 }
 

@@ -9,17 +9,19 @@
 
 #include <Ice/Ice.h>
 #include <IcePack/LocatorRegistryI.h>
-#include <IcePack/AdapterI.h>
+#include <IcePack/AdapterFactory.h>
 
 using namespace std;
 using namespace IcePack;
 
 IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& adapterRegistry, 
                                             const ServerRegistryPtr& serverRegistry,
-					    const Ice::ObjectAdapterPtr& adapter) :
+					    const AdapterFactoryPtr& adapterFactory,
+					    bool dynamicRegistration) :
     _adapterRegistry(adapterRegistry),
     _serverRegistry(serverRegistry),
-    _adapter(adapter)
+    _adapterFactory(adapterFactory),
+    _dynamicRegistration(dynamicRegistration)
 {
 }
 
@@ -62,34 +64,27 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	}
 
 	//
-	// TODO: Review this functionnality.
+	// Create a new standalone adapter. The adapter will be
+	// persistent. It's the responsability of the user to cleanup
+	// adapter entries which were dynamically added from the
+	// registry.
 	//
-	// Create a new standalone adapter. This adapter will be
-	// destroyed when the registry is shutdown. Since it's not
-	// persistent, it won't be restored when the registry startup
-	// again. We could change this to make the adapter persistent
-	// but then it's not clear when this adapter should be
-	// destroyed.
-	//
-	// Also, is this really usefull? This allows a server (not
-	// deployed or managed by an IcePack node) to use the location
-	// mechanism (and avoid to share endpoints configuration
-	// between the client and server). Maybe it would be less
-	// confusing to just prevent servers to start if the server
-	// didn't previously registered its object adapters (using the
-	// IcePack deployment mechanism).
-	//
-	Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
-	if(properties->getPropertyAsInt("IcePack.Registry.DynamicRegistration") > 0)
+	if(_dynamicRegistration)
 	{
-	    AdapterPrx adapter = AdapterPrx::uncheckedCast(_adapter->addWithUUID(new StandaloneAdapterI()));
 	    try
 	    {
-		_adapterRegistry->add(id, adapter);
+		AdapterPrx adapter = _adapterFactory->createStandaloneAdapter(id);
+		try
+		{
+		    _adapterRegistry->add(id, adapter);
+		}
+		catch(const AdapterExistsException&)
+		{
+		    adapter->destroy();
+		}
 	    }
-	    catch(const AdapterExistsException&)
+	    catch(const Ice::AlreadyRegisteredException&)
 	    {
-		_adapter->remove(adapter->ice_getIdentity());
 	    }
 	}
 	else
@@ -99,7 +94,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
     }
 }
 
-void 
+void
 IcePack::LocatorRegistryI::setServerProcessProxy(const string& name, const Ice::ProcessPrx& proxy, const Ice::Current&)
 {
     try

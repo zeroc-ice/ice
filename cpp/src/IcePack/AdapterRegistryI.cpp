@@ -27,20 +27,39 @@ IcePack::AdapterRegistryI::AdapterRegistryI(const Ice::CommunicatorPtr& communic
 }
 
 void
-IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, const Ice::Current&)
+IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, const Ice::Current& current)
 {
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringObjectProxyDict dict(connection, _dbName); 
-
-    StringObjectProxyDict::iterator p = dict.find(id);
-    if(p != dict.end())
+    while(true)
     {
+	AdapterPrx oldAdapter;
 	try
 	{
-	    p->second->ice_ping();
+	    oldAdapter = findById(id, current);
+	    oldAdapter->ice_ping();
+	    throw AdapterExistsException();
+	}
+	catch(const AdapterNotExistException&)
+	{
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
+	}
+	catch(const Ice::LocalException&)
+	{
+	    throw AdapterExistsException();
+	}
+	
+	Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+	StringObjectProxyDict dict(connection, _dbName); 
+
+	StringObjectProxyDict::iterator p = dict.find(id);
+	if(p != dict.end())
+	{
+	    if(oldAdapter && oldAdapter != p->second)
+	    {
+		continue;
+	    }
+
 	    p.set(adapter);
 
 	    if(_traceLevels->adapterRegistry > 0)
@@ -48,20 +67,19 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
 		out << "added adapter `" << id << "'";
 	    }
-
-	    return;
 	}
-	catch(const Ice::LocalException&)
+	else
 	{
+	    dict.put(pair<const string, const Ice::ObjectPrx>(id, adapter));
+	    
+	    if(_traceLevels->adapterRegistry > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
+		out << "added adapter `" << id << "'";
+	    }
 	}
-	throw AdapterExistsException();
-    }
-    dict.put(pair<const string, const Ice::ObjectPrx>(id, adapter));
 
-    if(_traceLevels->adapterRegistry > 0)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
-	out << "added adapter `" << id << "'";
+	break;
     }
 }
 

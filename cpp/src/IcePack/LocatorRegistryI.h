@@ -17,11 +17,14 @@
 namespace IcePack
 {
 
+class AdapterFactory;
+typedef IceUtil::Handle<AdapterFactory> AdapterFactoryPtr;
+
 class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
 
-    LocatorRegistryI(const AdapterRegistryPtr&, const ServerRegistryPtr&, const Ice::ObjectAdapterPtr&);
+    LocatorRegistryI(const AdapterRegistryPtr&, const ServerRegistryPtr&, const AdapterFactoryPtr&, bool);
     
     virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void setServerProcessProxy(const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
@@ -30,7 +33,8 @@ private:
     
     AdapterRegistryPtr _adapterRegistry;
     ServerRegistryPtr _serverRegistry;
-    Ice::ObjectAdapterPtr _adapter;
+    AdapterFactoryPtr _adapterFactory;
+    const bool _dynamicRegistration;
 };
 
 }
