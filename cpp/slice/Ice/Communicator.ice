@@ -19,7 +19,7 @@
 
 module Ice
 {
-
+    
 /**
  *
  * The central Ice object. One or more Communicators can be
