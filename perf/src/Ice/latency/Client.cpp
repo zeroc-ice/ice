@@ -92,7 +92,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else if(batch)
     {
-	repetitions = 2000000;
+	repetitions = 1000000;
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
