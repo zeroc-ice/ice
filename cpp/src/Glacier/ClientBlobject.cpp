@@ -72,7 +72,8 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	    if (_traceLevel > 0)
 	    {
 		Trace out(_logger, "Glacier");
-		out << "rejecting request. identity: " << identityToString(current.identity);
+		out << "rejecting request\n";
+		out << "identity: " << identityToString(current.identity);
 	    }
 	    ObjectNotExistException ex(__FILE__, __LINE__);
 	    ex.identity = current.identity;
