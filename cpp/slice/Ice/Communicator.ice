@@ -35,7 +35,6 @@ module Ice
  *
  * @see Logger
  * @see ObjectAdapter
- * @see Pickler
  * @see Properties
  * @see ObjectFactory
  * @see UserExceptionFactory
@@ -99,10 +98,11 @@ local interface Communicator
     /**
      *
      * Convert a string into a Proxy. For example,
-     * [MyCategory/MyObject:tcp -h some_host -p 10000] creates a proxy
-     * that refers to the Ice Object having an identity with a name
-     * "MyObject" and a category "MyCategory", with the server running
-     * on host "some_host", port 10000.
+     * <literal>MyCategory/MyObject:tcp -h some_host -p
+     * 10000</literal> creates a proxy that refers to the Ice Object
+     * having an identity with a name "MyObject" and a category
+     * "MyCategory", with the server running on host "some_host", port
+     * 10000.
      *
      * @param str The string to turn into a Proxy.
      *
@@ -130,9 +130,9 @@ local interface Communicator
      *
      * Create a new Object Adapter. The endpoints for the Object
      * Adapter are taken from the property
-     * [Ice.Adapter.<replaceable>name</replaceable>.Endpoints], with
-     * <replaceable>name</replaceable> being the name of the Object
-     * Adapter.
+     * <literal>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</literal>,
+     * with <replaceable>name</replaceable> being the name of the
+     * Object Adapter.
      *
      * @param name The name to use for the Object Adapter. This name
      * must be unique for the Communicator.

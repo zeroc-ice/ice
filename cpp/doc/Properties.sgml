@@ -186,7 +186,8 @@ In Java, <replaceable>entry_point</replaceable> is the name of a class.
 <section><title>Ice.ClientThreadPool.Size, Ice.ServerThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.ThreadPool.Size=<replaceable>num</replaceable>
+Ice.ClientThreadPool.Size=<replaceable>num</replaceable>
+Ice.ServerThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>

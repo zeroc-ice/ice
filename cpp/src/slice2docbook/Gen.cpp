@@ -758,15 +758,15 @@ Slice::Gen::getComment(const ContainedPtr& contained, const ContainerPtr& contai
 	}
 	else if (s[i] == '[')
 	{
-	    ++i;
 	    string literal;
-	    while (s[i] != ']')
+	    for (++i; i < s.size(); ++i)
 	    {
-		literal += s[i++];
-		if (i >= s.size())
+		if (s[i] == ']')
 		{
 		    break;
 		}
+		
+		literal += s[i];
 	    }
 	    comment += toString(literal, container);
 	}
@@ -1150,7 +1150,7 @@ Slice::Gen::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr
 }
 
 string
-Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
+Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool withLink)
 {
     string tag;
     string linkend;
@@ -1181,7 +1181,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if (proxy)
     {
-	if (proxy->_class()->includeLevel() == 0)
+	if (withLink && proxy->_class()->includeLevel() == 0)
 	{
 	    linkend = containedToId(proxy->_class());
 	}
@@ -1198,7 +1198,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
         // declaration, provided that a definition is available.
 	//
 	ContainedPtr definition = cl->definition();
-	if (definition && definition->includeLevel() == 0)
+	if (withLink && definition && definition->includeLevel() == 0)
 	{
 	    linkend = containedToId(definition);
 	}
@@ -1209,7 +1209,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if (ex)
     {
-	if (ex->includeLevel() == 0)
+	if (withLink && ex->includeLevel() == 0)
 	{
 	    linkend = containedToId(ex);
 	}
@@ -1220,7 +1220,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     StructPtr st = StructPtr::dynamicCast(p);
     if (st)
     {
-	if (st->includeLevel() == 0)
+	if (withLink && st->includeLevel() == 0)
 	{
 	    linkend = containedToId(st);
 	}
@@ -1231,7 +1231,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if (en)
     {
-	if (en->includeLevel() == 0)
+	if (withLink && en->includeLevel() == 0)
 	{
 	    linkend = containedToId(en);
 	}
@@ -1243,7 +1243,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
 	assert(contained);
-	if (contained->includeLevel() == 0)
+	if (withLink && contained->includeLevel() == 0)
 	{
 	    linkend = containedToId(contained);
 	}
@@ -1262,20 +1262,20 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 }
 
 string
-Slice::Gen::toString(const string& str, const ContainerPtr& container)
+Slice::Gen::toString(const string& str, const ContainerPtr& container, bool withLink)
 {
     string s = str;
 
     TypeList types = container->lookupType(s, false);
     if (!types.empty())
     {
-	return toString(types.front(), container);
+	return toString(types.front(), container, withLink);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if (!contList.empty())
     {
-	return toString(contList.front(), container);
+	return toString(contList.front(), container, withLink);
     }
 
     //

@@ -24,7 +24,6 @@ OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
 
 XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
-#XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
 XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c1_5_2
 
 OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
@@ -45,13 +44,13 @@ slicedir	= $(top_srcdir)/slice
 # set different compilation options for debug or optimization
 #
 CXX		= c++
-CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-#CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
+#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
+CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
 LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl
 LIBS		= -lIce $(BASELIBS)
-SSL_LIBS	= -lIceSSL $(OPENSSL_LIBS)
+SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
 CC		= gcc
 CFLAGS		= $(CXXFLAGS)
 
@@ -61,8 +60,9 @@ CFLAGS		= $(CXXFLAGS)
 #CXXFLAGS	= -O3 -DNDEBUG -KPIC
 #CPPFLAGS	= -I$(includedir)
 #LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
-#BASELIBS	= -lIceUtil -lpthread -luuid
-#LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
+#BASELIBS	= -lIceUtil -lpthread -luuid -ldl
+#LIBS		= -lIce $(BASELIBS)
+#SSLLIBS	= -lIceSSL $(OPENSSL_LIBS)
 #CC		= gcc
 #CFLAGS		= $(CXXFLAGS)
 
