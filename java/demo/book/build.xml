@@ -17,8 +17,8 @@
     </target>
 
     <target name="clean">
-        <ant dir="printer"/>
-        <ant dir="simple_filesystem"/>
+        <ant dir="printer" target="clean"/>
+        <ant dir="simple_filesystem" target="clean"/>
     </target>
 
 </project>
