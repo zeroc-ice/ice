@@ -39,11 +39,31 @@ public:
 
     RouterIPtr getRouter(const Ice::TransportInfoPtr&) const;    
 
+    virtual void run();
+
 private:
 
     const Ice::LoggerPtr _logger;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const int _traceLevel;
+
+    //
+    // TODO: I can't inherit directly from IceUtil::Thread, because of
+    // the inheritance of GCShared.
+    //
+    class SessionThread : public IceUtil::Thread
+    {
+    public:
+
+	SessionThread(const SessionRouterIPtr&);
+
+	virtual void run();
+
+    private:
+
+	SessionRouterIPtr _sessionRouter;
+    };
+    const IceUtil::Handle<SessionThread> _sessionThread;
 
     int _serverAdapterCount;
 

@@ -16,36 +16,39 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-static const string clientTraceReject = "Glacier2.Client.Trace.Reject";
-
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					 const IceInternal::RoutingTablePtr& routingTable,
-					 const string& allowCategories) :
+					 const string& allow) :
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
-    _traceLevelReject(communicator->getProperties()->getPropertyAsInt(clientTraceReject))
+    _rejectTraceLevel(communicator->getProperties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
+    vector<string>& allowCategories = const_cast<vector<string>&>(_allowCategories);
+
     const string ws = " \t";
-    string::size_type current = allowCategories.find_first_not_of(ws, 0);
+    string::size_type current = allow.find_first_not_of(ws, 0);
     while(current != string::npos)
     {
-	string::size_type pos = allowCategories.find_first_of(ws, current);
+	string::size_type pos = allow.find_first_of(ws, current);
 	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
-	string category = allowCategories.substr(current, len);
-	_allowCategories.push_back(category);
-	current = allowCategories.find_first_not_of(ws, pos);
+	string category = allow.substr(current, len);
+	allowCategories.push_back(category);
+	current = allow.find_first_not_of(ws, pos);
     }
-    sort(_allowCategories.begin(), _allowCategories.end()); // Must be sorted.
-    _allowCategories.erase(unique(_allowCategories.begin(), _allowCategories.end()), _allowCategories.end());
+
+    sort(allowCategories.begin(), allowCategories.end()); // Must be sorted.
+    allowCategories.erase(unique(allowCategories.begin(), allowCategories.end()), allowCategories.end());
+}
+
+Glacier2::ClientBlobject::~ClientBlobject()
+{
+    assert(!_routingTable);
 }
 
 void
 Glacier2::ClientBlobject::destroy()
 {
-    //
-    // No mutex protection necessary, destroy is only called after all
-    // object adapters have shut down.
-    //
+    assert(_routingTable); // Destroyed?
     _routingTable = 0;
     Blobject::destroy();
 }
@@ -54,6 +57,8 @@ void
 Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					   const Current& current)
 {
+    assert(_routingTable); // Destroyed?
+
     //
     // If there is an _allowCategories set then enforce it.
     //
@@ -61,7 +66,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
     {
 	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.id.category))
 	{
-	    if(_traceLevelReject >= 1)
+	    if(_rejectTraceLevel >= 1)
 	    {
 		Trace out(current.adapter->getCommunicator()->getLogger(), "Glacier2");
 		out << "rejecting request\n";
@@ -73,7 +78,6 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 	}
     }
 
-    assert(_routingTable); // Destroyed?
     ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
     {

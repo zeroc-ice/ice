@@ -34,10 +34,7 @@ Glacier2::Blobject::~Blobject()
 void
 Glacier2::Blobject::destroy()
 {
-    //
-    // No mutex protection necessary, destroy is only called after all
-    // object adapters have shut down.
-    //
+    assert(_requestQueue); // Destroyed?
     _requestQueue->destroy();
     _requestQueue->getThreadControl().join();
     _requestQueue = 0;
@@ -73,6 +70,8 @@ void
 Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 			  const Current& current)
 {
+    assert(_requestQueue); // Destroyed?
+
     //
     // Set the correct facet on the proxy.
     //
@@ -161,7 +160,6 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     //
     // Create a new request and add it to the request queue.
     //
-    assert(_requestQueue); // Destroyed?
     if(proxy->ice_isTwoway())
     {
 	AMI_Object_ice_invokePtr amiCB = new Glacier2CB(amdCB);

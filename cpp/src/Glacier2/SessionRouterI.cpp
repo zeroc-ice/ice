@@ -49,6 +49,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter) 
     _logger(clientAdapter->getCommunicator()->getLogger()),
     _clientAdapter(clientAdapter),
     _traceLevel(clientAdapter->getCommunicator()->getProperties()->getPropertyAsInt("Glacier2.Trace.Session")),
+    _sessionThread(new SessionThread(this)),
     _serverAdapterCount(0),
     _routersHint(_routers.end()),
     _destroy(false)
@@ -65,38 +66,39 @@ Glacier2::SessionRouterI::~SessionRouterI()
 void
 Glacier2::SessionRouterI::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	assert(!_destroy);
+	
+	_destroy = true;
+	
+	for_each(_routers.begin(), _routers.end(),
+		 Ice::secondVoidMemFun<const TransportInfoPtr, RouterI>(&RouterI::destroy));
+	_routers.clear();
+	_routersHint = _routers.end();
+	
+	notify();
+    }
 
-    assert(!_destroy);
-
-    _destroy = true;
-
-    for_each(_routers.begin(), _routers.end(),
-	     Ice::secondVoidMemFun<const TransportInfoPtr, RouterI>(&RouterI::destroy));
-    _routers.clear();
-    _routersHint = _routers.end();
-
-    notify();
+    _sessionThread->getThreadControl().join();
 }
 
 ObjectPrx
 Glacier2::SessionRouterI::getClientProxy(const Current& current) const
 {
-    assert(!_destroy);
     return getRouter(current.transport)->getClientProxy(current); // Forward to the per-client router.
 }
 
 ObjectPrx
 Glacier2::SessionRouterI::getServerProxy(const Current& current) const
 {
-    assert(!_destroy);
     return getRouter(current.transport)->getServerProxy(current); // Forward to the per-client router.
 }
 
 void
 Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
-    assert(!_destroy);
     getRouter(current.transport)->addProxy(proxy, current); // Forward to the per-client router.
 }
 
@@ -169,4 +171,27 @@ Glacier2::SessionRouterI::getRouter(const TransportInfoPtr& transport) const
     {
 	return 0;
     }
+}
+
+void
+Glacier2::SessionRouterI::run()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+    while(!_destroy)
+    {		
+	wait();
+    }
+}
+
+Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter) :
+    _sessionRouter(sessionRouter)
+{
+}
+
+void
+Glacier2::SessionRouterI::SessionThread::SessionThread::run()
+{
+    _sessionRouter->run();
+    _sessionRouter = 0; // Break cyclic dependencies.
 }

@@ -20,13 +20,15 @@ Glacier2::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, co
 {
 }
 
+Glacier2::ServerBlobject::~ServerBlobject()
+{
+    assert(!_transport);
+}
+
 void
 Glacier2::ServerBlobject::destroy()
 {
-    //
-    // No mutex protection necessary, destroy is only called after all
-    // object adapters have shut down.
-    //
+    assert(_transport); // Destroyed?
     _transport = 0;
     Blobject::destroy();
 }
@@ -36,6 +38,7 @@ Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 					  const Current& current)
 {
     assert(_transport); // Destroyed?
+
     ObjectPrx proxy = _transport->createProxy(current.id);
     assert(proxy);
 

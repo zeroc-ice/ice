@@ -23,6 +23,7 @@ class ServerBlobject : public Glacier2::Blobject
 public:
 
     ServerBlobject(const Ice::CommunicatorPtr&, const Ice::TransportInfoPtr&);
+    virtual ~ServerBlobject();
 
     void destroy();
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,

@@ -93,6 +93,7 @@ Glacier2::RouterI::getServerProxy(const Current&) const
 void
 Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 {
+
     if(_routingTableTraceLevel)
     {
 	Trace out(_communicator->getLogger(), "Glacier2");
