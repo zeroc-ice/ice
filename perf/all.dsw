@@ -3,6 +3,30 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "Thread_PoolTAOC"=.\src\TAO\Thread_Pool\Thread_PoolTAOC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "Thread_PoolTAOS"=.\src\TAO\Thread_Pool\Thread_PoolTAOS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "all"=.\all.dsp - Package Owner=<4>
 
 Package=<5>
