@@ -20,7 +20,6 @@ class CallbackClient extends Ice.Application
             "d: send callback as datagram\n" +
             "D: send callback as batch datagram\n" +
             "f: flush all batch requests\n" +
-	    "v: set/reset override context field\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -58,13 +57,7 @@ class CallbackClient extends Ice.Application
 	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 Ice.Util.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-        //CallbackReceiverPrx batchOnewayR =
-        //    CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_batchOneway());
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
-        //CallbackReceiverPrx batchDatagramR =
-        //    CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_batchDatagram());
-
-	String overwrite = null;
 
         menu();
 
@@ -84,59 +77,28 @@ class CallbackClient extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "t");
-                    twoway.initiateCallback(twowayR, context);
+                    twoway.initiateCallback(twowayR);
                 }
                 else if(line.equals("o"))
                 {
-                    java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "o");
-                    oneway.initiateCallback(onewayR, context);
+                    oneway.initiateCallback(onewayR);
                 }
                 else if(line.equals("O"))
                 {
-                    java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "O");
-		    if(overwrite != null)
-		    {
-			context.put("_ovwt", overwrite);
-		    }
-                    batchOneway.initiateCallback(onewayR, context);
+                    batchOneway.initiateCallback(onewayR);
                 }
                 else if(line.equals("d"))
                 {
-                    java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "d");
-                    datagram.initiateCallback(datagramR, context);
+                    datagram.initiateCallback(datagramR);
                 }
                 else if(line.equals("D"))
                 {
-                    java.util.HashMap context = new java.util.HashMap();
-                    context.put("_fwd", "D");
-		    if(overwrite != null)
-		    {
-			context.put("_ovwt", overwrite);
-		    } 
-		    batchDatagram.initiateCallback(datagramR, context);
+		    batchDatagram.initiateCallback(datagramR);
                 }
                 else if(line.equals("f"))
                 {
 		    communicator().flushBatchRequests();
                 }
-		else if(line.equals("v"))
-		{
-		    if(overwrite == null)
-		    {
-			overwrite = "some_value";
-			System.out.println("overwrite context field is now `" + overwrite + "'");
-		    }
-		    else
-		    {
-			overwrite = null;
-			System.out.println("overwrite context field is empty");
-		    }
-		}
                 else if(line.equals("s"))
                 {
                     twoway.shutdown();

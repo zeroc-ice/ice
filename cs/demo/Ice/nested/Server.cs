@@ -13,7 +13,7 @@ public class Server
     public static void Main(string[] args)
     {
         NestedServer app = new NestedServer();
-        int status = app.main(args, "config.server");
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

@@ -424,7 +424,7 @@ namespace Ice
 	    }
 	}
 	
-	public ObjectPrx createReverseProxy(Identity ident)
+	public ObjectPrx createReverseProxy(Identity ident, TranpsortInfo transport)
 	{
 	    lock(this)
 	    {

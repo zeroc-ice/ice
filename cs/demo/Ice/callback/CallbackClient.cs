@@ -21,7 +21,6 @@ class CallbackClient : Ice.Application
 			      + "d: send callback as datagram\n"
 			      + "D: send callback as batch datagram\n"
 			      + "f: flush all batch requests\n"
-			      + "v: set/reset override context field\n"
 			      + "s: shutdown server\n"
 			      + "x: exit\n"
 			      + "?: help\n");
@@ -58,13 +57,7 @@ class CallbackClient : Ice.Application
 					adapter.createProxy(Ice.Util.stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(
 					twowayR.ice_oneway());
-        //CallbackReceiverPrx batchOnewayR =
-        //    CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_batchOneway());
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
-        //CallbackReceiverPrx batchDatagramR =
-        //    CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_batchDatagram());
-        
-        string overwrite = null;
         
         menu();
         
@@ -82,58 +75,27 @@ class CallbackClient : Ice.Application
                 }
                 if(line.Equals("t"))
                 {
-                    Ice.Context context = new Ice.Context();
-                    context["_fwd"] = "t";
-                    twoway.initiateCallback(twowayR, context);
+                    twoway.initiateCallback(twowayR);
                 }
                 else if(line.Equals("o"))
                 {
-                    Ice.Context context = new Ice.Context();
-                    context["_fwd"] = "o";
-                    oneway.initiateCallback(onewayR, context);
+                    oneway.initiateCallback(onewayR);
                 }
                 else if(line.Equals("O"))
                 {
-                    Ice.Context context = new Ice.Context();
-                    context["_fwd"] = "O";
-                    if(overwrite != null)
-                    {
-                        context["_ovwt"] = overwrite;
-                    }
-                    batchOneway.initiateCallback(onewayR, context);
+                    batchOneway.initiateCallback(onewayR);
                 }
                 else if(line.Equals("d"))
                 {
-                    Ice.Context context = new Ice.Context();
-                    context["_fwd"] = "d";
-                    datagram.initiateCallback(datagramR, context);
+                    datagram.initiateCallback(datagramR);
                 }
                 else if(line.Equals("D"))
                 {
-                    Ice.Context context = new Ice.Context();
-                    context["_fwd"] = "D";
-                    if(overwrite != null)
-                    {
-                        context["_ovwt"] = overwrite;
-                    }
-                    batchDatagram.initiateCallback(datagramR, context);
+                    batchDatagram.initiateCallback(datagramR);
                 }
                 else if(line.Equals("f"))
                 {
                     communicator().flushBatchRequests();
-                }
-                else if(line.Equals("v"))
-                {
-                    if(overwrite == null)
-                    {
-                        overwrite = "some_value";
-                        Console.Out.WriteLine("overwrite context field is now `" + overwrite + "'");
-                    }
-                    else
-                    {
-                        overwrite = null;
-                        Console.Out.WriteLine("overwrite context field is empty");
-                    }
                 }
                 else if(line.Equals("s"))
                 {

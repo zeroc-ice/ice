@@ -7,13 +7,12 @@
 //
 // **********************************************************************
 
-
 public class Server
 {
     public static void Main(string[] args)
     {
         CallbackServer app = new CallbackServer();
-        int status = app.main(args, "config.server");
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

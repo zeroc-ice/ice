@@ -417,7 +417,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     public synchronized ObjectPrx
-    createReverseProxy(Identity ident)
+    createReverseProxy(Identity ident, TransportInfo transport)
     {
 	checkForDeactivation();
         checkIdentity(ident);

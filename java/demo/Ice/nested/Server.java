@@ -13,7 +13,7 @@ public class Server
     main(String[] args)
     {
         NestedServer app = new NestedServer();
-        int status = app.main("Server", args, "config.server");
+        int status = app.main("Server", args, "config");
         System.exit(status);
     }
 }
