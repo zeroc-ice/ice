@@ -150,10 +150,17 @@ private:
     const std::vector<Ice::Byte> _replyHdr;
 
     Ice::Int _nextRequestId;
+
     std::map<Ice::Int, Outgoing*> _requests;
     std::map<Ice::Int, Outgoing*>::iterator _requestsHint;
-    std::map<Ice::Int, OutgoingAsyncPtr> _asyncRequests;
-    std::map<Ice::Int, OutgoingAsyncPtr>::iterator _asyncRequestsHint;
+
+    struct AsyncRequest
+    {
+	OutgoingAsyncPtr p;
+	IceUtil::Time t;
+    };
+    std::map<Ice::Int, AsyncRequest> _asyncRequests;
+    std::map<Ice::Int, AsyncRequest>::iterator _asyncRequestsHint;
 
     std::auto_ptr<Ice::LocalException> _exception;
 

@@ -193,16 +193,20 @@ public abstract class OutgoingAsync
     public final boolean
     __timedOut()
     {
-	synchronized(_monitor)
+	//
+	// No synchronization necessary, because
+	// _absoluteTimeoutMillis is declared volatile. We cannot
+	// synchronize here because otherwise there might be deadlocks
+	// when Connection calls back on this object with this
+	// function.
+	//
+	if(_absoluteTimeoutMillis > 0)
 	{
-	    if(_connection != null && _connection.timeout() >= 0)
-	    {
-		return System.currentTimeMillis() >= _absoluteTimeoutMillis;
-	    }
-	    else
-	    {
-		return false;
-	    }
+	    return System.currentTimeMillis() >= _absoluteTimeoutMillis;
+	}
+	else
+	{
+	    return false;
 	}
     }
 
@@ -290,6 +294,10 @@ public abstract class OutgoingAsync
 		    if(_connection.timeout() >= 0)
 		    {
 			_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout();
+		    }
+		    else
+		    {
+			_absoluteTimeoutMillis = 0;
 		    }
 		    
 		    try
@@ -387,7 +395,11 @@ public abstract class OutgoingAsync
     private int _cnt;
     private Ice.OperationMode _mode;
 
-    private long _absoluteTimeoutMillis;
+    //
+    // Must be volatile, because we don't want to lock the monitor
+    // below in __timedOut(), to avoid deadlocks.
+    //
+    private volatile long _absoluteTimeoutMillis;
 
-    private java.lang.Object _monitor = new java.lang.Object();
+    private final java.lang.Object _monitor = new java.lang.Object();
 }

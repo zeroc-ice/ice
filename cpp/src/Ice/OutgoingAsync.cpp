@@ -219,21 +219,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     cleanup();
 }
 
-bool
-IceInternal::OutgoingAsync::__timedOut() const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
-
-    if(_connection && _connection->timeout() >= 0)
-    {
-	return IceUtil::Time::now() >= _absoluteTimeout;
-    }
-    else
-    {
-	return false;
-    }
-}
-
 void
 IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& operation, OperationMode mode,
 				      const Context& context)
@@ -295,11 +280,6 @@ IceInternal::OutgoingAsync::__send()
 	    if(!_connection)
 	    {
 		_connection = _reference->getConnection();
-	    }
-	    
-	    if(_connection->timeout() >= 0)
-	    {
-		_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
 	    }
 	    
 	    try

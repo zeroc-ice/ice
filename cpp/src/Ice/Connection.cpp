@@ -328,9 +328,9 @@ IceInternal::Connection::monitor()
     //
     // Check for timed out async requests.
     //
-    for(map<Int, OutgoingAsyncPtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
+    for(map<Int, AsyncRequest>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
     {
-	if(p->second->__timedOut())
+	if(p->second.t > IceUtil::Time() && p->second.t < IceUtil::Time::now())
 	{
 	    setState(StateClosed, TimeoutException(__FILE__, __LINE__));
 	    return;
@@ -565,8 +565,11 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	//
 	// Add to the async requests map.
 	//
+	struct AsyncRequest asyncRequest;
+	asyncRequest.p = out;
+	asyncRequest.t = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_endpoint->timeout());
 	_asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
-						   pair<const Int, OutgoingAsyncPtr>(requestId, out));
+						   pair<const Int, AsyncRequest>(requestId, asyncRequest));
 	
 	if(_acmTimeout > 0)
 	{
@@ -656,7 +659,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	// without a very elaborate and complex design, which would be
 	// bad for performance.
 	//
-	map<Int, OutgoingAsyncPtr>::iterator p = _asyncRequests.find(requestId);
+	map<Int, AsyncRequest>::iterator p = _asyncRequests.find(requestId);
 	if(p != _asyncRequests.end())
 	{
 	    if(p == _asyncRequestsHint)
@@ -1183,7 +1186,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    stream.read(requestId);
 		    
 		    map<Int, Outgoing*>::iterator p = _requests.end();
-		    map<Int, OutgoingAsyncPtr>::iterator q = _asyncRequests.end();
+		    map<Int, AsyncRequest>::iterator q = _asyncRequests.end();
 		    
 		    if(_requestsHint != _requests.end())
 		    {
@@ -1237,7 +1240,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    {
 			assert(q != _asyncRequests.end());
 
-			outAsync = q->second;
+			outAsync = q->second.p;
 			
 			if(q == _asyncRequestsHint)
 			{
@@ -1348,7 +1351,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
     auto_ptr<LocalException> exception;
     
     map<Int, Outgoing*> requests;
-    map<Int, OutgoingAsyncPtr> asyncRequests;
+    map<Int, AsyncRequest> asyncRequests;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -1394,9 +1397,9 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 	p->second->finished(*_exception.get()); // The exception is immutable at this point.
     }
 
-    for(map<Int, OutgoingAsyncPtr>::iterator q = asyncRequests.begin(); q != asyncRequests.end(); ++q)
+    for(map<Int, AsyncRequest>::iterator q = asyncRequests.begin(); q != asyncRequests.end(); ++q)
     {
-	q->second->__finished(*_exception.get()); // The exception is immutable at this point.
+	q->second.p->__finished(*_exception.get()); // The exception is immutable at this point.
     }
 
     if(exception.get())

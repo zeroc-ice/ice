@@ -17,7 +17,6 @@
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/RecMutex.h>
-#include <IceUtil/Time.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ConnectionF.h>
@@ -44,8 +43,6 @@ public:
     void __finished(BasicStream&);
     void __finished(const Ice::LocalException&);
 
-    bool __timedOut() const;
-
 protected:
 
     void __prepare(const IceInternal::ReferencePtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
@@ -68,8 +65,6 @@ private:
     ConnectionPtr _connection;
     int _cnt;
     Ice::OperationMode _mode;
-
-    IceUtil::Time _absoluteTimeout;
 
     IceUtil::Monitor<IceUtil::RecMutex> _monitor;
 };
