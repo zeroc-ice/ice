@@ -16,6 +16,7 @@ LIBNAME		= $(call mkpylibname,IcePy)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Communicator.o \
+		  Connection.o \
 		  Current.o \
 		  Init.o \
 		  Logger.o \

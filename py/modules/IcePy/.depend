@@ -1,12 +1,13 @@
 Communicator.o: Communicator.cpp Communicator.h Logger.h ObjectAdapter.h ObjectFactory.h Properties.h Proxy.h Util.h
-Current.o: Current.cpp Current.h ObjectAdapter.h Util.h
-Init.o: Init.cpp Communicator.h Current.h Logger.h ObjectAdapter.h Operation.h Properties.h Proxy.h Slice.h Types.h Util.h
+Connection.o: Connection.cpp Connection.h Proxy.h Util.h
+Current.o: Current.cpp Current.h Connection.h ObjectAdapter.h Util.h
+Init.o: Init.cpp Communicator.h Connection.h Current.h Logger.h ObjectAdapter.h Operation.h Properties.h Proxy.h Slice.h Types.h Util.h
 Logger.o: Logger.cpp Logger.h Util.h
 ObjectAdapter.o: ObjectAdapter.cpp ObjectAdapter.h Communicator.h Current.h Operation.h Proxy.h Util.h
 ObjectFactory.o: ObjectFactory.cpp ObjectFactory.h Types.h Util.h
 Operation.o: Operation.cpp Operation.h Current.h Proxy.h Types.h Util.h
 Properties.o: Properties.cpp Properties.h Util.h
-Proxy.o: Proxy.cpp Proxy.h Util.h
+Proxy.o: Proxy.cpp Proxy.h Connection.h Util.h
 Slice.o: Slice.cpp Slice.h Util.h
 Types.o: Types.cpp Types.h Util.h Current.h Proxy.h
 Util.o: Util.cpp Util.h

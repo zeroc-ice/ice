@@ -12,8 +12,10 @@
 #endif
 #include <Current.h>
 #include <structmember.h>
+#include <Connection.h>
 #include <ObjectAdapter.h>
 #include <Util.h>
+#include <Ice/ObjectAdapter.h>
 
 using namespace std;
 using namespace IcePy;
@@ -137,7 +139,16 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_CONNECTION:
     {
-        // TODO: Connection
+	if(self->con == NULL)
+	{
+	    self->con = createConnection(self->current->con, self->current->adapter->getCommunicator());
+	    if(self->con == NULL)
+	    {
+		return NULL;
+	    }
+	}
+        Py_INCREF(self->con);
+        result = self->con;
         break;
     }
     case CURRENT_ID:

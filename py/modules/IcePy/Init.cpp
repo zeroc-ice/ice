@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Communicator.h>
+#include <Connection.h>
 #include <Current.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
@@ -117,6 +118,10 @@ initIcePy(void)
         return;
     }
     if(!initLogger(module))
+    {
+        return;
+    }
+    if(!initConnection(module))
     {
         return;
     }

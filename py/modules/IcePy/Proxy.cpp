@@ -12,6 +12,7 @@
 #endif
 #include <Proxy.h>
 #include <structmember.h>
+#include <Connection.h>
 #include <Util.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
@@ -844,6 +845,36 @@ proxyIceDefault(ProxyObject* self)
     return createProxy(newProxy, *self->communicator);
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceConnection(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    Ice::ConnectionPtr con;
+    try
+    {
+        con = (*self->proxy)->ice_connection();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    if(con)
+    {
+	return createConnection(con, *self->communicator);
+    }
+    else
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+}
+
 static PyObject*
 checkedCastImpl(ProxyObject* p, const string& id, const string& facet, PyObject* type)
 {
@@ -1063,6 +1094,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx") },
     { "ice_default", (PyCFunction)proxyIceDefault, METH_NOARGS,
         PyDoc_STR("ice_default() -> Ice.ObjectPrx") },
+    { "ice_connection", (PyCFunction)proxyIceConnection, METH_NOARGS,
+        PyDoc_STR("ice_connection() -> Ice.Connection") },
     { "ice_checkedCast", (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
         PyDoc_STR("ice_checkedCast(proxy, id) -> proxy") },
     { "ice_uncheckedCast", (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,

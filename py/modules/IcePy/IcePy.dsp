@@ -110,6 +110,10 @@ SOURCE=.\Communicator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Connection.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Current.cpp
 # End Source File
 # Begin Source File
@@ -159,6 +163,10 @@ SOURCE=.\Util.cpp
 # Begin Source File
 
 SOURCE=.\Communicator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Connection.h
 # End Source File
 # Begin Source File
 
