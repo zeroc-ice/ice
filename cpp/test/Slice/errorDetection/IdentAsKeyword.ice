@@ -78,3 +78,5 @@ interface i8 { void op(double BYTE); };
 
 interface i9 { void op(out double byte); };
 interface i10 { void op(out double BYTE); };
+
+interface \true {};	// OK, escaped keyword
