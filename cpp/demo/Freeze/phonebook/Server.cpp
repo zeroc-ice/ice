@@ -11,13 +11,81 @@
 #include <Evictor.h>
 #include <ServantFactory.h>
 
+static Ice::CommunicatorPtr communicator;
+
+#ifdef WIN32
+
+static BOOL WINAPI
+interruptHandler(DWORD)
+{
+    assert(communicator);
+    communicator->shutdown();
+}
+
+static void
+shutdownOnInterrupt()
+{
+    BOOL b = SetConsoleHandler(interruptHandler, TRUE);
+    assert(b);
+}
+
+static void
+ignoreInterrupt()
+{
+    BOOL b = SetConsoleHandler(interruptHandler, FASLSE);
+    assert(b);
+}
+
+#else
+
+#   include <signal.h>
+
+static void
+interruptHandler(int)
+{
+    assert(communicator);
+    communicator->shutdown();
+}
+
+static void
+shutdownOnInterrupt()
+{
+    struct sigaction action;
+    action.sa_handler = interruptHandler;
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGHUP);
+    sigaddset(&action.sa_mask, SIGINT);
+    sigaddset(&action.sa_mask, SIGTERM);
+    action.sa_flags = 0;
+    sigaction(SIGHUP, &action, 0);
+    sigaction(SIGINT, &action, 0);
+    sigaction(SIGTERM, &action, 0);
+}
+
+static void
+ignoreInterrupt()
+{
+    struct sigaction action;
+    action.sa_handler = SIG_IGN;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+    sigaction(SIGHUP, &action, 0);
+    sigaction(SIGINT, &action, 0);
+    sigaction(SIGTERM, &action, 0);
+}
+
+#endif
+
 using namespace Ice;
 using namespace Freeze;
 using namespace std;
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr& dbenv)
+run(int argc, char* argv[], const DBEnvPtr& dbenv)
 {
+    ignoreInterrupt();
+    cout << "starting up..." << endl;
+
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     DBPtr db = dbenv->open("phonebook");
     EvictorPtr evictor = new Evictor(db, 3); // TODO: Evictor size must be configurable
@@ -43,7 +111,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr&
     communicator->installServantFactory(contactFactory, "::Contact");
 
     adapter->activate();
+
+    shutdownOnInterrupt();
     communicator->waitForShutdown();
+    ignoreInterrupt();
+    cout << "shutting down..." << endl;
 
     db->put("phonebook", phoneBook);
 
@@ -54,7 +126,6 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    CommunicatorPtr communicator;
     DBEnvPtr dbenv;
 
     try
@@ -62,7 +133,7 @@ main(int argc, char* argv[])
 	PropertiesPtr properties = createPropertiesFromFile(argc, argv, "config");
 	communicator = Ice::initializeWithProperties(properties);
 	dbenv = Freeze::initializeWithProperties(communicator, properties);
-	status = run(argc, argv, communicator, dbenv);
+	status = run(argc, argv, dbenv);
     }
     catch(const LocalException& ex)
     {
@@ -98,6 +169,7 @@ main(int argc, char* argv[])
 	try
 	{
 	    communicator->destroy();
+	    communicator = 0;
 	}
 	catch(const LocalException& ex)
 	{

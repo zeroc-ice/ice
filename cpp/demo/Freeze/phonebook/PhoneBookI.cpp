@@ -154,7 +154,7 @@ Contacts
 PhoneBookI::findContacts(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
-
+    
     //
     // Lookup all phone book contacts that match a name, and return
     // them to the caller.
