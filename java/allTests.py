@@ -43,7 +43,7 @@ def runTests(tests, num = 0):
 	print 
         
         if TestUtil.isWin9x():
-	    status = os.system("python " + os.path.join(dir, "run.py"))
+            status = os.system("python " + os.path.join(dir, "run.py"))
         else:
             status = os.system(os.path.join(dir, "run.py"))
 
