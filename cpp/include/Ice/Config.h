@@ -65,7 +65,6 @@ namespace IceInternal
 #   endif
 #endif
 
-
 namespace Ice
 {
 

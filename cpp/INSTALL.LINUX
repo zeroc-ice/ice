@@ -42,14 +42,14 @@ Third-party libraries
 
 - bzip2 1.0
 
-- readline and ncurses (optional, but used unless you set 
-  USE_READLINE to no in config/Make.rules)
+- readline and ncurses (optional, but used unless you set USE_READLINE
+  to no in config/Make.rules)
 
 Xerces-C++ can be download from:
 http://xml.apache.org/xerces-c
 
-Berkeley DB, OpenSSL, bzip2, readline and ncurses are usually 
-available with your Linux distribution. 
+Berkeley DB, OpenSSL, bzip2, readline and ncurses are usually
+available with your Linux distribution.
 
 The RPMs for RedHat 8.0 are:
 db4-devel-4.0.14-14
@@ -126,27 +126,30 @@ PATH and "lib" to LD_LIBRARY_PATH:
 $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
+
 ======================================================================
 64 bit builds on AMD Opteron
 ======================================================================
 
 To build Ice in 64 bit mode, you need to:
- - Obtain or build all the third party dependencies, and put the 64 bit
-   libraries in the "lib64" directories. For example put 
-   Berkeley DB 64 bit libraries in $DB_HOME/lib64.
- - Set the environment variable LP64 to yes, e.g.:
-   $ export LP64=yes
- - Build and test as described above.
+
+- Obtain or build all the third party dependencies, and put the 64 bit
+  libraries in the "lib64" directories. For example put Berkeley DB 64
+  bit libraries in $DB_HOME/lib64.
+
+- Set the environment variable LP64 to yes, e.g.: $ export LP64=yes
+
+- Build and test as described above.
 
 
 ======================================================================
 Notes for RedHat 9 Users
 ======================================================================
 
-Ice is not currently compatible with the "NPTL" threading model used by
-default on RedHat 9, causing Ice programs to hang indefinitely. Until
-this issue is resolved, you will need to set the following environment
-variable:
+Ice is not currently compatible with the "NPTL" threading model used
+by default on RedHat 9, causing Ice programs to hang
+indefinitely. Until this issue is resolved, you will need to set the
+following environment variable:
 
 export LD_ASSUME_KERNEL=2.4.1
 
@@ -157,9 +160,9 @@ with the error code ENOSYS ("Function not implemented") when this
 environment variable is set.
 
 Unfortunately, this means you cannot use the version of BerkeleyDB
-that is supplied by RedHat 9 with Ice, because it was not built properly
-for use with LD_ASSUME_KERNEL. We recommend downloading the latest
-release from the URL shown above.
+that is supplied by RedHat 9 with Ice, because it was not built
+properly for use with LD_ASSUME_KERNEL. We recommend downloading the
+latest release from the URL shown above.
 
 The steps for building BerkeleyDB are straightforward:
 
@@ -172,7 +175,8 @@ $ make
 The --enable-java option is necessary if you plan to use Ice for Java.
 The --prefix option overrides the default installation directory.
 
-Please refer to the BerkeleyDB documentation if you need more information.
+Please refer to the BerkeleyDB documentation if you need more
+information.
 
 
 ======================================================================
@@ -189,6 +193,6 @@ to pass the location of the <prefix>/include directory to the compiler
 with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
 
-If LP64 is set to yes, the libraries are installed in <prefix>/lib64 
-and the programs are installed in <prefix>/bin64. Other files are 
+If LP64 is set to yes, the libraries are installed in <prefix>/lib64
+and the programs are installed in <prefix>/bin64. Other files are
 identical for 32 and 64 bit.
