@@ -93,7 +93,8 @@ print "creating test database... ",
 sys.stdout.flush()
 
 makedb = os.path.join(directory, "makedb") + " " + directory
-os.system(makedb)
+if os.system(makedb) != 0:
+    sys.exit(1)
 
 print "ok"
 
@@ -106,7 +107,8 @@ print "initializing test database... ",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db " + init_dbdir
-os.system(command)
+if os.system(command) != 0:
+    sys.exit(1)
 
 print "ok"
 
@@ -123,7 +125,8 @@ print "validating database... ",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " default.db " + tmp_dbdir
-os.system(command)
+if os.system(command) != 0:
+    sys.exit(1)
 
 print "ok"
 
