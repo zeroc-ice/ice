@@ -63,7 +63,19 @@ private:
 
     ActivatorPtr _activator;
     WaitQueuePtr _waitQueue;
-    std::auto_ptr<Registry> _registry;
+    RegistryPtr _registry;
+};
+
+class CollocatedRegistry : public Registry
+{
+public:
+
+    CollocatedRegistry(const Ice::CommunicatorPtr&, const ActivatorPtr&);
+    virtual void shutdown();
+
+private:
+
+    ActivatorPtr _activator;
 };
 
 } // End of namespace IcePack
@@ -96,6 +108,18 @@ childHandler(int)
 
 }
 #endif
+
+CollocatedRegistry::CollocatedRegistry(const Ice::CommunicatorPtr& communicator, const ActivatorPtr& activator) :
+    Registry(communicator), 
+    _activator(activator)
+{
+}
+
+void
+CollocatedRegistry::shutdown()
+{
+    _activator->shutdown();
+}
 
 IcePack::NodeService::NodeService()
 {
@@ -184,6 +208,12 @@ IcePack::NodeService::start(int argc, char* argv[])
     }
 
     //
+    // Create the activator.
+    //
+    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
+    _activator = new Activator(traceLevels, properties);
+
+    //
     // Collocate the IcePack registry if we need to.
     //
     if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
@@ -204,7 +234,7 @@ IcePack::NodeService::start(int argc, char* argv[])
             properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
         }
 
-        _registry = auto_ptr<Registry>(new Registry(communicator()));
+        _registry = new CollocatedRegistry(communicator(), _activator);
         if(!_registry->start(nowarn))
         {
             return false;
@@ -323,6 +353,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         {
             warning("property `IcePack.Node.Name' is not set, using hostname: " + string(host));
         }
+	properties->setProperty("IcePack.Node.Name", string(host));
     }
 
     //
@@ -336,13 +367,6 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node." + name);
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
-
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
-
-    //
-    // Create the activator.
-    //
-    _activator = new Activator(traceLevels, properties);
 
     //
     // Create the wait queue.

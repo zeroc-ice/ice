@@ -13,7 +13,7 @@
 namespace IcePack
 {
 
-class Registry
+class Registry : public IceUtil::Shared
 {
 public:
 
@@ -22,10 +22,13 @@ public:
 
     bool start(bool);
 
+    virtual void shutdown();
+
 private:
 
     Ice::CommunicatorPtr _communicator;
 };
+typedef IceUtil::Handle<Registry> RegistryPtr;
 
 }
 
