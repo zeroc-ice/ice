@@ -49,7 +49,7 @@ for file in os.listdir(os.path.join(directory, "fail")):
 
 regex2 = re.compile(r"^.*transf(ormdb|~1)(\.exe)?", re.IGNORECASE)
 
-print "testing error detection... ",
+print "testing error detection...",
 sys.stdout.flush()
 
 files.sort()
@@ -84,7 +84,7 @@ for oldfile in files:
 
 print "ok"
 
-print "creating test database... ",
+print "creating test database...",
 sys.stdout.flush()
 
 makedb = os.path.join(directory, "makedb") + " " + directory
@@ -98,7 +98,7 @@ testnew = os.path.join(directory, "TestNew.ice")
 initxml = os.path.join(directory, "init.xml")
 checkxml = os.path.join(directory, "check.xml")
 
-print "initializing test database... ",
+print "initializing test database...",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db " + init_dbdir
@@ -107,7 +107,7 @@ if os.system(command) != 0:
 
 print "ok"
 
-print "executing default transformations... ",
+print "executing default transformations...",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::Test::S " + init_dbdir + " default.db " + check_dbdir
@@ -116,7 +116,7 @@ stderr.readlines()
 
 print "ok"
 
-print "validating database... ",
+print "validating database...",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " default.db " + tmp_dbdir
