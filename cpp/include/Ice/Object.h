@@ -12,6 +12,7 @@
 #define ICE_OBJECT_H
 
 #include <Ice/ObjectF.h>
+#include <Ice/Proxy.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -34,7 +35,7 @@ namespace Ice
 {
 
 // No virtual inheritance for ice objects
-class ICE_API Object : public ::__Ice::Shared
+class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
 {
 public:
 

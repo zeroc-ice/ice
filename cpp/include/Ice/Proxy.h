@@ -30,7 +30,7 @@ ICE_API void read(Stream*, ::Ice::Object_prx&);
 namespace __IceProxy { namespace Ice
 {
 
-class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
+class ICE_API Object : public ::__Ice::Shared, JTCMutex
 {
 public:
 
@@ -70,7 +70,7 @@ private:
 namespace __IceDelegate { namespace Ice
 {
 
-class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
+class ICE_API Object : public ::__Ice::Shared
 {
 public:
 
@@ -83,7 +83,7 @@ protected:
 
 private:
 
-    virtual void setup(const ::__Ice::Reference_ptr&) = 0;
+    virtual void setup(const ::__Ice::Reference_ptr&);
     friend class ::__IceProxy::Ice::Object;
 };
 
