@@ -303,8 +303,12 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>sequence&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name()
-	      << "</type>;</synopsis>";
+	    O << nl << "<synopsis>";
+	    if ((*q)->isLocal())
+	    {
+		O << "local ";
+	    }
+	    O << "sequence&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
 	    
 	    printComment(*q);
@@ -322,8 +326,13 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    start("section id=" + containedToId(*q), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>dictionary&lt; " << toString(keyType, p) << ", " << toString(valueType, p)
-	      << " &gt; <type>" << (*q)->name() << "</type>;</synopsis>";
+	    O << nl << "<synopsis>";
+	    if ((*q)->isLocal())
+	    {
+		O << "local ";
+	    }
+	    O << "dictionary&lt; " << toString(keyType, p) << ", " << toString(valueType, p) << " &gt; <type>"
+	      << (*q)->name() << "</type>;</synopsis>";
 	    O.restoreIndent();
 	    
 	    printComment(*q);
@@ -612,6 +621,10 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     start("section", "Overview");
     O.zeroIndent();
     O << nl << "<synopsis>";
+    if (p->isLocal())
+    {
+	O << "local ";
+    }
     O << "struct <structname>" << p->name() << "</structname>";
     O << "</synopsis>";
     O.restoreIndent();
@@ -673,6 +686,10 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     start("section", "Overview");
     O.zeroIndent();
     O << nl << "<synopsis>";
+    if (p->isLocal())
+    {
+	O << "local ";
+    }
     O << "enum <type>" << p->name() << "</type>";
     O << "</synopsis>";
     O.restoreIndent();
