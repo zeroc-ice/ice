@@ -228,7 +228,6 @@ endif
 		if line.startswith('prefix'):
 		    state = 'done'
 
-	fileinput.close()
         # Dependency files are all going to be bogus.  The makedepend
         # script doesn't seem to work properly for the slice files.
         os.chdir("..")
@@ -243,6 +242,7 @@ endif
 	fileinput.close()
         os.chdir(tcwd)
         
+    fileinput.close()
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
     os.chdir(cwd)
 
