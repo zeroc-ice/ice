@@ -81,8 +81,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
-SLICE2CPPFLAGS	= --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) $(SLICE2CPPFLAGS)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I$(slicedir) -I..
 include $(top_srcdir)/config/Make.rules
 
@@ -154,8 +153,8 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 	StringObjectProxyDict ../../slice/Ice/BuiltinSequences.ice
 
 clean::
+include .slicedepend
 	rm -f StringObjectProxyDict.h StringObjectProxySeq.cpp
 
 
 include .depend
-include .slicedepend
