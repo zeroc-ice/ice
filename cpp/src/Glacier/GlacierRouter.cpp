@@ -37,7 +37,7 @@ public:
     
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate();
+    virtual void deactivate(const string&);
 
 private:
 
@@ -72,7 +72,7 @@ Glacier::ServantLocator::finished(const Current&, const ObjectPtr&, const LocalO
 }
 
 void
-Glacier::ServantLocator::deactivate()
+Glacier::ServantLocator::deactivate(const string&)
 {
     ClientBlobject* clientBlobject = dynamic_cast<ClientBlobject*>(_blobject.get());
     if(clientBlobject)

@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Changed Ice::ServantLocator::deactivate to be passed the category for
+  which a servant locator is being deactivated.
+
 - Added saveObject() operation on Evictor, and savedObject() operation
   on PersistenceStrategy.
   saveObject() saves a persistent object immediately. Once an operation 

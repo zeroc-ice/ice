@@ -49,7 +49,7 @@ public:
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate();
+    virtual void deactivate(const std::string&);
 
     virtual void save(const Ice::Identity&, const Ice::ObjectPtr&);
 

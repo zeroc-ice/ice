@@ -54,7 +54,7 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr& ser
 }
 
 void
-ServantLocatorI::deactivate()
+ServantLocatorI::deactivate(const string&)
 {
     test(!_deactivated);
 

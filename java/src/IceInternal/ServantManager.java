@@ -94,7 +94,7 @@ public final class ServantManager extends Thread
 	    }
 	}
 
-	locator.deactivate();
+	locator.deactivate(prefix);
     }
 
     public synchronized Ice.ServantLocator
@@ -146,7 +146,7 @@ public final class ServantManager extends Thread
 	    Ice.ServantLocator locator = (Ice.ServantLocator)e.getValue();
 	    try
 	    {
-		locator.deactivate();
+		locator.deactivate((String)e.getKey());
 	    }
 	    catch(Exception ex)
 	    {

@@ -339,7 +339,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     }
 
     synchronized public void
-    deactivate()
+    deactivate(String category)
     {
 	if(!_deactivated)
 	{

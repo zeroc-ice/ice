@@ -586,7 +586,7 @@ validateEvictor(const DBEnvironmentPtr& dbEnv)
             iter->destroy();
         }
 
-        evictor->deactivate();
+        evictor->deactivate("");
         db->close();
         db = 0;
 

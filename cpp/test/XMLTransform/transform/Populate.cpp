@@ -1069,7 +1069,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
             ident.name = "3";
             evictor->createObject(ident, c2);
         }
-        evictor->deactivate();
+        evictor->deactivate("");
         db->close();
         db = 0;
 
@@ -1119,7 +1119,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
             ident.name = "2";
             evictor->createObject(ident, c2);
         }
-        evictor->deactivate();
+        evictor->deactivate("");
         db->close();
         db = 0;
 

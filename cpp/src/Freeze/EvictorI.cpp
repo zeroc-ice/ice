@@ -394,7 +394,7 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 }
 
 void
-Freeze::EvictorI::deactivate()
+Freeze::EvictorI::deactivate(const string&)
 {
     IceUtil::Mutex::Lock sync(*this);
 

@@ -90,12 +90,15 @@ local interface ServantLocator
      * Called when the object adapter in which this servant locator is
      * installed is deactivated.
      *
+     * @param category Indicates for which category the servant locator
+     * is being deactivated.
+     *
      * @see ObjectAdapter::deactivate
      * @see Communicator::shutdown
      * @see Communicator::destroy
      *
      **/
-    void deactivate();
+    void deactivate(string category);
 };
 
 };

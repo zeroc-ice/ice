@@ -107,7 +107,7 @@ IcePatch::FileLocator::finished(const Current& current, const ObjectPtr&,
 }
 
 void
-IcePatch::FileLocator::deactivate()
+IcePatch::FileLocator::deactivate(const std::string&)
 {
     //
     // Break cyclic dependencies.

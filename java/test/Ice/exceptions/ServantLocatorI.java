@@ -23,7 +23,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     {
     }
 
-    public void deactivate()
+    public void deactivate(String category)
     {
     }
 }

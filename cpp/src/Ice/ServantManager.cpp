@@ -134,7 +134,7 @@ IceInternal::ServantManager::removeServantLocator(const string& prefix)
 	_locatorMapHint = _locatorMap.end();
     }
 
-    locator->deactivate();
+    locator->deactivate(prefix);
 }
 
 ServantLocatorPtr
@@ -197,7 +197,7 @@ IceInternal::ServantManager::destroy()
     {
 	try
 	{
-	    p->second->deactivate();
+	    p->second->deactivate(p->first);
 	}
 	catch(const Exception& ex)
 	{

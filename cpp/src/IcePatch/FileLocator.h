@@ -31,7 +31,7 @@ public:
 
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
 
-    virtual void deactivate();
+    virtual void deactivate(const std::string&);
 
 private:
 
