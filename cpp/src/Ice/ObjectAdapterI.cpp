@@ -173,8 +173,27 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _locatorMap.erase(prefix);
-    _locatorMapHint = _locatorMap.end();
+    map<string, ::Ice::ServantLocatorPtr>::iterator p = _locatorMap.end();
+    
+    if (_locatorMapHint != _locatorMap.end())
+    {
+	if (_locatorMapHint->first == prefix)
+	{
+	    p = _locatorMapHint;
+	}
+    }
+    
+    if (p == _locatorMap.end())
+    {
+	p = _locatorMap.find(prefix);
+    }
+    
+    if (p != _locatorMap.end())
+    {
+	p->second->deactivate();
+	_locatorMap.erase(p);
+	_locatorMapHint = _locatorMap.end();
+    }
 }
 
 ServantLocatorPtr
@@ -182,15 +201,26 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
+    if (_collectorFactories.empty())
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
+    map<string, ::Ice::ServantLocatorPtr>::iterator p = _locatorMap.end();
+    
     if (_locatorMapHint != _locatorMap.end())
     {
 	if (_locatorMapHint->first == prefix)
 	{
-	    return _locatorMapHint->second;
+	    p = _locatorMapHint;
 	}
     }
     
-    map<string, ::Ice::ServantLocatorPtr>::iterator p = _locatorMap.find(prefix);
+    if (p == _locatorMap.end())
+    {
+	p = _locatorMap.find(prefix);
+    }
+    
     if (p != _locatorMap.end())
     {
 	_locatorMapHint = p;

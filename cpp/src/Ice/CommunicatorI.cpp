@@ -14,6 +14,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ServantFactoryManager.h>
+#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
 #include <Ice/StreamI.h>
@@ -133,6 +134,39 @@ Ice::CommunicatorI::findServantFactory(const string& id)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     return _instance->servantFactoryManager()->find(id);
+}
+
+void
+Ice::CommunicatorI::addUserExceptionFactory(const UserExceptionFactoryPtr& factory, const string& id)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->userExceptionFactoryManager()->add(factory, id);
+}
+
+void
+Ice::CommunicatorI::removeUserExceptionFactory(const string& id)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->userExceptionFactoryManager()->remove(id);
+}
+
+UserExceptionFactoryPtr
+Ice::CommunicatorI::findUserExceptionFactory(const string& id)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->userExceptionFactoryManager()->find(id);
 }
 
 PropertiesPtr

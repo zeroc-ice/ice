@@ -8,30 +8,30 @@
 //
 // **********************************************************************
 
-#include <Ice/ServantFactoryManager.h>
-#include <Ice/ServantFactory.h>
+#include <Ice/UserExceptionFactoryManager.h>
+#include <Ice/UserExceptionFactory.h>
 #include <Ice/Functional.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ServantFactoryManager* p) { p->__incRef(); }
-void IceInternal::decRef(ServantFactoryManager* p) { p->__decRef(); }
+void IceInternal::incRef(UserExceptionFactoryManager* p) { p->__incRef(); }
+void IceInternal::decRef(UserExceptionFactoryManager* p) { p->__decRef(); }
 
 void
-IceInternal::ServantFactoryManager::add(const ServantFactoryPtr& factory, const string& id)
+IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& factory, const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, make_pair(id, factory));
 }
 
 void
-IceInternal::ServantFactoryManager::remove(const string& id)
+IceInternal::UserExceptionFactoryManager::remove(const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.end();
+    map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
     if (_factoryMapHint != _factoryMap.end())
     {
@@ -54,12 +54,12 @@ IceInternal::ServantFactoryManager::remove(const string& id)
     }
 }
 
-ServantFactoryPtr
-IceInternal::ServantFactoryManager::find(const string& id)
+UserExceptionFactoryPtr
+IceInternal::UserExceptionFactoryManager::find(const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
-    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.end();
+    map<string, ::Ice::UserExceptionFactoryPtr>::iterator p = _factoryMap.end();
     
     if (_factoryMapHint != _factoryMap.end())
     {
@@ -85,17 +85,17 @@ IceInternal::ServantFactoryManager::find(const string& id)
     }
 }
 
-IceInternal::ServantFactoryManager::ServantFactoryManager() :
+IceInternal::UserExceptionFactoryManager::UserExceptionFactoryManager() :
     _factoryMapHint(_factoryMap.end())
 {
 }
 
 void
-IceInternal::ServantFactoryManager::destroy()
+IceInternal::UserExceptionFactoryManager::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
-	     secondVoidMemFun<string, ServantFactory>(&ServantFactory::destroy));
+	     secondVoidMemFun<string, UserExceptionFactory>(&UserExceptionFactory::destroy));
     _factoryMap.clear();
     _factoryMapHint = _factoryMap.end();
 }

@@ -36,6 +36,10 @@ public:
     virtual void removeServantFactory(const std::string&);
     virtual ServantFactoryPtr findServantFactory(const std::string&);
 
+    virtual void addUserExceptionFactory(const UserExceptionFactoryPtr&, const std::string&);
+    virtual void removeUserExceptionFactory(const std::string&);
+    virtual UserExceptionFactoryPtr findUserExceptionFactory(const std::string&);
+
     virtual PropertiesPtr getProperties();
 
     virtual LoggerPtr getLogger();

@@ -40,6 +40,8 @@ OBJS		= Application.o \
 		  ServantLocator.o \
 		  ServantFactory.o \
 		  ServantFactoryManager.o \
+		  UserExceptionFactory.o \
+		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
 		  Reference.o \
 		  LocalObject.o \
@@ -209,5 +211,22 @@ $(HDIR)/ServantFactoryF.h: $(SDIR)/ServantFactoryF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ServantFactoryF.h
+
+$(HDIR)/UserExceptionFactory.h UserExceptionFactory.cpp: $(SDIR)/UserExceptionFactory.ice $(SLICE2CPP)
+	rm -f $(HDIR)/UserExceptionFactory.h UserExceptionFactory.cpp
+	$(SLICECMD) $(SDIR)/UserExceptionFactory.ice
+	mv UserExceptionFactory.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/UserExceptionFactory.h UserExceptionFactory.cpp
+
+$(HDIR)/UserExceptionFactoryF.h: $(SDIR)/UserExceptionFactoryF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/UserExceptionFactoryF.h UserExceptionFactoryF.cpp
+	$(SLICECMD) $(SDIR)/UserExceptionFactoryF.ice
+	mv UserExceptionFactoryF.h $(HDIR)
+	rm -f UserExceptionFactoryF.cpp
+
+clean::
+	rm -f $(HDIR)/UserExceptionFactoryF.h
 
 include .depend

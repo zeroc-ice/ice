@@ -236,6 +236,14 @@ SOURCE=.\ServantFactoryManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\UserExceptionFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\UserExceptionFactoryManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -537,6 +545,22 @@ SOURCE=.\Ice\ServantFactoryManager.h
 # Begin Source File
 
 SOURCE=.\Ice\ServantFactoryManagerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\UserExceptionFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\UserExceptionFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\UserExceptionFactoryManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\UserExceptionFactoryManagerF.h
 # End Source File
 # Begin Source File
 
@@ -1171,6 +1195,82 @@ InputPath=..\..\slice\Ice\ServantFactoryF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactoryF.ice 
 	move ServantFactoryF.h ..\..\include\Ice 
 	del ServantFactoryF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\UserExceptionFactory.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\UserExceptionFactory.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice \
+	move UserExceptionFactory.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\UserExceptionFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"UserExceptionFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\UserExceptionFactory.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice \
+	move UserExceptionFactory.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\UserExceptionFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"UserExceptionFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\UserExceptionFactoryF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
+
+"..\..\include\Ice\UserExceptionFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactoryF.ice 
+	move UserExceptionFactoryF.h ..\..\include\Ice 
+	del UserExceptionFactoryF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\UserExceptionFactoryF.ice
+
+"..\..\include\Ice\UserExceptionFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactoryF.ice 
+	move UserExceptionFactoryF.h ..\..\include\Ice 
+	del UserExceptionFactoryF.cpp 
 	
 # End Custom Build
 

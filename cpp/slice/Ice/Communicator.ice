@@ -15,6 +15,7 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
 #include <Ice/ServantFactoryF.ice>
+#include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/StreamF.ice>
 
 /**
@@ -36,6 +37,7 @@ module Ice
  * @see Pickler
  * @see Properties
  * @see ServantFactory
+ * @see UserExceptionFactory
  *
  **/
 local interface Communicator
@@ -209,6 +211,57 @@ local interface Communicator
      *
      **/
     ServantFactory findServantFactory(string id);
+
+    /**
+     *
+     * Add a user exception factory to this Communicator. If a factory
+     * has already been installed for the given id, the current
+     * factory for this id is replaced by the new one.
+     *
+     * @param factory The factory to add.
+     *
+     * @param id The type id for which the factory can create user
+     * exceptions.
+     *
+     * @see removeUserExceptionFactory
+     * @see findUserExceptionFactory
+     * @see UserExceptionFactory
+     *
+     **/
+    void addUserExceptionFactory(UserExceptionFactory factory, string id);
+
+    /**
+     *
+     * Remove a user exception factory from this Communicator. This
+     * operation does nothing if no factory for the given id has been
+     * installed.
+     *
+     * @param id The type id for which the factory can create user
+     * exceptions.
+     *
+     * @see addUserExceptionFactory
+     * @see findUserExceptionFactory
+     * @see UserExceptionFactory
+     *
+     **/
+    void removeUserExceptionFactory(string id);
+
+    /**
+     *
+     * Find a user exception factory installed with this Communicator.
+     *
+     * @param id The type id for which the factory can create user
+     * exceptions.
+     *
+     * @return The user exception factory, or null if no user
+     * exception factory was found for the given id.
+     *
+     * @see addUserExceptionFactory
+     * @see removeUserExceptionFactory
+     * @see UserExceptionFactory
+     *
+     **/
+    UserExceptionFactory findUserExceptionFactory(string id);
 
     /**
      *

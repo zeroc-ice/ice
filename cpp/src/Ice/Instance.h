@@ -21,6 +21,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
 #include <Ice/ServantFactoryManagerF.h>
+#include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <list>
 
@@ -46,6 +47,7 @@ public:
     ProxyFactoryPtr proxyFactory();
     EmitterFactoryPtr emitterFactory();
     ServantFactoryManagerPtr servantFactoryManager();
+    UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr threadPool();
     
@@ -63,6 +65,7 @@ private:
     ProxyFactoryPtr _proxyFactory;
     EmitterFactoryPtr _emitterFactory;
     ServantFactoryManagerPtr _servantFactoryManager;
+    UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _threadPool;
 

@@ -17,12 +17,10 @@ module Ice
 /**
  *
  * A factory for Servants. Servant Factories are used in several
- * places, for example, for receiving "objects by value", for
- * unpickling Servants, and for the [Freeze] module. Servant Factories
- * must be implemented by the application writer, and installed with
- * the Communicator.
+ * places, for example, for receiving "objects by value" or for the
+ * [Freeze] module. Servant Factories must be implemented by the
+ * application writer, and installed with the Communicator.
  *
- * @see Pickler
  * @see Freeze
  *
  **/
@@ -33,7 +31,7 @@ local interface ServantFactory
      * Create a new Servant for a given Servant type. The type is the
      * absolute Slice type name, i.e., the the name relative to the
      * unnamed top-level Slice module. For example, the absolute Slice
-     * type name for Servants for interfacees of type [Bar] in the
+     * type name for Servants for interfaces of type [Bar] in the
      * module [Foo] is [::Foo::Bar].
      *
      * <note><para>The leading "[::]" is required.</para></note>

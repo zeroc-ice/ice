@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_FACTORY_MANAGER_F_H
-#define ICE_SERVANT_FACTORY_MANAGER_F_H
+#ifndef ICE_USER_EXCEPTION_FACTORY_MANAGER_F_H
+#define ICE_USER_EXCEPTION_FACTORY_MANAGER_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class ServantFactoryManager;
-void incRef(ServantFactoryManager*);
-void decRef(ServantFactoryManager*);
-typedef IceInternal::Handle<ServantFactoryManager> ServantFactoryManagerPtr;
+class UserExceptionFactoryManager;
+void incRef(UserExceptionFactoryManager*);
+void decRef(UserExceptionFactoryManager*);
+typedef IceInternal::Handle<UserExceptionFactoryManager> UserExceptionFactoryManagerPtr;
 
 }
 

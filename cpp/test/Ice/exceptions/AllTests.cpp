@@ -14,6 +14,37 @@
 
 using namespace std;
 
+class MyExceptionFactory : public Ice::UserExceptionFactory
+{
+public:
+
+    virtual void createAndThrow(const string& type)
+    {
+	if (type == "::A")
+	{
+	    throw A();
+	}
+	else if (type == "::B")
+	{
+	    throw B();
+	}
+	else if (type == "::C")
+	{
+	    throw C();
+	}
+	else if (type == "::D")
+	{
+	    throw D();
+	}
+	assert(false); // Should never be reached
+    }
+
+    virtual void destroy()
+    {
+	// Nothing to do
+    }
+};
+
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -178,6 +209,63 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	test(ex.a == 1);
 	test(ex.b == 2);
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    cout << "ok" << endl;
+
+    cout << "catching derived types w/ exception factories... " << flush;
+
+    Ice::UserExceptionFactoryPtr factory = new MyExceptionFactory;
+    communicator->addUserExceptionFactory(factory, "::A");
+    communicator->addUserExceptionFactory(factory, "::B");
+    communicator->addUserExceptionFactory(factory, "::C");
+    communicator->addUserExceptionFactory(factory, "::D");
+
+    try
+    {
+	thrower->throwBasA(1, 2);
+	test(false);
+    }
+    catch (const B& ex)
+    {
+	test(ex.a == 1);
+	test(ex.b == 2);
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    try
+    {
+	thrower->throwCasA(1, 2, 3);
+	test(false);
+    }
+    catch (const C& ex)
+    {
+	test(ex.a == 1);
+    	test(ex.b == 2);
+    	test(ex.c == 3);
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    try
+    {
+	thrower->throwCasB(1, 2, 3);
+	test(false);
+    }
+    catch (const C& ex)
+    {
+	test(ex.a == 1);
+	test(ex.b == 2);
+	test(ex.c == 3);
     }
     catch (...)
     {

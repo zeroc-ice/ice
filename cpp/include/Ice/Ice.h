@@ -17,8 +17,9 @@
 #include <Ice/Logger.h>
 #include <Ice/Stream.h>
 #include <Ice/Communicator.h>
-#include <Ice/ObjectAdapter.h>
 #include <Ice/ServantFactory.h>
+#include <Ice/UserExceptionFactory.h>
+#include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 
 #endif

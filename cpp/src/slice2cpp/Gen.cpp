@@ -1121,6 +1121,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     paramsDecl += ')';
     
     ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
 
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
@@ -1824,6 +1826,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     if (!cl->isLocal())
     {
 	ExceptionList throws = p->throws();
+	throws.sort();
+	throws.unique();
 
 	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name << "(::IceInternal::Incoming&);";
 	C << sp;

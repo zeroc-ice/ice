@@ -15,6 +15,8 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ServantFactory.h>
 #include <Ice/ServantFactoryManager.h>
+#include <Ice/UserExceptionFactory.h>
+#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/Exception.h>
 
 using namespace std;
@@ -871,35 +873,30 @@ IceInternal::BasicStream::throwException(const char** typesBegin, const char** t
     read(exceptionIds);
     for (vector<string>::const_iterator p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
     {
-/*
 	UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(*p);
 	
 	if (factory)
 	{
-	    v = factory->create(*p);
 	    try
 	    {
-		v->__read(this);
+		factory->createAndThrow(*p);
 	    }
-	    catch(...)
+	    catch (UserException& ex)
 	    {
-		delete v;
-		throw;
-	    }
-	    
-	    for (; p != exceptionIds.end(); ++p)
-	    {
-	        pair<const char**, const char**> q = equal_range(typesBegin, types.end, *p);
-		if (q.first != q.second)
+		ex.__read(this);
+		for (; p != exceptionIds.end(); ++p)
 		{
-		    v->_throw();
+		    pair<const char**, const char**> q = equal_range(typesBegin, typesEnd, *p);
+		    if (q.first != q.second)
+		    {
+			ex._throw();
+		    }
 		}
 	    }
 	    
-	    delete v;
 	    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
 	}
-*/
+
 	pair<const char**, const char**> q = equal_range(typesBegin, typesEnd, *p);
 	if (q.first != q.second)
 	{

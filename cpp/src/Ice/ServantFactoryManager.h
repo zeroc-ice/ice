@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_VALUE_FACTORY_MANAGER_H
-#define ICE_VALUE_FACTORY_MANAGER_H
+#ifndef ICE_SERVANT_FACTORY_MANAGER_H
+#define ICE_SERVANT_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/ServantFactoryManagerF.h>

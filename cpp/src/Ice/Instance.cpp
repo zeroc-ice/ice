@@ -14,6 +14,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/Emitter.h>
 #include <Ice/ServantFactoryManager.h>
+#include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
@@ -117,6 +118,13 @@ IceInternal::Instance::servantFactoryManager()
 {
     JTCSyncT<JTCMutex> sync(*this);
     return _servantFactoryManager;
+}
+
+UserExceptionFactoryManagerPtr
+IceInternal::Instance::userExceptionFactoryManager()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+    return _userExceptionFactoryManager;
 }
 
 ObjectAdapterFactoryPtr
@@ -245,6 +253,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_proxyFactory = new ProxyFactory(this);
 	_emitterFactory = new EmitterFactory(this);
 	_servantFactoryManager = new ServantFactoryManager();
+	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_threadPool = new ThreadPool(this);
     }
@@ -264,6 +273,7 @@ IceInternal::Instance::~Instance()
     assert(!_proxyFactory);
     assert(!_emitterFactory);
     assert(!_servantFactoryManager);
+    assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
     assert(!_threadPool);
 
@@ -359,6 +369,12 @@ IceInternal::Instance::destroy()
     {
 	_servantFactoryManager->destroy();
 	_servantFactoryManager = 0;
+    }
+
+    if(_userExceptionFactoryManager)
+    {
+	_userExceptionFactoryManager->destroy();
+	_userExceptionFactoryManager = 0;
     }
 
     if(_objectAdapterFactory)
