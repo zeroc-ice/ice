@@ -21,7 +21,7 @@
 STLPORT_HOME	?= /opt/STLport
 DB_HOME		?= /opt/db
 OPENSSL_HOME	?= /opt/openssl
-XERCESC_HOME    ?= /opt/xerces-c-2.1.0-gcc-3.2
+XERCESC_HOME    ?= /opt/xerces-c
 
 #
 # Don't change these lines!
