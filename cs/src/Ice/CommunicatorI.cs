@@ -319,7 +319,17 @@ namespace Ice
 	//
 	internal void finishSetup(ref string[] args)
 	{
-	    _instance.finishSetup(ref args);
+            try
+            {
+                _instance.finishSetup(ref args);
+            }
+            catch(System.Exception)
+            {
+                _instance.destroy();
+                _instance = null;
+                _destroyed = true;
+                throw;
+            }
 	}
 	
 	//

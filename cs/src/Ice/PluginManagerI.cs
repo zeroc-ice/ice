@@ -150,10 +150,17 @@ namespace Ice
 	    // Instantiate the class.
 	    //
 	    PluginFactory factory = null;
+            System.Type c = System.Type.GetType(className);
+            if(c == null)
+            {
+                PluginInitializationException e = new PluginInitializationException();
+                e.reason = "cannot locate metadata for class " + className;
+                throw e;
+            }
 	    try
 	    {
-		System.Type c = System.Type.GetType(className);
-		System.Object obj = IceInternal.AssemblyUtil.createInstance(c);
+
+                System.Object obj = IceInternal.AssemblyUtil.createInstance(c);
 		try
 		{
 		    factory = (PluginFactory) obj;
