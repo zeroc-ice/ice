@@ -142,6 +142,13 @@ public class IncomingConnectionFactory extends EventHandler
     //
     // Operations from EventHandler.
     //
+
+    public boolean
+    datagram()
+    {
+        return _endpoint.datagram();
+    }
+
     public boolean
     readable()
     {

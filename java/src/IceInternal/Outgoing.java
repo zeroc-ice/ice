@@ -144,7 +144,14 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                _connection.sendRequest(this, true);
+		try
+		{
+		    _connection.sendRequest(this, true);
+		}
+		catch(Ice.DatagramLimitException ex)
+		{
+		    throw new NonRepeatable(ex);
+		}
                 _state = StateInProgress;
                 break;
             }

@@ -36,6 +36,7 @@ public final class ThreadPool
 	_inUse = 0;
 	_load = 0;
 	_promote = true;
+	_warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	String programName = _instance.properties().getProperty("Ice.ProgramName");
         if(programName.length() > 0)
@@ -86,6 +87,8 @@ public final class ThreadPool
 
 	int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
 	_sizeWarn = sizeWarn;
+
+        _messageSizeMax = _instance.messageSizeMax();
 
 	try
         {
@@ -654,6 +657,10 @@ public final class ThreadPool
 			    {
 				continue;
 			    }
+			    catch(Ice.DatagramLimitException ex) // Expected.
+			    {
+			        continue;
+			    }
 			    catch(Ice.LocalException ex)
 			    {
 				if(TRACE_EXCEPTION)
@@ -826,7 +833,7 @@ public final class ThreadPool
         {
             throw new Ice.IllegalMessageSizeException();
         }
-        if(size > 1024 * 1024) // TODO: Configurable
+        if(size > _messageSizeMax)
         {
             throw new Ice.MemoryLimitException();
         }
@@ -837,9 +844,23 @@ public final class ThreadPool
         stream.pos(pos);
 
         if(stream.pos() != stream.size())
-        {
-            handler.read(stream);
-            assert(stream.pos() == stream.size());
+	{
+	    if(handler.datagram())
+	    {
+		if(_warnUdp)
+		{
+		    _instance.logger().warning("DatagramLimitException: maximum size of "
+		                               + stream.pos() + " exceeded");
+		}
+		stream.pos(0);
+		stream.resize(0, true);
+		throw new Ice.DatagramLimitException();
+	    }
+	    else
+	    {
+		handler.read(stream);
+		assert(stream.pos() == stream.size());
+	    }
         }
     }
 
@@ -1089,6 +1110,8 @@ public final class ThreadPool
     private final int _sizeMax; // Maximum number of threads.
     private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
 
+    private final int _messageSizeMax;
+
     private java.util.ArrayList _threads; // All threads, running or not.
     private int _threadIndex; // For assigning thread names.
     private int _running; // Number of running threads.
@@ -1096,4 +1119,6 @@ public final class ThreadPool
     private double _load; // Current load in number of threads.
 
     private boolean _promote;
+
+    private boolean _warnUdp;
 }

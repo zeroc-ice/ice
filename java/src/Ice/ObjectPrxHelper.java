@@ -522,6 +522,10 @@ public class ObjectPrxHelper implements ObjectPrx
                 __del.ice_flush();
                 return;
             }
+	    catch(Ice.DatagramLimitException ex)
+	    {
+	        throw ex; // DatagramLimitException is not repeatable.
+	    }
             catch(LocalException __ex)
             {
                 __cnt = __handleException(__ex, __cnt);

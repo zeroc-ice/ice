@@ -354,6 +354,108 @@ public final class Network
         return result;
     }
 
+    public static void
+    setSendBufferSize(java.nio.channels.DatagramChannel fd, int size)
+    {
+	try
+	{
+	    java.net.DatagramSocket socket = fd.socket();
+	    socket.setSendBufferSize(size);
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static int
+    getSendBufferSize(java.nio.channels.DatagramChannel fd)
+    {
+	int size;
+	try
+	{
+	    java.net.DatagramSocket socket = fd.socket();
+	    size = socket.getSendBufferSize();
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+	return size;
+    }
+
+    public static void
+    setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
+    {
+    	try
+	{
+	    java.net.ServerSocket socket = fd.socket();
+	    socket.setReceiveBufferSize(size);
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static void
+    setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size)
+    {
+    	try
+	{
+	    java.net.DatagramSocket socket = fd.socket();
+	    socket.setReceiveBufferSize(size);
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static int
+    getRecvBufferSize(java.nio.channels.ServerSocketChannel fd)
+    {
+        int size;
+	try
+	{
+	    java.net.ServerSocket socket = fd.socket();
+	    size = socket.getReceiveBufferSize();
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+	return size;
+    }
+
+    public static int
+    getRecvBufferSize(java.nio.channels.DatagramChannel fd)
+    {
+        int size;
+	try
+	{
+	    java.net.DatagramSocket socket = fd.socket();
+	    size = socket.getReceiveBufferSize();
+	}
+        catch(java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+	return size;
+    }
+
     public static java.net.InetSocketAddress
     getAddress(String host, int port)
     {

@@ -399,9 +399,12 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Trace.Protocol",
 						    "Trace.Retry",
 						    "Trace.Slicing",
+						    "UDP.RcvSize",
+						    "UDP.SndSize",
 						    "UseSyslog",
 						    "Warn.AMICallback",
 						    "Warn.Connections",
+						    "Warn.Datagrams",
 						    "Warn.Dispatch",
 						    "Warn.Leaks"
 				              };
