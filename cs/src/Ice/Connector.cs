@@ -14,7 +14,6 @@ namespace IceInternal
     public interface Connector
     {
 	Transceiver connect(int timeout);
-	//string toString(); // TODO
     }
 
 }

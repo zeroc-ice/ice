@@ -29,14 +29,19 @@ namespace IceInternal
 	
 	public override bool Equals(object obj)
 	{
-	    Reference r = (Reference)obj; // TODO argument exception
-	    
-	    if(r == null)
+            if(obj == null)
+            {
+                return false;
+            }
+
+	    if(!(obj is Reference))
 	    {
-		return false;
+		throw new System.ArgumentException("expected argument of type `Reference'", "obj");
 	    }
+
+            Reference r = (Reference)obj;
 	    
-	    if(this == r)
+	    if(ReferenceEquals(this, r))
 	    {
 		return true;
 	    }

@@ -49,10 +49,7 @@ namespace IceInternal
 	//
 	// Get a textual representation of the event handler.
 	//
-	public override string ToString()
-        {
-            return null; // TODO
-        }
+	public abstract override string ToString();
 	
         public Instance instance()
         {
