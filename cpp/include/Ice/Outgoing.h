@@ -12,7 +12,7 @@
 #define ICE_OUTGOING_H
 
 #include <Ice/EmitterF.h>
-#include <Ice/Buffer.h>
+#include <Ice/Stream.h>
 
 namespace _Ice
 {
@@ -26,8 +26,9 @@ public:
 
     void invoke();
 
-    Buffer* obuf() { return &obuf_; }
-    Buffer* ibuf() { return &ibuf_; }
+    Stream* os() { return &os_; }
+    Stream* is() { return &is_; }
+    const char* operation() const { return operation_; }
 
 private:
 
@@ -36,8 +37,8 @@ private:
 
     const Emitter& emitter_;
     const char* operation_;
-    Buffer obuf_;
-    Buffer ibuf_;
+    Stream os_;
+    Stream is_;
 };
 
 }

@@ -12,7 +12,7 @@
 #define ICE_INCOMING_H
 
 #include <Ice/CollectorF.h>
-#include <Ice/Buffer.h>
+#include <Ice/Stream.h>
 
 namespace _Ice
 {
@@ -24,8 +24,9 @@ public:
     Incoming(const Collector&);
     ~Incoming();
 
-    Buffer* obuf() { return &obuf_; }
-    Buffer* ibuf() { return &ibuf_; }
+    Stream* os() { return &os_; }
+    Stream* is() { return &is_; }
+    const std::string& operation() const { return operation_; }
 
 private:
 
@@ -33,9 +34,9 @@ private:
     void operator=(const Incoming&);
 
     const Collector& collector_;
-    const char* operation_;
-    Buffer obuf_;
-    Buffer ibuf_;
+    std::string operation_;
+    Stream os_;
+    Stream is_;
 };
 
 }

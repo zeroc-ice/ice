@@ -21,10 +21,13 @@ class ICE_API TraceLevelsI : virtual public Shared
 {
 public:
 
-    TraceLevelsI(int);
+    TraceLevelsI(int, int);
     virtual ~TraceLevelsI();
 
     const int network;
+    const char* networkCat;
+    const int protocol;
+    const char* protocolCat;
  
 private:
 

@@ -11,7 +11,7 @@
 #ifndef ICE_CONFIG_H
 #define ICE_CONFIG_H
 
-#ifdef WIN32
+#if defined(WIN32)
 
 // ... identifier was truncated to '255' characters in the debug information
 #   pragma warning( disable : 4786 )
@@ -30,9 +30,51 @@
 #       define ICE_API __declspec(dllimport)
 #   endif
 
-#else // !WIN32
+namespace Ice
+{
+
+typedef char Byte;
+typedef short Short;
+typedef int Int;
+typedef __int64 Long;
+typedef float Float;
+typedef double Double;
+
+}
+
+namespace _Ice
+{
+
+const bool bigendian = false;
+
+}
+
+#elif defined(__linux__) && defined(i386)
 
 #   define ICE_API /**/
+
+namespace Ice
+{
+
+typedef char Byte;
+typedef short Short;
+typedef int Int;
+typedef long long Long;
+typedef float Float;
+typedef double Double;
+
+}
+
+namespace _Ice
+{
+
+const bool bigendian = false;
+
+}
+
+#else
+
+#   error "unsupported operating system or platform"
 
 #endif
 
@@ -51,13 +93,5 @@
 // Ice uses JThreads/C++
 //
 #include <JTC/JTC.h>
-
-//
-// Define Ice and _Ice namespace, for those files which do not include
-// any files which use these namespaces. This way we can use uniform
-// "using" statements everywhere.
-//
-namespace Ice { }
-namespace _Ice { }
 
 #endif

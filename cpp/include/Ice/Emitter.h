@@ -30,7 +30,8 @@ class ICE_API EmitterI : public EventHandlerI, public JTCMutex
 {
 public:
 
-    void request(Outgoing*);
+    void prepareRequest(Outgoing*);
+    void sendRequest(Outgoing*);
 
     //
     // Operations from EventHandlerI

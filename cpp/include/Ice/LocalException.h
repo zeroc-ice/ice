@@ -79,6 +79,22 @@ public:
     virtual LocalException* clone() const;
 };
 
+class ICE_API ProtocolException : public LocalException
+{
+};
+
+class ICE_API UnmarshalException : public ProtocolException
+{
+};
+
+class ICE_API OutOfBoundsUnmarshalException : public UnmarshalException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
 }
 
 #endif

@@ -20,10 +20,11 @@ class ICE_API Buffer
 {
 public:
 
-    Buffer() { }
+    Buffer() : i(b.begin()) { }
 
-    std::vector<char> b;
-    std::vector<char>::iterator i;
+    typedef std::vector<Ice::Byte> Container;
+    Container b;
+    Container::iterator i;
 
 private:
 

@@ -63,12 +63,14 @@ namespace _Ice
 
 bool interrupted();
 bool acceptInterrupted();
+bool noBuffers();
 bool connectFailed();
 bool connectionLost();
 void setBlock(int, bool);
 void closeSocket(int);
 void setTcpNoDelay(int);
 void setKeepAlive(int);
+void setSendBufferSize(int, int);
 void getHostByName(const char*, int, struct sockaddr_in&);
 void doBind(int, struct sockaddr_in&);
 void doListen(int, int);
