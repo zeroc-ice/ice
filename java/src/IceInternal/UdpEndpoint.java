@@ -39,6 +39,10 @@ final class UdpEndpoint implements Endpoint
         _instance = instance;
         _host = null;
         _port = 0;
+	_protocolMajor = Protocol.protocolMajor;
+	_protocolMinor = Protocol.protocolMinor;
+	_encodingMajor = Protocol.encodingMajor;
+	_encodingMinor = Protocol.encodingMinor;
         _connect = false;
 	_compress = false;
 
