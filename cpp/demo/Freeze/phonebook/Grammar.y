@@ -146,7 +146,7 @@ strings
 }
 | TOK_STRING
 {
-    $$ = $1
+    $$ = $1;
 }
 ;
 

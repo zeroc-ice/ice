@@ -18,9 +18,11 @@
 #include <Parser.h>
 
 #ifdef _WIN32
-// I get this warning from some bison version:
+// I get these warnings from some bison versions:
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #   pragma warning( disable : 4102 )
+// warning C4065: switch statement contains 'default' but no 'case' labels
+#   pragma warning( disable : 4065 )
 #endif
 
 using namespace std;

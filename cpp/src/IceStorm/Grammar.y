@@ -137,7 +137,7 @@ strings
 }
 | ICE_STORM_STRING
 {
-    $$ = $1
+    $$ = $1;
 }
 ;
 
