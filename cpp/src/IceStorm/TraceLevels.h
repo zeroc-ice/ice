@@ -22,7 +22,7 @@ class TraceLevels : public ::IceUtil::Shared
 {
 public:
 
-    TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    TraceLevels(const ::std::string name, const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
     virtual ~TraceLevels();
 
     const int topicMgr;

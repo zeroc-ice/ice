@@ -15,6 +15,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
+using namespace Freeze;
 
 namespace IceStorm
 {
@@ -26,11 +27,11 @@ public:
     Service();
     virtual ~Service();
 
-    virtual void start(const ::std::string&,
-		       const ::Ice::CommunicatorPtr&,
-		       const ::Ice::PropertiesPtr&,
-		       const ::Ice::StringSeq&,
-		       const ::Freeze::DBEnvironmentPtr&);
+    virtual void start(const string&,
+                      const CommunicatorPtr&,
+                      const PropertiesPtr&,
+                      const StringSeq&,
+                      const DBEnvironmentPtr&);
 
     virtual void stop();
 
@@ -49,9 +50,9 @@ extern "C"
 // Factory function
 //
 ::IceBox::FreezeService*
-create(Ice::CommunicatorPtr communicator)
+create(CommunicatorPtr communicator)
 {
-    return new ::IceStorm::Service;
+    return new Service;
 }
 
 }
@@ -66,15 +67,16 @@ IceStorm::Service::~Service()
 
 void
 IceStorm::Service::start(const string& name,
-			 const ::Ice::CommunicatorPtr& communicator,
-			 const ::Ice::PropertiesPtr& properties,
-			 const ::Ice::StringSeq& args,
-			 const ::Freeze::DBEnvironmentPtr& dbEnv)
+			 const CommunicatorPtr& communicator,
+			 const PropertiesPtr& properties,
+			 const StringSeq& args,
+			 const DBEnvironmentPtr& dbEnv)
 {
-    Freeze::DBPtr dbTopicManager = dbEnv->openDB("topicmanager", true);
+    DBPtr dbTopicManager = dbEnv->openDB("topicmanager", true);
 
-    TraceLevelsPtr traceLevels = new TraceLevels(communicator->getProperties(), communicator->getLogger());
-    _adapter = communicator->createObjectAdapterFromProperty("TopicManager", "IceStorm.TopicManager.Endpoints");
+    TraceLevelsPtr traceLevels = new TraceLevels(name, properties, communicator->getLogger());
+    string endpoints = properties->getProperty(name + ".TopicManager.Endpoints");
+    _adapter = communicator->createObjectAdapterWithEndpoints("TopicManager", endpoints);
     _manager = new TopicManagerI(communicator, _adapter, traceLevels, dbEnv, dbTopicManager);
     _adapter->add(_manager, stringToIdentity("TopicManager"));
 
