@@ -22,9 +22,11 @@ namespace Ice
 
 	public Application()
 	{
+#if !__MonoCS__
 	    bool rc;
 	    rc = SetConsoleCtrlHandler(_handler, true); 
 	    Debug.Assert(rc);
+#endif
 	    _callback = null;
 	    _released = false;
 	    _interrupted = false;
@@ -293,8 +295,10 @@ namespace Ice
 	    Monitor.Exit(sync);
 	}
 
+#if !__MonoCS__
 	[DllImport("kernel32.dll")]
 	private static extern Boolean SetConsoleCtrlHandler(Application.EventHandler eh, Boolean add);
+#endif
 
 	private static readonly object sync = typeof(Application);
 
