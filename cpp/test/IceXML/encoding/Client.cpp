@@ -41,6 +41,7 @@ static const string strings[] =
     "hello >>world",
     "hello <<>>world",
     "hello &&''\"\"<<>>world",
+    "h\xc3\xa9llo world", // UTF-8 for character 233
     ""
 };
 

@@ -18,6 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ObjectFactory.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/Unicode.h>
 
 #include <IceXML/StreamI.h>
 
@@ -1010,7 +1011,18 @@ IceXML::StreamI::readString(const string& name)
 	{
 	    throw ::Ice::MarshalException(__FILE__, __LINE__);
 	}
-	value = toString(child->getNodeValue());
+
+        //
+        // Convert string to UTF-8. Do NOT use toString() here.
+        //
+        const XMLCh* ch = child->getNodeValue();
+        unsigned int len = ICE_XERCES_NS XMLString::stringLen(ch);
+        wstring ws;
+        for(unsigned int i = 0; i < len; ++i)
+        {
+            ws.push_back((wstring::value_type)ch[i]);
+        }
+        value = IceUtil::wstringToString(ws);
     }
     else
     {
