@@ -2686,7 +2686,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    C << sb;
 	    C << nl << "__cb->ice_exception();";
 	    C << eb;
-	    C << nl << "return ::IceInternal::DispatchOK;";
+	    C << nl << "return ::IceInternal::DispatchAsync;";
 	}	    
 	C << eb;
     }	

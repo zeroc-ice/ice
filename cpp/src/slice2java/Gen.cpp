@@ -664,7 +664,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    out << sb;
 	    out << nl << "__cb.ice_exception(ex);";
 	    out << eb;
-	    out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+	    out << nl << "return IceInternal.DispatchStatus.DispatchAsync;";
 
 	    out << eb;
 	}

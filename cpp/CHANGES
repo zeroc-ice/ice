@@ -3,25 +3,24 @@ Changes since version 1.0.1
 
 - Added support for Visual Studio .NET 2003 aka VC 7.1
 
-- In IceUtil, all "try" and "timed" functions now return false when the
-  resource could not be acquired (i.e., an expected failure). The "Try"
-  from "timedTry" functions was removed, and for consistency the
-  functions trylock, readlock and writelock were renamed to tryLock, 
-  readLock and writeLock. 
+- In IceUtil, all "try" and "timed" functions now return false when
+  the resource could not be acquired (i.e., an expected failure). The
+  "Try" from "timedTry" functions was removed, and for consistency the
+  functions trylock, readlock and writelock were renamed to tryLock,
+  readLock and writeLock.
 
 - Update to the library versioning scheme:
 
-  On Windows, only the major and minor version are now used, for 
-  example: ice11d.dll (11d means 1.1 debug). In 1.0.x, the patch level 
+  On Windows, only the major and minor version are now used, for
+  example: ice11d.dll (11d means 1.1 debug). In 1.0.x, the patch level
   was included in the version string, for example ice101d.dll.
 
   On Unix, the internal name (soname) is now constructed as
   lib<name>.so.<major version><minor version>, for example
   libIce.so.11 (for Ice 1.1.x). This internal name identifies a
   symbolic link to lib<name>.so.<full version>, for example:
-  libIce.so.11 -> libIce.so.1.1.0. In 1.0.x, the internal name 
-  was set to the actual shared library file name, 
-  lib<name>.so.<full version>.
+  libIce.so.11 -> libIce.so.1.1.0. In 1.0.x, the internal name was set
+  to the actual shared library file name, lib<name>.so.<full version>.
 
 - Ice now implements slicing for exceptions and classes: if a process
   receives an exception or class that is of a more derived type than
@@ -30,22 +29,22 @@ Changes since version 1.0.1
 
 - Class factories are no longer necessary for non-abstract classes
   (that is, for classes that do not have operations). For non-abstract
-  classes, the necessary factories are automatically installed by
-  the Ice run time. If you have existing code that implements
-  factories for non-abstract classes, you can simply delete that code.
-  Note that for abstract classes (that is, classes with operations),
-  it is necessary to install a factory for each abstract class, exactly
-  as in version 1.0.x.
+  classes, the necessary factories are automatically installed by the
+  Ice run time. If you have existing code that implements factories
+  for non-abstract classes, you can simply delete that code.  Note
+  that for abstract classes (that is, classes with operations), it is
+  necessary to install a factory for each abstract class, exactly as
+  in version 1.0.x.
 
-- User exception factories and user exception factory
-  managers no longer exist. The factories for user exceptions
-  are now automatically installed by the Ice run time.
-  If you have existing code that implements user exception factories,
-  you can simply delete it.
+- User exception factories and user exception factory managers no
+  longer exist. The factories for user exceptions are now
+  automatically installed by the Ice run time. If you have existing
+  code that implements user exception factories, you can simply delete
+  it.
 
-- Fixed a bug in the Slice parser: the semantic check to see
-  whether an identifier introduced into a scope has changed
-  meaning was too stringent.
+- Fixed a bug in the Slice parser: the semantic check to see whether
+  an identifier introduced into a scope has changed meaning was too
+  stringent.
 
 - If a client receives a derived exception for which it does not have
   a user exception factory installed, the client receives the
@@ -56,43 +55,45 @@ Changes since version 1.0.1
 - Fixed a bug with connections being closed even though they have
   outstanding batch requests.
 
-- Fixed bug in the WIN32 icepatch client. The removal of orphaned files
-  didn't take into account that WIN32 file names are not case
+- Fixed bug in the WIN32 icepatch client. The removal of orphaned
+  files didn't take into account that WIN32 file names are not case
   sensitive.
 
 - New Ice.Nohup property: when its value is >0, shutdownOnInterrupt()
-  in Application will ignore SIGHUP on Unix and CTRL_LOGOFF_EVENT on 
+  in Application will ignore SIGHUP on Unix and CTRL_LOGOFF_EVENT on
   Windows.
 
-- Updated Application: 
-  - the default behavior is now shutdownOnInterrupt().
-  - removed the member function defaultInterrupt().
+- Updated Application class: 
+
+  * The default behavior is now shutdownOnInterrupt().
+
+  * Removed the member function defaultInterrupt().
  
-- Removed Communicator::signalShutdown(): Ice is not using signal 
+- Removed Communicator::signalShutdown(): Ice is not using signal
   handlers anymore, so Communicator::shutdown() can be used all the
   time.
 
-- Added IceUtil::CtrlCHandler: a class that provides portable handling 
+- Added IceUtil::CtrlCHandler: a class that provides portable handling
   of CTRL+C and CTRL+C-like signals,
 
-- Added IceUtil::StaticMutex, for simple, non-recursive, statically 
+- Added IceUtil::StaticMutex, for simple, non-recursive, statically
   allocated and initialized mutexes.
 
-- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now 
-  return void, and trylock returns a bool that indicates whether the 
+- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now
+  return void, and trylock returns a bool that indicates whether the
   mutex was acquired or not. Also added new member functions to LockT,
-  TryLockT, RLockT, TryLockT, WLockT, TryWLockT: acquire(), 
+  TryLockT, RLockT, TryLockT, WLockT, TryWLockT: acquire(),
   tryAcquire(), release(), acquired() and more.
 
-- Removed dependency on E2FSPROGS for UUID generation. On Unix,
-  UUIDs are now generated directly with /dev/urandom.
+- Removed dependency on E2FSPROGS for UUID generation. On Unix, UUIDs
+  are now generated directly with /dev/urandom.
 
 - Added support for `env' XML element in IcePack descriptors to allow
   setting environment variables.
 
-- Fixed a bug in the Slice parser: the semantic check to see
-  whether an identifier introduced into a scope has changed
-  meaning was too stringent.
+- Fixed a bug in the Slice parser: the semantic check to see whether
+  an identifier introduced into a scope has changed meaning was too
+  stringent.
 
 - Fixed integer parsing bugs in the C++ XML stream class.
 
@@ -133,10 +134,9 @@ Changes since version 1.0.1
   CommunicatorDestroyedException is raised.
 
 - A monitor now holds the mutex lock while signaling a condition
-  variable. Otherwise it's possible that the condition variable
-  is destroyed before the signaling call returns, resulting in
-  undefined behavior. The performance difference is minimal, hardly
-  measurable.
+  variable. Otherwise it's possible that the condition variable is
+  destroyed before the signaling call returns, resulting in undefined
+  behavior. The performance difference is minimal, hardly measurable.
 
 - Further performance improvements with respect to latency.
 
@@ -156,8 +156,8 @@ Changes since version 1.0.1
 - Added IceUtil::ThreadControl::id() member function.
 
 - The scope of IceUtil::Thread::ThreadId has been changed to
-  IceUtil::ThreadId. This is the type returned by both Thread::id() and
-  ThreadControl::id().
+  IceUtil::ThreadId. This is the type returned by both Thread::id()
+  and ThreadControl::id().
 
 - Joining with a thread more than once, joining with a detached
   thread, or detaching a detached thread now have undefined
@@ -178,9 +178,9 @@ Changes since version 1.0.1
   stopping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
 
-- Modified the Ice protocol to marshal sizes more efficiently.
-  Sizes less than 255 now require a single byte whereas
-  previously, sizes between 127 and 254 required five bytes.
+- Modified the Ice protocol to marshal sizes more efficiently.  Sizes
+  less than 255 now require a single byte whereas previously, sizes
+  between 127 and 254 required five bytes.
 
 - Modified the Ice protocol to fix a problem with compression. The
   compressed message types have been removed, and a field has been

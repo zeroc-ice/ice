@@ -38,7 +38,8 @@ enum DispatchStatus
     DispatchOperationNotExist,
     DispatchUnknownLocalException,
     DispatchUnknownUserException,
-    DispatchUnknownException
+    DispatchUnknownException,
+    DispatchAsync // "Pseudo dispatch status", used internally only to indicate async dispatch.
 };
 
 }

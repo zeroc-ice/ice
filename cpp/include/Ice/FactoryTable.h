@@ -31,6 +31,7 @@ public:
 static FactoryTable factoryTableInitializer;	// Dummy variable to force initialization of factoryTable
 
 extern ICE_API FactoryTableDef* factoryTable;
+
 }
 
 #endif

@@ -215,17 +215,16 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    }
 
 	    //
-	    // In case of an asynchronous dispatch, _is is now empty,
-	    // because an IncomingAsync has adopted this Incoming.
+	    // DispatchAsync is "pseudo dispatch status", used
+	    // internally only to indicate async dispatch.
 	    //
-	    if(_is.b.empty())
+	    if(status == DispatchAsync)
 	    {
 		//
 		// If this was an asynchronous dispatch, we're done
-		// here.  We do *not* call __finishInvoke(), because the
-		// call is not finished yet.
+		// here.  We do *not* call __finishInvoke(), because
+		// the call is not finished yet.
 		//
-		assert(status == DispatchOK);
 		return;
 	    }
 	}

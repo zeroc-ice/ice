@@ -35,6 +35,6 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
 	{
 	    cb.ice_exception(ex);
 	}
-	return IceInternal.DispatchStatus.DispatchOK;
+	return IceInternal.DispatchStatus.DispatchAsync;
     }
 }

@@ -133,8 +133,8 @@ Ice::Object::___ice_ids(Incoming& __in, const Current& __current)
     return DispatchOK;
 }
 
-::IceInternal::DispatchStatus
-Ice::Object::___ice_id(::IceInternal::Incoming& __in, const Current& __current)
+DispatchStatus
+Ice::Object::___ice_id(Incoming& __in, const Current& __current)
 {
     BasicStream* __os = __in.os();
     string __ret = ice_id(__current);
@@ -142,8 +142,8 @@ Ice::Object::___ice_id(::IceInternal::Incoming& __in, const Current& __current)
     return DispatchOK;
 }
 
-::IceInternal::DispatchStatus
-Ice::Object::___ice_facets(::IceInternal::Incoming& __in, const Current& __current)
+DispatchStatus
+Ice::Object::___ice_facets(Incoming& __in, const Current& __current)
 {
     BasicStream* __os = __in.os();
     vector<string> __ret = ice_facets(__current);
@@ -201,7 +201,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 }
 
 void
-Ice::Object::__write(::IceInternal::BasicStream* __os) const
+Ice::Object::__write(BasicStream* __os) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
@@ -217,7 +217,7 @@ Ice::Object::__write(::IceInternal::BasicStream* __os) const
 }
 
 void
-Ice::Object::__read(::IceInternal::BasicStream* __is, bool __rid)
+Ice::Object::__read(BasicStream* __is, bool __rid)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
@@ -443,11 +443,11 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     in.os()->writeBlob(outParams);
     if(ok)
     {
-	return ::IceInternal::DispatchOK;
+	return DispatchOK;
     }
     else
     {
-	return ::IceInternal::DispatchUserException;
+	return DispatchUserException;
     }
 }
 
@@ -474,5 +474,5 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     {
 	cb->ice_exception();
     }
-    return ::IceInternal::DispatchOK;
+    return DispatchAsync;
 }

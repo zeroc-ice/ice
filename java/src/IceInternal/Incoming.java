@@ -110,18 +110,16 @@ final public class Incoming extends IncomingBase
                 }
 
 		//
-		// In case of an asynchronous dispatch, _is is now
-		// null, because an IncomingAsync has adopted this
-		// Incoming.
+		// DispatchAsync is "pseudo dispatch status", used
+		// internally only to indicate async dispatch.
 		//
-		if(_is == null)
+		if(status == DispatchStatus.DispatchAsync)
 		{
 		    //
-		    // If this was an asynchronous dispatch, we're
-		    // done here.  We do *not* call __finishInvoke(),
-		    // because the call is not finished yet.
+		    // If this was an asynchronous dispatch, we're done
+		    // here.  We do *not* call __finishInvoke(), because
+		    // the call is not finished yet.
 		    //
-		    assert(status == DispatchStatus.DispatchOK);
 		    return;
 		}
             }
