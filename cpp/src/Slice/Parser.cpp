@@ -2195,7 +2195,7 @@ Slice::ClassDecl::uses(const ContainedPtr&) const
 bool
 Slice::ClassDecl::usesClasses() const
 {
-    return !_interface;
+    return true;
 }
 
 size_t
