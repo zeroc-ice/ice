@@ -15,15 +15,8 @@ public final class ProxyFactory
     public Ice.ObjectPrx
     stringToProxy(String str)
     {
-        if(str.length() == 0)
-        {
-            return null;
-        }
-        else
-        {
-            Reference ref = _instance.referenceFactory().create(str);
-            return referenceToProxy(ref);
-        }
+        Reference ref = _instance.referenceFactory().create(str);
+        return referenceToProxy(ref);
     }
 
     public String
@@ -46,23 +39,23 @@ public final class ProxyFactory
         Ice.Identity ident = new Ice.Identity();
         ident.__read(s);
 
-        if(ident.name.length() == 0)
-        {
-            return null;
-        }
-        else
-        {
-            Reference ref = _instance.referenceFactory().create(ident, s);
-            return referenceToProxy(ref);
-        }
+        Reference ref = _instance.referenceFactory().create(ident, s);
+        return referenceToProxy(ref);
     }
 
     public Ice.ObjectPrx
-    referenceToProxy(Reference reference)
+    referenceToProxy(Reference ref)
     {
-        Ice.ObjectPrxHelper proxy = new Ice.ObjectPrxHelper();
-        proxy.setup(reference);
-        return proxy;
+        if(ref != null)
+        {
+            Ice.ObjectPrxHelper proxy = new Ice.ObjectPrxHelper();
+            proxy.setup(ref);
+            return proxy;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public void

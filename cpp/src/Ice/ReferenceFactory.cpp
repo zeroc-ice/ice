@@ -45,6 +45,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
+    if(ident.name.empty() && ident.category.empty())
+    {
+        return 0;
+    }
+
     //
     // Create new reference
     //
@@ -108,6 +113,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 ReferencePtr
 IceInternal::ReferenceFactory::create(const string& str)
 {
+    if(str.empty())
+    {
+        return 0;
+    }
+
     const string delim = " \t\n\r";
 
     string s(str);
@@ -152,6 +162,11 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     Identity ident = stringToIdentity(idstr);
+    if(ident.name.empty() && ident.category.empty())
+    {
+        return 0;
+    }
+
     vector<string> facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
@@ -429,6 +444,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     // Don't read the identity here. Operations calling this
     // constructor read the identity, and pass it as a parameter.
     //
+
+    if(ident.name.empty() && ident.category.empty())
+    {
+	return 0;
+    }
 
     vector<string> facet;
     s->read(facet);

@@ -25,15 +25,8 @@ void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
-    if(str.empty())
-    {
-	return 0;
-    }
-    else
-    {
-	ReferencePtr ref = _instance->referenceFactory()->create(str);
-	return referenceToProxy(ref);
-    }
+    ReferencePtr ref = _instance->referenceFactory()->create(str);
+    return referenceToProxy(ref);
 }
 
 string
@@ -56,15 +49,8 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
     Identity ident;
     ident.__read(s);
 
-    if(ident.name.empty())
-    {
-	return 0;
-    }
-    else
-    {
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
-	return referenceToProxy(ref);
-    }
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
+    return referenceToProxy(ref);
 }
 
 void
@@ -85,9 +71,16 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 ObjectPrx
 IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
-    ObjectPrx proxy = new ::IceProxy::Ice::Object;
-    proxy->setup(ref);
-    return proxy;
+    if(ref)
+    {
+        ObjectPrx proxy = new ::IceProxy::Ice::Object;
+        proxy->setup(ref);
+        return proxy;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 const std::vector<int>&

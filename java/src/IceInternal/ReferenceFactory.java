@@ -29,6 +29,11 @@ public final class ReferenceFactory
             throw new Ice.CommunicatorDestroyedException();
         }
 
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
+
         //
         // Create a new reference
         //
@@ -70,6 +75,11 @@ public final class ReferenceFactory
     public Reference
     create(String s)
     {
+        if(s.length() == 0)
+        {
+            return null;
+        }
+
         final String delim = " \t\n\r";
 
         int beg;
@@ -113,6 +123,11 @@ public final class ReferenceFactory
         }
 
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
+
         java.util.ArrayList facet = new java.util.ArrayList();
         int mode = Reference.ModeTwoway;
         boolean secure = false;
@@ -399,6 +414,11 @@ public final class ReferenceFactory
         // Don't read the identity here. Operations calling this
         // constructor read the identity, and pass it as a parameter.
         //
+
+        if(ident.name.length() == 0 && ident.category.length() == 0)
+        {
+            return null;
+        }
 
         String[] facet = s.readStringSeq();
 
