@@ -35,47 +35,50 @@ Third-party libraries
   http://www.sleepycat.com
   
   We recommend to configure Berkeley DB with:
+
   CXX="aCC -AA" ../dist/configure --enable-cxx
-  (plus --prefix=<dir> and/or --enable-java if you like).
+  (plus --prefix=<dir> and/or --enable-java if you like)
 
   For 64 bit builds, use:
+
   CXX="aCC -AA +DD64" CC="cc +DD64" ../dist/configure --enable-cxx 
-  (plus --prefix=<dir> and/or --enable-java if you like).
+  (plus --prefix=<dir> and/or --enable-java if you like)
  
-- OpenSSL 0.9.7c
-  The OpenSSL source distribution can be downloaded from 
-  http://www.openssl.org
+- OpenSSL 0.9.7c, which can be downloaded from http://www.openssl.org
+
   We do not recommend to use the binary distribution available from the
   "Sofware Porting And Archive Centre for HP-UX" as it depends on the
   GCC runtime.
+
   A recommended configuration is:
+
   ./Configure hpux-parisc2-cc shared
-  (and --prefix=<dir> if you like).
+  (and --prefix=<dir> if you like)
 
   For 64 bit builds, a recommended configuration is:
-  ./Configure hpux64-parisc2-cc shared
-  (and --prefix=<dir> if you like).
 
-- expat 1.9x
-  The expat source distribution can be downloaded from: 
-  http://sourceforge.net/projects/expat
-  For 32 bit builds, you can also use the binary distribution from the 
-  "Software Porting And Archive Centre for HP-UX", 
+  ./Configure hpux64-parisc2-cc shared
+  (and --prefix=<dir> if you like)
+
+- expat 1.9x, which can be downloaded from
+  http://sourceforge.net/projects/expat.
+
+  For 32 bit builds, you can also use the binary distribution from the
+  "Software Porting And Archive Centre for HP-UX",
   http://hpux.cs.utah.edu.
 
-- bzip2 1.0
-  The bzip2 source distribution can be downloaded from the "Software 
-  Porting And Archive Centre for HP-UX", http://hpux.cs.utah.edu.
-  For 32 bit builds, you can also use the binary distribution from the 
-  "Software Porting And Archive Centre for HP-UX".
+- bzip2 1.0, which can be downloaded from the "Software Porting And
+  Archive Centre for HP-UX", http://hpux.cs.utah.edu. For 32 bit
+  builds, you can also use the binary distribution from the "Software
+  Porting And Archive Centre for HP-UX".
 
 
 GNU Make 3.80
 -------------
 
-GNU Make 3.80 is required to build Ice on HP-UX.
-You can download GNU Make from the "Software Porting And Archive Centre 
-for HP-UX", http://hpux.cs.utah.edu.
+GNU Make 3.80 is required to build Ice on HP-UX. You can download GNU
+Make from the "Software Porting And Archive Centre for HP-UX",
+http://hpux.cs.utah.edu.
 
 
 Python 2.2 or 2.3

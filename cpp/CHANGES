@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added the IceSSL.Client.IgnoreValidPeriod and
+  IceSSL.Server.IgnoreValidPeriod properties. See the description in
+  the manual for details.
+
 - Added the IceBox.LoadOrder property, which specifies the order
   in which IceBox services are loaded.
 

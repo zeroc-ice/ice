@@ -15,11 +15,11 @@ Solaris 9; on Solaris 8, you need to install patch 112438-01.
 C++ compiler
 ------------
 
-- Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7)
+The following Sun compilers are supported:
 
-  or
+- Sun C++ 5.4 (part of Sun ONE Studio 7.0 aka Forte Developer 7).
 
-- Sun C++ 5.5 (part of Sun ONE Studio 8.0) Ice takes advantage of the
+- Sun C++ 5.5 (part of Sun ONE Studio 8.0). Ice takes advantage of the
   new linker scoping feature to reduce the number of symbols exported
   by Ice shared libraries.
 
@@ -36,34 +36,36 @@ Third-party libraries
 
 - bzip2 1.0
 
-bzip2 may already be installed on your system. If not, we recommend to
-download it (in binary form) from http://www.sunfreeware.com.
-
-OpenSSL 0.97 can be downloaded (in binary form) from 
-http://www.sunfreeware.com; or you can download the source from 
-http://www.openssl.org.
+Berkeley DB can be downloaded from:
+http://www.sleepycat.com/download
 
 expat can be downloaded from:
-http://www.sunfreeware.com or
+http://www.sunfreeware.com
+Or from:
 http://sourceforge.net/projects/expat/
 
-And Berkeley DB from:
-http://www.sleepycat.com/download
+OpenSSL 0.97 can be downloaded (in binary form) from:
+http://www.sunfreeware.com
+Or you can download the source from:
+http://www.openssl.org
+
+bzip2 may already be installed on your system. If not, we recommend to
+download it (in binary form) from http://www.sunfreeware.com.
 
 
 GNU Make 3.80
 -------------
 
-GNU Make 3.80 is required to build Ice on SPARC/Solaris.
-You can download GNU Make from http://www.sunfreeware.com.
+GNU Make 3.80 is required to build Ice on SPARC/Solaris. You can
+download GNU Make from http://www.sunfreeware.com.
 
 
 Python 2.2
 ----------
 
 To run the automated test suite, you will need Python 2.2. If you have
-no interest in running the test scripts, Python is not required.
-You can download Python from http://www.sunfreeware.com.
+no interest in running the test scripts, Python is not required. You
+can download Python from http://www.sunfreeware.com.
 
 
 ======================================================================
@@ -95,11 +97,11 @@ examples.
 CC 5.4 note
 -----------
 
-The Sun CC 5.4 build produces a large number of warnings about
-hidden functions in the fstream and sstream standard headers. This
-is a known Sun bug (#4852754). You can suppress them by removing
-the corresponding '+w' option in config/Make.rules.SunOS, or
-by filtering your build log file with a sed script such as:
+The Sun CC 5.4 build produces a large number of warnings about hidden
+functions in the fstream and sstream standard headers. This is a known
+Sun bug (#4852754). You can suppress them by removing the
+corresponding '+w' option in config/Make.rules.SunOS, or by filtering
+your build log file with a sed script such as:
 
 # Workaround for bug 4852754
 /SUNWspro/d

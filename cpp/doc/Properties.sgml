@@ -1246,19 +1246,17 @@ There are no default values for these properties.
 <section><title>IceSSL.Client.IgnoreValidPeriod, IceSSL.Server.IgnoreValidPeriod</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.IgnoreValidPeriod=<replaceable>0 | 1</replaceable>
-IceSSL.Server.IgnoreValidPeriod=<replaceable>0 | 1</replaceable>
+IceSSL.Client.IgnoreValidPeriod=<replaceable>num</replaceable>
+IceSSL.Server.IgnoreValidPeriod=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-These properties will cause the DefaultCertificateVerifier to ignore the
-certificate validity period on peer certificates if set to 1.  Normal behavior
-will occur otherwise.
-</para>
-<para>
-The default value for these properties is 0.
+These properties will cause the default certificate verifier to ignore the
+certificate validity period on peer certificates if set to 1. The
+default value for these properties is 0, meaning that the certificate
+validity period is not ignored.
 </para>
 </section>
 </section>
