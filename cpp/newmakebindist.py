@@ -706,7 +706,7 @@ def main():
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     cwd = os.getcwd()
     os.chdir(installDir)
-    if not getPlatform() in ['linux']:
+    if not getPlatform() == 'linux':
 	#
 	# I need to get third party libraries.
 	#
@@ -715,8 +715,15 @@ def main():
 	for f in dbFiles:
 	    shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
 
-    if getPlatform() in ['macosx']:
+    if getPlatform() == 'macosx':
 	copyExpatFiles(buildEnvironment['EXPAT_HOME'], version)	
+
+    if getPlatform() == 'hpux':
+	ssl = buildEnvironment['OPENSSL_HOME']
+	os.system('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
+	os.system('cp -pR ' + ssl + '/include Ice-' + version)
+	os.system('cp -pR ' + ssl + '/lib/* Ice-' + version + '/lib')
+	os.system('rm -rf Ice-' + version + '/lib/libfips*')
 
     uname = getuname()
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]

@@ -31,9 +31,9 @@ class Package:
         self.description = description
         self.filelist = filelist
 	self.other = other
-	self.prepTextGen = None
-	self.buildTextGen = None
-	self.installTextGen = None
+	self.prepTextGen = []
+	self.buildTextGen = []
+	self.installTextGen = []
         
     def writeHdr(self, ofile, version, release, installDir):
 	ofile.write("%define _unpackaged_files_terminate_build 0\n")
@@ -65,19 +65,16 @@ class Package:
 	ofile.write(self.description)
 	ofile.write("\n")
 	ofile.write("%prep\n")
-	if self.prepTextGen <> None:
-	    for g in self.prepTextGen:
-		g(ofile, version)
+	for g in self.prepTextGen:
+	    g(ofile, version)
 	ofile.write("\n")
 	ofile.write("%build\n")
-	if self.buildTextGen <> None:
-	    for g in self.buildTextGen:
-		g(ofile, version)
+	for g in self.buildTextGen:
+	    g(ofile, version)
 	ofile.write("\n")
 	ofile.write("%install\n")
-	if self.installTextGen <> None:
-	    for g in self.installTextGen:
-		g(ofile, version)
+	for g in self.installTextGen:
+	    g(ofile, version)
 	ofile.write("\n")
 	ofile.write("%clean\n")
 	ofile.write("\n")
@@ -159,18 +156,12 @@ class Package:
 	ofile.write('\n')
 
     def addPrepGenerator(self, gen):
-	if self.prepTextGen == None:
-	    self.prepTextGen = []
 	self.prepTextGen.append(gen)
 
     def addBuildGenerator(self, gen):
-	if self.buildTextGen == None:
-	    self.buildTextGen = []
 	self.buildTextGen.append(gen)
 
     def addInstallGenerator(self, gen):
-	if self.installTextGen == None:
-	    self.installTextGen = []
 	self.installTextGen.append(gen)
 
 #
