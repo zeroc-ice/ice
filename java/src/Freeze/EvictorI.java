@@ -144,7 +144,7 @@ class EvictorI implements Evictor
 	    throw new EvictorDeactivatedException();
 	}
 	
-	return _evictorMap.get(ident) != null;
+	return _dict.containsKey(ident);
     }
 
     synchronized public Ice.Object
