@@ -1171,6 +1171,7 @@ public final class Connection extends EventHandler
 
 	IntMap requests = null;
 	IntMap asyncRequests = null;
+        Incoming in = null;
 
 	synchronized(this)
 	{
@@ -1198,6 +1199,17 @@ public final class Connection extends EventHandler
 		    _transceiver = null;
 		    notifyAll();
 		}
+
+		//
+		// We must destroy the incoming cache. It is now not
+		// needed anymore.
+		//
+		synchronized(_incomingCacheMutex)
+		{
+		    assert(_dispatchCount == 0);
+		    in = _incomingCache;
+		    _incomingCache = null;
+		}
 	    }
 
 	    if(_state == StateClosed || _state == StateClosing)
@@ -1209,6 +1221,12 @@ public final class Connection extends EventHandler
 		_asyncRequests = new IntMap();
 	    }
 	}
+
+        while(in != null)
+	{
+            in.__destroy();
+            in = in.next;
+        }
 
 	if(requests != null)
 	{

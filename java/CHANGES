@@ -1,6 +1,9 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Fixed a bug with certain chache objects not being destroyed when
+  connections are closed.
+
 - Added ConnectionRefusedException as a specialization of
   ConnectFailedException, to indicate if a connection fails because a
   server actively refuses such connection.
