@@ -135,32 +135,13 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 bool
 Slice::operator<(Contained& l, Contained& r)
 {
-    if (l.containedType() != r.containedType())
-    {
-	return static_cast<int>(l.containedType()) < static_cast<int>(r.containedType());
-    }
-
-    if(l.scoped() < r.scoped())
-    {
-	return true;
-    }
-    else if(l.scoped() != r.scoped())
-    {
-	return false;
-    }
-
-    return false;
+    return l.scoped() < r.scoped();
 }
 
 bool
 Slice::operator==(Contained& l, Contained& r)
 {
-    if(l.scoped() != r.scoped())
-    {
-	return false;
-    }
-
-    return true;
+    return l.scoped() == r.scoped();
 }
 
 // ----------------------------------------------------------------------
@@ -2290,7 +2271,7 @@ Slice::Unit::findContents(const string& scoped)
 }
 
 ClassList
-Slice::Unit::findDerived(const ClassDefPtr& cl)
+Slice::Unit::findDerivedClasses(const ClassDefPtr& cl)
 {
     ClassList derived;
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
@@ -2302,6 +2283,30 @@ Slice::Unit::findDerived(const ClassDefPtr& cl)
 	    {
 		ClassList bases = r->bases();
 		if (find(bases.begin(), bases.end(), cl) != bases.end())
+		{
+		    derived.push_back(r);
+		}
+	    }
+	}
+    }
+    derived.sort();
+    derived.unique();
+    return derived;
+}
+
+ExceptionList
+Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex)
+{
+    ExceptionList derived;
+    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    {
+	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+	{
+	    ExceptionPtr r = ExceptionPtr::dynamicCast(*q);
+	    if (r)
+	    {
+		ExceptionPtr base = r->base();
+		if (base && base == ex)
 		{
 		    derived.push_back(r);
 		}

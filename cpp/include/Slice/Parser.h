@@ -642,7 +642,8 @@ public:
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
     ContainedList findContents(const std::string&);
-    ClassList findDerived(const ClassDefPtr&);
+    ClassList findDerivedClasses(const ClassDefPtr&);
+    ExceptionList findDerivedExceptions(const ExceptionPtr&);
     ContainedList findUsedBy(const ConstructedPtr&);
 
     StringList includeFiles();

@@ -928,19 +928,43 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	end();
     }
 
-    ClassList derived;
+    ClassList derivedClasses;
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
     if (def)
     {
-	derived = p->unit()->findDerived(def);
+	derivedClasses = p->unit()->findDerivedClasses(def);
     }
-    if (!derived.empty())
+    if (!derivedClasses.empty())
     {
 	start("section", "Derived Classes and Interfaces");
 	start("para");
 	start("simplelist type=\"inline\"");
 	
-	for (ClassList::const_iterator q = derived.begin(); q != derived.end(); ++q)
+	for (ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
+	{
+	    start("member");
+	    O << nl << toString(*q, container);
+	    end();
+	}
+	
+	end();
+	end();
+	end();
+    }
+
+    ExceptionList derivedExceptions;
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+    if (ex)
+    {
+	derivedExceptions = p->unit()->findDerivedExceptions(ex);
+    }
+    if (!derivedExceptions.empty())
+    {
+	start("section", "Derived Exceptions");
+	start("para");
+	start("simplelist type=\"inline\"");
+	
+	for (ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
 	{
 	    start("member");
 	    O << nl << toString(*q, container);
