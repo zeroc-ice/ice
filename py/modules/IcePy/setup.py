@@ -32,4 +32,4 @@ IcePy = Extension(
                 library_dirs = [os.environ['ICE_HOME'] + '/lib'],
                 libraries = libs)
 
-setup (name = 'IcePy', version = '1.6', description = 'Ice', ext_modules = [IcePy])
+setup (name = 'IcePy', version = '2.1', description = 'Ice', ext_modules = [IcePy])
