@@ -30,7 +30,7 @@ class Contact
     nonmutating string getPhone();
     idempotent void setPhone(string phone);
 
-    idempotent void destroy()
+    void destroy()
 	throws DatabaseException;
 
     string name;

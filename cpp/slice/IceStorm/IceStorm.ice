@@ -129,7 +129,7 @@ interface Topic
      * Destroy the Topic.
      *
      **/
-    idempotent void destroy();
+    void destroy();
 };
 
 /**

@@ -83,15 +83,13 @@ class Book
 
     /**
      *
-     * Destroy the book. [destroy] is nonmutating. It doesn't change
-     * the state of the Book. It removes the Book completely, but
-     * doesn't touch state.
+     * Destroy the book.
      *
      * @throws DatabaseException Raised if there is a problem with the
      * database system.
      *
      **/
-    idempotent void destroy()
+    void destroy()
 	throws DatabaseException;
 
     /**

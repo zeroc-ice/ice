@@ -89,7 +89,7 @@ class Book
      * database system.
      *
      **/
-    idempotent void destroy()
+    void destroy()
 	throws DatabaseException;
 
     /**
