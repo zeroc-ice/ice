@@ -435,12 +435,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1E397780B05E49C5B3A42B2E8BDE8416"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\NESTED\\MAKEFILE"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1FB7C62842074F4892860CB0B374CF1C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICESTORM\\CLOCK\\PUBLISHER.CPP"
@@ -936,12 +930,6 @@
         "MsmKey" = "8:_58084BFB7CA64629A1F10112ED6927A2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICESSL\\PLUGIN.H"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_58412115DD9F42F19EAEEFD844FDDF09"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\VALUE\\MAKEFILE"
         }
         "Entry"
         {
@@ -1452,6 +1440,12 @@
         "MsmKey" = "8:_899DA5A7B2B744C8B4E21B0B68C14715"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\STATS.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8B68C7181740488FA3C7540415FC947F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICEBOX\\ICEBOX.ICE"
         }
         "Entry"
         {
@@ -4234,26 +4228,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1E397780B05E49C5B3A42B2E8BDE8416"
-            {
-            "SourcePath" = "8:..\\..\\..\\demo\\Ice\\nested\\Makefile"
-            "TargetName" = "8:Makefile"
-            "Tag" = "8:"
-            "Folder" = "8:_13C973E1F9F0469AA5EB975F9DF79D65"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1FB7C62842074F4892860CB0B374CF1C"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\IceStorm\\clock\\Publisher.cpp"
@@ -5880,26 +5854,6 @@
             "TargetName" = "8:Plugin.h"
             "Tag" = "8:"
             "Folder" = "8:_452B5D7E75A9478687DCD4E63832816C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_58412115DD9F42F19EAEEFD844FDDF09"
-            {
-            "SourcePath" = "8:..\\..\\..\\demo\\Ice\\value\\Makefile"
-            "TargetName" = "8:Makefile"
-            "Tag" = "8:"
-            "Folder" = "8:_DE433CFFADEA4F9AB870B170B4856625"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7580,6 +7534,26 @@
             "TargetName" = "8:Stats.h"
             "Tag" = "8:"
             "Folder" = "8:_A42D74C86BA04AF4A760DBEC329FD88D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8B68C7181740488FA3C7540415FC947F"
+            {
+            "SourcePath" = "8:..\\..\\..\\slice\\IceBox\\IceBox.ice"
+            "TargetName" = "8:IceBox.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_74BFA151A1334B0A8EC5244C7A77B7F7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12112,6 +12086,17 @@
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
                             "Property" = "8:_FF881374ECD04147B68C6F5525FBD788"
+                                "Folders"
+                                {
+                                }
+                            }
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_74BFA151A1334B0A8EC5244C7A77B7F7"
+                            {
+                            "Name" = "8:IceBox"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_9442557D427342309079FAD9FACB31AA"
                                 "Folders"
                                 {
                                 }
