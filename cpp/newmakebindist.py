@@ -223,8 +223,13 @@ def archiveDemoTree(buildDir, version):
     #
     # Remove unnecessary files from demos here.
     #
-    os.remove("Ice-" + version + "-demos/config/TestUtil.py")
-    os.remove("Ice-" + version + "-demos/config/IcePackAdmin.py")
+    os.remove('Ice-' + version + '-demos/config/TestUtil.py')
+    os.remove('Ice-' + version + '-demos/config/IcePackAdmin.py')
+    os.remove('Ice-' + version + '-demos/config/ice_ca.cnf')
+    os.remove('Ice-' + version + '-demos/config/makeprops.py')
+    os.remove('Ice-' + version + '-demos/config/makedepend.py')
+    os.remove('Ice-' + version + '-demos/config/PropertyNames.def')
+    os.system('Ice-' + version + '-demos/config/*.bak')
 
     # 
     # Remove compiled Java.
@@ -581,35 +586,35 @@ def main():
         try:
             currentLibraryPath = os.environ[dylibEnvironmentVar] 
         except KeyError:
-            currentLibraryPath = ""
+            currentLibraryPath = ''
 
-        os.environ[dylibEnvironmentVar] = installDir + "/Ice-" + version + "/lib:" + currentLibraryPath
-        os.environ['PATH'] = installDir + "/Ice-" + version + "/bin:" + os.environ['PATH']
+        os.environ[dylibEnvironmentVar] = installDir + '/Ice-' + version + '/lib:' + currentLibraryPath
+        os.environ['PATH'] = installDir + '/Ice-' + version + '/bin:' + os.environ['PATH']
 
 	for d in cvsDirs:
 	    currentDir = os.getcwd()
-	    os.chdir("../" + d)
-	    print "Going to directory " + d
-	    if d == "icej":
-		shutil.copy("lib/Ice.jar", installDir +"/Ice-" + version + "/lib")
-		os.system("cp -pR ant " + installDir + "/Ice-" + version)
+	    os.chdir('../' + d)
+	    print 'Going to directory ' + d
+	    if d == 'icej':
+		shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
+		os.system('cp -pR ant ' + installDir + '/Ice-' + version)
 		os.system('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
 	    else:
 		os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
-		os.system("gmake INSTALL_ROOT=" + installDir + "/Ice-" + version + " install")
+		os.system('gmake INSTALL_ROOT=' + installDir + '/Ice-' + version + ' install')
 	    os.chdir(currentDir)
 
     #
     # Sources should have already been built and installed.  We
     # can pick the binaries up from the iceinstall directory.
     #
-    binaries = glob.glob(installDir + "/Ice-" + version + "/bin/*")
-    binaries.extend(glob.glob(installDir + "/Ice-" + version + "/lib/*" + shlibExtensions(version, soVersion)[0]))
+    binaries = glob.glob(installDir + '/Ice-' + version + '/bin/*')
+    binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     strip(binaries)
     cwd = os.getcwd()
     os.chdir(installDir)
-    os.system("tar cf Ice-" + version + "-bin-" + getPlatform() + ".tar Ice-" + version)
-    os.system("gzip -9 Ice-" + version + "-bin-" + getPlatform() + ".tar")
+    os.system('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
+    os.system('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
 
     #
@@ -617,6 +622,8 @@ def main():
     # that is running the script has massaged the permissions on /usr/src/redhat/.
     #
     if getPlatform() == "linux" and not cvsMode:
+	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
+	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #

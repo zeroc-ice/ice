@@ -506,6 +506,13 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     ofile.close()
     os.system("rpmbuild --target noarch -bb IceJ-" + version + ".spec")
 
+    ofile = open(installDir + '/ice-' + version + '.spec', 'w')
+    createFullSpecFile(ofile, installDir, version, soVersion)
+    ofile.flush()
+    ofile.close()
+    os.system('rpmbuild -bs ' + installDir + '/ice-' + version + '.spec')
+
+
 def writeUnpackingCommands(ofile, version):
     ofile.write('%setup -n Ice-%{version} -q -T -D -b 0\n')
     ofile.write("""#
