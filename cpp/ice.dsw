@@ -26,6 +26,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -38,6 +41,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -50,6 +56,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -178,6 +187,15 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name inheritanceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsS
     End Project Dependency
 }}}
 
