@@ -29,11 +29,14 @@ C compiler
 Third-party libraries
 ---------------------
 
+Ice has dependencies on a number of third-party libraries:
+
 - Berkeley DB 4.2.52 or 4.3.27 with C++ support enabled, and built
-  with a C++ compiler compatible with the one you are using. The
-  Berkeley DB source distribution can be downloaded from
-  http://www.sleepycat.com
-  
+  with a C++ compiler compatible with the one you are using.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
+
   We recommend that you configure and build Berkeley DB with:
 
   $ export CXXOPTS="-AA -mt"
@@ -56,7 +59,7 @@ Third-party libraries
 
 - OpenSSL 0.9.7, which can be downloaded from http://www.openssl.org
 
-  We do not recommend to use the binary distribution available from
+  We do not recommend using the binary distribution available from
   the "Software Porting And Archive Centre for HP-UX" as it depends on
   the GCC runtime.
 
@@ -71,10 +74,10 @@ Third-party libraries
   (and --prefix=<dir> if you like)
 
 - expat 1.9x, which can be downloaded from
-  http://sourceforge.net/projects/expat.
+  http://sourceforge.net/projects/expat
 
   For 32 bit builds, you can also use the binary distribution from the
-  "Software Porting And Archive Centre for HP-UX",
+  "Software Porting And Archive Centre for HP-UX" located at
   http://hpux.cs.utah.edu.
 
 - bzip2 1.0, which can be downloaded from the "Software Porting And
@@ -114,18 +117,16 @@ Change the working directory to Ice-<version>:
 
 $ cd Ice-<version>
 
-Edit the file config/Make.rules according to the comments in this
-file. Make sure that the paths for the third-party libraries are set
-correctly if they are not installed in the default location /usr/lib
-and /usr/include.
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
 
 Now you're ready to build Ice:
 
 $ gmake
 
-This will build the Ice core library, all add-ons, all tests, and all
-examples. 
-
+This will build the Ice core libraries, services, tests and examples.
 After a successful build, you can run the test suite, provided that 
 you installed Python:
 
@@ -135,12 +136,13 @@ This is equivalent to:
 
 $ python allTests.py
 
-If everything worked out, you should see lots of "ok". In case of a
-failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to add "bin" to
-PATH and "lib" to SHLIB_PATH or LD_LIBRARY_PATH (for 64 bit
-builds):
+If you want to try out any of the demos, make sure to update your
+PATH environment variable to add the "bin" directory, and your
+SHLIB_PATH environment variable to add the "lib" directory. For
+64 bit builds, add "lib" to LD_LIBRARY_PATH:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export SHLIB_PATH=`pwd`/lib:$SHLIB_PATH
@@ -153,11 +155,12 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 To build Ice in 64 bit mode, you need to:
 
-- Obtain or build all the third party dependencies, and put the 64 bit
-  libraries in the "lib/pa20_64" directories. For example put Berkeley
-  DB 64 bit libraries in $DB_HOME/lib/pa20_64.
+- Obtain or build all the third-party dependencies, and put the 64 bit
+  libraries in the "lib/pa20_64" directories. For example, put
+  Berkeley DB 64 bit libraries in $DB_HOME/lib/pa20_64.
 
-- Set the environment variable LP64 to yes, e.g.:
+- Set the environment variable LP64 to yes, as shown below:
+
   $ export LP64=yes
 
 - Build and test as described above.
@@ -167,8 +170,8 @@ To build Ice in 64 bit mode, you need to:
 Installation
 ======================================================================
 
-Simply run "gmake install". This will install Ice in the "prefix"
-directory specified in the file Make.rules.
+Simply run "gmake install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your SHLIB_PATH. When
@@ -178,4 +181,4 @@ and the location of the <prefix>/lib directory with the -L option.
 
 If you built in 64 bit mode, the libraries are installed in
 <prefix>/lib/pa20_64 and the programs are installed in
-<prefix>/bin/pa20_64. Other files are identical for 32 and 64 bit.
+<prefix>/bin/pa20_64. No other changes are necessary.

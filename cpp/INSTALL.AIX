@@ -23,11 +23,14 @@ C compiler
 Third-party libraries
 ---------------------
 
+Ice has dependencies on a number of third-party libraries:
+
 - Berkeley DB 4.2.52 or 4.3.27 with C++ support enabled, and built 
-  with a C++ compiler compatible with the one you are using. The
-  Berkeley DB source distribution can be downloaded from 
-  http://www.sleepycat.com
-  
+  with a C++ compiler compatible with the one you are using.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
+
   We recommend that you configure and build Berkeley DB like this:
 
   $ ../dist/configure --enable-cxx --enable-posixmutexes
@@ -104,20 +107,18 @@ Change the working directory to Ice-<version>:
 
 $ cd Ice-<version>
 
-Edit the file config/Make.rules according to the comments in this
-file. Make sure that the paths for the third-party libraries are set
-correctly if they are not installed in the default location /usr/lib
-and /usr/include.
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
 
 Now you're ready to build Ice:
 
 $ gmake
 
-This will build the Ice core library, all add-ons, all tests, and all
-examples.
-
+This will build the Ice core libraries, services, tests and examples.
 After a successful build, you can run the test suite, provided that
-you installed Python:
+you have installed Python:
 
 $ gmake test
 
@@ -125,11 +126,12 @@ This is equivalent to:
 
 $ python allTests.py
 
-If everything worked out, you should see lots of "ok". In case of a
-failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to add "bin" to
-PATH and "lib" to LIBPATH:
+If you want to try out any of the demos, make sure to update your
+PATH environment variable to add the "bin" directory, and your
+LIBPATH environment variable to add the "lib" directory:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export LIBPATH=`pwd`/lib:$LIBPATH
@@ -150,11 +152,12 @@ http://www-124.ibm.com/pipermail/aixtoolbox-list/2004-June/001789.html
 64 bit builds
 ======================================================================
 
-To build Ice in 64 bit mode, you need to:
+To build Ice in 64-bit mode, you need to do the following:
 
-- Obtain or build all the third party dependencies. A number of 
-  packages from the "AIX Toolbox for Linux Applications" provide both 
-  32 and 64 bit shared objects in the same archive libraries.
+- Obtain or build all the third-party dependencies in 64-bit mode. A
+  number of packages from the "AIX Toolbox for Linux Applications"
+  provide both 32 and 64 bit shared objects in the same archive
+  libraries.
 
   For example:
 
@@ -162,7 +165,8 @@ To build Ice in 64 bit mode, you need to:
   libexpat.so.0
   libexpat.so.0
 
-- Set the environment variable OBJECT_MODE to 64, e.g.:
+- Set the environment variable OBJECT_MODE to 64, as shown below:
+
   $ export OBJECT_MODE=64
 
 - Build and test as described above.
@@ -172,8 +176,8 @@ To build Ice in 64 bit mode, you need to:
 Installation
 ======================================================================
 
-Simply run "gmake install". This will install Ice in the "prefix"
-directory specified in the file Make.rules.
+Simply run "gmake install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your LIBPATH. When

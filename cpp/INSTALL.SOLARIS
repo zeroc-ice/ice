@@ -34,7 +34,9 @@ compilers are not supported at this time:
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.2.52 or 4.3.27 with C++ support enabled, and built 
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx, and built 
   with a C++ compiler compatible with the one you are using.
 
   Note that Ice for Java is not compatible with version 4.3,
@@ -47,22 +49,18 @@ Third-party libraries
 
 - bzip2 1.0
 
-Berkeley DB can be downloaded from:
-http://www.sleepycat.com/download
+You can download these packages at the following locations:
 
-expat can be downloaded from:
-http://www.sunfreeware.com
-Or from:
-http://sourceforge.net/projects/expat/
-
-OpenSSL 0.97 can be downloaded (in binary form) from:
-http://www.sunfreeware.com
-Or you can download the source from:
-http://www.openssl.org
+Berkeley DB    http://www.sleepycat.com/download
+expat          http://sourceforge.net/projects/expat/
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
 
 bzip2 comes with Solaris, in Sun package SUNWbzip (32 bit) and
 SUNWbzipx (64 bit). You may want to apply patch 114586-01 to get the
 latest bzip2 version, 1.0.2.
+
+Some packages are also available at http://www.sunfreeware.com.
 
 
 GNU Make 3.80
@@ -93,12 +91,12 @@ Change the working directory to Ice-<version>:
 
 $ cd Ice-<version>
 
-Edit the file config/Make.rules according to the comments in this
-file. Make sure that the paths for the third-party libraries are set
-correctly if they are not installed in the default location /usr/lib
-and /usr/include.
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
 
-If you want to build with g++ instead of CC, edit 
+If you want to build with g++ instead of Sun CC, edit the file
 config/Make.rules.SunOS and change or comment out the CXX = <compiler>
 line (at the top of the file). The default value for CXX with GNU
 make is g++.
@@ -107,8 +105,27 @@ Now you're ready to build Ice:
 
 $ gmake
 
-This will build the Ice core library, all add-ons, all tests, and all
-examples. 
+This will build the Ice core libraries, services, tests and examples.
+After a successful build, you can run the test suite, provided that
+you have installed Python:
+
+$ gmake test
+
+This is equivalent to:
+
+$ python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your
+PATH environment variable to add the "bin" directory, and your
+LD_LIBRARY_PATH environment variable to add the "lib" directory.
+For 64 bit builds, add "lib" to LD_LIBRARY_PATH_64:
+
+$ export PATH=`pwd`/bin:$PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
 
 
 CC 5.4 note
@@ -127,38 +144,18 @@ your build log file with a sed script such as:
 /Warning(s) detected./d
 
 
-After a successful build, you can run the test suite, provided that 
-you installed Python:
-
-$ gmake test
-
-This is equivalent to:
-
-$ python allTests.py
-
-If everything worked out, you should see lots of "ok". In case of a
-failure, the tests abort with "failed".
-
-If you want to try out any of the demos, make sure to add "bin" to
-PATH and "lib" to LD_LIBRARY_PATH or LD_LIBRARY_PATH_64 (for 64 bit
-builds):
-
-$ export PATH=`pwd`/bin:$PATH
-$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
-$ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
-
-
 ======================================================================
 64 bit builds
 ======================================================================
 
-To build Ice in 64 bit mode, you need to:
+To build Ice in 64 bit mode, you need to do the following:
 
-- Obtain or build all the third party dependencies, and put the 64 bit
-  libraries in the "lib/sparcv9" directories. For example put Berkeley
-  DB 64 bit libraries in $DB_HOME/lib/sparcv9.
+- Obtain or build all the third-party dependencies, and put the 64 bit
+  libraries in the "lib/sparcv9" directories. For example, put
+  Berkeley DB 64 bit libraries in $DB_HOME/lib/sparcv9.
 
-- Set the environment variable LP64 to yes, e.g.:
+- Set the environment variable LP64 to yes, as shown below:
+
   $ export LP64=yes
 
 - Build and test as described above.
@@ -168,8 +165,8 @@ To build Ice in 64 bit mode, you need to:
 Installation
 ======================================================================
 
-Simply run "gmake install". This will install Ice in the "prefix"
-directory specified in the file Make.rules.
+Simply run "gmake install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your
@@ -180,5 +177,4 @@ with the -L option.
 
 If you built in 64 bit mode, the libraries are installed in
 <prefix>/lib/sparcv9 and the programs are installed in
-<prefix>/bin/sparcv9. Other files are identical for 32 and 64 bit.
- 
+<prefix>/bin/sparcv9. No other changes are necessary.

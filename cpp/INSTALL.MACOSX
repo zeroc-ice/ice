@@ -18,9 +18,12 @@ C++ compiler
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx. You can
-  download the Berkeley DB source distribution from
-  http://www.sleepycat.com
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
 
   Note that Ice for Java is not compatible with version 4.3,
   therefore if you intend to use Ice for Java with Berkeley DB,
@@ -43,18 +46,18 @@ Change the working directory to Ice-<version>:
 
 $ cd Ice-<version>
 
-Edit the file config/Make.rules according to the comments in this
-file. Make sure that the paths for the third-party libraries are set
-correctly if they are not installed in the default location /usr/lib
-and /usr/include.
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
 
 Now you're ready to build Ice:
 
 $ make
 
-This will build the Ice core library, all add-ons, all tests, and all
-examples. After a successful build, you can run the test suite,
-provided that you installed Python:
+This will build the Ice core libraries, services, tests and examples.
+After a successful build, you can run the test suite, provided that
+you have installed Python:
 
 $ make test
 
@@ -62,11 +65,12 @@ This is equivalent to:
 
 $ python allTests.py
 
-If everything worked out, you should see lots of "ok". In case of a
-failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to add "bin" to
-PATH and "lib" to DYLD_LIBRARY_PATH:
+If you want to try out any of the demos, make sure to update your
+PATH environment variable to add the "bin" directory, and your
+DYLD_LIBRARY_PATH environment variable to add the "lib" directory:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export DYLD_LIBRARY_PATH=`pwd`/lib:$DYLD_LIBRARY_PATH
@@ -76,8 +80,8 @@ $ export DYLD_LIBRARY_PATH=`pwd`/lib:$DYLD_LIBRARY_PATH
 Installation
 ======================================================================
 
-Simply run "make install". This will install Ice in the "prefix"
-directory specified in the file Make.rules.
+Simply run "make install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your
