@@ -1066,7 +1066,7 @@ Transform::InitVisitor::visitSequence(const SequencePtr& v)
     _out.nl();
     _out.nl();
     _out << "<!-- sequence " << scoped << " -->";
-    _out << se("transform") << attr("type", scoped);
+    _out << se("init") << attr("type", scoped);
     _out << ee;
 }
 
