@@ -3,6 +3,9 @@ Changes since version 1.2.0
 
 - A DNSException could cause a deadlock. This has been fixed.
 
+- The Ice.Stats interface was not being invoked by the TCP and
+  UDP transports. This has been fixed.
+
 Changes since version 1.1.1
 ---------------------------
 

@@ -78,6 +78,11 @@ final class UdpTransceiver implements Transceiver
                     _logger.trace(_traceLevels.networkCat, s);
                 }
 
+                if(_stats != null)
+                {
+                    _stats.bytesSent("udp", ret);
+                }
+
                 assert(ret == buf.limit());
                 break;
             }
@@ -180,6 +185,11 @@ final class UdpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
+        if(_stats != null)
+        {
+            _stats.bytesReceived("udp", ret);
+        }
+
         stream.resize(ret, true);
         stream.pos(ret);
     }
@@ -210,6 +220,7 @@ final class UdpTransceiver implements Transceiver
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
+        _stats = instance.stats();
         _incoming = false;
         _connect = true;
 	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
@@ -244,6 +255,7 @@ final class UdpTransceiver implements Transceiver
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
+        _stats = instance.stats();
         _incoming = true;
         _connect = connect;
 	_warn = instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
@@ -365,6 +377,7 @@ final class UdpTransceiver implements Transceiver
 
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
+    private Ice.Stats _stats;
     private boolean _incoming;
     private boolean _connect;
     private final boolean _warn;
