@@ -177,6 +177,11 @@ the Ice for Java source code:
 $ ant clean
 $ ant
 
+NOTE: If you use cygwin, be aware that ant 1.6.2 has a bug that
+causes it to misinterpret CLASSPATH entries having forward slashes.
+The workaround is to change your CLASSPATH to use backslashes, or
+revert to ant 1.6.1.
+
 
 ======================================================================
 Installation
