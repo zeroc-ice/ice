@@ -84,7 +84,7 @@ os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + t
 #
 # NOTE: Assumes that the C++ and Python trees will use the same tag.
 #
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/slice")
 #
 # Copy Slice directories.
 #
@@ -111,6 +111,19 @@ filesToRemove = [ \
     ]
 for x in filesToRemove:
     os.remove(x)
+
+#
+# Translate Slice files.
+#
+print "Translating..."
+cwd = os.getcwd()
+os.chdir(os.path.join("icepy", "python"))
+if verbose:
+    quiet = ""
+else:
+    quiet = " -s"
+os.system("gmake" + quiet)
+os.chdir(cwd)
 
 #
 # Get Ice version.
