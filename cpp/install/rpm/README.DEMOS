@@ -13,16 +13,17 @@ to be compiled.
 If you installed Ice from an Ice binary distribution or from source
 distributions by running 'gmake install', you must set the ICE_HOME
 environment variable to the Ice installation directory. You must also
-tell your system where to find the Ice translators and shared libraries.
-This is normally done through environment variables. On most systems
-the translators should be in a directory in your PATH environment
-variable, and the shared libraries should be in a directory in your
-system's shared library search path. Shared libraries are located
-using a system-specific environment variable, such as LD_LIBRARY_PATH
-(Linux and other UNIX variants), SHLIB_PATH (32 bit HP-UX) and LIBPATH
-(IBM AIX). You can test whether you have configured your system
-properly by running a Slice translator that was installed on your
-system. For example:
+tell your system where to find the Ice translators and shared
+libraries.  This is normally done through environment variables. On
+most systems the translators should be in a directory in your PATH
+environment variable, and the shared libraries should be in a
+directory in your system's shared library search path. Shared
+libraries are located using a system-specific environment variable,
+such as LD_LIBRARY_PATH (Linux and other UNIX variants), SHLIB_PATH
+(32 bit HP-UX), DYLD_LIBRARY_PATH (Mac OS X) and LIBPATH (IBM
+AIX). You can test whether you have configured your system properly by
+running a Slice translator that was installed on your system. For
+example:
 
 myprompt> slice2cpp
 
