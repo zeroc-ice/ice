@@ -294,6 +294,248 @@ Freeze::DBTransactionI::abort()
     _tid = 0;
 }
 
+DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::string& name, DBC* cursor,
+		     bool hasCurrentValue) :
+    _communicator(communicator),
+    _name(name),
+    _canRemove(false),
+    _hasCurrentValue(hasCurrentValue),
+    _cursor(cursor)
+{
+    PropertiesPtr properties = _communicator->getProperties();
+    string value;
+
+    value = properties->getProperty("Freeze.Trace.DBCursor");
+    if (!value.empty())
+    {
+	_trace = atoi(value.c_str());
+    }
+
+    _errorPrefix = "Freeze::DBCursor(\"" + _name += "\"): ";
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "creating cursor for \"" << _name << "\"";
+	_communicator->getLogger()->trace("DB", s.str());
+    }
+}
+
+DBCursorI::~DBCursorI()
+{
+    if (_cursor != 0)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has not been closed";
+	_communicator->getLogger()->warning(s.str());
+    }
+}
+
+Ice::CommunicatorPtr
+DBCursorI::getCommunicator()
+{
+    // immutable
+    return _communicator;
+}
+
+bool
+DBCursorI::hasNext()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    //
+    // Note that the reads are partial reads since this method only
+    // verifies that there is a next value
+    //
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.flags = DB_DBT_PARTIAL;
+
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    //
+    // If we've already verified that there is a next record then
+    // verify that the current record still exists.
+    //
+    if (_hasCurrentValue)
+    {
+	try
+	{
+	    checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_CURRENT), _errorPrefix,
+				  "DBcursor->c_get");\
+	}
+	catch(const DBNotFoundException&)
+	{
+	    //
+	    // There is no next record.
+	    //
+	    return false;
+	}
+	return true;
+    }
+
+    //
+    // Otherwise, move to the next record.
+    //
+    try
+    {
+	checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, DB_NEXT), _errorPrefix,
+			      "DBcursor->c_get");\
+    }
+    catch(const DBNotFoundException&)
+    {
+	//
+	// There is no next record
+	//
+	return false;
+    }
+
+    //
+    // We now have a current value.
+    //
+    _hasCurrentValue = true;
+    return true;
+}
+
+void
+DBCursorI::next(Key& key, Value& value)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+
+    u_int32_t getFlags;
+    string desc;
+
+    //
+    // Do we need to move to the next record?
+    //
+    if (!_hasCurrentValue)
+    {
+	getFlags = DB_NEXT;
+	desc = "next";
+    }
+    else
+    {
+	getFlags = DB_CURRENT;
+	desc = "current";
+    }
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "reading " << desc << " value from database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+
+    checkBerkeleyDBReturn(_cursor->c_get(_cursor, &dbKey, &dbData, getFlags), _errorPrefix, "DBcursor->c_get");
+
+    //
+    // Copy the data from the read key & data
+    //
+    key = Key(static_cast<Byte*>(dbKey.data), static_cast<Byte*>(dbKey.data) + dbKey.size);
+    value = Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
+
+    _canRemove = true;
+    _hasCurrentValue = false;
+}
+
+void
+DBCursorI::remove()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    if (!_canRemove)
+    {
+	DBNotFoundException ex;
+	ex.message = "The next method has not yet been called, or the remove method has already been called "
+	             "after the last call to the next method.";
+	throw ex;
+    }
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "deleting value from database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+
+    checkBerkeleyDBReturn( _cursor->c_del(_cursor, 0), _errorPrefix, "DBcursor->c_del");
+
+    _hasCurrentValue = false;
+    _canRemove = false;
+}
+
+DBCursorPtr
+DBCursorI::clone()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBC* cursor;
+    _cursor->c_dup(_cursor, &cursor, DB_POSITION);
+    return new DBCursorI(_communicator, _name, cursor, _hasCurrentValue);
+}
+
+void
+DBCursorI::close()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	return;
+    }
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "closing cursor \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+  
+    _cursor->c_close(_cursor);
+    _cursor = 0;
+}
+
 Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db,
 		 const string& name) :
     _communicator(communicator),
@@ -348,6 +590,78 @@ Freeze::DBI::getCommunicator()
 {
     // No mutex lock necessary, _communicator is immutable
     return _communicator;
+}
+
+DBCursorPtr
+Freeze::DBI::getCursor()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBC* cursor;
+
+    checkBerkeleyDBReturn(_db->cursor(_db, 0, &cursor, 0), _errorPrefix, "DB->cursor");
+
+    return new DBCursorI(_communicator, _name, cursor, false);
+}
+
+DBCursorPtr
+Freeze::DBI::getCursorForKey(const Key& key)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBC* cursor;
+
+    checkBerkeleyDBReturn(_db->cursor(_db, 0, &cursor, 0), _errorPrefix, "DB->cursor");
+
+    //
+    // Move to the requested record
+    //
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+
+    //
+    // Note that the read of the data is partial (that is the data
+    // will not actually be read into memory since it isn't needed
+    // yet).
+    //
+    DBT dbData;
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.flags = DB_DBT_PARTIAL;
+
+    dbKey.data = const_cast<void*>(static_cast<const void*>(key.begin()));
+    dbKey.size = key.size();
+    try
+    {
+	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_SET), _errorPrefix, "DBcursor->c_get");
+    }
+    catch(const DBNotFoundException&)
+    {
+	//
+	// Cleanup on failure.
+	//
+	cursor->c_close(cursor);
+	throw;
+    }
+
+    return new DBCursorI(_communicator, _name, cursor, true);
 }
 
 void

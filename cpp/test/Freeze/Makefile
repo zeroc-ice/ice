@@ -8,13 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice \
-		  IcePack \
-		  Freeze
+SUBDIRS		= cursor
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

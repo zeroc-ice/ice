@@ -63,10 +63,6 @@ Parser::create(const list<string>& args)
 
     try
     {
-	//
-	// TODO: How is this supposed to work?
-	//
-	//for_each(args.begin(), args.end(), bind1st(IceUtil::memFun1(&TopicManager::create), _admin));
 	for (list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
 	{
 	    _admin->create(*i);

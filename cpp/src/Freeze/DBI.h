@@ -83,6 +83,35 @@ private:
     std::string _errorPrefix;
 };
 
+class DBCursorI : public DBCursor, public JTCMutex
+{
+public:
+
+    DBCursorI(const ::Ice::CommunicatorPtr&, const std::string&, DBC*, bool);
+    ~DBCursorI();
+
+    virtual ::Ice::CommunicatorPtr getCommunicator();
+
+    virtual bool hasNext();
+    virtual void next(Key& key, Value& value);
+    virtual void remove();
+
+    virtual DBCursorPtr clone();
+    virtual void close();
+
+private:
+
+    ::Ice::CommunicatorPtr _communicator;
+    int _trace;
+    std::string _name;
+    std::string _errorPrefix;
+
+    bool _canRemove; // Can remove be called?
+    bool _hasCurrentValue; // Have we already verified that there is a next value?
+    
+    DBC* _cursor;
+};
+
 class DBI : public DB, public JTCMutex
 {
 public:
@@ -92,6 +121,9 @@ public:
 
     virtual std::string getName();
     virtual ::Ice::CommunicatorPtr getCommunicator();
+
+    virtual DBCursorPtr getCursor();
+    virtual DBCursorPtr getCursorForKey(const Key&);
 
     virtual void put(const Key&, const Value&);
     virtual Value get(const Key&);

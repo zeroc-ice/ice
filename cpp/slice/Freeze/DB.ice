@@ -170,7 +170,80 @@ sequence<byte> Key;
  * A database value, represented as a sequence of bytes
  *
  **/
- sequence<byte> Value;
+sequence<byte> Value;
+
+/**
+ *
+ * A database cursor provides a way to iterate through all key/value
+ * pairs in the database.
+ *
+ * @see DB
+ * @see DB::getCursor
+ * @see DB::getCursorForKey
+ *
+ **/
+local interface DBCursor
+{
+    /**
+     *
+     * Get the Communicator for this cursor.
+     *
+     * @return The Communicator for this database.
+     *
+     **/
+    Ice::Communicator getCommunicator();
+
+    /**
+     *
+     * Determine if there are more elements in the database.
+     *
+     * @return Returns true if the cursor has more elements, false
+     * otherwise.
+     *
+     **/
+    bool hasNext();
+
+    /**
+     *
+     * Return the next element in the database.
+     *
+     * @param key The key of the next element.
+     * @param value The value of the next element
+     *
+     * @throws DBNotFoundException If there are no further elements in
+     * the database.
+     *
+     **/
+    void next(; Key key, Value value) throws DBException;
+
+    /**
+     *
+     * Remove the last element returned by the cursor. This method can
+     * only be called once per call to [next].
+     *
+     * @throws DBNotFoundException If the next method has not yet been
+     * called, or the [remove] method has already been called after the
+     * last call to the [next] method.
+     *
+     **/
+    void remove() throws DBException;
+
+    /**
+     *
+     * Clone the cursor.
+     *
+     * @return The cloned cursor.
+     *
+     **/
+    DBCursor clone();
+
+    /**
+     *
+     * Close the cursor. Subsequent calls to [close] have no effect.
+     *
+     **/
+    void close();
+};
 
 /**
  *
@@ -207,6 +280,32 @@ local interface DB
      *
      **/
     string getName();
+
+    /**
+     *
+     * Create a cursor for this database.
+     *
+     * @return A database cursor.
+     *
+     * @see DBCursor
+     *
+     **/
+    DBCursor getCursor();
+
+    /**
+     *
+     * Create a cursor for this database. Calling [next] on the cursor
+     * will return the key/value pair for the given key.
+     *
+     * @return A database cursor.
+     *
+     * @throws DBNotFoundException If the key was not found in the
+     * database.
+     *
+     * @see DBCursor
+     *
+     **/
+    DBCursor getCursorForKey(Key key) throws DBException;
 
     /**
      *

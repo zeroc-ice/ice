@@ -28,6 +28,7 @@ for i in \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "IcePack/simple", \
+    "Freeze/cursor", \
     ]:
 
     dir = os.path.normpath(toplevel + "/test/" + i)
@@ -41,7 +42,3 @@ for i in \
     except SystemExit, (status,):
         if status:
             sys.exit(status)
-
-
-
-        
