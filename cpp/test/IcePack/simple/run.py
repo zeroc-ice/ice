@@ -31,7 +31,7 @@ testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-if os.path.exists(os.path.join(testdir, "db/node/db")):
+if os.path.exists(os.path.join(testdir, "db/registry")):
     TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
 
 #
