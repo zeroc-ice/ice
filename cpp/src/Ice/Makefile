@@ -108,7 +108,8 @@ OBJS		= Initialize.o \
                   OpenSSLUtils.o \
                   DefaultCertificateVerifier.o \
                   SingleCertificateVerifier.o \
-		  UdpTransceiver.o 
+		  UdpTransceiver.o \
+		  DynamicLibrary.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
