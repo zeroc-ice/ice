@@ -52,8 +52,8 @@ Glacier2.SessionTimeout=30
 # work either. Also, with unbuffered request forwarding, the caller
 # thread blocks for twoway requests.
 #
-Glacier2.Client.Unbuffered=0
-Glacier2.Server.Unbuffered=0
+Glacier2.Client.Buffered=1
+Glacier2.Server.Buffered=1
 
 #
 # These two lines instruct Glacier2 to forward contexts both for

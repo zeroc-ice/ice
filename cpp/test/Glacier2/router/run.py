@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import os, sys
-
+import time
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -33,6 +33,8 @@ starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
+
+time.sleep(30)
 
 name = os.path.join("Glacier2", "router")
 

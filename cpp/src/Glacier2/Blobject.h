@@ -38,7 +38,7 @@ private:
 
     const bool _reverse;
     const bool _forwardContext;
-    const bool _unbuffered;
+    const bool _buffered;
     const bool _alwaysBatch;
     const int _requestTraceLevel;
     const int _overrideTraceLevel;

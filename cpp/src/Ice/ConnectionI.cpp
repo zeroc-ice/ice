@@ -38,6 +38,14 @@ Ice::ConnectionI::validate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    if(_threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+    {
+	cout << "_threadPerConnection->getThreadControl() != IceUtil::ThreadControl()" << endl;
+    }
+    else
+    {
+	cout << "_threadPerConnection->getThreadControl() == IceUtil::ThreadControl()" << endl;
+    }
     if(_instance->threadPerConnection() &&
        _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
     {
