@@ -25,6 +25,64 @@ using namespace Freeze;
 #   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
 #endif
 
+class DBEnvironmentMap : public IceUtil::Mutex
+{
+public:
+
+    DBEnvironmentMap() : _nextId(0) { }
+
+    ~DBEnvironmentMap()
+    {
+	assert(_map.empty());
+    }
+
+    int add(const DBEnvironmentPtr& env)
+    {
+	IceUtil::Mutex::Lock sync(*this);
+
+	_map.insert(make_pair(_nextId, env));
+
+	return _nextId++;
+    }
+    
+    void remove(int id)
+    {
+	IceUtil::Mutex::Lock sync(*this);
+
+	_map.erase(id);
+    }
+  
+    DBEnvironmentPtr get(int id)
+    {
+	IceUtil::Mutex::Lock sync(*this);
+	
+	map<int, DBEnvironmentPtr>::iterator p = _map.find(id);
+	if(p != _map.end())
+	{
+	    return p->second;
+	}
+	
+	return 0;
+    }
+
+private:
+
+    map<int, DBEnvironmentPtr> _map;
+    int _nextId;
+};
+
+static DBEnvironmentMap _dbEnvMap;
+
+void
+FreezeErrCallFcn(const char* prefix, char* msg)
+{
+    DBEnvironmentPtr dbEnv = _dbEnvMap.get(atoi(prefix));
+    assert(dbEnv);
+
+    Error out(dbEnv->getCommunicator()->getLogger());
+    out << "Freeze database error: " << dbEnv->getName() << ": " << msg;
+}
+
 void
 Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
 {
@@ -87,6 +145,18 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 				       DB_INIT_TXN |
 				       DB_RECOVER,
 				       FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
+
+    //
+    // Add this environment to the environment map. This allow us to
+    // ensure that all environments are properly closed and also to
+    // use the envionment logger to log BerkeleyDB error messages.
+    //
+    _id = _dbEnvMap.add(this);
+
+    ostringstream os;
+    os << _id;
+    _dbEnv->set_errpfx(_dbEnv, os.str().c_str());
+    _dbEnv->set_errcall(_dbEnv, FreezeErrCallFcn);
 }
 
 Freeze::DBEnvironmentI::~DBEnvironmentI()
@@ -188,6 +258,8 @@ Freeze::DBEnvironmentI::close()
     checkBerkeleyDBReturn(_dbEnv->close(_dbEnv, 0), _errorPrefix, "DB_ENV->close");
 
     _dbEnv = 0;
+
+    _dbEnvMap.remove(_id);
 }
 
 void
