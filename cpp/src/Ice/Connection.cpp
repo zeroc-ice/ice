@@ -150,7 +150,10 @@ IceInternal::Connection::monitor()
 	//
 	// Active connection management for idle connections.
 	//
-	if(_acmTimeout > 0 && closeOK())
+	// TODO: Hack: ACM for incoming connections doesn't work right
+	// with AMI.
+	//
+	if(_acmTimeout > 0 && closeOK() && !_adapter)
 	{
 	    if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
 	    {

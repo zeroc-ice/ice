@@ -565,8 +565,24 @@ IceProxy::Ice::Object::ice_default() const
 void
 IceProxy::Ice::Object::ice_flush()
 {
-    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-    __del->ice_flush();
+    //
+    // Retry is necessary for ice_flush in case the current connection
+    // is closed. If that's the case we need to get a new connection.
+    //
+    int __cnt = 0;
+    while(true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del->ice_flush();
+	    return;
+	}
+	catch(const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
 }
 
 ReferencePtr
