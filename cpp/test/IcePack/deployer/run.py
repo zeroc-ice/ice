@@ -42,7 +42,7 @@ def startClient(options):
     global testdir
 
     fullClientOptions = TestUtil.clientOptions + \
-                        " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\" " + \
+                        " --Ice.Default.Locator=\"IcePack/Locator:default -p 12345\" " + \
                         options
 
     print "starting client...",
@@ -59,7 +59,7 @@ def startClient(options):
 # Start IcePack.
 #
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
-icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12345", testdir)
 icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 
 #

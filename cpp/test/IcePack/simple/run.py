@@ -33,14 +33,14 @@ testdir = os.path.join(toplevel, "test", name)
 # Add locator options for the client and server. Since the server
 # invokes on the locator it's also considered to be a client.
 #
-additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
+additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12345\""
 
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IcePack registry.
 # 
-icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12345", testdir)
 
 #
 # Test client/server without on demand activation.
@@ -59,7 +59,7 @@ IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IcePack registry and a node.
 #
-icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackRegistryThread = IcePackAdmin.startIcePackRegistry("12345", testdir)
 icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 
 #
