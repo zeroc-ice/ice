@@ -91,16 +91,13 @@ public abstract class OutgoingAsync
     public void
     __invoke()
     {
-	_connection.incProxyCount();
 	try
 	{
 	    _connection.sendAsyncRequest(this);
 	}
-        catch(RuntimeException ex)
+	finally
 	{
-	    _connection.decProxyCount();
 	    destroy();
-	    throw ex;
 	}
     }
 
@@ -208,7 +205,6 @@ public abstract class OutgoingAsync
 	}
 	finally
 	{
-	    _connection.decProxyCount();
 	    destroy();
 	}
     }
@@ -226,7 +222,6 @@ public abstract class OutgoingAsync
 	}
 	finally
 	{
-	    _connection.decProxyCount();
 	    destroy();
 	}
     }
