@@ -1,7 +1,7 @@
 Build instructions
 ------------------
 
-This version of Ice for C# requires Mono version 1.0.4.
+This version of Ice for C# requires Mono version 1.0.6.
 
 Unpack the Ice archive. The sources will be contained in the 'icecs'
 subdirectory.
@@ -85,7 +85,8 @@ allTests.py or run.py.
 Running the demos
 -----------------
 
-To run the demos, you need to have icecs/bin in your MONO_PATH.
+To run the demos, you need to have icecs/bin in your MONO_PATH (or
+install the Ice DLLs in the GAC, as for running the tests).
 See the README file in each demo directory for a description of each
 demo.
 
