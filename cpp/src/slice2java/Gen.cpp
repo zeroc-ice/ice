@@ -1101,7 +1101,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << eb;
         out << eb;
-        out << nl << "public static Ice.ObjectFactory _factory = new __F();";
+        out << nl << "private static Ice.ObjectFactory _factory = new __F();";
         out << sp;
         out << nl << "public static Ice.ObjectFactory" << nl << "ice_factory()";
         out << sb;

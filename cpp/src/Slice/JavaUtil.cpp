@@ -628,7 +628,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             if(def && !def->isAbstract())
             {
                 out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << typeS << ".ice_staticId(), "
-                    << typeS << "._factory);";
+                    << typeS << ".ice_factory());";
             }
             else
             {
@@ -1326,7 +1326,7 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
             if(def && !def->isAbstract())
             {
                 out << nl << v << " = (" << typeS << ')' << stream << ".readObject(" << name << ", " << typeS
-                    << ".ice_staticId(), " << typeS << "._factory);";
+                    << ".ice_staticId(), " << typeS << ".ice_factory());";
             }
             else
             {
