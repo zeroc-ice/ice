@@ -279,6 +279,14 @@ IceUtil::ThreadControl::detach()
     }
 }
 
+bool
+IceUtil::ThreadControl::isAlive() const
+{
+    int policy;
+    struct sched_param param;
+    return pthread_getschedparam(_id, &policy, &param) == 0;
+}
+
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {

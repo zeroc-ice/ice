@@ -1,6 +1,9 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added IceUtil::ThreadControl::isAlive(). This function is useful for
+  implementing a non-blocking join().
+
 - Added timestamps to the default Ice logger. You can enable
   timestamps by setting the `Ice.Logger.Timestamp' property to a value
   larger than zero. By default timestamps are disabled.
