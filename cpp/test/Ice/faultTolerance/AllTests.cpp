@@ -113,11 +113,11 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& ex)
     {
 	try
 	{
-	    exc.ice_throw();
+	    ex.ice_throw();
 	}
 	catch(const Ice::ConnectionLostException&)
 	{
@@ -139,9 +139,9 @@ class AMI_Test_idempotentAbortI : public AMI_Test_idempotentAbort, public AMI_Te
 	test(false);
     }
 
-    virtual void ice_exception(const Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& ex)
     {
-	AMI_Test_abortI::ice_exception(exc);
+	AMI_Test_abortI::ice_exception(ex);
     }
 };
 
@@ -154,9 +154,9 @@ class AMI_Test_nonmutatingAbortI : public AMI_Test_nonmutatingAbort, public AMI_
 	test(false);
     }
 
-    virtual void ice_exception(const Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& ex)
     {
-	AMI_Test_abortI::ice_exception(exc);
+	AMI_Test_abortI::ice_exception(ex);
     }
 };
 

@@ -32,7 +32,7 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 server = "java -ea Server"
 client = "java -ea Client"
 
-num = 6
+num = 12
 base = 12340
 
 serverPipes = { }
