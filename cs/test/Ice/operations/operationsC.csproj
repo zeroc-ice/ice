@@ -72,7 +72,7 @@
                 <Reference
                     Name = "Ice"
                     AssemblyName = "Ice"
-                    HintPath = "..\..\..\lib\Ice.dll"
+                    HintPath = "Ice.dll"
                 />
             </References>
         </Build>
