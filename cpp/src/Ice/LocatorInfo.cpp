@@ -402,8 +402,8 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
     if(!ref->adapterId.empty())
     {
 	vector<EndpointPtr> endpoints = _table->removeAdapterEndpoints(ref->adapterId);
-	assert(!endpoints.empty());
-	if(ref->instance->traceLevels()->location >= 2)
+
+	if(!endpoints.empty() && ref->instance->traceLevels()->location >= 2)
 	{
 	    trace("removed endpoints from locator table", ref, endpoints);
 	}
