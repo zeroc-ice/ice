@@ -1,55 +1,12 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Fixed a bug in slice2java that caused byte constants to be
-  initialized incorrectly.
-
 - Fixed a hang in the IcePack registry that would occur if multiple
   node were started simultaneously.
 
 - New properties Ice.StdErr and Ice.StdOut to redirect the standard
   error and output streams of a process. Reimplemented IcePack's
   error/output redirection using these properties.
-
-- For classes with operations, the code generator now generates
-  overloaded methods for each operation, one exactly as before,
-  and another one without the trailing Ice.Current parameter.
-  For example:
-
-  // Slice
-  class Foo
-  {
-      void op();
-  };
-
-  // Java
-  public abstract class Foo extends Ice.ObjectImpl
-                            implements _FooOperations, _FooOperationsNC
-  {
-      public final void
-      op()
-      {
-          op(null);
-      }
-  }
-
-  public interface _FooOperations
-  {
-      void op(Ice.Current __current);
-  }
-
-  public interface _FooOperationsNC
-  {
-      void op();
-  }
-
-  This changes allows you to call an operation on a class without having
-  to supply a null dummy argument:
-
-  Foo f = new FooI();
-  f.op(null);		// Previously, null had to be passed. This still works.
-  f.op();		// OK as of now.
-
 
 Changes since version 1.5.0
 ---------------------------
@@ -66,8 +23,8 @@ Changes since version 1.5.0
 - Fixed a bug in the slice2cs code generator: classes with multiple
   sequence members caused incorrect code to be generated.
 
-- Added work-around for clients "hanging" at exit when using
-  IcePack on Windows.
+- Added work-around for clients "hanging" at exit when using IcePack
+  on Windows.
 
 Changes since version 1.4.0
 ---------------------------
