@@ -25,7 +25,7 @@ prefix			= /opt/Ice-$(VERSION)
 # Define LP64 as yes if you want to build in 64 bit mode on a platform
 # that supports both 32 and 64 bit.
 #
-#LP64                   := yes
+LP64			:= yes
 
 
 #
@@ -34,7 +34,7 @@ prefix			= /opt/Ice-$(VERSION)
 # This adds a "no-warranty" notice and accompanying show commands
 # to interactive programs.
 #
-GPL_BUILD               := yes
+GPL_BUILD		:= yes
 
 #
 # Define USE_READLINE as yes if you want to build parts of Ice using 
@@ -57,7 +57,7 @@ GPL_BUILD               := yes
 # ponder the licensing implications of using readline. 
 # 
 ifeq ($(GPL_BUILD),yes)
-   USE_READLINE            := yes
+   USE_READLINE		   := yes
 endif
 
 #
@@ -133,7 +133,7 @@ KERBEROS_HOME		?= /usr/kerberos
 
 SHELL			= /bin/sh
 VERSION			= 1.5.1
-SOVERSION               = 15
+SOVERSION		= 15
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
@@ -157,25 +157,25 @@ INSTALL_PROGRAM		= ${INSTALL}
 INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
-UNAME                   := $(shell uname)
+UNAME			:= $(shell uname)
 
 #
 # Platform specific definitions
 #
-include  $(top_srcdir)/config/Make.rules.$(UNAME)
+include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 ifeq ($(LP64),yes)
-    libsubdir             := lib$(lp64suffix)
+    libsubdir		  := lib$(lp64suffix)
 else
-    libsubdir             := lib
+    libsubdir		  := lib
 endif
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
     ifeq ($(OPTIMIZE),yes)
-        STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc
+	STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc
     else
-        STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc_stldebug
+	STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc_stldebug
     endif
 else
     STLPORT_FLAGS	=
@@ -225,18 +225,18 @@ endif
 #
 
 ifeq ($(GPL_BUILD),yes)
-    READLINE_FLAGS      = -DGPL_BUILD
+    READLINE_FLAGS	= -DGPL_BUILD
 endif
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
-        ifneq ($(READLINE_HOME),)
-            READLINE_FLAGS	+=  -DHAVE_READLINE -I$(READLINE_HOME)/include
-            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
-        else
-            READLINE_FLAGS	+= -DHAVE_READLINE
-            READLINE_LIBS	= -lreadline -lncurses
-        endif
+	ifneq ($(READLINE_HOME),)
+	    READLINE_FLAGS	+=  -DHAVE_READLINE -I$(READLINE_HOME)/include
+	    READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
+	else
+	    READLINE_FLAGS	+= -DHAVE_READLINE
+	    READLINE_LIBS	= -lreadline -lncurses
+	endif
     endif
 endif
 
@@ -248,15 +248,15 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			=  $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifeq ($(FLEX_NOLINE),yes)
-    FLEXFLAGS          := -L
+    FLEXFLAGS	       := -L
 else
-    FLEXFLAGS          :=
+    FLEXFLAGS	       :=
 endif
 
 ifeq ($(BISON_NOLINE),yes)
-    BISONFLAGS          := -dvtl
+    BISONFLAGS		:= -dvtl
 else
-    BISONFLAGS          := -dvt
+    BISONFLAGS		:= -dvt
 endif
 
 #
@@ -264,19 +264,19 @@ endif
 #
 
 ifeq ($(mklibfilename),)
-    mklibfilename       = $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mksoname),)
-    mksoname            = $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mklibname),)
-    mklibname           = lib$(1).so
+    mklibname		= lib$(1).so
 endif
 
 ifndef mklibtargets
-    mklibtargets        = $(1) $(2) $(3)
+    mklibtargets	= $(1) $(2) $(3)
 endif
 
 ifeq ($(mkshlib),)
@@ -284,9 +284,9 @@ ifeq ($(mkshlib),)
 endif
 
 ifeq ($(installlib),)
-    installlib          = $(INSTALL) $(2)/$(3) $(1); \
-                          rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
-                          rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
+    installlib		= $(INSTALL) $(2)/$(3) $(1); \
+			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
+			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
 endif
 
 SLICEPARSERLIB		= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
