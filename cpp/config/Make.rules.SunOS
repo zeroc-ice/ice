@@ -46,16 +46,13 @@ else
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
 
-SHLIB_LDFLAGS		= -G -h $(@F)
-
-LIBEXT			:= so
+mkshlib                 = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread
-LIBS			= -lIce -lbz2 $(BASELIBS) -ldl
+LIBS			= -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         := -lpthread -lrt
-ICE_OS_LIBS             := -lsocket
-
+ICE_OS_LIBS             := -ldl -lsocket
 
 lp64dir                := sparcv9
 

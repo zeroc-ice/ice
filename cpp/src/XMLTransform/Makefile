@@ -14,12 +14,13 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/lib/libXMLTransform.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,XMLTransform,$(VERSION))
+SONAME          = $(call mksoname,XMLTransform,$(SOVERSION))  
+LIBNAME		= $(call mklibname,XMLTransform)
 
 TRANSFORM_DB	= $(top_srcdir)/bin/transformdb
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(TRANSFORM_DB)
+TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) $(TRANSFORM_DB)
 
 OBJS		= ErrorReporter.o \
 		  XMLTransform.o
@@ -36,11 +37,19 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 
-$(VERSIONED_NAME): $(OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
-$(TRANSFORM_DB): $(TRANSFORM_OBJS) $(NAME)
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
+
+$(TRANSFORM_DB): $(TRANSFORM_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
@@ -48,9 +57,10 @@ clean::
 	rm -f $(TRANSFORM_DB)
 
 install:: all
-	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(NAME))
-	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SONAME)
+	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
+	rm -f $(install_libdir)/$(LIBNAME)
 	$(INSTALL_PROGRAM) $(TRANSFORM_DB) $(install_bindir)
 
 include .depend

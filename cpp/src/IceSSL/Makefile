@@ -14,10 +14,11 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/lib/libIceSSL.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
+SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
+LIBNAME		= $(call mklibname,IceSSL)
 
-TARGETS		= $(NAME) $(VERSIONED_NAME)
+TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
 OBJS		= Plugin.o \
                   Exception.o \
@@ -69,13 +70,25 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(OPENSSL_FLAGS) $(XERCESC_FLAGS) $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-$(VERSIONED_NAME): $(OBJS)
+LINKWITH        := $(OPENSSL_LIBS) $(XERCESC_LIBS)
+
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(OPENSSL_LIBS) $(XERCESC_LIBS)
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
 
 install:: all
-	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(NAME))
-	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SONAME)
+	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
+	rm -f $(install_libdir)/$(LIBNAME)
+	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
 
 include .depend

@@ -17,10 +17,12 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-SERVICE     	= libTestService.$(LIBEXT)
-VERSIONED_SVC	= $(SERVICE).$(VERSION)
+SVCFILENAME     = $(call mklibfilename,TestService,$(VERSION))
+SVCSONAME	= $(call mksoname,TestService,$(SOVERSION)) 
+SVCLIBNAME	= $(call mklibname,TestService) 
 
-TARGETS		= $(CLIENT) $(SERVER) $(SERVICE) $(VERSIONED_SVC)
+TARGETS		= $(CLIENT) $(SERVER) \
+                  $(SVCFILENAME) $(SVCSONAME) $(SVCLIBNAME)
 
 OBJS		= Test.o
 
@@ -52,8 +54,16 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-$(VERSIONED_SVC): $(OBJS) $(SERVICE_OBJS)
+$(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SERVICE_OBJS)
+	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),$(LINKWITH))
+
+$(SVCSONAME): $(SVCFILENAME)
+	rm -f $@
+	ln -s $(SVCFILENAME) $@
+
+$(SVCLIBNAME): $(SVCSONAME)
+	rm -f $@
+	ln -s $(SVCSONAME) $@
 
 include .depend

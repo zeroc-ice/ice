@@ -1,6 +1,18 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Update to the library versioning: 
+  On Windows, only the major and minor version are now used, for 
+  example: ice11d.dll (11d means 1.1 debug). In 1.0.x, the patch level 
+  was included in the version string, for example ice101d.dll.
+  On Unix, the internal name (soname) is now 
+  lib<name>.so.<major version><minor version>, for example
+  libIce.so.11 (for Ice 1.1.x). The corresponding file is a symbolic
+  link to lib<name>.so.<full version>, for example:
+  libIce.so.11 -> libIce.so.1.1.0. In 1.0.x, the internal name 
+  was set to the actual shared library file name, 
+  lib<name>.so.<full version>.
+
 - Ice now implements slicing for exceptions and classes: if process
   receives an exception or class that is of a more derived type than
   the receiver understands, the exception or class is automatically

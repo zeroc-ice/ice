@@ -14,10 +14,12 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/lib/libSlice.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,Slice,$(VERSION))
+SONAME          = $(call mksoname,Slice,$(SOVERSION))  
+LIBNAME		= $(call mklibname,Slice)
 
-TARGETS		= $(NAME) $(VERSIONED_NAME)
+TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
+
 
 OBJS		= Scanner.o \
 		  Grammar.o \
@@ -32,9 +34,17 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
-$(VERSIONED_NAME): $(OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
 
 # Needed for make -jn to work.
 ../Slice/Grammar.y: Grammar.h
@@ -44,8 +54,11 @@ clean::
 	rm -f Scanner.cpp
 
 install:: all
-	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(NAME))
-	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SONAME)
+	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
+	rm -f $(install_libdir)/$(LIBNAME)
+	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+
 
 include .depend

@@ -47,7 +47,7 @@ SRCS		= $(COBJS:.o=.cpp) \
 		  $(SAMDOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice
+SLICE_SRCS	= Test.ice TestAMD.ice
 
 include $(top_srcdir)/config/Make.rules
 

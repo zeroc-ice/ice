@@ -65,7 +65,11 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         libName = libSpec;
         if(useIceVersion)
         {
-            version = ICE_STRING_VERSION;
+	    int majorVersion = (ICE_INT_VERSION / 10000);
+	    int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
+	    ostringstream os;
+	    os << majorVersion * 10 + minorVersion;
+            version = os.str();
         }
     }
     else
@@ -77,25 +81,10 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     string lib;
 
 #ifdef _WIN32
-    lib = libName;
-    if(!version.empty())
-    {
-	// Temporary hack
-	/*
-        for(string::size_type n = 0; n < version.size(); n++)
-        {
-            if(version[n] != '.') // Remove periods
-            { 
-                lib += version[n];
-            }
-        }
-	*/
-	lib += "11";
-
+    lib = libName + version;
 #   ifdef _DEBUG
-        lib += 'd';
+    lib += 'd';
 #   endif
-    }
     lib += ".dll";
 #else
     lib = "lib" + libName + ".so";

@@ -14,15 +14,19 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/lib/libIceStorm.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,IceStorm,$(VERSION))
+SONAME          = $(call mksoname,IceStorm,$(SOVERSION))  
+LIBNAME		= $(call mklibname,IceStorm)
 
-SNAME		= $(top_srcdir)/lib/libIceStormService.$(LIBEXT)
-VERSIONED_SNAME	= $(SNAME).$(VERSION)
+SVCLIBFILENAME  = $(call mklibfilename,IceStormService,$(VERSION))
+SVCSONAME       = $(call mksoname,IceStormService,$(SOVERSION))  
+SVCLIBNAME	= $(call mklibname,IceStormService)
 
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(SNAME) $(VERSIONED_SNAME) $(ADMIN)
+TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+                  $(libdir)/$(SVCLIBFILENAME) $(libdir)/$(SVCSONAME) $(libdir)/$(SVCLIBNAME) \
+                  $(ADMIN)
 
 OBJS		= IceStorm.o
 
@@ -68,15 +72,33 @@ CPPFLAGS	:= -I.. $(XERCESC_FLAGS) $(READLINE_FLAGS) $(CPPFLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 
-$(VERSIONED_NAME): $(OBJS)
+$(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
 
-$(VERSIONED_SNAME): $(SERVICE_OBJS)
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(SERVICE_OBJS)
+	ln -s $(LIBFILENAME) $@
 
-$(ADMIN): $(AOBJS) $(NAME)
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
+
+
+$(libdir)/$(SVCLIBFILENAME): $(SERVICE_OBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(SONAME),$(SERVICE_OBJS),$(LINKWITH))
+
+$(libdir)/$(SVCSONAME): $(libdir)/$(SVCLIBFILENAME)
+	rm -f $@
+	ln -s $(SVCLIBFILENAME) $@
+
+$(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
+	rm -f $@
+	ln -s $(SVCSONAME) $@
+
+
+$(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(XERCESC_LIBS) $(READLINE_LIBS) $(LIBS)
 
@@ -103,12 +125,16 @@ clean::
 	-rm -f Scanner.cpp
 
 install:: all
-	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(NAME))
-	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
-	$(INSTALL_LIBRARY) $(VERSIONED_SNAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(SNAME))
-	ln -s $(notdir $(VERSIONED_SNAME)) $(install_libdir)/$(notdir $(SNAME))
+	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SONAME)
+	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
+	rm -f $(install_libdir)/$(LIBNAME)
+	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(INSTALL_LIBRARY) $(libdir)/$(SVCLIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SVCSONAME)
+	ln -s $(SVCLIBFILENAME) $(install_libdir)/$(SVCSONAME)
+	rm -f $(install_libdir)/$(SVCLIBNAME)
+	ln -s $(SVCSONAME) $(install_libdir)/$(SVCLIBNAME)
 	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
 
 include .depend

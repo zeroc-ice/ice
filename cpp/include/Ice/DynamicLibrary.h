@@ -45,21 +45,22 @@ public:
     //
     // The name of the library is constructed from the given
     // information. If no version is supplied and the boolean
-    // argument is true, the Ice version is used instead.
+    // argument is true, the Ice version (10 * major + minor) is 
+    // used instead.
     //
     // For example, consider the following entry point:
     //  
     // foo:create 
     //
-    // This would result in libfoo.so.1.0.0 (Unix) and foo100.dll
-    // (Windows), where the Ice version is 1.0.0.
+    // This would result in libfoo.so.11 (Unix) and foo11.dll
+    // (Windows), where the Ice version is 1.1.x.
     //
     // Now consider this entry point:
     //
-    // foo,1.1:create
+    // foo,12:create
     //
-    // The library names in this case are libfoo.so.1.1 (Unix) and
-    // foo11.dll (Windows).
+    // The library names in this case are libfoo.so.12 (Unix) and
+    // foo12.dll (Windows).
     //
     // On Windows platforms, a 'd' is appended to the version for
     // debug builds.

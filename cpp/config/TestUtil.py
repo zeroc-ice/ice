@@ -50,6 +50,13 @@ def getIceVersion():
     config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
     return re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
+def getIceSoVersion():
+    config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
+    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+    majorVersion = intVersion / 10000
+    minorVersion = intVersion / 100 - 100 * majorVersion    
+    return '%d' % (majorVersion * 10 + minorVersion)
+
 def isCygwin():
 
     # The substring on sys.platform is required because some cygwin

@@ -14,14 +14,16 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/lib/libIcePack.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,IcePack,$(VERSION))
+SONAME          = $(call mksoname,IcePack,$(SOVERSION))  
+LIBNAME		= $(call mklibname,IcePack)
 
 ADMIN		= $(top_srcdir)/bin/icepackadmin
 NODE_SERVER	= $(top_srcdir)/bin/icepacknode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icepackregistry
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
+TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+                  $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
@@ -83,6 +85,8 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IcePackRegistry.cpp
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
+                  $(SDIR)/Exception.ice \
+                  $(SDIR)/Query.ice \
 		  Internal.ice \
 		  Activator.ice
 
@@ -99,20 +103,30 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) $(READLINE_FLAGS) $(XERCESC_FLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 SLICE2CPPFLAGS 	:= --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
 
-$(VERSIONED_NAME): $(LIB_OBJS)
-	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(LIB_OBJS) -lIceBox
+LINKWITH        := -lIceBox
 
-$(ADMIN): $(ADMIN_OBJS) $(NAME)
+$(libdir)/$(LIBFILENAME): $(LIB_OBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(SONAME),$(LIB_OBJS),$(LINKWITH))
+
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
+
+$(ADMIN): $(ADMIN_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePack -lIceBox $(LIBS) $(READLINE_LIBS)
 
-$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(NAME)
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
 	-lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
-$(NODE_SERVER): $(NODE_SVR_OBJS) $(NAME)
+$(NODE_SERVER): $(NODE_SVR_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
 	-lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) $(DB_LIBS)
@@ -153,9 +167,11 @@ clean::
 	rm -f Scanner.cpp
 
 install:: all
-	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
-	rm -f $(install_libdir)/$(notdir $(NAME))
-	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
+	rm -f $(install_libdir)/$(SONAME)
+	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
+	rm -f $(install_libdir)/$(LIBNAME)
+	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
 	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
 	$(INSTALL_PROGRAM) $(NODE_SERVER) $(install_bindir)
 	$(INSTALL_PROGRAM) $(REGISTRY_SERVER) $(install_bindir)

@@ -16,10 +16,12 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 
-NAME		= libHelloService.$(LIBEXT)
-VERSIONED_NAME	= $(NAME).$(VERSION)
+LIBFILENAME     = $(call mklibfilename,HelloService,$(VERSION))
+SONAME          = $(call mksoname,HelloService,$(SOVERSION))  
+LIBNAME         = $(call mklibname,HelloService)  
 
-TARGETS		= $(CLIENT) $(NAME) $(VERSIONED_NAME)
+TARGETS		= $(CLIENT) $(NAME) $(LIBFILENAME) $(SONAME) $(LIBNAME)
+
 
 OBJS		= Hello.o
 
@@ -38,9 +40,17 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(VERSIONED_NAME): $(OBJS) $(SOBJS)
+$(LIBFILENAME): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS)  -o $@ $(OBJS) $(SOBJS)
+	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SOBJS),$(LINKWITH))
+
+$(SONAME): $(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(LIBNAME): $(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
