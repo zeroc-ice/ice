@@ -60,9 +60,9 @@ if clientStatus:
 
 #
 # Exit with status 0 even though some servers failed to shutdown
-# properly. There's a problem which is occuring on Linux bi-processor
-# machines when ssl isn't enabled and which cause some servers to
-# segfault of abort. It's not clear what the problem is and it's
+# properly. There's a problem which is occuring on Linux dual-processor
+# machines, when ssl isn't enabled, and which cause some servers to
+# segfault and abort. It's not clear what the problem is, and it's
 # almost impossible to debug with the very poor information we get
 # from the core file (ulimit -c unlimited to enable core files on
 # Linux).
@@ -70,8 +70,8 @@ if clientStatus:
 if serverStatus:
     TestUtil.killServers()
     if TestUtil.isWin32():
-        sys.exit(0)
-    else:
         sys.exit(1)
+    else:
+        sys.exit(0)
 
 sys.exit(0)
