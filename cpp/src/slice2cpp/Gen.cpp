@@ -10,6 +10,7 @@
 
 #include <Ice/Functional.h>
 #include <Gen.h>
+#include <GenUtil.h>
 #include <limits>
 
 //
