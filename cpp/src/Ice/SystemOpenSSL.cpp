@@ -37,6 +37,7 @@
 
 #include <openssl/e_os.h>
 #include <openssl/rand.h>
+#include <openssl/dh.h>
 
 #include <sstream>
 
@@ -351,6 +352,15 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
         {
             _tempRSAKeys[keyLength] = new RSAPrivateKey(rsa_tmp);
         }
+        else if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        {
+            ostringstream errorMsg;
+
+            errorMsg << "WRN Unable to obtain a " << dec << keyLength;
+            errorMsg << "-bit RSA key." << endl;
+
+            _logger->trace(_traceLevels->securityCat, errorMsg.str());
+        }
     }
 
     return rsa_tmp;
@@ -361,7 +371,7 @@ IceSSL::OpenSSL::System::getDHParams(int isExport, int keyLength)
 {
     IceUtil::Mutex::Lock sync(_tempDHKeysMutex);
 
-    DH *dh_tmp = 0;
+    DH* dh_tmp = 0;
 
     const DHMap::iterator& retVal = _tempDHKeys.find(keyLength);
 
@@ -383,11 +393,53 @@ IceSSL::OpenSSL::System::getDHParams(int isExport, int keyLength)
             string dhFile = dhParamsFile.getFileName();
 
             dh_tmp = loadDHParam(dhFile.c_str());
+        }
 
-            if (dh_tmp != 0)
+        // If that doesn't work, use a compiled-in group.
+        if (dh_tmp == 0)
+        {
+            switch (keyLength)
             {
-                _tempDHKeys[keyLength] = new DHParams(dh_tmp);
+                case 512 :
+                {
+                    dh_tmp = getTempDH512();
+                    break;
+                }
+        
+                case 1024 :
+                {
+                    dh_tmp = getTempDH1024();
+                    break;
+                }
+
+                case 2048 :
+                {
+                    dh_tmp = getTempDH2048();
+                    break;
+                }
+
+                case 4096 :
+                {
+                    dh_tmp = getTempDH4096();
+                    break;
+                }
             }
+        }
+
+        if (dh_tmp != 0)
+        {
+            // Cache the dh params for quick lookup - no
+            // extra processing required then.
+            _tempDHKeys[keyLength] = new DHParams(dh_tmp);
+        }
+        else if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        {
+            ostringstream errorMsg;
+
+            errorMsg << "WRN Unable to obtain a " << dec << keyLength;
+            errorMsg << "-bit Diffie-Hellman parameter group." << endl;
+
+            _logger->trace(_traceLevels->securityCat, errorMsg.str());
         }
     }
 

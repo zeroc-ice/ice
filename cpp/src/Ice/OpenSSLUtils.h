@@ -28,6 +28,9 @@ DH* loadDHParam(const char*);
 DH* getTempDH(unsigned char*, int, unsigned char*, int);
 
 DH* getTempDH512();
+DH* getTempDH1024();
+DH* getTempDH2048();
+DH* getTempDH4096();
 
 std::string sslGetErrors();
 
