@@ -678,10 +678,6 @@ protected:
 
     TypePtr _keyType;
     TypePtr _valueType;
-
-private:
-
-    static bool legalSimpleKeyType(const TypePtr&);
 };
 
 // ----------------------------------------------------------------------

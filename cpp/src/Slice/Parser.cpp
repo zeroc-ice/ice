@@ -2732,53 +2732,12 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
 }
 
 //
-// Check that the key type of a dictionary is legal. Legal types are integral types, string, and sequences and
-// structs containing only integral types or strings.
+// Check that the key type of a dictionary is legal. Legal types are
+// integral types, string, and sequences and structs containing only
+// other legal key types.
 //
 bool
 Slice::Dictionary::legalKeyType(const TypePtr& type)
-{
-    if(legalSimpleKeyType(type))
-    {
-	return true;
-    }
-
-    SequencePtr seqp = SequencePtr::dynamicCast(type);
-    if(seqp && legalSimpleKeyType(seqp->type()))
-    {
-	return true;
-    }
-
-    StructPtr strp = StructPtr::dynamicCast(type);
-    if(strp)
-    {
-	DataMemberList dml = strp->dataMembers();
-	for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
-	{
-	    if(!legalSimpleKeyType((*mem)->type()))
-	    {
-		return false;
-	    }
-	}
-	return true;
-    }
-
-    return false;
-}
-
-Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
-			      const TypePtr& valueType, bool local) :
-    Constructed(container, name, local),
-    Type(container->unit()),
-    Contained(container, name),
-    SyntaxTreeBase(container->unit()),
-    _keyType(keyType),
-    _valueType(valueType)
-{
-}
-
-bool
-Slice::Dictionary::legalSimpleKeyType(const TypePtr& type)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -2814,7 +2773,38 @@ Slice::Dictionary::legalSimpleKeyType(const TypePtr& type)
 	return true;
     }
 
+    SequencePtr seqp = SequencePtr::dynamicCast(type);
+    if(seqp && legalKeyType(seqp->type()))
+    {
+	return true;
+    }
+
+    StructPtr strp = StructPtr::dynamicCast(type);
+    if(strp)
+    {
+	DataMemberList dml = strp->dataMembers();
+	for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
+	{
+	    if(!legalKeyType((*mem)->type()))
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
     return false;
+}
+
+Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
+			      const TypePtr& valueType, bool local) :
+    Constructed(container, name, local),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit()),
+    _keyType(keyType),
+    _valueType(valueType)
+{
 }
 
 // ----------------------------------------------------------------------

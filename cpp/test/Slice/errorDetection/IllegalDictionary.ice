@@ -32,7 +32,7 @@ sequence<float> s2;
 dictionary<s2, long> b6;		// Bad
 
 sequence<s1> s3;
-dictionary<s3, long> b7;		// Bad
+dictionary<s3, long> b7;		// OK
 
 struct st1
 {

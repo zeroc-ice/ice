@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Structs and sequences which hold other structs or sequences are now
+  legal dictionary key types, as long as such nested structs or
+  sequences are (recursively) legal.
+
 - The connection timeout is now also used when connections are
   closed. This avoid hanging processes if the peer misbehaves.
 
