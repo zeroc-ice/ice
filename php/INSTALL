@@ -62,8 +62,8 @@ Building PHP with Ice (Windows)
 =========================================================================
 
 Compiling PHP from source code on Windows is a tedious process, therefore
-we recommend that you download the precompiled dynamic extension from the
-ZeroC web site.
+we recommend that you download the precompiled dynamic extension for Ice
+from the ZeroC web site and use the binary PHP distribution if possible.
 
 If you prefer to build the dynamic extension yourself, you will need to
 do the following:
@@ -92,7 +92,11 @@ do the following:
    the appropriate paths for STLport.
 
 4) Open the workspace icephp.dsw, select the Debug or Release configuration,
-   and build php_ice.dll.
+   and build php_ice.dll. Note that the Ice extension must be compiled
+   using the same Debug/Release configuration as PHP itself. If you are
+   linking against the dynamic libraries included in the binary PHP
+   distribution, you must use the Release configuration when compiling the
+   Ice extension.
 
 =========================================================================
 Installing a Dynamic Extension
