@@ -15,5 +15,5 @@ Demos in this directory:
 
 - hello
 
-  Illustrates more advanced use of IcePack, in particular,
-  how to register objects and how to use the Query interface.
+  Illustrates more advanced use of IcePack, in particular, how to
+  register objects and how to use the Query interface.

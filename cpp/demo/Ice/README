@@ -11,19 +11,28 @@ Demos in this directory:
 
 - MFC
 
-  Shows how to use Ice in conjunction with the Microsoft Foundation Classes.
+  Shows how to use Ice in conjunction with the Microsoft Foundation
+  Classes.
+
+- bidir
+
+  This demo demonstrates bi-directional connections for
+  callbacks. This is typically used if the server cannot open a
+  connection to the client to send callbacks, for example, because
+  firewalls block incoming connections for the client.
 
 - callback
 
-  A simple callback demo that illustrates how a client can pass a proxy to
-  a server, invoke an operation in the server, and the server call back
-  into an object provided by the client as part of that invocation.
+  A simple callback demo that illustrates how a client can pass a
+  proxy to a server, invoke an operation in the server, and the server
+  call back into an object provided by the client as part of that
+  invocation.
 
 - hello
 
-  This demo illustrates how to invoke ordinary (twoway) operations, as well
-  as how to invoke oneway operations, use datagrams, secure invocations, and
-  how to used batched invocations.
+  This demo illustrates how to invoke ordinary (twoway) operations, as
+  well as how to invoke oneway operations, use datagrams, secure
+  invocations, and how to used batched invocations.
 
 - invoke
 
@@ -31,20 +40,21 @@ Demos in this directory:
 
 - latency
 
-  A simple latency test that measures the basic call dispatch delay of Ice.
+  A simple latency test that measures the basic call dispatch delay of
+  Ice.
 
 - nested
 
-  A demo to illustrate how nested callbacks work, and how the size of the
-  thread pool affects the maximum nesting depth.
+  A demo to illustrate how nested callbacks work, and how the size of
+  the thread pool affects the maximum nesting depth.
 
 - throughput
 
-  A simple throughput demo that allows you to send byte sequences between
-  client and server and to measure the maximum bandwidth that can be
-  achieved with Ice.
+  A simple throughput demo that allows you to send byte sequences
+  between client and server and to measure the maximum bandwidth that
+  can be achieved with Ice.
 
 - value
 
-  This demo shows how to use classes, class factories, and the difference
-  between local and remote invocations of class operations.
+  This demo shows how to use classes, class factories, and the
+  difference between local and remote invocations of class operations.

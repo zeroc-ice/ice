@@ -17,7 +17,8 @@ SUBDIRS		= hello \
 		  value \
 		  callback \
 		  nested \
-		  invoke
+		  invoke \
+		  bidir
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -14,12 +14,12 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Callback.o \
-		  CallbackI.o
+OBJS		= Callback.o
 
 COBJS		= Client.o
 
-SOBJS		= Server.o
+SOBJS		= Server.o \
+		  CallbackI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
