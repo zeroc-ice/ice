@@ -16,12 +16,13 @@
 #define CONTACT_FACTORY_H
 
 #include <PhoneBookI.h>
+#include <NameIndex.h>
 
-class ContactFactory : virtual public Ice::ObjectFactory, virtual public Freeze::ServantInitializer
+class ContactFactory : virtual public Ice::ObjectFactory
 {
 public:
 
-    ContactFactory(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
+    ContactFactory(const Freeze::EvictorPtr&);
 
     //
     // Operations from ObjectFactory
@@ -29,14 +30,8 @@ public:
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
 
-    //
-    // Operations from ServantInitializer
-    //
-    virtual void initialize(const Ice::ObjectAdapterPtr&, const Ice::Identity&, const Ice::ObjectPtr&);
-
 private:
 
-    PhoneBookIPtr _phoneBook;
     Freeze::EvictorPtr _evictor;
 };
 

@@ -16,21 +16,16 @@
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Thread.h>
 #include <Freeze/Exception.h>
+#include <Freeze/Util.h>
+
 #include <cstdlib>
 #include <map>
 #include <memory>
-#include <sys/stat.h>
+
 
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;
-
-#ifdef _WIN32
-#   define FREEZE_DB_MODE 0
-#else
-#   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
-#endif
-
 
 namespace Freeze
 {

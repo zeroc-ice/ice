@@ -15,17 +15,11 @@
 #include <Freeze/SharedDb.h>
 #include <IceUtil/StaticMutex.h>
 #include <Freeze/Exception.h>
-#include <sys/stat.h>
+#include <Freeze/Util.h>
 
 using namespace std;
 using namespace IceUtil;
 using namespace Ice;
-
-#ifdef _WIN32
-#   define FREEZE_DB_MODE 0
-#else
-#   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
-#endif
 
 namespace
 {

@@ -20,6 +20,7 @@
 #include <Freeze/Evictor.h>
 #include <Freeze/SharedDbEnv.h>
 #include <Freeze/EvictorStorage.h>
+#include <Freeze/Index.h>
 #include <Freeze/DB.h>
 #include <list>
 #include <vector>
@@ -33,8 +34,11 @@ class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, publi
 {
 public:
 
-    EvictorI(const Ice::CommunicatorPtr, const std::string&, const std::string&, bool);
-    EvictorI(const Ice::CommunicatorPtr, const std::string&,  DbEnv&, const std::string&, bool);
+    EvictorI(const Ice::CommunicatorPtr, const std::string&, const std::string&, 
+	     const std::vector<Freeze::IndexPtr>&, bool);
+
+    EvictorI(const Ice::CommunicatorPtr, const std::string&,  DbEnv&, const std::string&, 
+	     const std::vector<Freeze::IndexPtr>&, bool);
 
     virtual ~EvictorI();
 
@@ -72,6 +76,12 @@ public:
 
     Db*
     db() const;
+
+    DbEnv*
+    dbEnv() const;
+
+    const std::string&
+    dbName() const;
 
     int
     currentGeneration() const;
@@ -120,6 +130,24 @@ public:
     void 
     insert(const std::vector<Ice::Identity>&, const std::vector<EvictorElementPtr>&, int);
 
+
+    //
+    // marshaling/unmarshaling functions
+    //
+    static void
+    marshalRoot(const Ice::Identity&, Freeze::Key&, const Ice::CommunicatorPtr&);
+
+    static void
+    marshal(const Freeze::EvictorStorageKey&, Freeze::Key& bytes, const Ice::CommunicatorPtr&);
+
+    static void
+    unmarshal(Freeze::EvictorStorageKey&, const Freeze::Key&, const Ice::CommunicatorPtr&);
+
+    static void
+    marshal(const Freeze::ObjectRecord&, Freeze::Value&, const Ice::CommunicatorPtr&);
+
+    static void
+    unmarshal(Freeze::ObjectRecord&, const Freeze::Value&, const Ice::CommunicatorPtr&);
 
     //
     // Streamed objects
@@ -172,9 +200,11 @@ public:
 
 #endif
 
+    
+
 private:
 
-    void init(const std::string& envName, const std::string& dbName, bool createDb);
+    void init(const std::string& envName, bool createDb);
 
     void evict();
     bool dbHasObject(const Ice::Identity&);
@@ -222,8 +252,14 @@ private:
 
     DbEnv* _dbEnv;
     SharedDbEnvPtr _dbEnvHolder;
+
+    std::string _dbName;
+
     std::auto_ptr<Db> _db;
     ServantInitializerPtr _initializer;
+
+    std::vector<Freeze::IndexPtr> _indices;
+
     Ice::Int _trace;
 
     //
@@ -264,11 +300,49 @@ EvictorI::db() const
     return _db.get();
 }
 
+inline DbEnv*
+EvictorI::dbEnv() const
+{
+    return _dbEnv;
+}
+
+inline const std::string&
+EvictorI::dbName() const
+{
+    return _dbName;
+}
+
 inline int
 EvictorI::currentGeneration() const
 {
     Lock sync(*this);
     return _generation;
+}
+
+inline bool 
+startWith(const Key& key, const Key& root)
+{
+    if(root.size() > key.size())
+    {
+	return false;
+    }
+    return memcmp(&root[0], &key[0], root.size()) == 0;
+}
+
+inline Ice::Trace&
+operator<<(Ice::Trace& os, const std::vector<std::string>& facetPath)
+{
+    os << '"';
+    for(size_t i = 0; i < facetPath.size(); i++)
+    {
+	os << facetPath[i];
+	if(i != facetPath.size() - 1)
+	{
+	    os << '.';
+	}
+    }
+    os << '"';
+    return os;
 }
 
 }

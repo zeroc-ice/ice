@@ -15,39 +15,12 @@
 #include <Freeze/MapI.h>
 #include <Freeze/Exception.h>
 #include <Freeze/SharedDb.h>
+#include <Freeze/Util.h>
 #include <stdlib.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
-
-namespace
-{
-
-inline void 
-initializeInDbt(const vector<Ice::Byte>& v, Dbt& dbt)
-{
-    dbt.set_data(const_cast<Ice::Byte*>(&v[0]));
-    dbt.set_size(v.size());
-    dbt.set_ulen(0);
-    dbt.set_dlen(0);
-    dbt.set_doff(0);
-    dbt.set_flags(DB_DBT_USERMEM);
-}
-
-inline void 
-initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
-{
-    v.resize(v.capacity());
-    dbt.set_data(&v[0]);
-    dbt.set_size(0);
-    dbt.set_ulen(v.size());
-    dbt.set_dlen(0);
-    dbt.set_doff(0);
-    dbt.set_flags(DB_DBT_USERMEM);
-}
-
-}
 
 
 //

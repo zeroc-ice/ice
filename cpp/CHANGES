@@ -213,14 +213,17 @@ Changes since version 1.1.1
     C++: Freeze::EvictorPtr
          Freeze::createEvictor(const Ice::CommunicatorPtr& communicator, 
                                const std::string& envName, 
-                               const std::string& dbName, 
+                               const std::string& dbName,
+                               const std::vector<IndexPtr> indices = 
+                                     std::vector<IndexPtr>(), 
                                bool createDb = true);
 
     Java (in class Freeze.Util): 
          public static Evictor
          createEvictor(Ice.Communicator communicator, 
                        String envName, 
-                       String dbName, 
+                       String dbName,
+                       Index[] indices, 
                        boolean createDb);
 
    The persistence strategies have been removed. 
@@ -268,6 +271,9 @@ Changes since version 1.1.1
     the new parameters of Evictor::getIterator:
 
       EvictorIterator getIterator(int batchSize, bool loadServants);
+
+    You can also define Evictor indices for fast secondary key 
+    lookups: see the Freeze/phonebook demo.
 
  - Freeze now requires Berkeley DB 4.1. It no longer compiles with older
    Berkeley DB releases.

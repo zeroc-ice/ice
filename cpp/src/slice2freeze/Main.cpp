@@ -27,6 +27,14 @@ struct Dict
     string value;
 };
 
+struct Index
+{
+    string name;
+    string type;
+    string member;
+    bool caseSensitive;
+};
+
 void
 usage(const char* n)
 {
@@ -47,6 +55,13 @@ usage(const char* n)
         "                      using KEY as key, and VALUE as value. This\n"
         "                      option may be specified multiple times for\n"
         "                      different names. NAME may be a scoped name.\n"
+	"--index NAME,TYPE,MEMBER[,{case-sensitive|case-insensitive}]\n" 
+        "                      Create a Freeze evictor index with the name\n"
+        "                      NAME for member MEMBER of class TYPE. This\n"
+        "                      option may be specified multiple times for\n"
+        "                      different names. NAME may be a scoped name.\n"
+        "                      When member is a string, the case can be\n"
+        "                      sensitive or insensitive (default is sensitive).\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
@@ -76,13 +91,23 @@ checkIdentifier(string n, string t, string s)
 }
 
 void
-printFreezeTypes(Output& out, const vector<Dict>& dicts)
+printFreezeTypes(Output& out, const vector<Dict>& dicts, const vector<Index>& indices)
 {
     out << '\n';
     out << "\n// Freeze types in this file:";
     for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
     {
 	out << "\n// name=\"" << p->name << "\", key=\"" << p->key << "\", value=\"" << p->value << "\"";
+    }
+    
+    for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
+    {
+	out << "\n// name=\"" << q->name << "\", type=\"" << q->type 
+	    << "\", member=\"" << q->member << "\"";
+	if(q->caseSensitive == false)
+	{
+	    out << " (case insensitive)";
+	}
     }
     out << '\n';
 }
@@ -223,6 +248,225 @@ writeCodecs(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C,
     return true;
 }
 
+
+void
+writeIndexH(const string& memberTypeString, const string& name, Output& H, const string& dllExport)
+{
+    H << sp << nl << dllExport << "class " << name
+      << " : public Freeze::Index";
+    H << sb;
+    H.dec();
+    H << sp << nl << "public:";
+    H << sp;
+    H.inc();
+    
+    H << nl << name << "(const std::string&);";
+    H << sp << nl << "std::vector<Ice::Identity>";
+    H << nl << "findFirst(" << memberTypeString << ", Ice::Int) const;";
+
+    H << sp << nl << "std::vector<Ice::Identity>";
+    H << nl << "find(" << memberTypeString << ") const;";
+
+    H << sp << nl << "Ice::Int";
+    H << nl << "count(" << memberTypeString << ") const;";
+    H.dec();
+    H << sp << nl << "private:";
+    H << sp;
+    H.inc();
+    
+    H << nl << "virtual bool";
+    H << nl << "marshalKey(const Ice::ObjectPtr&, Freeze::Key&) const;";
+    
+    H << sp << nl << "void";
+    H << nl << "marshalKey(" << memberTypeString << ", Freeze::Key&) const;";
+    
+    H << eb << ';';
+    H << sp;
+    H << nl << "typedef IceUtil::Handle<" << name << "> " << name << "Ptr;";
+}
+
+
+void
+writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& memberName,
+	    bool caseSensitive, const string& fullName, const string& name, Output& C)
+{
+    string inputType = inputTypeToString(memberType);
+
+    C << sp << nl << fullName << "::" << name << "(const ::std::string& __name)";
+    C.inc();
+    C << nl << ": Freeze::Index(__name)";
+    C.dec();
+    C << sb;
+    C << eb;
+
+    C << sp << nl << "std::vector<Ice::Identity>";
+    C << nl << fullName << "::" << "findFirst(" << inputType << " __index, ::Ice::Int __firstN) const";
+    C << sb;
+    C << nl << "Freeze::Key __bytes;";
+    C << nl << "marshalKey(__index, __bytes);";
+    C << nl << "return untypedFindFirst(__bytes, __firstN);";
+    C << eb;
+
+    C << sp << nl << "std::vector<Ice::Identity>";
+    C << nl << fullName << "::" << "find(" << inputType << " __index) const";
+    C << sb;
+    C << nl << "Freeze::Key __bytes;";
+    C << nl << "marshalKey(__index, __bytes);";
+    C << nl << "return untypedFind(__bytes);";
+    C << eb;
+
+    C << sp << nl << "Ice::Int";
+    C << nl << fullName << "::" << "count(" << inputType << " __index) const";
+    C << sb;
+    C << nl << "Freeze::Key __bytes;";
+    C << nl << "marshalKey(__index, __bytes);";
+    C << nl << "return untypedCount(__bytes);";
+    C << eb;
+
+    string typeString = typeToString(type);
+    
+    C << sp << nl << "bool";
+    C << nl << fullName << "::" << "marshalKey(const Ice::ObjectPtr& __servant, Freeze::Key& __bytes) const";
+    C << sb;
+    C << nl << typeString << " __s = " << typeString << "::dynamicCast(__servant);";
+    C << nl << "if(__s != 0)";
+    C << sb;
+    C << nl << "marshalKey(__s->" << memberName << ", __bytes);";
+    C << nl << "return true;";
+    C << eb;
+    C << nl << "else";
+    C << sb;
+    C << nl << "return false;";
+    C << eb;
+    C << eb;
+    
+    C << sp << nl << "void";
+    C << nl << fullName << "::" << "marshalKey(" << inputType << " __index, Freeze::Key& __bytes) const";
+    C << sb;
+    C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(_communicator);";
+    C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+    
+    string valueS;
+    if(caseSensitive)
+    {
+	valueS = "__index";
+    }
+    else
+    {
+	C << nl << typeToString(memberType) << " __lowerCaseIndex = __index;";
+	C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
+	valueS = "__lowerCaseIndex";
+    }
+
+    writeMarshalUnmarshalCode(C, memberType, valueS, true, "__stream", false);
+    if(memberType->usesClasses())
+    {
+        C << nl << "__stream.writePendingObjects();";
+    }
+    C << nl << "__bytes.swap(__stream.b);";
+    C << eb;
+}
+
+bool
+writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C, const string& dllExport)
+{
+    string absolute = index.name;
+    if(absolute.find("::") == 0)
+    {
+	absolute.erase(0, 2);
+    }
+    string name = absolute;
+    vector<string> scope;
+    string::size_type pos;
+    while((pos = name.find("::")) != string::npos)
+    {
+	string s = name.substr(0, pos);
+	name.erase(0, pos + 2);
+	
+	if(!checkIdentifier(n, absolute, s))
+	{
+	    return false;
+	}
+	
+	scope.push_back(s);
+    }
+    
+    if(!checkIdentifier(n, absolute, name))
+    {
+	return false;
+    }
+
+    TypeList types = u->lookupType(index.type, false);
+    if(types.empty())
+    {
+	cerr << n << ": `" << index.type << "' is not a valid type" << endl;
+	return false;
+    }
+    TypePtr type = types.front();
+    
+    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
+    if(classDecl == 0)
+    {
+	cerr << n << ": `" << index.type << "' is not a class" << endl;
+        return false;
+    }
+
+    DataMemberList dataMembers = classDecl->definition()->allDataMembers();
+    DataMemberPtr dataMember = 0;
+    DataMemberList::const_iterator p = dataMembers.begin();
+    while(p != dataMembers.end() && dataMember == 0)
+    {
+	if((*p)->name() == index.member)
+	{
+	    dataMember = *p;
+	}
+	else
+	{
+	    ++p;
+	}
+    }
+
+    if(dataMember == 0)
+    {
+	cerr << n << ": `" << index.type << "' has no data member named `" << index.member << "'" << endl;
+        return false;
+    }
+    
+    if(index.caseSensitive == false)
+    {
+	//
+	// Let's check member is a string
+	//
+	BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMember->type());
+	if(memberType == 0 || memberType->kind() != Builtin::KindString)
+	{
+	    cerr << n << ": `" << index.member << "'is not a string " << endl;
+	    return false; 
+	}
+    }
+   
+    vector<string>::const_iterator q;
+    
+    for(q = scope.begin(); q != scope.end(); ++q)
+    {
+	H << sp;
+	H << nl << "namespace " << *q << nl << '{';
+    }
+
+    writeIndexH(inputTypeToString(dataMember->type()), name, H, dllExport);
+    
+    for(q = scope.begin(); q != scope.end(); ++q)
+    {
+	H << sp;
+	H << nl << '}';
+    }
+
+    writeIndexC(type, dataMember->type(), index.member, index.caseSensitive, absolute, name, C);
+    return true;
+}
+
+
+
 int
 main(int argc, char* argv[])
 {
@@ -237,7 +481,8 @@ main(int argc, char* argv[])
     bool ice = false;
     bool caseSensitive = false;
     vector<Dict> dicts;
-
+    vector<Index> indices;
+     
     int idx = 1;
     while(idx < argc)
     {
@@ -327,6 +572,85 @@ main(int argc, char* argv[])
 	    }
 	    argc -= 2;
 	}
+	else if(strcmp(argv[idx], "--index") == 0)
+        {
+            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
+            {
+                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            string s = argv[idx + 1];
+            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+            
+	    Index index;
+
+            string::size_type pos;
+            pos = s.find(',');
+            if(pos != string::npos)
+            {
+                index.name = s.substr(0, pos);
+                s.erase(0, pos + 1);
+            }
+            pos = s.find(',');
+            if(pos != string::npos)
+            {
+                index.type = s.substr(0, pos);
+                s.erase(0, pos + 1);
+            }
+	    pos = s.find(',');
+	    string caseString;
+	    if(pos != string::npos)
+            {
+                index.member = s.substr(0, pos);
+                s.erase(0, pos + 1);
+		caseString = s;
+            }
+	    else
+	    {
+		index.member = s;
+		caseString = "case-sensitive";
+	    }
+
+            if(index.name.empty())
+            {
+                cerr << argv[0] << ": " << argv[idx] << ": no name specified" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            if(index.type.empty())
+            {
+                cerr << argv[0] << ": " << argv[idx] << ": no type specified" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            if(index.member.empty())
+            {
+                cerr << argv[0] << ": " << argv[idx] << ": no member specified" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+	    
+	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
+            {
+                cerr << argv[0] << ": " << argv[idx]
+		     << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+	    index.caseSensitive = (caseString == "case-sensitive");
+
+            indices.push_back(index);
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
 	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
@@ -456,7 +780,7 @@ main(int argc, char* argv[])
 	}
     }
 
-    if(dicts.empty())
+    if(dicts.empty() && indices.empty())
     {
 	cerr << argv[0] << ": no Freeze types specified" << endl;
 	usage(argv[0]);
@@ -533,7 +857,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	printHeader(H);
-	printFreezeTypes(H, dicts);
+	printFreezeTypes(H, dicts, indices);
 
 	Output C;
 	C.open(fileC.c_str());
@@ -544,14 +868,24 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	printHeader(C);
-	printFreezeTypes(C, dicts);
+	printFreezeTypes(C, dicts, indices);
 	
 	string s = fileH;
 	transform(s.begin(), s.end(), s.begin(), ToIfdef());
 	H << "\n#ifndef __" << s << "__";
 	H << "\n#define __" << s << "__";
 	H << '\n';
-	H << "\n#include <Freeze/Map.h>";
+	
+	if(dicts.size() > 0)
+	{
+	    H << "\n#include <Freeze/Map.h>";
+	}
+
+	if(indices.size() > 0)
+	{
+	    H << "\n#include <Freeze/Index.h>";
+	}
+
 	
 	{
 	    for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
@@ -583,6 +917,25 @@ main(int argc, char* argv[])
 		try
 		{
 		    if(!writeCodecs(argv[0], u, *p, H, C, dllExport))
+		    {
+			u->destroy();
+			return EXIT_FAILURE;
+		    }
+		}
+		catch(...)
+		{
+		    cerr << argv[0] << ": unknown exception" << endl;
+		    u->destroy();
+		    return EXIT_FAILURE;
+		}
+	    } 
+
+
+	    for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
+	    {
+		try
+		{
+		    if(!writeIndex(argv[0], u, *q, H, C, dllExport))
 		    {
 			u->destroy();
 			return EXIT_FAILURE;

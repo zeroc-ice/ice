@@ -30,8 +30,8 @@ COBJS		= Grammar.o \
 		  Client.o \
 
 SOBJS		= PhoneBookI.o \
-		  NameIdentitiesDict.o \
 		  ContactFactory.o \
+                  NameIndex.o \
 		  Server.o
 
 COLOBJS		= Grammar.o \
@@ -39,8 +39,8 @@ COLOBJS		= Grammar.o \
 		  Parser.o \
 		  RunParser.o \
 		  PhoneBookI.o \
-		  NameIdentitiesDict.o \
 		  ContactFactory.o \
+                  NameIndex.o \
 		  Collocated.o
 
 SRCS		= $(OBJS:.o=.cpp) \
@@ -66,12 +66,12 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(LIBS) $(DB_LIBS) $(READLINE_LIBS)
 
-NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
-	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
-	$(SLICE2FREEZE) $(ICECPPFLAGS) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
+NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
+	rm -f NameIndex.h NameIndex.cpp
+	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Contact,name,case-insensitive NameIndex PhoneBook.ice
 
 clean::
-	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
+	rm -f NameIndex.h NameIndex.cpp
 
 clean::
 	rm -f Grammar.cpp Grammar.h

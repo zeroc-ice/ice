@@ -18,6 +18,7 @@
 #include <Ice/Ice.h>
 #include <Freeze/EvictorF.h>
 #include <Freeze/ConnectionF.h>
+#include <Freeze/Index.h>
 
 //
 // Berkeley DB's DbEnv
@@ -29,13 +30,15 @@ namespace Freeze
 
 FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
 				    const std::string& envName, 
-				    const std::string& dbName, 
+				    const std::string& dbName,
+				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
 				    bool createDb = true);
 
 FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
 				    const std::string& envName,
 				    DbEnv& dbEnv, 
 				    const std::string& dbName, 
+				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
 				    bool createDb = true);
 
 

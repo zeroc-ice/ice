@@ -46,12 +46,18 @@ int
 PhoneBookCollocated::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    string value;
-        
+
+    //
+    // Create the name index.
+    //
+    NameIndexPtr index = new NameIndex("name");
+    vector<Freeze::IndexPtr> indices;
+    indices.push_back(index);
+
     //
     // Create an Evictor for contacts.
     //
-    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "contacts");
+    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "contacts", indices);
 
     Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
@@ -68,18 +74,14 @@ PhoneBookCollocated::run(int argc, char* argv[])
     //
     // Create the phonebook, and add it to the Object Adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(communicator(), 
-					     _envName, "phonebook",
-					     evictor);
+    PhoneBookIPtr phoneBook = new PhoneBookI(evictor, index);
     adapter->add(phoneBook, stringToIdentity("phonebook"));
     
     //
-    // Create and install a factory and initializer for contacts.
+    // Create and install a factory for contacts.
     //
-    ObjectFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
-    ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
+    ObjectFactoryPtr contactFactory = new ContactFactory(evictor);
     communicator()->addObjectFactory(contactFactory, "::Contact");
-    evictor->installServantInitializer(contactInitializer);
     
     //
     // Everything ok, let's go.

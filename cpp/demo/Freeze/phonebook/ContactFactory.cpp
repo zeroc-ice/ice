@@ -18,8 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const Freeze::EvictorPtr& evictor) :
-    _phoneBook(phoneBook),
+ContactFactory::ContactFactory(const Freeze::EvictorPtr& evictor) :
     _evictor(evictor)
 {
 }
@@ -28,7 +27,7 @@ ObjectPtr
 ContactFactory::create(const string& type)
 {
     assert(type == "::Contact");
-    return new ContactI(_phoneBook, _evictor);
+    return new ContactI(_evictor);
 }
 
 void
@@ -37,14 +36,5 @@ ContactFactory::destroy()
     //
     // Break cyclic object dependencies
     //
-    _phoneBook = 0;
     _evictor = 0;
-}
-
-void
-ContactFactory::initialize(const ObjectAdapterPtr&, const Identity& ident, const ObjectPtr& servant)
-{
-    ContactIPtr contact = ContactIPtr::dynamicCast(servant);
-    assert(contact);
-    contact->setIdentity(ident);
 }

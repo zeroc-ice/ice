@@ -33,7 +33,11 @@ OBJS		= DB.o \
                   TransactionI.o \
                   SharedDb.o \
 	  	  MapI.o \
+                  Util.o \
 		  EvictorI.o \
+                  EvictorIteratorI.o \
+                  Index.o \
+                  IndexI.o \
                   SharedDbEnv.o \
                   TransactionHolder.o
 
