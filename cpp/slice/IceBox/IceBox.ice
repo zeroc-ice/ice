@@ -20,12 +20,19 @@ module IceBox
     
 /**
  *
- * Used by a service to indicate failure.
- // ML: How about adding a "reason" field?
+ * Used to indicate failure. For example, if a service encounters
+ * an error during initialization, or if the service manager is
+ * unable to load a service executable.
  *
  **/
-local exception ServiceFailureException
+exception FailureException
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 /**
@@ -92,23 +99,23 @@ local interface Service
      * @param args The service arguments which were not converted into
      * properties.
      *
-     * @throws ServiceFailureException Raised if [init] failed.
+     * @throws FailureException Raised if [init] failed.
      *
      * @see start
      *
      **/
     void init(string name, Ice::Communicator communicator, Ice::Properties properties, Ice::StringSeq args)
-        throws ServiceFailureException;
+        throws FailureException;
 
     /**
      *
      * Start the service.
      *
-     * @throws ServiceFailureException Raised if [start] failed.
+     * @throws FailureException Raised if [start] failed.
      *
      **/
     void start()
-        throws ServiceFailureException;
+        throws FailureException;
 
     /**
      *
@@ -116,12 +123,19 @@ local interface Service
      *
      **/
     void stop();
+
+#if 0
+    //
+    // Potential future operations
+    //
+    Ice::StringSeq getParameters() throws ServiceNotExist; // Need better return type
+    void setParameter(string param, string value) throws FailureException; // Use a different except?
+#endif
 };
 
 /**
  *
  * Administers a set of [Service] instances.
- // ML: Additional operations to initialize services programatically instead of properties only?
  *
  * @see Service
  *
@@ -135,6 +149,18 @@ interface ServiceManager
      *
      **/
     void shutdown();
+
+#if 0
+    //
+    // Potential future operations
+    //
+    Ice::StringSeq getServices();
+    void start(string service, string exec, Ice::StringSeq args) throws FailureException;
+    void stop(string service) throws ServiceNotExist; // Allow service to override this?
+    void stopAll();
+    Ice::StringSeq getParameters(string service) throws ServiceNotExist; // Need better return type
+    void setParameter(string service, string param, string value) throws ServiceNotExist, FailureException; // Use a different except?
+#endif
 };
 
 };
