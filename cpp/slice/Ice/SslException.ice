@@ -88,22 +88,22 @@ local exception ProtocolException extends ShutdownException
 
 /**
  *
- * This exception indicates that a problem was encountered validating
- * a client certificate during SSL protocol handshake.
- *
- **/
-local exception CertificateException extends ShutdownException
-{
-};
-
-/**
- *
  * Thrown when a problem has been encountered during the certificate
  * verification phase of the SSL handshake.  This is currently only
  * thrown by server connections.
  *
  **/
-local exception CertificateVerificationException extends CertificateException
+local exception CertificateVerificationException extends ShutdownException
+{
+};
+
+/**
+ *
+ * A root exception class for all exceptions that have to do explicity
+ * with public key certificate related exceptions.
+ *
+ **/
+local exception CertificateException extends SslException
 {
 };
 
@@ -124,6 +124,36 @@ local exception CertificateSigningException extends CertificateException
  *
  **/
 local exception CertificateSignatureException extends CertificateException
+{
+};
+
+/**
+ *
+ * Indicates that IceSSL was unable to parse the provided public key
+ * certificate into the form used by the underlying SSL implementation.
+ *
+ **/
+local exception CertificateParseException extends CertificateException
+{
+};
+
+/**
+ *
+ * A root exception class for all exceptions that have to do explicity
+ * with private key related exceptions.
+ *
+ **/
+local exception PrivateKeyException extends SslException
+{
+};
+
+/**
+ *
+ * Indicates that IceSSL was unable to parse the provided private key
+ * into the form used by the underlying SSL implementation.
+ *
+ **/
+local exception PrivateKeyParseException extends PrivateKeyException
 {
 };
 
@@ -233,3 +263,8 @@ local exception TrustedCertificateAddException extends ContextException
 };
 
 #endif
+
+
+
+
+

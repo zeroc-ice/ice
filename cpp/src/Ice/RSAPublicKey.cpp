@@ -12,6 +12,8 @@
 #include <IceUtil/Base64.h>
 #include <Ice/RSAPublicKey.h>
 #include <Ice/SslIceUtils.h>
+#include <Ice/OpenSSLUtils.h>
+#include <Ice/SslException.h>
 #include <assert.h>
 
 void ::IceInternal::incRef(::IceSSL::OpenSSL::RSAPublicKey* p) { p->__incRef(); }
@@ -87,7 +89,7 @@ IceSSL::OpenSSL::RSAPublicKey::getX509PublicKey() const
 }
 
 IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(X509* x509) :
-                                      _publicKey(x509)
+                              _publicKey(x509)
 {
 }
 
@@ -95,7 +97,7 @@ void
 IceSSL::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 {
     unsigned char* publicKeyBuffer = byteSeqToUChar(certSeq);
-    assert(publicKeyBuffer);
+    assert(publicKeyBuffer != 0);
 
     // We have to do this because d2i_X509 changes the pointer.
     unsigned char* pubKeyBuff = publicKeyBuffer;
@@ -104,7 +106,15 @@ IceSSL::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
     X509** x509pp = &_publicKey;
 
     _publicKey = d2i_X509(x509pp, pubKeyBuffpp, (long)certSeq.size());
-    assert(_publicKey);
+
+    if (_publicKey == 0)
+    {
+        IceSSL::CertificateParseException certParseException(__FILE__, __LINE__);
+
+        certParseException._message = "Unable to parse provided Public Key.\n" + sslGetErrors();
+
+        throw certParseException;
+    }
 
     delete []publicKeyBuffer;
 }

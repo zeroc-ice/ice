@@ -59,13 +59,13 @@ IceSSL::ProtocolException::ice_print(ostream& out) const
 }
 
 void
-IceSSL::CertificateException::ice_print(ostream& out) const
+IceSSL::CertificateVerificationException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
 
 void
-IceSSL::CertificateVerificationException::ice_print(ostream& out) const
+IceSSL::CertificateException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }
@@ -78,6 +78,24 @@ IceSSL::CertificateSigningException::ice_print(ostream& out) const
 
 void
 IceSSL::CertificateSignatureException::ice_print(ostream& out) const
+{
+    SslException::ice_print(out);
+}
+
+void
+IceSSL::CertificateParseException::ice_print(ostream& out) const
+{
+    SslException::ice_print(out);
+}
+
+void
+IceSSL::PrivateKeyException::ice_print(ostream& out) const
+{
+    SslException::ice_print(out);
+}
+
+void
+IceSSL::PrivateKeyParseException::ice_print(ostream& out) const
 {
     SslException::ice_print(out);
 }

@@ -12,6 +12,8 @@
 #include <IceUtil/Base64.h>
 #include <Ice/RSAPrivateKey.h>
 #include <Ice/SslIceUtils.h>
+#include <Ice/OpenSSLUtils.h>
+#include <Ice/SslException.h>
 #include <assert.h>
 
 void ::IceInternal::incRef(::IceSSL::OpenSSL::RSAPrivateKey* p) { p->__incRef(); }
@@ -96,14 +98,22 @@ void
 IceSSL::OpenSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
 {
     unsigned char* privateKeyBuffer = byteSeqToUChar(keySeq);
-    assert(privateKeyBuffer);
+    assert(privateKeyBuffer != 0);
 
     unsigned char* privKeyBuff = privateKeyBuffer;
     unsigned char** privKeyBuffpp = &privKeyBuff;
     RSA** rsapp = &_privateKey;
 
     _privateKey = d2i_RSAPrivateKey(rsapp, privKeyBuffpp, (long)keySeq.size());
-    assert(_privateKey);
+
+    if (_privateKey == 0)
+    {
+        IceSSL::PrivateKeyParseException pkParseException(__FILE__, __LINE__);
+
+        pkParseException._message = "Unable to parse provided Private Key.\n" + sslGetErrors();
+
+        throw pkParseException;
+    }
 
     delete []privateKeyBuffer;
 }
