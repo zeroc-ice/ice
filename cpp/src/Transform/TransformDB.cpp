@@ -45,6 +45,7 @@ usage(const char* n)
         "-o FILE               Output transformation descriptors into the file FILE.\n"
         "                      Database transformation is not performed.\n"
         "-i                    Ignore incompatible type changes.\n"
+        "-p                    Purge objects whose types no longer exist.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         "                      Database transformation is not performed.\n"
         "--old SLICE           Load old Slice definitions from the file SLICE.\n"
@@ -107,6 +108,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     bool caseSensitive = false;
     string outputFile;
     bool ignoreTypeChanges = false;
+    bool purgeObjects = false;
     string inputFile;
     vector<string> oldSlice;
     vector<string> newSlice;
@@ -203,6 +205,15 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         else if(strcmp(argv[idx], "-i") == 0)
         {
             ignoreTypeChanges = true;
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "-p") == 0)
+        {
+            purgeObjects = true;
             for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
@@ -351,7 +362,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     //
     // Create the Transformer.
     //
-    Transform::Transformer transformer(communicator, oldUnit, newUnit, ignoreTypeChanges);
+    Transform::Transformer transformer(communicator, oldUnit, newUnit, ignoreTypeChanges, purgeObjects);
 
     //
     // If no input file was provided, then we need to analyze the Slice types.
@@ -492,7 +503,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         db = new Db(&dbEnv, 0);
         db->open(0, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, TRANSFORM_DB_MODE);
         dbNew = new Db(&dbEnv, 0);
-        dbNew->open(0, dbNameNew.c_str(), 0, DB_BTREE, DB_CREATE | DB_TRUNCATE, TRANSFORM_DB_MODE);
+        dbNew->open(0, dbNameNew.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, TRANSFORM_DB_MODE);
 
         istringstream istr(descriptors);
         transformer.transform(istr, db, dbNew, cerr);

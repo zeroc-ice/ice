@@ -296,7 +296,6 @@ private:
 };
 typedef IceUtil::Handle<InitDescriptor> InitDescriptorPtr;
 
-// TODO: Is this class necessary?
 class RecordDescriptor : public ExecutableContainerDescriptor
 {
 public:
@@ -316,7 +315,7 @@ public:
     virtual void execute(TransformSymbolTable&, DataInterceptor&);
 
     bool transform(IceInternal::BasicStream&, IceInternal::BasicStream&, IceInternal::BasicStream&,
-                   IceInternal::BasicStream&, const TransformMap&);
+                   IceInternal::BasicStream&, const TransformMap&, bool);
 
 private:
 
@@ -344,7 +343,7 @@ public:
     virtual Slice::UnitPtr newUnit() const;
     virtual ErrorReporterPtr errorReporter() const;
 
-    void transform(const Ice::CommunicatorPtr&, Db*, Db*);
+    void transform(const Ice::CommunicatorPtr&, Db*, Db*, bool);
 
 private:
 
@@ -386,11 +385,12 @@ class TransformInterceptor : public DataInterceptor
 public:
 
     TransformInterceptor(const DataFactoryPtr&, const ErrorReporterPtr&, const Slice::UnitPtr&,
-                         const Slice::UnitPtr&, const TransformMap&);
+                         const Slice::UnitPtr&, const TransformMap&, bool);
 
     virtual bool preTransform(const DataPtr&, const DataPtr&);
     virtual void postTransform(const DataPtr&, const DataPtr&);
     virtual ObjectDataMap& getObjectMap();
+    virtual bool purgeObjects() const;
 
 private:
 
@@ -400,6 +400,7 @@ private:
     Slice::UnitPtr _new;
     const TransformMap& _transformMap;
     ObjectDataMap _objectMap;
+    bool _purgeObjects;
 };
 
 } // End of namespace Transform
@@ -794,14 +795,8 @@ Transform::SetDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
         {
             errorReporter()->error("type `" + _type + "' not found");
         }
-        value = factory()->create(l.front(), false);
+        value = factory()->createObject(l.front(), false);
         valueDestroyer.set(value);
-        ObjectRefPtr ref = ObjectRefPtr::dynamicCast(value);
-        if(!ref)
-        {
-            errorReporter()->error("type `" + _type + "' is not a class");
-        }
-        ref->instantiate();
     }
 
     DataPtr length;
@@ -937,14 +932,8 @@ Transform::AddDescriptor::execute(TransformSymbolTable& sym, DataInterceptor& in
         {
             errorReporter()->error("type `" + _type + "' not found");
         }
-        value = factory()->create(l.front(), false);
+        value = factory()->createObject(l.front(), false);
         valueDestroyer.set(value);
-        ObjectRefPtr ref = ObjectRefPtr::dynamicCast(value);
-        if(!ref)
-        {
-            errorReporter()->error("type `" + _type + "' is not a class");
-        }
-        ref->instantiate();
     }
 
     if(value)
@@ -1392,15 +1381,19 @@ void
 Transform::InitDescriptor::initialize(const DataFactoryPtr& factory, const DataPtr& data,
                                       const Ice::CommunicatorPtr& communicator)
 {
-    DescriptorErrorContext ctx(errorReporter(), "init", _line);
-
-#if 0 // TODO
-    // Is interceptor really necessary?
-    TransformSymbolTable sym(factory, _old, _new);
+    //
+    // Create a new symbol table for the initializer and add the value to be initialized
+    // as the symbol "value".
+    //
+    TransformSymbolTable sym(factory, oldUnit(), newUnit(), errorReporter());
     sym.add("value", data);
-    eh->raise(true);
+    errorReporter()->raise(true);
+    //
+    // Also need an interceptor in order to call execute.
+    //
+    TransformMap transforms;
+    TransformInterceptor interceptor(factory, errorReporter(), oldUnit(), newUnit(), transforms, false);
     execute(sym, interceptor);
-#endif
 }
 
 string
@@ -1507,11 +1500,11 @@ Transform::DatabaseDescriptor::execute(TransformSymbolTable&, DataInterceptor&)
 bool
 Transform::DatabaseDescriptor::transform(IceInternal::BasicStream& inKey, IceInternal::BasicStream& inValue,
                                          IceInternal::BasicStream& outKey, IceInternal::BasicStream& outValue,
-                                         const TransformMap& transforms)
+                                         const TransformMap& transforms, bool purgeObjects)
 {
     errorReporter()->raise(false);
 
-    TransformInterceptor interceptor(factory(), errorReporter(), oldUnit(), newUnit(), transforms);
+    TransformInterceptor interceptor(factory(), errorReporter(), oldUnit(), newUnit(), transforms, purgeObjects);
 
     //
     // Create data representations of the old key and value types.
@@ -1672,10 +1665,9 @@ Transform::TransformerDescriptor::errorReporter() const
 }
 
 void
-Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communicator, Db* db, Db* dbNew)
+Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communicator, Db* db, Db* dbNew,
+                                            bool purgeObjects)
 {
-    DescriptorErrorContext ctx(errorReporter(), "transformer", _line);
-
     Dbc* dbc = 0;
 
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
@@ -1704,7 +1696,7 @@ Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communic
             outValue.startWriteEncaps();
             try
             {
-                if(_database->transform(inKey, inValue, outKey, outValue, _transforms))
+                if(_database->transform(inKey, inValue, outKey, outValue, _transforms, purgeObjects))
                 {
                     outValue.endWriteEncaps();
                     Dbt dbNewKey(&outKey.b[0], outKey.b.size()), dbNewValue(&outValue.b[0], outValue.b.size());
@@ -1717,6 +1709,18 @@ Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communic
             catch(const DeleteRecordException&)
             {
                 // The record is deleted simply by not adding it to the new database.
+            }
+            catch(const ClassNotFoundException& ex)
+            {
+                if(!purgeObjects)
+                {
+                    errorReporter()->error("class " + ex.id + " not found in new Slice definitions");
+                }
+                else
+                {
+                    // The record is deleted simply by not adding it to the new database.
+                    errorReporter()->warning("purging database record due to missing class type " + ex.id);
+                }
             }
         }
     }
@@ -2127,8 +2131,10 @@ Transform::TransformInterceptor::TransformInterceptor(const DataFactoryPtr& fact
                                                       const ErrorReporterPtr& errorReporter,
                                                       const Slice::UnitPtr& oldUnit,
                                                       const Slice::UnitPtr& newUnit,
-                                                      const TransformMap& transformMap) :
-    _factory(factory), _errorReporter(errorReporter), _old(oldUnit), _new(newUnit), _transformMap(transformMap)
+                                                      const TransformMap& transformMap,
+                                                      bool purgeObjects) :
+    _factory(factory), _errorReporter(errorReporter), _old(oldUnit), _new(newUnit), _transformMap(transformMap),
+    _purgeObjects(purgeObjects)
 {
 }
 
@@ -2182,12 +2188,19 @@ Transform::TransformInterceptor::getObjectMap()
     return _objectMap;
 }
 
+bool
+Transform::TransformInterceptor::purgeObjects() const
+{
+    return _purgeObjects;
+}
+
 //
 // Transformer
 //
 Transform::Transformer::Transformer(const Ice::CommunicatorPtr& communicator, const Slice::UnitPtr& oldUnit,
-                                    const Slice::UnitPtr& newUnit, bool ignoreTypeChanges) :
-    _communicator(communicator), _old(oldUnit), _new(newUnit), _ignoreTypeChanges(ignoreTypeChanges)
+                                    const Slice::UnitPtr& newUnit, bool ignoreTypeChanges, bool purgeObjects) :
+    _communicator(communicator), _old(oldUnit), _new(newUnit), _ignoreTypeChanges(ignoreTypeChanges),
+    _purgeObjects(purgeObjects)
 {
 }
 
@@ -2239,7 +2252,7 @@ Transform::Transformer::transform(istream& is, Db* db, Db* dbNew, ostream& error
 
         TransformerDescriptorPtr descriptor = dh.descriptor();
         descriptor->validate();
-        descriptor->transform(_communicator, db, dbNew);
+        descriptor->transform(_communicator, db, dbNew, _purgeObjects);
     }
     catch(const IceXML::ParserException& ex)
     {

@@ -222,14 +222,9 @@ Transform::DataPtr
 Transform::DataFactory::create(const Slice::TypePtr& type, bool readOnly)
 {
     DataPtr data = createImpl(type, readOnly);
-    if(_initializersEnabled && !readOnly)
+    if(!readOnly)
     {
-        string name = typeName(type);
-        InitMap::iterator p = _initializers.find(name);
-        if(p != _initializers.end())
-        {
-            p->second->initialize(this, data, _communicator);
-        }
+        initialize(data);
     }
     return data;
 }
@@ -237,31 +232,94 @@ Transform::DataFactory::create(const Slice::TypePtr& type, bool readOnly)
 Transform::DataPtr
 Transform::DataFactory::createBoolean(bool b, bool readOnly)
 {
-    return new BooleanData(getBuiltin(Slice::Builtin::KindBool), _errorReporter, readOnly, b);
+    DataPtr data = new BooleanData(getBuiltin(Slice::Builtin::KindBool), _errorReporter, readOnly, b);
+    if(!readOnly)
+    {
+        initialize(data);
+    }
+    return data;
 }
 
 Transform::DataPtr
 Transform::DataFactory::createInteger(Ice::Long i, bool readOnly)
 {
-    return new IntegerData(getBuiltin(Slice::Builtin::KindLong), _errorReporter, readOnly, i);
+    DataPtr data = new IntegerData(getBuiltin(Slice::Builtin::KindLong), _errorReporter, readOnly, i);
+    if(!readOnly)
+    {
+        initialize(data);
+    }
+    return data;
 }
 
 Transform::DataPtr
 Transform::DataFactory::createDouble(double d, bool readOnly)
 {
-    return new DoubleData(getBuiltin(Slice::Builtin::KindDouble), _errorReporter, readOnly, d);
+    DataPtr data = new DoubleData(getBuiltin(Slice::Builtin::KindDouble), _errorReporter, readOnly, d);
+    if(!readOnly)
+    {
+        initialize(data);
+    }
+    return data;
 }
 
 Transform::DataPtr
 Transform::DataFactory::createString(const string& s, bool readOnly)
 {
-    return new StringData(this, getBuiltin(Slice::Builtin::KindString), _errorReporter, readOnly, s);
+    DataPtr data = new StringData(this, getBuiltin(Slice::Builtin::KindString), _errorReporter, readOnly, s);
+    if(!readOnly)
+    {
+        initialize(data);
+    }
+    return data;
 }
 
 Transform::DataPtr
 Transform::DataFactory::createNil(bool readOnly)
 {
-    return new ObjectRef(this, getBuiltin(Slice::Builtin::KindObject), readOnly);
+    DataPtr data = new ObjectRef(this, getBuiltin(Slice::Builtin::KindObject), readOnly);
+    if(!readOnly)
+    {
+        initialize(data);
+    }
+    return data;
+}
+
+Transform::DataPtr
+Transform::DataFactory::createObject(const Slice::TypePtr& type, bool readOnly)
+{
+    ObjectRefPtr obj;
+    Slice::ClassDeclPtr cl = Slice::ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        Slice::ClassDefPtr def = cl->definition();
+        if(!def)
+        {
+            _errorReporter->error("class " + cl->scoped() + " declared but not defined");
+        }
+        obj = new ObjectRef(this, cl, readOnly);
+    }
+    else
+    {
+        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+        if(b && b->kind() == Slice::Builtin::KindObject)
+        {
+            obj = new ObjectRef(this, b, readOnly);
+        }
+    }
+
+    if(!obj)
+    {
+        _errorReporter->error("type `" + typeName(type) + "' is not a class");
+    }
+
+    obj->instantiate();
+
+    if(!readOnly)
+    {
+        initialize(obj);
+    }
+
+    return obj;
 }
 
 Slice::BuiltinPtr
@@ -372,6 +430,20 @@ Transform::DataFactory::createImpl(const Slice::TypePtr& type, bool readOnly)
     }
 
     return 0;
+}
+
+void
+Transform::DataFactory::initialize(const DataPtr& data)
+{
+    if(_initializersEnabled)
+    {
+        string name = typeName(data->getType());
+        InitMap::iterator p = _initializers.find(name);
+        if(p != _initializers.end())
+        {
+            p->second->initialize(this, data, _communicator);
+        }
+    }
 }
 
 //
@@ -1587,12 +1659,6 @@ Transform::DataPtr
 Transform::ProxyData::getMember(const string& member) const
 {
     // TODO: Support members (id, facet, etc.)?
-#if 0
-    if(member == "length")
-    {
-        return new IntegerData(_value.length());
-    }
-#endif
 
     return 0;
 }
@@ -2296,12 +2362,28 @@ Transform::SequenceData::transformI(const DataPtr& data, DataInterceptor& interc
         for(DataList::const_iterator p = s->_elements.begin(); p != s->_elements.end(); ++p)
         {
             DataPtr element = _factory->create(_type->type(), _readOnly);
-            //
-            // We add the element regardless of whether transform() succeeds in order to
-            // preserve the original sequence size and order.
-            //
-            element->transform((*p), interceptor);
-            elements.push_back(element);
+            Destroyer<DataPtr> elementDestroyer(element);
+            try
+            {
+                element->transform((*p), interceptor);
+                elements.push_back(element);
+                elementDestroyer.release();
+            }
+            catch(const ClassNotFoundException& ex)
+            {
+                //
+                // If transformation of the sequence element fails because a class
+                // could not be found, then we invoke purgeObjects() to determine
+                // whether we should ignore the situation (and remove the element
+                // from the sequence) or raise the exception again.
+                //
+                if(!interceptor.purgeObjects())
+                {
+                    throw;
+                }
+                _errorReporter->warning("purging element of sequence " + typeName(_type) +
+                                        " due to missing class type " + ex.id);
+            }
         }
         _elements = elements;
         _length = _factory->createInteger(static_cast<Ice::Long>(_elements.size()), true);
@@ -2631,8 +2713,6 @@ Transform::DictionaryData::getMember(const string& member) const
 Transform::DataPtr
 Transform::DictionaryData::getElement(const DataPtr& element) const
 {
-    // TODO: Validate element's type
-
     DataMap::const_iterator p = _map.find(element);
     if(p != _map.end())
     {
@@ -2824,9 +2904,33 @@ Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& inte
         for(DataMap::const_iterator p = d->_map.begin(); p != d->_map.end(); ++p)
         {
             DataPtr key = _factory->create(_type->keyType(), _readOnly);
+            Destroyer<DataPtr> keyDestroyer(key);
             DataPtr value = _factory->create(_type->valueType(), _readOnly);
+            Destroyer<DataPtr> valueDestroyer(value);
+
             key->transform(p->first, interceptor);
-            value->transform(p->second, interceptor);
+
+            try
+            {
+                value->transform(p->second, interceptor);
+            }
+            catch(const ClassNotFoundException& ex)
+            {
+                //
+                // If transformation of the dictionary value fails because a class
+                // could not be found, then we invoke purgeObjects() to determine
+                // whether we should ignore the situation (and remove the element
+                // from the dictionary) or raise the exception again.
+                //
+                if(!interceptor.purgeObjects())
+                {
+                    throw;
+                }
+                _errorReporter->warning("purging element of dictionary " + typeName(_type) +
+                                        " due to missing class type " + ex.id);
+                continue;
+            }
+
             DataMap::const_iterator q = m.find(key);
             if(q != m.end())
             {
@@ -2839,6 +2943,8 @@ Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& inte
             else
             {
                 m.insert(DataMap::value_type(key, value));
+                keyDestroyer.release();
+                valueDestroyer.release();
             }
         }
         _map = m;
@@ -3018,6 +3124,7 @@ Transform::ObjectData::transform(const DataPtr& data, DataInterceptor& intercept
         }
         catch(...)
         {
+            objectMap.erase(p);
             objectMap.insert(ObjectDataMap::value_type(o.get(), 0));
             throw;
         }
@@ -3206,11 +3313,6 @@ Transform::ObjectRef::operator!=(const Data& rhs) const
     if(!r)
     {
         _errorReporter->typeMismatchError(_type, rhs.getType(), true);
-    }
-
-    if(!_value || !r->_value)
-    {
-        return !_value && r->_value;
     }
 
     //
@@ -3429,8 +3531,7 @@ Transform::ObjectRef::transformI(const DataPtr& data, DataInterceptor& intercept
                     Slice::TypeList l = _type->unit()->lookupType(name, false);
                     if(l.empty())
                     {
-                        // TODO: Slice object? Or missing type exception?
-                        _errorReporter->warning("type `" + name + "' not found");
+                        throw ClassNotFoundException(name);
                     }
                     else
                     {
@@ -3443,9 +3544,24 @@ Transform::ObjectRef::transformI(const DataPtr& data, DataInterceptor& intercept
                                 _errorReporter->error("no definition for " + name);
                             }
                         }
+                        //
+                        // Create a new object and increment its reference count. We do this
+                        // because it's possible for its reference count to be manipulated
+                        // during transformation, and we don't want it to be destroyed.
+                        //
                         ObjectDataPtr data = new ObjectData(_factory, l.front(), _readOnly);
-                        data->transform(o->_value, interceptor);
+                        data->incRef();
+                        try
+                        {
+                            data->transform(o->_value, interceptor);
+                        }
+                        catch(...)
+                        {
+                            data->decRef();
+                            throw;
+                        }
                         setValue(data);
+                        data->decRef();
                     }
                 }
             }

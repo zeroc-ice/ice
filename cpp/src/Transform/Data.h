@@ -50,6 +50,7 @@ public:
     virtual bool preTransform(const DataPtr&, const DataPtr&) = 0;
     virtual void postTransform(const DataPtr&, const DataPtr&) = 0;
     virtual ObjectDataMap& getObjectMap() = 0;
+    virtual bool purgeObjects() const = 0;
 };
 
 class DataInitializer : virtual public IceUtil::SimpleShared
@@ -74,6 +75,7 @@ public:
     DataPtr createDouble(double, bool);
     DataPtr createString(const std::string&, bool);
     DataPtr createNil(bool);
+    DataPtr createObject(const Slice::TypePtr&, bool);
 
     Slice::BuiltinPtr getBuiltin(Slice::Builtin::Kind) const;
 
@@ -85,6 +87,7 @@ public:
 private:
 
     DataPtr createImpl(const Slice::TypePtr&, bool);
+    void initialize(const DataPtr&);
 
     Ice::CommunicatorPtr _communicator;
     Slice::UnitPtr _unit; // Only used for creating builtin types.
@@ -652,6 +655,15 @@ private:
 
     DataFactoryPtr _factory;
     Slice::UnitPtr _unit;
+};
+
+class ClassNotFoundException
+{
+public:
+
+    ClassNotFoundException(const std::string& s) : id(s) {}
+
+    std::string id;
 };
 
 } // End of namespace Transform
