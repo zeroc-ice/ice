@@ -95,7 +95,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 			syncUpgraded = true;
 		    }
 		    StringSeq paths2 = readDirectory(path);
-		    paths.erase(remove(paths2.begin(), paths2.end(), ".icepatch"), paths2.end());
+		    paths2.erase(remove(paths2.begin(), paths2.end(), ".icepatch"), paths2.end());
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if(r2.first == r2.second)

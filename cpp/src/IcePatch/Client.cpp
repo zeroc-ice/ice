@@ -248,8 +248,15 @@ IcePatch::Client::run(int argc, char* argv[])
 	{
 	    Identity identity = pathToIdentity(*p);
 	    ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
-	    
-	    FilePrx top = FilePrx::checkedCast(topObj);
+	    FilePrx top;
+	    try
+	    {
+		top = FilePrx::checkedCast(topObj);
+	    }
+	    catch(const ObjectNotExistException&)
+	    {
+	    }
+
 	    if(!top)
 	    {
 		cerr << appName() << ": `" << *p << "' does not exist" << endl;
@@ -282,7 +289,6 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
 
 	    cout << pathToName(*p) << endl;
-	    cout << "|" << endl;
 	    
 	    patch(topDesc, "");
 	}
