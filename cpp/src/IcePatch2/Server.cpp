@@ -120,18 +120,21 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     try
     {
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-        char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
+	if(dataDir[0] != '/')
 	{
-	    throw "cannot get the current directory:\n" + lastError();
+#ifdef _WIN32
+	    char cwd[_MAX_PATH];
+	    if(_getcwd(cwd, _MAX_PATH) == NULL)
+#else
+	    char cwd[PATH_MAX];
+	    if(getcwd(cwd, PATH_MAX) == NULL)
+#endif
+	    {
+		throw "cannot get the current directory:\n" + lastError();
+	    }
+	    
+	    dataDir = string(cwd) + '/' + dataDir;
 	}
-	
-	dataDir = normalize(string(cwd) + '/' + dataDir);
 
 	loadFileInfoSeq(dataDir, infoSeq);
     }

@@ -156,18 +156,21 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	const_cast<Int&>(_chunkSize) = 1;
     }
 
-#ifdef _WIN32
-    char cwd[_MAX_PATH];
-    if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-    char cwd[PATH_MAX];
-    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
+    if(_dataDir[0] != '/')
     {
-	throw "cannot get the current directory:\n" + lastError();
-    }
+#ifdef _WIN32
+	char cwd[_MAX_PATH];
+	if(_getcwd(cwd, _MAX_PATH) == NULL)
+#else
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+#endif
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
     
-    const_cast<string&>(_dataDir) = normalize(string(cwd) + '/' + _dataDir);
+	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
+    }
     
     PropertiesPtr properties = communicator->getProperties();
 
