@@ -22,9 +22,6 @@ public class Server
 
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
-	Ice.Object object = new ServerManagerI(adapter);
-	adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
-
 	//
 	// We also register a sample server locator which implements the
 	// locator interface, this locator is used by the clients and the
@@ -32,7 +29,9 @@ public class Server
 	//
 	ServerLocatorRegistry registry = new ServerLocatorRegistry();
 	registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-	registry.addObject(communicator.stringToProxy("test@TestAdapter"));
+	Ice.Object object = new ServerManagerI(adapter, registry);
+	adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
+
 	Ice.LocatorRegistryPrx registryPrx = 
 	    Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
 	

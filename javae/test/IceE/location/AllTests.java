@@ -33,6 +33,7 @@ public class AllTests
 	Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
 	Ice.ObjectPrx base3 = communicator.stringToProxy("test");
 	Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
 	System.out.println("ok");
 
 	//
@@ -55,26 +56,14 @@ public class AllTests
 	test(obj3 != null);
 	ServerManagerPrx obj4 = ServerManagerPrxHelper.checkedCast(base4);
 	test(obj4 != null);
+	TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
+	test(obj5 != null);
 	System.out.println("ok");
  
-	System.out.print("testing object reference from server... ");
-        System.out.flush();
-	HelloPrx hello = obj.getHello();
-	hello.sayHello();
-	System.out.println("ok");
-
-	System.out.print("shutdown server... ");
+	System.out.print("testing id@AdapterId indirect proxy... ");
         System.out.flush();
 	obj.shutdown();
-	System.out.println("ok");
-
-	System.out.print("restarting server... ");
-        System.out.flush();
 	manager.startServer();
-	System.out.println("ok");
-
-	System.out.print("testing whether server is still reachable... ");
-        System.out.flush();
 	try
 	{
 	    obj2.ice_ping();
@@ -85,10 +74,83 @@ public class AllTests
 	}
 	System.out.println("ok");    
     
-	System.out.print("testing object reference from server... ");
+	System.out.print("testing identity indirect proxy... ");
         System.out.flush();
-	hello.sayHello();
-	System.out.println("ok");
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base3);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base3);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base2);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj5 = TestIntfPrxHelper.checkedCast(base5);
+	    obj5.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	System.out.println("ok");    
 
 	System.out.print("testing reference with unknown identity... ");
 	System.out.flush();
@@ -120,13 +182,33 @@ public class AllTests
 	}
 	System.out.println("ok");	
 
-	System.out.print("shutdown server... ");
+	System.out.print("testing object reference from server... ");
+        System.out.flush();
+	HelloPrx hello = obj.getHello();
+	hello.sayHello();
+	System.out.println("ok");
+
+	System.out.print("testing object reference from server after shutdown... ");
         System.out.flush();
 	obj.shutdown();
+	manager.startServer();
+	hello.sayHello();
+	System.out.println("ok");
+
+	System.out.print("testing object migration...");
+	System.out.flush();
+	hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+	obj.migrateHello();
+	hello.sayHello();
+	obj.migrateHello();
+	hello.sayHello();
+	obj.migrateHello();
+	hello.sayHello();
 	System.out.println("ok");
 
 	System.out.print("testing whether server is gone... ");
         System.out.flush();
+	obj.shutdown();
 	try
 	{
 	    obj2.ice_ping();

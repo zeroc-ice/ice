@@ -77,13 +77,30 @@ public final class ProxyFactory
     }
 
     public int
-    checkRetryAfterException(Ice.LocalException ex, int cnt)
+    checkRetryAfterException(Ice.LocalException ex, Reference ref, int cnt)
     {
 	//
-	// We don't retry *NotExistException, which are all derived from
-	// RequestFailedException.
+	// We retry ObjectNotExistException if the reference is
+	// indirect. Otherwise, we don't retry other *NotExistException,
+	// which are all derived from RequestFailedException.
 	//
-	if(ex instanceof Ice.RequestFailedException)
+	if(ex instanceof Ice.ObjectNotExistException)
+	{
+	    try
+	    {
+		IceInternal.IndirectReference ir = (IceInternal.IndirectReference)ref;
+		if(ir.getLocatorInfo() == null)
+		{
+		    throw ex;
+		}
+		ir.getLocatorInfo().clearObjectCache(ir);
+	    }
+	    catch(ClassCastException e)
+	    {
+		throw ex;
+	    }
+	}
+	else if(ex instanceof Ice.RequestFailedException)
 	{
 	    throw ex;
 	}

@@ -29,6 +29,8 @@ interface TestIntf
     void shutdown();
 
     Hello* getHello();
+
+    void migrateHello();
 };
 
 };

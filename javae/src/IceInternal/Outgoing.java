@@ -168,7 +168,11 @@ public final class Outgoing
                     // guarantees that all outstanding requests can safely
                     // be repeated.
                     //
-                    if(_exception instanceof Ice.CloseConnectionException)
+		    // An ObjectNotExistException can always be retried as
+		    // well without violating "at-most-once".
+		    //
+                    if(_exception instanceof Ice.CloseConnectionException || 
+		       _exception instanceof Ice.ObjectNotExistException)
                     {
                         throw _exception;
                     }
