@@ -600,8 +600,12 @@ public final class ThreadPool
 		    trace("shutdown detected");
 		}
 
-		ObjectAdapterFactory factory = _instance.objectAdapterFactory();
-		if(factory == null)
+		ObjectAdapterFactory factory;
+		try
+		{
+		    factory = _instance.objectAdapterFactory();
+		}
+		catch(Ice.CommunicatorDestroyedException e)
 		{
 		    continue;
 		}

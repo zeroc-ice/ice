@@ -672,17 +672,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
 	    if(_reference.collocationOptimization)
 	    {
-		IceInternal.ObjectAdapterFactory objectAdapterFactory = _reference.instance.objectAdapterFactory();
-		
-		//
-		// Instance components may be null if communicator has been destroyed.
-		//
-		if(objectAdapterFactory == null)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		
-		ObjectAdapter adapter = objectAdapterFactory.findObjectAdapter(this);
+		ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
 		if(adapter != null)
 		{
 		    _ObjectDelD delegate = __createDelegateD();

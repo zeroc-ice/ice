@@ -19,7 +19,6 @@
 #include <IcePack/Activator.h>
 
 #include <IceBox/IceBox.h>
-#include "../Ice/Reference.h"
 
 using namespace std;
 using namespace IcePack;

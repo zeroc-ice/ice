@@ -705,17 +705,7 @@ IceProxy::Ice::Object::__getDelegate()
     {
 	if(_reference->collocationOptimization)
 	{
-	    ObjectAdapterFactoryPtr objectAdapterFactory = _reference->instance->objectAdapterFactory();
-	    
-	    //
-	    // Instance components may be null if communicator has been destroyed.
-	    //
-	    if(!objectAdapterFactory)
-	    {
-		throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	    }
-
-	    ObjectAdapterPtr adapter = objectAdapterFactory->findObjectAdapter(this);
+	    ObjectAdapterPtr adapter = _reference->instance->objectAdapterFactory()->findObjectAdapter(this);
 	    if(adapter)
 	    {
 		Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();

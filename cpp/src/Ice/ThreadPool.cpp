@@ -488,8 +488,12 @@ IceInternal::ThreadPool::run()
 	    //
 	    // Initiate server shutdown.
 	    //
-	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();
-	    if(!factory)
+	    ObjectAdapterFactoryPtr factory;
+	    try
+	    {
+		factory = _instance->objectAdapterFactory();
+	    }
+	    catch(const Ice::CommunicatorDestroyedException&)
 	    {
 		continue;
 	    }
