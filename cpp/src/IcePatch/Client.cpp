@@ -372,14 +372,6 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 		    cout << " created" << endl;
 		    break;
 		}
-
-		case FileTypeUnknown:
-		{
-		    removeRecursive(path);
-		    createDirectory(path);
-		    cout << " created" << endl;
-		    break;
-		}
 	    }
 
 	    cout << newIndent << "|" << endl;
@@ -429,13 +421,6 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 			cout << " ok" << endl;
 		    }
 
-		    break;
-		}
-
-		case FileTypeUnknown:
-		{
-		    removeRecursive(path);
-		    getRegular(regularDesc->regular, progressCB);
 		    break;
 		}
 	    }
