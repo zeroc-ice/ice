@@ -63,7 +63,8 @@ IceInternal::Connection::decProxyUsageCount()
 {
     IceUtil::RecMutex::Lock sync(*this);
     assert(_proxyUsageCount > 0);
-    if (--_proxyUsageCount == 0)
+    --_proxyUsageCount;
+    if (_proxyUsageCount == 0 && !_adapter)
     {
 	assert(_requests.empty());
 	setState(StateClosing);
@@ -252,17 +253,32 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::RecMutex::Lock sync(*this);
     
-    if (adapter && !_adapter)
+    //
+    // In closed and holding state, we are not registered with the
+    // thread pool. For all other states, we have to notify the thread
+    // pool in case this event handler changed from a client to a
+    // server or vice versa.
+    //
+    if (_state != StateHolding && _state != StateClosed)
     {
-	_threadPool->clientIsNowServer();
-    }
-    
-    if (!adapter && _adapter)
-    {
-	_threadPool->serverIsNowClient();
+	if (adapter && !_adapter)
+	{
+	    _threadPool->clientIsNowServer();
+	}
+	
+	if (!adapter && _adapter)
+	{
+	    _threadPool->serverIsNowClient();
+	}
     }
     
     _adapter = adapter;
+    
+    if (_proxyUsageCount == 0 && !_adapter)
+    {
+	assert(_requests.empty());
+	setState(StateClosing);
+    }
 }
 
 ObjectAdapterPtr
