@@ -45,8 +45,6 @@ public:
     ::__Ice::DispatchStatus ____isA(::__Ice::Incoming&);
     virtual const std::string* _classIds() = 0;
 
-    typedef ::__Ice::DispatchStatus (Object::*__Op)(::__Ice::Incoming&);
-    static __Op __ops[];
     static std::string __names[];
     virtual ::__Ice::DispatchStatus __dispatch(::__Ice::Incoming&,
 					       const std::string&);

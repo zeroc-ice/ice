@@ -120,7 +120,10 @@ typedef std::list<Type_ptr> TypeList;
 typedef std::list<std::string> StringList;
 typedef std::pair<Type_ptr, std::string> TypeString;
 typedef std::list<TypeString> TypeStringList;
+typedef std::list<Contained_ptr> ContainedList;
 typedef std::list<ClassDef_ptr> ClassList;
+typedef std::list<Operation_ptr> OperationList;
+typedef std::list<DataMember_ptr> DataMemberList;
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -279,7 +282,7 @@ public:
     Enum_ptr createEnum(const std::string&, const StringList&);
     Enumerator_ptr createEnumerator(const std::string&);
     Native_ptr createNative(const std::string&);
-    std::list<Type_ptr> lookupType(const std::string&);
+    TypeList lookupType(const std::string&);
     int includeLevel();
     bool hasProxies();
     bool hasClassDecls();
@@ -295,7 +298,7 @@ protected:
     Container(const Unit_ptr&);
 
     int includeLevel_;
-    std::list<Contained_ptr> contents_;
+    ContainedList contents_;
 };
 
 // ----------------------------------------------------------------------
@@ -373,8 +376,9 @@ public:
     DataMember_ptr createDataMember(const std::string&, const Type_ptr&);
     ClassList bases();
     ClassList allBases();
-    std::list<Operation_ptr> operations();
-    std::list<DataMember_ptr> dataMembers();
+    OperationList operations();
+    OperationList allOperations();
+    DataMemberList dataMembers();
     bool isAbstract();
     bool isLocal();
     bool isInterface();
@@ -572,9 +576,9 @@ public:
 
     void addContent(const Contained_ptr&);
     void removeContent(const Contained_ptr&);
-    std::list<Contained_ptr> findContents(const std::string&);
+    ContainedList findContents(const std::string&);
 
-    std::list<std::string> includeFiles();
+    StringList includeFiles();
 
     int parse(FILE*, bool);
 
@@ -594,10 +598,10 @@ private:
     int currentIncludeLevel_;
     std::string currentFile_;
     std::string topLevelFile_;
-    std::list<std::string> includeFiles_;
+    StringList includeFiles_;
     std::stack<Container_ptr> containerStack_;
     std::map<Builtin::Kind, Builtin_ptr> builtins_;
-    std::map<std::string, std::list<Contained_ptr> > contentMap_;
+    std::map<std::string, ContainedList > contentMap_;
 };
 
 extern Unit* unit; // The current parser for bison/flex

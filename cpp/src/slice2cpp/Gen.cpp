@@ -128,8 +128,8 @@ Slice::Gen::generate(const Unit_ptr& unit)
 	C << "\n#include <Ice/Stream.h>";
     }
 
-    list<string> includes = unit -> includeFiles();
-    for(list<string>::iterator q = includes.begin();
+    StringList includes = unit -> includeFiles();
+    for(StringList::iterator q = includes.begin();
 	q != includes.end();
 	++q)
     {
@@ -1091,11 +1091,11 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
     if(!p -> isLocal())
     {
 	ClassList allBases = p -> allBases();
-	list<string> ids;
+	StringList ids;
 	transform(allBases.begin(), allBases.end(),
 		  back_inserter(ids),
 		  ::Ice::memFun(&ClassDef::scoped));
-	list<string> other;
+	StringList other;
 	other.push_back(scoped);
 	other.push_back("::Ice::Object");
 	other.sort();
@@ -1117,7 +1117,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	    else
 		cl = 0;
 	}
-	list<string> classIds;
+	StringList classIds;
 	transform(allBaseClasses.begin(), allBaseClasses.end(),
 		  back_inserter(classIds),
 		  ::Ice::memFun(&ClassDef::scoped));
@@ -1125,7 +1125,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	    classIds.push_front(scoped);
 	classIds.push_back("::Ice::Object");
 
-	list<string>::iterator q;
+	StringList::iterator q;
 
 	H << sp;
 	H << nl << "static std::string __ids[" << ids.size() << "];";
@@ -1184,47 +1184,39 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     string name = p -> name();
     string scoped = p -> scoped();
 
-    list<Operation_ptr> operations = p -> operations();
     ClassList bases = p -> bases();
     ClassDef_ptr base;
     if(!bases.empty() && !bases.front() -> isInterface())
 	base = bases.front();
     
-    if(!p -> isLocal() && !operations.empty())
+    if(!p -> isLocal() && !p -> operations().empty())
     {
-	operations.sort();
-	list<Operation_ptr>::iterator op;
-    
+	OperationList allOperations = p -> allOperations();
+	StringList allOpNames;
+	transform(allOperations.begin(), allOperations.end(),
+		  back_inserter(allOpNames),
+		  ::Ice::memFun(&Operation::name));
+	StringList other;
+	other.push_back("_isA");
+	//other.sort();
+	allOpNames.merge(other);
+	allOpNames.unique();
+
+	StringList::iterator q;
+
 	H << sp;
-	H << nl << "typedef ::__Ice::DispatchStatus (" << name
-	  << "::*__Op)(::__Ice::Incoming&);";
-	H << nl << "static __Op __ops[" << operations.size() << "];";
-	H << nl << "static std::string __names[" << operations.size()
-	  << "];";
+	H << nl << "static std::string __names[" << allOpNames.size() << "];";
 	H << nl << "virtual ::__Ice::DispatchStatus "
 	  << "__dispatch(::__Ice::Incoming&, const std::string&);";
 	C << sp;
-	C << nl << scoped << "::__Op " << scoped.substr(2)
-	  << "::__ops[" << operations.size() << "] =";
+	C << nl << "std::string " << scoped.substr(2) << "::__names["
+	  << allOpNames.size() << "] =";
 	C << sb;
-	op = operations.begin();
-	while(op != operations.end())
+	q = allOpNames.begin();
+	while(q != allOpNames.end())
 	{
-	    C << nl << '&' << scoped.substr(2) << "::___"
-	      << (*op) -> name();
-	    if(++op != operations.end())
-		C << ',';
-	}
-	C << eb << ';';
-	C << sp;
-	C << nl << "std::string " << scoped.substr(2)
-	  << "::__names[" << operations.size() << "] =";
-	C << sb;
-	op = operations.begin();
-	while(op != operations.end())
-	{
-	    C << nl << '"' << (*op) -> name() << '"';
-	    if(++op != operations.end())
+	    C << nl << '"' << *q << '"';
+	    if(++q != allOpNames.end())
 		C << ',';
 	}
 	C << eb << ';';
@@ -1233,36 +1225,28 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 	  << "::__dispatch(::__Ice::Incoming& in, const std::string& s)";
 	C << sb;
 	C << nl << "std::string* b = __names;";
-	C << nl << "std::string* e = __names + " << operations.size()
-	  << ';';
+	C << nl << "std::string* e = __names + " << allOpNames.size() << ';';
 	C << nl << "std::pair<std::string*, std::string*> r = "
 	  << "std::equal_range(b, e, s);";
-	C << nl << "if(r.first != r.second)";
+	C << nl << "if(r.first == r.second)";
 	C.inc();
-	C << nl << "return (this ->* __ops[r.first - b])(in);";
+	C << nl << "return ::__Ice::DispatchOperationNotExist;";
 	C.dec();
-	C << nl << "else";
-	C.inc();
-	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
-	C.restoreIndent();
-	if(base)
-	    C << nl << "return " << base -> name();
-	else
-	    C << nl << "return Object";
-	C << "::__dispatch(in, s);";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	if(base)
-	    C << nl << "return " << base -> scoped();
-	else
-	    C << nl << "return ::Ice::Object";
-	C << "::__dispatch(in, s);";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-	C.dec();
+	C << sp;
+	C << nl << "switch(r.first - __names)";
+	C << sb;
+	int i = 0;
+	for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
+	{
+	    C.dec();
+	    C << nl << "case " << i++ << ':';
+	    C.inc();
+	    C << nl << "return ___" << *q << "(in);";
+	}
+	C << eb;
+	C << sp;
+	C << nl << "assert(false);";
+	C << nl << "return ::__Ice::DispatchOperationNotExist;";
 	C << eb;
     }
     H << sp;
@@ -1270,8 +1254,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     H << nl << "virtual void __read(::__Ice::Stream*);";
     H << eb << ';';
     TypeStringList memberList;
-    list<DataMember_ptr> dataMembers = p -> dataMembers();
-    list<DataMember_ptr>::const_iterator q;
+    DataMemberList dataMembers = p -> dataMembers();
+    DataMemberList::const_iterator q;
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	memberList.push_back(make_pair((*q) -> type(), (*q) -> name()));
     C << sp;
