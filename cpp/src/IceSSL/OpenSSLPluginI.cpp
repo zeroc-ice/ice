@@ -323,10 +323,7 @@ IceSSL::OpenSSL::PluginI::loadConfig(ContextType contextType,
         throw configEx;
     }
 
-    ConfigParser sslConfig(configFile, certPath);
-
-    sslConfig.setTrace(_traceLevels);
-    sslConfig.setLogger(_logger);
+    ConfigParser sslConfig(configFile, certPath, _traceLevels, _logger);
 
     // Actually parse the file now.
     sslConfig.process();

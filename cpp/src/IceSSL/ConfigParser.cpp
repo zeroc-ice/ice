@@ -23,31 +23,37 @@
 using namespace std;
 using namespace IceSSL;
 
+#ifdef WINDOWS
+    #define CURRENTDIR ".\\"
+#else
+    #define CURRENTDIR "./"
+#endif
+
 //
 // Public Methods
 //
 
-IceSSL::ConfigParser::ConfigParser(const string& configFile) :
-    _root(0),
-    _configFile(configFile)
-{
-    assert(!configFile.empty());
-    // TODO: ML Initialize int the initializer list. Remove unnecessary 0 initialization.
-    _configPath = "./";
-    _traceLevels = 0;
-    _logger = 0;
-}
-
-IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& configPath) :
+IceSSL::ConfigParser::ConfigParser(const string& configFile, const TraceLevelsPtr& traceLevels,
+                                   const Ice::LoggerPtr& logger) :
     _root(0),
     _configFile(configFile),
-    _configPath(configPath)
+    _configPath(CURRENTDIR),
+    _traceLevels(traceLevels),
+    _logger(logger)
+{
+    assert(!configFile.empty());
+}
+
+IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& configPath,
+                                   const TraceLevelsPtr& traceLevels, const Ice::LoggerPtr& logger) :
+    _root(0),
+    _configFile(configFile),
+    _configPath(configPath),
+    _traceLevels(traceLevels),
+    _logger(logger)
 {
     assert(!configFile.empty());
     assert(!configPath.empty());
-    // TODO: ML Initialize int the initializer list. Remove unnecessary 0 initialization.
-    _traceLevels = 0;
-    _logger = 0;
 }
 
 IceSSL::ConfigParser::~ConfigParser()
@@ -72,8 +78,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
-        s << "while parsing " << _configFile << ": " << endl;
+        s << "while parsing " << _configFile << ":" << endl;
 	s << "xerces-c init exception: " << toString(toCatch.getMessage());
 
         configEx.message = s.str();
@@ -97,15 +102,21 @@ IceSSL::ConfigParser::process()
 
     try
     {
-	// TODO: ML: _configPath.front();
-	// TODO: ML: What about files that start with c:\, or just \?
-        if(*(_configFile.begin()) != '/')
+        if(!isAbsolutePath(_configFile))
         {
 	    // TODO: ML: _configPath.back();
+            //       ASN: There is no back() method in basic_string.
+#ifdef WINDOWS
+            if(*(_configPath.rbegin()) != '\\')
+            {
+                _configPath += "\\";
+            }
+#else
             if(*(_configPath.rbegin()) != '/')
             {
                 _configPath += "/";
             }
+#endif
 
             XMLCh* xmlConfigPath = XMLString::transcode(_configPath.c_str());
             XMLCh* xmlConfigFile = XMLString::transcode(_configFile.c_str());
@@ -137,8 +148,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
-        s << "while parsing " << _configFile << ": " << endl;
+        s << "while parsing " << _configFile << ":" << endl;
 	s << "xerces-c parsing error: " << toString(e.getMessage());
 
         configEx.message = s.str();
@@ -150,8 +160,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
-        s << "while parsing " << _configFile << ": " << endl;
+        s << "while parsing " << _configFile << ":" << endl;
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -163,11 +172,9 @@ IceSSL::ConfigParser::process()
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
-	// TODO: ML: ":\n" (: is missing)
-	// TODO: ML: "unknown exception" instead of "unknown error
 	// occured during parsing". The latter is redundant, given
 	// that it already says "while parsing".
-        configEx.message = "while parsing " + _configFile + "\n" + "unknown error occured during parsing";
+        configEx.message = "while parsing " + _configFile + ":\n" + "unknown exception occured during parsing";
 
         throw configEx;
     }
@@ -217,8 +224,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
-        s << "while loading client configuration: " << endl;
+        s << "while loading client configuration:" << endl;
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -256,7 +262,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "while loading server configuration " << endl;
+        s << "while loading server configuration:" << endl;
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -266,33 +272,6 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
     }
     
     return false;
-}
-
-// TODO: ML: Can you get rid of these functions? The logger and
-// trace level should be set in the constructor, either by
-// configuration, or by passing arguments.
-void
-IceSSL::ConfigParser::setTrace(const TraceLevelsPtr& traceLevels)
-{
-    _traceLevels = traceLevels;
-}
-
-bool
-IceSSL::ConfigParser::isTraceSet() const 
-{
-    return _traceLevels;
-}
-
-void
-IceSSL::ConfigParser::setLogger(const Ice::LoggerPtr& logger)
-{
-    _logger = logger;
-}
-
-bool
-IceSSL::ConfigParser::isLoggerSet() const
-{
-    return _logger;
 }
 
 //
@@ -426,12 +405,8 @@ IceSSL::ConfigParser::getCertAuth(DOMNode* rootNode, CertificateAuthority& certA
         {
             string filename = nodeValue;
 
-            // Just a filename, no path component, append path.
-	    // TODO: ML: Append path? Prepend path! Also, why this
-	    // rule? I can understand this for absolute filenames, but
-	    // for something like foo/bar? Shouldn't this be relative
-	    // to _configPath?
-            if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+            // Just a filename, no path component, prepend path.
+            if(!isAbsolutePath(filename))
             {
                 filename = _configPath + filename;
             }
@@ -627,9 +602,8 @@ IceSSL::ConfigParser::loadCertificateFile(DOMNode* rootNode, CertificateFile& ce
         {
             filename = nodeValue;
 
-            // Just a filename, no path component, append path.
-	    // TODO: ML: See comments above.
-            if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+            // Just a filename, no path component, prepend path.
+            if(!isAbsolutePath(filename))
             {
                 filename = _configPath + filename;
             }
@@ -637,6 +611,24 @@ IceSSL::ConfigParser::loadCertificateFile(DOMNode* rootNode, CertificateFile& ce
     }
 
     certFile = CertificateFile(filename, encoding);
+}
+
+bool
+IceSSL::ConfigParser::isAbsolutePath(string& pathString)
+{
+#ifdef WINDOWS
+    // Is true if the pathString begins with a \ or if its second and third characters are ":\"
+
+    string rootDir = ":\\";
+    string pathStringInternal = pathString.substr(1);
+    return ((!pathStringInternal.substr(0,rootDir.length()).compare(rootDir)) ||
+        (*pathStringInternal.begin()) == '\\');
+#else
+    // Is true if the pathString begins with a /
+
+    string rootDir = "/";
+    return !pathString.substr(0,rootDir.length()).compare(rootDir);
+#endif
 }
 
 int

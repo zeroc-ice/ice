@@ -30,8 +30,8 @@ public:
 
     // Construction based on the indicated config file, or config file and
     // certificate path.
-    ConfigParser(const std::string&);
-    ConfigParser(const std::string&, const std::string&);
+    ConfigParser(const std::string&, const TraceLevelsPtr&, const Ice::LoggerPtr&);
+    ConfigParser(const std::string&, const std::string&, const TraceLevelsPtr&, const Ice::LoggerPtr&);
     ~ConfigParser();
 
     // Performs a complete parsing of the file.
@@ -40,12 +40,6 @@ public:
     // Loads the Client/Server portions of the config file.
     bool loadClientConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
     bool loadServerConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
-
-    void setTrace(const TraceLevelsPtr&);
-    bool isTraceSet() const;
-
-    void setLogger(const Ice::LoggerPtr&);
-    bool isLoggerSet() const;
 
 private:
 
@@ -77,6 +71,9 @@ private:
 
     // Populate a certificate file object, basis of all certificates.
     void loadCertificateFile(DOMNode*, CertificateFile&);
+
+    // Detemines if the string represents an absolute pathname.
+    bool isAbsolutePath(std::string&);
 
     // Parses the certificate encoding format from a string representation
     // to the proper integer value used by the underlying SSL framework.
