@@ -60,7 +60,9 @@ Python
 The Ice extension for Python included in this distribution requires
 Python 2.4. We built Python 2.4 using the source distribution from
 http://www.python.org. If you build Python 2.4 from source, you need
-to use the configure option --enable-shared.
+to use the following configure options:
+
+./configure --enable-shared --with-cxx="aCC -AA +DAportable" ...
 
 
 ======================================================================
