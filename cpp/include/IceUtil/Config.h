@@ -101,7 +101,7 @@
 // necessary.
 // 
 #   ifndef _WINSOCKAPI_
-#      include <winsock.h>
+#      include <winsock2.h>
 #   endif
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
