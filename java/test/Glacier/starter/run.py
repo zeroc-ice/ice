@@ -36,11 +36,14 @@ updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR",
 
 command = starter + updatedClientServerOptions + \
           r' --Ice.PrintProcessId' \
+          r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Client.Endpoints="default"' + \
           r' --Glacier.Server.Endpoints="tcp"'
+
+print command
 
 print "starting glacier starter...",
 starterPipe = os.popen(command)

@@ -16,6 +16,7 @@
 #include <Ice/RSAKeyPair.h>
 #include <Glacier/GlacierI.h>
 #include <fcntl.h>
+#include <shadow.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,11 +24,14 @@ using namespace Glacier;
 
 using IceSSL::OpenSSL::RSAKeyPairPtr;
 
-Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
+Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordVerifierPrx& verifier) :
     _communicator(communicator),
     _logger(_communicator->getLogger()),
-    _properties(_communicator->getProperties())
+    _properties(_communicator->getProperties()),
+    _verifier(verifier)
 {
+    assert(_verifier);
+
     _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
 
     // Set up the Certificate Generation context
@@ -71,9 +75,10 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 {
     assert(_communicator); // Destroyed?
 
-    //
-    // TODO: userId/password check.
-    //
+    if (!_verifier->checkPassword(userId, password))
+    {
+	throw InvalidPasswordException();
+    }
 
     //
     // Create a certificate for the client and the router.
@@ -370,4 +375,37 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     assert(false); // Should never be reached.
     return 0; // To keep the compiler from complaining.
+}
+
+Glacier::CryptPasswordVerifierI::CryptPasswordVerifierI(const map<string, string>& passwords) :
+    _passwords(passwords)
+{
+}
+
+bool
+Glacier::CryptPasswordVerifierI::checkPassword(const string& userId, const string& password, const Current&)
+{
+    map<string, string>::const_iterator p = _passwords.find(userId);
+
+    if (p == _passwords.end())
+    {
+	return false;
+    }
+
+    if (p->second.size() != 13) // Crypt passwords are 13 characters long.
+    {
+	return false;
+    }
+
+    {
+	IceUtil::Lock<IceUtil::Mutex> sync(*this); // Need a lock as crypt() is not reentrant.
+	
+	return p->second == crypt(password.c_str(), p->second.substr(0, 2).c_str());
+    }
+}
+
+void
+Glacier::CryptPasswordVerifierI::destroy(const Current&)
+{
+    // Nothing to do.
 }

@@ -16,7 +16,7 @@
 
 /**
  *
- * &Glacier; is the Ice firewall and router.
+ * &Glacier; is the &Ice; firewall and router.
  *
  **/
 module Glacier
@@ -56,9 +56,14 @@ interface Starter
      * router is returned to the caller.
      *
      * @param userId The user id for which to check the password.
+     *
      * @param password The password for the given user id.
-     * @param privateKey The RSA Private Key (DER encoded) for the client to use.
-     * @param publicKey The RSA Public Key (DER encoded) for the client to use.
+     *
+     * @param privateKey The RSA Private Key (DER encoded) for the
+     * client to use. (Only for SSL.)
+     *
+     * @param publicKey The RSA Public Key (DER encoded) for the
+     * client to use. (Only for SSL.)
      *
      * @return A proxy to the router that has been started.
      *
@@ -69,6 +74,37 @@ interface Starter
     Ice::Router* startRouter(string userId, string password;
 			     Ice::ByteSeq privateKey, Ice::ByteSeq publicKey, Ice::ByteSeq routerCert)
 	throws InvalidPasswordException, CannotStartRouterException;
+};
+
+/**
+ *
+ * The &Glacier; router starter password verifier.
+ *
+ **/
+interface PasswordVerifier
+{
+    /**
+     *
+     * Check whether a password is valid.
+     *
+     * @param userId The user id for which to check the password.
+     *
+     * @param password The password to check.
+     *
+     * @return True if the password is valid, or false otherwise.
+     *
+     **/
+    ["nonmutating"]
+    bool checkPassword(string userId, string password);
+    
+    /**
+     *
+     * Called when the password verifier is not needed anymore by the
+     * &Glacier; router starter.
+     *
+     **/
+    ["nonmutating"]
+    void destroy();
 };
 
 };

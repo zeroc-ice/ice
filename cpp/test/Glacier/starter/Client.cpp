@@ -73,7 +73,7 @@ CallbackClient::run(int argc, char* argv[])
     RouterPrx router;
     try
     {
-	router = starter->startRouter("", "", privateKey, publicKey, routerCert);
+	router = starter->startRouter("dummy", "abc123", privateKey, publicKey, routerCert);
     }
     catch (const Glacier::CannotStartRouterException& ex)
     {

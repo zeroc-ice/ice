@@ -103,7 +103,7 @@ local interface Communicator
     /**
      *
      * Convert a string into a Proxy. For example,
-     * [MyCategory#MyObject:tcp -h some_host -p 10000] creates a proxy
+     * [MyCategory/MyObject:tcp -h some_host -p 10000] creates a proxy
      * that refers to the Ice Object having an identity with a name
      * "MyObject" and a category "MyCategory", with the server running
      * on host "some_host", port 10000.

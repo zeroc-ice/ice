@@ -25,7 +25,7 @@ class StarterI : public Starter
 {
 public:
 
-    StarterI(const Ice::CommunicatorPtr&);
+    StarterI(const Ice::CommunicatorPtr&, const PasswordVerifierPrx&);
 
     void destroy();
 
@@ -41,9 +41,24 @@ private:
     Ice::CommunicatorPtr _communicator;
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
+    PasswordVerifierPrx _verifier;
     int _traceLevel;
     RSACertificateGenContext _certContext;
     RSACertificateGen _certificateGenerator;
+};
+
+class CryptPasswordVerifierI : public PasswordVerifier, public IceUtil::Mutex
+{
+public:
+
+    CryptPasswordVerifierI(const std::map<std::string, std::string>&);
+
+    virtual bool checkPassword(const std::string&, const std::string&, const Ice::Current&);
+    virtual void destroy(const Ice::Current&);
+
+private:
+
+    const std::map<std::string, std::string> _passwords;
 };
 
 }

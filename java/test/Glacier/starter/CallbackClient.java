@@ -56,7 +56,7 @@ class CallbackClient extends Ice.Application
         Ice.RouterPrx router;
         try
         {
-            router = starter.startRouter("", "", privateKey, publicKey, routerCert);
+            router = starter.startRouter("dummy", "abc123", privateKey, publicKey, routerCert);
         }
         catch (Glacier.CannotStartRouterException ex)
         {

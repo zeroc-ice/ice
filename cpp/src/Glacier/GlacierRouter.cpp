@@ -152,12 +152,12 @@ Glacier::Router::run(int argc, char* argv[])
     }
 
     //
-    // Create routing table
+    // Create the routing table.
     //
     IceInternal::RoutingTablePtr routingTable = new IceInternal::RoutingTable;
 
     //
-    // Initialize Client Object Adapter
+    // Initialize the client object adapter.
     //
     const char* clientEndpointsProperty = "Glacier.Client.Endpoints";
     string clientEndpoints = properties->getProperty(clientEndpointsProperty);
@@ -166,13 +166,12 @@ Glacier::Router::run(int argc, char* argv[])
 	cerr << appName() << ": property `" << clientEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
-
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapterFromProperty("Client",
 										     clientEndpointsProperty);
     clientAdapter->activate();
 
     //
-    // Initialize Server Object Adapter
+    // Initialize the server object adapter.
     //
     const char* serverEndpointsProperty = "Glacier.Server.Endpoints";
     string serverEndpoints = properties->getProperty(serverEndpointsProperty);
@@ -190,7 +189,6 @@ Glacier::Router::run(int argc, char* argv[])
     ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable);
     Ice::ServantLocatorPtr clientServantLocator = new Glacier::ServantLocator(clientBlobject);
     clientAdapter->addServantLocator(clientServantLocator, "");
-
     if (serverAdapter)
     {
 	ObjectPtr serverBlobject = new ServerBlobject(clientAdapter);
@@ -199,7 +197,7 @@ Glacier::Router::run(int argc, char* argv[])
     }
 
     //
-    // Initialize Router
+    // Initialize the router object adapter and the router object.
     //
     const char* routerEndpointsProperty = "Glacier.Router.Endpoints";
     string routerEndpoints = properties->getProperty(routerEndpointsProperty);
@@ -208,14 +206,12 @@ Glacier::Router::run(int argc, char* argv[])
 	cerr << appName() << ": property `" << routerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
-
     const char* routerIdentityProperty = "Glacier.Router.Identity";
     string routerIdentity = properties->getProperty(routerIdentityProperty);
     if (routerIdentity.empty())
     {
 	routerIdentity = "Glacier/router";
     }
-
     ObjectAdapterPtr routerAdapter =
 	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
     RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable);
