@@ -12,6 +12,10 @@
 #include <IcePatch2/Util.h>
 #include <fstream>
 
+#ifdef _WIN32
+#   include <direct.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;

@@ -8,13 +8,13 @@
 // **********************************************************************
 
 #include <IcePatch2/FileServerI.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #ifdef _WIN32
 #   include <io.h>
 #else
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#   include <fcntl.h>
 #   include <unistd.h>
 #endif
 
@@ -74,7 +74,11 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
 	num = 256 * 1024;
     }
 
+#ifdef _WIN32
+    int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
+#else
     int fd = open(path.c_str(), O_RDONLY);
+#endif
     if(fd == -1)
     {
 	FileAccessException ex;
@@ -95,7 +99,11 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
     }
 
     ByteSeq bytes(num);
+#ifdef _WIN32
+    long r;
+#else
     ssize_t r;
+#endif
     if((r = read(fd, &bytes[0], static_cast<size_t>(num))) == -1)
     {
 	close(fd);

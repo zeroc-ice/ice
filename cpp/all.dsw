@@ -363,6 +363,87 @@ Package=<4>
 
 ###############################################################################
 
+Project: "IcePatch2"=.\src\IcePatch2\IcePatch2.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePatch2C"=.\src\IcePatch2\IcePatch2C.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePatch2Calc"=.\src\IcePatch2\IcePatch2Calc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePatch2S"=.\src\IcePatch2\IcePatch2S.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "IcePatchC"=.\src\IcePatch\IcePatchC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1084,6 +1165,18 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name glacier2CallbackSS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2C
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2Calc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2S
     End Project Dependency
 }}}
 
@@ -2319,9 +2412,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Glacier
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
     Begin Project Dependency
@@ -2335,9 +2425,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icecpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatchC
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Slice

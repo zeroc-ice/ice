@@ -12,6 +12,9 @@
 #include <openssl/sha.h>
 #include <bzlib.h>
 #include <iomanip>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -19,9 +22,6 @@
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
 #   define S_ISREG(mode) ((mode) & _S_IFREG)
 #else
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#   include <fcntl.h>
 #   include <unistd.h>
 #   include <dirent.h>
 #endif
@@ -137,7 +137,7 @@ IcePatch2::normalize(const string& path)
 
     string::size_type pos;
 
-#ifdef WIN32
+#ifdef _WIN32
     for(pos = 0; pos < result.size(); ++pos)
     {
 	if(result[pos] == '\\')
@@ -382,7 +382,11 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 	createDirectoryRecursive(dir);
     }
 
+#ifdef _WIN32
+    if(_mkdir(path.c_str()) == -1)
+#else
     if(mkdir(path.c_str(), 0777) == -1)
+#endif
     {
 	if(errno != EEXIST)
 	{
@@ -628,7 +632,11 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
 		}
 	    }
 
+#ifdef _WIN32
+	    int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
+#else
 	    int fd = open(path.c_str(), O_RDONLY);
+#endif
 	    if(fd == -1)
 	    {
 		throw "cannot open `" + path + "' for reading: " + strerror(errno);

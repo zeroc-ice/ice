@@ -18,26 +18,26 @@
 namespace IcePatch2
 {
 
-ICEPATCH2_API std::string bytesToString(const Ice::ByteSeq&);
-ICEPATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
+ICE_PATCH2_API std::string bytesToString(const Ice::ByteSeq&);
+ICE_PATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 
-ICEPATCH2_API std::string normalize(const std::string&);
+ICE_PATCH2_API std::string normalize(const std::string&);
 
-ICEPATCH2_API std::string getSuffix(const std::string&);
-ICEPATCH2_API std::string getWithoutSuffix(const std::string&);
-ICEPATCH2_API bool ignoreSuffix(const std::string&);
+ICE_PATCH2_API std::string getSuffix(const std::string&);
+ICE_PATCH2_API std::string getWithoutSuffix(const std::string&);
+ICE_PATCH2_API bool ignoreSuffix(const std::string&);
 
-ICEPATCH2_API std::string getBasename(const std::string&);
-ICEPATCH2_API std::string getDirname(const std::string&);
+ICE_PATCH2_API std::string getBasename(const std::string&);
+ICE_PATCH2_API std::string getDirname(const std::string&);
 
-ICEPATCH2_API void remove(const std::string&);
-ICEPATCH2_API void removeRecursive(const std::string&);
+ICE_PATCH2_API void remove(const std::string&);
+ICE_PATCH2_API void removeRecursive(const std::string&);
 
-ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
-ICEPATCH2_API void createDirectoryRecursive(const std::string&);
+ICE_PATCH2_API Ice::StringSeq readDirectory(const std::string&);
+ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
-ICEPATCH2_API void decompressFile(const std::string&);
+ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICE_PATCH2_API void decompressFile(const std::string&);
 
 struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInfo&, bool>
 {
@@ -76,12 +76,12 @@ struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo
     }
 };
 
-ICEPATCH2_API void getFileInfoSeq(const std::string&, FileInfoSeq&, bool, bool, bool);
-ICEPATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
-ICEPATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
+ICE_PATCH2_API void getFileInfoSeq(const std::string&, FileInfoSeq&, bool, bool, bool);
+ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
+ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 
-ICEPATCH2_API std::ostream& operator<<(std::ostream&, const FileInfo&);
-ICEPATCH2_API std::istream& operator>>(std::istream&, FileInfo&);
+ICE_PATCH2_API std::ostream& operator<<(std::ostream&, const FileInfo&);
+ICE_PATCH2_API std::istream& operator>>(std::istream&, FileInfo&);
 
 struct FileTree1
 {
@@ -97,10 +97,10 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICEPATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
-ICEPATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
+ICE_PATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
+ICE_PATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
 
-class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class ICE_PATCH2_API Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
