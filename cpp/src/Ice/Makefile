@@ -37,6 +37,7 @@ OBJS		= Application.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapterFactory.o \
+		  ServantLocator.o \
 		  ServantFactory.o \
 		  ServantFactoryManager.o \
 		  Endpoint.o \
@@ -157,6 +158,23 @@ $(HDIR)/ObjectAdapterF.h: $(SDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
+
+$(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
+	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp
+	$(SLICECMD) $(SDIR)/ServantLocator.ice
+	mv ServantLocator.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp
+
+$(HDIR)/ServantLocatorF.h: $(SDIR)/ServantLocatorF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/ServantLocatorF.h ServantLocatorF.cpp
+	$(SLICECMD) $(SDIR)/ServantLocatorF.ice
+	mv ServantLocatorF.h $(HDIR)
+	rm -f ServantLocatorF.cpp
+
+clean::
+	rm -f $(HDIR)/ServantLocatorF.h
 
 $(HDIR)/Properties.h Properties.cpp: $(SDIR)/Properties.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Properties.h Properties.cpp

@@ -797,28 +797,26 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const ObjectPtr& v)
 {
-    const string* classIds = v->_classIds();
+    const char** classIds = v->__getClassIds();
     Int sz = 0;
-    while (classIds[sz] != "::Ice::Object")
+    while (strcmp(classIds[sz], "::Ice::Object") != 0)
     {
 	++sz;
     }
     write(sz);
     for (int i = 0; i < sz; i++)
     {
-	write(classIds[i]);
+	write(string(classIds[i]));
     }
     v->__write(this);
 }
 
 void
-IceInternal::BasicStream::read(ObjectPtr& v, const string& type)
+IceInternal::BasicStream::read(ObjectPtr& v, const char* type)
 {
     vector<string> classIds;
     read(classIds);
-    classIds.push_back("::Ice::Object");
-    vector<string>::const_iterator p;
-    for (p = classIds.begin(); p != classIds.end(); ++p)
+    for (vector<string>::const_iterator p = classIds.begin(); p != classIds.end(); ++p)
     {
 	ServantFactoryPtr factory = _instance->servantFactoryManager()->find(*p);
 	
@@ -852,30 +850,28 @@ IceInternal::BasicStream::read(ObjectPtr& v, const string& type)
 void
 IceInternal::BasicStream::write(const UserException& v)
 {
-    const string* exceptionIds = v._exceptionIds();
+    const char** exceptionIds = v.__getExceptionIds();
     Int sz = 0;
-    while (exceptionIds[sz] != "::Ice::UserException")
+    while (strcmp(exceptionIds[sz], "::Ice::UserException") != 0)
     {
 	++sz;
     }
     write(sz);
     for (int i = 0; i < sz; i++)
     {
-	write(exceptionIds[i]);
+	write(string(exceptionIds[i]));
     }
     v.__write(this);
 }
 
-void
-IceInternal::BasicStream::read(UserException*& v, const string& type)
+Int
+IceInternal::BasicStream::throwException(const char** typesBegin, const char** typesEnd)
 {
-/*
     vector<string> exceptionIds;
     read(exceptionIds);
-    exceptionIds.push_back("::Ice::UserException");
-    vector<string>::const_iterator p;
-    for (p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
+    for (vector<string>::const_iterator p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
     {
+/*
 	UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(*p);
 	
 	if (factory)
@@ -893,24 +889,25 @@ IceInternal::BasicStream::read(UserException*& v, const string& type)
 	    
 	    for (; p != exceptionIds.end(); ++p)
 	    {
-		if (*p == type)
+	        pair<const char**, const char**> q = equal_range(typesBegin, types.end, *p);
+		if (q.first != q.second)
 		{
-		    return;
+		    v->_throw();
 		}
 	    }
 	    
 	    delete v;
 	    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
 	}
-	
-	if (*p == type)
+*/
+	pair<const char**, const char**> q = equal_range(typesBegin, typesEnd, *p);
+	if (q.first != q.second)
 	{
-	    return;
+	    return q.first - typesBegin;
 	}
 	
 	skipEncaps();
     }
 
     throw UserExceptionUnmarshalException(__FILE__, __LINE__);
-*/
 }

@@ -63,9 +63,9 @@ public:
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
     ::IceInternal::DispatchStatus ____ping(::IceInternal::Incoming&);
-    virtual const std::string* _classIds() = 0;
+    virtual const char** __getClassIds() = 0;
 
-    static std::string __names[];
+    static const char* __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
     virtual bool __isMutating(const std::string&);
 

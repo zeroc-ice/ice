@@ -31,8 +31,6 @@ class ICE_API LocalException : public IceUtil::Exception
 public:    
 
     LocalException(const char*, int);
-    LocalException(const LocalException&);
-    LocalException& operator=(const LocalException&);
     virtual std::string _name() const = 0;
     virtual std::ostream& _print(std::ostream&) const = 0;
     virtual Exception* _clone() const = 0;
@@ -43,15 +41,12 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:    
 
-    UserException();
-    UserException(const UserException&);
-    UserException& operator=(const UserException&);
     virtual std::string _name() const = 0;
     virtual std::ostream& _print(std::ostream&) const = 0;
     virtual Exception* _clone() const = 0;
     virtual void _throw() const = 0;
 
-    virtual const std::string* _exceptionIds() const = 0;
+    virtual const char** __getExceptionIds() const = 0;
     virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*) = 0;
 };
@@ -77,7 +72,9 @@ class TimeoutException;
 class ConnectTimeoutException;
 class ProtocolException;
 class UnmarshalOutOfBoundsException;
+class NoServantFactoryException;
 class ServantUnmarshalException;
+class UserExceptionUnmarshalException;
 class StringEncodingException;
 class MemoryLimitException;
 class EncapsulationException;
@@ -116,7 +113,9 @@ std::ostream& printException(std::ostream&, const Ice::ConnectionLostException&)
 std::ostream& printException(std::ostream&, const Ice::DNSException&);
 std::ostream& printException(std::ostream&, const Ice::ProtocolException&);
 std::ostream& printException(std::ostream&, const Ice::UnmarshalOutOfBoundsException&);
+std::ostream& printException(std::ostream&, const Ice::NoServantFactoryException&);
 std::ostream& printException(std::ostream&, const Ice::ServantUnmarshalException&);
+std::ostream& printException(std::ostream&, const Ice::UserExceptionUnmarshalException&);
 std::ostream& printException(std::ostream&, const Ice::StringEncodingException&);
 std::ostream& printException(std::ostream&, const Ice::MemoryLimitException&);
 std::ostream& printException(std::ostream&, const Ice::EncapsulationException&);

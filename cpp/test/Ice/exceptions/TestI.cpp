@@ -31,6 +31,23 @@ ThrowerI::throwAasA(Ice::Int a)
 }
 
 void
+ThrowerI::throwAorDasAorD(Ice::Int a)
+{
+    if (a > 0)
+    {
+	A ex;
+	ex.a = a;
+	throw ex;
+    }
+    else
+    {
+	D ex;
+	ex.d = a;
+	throw ex;
+    }
+}
+
+void
 ThrowerI::throwBasA(Ice::Int a, Ice::Int b)
 {
     throwBasB(a, b);
@@ -65,4 +82,44 @@ ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c)
     ex.b = b;
     ex.c = c;
     throw ex;
+}
+
+void
+ThrowerI::throwUndeclaredA(Ice::Int a)
+{
+    A ex;
+    ex.a = a;
+    throw ex;
+}
+
+void
+ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b)
+{
+    B ex;
+    ex.a = a;
+    ex.b = b;
+    throw ex;
+}
+
+void
+ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c)
+{
+    C ex;
+    ex.a = a;
+    ex.b = b;
+    ex.c = c;
+    throw ex;
+}
+
+void
+ThrowerI::throwLocalException()
+{
+    // Any local exception is fine...
+    throw Ice::TimeoutException(__FILE__, __LINE__);
+}
+
+void
+ThrowerI::throwNonIceException()
+{
+    throw int();
 }

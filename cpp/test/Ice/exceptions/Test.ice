@@ -16,7 +16,6 @@ interface Thrower;
 exception A
 {
     int a;
-    Thrower* thrower;
 };
 
 exception B extends A
@@ -29,15 +28,26 @@ exception C extends B
     int c;
 };
 
+exception D
+{
+    int d;
+};
+
 interface Thrower
 {
     void shutdown();
     void throwAasA(int a) throws A;
+    void throwAorDasAorD(int a) throws A, D;
     void throwBasA(int a, int b) throws A;
     void throwCasA(int a, int b, int c) throws A;
     void throwBasB(int a, int b) throws B;
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
+    void throwUndeclaredA(int a) throws B, D;
+    void throwUndeclaredB(int a, int b);
+    void throwUndeclaredC(int a, int b, int c) throws D;
+    void throwLocalException();
+    void throwNonIceException();
 };
 
 #endif

@@ -21,11 +21,17 @@ public:
 
     virtual void shutdown();
     virtual void throwAasA(Ice::Int);
+    virtual void throwAorDasAorD(Ice::Int);
     virtual void throwBasA(Ice::Int, Ice::Int);
     virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int);
     virtual void throwBasB(Ice::Int, Ice::Int);
     virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int);
     virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int);
+    virtual void throwUndeclaredA(Ice::Int);
+    virtual void throwUndeclaredB(Ice::Int, Ice::Int);
+    virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int);
+    virtual void throwLocalException();
+    virtual void throwNonIceException();
 
 private:
 

@@ -35,12 +35,6 @@ public:
     {
     }
 
-    NullHandleException& operator=(const NullHandleException& ex)
-    {
-	Exception::operator=(ex);
-	return *this;
-    }
-
     virtual std::string _name() const
     {
 	return "IceUtil::NullHandleException";

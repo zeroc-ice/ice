@@ -66,7 +66,7 @@ Ice::Object::____ping(Incoming&)
     return DispatchOK;
 }
 
-string Ice::Object::__names[] =
+const char* Ice::Object::__all[] =
 {
     "_isA"
     "_ping"
@@ -75,15 +75,15 @@ string Ice::Object::__names[] =
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const string& s)
 {
-    string* b = __names;
-    string* e = __names + sizeof(__names) / sizeof(string);
-    pair<string*, string*> r = equal_range(b, e, s);
+    const char** b = __all;
+    const char** e = __all + sizeof(__all) / sizeof(const char*);
+    pair<const char**, const char**> r = equal_range(b, e, s);
     if (r.first == r.second)
     {
 	return DispatchOperationNotExist;
     }					     
 
-    switch (r.first - __names)
+    switch (r.first - __all)
     {
 	case 0:
 	{

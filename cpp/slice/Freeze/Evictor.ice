@@ -11,7 +11,8 @@
 #ifndef FREEZE_EVICTOR_ICE
 #define FREEZE_EVICTOR_ICE
 
-#include <Ice/ObjectAdapter.ice>
+#include <Ice/ObjectAdapterF.ice>
+#include <Ice/ServantLocator.ice>
 #include <Freeze/DBException.ice>
 #include <Freeze/DBF.ice>
 
@@ -42,8 +43,6 @@ local interface ServantInitializer
      * Servant was created.
      *
      * @param servant The Servant to set up.
-     *
-     * @throws DBException Raised if a database failure occurred.
      *
      **/
     void initialize(Ice::ObjectAdapter adapter, string identity, Object servant);

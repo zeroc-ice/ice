@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/ObjectAdapterI.h>
+#include <Ice/ServantLocator.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>

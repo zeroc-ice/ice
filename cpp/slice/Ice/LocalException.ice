@@ -156,21 +156,6 @@ local exception OperationNotExistException
 
 /**
  *
- * This exception is raised if no suitable factory for a Servant was
- * found.
- *
- * @see ServantFactory
- * @see Communicator::addServantFactory
- * @see Communicator::removeServantFactory
- * @see Communicator::findServantFactory
- *
- **/
-local exception NoServantFactoryException
-{
-};
-
-/**
- *
  * This exception is raised if a system error occurred in the server
  * or client process. There are many possible causes for such a system
  * exception. For details on the cause, [SystemException::error]
@@ -272,7 +257,8 @@ local exception ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
- * raised if no suitable servant factory was found during unmarshaling.
+ * raised if no suitable servant factory was found during unmarshaling
+ * of a Servant type with operations.
  *
  * @see ServantFactory
  * @see Communicator::addServantFactory
@@ -280,7 +266,29 @@ local exception ProtocolException
  * @see Communicator::findServantFactory
  *
  **/
+local exception NoServantFactoryException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised if a servant type is encountered that is either unknown or
+ * doesn't match the operation signature.
+ *
+ **/
 local exception ServantUnmarshalException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised if a user exception is encountered that is either unknown or
+ * doesn't match the operation signature.
+ *
+ **/
+local exception UserExceptionUnmarshalException extends ProtocolException
 {
 };
 

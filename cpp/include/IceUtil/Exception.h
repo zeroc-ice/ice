@@ -35,25 +35,14 @@ public:
     {
     }
     
-    virtual ~Exception()
-    {
-    }
-
     Exception(const Exception& ex)
     {
 	_theFile = ex._theFile;
 	_theLine = ex._theLine;
     }
 
-    Exception& operator=(const Exception& ex)
+    virtual ~Exception()
     {
-	if (this != &ex)
-	{
-	    _theFile = ex._theFile;
-	    _theLine = ex._theLine;
-	}
-	
-	return *this;
     }
 
     virtual std::string _name() const

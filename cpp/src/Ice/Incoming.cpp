@@ -10,6 +10,7 @@
 
 #include <Ice/Incoming.h>
 #include <Ice/ObjectAdapter.h>
+#include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
 #include <Ice/Exception.h>
 

@@ -97,10 +97,30 @@ public:
     void read(::Ice::ObjectPrx&);
 
     void write(const ::Ice::ObjectPtr&);
-    void read(::Ice::ObjectPtr&, const std::string&);
+    //
+    // This operation tries to create a servant using a servant
+    // factory, read the servant data, and return it through the first
+    // parameter. If it cannot create the servant because it cannot
+    // find a suitable servant factory, it returns null as first
+    // parameter. If the servant type does not match the second type
+    // argument, this operation raises ServantUnmarshalException.
+    //
+    void read(::Ice::ObjectPtr&, const char*);
 
     void write(const ::Ice::UserException&);
-    void read(::Ice::UserException*&, const std::string&);
+    //
+    // This operation tries to create an exception using an exception
+    // factory, read the exception data, and throw such exception. If
+    // it cannot create the exception because it cannot find a
+    // suitable exception factory, it returns the index in the types
+    // arguments (const char** iterators to the beginning of the type
+    // list, and one past the end of the type list), which designates
+    // the correct exception type to be instantiated and read by the
+    // stub. If the exception type was not found in the types
+    // arguments, this operation raises
+    // UserExceptionUnmarshalException.
+    //
+    Ice::Int throwException(const char**, const char**);
 
 private:
 

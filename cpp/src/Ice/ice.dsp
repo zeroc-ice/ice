@@ -192,6 +192,10 @@ SOURCE=.\ObjectAdapter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ServantLocator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ObjectAdapterFactory.cpp
 # End Source File
 # Begin Source File
@@ -437,6 +441,14 @@ SOURCE=.\Ice\Network.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Object.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ServantLocator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ServantLocatorF.h
 # End Source File
 # Begin Source File
 
@@ -931,6 +943,82 @@ InputPath=..\..\slice\Ice\ObjectAdapterF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectAdapterF.ice 
 	move ObjectAdapterF.h ..\..\include\Ice 
 	del ObjectAdapterF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ServantLocator.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
+	move ServantLocator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocator.ice \
+	move ServantLocator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\ServantLocator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServantLocator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ServantLocatorF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocatorF.ice
+
+"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
+	move ServantLocatorF.h ..\..\include\Ice 
+	del ServantLocatorF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ServantLocatorF.ice
+
+"..\..\include\Ice\ServantLocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantLocatorF.ice 
+	move ServantLocatorF.h ..\..\include\Ice 
+	del ServantLocatorF.cpp 
 	
 # End Custom Build
 

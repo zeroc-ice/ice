@@ -8,13 +8,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_F_ICE
-#define ICE_OBJECT_ADAPTER_F_ICE
+#ifndef ICE_SERVANT_LOCATOR_F_ICE
+#define ICE_SERVANT_LOCATOR_F_ICE
 
 module Ice
 {
 
-local interface ObjectAdapter;
+local interface ServantLocator;
 
 };
 

@@ -12,6 +12,7 @@
 #define ICE_DIRECT_H
 
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ServantLocatorF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/LocalObjectF.h>
