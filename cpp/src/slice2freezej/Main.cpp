@@ -95,22 +95,30 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
     out << sp << nl << "public class " << name << " extends Freeze.Map";
     out << sb;
 
+    //
+    // Constructor
+    //
+    out << sp << nl << "public" << nl << name << "(Freeze.DB db)";
+    out << sb;
+    out << nl << "super(db);";
+    out << eb;
+
+    //
+    // encode/decode
+    //
     for (int i = 0; i < 2; i++)
     {
         string keyValue;
-        string keyValueTag;
         TypePtr type;
 
         if (i == 0)
         {
             keyValue = "Key";
-            keyValueTag = "\"" + dict.key + "\"";
             type = keyType;
         }
         else
         {
             keyValue = "Value";
-            keyValueTag = "\"" + dict.value + "\"";
             type = valueType;
         }
 
@@ -161,7 +169,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
                 {
-                    valS = "(" + typeS + ")o";
+                    valS = "((" + typeS + ")o)";
                     break;
                 }
             }
@@ -169,10 +177,10 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         else
         {
             typeS = typeToString(type, TypeModeIn);
-            valS = "(" + typeS + ")o";
+            valS = "((" + typeS + ")o)";
         }
 
-        int iter = 0;
+        int iter;
 
         //
         // encode
@@ -181,14 +189,13 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
             << "(Object o, Ice.Communicator communicator)";
         out << sb;
         out << nl << "assert(o instanceof " << typeS << ");";
-        out << nl << "java.io.StringWriter sw = new java.io.StringWriter();";
-        out << nl << "java.io.PrintWriter pw = new java.io.PrintWriter(sw);";
-        out << nl << "pw.print(\"<data>\");";
-        out << nl << "Ice.Stream __os = new IceXML.StreamI(communicator, pw);";
-        writeGenericMarshalUnmarshalCode(out, "", type, keyValueTag, valS, true, iter, false);
-        out << nl << "pw.print(\"</data>\");";
-        out << nl << "pw.flush();";
-        out << nl << "return sw.toString().getBytes();";
+        out << nl << "IceInternal.BasicStream __os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+        iter = 0;
+        writeMarshalUnmarshalCode(out, "", type, valS, true, iter, false);
+        out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
+        out << nl << "byte[] __r = new byte[__buf.limit()];";
+        out << nl << "__buf.get(__r);";
+        out << nl << "return __r;";
         out << eb;
 
         //
@@ -197,8 +204,13 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         out << sp << nl << "public Object" << nl << "decode" << keyValue
             << "(byte[] b, Ice.Communicator communicator)";
         out << sb;
-        out << nl << "java.io.StringReader sr = new java.io.StringReader(new String(b));";
-        out << nl << "Ice.Stream __is = new IceXML.StreamI(communicator, sr);";
+        out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+        out << nl << "__is.resize(b.length, true);";
+        out << nl << "java.nio.ByteBuffer __buf = __is.prepareRead();";
+        out << nl << "__buf.position(0);";
+        out << nl << "__buf.put(b);";
+        out << nl << "__buf.position(0);";
+        iter = 0;
         out << nl << typeS << " __r;";
         if (b)
         {
@@ -206,37 +218,37 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
             {
                 case Builtin::KindByte:
                 {
-                    out << nl << "__r = new java.lang.Byte(__is.readByte(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Byte(__is.readByte());";
                     break;
                 }
                 case Builtin::KindBool:
                 {
-                    out << nl << "__r = new java.lang.Boolean(__is.readBool(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Boolean(__is.readBool());";
                     break;
                 }
                 case Builtin::KindShort:
                 {
-                    out << nl << "__r = new java.lang.Short(__is.readShort(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Short(__is.readShort());";
                     break;
                 }
                 case Builtin::KindInt:
                 {
-                    out << nl << "__r = new java.lang.Integer(__is.readInt(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Integer(__is.readInt());";
                     break;
                 }
                 case Builtin::KindLong:
                 {
-                    out << nl << "__r = new java.lang.Long(__is.readLong(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Long(__is.readLong());";
                     break;
                 }
                 case Builtin::KindFloat:
                 {
-                    out << nl << "__r = new java.lang.Float(__is.readFloat(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Float(__is.readFloat());";
                     break;
                 }
                 case Builtin::KindDouble:
                 {
-                    out << nl << "__r = new java.lang.Double(__is.readDouble(" << keyValueTag << "));";
+                    out << nl << "__r = new java.lang.Double(__is.readDouble());";
                     break;
                 }
                 case Builtin::KindString:
@@ -244,14 +256,14 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
                 {
-                    writeGenericMarshalUnmarshalCode(out, "", type, keyValueTag, "__r", false, iter, false);
+                    writeMarshalUnmarshalCode(out, "", type, "__r", false, iter, false);
                     break;
                 }
             }
         }
         else
         {
-            writeGenericMarshalUnmarshalCode(out, "", type, keyValueTag, "__r", false, iter, false);
+            writeMarshalUnmarshalCode(out, "", type, "__r", false, iter, false);
         }
         out << nl << "return __r;";
         out << eb;
@@ -331,7 +343,7 @@ main(int argc, char* argv[])
         {
             if (idx + 1 >= argc || argv[idx + 1][0] == '-')
             {
-                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
@@ -408,7 +420,7 @@ main(int argc, char* argv[])
         {
             if (idx + 1 >= argc)
             {
-                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
@@ -424,7 +436,7 @@ main(int argc, char* argv[])
         {
             if (idx + 1 >= argc)
             {
-                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
