@@ -30,8 +30,8 @@ public:
 
     void destroy();
 
-    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&);
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&);
+    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
+    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
     virtual SessionPrx createSession(const Ice::Current&);

@@ -27,7 +27,7 @@ ContactI::setIdentity(const Identity& ident)
 }
 
 string
-ContactI::getName(const Ice::Current&)
+ContactI::getName(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
     return name;
@@ -44,7 +44,7 @@ ContactI::setName(const string& name, const Ice::Current&)
 }
 
 string
-ContactI::getAddress(const Ice::Current&)
+ContactI::getAddress(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
     return address;
@@ -58,7 +58,7 @@ ContactI::setAddress(const string& address, const Ice::Current&)
 }
 
 string
-ContactI::getPhone(const Ice::Current&)
+ContactI::getPhone(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
     return phone;
@@ -72,7 +72,7 @@ ContactI::setPhone(const string& phone, const Ice::Current&)
 }
 
 void
-ContactI::destroy(const Ice::Current&)
+ContactI::destroy(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -185,7 +185,7 @@ PhoneBookI::createContact(const Ice::Current&)
 }
 
 Contacts
-PhoneBookI::findContacts(const string& name, const Ice::Current&)
+PhoneBookI::findContacts(const string& name, const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
     
@@ -196,7 +196,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&)
 	// return them to the caller. See the comment in
 	// getNewIdentity why the prefix "N" is needed.
 	//
-	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + name);
+	NameIdentitiesDict::const_iterator p = _nameIdentitiesDict.find("N" + name);
 	Identities identities;
 	if(p !=  _nameIdentitiesDict.end())
 	{
@@ -227,7 +227,7 @@ PhoneBookI::setEvictorSize(Int size, const Ice::Current&)
 }
 
 void
-PhoneBookI::shutdown(const Ice::Current&)
+PhoneBookI::shutdown(const Ice::Current&) const
 {
     //
     // No synchronization necessary, _adapter is immutable.

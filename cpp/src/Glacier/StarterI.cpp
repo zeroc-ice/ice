@@ -402,7 +402,7 @@ Glacier::CryptPasswordVerifierI::CryptPasswordVerifierI(const map<string, string
 }
 
 bool
-Glacier::CryptPasswordVerifierI::checkPassword(const string& userId, const string& password, const Current&)
+Glacier::CryptPasswordVerifierI::checkPassword(const string& userId, const string& password, const Current&) const
 {
     map<string, string>::const_iterator p = _passwords.find(userId);
 

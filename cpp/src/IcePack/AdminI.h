@@ -29,17 +29,17 @@ public:
 
     virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&,
 			   const Targets&, const Ice::Current& = Ice::Current());
-    virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&);
-    virtual ServerState getServerState(const ::std::string&, const Ice::Current& = Ice::Current());
-    virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&);
+    virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&) const;
+    virtual ServerState getServerState(const ::std::string&, const Ice::Current& = Ice::Current()) const;
+    virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void removeServer(const ::std::string&, const Ice::Current&);
-    virtual ServerNames getAllServerNames(const Ice::Current&);
+    virtual ServerNames getAllServerNames(const Ice::Current&) const;
 
     virtual void addAdapterWithEndpoints(const ::std::string&, const ::std::string&, const ::Ice::Current&);
     virtual void removeAdapter(const ::std::string&, const ::Ice::Current&);
-    virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&);
-    virtual AdapterNames getAllAdapterNames(const ::Ice::Current&);
+    virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
+    virtual AdapterNames getAllAdapterNames(const ::Ice::Current&) const;
 
     virtual void shutdown(const Ice::Current&);
 

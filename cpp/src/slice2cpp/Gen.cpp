@@ -1249,6 +1249,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     H << sp << nl << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceProxy" << scoped << paramsDecl;
+    string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
     C << sb;
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
@@ -1256,8 +1257,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "try";
     C << sb;
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
-    C << nl << "::IceDelegate" << scope.substr(0, scope.size() - 2) << "* __del = dynamic_cast< ::IceDelegate"
-      << scope.substr(0, scope.size() - 2) << "*>(__delBase.get());";
+    C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
+      << thisPointer << ">(__delBase.get());";
     C << nl;
     if(ret)
     {
@@ -1742,8 +1743,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << nl << "while(true)";
     C << sb;
     C << nl << "::IceInternal::Direct __direct(__adapter, __current);";
-    C << nl << fixKwd(cl->scoped()) << "* __servant = dynamic_cast< "
-      << fixKwd(cl->scoped()) << "*>(__direct.facetServant().get());";
+    string thisPointer = fixKwd(cl->scoped()) + "*";
+    C << nl << thisPointer << " __servant = dynamic_cast< "
+      << thisPointer << ">(__direct.facetServant().get());";
     C << nl << "if(!__servant)";
     C << sb;
     C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
@@ -2284,8 +2286,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
     }
 
+    list<string> metaData = p->getMetaData();
+    bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+
     H << sp;
-    H << nl << exp2 << "virtual " << retS << ' ' << name << params << " = 0;";
+    H << nl << exp2 << "virtual " << retS << ' ' << name << params << (nonmutating ? " const" : "") << " = 0;";
 
     if(!cl->isLocal())
     {
@@ -2294,10 +2299,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	throws.unique();
 
 	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name
-	  << "(::IceInternal::Incoming&, const ::Ice::Current&);";
+	  << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (nonmutating ? " const" : "") << ";";
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)";
+	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
 	C << sb;
 	if(!inParams.empty())
 	{
@@ -2833,7 +2838,11 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << "const Ice::Current&";
         }
         H.restoreIndent();
-        H << ");";
+
+	list<string> metaData = op->getMetaData();
+	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
+
+        H << ")" << (nonmutating ? " const" : "") << ";";
 
         C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName << '(';
         C.useCurrentPosAsIndent();
@@ -2855,7 +2864,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << "const Ice::Current& current";
         }
         C.restoreIndent();
-        C << ")";
+        C << ")" << (nonmutating ? " const" : "");
         C << sb;
 
         //

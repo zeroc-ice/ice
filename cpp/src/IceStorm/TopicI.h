@@ -42,12 +42,12 @@ public:
 	   const Freeze::DBPtr&);
     ~TopicI();
 
-    virtual std::string getName(const Ice::Current&);
-    virtual Ice::ObjectPrx getPublisher(const Ice::Current&);
+    virtual std::string getName(const Ice::Current&) const;
+    virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
     virtual void unlink(const TopicPrx&, const Ice::Current&);
-    virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&);
+    virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
 
     virtual TopicLinkPrx getLinkProxy(const Ice::Current&);
 

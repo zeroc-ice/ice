@@ -380,14 +380,14 @@ TopicI::~TopicI()
 }
 
 string
-TopicI::getName(const Ice::Current&)
+TopicI::getName(const Ice::Current&) const
 {
     // Immutable
     return _name;
 }
 
 Ice::ObjectPrx
-TopicI::getPublisher(const Ice::Current&)
+TopicI::getPublisher(const Ice::Current&) const
 {
     // Immutable
     return _publisherPrx;
@@ -502,7 +502,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 }
 
 LinkInfoSeq
-TopicI::getLinkInfoSeq(const Ice::Current&)
+TopicI::getLinkInfoSeq(const Ice::Current&) const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -511,7 +511,8 @@ TopicI::getLinkInfoSeq(const Ice::Current&)
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    reap();
+    TopicI* const This = const_cast<TopicI* const>(this);
+    This->reap();
 
     LinkInfoSeq seq;
 

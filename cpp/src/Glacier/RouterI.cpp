@@ -66,7 +66,7 @@ Glacier::RouterI::destroy()
 }
 
 ObjectPrx
-Glacier::RouterI::getClientProxy(const Current&)
+Glacier::RouterI::getClientProxy(const Current&) const
 {
     assert(_clientAdapter); // Destroyed?
 
@@ -74,7 +74,7 @@ Glacier::RouterI::getClientProxy(const Current&)
 }
 
 ObjectPrx
-Glacier::RouterI::getServerProxy(const Current&)
+Glacier::RouterI::getServerProxy(const Current&) const
 {
     assert(_clientAdapter); // Destroyed?
 

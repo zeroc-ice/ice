@@ -55,7 +55,7 @@ IcePack::AdminI::addServer(const string& name, const string& path, const string&
 }
 
 ServerDescription
-IcePack::AdminI::getServerDescription(const string& name, const Current&)
+IcePack::AdminI::getServerDescription(const string& name, const Current&) const
 {
     ServerPrx server = _serverManager->findByName(name);
     if(server)
@@ -72,7 +72,7 @@ IcePack::AdminI::getServerDescription(const string& name, const Current&)
 }
 
 ServerState
-IcePack::AdminI::getServerState(const string& name, const Current&)
+IcePack::AdminI::getServerState(const string& name, const Current&) const
 {
     ServerPrx server = _serverManager->findByName(name);
     if(server)
@@ -89,7 +89,7 @@ IcePack::AdminI::getServerState(const string& name, const Current&)
 }
 
 Ice::Int
-IcePack::AdminI::getServerPid(const string& name, const Current&)
+IcePack::AdminI::getServerPid(const string& name, const Current&) const
 {
     ServerPrx server = _serverManager->findByName(name);
     if(server)
@@ -141,7 +141,7 @@ IcePack::AdminI::removeServer(const string& name, const Current&)
 }
 
 ServerNames
-IcePack::AdminI::getAllServerNames(const Current&)
+IcePack::AdminI::getAllServerNames(const Current&) const
 {
     return _serverManager->getAll();
 }
@@ -171,7 +171,7 @@ IcePack::AdminI::removeAdapter(const string& name, const Current&)
 }
 
 string 
-IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&)
+IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
 {
     AdapterPrx adapter = _adapterManager->findByName(name);
     if(adapter)
@@ -188,7 +188,7 @@ IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&)
 }
 
 AdapterNames
-IcePack::AdminI::getAllAdapterNames(const Current&)
+IcePack::AdminI::getAllAdapterNames(const Current&) const
 {
     return _adapterManager->getAll();
 }

@@ -91,11 +91,12 @@ TopicManagerI::create(const string& name, const Ice::Current&)
 }
 
 TopicPrx
-TopicManagerI::retrieve(const string& name, const Ice::Current&)
+TopicManagerI::retrieve(const string& name, const Ice::Current&) const
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    reap();
+    TopicManagerI* const This = const_cast<TopicManagerI* const>(this);
+    This->reap();
 
     if(_topicIMap.find(name) != _topicIMap.end())
     {
@@ -121,11 +122,12 @@ transformToTopicDict(TopicIMap::value_type p, Ice::ObjectAdapterPtr adapter)
 }
 
 TopicDict
-TopicManagerI::retrieveAll(const Ice::Current&)
+TopicManagerI::retrieveAll(const Ice::Current&) const
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    reap();
+    TopicManagerI* const This = const_cast<TopicManagerI* const>(this);
+    This->reap();
 
     TopicDict all;
     transform(_topicIMap.begin(), _topicIMap.end(), inserter(all, all.begin()),

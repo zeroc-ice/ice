@@ -40,9 +40,9 @@ public:
 
     ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
 
-    virtual ::Ice::ObjectPrx findAdapterByName(const std::string&, const ::Ice::Current&);
+    virtual ::Ice::ObjectPrx findAdapterByName(const std::string&, const ::Ice::Current&) const;
 
-    virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&);
+    virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 
 private:
     

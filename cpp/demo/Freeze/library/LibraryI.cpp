@@ -23,7 +23,7 @@ BookI::~BookI()
 }
 
 void
-BookI::destroy(const Ice::Current&)
+BookI::destroy(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -46,14 +46,14 @@ BookI::destroy(const Ice::Current&)
 }
 
 ::BookDescription
-BookI::getBookDescription(const Ice::Current&)
+BookI::getBookDescription(const Ice::Current&) const
 {
     // Immutable
     return description;
 }
 
 ::std::string
-BookI::getRenterName(const Ice::Current&)
+BookI::getRenterName(const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -186,7 +186,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
 }
 
 ::BookPrx
-LibraryI::findByIsbn(const string& isbn, const Ice::Current&)
+LibraryI::findByIsbn(const string& isbn, const Ice::Current&) const
 {
     //
     // No locking is necessary since no internal mutable state is
@@ -210,7 +210,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current&)
 }
 
 ::BookPrxSeq
-LibraryI::findByAuthors(const string& authors, const Ice::Current&)
+LibraryI::findByAuthors(const string& authors, const Ice::Current&) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -232,7 +232,7 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current&)
 }
 
 void
-LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&)
+LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&) const
 {
     //
     // No synchronization necessary, _evictor is immutable.
@@ -241,7 +241,7 @@ LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&)
 }
 
 void
-LibraryI::shutdown(const Ice::Current& current)
+LibraryI::shutdown(const Ice::Current& current) const
 {
     //
     // No synchronization necessary, _adapter is immutable.

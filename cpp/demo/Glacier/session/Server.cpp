@@ -24,7 +24,7 @@ public:
     }
 
     virtual bool
-    checkPassword(const string& userId, const string& password, const Ice::Current&)
+    checkPassword(const string& userId, const string& password, const Ice::Current&) const
     {
 	return userId == password;
     }

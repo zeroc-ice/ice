@@ -24,7 +24,7 @@ IcePack::LocatorI::LocatorI(const AdapterManagerPrx& adapters, const LocatorRegi
 }
 
 Ice::ObjectPrx 
-IcePack::LocatorI::findAdapterByName(const string& name, const Current&)
+IcePack::LocatorI::findAdapterByName(const string& name, const Current&) const
 {
     try
     {
@@ -45,7 +45,7 @@ IcePack::LocatorI::findAdapterByName(const string& name, const Current&)
 }
 
 Ice::LocatorRegistryPrx
-IcePack::LocatorI::getRegistry(const Current&)
+IcePack::LocatorI::getRegistry(const Current&) const
 {
     return _registry;
 }

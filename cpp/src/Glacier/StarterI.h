@@ -53,7 +53,7 @@ public:
 
     CryptPasswordVerifierI(const std::map<std::string, std::string>&);
 
-    virtual bool checkPassword(const std::string&, const std::string&, const Ice::Current&);
+    virtual bool checkPassword(const std::string&, const std::string&, const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
 
 private:

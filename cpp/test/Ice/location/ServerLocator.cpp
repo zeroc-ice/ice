@@ -35,7 +35,7 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 }
 
 Ice::ObjectPrx
-ServerLocator::findAdapterByName(const ::std::string& adapter, const ::Ice::Current&)
+ServerLocator::findAdapterByName(const ::std::string& adapter, const ::Ice::Current&) const
 {
     return _registry->getAdapter(adapter);
 //    std::map< std::string, Ice::ObjectPrx >::iterator p = _adapters.find(adapter);
@@ -47,7 +47,7 @@ ServerLocator::findAdapterByName(const ::std::string& adapter, const ::Ice::Curr
 }
 
 Ice::LocatorRegistryPrx
-ServerLocator::getRegistry(const ::Ice::Current&)
+ServerLocator::getRegistry(const ::Ice::Current&) const
 {
     return _registryPrx;
 }
