@@ -316,9 +316,9 @@ public class Client
 	    holder.value = args;
 	    communicator = Ice.Util.initialize(holder);
 	    args = holder.value;
-	    if (args.length > 1)
+	    if (args.length > 0)
 	    {
-		dbEnvDir = args[1];
+		dbEnvDir = args[0];
 		dbEnvDir += "/";
 		dbEnvDir += "db";
 	    }

@@ -30,6 +30,9 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "IceXML/encoding", \
+    "Freeze/cursor", \
+    "Freeze/dbmap", \
+    "Freeze/complex", \
     ]
 
 #
