@@ -187,7 +187,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
 	if(configFile)
 	{
-	    PropertiesPtr properties = createProperties(argc, argv);
+	    PropertiesPtr properties = createProperties();
             properties->load(configFile);
 	    _communicator = initializeWithProperties(argc, argv, properties);
 	}
