@@ -31,7 +31,7 @@ extern ICE_API Separator sp;
 // Indent
 // ----------------------------------------------------------------------
 
-class ICE_API Output : ::__Ice::noncopyable
+class ICE_API Output
 {
 public:
 

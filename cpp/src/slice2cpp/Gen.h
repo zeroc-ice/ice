@@ -37,7 +37,6 @@ private:
     std::string changeInclude(const std::string&);
     void printHeader(Output&);
 
-    Output FH;
     Output H;
     Output C;
 
