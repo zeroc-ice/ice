@@ -419,6 +419,17 @@ catch (RuntimeException ex)
                     }
                     catch (java.io.IOException ex)
                     {
+                        //
+                        // Pressing Ctrl-C causes select() to raise an
+                        // IOException, which seems like a JDK bug. We trap
+                        // for that special case here and ignore it.
+                        // Hopefully we're not masking something important!
+                        //
+                        if (ex.getMessage().indexOf("Interrupted system call") != -1)
+                        {
+                            continue repeatSelect;
+                        }
+
                         Ice.SocketException se = new Ice.SocketException();
                         se.initCause(ex);
                         throw se;
