@@ -30,6 +30,7 @@ tests = [ \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "Ice/location", \
+    "Ice/adapterDeactivation", \
     "IceXML/encoding", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
