@@ -8,12 +8,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PACK_COMPONENT_DEPLOYER_H
-#define ICE_PACK_COMPONENT_DEPLOYER_H
+#ifndef ICE_PACK_COMPONENT_BUILDER_H
+#define ICE_PACK_COMPONENT_BUILDER_H
 
 #include <IceUtil/Shared.h>
 #include <IcePack/Admin.h>
 #include <Yellow/Yellow.h>
+
 #include <sax/HandlerBase.hpp>
 
 #include <map>
@@ -23,17 +24,21 @@
 namespace IcePack
 {
 
+//
+// A deployment task. A deployment task is executed when a component
+// is deployed and it's undo when the component is removed.
+//
 class Task : public ::IceUtil::SimpleShared
 {
 public:
 
-    virtual void deploy() = 0;
-    virtual void undeploy() = 0;
+    virtual void execute() = 0;
+    virtual void undo() = 0;
 };
 
 typedef ::IceUtil::Handle< ::IcePack::Task> TaskPtr;
 
-class ComponentDeployer;
+class ComponentBuilder;
 
 class DeploySAXParseException : public SAXParseException
 {
@@ -58,11 +63,14 @@ private:
     ParserDeploymentException _exception;
 };
 
+//
+// SAX error handler for compoonent descriptors.
+//
 class ComponentErrorHandler : public ErrorHandler
 {
 public:
 
-    ComponentErrorHandler(ComponentDeployer&);
+    ComponentErrorHandler(ComponentBuilder&);
 
     void warning(const SAXParseException& exception);
     void error(const SAXParseException& exception);
@@ -71,14 +79,17 @@ public:
 
 private:
 
-    ComponentDeployer& _deployer;
+    ComponentBuilder& _builder;
 };
 
-class ComponentDeployHandler : public DocumentHandler
+//
+// SAX parser handler for component descriptors.
+//
+class ComponentHandler : public DocumentHandler
 {
 public:
 
-    ComponentDeployHandler(ComponentDeployer&);
+    ComponentHandler(ComponentBuilder&);
 
     virtual void characters(const XMLCh*const, const unsigned int);
     virtual void startElement(const XMLCh*const, AttributeList&); 
@@ -100,7 +111,7 @@ protected:
     std::string elementValue() const;
     bool isCurrentTargetDeployable() const;
 
-    ComponentDeployer& _deployer;
+    ComponentBuilder& _builder;
     std::stack<std::string> _elements;
     std::string _currentAdapter;
     std::string _currentTarget;
@@ -109,17 +120,32 @@ protected:
     const Locator* _locator;
 };
 
-class ComponentDeployer : public Task
+//
+// The component builder builds and execute the tasks that need to be
+// executed to deploy a component described in a component
+// descriptor. There's two phase to deploy or remove a component:
+//
+// * descriptor parsing: the builder parse() method initiate the
+//   parsing. The parser will call the builder methods to setup the
+//   deployment tasks. Once the parsing is finished all the deployment
+//   tasks should be ready to be executed or undo
+//
+// * execution of the tasks to deploy the component or undo'ing of the
+//   tasks to remove the component.
+//
+class ComponentBuilder : public Task
 {
 public:
 
-    ComponentDeployer(const Ice::CommunicatorPtr&, const std::string&, const std::vector<std::string>&);
+    ComponentBuilder(const Ice::CommunicatorPtr&, const std::string&, const std::vector<std::string>&);
 
-    virtual void deploy();
-    virtual void undeploy();
+    virtual void execute();
+    virtual void undo();
 
-    void parse(const std::string&, ComponentDeployHandler&);
+    void parse(const std::string&, ComponentHandler&);
     void setDocumentLocator(const Locator*const locator);
+
+    void setYellowAdmin(const Yellow::AdminPrx&);
 
     bool isTargetDeployable(const std::string&) const;
 
@@ -131,11 +157,10 @@ public:
 
     std::string toLocation(const std::string&) const;
     std::string substitute(const std::string&) const;
-    void undeployFrom(std::vector<TaskPtr>::iterator);
+    void undoFrom(std::vector<TaskPtr>::iterator);
 
 protected:
-
-
+    
     Ice::CommunicatorPtr _communicator;
     Yellow::AdminPrx _yellowAdmin;
 

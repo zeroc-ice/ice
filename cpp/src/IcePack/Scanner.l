@@ -140,6 +140,18 @@ NL	[\n]
     return ICE_PACK_START;
 }
 
+"stop" {
+    return ICE_PACK_STOP;
+}
+
+"node" {
+    return ICE_PACK_NODE;
+}
+
+"ping" {
+    return ICE_PACK_PING;
+}
+
 {WS}*(\\{WS}*{NL})? {
     int len = strlen(yytext);
     for(int i = 0; i < len; ++i)

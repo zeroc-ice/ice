@@ -36,7 +36,13 @@ public:
 
     ~DBEnvironmentMap()
     {
-	assert(_map.empty());
+	// 
+	// Unfortunately we can have this assertion here. If a Freeze
+	// application forks processes and if it can't execv a new
+	// process, the forked process will unload the Freeze shared
+	// library and will hit this assertion.
+	//
+	// assert(_map.empty());
     }
 
     int

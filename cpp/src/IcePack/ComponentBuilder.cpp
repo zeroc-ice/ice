@@ -9,11 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/Locator.h>
-
-#include <IcePack/ComponentDeployer.h>
-#include <IcePack/Admin.h>
-
+#include <IcePack/ComponentBuilder.h>
 #include <Yellow/Yellow.h>
 
 #include <parsers/SAXParser.hpp>
@@ -61,7 +57,7 @@ public:
     }
 
     virtual void
-    deploy()
+    execute()
     {
 	if(mkdir(_name.c_str(), 0755) != 0)
 	{
@@ -72,7 +68,7 @@ public:
     }
 
     virtual void
-    undeploy()
+    undo()
     {
 	if(_force)
 	{
@@ -131,9 +127,9 @@ public:
 
 	if(rmdir(_name.c_str()) != 0)
 	{
-	    //
-	    // TODO: print a warning.
-	    //
+	    DeploymentException ex;
+	    ex.reason = "couldn't remove directory " + _name + ": " + strerror(getSystemErrno());
+	    throw ex;
 	}
     }
     
@@ -168,7 +164,7 @@ public:
     }
 
     virtual void
-    deploy()  
+    execute()  
     {
 	ofstream configfile;
 	configfile.open(_file.c_str(), ios::out);
@@ -185,13 +181,13 @@ public:
     }
 
     virtual void
-    undeploy()
+    undo()
     {
 	if(unlink(_file.c_str()) != 0)
 	{
-	    //
-	    // TOTO: print a warning.
-	    //
+	    DeploymentException ex;
+	    ex.reason = "couldn't remove configuration file: " + _file;
+	    throw ex;
 	}
     }
 
@@ -216,7 +212,7 @@ public:
     }
 
     virtual void
-    deploy()
+    execute()
     {
 	try
 	{
@@ -225,7 +221,7 @@ public:
 	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
-	    os << "couldn't contact Yellow: " << lex << endl;
+	    os << "couldn't contact Yellow to add offer:\n" << lex << ends;
 
 	    OfferDeploymentException ex;
 	    ex.reason = os.str();
@@ -236,21 +232,35 @@ public:
     }
 
     virtual void
-    undeploy()
+    undo()
     {
 	assert(_admin);
 	try
 	{
 	    _admin->remove(_offer, _proxy);
 	}
-	catch(const Yellow::NoSuchOfferException&)
+	catch(const Yellow::NoSuchOfferException& lex)
 	{
-	    //
-	    // TODO: The offer doesn't exist anymore so no need to
-	    // worry about removing it. We should print a warning
-	    // though.
-	    //
+	    ostringstream os;
+	    os << "couldn't remove offer:\n" << lex << ends;
+
+	    OfferDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.intf = _offer;
+	    ex.proxy = _proxy;
+	    throw ex;
 	}	
+	catch(const Ice::LocalException& lex)
+	{
+	    ostringstream os;
+	    os << "couldn't contact Yellow to remove offer:\n" << lex << ends;
+
+	    OfferDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.intf = _offer;
+	    ex.proxy = _proxy;
+	    throw ex;
+	}
     }
 
 private:
@@ -278,8 +288,8 @@ IcePack::ParserDeploymentWrapperException::throwParserDeploymentException() cons
     throw _exception;
 }
 
-IcePack::ComponentErrorHandler::ComponentErrorHandler(ComponentDeployer& deployer) :
-    _deployer(deployer)
+IcePack::ComponentErrorHandler::ComponentErrorHandler(ComponentBuilder& builder) :
+    _builder(builder)
 {
 }
 
@@ -311,20 +321,20 @@ IcePack::ComponentErrorHandler::resetErrors()
 {
 }
 
-IcePack::ComponentDeployHandler::ComponentDeployHandler(ComponentDeployer& deployer) :
-    _deployer(deployer),
+IcePack::ComponentHandler::ComponentHandler(ComponentBuilder& builder) :
+    _builder(builder),
     _isCurrentTargetDeployable(true)
 {
 }
 
 void
-IcePack::ComponentDeployHandler::characters(const XMLCh *const chars, const unsigned int length)
+IcePack::ComponentHandler::characters(const XMLCh *const chars, const unsigned int length)
 {
     _elements.top().assign(toString(chars));
 }
 
 void
-IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, AttributeList &attrs)
+IcePack::ComponentHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 {
     _elements.push("");
 
@@ -340,13 +350,9 @@ IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, Attribute
 	string value = getAttributeValueWithDefault(attrs, "value", "");
 	if(value.empty())
 	{
-	    value = getAttributeValueWithDefault(attrs, "location", "");
-	    if(!value.empty() && value[0] != '/')
-	    {
-		value = _deployer.substitute("${basedir}/") + value;
-	    }
+	    value = _builder.toLocation(getAttributeValueWithDefault(attrs, "location", ""));
 	}
-	_deployer.addProperty(getAttributeValue(attrs, "name"), value);
+	_builder.addProperty(getAttributeValue(attrs, "name"), value);
     }
     else if(str == "adapter")
     {
@@ -358,7 +364,7 @@ IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, Attribute
     }
     else if(str == "offer")
     {
-	_deployer.addOffer(getAttributeValue(attrs, "interface"), _currentAdapter, 
+	_builder.addOffer(getAttributeValue(attrs, "interface"), _currentAdapter, 
 			   getAttributeValue(attrs, "identity"));
     }
     else if(str == "target")
@@ -367,12 +373,12 @@ IcePack::ComponentDeployHandler::startElement(const XMLCh *const name, Attribute
 	{
 	    throw DeploySAXParseException("Target element enclosed in a target element is not allowed", _locator);
 	}
-	_isCurrentTargetDeployable = _deployer.isTargetDeployable(getAttributeValue(attrs, "name"));
+	_isCurrentTargetDeployable = _builder.isTargetDeployable(getAttributeValue(attrs, "name"));
     }
 }
 
 void
-IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
+IcePack::ComponentHandler::endElement(const XMLCh *const name)
 {
     _elements.pop();
 
@@ -393,40 +399,40 @@ IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
 }
 
 void 
-IcePack::ComponentDeployHandler::ignorableWhitespace(const XMLCh*const, const unsigned int)
+IcePack::ComponentHandler::ignorableWhitespace(const XMLCh*const, const unsigned int)
 {
 }
 
 void 
-IcePack::ComponentDeployHandler::processingInstruction(const XMLCh*const, const XMLCh*const)
+IcePack::ComponentHandler::processingInstruction(const XMLCh*const, const XMLCh*const)
 {
 }
 
 void 
-IcePack::ComponentDeployHandler::resetDocument()
+IcePack::ComponentHandler::resetDocument()
 {
 }
 
 void 
-IcePack::ComponentDeployHandler::startDocument()
+IcePack::ComponentHandler::startDocument()
 {
 }
 
 void 
-IcePack::ComponentDeployHandler::endDocument()
+IcePack::ComponentHandler::endDocument()
 {
 }
 
 void 
-IcePack::ComponentDeployHandler::setDocumentLocator(const Locator *const locator)
+IcePack::ComponentHandler::setDocumentLocator(const Locator *const locator)
 {
-    _deployer.setDocumentLocator(locator);
+    _builder.setDocumentLocator(locator);
 
     _locator = locator;
 }
 
 string
-IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, const string& name) const
+IcePack::ComponentHandler::getAttributeValue(const AttributeList& attrs, const string& name) const
 {
     XMLCh* n = XMLString::transcode(name.c_str());
     const XMLCh* value = attrs.getValue(n);
@@ -437,12 +443,12 @@ IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, c
 	throw DeploySAXParseException("missing attribute '" + name + "'", _locator);
     }
 
-    return _deployer.substitute(toString(value));
+    return _builder.substitute(toString(value));
 }
 
 string
-IcePack::ComponentDeployHandler::getAttributeValueWithDefault(const AttributeList& attrs, const string& name, 
-							      const string& def) const
+IcePack::ComponentHandler::getAttributeValueWithDefault(const AttributeList& attrs, const string& name, 
+							const string& def) const
 {
     XMLCh* n = XMLString::transcode(name.c_str());
     const XMLCh* value = attrs.getValue(n);
@@ -450,50 +456,55 @@ IcePack::ComponentDeployHandler::getAttributeValueWithDefault(const AttributeLis
     
     if(value == 0)
     {
-	return _deployer.substitute(def);
+	return _builder.substitute(def);
     }
     else
     {
-	return _deployer.substitute(toString(value));
+	return _builder.substitute(toString(value));
     }
 }
 
 string
-IcePack::ComponentDeployHandler::toString(const XMLCh* ch) const
+IcePack::ComponentHandler::toString(const XMLCh* ch) const
 {
     return IcePack::toString(ch);
 }
 
 string
-IcePack::ComponentDeployHandler::elementValue() const
+IcePack::ComponentHandler::elementValue() const
 {
     return _elements.top();
 }
 
 bool
-IcePack::ComponentDeployHandler::isCurrentTargetDeployable() const
+IcePack::ComponentHandler::isCurrentTargetDeployable() const
 {
     return _isCurrentTargetDeployable;
 }
 
-IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& communicator,
-					      const string& componentPath,
-					      const vector<string>& targets) :
+IcePack::ComponentBuilder::ComponentBuilder(const Ice::CommunicatorPtr& communicator,
+					    const string& componentPath,
+					    const vector<string>& targets) :
     _communicator(communicator),
     _properties(Ice::createProperties()),
     _componentPath(componentPath),
     _targets(targets)
 {
-    string serversPath = _communicator->getProperties()->getProperty("IcePack.Data");
-    assert(!serversPath.empty());
-    _variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
+    Ice::PropertiesPtr properties = _communicator->getProperties();
 
-    _yellowAdmin = Yellow::AdminPrx::uncheckedCast(
-	_communicator->stringToProxy(_communicator->getProperties()->getProperty("IcePack.Yellow.Admin")));
+    //
+    // TODO: this probably doesn't belong to ComponentBuilder since
+    // it's also used by the registry...
+    //
+    string serversPath = properties->getProperty("IcePack.Node.Data");
+    if(!serversPath.empty())
+    {
+	_variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
+    }
 }
 
 void 
-IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler& handler)
+IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handler)
 {
     //
     // Setup the base directory for this deploment descriptor to the
@@ -588,13 +599,13 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 }
 
 void
-IcePack::ComponentDeployer::setDocumentLocator(const Locator* locator)
+IcePack::ComponentBuilder::setDocumentLocator(const Locator* locator)
 {
     _locator = locator;
 }
 
 bool
-IcePack::ComponentDeployer::isTargetDeployable(const string& target) const
+IcePack::ComponentBuilder::isTargetDeployable(const string& target) const
 {
     for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
     {
@@ -635,14 +646,14 @@ IcePack::ComponentDeployer::isTargetDeployable(const string& target) const
 }
 
 void
-IcePack::ComponentDeployer::deploy()
+IcePack::ComponentBuilder::execute()
 {
     vector<TaskPtr>::iterator p;
     for(p = _tasks.begin(); p != _tasks.end(); p++)
     {
 	try
 	{
-	    (*p)->deploy();
+	    (*p)->execute();
 	}
 	catch(DeploymentException& ex)
 	{
@@ -650,39 +661,41 @@ IcePack::ComponentDeployer::deploy()
 	    {
 		ex.component = _componentPath;
 	    }
-	    undeployFrom(p);
+	    undoFrom(p);
 	    throw;
 	}
     }
 }
 
 void
-IcePack::ComponentDeployer::undeploy()
+IcePack::ComponentBuilder::undo()
 {
     for(vector<TaskPtr>::reverse_iterator p = _tasks.rbegin(); p != _tasks.rend(); p++)
     {
 	try
 	{
-	    (*p)->undeploy();
+	    (*p)->undo();
 	}
 	catch(const DeploymentException& ex)
 	{
-	    //
-	    // TODO: Undeploy shouldn't raise exceptions.
-	    //
+	    ostringstream os;
+	    os << "exception while removing component " << _componentPath << ":\n";
+	    os << ex << ": " << ex.reason;
+
+	    _communicator->getLogger()->warning(os.str());
 	}
     }
 }
 
 void
-IcePack::ComponentDeployer::createDirectory(const string& name, bool force)
+IcePack::ComponentBuilder::createDirectory(const string& name, bool force)
 {
     string path = _variables["datadir"] + (name.empty() || name[0] == '/' ? name : "/" + name);
     _tasks.push_back(new CreateDirectory(path, force));
 }
 
 void
-IcePack::ComponentDeployer::createConfigFile(const string& name)
+IcePack::ComponentBuilder::createConfigFile(const string& name)
 {
     assert(!name.empty());
     _configFile = _variables["datadir"] + (name[0] == '/' ? name : "/" + name);
@@ -690,20 +703,20 @@ IcePack::ComponentDeployer::createConfigFile(const string& name)
 }
 
 void
-IcePack::ComponentDeployer::addProperty(const string& name, const string& value)
+IcePack::ComponentBuilder::addProperty(const string& name, const string& value)
 {
     _properties->setProperty(name, value);
 }
 
 void
-IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter, const string& identity)
+IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapter, const string& identity)
 {
     assert(!adapter.empty());
 
     if(!_yellowAdmin)
     {	
-	string msg = "IcePack is not configured to deploy offers (IcePack.Yellow.Admin property is missing)";
-	throw DeploySAXParseException (msg, _locator);
+	string msg = "Can't find a running Yellow service to deploy offers";
+	throw DeploySAXParseException(msg, _locator);
     }
 
     Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapter);
@@ -713,7 +726,7 @@ IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter,
 }
 
 void
-IcePack::ComponentDeployer::overrideBaseDir(const string& basedir)
+IcePack::ComponentBuilder::overrideBaseDir(const string& basedir)
 {    
     if(basedir[0] == '/')
     {
@@ -730,7 +743,7 @@ IcePack::ComponentDeployer::overrideBaseDir(const string& basedir)
 // path.
 //
 string
-IcePack::ComponentDeployer::toLocation(const string& path) const
+IcePack::ComponentBuilder::toLocation(const string& path) const
 {
     if(path.empty())
     {
@@ -746,7 +759,7 @@ IcePack::ComponentDeployer::toLocation(const string& path) const
 // Substitute variables with their values.
 //
 string
-IcePack::ComponentDeployer::substitute(const string& v) const
+IcePack::ComponentBuilder::substitute(const string& v) const
 {
     string value(v);
     string::size_type beg;
@@ -776,7 +789,7 @@ IcePack::ComponentDeployer::substitute(const string& v) const
 }
 
 void
-IcePack::ComponentDeployer::undeployFrom(vector<TaskPtr>::iterator p)
+IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
 {
     if(p != _tasks.begin())
     {
@@ -784,13 +797,15 @@ IcePack::ComponentDeployer::undeployFrom(vector<TaskPtr>::iterator p)
 	{
 	    try
 	    {
-		(*q)->undeploy();
+		(*q)->undo();
 	    }
-	    catch(DeploymentException& ex)
+	    catch(const DeploymentException& ex)
 	    {
-		//
-		// TODO: log error message this really shouldn't throw.
-		//
+		ostringstream os;
+		os << "exception while removing component " << _componentPath << ": " << ex.reason << ":" << endl;
+		os << ex;
+		
+		_communicator->getLogger()->warning(os.str());
 	    }
 	}
     }

@@ -44,23 +44,28 @@ IcePack::Parser::usage()
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
 	"application add DESC [TARGET1 [TARGET2 ...]]\n"
-	"                            Add application described by DESC with\n"
-        "                            optional targets to deploy.\n"
-	"application remove DESC     Remove application described by DESC\n"
-        "server add NAME DESC [PATH [LIBPATH [TARGET1 [TARGET2 ...]]]]\n"
-        "                            Add server NAME with deployment descriptor\n"
-        "                            DESC, optional PATH and LIBPATH. If specified\n"
-        "                            the optional targets TARGET will be deployed.\n"
+	"                            Add servers described in application descriptor\n"
+        "                            DESC. If specified the optional targets TARGET will\n"
+        "                            be deployed.\n"
+	"application remove DESC     Remove servers described in application descriptor\n"
+	"                            DESC.\n"
+	"node list                   List all registered nodes.\n"
+	"node ping NAME              Ping node NAME.\n"
+	"node shutdown NAME          Shudown node NAME.\n"
+        "server add NODE NAME DESC [PATH [LIBPATH [TARGET1 [TARGET2 ...]]]]\n"
+        "                            Add server NAME to node NODE with deployment\n"
+        "                            descriptor DESC, optional PATH and LIBPATH. If\n"
+        "                            specified the optional targets TARGET will be\n"
+	"                            deployed.\n"
 	"server describe NAME        Get server NAME description.\n"
 	"server state NAME           Get server NAME state.\n"
 	"server start NAME           Starts server NAME.\n"
+	"server stop NAME            Stop server NAME.\n"
         "server remove NAME          Remove server NAME.\n"
-        "server list                 List all server names.\n"
-	"adapter add NAME ENDPOINTS  Add adapter NAME with ENDPOINTS.\n"
-        "adapter list                List all adapter names.\n"
-        "adapter remove NAME         Remove adapter NAME.\n"
+        "server list                 List all registered servers.\n"
+        "adapter list                List all registered adapters.\n"
 	"adapter endpoints NAME      Get adapter NAME endpoints.\n"
-        "shutdown                    Shut the IcePack server down.\n";
+        "shutdown                    Shut the IcePack registry down.\n";
 }
 
 void
@@ -138,17 +143,83 @@ IcePack::Parser::removeApplication(const list<string>& args)
 }
 
 void
+IcePack::Parser::pingNode(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`node ping' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	if(_admin->pingNode(args.front()))
+	{
+	    cout << "node is up" << endl;
+	}
+	else
+	{
+	    cout << "node is down" << endl;
+	}
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::shutdownNode(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`node shutdown' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->shutdownNode(args.front());
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::listAllNodes()
+{
+    try
+    {
+	Ice::StringSeq names = _admin->getAllNodeNames();
+	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
 IcePack::Parser::addServer(const list<string>& args)
 {
-    if(args.size() < 2)
+    if(args.size() < 3)
     {
-	error("`server add' requires at least two arguments\n(`help' for more info)");
+	error("`server add' requires at least three arguments\n(`help' for more info)");
 	return;
     }
 
     try
     {
 	list<string>::const_iterator p = args.begin();
+	string node = *p++;
 	string name = *p++;
 	string descriptor = *p++;
 	string path;
@@ -169,7 +240,7 @@ IcePack::Parser::addServer(const list<string>& args)
 	    targets.push_back(*p);
 	}
 
-	_admin->addServer(name, path, ldpath, descriptor, targets);
+	_admin->addServer(node, name, path, ldpath, descriptor, targets);
     }
     catch(const DeploymentException& ex)
     {
@@ -210,6 +281,48 @@ IcePack::Parser::startServer(const list<string>& args)
 }
 
 void
+IcePack::Parser::stopServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server stop' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->stopServer(args.front());
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::removeServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server remove' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->removeServer(args.front());
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
 IcePack::Parser::describeServer(const list<string>& args)
 {
     if(args.size() != 1)
@@ -223,15 +336,12 @@ IcePack::Parser::describeServer(const list<string>& args)
 	ServerDescription desc = _admin->getServerDescription(args.front());
 
 	cout << "name = " << desc.name << endl;
+	cout << "node = " << desc.node << endl;
 	cout << "path = " << desc.path << endl;
 	cout << "pwd = " << desc.pwd << endl;
-
+	cout << "activation = " << (desc.activation == OnDemand ? "on-demand" : "manual");
 	cout << "args = ";
 	copy(desc.args.begin(), desc.args.end(), ostream_iterator<string>(cout," "));
-	cout << endl;
-
-	cout << "adapters = ";
-	copy(desc.adapters.begin(), desc.adapters.end(), ostream_iterator<string>(cout," "));
 	cout << endl;
     }
     catch(const Exception& ex)
@@ -296,59 +406,12 @@ IcePack::Parser::stateServer(const list<string>& args)
 }
 
 void
-IcePack::Parser::removeServer(const list<string>& args)
-{
-    if(args.size() != 1)
-    {
-	error("`server remove' requires exactly one argument\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	_admin->removeServer(args.front());
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
 IcePack::Parser::listAllServers()
 {
     try
     {
-	ServerNames names = _admin->getAllServerNames();
+	Ice::StringSeq names = _admin->getAllServerNames();
 	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-IcePack::Parser::addAdapter(const list<string>& args)
-{
-    if(args.size() < 2)
-    {
-	error("`adapter add' requires at least two arguments\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	list<string>::const_iterator p = args.begin();
-
-	string name = *p++;
-	string endpoints = *p++;
-
-	_admin->addAdapterWithEndpoints(name, endpoints);
     }
     catch(const Exception& ex)
     {
@@ -381,32 +444,11 @@ IcePack::Parser::endpointsAdapter(const list<string>& args)
 }
 
 void
-IcePack::Parser::removeAdapter(const list<string>& args)
-{
-    if(args.size() != 1)
-    {
-	error("`adapter remove' requires exactly one argument\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	_admin->removeAdapter(args.front());
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
 IcePack::Parser::listAllAdapters()
 {
     try
     {
-	AdapterNames names = _admin->getAllAdapterNames();
+	Ice::StringSeq names = _admin->getAllAdapterNames();
 	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
     }
     catch(const Exception& ex)

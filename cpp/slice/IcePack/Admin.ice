@@ -12,6 +12,9 @@
 #ifndef ICE_PACK_ADMIN_ICE
 #define ICE_PACK_ADMIN_ICE
 
+#include <Ice/BuiltinSequences.ice>
+#include <IceBox/IceBox.ice>
+
 /**
  *
  * The &Ice; module for object location and activation.
@@ -22,35 +25,10 @@ module IcePack
 
 /**
  *
- * This exception is raised if an adapter already exists.
- *
- **/
-exception AdapterExistsException
-{
-};
-
-/**
- *
  * This exception is raised if an adapter doesn't exist.
  *
  **/
 exception AdapterNotExistException
-{
-};
-
-/**
- *
- * A sequence of adapter names.
- *
- **/
-sequence<string> AdapterNames;
-
-/**
- *
- * This exception is raised if a server already exists.
- *
- **/
-exception ServerExistsException
 {
 };
 
@@ -65,11 +43,10 @@ exception ServerNotExistException
 
 /**
  *
- * This exception is raised if an operation on a server failed because
- * the operation requires the server to be inactive.
+ * This exception is raised if a node doesn't exist.
  *
  **/
-exception ServerNotInactiveException
+exception NodeNotExistException
 {
 };
 
@@ -104,6 +81,10 @@ exception ServerDeploymentException extends DeploymentException
     string server;
 };
 
+exception NodeUnreachableException
+{
+};
+
 /**
  *
  * A vector of strings representing command line arguments.
@@ -129,7 +110,14 @@ enum ServerState
     Activating,
     Active,
     Deactivating,
+    Destroying,
     Destroyed
+};
+
+enum ServerActivation
+{
+    OnDemand,
+    Manual
 };
 
 struct ServerDescription
@@ -140,6 +128,13 @@ struct ServerDescription
      *
      **/
     string name;
+
+    /**
+     *
+     * The name of the node where the server is deployed.
+     *
+     **/
+    string node;
 
     /**
      *
@@ -157,13 +152,10 @@ struct ServerDescription
 
     /**
      *
-     * The optional server adapter names. If a client makes a request
-     * to locate an adapter from the server, the server will be
-     * automatically started if it's not already active. If empty, no
-     * automatic activation of the server will be performed.
+     * The server activation mode.
      *
      **/
-    AdapterNames adapters;
+    ServerActivation activation;
 
     /**
      *
@@ -202,20 +194,12 @@ struct ServerDescription
     
     /**
      *
-     * True if the server is an &IceBox;. &IceBox; servers are
-     * shutdown using the service manager instead of relying on
-     * signals.
+     * The &IceBox; service manager proxy if the server is an
+     * &IceBox; or a null proxy otherwise.
      *
      **/
-    bool isIceBox;
+    IceBox::ServiceManager* serviceManager;
 };
-
-/**
- *
- * A sequence of server names.
- *
- **/
-sequence<string> ServerNames;
 
 /**
  *
@@ -261,7 +245,10 @@ class Admin
 
     /**
      *
-     * Add a server to &IcePack;.
+     * Add a server to an &IcePack; node.
+     *
+     * @param node The name of the node where the server will be
+     * deployed.
      *
      * @param name The server name.
      *
@@ -282,17 +269,33 @@ class Admin
      * the "debug" target of the "service1" in the "server1" will be
      * deployed if the target "server1.service1.debug" is specified.
      *
-     * @throws ServerExistsException Raised if a server with the same
-     * name already exists.
-     *
      * @throws DeploymentException Raised if the deployment of the
      * server failed.
      *
      * @see removeServer
      *
      **/
-    void addServer(string name, string path, string libraryPath, string descriptor, Targets tgts)
+    void addServer(string node, string name, string path, string libraryPath, string descriptor, Targets tgts)
 	throws DeploymentException;
+
+    /**
+     *
+     * Remove a server from an &IcePack; node.
+     *
+     * @param name Must match the name of the
+     * [ServerDescription::name].
+     *
+     * @throws DeploymentException Raised if the server deployer
+     * failed to remove the server.
+     *
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @see addServer
+     *
+     **/
+    void removeServer(string name)
+	throws DeploymentException, ServerNotExistException;
 
     /**
      *
@@ -371,24 +374,16 @@ class Admin
 
     /**
      *
-     * Remove a server and the adapters implemented by that server
-     * from &IcePack;. The server needs to be inactive for this
-     * operation to succeed.
+     * Stop a server.
      *
-     * @param name Must match the name of the
-     * [ServerDescription::name].
+     * @param name Must match the name of [ServerDescription::name].
      *
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
-     * @throws SeverNotInactiveException Raised if the server is not
-     * in the inactive state.
-     *
-     * @see addServer
-     *
      **/
-    void removeServer(string name)
-	throws DeploymentException, ServerNotExistException, ServerNotInactiveException;
+    void stopServer(string name)
+	throws ServerNotExistException;
 
     /**
      *
@@ -400,37 +395,7 @@ class Admin
      * @see getServerState
      *
      **/
-    nonmutating ServerNames getAllServerNames();
-
-    /**
-     *
-     * Add an adapter with a list of endpoints to &IcePack;.
-     *
-     * @param name The adapter's name.
-     *
-     * @param endpoints The list of endpoints for the adapter.
-     *
-     * @throws AdapterExistsException Raised if an adapter with the
-     * same name already exists.
-     *
-     * @see removeAdapter
-     *
-     **/
-    idempotent void addAdapterWithEndpoints(string name, string endpoints)
-	throws AdapterExistsException;
-
-    /**
-     *
-     * Remove an adapter from &IcePack;.
-     *
-     * @param name The adapter name.
-     *
-     * @throws AdapterNotExistException Raised if the adapter is not
-     * found.
-     *
-     **/
-    void removeAdapter(string name)
-	throws AdapterNotExistException;
+    nonmutating Ice::StringSeq getAllServerNames();
 
     /**
      *
@@ -454,11 +419,38 @@ class Admin
      * @return The adapter names.
      *
      **/
-    nonmutating AdapterNames getAllAdapterNames();
+    nonmutating Ice::StringSeq getAllAdapterNames();
 
     /**
      *
-     * Shut down &IcePack;.
+     * Ping an &IcePack; node to see if it's active.
+     *
+     * @return true if the node ping succeeded, false otherwise.
+     * 
+     **/
+    nonmutating bool pingNode(string name)
+	throws NodeNotExistException;
+
+    /**
+     *
+     * Shutdown an &IcePack; node.
+     * 
+     **/
+    idempotent void shutdownNode(string name)
+	throws NodeNotExistException;
+
+    /**
+     *
+     * Get all the &IcePack; nodes currently registered.
+     *
+     * @return The node names.
+     *
+     **/
+    nonmutating Ice::StringSeq getAllNodeNames();
+
+    /**
+     *
+     * Shut down the &IcePack; registry.
      *
      **/
     idempotent void shutdown();

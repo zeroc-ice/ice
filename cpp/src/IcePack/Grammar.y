@@ -36,14 +36,17 @@ yyerror(const char* s)
 %token ICE_PACK_HELP
 %token ICE_PACK_EXIT
 %token ICE_PACK_APPLICATION
+%token ICE_PACK_NODE
 %token ICE_PACK_SERVER
 %token ICE_PACK_ADAPTER
+%token ICE_PACK_PING
 %token ICE_PACK_ADD
 %token ICE_PACK_REMOVE
 %token ICE_PACK_LIST
 %token ICE_PACK_SHUTDOWN
 %token ICE_PACK_STRING
 %token ICE_PACK_START
+%token ICE_PACK_STOP
 %token ICE_PACK_DESCRIBE
 %token ICE_PACK_STATE
 %token ICE_PACK_ENDPOINTS
@@ -91,6 +94,18 @@ command
 {
     parser->removeApplication($3);
 }
+| ICE_PACK_NODE ICE_PACK_PING strings ';'
+{
+    parser->pingNode($3);
+}
+| ICE_PACK_NODE ICE_PACK_SHUTDOWN strings ';'
+{
+    parser->shutdownNode($3);
+}
+| ICE_PACK_NODE ICE_PACK_LIST ';'
+{
+    parser->listAllNodes();
+}
 | ICE_PACK_SERVER ICE_PACK_ADD strings ';'
 {
     parser->addServer($3);
@@ -98,6 +113,10 @@ command
 | ICE_PACK_SERVER ICE_PACK_START strings ';'
 {
     parser->startServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_STOP strings ';'
+{
+    parser->stopServer($3);
 }
 | ICE_PACK_SERVER ICE_PACK_DESCRIBE strings ';'
 {
@@ -115,17 +134,9 @@ command
 {
     parser->listAllServers();
 }
-| ICE_PACK_ADAPTER ICE_PACK_ADD strings ';'
-{
-    parser->addAdapter($3);
-}
 | ICE_PACK_ADAPTER ICE_PACK_ENDPOINTS strings ';'
 {
     parser->endpointsAdapter($3);
-}
-| ICE_PACK_ADAPTER ICE_PACK_REMOVE strings ';'
-{
-    parser->removeAdapter($3);
 }
 | ICE_PACK_ADAPTER ICE_PACK_LIST ';'
 {

@@ -16,63 +16,96 @@ VERSIONED_BASE	= $(BASE).$(VERSION)
 NAME		= $(top_srcdir)/lib/$(BASE)
 VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
-CLIENT		= $(top_srcdir)/bin/icepackadmin
-SERVER		= $(top_srcdir)/bin/icepack
+ADMIN		= $(top_srcdir)/bin/icepackadmin
+NODE_SERVER	= $(top_srcdir)/bin/icepacknode
+REGISTRY_SERVER	= $(top_srcdir)/bin/icepackregistry
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
-OBJS		= Admin.o \
-		  ServerManager.o \
-		  AdapterManager.o \
-		  Activator.o
+LIB_OBJS	= Admin.o \
+		  ExceptionFactory.o
 
-COBJS		= Grammar.o \
+ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
 		  Client.o
 
-SOBJS		= Server.o \
-		  AdapterManagerI.o \
-		  ServerManagerI.o \
-		  ComponentDeployer.o \
-		  ServerDeployer.o \
-		  ServiceDeployer.o \
-		  ApplicationDeployer.o \
+COMMON_OBJS	= Internal.o \
+		  TraceLevels.o \
+		  StringObjectProxyDict.o \
+		  ComponentBuilder.o
+
+NODE_OBJS	= NodeInfo.o \
+		  NodeI.o \
+		  ServiceBuilder.o \
+		  ServerBuilder.o \
+		  ServerI.o \
+		  ServerAdapterI.o \
+		  ServerFactory.o \
+		  ServerDeployerI.o \
+	          Activator.o \
+		  ActivatorI.o
+
+REGISTRY_OBJS   = Registry.o \
+		  AdapterRegistryI.o \
+		  ServerRegistryI.o \
+		  NodeRegistryI.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
-		  AdminI.o \
-		  ActivatorI.o \
-		  TraceLevels.o
+		  ApplicationBuilder.o \
+		  AdapterFactory.o \
+		  AdapterI.o \
+		  AdminI.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+NODE_SVR_OBJS 	= $(COMMON_OBJS) \
+		  $(NODE_OBJS) \
+		  $(REGISTRY_OBJS) \
+		  IcePackNode.o
+
+REGISTRY_SVR_OBJS = \
+		  $(COMMON_OBJS) \
+		  $(REGISTRY_OBJS) \
+		  IcePackRegistry.o
+
+SRCS		= $(LIB_OBJS:.o=.cpp) \
+		  $(ADMIN_OBJS:.o=.cpp) \
+		  $(COMMON_OBJS:.o=.cpp) \
+		  $(NODE_OBJS:.o=.cpp) \
+		  $(REGISTRY_OBJS:.o=.cpp) \
+		  IcePackNode.cpp \
+		  IcePackRegistry.cpp
 
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
 SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
-
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I$(slicedir) -I..
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
-$(VERSIONED_NAME): $(OBJS)
+$(VERSIONED_NAME): $(LIB_OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(LIB_OBJS) -lIceBox
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(CLIENT): $(COBJS)
+$(ADMIN): $(ADMIN_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lYellow -lIcePack $(LIBS) -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lYellow -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
 
-$(SERVER): $(SOBJS)
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
+	-lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
+
+$(NODE_SERVER): $(NODE_SVR_OBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
+	-lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y
@@ -97,44 +130,12 @@ $(HDIR)/Admin.h Admin.cpp: $(SDIR)/Admin.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/Admin.h Admin.cpp
 
-$(HDIR)/AdminF.h: $(SDIR)/AdminF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/AdminF.h AdminF.cpp
-	$(SLICECMD) $(SDIR)/AdminF.ice
-	mv AdminF.h $(HDIR)
-	rm -f AdminF.cpp
+$(LOCAL_HDIR)/Internal.h Internal.cpp: Internal.ice $(SLICE2CPP)
+	rm -f Internal.h Internal.cpp
+	$(SLICECMD) -I.. Internal.ice
 
 clean::
-	rm -f $(HDIR)/AdminF.h
-
-$(LOCAL_HDIR)/AdapterManager.h AdapterManager.cpp: AdapterManager.ice $(SLICE2CPP)
-	rm -f AdapterManager.h AdapterManager.cpp
-	$(SLICECMD) -I.. AdapterManager.ice
-
-clean::
-	rm -f AdapterManager.h AdapterManager.cpp
-
-$(LOCAL_HDIR)/AdapterManagerF.h: AdapterManagerF.ice $(SLICE2CPP)
-	rm -f AdapterManagerF.h AdapterManagerF.cpp
-	$(SLICECMD) -I.. AdapterManagerF.ice
-	rm -f AdapterManagerF.cpp
-
-clean::
-	rm -f AdapterManagerF.h
-
-$(LOCAL_HDIR)/ServerManager.h ServerManager.cpp: ServerManager.ice $(SLICE2CPP)
-	rm -f ServerManager.h ServerManager.cpp
-	$(SLICECMD) -I.. ServerManager.ice
-
-clean::
-	rm -f ServerManager.h ServerManager.cpp
-
-$(LOCAL_HDIR)/ServerManagerF.h: ServerManagerF.ice $(SLICE2CPP)
-	rm -f ServerManagerF.h ServerManagerF.cpp
-	$(SLICECMD) -I.. ServerManagerF.ice
-	rm -f ServerManagerF.cpp
-
-clean::
-	rm -f ServerManagerF.h
+	rm -f Internal.h Internal.cpp
 
 $(LOCAL_HDIR)/Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
 	rm -f Activator.h Activator.cpp
@@ -142,5 +143,14 @@ $(LOCAL_HDIR)/Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
 
 clean::
 	rm -f Activator.h Activator.cpp
+
+$(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
+	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
+	$(SLICE2FREEZECMD) --dict IcePack::StringObjectProxyDict,string,Object* \
+	StringObjectProxyDict ../../slice/Ice/BuiltinSequences.ice
+
+clean::
+	rm -f StringObjectProxyDict.h StringObjectProxySeq.cpp
+
 
 include .depend

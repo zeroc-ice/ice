@@ -38,7 +38,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     test(admin);
 
     cout << "test server registration..." << flush;
-    IcePack::ServerNames serverNames = admin->getAllServerNames();
+    Ice::StringSeq serverNames = admin->getAllServerNames();
     test(find(serverNames.begin(), serverNames.end(), "Server1") != serverNames.end());
     test(find(serverNames.begin(), serverNames.end(), "Server2") != serverNames.end());
     test(find(serverNames.begin(), serverNames.end(), "IceBox1") != serverNames.end());
@@ -46,7 +46,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing adapter registration... " << flush;
-    IcePack::AdapterNames adapterNames = admin->getAllAdapterNames();
+    Ice::StringSeq adapterNames = admin->getAllAdapterNames();
     test(find(adapterNames.begin(), adapterNames.end(), "Server1Adapter") != adapterNames.end());
     test(find(adapterNames.begin(), adapterNames.end(), "Server2Adapter") != adapterNames.end());
     test(find(adapterNames.begin(), adapterNames.end(), "IceBox1Service1Adapter") != adapterNames.end());

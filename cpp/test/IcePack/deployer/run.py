@@ -24,7 +24,6 @@ import IcePackAdmin
 
 testdir = os.path.join(toplevel, "test", "IcePack", "deployer")
 
-
 os.environ['LD_LIBRARY_PATH'] = testdir + ":" + os.environ['LD_LIBRARY_PATH']
 
 #
@@ -54,9 +53,15 @@ else:
 
 #
 # Start IcePack.
-# 
-TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
-icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346", testdir)
+#
+if os.path.exists(os.path.join(testdir, "db/registry")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+    
+if os.path.exists(os.path.join(testdir, "db/node/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
 
 #
 # Deploy the application, run the client and remove the application.
@@ -76,7 +81,8 @@ print "ok"
 # client to test targets (-t options) and remove the application.
 #
 print "deploying application with target...",
-IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), targets + " debug Server1.manual");
+IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"),
+                            targets + " debug localnode.Server1.manual")
 print "ok"
 
 startClient("-t")
@@ -88,6 +94,7 @@ print "ok"
 #
 # Shutdown IcePack.
 #
-IcePackAdmin.shutdownIcePack(toplevel, icePackPipe)
+IcePackAdmin.shutdownIcePackNode(toplevel, icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
 
 sys.exit(0)

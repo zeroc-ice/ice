@@ -25,14 +25,23 @@ public:
     TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
     virtual ~TraceLevels();
 
-    const int serverMgr;
-    const char* serverMgrCat;
+    const int server;
+    const char* serverCat;
 
-    const int adapterMgr;
-    const char* adapterMgrCat;
+    const int adapter;
+    const char* adapterCat;
 
     const int activator;
     const char* activatorCat;
+
+    const int serverRegistry;
+    const char* serverRegistryCat;
+
+    const int adapterRegistry;
+    const char* adapterRegistryCat;
+
+    const int nodeRegistry;
+    const char* nodeRegistryCat;
 
     const Ice::LoggerPtr logger;
 };

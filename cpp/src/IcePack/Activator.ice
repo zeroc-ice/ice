@@ -11,7 +11,7 @@
 #ifndef ICE_PACK_ACTIVATOR_ICE
 #define ICE_PACK_ACTIVATOR_ICE
 
-#include <IcePack/ServerManagerF.ice>
+#include <IcePack/Internal.ice>
 
 module IcePack
 {
@@ -26,28 +26,59 @@ local interface Activator
      * @param server The server to activate.
      *
      **/
-    int activate(Server* server);
+    bool activate(Server server);
 
     /**
      *
      * Deactivate a server.
      *
      **/
-    void deactivate(Server* server);
+    void deactivate(Server server);
 
     /**
      *
      * Kill a server.
      *
      **/
-    void kill(Server* server);
+    void kill(Server server);
+
+    /**
+     *
+     * Returns the server pid.
+     *
+     **/
+     int getServerPid(Server server);
     
     /**
      *
-     * Destroy the activator.
+     * Start the activator.
+     *
+     **/
+    void start();
+
+    /**
+     *
+     * Wait for the activator to be shutdown.
+     *
+     **/
+    void waitForShutdown();
+
+    /**
+     *
+     * Shutdown the activator.
+     *
+     **/
+    void shutdown();
+
+    /**
+     *
+     * Destroy the activator. This cause all active server to be
+     * stopped. This method returns only once all the servers have
+     * been deactivated.
      *
      **/
     void destroy();
+
 };
 
 };

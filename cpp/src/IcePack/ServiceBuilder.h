@@ -8,17 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PACK_SERVICE_DEPLOYER_H
-#define ICE_PACK_SERVICE_DEPLOYER_H
+#ifndef ICE_PACK_SERVICE_BUILDER_H
+#define ICE_PACK_SERVICE_BUILDER_H
 
-#include <IceUtil/Shared.h>
-#include <IcePack/ComponentDeployer.h>
+#include <IcePack/ComponentBuilder.h>
+#include <IcePack/NodeInfo.h>
 
 namespace IcePack
 {
-class ServerDeployer;
 
-class ServiceDeployer : public ComponentDeployer
+class ServerBuilder;
+
+class ServiceBuilder : public ComponentBuilder
 {
 public:
 
@@ -28,12 +29,12 @@ public:
 	ServiceKindFreeze
     };
 
-    ServiceDeployer(const Ice::CommunicatorPtr&, ServerDeployer&, const std::map<std::string, std::string>&,
-		    const std::string&, const std::vector<std::string>&);
+    ServiceBuilder(const NodeInfoPtr&, ServerBuilder&, const std::map<std::string, std::string>&,
+		   const std::string&, const std::vector<std::string>&);
 
     void parse(const std::string&);
 
-    ServerDeployer& getServerDeployer() const;
+    ServerBuilder& getServerBuilder() const;
 
     void setKind(ServiceKind);
     void setEntryPoint(const std::string&);
@@ -41,7 +42,9 @@ public:
 
 private:
 
-    ServerDeployer& _serverDeployer;
+    NodeInfoPtr _nodeInfo;
+
+    ServerBuilder& _serverBuilder;
 
     ServiceKind _kind;
 };

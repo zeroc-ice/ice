@@ -31,12 +31,13 @@ testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
+if os.path.exists(os.path.join(testdir, "db/node/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
 
 #
-# Start IcePack
+# Start IcePack registry
 # 
-icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346", testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
 
 #
 # Test client/server, collocated without on demand activation.
@@ -45,10 +46,17 @@ TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, add
 TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
-# Remove the adapter (registered by the server) before deploying the
-# server.
+# Shutdown the registry.
 #
-IcePackAdmin.removeAdapter(toplevel, "TestAdapter")
+IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
+
+TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+
+if os.path.exists(os.path.join(testdir, "db/node/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
 
 #
 # Test client/server with on demand activation.
@@ -64,7 +72,7 @@ else:
 print "registering server with icepack...",
 IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", targets);
 print "ok"
-    
+  
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
 
 print "starting client...",
@@ -83,6 +91,7 @@ print "unregister server with icepack...",
 IcePackAdmin.removeServer(toplevel, "server");
 print "ok"
 
-IcePackAdmin.shutdownIcePack(toplevel, icePackPipe)
+IcePackAdmin.shutdownIcePackNode(toplevel, icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
 
 sys.exit(0)

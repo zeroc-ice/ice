@@ -13,7 +13,7 @@
 
 #include <IceUtil/Thread.h>
 #include <IcePack/Activator.h>
-#include <IcePack/ServerManagerF.h>
+#include <IcePack/Internal.h>
 
 namespace IcePack
 {
@@ -21,41 +21,48 @@ namespace IcePack
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class ActivatorI : public Activator, public IceUtil::Thread, public IceUtil::Mutex
+class ActivatorI : public Activator, public IceUtil::Monitor< IceUtil::Mutex>
 {
 public:
 
-    ActivatorI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
+    ActivatorI(const TraceLevelsPtr&);
     virtual ~ActivatorI();
 
-    virtual void run();
-
-    virtual Ice::Int activate(const ::IcePack::ServerPrx&);
-    virtual void deactivate(const ::IcePack::ServerPrx&);
-    virtual void kill(const ::IcePack::ServerPrx&);
+    virtual bool activate(const ::IcePack::ServerPtr&);
+    virtual void deactivate(const ::IcePack::ServerPtr&);
+    virtual void kill(const ::IcePack::ServerPtr&);
+    virtual Ice::Int getServerPid(const ::IcePack::ServerPtr&);
+    
+    virtual void start();
+    virtual void waitForShutdown();
+    virtual void shutdown();
     virtual void destroy();
+    
+    void runTerminationListener();
 
 private:
 
+    void deactivateAll();    
+
     void terminationListener();
-    void clearInterrupt();
-    void setInterrupt();
+    bool clearInterrupt();
+    void setInterrupt(char);
 
     struct Process
     {
 	pid_t pid;
 	int fd;
-	ServerPrx server;
+	ServerPtr server;
     };
 
-    Ice::CommunicatorPtr _communicator;
     TraceLevelsPtr _traceLevels;
     std::vector<Process> _processes;
-    bool _destroy;
     bool _deactivating;
 
     int _fdIntrRead;
     int _fdIntrWrite;
+
+    IceUtil::ThreadPtr _thread;
 };
 
 typedef IceUtil::Handle<ActivatorI> ActivatorIPtr;

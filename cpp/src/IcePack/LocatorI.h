@@ -11,9 +11,8 @@
 #ifndef ICE_PACK_LOCATOR_I_H
 #define ICE_PACK_LOCATOR_I_H
 
+#include <IcePack/Internal.h>
 #include <Ice/Locator.h>
-#include <Ice/ProxyF.h>
-#include <IcePack/AdapterManagerF.h>
 
 namespace IcePack
 {
@@ -22,7 +21,7 @@ class LocatorI : public ::Ice::Locator
 {
 public:
 
-    LocatorI(const AdapterManagerPrx&, const ::Ice::LocatorRegistryPrx&);
+    LocatorI(const AdapterRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
 
     virtual ::Ice::ObjectPrx findAdapterByName(const std::string&, const ::Ice::Current&) const;
 
@@ -30,8 +29,8 @@ public:
 
 private:
     
-    AdapterManagerPrx _adapters;
-    ::Ice::LocatorRegistryPrx _registry;
+    AdapterRegistryPtr _adapterRegistry;
+    Ice::LocatorRegistryPrx _locatorRegistry;
 };
 
 }
