@@ -17,7 +17,7 @@ CLIENT		= $(top_srcdir)/bin/icepatchclient
 CALC		= $(top_srcdir)/bin/icepatchcalc
 SERVER		= $(top_srcdir)/bin/icepatchserver
 
-TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
                   $(CLIENT) $(CALC) $(SERVER)
 
 OBJS		= IcePatch.o \
@@ -75,11 +75,7 @@ $(SERVER): $(SERVER_OBJS) $(libdir)/$(LIBNAME)
 	$(CXX) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
 install:: all
-	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
-	rm -f $(install_libdir)/$(SONAME)
-	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
-	rm -f $(install_libdir)/$(LIBNAME)
-	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(INSTALL_PROGRAM) $(CLIENT) $(install_bindir)
 	$(INSTALL_PROGRAM) $(CALC) $(install_bindir)
 	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)

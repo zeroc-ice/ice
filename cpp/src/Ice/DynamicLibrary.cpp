@@ -104,6 +104,13 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
 	lib += ".sl";
     }
+#elif defined(_AIX)
+    lib = "lib" + libName + ".a(lib" + libName + ".so";
+    if(!version.empty())
+    {
+        lib += "." + version;
+    }
+    lib += ")";
 #else
     lib = "lib" + libName + ".so";
     if(!version.empty())
@@ -126,13 +133,20 @@ IceInternal::DynamicLibrary::load(const string& lib)
 #ifdef _WIN32
     _hnd = LoadLibrary(lib.c_str());
 #else
-    _hnd = dlopen(lib.c_str(), RTLD_NOW);
+
+    int flags = RTLD_NOW;
+#ifdef _AIX
+    flags |= RTLD_MEMBER;
+#endif
+
+    _hnd = dlopen(lib.c_str(), flags);
     if(_hnd == 0)
     {
         //
         // Remember the most recent error in _err.
         //
         const char* err = dlerror();
+
         if(err)
         {
             _err = err;

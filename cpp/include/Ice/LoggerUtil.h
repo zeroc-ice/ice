@@ -33,7 +33,7 @@ private:
 };
 
 template<typename T>
-Warning&
+inline Warning&
 operator<<(Warning& out, const T& val)
 {
     out.__str() << val;
@@ -60,7 +60,7 @@ private:
 };
 
 template<typename T>
-Error&
+inline Error&
 operator<<(Error& out, const T& val)
 {
     out.__str() << val;
@@ -88,7 +88,7 @@ private:
 };
 
 template<typename T>
-Trace&
+inline Trace&
 operator<<(Trace& out, const T& val)
 {
     out.__str() << val;

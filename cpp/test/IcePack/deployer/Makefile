@@ -12,12 +12,10 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-SVCFILENAME     = $(call mklibfilename,TestService,$(VERSION))
-SVCSONAME	= $(call mksoname,TestService,$(SOVERSION)) 
-SVCLIBNAME	= $(call mklibname,TestService) 
+SVCFILENAME     = $(call mklibfilename,TestService)
+SVCSONAME	= $(call mksoname,TestService) 
 
-TARGETS		= $(CLIENT) $(SERVER) \
-                  $(SVCFILENAME) $(SVCSONAME) $(SVCLIBNAME)
+TARGETS		= $(CLIENT) $(SERVER) $(SVCFILENAME) 
 
 OBJS		= Test.o
 
@@ -53,14 +51,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 $(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),$(LINKWITH))
-
-$(SVCSONAME): $(SVCFILENAME)
-	rm -f $@
-	ln -s $(SVCFILENAME) $@
-
-$(SVCLIBNAME): $(SVCSONAME)
-	rm -f $@
-	ln -s $(SVCSONAME) $@
 
 clean::
 	rm -f db/node/db/servers db/node/db/serveradapters db/node/db/log.*

@@ -16,7 +16,7 @@ LIBNAME		= $(call mklibname,IceBox)
 SERVER		= $(top_srcdir)/bin/icebox
 ADMIN		= $(top_srcdir)/bin/iceboxadmin
 
-TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
                   $(SERVER) $(ADMIN)
 
 OBJS		= IceBox.o \
@@ -64,11 +64,7 @@ $(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
 
 install:: all
-	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
-	rm -f $(install_libdir)/$(SONAME)
-	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
-	rm -f $(install_libdir)/$(LIBNAME)
-	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
 	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
 

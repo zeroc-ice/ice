@@ -10,9 +10,10 @@
 #ifndef FREEZE_SHARED_DB_H
 #define FREEZE_SHARED_DB_H
 
+#include <IceUtil/Config.h>
+#include <db_cxx.h>
 #include <Freeze/ConnectionI.h>
 #include <IceUtil/Handle.h>
-#include <db_cxx.h>
 #include <map>
 
 namespace Freeze

@@ -12,11 +12,10 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-LIBFILENAME     = $(call mklibfilename,HelloService,$(VERSION))
-SONAME          = $(call mksoname,HelloService,$(SOVERSION))
-LIBNAME         = $(call mklibname,HelloService)
+LIBFILENAME     = $(call mklibfilename,HelloService)
+SONAME          = $(call mksoname,HelloService)
 
-TARGETS		= $(CLIENT) $(LIBFILENAME) $(SONAME) $(LIBNAME) $(SERVER)
+TARGETS		= $(CLIENT) $(LIBFILENAME) $(SERVER)
 
 OBJS		= Hello.o
 
@@ -43,14 +42,6 @@ LINKWITH	:= -lIcePack -lIceBox -lIce -lIceUtil
 $(LIBFILENAME): $(OBJS) $(SVC_OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SVC_OBJS),$(LINKWITH))
-
-$(SONAME): $(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(LIBNAME): $(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

@@ -90,7 +90,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 		string operation;
 		__is->read(operation);
 		
-		auto_ptr<RequestFailedException> ex = auto_ptr<RequestFailedException>(0);
+		auto_ptr<RequestFailedException> ex;
 		switch(static_cast<DispatchStatus>(status))
 		{
 		    case DispatchObjectNotExist:
@@ -131,7 +131,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 		string unknown;
 		__is->read(unknown);
 		
-		auto_ptr<UnknownException> ex = auto_ptr<UnknownException>(0);
+		auto_ptr<UnknownException> ex;
 		switch(static_cast<DispatchStatus>(status))
 		{
 		    case DispatchUnknownException:

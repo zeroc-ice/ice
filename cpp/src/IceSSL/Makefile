@@ -13,7 +13,7 @@ LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
 SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceSSL)
 
-TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Plugin.o \
                   Exception.o \
@@ -79,10 +79,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 
 install:: all
-	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
-	rm -f $(install_libdir)/$(SONAME)
-	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
-	rm -f $(install_libdir)/$(LIBNAME)
-	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
 include .depend

@@ -17,7 +17,7 @@ ADMIN		= $(top_srcdir)/bin/icepackadmin
 NODE_SERVER	= $(top_srcdir)/bin/icepacknode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icepackregistry
 
-TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
                   $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
@@ -177,11 +177,7 @@ clean::
 #	rm -f Scanner.cpp
 
 install:: all
-	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
-	rm -f $(install_libdir)/$(SONAME)
-	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
-	rm -f $(install_libdir)/$(LIBNAME)
-	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
 	$(INSTALL_PROGRAM) $(NODE_SERVER) $(install_bindir)
 	$(INSTALL_PROGRAM) $(REGISTRY_SERVER) $(install_bindir)

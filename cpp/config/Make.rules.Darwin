@@ -25,8 +25,9 @@ LDPLATFORMFLAGS		= -Wl,-bind_at_load -Wl,-executable_path,$(top_srcdir)/bin
 
 shlibldflags		= $(CXXFLAGS) -L$(libdir)
 
-mklibfilename       	= lib$(1).$(2).dylib
-mksoname           	= lib$(1).$(2).dylib
+mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
+
 mklibname           	= lib$(1).dylib
 
 mkshlib                 = $(CXX) -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)

@@ -18,7 +18,7 @@
 //
 #if defined(__i386) || defined(_M_IX86) || defined (__x86_64)
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || defined(__ppc__)
+#elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || defined(__ppc__) || defined(_ARCH_COM)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"

@@ -79,7 +79,7 @@ private:
 struct EvictorElement : public Ice::LocalObject
 {
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
+#if defined(_MSC_VER) && (_MSC_VER <= 1200) || defined(__IBMCPP__)
 
     enum 
     { 

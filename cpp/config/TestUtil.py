@@ -91,7 +91,13 @@ def isHpUx():
         return 1
    else:
         return 0
-     
+
+def isAIX():
+   if sys.platform in ['aix4', 'aix5']:
+        return 1
+   else:
+        return 0
+  
 def isDarwin():
 
    if sys.platform == "darwin":
@@ -145,7 +151,7 @@ def getAdapterReady(serverPipe):
 
 def waitServiceReady(pipe, token):
 
-    while True:
+    while 1:
 
         output = pipe.readline().strip()
 
@@ -158,7 +164,7 @@ def waitServiceReady(pipe, token):
 
 def printOutputFromPipe(pipe):
 
-    while True:
+    while 1:
 
         line = pipe.readline()
 
@@ -183,6 +189,8 @@ elif isHpUx():
     os.environ["SHLIB_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("SHLIB_PATH", "")
 elif isDarwin():
     os.environ["DYLD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+elif isAIX():
+    os.environ["LIBPATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LIBPATH", "")
 else:
     os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
     os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
@@ -233,7 +241,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, serverName)
     client = os.path.join(testdir, clientName)
-
+ 
     print "starting " + serverName + "...",
     serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
     getServerPid(serverPipe)

@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
@@ -10,7 +11,7 @@
 #ifndef ICE_PROXY_F_H
 #define ICE_PROXY_F_H
 
-#include <Ice/ProxyHandle.h>
+#include <Ice/Config.h>
 
 namespace IceProxy
 {
@@ -76,6 +77,9 @@ ICE_API void incRef(::IceDelegateD::Ice::Object*);
 ICE_API void decRef(::IceDelegateD::Ice::Object*);
 
 }
+
+
+#include <Ice/ProxyHandle.h>
 
 namespace Ice
 {

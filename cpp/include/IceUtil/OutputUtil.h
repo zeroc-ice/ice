@@ -119,7 +119,7 @@ private:
 };
 
 template<typename T>
-Output&
+inline Output&
 operator<<(Output& out, const T& val)
 {
     std::ostringstream s;
@@ -129,7 +129,7 @@ operator<<(Output& out, const T& val)
 }
 
 template<typename T>
-Output&
+inline Output&
 operator<<(Output& out, const std::vector<T>& val)
 {
     for(typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
@@ -147,7 +147,7 @@ operator<<(Output& out, const std::vector<T>& val)
 //
 
 template<typename T>
-Output&
+inline Output&
 operator<<(Output& out, std::vector<T>& val)
 {
     for(typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
@@ -269,7 +269,7 @@ private:
 };
 
 template<typename T>
-XMLOutput&
+inline XMLOutput&
 operator<<(XMLOutput& out, const T& val)
 {
     std::ostringstream s;

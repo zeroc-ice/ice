@@ -470,6 +470,10 @@ MyApplication::run(int argc, char* argv[])
     Ice::collectGarbage();
     test(num == 0);
     cout << "ok" << endl;
+    
+#if defined(_AIX)
+    cout << "The following test may take a long time (like one full minute); please be patient." << endl;
+#endif   
 
     cout << "testing for race conditions... " << flush;
     ::IceUtil::Time t = ::IceUtil::Time::now();

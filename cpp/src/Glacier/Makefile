@@ -16,7 +16,7 @@ LIBNAME		= $(call mklibname,Glacier)
 ROUTER		= $(top_srcdir)/bin/glacierrouter
 STARTER		= $(top_srcdir)/bin/glacierstarter
 
-TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME)) \
                   $(ROUTER) $(STARTER)
 
 OBJS		= Starter.o \
@@ -77,11 +77,7 @@ $(STARTER): $(SOBJS) $(libdir)/$(LIBNAME)
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 install:: all
-	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
-	rm -f $(install_libdir)/$(SONAME)
-	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
-	rm -f $(install_libdir)/$(LIBNAME)
-	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(INSTALL_PROGRAM) $(ROUTER) $(install_bindir)
 	$(INSTALL_PROGRAM) $(STARTER) $(install_bindir)
 

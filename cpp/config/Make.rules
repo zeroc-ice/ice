@@ -264,19 +264,29 @@ endif
 #
 
 ifeq ($(mklibfilename),)
-    mklibfilename       = lib$(1).so.$(2)
+    mklibfilename       = $(if $(2),lib$(1).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mksoname),)
-    mksoname            = lib$(1).so.$(2)
+    mksoname            = $(if $(2),lib$(1).so.$(2),lib$(1).so)
 endif
 
 ifeq ($(mklibname),)
     mklibname           = lib$(1).so
 endif
 
+ifeq ($(mklibtargets),)
+    mklibtargets        = $(1) $(2) $(3)
+endif
+
 ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
+endif
+
+ifeq ($(installlib),)
+    installlib          = $(INSTALL) $(2)/$(3) $(1); \
+                          rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
+                          rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
 endif
 
 SLICEPARSERLIB		= $(libdir)/$(call mklibfilename,Slice,$(VERSION))

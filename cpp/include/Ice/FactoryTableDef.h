@@ -45,7 +45,7 @@ private:
     OFTable _oft;
 };
 
-class ICE_API FactoryTableWrapper : IceUtil::noncopyable
+class ICE_API FactoryTableWrapper : public IceUtil::noncopyable
 {
 public:
 

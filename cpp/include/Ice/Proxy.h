@@ -66,7 +66,7 @@ namespace IceProxy { namespace Ice
 typedef ::std::map< ::std::string, ::std::string> Context;
 #endif
 
-class ICE_API Object : public ::IceUtil::Shared, ::IceUtil::Mutex
+class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
 {
 public:
 

@@ -1,6 +1,8 @@
 Changes since version 1.4.0
 ---------------------------
 
+- AIX 5.2/VisualAge 6.0 port
+
 - Removed the --depend option from slice2java.
 
 - Removed IceBox::ServiceBase and IceBox::FreezeService. There's now

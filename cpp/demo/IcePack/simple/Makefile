@@ -11,11 +11,10 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
-LIBFILENAME     = $(call mklibfilename,HelloService,$(VERSION))
-SONAME          = $(call mksoname,HelloService,$(SOVERSION))  
-LIBNAME         = $(call mklibname,HelloService)  
+LIBFILENAME     = $(call mklibfilename,HelloService)
+SONAME          = $(call mksoname,HelloService)  
 
-TARGETS		= $(CLIENT) $(SERVER) $(LIBFILENAME) $(SONAME) $(LIBNAME)
+TARGETS		= $(CLIENT) $(SERVER) $(LIBFILENAME)
 
 OBJS		= Hello.o
 
@@ -50,13 +49,5 @@ $(SERVER): $(OBJS) $(SOBJS)
 $(LIBFILENAME): $(OBJS) $(SVCOBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS) $(SVCOBJS),$(LINKWITH))
-
-$(SONAME): $(LIBFILENAME)
-	rm -f $@
-	ln -s $(LIBFILENAME) $@
-
-$(LIBNAME): $(SONAME)
-	rm -f $@
-	ln -s $(SONAME) $@
 
 include .depend
