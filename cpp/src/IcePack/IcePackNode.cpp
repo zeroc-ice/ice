@@ -243,14 +243,14 @@ IcePack::NodeService::start(int argc, char* argv[])
         if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
         {
             error("property `IcePack.Node.Data' is not set to a valid directory path");
-            return EXIT_FAILURE;
+            return false;
         }            
 #else
         struct stat filestat;
         if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
         {
             error("property `IcePack.Node.Data' is not set to a valid directory path");
-            return EXIT_FAILURE;
+            return false;
         }            
 #endif
 
