@@ -18,6 +18,7 @@
 #include <IceUtil/Config.h>
 #include <fstream>
 #include <stack>
+#include <vector>
 
 namespace IceUtil
 {
@@ -104,16 +105,22 @@ public:
     Output(std::ostream&);
     Output(const char*);
 
+    virtual void print(const char*); // Print a string.
+
     void setBeginBlock(const char *); // what do we use at block starts?
     void setEndBlock(const char *);   // what do we use the block end?
 
     void sb(); // Start a block.
     void eb(); // End a block.
 
+    void spar(); // Start a paramater list.
+    void epar(); // End a paramater list.
+
 private:
 
     std::string _blockStart;
     std::string _blockEnd;
+    int _par; // If >= 0, we are writing a parameter list.
 };
 
 template<typename T>
@@ -123,6 +130,17 @@ operator<<(Output& out, const T& val)
     std::ostringstream s;
     s << val;
     out.print(s.str().c_str());
+    return out;
+}
+
+template<typename T>
+Output&
+operator<<(Output& out, const std::vector<T>& val)
+{
+    for(typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
+    {
+	out << *p;
+    }
     return out;
 }
 
@@ -165,6 +183,32 @@ inline Output&
 operator<<(Output& o, const EndBlock&)
 {
     o.eb();
+    return o;
+}
+
+class ICE_UTIL_API StartPar
+{
+};
+extern ICE_UTIL_API StartPar spar;
+
+template<>
+inline Output&
+operator<<(Output& o, const StartPar&)
+{
+    o.spar();
+    return o;
+}
+
+class ICE_UTIL_API EndPar
+{
+};
+extern ICE_UTIL_API EndPar epar;
+
+template<>
+inline Output&
+operator<<(Output& o, const EndPar&)
+{
+    o.epar();
     return o;
 }
 

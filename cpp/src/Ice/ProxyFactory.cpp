@@ -12,12 +12,15 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Thread.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
+#include <Ice/LoggerUtil.h>
+#include <Ice/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -86,10 +89,57 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
     }
 }
 
-const std::vector<int>&
-IceInternal::ProxyFactory::getRetryIntervals() const
+void
+IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, int& cnt) const
 {
-    return _retryIntervals;
+    ++cnt;
+    
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    LoggerPtr logger = _instance->logger();
+    
+    //
+    // Instance components may be null if the communicator has been
+    // destroyed.
+    //
+    if(traceLevels && logger)
+    {
+        if(cnt > static_cast<int>(_retryIntervals.size()))
+        {
+            if(traceLevels->retry >= 1)
+            {
+                Trace out(logger, traceLevels->retryCat);
+                out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
+            }
+            ex.ice_throw();
+        }
+
+        if(traceLevels->retry >= 1)
+        {
+            Trace out(logger, traceLevels->retryCat);
+            out << "re-trying operation call";
+            if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
+            {
+                out << " in " << _retryIntervals[cnt - 1] << "ms";
+            }
+            out << " because of exception\n" << ex;
+        }
+
+        if(cnt > 0)
+        {
+            //
+            // Sleep before retrying.
+            //
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_retryIntervals[cnt - 1]));
+        }
+    }
+    else
+    {
+        //
+        // Impossible to retry after the communicator has been
+        // destroyed.
+        //
+        ex.ice_throw();
+    }
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :

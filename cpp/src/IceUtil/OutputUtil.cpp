@@ -23,6 +23,8 @@ namespace IceUtil
 NextLine nl;
 StartBlock sb;
 EndBlock eb;
+StartPar spar;
+EndPar epar;
 Separator sp;
 EndElement ee;
 StartEscapes startEscapes;
@@ -237,22 +239,38 @@ IceUtil::OutputBase::fill(ostream::char_type newFill)
 IceUtil::Output::Output() :
     OutputBase(),
     _blockStart("{"),
-    _blockEnd("}")
+    _blockEnd("}"),
+    _par(-1)
 {
 }
 
 IceUtil::Output::Output(ostream& os) :
     OutputBase(os),
     _blockStart("{"),
-    _blockEnd("}")
+    _blockEnd("}"),
+    _par(-1)
 {
 }
 
 IceUtil::Output::Output(const char* s) :
     OutputBase(s),
     _blockStart("{"),
-    _blockEnd("}")
+    _blockEnd("}"),
+    _par(-1)
 {
+}
+
+void
+IceUtil::Output::print(const char* s)
+{
+    if(_par >= 0)
+    {
+	if(++_par > 1) // No comma for the first parameter.
+	{
+	    _out << ", ";
+	}
+    }
+    OutputBase::print(s);
 }
 
 void 
@@ -290,6 +308,20 @@ IceUtil::Output::eb()
         _out << _blockEnd;
     }
     --_pos;
+}
+
+void
+IceUtil::Output::spar()
+{
+    _out << '(';
+    _par = 0;
+}
+
+void
+IceUtil::Output::epar()
+{
+    _par = -1;
+    _out << ')';
 }
 
 Output&

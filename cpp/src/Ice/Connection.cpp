@@ -612,7 +612,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    _exception->ice_throw();
 	}
 
-	BasicStream* os = out->__os();
+	BasicStream* os = out->__ostream();
 	
 	//
 	// Fill in the request ID.

@@ -180,9 +180,6 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
-    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
-				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-				  const ::Ice::Context&) = 0;
 };
 
 } }
@@ -203,9 +200,6 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
-				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-				  const ::Ice::Context&);
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
 
@@ -236,9 +230,6 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
-				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-				  const ::Ice::Context&);
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
 
 protected:

@@ -12,8 +12,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Thread.h>
-
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
@@ -24,8 +22,6 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Instance.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/TraceLevels.h>
 #include <Ice/Connection.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
@@ -325,16 +321,10 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const vector<Byte>& inParams,
 					const Context& context)
 {
-    try
-    {
-	__checkTwowayOnly("ice_invoke_async");
-	Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	__del->ice_invoke_async(cb, operation, mode, inParams, context);
-    }
-    catch(const LocalException& __ex)
-    {
-	cb->__finished(__ex);
-    }
+    __checkTwowayOnly("ice_invoke_async");
+    cb->__setup(__reference());
+    cb->__invoke(operation, mode, inParams, context);
+
 }
 
 Context
@@ -693,54 +683,14 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	_reference->locatorInfo->clearObjectCache(_reference);
     }
 
-    ++cnt;
-    
-    TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
-    LoggerPtr logger = _reference->instance->logger();
     ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
-    
-    //
-    // Instance components may be null if Communicator has been destroyed.
-    //
-    if(traceLevels && logger && proxyFactory)
+    if(proxyFactory)
     {
-        const std::vector<int>& retryIntervals = proxyFactory->getRetryIntervals();
-        
-        if(cnt > static_cast<int>(retryIntervals.size()))
-        {
-            if(traceLevels->retry >= 1)
-            {
-                Trace out(logger, traceLevels->retryCat);
-                out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
-            }
-            ex.ice_throw();
-        }
-
-        if(traceLevels->retry >= 1)
-        {
-            Trace out(logger, traceLevels->retryCat);
-            out << "re-trying operation call";
-            if(cnt > 0 && retryIntervals[cnt - 1] > 0)
-            {
-                out << " in " << retryIntervals[cnt - 1] << "ms";
-            }
-            out << " because of exception\n" << ex;
-        }
-
-        if(cnt > 0)
-        {
-            //
-            // Sleep before retrying.
-            //
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
-        }
+	proxyFactory->checkRetryAfterException(ex, cnt);
     }
     else
     {
-        //
-        // Impossible to retry after Communicator has been destroyed.
-        //
-        ex.ice_throw();
+        ex.ice_throw(); // The communicator is already destroyed, so we cannot retry.
     }
 }
 
@@ -983,19 +933,6 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 }
 
 void
-IceDelegateM::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
-					    const string& operation,
-					    OperationMode mode,
-					    const vector<Byte>& inParams,
-					    const Context& context)
-{
-    cb->__setup(__connection, __reference, operation, mode, context);
-    BasicStream* __os = cb->__os();
-    __os->writeBlob(inParams);
-    cb->__invoke();
-}
-
-void
 IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>& from)
 {
     //
@@ -1115,16 +1052,6 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 				      const vector<Byte>&,
 				      vector<Byte>&,
 				      const Context&)
-{
-    throw CollocationOptimizationException(__FILE__, __LINE__);
-}
-
-void
-IceDelegateD::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr&,
-					    const string&,
-					    OperationMode,
-					    const vector<Byte>&,
-					    const Context&)
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
 }

@@ -1385,14 +1385,15 @@ IceInternal::BasicStream::throwException()
 		traceSlicing("exception", id, _slicingCat, _instance->logger());
 	    }
 	    skipSlice(); // Slice off what we don't understand.
-	    read(id);  // Read type id for next slice.
+	    read(id); // Read type id for next slice.
 	}
     }
+
     //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
+    // We can get here only if the sender has marshaled a sequence of
+    // type IDs, none of which we have factory for. This means that
+    // sender and receiver disagree about the Slice definitions they
+    // use.
     //
     throw UnknownUserException(__FILE__, __LINE__);
 }
