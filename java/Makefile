@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2001
+# Copyright (c) 2002
 # Mutable Realms, Inc.
 # Huntsville, AL, USA
 #
