@@ -31,9 +31,9 @@ class ObjectRegistryI : public ObjectRegistry, public IceUtil::Mutex
 public:
 
     ObjectRegistryI(const Ice::CommunicatorPtr& communicator,
-		    const std::string& envName,
-		    const std::string& objectsDbName,
-		    const std::string& typesDbName,
+		    const std::string&,
+		    const std::string&,
+		    const std::string&,
 		    const TraceLevelsPtr& traceLevels);
 
     virtual void add(const IcePack::ObjectDescription&, const ::Ice::Current&);
@@ -47,10 +47,15 @@ public:
 
 private:
 
-    Freeze::ConnectionPtr _connection;
-    IdentityObjectDescDict _objects;
-    StringObjectProxySeqDict _types;
-    TraceLevelsPtr _traceLevels;
+    Freeze::ConnectionPtr _connectionCache;
+    IdentityObjectDescDict _objectsCache;
+    StringObjectProxySeqDict _typesCache;
+    const TraceLevelsPtr _traceLevels;
+    const std::string _envName;
+    const Ice::CommunicatorPtr _communicator;
+    const std::string _objectsDbName;
+    const std::string _typesDbName;
+
 };
 
 }

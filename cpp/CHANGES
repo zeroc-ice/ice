@@ -4,6 +4,9 @@ Changes since version 1.2.0
 - The IcePatch server now ignores Ice exceptions in the update thread
   instead of terminating the update thread.
 
+- Fixed a concurrency bug that could cause the IcePack registry to
+  crash.
+
 Changes since version 1.1.1
 ---------------------------
 

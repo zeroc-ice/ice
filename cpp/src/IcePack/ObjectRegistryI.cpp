@@ -24,10 +24,14 @@ IcePack::ObjectRegistryI::ObjectRegistryI(const Ice::CommunicatorPtr& communicat
 					  const string& objectsDbName,
 					  const string& typesDbName,
 					  const TraceLevelsPtr& traceLevels) :
-    _connection(Freeze::createConnection(communicator, envName)),
-    _objects(_connection, objectsDbName, true),
-    _types(_connection, typesDbName, true),
-    _traceLevels(traceLevels)
+    _connectionCache(Freeze::createConnection(communicator, envName)),
+    _objectsCache(_connectionCache, objectsDbName, true),
+    _typesCache(_connectionCache, typesDbName, true),
+    _traceLevels(traceLevels),
+    _envName(envName),
+    _communicator(communicator),
+    _objectsDbName(objectsDbName),
+    _typesDbName(typesDbName)
 {
 }
 
@@ -36,10 +40,14 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectDescDict objects(connection, _objectsDbName);
+    StringObjectProxySeqDict types(connection, _typesDbName);
+
     Ice::Identity id = obj.proxy->ice_getIdentity();
 
-    IdentityObjectDescDict::iterator p = _objects.find(id);
-    if(p != _objects.end())
+    IdentityObjectDescDict::iterator p = objects.find(id);
+    if(p != objects.end())
     {
 	throw ObjectExistsException();
     }
@@ -47,7 +55,7 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
     //
     // Add the object to the object dictionary.
     //
-    _objects.put(pair<const Ice::Identity, const ObjectDescription>(id, obj));
+    objects.put(pair<const Ice::Identity, const ObjectDescription>(id, obj));
 
     //
     // Add the object to the interface dictionary.
@@ -56,17 +64,17 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
     {
 	Ice::ObjectProxySeq seq;
 	
-	StringObjectProxySeqDict::iterator q = _types.find(obj.type);
-	if(q != _types.end())
+	StringObjectProxySeqDict::iterator q = types.find(obj.type);
+	if(q != types.end())
 	{
 	    seq = q->second;
 	}
 	
 	seq.push_back(obj.proxy);
 	
-	if(q == _types.end())
+	if(q == types.end())
 	{
-	    _types.put(pair<const string, const Ice::ObjectProxySeq>(obj.type, seq));
+	    types.put(pair<const string, const Ice::ObjectProxySeq>(obj.type, seq));
 	}
 	else
 	{
@@ -86,10 +94,14 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
 {
     IceUtil::Mutex::Lock sync(*this);
     
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectDescDict objects(connection, _objectsDbName);
+    StringObjectProxySeqDict types(connection, _typesDbName);
+
     Ice::Identity id = object->ice_getIdentity();
 
-    IdentityObjectDescDict::iterator p = _objects.find(id);
-    if(p == _objects.end())
+    IdentityObjectDescDict::iterator p = objects.find(id);
+    if(p == objects.end())
     {
 	throw ObjectNotExistException();
     }
@@ -101,8 +113,8 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
 	//
 	// Remove the object from the interface dictionary.
 	//
-	StringObjectProxySeqDict::iterator q = _types.find(obj.type);
-	assert(q != _types.end());
+	StringObjectProxySeqDict::iterator q = types.find(obj.type);
+	assert(q != types.end());
 	
 	Ice::ObjectProxySeq seq = q->second;
 	
@@ -120,7 +132,7 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
 	
 	if(seq.size() == 0)
 	{
-	    _types.erase(q);
+	    types.erase(q);
 	}
 	else
 	{
@@ -131,7 +143,7 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
     //
     // Remove the object from the object dictionary.
     //
-    _objects.erase(p);    
+    objects.erase(p);    
 
     if(_traceLevels->objectRegistry > 0)
     {
@@ -143,8 +155,11 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
 ObjectDescription
 IcePack::ObjectRegistryI::getObjectDescription(const Ice::Identity& id, const Ice::Current&) const
 {
-    IdentityObjectDescDict::const_iterator p = _objects.find(id);
-    if(p == _objects.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectDescDict objects(connection, _objectsDbName);
+
+    IdentityObjectDescDict::const_iterator p = objects.find(id);
+    if(p == objects.end())
     {
 	throw ObjectNotExistException();
     }
@@ -155,8 +170,11 @@ IcePack::ObjectRegistryI::getObjectDescription(const Ice::Identity& id, const Ic
 Ice::ObjectPrx
 IcePack::ObjectRegistryI::findById(const Ice::Identity& id, const Ice::Current&) const
 {
-    IdentityObjectDescDict::const_iterator p = _objects.find(id);
-    if(p == _objects.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    IdentityObjectDescDict objects(connection, _objectsDbName);
+
+    IdentityObjectDescDict::const_iterator p = objects.find(id);
+    if(p == objects.end())
     {
 	throw ObjectNotExistException();
     }
@@ -167,8 +185,11 @@ IcePack::ObjectRegistryI::findById(const Ice::Identity& id, const Ice::Current&)
 Ice::ObjectPrx
 IcePack::ObjectRegistryI::findByType(const string& type, const Ice::Current&) const
 {
-    StringObjectProxySeqDict::const_iterator p = _types.find(type);
-    if(p == _types.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxySeqDict types(connection, _typesDbName);
+
+    StringObjectProxySeqDict::const_iterator p = types.find(type);
+    if(p == types.end())
     {
 	throw ObjectNotExistException();
     }
@@ -180,8 +201,11 @@ IcePack::ObjectRegistryI::findByType(const string& type, const Ice::Current&) co
 Ice::ObjectProxySeq
 IcePack::ObjectRegistryI::findAllWithType(const string& type, const Ice::Current&) const
 {
-    StringObjectProxySeqDict::const_iterator p = _types.find(type);
-    if(p == _types.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxySeqDict types(connection, _typesDbName);
+
+    StringObjectProxySeqDict::const_iterator p = types.find(type);
+    if(p == types.end())
     {
 	throw ObjectNotExistException();
     }
