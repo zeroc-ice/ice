@@ -125,10 +125,10 @@ local exception EvictorDeactivatedException
  * These active servants reside in a queue; the least recently
  * used servant in the queue is the first to be evicted when a new
  * servant is activated.
- * <para>
+ *
  * An Evictor is created using the operation [DB::createEvictor] and
  * must be registered with an object adapter just like any other
- * ServantLocator.</para>
+ * ServantLocator.
  *
  * @see ServantInitializer
  *
