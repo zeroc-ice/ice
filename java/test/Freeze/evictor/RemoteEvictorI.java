@@ -54,6 +54,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     deactivate(Ice.Current current)
     {
         _adapter.removeServantLocator(_category);
+        _adapter.remove(Ice.Util.stringToIdentity(_category));
         _db.close();
     }
 
