@@ -63,7 +63,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 repeat:
 
     assert(_fd != INVALID_SOCKET);
-    ssize_t ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
+    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0);
     
     if(ret == SOCKET_ERROR)
     {
@@ -137,7 +137,7 @@ repeat:
 	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
 	socklen_t len = static_cast<socklen_t>(sizeof(peerAddr));
 	assert(_fd != INVALID_SOCKET);
-	ret = recvfrom(_fd, &buf.b[0], packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
+	ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
 	if(ret != SOCKET_ERROR)
 	{
 	    doConnect(_fd, peerAddr, -1);
@@ -153,7 +153,7 @@ repeat:
     else
     {
 	assert(_fd != INVALID_SOCKET);
-	ret = ::recv(_fd, &buf.b[0], packetSize, 0);
+	ret = ::recv(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0);
     }
     
     if(ret == SOCKET_ERROR)

@@ -77,7 +77,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
     while(buf.i != buf.b.end())
     {
 	assert(_fd != INVALID_SOCKET);
-	ssize_t ret = ::send(_fd, &*buf.i, packetSize, 0);
+	ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&*buf.i), packetSize, 0);
 
 	if(ret == 0)
 	{
@@ -181,7 +181,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
     while(buf.i != buf.b.end())
     {
 	assert(_fd != INVALID_SOCKET);
-	ssize_t ret = ::recv(_fd, &*buf.i, packetSize, 0);
+	ssize_t ret = ::recv(_fd, reinterpret_cast<char*>(&*buf.i), packetSize, 0);
 
 	if(ret == 0)
 	{
