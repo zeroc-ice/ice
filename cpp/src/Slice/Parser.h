@@ -273,6 +273,7 @@ public:
     std::string name();
     std::string scoped();
     std::string scope();
+    std::string comment();
 
     enum ContainedType
     {
@@ -294,6 +295,7 @@ protected:
     Container_ptr container_;
     std::string name_;
     std::string scoped_;
+    std::string comment_;
 };
 
 bool ICE_API operator<(Contained&, Contained&);
@@ -545,6 +547,9 @@ public:
 
     bool ignRedefs();
 
+    void setComment(const std::string&);
+    std::string currentComment();
+
     void nextLine();
     void scanPosition(const char*);
     int currentIncludeLevel();
@@ -575,6 +580,7 @@ private:
 
     bool ignRedefs_;
     bool all_;
+    std::string currentComment_;
     int currentLine_;
     int currentIncludeLevel_;
     std::string currentFile_;

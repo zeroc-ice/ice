@@ -142,8 +142,14 @@ Slice::Contained::scope()
     return string(scoped_, 0, idx);
 }
 
+string
+Slice::Contained::comment()
+{
+    return comment_;
+}
+
 Slice::Contained::Contained(const Container_ptr& container,
-			      const string& name)
+			    const string& name)
     : SyntaxTreeBase(container -> parser()),
       container_(container),
       name_(name)
@@ -153,7 +159,10 @@ Slice::Contained::Contained(const Container_ptr& container,
 	scoped_ = cont -> scoped();
     scoped_ += "::" + name_;				       
     if(parser_)
+    {
 	parser_ -> addContent(this);
+	comment_ = parser_ -> currentComment();
+    }
 }
 
 bool
@@ -503,6 +512,10 @@ Slice::Container::mergeModules()
 	    
 	    mod1 -> contents_.splice(mod1 -> contents_.end(),
 				     mod2 -> contents_);
+
+	    if(mod1 -> comment_.length() < mod2 -> comment_.length())
+		mod1 -> comment_ = mod2 -> comment_;
+
 	    parser_ -> removeContent(*q);
 	    q = contents_.erase(q);
 	}
@@ -947,6 +960,31 @@ bool
 Slice::Parser::ignRedefs()
 {
     return ignRedefs_;
+}
+
+void
+Slice::Parser::setComment(const std::string& comment)
+{
+    currentComment_.empty();
+
+    string::size_type end = 0;
+    while(true)
+    {
+	string::size_type begin = comment.find_first_not_of(" \t\r\n*", end);
+	if(begin == string::npos)
+	    break;
+
+	end = comment.find('\n', begin);
+	currentComment_ += comment.substr(begin, end - begin + 1);
+    }
+}
+
+std::string
+Slice::Parser::currentComment()
+{
+    string comment;
+    comment.swap(currentComment_);
+    return comment;
 }
 
 void

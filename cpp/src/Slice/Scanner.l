@@ -60,10 +60,12 @@ L			[a-zA-Z_]
 
 "/*" {
     // C-style comment
-    
+   
+    string comment = yytext + 1;
     while(true)
     {
 	int c = yyinput();
+	comment += static_cast<char>(c);
 	
 	if(c == '\n')
 	{
@@ -84,6 +86,9 @@ L			[a-zA-Z_]
 	    break;
 	}
     }
+
+    if(comment[0] == '*')
+	parser -> setComment(comment);
 }
 
 "::" {
