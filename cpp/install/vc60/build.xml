@@ -84,15 +84,6 @@
 
     </target>
 
-    <!-- Ice for Java Runtime-->
-    <target name="ice-java-runtime" depends="setup">
-
-	<!-- Jars -->
-	<mkdir dir="${install.dir}/ice-java/runtime/lib"/>
-	<copy file="${icej.dir}/lib/Ice.jar" todir="${install.dir}/ice-java/runtime/lib"/>
-
-    </target>
-
     <!-- Ice Common -->
     <target name="ice-common" depends="setup">
 
@@ -276,6 +267,15 @@
 
     </target>
 
+    <!-- Ice for Java Runtime-->
+    <target name="ice-java-runtime" depends="setup">
+
+	<!-- Jars -->
+	<mkdir dir="${install.dir}/ice-java/runtime/lib"/>
+	<copy file="${icej.dir}/lib/Ice.jar" todir="${install.dir}/ice-java/runtime/lib"/>
+
+    </target>
+
     <!-- Ice for Java -->
     <target name="ice-java-dev" depends="setup">
 
@@ -298,6 +298,7 @@
 	<!-- Configuration -->
 	<mkdir dir="${install.dir}/ice-java/dev/config"/>
 	<copy file="${icej.dir}/config/build.properties" todir="${install.dir}/ice-java/dev/config"/>
+	<copy file="${icej.dir}/config/common.xml" todir="${install.dir}/ice-java/dev/config"/>
 
     </target>
 
@@ -310,6 +311,14 @@
 		<exclude name="**/.dummy"/>
 		<exclude name="**/classes/**"/>
 		<exclude name="**/generated/**"/>
+	    </fileset>
+	</copy>
+
+	<!-- Certificates -->
+	<mkdir dir="${install.dir}/ice-java/demo/certs"/>
+	<copy todir="${install.dir}/ice-java/demo/certs">
+	    <fileset dir="${icej.dir}/certs">
+		<include name="**"/>
 	    </fileset>
 	</copy>
 
