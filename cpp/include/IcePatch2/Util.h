@@ -21,6 +21,8 @@ ICE_PATCH2_API std::string lastError();
 ICE_PATCH2_API std::string bytesToString(const Ice::ByteSeq&);
 ICE_PATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 
+ICE_PATCH2_API bool isDir(const std::string&);
+
 ICE_PATCH2_API std::string normalize(const std::string&);
 
 ICE_PATCH2_API std::string getSuffix(const std::string&);

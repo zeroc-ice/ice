@@ -455,7 +455,7 @@ checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& ctx)
 {
     Y* tag = 0;
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag);
+    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, ctx);
 #else
     return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, ctx);
 #endif

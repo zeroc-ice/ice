@@ -100,9 +100,9 @@ checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& 
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void* v, const ::Ice::Context& ctx)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*, const ::Ice::Context& ctx)
 {
-    return checkedCastImpl<ProxyHandle<T> >(b, v, ctx);
+    return checkedCastImpl<ProxyHandle<T> >(b, ctx);
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 

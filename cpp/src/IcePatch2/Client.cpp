@@ -303,7 +303,7 @@ Client::usage(const string& appName)
 	"-v, --version        Display the Ice version.\n"
 	"-t, --thorough       Recalculate all checksums.";
 
-    cerr << "Usage: " << appName << " [options] [DIR]" << endl;
+    cerr << "Usage: " << appName << " [options] DIR" << endl;
     cerr << options << endl;
 }
 
