@@ -146,8 +146,13 @@ def clientServerTest(toplevel, name):
         if not output:
             break;
         print output,
-    serverPipe.close()
-    clientPipe.close()
+
+    clientStatus = clientPipe.close()
+    serverStatus = serverPipe.close()
+
+    if clientStatus or serverStatus:
+	killServers()
+	sys.exit(1)
 
 def mixedClientServerTest(toplevel, name):
 
@@ -179,8 +184,13 @@ def mixedClientServerTest(toplevel, name):
         if not output:
             break;
         print output,
-    serverPipe.close()
-    clientPipe.close()
+
+    clientStatus = clientPipe.close()
+    serverStatus = serverPipe.close()
+
+    if clientStatus or serverStatus:
+	killServers()
+	sys.exit(1)
 
 def collocatedTest(toplevel, name):
 
@@ -199,7 +209,12 @@ def collocatedTest(toplevel, name):
         sys.exit(1)
     print "ok"
     print output
-    collocatedPipe.close()
+
+    collocatedStatus = collocatedPipe.close()
+
+    if collocatedStatus:
+	killServers()
+	sys.exit(1)
 
 def cleanDbDir(path):
 

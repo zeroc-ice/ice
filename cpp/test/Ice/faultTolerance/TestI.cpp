@@ -25,13 +25,13 @@ TestI::shutdown(const Ice::Current&)
 void
 TestI::abort(const Ice::Current&)
 {
-    exit(1);
+    exit(0);
 }
 
 void
 TestI::nonmutatingAbort(const Ice::Current&)
 {
-    exit(1);
+    exit(0);
 }
 
 Ice::Int

@@ -43,6 +43,11 @@ if not output:
 print "ok"
 print output
 
+populateStatus = populatePipe.close()
+
+if populateStatus:
+    sys.exit(1)
+
 print "starting verification client...",
 clientPipe = os.popen(client + clientOptions + " validate")
 output = clientPipe.read().strip()
@@ -51,5 +56,10 @@ if not output:
     sys.exit(1)
 print "ok"
 print output
+
+clientStatus = clientPipe.close()
+
+if clientStatus:
+    sys.exit(1)
 
 sys.exit(0)

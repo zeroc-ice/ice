@@ -56,4 +56,10 @@ print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown
 print "ok"
 
+starterStatus = starterPipe.close()
+
+if starterStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
 sys.exit(0)

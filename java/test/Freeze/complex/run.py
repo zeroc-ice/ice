@@ -50,6 +50,10 @@ if not output:
     sys.exit(1)
 print "ok"
 print output
-clientPipe.close()
+
+clientStatus = clientPipe.close()
+
+if clientStatus:
+    sys.exit(1)
 
 sys.exit(0)

@@ -39,4 +39,9 @@ if not output:
 print "ok"
 print output
 
+clientStatus = clientPipe.close()
+
+if clientStatus:
+    sys.exit(1)
+
 sys.exit(0)

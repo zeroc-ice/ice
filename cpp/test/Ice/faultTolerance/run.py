@@ -57,4 +57,13 @@ while 1:
 	break;
     print output,
 
+clientStatus = clientPipe.close()
+serverStatus = None
+for i in range(0, num):
+    serverStatus = serverStatus or serverPipes[i].close()
+
+if clientStatus or serverStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
 sys.exit(0)

@@ -42,7 +42,10 @@ print "registering server with icepack...",
 command = icePackAdmin + updatedClientOptions + \
           r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "add \"test:default -p 12345 -t 5000\""'
 icePackAdminPipe = os.popen(command)
-icePackAdminPipe.close()
+icePackAdminStatus = icePackAdminPipe.close()
+if icePackAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
 
 name = os.path.join("IcePack", "simple")
@@ -63,7 +66,10 @@ if sys.platform != "cygwin" and sys.platform != "win32":
               r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000"' + \
               r' -e "add \"test:default -p 12345 -t 5000\" ' + server + updatedServerOptions + '"'
     icePackAdminPipe = os.popen(command)
-    icePackAdminPipe.close()
+    icePackAdminStatus = icePackAdminPipe.close()
+    if icePackAdminStatus:
+        TestUtil.killServers()
+        sys.exit(1)
     print "ok"
 
     print "starting client...",
@@ -86,7 +92,17 @@ print "shutting down icepack...",
 command = icePackAdmin + updatedClientOptions + \
           r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "shutdown"'
 icePackAdminPipe = os.popen(command)
-icePackAdminPipe.close()
+icePackAdminStatus = icePackAdminPipe.close()
+if icePackAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
+
+icePackStatus = icePackPipe.close()
+clientStatus = clientPipe.close()
+
+if icePackStatus or clientStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 
 sys.exit(0)

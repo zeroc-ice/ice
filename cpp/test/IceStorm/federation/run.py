@@ -45,22 +45,37 @@ print "ok"
 print "creating topics...",
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed1"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed2"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed3"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
 
 print "linking topics...",
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed1 fed2 10"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed2 fed3 5"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
 
 publisher = os.path.join(testdir, "publisher")
@@ -124,13 +139,22 @@ print "ok"
 print "destroying topics...",
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed1"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed2"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed3"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
 
 #
@@ -139,5 +163,18 @@ print "ok"
 print "shutting down icestorm...",
 command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "shutdown"'
 iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
+iceStormAdminStatus = iceStormAdminPipe.close()
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 print "ok"
+
+iceStormStatus = iceStormPipe.close()
+subscriberStatus = subscriberPipe.close()
+publisherStatus = publisherPipe.close()
+
+if iceStormStatus or subscriberStatus or publisherStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
+sys.exit(0)

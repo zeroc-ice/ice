@@ -63,7 +63,12 @@ while 1:
 	break;
     print output,
 
+clientStatus = clientPipe.close()
+serverStatus = None
 for i in range(0, num):
-    serverPipes[i].close()
+    serverStatus = serverStatus or serverPipes[i].close()
+
+if clientStatus or serverStatus:
+    sys.exit(1)
 
 sys.exit(0)

@@ -53,4 +53,9 @@ print output
 os.remove("numeric.txt")
 os.remove("utf8.txt")
 
+clientStatus = clientPipe.close()
+
+if clientStatus:
+    sys.exit(1)
+
 sys.exit(0)
