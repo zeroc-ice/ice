@@ -54,9 +54,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 libdb33.lib /nologo /dll /machine:I386 /out:"Release/freeze001.dll" /libpath:"../../../lib"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/freeze001.dll" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\freeze001.lib ..\..\lib	copy $(OutDir)\freeze001.pdb ..\..\lib	copy $(OutDir)\freeze001.dll ..\..\bin
 # End Special Build Tool
@@ -86,9 +87,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libdb33d.lib /nologo /dll /debug /machine:I386 /out:"Debug/freeze001d.dll" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/freeze001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\freeze001d.lib ..\..\lib	copy $(OutDir)\freeze001d.pdb ..\..\lib	copy $(OutDir)\freeze001d.dll ..\..\bin
 # End Special Build Tool
@@ -392,8 +394,7 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
-	
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice
 
 "IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -409,8 +410,7 @@ USERDEP__IDENT="..\..\bin\slice2freeze.exe"
 InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
-	
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice
 
 "IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -24,6 +24,26 @@
 #    error "Berkeley DB versions older than 3.3 are not supported!"
 #endif
 
+#ifdef _WIN32
+
+#   if DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR == 3
+#       define ICE_DB_VERSION "33"
+#   elif DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR == 0
+#       define ICE_DB_VERSION "40"
+#   elif DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR == 1
+#       define ICE_DB_VERSION "41"
+#   else
+#       error "Berkeley DB version is not supported!"
+#   endif
+
+#   ifdef _DEBUG
+#       pragma comment(lib, "libdb" ICE_DB_VERSION "d.lib")
+#   else
+#       pragma comment(lib, "libdb" ICE_DB_VERSION ".lib")
+#   endif
+
+#endif
+
 namespace Freeze
 {
 
