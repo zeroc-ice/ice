@@ -75,8 +75,8 @@ Output& operator<<(Output& out, const T& val)
     return out;
 }
 
-template<typename T>
-Output& operator<<(Output& out, T val)
+inline
+Output& operator<<(Output& out, std::ios_base& (*val)(std::ios_base&))
 {
     std::ostringstream s;
     s << val;
