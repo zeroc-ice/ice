@@ -1064,7 +1064,7 @@ Slice::JavaVisitor::writeGenericMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << "v = " << stream << ".readObject(\"\", null);";
+                    out << nl << "v = " << stream << ".readObject(" << name << ", \"\", null);";
                 }
                 break;
             }
@@ -3028,6 +3028,21 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
+    static const char* builtinTable[] =
+    {
+        "Byte",
+        "Boolean",
+        "Short",
+        "Int",
+        "Long",
+        "Float",
+        "Double",
+        "String",
+        "???", // Ice.Object
+        "???", // Ice.ObjectPrx
+        "???" // Ice.LocalObject
+    };
+
     //
     // Don't generate helper for a sequence of a local type
     //
@@ -3049,16 +3064,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         s = SequencePtr::dynamicCast(origContent);
     }
 
-    //
-    // Only generate a Helper class for non-primitive, non-local sequences
-    //
-    BuiltinPtr b = BuiltinPtr::dynamicCast(p->type());
-    if (b && b->kind() != Builtin::KindObject &&
-        b->kind() != Builtin::KindObjectProxy)
-    {
-        return;
-    }
-
     string name = fixKwd(p->name());
     string absolute = getAbsolute(p->scoped());
     string helper = absolute + "Helper";
@@ -3069,6 +3074,8 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         Output& out = output();
         int iter, d;
+
+        BuiltinPtr b = BuiltinPtr::dynamicCast(p->type());
 
         string origContentS = typeToString(origContent, TypeModeIn, scope);
 
@@ -3082,13 +3089,19 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
             << nl << "write(IceInternal.BasicStream __os, " << typeS
             << " __v)";
         out << sb;
-        out << nl << "__os.writeInt(__v.length);";
-        out << nl << "for (int __i = 0; __i < __v.length; __i++)";
-        out << sb;
-        iter = 0;
-        writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", true,
-                                  iter, false);
-        out << eb;
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        {
+            out << nl << "__os.write" << builtinTable[b->kind()] << "Seq(__v);";
+        }
+        else
+        {
+            out << nl << "__os.writeInt(__v.length);";
+            out << nl << "for (int __i = 0; __i < __v.length; __i++)";
+            out << sb;
+            iter = 0;
+            writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", true, iter, false);
+            out << eb;
+        }
         out << eb;
 
         //
@@ -3097,21 +3110,28 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sp << nl << "public static " << typeS
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << "int __len = __is.readInt();";
-        out << nl << typeS << " __v = new " << origContentS << "[__len]";
-        d = depth;
-        while (d--)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
-            out << "[]";
+            out << nl << "return __is.read" << builtinTable[b->kind()] << "Seq();";
         }
-        out << ';';
-        out << nl << "for (int __i = 0; __i < __len; __i++)";
-        out << sb;
-        iter = 0;
-        writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", false,
-                                  iter, false);
-        out << eb;
-        out << nl << "return __v;";
+        else
+        {
+            out << nl << "int __len = __is.readInt();";
+            out << nl << typeS << " __v = new " << origContentS << "[__len]";
+            d = depth;
+            while (d--)
+            {
+                out << "[]";
+            }
+            out << ';';
+            out << nl << "for (int __i = 0; __i < __len; __i++)";
+            out << sb;
+            iter = 0;
+            writeMarshalUnmarshalCode(out, scope, p->type(), "__v[__i]", false,
+                                      iter, false);
+            out << eb;
+            out << nl << "return __v;";
+        }
         out << eb;
 
         //
@@ -3121,13 +3141,20 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
             << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS
             << " __v)";
         out << sb;
-        out << nl << "__os.startWriteSequence(__name, __v.length);";
-        out << nl << "for (int __i = 0; __i < __v.length; __i++)";
-        out << sb;
-        iter = 0;
-        writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", true, iter, false);
-        out << eb;
-        out << nl << "__os.endWriteSequence();";
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
+        {
+            out << nl << "__os.write" << builtinTable[b->kind()] << "Seq(__name, __v);";
+        }
+        else
+        {
+            out << nl << "__os.startWriteSequence(__name, __v.length);";
+            out << nl << "for (int __i = 0; __i < __v.length; __i++)";
+            out << sb;
+            iter = 0;
+            writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", true, iter, false);
+            out << eb;
+            out << nl << "__os.endWriteSequence();";
+        }
         out << eb;
 
         //
@@ -3136,21 +3163,28 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sp << nl << "public static " << typeS
             << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
-        out << nl << "int __len = __is.startReadSequence(__name);";
-        out << nl << typeS << " __v = new " << origContentS << "[__len]";
-        d = depth;
-        while (d--)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
-            out << "[]";
+            out << nl << "return __is.read" << builtinTable[b->kind()] << "Seq(__name);";
         }
-        out << ';';
-        out << nl << "for (int __i = 0; __i < __len; __i++)";
-        out << sb;
-        iter = 0;
-        writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", false, iter, false);
-        out << eb;
-        out << nl << "__is.endReadSequence();";
-        out << nl << "return __v;";
+        else
+        {
+            out << nl << "int __len = __is.startReadSequence(__name);";
+            out << nl << typeS << " __v = new " << origContentS << "[__len]";
+            d = depth;
+            while (d--)
+            {
+                out << "[]";
+            }
+            out << ';';
+            out << nl << "for (int __i = 0; __i < __len; __i++)";
+            out << sb;
+            iter = 0;
+            writeGenericMarshalUnmarshalCode(out, scope, p->type(), "\"e\"", "__v[__i]", false, iter, false);
+            out << eb;
+            out << nl << "__is.endReadSequence();";
+            out << nl << "return __v;";
+        }
         out << eb;
 
         out << eb;
