@@ -1,14 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
-// ZeroC, Inc.
-// Billerica, MA, USA
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
-// All Rights Reserved.
-//
-// Ice is free software; you can redistribute it and/or modify it under
-// the terms of the GNU General Public License version 2 as published by
-// the Free Software Foundation.
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -160,6 +155,7 @@ ZEND_MINFO_FUNCTION(ice)
     php_info_print_table_start();
     php_info_print_table_header(2, "Ice support", "enabled");
     php_info_print_table_row(2, "Ice version", ICE_STRING_VERSION);
+    php_info_print_table_row(2, "IcePHP version", ICEPHP_STRING_VERSION);
     php_info_print_table_end();
 
     DISPLAY_INI_ENTRIES();
