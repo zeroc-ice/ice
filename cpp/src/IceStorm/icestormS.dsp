@@ -254,47 +254,6 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=.\dummy2.ice
-
-!IF  "$(CFG)" == "IceStormS - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\dummy2.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I.. -I..\..\slice --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict LinkInfo.ice \
-	
-
-"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\dummy2.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I.. -I..\..\slice --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict LinkInfo.ice \
-	
-
-"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\IceStormInternal.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
@@ -346,12 +305,19 @@ InputPath=.\LinkInfo.ice
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkInfo.ice \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict ../IceStorm/LinkInfo.ice ../../slice/Ice/Identity.ice \
 	
 
 "LinkInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "LinkInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -363,12 +329,19 @@ InputPath=.\LinkInfo.ice
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
 	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkInfo.ice \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict ../IceStorm/LinkInfo.ice ../../slice/Ice/Identity.ice \
 	
 
 "LinkInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "LinkInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

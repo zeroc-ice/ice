@@ -125,7 +125,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     //
     // Sleep for 2 seconds before shutting down.
     //
+#ifdef WIN32
+    Sleep(2*1000);
+#else
     sleep(2);
+#endif
 
     eventFed3->pub("shutdown");
 

@@ -383,6 +383,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name complex
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name federationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name federationS
+    End Project Dependency
 }}}
 
 ###############################################################################
