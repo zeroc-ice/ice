@@ -9,7 +9,7 @@
 
 #include <Proxy.h>
 #include <structmember.h>
-#include <Operation.h>
+//#include <Operation.h>
 #include <Util.h>
 #include <Ice/LocalException.h>
 #include <Ice/Proxy.h>
@@ -750,25 +750,6 @@ proxyIceDefault(ProxyObject* self)
     return createProxy(newProxy, *self->communicator);
 }
 
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-proxyIceOperation(ProxyObject* self, PyObject* args)
-{
-    char* name;
-    char* type;
-    PyObject* opArgs;
-    if(!PyArg_ParseTuple(args, "ssO!", &name, &type, &PyTuple_Type, &opArgs))
-    {
-        return NULL;
-    }
-
-    OperationPtr op = getOperation(type, name);
-    assert(op);
-    return op->invoke(*self->proxy, *self->communicator, opArgs);
-}
-
 static PyObject*
 checkedCastImpl(ProxyObject* p, const string& id, const string& facet, PyObject* type)
 {
@@ -984,8 +965,6 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR("ice_timeout(int) -> Ice.ObjectPrx") },
     { "ice_default", (PyCFunction)proxyIceDefault, METH_NOARGS,
         PyDoc_STR("ice_default() -> Ice.ObjectPrx") },
-    { "ice_operation", (PyCFunction)proxyIceOperation, METH_VARARGS,
-        PyDoc_STR("ice_operation(inargs[, ctx]) -> (result, outargs ...)") },
     { "ice_checkedCast", (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
         PyDoc_STR("ice_checkedCast(proxy, id) -> proxy") },
     { "ice_uncheckedCast", (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,
@@ -1087,4 +1066,12 @@ IcePy::getProxy(PyObject* p)
     assert(checkProxy(p));
     ProxyObject* obj = (ProxyObject*)p;
     return *obj->proxy;
+}
+
+Ice::CommunicatorPtr
+IcePy::getProxyCommunicator(PyObject* p)
+{
+    assert(checkProxy(p));
+    ProxyObject* obj = (ProxyObject*)p;
+    return *obj->communicator;
 }

@@ -26,6 +26,7 @@ PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObje
 bool checkProxy(PyObject*);
 
 Ice::ObjectPrx getProxy(PyObject*);
+Ice::CommunicatorPtr getProxyCommunicator(PyObject*);
 
 }
 
