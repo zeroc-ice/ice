@@ -87,6 +87,8 @@ private:
     const int _sizeMax; // Maximum number of threads.
     const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
 
+    const size_t _stackSize;
+
     const int _messageSizeMax;
 
     std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.

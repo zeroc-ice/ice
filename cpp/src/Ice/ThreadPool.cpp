@@ -34,6 +34,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _size(0),
     _sizeMax(0),
     _sizeWarn(0),
+    _stackSize(0),
     _messageSizeMax(0),
     _running(0),
     _inUse(0),
@@ -75,6 +76,13 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     const_cast<int&>(_sizeMax) = sizeMax;
     const_cast<int&>(_sizeWarn) = sizeWarn;
 
+    int stackSize = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".StackSize", 0);
+    if(stackSize < 0)
+    {
+	stackSize = 0;
+    }
+    const_cast<size_t&>(_stackSize) = static_cast<size_t>(stackSize);
+
     const_cast<int&>(_messageSizeMax) = instance->messageSizeMax();
 
     __setNoDelete(true);
@@ -83,7 +91,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 	for(int i = 0 ; i < _size ; ++i)
 	{
 	    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-	    _threads.push_back(thread->start());
+	    _threads.push_back(thread->start(_stackSize));
 	    ++_running;
 	}
     }
@@ -190,7 +198,7 @@ IceInternal::ThreadPool::promoteFollower()
 		try
 		{
 		    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-		    _threads.push_back(thread->start());
+		    _threads.push_back(thread->start(_stackSize));
 		    ++_running;
 		}
 		catch(const IceUtil::Exception& ex)

@@ -606,6 +606,24 @@ pool, a "low on threads" warning is printed. The default value for
 </section>
 </section>
 
+<section id="threadpool.StackSize"><title><replaceable>name</replaceable>.StackSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.StackSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the stack size of threads in
+the thread pool <replaceable>name</replaceable>. When
+<replaceable>num</replaceable> is 0, the operating system's default is used.
+The default value for <replaceable>num</replaceable> is 0.
+</para>
+</section>
+</section>
+
+
 </section>
 
 <!-- ********************************************************************** -->
