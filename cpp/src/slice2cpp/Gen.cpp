@@ -3388,12 +3388,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	}
 	C << eb;
 	writeUnmarshalCode(C, outParams, ret);
-	C << nl << "ice_response(" << args << ");";
 	C << eb;
 	C << nl << "catch(const ::Ice::Exception& __ex)";
 	C << sb;
 	C << nl << "ice_exception(__ex);";
+	C << nl << "return;";
 	C << eb;
+	C << nl << "ice_response(" << args << ");";
 	C << eb;
     }
 

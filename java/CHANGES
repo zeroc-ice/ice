@@ -6,3 +6,6 @@ Changes since version 1.0.0
 
 - Fixed a bug with throwing exceptions in AMD calls after invoking
   ice_response().
+
+- Fixed a bug with throwing exceptions in AMI from within
+  ice_response().
