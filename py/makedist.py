@@ -106,6 +106,7 @@ for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icepy", "makedist.py"), \
+    os.path.join("icepy", "makebindist.py"), \
     ]
 for x in filesToRemove:
     os.remove(x)
