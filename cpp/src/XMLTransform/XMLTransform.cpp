@@ -433,6 +433,7 @@ static const string sequenceElementName = "xs:sequence";
 static const string annotationElementName = "xs:annotation";
 static const string appinfoElementName = "xs:appinfo";
 static const string importElementName = "xs:import";
+static const string includeElementName = "xs:include";
 static const string elementElementName = "xs:element";
 static const string complexContentElementName = "xs:complexContent";
 static const string extensionElementName = "xs:extension";
@@ -523,6 +524,37 @@ public:
 	os << "[nil transform]\n";
 	return os;
     }
+};
+
+//
+// Exception transform - this transform should never be invoked,
+// since exceptions cannot be members of another type.
+//
+class ExceptionTransform : public Transform
+{
+public:
+
+    ExceptionTransform(const string& type) :
+        _type(type)
+    {
+    }
+
+    virtual void
+    transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const string&, DOMNode*)
+    {
+        throw SchemaViolation(__FILE__, __LINE__);
+    }
+
+    virtual ostream&
+    print(ostream& os)
+    {
+	os << "[exception transform: " << _type << "]\n";
+	return os;
+    }
+
+private:
+
+    string _type;
 };
 
 typedef ::IceUtil::Handle<NilTransform> NilTransformPtr;
@@ -1128,7 +1160,7 @@ private:
     void load(DocumentMap&, const string&, const Ice::StringSeq&);
 
     //
-    // Schema import handling.
+    // Schema import/include handling.
     //
     void import(DocumentMap&, const string&, const string&, const Ice::StringSeq&);
     void processImport(DOMDocument*, DocumentMap&, const Ice::StringSeq&);
@@ -1337,7 +1369,7 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     _toDocs.insert(make_pair(toInfo->getTargetNamespace(), toInfo));
 
     //
-    // Process the import declarations for the source schema documents.
+    // Process the import/include declarations for the source schema documents.
     //
     processImport(fromDoc, _fromDocs, pathFrom);
     processImport(toDoc, _toDocs, pathTo);
@@ -1523,7 +1555,7 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     documents.insert(make_pair(info->getTargetNamespace(), info));
 
     //
-    // Process any imports in the imported document.
+    // Process any imports or includes in the imported document.
     //
     processImport(document, documents, paths);
 }
@@ -1544,6 +1576,12 @@ XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& 
 	    string loc = getAttributeByName(child, "schemaLocation");
 	    
 	    import(documents, ns, loc, paths);
+	}
+        else if(nodeName == includeElementName)
+	{
+	    string loc = getAttributeByName(child, "schemaLocation");
+	    
+	    import(documents, "", loc, paths);
 	}
 	child = child->getNextSibling();
     }
@@ -2009,13 +2047,10 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 
 	case TypeException:
 	{
-	    //
-	    // TODO: BENOIT: Is this correct? We can't throw an IllegalTransform here because it's possible 
-	    // that the schema have exception elements, even if these elements don't take part in any 
-	    // transformations. Maybe we could return a null transformation here since this transformation 
-	    // will never be used anyway.
-	    //
-	    transform = new NilTransform();
+            //
+            // Return a transform which should never be invoked.
+            //
+	    transform = new ExceptionTransform(fromTypeName);
 	    break;
 	}
 
