@@ -57,11 +57,6 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 {
     ICE_METHOD_INV("OpenSSL::ClientConnection::init()");
 
-    if (_timeoutEncountered)
-    {
-        throw TimeoutException(__FILE__, __LINE__);
-    }
-
     int retCode = SSL_is_init_finished(_sslConnection);
 
     while (!retCode)
@@ -70,21 +65,13 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::init(int timeout)
 
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
-        try
+        if (_initWantRead)
         {
-            if (_initWantRead)
-            {
-                i = readSelect(_readTimeout);
-            }
-            else if (_initWantWrite)
-            {
-                i = writeSelect(timeout);
-            }
+            i = readSelect(_readTimeout);
         }
-        catch (const TimeoutException&)
+        else if (_initWantWrite)
         {
-            _timeoutEncountered = true;
-            throw;
+            i = writeSelect(timeout);
         }
 
         if (_initWantRead && i == 0)

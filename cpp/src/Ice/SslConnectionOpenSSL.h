@@ -185,7 +185,6 @@ protected:
     SafeFlag _handshakeFlag;
     int _initWantRead;
     int _initWantWrite;
-    bool _timeoutEncountered;
     int _handshakeReadTimeout;
     int _readTimeout;
 };

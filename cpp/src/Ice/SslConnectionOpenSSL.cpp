@@ -51,8 +51,6 @@ IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, string& sy
     _initWantRead = 0;
     _initWantWrite = 0;
 
-    _timeoutEncountered = false;
-
     // None configured, default to indicated timeout
     _handshakeReadTimeout = 0;
 }
@@ -400,7 +398,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
     if (ret == 0)
     {
         ICE_DEV_DEBUG("Connection::readSelect(): Throwing TimeoutException... SslConnectionOpenSSL.cpp, 333");
-        _timeoutEncountered = true;
         throw TimeoutException(__FILE__, __LINE__);
     }
 
@@ -479,7 +476,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
         // Ensure we're initialized.
         initReturn = initialize(timeout);
 
-/////
         if (initReturn == -1)
         {
             // Handshake underway, timeout immediately, easy way to deal with this.
@@ -491,7 +487,6 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
             // Retry the initialize call
             continue;
         }
-/////
 
         // initReturn must be > 0, so we're okay to try a write
 
