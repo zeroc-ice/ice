@@ -1115,43 +1115,44 @@ public class BasicStream
 	while(true)
 	{
 	    String id = readTypeId();
-	    if(id.equals(Ice.ObjectImpl.ice_staticId()))
+
+            Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
+            if(userFactory != null)
+            {
+                v = userFactory.create(id);
+            }
+
+	    if(v == null && id.equals(Ice.ObjectImpl.ice_staticId()))
 	    {
 	        v = new Ice.ObjectImpl();
 	    }
-	    else
-	    {
-                Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
+
+            if(v == null)
+            {
+                userFactory = loadObjectFactory(id);
                 if(userFactory != null)
                 {
                     v = userFactory.create(id);
                 }
-                if(v == null)
+            }
+
+            if(v == null)
+            {
+                //
+                // Performance sensitive, so we use lazy initialization for tracing.
+                //
+                if(_traceSlicing == -1)
                 {
-                    userFactory = loadObjectFactory(id);
-                    if(userFactory != null)
-                    {
-                        v = userFactory.create(id);
-                    }
+                    _traceSlicing = _instance.traceLevels().slicing;
+                    _slicingCat = _instance.traceLevels().slicingCat;
                 }
-		if(v == null)
-		{
-		    //
-		    // Performance sensitive, so we use lazy initialization for tracing.
-		    //
-		    if(_traceSlicing == -1)
-		    {
-		        _traceSlicing = _instance.traceLevels().slicing;
-			_slicingCat = _instance.traceLevels().slicingCat;
-		    }
-		    if(_traceSlicing > 0)
-		    {
-		        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
-		    }
-		    skipSlice();    // Slice off this derived part -- we don't understand it.
-		    continue;
-		}
-	    }
+                if(_traceSlicing > 0)
+                {
+                    TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+                }
+                skipSlice();    // Slice off this derived part -- we don't understand it.
+                continue;
+            }
 
 	    Integer i = new Integer(index);
 	    _readEncapsStack.unmarshaledMap.put(i, v);

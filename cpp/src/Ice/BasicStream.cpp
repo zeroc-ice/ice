@@ -1093,44 +1093,45 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     {
 	string id;
 	readTypeId(id);
-	if(id == Ice::Object::ice_staticId())
-	{
-	    v = new ::Ice::Object;
-	}
-	else
-	{
-	    ObjectFactoryPtr userFactory = _instance->servantFactoryManager()->find(id);
-	    if(userFactory)
-	    {
-		v = userFactory->create(id);
-	    }
-	    if(!v)
-	    {
-		ObjectFactoryPtr of = Ice::factoryTable->getObjectFactory(id);
-		if(of)
-		{
-		    v = of->create(id);
-		    assert(v);
-		}
-	    }
-	    if(!v)
-	    {
-		//
-		// Performance sensitive, so we use lazy initialization for tracing.
-		//
-		if(_traceSlicing == -1)
-		{
-		    _traceSlicing = _instance->traceLevels()->slicing;
-		    _slicingCat = _instance->traceLevels()->slicingCat;
-		}
-		if(_traceSlicing > 0)
-		{
-		    traceSlicing("class", id, _slicingCat, _instance->logger());
-		}
-		skipSlice(); // Slice off this derived part -- we don't understand it.
-		continue;
-	    }
-	}
+
+        ObjectFactoryPtr userFactory = _instance->servantFactoryManager()->find(id);
+        if(userFactory)
+        {
+            v = userFactory->create(id);
+        }
+
+        if(!v && id == Ice::Object::ice_staticId())
+        {
+            v = new ::Ice::Object;
+        }
+
+        if(!v)
+        {
+            ObjectFactoryPtr of = Ice::factoryTable->getObjectFactory(id);
+            if(of)
+            {
+                v = of->create(id);
+                assert(v);
+            }
+        }
+
+        if(!v)
+        {
+            //
+            // Performance sensitive, so we use lazy initialization for tracing.
+            //
+            if(_traceSlicing == -1)
+            {
+                _traceSlicing = _instance->traceLevels()->slicing;
+                _slicingCat = _instance->traceLevels()->slicingCat;
+            }
+            if(_traceSlicing > 0)
+            {
+                traceSlicing("class", id, _slicingCat, _instance->logger());
+            }
+            skipSlice(); // Slice off this derived part -- we don't understand it.
+            continue;
+        }
 
 	IndexToPtrMap::const_iterator unmarshaledPos =
 			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
