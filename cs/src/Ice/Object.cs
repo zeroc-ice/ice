@@ -230,7 +230,7 @@ namespace Ice
             __is.endReadSlice();
         }
 
-	public void __write(OutputStream __out)
+	public virtual void __write(OutputStream __out)
 	{
 	    __out.writeTypeId(ice_staticId());
 	    __out.startSlice();
@@ -238,7 +238,7 @@ namespace Ice
 	    __out.endSlice();
 	}
 
-	public void __read(InputStream __in, bool __rid)
+	public virtual void __read(InputStream __in, bool __rid)
 	{
 	    if(__rid)
 	    {
