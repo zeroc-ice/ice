@@ -227,22 +227,6 @@ IceInternal::BasicStream::getReadEncapsSize()
     {
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
-
-    Byte eMajor;
-    Byte eMinor;
-    read(eMajor);
-    read(eMinor);
-    if(eMajor != encodingMajor
-       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
-    {
-	UnsupportedEncodingException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(eMajor);
-	ex.badMinor = static_cast<unsigned char>(eMinor);
-	ex.major = static_cast<unsigned char>(encodingMajor);
-	ex.minor = static_cast<unsigned char>(encodingMinor);
-	throw ex;
-    }
-
     i = save;
     return sz - sizeof(Int) - 2;
 }
