@@ -130,7 +130,7 @@ public final class Emitter extends EventHandler
         {
             _batchStream.writeByte(Protocol.protocolVersion);
             _batchStream.writeByte(Protocol.encodingVersion);
-            _batchStream.writeByte(Protocol.requestMsg);
+            _batchStream.writeByte(Protocol.requestBatchMsg);
             _batchStream.writeInt(0); // Message size (placeholder)
         }
 
@@ -238,8 +238,7 @@ public final class Emitter extends EventHandler
     public void
     read(BasicStream stream)
     {
-        // TODO - implement
-        //_transceiver.read(stream, 0);
+        _transceiver.read(stream.prepareRead(), 0);
     }
 
     public void
@@ -442,8 +441,7 @@ public final class Emitter extends EventHandler
             _exception = ex;
         }
 
-        java.util.Set entries = _requests.entrySet();
-        java.util.Iterator p = entries.iterator();
+        java.util.Iterator p = _requests.values().iterator();
         while (p.hasNext())
         {
             Outgoing out = (Outgoing)p.next();
