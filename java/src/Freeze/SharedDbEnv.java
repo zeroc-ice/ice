@@ -16,9 +16,11 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
     {
 	MapKey key = new MapKey(envName, communicator);
 
+	SharedDbEnv result;
+
 	synchronized(_map) 
 	{
-	    SharedDbEnv result = (SharedDbEnv) _map.get(key);
+	    result = (SharedDbEnv)_map.get(key);
 	    if(result == null)
 	    {
 		try
@@ -40,8 +42,13 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	    {
 		result._refCount++;
 	    }
-	    return result;
 	}
+
+	//
+	// Make sure the result if fully initialized
+	//
+	result.init();
+	return result;
     }
     
     public String 
@@ -304,8 +311,15 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	    }    
 	}
 
-	_catalog = SharedDb.openCatalog(this);
 	_refCount = 1;
+    }
+
+    private synchronized void init()
+    {
+	if(_catalog == null)
+	{
+	    _catalog = SharedDb.openCatalog(this);
+	}
     }
 
     private static String
