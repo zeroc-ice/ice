@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a bug where the endpoint cache for indirect proxies wasn't
+  always cleared upon a communication failure with an object.
+
 - Fixed a race condition in the IcePack on demand server activation
   code which could cause clients to hang under rare conditions if the
   server couldn't be activated.
