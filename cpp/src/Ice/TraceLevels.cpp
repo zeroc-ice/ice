@@ -20,14 +20,14 @@ void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     network(0),
-    networkCat("network"),
+    networkCat("Network"),
     protocol(0),
-    protocolCat("protocol"),
+    protocolCat("Protocol"),
     retry(0),
-    retryCat("retry")
+    retryCat("Retry")
 {
     string value;
-    const string keyBase = "ice.trace.";
+    const string keyBase = "Ice.Trace.";
 
     value = properties->getProperty(keyBase + networkCat);
     if (!value.empty())

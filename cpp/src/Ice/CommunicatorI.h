@@ -29,11 +29,9 @@ public:
     virtual ObjectPrx stringToProxy(const std::string&);
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
-    virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(
-	const std::string&, const std::string&);
+    virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 
-    virtual void installValueFactory(const ValueFactoryPtr&,
-				     const std::string&);
+    virtual void installValueFactory(const ValueFactoryPtr&, const std::string&);
 
     virtual PropertiesPtr getProperties();
 
@@ -48,8 +46,7 @@ private:
     virtual ~CommunicatorI();
 
     friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICE_API CommunicatorPtr initializeWithProperties(
-	int&, char*[], const PropertiesPtr&, Int);
+    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
 
     ::IceInternal::InstancePtr _instance;
 };

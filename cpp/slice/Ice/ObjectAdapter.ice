@@ -298,8 +298,10 @@ local class ObjectLocator
 
     /**
      *
-     * Called by the Object Adapter after a request, provided that
-     * <literal>locate</literal> did not return null. This operation
+     * Called by the Object Adapter after a request. This operation is
+     * only called if <literal>locate</literal> did not return null,
+     * or if <literal>locate</literal> threw a
+     * <literal>LocationForward</literal> exception. This operation
      * can be used for cleanup after a request.
      *
      * @param adapter The Object Adapter that calls the locator.

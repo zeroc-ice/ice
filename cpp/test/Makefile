@@ -12,11 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= operations \
-		  inheritance \
-		  exceptions \
-		  faultTolerance \
-		  locationForward
+SUBDIRS		= Ice
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

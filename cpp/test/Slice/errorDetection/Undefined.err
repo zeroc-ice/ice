@@ -1,0 +1,10 @@
+Undefined.ice:11 error: `Foo' is not defined
+Undefined.ice:12 error: `Foo' is not defined
+Undefined.ice:13 error: `Foo' is not defined
+Undefined.ice:14 error: `Foo3' is not defined
+Undefined.ice:14 error: `Foo2' is not defined
+Undefined.ice:14 error: `Foo1' is not defined
+Undefined.ice:15 error: `Foo' is not defined
+Undefined.ice:15 error: `Foo3' is not defined
+Undefined.ice:15 error: `Foo2' is not defined
+Undefined.ice:15 error: `Foo1' is not defined

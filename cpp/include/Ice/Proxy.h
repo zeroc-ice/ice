@@ -54,6 +54,7 @@ public:
 
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
+    bool operator<(const Object&) const;
 
     ::Ice::ObjectPrx _twoway() const;
     ::Ice::ObjectPrx _oneway() const;

@@ -1,0 +1,9 @@
+NotClassOrInterface.ice:15 error: `Vector' is not an interface
+NotClassOrInterface.ice:16 error: `Vector' is not a class
+NotClassOrInterface.ice:17 error: `Vector3' is not an interface
+NotClassOrInterface.ice:17 error: `Vector2' is not an interface
+NotClassOrInterface.ice:17 error: `Vector1' is not an interface
+NotClassOrInterface.ice:18 error: `Vector' is not a class
+NotClassOrInterface.ice:18 error: `Vector3' is not an interface
+NotClassOrInterface.ice:18 error: `Vector2' is not an interface
+NotClassOrInterface.ice:18 error: `Vector1' is not an interface

@@ -16,11 +16,22 @@ VERSIONED_BASE	= $(BASE).$(VERSION)
 NAME		= $(top_srcdir)/lib/$(BASE)
 VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
-TARGETS		= $(NAME) $(VERSIONED_NAME)
+CLIENT		= $(top_srcdir)/bin/icepackadmin
+SERVER		= $(top_srcdir)/bin/icepack
+
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
 
 OBJS		= Admin.o
 
-SRCS		= $(OBJS:.o=.cpp)
+COBJS		= Client.o
+
+SOBJS		= Server.o \
+		  Forward.o \
+		  AdminI.o
+
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IcePack
 IDIR		= $(slicedir)/IcePack
@@ -28,7 +39,7 @@ SLICECMD	= $(SLICE) --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -37,6 +48,14 @@ $(VERSIONED_NAME): $(OBJS)
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
+
+$(CLIENT): $(COBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePack $(LIBS)
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePack $(LIBS)
 
 $(HDIR)/Admin.h Admin.cpp: $(IDIR)/Admin.ice $(SLICE)
 	rm -f $(HDIR)/Admin.h Admin.cpp

@@ -142,9 +142,9 @@ Slice::outputTypeToString(const TypePtr& type)
 	"::Ice::Double&",
 	"::std::string&",
 	"::std::wstring&",
-	"::Ice::ObjectPtr",
-	"::Ice::ObjectPrx",
-	"::Ice::LocalObjectPtr"
+	"::Ice::ObjectPtr&",
+	"::Ice::ObjectPrx&",
+	"::Ice::LocalObjectPtr&"
     };
     
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

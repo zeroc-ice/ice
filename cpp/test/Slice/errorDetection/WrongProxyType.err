@@ -1,0 +1,3 @@
+WrongProxyType.ice:15 error: `Vector' must be class or interface
+WrongProxyType.ice:16 error: `Vector' must be class or interface
+WrongProxyType.ice:17 error: `Vector' must be class or interface

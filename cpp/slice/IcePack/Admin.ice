@@ -105,6 +105,20 @@ class Admin
      *
      **/
     void remove(Object* object);
+
+    /**
+     *
+     * Find a server and objects implemented by that server from IcePack.
+     *
+     * @param object Must match the field <literal>object</literal> of
+     * the <literal>ServerDescription</literal> data to find.
+     *
+     * @return The server description, or null if no description was found.
+     *
+     * @see add
+     *
+     **/
+    ServerDescription find(Object* object);
 };
 
 };

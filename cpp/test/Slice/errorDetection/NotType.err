@@ -1,0 +1,10 @@
+NotType.ice:17 error: `Module' is not a type
+NotType.ice:18 error: `Module' is not a type
+NotType.ice:19 error: `Module' is not a type
+NotType.ice:20 error: `Module3' is not a type
+NotType.ice:20 error: `Module2' is not a type
+NotType.ice:20 error: `Module1' is not a type
+NotType.ice:21 error: `Module' is not a type
+NotType.ice:21 error: `Module3' is not a type
+NotType.ice:21 error: `Module2' is not a type
+NotType.ice:21 error: `Module1' is not a type

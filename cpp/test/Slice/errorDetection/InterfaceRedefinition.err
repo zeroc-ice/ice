@@ -1,0 +1,2 @@
+InterfaceRedefinition.ice:12 error: redefinition of interface `Intf1'
+InterfaceRedefinition.ice:16 error: redefinition of interface `Intf2'

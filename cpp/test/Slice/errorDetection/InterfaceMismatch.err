@@ -1,0 +1,6 @@
+InterfaceMismatch.ice:12 error: class `Foo1' was declared as interface
+InterfaceMismatch.ice:13 error: class `Foo1' was declared as interface
+InterfaceMismatch.ice:16 error: class `Foo2' was defined as interface
+InterfaceMismatch.ice:19 error: interface `Foo3' was declared as class
+InterfaceMismatch.ice:20 error: interface `Foo3' was declared as class
+InterfaceMismatch.ice:23 error: interface `Foo4' was defined as class

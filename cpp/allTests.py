@@ -17,9 +17,14 @@ for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", ".
 else:
     raise "can't find toplevel directory!"
 
-for name in ["parser", "operations", "exceptions", "inheritance", "faultTolerance", "locationForward"]:
+for i in [ ("Slice", "errorDetection"), \
+           ("Ice", "operations"), \
+           ("Ice", "exceptions"), \
+           ("Ice", "inheritance"), \
+           ("Ice", "faultTolerance"), \
+           ("Ice", "locationForward")]:
 
-    dir = os.path.join(toplevel, "test", name)
+    dir = os.path.join(toplevel, "test", *i)
     
     print
     print "*** running tests in " + dir + ":"

@@ -1,0 +1,2 @@
+ClassRedefinition.ice:12 error: redefinition of class `Class1'
+ClassRedefinition.ice:16 error: redefinition of class `Class2'

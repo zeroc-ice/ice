@@ -1,0 +1,2 @@
+RedefinitionAsInterface.ice:12 error: declaration of already defined `Vector1' as interface
+RedefinitionAsInterface.ice:15 error: redefinition of `Vector2' as interface

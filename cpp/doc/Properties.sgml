@@ -12,11 +12,11 @@ All Rights Reserved
 <section><title>Tracing</title>
 <!-- ********************************************************************** -->
 
-<section><title>ice.trace.network</title>
+<section><title>Ice.Trace.Network</title>
 
 <section><title>Synopsis</title>
 <synopsis>
-ice.trace.network=<replaceable>num</replaceable>
+Ice.Trace.Network=<replaceable>num</replaceable>
 </synopsis>
 </section>
 
@@ -51,11 +51,11 @@ The network tracing level:
 
 </section>
 
-<section><title>ice.trace.protocol</title>
+<section><title>Ice.Trace.Protocol</title>
 
 <section><title>Synopsis</title>
 <synopsis>
-ice.trace.protocol=<replaceable>num</replaceable>
+Ice.Trace.Protocol=<replaceable>num</replaceable>
 </synopsis>
 </section>
 
@@ -82,11 +82,11 @@ The protocol tracing level:
 
 </section>
 
-<section><title>ice.trace.retry</title>
+<section><title>Ice.Trace.Retry</title>
 
 <section><title>Synopsis</title>
 <synopsis>
-ice.trace.retry=<replaceable>num</replaceable>
+Ice.Trace.Retry=<replaceable>num</replaceable>
 </synopsis>
 </section>
 
@@ -123,11 +123,11 @@ The request retry tracing level:
 <section><title>Object Adapter</title>
 <!-- ********************************************************************** -->
 
-<section><title>ice.adapter.<replaceable>name</replaceable>.endpoints</title>
+<section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
 
 <section><title>Synopsis</title>
 <synopsis>
-ice.adapter.<replaceable>name</replaceable>.endpoints=<replaceable>endpoint_list</replaceable>
+Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 
@@ -148,11 +148,11 @@ Sets the endpoints for the object adapter
 <section><title>Thread Pool</title>
 <!-- ********************************************************************** -->
 
-<section><title>ice.thread_pool.size</title>
+<section><title>Ice.ThreadPool.Size</title>
 
 <section><title>Synopsis</title>
 <synopsis>
-ice.thread_pool.size=<replaceable>num</replaceable>
+Ice.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 

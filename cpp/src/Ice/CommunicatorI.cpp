@@ -80,7 +80,7 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    string endpts = _instance->properties()->getProperty("ice.adapter." + name + ".endpoints");
+    string endpts = _instance->properties()->getProperty("Ice.Adapter." + name + ".Endpoints");
     return createObjectAdapterWithEndpoints(name, endpts);
 }
 
@@ -173,13 +173,7 @@ Ice::initialize(int&, char*[], Int version)
     }
 #endif
 
-    PropertiesPtr properties;
-    const char* file = getenv("ICE_CONFIG");
-    if (file && *file != '\0')
-	properties = new PropertiesI(file);
-    else
-	properties = new PropertiesI;
-    return new CommunicatorI(properties);
+    return new CommunicatorI(getDefaultProperties());
 }
 
 CommunicatorPtr
@@ -193,6 +187,22 @@ Ice::initializeWithProperties(int&, char*[], const PropertiesPtr& properties, In
 #endif
 
     return new CommunicatorI(properties);
+}
+
+PropertiesPtr
+Ice::getDefaultProperties()
+{
+    PropertiesPtr properties;
+    const char* file = getenv("ICE_CONFIG");
+    if (file && *file != '\0')
+    {
+	properties = new PropertiesI(file);
+    }
+    else
+    {
+	properties = new PropertiesI;
+    }
+    return properties;
 }
 
 PropertiesPtr
