@@ -16,11 +16,14 @@
 
 namespace Slice
 {
+
+// TODO: ML: Consider moving to Scanner.l, as it is only used there.
 //
 // Function object to do case-insensitive string comparison.
 //
 struct CICompare : public std::binary_function<std::string, std::string, bool>
 {
+    // TODO: ML: Make non-inline.
     bool operator()(const std::string& s1, const std::string& s2) const
     {
 	std::string::const_iterator p1 = s1.begin();
@@ -52,12 +55,15 @@ struct CICompare : public std::binary_function<std::string, std::string, bool>
 //
 // Definitions for the case-insensitive keyword-token map.
 //
+// TODO: ML: Naming conventions for types. (Should be StringTokenMap.)
+// TODO: ML: Consider moving to Scanner.l, as it is only used there. Then keywordMap can also be static.
 typedef std::map<std::string, int, CICompare> stringTokenMap;
 extern stringTokenMap keywordMap;
 
 //
 // initialize() fills the keyword map with all keyword-token pairs.
 //
+// TODO: ML: Perhaps initializeKeywordMap() would be a better name?
 void initialize();
 
 class StringTok;
