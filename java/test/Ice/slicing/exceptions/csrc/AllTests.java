@@ -51,6 +51,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("Base.b"));
+		test(b.ice_name().equals("Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -72,6 +73,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownDerived.b"));
+		test(b.ice_name().equals("Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -94,6 +96,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
+		test(k.ice_name().equals("KnownDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -116,6 +119,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
+		test(k.ice_name().equals("KnownDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -137,6 +141,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownIntermediate.b"));
+		test(b.ice_name().equals("Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -159,6 +164,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
+		test(ki.ice_name().equals("KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -182,6 +188,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
+		test(kmd.ice_name().equals("KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -204,6 +211,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
+		test(ki.ice_name().equals("KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -227,6 +235,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
+		test(kmd.ice_name().equals("KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -250,6 +259,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
+		test(kmd.ice_name().equals("KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -272,6 +282,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
+		test(ki.ice_name().equals("KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -294,6 +305,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
+		test(ki.ice_name().equals("KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -315,6 +327,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownMostDerived2.b"));
+		test(b.ice_name().equals("Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)

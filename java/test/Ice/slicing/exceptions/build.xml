@@ -11,13 +11,20 @@ the terms of the GNU General Public License version 2 as published by
 the Free Software Foundation.
 
 -->
-<project name="test_Ice_slicing_exceptions" default="all" basedir=".">
+<project name="test_Ice_slicing_objects" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../../.."/>
     <property name="lib.dir" value="${top.dir}/lib"/>
-    <property name="class.dir" value="classes"/>
-    <property name="generated.dir" value="generated"/>
+    <property name="cclass.dir" value="cclasses"/>
+    <property name="sclass.dir" value="sclasses"/>
+    <property name="cgen.dir" value="cgenerated"/>
+    <property name="sgen.dir" value="sgenerated"/>
+    <property name="csrc.dir" value="csrc"/>
+    <property name="ssrc.dir" value="ssrc"/>
+
+    <!-- set common build properties for this build -->
+    <property file="${top.dir}/config/build.properties"/>
 
     <!-- set common build properties for this build -->
     <property file="${top.dir}/config/build.properties"/>
@@ -33,8 +40,15 @@ the Free Software Foundation.
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
-        <mkdir dir="${generated.dir}"/>
-        <slice2java outputdir="${generated.dir}">
+        <mkdir dir="${cgen.dir}"/>
+        <slice2java outputdir="${cgen.dir}">
+	    <includepath>
+		<pathelement path="."/>
+	    </includepath>
+            <fileset dir="." includes="ClientTest.ice"/>
+        </slice2java>
+        <mkdir dir="${sgen.dir}"/>
+        <slice2java outputdir="${sgen.dir}">
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
@@ -43,18 +57,25 @@ the Free Software Foundation.
     </target>
 
     <target name="compile" depends="generate">
-        <mkdir dir="${class.dir}"/>
-        <javac srcdir="${generated.dir}" destdir="${class.dir}"
+        <mkdir dir="${cclass.dir}"/>
+        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}"
             source="1.4" classpath="${lib.dir}" debug="${debug}"/>
-        <javac srcdir="." destdir="${class.dir}" source="1.4"
-            classpath="${lib.dir}" excludes="generated/**" debug="${debug}"/>
+        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" source="1.4"
+            classpath="${lib.dir}" excludes="${cgen.dir}/**" debug="${debug}"/>
+        <mkdir dir="${sclass.dir}"/>
+        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}"
+            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
+        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" source="1.4"
+            classpath="${lib.dir}" excludes="${sgen.dir}/**" debug="${debug}"/>
     </target>
 
     <target name="all" depends="compile"/>
 
     <target name="clean">
-        <delete dir="${generated.dir}"/>
-        <delete dir="${class.dir}"/>
+        <delete dir="${cgen.dir}"/>
+        <delete dir="${sgen.dir}"/>
+        <delete dir="${cclass.dir}"/>
+        <delete dir="${sclass.dir}"/>
     </target>
 
 </project>
