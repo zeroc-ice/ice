@@ -139,16 +139,21 @@ public class Slice2JavaTask extends SliceTask
         //
         if(!buildList.isEmpty())
         {
+            String translator;
             if(_translator == null)
             {
                 if(_iceHome == null)
                 {
-                    _translator = new File("slice2java");
+                    translator = "slice2java";
                 }
                 else
                 {
-                    _translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2java");
+                    translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2java").toString();
                 }
+            }
+            else
+            {
+                translator = _translator.toString();
             }
 
             StringBuffer cmd = new StringBuffer();
@@ -159,7 +164,7 @@ public class Slice2JavaTask extends SliceTask
             if(_outputDir != null)
             {
                 cmd.append(" --output-dir ");
-                cmd.append(_outputDir.toString());
+                cmd.append(_outputDirString);
             }
 
             //
@@ -171,7 +176,14 @@ public class Slice2JavaTask extends SliceTask
                 for(int i = 0; i < dirs.length; i++)
                 {
                     cmd.append(" -I");
-                    cmd.append(dirs[i]);
+                    if(dirs[i].indexOf(' ') != -1)
+                    {
+                        cmd.append('"' + dirs[i] + '"');
+                    }
+                    else
+                    {
+                        cmd.append(dirs[i]);
+                    }
                 }
             }
 
@@ -234,18 +246,26 @@ public class Slice2JavaTask extends SliceTask
             {
                 File f = (File)buildList.elementAt(i);
                 cmd.append(" ");
-                cmd.append(f.toString());
+                String s = f.toString();
+                if(s.indexOf(' ') != -1)
+                {
+                    cmd.append('"' + s + '"');
+                }
+                else
+                {
+                    cmd.append(s);
+                }
             }
 
             //
             // Execute
             //
-            log(_translator.toString() + " " + cmd);
+            log(translator + " " + cmd);
             ExecTask task = (ExecTask)project.createTask("exec");
             task.setFailonerror(true);
             Argument arg = task.createArg();
             arg.setLine(cmd.toString());
-            task.setExecutable(_translator.toString());
+            task.setExecutable(translator);
             task.execute();
 
             //
@@ -262,7 +282,14 @@ public class Slice2JavaTask extends SliceTask
                 for(int i = 0; i < dirs.length; i++)
                 {
                     cmd.append(" -I");
-                    cmd.append(dirs[i]);
+                    if(dirs[i].indexOf(' ') != -1)
+                    {
+                        cmd.append('"' + dirs[i] + '"');
+                    }
+                    else
+                    {
+                        cmd.append(dirs[i]);
+                    }
                 }
             }
 
@@ -273,7 +300,15 @@ public class Slice2JavaTask extends SliceTask
             {
                 File f = (File)buildList.elementAt(i);
                 cmd.append(" ");
-                cmd.append(f.toString());
+                String s = f.toString();
+                if(s.indexOf(' ') != -1)
+                {
+                    cmd.append('"' + s + '"');
+                }
+                else
+                {
+                    cmd.append(s);
+                }
             }
 
 	    //
@@ -286,7 +321,7 @@ public class Slice2JavaTask extends SliceTask
             task.setFailonerror(true);
 	    arg = task.createArg();
             arg.setLine(cmd.toString());
-            task.setExecutable(_translator.toString());
+            task.setExecutable(translator);
 	    task.setOutputproperty(outputProperty);
             task.execute();
 

@@ -166,7 +166,6 @@ public class Slice2FreezeJTask extends SliceTask
 		    break;
 		}
 	    }
-	    
 	}
 	
 	//
@@ -199,7 +198,6 @@ public class Slice2FreezeJTask extends SliceTask
 	    }
 	}
 
-
 	if(!build)
 	{
 	    log("skipping" + dictString + indexString);
@@ -225,7 +223,7 @@ public class Slice2FreezeJTask extends SliceTask
 	if(_outputDir != null)
 	{
 	    cmd.append(" --output-dir ");
-	    cmd.append(_outputDir.toString());
+	    cmd.append(_outputDirString);
 	}
 
 	//
@@ -245,7 +243,14 @@ public class Slice2FreezeJTask extends SliceTask
 	    for(int i = 0; i < dirs.length; i++)
 	    {
 		cmd.append(" -I");
-		cmd.append(dirs[i]);
+                if(dirs[i].indexOf(' ') != -1)
+                {
+                    cmd.append('"' + dirs[i] + '"');
+                }
+                else
+                {
+                    cmd.append(dirs[i]);
+                }
 	    }
 	}
 
@@ -274,7 +279,6 @@ public class Slice2FreezeJTask extends SliceTask
 	//
 	cmd.append(dictString);
 
-
 	//
 	// Add the --index options.
 	//
@@ -287,30 +291,44 @@ public class Slice2FreezeJTask extends SliceTask
 	while(p.hasNext())
 	{
 	    File f = (File)p.next();
-	    cmd.append(" " + f);
+            cmd.append(" ");
+            String s = f.toString();
+            if(s.indexOf(' ') != -1)
+            {
+                cmd.append('"' + s + '"');
+            }
+            else
+            {
+                cmd.append(s);
+            }
 	}
 
+        String translator;
         if(_translator == null)
         {
             if(_iceHome == null)
             {
-                _translator = new File("slice2freezej");
+                translator = "slice2freezej";
             }
             else
             {
-                _translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2freezej");
+                translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2freezej").toString();
             }
+        }
+        else
+        {
+            translator = _translator.toString();
         }
 	
 	//
 	// Execute.
 	//
-	log(_translator.toString() + " " + cmd);
+	log(translator + " " + cmd);
 	ExecTask task = (ExecTask)project.createTask("exec");
 	task.setFailonerror(true);
 	Argument arg = task.createArg();
 	arg.setLine(cmd.toString());
-	task.setExecutable(_translator.toString());
+	task.setExecutable(translator);
 	task.execute();
 	
 	//
@@ -329,7 +347,14 @@ public class Slice2FreezeJTask extends SliceTask
 		for(int i = 0; i < dirs.length; i++)
 		{
 		    cmd.append(" -I");
-		    cmd.append(dirs[i]);
+                    if(dirs[i].indexOf(' ') != -1)
+                    {
+                        cmd.append('"' + dirs[i] + '"');
+                    }
+                    else
+                    {
+                        cmd.append(dirs[i]);
+                    }
 		}
 	    }
 
@@ -340,7 +365,16 @@ public class Slice2FreezeJTask extends SliceTask
 	    while(p.hasNext())
 	    {
 		File f = (File)p.next();
-		cmd.append(" " + f.toString());
+                cmd.append(" ");
+                String s = f.toString();
+                if(s.indexOf(' ') != -1)
+                {
+                    cmd.append('"' + s + '"');
+                }
+                else
+                {
+                    cmd.append(s);
+                }
 	    }
 
 	    //
@@ -363,7 +397,7 @@ public class Slice2FreezeJTask extends SliceTask
 	    task.setFailonerror(true);
 	    arg = task.createArg();
 	    arg.setLine(cmd.toString());
-	    task.setExecutable(_translator.toString());
+	    task.setExecutable(translator);
 	    task.setOutputproperty(outputProperty);
 	    task.execute();
 
@@ -473,7 +507,6 @@ public class Slice2FreezeJTask extends SliceTask
 	}
     }
 
-
     public class Index
     {
 	private String _name;
@@ -528,9 +561,7 @@ public class Slice2FreezeJTask extends SliceTask
 	{
 	    return _caseSensitive;
 	}
-
     }
-
 
     private java.util.List _dicts = new java.util.LinkedList();
     private java.util.List _indices = new java.util.LinkedList();

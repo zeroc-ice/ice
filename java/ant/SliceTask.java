@@ -57,6 +57,7 @@ public class SliceTask extends org.apache.tools.ant.Task
     {
         _dependencyFile = null;
         _outputDir = null;
+        _outputDirString = null;
 	_caseSensitive = false;
         _ice = false;
         _includePath = null;
@@ -87,6 +88,11 @@ public class SliceTask extends org.apache.tools.ant.Task
     setOutputdir(File dir)
     {
         _outputDir = dir;
+        _outputDirString = _outputDir.toString();
+        if(_outputDirString.indexOf(' ') != -1)
+        {
+            _outputDirString = '"' + _outputDirString + '"';
+        }
     }
 
     public void
@@ -225,21 +231,42 @@ public class SliceTask extends org.apache.tools.ant.Task
 		{
 		    depline.append(line);
 
+                    //
+                    // It's easier to split up the filenames if we first convert Windows
+                    // path separators into Unix path separators.
+                    //
+                    char[] chars = depline.toString().toCharArray();
+                    int pos = 0;
+                    while(pos < chars.length)
+                    {
+                        if(chars[pos] == '\\')
+                        {
+                            if(pos + 1 < chars.length)
+                            {
+                                //
+                                // Only convert the backslash if it's not an escape.
+                                //
+                                if(chars[pos + 1] != ' ' && chars[pos + 1] != ':' && chars[pos + 1] != '\r' &&
+                                   chars[pos + 1] != '\n')
+                                {
+                                    chars[pos] = '/';
+                                }
+                            }
+                        }
+                        ++pos;
+                    }
+
 		    //
 		    // Split the dependencies up into filenames. Note that filenames containing
-		    // spaces are escaped (e.g., "C:/Program\ Files/..."), and the initial file
-                    // may have escaped colons.
+		    // spaces are escaped and the initial file may have escaped colons
+                    // (e.g., "C\:/Program\ Files/...").
                     //
-		    String str = depline.toString();
-		    int len = str.length();
 		    java.util.ArrayList l = new java.util.ArrayList();
-		    int start = -1;
-		    int pos = 0;
                     StringBuffer file = new StringBuffer();
-		    while(pos < len)
+                    pos = 0;
+		    while(pos < chars.length)
 		    {
-			char ch = str.charAt(pos);
-			if(Character.isWhitespace(ch))
+			if(Character.isWhitespace(chars[pos]))
 			{
 			    if(file.length() > 0)
 			    {
@@ -247,13 +274,9 @@ public class SliceTask extends org.apache.tools.ant.Task
 				file = new StringBuffer();
 			    }
 			}
-                        else
+                        else if(chars[pos] != '\\') // Skip backslash of an escaped character.
                         {
-                            if(ch == '\\') // Ignore escaped character.
-                            {
-                                ++pos;
-                            }
-                            file.append(ch);
+                            file.append(chars[pos]);
                         }
 			++pos;
 		    }
@@ -264,14 +287,19 @@ public class SliceTask extends org.apache.tools.ant.Task
 
 		    //
 		    // Create SliceDependency. We need to remove the trailing colon from the first file.
+                    // We also normalize the pathname for this platform.
 		    //
 		    SliceDependency depend = new SliceDependency();
 		    depend._dependencies = new String[l.size()];
 		    l.toArray(depend._dependencies);
 		    depend._timeStamp = new java.util.Date().getTime();
                     pos = depend._dependencies[0].lastIndexOf(':');
-                    assert(pos > 0);
+                    assert(pos == depend._dependencies[0].length() - 1);
                     depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
+                    for(int i = 0; i < depend._dependencies.length; ++i)
+                    {
+                        depend._dependencies[i] = new File(depend._dependencies[i]).toString();
+                    }
 		    dependencies.add(depend);
 
 		    depline = new StringBuffer();
@@ -336,6 +364,7 @@ public class SliceTask extends org.apache.tools.ant.Task
 
     protected File _dependencyFile;
     protected File _outputDir;
+    protected String _outputDirString;
     protected boolean _caseSensitive;
     protected boolean _ice;
     protected Path _includePath;
