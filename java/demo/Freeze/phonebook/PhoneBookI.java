@@ -51,7 +51,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    }
 	    newIdents[length] = ident;
 
-	    _nameIdentitiesDict.put("N", newIdents);
+	    _nameIdentitiesDict.fastPut("N", newIdents);
 	
 	    //
 	    // Turn the identity into a Proxy and return the Proxy to
@@ -159,7 +159,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    }
 	    newIdents[length] = ident;
 	
-	    _nameIdentitiesDict.put("N" + newName, newIdents);
+	    _nameIdentitiesDict.fastPut("N" + newName, newIdents);
 	}
 	catch(Freeze.DBNotFoundException ex)
 	{
@@ -219,7 +219,7 @@ class PhoneBookI extends _PhoneBookDisp
 
 	    ids[0].name = s;
     
-	    _nameIdentitiesDict.put("ID", ids);
+	    _nameIdentitiesDict.fastPut("ID", ids);
 
 	    Ice.Identity id = new Ice.Identity();
 	    id.name = s;
@@ -283,7 +283,7 @@ class PhoneBookI extends _PhoneBookDisp
 
 	if (identities.length == 1)
 	{
-	    _nameIdentitiesDict.remove(key);
+	    _nameIdentitiesDict.fastRemove(key);
 	}
 	else
 	{
@@ -298,7 +298,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    // See the comment in getNewIdentity why the prefix "N" is
 	    // needed.
 	    //
-	    _nameIdentitiesDict.put(key, newIdents);
+	    _nameIdentitiesDict.fastPut(key, newIdents);
 	}
     }
 

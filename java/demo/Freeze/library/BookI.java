@@ -50,7 +50,7 @@ class BookI extends Book
     returnBook(Ice.Current current)
 	throws BookNotRentedException
     {
-	if (_rentalCustomerName.length() != 0)
+	if (_rentalCustomerName.length() == 0)
 	{
 	    throw new BookNotRentedException();
 	}

@@ -70,7 +70,7 @@ class LibraryI extends _LibraryDisp
 	    }
 	    newIsbnSeq[length] = description.isbn;
 
-	    _authors.put(description.authors, newIsbnSeq);
+	    _authors.fastPut(description.authors, newIsbnSeq);
 	
 	    return book;
 	}
@@ -196,7 +196,7 @@ class LibraryI extends _LibraryDisp
 		// If there are no further associated isbn numbers then remove
 		// the record.
 		//
-		_authors.remove(description.authors);
+		_authors.fastRemove(description.authors);
 	    }
 	    else
 	    {
@@ -211,7 +211,7 @@ class LibraryI extends _LibraryDisp
 		    System.arraycopy(isbnSeq, i+1, newIsbnSeq, i, isbnSeq.length - i - 1);
 		}
 	    
-		_authors.put(description.authors, newIsbnSeq);
+		_authors.fastPut(description.authors, newIsbnSeq);
 	    }
 	}
 	catch(Freeze.DBException ex)
