@@ -35,7 +35,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
        {
            stringSeqTest = true;
        }
-       else
+       else if(strcmp(argv[i], "byte") == 0)
        {
 	   byteTest = true;
        }

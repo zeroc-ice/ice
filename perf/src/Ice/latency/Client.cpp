@@ -30,7 +30,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	{
 	    batch = true;
 	}
-	else
+	else if(strcmp(argv[i], "twoway") == 0)
 	{
 	    twoway = true;
 	}

@@ -37,6 +37,7 @@ def addResults(name, result):
 
     if not results.has_key(name):
         results[name] = [ ]
+
     results[name].append(result)
 
 def printAllResults():
@@ -66,10 +67,10 @@ def runClientServerPerf(iter, directory, name, clientOpts, serverOpts):
     print str(iter) + ": " + name + "...",
     sys.stdout.flush()
     
-    serverPipe = os.popen("./server " + serverOpts)
+    serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts)
     TestUtil.getAdapterReady(serverPipe)
 
-    clientPipe = os.popen("./client " + clientOpts)
+    clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts)
     result = float(clientPipe.read())
     clientPipe.close()
 
