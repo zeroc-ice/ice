@@ -1574,6 +1574,25 @@ they will expire. The default value of 1 day (86,400 seconds).
 </section>
 </section>
 
+<section><title>Glacier.Starter.Certificate.SecondsValid</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.Certificate.IssuedAdjust=<replaceable>(+/-) seconds</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property provides a method to adjust the issued timestamp on dynamically
+generated certificates for the Glacier Router.  The default value is 0, which
+sets the issued time based on the system time when the certificate is actually
+created.  Positive adjustments will adjust the timestamp into the future, and
+negative adjustments will cause the timestamp to be in the past by the number
+of seconds indicated.  This adjustment is relative to server time.
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->
