@@ -21,6 +21,10 @@ Changes since version 1.5.1
   Sequences of Object or Object* caused incorrect code
   to be generated if they were marked as "cs:collection".
 
+- Fixed a bug in the slice2cs code generator: for nested sequences,
+  incorrect code was generated if both the inner and the outer sequence
+  were mapped as arrays.
+
 - Fixed a number of bugs in slice2cs that cause incorrect
   code to be generated if C# keywords were used as Slice
   identifiers.
