@@ -122,11 +122,23 @@ SOURCE=.\LinkDB.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LinkProxy.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\LinkSubscriber.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\OnewayBatchSubscriber.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\QueuedProxy.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OnewayProxy.cpp
 # End Source File
 # Begin Source File
 
@@ -164,6 +176,10 @@ SOURCE=.\TraceLevels.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Event.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Flushable.h
