@@ -47,7 +47,7 @@ the Free Software Foundation.
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java outputdir="${generated.dir}">
+        <slice2java ice="on" outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -92,7 +92,7 @@ the Free Software Foundation.
                 <include name="IceStorm.ice" />
             </fileset>
         </slice2java>
-        <slice2freezej outputdir="${generated.dir}">
+        <slice2freezej ice="on" outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
