@@ -30,13 +30,13 @@ OBJS		= Base64.o \
 		  OutputUtil.o \
 		  RWRecMutex.o \
 		  RecMutex.o \
-		  StaticMutex.o
+		  StaticMutex.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \
 		  Time.o \
 		  UUID.o \
-		  Unicode.o \
+		  Unicode.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
