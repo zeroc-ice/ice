@@ -99,6 +99,11 @@ IceUtil::Thread::~Thread()
 {
 }
 
+IceUtil::Thread::id() const
+{
+    return _id;
+}
+
 static void*
 startHook(void* arg)
 {

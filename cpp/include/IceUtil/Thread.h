@@ -89,9 +89,16 @@ private:
 class ICE_UTIL_API Thread : virtual public IceUtil::Shared
 {
 public:
+#ifdef _WIN32
+    typedef unsigned ThreadId;
+#else
+    typedef pthread_t ThreadId;
+#endif
 
     Thread();
     virtual ~Thread();
+
+    pthread_t id() const;
 
     virtual void run() = 0;
 
