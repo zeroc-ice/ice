@@ -61,7 +61,7 @@ $(VERSIONED_SNAME): $(SERVICE_OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(SERVICE_OBJS)
 
-$(ADMIN): $(AOBJS)
+$(ADMIN): $(AOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lYellow $(LIBS) -lreadline -lcurses
 

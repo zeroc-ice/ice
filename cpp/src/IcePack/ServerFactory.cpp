@@ -115,6 +115,7 @@ IcePack::ServerFactory::create(const string& type)
     else
     {
 	assert(false);
+	return 0; // Keep the compiler happy.
     }
 }
 

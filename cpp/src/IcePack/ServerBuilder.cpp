@@ -690,6 +690,6 @@ IcePack::ServerBuilder::getServerAdapter(const std::string& id) const
     else 
     {
 	assert(false);
+	return 0; // Keep the compiler happy.
     }
 }
-

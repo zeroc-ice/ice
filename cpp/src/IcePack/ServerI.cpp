@@ -229,7 +229,7 @@ IcePack::ServerI::destroy(const Ice::Current& current)
 void
 IcePack::ServerI::terminated(const Ice::Current&)
 {
-    ServerState newState;
+    ServerState newState = Inactive; // Initialize to keep the compiler happy.
 
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -408,7 +408,9 @@ IcePack::ServerI::stopInternal()
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
+#ifndef NDEBUG
 	ServerState oldState = _state;
+#endif
 
 	while(true)
 	{
