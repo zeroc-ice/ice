@@ -16,6 +16,9 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
+#include <Ice/SslExtensionF.h>
+#include <Ice/SslSystemInternalF.h>
+#include <Ice/SslSystemF.h>
 
 namespace Ice
 {
@@ -49,6 +52,9 @@ public:
     virtual void setLogger(const LoggerPtr&);
 
     virtual void setDefaultRouter(const RouterPrx&);
+
+    virtual ::IceSSL::SslExtensionPtr getSslExtension();
+    virtual ::IceSSL::SystemPtr getSslSystem();
 
 private:
 

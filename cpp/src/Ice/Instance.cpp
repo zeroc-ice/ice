@@ -22,6 +22,8 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
+#include <Ice/SslSystemInternal.h>
+#include <Ice/SslFactory.h>
 
 #ifndef WIN32
 #   include <Ice/SysLoggerI.h>
@@ -113,6 +115,12 @@ IceInternal::Instance::defaultHost()
 {
     // No mutex lock, immutable.
     return _defaultHost;
+}
+
+::IceSSL::SystemInternalPtr
+IceInternal::Instance::getSslSystem()
+{
+    return _sslSystem;
 }
 
 RouterManagerPtr
@@ -292,6 +300,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_threadPool = new ThreadPool(this);
 	__setNoDelete(false);
+
+        // Get our instance of the SSL System
+        _sslSystem = IceSSL::Factory::getSystem(this);
     }
     catch(...)
     {
@@ -417,7 +428,7 @@ IceInternal::Instance::destroy()
 	// synchronization.
 	//
 	threadPool = _threadPool;
-	_threadPool = 0;
+        _threadPool = 0;
     }
     
     if (threadPool)

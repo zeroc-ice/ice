@@ -11,21 +11,18 @@
 #ifndef ICE_SSL_FACTORY_H
 #define ICE_SSL_FACTORY_H
 
+#include <IceUtil/Mutex.h>
+#include <Ice/InstanceF.h>
+#include <Ice/SslSystemInternalF.h>
+#include <Ice/SslCertificateVerifierF.h>
+
 #include <string>
 #include <map>
-#include <IceUtil/Mutex.h>
-#include <Ice/SslSystemF.h>
-#include <Ice/SslCertificateVerifierF.h>
-#include <Ice/Security.h>
 
-namespace IceSecurity
+namespace IceSSL
 {
 
-namespace Ssl
-{
-
-typedef std::map<std::string, SystemPtr> SystemMap;
-typedef std::map<void*, SystemPtr> SslHandleSystemMap;
+typedef std::map<void*, SystemInternalPtr> SslHandleSystemMap;
 
 // This is defined as a class so as to ensure encapsulation.  We don't
 // want just anybody creating System instances - when all this is moved
@@ -37,23 +34,17 @@ class Factory
 {
 
 public:
-    static SystemPtr getSystem(const std::string&);
+    static SystemInternalPtr getSystem(const IceInternal::InstancePtr&);
 
     // System Handle related methods
-    static void addSystemHandle(void*, const SystemPtr&);
+    static void addSystemHandle(void*, const SystemInternalPtr&);
     static void removeSystemHandle(void*);
-    static SystemPtr getSystemFromHandle(void*);
+    static SystemInternalPtr getSystemFromHandle(void*);
 
 private:
     static SslHandleSystemMap _sslHandleSystemRepository;
-    static SystemMap _systemRepository;
     static ::IceUtil::Mutex _systemRepositoryMutex;
-    static int _evict;
-
-    static void reapSystems();
 };
-
-}
 
 }
 

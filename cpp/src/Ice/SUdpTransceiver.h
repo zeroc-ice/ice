@@ -46,7 +46,7 @@ public:
     int effectivePort();
 
     // Server Channel Implementation methods
-    void clientHello(const IceSecurity::SecureUdp::ClientChannelPtr&, const Ice::ByteSeq&);
+    void clientHello(const SecureUdp::ClientChannelPtr&, const Ice::ByteSeq&);
     void clientKeyAcknowledge(Ice::Long, Ice::Long, const Ice::ByteSeq&);
     void clientKeyRequest(Ice::Long);
     void clientGoodbye(Ice::Long);
@@ -68,7 +68,7 @@ private:
     void createControlChannel(int);
 
     UdpTransceiver _udpTransceiver;
-    IceSecurity::SecureUdp::ControlChannelPtr _controlChannel;
+    SecureUdp::ControlChannelPtr _controlChannel;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

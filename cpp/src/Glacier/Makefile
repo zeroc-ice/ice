@@ -26,8 +26,7 @@ OBJS		= Glacier.o
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \
 		  ClientBlobject.o \
-		  ServerBlobject.o \
-                  CertVerifier.o
+		  ServerBlobject.o
 
 SOBJS		= GlacierStarter.o \
 		  GlacierI.o

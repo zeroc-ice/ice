@@ -1,8 +1,10 @@
 Latency.Ping=ping:default -p 10000
 Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
 
-Ice.Security.Ssl.CertPath=../../../certs
-Ice.Security.Ssl.Config=./sslconfig.xml
+Ice.Ssl.Client.CertPath=../../../certs
+Ice.Ssl.Client.Config=./sslconfig.xml
+Ice.Ssl.Server.CertPath=../../../certs
+Ice.Ssl.Server.Config=./sslconfig.xml
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Client.Endpoints=default

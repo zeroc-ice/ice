@@ -16,8 +16,7 @@ SERVER		= server
 TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Callback.o \
-		  CallbackI.o \
-                  CertVerifier.o
+		  CallbackI.o
 
 COBJS		= Client.o
 

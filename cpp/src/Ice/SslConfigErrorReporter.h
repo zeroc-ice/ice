@@ -18,10 +18,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class ErrorReporter : public ErrorHandler
@@ -44,7 +41,7 @@ public:
     void fatalError(const SAXParseException& toCatch);
     void resetErrors();
 
-    inline bool getSawErrors() const { return _sawErrors; };
+    bool getSawErrors() const;
 
 private:
     // This is set if we get any errors, and is queryable via a getter method.
@@ -55,16 +52,7 @@ private:
     Ice::LoggerPtr _logger;
 };
 
-inline std::ostream&
-operator << (std::ostream& target, const DOMString& s)
-{
-    char *p = s.transcode();
-    target << p;
-    delete [] p;
-    return target;
-}
-
-}
+std::ostream& operator << (std::ostream& target, const DOMString& s);
 
 }
 

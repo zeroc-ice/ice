@@ -25,10 +25,7 @@
 #   define ICE_API /**/
 #endif
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -105,8 +102,6 @@ public:
     RSAKeyPair* generate(const RSACertificateGenContext&);
 
 };
-
-}
 
 }
 

@@ -11,17 +11,12 @@
 #ifndef ICE_SECURE_UDP_F_ICE
 #define ICE_SECURE_UDP_F_ICE
 
-module IceSecurity
-{
-
 module SecureUdp
 {
 
 interface ClientChannel;
 
 interface ServerChannel;
-
-};
 
 };
 

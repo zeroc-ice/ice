@@ -13,10 +13,7 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -29,13 +26,11 @@ typedef IceInternal::Handle<RSAPublicKey> RSAPublicKeyPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::Ssl::OpenSSL::RSAPublicKey*);
-void decRef(::IceSecurity::Ssl::OpenSSL::RSAPublicKey*);
+void incRef(::IceSSL::OpenSSL::RSAPublicKey*);
+void decRef(::IceSSL::OpenSSL::RSAPublicKey*);
 
 }
 

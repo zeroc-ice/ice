@@ -8,20 +8,23 @@
 //
 // **********************************************************************
 
-#include <CertVerifier.h>
+#include <Ice/SingleCertificateVerifier.h>
 #include <openssl/err.h>
 #include <algorithm>
 #include <iostream>
 
 using namespace std;
+using Ice::ByteSeq;
 
-CertVerifier::CertVerifier(const ByteSeq& publicKey) :
-    _publicKey(publicKey)
+IceSSL::OpenSSL::SingleCertificateVerifier::SingleCertificateVerifier(const ByteSeq& publicKey) :
+                                           _publicKey(publicKey)
 {
 }
 
 int
-CertVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext, SSL* sslConnection)
+IceSSL::OpenSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
+                                                   X509_STORE_CTX* x509StoreContext,
+                                                   SSL* sslConnection)
 {
     // Short circuit - if the peer cert wasn't good enough for OpenSSL,
     // it's not good enough for us to bother checking.
@@ -95,7 +98,7 @@ CertVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext, SSL* s
 }
 
 ByteSeq
-CertVerifier::toByteSeq(X509* certificate)
+IceSSL::OpenSSL::SingleCertificateVerifier::toByteSeq(X509* certificate)
 {
     ByteSeq certByteSeq;
 

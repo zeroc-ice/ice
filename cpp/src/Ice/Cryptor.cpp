@@ -12,23 +12,23 @@
 #include <Ice/CryptKey.h>
 #include <algorithm>
 
-void ::IceInternal::incRef(::IceSecurity::SecureUdp::Cryptor* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::SecureUdp::Cryptor* p) { p->__decRef(); }
+void ::IceInternal::incRef(::SecureUdp::Cryptor* p) { p->__incRef(); }
+void ::IceInternal::decRef(::SecureUdp::Cryptor* p) { p->__decRef(); }
 
 using Ice::ByteSeq;
-using IceSecurity::SecureUdp::CryptKey;
-using IceSecurity::SecureUdp::CryptKeyPtr;
+using SecureUdp::CryptKey;
+using SecureUdp::CryptKeyPtr;
 
-IceSecurity::SecureUdp::Cryptor::Cryptor()
+SecureUdp::Cryptor::Cryptor()
 {
 }
 
-IceSecurity::SecureUdp::Cryptor::~Cryptor()
+SecureUdp::Cryptor::~Cryptor()
 {
 }
 
 const CryptKeyPtr
-IceSecurity::SecureUdp::Cryptor::getNewKey()
+SecureUdp::Cryptor::getNewKey()
 {
     // Gotta return a newly generated key here.
     ByteSeq byteSeq;
@@ -56,7 +56,7 @@ IceSecurity::SecureUdp::Cryptor::getNewKey()
 }
 
 const CryptKeyPtr
-IceSecurity::SecureUdp::Cryptor::getKey(const ByteSeq& key)
+SecureUdp::Cryptor::getKey(const ByteSeq& key)
 {
     CryptKeyPtr cryptKey = new CryptKey(key);
 
@@ -73,7 +73,7 @@ IceSecurity::SecureUdp::Cryptor::getKey(const ByteSeq& key)
 }
 
 const CryptKeyPtr
-IceSecurity::SecureUdp::Cryptor::getOrCreateKey(const ByteSeq& key)
+SecureUdp::Cryptor::getOrCreateKey(const ByteSeq& key)
 {
     CryptKeyPtr cryptKey;
 
@@ -90,13 +90,13 @@ IceSecurity::SecureUdp::Cryptor::getOrCreateKey(const ByteSeq& key)
 }
 
 void
-IceSecurity::SecureUdp::Cryptor::encrypt(const CryptKeyPtr& key, const ByteSeq& plainBuffer, ByteSeq& encryptedBuffer)
+SecureUdp::Cryptor::encrypt(const CryptKeyPtr& key, const ByteSeq& plainBuffer, ByteSeq& encryptedBuffer)
 {
     encryptedBuffer = plainBuffer;
 }
 
 void
-IceSecurity::SecureUdp::Cryptor::decrypt(const CryptKeyPtr& key, const ByteSeq& encryptedBuffer, ByteSeq& plainBuffer)
+SecureUdp::Cryptor::decrypt(const CryptKeyPtr& key, const ByteSeq& encryptedBuffer, ByteSeq& plainBuffer)
 {
     plainBuffer = encryptedBuffer;
 }

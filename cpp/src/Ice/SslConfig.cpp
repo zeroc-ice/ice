@@ -33,34 +33,37 @@
 #include <algorithm>
 
 using namespace std;
-using namespace IceSecurity::Ssl;
+using namespace IceSSL;
 
 //
 // Public Methods
 //
 
-IceSecurity::Ssl::Parser::Parser(const string& configFile) :
-                         _configFile(configFile)
+IceSSL::Parser::Parser(const string& configFile) :
+               _configFile(configFile)
 {
+    assert(!configFile.empty());
     _configPath  = "./";
     _traceLevels = 0;
     _logger      = 0;
 }
 
-IceSecurity::Ssl::Parser::Parser(const string& configFile, const string& configPath) :
-                         _configFile(configFile),
-                         _configPath(configPath)
+IceSSL::Parser::Parser(const string& configFile, const string& configPath) :
+               _configFile(configFile),
+               _configPath(configPath)
 {
+    assert(!configFile.empty());
+    assert(!configPath.empty());
     _traceLevels = 0;
     _logger      = 0;
 }
 
-IceSecurity::Ssl::Parser::~Parser()
+IceSSL::Parser::~Parser()
 {
 }
 
 void
-IceSecurity::Ssl::Parser::process()
+IceSSL::Parser::process()
 {
     try
     {
@@ -202,9 +205,7 @@ IceSecurity::Ssl::Parser::process()
 }
 
 bool
-IceSecurity::Ssl::Parser::loadClientConfig(GeneralConfig& general,
-                                           CertificateAuthority& certAuth,
-                                           BaseCertificates& baseCerts)
+IceSSL::Parser::loadClientConfig(GeneralConfig& general, CertificateAuthority& certAuth, BaseCertificates& baseCerts)
 {
     bool retCode = false;
     string clientSectionString("SSLConfig:client");
@@ -223,10 +224,10 @@ IceSecurity::Ssl::Parser::loadClientConfig(GeneralConfig& general,
 }
 
 bool
-IceSecurity::Ssl::Parser::loadServerConfig(GeneralConfig& general,
-                                           CertificateAuthority& certAuth,
-                                           BaseCertificates& baseCerts,
-                                           TempCertificates& tempCerts)
+IceSSL::Parser::loadServerConfig(GeneralConfig& general,
+                                 CertificateAuthority& certAuth,
+                                 BaseCertificates& baseCerts,
+                                 TempCertificates& tempCerts)
 {
     bool retCode = false;
     string serverSectionString("SSLConfig:server");
@@ -245,13 +246,37 @@ IceSecurity::Ssl::Parser::loadServerConfig(GeneralConfig& general,
     return retCode;
 }
 
+void
+IceSSL::Parser::setTrace(const IceInternal::TraceLevelsPtr& traceLevels)
+{
+    _traceLevels = traceLevels;
+}
+
+bool
+IceSSL::Parser::isTraceSet() const 
+{
+    return _traceLevels;
+}
+
+void
+IceSSL::Parser::setLogger(const Ice::LoggerPtr& logger)
+{
+    _logger = logger;
+}
+
+bool
+IceSSL::Parser::isLoggerSet() const
+{
+    return _logger;
+}
+
 //
 // Private Methods
 //
 
 // path is of the form "sslconfig:client:general"
 void
-IceSecurity::Ssl::Parser::popRoot(string& path, string& root, string& tail)
+IceSSL::Parser::popRoot(string& path, string& root, string& tail)
 {
     string::size_type pos = path.find_first_of(':');
 
@@ -268,13 +293,13 @@ IceSecurity::Ssl::Parser::popRoot(string& path, string& root, string& tail)
 }
 
 DOM_Node
-IceSecurity::Ssl::Parser::find(string& nodePath)
+IceSSL::Parser::find(string& nodePath)
 {
     return find(_root, nodePath);
 }
 
 DOM_Node
-IceSecurity::Ssl::Parser::find(DOM_Node rootNode, string& nodePath)
+IceSSL::Parser::find(DOM_Node rootNode, string& nodePath)
 {
     // The target node that we're looking for.
     DOM_Node tNode;
@@ -319,7 +344,7 @@ IceSecurity::Ssl::Parser::find(DOM_Node rootNode, string& nodePath)
 }
 
 void
-IceSecurity::Ssl::Parser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig)
+IceSSL::Parser::getGeneral(DOM_Node rootNode, GeneralConfig& generalConfig)
 {
     if (rootNode != 0)
     {
@@ -343,7 +368,7 @@ IceSecurity::Ssl::Parser::getGeneral(DOM_Node rootNode, GeneralConfig& generalCo
 }
 
 void
-IceSecurity::Ssl::Parser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certAuth)
+IceSSL::Parser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certAuth)
 {
     if (rootNode != 0)
     {
@@ -384,7 +409,7 @@ IceSecurity::Ssl::Parser::getCertAuth(DOM_Node rootNode, CertificateAuthority& c
 }
 
 void
-IceSecurity::Ssl::Parser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCerts)
+IceSSL::Parser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCerts)
 {
     if (rootNode != 0)
     {
@@ -412,7 +437,7 @@ IceSecurity::Ssl::Parser::getBaseCerts(DOM_Node rootNode, BaseCertificates& base
 }
 
 void
-IceSecurity::Ssl::Parser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCerts)
+IceSSL::Parser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCerts)
 {
     if (rootNode != 0)
     {
@@ -436,10 +461,6 @@ IceSecurity::Ssl::Parser::getTempCerts(DOM_Node rootNode, TempCertificates& temp
                 {
                     loadRSACert(child, tempCerts);
                 }
-                else if (name.compare("dsacert") == 0)
-                {
-                    loadDSACert(child, tempCerts);
-                }
 
                 child = child.getNextSibling();
             }
@@ -448,7 +469,7 @@ IceSecurity::Ssl::Parser::getTempCerts(DOM_Node rootNode, TempCertificates& temp
 }
 
 void
-IceSecurity::Ssl::Parser::loadDHParams(DOM_Node rootNode, TempCertificates& tempCerts)
+IceSSL::Parser::loadDHParams(DOM_Node rootNode, TempCertificates& tempCerts)
 {
     DiffieHellmanParamsFile dhParams;
 
@@ -458,7 +479,7 @@ IceSecurity::Ssl::Parser::loadDHParams(DOM_Node rootNode, TempCertificates& temp
 }
 
 void
-IceSecurity::Ssl::Parser::loadRSACert(DOM_Node rootNode, TempCertificates& tempCerts)
+IceSSL::Parser::loadRSACert(DOM_Node rootNode, TempCertificates& tempCerts)
 {
     CertificateDesc rsaCert;
 
@@ -468,17 +489,7 @@ IceSecurity::Ssl::Parser::loadRSACert(DOM_Node rootNode, TempCertificates& tempC
 }
 
 void
-IceSecurity::Ssl::Parser::loadDSACert(DOM_Node rootNode, TempCertificates& tempCerts)
-{
-    CertificateDesc dsaCert;
-
-    getCert(rootNode, dsaCert);
-
-    tempCerts.addDSACert(dsaCert);
-}
-
-void
-IceSecurity::Ssl::Parser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
+IceSSL::Parser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
 {
     if (rootNode != 0)
     {
@@ -513,7 +524,7 @@ IceSecurity::Ssl::Parser::getCert(DOM_Node rootNode, CertificateDesc& certDesc)
 }
 
 void
-IceSecurity::Ssl::Parser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dhParams)
+IceSSL::Parser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile& dhParams)
 {
     if (rootNode != 0)
     {
@@ -541,7 +552,7 @@ IceSecurity::Ssl::Parser::getDHParams(DOM_Node rootNode, DiffieHellmanParamsFile
 }
 
 void
-IceSecurity::Ssl::Parser::loadCertificateFile(DOM_Node rootNode, CertificateFile& certFile)
+IceSSL::Parser::loadCertificateFile(DOM_Node rootNode, CertificateFile& certFile)
 {
     if (rootNode != 0)
     {
@@ -578,7 +589,7 @@ IceSecurity::Ssl::Parser::loadCertificateFile(DOM_Node rootNode, CertificateFile
 }
 
 int
-IceSecurity::Ssl::Parser::parseEncoding(string& encodingString)
+IceSSL::Parser::parseEncoding(string& encodingString)
 {
     int encoding = 0;
 
@@ -595,7 +606,7 @@ IceSecurity::Ssl::Parser::parseEncoding(string& encodingString)
 }
 
 string
-IceSecurity::Ssl::Parser::toString(const DOMString& domString)
+IceSSL::Parser::toString(const DOMString& domString)
 {
     char* cString = domString.transcode();
 

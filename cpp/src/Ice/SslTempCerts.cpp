@@ -10,32 +10,37 @@
 
 #include <Ice/SslTempCerts.h>
 
-IceSecurity::Ssl::TempCertificates::TempCertificates()
+IceSSL::TempCertificates::TempCertificates()
 {
 }
 
-IceSecurity::Ssl::TempCertificates::~TempCertificates()
+IceSSL::TempCertificates::~TempCertificates()
 {
     _rsaCerts.clear();
-    _dsaCerts.clear();
-    _rsaCerts.clear();
+    _dhParams.clear();
 }
 
 void
-IceSecurity::Ssl::TempCertificates::addRSACert(CertificateDesc& certDesc)
+IceSSL::TempCertificates::addRSACert(CertificateDesc& certDesc)
 {
     _rsaCerts.push_back(certDesc);
 }
 
 void
-IceSecurity::Ssl::TempCertificates::addDSACert(CertificateDesc& certDesc)
-{
-    _dsaCerts.push_back(certDesc);
-}
-
-void
-IceSecurity::Ssl::TempCertificates::addDHParams(DiffieHellmanParamsFile& dhParams)
+IceSSL::TempCertificates::addDHParams(DiffieHellmanParamsFile& dhParams)
 {
     _dhParams.push_back(dhParams);
+}
+
+IceSSL::RSAVector&
+IceSSL::TempCertificates::getRSACerts()
+{
+    return _rsaCerts;
+}
+
+IceSSL::DHVector&
+IceSSL::TempCertificates::getDHParams()
+{
+    return _dhParams;
 }
 

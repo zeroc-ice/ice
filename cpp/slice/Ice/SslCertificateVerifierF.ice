@@ -11,15 +11,10 @@
 #ifndef ICE_SECURITY_CERTIFICATE_VERIFIER_F_ICE
 #define ICE_SECURITY_CERTIFICATE_VERIFIER_F_ICE
 
-module IceSecurity
-{
-
-module Ssl
+module IceSSL
 {
 
 local interface CertificateVerifier;
-
-};
 
 };
 

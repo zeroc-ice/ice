@@ -22,7 +22,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using IceSecurity::Ssl::ConnectionPtr;
+using IceSSL::ConnectionPtr;
 
 SOCKET
 IceInternal::SslTransceiver::fd()
@@ -72,16 +72,10 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 {
     if (!_sslConnection->read(buf, timeout))
     {
-        if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+        if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
             _logger->trace(_traceLevels->securityCat, "WRN Connection::read() returning no bytes read.");
         }
-
-        // TODO: Perhaps this should be a NoApplicationDataException ???
-        // ICE_WARNING("Throwing ConnectionLostException.");
-        // ConnectionLostException clEx(__FILE__, __LINE__);
-        // clEx.error = 0;
-        // throw clEx;
     }
 }
 

@@ -20,155 +20,155 @@
 using std::string;
 using std::back_inserter;
 
-using namespace IceSecurity::Ssl::OpenSSL;
+using namespace IceSSL::OpenSSL;
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::minutesToSeconds(long minutes)
+IceSSL::OpenSSL::RSACertificateGenContext::minutesToSeconds(long minutes)
 {
     return minutes * 60L;
 }
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::hoursToSeconds(long hours)
+IceSSL::OpenSSL::RSACertificateGenContext::hoursToSeconds(long hours)
 {
     return minutesToSeconds(hours * 60L);
 }
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::daysToSeconds(long days)
+IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(long days)
 {
     return hoursToSeconds(days * 24L);
 }
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::weeksToSeconds(long weeks)
+IceSSL::OpenSSL::RSACertificateGenContext::weeksToSeconds(long weeks)
 {
     return daysToSeconds(weeks * 7L);
 }
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::yearsToSeconds(long years)
+IceSSL::OpenSSL::RSACertificateGenContext::yearsToSeconds(long years)
 {
     return weeksToSeconds(years * 365L);
 }
 
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::RSACertificateGenContext() :
-                                                 _modulusLength(0),
-                                                 _secondsValid(0)
+IceSSL::OpenSSL::RSACertificateGenContext::RSACertificateGenContext() :
+                                          _modulusLength(0),
+                                          _secondsValid(0)
 {
 }
 
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::~RSACertificateGenContext()
+IceSSL::OpenSSL::RSACertificateGenContext::~RSACertificateGenContext()
 {
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setCountry(const string& country)
+IceSSL::OpenSSL::RSACertificateGenContext::setCountry(const string& country)
 {
     _country = country;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setStateProvince(const string& stateProvince)
+IceSSL::OpenSSL::RSACertificateGenContext::setStateProvince(const string& stateProvince)
 {
     _stateProvince = stateProvince;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setLocality(const string& locality)
+IceSSL::OpenSSL::RSACertificateGenContext::setLocality(const string& locality)
 {
     _locality = locality;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setOrganization(const string& organization)
+IceSSL::OpenSSL::RSACertificateGenContext::setOrganization(const string& organization)
 {
     _organization = organization;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setOrgainizationalUnit(const string& organizationalUnit)
+IceSSL::OpenSSL::RSACertificateGenContext::setOrgainizationalUnit(const string& organizationalUnit)
 {
     _organizationalUnit = organizationalUnit;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setCommonName(const string& commonName)
+IceSSL::OpenSSL::RSACertificateGenContext::setCommonName(const string& commonName)
 {
     _commonName = commonName;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setBitStrength(int bitStrength)
+IceSSL::OpenSSL::RSACertificateGenContext::setBitStrength(int bitStrength)
 {
     _modulusLength = bitStrength;
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
+IceSSL::OpenSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
 {
     _secondsValid = secondsValid;
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getCountry() const
+IceSSL::OpenSSL::RSACertificateGenContext::getCountry() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_country.c_str()));
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getStateProvince() const
+IceSSL::OpenSSL::RSACertificateGenContext::getStateProvince() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_stateProvince.c_str()));
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getLocality() const
+IceSSL::OpenSSL::RSACertificateGenContext::getLocality() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_locality.c_str()));
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getOrganization() const
+IceSSL::OpenSSL::RSACertificateGenContext::getOrganization() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_organization.c_str()));
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getOrgainizationalUnit() const
+IceSSL::OpenSSL::RSACertificateGenContext::getOrgainizationalUnit() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_organizationalUnit.c_str()));
 }
 
 unsigned char*
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getCommonName() const
+IceSSL::OpenSSL::RSACertificateGenContext::getCommonName() const
 {
     return reinterpret_cast<unsigned char *>(const_cast<char*>(_commonName.c_str()));
 }
 
 int
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getModulusLength() const
+IceSSL::OpenSSL::RSACertificateGenContext::getModulusLength() const
 {
     return _modulusLength;
 }
 
 long
-IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::getSecondsValid() const
+IceSSL::OpenSSL::RSACertificateGenContext::getSecondsValid() const
 {
     return _secondsValid;
 }
 
-IceSecurity::Ssl::OpenSSL::RSACertificateGen::RSACertificateGen()
+IceSSL::OpenSSL::RSACertificateGen::RSACertificateGen()
 {
     ERR_load_crypto_strings();
 }
 
-IceSecurity::Ssl::OpenSSL::RSACertificateGen::~RSACertificateGen()
+IceSSL::OpenSSL::RSACertificateGen::~RSACertificateGen()
 {
 }
 
-IceSecurity::Ssl::OpenSSL::RSAKeyPair*
-IceSecurity::Ssl::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
+IceSSL::OpenSSL::RSAKeyPair*
+IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
 {
     // Generate an RSA key pair.
     RSAJanitor rsaJanitor(RSA_generate_key(context.getModulusLength(), RSA_F4, 0, 0));

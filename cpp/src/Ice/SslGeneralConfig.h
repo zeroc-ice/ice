@@ -11,13 +11,10 @@
 #ifndef ICE_SSL_GENERAL_CONFIG_H
 #define ICE_SSL_GENERAL_CONFIG_H
 
-#include <Ice/SslSystemOpenSSL.h>
+#include <Ice/OpenSSL.h>
 #include <string>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class GeneralConfig
@@ -26,13 +23,13 @@ class GeneralConfig
 public:
     GeneralConfig();
 
-    inline SslProtocol getProtocol() const { return _sslVersion; };
-    inline int getVerifyMode() const { return _verifyMode; };
-    inline int getVerifyDepth() const { return _verifyDepth; };
+    SslProtocol getProtocol() const;
+    int getVerifyMode() const;
+    int getVerifyDepth() const;
 
-    inline std::string getContext() const { return _context; };
-    inline std::string getCipherList() const { return _cipherList; };
-    inline std::string getRandomBytesFiles() const { return _randomBytesFiles; };
+    std::string getContext() const;
+    std::string getCipherList() const;
+    std::string getRandomBytesFiles() const;
 
     // General method - it will figure out how to properly parse the data.
     void set(std::string&, std::string&);
@@ -63,8 +60,6 @@ Stream& operator << (Stream& target, const GeneralConfig& generalConfig)
     target << "Random Bytes: " << generalConfig.getRandomBytesFiles() << std::endl;
 
     return target;
-}
-
 }
 
 }

@@ -26,6 +26,8 @@
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
+#include <Ice/SslSystemF.h>
+#include <Ice/SslSystemInternalF.h>
 #include <list>
 
 namespace Ice
@@ -57,6 +59,7 @@ public:
     ThreadPoolPtr threadPool();
     std::string defaultProtocol();
     std::string defaultHost();
+    ::IceSSL::SystemInternalPtr getSslSystem();
     
 private:
 
@@ -79,6 +82,7 @@ private:
     ThreadPoolPtr _threadPool;
     std::string _defaultProtocol; // Immutable, not reset by destroy().
     std::string _defaultHost; // Immutable, not reset by destroy().
+    ::IceSSL::SystemInternalPtr _sslSystem;
 
     //
     // Global state management

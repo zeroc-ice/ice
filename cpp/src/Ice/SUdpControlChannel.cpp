@@ -17,28 +17,28 @@
 using namespace std;
 using namespace Ice;
 
-void ::IceInternal::incRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__decRef(); }
+void ::IceInternal::incRef(::SecureUdp::ControlChannel* p) { p->__incRef(); }
+void ::IceInternal::decRef(::SecureUdp::ControlChannel* p) { p->__decRef(); }
 
-IceSecurity::SecureUdp::ControlChannel::ControlChannel(IceInternal::SUdpTransceiver* transceiver,
-                                                       const IceInternal::InstancePtr& instance) :
-                                       _transceiver(transceiver),
-                                       _instance(instance),
-                                       _traceLevels(instance->traceLevels()),
-                                       _logger(instance->logger())
+SecureUdp::ControlChannel::ControlChannel(IceInternal::SUdpTransceiver* transceiver,
+                                          const IceInternal::InstancePtr& instance) :
+                          _transceiver(transceiver),
+                          _instance(instance),
+                          _traceLevels(instance->traceLevels()),
+                          _logger(instance->logger())
 {
     assert(transceiver);
 
     _cryptor = new Cryptor();
 }
 
-IceSecurity::SecureUdp::ControlChannel::~ControlChannel()
+SecureUdp::ControlChannel::~ControlChannel()
 {
     unsetTransceiver();
 }
 
 void
-IceSecurity::SecureUdp::ControlChannel::unsetTransceiver()
+SecureUdp::ControlChannel::unsetTransceiver()
 {
     IceUtil::Mutex::Lock sync(_mutex);
     _transceiver = 0;

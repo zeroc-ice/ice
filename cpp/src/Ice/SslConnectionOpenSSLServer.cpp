@@ -18,9 +18,9 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 
-using IceSecurity::Ssl::CertificateException;
-using IceSecurity::Ssl::ProtocolException;
-using IceSecurity::Ssl::SystemPtr;
+using IceSSL::CertificateException;
+using IceSSL::ProtocolException;
+using IceSSL::SystemInternalPtr;
 
 using Ice::ConnectionLostException;
 using Ice::SocketException;
@@ -42,32 +42,34 @@ using std::dec;
 //
 
 // Note: I would use a using directive of the form:
-//       using IceSecurity::Ssl::CertificateVerifierPtr;
+//       using IceSSL::CertificateVerifierPtr;
 //       but unfortunately, it appears that this is not properly picked up.
 //
 
-IceSecurity::Ssl::OpenSSL::ServerConnection::ServerConnection(
-            const IceSecurity::Ssl::CertificateVerifierPtr& certificateVerifier,
+IceSSL::OpenSSL::ServerConnection::ServerConnection(
+            const IceInternal::TraceLevelsPtr& traceLevels,
+            const Ice::LoggerPtr& logger,
+            const IceSSL::CertificateVerifierPtr& certificateVerifier,
             SSL* connection,
-            const SystemPtr& system) :
-                                            Connection(certificateVerifier,
-                                                       connection,
-                                                       system)
+            const IceSSL::SystemInternalPtr& system) :
+                                            Connection(traceLevels, logger, certificateVerifier, connection, system)
 {
+    // Set the Accept Connection state for this connection.
+    SSL_set_accept_state(_sslConnection);
 }
 
-IceSecurity::Ssl::OpenSSL::ServerConnection::~ServerConnection()
+IceSSL::OpenSSL::ServerConnection::~ServerConnection()
 {
 }
 
 void
-IceSecurity::Ssl::OpenSSL::ServerConnection::shutdown()
+IceSSL::OpenSSL::ServerConnection::shutdown()
 {
     Connection::shutdown();
 }
 
 int
-IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
+IceSSL::OpenSSL::ServerConnection::init(int timeout)
 {
     int retCode = SSL_is_init_finished(_sslConnection);
     
@@ -219,7 +221,7 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 }
 
 int
-IceSecurity::Ssl::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
+IceSSL::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
 {
     int bytesRead = 1;
     int totalBytesRead = 0;
@@ -245,7 +247,7 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::read(Buffer& buf, int timeout)
 }
 
 int
-IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
+IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 {
     int totalBytesWritten = 0;
     int bytesWritten = 0;
@@ -385,10 +387,10 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 //
 
 void
-IceSecurity::Ssl::OpenSSL::ServerConnection::showConnectionInfo()
+IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
 {
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
-    if ((_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG) && 0)
+    if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
         BIO* bio = BIO_new_fp(stdout, BIO_NOCLOSE);
 

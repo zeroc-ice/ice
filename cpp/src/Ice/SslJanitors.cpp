@@ -10,12 +10,12 @@
 
 #include <Ice/SslJanitors.h>
 
-IceSecurity::Ssl::OpenSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
-                                      _rsa(rsa)
+IceSSL::OpenSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
+                            _rsa(rsa)
 {
 }
 
-IceSecurity::Ssl::OpenSSL::RSAJanitor::~RSAJanitor()
+IceSSL::OpenSSL::RSAJanitor::~RSAJanitor()
 {
     if (_rsa)
     {
@@ -24,24 +24,24 @@ IceSecurity::Ssl::OpenSSL::RSAJanitor::~RSAJanitor()
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSAJanitor::clear()
+IceSSL::OpenSSL::RSAJanitor::clear()
 {
     _rsa = 0;
 }
 
 RSA*
-IceSecurity::Ssl::OpenSSL::RSAJanitor::get() const
+IceSSL::OpenSSL::RSAJanitor::get() const
 {
     return _rsa;
 }
 
 
-IceSecurity::Ssl::OpenSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
-                                           _evp_pkey(evp_pkey)
+IceSSL::OpenSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
+                                 _evp_pkey(evp_pkey)
 {
 }
 
-IceSecurity::Ssl::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
+IceSSL::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
 {
     if (_evp_pkey)
     {
@@ -50,23 +50,23 @@ IceSecurity::Ssl::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
 }
 
 void
-IceSecurity::Ssl::OpenSSL::EVP_PKEYJanitor::clear()
+IceSSL::OpenSSL::EVP_PKEYJanitor::clear()
 {
     _evp_pkey = 0;
 }
 
 EVP_PKEY*
-IceSecurity::Ssl::OpenSSL::EVP_PKEYJanitor::get() const
+IceSSL::OpenSSL::EVP_PKEYJanitor::get() const
 {
     return _evp_pkey;
 }
 
-IceSecurity::Ssl::OpenSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
-                                           _x509_req(x509_req)
+IceSSL::OpenSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
+                                 _x509_req(x509_req)
 {
 }
 
-IceSecurity::Ssl::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
+IceSSL::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
 {
     if (_x509_req)
     {
@@ -75,25 +75,25 @@ IceSecurity::Ssl::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
 }
 
 void
-IceSecurity::Ssl::OpenSSL::X509_REQJanitor::clear()
+IceSSL::OpenSSL::X509_REQJanitor::clear()
 {
     _x509_req = 0;
 }
 
 X509_REQ*
-IceSecurity::Ssl::OpenSSL::X509_REQJanitor::get() const
+IceSSL::OpenSSL::X509_REQJanitor::get() const
 {
     return _x509_req;
 }
 
 
 
-IceSecurity::Ssl::OpenSSL::X509Janitor::X509Janitor(X509* x509) :
-                                       _x509(x509)
+IceSSL::OpenSSL::X509Janitor::X509Janitor(X509* x509) :
+                             _x509(x509)
 {
 }
 
-IceSecurity::Ssl::OpenSSL::X509Janitor::~X509Janitor()
+IceSSL::OpenSSL::X509Janitor::~X509Janitor()
 {
     if (_x509)
     {
@@ -102,13 +102,13 @@ IceSecurity::Ssl::OpenSSL::X509Janitor::~X509Janitor()
 }
 
 void
-IceSecurity::Ssl::OpenSSL::X509Janitor::clear()
+IceSSL::OpenSSL::X509Janitor::clear()
 {
     _x509 = 0;
 }
 
 X509*
-IceSecurity::Ssl::OpenSSL::X509Janitor::get() const
+IceSSL::OpenSSL::X509Janitor::get() const
 {
     return _x509;
 }

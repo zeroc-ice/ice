@@ -25,7 +25,7 @@ using std::ostream;
 
 
 void
-IceSecurity::SecurityException::ice_print(ostream& out) const
+IceSSL::SecurityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     if (!_message.empty())
@@ -35,37 +35,37 @@ IceSecurity::SecurityException::ice_print(ostream& out) const
 }
 
 void
-IceSecurity::Ssl::ConfigParseException::ice_print(ostream& out) const
+IceSSL::ConfigParseException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }
 
 void
-IceSecurity::Ssl::ShutdownException::ice_print(ostream& out) const
+IceSSL::ShutdownException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }
 
 void
-IceSecurity::Ssl::ProtocolException::ice_print(ostream& out) const
+IceSSL::ProtocolException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }
 
 void
-IceSecurity::Ssl::CertificateException::ice_print(ostream& out) const
+IceSSL::CertificateException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }
 
 void
-IceSecurity::Ssl::CertificateVerifierTypeException::ice_print(ostream& out) const
+IceSSL::CertificateVerifierTypeException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }
 
 void
-IceSecurity::Ssl::OpenSSL::ContextException::ice_print(ostream& out) const
+IceSSL::OpenSSL::ContextException::ice_print(ostream& out) const
 {
     SecurityException::ice_print(out);
 }

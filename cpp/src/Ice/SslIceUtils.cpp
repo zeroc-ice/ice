@@ -13,14 +13,15 @@
 #include <iterator>
 
 void
-IceSecurity::Ssl::ucharToByteSeq(unsigned char* ucharBuffer, int length, Ice::ByteSeq& destBuffer)
+IceSSL::ucharToByteSeq(unsigned char* ucharBuffer, int length, Ice::ByteSeq& destBuffer)
 {
+    assert(ucharBuffer != 0);
     destBuffer.reserve(length);
     std::copy(ucharBuffer, (ucharBuffer + length), std::back_inserter(destBuffer));
 }
 
 unsigned char*
-IceSecurity::Ssl::byteSeqToUChar(const Ice::ByteSeq& sequence)
+IceSSL::byteSeqToUChar(const Ice::ByteSeq& sequence)
 {
     int seqSize = sequence.size();
 

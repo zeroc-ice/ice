@@ -10,15 +10,22 @@
 
 #include <Ice/SslConnection.h>
 
-void ::IceInternal::incRef(::IceSecurity::Ssl::Connection* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::Ssl::Connection* p) { p->__decRef(); }
+void ::IceInternal::incRef(::IceSSL::Connection* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::Connection* p) { p->__decRef(); }
 
-IceSecurity::Ssl::Connection::Connection(const CertificateVerifierPtr& certificateVerifier) :
-                             _certificateVerifier(certificateVerifier)
+IceSSL::Connection::Connection(const IceInternal::TraceLevelsPtr& traceLevels,
+                               const Ice::LoggerPtr& logger,
+                               const CertificateVerifierPtr& certificateVerifier) :
+                   _traceLevels(traceLevels),
+                   _logger(logger),
+                   _certificateVerifier(certificateVerifier)
 {
+    assert(_traceLevels != 0);
+    assert(_logger != 0);
+    assert(_certificateVerifier != 0);
 }
 
-IceSecurity::Ssl::Connection::~Connection()
+IceSSL::Connection::~Connection()
 {
 }
 

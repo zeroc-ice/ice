@@ -11,10 +11,7 @@
 #ifndef ICE_CERTIFICATE_GEN_F_H
 #define ICE_CERTIFICATE_GEN_F_H
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -22,8 +19,6 @@ namespace OpenSSL
 
 class RSACertificateGenContext;
 class RSACertificateGen;
-
-}
 
 }
 

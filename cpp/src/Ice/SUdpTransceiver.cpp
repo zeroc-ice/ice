@@ -22,7 +22,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using namespace IceSecurity::SecureUdp;
+using namespace SecureUdp;
 
 void IceInternal::incRef(SUdpTransceiver* p) { p->__incRef(); }
 void IceInternal::decRef(SUdpTransceiver* p) { p->__decRef(); }

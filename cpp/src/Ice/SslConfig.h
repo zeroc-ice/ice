@@ -21,10 +21,7 @@
 #include <Ice/SslTempCerts.h>
 #include <string>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class Parser
@@ -43,11 +40,11 @@ public:
     bool loadClientConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&);
     bool loadServerConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
 
-    inline void setTrace(IceInternal::TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
-    inline bool isTraceSet() const { return _traceLevels; };
+    void setTrace(const IceInternal::TraceLevelsPtr&);
+    bool isTraceSet() const;
 
-    inline void setLogger(Ice::LoggerPtr traceLevels) { _logger = traceLevels; };
-    inline bool isLoggerSet() const { return _logger; };
+    void setLogger(const Ice::LoggerPtr&);
+    bool isLoggerSet() const;
 
 private:
 
@@ -72,7 +69,6 @@ private:
     // Loading of temporary certificates/params (Ephemeral Keys).
     void loadDHParams(DOM_Node, TempCertificates&);
     void loadRSACert(DOM_Node, TempCertificates&);
-    void loadDSACert(DOM_Node, TempCertificates&);
 
     // Populates classes with information from the indicated node in the parse tree.
     void getCert(DOM_Node, CertificateDesc&);
@@ -84,8 +80,6 @@ private:
 
     std::string toString(const DOMString&);
 };
-
-}
 
 }
 

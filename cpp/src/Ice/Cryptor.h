@@ -17,9 +17,6 @@
 #include <Ice/CryptorF.h>
 #include <vector>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -46,8 +43,6 @@ protected:
     CryptKeys _cryptKeys;
 
 };
-
-}
 
 }
 

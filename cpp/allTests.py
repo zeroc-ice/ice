@@ -42,7 +42,13 @@ tests = [ \
     "IceStorm/federation2", \
     ]
 
-if sys.platform != "win32" and sys.platform != "cygwin":
+#
+# Only add Glacier tests for Linux systems
+#
+# The slice on sys.platform is required - my cygwin comes back
+# as cygwin_nt-4.01
+#
+if sys.platform != "win32" and sys.platform[:6] != "cygwin":
     tests += [ \
         "Glacier/starter", \
         ]

@@ -29,10 +29,7 @@
 #   define ICE_API /**/
 #endif
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -68,8 +65,6 @@ private:
     RSA* _privateKey;
 
 };
-
-}
 
 }
 

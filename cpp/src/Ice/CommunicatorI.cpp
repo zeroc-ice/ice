@@ -19,6 +19,8 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Exception.h>
+#include <Ice/SslExtensionInternal.h>
+#include <Ice/SslSystemInternal.h>
 
 using namespace std;
 using namespace Ice;
@@ -226,6 +228,18 @@ void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
     _instance->referenceFactory()->setDefaultRouter(router);
+}
+
+::IceSSL::SslExtensionPtr
+Ice::CommunicatorI::getSslExtension()
+{
+    return ::IceSSL::SslExtensionPtr(new ::IceSSL::SslExtensionInternal(_instance));
+}
+
+::IceSSL::SystemPtr
+Ice::CommunicatorI::getSslSystem()
+{
+    return ::IceSSL::SystemPtr::dynamicCast(_instance->getSslSystem());
 }
 
 Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)

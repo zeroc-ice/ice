@@ -14,13 +14,13 @@
 #include <Ice/SecureUdp.h>
 
 using Ice::Long;
-using IceSecurity::SecureUdp::CryptKeyPtr;
-using IceSecurity::SecureUdp::MessageAuthenticatorPtr;
+using SecureUdp::CryptKeyPtr;
+using SecureUdp::MessageAuthenticatorPtr;
 
-void ::IceInternal::incRef(::IceSecurity::SecureUdp::SUdpClient* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::SecureUdp::SUdpClient* p) { p->__decRef(); }
+void ::IceInternal::incRef(::SecureUdp::SUdpClient* p) { p->__incRef(); }
+void ::IceInternal::decRef(::SecureUdp::SUdpClient* p) { p->__decRef(); }
 
-IceSecurity::SecureUdp::SUdpClient::SUdpClient(Long clientID,
+SecureUdp::SUdpClient::SUdpClient(Long clientID,
                                                const ClientChannelPrx& clientChannel,
                                                const MessageAuthenticatorPtr& messageAuthenticator) :
                                    _clientID(clientID),
@@ -31,58 +31,58 @@ IceSecurity::SecureUdp::SUdpClient::SUdpClient(Long clientID,
     assert(_messageAuthenticator);
 }
 
-IceSecurity::SecureUdp::SUdpClient::~SUdpClient()
+SecureUdp::SUdpClient::~SUdpClient()
 {
 }
 
 void
-IceSecurity::SecureUdp::SUdpClient::serverHello(const CryptKeyPtr& key)
+SecureUdp::SUdpClient::serverHello(const CryptKeyPtr& key)
 {
     assert(_clientChannel);
     _clientChannel->serverHello(_clientID, key->toByteSeq());
 }
 
 void
-IceSecurity::SecureUdp::SUdpClient::serverKeyChange(const CryptKeyPtr& key)
+SecureUdp::SUdpClient::serverKeyChange(const CryptKeyPtr& key)
 {
     assert(_clientChannel);
     _clientChannel->serverKeyChange(key->toByteSeq());
 }
 
 void
-IceSecurity::SecureUdp::SUdpClient::serverGoodbye()
+SecureUdp::SUdpClient::serverGoodbye()
 {
     assert(_clientChannel);
     _clientChannel->serverGoodbye();
 }
 
 Long
-IceSecurity::SecureUdp::SUdpClient::getClientID() const
+SecureUdp::SUdpClient::getClientID() const
 {
     return _clientID;
 }
 
 const CryptKeyPtr&
-IceSecurity::SecureUdp::SUdpClient::getCryptKey() const
+SecureUdp::SUdpClient::getCryptKey() const
 {
     return _cryptKey;
 }
 
 const CryptKeyPtr&
-IceSecurity::SecureUdp::SUdpClient::getCryptKey(Long msgID) const
+SecureUdp::SUdpClient::getCryptKey(Long msgID) const
 {
     // TODO: Must be able to return a CryptKey based on a msgID
     return _cryptKey;
 }
 
 const MessageAuthenticatorPtr&
-IceSecurity::SecureUdp::SUdpClient::getMessageAuthenticator() const
+SecureUdp::SUdpClient::getMessageAuthenticator() const
 {
     return _messageAuthenticator;
 }
 
 void
-IceSecurity::SecureUdp::SUdpClient::setNewCryptKey(Long msgID, const CryptKeyPtr& cryptKey)
+SecureUdp::SUdpClient::setNewCryptKey(Long msgID, const CryptKeyPtr& cryptKey)
 {
     _cryptKey = cryptKey;
 }

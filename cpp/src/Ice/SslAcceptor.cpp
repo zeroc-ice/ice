@@ -17,15 +17,14 @@
 #   pragma warning(disable:4786)
 #endif
 
-#include <Ice/SslFactory.h>
-#include <Ice/SslSystem.h>
-#include <Ice/Properties.h>
+#include <Ice/SslSystemInternal.h>
 #include <Ice/SslAcceptor.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 #include <Ice/Network.h>
+#include <Ice/Properties.h>
 #include <Ice/Exception.h>
 #include <Ice/SecurityException.h>
 #include <sstream>
@@ -36,10 +35,8 @@ using namespace IceInternal;
 
 using std::string;
 using std::ostringstream;
-using IceSecurity::Ssl::Connection;
-using IceSecurity::Ssl::Factory;
-using IceSecurity::Ssl::SystemPtr;
-using IceSecurity::Ssl::ShutdownException;
+using IceSSL::Connection;
+using IceSSL::SystemInternalPtr;
 
 SOCKET
 IceInternal::SslAcceptor::fd()
@@ -108,37 +105,12 @@ IceInternal::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    PropertiesPtr properties = _instance->properties();
+    // Get an instance of the SslSystem
+    SystemInternalPtr sslSystem = _instance->getSslSystem();
+    assert(sslSystem != 0);
 
-    // This is the Ice SSL Configuration File on which we will base
-    // all connections in this communicator.
-    string configFile = properties->getProperty("Ice.Security.Ssl.Config");
-
-    // Get an instance of the SslSystem singleton.
-    SystemPtr sslSystem = Factory::getSystem(configFile);
-
-    if (!sslSystem->isTraceSet())
-    {
-        sslSystem->setTrace(_traceLevels);
-    }
-
-    if (!sslSystem->isLoggerSet())
-    {
-        sslSystem->setLogger(_logger);
-    }
-
-    if (!sslSystem->isPropertiesSet())
-    {
-        sslSystem->setProperties(properties);
-    }
-
-    // Initialize the server (if needed)
-    if (!sslSystem->isConfigLoaded())
-    {
-        sslSystem->loadConfig();
-    }
-
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, sslSystem->createServerConnection(fd));
+    IceSSL::ConnectionPtr connection = sslSystem->createConnection(IceSSL::Server, fd);
+    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, connection);
 
     return transPtr;
 }

@@ -24,10 +24,7 @@
 #   define ICE_API /**/
 #endif
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 using std::string;
@@ -40,13 +37,18 @@ typedef enum
     ClientServer
 } ICE_API SslContextType;
 
-void ICE_API setSystemCertificateVerifier(const string&, SslContextType, const CertificateVerifierPtr&);
+void ICE_API setSystemCertificateVerifier(SslContextType,
+                                          const CertificateVerifierPtr&,
+                                          const IceInternal::InstancePtr& instance);
 
-void ICE_API setSystemCertAuthCertificate(const string&, SslContextType, const string&);
+void ICE_API setSystemCertAuthCertificate(SslContextType,
+                                          const string&,
+                                          const IceInternal::InstancePtr& instance);
 
-void ICE_API setSystemRSAKeysBase64(const string&, SslContextType, const string&, const string&);
-
-}
+void ICE_API setSystemRSAKeysBase64(SslContextType,
+                                    const string&,
+                                    const string&,
+                                    const IceInternal::InstancePtr& instance);
 
 }
 

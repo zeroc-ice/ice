@@ -14,10 +14,7 @@
 #include <Ice/SslCertificateDesc.h>
 #include <ostream>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class TempCertificates
@@ -28,16 +25,13 @@ public:
     ~TempCertificates();
 
     void addRSACert(CertificateDesc&);
-    void addDSACert(CertificateDesc&);
     void addDHParams(DiffieHellmanParamsFile&);
 
-    inline RSAVector& getRSACerts() { return _rsaCerts; };
-    inline DSAVector& getDSACerts() { return _dsaCerts; };
-    inline DHVector& getDHParams() { return _dhParams; };
+    RSAVector& getRSACerts();
+    DHVector& getDHParams();
 
 protected:
     RSAVector _rsaCerts;
-    DSAVector _dsaCerts;
     DHVector _dhParams;
 };
 
@@ -55,17 +49,6 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
         iRSA++;
     }
 
-    DSAVector::iterator iDSA = tmpCerts.getDSACerts().begin();
-    DSAVector::iterator eDSA = tmpCerts.getDSACerts().end();
-
-    while (iDSA != eDSA)
-    {
-        target << "DSA" << std::endl << "{" << std::endl;
-        target << *iDSA;
-        target << "}" << std::endl << std::endl;
-        iDSA++;
-    }
-
     DHVector::iterator iDHP = tmpCerts.getDHParams().begin();
     DHVector::iterator eDHP = tmpCerts.getDHParams().end();
 
@@ -78,8 +61,6 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
     }
     
     return target;
-}
-
 }
 
 }

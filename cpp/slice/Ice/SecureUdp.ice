@@ -15,15 +15,6 @@
 
 /**
  *
- * The basic module for the Ice Security Extensions.  All core functionality
- * for secure connections can be found in this module and its submodules.
- *
- **/
-module IceSecurity
-{
-
-/**
- *
  * This module contains all interfaces required for the implementation of
  * Secure UDP communication.  Secure UDP requires that we perform a handshake
  * to establish the keying material used to encrypt the contents of the
@@ -169,8 +160,6 @@ interface ServerChannel
      *
      **/
     void clientGoodbye(long clientID);
-};
-
 };
 
 };

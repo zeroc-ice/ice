@@ -15,9 +15,6 @@
 #include <Ice/Stream.h>
 #include <Ice/MessageAuthenticatorF.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -39,8 +36,6 @@ protected:
     Ice::ByteSeq _macKeyBytes;
 
 };
-
-}
 
 }
 

@@ -13,24 +13,19 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
+namespace IceSSL
 {
 
-namespace Ssl
-{
-
-class System;
-typedef IceInternal::Handle<System> SystemPtr;
-
-}
+class SystemInternal;
+typedef IceInternal::Handle<SystemInternal> SystemInternalPtr;
 
 }
 
 namespace IceInternal
 {
 
-void incRef(IceSecurity::Ssl::System*);
-void decRef(IceSecurity::Ssl::System*);
+void incRef(IceSSL::SystemInternal*);
+void decRef(IceSSL::SystemInternal*);
 
 }
 

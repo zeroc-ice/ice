@@ -24,7 +24,7 @@
 
 using namespace std;
 
-IceSecurity::Ssl::GeneralConfig::GeneralConfig()
+IceSSL::GeneralConfig::GeneralConfig()
 {
     _sslVersion = SSL_V23;
 
@@ -36,8 +36,44 @@ IceSecurity::Ssl::GeneralConfig::GeneralConfig()
     _randomBytesFiles = "";
 }
 
+IceSSL::SslProtocol
+IceSSL::GeneralConfig::getProtocol() const
+{
+    return _sslVersion;
+}
+
+int
+IceSSL::GeneralConfig::getVerifyMode() const
+{
+    return _verifyMode;
+}
+
+int
+IceSSL::GeneralConfig::getVerifyDepth() const
+{
+    return _verifyDepth;
+}
+
+std::string
+IceSSL::GeneralConfig::getContext() const
+{
+    return _context;
+}
+
+std::string
+IceSSL::GeneralConfig::getCipherList() const
+{
+    return _cipherList;
+}
+
+std::string
+IceSSL::GeneralConfig::getRandomBytesFiles() const
+{
+    return _randomBytesFiles;
+}
+
 void
-IceSecurity::Ssl::GeneralConfig::set(string& name, string& value)
+IceSSL::GeneralConfig::set(string& name, string& value)
 {
     if (name.compare("version") == 0)
     {
@@ -71,7 +107,7 @@ IceSecurity::Ssl::GeneralConfig::set(string& name, string& value)
 //
 
 void
-IceSecurity::Ssl::GeneralConfig::parseVersion(string& value)
+IceSSL::GeneralConfig::parseVersion(string& value)
 {
     if (value.compare("SSLv2") == 0)
     {
@@ -94,7 +130,7 @@ IceSecurity::Ssl::GeneralConfig::parseVersion(string& value)
 }
 
 void
-IceSecurity::Ssl::GeneralConfig::parseVerifyMode(string& value)
+IceSSL::GeneralConfig::parseVerifyMode(string& value)
 {
     const string delim = " |\t\n\r";
 

@@ -26,14 +26,14 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceSecurity::SecureUdp;
+using namespace SecureUdp;
 using IceInternal::Buffer;
 using IceInternal::BasicStream;
 using IceInternal::InstancePtr;
 using IceInternal::SUdpTransceiver;
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::clientHello(const ClientChannelPrx& client,
+SecureUdp::ServerControlChannel::clientHello(const ClientChannelPrx& client,
                                                           const ByteSeq& MACkey,
                                                           const Current&)
 {
@@ -55,7 +55,7 @@ IceSecurity::SecureUdp::ServerControlChannel::clientHello(const ClientChannelPrx
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::clientKeyAcknowledge(Long clientID,
+SecureUdp::ServerControlChannel::clientKeyAcknowledge(Long clientID,
                                                                    Long msgID,
                                                                    const ByteSeq& key,
                                                                    const Current&)
@@ -70,7 +70,7 @@ IceSecurity::SecureUdp::ServerControlChannel::clientKeyAcknowledge(Long clientID
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::clientKeyRequest(Long clientID, const Current&)
+SecureUdp::ServerControlChannel::clientKeyRequest(Long clientID, const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -82,15 +82,15 @@ IceSecurity::SecureUdp::ServerControlChannel::clientKeyRequest(Long clientID, co
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::clientGoodbye(Long clientID, const Current&)
+SecureUdp::ServerControlChannel::clientGoodbye(Long clientID, const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
     deleteSUdpClient(clientID);
 }
 
-// IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTransceiverPtr& transceiver,
-IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(SUdpTransceiver* transceiver,
+// SecureUdp::ServerControlChannel::ServerControlChannel(const SUdpTransceiverPtr& transceiver,
+SecureUdp::ServerControlChannel::ServerControlChannel(SUdpTransceiver* transceiver,
                                                                    const InstancePtr& instance,
                                                                    int port) :
                                              ControlChannel(transceiver, instance)
@@ -123,7 +123,7 @@ IceSecurity::SecureUdp::ServerControlChannel::ServerControlChannel(SUdpTransceiv
     _adapter->activate();
 }
 
-IceSecurity::SecureUdp::ServerControlChannel::~ServerControlChannel()
+SecureUdp::ServerControlChannel::~ServerControlChannel()
 {
     // Make it impossible for the control channel to access the Transceiver
     // after transceiver destruction.
@@ -131,7 +131,7 @@ IceSecurity::SecureUdp::ServerControlChannel::~ServerControlChannel()
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::decryptPacket(Buffer& encryptedPacket, Buffer& decryptedPacket)
+SecureUdp::ServerControlChannel::decryptPacket(Buffer& encryptedPacket, Buffer& decryptedPacket)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -195,14 +195,14 @@ IceSecurity::SecureUdp::ServerControlChannel::decryptPacket(Buffer& encryptedPac
 }
 
 Long
-IceSecurity::SecureUdp::ServerControlChannel::getNewClientID()
+SecureUdp::ServerControlChannel::getNewClientID()
 {
     IceUtil::Mutex::Lock sync(_clientIDMutex);
     return ++_clientIDGenerator;
 }
 
 SUdpClientPtr&
-IceSecurity::SecureUdp::ServerControlChannel::getSUdpClient(Long clientID)
+SecureUdp::ServerControlChannel::getSUdpClient(Long clientID)
 {
     IceUtil::Mutex::Lock sync(_clientMapMutex);
 
@@ -210,7 +210,7 @@ IceSecurity::SecureUdp::ServerControlChannel::getSUdpClient(Long clientID)
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::newSUdpClient(const SUdpClientPtr& sudpClient)
+SecureUdp::ServerControlChannel::newSUdpClient(const SUdpClientPtr& sudpClient)
 {
     IceUtil::Mutex::Lock sync(_clientMapMutex);
 
@@ -220,7 +220,7 @@ IceSecurity::SecureUdp::ServerControlChannel::newSUdpClient(const SUdpClientPtr&
 }
 
 void
-IceSecurity::SecureUdp::ServerControlChannel::deleteSUdpClient(Long clientID)
+SecureUdp::ServerControlChannel::deleteSUdpClient(Long clientID)
 {
     IceUtil::Mutex::Lock sync(_clientMapMutex);
 

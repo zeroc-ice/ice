@@ -14,16 +14,18 @@
 #include <Ice/SslIceUtils.h>
 #include <assert.h>
 
-void ::IceInternal::incRef(::IceSecurity::Ssl::OpenSSL::RSAPublicKey* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::Ssl::OpenSSL::RSAPublicKey* p) { p->__decRef(); }
+void ::IceInternal::incRef(::IceSSL::OpenSSL::RSAPublicKey* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::OpenSSL::RSAPublicKey* p) { p->__decRef(); }
 
 using std::back_inserter;
 using std::string;
 using Ice::ByteSeq;
 using IceUtil::Base64;
 
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::RSAPublicKey(const string& cert)
+IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(const string& cert)
 {
+    assert(!cert.empty());
+
     _publicKey = 0;
 
     ByteSeq certSeq = Base64::decode(cert);
@@ -31,19 +33,22 @@ IceSecurity::Ssl::OpenSSL::RSAPublicKey::RSAPublicKey(const string& cert)
     byteSeqToCert(certSeq);
 }
 
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::RSAPublicKey(const ByteSeq& certSeq)
+IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(const ByteSeq& certSeq)
 {
+    assert(!certSeq.empty());
+
     _publicKey = 0;
+
     byteSeqToCert(certSeq);
 }
 
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::~RSAPublicKey()
+IceSSL::OpenSSL::RSAPublicKey::~RSAPublicKey()
 {
     X509_free(_publicKey);
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::certToBase64(string& b64Cert)
+IceSSL::OpenSSL::RSAPublicKey::certToBase64(string& b64Cert)
 {
     ByteSeq certSeq;
     certToByteSeq(certSeq);
@@ -51,7 +56,7 @@ IceSecurity::Ssl::OpenSSL::RSAPublicKey::certToBase64(string& b64Cert)
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::certToByteSeq(ByteSeq& certSeq)
+IceSSL::OpenSSL::RSAPublicKey::certToByteSeq(ByteSeq& certSeq)
 {
     assert(_publicKey);
 
@@ -66,24 +71,24 @@ IceSecurity::Ssl::OpenSSL::RSAPublicKey::certToByteSeq(ByteSeq& certSeq)
     unsigned char* pubKeyBuff = publicKeyBuffer;
     i2d_X509(_publicKey, &pubKeyBuff);
 
-    IceSecurity::Ssl::ucharToByteSeq(publicKeyBuffer, pubKeySize, certSeq);
+    IceSSL::ucharToByteSeq(publicKeyBuffer, pubKeySize, certSeq);
 
     delete []publicKeyBuffer;
 }
 
 X509*
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::getX509PublicKey() const
+IceSSL::OpenSSL::RSAPublicKey::getX509PublicKey() const
 {
     return _publicKey;
 }
 
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::RSAPublicKey(X509* x509) :
+IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(X509* x509) :
                                       _publicKey(x509)
 {
 }
 
 void
-IceSecurity::Ssl::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
+IceSSL::OpenSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 {
     unsigned char* publicKeyBuffer = byteSeqToUChar(certSeq);
     assert(publicKeyBuffer);

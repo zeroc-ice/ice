@@ -18,10 +18,7 @@
 #include <vector>
 #include <ostream>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class CertificateFile
@@ -32,8 +29,8 @@ public:
     CertificateFile(const std::string&, const int);
     CertificateFile(const CertificateFile&);
 
-    inline std::string getFileName() const { return _fileName; };
-    inline int getEncoding() const { return _encoding; };
+    std::string getFileName() const;
+    int getEncoding() const;
 
 protected:
     std::string _fileName;
@@ -48,7 +45,7 @@ public:
     DiffieHellmanParamsFile(const int, const std::string&, const int);
     DiffieHellmanParamsFile(const DiffieHellmanParamsFile&);
 
-    inline int getKeySize() const { return _keySize; };
+    int getKeySize() const;
 
 protected:
     int _keySize;
@@ -62,10 +59,10 @@ public:
     CertificateDesc(const int, const CertificateFile&, const CertificateFile&);
     CertificateDesc(const CertificateDesc&);
 
-    inline int getKeySize() const { return _keySize; };
+    int getKeySize() const;
 
-    inline const CertificateFile& getPublic() const { return _public;  };
-    inline const CertificateFile& getPrivate() const { return _private; };
+    const CertificateFile& getPublic() const;
+    const CertificateFile& getPrivate() const;
 
 protected:
     int _keySize;
@@ -115,8 +112,6 @@ inline Stream& operator << (Stream& target, const CertificateDesc& certDesc)
     }
 
     return target;
-}
-
 }
 
 }

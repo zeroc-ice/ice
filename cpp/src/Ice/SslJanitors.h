@@ -14,10 +14,7 @@
 #include <IceUtil/Config.h>
 #include <openssl/ssl.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -74,8 +71,6 @@ public:
 private:
     X509* _x509;
 };
-
-}
 
 }
 

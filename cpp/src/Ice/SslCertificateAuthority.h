@@ -13,10 +13,7 @@
 
 #include <string>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class CertificateAuthority
@@ -30,15 +27,13 @@ public:
     void setCAFileName(std::string&);
     void setCAPath(std::string&);
 
-    inline const std::string& getCAFileName() const { return _fileName; };
-    inline const std::string& getCAPath() const { return _path; };
+    const std::string& getCAFileName() const;
+    const std::string& getCAPath() const;
 
 private:
     std::string _fileName;
     std::string _path;
 };
-
-}
 
 }
 

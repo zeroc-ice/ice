@@ -12,7 +12,7 @@
 
 #include <openssl/ssl.h>
 
-namespace IceSecurity
+namespace IceSSL
 {
 
 typedef enum
@@ -24,6 +24,15 @@ typedef enum
     SECURITY_PROTOCOL_DEBUG
 } SecurityTraceLevel;
 
+enum SslProtocol
+{
+    SSL_V2 = 1,     // Only speak SSLv2
+    SSL_V23,        // Speak SSLv2 and SSLv3
+    SSL_V3,         // Only speak SSLv3
+    TLS_V1          // Only speak TLSv1
+};
+
 }
+
 
 #endif

@@ -11,7 +11,7 @@
 #ifndef ICE_SECURITY_EXCEPTION_ICE
 #define ICE_SECURITY_EXCEPTION_ICE
 
-module IceSecurity
+module IceSSL
 {
 
 /**
@@ -35,9 +35,6 @@ local exception SecurityException
      **/
     string _message;
 };
-
-module Ssl
-{
 
 /**
  *
@@ -107,8 +104,6 @@ module OpenSSL
  **/
 local exception ContextException extends SecurityException
 {
-};
-
 };
 
 };

@@ -20,78 +20,114 @@
 #include <Ice/SslCertificateDesc.h>
 
 using namespace std;
-using namespace IceSecurity::Ssl;
+using namespace IceSSL;
 
 /////////////////////////
 //// CertificateFile ////
 /////////////////////////
 
-IceSecurity::Ssl::CertificateFile::CertificateFile() :
-                                  _fileName(""),
-                                  _encoding(0)
+IceSSL::CertificateFile::CertificateFile() :
+                        _fileName(""),
+                        _encoding(0)
 {
 }
 
-IceSecurity::Ssl::CertificateFile::CertificateFile(const string& filename, const int encoding) :
-                                  _fileName(filename),
-                                  _encoding(encoding)
+IceSSL::CertificateFile::CertificateFile(const string& filename, const int encoding) :
+                        _fileName(filename),
+                        _encoding(encoding)
 {
 }
 
-IceSecurity::Ssl::CertificateFile::CertificateFile(const CertificateFile& certFile) :
-                                  _fileName(certFile._fileName),
-                                  _encoding(certFile._encoding)
+IceSSL::CertificateFile::CertificateFile(const CertificateFile& certFile) :
+                        _fileName(certFile._fileName),
+                        _encoding(certFile._encoding)
 {
+}
+
+std::string
+IceSSL::CertificateFile::getFileName() const
+{
+    return _fileName;
+}
+
+int
+IceSSL::CertificateFile::getEncoding() const
+{
+    return _encoding;
 }
 
 /////////////////////////////////
 //// DiffieHellmanParamsFile ////
 /////////////////////////////////
 
-IceSecurity::Ssl::DiffieHellmanParamsFile::DiffieHellmanParamsFile() :
-                                          CertificateFile(),
-                                          _keySize(0)
+IceSSL::DiffieHellmanParamsFile::DiffieHellmanParamsFile() :
+                                CertificateFile(),
+                                _keySize(0)
 {
 }
 
-IceSecurity::Ssl::DiffieHellmanParamsFile::DiffieHellmanParamsFile(const int keySize,
-                                                                   const string& filename,
-                                                                   const int encoding) :
-                                          CertificateFile(filename, encoding),
-                                          _keySize(keySize)
+IceSSL::DiffieHellmanParamsFile::DiffieHellmanParamsFile(const int keySize,
+                                                         const string& filename,
+                                                         const int encoding) :
+                                CertificateFile(filename, encoding),
+                                _keySize(keySize)
 {
 }
 
-IceSecurity::Ssl::DiffieHellmanParamsFile::DiffieHellmanParamsFile(const DiffieHellmanParamsFile& dhParams) :
-                                          CertificateFile(dhParams._fileName, dhParams._encoding),
-                                          _keySize(dhParams._keySize)
+IceSSL::DiffieHellmanParamsFile::DiffieHellmanParamsFile(const DiffieHellmanParamsFile& dhParams) :
+                                CertificateFile(dhParams._fileName, dhParams._encoding),
+                                _keySize(dhParams._keySize)
 {
+}
+
+int
+IceSSL::DiffieHellmanParamsFile::getKeySize() const
+{
+    return _keySize;
 }
 
 /////////////////////////
 //// CertificateDesc ////
 /////////////////////////
 
-IceSecurity::Ssl::CertificateDesc::CertificateDesc() :
-                                  _keySize(0),
-                                  _public(),
-                                  _private()
+IceSSL::CertificateDesc::CertificateDesc() :
+                        _keySize(0),
+                        _public(),
+                        _private()
 {
 }
 
-IceSecurity::Ssl::CertificateDesc::CertificateDesc(const int keySize,
-                                                   const CertificateFile& publicFile,
-                                                   const CertificateFile& privateFile) :
-                                  _keySize(keySize),
-                                  _public(publicFile),
-                                  _private(privateFile)
+IceSSL::CertificateDesc::CertificateDesc(const int keySize,
+                                         const CertificateFile& publicFile,
+                                         const CertificateFile& privateFile) :
+                        _keySize(keySize),
+                        _public(publicFile),
+                        _private(privateFile)
 {
 }
 
-IceSecurity::Ssl::CertificateDesc::CertificateDesc(const CertificateDesc& certDesc) :
-                                  _keySize(certDesc._keySize),
-                                  _public(certDesc._public),
-                                  _private(certDesc._private)
+IceSSL::CertificateDesc::CertificateDesc(const CertificateDesc& certDesc) :
+                        _keySize(certDesc._keySize),
+                        _public(certDesc._public),
+                        _private(certDesc._private)
 {
+}
+
+int
+IceSSL::CertificateDesc::getKeySize() const
+{
+    return _keySize;
+}
+
+const CertificateFile&
+IceSSL::CertificateDesc::getPublic() const
+{
+    return _public;
+}
+
+const CertificateFile&
+IceSSL::CertificateDesc::getPrivate() const
+{
+    return _private;
 }
 

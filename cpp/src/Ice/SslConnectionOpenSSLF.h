@@ -13,10 +13,7 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -29,13 +26,11 @@ typedef IceInternal::Handle<Connection> ConnectionPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::Ssl::OpenSSL::Connection*);
-void decRef(::IceSecurity::Ssl::OpenSSL::Connection*);
+void incRef(::IceSSL::OpenSSL::Connection*);
+void decRef(::IceSSL::OpenSSL::Connection*);
 
 }
 

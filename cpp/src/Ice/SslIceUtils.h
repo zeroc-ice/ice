@@ -14,17 +14,12 @@
 #include <IceUtil/Config.h>
 #include <Ice/BuiltinSequences.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 void ucharToByteSeq(unsigned char*, int, Ice::ByteSeq&);
 
 unsigned char* byteSeqToUChar(const Ice::ByteSeq&);
-
-}
 
 }
 

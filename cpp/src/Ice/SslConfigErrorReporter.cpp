@@ -22,9 +22,9 @@
 using namespace std;
 
 void
-IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
+IceSSL::ErrorReporter::warning(const SAXParseException& toCatch)
 {
-    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
+    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -40,11 +40,11 @@ IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
 }
 
 void
-IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
+IceSSL::ErrorReporter::error(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
+    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -60,11 +60,11 @@ IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
 }
 
 void
-IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
+IceSSL::ErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
+    if (_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
 	ostringstream s;
 
@@ -80,8 +80,22 @@ IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
 }
 
 void
-IceSecurity::Ssl::ErrorReporter::resetErrors()
+IceSSL::ErrorReporter::resetErrors()
 {
     // No-op in this case
 }
 
+bool
+IceSSL::ErrorReporter::getSawErrors() const
+{
+    return _sawErrors;
+}
+
+std::ostream&
+IceSSL::operator << (std::ostream& target, const DOMString& s)
+{
+    char *p = s.transcode();
+    target << p;
+    delete [] p;
+    return target;
+}

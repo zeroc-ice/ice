@@ -13,9 +13,6 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -24,13 +21,11 @@ typedef IceInternal::Handle<ControlChannel> ControlChannelPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::SecureUdp::ControlChannel*);
-void decRef(::IceSecurity::SecureUdp::ControlChannel*);
+void incRef(::SecureUdp::ControlChannel*);
+void decRef(::SecureUdp::ControlChannel*);
 
 }
 

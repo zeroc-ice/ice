@@ -21,7 +21,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-using IceSecurity::Ssl::OpenSSL::RSAKeyPairPtr;
+using IceSSL::OpenSSL::RSAKeyPairPtr;
 
 
 Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
@@ -80,14 +80,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
     // router as the values for the properties
-    //  * Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey
-    //  * Ice.Security.Ssl.Overrides.Server.RSA.Certificate
+    //  * IceSSL.Server.Overrides.Server.RSA.PrivateKey
+    //  * IceSSL.Server.Overrides.Server.RSA.Certificate
     // respectively.
     //
     // If the router is to act as a client to the Client as well, then
     // these values should also be passed into the router as the properties
-    //  * Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey
-    //  * Ice.Security.Ssl.Overrides.Client.RSA.Certificate
+    //  * IceSSL.Client.Overrides.RSA.PrivateKey
+    //  * IceSSL.Client.Overrides.RSA.Certificate
     // respectively.
     //
     // The value of clientCertificateBase64 should be passed in to the router
@@ -153,15 +153,16 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	//
 	StringSeq args = _properties->getCommandLineOptions();
 	args.push_back("--Glacier.Router.Identity=" + uuid);
-	//
+
+        //
 	// TODO: Potential security risk, command line parameters can
 	// be seen with `ps'. Keys and certificate should rather be
 	// passed through a pipe? (ML will take care of this...)
 	//
-        args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--Ice.Security.Ssl.Overrides.Server.RSA.Certificate=" + routerCertificateBase64);
-        args.push_back("--Ice.Security.Ssl.Overrides.Client.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--Ice.Security.Ssl.Overrides.Client.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--Ice.SSL.Server.Overrides.Server.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--Ice.SSL.Server.Overrides.Server.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--Ice.SSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--Ice.SSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
 	ostringstream s;
 	s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];

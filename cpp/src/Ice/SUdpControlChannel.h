@@ -20,9 +20,6 @@
 #include <Ice/SUdpTransceiverF.h>
 #include <Ice/CryptorF.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -46,8 +43,6 @@ protected:
     IceUtil::Mutex _mutex;
     CryptorPtr _cryptor;
 };
-
-}
 
 }
 

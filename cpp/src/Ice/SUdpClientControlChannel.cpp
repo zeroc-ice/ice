@@ -25,7 +25,7 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceSecurity::SecureUdp;
+using namespace SecureUdp;
 using IceInternal::BasicStream;
 using IceInternal::InstancePtr;
 using IceInternal::SUdpTransceiver;
@@ -36,7 +36,7 @@ using IceInternal::Buffer;
 ////////////////////////////////////////////////////////////////////////////////
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::serverHello(Long clientID, const ByteSeq& key, const Current&)
+SecureUdp::ClientControlChannel::serverHello(Long clientID, const ByteSeq& key, const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -48,7 +48,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverHello(Long clientID, const B
 }
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::serverKeyChange(const ByteSeq& key, const Current&)
+SecureUdp::ClientControlChannel::serverKeyChange(const ByteSeq& key, const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -56,7 +56,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverKeyChange(const ByteSeq& key
 }
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::serverGoodbye(const Current&)
+SecureUdp::ClientControlChannel::serverGoodbye(const Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -67,7 +67,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverGoodbye(const Current&)
 // Protected Methods
 ////////////////////////////////////////////////////////////////////////////////
 
-IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiver* transceiver,
+SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiver* transceiver,
                                                                    const InstancePtr& instance,
                                                                    const std::string& host,
                                                                    int port) :
@@ -137,7 +137,7 @@ IceSecurity::SecureUdp::ClientControlChannel::ClientControlChannel(SUdpTransceiv
     clientHello();
 }
 
-IceSecurity::SecureUdp::ClientControlChannel::~ClientControlChannel()
+SecureUdp::ClientControlChannel::~ClientControlChannel()
 {
     // Make it impossible for the control channel to access the Transceiver
     // after transceiver destruction.
@@ -145,7 +145,7 @@ IceSecurity::SecureUdp::ClientControlChannel::~ClientControlChannel()
 }
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::serverKeyChangeMessage(const ByteSeq& key)
+SecureUdp::ClientControlChannel::serverKeyChangeMessage(const ByteSeq& key)
 {
     Long msgID = _msgID + 1;
 
@@ -160,7 +160,7 @@ IceSecurity::SecureUdp::ClientControlChannel::serverKeyChangeMessage(const ByteS
 }
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::clientHello()
+SecureUdp::ClientControlChannel::clientHello()
 {
     _serverChannel->clientHello(_clientProxy, _messageAuthenticator->getMACKey());
 }
@@ -171,7 +171,7 @@ IceSecurity::SecureUdp::ClientControlChannel::clientHello()
 ////////////////////////////////////////////////////////////////////////////////
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::encryptPacket(Buffer& buffer, Buffer& encryptedPacket)
+SecureUdp::ClientControlChannel::encryptPacket(Buffer& buffer, Buffer& encryptedPacket)
 {
     IceUtil::Mutex::Lock sync(_mutex);
 
@@ -216,7 +216,7 @@ IceSecurity::SecureUdp::ClientControlChannel::encryptPacket(Buffer& buffer, Buff
 }
 
 void
-IceSecurity::SecureUdp::ClientControlChannel::clientKeyRequest()
+SecureUdp::ClientControlChannel::clientKeyRequest()
 {
     _serverChannel->clientKeyRequest(_clientID);
 }

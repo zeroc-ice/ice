@@ -18,9 +18,6 @@
 #include <Ice/SUdpClientF.h>
 #include <map>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -70,8 +67,6 @@ protected:
     Ice::Long _clientIDGenerator;
     IceUtil::Mutex _clientIDMutex;
 };
-
-}
 
 }
 

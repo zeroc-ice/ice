@@ -14,11 +14,10 @@
 //       The MSDN Library recommends that you put this pragma directive
 //       in place to avoid the warnings.
 #ifdef WIN32
-#pragma warning(disable:4786)
+#   pragma warning(disable:4786)
 #endif
 
-#include <Ice/SslFactory.h>
-#include <Ice/SslSystem.h>
+#include <Ice/SslSystemInternal.h>
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/Instance.h>
@@ -36,9 +35,8 @@ using namespace IceInternal;
 
 using std::ostringstream;
 using std::string;
-using IceSecurity::Ssl::Connection;
-using IceSecurity::Ssl::Factory;
-using IceSecurity::Ssl::SystemPtr;
+using IceSSL::Connection;
+using IceSSL::SystemInternalPtr;
 
 TransceiverPtr
 IceInternal::SslConnector::connect(int timeout)
@@ -60,37 +58,12 @@ IceInternal::SslConnector::connect(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    PropertiesPtr properties = _instance->properties();
+    // Get an instance of the SslSystem
+    SystemInternalPtr sslSystem = _instance->getSslSystem();
+    assert(sslSystem != 0);
 
-    // This is the Ice SSL Configuration File on which we will base
-    // all connections in this communicator.
-    string configFile = properties->getProperty("Ice.Security.Ssl.Config");
-
-    // Get an instance of the SslOpenSSL singleton.
-    SystemPtr sslSystem = Factory::getSystem(configFile);
-
-    if (!sslSystem->isTraceSet())
-    {
-        sslSystem->setTrace(_traceLevels);
-    }
-
-    if (!sslSystem->isLoggerSet())
-    {
-        sslSystem->setLogger(_logger);
-    }
-
-    if (!sslSystem->isPropertiesSet())
-    {
-        sslSystem->setProperties(properties);
-    }
-
-    // Initialize the server (if needed)
-    if (!sslSystem->isConfigLoaded())
-    {
-        sslSystem->loadConfig();
-    }
-
-    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, sslSystem->createClientConnection(fd));
+    IceSSL::ConnectionPtr connection = sslSystem->createConnection(IceSSL::Client, fd);
+    TransceiverPtr transPtr = new SslTransceiver(_instance, fd, connection);
 
     return transPtr;
 }
@@ -102,9 +75,9 @@ IceInternal::SslConnector::toString() const
 }
 
 IceInternal::SslConnector::SslConnector(const InstancePtr& instance, const string& host, int port) :
-    _instance(instance),
-    _traceLevels(instance->traceLevels()),
-    _logger(instance->logger())
+                          _instance(instance),
+                          _traceLevels(instance->traceLevels()),
+                          _logger(instance->logger())
 {
     getAddress(host.c_str(), port, _addr);
 }

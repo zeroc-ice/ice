@@ -14,10 +14,7 @@
 #include <Ice/SslCertificateDesc.h>
 #include <ostream>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class BaseCertificates
@@ -28,10 +25,10 @@ public:
     BaseCertificates(CertificateDesc&, CertificateDesc&, DiffieHellmanParamsFile&);
     BaseCertificates(BaseCertificates&);
 
-    inline const CertificateDesc& getRSACert() const { return _rsaCert; };
-    inline const CertificateDesc& getDSACert() const { return _dsaCert; };
+    const CertificateDesc& getRSACert() const;
+    const CertificateDesc& getDSACert() const;
 
-    inline const DiffieHellmanParamsFile& getDHParams() const { return _dhParams; };
+    const DiffieHellmanParamsFile& getDHParams() const;
 
 protected:
     CertificateDesc _rsaCert;
@@ -64,8 +61,6 @@ inline Stream& operator << (Stream& target, const BaseCertificates& baseCerts)
     }
 
     return target;
-}
-
 }
 
 }

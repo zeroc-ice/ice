@@ -8,26 +8,34 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER_CERT_VERIFIER_H
-#define GLACIER_CERT_VERIFIER_H
+#ifndef ICE_SSL_SINGLE_CERTIFICATE_VERIFIER_H
+#define ICE_SSL_SINGLE_CERTIFICATE_VERIFIER_H
 
 #include <Ice/BuiltinSequences.h>
 #include <Ice/SslCertificateVerifierOpenSSL.h>
 
-using Ice::ByteSeq;
+namespace IceSSL
+{
 
-class CertVerifier : public IceSecurity::Ssl::OpenSSL::CertificateVerifier
+namespace OpenSSL
+{
+
+class SingleCertificateVerifier : public IceSSL::OpenSSL::CertificateVerifier
 {
 public:
-    CertVerifier(const ByteSeq&);
+    SingleCertificateVerifier(const Ice::ByteSeq&);
 
     virtual int verify(int, X509_STORE_CTX*, SSL*);
 
-    ByteSeq toByteSeq(X509* certificate);
+    Ice::ByteSeq toByteSeq(X509* certificate);
 
 protected:
-    ByteSeq _publicKey;
+    Ice::ByteSeq _publicKey;
 };
+
+}
+
+}
 
 #endif
 

@@ -12,10 +12,10 @@
 
 using Ice::ByteSeq;
 
-void ::IceInternal::incRef(::IceSecurity::SecureUdp::MessageAuthenticator* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSecurity::SecureUdp::MessageAuthenticator* p) { p->__decRef(); }
+void ::IceInternal::incRef(::SecureUdp::MessageAuthenticator* p) { p->__incRef(); }
+void ::IceInternal::decRef(::SecureUdp::MessageAuthenticator* p) { p->__decRef(); }
 
-IceSecurity::SecureUdp::MessageAuthenticator::MessageAuthenticator()
+SecureUdp::MessageAuthenticator::MessageAuthenticator()
 {
     // TODO: Should generate a random MAC key here
 
@@ -34,17 +34,17 @@ IceSecurity::SecureUdp::MessageAuthenticator::MessageAuthenticator()
     _macKeyBytes.push_back(2);
 }
 
-IceSecurity::SecureUdp::MessageAuthenticator::MessageAuthenticator(const ByteSeq& macKey)
+SecureUdp::MessageAuthenticator::MessageAuthenticator(const ByteSeq& macKey)
 {
     _macKeyBytes = macKey;
 }
 
-IceSecurity::SecureUdp::MessageAuthenticator::~MessageAuthenticator()
+SecureUdp::MessageAuthenticator::~MessageAuthenticator()
 {
 }
 
 ByteSeq
-IceSecurity::SecureUdp::MessageAuthenticator::computeMAC(const ByteSeq& message) const
+SecureUdp::MessageAuthenticator::computeMAC(const ByteSeq& message) const
 {
     // TODO: Should generate a REAL MAC here.
     ByteSeq bytes;
@@ -67,14 +67,14 @@ IceSecurity::SecureUdp::MessageAuthenticator::computeMAC(const ByteSeq& message)
 }
 
 bool
-IceSecurity::SecureUdp::MessageAuthenticator::authenticate(const ByteSeq& message, const ByteSeq& macCode)
+SecureUdp::MessageAuthenticator::authenticate(const ByteSeq& message, const ByteSeq& macCode)
 {
     ByteSeq targetMAC = computeMAC(message);
     return targetMAC == macCode;
 }
 
 const ByteSeq&
-IceSecurity::SecureUdp::MessageAuthenticator::getMACKey() const
+SecureUdp::MessageAuthenticator::getMACKey() const
 {
     return _macKeyBytes;
 }

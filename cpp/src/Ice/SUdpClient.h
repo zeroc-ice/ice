@@ -18,9 +18,6 @@
 #include <Ice/MessageAuthenticatorF.h>
 #include <Ice/CryptKeyF.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -53,8 +50,6 @@ protected:
     CryptKeyPtr _cryptKey;
 
 };
-
-}
 
 }
 

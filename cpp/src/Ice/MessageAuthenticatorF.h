@@ -13,9 +13,6 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -24,13 +21,11 @@ typedef IceInternal::Handle<MessageAuthenticator> MessageAuthenticatorPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::SecureUdp::MessageAuthenticator*);
-void decRef(::IceSecurity::SecureUdp::MessageAuthenticator*);
+void incRef(::SecureUdp::MessageAuthenticator*);
+void decRef(::SecureUdp::MessageAuthenticator*);
 
 }
 

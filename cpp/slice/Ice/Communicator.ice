@@ -17,6 +17,8 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
+#include <Ice/SslSystemF.ice>
+#include <Ice/SslExtensionF.ice>
 
 /**
  *
@@ -339,6 +341,30 @@ local interface Communicator
      *
      **/
     void setDefaultRouter(Router* router);
+
+    /**
+     *
+     * Get an SslExtension instance.  The SslExtension instance can then
+     * be used as a factory for generation of some stock worker objects.  
+     *
+     * @return An SslExtension object representing the SSL implementation.
+     *
+     * @see IceSSL::SslExtension
+     *
+     **/
+    IceSSL::SslExtension getSslExtension();
+
+    /**
+     *
+     * Get the IceSSL::System instance being used by this Communicator.  
+     *
+     * @return The IceSSL::System this Communicator is using.
+     *
+     * @see IceSSL::System
+     *
+     **/
+    IceSSL::System getSslSystem();
+
 };
 
 };

@@ -14,7 +14,6 @@
 #include <CallbackI.h>
 #include <Ice/Security.h>
 #include <IceUtil/Base64.h>
-#include <CertVerifier.h>
 
 using namespace std;
 using namespace Ice;
@@ -86,16 +85,16 @@ CallbackClient::run(int argc, char* argv[])
     string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
     string routerCertString = IceUtil::Base64::encode(routerCert);
 
-    string sysIdentifier = properties->getProperty("Ice.Security.Ssl.Config");
-    IceSecurity::Ssl::SslContextType contextType = IceSecurity::Ssl::ClientServer;
-    IceSecurity::Ssl::CertificateVerifierPtr certVerifier = new CertVerifier(routerCert);
-    IceSecurity::Ssl::setSystemCertificateVerifier(sysIdentifier, contextType, certVerifier);
-    IceSecurity::Ssl::setSystemCertAuthCertificate(sysIdentifier, IceSecurity::Ssl::Client, routerCertString);
-    IceSecurity::Ssl::setSystemRSAKeysBase64(sysIdentifier, IceSecurity::Ssl::Client, privateKeyBase64, publicKeyBase64);
+    string sysIdentifier = properties->getProperty("Ice.SSL.Config");
+    IceSSL::SslContextType contextType = IceSSL::ClientServer;
+    IceSSL::CertificateVerifierPtr certVerifier = new CertVerifier(routerCert);
+    IceSSL::setSystemCertificateVerifier(sysIdentifier, contextType, certVerifier);
+    IceSSL::setSystemCertAuthCertificate(sysIdentifier, IceSSL::Client, routerCertString);
+    IceSSL::setSystemRSAKeysBase64(sysIdentifier, IceSSL::Client, privateKeyBase64, publicKeyBase64);
 
     // Set the keys overrides for the server.
-    properties->setProperty("Ice.Security.Ssl.Overrides.Server.RSA.PrivateKey", privateKeyBase64);
-    properties->setProperty("Ice.Security.Ssl.Overrides.Server.RSA.Certificate", publicKeyBase64);
+    properties->setProperty("Ice.SSL.Server.Overrides.RSA.PrivateKey", privateKeyBase64);
+    properties->setProperty("Ice.SSL.Server.Overrides.RSA.Certificate", publicKeyBase64);
 
     test(router);
     cout << "ok" << endl;

@@ -13,9 +13,6 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -24,13 +21,11 @@ typedef IceInternal::Handle<CryptKey> CryptKeyPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::SecureUdp::CryptKey*);
-void decRef(::IceSecurity::SecureUdp::CryptKey*);
+void incRef(::SecureUdp::CryptKey*);
+void decRef(::SecureUdp::CryptKey*);
 
 }
 

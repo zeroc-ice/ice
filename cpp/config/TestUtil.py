@@ -31,11 +31,12 @@ host = ""
 
 if protocol == "ssl":
     clientProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=client_sslconfig.xml"
+    " --Ice.SSL.Client.CertPath=TOPLEVELDIR/certs --Ice.SSL.Client.Config=client_sslconfig.xml"
     serverProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=server_sslconfig.xml"
+    " --Ice.SSL.Server.CertPath=TOPLEVELDIR/certs --Ice.SSL.Server.Config=server_sslconfig.xml"
     clientServerProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=sslconfig.xml"
+    " --Ice.SSL.Client.CertPath=TOPLEVELDIR/certs --Ice.SSL.Client.Config=sslconfig.xml" + \
+    " --Ice.SSL.Server.CertPath=TOPLEVELDIR/certs --Ice.SSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""

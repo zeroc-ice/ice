@@ -15,14 +15,11 @@
 #include <openssl/ssl.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
-#include <Ice/SslSystemF.h>
+#include <Ice/SslSystemInternalF.h>
 #include <Ice/SslConnectionOpenSSLF.h>
 #include <Ice/SslCertificateVerifierOpenSSL.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -107,22 +104,6 @@ private:
     SafeFlag& _flag;
 };
 
-class DefaultCertificateVerifier : public IceSecurity::Ssl::OpenSSL::CertificateVerifier
-{
-
-public:
-    DefaultCertificateVerifier();
-
-    void setTraceLevels(const IceInternal::TraceLevelsPtr&);
-    void setLogger(const Ice::LoggerPtr&);
-
-    virtual int verify(int, X509_STORE_CTX*, SSL*);
-
-private:
-    IceInternal::TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
-};
-
 // NOTE: This is a mapping from SSL* to Connection*, for use with the verifyCallback.
 //       I have purposely not used ConnectionPtr here, as connections register themselves
 //       with this map on construction and unregister themselves in the destructor.  If
@@ -130,11 +111,15 @@ private:
 //       would always be a reference to them from the map.
 typedef std::map<SSL*, Connection*> SslConnectionMap;
 
-class Connection : public IceSecurity::Ssl::Connection
+class Connection : public IceSSL::Connection
 {
 public:
 
-    Connection(const IceSecurity::Ssl::CertificateVerifierPtr&, SSL*, const SystemPtr&);
+    Connection(const IceInternal::TraceLevelsPtr&,
+               const Ice::LoggerPtr&,
+               const IceSSL::CertificateVerifierPtr&,
+               SSL*,
+               const IceSSL::SystemInternalPtr&);
     virtual ~Connection();
 
     virtual void shutdown();
@@ -143,9 +128,6 @@ public:
     virtual int write(IceInternal::Buffer&, int) = 0;
 
     virtual int init(int timeout = 0) = 0;
-
-    void setTrace(const IceInternal::TraceLevelsPtr& traceLevels);
-    void setLogger(const Ice::LoggerPtr& traceLevels);
 
     void setHandshakeReadTimeout(int timeout);
 
@@ -161,8 +143,8 @@ protected:
     int renegotiate();
     int initialize(int timeout);
 
-    inline int pending() { return SSL_pending(_sslConnection); };
-    inline int getLastError() const { return SSL_get_error(_sslConnection, _lastError); };
+    int pending();
+    int getLastError() const;
 
     int sslRead(char*, int);
     int sslWrite(char*, int);
@@ -199,7 +181,6 @@ protected:
 
     // Pointer to the OpenSSL Connection structure.
     SSL* _sslConnection;
-    SystemPtr _system;
 
     int _lastError;
 
@@ -211,8 +192,8 @@ protected:
 
     ::IceUtil::Mutex _handshakeWaitMutex;
 
-    IceInternal::TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
+    // IceInternal::TraceLevelsPtr _traceLevels;
+    // Ice::LoggerPtr _logger;
 
     SafeFlag _handshakeFlag;
     int _initWantRead;
@@ -220,8 +201,6 @@ protected:
     int _handshakeReadTimeout;
     int _readTimeout;
 };
-
-}
 
 }
 

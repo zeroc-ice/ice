@@ -13,9 +13,6 @@
 
 #include <Ice/Handle.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -24,13 +21,11 @@ typedef IceInternal::Handle<SUdpClient> SUdpClientPtr;
 
 }
 
-}
-
 namespace IceInternal
 {
 
-void incRef(::IceSecurity::SecureUdp::SUdpClient*);
-void decRef(::IceSecurity::SecureUdp::SUdpClient*);
+void incRef(::SecureUdp::SUdpClient*);
+void decRef(::SecureUdp::SUdpClient*);
 
 }
 

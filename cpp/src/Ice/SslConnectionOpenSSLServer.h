@@ -13,10 +13,7 @@
 
 #include <Ice/SslConnectionOpenSSL.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
@@ -26,7 +23,11 @@ class ServerConnection : public Connection
 {
 
 public:
-    ServerConnection(const IceSecurity::Ssl::CertificateVerifierPtr&, SSL*, const IceSecurity::Ssl::SystemPtr&);
+    ServerConnection(const IceInternal::TraceLevelsPtr&,
+                     const Ice::LoggerPtr&,
+                     const IceSSL::CertificateVerifierPtr&,
+                     SSL*,
+                     const IceSSL::SystemInternalPtr&);
     virtual ~ServerConnection();
     virtual void shutdown();
     virtual int init(int timeout = 0);
@@ -38,8 +39,6 @@ protected:
 
     virtual void showConnectionInfo();
 };
-
-}
 
 }
 

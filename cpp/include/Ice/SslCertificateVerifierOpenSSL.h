@@ -24,16 +24,13 @@
 #   define ICE_API /**/
 #endif
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 namespace OpenSSL
 {
 
-class ICE_API CertificateVerifier : public IceSecurity::Ssl::CertificateVerifier
+class ICE_API CertificateVerifier : public IceSSL::CertificateVerifier
 {
 
 public:
@@ -42,9 +39,7 @@ public:
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;
 };
 
-typedef ::IceInternal::Handle< ::IceSecurity::Ssl::OpenSSL::CertificateVerifier> CertificateVerifierPtr;
-
-}
+typedef ::IceInternal::Handle< ::IceSSL::OpenSSL::CertificateVerifier> CertificateVerifierPtr;
 
 }
 
@@ -53,8 +48,8 @@ typedef ::IceInternal::Handle< ::IceSecurity::Ssl::OpenSSL::CertificateVerifier>
 namespace IceInternal
 {
 
-ICE_API void incRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier*);
-ICE_API void decRef(::IceSecurity::Ssl::OpenSSL::CertificateVerifier*);
+ICE_API void incRef(::IceSSL::OpenSSL::CertificateVerifier*);
+ICE_API void decRef(::IceSSL::OpenSSL::CertificateVerifier*);
 
 }
 

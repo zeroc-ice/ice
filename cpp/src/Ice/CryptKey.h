@@ -15,9 +15,6 @@
 #include <Ice/Stream.h>
 #include <Ice/CryptKeyF.h>
 
-namespace IceSecurity
-{
-
 namespace SecureUdp
 {
 
@@ -50,8 +47,6 @@ inline bool operator==(const CryptKey& cryptKey, const CryptKeyPtr& cryptKeyPtr)
 inline bool operator==(const CryptKeyPtr& cryptKeyPtr, const CryptKey& cryptKey)
 {
     return (cryptKey == *(cryptKeyPtr.get()));
-}
-
 }
 
 }

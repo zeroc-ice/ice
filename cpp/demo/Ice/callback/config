@@ -6,8 +6,10 @@ Ice.Adapter.CallbackReceiverAdapter.Endpoints=tcp:udp:ssl#:sudp
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
 
-Ice.Security.Ssl.CertPath=../../../certs
-Ice.Security.Ssl.Config=sslconfig.xml
+Ice.Ssl.Client.CertPath=../../../certs
+Ice.Ssl.Client.Config=sslconfig.xml
+Ice.Ssl.Server.CertPath=../../../certs
+Ice.Ssl.Server.Config=sslconfig.xml
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Client.Endpoints=tcp:udp -c:ssl#:sudp -c

@@ -18,16 +18,15 @@
 #include <Ice/SslConnectionF.h>
 #include <Ice/SslCertificateVerifierF.h>
 
-namespace IceSecurity
-{
-
-namespace Ssl
+namespace IceSSL
 {
 
 class Connection : public IceUtil::Shared
 {
 public:
-    Connection(const IceSecurity::Ssl::CertificateVerifierPtr&);
+    Connection(const IceInternal::TraceLevelsPtr&,
+               const Ice::LoggerPtr&,
+               const IceSSL::CertificateVerifierPtr&);
     virtual ~Connection();
 
     virtual void shutdown() = 0;
@@ -35,14 +34,11 @@ public:
     virtual int read(IceInternal::Buffer&, int) = 0;
     virtual int write(IceInternal::Buffer&, int) = 0;
 
-    virtual void setTrace(const IceInternal::TraceLevelsPtr&) = 0;
-    virtual void setLogger(const Ice::LoggerPtr&) = 0;
-
 protected:
+    IceInternal::TraceLevelsPtr _traceLevels;
+    Ice::LoggerPtr _logger;
     CertificateVerifierPtr _certificateVerifier;
 };
-
-}
 
 }
 

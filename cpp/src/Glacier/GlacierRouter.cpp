@@ -14,8 +14,11 @@
 #include <Glacier/ClientBlobject.h>
 #include <Glacier/ServerBlobject.h>
 #include <IceUtil/Base64.h>
-#include <Ice/Security.h>
-#include <Glacier/CertVerifier.h>
+// #include <Ice/Security.h>
+// #include <Glacier/CertVerifier.h>
+#include <Ice/SslCertificateVerifierF.h>
+#include <Ice/SslSystem.h>
+#include <Ice/SslExtension.h>
 
 using namespace std;
 using namespace Ice;
@@ -126,13 +129,17 @@ Glacier::Router::run(int argc, char* argv[])
     //
     string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
     Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
-    string sysIdentifier = properties->getProperty("Ice.Security.Ssl.Config");
-    IceSecurity::Ssl::SslContextType contextType = IceSecurity::Ssl::ClientServer;
-    IceSecurity::Ssl::CertificateVerifierPtr certVerifier = new CertVerifier(clientCert);
-    IceSecurity::Ssl::setSystemCertificateVerifier(sysIdentifier, contextType, certVerifier);
+    IceSSL::ContextType contextType = IceSSL::ClientServer;
 
-    properties->setProperty("Ice.Security.Ssl.Overrides.Server.CACertificate", clientCertBase64);
-//     IceSecurity::Ssl::setSystemCertAuthCertificate(sysIdentifier, contextType, clientCertBase64);
+    // Get our SSL System and an instance of the SSL Extension itself
+    IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+    IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
+
+    // Install a Certificate Verifier that only accepts the client's certificate.
+    sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
+
+    // Add the Client's certificate as a trusted certificate.
+    sslSystem->addTrustedCertificate(contextType, clientCertBase64);
 
     //
     // Create routing table

@@ -36,7 +36,7 @@ public:
 
 private:
 
-    SslTransceiver(const InstancePtr&, SOCKET, const ::IceSecurity::Ssl::ConnectionPtr&);
+    SslTransceiver(const InstancePtr&, SOCKET, const ::IceSSL::ConnectionPtr&);
 
     virtual ~SslTransceiver();
     friend class SslConnector;
@@ -49,7 +49,7 @@ private:
     fd_set _rFdSet;
     fd_set _wFdSet;
 
-    ::IceSecurity::Ssl::ConnectionPtr _sslConnection;
+    ::IceSSL::ConnectionPtr _sslConnection;
 };
 
 }
