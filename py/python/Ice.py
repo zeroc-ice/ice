@@ -29,6 +29,15 @@ class Object(object):
     def ice_id(self, current=None):
         return '::Ice::Object'
 
+    #
+    # Do not define these here. They will be invoked if defined by a subclass.
+    #
+    #def ice_preMarshal(self):
+    #    pass
+    #
+    #def ice_postUnmarshal(self):
+    #    pass
+
 class LocalObject(object):
     pass
 
@@ -124,13 +133,48 @@ def Identity__str__(self):
 Identity.__str__ = Identity__str__
 del Identity__str__
 
-def Identity__cmp__(self, other):
-    n = cmp(self.category, other.category)
-    if n != 0:
-        return n
-    return cmp(self.name, other.name)
-Identity.__cmp__ = Identity__cmp__
-del Identity__cmp__
+def Identity__hash__(self):
+    return 5 * hash(self.category) + hash(self.name)
+Identity.__hash__ = Identity__hash__
+del Identity__hash__
+
+def Identity__lt__(self, other):
+    if self.category < other.category:
+        return True
+    elif self.category == other.category:
+        return self.name < other.name
+    return False
+Identity.__lt__ = Identity__lt__
+del Identity__lt__
+
+def Identity__le__(self, other):
+    return self.__lt__(other) or self.__eq__(other)
+Identity.__le__ = Identity__le__
+del Identity__le__
+
+def Identity__eq__(self, other):
+    return self.category == other.category and self.name == other.name
+Identity.__eq__ = Identity__eq__
+del Identity__eq__
+
+def Identity__ne__(self, other):
+    return not self.__eq__(other)
+Identity.__ne__ = Identity__ne__
+del Identity__ne__
+
+def Identity__gt__(self, other):
+    if self.category > other.category:
+        return True
+    elif self.category == other.category:
+        return self.name > other.name
+    return False
+Identity.__gt__ = Identity__gt__
+del Identity__gt__
+
+def Identity__ge__(self, other):
+    return self.__gt__(other) or self.__eq__(other)
+Identity.__ge__ = Identity__ge__
+del Identity__ge__
 
 #
 # Proxy comparison functions.
