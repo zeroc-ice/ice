@@ -179,8 +179,9 @@ class GenerateConfiguration : public Task
     {
     public:
 	
-	WriteConfigProperty(const string& sep) :
-	    _sep(sep)
+	WriteConfigProperty(const string& sep, const string& prefix) :
+	    _sep(sep),
+	    _prefix(prefix)
        {
        }
 	
@@ -188,18 +189,21 @@ class GenerateConfiguration : public Task
 	string 
 	operator()(const Ice::PropertyDict::value_type& p) const
 	{
-	    return p.first + _sep + p.second;
+	    return p.first + _sep + p.second.substr(_prefix.length());
 	}
 
     private:
 	
 	const string _sep;
+	const string _prefix;
     };
 
 public:
 
-    GenerateConfiguration(const string& sep, const string& file, const Ice::PropertiesPtr& properties) :
+    GenerateConfiguration(const string& sep, const string& prefix, const string& file, 
+			  const Ice::PropertiesPtr& properties) :
 	_sep(sep),
+	_prefix(prefix),
 	_file(file),
 	_properties(properties)
     {
@@ -217,8 +221,9 @@ public:
 	    throw ex;
 	}
 	
-	Ice::PropertyDict props = _properties->getPropertiesForPrefix("");
-	transform(props.begin(), props.end(), ostream_iterator<string>(configfile,"\n"), WriteConfigProperty(_sep));
+	Ice::PropertyDict props = _properties->getPropertiesForPrefix(_prefix);
+	transform(props.begin(), props.end(), ostream_iterator<string>(configfile,"\n"), 
+		  WriteConfigProperty(_sep, _prefix));
 	configfile.close();
     }
 
@@ -236,6 +241,7 @@ public:
 private:
 
     const string _sep;
+    const string _prefix;
     const string _file;
     Ice::PropertiesPtr _properties;
 };
@@ -618,7 +624,7 @@ IcePack::ComponentBuilder::createConfigFile(const string& name)
 {
     assert(!name.empty());
     _configFile = getVariable("datadir") + (name[0] == '/' ? name : "/" + name);
-    _tasks.push_back(new GenerateConfiguration("=", _configFile, _properties));
+    _tasks.push_back(new GenerateConfiguration("=", "", _configFile, _properties));
 }
 
 void
@@ -823,7 +829,8 @@ IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
 }
 
 void
-IcePack::ComponentBuilder::generateConfigFile(const string& sep, const string& path, const Ice::PropertiesPtr& props)
+IcePack::ComponentBuilder::generateConfigFile(const string& sep, const string& prefix, const string& path, 
+					      const Ice::PropertiesPtr& props)
 {
-    _tasks.push_back(new GenerateConfiguration(sep, path, props));
+    _tasks.push_back(new GenerateConfiguration(sep, prefix, path, props));
 }
