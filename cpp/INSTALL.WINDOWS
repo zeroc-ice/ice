@@ -100,6 +100,14 @@ can download a Python distribution for Windows from:
 
 http://www.activestate.com
 
+Important note for Windows 98, Windows 98 SE and Windows ME:
+unfortunately the Windows 9x shell is too limited to run the Ice test
+suite. For these versions of Windows, you need Cygwin and the python
+interpreter that comes with Cygwin in order to run the test suite.
+Cygwin can be downloaded from:
+
+http://www.cygwin.com
+
 
 ======================================================================
 Compilation and Testing

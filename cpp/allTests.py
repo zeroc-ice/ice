@@ -81,17 +81,17 @@ tests = [ \
     "IceStorm/federation2", \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
-    "Glacier/starter", \
+    "IcePack/simple", \
+    "IcePack/deployer", \
     ]
 
 #
-# IcePack is currently disabled on Win9x
+# This test is currently disabled on cygwin
 #
-if TestUtil.isWin9x() == 0:
+if TestUtil.isCygwin() == 0:
     tests += [ \
-        "IcePack/simple", \
-        "IcePack/deployer", \
-        ]
+       "Glacier/starter", \
+      ]
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
