@@ -12,6 +12,7 @@
 #include <ComplexDict.h>
 #include <TestCommon.h>
 #include <NodeI.h>
+#include <Parser.h>
 
 using namespace std;
 using namespace Ice;
@@ -25,6 +26,71 @@ using namespace Freeze;
 //
 
 static int
+validate(const DBPtr& db)
+{
+    Complex::ComplexDict m(db);
+
+    cout << "testing database expressions... ";
+    Complex::ComplexDict::const_iterator p;
+    Parser parser;
+    for (p = m.begin(); p != m.end(); ++p)
+    {
+	//
+	// Verified the stored record is correct.
+	//
+	test(p->first.result == p->second->calc());
+
+	//
+	// Verify that the expression & result again.
+	//
+	Complex::NodePtr root = parser.parse(p->first.expression);
+	test(root->calc() == p->first.result);
+    }
+    cout << "ok" << endl;
+    return EXIT_SUCCESS;
+}
+
+static int
+populate(const DBPtr& db)
+{
+    static const char* expressions[] = 
+    {
+	"2",
+	"10",
+	"2+(5*3)",
+	"5*(2+3)",
+	"10+(10+(20+(8*(2*(3*2+4+5+6)))))"
+    };
+    static int nexpressions = sizeof(expressions)/sizeof(expressions[0]);
+
+    Complex::ComplexDict m(db);
+
+    cout << "populating the database... ";
+    Parser parser;
+    for (int i = 0 ; i < nexpressions; ++i)
+    {
+	Complex::NodePtr root = parser.parse(expressions[i]);
+	assert(root);
+	Complex::Key k;
+	k.expression = expressions[i];
+	k.result = root->calc();
+	m.insert(make_pair(k, root));
+    }
+    cout << "ok" << endl;
+
+    return EXIT_SUCCESS;
+}
+
+static void
+usage(const char* name)
+{
+    cerr << "Usage: " << name << " [options] validate|populate\n";
+    cerr <<	
+	"Options:\n"
+        "--dbdir           Location of the database directory.\n";
+}
+
+static int
 run(int argc, char* argv[], const DBPtr& db)
 {
     //
@@ -36,17 +102,17 @@ run(int argc, char* argv[], const DBPtr& db)
     communicator->addObjectFactory(factory, "::Complex::AddNode");
     communicator->addObjectFactory(factory, "::Complex::MultiplyNode");
 
-    Complex::ComplexDict m(db);
-
-    cout << "Testing database expressions...";
-    Complex::ComplexDict::const_iterator p;
-    for (p = m.begin(); p != m.end(); ++p)
+    if (argc >= 1 && strcmp(argv[1], "populate") == 0)
     {
-	test(p->first.result == p->second->calc());
+	return populate(db);
     }
-    cout << "ok" << endl;
+    if (argc >= 1 && strcmp(argv[1], "validate") == 0)
+    {
+	return validate(db);
+    }
+    usage(argv[0]);
 
-    return 0;
+    return EXIT_FAILURE;
 }
 
 int
@@ -60,13 +126,41 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	if (argc != 1)
+	//
+	// Scan for --dbdir command line argument.
+	//
+	int i = 1;
+	while (i < argc)
 	{
-	    dbEnvDir = argv[1];
-	    dbEnvDir += "/";
-	    dbEnvDir += "db";
+	    if (strcmp(argv[i], "--dbdir") == 0)
+	    {
+		if (i +1 >= argc)
+		{
+		    usage(argv[0]);
+		    return EXIT_FAILURE;
+		}
+
+		dbEnvDir = argv[i+1];
+		dbEnvDir += "/";
+		dbEnvDir += "db";
+
+		//
+		// Consume arguments
+		//
+		while (i < argc - 2)
+		{
+		    argv[i] = argv[i+2];
+		    ++i;
+		}
+		argc -= 2;
+	    }
+	    else
+	    {
+		++i;
+	    }
 	}
+
+	communicator = Ice::initialize(argc, argv);
 	dbEnv = Freeze::initialize(communicator, dbEnvDir);
 	db = dbEnv->openDB("test");
 	status = run(argc, argv, db);

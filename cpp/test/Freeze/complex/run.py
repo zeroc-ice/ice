@@ -31,12 +31,10 @@ dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 client = os.path.join(testdir, "client")
-clientOptions = ' ' + testdir;
-populate = os.path.join(testdir, "populate")
-populateOptions = ' ' + testdir;
+clientOptions = " --dbdir " + testdir;
 
 print "starting populate...",
-populatePipe = os.popen(populate + populateOptions)
+populatePipe = os.popen(client + clientOptions + " populate")
 output = populatePipe.read().strip()
 if not output:
     print "failed!"
@@ -45,7 +43,7 @@ print "ok"
 print output
 
 print "starting verification client...",
-clientPipe = os.popen(client + clientOptions)
+clientPipe = os.popen(client + clientOptions + " validate")
 output = clientPipe.read().strip()
 if not output:
     print "failed!"

@@ -11,37 +11,26 @@
 top_srcdir	= ../../..
 
 CLIENT		= client
-POPULATE	= populate
 
-TARGETS		= $(CLIENT) \
-		  $(POPULATE)
+TARGETS		= $(CLIENT)
 
 OBJS		= ComplexDict.o \
-		  Complex.o
-
-COBJS		= Client.o
-
-POBJS		= Grammar.o \
+		  Complex.o \
+		  Grammar.o \
 		  Scanner.o \
 		  Parser.o \
-		  Populate.o
+		  Client.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(POJBS:.o=.cpp)
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) -I$(DB)/include
 LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lFreeze -ldb -lreadline -lcurses
-
-$(POPULATE): $(OBJS) $(POBJS)
-	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS) -lFreeze -ldb -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) -lFreeze -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y
@@ -69,6 +58,5 @@ ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE)
 
 clean::
 	rm -f ComplexDict.h ComplexDict.cpp
-
 
 include .depend
