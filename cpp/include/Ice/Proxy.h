@@ -195,8 +195,8 @@ public:
 
 protected:
 
-    ::IceInternal::ConnectionPtr __connection;
     ::IceInternal::ReferencePtr __reference;
+    ::IceInternal::ConnectionPtr __connection;
 
 private:
 
@@ -232,8 +232,8 @@ public:
 
 protected:
 
-    ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
+    ::Ice::ObjectAdapterPtr __adapter;
 
     void __initCurrent(::Ice::Current&, const ::std::string&, ::Ice::OperationMode, const ::Ice::Context&);
 

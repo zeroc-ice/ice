@@ -353,7 +353,7 @@ IceBox::ServiceManagerI::stop(const string& service)
     ServiceInfo info = r->second;
     _services.erase(r);
 
-    std::auto_ptr< FailureException> failureEx;
+    std::auto_ptr<FailureException> failureEx;
 
     try
     {
@@ -392,7 +392,7 @@ IceBox::ServiceManagerI::stop(const string& service)
 
     //
     // Release the service, the service communicator and then the
-    // library. The order is important, the service must be release
+    // library. The order is important, the service must be released
     // before destroying the communicator so that the communicator
     // leak detector doesn't report potential leaks, and the
     // communicator must be destroyed before the library is released

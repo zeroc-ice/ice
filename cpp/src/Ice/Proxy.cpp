@@ -595,6 +595,9 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     // called upon initialization.
     //
 
+    assert(!_reference);
+    assert(!_delegate);
+
     _reference = ref;
 
     if(delegateD)
@@ -761,6 +764,10 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
     // No need to synchronize "*this", as this operation is only
     // called upon initialization.
     //
+
+    assert(!_reference);
+    assert(!_delegate);
+
     _reference = ref;
 }
 
@@ -897,18 +904,23 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
     // called upon initialization.
     //
 
-    __reference = from->__reference;
+    assert(!__reference);
+    assert(!__connection);
 
     if(from->__connection)
     {
 	from->__connection->incProxyCount();
     }
 
+// Can not happen, __connection must be null.
+/*
     if(__connection)
     {
 	__connection->decProxyCount();
     }
+*/
 
+    __reference = from->__reference;
     __connection = from->__connection;
 }
 
@@ -919,6 +931,10 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
     // No need to synchronize "*this", as this operation is only
     // called upon initialization.
     //
+
+    assert(!__reference);
+    assert(!__connection);
+
     __reference = ref;
 
     if(__reference->reverseAdapter)
@@ -1201,6 +1217,9 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
     // called upon initialization.
     //
 
+    assert(!__reference);
+    assert(!__adapter);
+
     __reference = from->__reference;
     __adapter = from->__adapter;
 }
@@ -1224,6 +1243,10 @@ IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr
     // No need to synchronize "*this", as this operation is only
     // called upon initialization.
     //
+
+    assert(!__reference);
+    assert(!__adapter);
+
     __reference = ref;
     __adapter = adapter;
 }

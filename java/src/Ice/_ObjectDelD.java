@@ -154,12 +154,15 @@ public class _ObjectDelD implements _ObjectDel
         // upon initialization.
         //
 
+	assert(__reference == null);
+	assert(__adapter == null);
+
         __reference = from.__reference;
         __adapter = from.__adapter;
     }
 
-    protected Ice.ObjectAdapter __adapter;
     protected IceInternal.Reference __reference;
+    protected Ice.ObjectAdapter __adapter;
 
     protected final void
     __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map context)
@@ -179,6 +182,10 @@ public class _ObjectDelD implements _ObjectDel
         // No need to synchronize, as this operation is only called
         // upon initialization.
         //
+
+	assert(__reference == null);
+	assert(__adapter == null);
+
         __reference = ref;
         __adapter = adapter;
     }

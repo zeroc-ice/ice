@@ -542,6 +542,9 @@ public class ObjectPrxHelper implements ObjectPrx
         // called upon initialization.
         //
 
+	assert(_reference == null);
+	assert(_delegate == null);
+
         _reference = ref;
 
         if(delegateD != null)
@@ -715,6 +718,10 @@ public class ObjectPrxHelper implements ObjectPrx
         // No need to synchronize, as this operation is only called
         // upon initial initialization.
         //
+
+	assert(_reference == null);
+	assert(_delegate == null);
+
         _reference = ref;
     }
 

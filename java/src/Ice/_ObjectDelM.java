@@ -172,13 +172,28 @@ public class _ObjectDelM implements _ObjectDel
         // upon initialization.
         //
 
+	assert(__reference == null);
+	assert(__connection == null);
+
+	if(from.__connection != null)
+	{
+	    from.__connection.incProxyCount();
+	}
+	
+// Can not happen, __connection must be null.
+/*
+	if(__connection != null)
+	{
+	    __connection.decProxyCount();
+	}
+*/
+
         __reference = from.__reference;
         __connection = from.__connection;
-	__connection.incProxyCount();
     }
 
-    protected IceInternal.Connection __connection;
     protected IceInternal.Reference __reference;
+    protected IceInternal.Connection __connection;
 
     public void
     setup(IceInternal.Reference ref)
@@ -187,6 +202,10 @@ public class _ObjectDelM implements _ObjectDel
         // No need to synchronize, as this operation is only called
         // upon initialization.
         //
+
+	assert(__reference == null);
+	assert(__connection == null);
+
         __reference = ref;
 
         if(__reference.reverseAdapter != null)
