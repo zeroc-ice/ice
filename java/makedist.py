@@ -19,12 +19,13 @@ import os, sys, shutil, re
 # Show usage information.
 #
 def usage():
-    print "usage: " + sys.argv[0] + " [-h] [-b] [tag]"
+    print "Usage: " + sys.argv[0] + " [options] [tag]"
     print
     print "Options:"
-    print "    -h  Show this message."
-    print "    -b  Create a platform-specific binary archives. If not specified,"
-    print "        only source archives will be created."
+    print "-h    Show this message."
+    print "-b    Create a platform-specific binary archives. If not specified,"
+    print "      only source archives will be created."
+    print "-d    Skip SGML documentation conversion."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -33,6 +34,7 @@ def usage():
 #
 tag = "-rHEAD"
 binary = 0
+skipDocs = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
@@ -42,6 +44,8 @@ for x in sys.argv[1:]:
             print "The ICE_HOME environment variable is not set."
             sys.exit(1)
         binary = 1
+    elif x == "-d":
+        skipDocs = 1
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -65,11 +69,14 @@ os.chdir(distdir)
 os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
 
 #
-# Export C++ sources in order to copy Slice files into the icej tree.
+# Export C++ sources.
 #
 # NOTE: Assumes that the C++ and Java trees will use the same tag.
 #
 os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+#
+# Copy Slice directories.
+#
 slicedirs = [\
     "Freeze",\
     "Glacier",\
@@ -82,6 +89,29 @@ slicedirs = [\
 os.mkdir(os.path.join("icej", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icej", "slice", x), 1)
+#
+# Generate HTML documentation. We need to build icecpp
+# and slice2docbook first.
+#
+if not skipDocs:
+    cwd = os.getcwd()
+    os.chdir(os.path.join("ice", "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "doc"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.mkdir(os.path.join("icej", "doc"))
+    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icej", "doc", "manual"))
 shutil.rmtree("ice")
 
 #
