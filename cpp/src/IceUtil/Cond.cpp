@@ -10,11 +10,11 @@
 
 #include <IceUtil/Cond.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #    include <sys/time.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 
 IceUtil::Semaphore::Semaphore(long initial)
 {

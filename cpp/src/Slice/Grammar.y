@@ -12,7 +12,7 @@
 
 #include <Slice/GrammarUtil.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 // I get this warning from some bison version:
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #   pragma warning( disable : 4102 )

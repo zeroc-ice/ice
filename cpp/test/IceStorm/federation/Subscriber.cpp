@@ -15,7 +15,7 @@
 
 #include <TestCommon.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <io.h>
 #endif
 
@@ -62,7 +62,7 @@ createLock(const string& name)
 void
 deleteLock(const string& name)
 {
-#ifdef WIN32
+#ifdef _WIN32
     _unlink(name.c_str());
 #else
     unlink(name.c_str());

@@ -11,13 +11,13 @@
 #ifndef ICE_UTIL_CONFIG_H
 #define ICE_UTIL_CONFIG_H
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 // Necessary for TryEnterCriticalSection
 #   define _WIN32_WINNT 0x0400
 
 #   if !defined(_UNICODE)
-#       error "Only UNICODE libraries can be used with Ice!"
+#       error "Only unicode libraries can be used with Ice!"
 #   endif
 
 #   if !defined(_DLL) || !defined(_MT)
@@ -68,12 +68,12 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef WIN32
-#    ifndef _REENTRANT
-#        define _REENTRANT 1
-#    endif
-#    include <pthread.h>
-#    include <errno.h>
+#ifndef _WIN32
+#   ifndef _REENTRANT
+#       define _REENTRANT 1
+#   endif
+#   include <pthread.h>
+#   include <errno.h>
 #endif
 
 //

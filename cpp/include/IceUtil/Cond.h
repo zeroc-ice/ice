@@ -14,7 +14,7 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 //
 // Needed for implementation under WIN32.
 //
@@ -35,7 +35,7 @@ template <class T> class Monitor;
 class RecMutex;
 class Mutex;
 
-#ifdef WIN32
+#ifdef _WIN32
 //
 // Needed for implementation.
 //
@@ -122,7 +122,7 @@ private:
     //
     // The Monitor implementation uses waitImpl & timedwaitImpl.
     //
-#ifdef WIN32
+#ifdef _WIN32
 
     //
     // For some reason under WIN32 with VC6 using a member-template
@@ -276,7 +276,7 @@ private:
 
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
     void wake(bool);
     void preWait() const;
     void postWait(bool) const;
@@ -294,7 +294,7 @@ private:
 
 };
 
-#ifndef WIN32
+#ifndef _WIN32
 template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
 {

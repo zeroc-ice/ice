@@ -238,7 +238,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
     int packetSize = buf.b.end() - buf.i;
 
-#ifdef WIN32
+#ifdef _WIN32
     //
     // Limit packet size to avoid performance problems on WIN32.
     //

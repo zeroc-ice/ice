@@ -14,7 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #   define SOCKET int
 #endif
 

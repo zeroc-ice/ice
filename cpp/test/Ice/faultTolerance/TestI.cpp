@@ -37,7 +37,7 @@ TestI::nonmutatingAbort(const Ice::Current&)
 Ice::Int
 TestI::pid(const Ice::Current&)
 {
-#ifdef WIN32
+#ifdef _WIN32
     return _getpid();
 #else
     return getpid();

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#ifdef WIN32
+#ifdef _WIN32
 #   error Sorry, the Glacier Starter is not yet supported on WIN32.
 #endif
 

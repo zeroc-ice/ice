@@ -14,7 +14,7 @@
 #include <Ice/Ice.h>
 #include <Freeze/DBF.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   ifdef FREEZE_API_EXPORTS
 #       define FREEZE_API __declspec(dllexport)
 #   else

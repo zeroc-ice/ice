@@ -26,7 +26,7 @@ public:
 
     bool load(const std::string&);
 
-#ifdef WIN32
+#ifdef _WIN32
     typedef FARPROC symbol_type;
 #else
     typedef void* symbol_type;
@@ -38,7 +38,7 @@ public:
 
 private:
 
-#ifdef WIN32
+#ifdef _WIN32
     HINSTANCE _hnd;
 #else
     void* _hnd;

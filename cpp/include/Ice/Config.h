@@ -38,7 +38,7 @@ namespace IceInternal
 {
 }
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #   ifdef ICE_API_EXPORTS
 #       define ICE_API __declspec(dllexport)

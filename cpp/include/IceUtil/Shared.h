@@ -16,7 +16,7 @@
 //
 // The inline assembler causes problems with shared libraries.
 //
-#if defined(__ICC) && !defined(WIN32)
+#if defined(__ICC) && !defined(_WIN32)
 #   define ICE_USE_MUTEX_SHARED
 #endif
 
@@ -24,7 +24,7 @@
 #   include <IceUtil/Mutex.h>
 #endif
 
-#if !defined(WIN32) && !defined(ICE_USE_MUTEX_SHARED)
+#if !defined(_WIN32) && !defined(ICE_USE_MUTEX_SHARED)
 
 //
 // Linux only. Unfortunately, asm/atomic.h builds non-SMP safe code
@@ -201,7 +201,7 @@ private:
 #ifdef ICE_USE_MUTEX_SHARED
     int _ref;
     Mutex _mutex;
-#elif defined(WIN32)
+#elif defined(_WIN32)
     LONG _ref;
 #else
     ice_atomic_t _ref;
@@ -271,7 +271,7 @@ Shared::__setNoDelete(bool b)
     _mutex.unlock();
 }
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
 
 inline
 Shared::Shared() :

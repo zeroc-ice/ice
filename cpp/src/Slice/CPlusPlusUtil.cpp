@@ -89,7 +89,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
     if (dllExport.size())
     {
 	out << sp;
-	out << "\n#ifdef WIN32";
+	out << "\n#ifdef _WIN32";
 	out << "\n#   ifdef " << dllExport << "_EXPORTS";
 	out << "\n#       define " << dllExport << " __declspec(dllexport)";
 	out << "\n#   else";

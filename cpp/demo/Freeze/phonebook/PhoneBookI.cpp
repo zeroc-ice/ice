@@ -315,7 +315,7 @@ PhoneBookI::getNewIdentity()
 	{
 	    ids = p->second;
 	    assert(ids.size() == 1);
-#ifdef WIN32
+#ifdef _WIN32
 	    n = _atoi64(ids.front().name.c_str()) + 1;
 #else
 	    n = atoll(ids.front().name.c_str()) + 1;
@@ -323,7 +323,7 @@ PhoneBookI::getNewIdentity()
 	}
 
 	char s[20];
-#ifdef WIN32
+#ifdef _WIN32
 	sprintf(s, "%I64d", n);
 #else
 	sprintf(s, "%lld", n);

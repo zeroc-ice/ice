@@ -10,7 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <Latency.h>
-#ifdef WIN32
+#ifdef _WIN32
 #   include <sys/timeb.h>
 #else
 #   include <sys/time.h>
@@ -42,7 +42,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ping->ice_ping();
 
     timeval tv1;
-#ifdef WIN32
+#ifdef _WIN32
     struct _timeb tb1;
     _ftime(&tb1);
     tv1.tv_sec = tb1.time;
@@ -59,7 +59,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     timeval tv2;
-#ifdef WIN32
+#ifdef _WIN32
     struct _timeb tb2;
     _ftime(&tb2);
     tv2.tv_sec = tb2.time;

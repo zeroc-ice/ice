@@ -10,7 +10,7 @@
 
 #include <Ice/DynamicLibrary.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #   include <dlfcn.h>
 #endif
 
@@ -30,7 +30,7 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 {
     if(_hnd != 0)
     {
-#ifdef WIN32
+#ifdef _WIN32
         FreeLibrary(_hnd);
 #else
         dlclose(_hnd);
@@ -41,7 +41,7 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {
-#ifdef WIN32
+#ifdef _WIN32
     _hnd = LoadLibrary(lib.c_str());
 #else
     _hnd = dlopen(lib.c_str(), RTLD_NOW);
@@ -64,7 +64,7 @@ IceInternal::DynamicLibrary::symbol_type
 IceInternal::DynamicLibrary::getSymbol(const string& name)
 {
     assert(_hnd != 0);
-#ifdef WIN32
+#ifdef _WIN32
     return GetProcAddress(_hnd, name.c_str());
 #else
     symbol_type result = dlsym(_hnd, name.c_str());

@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#ifdef WIN32
+#ifdef _WIN32
 
 IceUtil::RecMutex::RecMutex() :
     _count(0)

@@ -646,7 +646,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << nl << "while (sz--)";
 	C << sb;
 	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // STLBUG
+	C << nl << "#ifdef _WIN32"; // STLBUG
 	C.restoreIndent();
 	C << nl << "v.push_back(" << typeToString(type) << "());";
 	C.zeroIndent();
@@ -680,7 +680,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << nl << "while (sz--)";
 	C << sb;
 	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // STLBUG
+	C << nl << "#ifdef _WIN32"; // STLBUG
 	C.restoreIndent();
 	C << nl << "v.push_back(" << typeToString(type) << "());";
 	C.zeroIndent();
@@ -944,7 +944,7 @@ Slice::Gen::TypesVisitor::emitExceptionBase(const ExceptionPtr& base, const std:
     if (base)
     {
 	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
+	C << nl << "#ifdef _WIN32"; // COMPILERBUG
 	C.restoreIndent();
 	C << nl << base->name() << "::" << call << ";";
 	C.zeroIndent();
@@ -2329,7 +2329,7 @@ Slice::Gen::ObjectVisitor::emitClassBase(const ClassDefPtr& base, const std::str
     if (base)
     {
 	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
+	C << nl << "#ifdef _WIN32"; // COMPILERBUG
 	C.restoreIndent();
 	C << nl << base->name() << "::" << call << ";";
 	C.zeroIndent();
@@ -2343,7 +2343,7 @@ Slice::Gen::ObjectVisitor::emitClassBase(const ClassDefPtr& base, const std::str
     else
     {
 	C.zeroIndent();
-	C << nl << "#ifdef WIN32"; // COMPILERBUG
+	C << nl << "#ifdef _WIN32"; // COMPILERBUG
 	C.restoreIndent();
 	C << nl << "Object::" << call << ";";
 	C.zeroIndent();

@@ -226,7 +226,7 @@ Glacier::Router::run(int argc, char* argv[])
     routerAdapter->add(router, stringToIdentity(routerIdentity));
     routerAdapter->activate();
 
-#ifndef WIN32
+#ifndef _WIN32
     //
     // Print the stringified router proxy on a filedescriptor
     // specified in the properties, if so requested.

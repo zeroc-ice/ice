@@ -17,7 +17,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/Connector.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
 #endif
 

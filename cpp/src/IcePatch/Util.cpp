@@ -16,7 +16,7 @@
 #include <openssl/md5.h>
 #include <bzlib.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #   include <unistd.h>
 #   include <dirent.h>
 #else
@@ -175,7 +175,7 @@ IcePatch::removeRecursive(const string& path)
 void
 IcePatch::changeDirectory(const string& path)
 {
-#ifdef WIN32
+#ifdef _WIN32
     if (_chdir(path.c_str()) == -1)
 #else
     if (chdir(path.c_str()) == -1)
@@ -190,7 +190,7 @@ IcePatch::changeDirectory(const string& path)
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
-#ifdef WIN32
+#ifdef _WIN32
 
     struct _finddata_t data;
     long h = _findfirst((path + "/*").c_str(), &data);
@@ -265,7 +265,7 @@ IcePatch::readDirectory(const string& path)
 void
 IcePatch::createDirectory(const string& path)
 {
-#ifdef WIN32
+#ifdef _WIN32
     if (::_mkdir(path.c_str()) == -1)
 #else
     if (::mkdir(path.c_str(), 00777) == -1)

@@ -14,7 +14,7 @@
 #include <Ice/CertificateVerifier.h>
 #include <openssl/ssl.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   ifdef ICE_API_EXPORTS
 #       define ICE_API __declspec(dllexport)
 #   else

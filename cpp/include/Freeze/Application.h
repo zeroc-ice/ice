@@ -11,7 +11,7 @@
 #ifndef FREEZE_APPLICATION_H
 #define FREEZE_APPLICATION_H
 
-#ifdef WIN32
+#ifdef _WIN32
 #   ifdef FREEZE_API_EXPORTS
 #       define FREEZE_API __declspec(dllexport)
 #   else

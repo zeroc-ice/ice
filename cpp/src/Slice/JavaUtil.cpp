@@ -15,11 +15,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <direct.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -84,7 +84,7 @@ Slice::JavaGenerator::open(const string& absolute)
             {
                 continue;
             }
-#ifdef WIN32
+#ifdef _WIN32
             result = _mkdir(path.c_str());
 #else       
             result = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);

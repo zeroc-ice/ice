@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#ifdef WIN32
+#ifdef _WIN32
 
 IceUtil::ThreadControl::ThreadControl() :
     _handle(new HandleWrapper(0)),

@@ -56,7 +56,7 @@ void
 IceInternal::ThreadPool::initiateServerShutdown()
 {
     char c = 1;
-#ifdef WIN32
+#ifdef _WIN32
     ::send(_fdIntrWrite, &c, 1, 0);
 #else
     ::write(_fdIntrWrite, &c, 1);
@@ -205,7 +205,7 @@ IceInternal::ThreadPool::clearInterrupt()
 {
     bool shutdown = false;
     char c;
-#ifdef WIN32
+#ifdef _WIN32
     while (::recv(_fdIntrRead, &c, 1, 0) == 1)
 #else
     while (::read(_fdIntrRead, &c, 1) == 1)
@@ -224,7 +224,7 @@ void
 IceInternal::ThreadPool::setInterrupt()
 {
     char c = 0;
-#ifdef WIN32
+#ifdef _WIN32
     ::send(_fdIntrWrite, &c, 1, 0);
 #else
     ::write(_fdIntrWrite, &c, 1);
@@ -336,7 +336,7 @@ IceInternal::ThreadPool::run()
 // Optimization for WIN32 specific version of fd_set. Looping with a
 // FD_ISSET test like for Unix is very unefficient for WIN32.
 //
-#ifdef WIN32
+#ifdef _WIN32
 		//
 		// Round robin for the filedescriptors.
 		//

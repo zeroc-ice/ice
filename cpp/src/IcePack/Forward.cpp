@@ -20,7 +20,7 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     _communicator(communicator),
     _admin(admin)
 {
-#ifndef WIN32
+#ifndef _WIN32
     _activator = new Activator(_communicator);
     _activator->start();
 
@@ -54,7 +54,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
 	return 0;
     }
 
-#ifndef WIN32
+#ifndef _WIN32
 
     assert(_activator);
 
@@ -156,7 +156,7 @@ IcePack::Forward::finished(const ObjectAdapterPtr&, const Current&, const Object
 void
 IcePack::Forward::deactivate()
 {
-#ifndef WIN32
+#ifndef _WIN32
     _activator->destroy();
     _activator->getThreadControl().join();
     _activator = 0;

@@ -90,7 +90,7 @@ private:
     friend class GlobalStateMutexDestroyer;
     static int _globalStateCounter;
     static ::IceUtil::Mutex* _globalStateMutex;
-#ifndef WIN32
+#ifndef _WIN32
     static std::string _identForOpenlog;
 #endif
 };

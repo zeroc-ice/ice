@@ -20,7 +20,7 @@
 #include <map>
 #include <set>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   ifdef SLICE_API_EXPORTS
 #       define SLICE_API __declspec(dllexport)
 #   else

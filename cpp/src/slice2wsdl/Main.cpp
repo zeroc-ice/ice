@@ -168,7 +168,7 @@ main(int argc, char* argv[])
     test.close();
 
     string cmd = cpp + " " + sourceFile;
-#ifdef WIN32
+#ifdef _WIN32
     FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else
     FILE* cppHandle = popen(cmd.c_str(), "r");
@@ -183,7 +183,7 @@ main(int argc, char* argv[])
     UnitPtr unit = Unit::createUnit(false, false);
     int parseStatus = unit->parse(cppHandle, debug);
     
-#ifdef WIN32
+#ifdef _WIN32
     _pclose(cppHandle);
 #else
     pclose(cppHandle);

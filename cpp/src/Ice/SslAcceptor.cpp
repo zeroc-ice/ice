@@ -13,7 +13,7 @@
 //       This is due to STL template identifiers expansion.
 //       The MSDN Library recommends that you put this pragma directive
 //       in place to avoid the warnings.
-#ifdef WIN32
+#ifdef _WIN32
 #   pragma warning(disable:4786)
 #endif
 

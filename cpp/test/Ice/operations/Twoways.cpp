@@ -145,7 +145,7 @@ twoways(const Test::MyClassPrx& p)
 	test(r == p);
 	r->opVoid();
 // TODO: For some reasons this test sometimes doesn't work on linux
-#ifdef WIN32
+#ifdef _WIN32
 	try
 	{
 	    c1->opVoid();

@@ -25,11 +25,11 @@
 #include <Ice/SystemInternal.h>
 #include <Ice/SslFactory.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #   include <csignal>
 #   include <syslog.h>
 #   include <sys/time.h>
@@ -43,7 +43,7 @@ using namespace IceInternal;
 
 int Instance::_globalStateCounter = 0;
 IceUtil::Mutex* Instance::_globalStateMutex = new IceUtil::Mutex;
-#ifndef WIN32
+#ifndef _WIN32
 string Instance::_identForOpenlog;
 #endif
 
@@ -190,14 +190,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	// Must be done before "Ice.Daemon" is checked
 	if (atoi(_properties->getProperty("Ice.PrintProcessId").c_str()) > 0)
 	{
-#ifdef WIN32
+#ifdef _WIN32
 	    cout << _getpid() << endl;
 #else
 	    cout << getpid() << endl;
 #endif
 	}
 
-#ifndef WIN32
+#ifndef _WIN32
 	if (atoi(_properties->getProperty("Ice.Daemon").c_str()) > 0)
 	{
 	    int noclose = atoi(_properties->getProperty("Ice.DaemonNoClose").c_str());
@@ -214,7 +214,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 #endif
 	
-#ifndef WIN32
+#ifndef _WIN32
 	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
 	{
 	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
@@ -226,7 +226,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 	WORD version = MAKEWORD(1, 1);
 	WSADATA data;
 	if (WSAStartup(version, &data) != 0)
@@ -238,7 +238,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 #endif
 	
-#ifndef WIN32
+#ifndef _WIN32
 	struct sigaction action;
 	action.sa_handler = SIG_IGN;
 	sigemptyset(&action.sa_mask);
@@ -246,7 +246,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sigaction(SIGPIPE, &action, 0);
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 	struct _timeb tb;
 	_ftime(&tb);
 	srand(tb.millitm);
@@ -263,7 +263,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     try
     {
 	__setNoDelete(true);
-#ifndef WIN32
+#ifndef _WIN32
 	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
 	{
 	    _logger = new SysLoggerI;
@@ -324,11 +324,11 @@ IceInternal::Instance::~Instance()
     assert(_globalStateCounter > 0);
     if (--_globalStateCounter == 0) // Only on last call
     {
-#ifdef WIN32
+#ifdef _WIN32
 	WSACleanup();
 #endif
 	
-#ifndef WIN32
+#ifndef _WIN32
 	struct sigaction action;
 	action.sa_handler = SIG_DFL;
 	sigemptyset(&action.sa_mask);
@@ -336,7 +336,7 @@ IceInternal::Instance::~Instance()
 	sigaction(SIGPIPE, &action, 0);
 #endif
 	
-#ifndef WIN32
+#ifndef _WIN32
 	if (!_identForOpenlog.empty())
 	{
 	    closelog();

@@ -17,7 +17,7 @@
 namespace IceUtil
 {
 
-#ifdef WIN32
+#ifdef _WIN32
 struct HandleWrapper : public Shared
 {
     // Inline for performance reasons.
@@ -50,7 +50,7 @@ public:
 
     ThreadControl();
 
-#ifdef WIN32
+#ifdef _WIN32
     ThreadControl(const HandleWrapperPtr&, unsigned);
 #else
     ThreadControl(pthread_t);
@@ -82,7 +82,7 @@ public:
 
 private:
 
-#ifdef WIN32
+#ifdef _WIN32
     HandleWrapperPtr _handle;
     unsigned _id;
 #else
@@ -109,7 +109,7 @@ public:
 
 private:
 
-#ifdef WIN32
+#ifdef _WIN32
     unsigned _id;
     HandleWrapperPtr _handle;
 #else

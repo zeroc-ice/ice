@@ -10,7 +10,7 @@
 
 #include <IceUtil/UUID.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <rpc.h>
 #else
 extern "C" // uuid/uuid.h seems to miss extern "C" declarations.
@@ -24,7 +24,7 @@ using namespace std;
 string
 IceUtil::generateUUID()
 {
-#ifdef WIN32
+#ifdef _WIN32
 
     UUID uuid;
     UuidCreate(&uuid);

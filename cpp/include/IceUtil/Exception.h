@@ -58,7 +58,7 @@ public:
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-#ifdef WIN32
+#ifdef _WIN32
     //
     // IceInternal::errorToString does the same thing... refactor?
     //

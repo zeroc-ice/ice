@@ -11,7 +11,7 @@
 #include <Ice/Application.h>
 #include <IcePack/AdminI.h>
 #include <IcePack/Forward.h>
-#ifndef WIN32
+#ifndef _WIN32
 #   include <signal.h>
 #   include <sys/wait.h>
 #endif
@@ -28,7 +28,7 @@ public:
     virtual int run(int, char*[]);
 };
 
-#ifndef WIN32
+#ifndef _WIN32
 static void
 childHandler(int)
 {
@@ -39,7 +39,7 @@ childHandler(int)
 int
 main(int argc, char* argv[])
 {
-#ifndef WIN32
+#ifndef _WIN32
     //
     // This application forks, so we need a signal handler for child
     // termination.

@@ -12,7 +12,7 @@
 #define ICE_PACK_FORWARD_H
 
 #include <IcePack/AdminF.h>
-#ifndef WIN32
+#ifndef _WIN32
 #   include <IcePack/Activator.h>
 #endif
 
@@ -35,7 +35,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     AdminPtr _admin;
-#ifndef WIN32
+#ifndef _WIN32
     ActivatorPtr _activator;
     int _waitTime;
 #endif

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#ifndef WIN32
+#ifndef _WIN32
 #   include <csignal>
 #endif
 
@@ -98,7 +98,7 @@ Ice::Application::communicator()
     return _communicator;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 static BOOL WINAPI
 interruptHandler(DWORD)

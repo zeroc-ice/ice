@@ -19,7 +19,7 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-#ifdef WIN32
+#ifdef _WIN32
 #   define FREEZE_DB_MODE 0
 #else
 #   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)

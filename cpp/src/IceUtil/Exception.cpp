@@ -132,7 +132,7 @@ IceUtil::SyscallException::ice_throw() const
     throw *this;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 string
 IceUtil::SyscallException::errorToString(DWORD error)
 {

@@ -22,7 +22,7 @@
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <sys/timeb.h>
 #else
 #   include <sys/time.h>

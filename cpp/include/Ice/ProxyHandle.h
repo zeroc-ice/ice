@@ -59,7 +59,7 @@ public:
 	}
     }
 
-#ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+#ifdef _WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
     ProxyHandle(const ProxyHandle<T>& r)
 #else
@@ -141,7 +141,7 @@ public:
 	return *this;
     }
 
-#ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+#ifdef _WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
     ProxyHandle& operator=(const ProxyHandle<T>& r)
 #else

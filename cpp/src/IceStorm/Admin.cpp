@@ -206,7 +206,7 @@ Client::run(int argc, char* argv[])
 	    test.close();
 	    
 	    string cmd = cpp + " " + argv[idx];
-#ifdef WIN32
+#ifdef _WIN32
 	    FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else
 	    FILE* cppHandle = popen(cmd.c_str(), "r");
@@ -219,7 +219,7 @@ Client::run(int argc, char* argv[])
 	    
 	    int parseStatus = parser->parse(cppHandle, debug);
 	    
-#ifdef WIN32
+#ifdef _WIN32
 	    _pclose(cppHandle);
 #else
 	    pclose(cppHandle);

@@ -79,7 +79,7 @@ private:
     // LockState and the lock/unlock variations are for use by the
     // Condition variable implementation.
     //
-#ifdef WIN32
+#ifdef _WIN32
     struct LockState
     {
 	int count;
@@ -97,7 +97,7 @@ private:
 
     friend class Cond;
 
-#ifdef WIN32
+#ifdef _WIN32
     mutable CRITICAL_SECTION _mutex;
 #else
     mutable pthread_mutex_t _mutex;

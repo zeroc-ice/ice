@@ -10,7 +10,7 @@
 
 #include <Freeze/Application.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <sys/timeb.h>
 #else
 #   include <sys/time.h>
@@ -78,7 +78,7 @@ private:
     void
     getTime(timeval& tv)
     {
-#ifdef WIN32
+#ifdef _WIN32
 	struct _timeb tb1;
 	_ftime(&tb1);
 	tv.tv_sec = tb1.time;

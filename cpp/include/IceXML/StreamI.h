@@ -17,7 +17,7 @@
 
 #include <map>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   ifdef ICE_XML_API_EXPORTS
 #       define ICE_XML_API __declspec(dllexport)
 #   else

@@ -20,7 +20,7 @@ using namespace IceInternal;
 bool
 IceInternal::interrupted()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAEINTR)
     {
@@ -45,7 +45,7 @@ IceInternal::acceptInterrupted()
     if (interrupted())
 	return true;
 
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNABORTED ||
 	error == WSAECONNRESET ||
@@ -70,7 +70,7 @@ IceInternal::acceptInterrupted()
 bool
 IceInternal::noBuffers()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAENOBUFS ||
 	error == WSAEFAULT)
@@ -92,7 +92,7 @@ IceInternal::noBuffers()
 bool
 IceInternal::wouldBlock()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAEWOULDBLOCK)
     {
@@ -114,7 +114,7 @@ IceInternal::wouldBlock()
 bool
 IceInternal::connectFailed()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNREFUSED ||
 	error == WSAETIMEDOUT ||
@@ -145,7 +145,7 @@ IceInternal::connectFailed()
 bool
 IceInternal::connectInProgress()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAEWOULDBLOCK)
     {
@@ -166,7 +166,7 @@ IceInternal::connectInProgress()
 bool
 IceInternal::connectionLost()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNRESET ||
 	error == WSAESHUTDOWN ||
@@ -191,7 +191,7 @@ IceInternal::connectionLost()
 bool
 IceInternal::notConnected()
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     if (error == WSAENOTCONN)
     {
@@ -244,7 +244,7 @@ IceInternal::createSocket(bool udp)
 void
 IceInternal::closeSocket(SOCKET fd)
 {
-#ifdef WIN32
+#ifdef _WIN32
     int error = WSAGetLastError();
     closesocket(fd);
     WSASetLastError(error);
@@ -260,7 +260,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
 {
     if (block)
     {
-#ifdef WIN32
+#ifdef _WIN32
 	unsigned long arg = 0;
 	ioctlsocket(fd, FIONBIO, &arg);
 #else
@@ -271,7 +271,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
     }
     else
     {
-#ifdef WIN32
+#ifdef _WIN32
 	unsigned long arg = 1;
 	ioctlsocket(fd, FIONBIO, &arg);
 #else
@@ -323,7 +323,7 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 void
 IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 {
-#ifndef WIN32
+#ifndef _WIN32
     int flag = 1;
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
     {
@@ -372,7 +372,7 @@ repeatListen:
 void
 IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 {
-#ifdef WIN32
+#ifdef _WIN32
     //
     // Set larger send buffer size to avoid performance problems on
     // WIN32
@@ -395,7 +395,7 @@ repeatConnect:
 	    fd_set wFdSet;
 	    FD_ZERO(&wFdSet);
 	    FD_SET(fd, &wFdSet);
-#ifdef WIN32
+#ifdef _WIN32
 	    //
 	    // WIN32 notifies about connection failures
 	    // through the exception filedescriptors
@@ -409,7 +409,7 @@ repeatConnect:
 		struct timeval tv;
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-#ifdef WIN32
+#ifdef _WIN32
 		ret = ::select(fd + 1, 0, &wFdSet, &xFdSet, &tv);
 #else
 		ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
@@ -417,7 +417,7 @@ repeatConnect:
 	    }
 	    else
 	    {
-#ifdef WIN32
+#ifdef _WIN32
 		ret = ::select(fd + 1, 0, &wFdSet, &xFdSet, 0);
 #else
 		ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
@@ -441,7 +441,7 @@ repeatConnect:
 		throw ex;
 	    }
 	    
-#ifdef WIN32
+#ifdef _WIN32
 	    //
 	    // Strange windows bug: The following call to Sleep() is
 	    // necessary, otherwise no error is reported through
@@ -462,7 +462,7 @@ repeatConnect:
 	    if (val > 0)
 	    {
 		closeSocket(fd);
-#ifdef WIN32
+#ifdef _WIN32
 		WSASetLastError(val);
 #else
 		errno = val;
@@ -561,7 +561,7 @@ repeatAccept:
     setTcpNoDelay(ret);
     setKeepAlive(ret);
 
-#ifdef WIN32
+#ifdef _WIN32
     //
     // Set larger send buffer size to avoid performance problems on
     // WIN32
@@ -593,7 +593,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	{
 	    entry = gethostbyname(host.c_str());
 	}
-#ifdef WIN32
+#ifdef _WIN32
 	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
 #else
 	while (!entry && h_errno == TRY_AGAIN && --retry >= 0);
@@ -621,7 +621,7 @@ IceInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockad
 void
 IceInternal::createPipe(SOCKET fds[2])
 {
-#ifdef WIN32
+#ifdef _WIN32
 
     SOCKET fd = createSocket(false);
     
@@ -670,7 +670,7 @@ IceInternal::createPipe(SOCKET fds[2])
 #endif
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 
 string
 IceInternal::errorToString(int error)
@@ -897,7 +897,7 @@ IceInternal::errorToStringDNS(int error)
 string
 IceInternal::lastErrorToString()
 {
-#ifdef WIN32
+#ifdef _WIN32
     return errorToString(WSAGetLastError());
 #else
     return errorToString(errno);
@@ -907,7 +907,7 @@ IceInternal::lastErrorToString()
 string
 IceInternal::lastErrorToStringDNS()
 {
-#ifdef WIN32
+#ifdef _WIN32
     return errorToStringDNS(WSAGetLastError());
 #else
     return errorToStringDNS(h_errno);

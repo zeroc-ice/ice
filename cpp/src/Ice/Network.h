@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #   include <winsock.h>
 #else
 #   include <unistd.h>
@@ -26,11 +26,11 @@
 #   include <netdb.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 typedef int socklen_t;
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #   define SOCKET int
 #   define SOCKET_ERROR -1
 #   define INVALID_SOCKET -1
