@@ -444,6 +444,11 @@ public final class Connection extends EventHandler
     {
 	try
 	{
+	    if(--_dispatchCount == 0)
+	    {
+		notifyAll();
+	    }
+
 	    if(_state == StateClosed)
 	    {
 		return;
@@ -462,11 +467,6 @@ public final class Connection extends EventHandler
 	    TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
 	    _transceiver.write(os, _endpoint.timeout());
 	    
-	    if(--_dispatchCount == 0)
-	    {
-		notifyAll();
-	    }
-	    
 	    if(_state == StateClosing && _dispatchCount == 0)
 	    {
 		initiateShutdown();
@@ -483,11 +483,6 @@ public final class Connection extends EventHandler
     {
 	try
 	{
-	    if(_state == StateClosed)
-	    {
-		return;
-	    }
-	    
 	    if(--_dispatchCount == 0)
 	    {
 		notifyAll();
@@ -977,7 +972,6 @@ public final class Connection extends EventHandler
                 }
                 unregisterWithPool();
                 destroyIncomingCache();
-		_dispatchCount = 0;
                 break;
             }
         }

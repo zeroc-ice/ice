@@ -3127,7 +3127,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         string params = getParams(op, scope);
         string args = getArgs(op);
 
-        out << sp;
+	out << sp;
         out << nl << "public " << retS << nl << opName << '(' << params;
         if(!params.empty())
         {
@@ -3136,49 +3136,56 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << sb;
-	list<string> metaData = op->getMetaData();
-        out << nl << "Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
-	    << ", __context);";
-        out << nl << "while(true)";
-        out << sb;
-        out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
-        out << nl << "try";
-        out << sb;
-        out << nl << name << " __servant = null;";
-        out << nl << "try";
-        out << sb;
-        out << nl << "__servant = (" << name << ")__direct.facetServant();";
-        out << eb;
-        out << nl << "catch(ClassCastException __ex)";
-        out << sb;
-        out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
-	out << nl << "__opEx.id = __current.id;";
-	out << nl << "__opEx.facet = __current.facet;";
-	out << nl << "__opEx.operation = __current.operation;";
-	out << nl << "throw __opEx;";
-        out << eb;
-        out << nl;
-        if(ret)
-        {
-            out << "return ";
-        }
-        out << "__servant." << opName << '(' << args;
-        if(!args.empty())
-        {
-            out << ", ";
-        }
-        out << "__current);";
-        if(!ret)
-        {
-            out << nl << "return;";
-        }
-        out << eb;
-        out << nl << "finally";
-        out << sb;
-        out << nl << "__direct.destroy();";
-        out << eb;
-        out << eb;
+	if(p->hasMetaData("amd") || op->hasMetaData("amd"))
+	{
+	    out << nl << "throw new Ice.CollocationOptimizationException();";
+	}
+	else
+	{
+	    list<string> metaData = op->getMetaData();
+	    out << nl << "Ice.Current __current = new Ice.Current();";
+	    out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+		<< ", __context);";
+	    out << nl << "while(true)";
+	    out << sb;
+	    out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
+	    out << nl << "try";
+	    out << sb;
+	    out << nl << name << " __servant = null;";
+	    out << nl << "try";
+	    out << sb;
+	    out << nl << "__servant = (" << name << ")__direct.facetServant();";
+	    out << eb;
+	    out << nl << "catch(ClassCastException __ex)";
+	    out << sb;
+	    out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
+	    out << nl << "__opEx.id = __current.id;";
+	    out << nl << "__opEx.facet = __current.facet;";
+	    out << nl << "__opEx.operation = __current.operation;";
+	    out << nl << "throw __opEx;";
+	    out << eb;
+	    out << nl;
+	    if(ret)
+	    {
+		out << "return ";
+	    }
+	    out << "__servant." << opName << '(' << args;
+	    if(!args.empty())
+	    {
+		out << ", ";
+	    }
+	    out << "__current);";
+	    if(!ret)
+	    {
+		out << nl << "return;";
+	    }
+	    out << eb;
+	    out << nl << "finally";
+	    out << sb;
+	    out << nl << "__direct.destroy();";
+	    out << eb;
+	    out << eb;
+	}
         out << eb;
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))

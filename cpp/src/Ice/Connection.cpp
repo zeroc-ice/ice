@@ -563,6 +563,11 @@ IceInternal::Connection::sendResponse(BasicStream* os, bool compress)
     
     try
     {
+	if(--_dispatchCount == 0)
+	{
+	    notifyAll();
+	}
+
 	if(_state == StateClosed)
 	{
 	    return;
@@ -619,11 +624,6 @@ IceInternal::Connection::sendResponse(BasicStream* os, bool compress)
 	    _transceiver->write(*os, _endpoint->timeout());
 	}
 	
-	if(--_dispatchCount == 0)
-	{
-	    notifyAll();
-	}
-	
 	if(_state == StateClosing && _dispatchCount == 0)
 	{
 	    initiateShutdown();
@@ -642,16 +642,11 @@ IceInternal::Connection::sendNoResponse()
     
     try
     {
-	if(_state == StateClosed)
-	{
-	    return;
-	}
-	
 	if(--_dispatchCount == 0)
 	{
 	    notifyAll();
 	}
-	
+
 	if(_state == StateClosing && _dispatchCount == 0)
 	{
 	    initiateShutdown();
@@ -1237,7 +1232,6 @@ IceInternal::Connection::setState(State state)
 		registerWithPool();
 	    }
 	    unregisterWithPool();
-	    _dispatchCount = 0;
 	    break;
 	}
     }

@@ -289,7 +289,7 @@ Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
-    if(   (_activeFacetMapHint != _activeFacetMap.end() && _activeFacetMapHint->first == name)
+    if((_activeFacetMapHint != _activeFacetMap.end() && _activeFacetMapHint->first == name)
        || _activeFacetMap.find(name) != _activeFacetMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);

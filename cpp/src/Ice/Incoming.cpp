@@ -204,7 +204,11 @@ IceInternal::Incoming::invoke()
 		status = _servant->__dispatch(*this, _current);
 	    }
 
-	    if(_is.b.empty()) // Asynchronous dispatch?
+	    //
+	    // In case of an asynchronous dispatch, _is is now empty,
+	    // because an IncomingAsync has adopted this Incoming.
+	    //
+	    if(_is.b.empty())
 	    {
 		//
 		// If this was an asynchronous dispatch, we're done
