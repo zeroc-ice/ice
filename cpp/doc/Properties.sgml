@@ -16,7 +16,7 @@ string is interpreted as zero.
 </para>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Tracing Properties</title>
+<section><title>&Ice; Tracing Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Trace.Network</title>
@@ -74,7 +74,7 @@ The protocol tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace Ice protocol messages.</entry>
+<entry>Trace &Ice; protocol messages.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -102,11 +102,11 @@ The request retry tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace Ice operation call retries.</entry>
+<entry>Trace &Ice; operation call retries.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also Ice endpoint usage.</entry>
+<entry>Trace also &Ice; endpoint usage.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -118,7 +118,7 @@ The request retry tracing level:
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Warning Properties</title>
+<section><title>&Ice; Warning Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Warn.Connections</title>
@@ -213,7 +213,7 @@ default value is 1. (C++ only.)
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Object Adapter Properties</title>
+<section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title><replaceable>name</replaceable>.Endpoints</title>
@@ -241,7 +241,7 @@ Sets the endpoints for the object adapter
 <section>
 <title>Description</title>
 <para>
-Specifies a router (as stringified proxy to the Glacier router
+Specifies a router (as stringified proxy to the &Glacier; router
 control interface) for the object adapter with the name
 <replaceable>name</replaceable>. By doing so, the object adapter can
 receive callbacks from this router, using connections which are
@@ -264,7 +264,7 @@ router. </para></note>
 <section>
 <title>Description</title>
 <para>
-Specifies a locator (as stringified proxy to the Ice locator
+Specifies a locator (as stringified proxy to the &Ice; locator
 interface) for the object adapter with the name
 <replaceable>name</replaceable>.
 </para>
@@ -311,7 +311,7 @@ to be used.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Plug-in Properties</title>
+<section><title>&Ice; Plug-in Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Plugin.<replaceable>name</replaceable></title>
@@ -329,7 +329,7 @@ Defines a plug-in to be installed during Communicator initialization.
 In C++, <replaceable>entry_point</replaceable> has the form
 <literal>basename[,version]:function</literal>. The <literal>basename</literal>
 and optional <literal>version</literal> components are used to construct
-the name of a DLL or shared library. If no version is supplied, the Ice version
+the name of a DLL or shared library. If no version is supplied, the &Ice; version
 is used. The <literal>function</literal> component is the name of a function with
 C linkage.
 </para>
@@ -337,7 +337,7 @@ C linkage.
 For example, the entry point <literal>MyPlugin,2.3:create</literal> would
 imply a shared library name of <literal>libMyPlugin.so.2.3</literal>
 on Unix and <literal>MyPlugin23.dll</literal> on Windows. Furthermore,
-if Ice is built on Windows with debugging, a <literal>d</literal> will
+if &Ice; is built on Windows with debugging, a <literal>d</literal> will
 be automatically appended to the version (e.g., <literal>MyPlugin23d.dll</literal>).
 </para>
 <para>
@@ -349,7 +349,7 @@ In Java, <replaceable>entry_point</replaceable> is the name of a class.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Thread Pool Properties</title>
+<section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.ThreadPool.Client.Size, Ice.ThreadPool.Server.Size</title>
@@ -378,7 +378,7 @@ one. </para></note>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Default and Override Properties</title>
+<section><title>&Ice; Default and Override Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Default.Protocol</title>
@@ -423,7 +423,7 @@ Ice.Default.Router=<replaceable>router</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default router (as stingified proxy to the Glacier
+Specifies a default router (as stingified proxy to the &Glacier;
 router control interface) which is to be used for all proxies, unless
 the router is overwritten with a proxy's
 <literal>ice_router()</literal> operation. The default value is no
@@ -441,18 +441,18 @@ Ice.Default.Locator=<replaceable>locator</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default locator (as stingified proxy to the IcePack locator
+Specifies a default locator (as stingified proxy to the &IcePack; locator
 interface) which is to be used for all proxies and object adapters unless
 the locator is overwritten with a proxy's
 <literal>ice_locator()</literal> operation. The default value is no
 locator.
 </para>
-<note><para>The IcePack locator object identity is
-<literal>IcePack/Locator</literal>. It's listening on the IcePack
+<note><para>The &IcePack; locator object identity is
+<literal>IcePack/Locator</literal>. It's listening on the &IcePack;
 client endpoints. For example if
 <literal>IcePack.Registry.Client.Endpoints</literal> is set to
 <literal>tcp -p 12000 -h localhost</literal>, the stringified proxy
-for the IcePack locator will be <literal>IcePack/Locator:tcp -p
+for the &IcePack; locator will be <literal>IcePack/Locator:tcp -p
 12000 -h localhost</literal></para></note>
 </section>
 </section>
@@ -492,7 +492,7 @@ than zero, compression is enabled. If zero, compression is disabled.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ice Miscellaneous Properties</title>
+<section><title>&Ice; Miscellaneous Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.RetryIntervals</title>
@@ -527,12 +527,12 @@ Ice.DaemonNoChdir=<replaceable>no_chdir</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the Ice process daeamonizes itself with the
+the &Ice; process daeamonizes itself with the
 <literal>daemon</literal> system call. If
 <replaceable>no_close</replaceable> is set to a value larger than zero,
 standard input, output, and error output are not redirected to
 <literal>/dev/null</literal>. If <replaceable>no_chdir</replaceable> is
-set to a value larger than zero, Ice doesn't change its working
+set to a value larger than zero, &Ice; doesn't change its working
 directory to the root directory. (Unix only.)
 </para>
 </section>
@@ -547,9 +547,9 @@ Ice.ChangeUser=<replaceable>user</replaceable>
 <section>
 <title>Description</title>
 <para>
-If set, Ice will change the user and group id to the respective ids
+If set, &Ice; will change the user and group id to the respective ids
 of <replaceable>user</replaceable> in
-<literal>/etc/passwd</literal>. This only works if the Ice
+<literal>/etc/passwd</literal>. This only works if the &Ice;
 application is executed by the super-user. (Unix only.)
 </para>
 </section>
@@ -597,7 +597,7 @@ Ice.ServerIdleTime=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-Ice will automatically call
+&Ice; will automatically call
 <literal>Communicator::shutdown</literal> after the Communicator has
 been idle for <replaceable>num</replaceable> seconds. This will shut
 down the Communicator's server side, and all threads waiting in
@@ -645,7 +645,7 @@ raised.. (C++ only.)
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>IceSSL Properties</title>
+<section><title>&IceSSL; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceSSL.Trace.Security</title>
@@ -732,7 +732,7 @@ the same directory that it finds the XML configuration file.
 <para>
 Depending on whether the application is running in client mode, server mode or
 both modes, a valid value for one or both of these parameters must be specified
-for the proper operation of the IceSSL extension.
+for the proper operation of the &IceSSL; extension.
 </para>
 </section>
 </section>
@@ -768,9 +768,9 @@ IceSSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
 <section>
 <title>Description</title>
 <para>
-When IceSSL is directed to use a private key in a PEM file that has been encrypted, a prompt
+When &IceSSL; is directed to use a private key in a PEM file that has been encrypted, a prompt
 is displayed "Enter PEM pass phrase:".  In the case that the passphrase is incorrectly entered,
-these properties define how many retries the user will get before IceSSL shuts down.
+these properties define how many retries the user will get before &IceSSL; shuts down.
 </para>
 <para>
 If not specified, the default value for these properties is 5 retries.
@@ -886,7 +886,7 @@ There are no default values for these properties.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>IceBox Properties</title>
+<section><title>&IceBox; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceBox.ServiceManager.Endpoints</title>
@@ -898,9 +898,9 @@ IceBox.ServiceManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the IceBox service manager interface. The
-service manager endpoints must be accessible to the IceBox
-administration tool to shutdown the IceBox server.
+Defines the endpoints of the &IceBox; service manager interface. The
+service manager endpoints must be accessible to the &IceBox;
+administration tool to shutdown the &IceBox; server.
 </para>
 </section>
 </section>
@@ -946,7 +946,7 @@ IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point [args]</
 <section>
 <title>Description</title>
 <para>
-Defines a service to be loaded during the IceBox initialization.
+Defines a service to be loaded during the &IceBox; initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
@@ -971,7 +971,7 @@ IceBox.DBEnvName.<replaceable>name</replaceable>=<replaceable>db</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the database environment directory for the Freeze service
+Defines the database environment directory for the &Freeze; service
 with the name <replaceable>name</replaceable>.
 </para>
 </section>
@@ -997,7 +997,7 @@ other services.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>IcePack Properties</title>
+<section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IcePack.Registry.Client.Endpoints</title>
@@ -1009,8 +1009,8 @@ IcePack.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the IcePack client interface. The client
-endpoints must be accessible to Ice clients that are using IcePack
+Defines the endpoints of the &IcePack; client interface. The client
+endpoints must be accessible to &Ice; clients that are using &IcePack;
 to locate objects.
 </para>
 </section>
@@ -1025,8 +1025,8 @@ IcePack.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the IcePack server interface. The server
-endpoints must be accessible to Ice servers that are using IcePack
+Defines the endpoints of the &IcePack; server interface. The server
+endpoints must be accessible to &Ice; servers that are using &IcePack;
 to register theirs object adapter endpoints.
 </para>
 </section>
@@ -1041,12 +1041,12 @@ IcePack.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the optional administrative endpoints of the IcePack admin
+Defines the optional administrative endpoints of the &IcePack; admin
 interface. The administrative endpoints must be accessible to clients
-which are using the IcePack administrative interface, the IcePack
+which are using the &IcePack; administrative interface, the &IcePack;
 administrative tool for instance.
 </para>
-<note><para>Allowing access to the IcePack admin interface is a
+<note><para>Allowing access to the &IcePack; admin interface is a
 security risk! If you don't specify the administrative endpoints the
 admin interface will be disabled.</para></note>
 </section>
@@ -1061,8 +1061,8 @@ IcePack.Registry.Internal.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the IcePack internal interface. The
-internal endpoints must be accessible to IcePack nodes. Nodes use
+Defines the endpoints of the &IcePack; internal interface. The
+internal endpoints must be accessible to &IcePack; nodes. Nodes use
 this interface to communicate with the registry.
 </para>
 </section>
@@ -1077,7 +1077,7 @@ IcePack.Registry.Data=<replaceable>path</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the path of the IcePack registry data directory.
+Defines the path of the &IcePack; registry data directory.
 </para>
 </section>
 </section>
@@ -1092,7 +1092,7 @@ IcePack.Registry.DynamicRegistration=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the locator registry will allow Ice servers to set endpoints for
+the locator registry will allow &Ice; servers to set endpoints for
 adapters which haven't been registered.
 </para>
 </section>
@@ -1219,8 +1219,8 @@ IcePack.Node.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the IcePack node interface. The node
-endpoints must be accessible to the IcePack registry. The registry
+Defines the endpoints of the &IcePack; node interface. The node
+endpoints must be accessible to the &IcePack; registry. The registry
 uses this interface to communicate with the node.
 </para>
 </section>
@@ -1235,7 +1235,7 @@ IcePack.Node.Name=<replaceable>name</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the name of the IcePack node. Nodes need be uniquely
+Defines the name of the &IcePack; node. Nodes need be uniquely
 identify. The node will refuse to start if there's a node with the
 same name already running.
 </para>
@@ -1253,7 +1253,7 @@ IcePack.Node.Data=<replaceable>path</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the path of the IcePack node data directory. The node will
+Defines the path of the &IcePack; node data directory. The node will
 create a db and servers directory in this directory if they don't
 already exists. The db directory contains the node database. The
 servers directory will contain information such as configuration for
@@ -1289,14 +1289,14 @@ IcePack.Node.WaitTime=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the interval in seconds that IcePack will wait for server
+Defines the interval in seconds that &IcePack; will wait for server
 activation and deactivation.</para>
 <para>If a server is automatically activated as a result of a client object
 adapter lookup and if the server doesn't register its object adapters
-during this time interval, IcePack will return empty endpoints to
+during this time interval, &IcePack; will return empty endpoints to
 the client.</para>
-<para>If a server is being gracefully deactivated and IcePack doesn't
-detect the server deactivation during this time interval, IcePack
+<para>If a server is being gracefully deactivated and &IcePack; doesn't
+detect the server deactivation during this time interval, &IcePack;
 will kill the server.</para>
 <note><para>The default value is 60 seconds.</para></note>
 </section>
@@ -1312,10 +1312,10 @@ IcePack.Node.CollocateRegistry=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the node will also collocate the IcePack registry.
+the node will also collocate the &IcePack; registry.
 </para>
 <note><para>The collocated registry is configured with the same
-properties as the standalone IcePack registry.</para></note>
+properties as the standalone &IcePack; registry.</para></note>
 </section>
 </section>
 
@@ -1437,7 +1437,7 @@ activated process for instance).</entry>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>IceStorm Properties</title>
+<section><title>&IceStorm; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>IceStorm.TopicManager.Endpoints</title>
@@ -1449,7 +1449,7 @@ IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints that the IceStorm topic manager uses.
+Defines the endpoints that the &IceStorm; topic manager uses.
 </para>
 </section>
 </section>
@@ -1593,7 +1593,7 @@ property is 100 ms.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Glacier Router Properties</title>
+<section><title>&Glacier; Router Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Glacier.Router.Endpoints, Glacier.Router.Client.Endpoints, Glacier.Router.Server.Endpoints</title>
@@ -1607,7 +1607,7 @@ Glacier.Router.Server.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the Glacier router control interface, the
+Defines the endpoints of the &Glacier; router control interface, the
 client interface, and the server interface. The router endpoints and
 the client endpoints must be accessible to Glacier clients from which
 the router forwards requests, and to which the router sends
@@ -1645,7 +1645,7 @@ Glacier.Router.PrintProxyOnFd=<replaceable>fd</replaceable>
 If set, print the stringified router proxy on the filedescriptor
 <replaceable>fd</replaceable>, and close this filedescriptor. (Unix
 only.)
-<note><para> This operation is intended to be used by the Glacier
+<note><para> This operation is intended to be used by the &Glacier;
 router starter only. It should not be set manually.
 </para></note>
 </para>
@@ -1741,7 +1741,7 @@ The routing table tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace additions to the Glacier routing table.
+<entry>Trace additions to the &Glacier; routing table.
 </entry>
 </row>
 </tbody>
@@ -1810,7 +1810,7 @@ Glacier.Router.UserId=<replaceable>name</replaceable>
 <section>
 <title>Description</title>
 <para>
-The authenticated user id. This is usually passed from the Glacier
+The authenticated user id. This is usually passed from the &Glacier;
 router starter. The user id is used as argument to
 <literal>Router::createSession()</literal>.
 </para>
@@ -1827,7 +1827,7 @@ Glacier.Router.AllowCategories=<replaceable>list</replaceable>
 <title>Description</title>
 <para>
 A whitespace seperated list of categories. If this property is set,
-then requests are only permitted to Ice objects with an identity
+then requests are only permitted to &Ice; objects with an identity
 that matches one of the categories from this list.
 </para>
 </section>
@@ -1837,7 +1837,7 @@ that matches one of the categories from this list.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Glacier Router Starter Properties</title>
+<section><title>&Glacier; Router Starter Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Glacier.Starter.Endpoints</title>
@@ -1849,7 +1849,7 @@ Glacier.Starter.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the Glacier router starter. (Unix only.)
+Defines the endpoints of the &Glacier; router starter. (Unix only.)
 </para>
 </section>
 </section>
@@ -1898,7 +1898,7 @@ Glacier.Starter.RouterPath=<replaceable>path</replaceable>
 <section>
 <title>Description</title>
 <para>
-Sets the path of the Glacier router executable to be started. The
+Sets the path of the &Glacier; router executable to be started. The
 default is <literal>glacier</literal>. (Unix only.)
 </para>
 </section>
@@ -1913,7 +1913,7 @@ Glacier.Starter.PropertiesOverride=<replaceable>overrides</replaceable>
 <section>
 <title>Description</title>
 <para>
-By default, the Glacier router starter starts new routers with the
+By default, the &Glacier; router starter starts new routers with the
 exact same property set as for the router
 starter. <replaceable>overrides</replaceable> can contain a list
 (separated by whitespace) of properties for the router, which are used
@@ -1937,7 +1937,7 @@ Glacier.Starter.StartupTimeout=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-<replaceable>num</replaceable> is the number of seconds the Glacier
+<replaceable>num</replaceable> is the number of seconds the &Glacier;
 router starter will wait for the router to start up. If this timeout
 expires, a <literal>Glacier::CannotStartRouterException</literal> is
 returned to the caller. The default value is 10 seconds. Timeout
@@ -1956,7 +1956,7 @@ Glacier.Starter.AddUserToAllowCategories=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-Control the addition of the user id authenticated by the Glacier router
+Control the addition of the user id authenticated by the &Glacier; router
 starter to the <literal>Glacier.Router.AllowCategories</literal> property 
 upon router startup:
 <informaltable>
@@ -2192,7 +2192,7 @@ of seconds indicated.  This adjustment is relative to server time.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Freeze Properties</title>
+<section><title>&Freeze; Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Freeze.Trace.DB</title>
@@ -2204,7 +2204,7 @@ Freeze.Trace.DB=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The Freeze database activity tracing level:
+The &Freeze; database activity tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -2236,7 +2236,7 @@ Freeze.Trace.Evictor=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The Freeze evictor activity tracing level:
+The &Freeze; evictor activity tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -2246,7 +2246,7 @@ The Freeze evictor activity tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace Ice object creation and destruction, as well as
+<entry>Trace &Ice; object creation and destruction, as well as
 evictor deactivation.</entry>
 </row>
 <row>
