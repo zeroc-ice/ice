@@ -172,8 +172,8 @@ struct ServerDescription
     
     /**
      *
-     * The &IceBox; service manager proxy if the server is an
-     * &IceBox; or a null proxy otherwise.
+     * The IceBox service manager proxy if the server is an
+     * IceBox or a null proxy otherwise.
      *
      **/
     IceBox::ServiceManager* serviceManager;
@@ -181,8 +181,8 @@ struct ServerDescription
 
 /**
  *
- * The &IcePack; administrative interface. <warning><para>Allowing
- * access to this interface is a security risk! Please see the &IcePack;
+ * The IcePack administrative interface. <warning><para>Allowing
+ * access to this interface is a security risk! Please see the IcePack
  * documentation for further information.</para></warning>
  *
  **/
@@ -190,7 +190,7 @@ interface Admin
 {
     /**
      *
-     * Add an application to &IcePack;. An application is a set of
+     * Add an application to IcePack. An application is a set of
      * servers.
      *
      * @param descriptor The application descriptor.
@@ -211,7 +211,7 @@ interface Admin
 
     /**
      *
-     * Remove an application from &IcePack;.
+     * Remove an application from IcePack.
      *
      * @param descriptor The application descriptor.
      *
@@ -223,7 +223,7 @@ interface Admin
 
     /**
      *
-     * Add a server to an &IcePack; node.
+     * Add a server to an IcePack node.
      *
      * @param node The name of the node where the server will be
      * deployed.
@@ -261,7 +261,7 @@ interface Admin
 
     /**
      *
-     * Remove a server from an &IcePack; node.
+     * Remove a server from an IcePack node.
      *
      * @param name Must match the name of [ServerDescription::name].
      *
@@ -429,7 +429,7 @@ interface Admin
 
     /**
      *
-     * Get all the server names registered with &IcePack;.
+     * Get all the server names registered with IcePack.
      *
      * @return The server names.
      *
@@ -456,7 +456,7 @@ interface Admin
 
     /**
      *
-     * Get all the adapter identities registered with &IcePack;.
+     * Get all the adapter identities registered with IcePack.
      *
      * @return The adapter idendities.
      *
@@ -465,7 +465,7 @@ interface Admin
 
     /**
      *
-     * Add an object to the object registry. &IcePack; will get the
+     * Add an object to the object registry. IcePack will get the
      * object type by calling [ice_id] on the given proxy. The object
      * must be reachable.
      *
@@ -514,7 +514,7 @@ interface Admin
 
     /**
      *
-     * Ping an &IcePack; node to see if it's active.
+     * Ping an IcePack node to see if it's active.
      *
      * @return true if the node ping succeeded, false otherwise.
      * 
@@ -524,7 +524,7 @@ interface Admin
 
     /**
      *
-     * Shutdown an &IcePack; node.
+     * Shutdown an IcePack node.
      * 
      **/
     idempotent void shutdownNode(string name)
@@ -532,7 +532,7 @@ interface Admin
 
     /**
      *
-     * Get all the &IcePack; nodes currently registered.
+     * Get all the IcePack nodes currently registered.
      *
      * @return The node names.
      *
@@ -541,7 +541,7 @@ interface Admin
 
     /**
      *
-     * Shut down the &IcePack; registry.
+     * Shut down the IcePack registry.
      *
      **/
     idempotent void shutdown();

@@ -20,7 +20,7 @@
 
 /**
  *
- * &Glacier; is the &Ice; firewall and router.
+ * Glacier is the Ice firewall and router.
  *
  **/
 module Glacier
@@ -47,14 +47,14 @@ exception CannotStartRouterException
 
 /**
  *
- * The &Glacier; router starter.
+ * The Glacier router starter.
  *
  **/
 interface Starter
 {
     /**
      *
-     * Start a new &Glacier; router. If the password for the given
+     * Start a new Glacier router. If the password for the given
      * user id is incorrect, an [InvalidPasswordException] is
      * raised. Otherwise a new router is started, and a proxy to that
      * router is returned to the caller.
@@ -82,7 +82,7 @@ interface Starter
 
 /**
  *
- * The &Glacier; router starter password verifier.
+ * The Glacier router starter password verifier.
  *
  **/
 interface PasswordVerifier

@@ -26,7 +26,7 @@
 
 /**
  *
- * The basic &Ice; module, containing all the &Ice; core functionality.
+ * The basic Ice module, containing all the Ice core functionality.
  *
  **/
 module Ice
@@ -34,8 +34,8 @@ module Ice
     
 /**
  *
- * The central object in &Ice;. One or more communicators can be
- * instantiated for an &Ice; application. communicator instantiation is
+ * The central object in Ice. One or more communicators can be
+ * instantiated for an Ice application. communicator instantiation is
  * language specific, and not specified in Slice code.
  *
  * @see Logger
@@ -67,7 +67,7 @@ local interface Communicator
      *
      * <important><para>Shutdown is the only operation that is
      * signal-safe, i.e., it is safe to call this operation from a
-     * Unix signal handler. No other &Ice; operation can be called from
+     * Unix signal handler. No other Ice operation can be called from
      * a Unix signal handler.</para></important>
      *
      * <note><para> Shutdown is not immediate, i.e., after [shutdown]
@@ -105,7 +105,7 @@ local interface Communicator
      *
      * Convert a string into a proxy. For example,
      * <literal>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</literal> creates a proxy that refers to the &Ice; object
+     * 10000</literal> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000.
@@ -305,7 +305,7 @@ local interface Communicator
 
     /**
      *
-     * Set a default &Glacier; router for this communicator. All newly
+     * Set a default Glacier router for this communicator. All newly
      * created proxies will use this default router. To disable the
      * default router, null can be passed as argument. Note that this
      * operation has no effect on already existing proxies.
@@ -324,7 +324,7 @@ local interface Communicator
 
     /**
      *
-     * Set a default &Ice; locator for this communicator. All newly
+     * Set a default Ice locator for this communicator. All newly
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be passed as
      * argument. Note that this operation has no effect on already

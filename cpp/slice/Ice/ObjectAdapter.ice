@@ -111,14 +111,14 @@ local interface ObjectAdapter
     /**
      *
      * Add a Servant to this object adapter's Active Servant Map. Note
-     * that one Servant can implement several &Ice; objects by
+     * that one Servant can implement several Ice objects by
      * registering the Servant with multiple identities. Adding a
      * servant with an identity that is in the map already throws
      * [AlreadyRegisteredException].
      *
      * @param servant The Servant to add.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the Servant.
      *
      * @return A proxy that matches the given identity and this object
@@ -154,9 +154,9 @@ local interface ObjectAdapter
      *
      * Remove a Servant from the object adapter's Active Servant Map.
      *
-     * @param id The identity of the &Ice; object that is
+     * @param id The identity of the Ice object that is
      * implemented by the Servant. If the Servant implements multiple
-     * &Ice; objects, [remove] has to be called for all such &Ice;
+     * Ice objects, [remove] has to be called for all such Ice
      * objects. Removing an identity that is not in the map throws
      * [NotRegisteredException].
      *
@@ -173,7 +173,7 @@ local interface ObjectAdapter
      * locator for a catogory for which a servant locator is installed
      * already throws [AlreadyRegisteredException]. To dispatch
      * operation calls on Servants, the object adapter tries to find a
-     * Servant for a given &Ice; object identity in the following order:
+     * Servant for a given Ice object identity in the following order:
      *
      * <orderedlist>
      *
@@ -255,16 +255,16 @@ local interface ObjectAdapter
     /**
      *
      * Look up a Servant in this object adapter's Active Servant Map
-     * by the identity of the &Ice; object it implements.
+     * by the identity of the Ice object it implements.
      *
      * <note><para>This operation only tries to lookup a Servant in
      * the Active Servant Map. It does not attempt to find a Servant
      * by using any installed [ServantLocator].</para></note>
      *
-     * @param id The identity of the &Ice; object for which the
+     * @param id The identity of the Ice object for which the
      * Servant should be returned.
      *
-     * @return The Servant that implements the &Ice; object with the
+     * @return The Servant that implements the Ice object with the
      * given identity, or null if no such Servant has been found.
      *
      * @see Identity
@@ -350,7 +350,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Add a &Glacier; router to this object adapter. By doing so,
+     * Add a Glacier router to this object adapter. By doing so,
      * this object adapter can receive callbacks from this router,
      * using connections which are established from this process to
      * the router, instead of the router having to establish a
@@ -371,7 +371,7 @@ local interface ObjectAdapter
     void addRouter(Router* rtr);
 
     /**
-     * Set an &Ice; locator for this object adapter. By doing so, the
+     * Set an Ice locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
      * when it's activated for the first time and the proxies created
      * with the object adapter will contain the adapter name instead
