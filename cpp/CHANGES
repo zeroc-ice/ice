@@ -1,6 +1,10 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Connection validation now checks for the timeout specified by the property
+  Ice.Override.ConnectTimeout and will raise Ice::ConnectTimeoutException if
+  the connection validation times out.
+
 - Fixed an assert which could occur on connection establishment if there 
   wasn't anymore file descriptors available.
 

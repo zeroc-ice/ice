@@ -12,6 +12,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
@@ -67,6 +68,16 @@ Ice::ConnectionI::validate()
     {
 	try
 	{
+	    Int timeout;
+	    if(_instance->defaultsAndOverrides()->overrideConnectTimeout)
+	    {
+		timeout = _instance->defaultsAndOverrides()->overrideConnectTimeoutValue;
+	    }
+	    else
+	    {
+		timeout = _endpoint->timeout();
+	    }
+	    
 	    if(_adapter)
 	    {
 		IceUtil::Mutex::Lock sendSync(_sendMutex);
@@ -86,7 +97,14 @@ Ice::ConnectionI::validate()
 		os.write(headerSize); // Message size.
 		os.i = os.b.begin();
 		traceHeader("sending validate connection", os, _logger, _traceLevels);
-		_transceiver->write(os, _endpoint->timeout());
+		try
+		{
+		    _transceiver->write(os, timeout);
+		}
+		catch(const TimeoutException&)
+		{
+		    throw ConnectTimeoutException(__FILE__, __LINE__);
+		}
 	    }
 	    else
 	    {
@@ -97,7 +115,14 @@ Ice::ConnectionI::validate()
 		BasicStream is(_instance.get());
 		is.b.resize(headerSize);
 		is.i = is.b.begin();
-		_transceiver->read(is, _endpoint->timeout());
+		try
+		{
+		    _transceiver->read(is, timeout);
+		}
+		catch(const TimeoutException&)
+		{
+		    throw ConnectTimeoutException(__FILE__, __LINE__);
+		}
 		assert(is.i == is.b.end());
 		is.i = is.b.begin();
 		ByteSeq m(sizeof(magic), 0);
