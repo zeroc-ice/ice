@@ -90,12 +90,12 @@ public:
 private:
 
 #ifdef _WIN32
-    bool _detached;
     HandleWrapperPtr _handle;
     unsigned _id;
 #else
     pthread_t _id;
 #endif
+    bool _detached;
 };
 
 class ICE_UTIL_API Thread : virtual public IceUtil::Shared

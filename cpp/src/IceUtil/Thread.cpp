@@ -22,8 +22,8 @@ using namespace std;
 
 IceUtil::ThreadControl::ThreadControl() :
     _handle(new HandleWrapper(0)),
-    _detached(false),
-    _id(GetCurrentThreadId())
+    _id(GetCurrentThreadId()),
+    _detached(false)
 {
     HANDLE proc = GetCurrentProcess();
     HANDLE current = GetCurrentThread();
@@ -36,8 +36,8 @@ IceUtil::ThreadControl::ThreadControl() :
 
 IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned id) :
     _handle(handle),
-    _detached(false),
-    _id(id)
+    _id(id),
+    _detached(false)
 {
 }
 
@@ -212,12 +212,14 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 #else
 
 IceUtil::ThreadControl::ThreadControl(pthread_t id) :
-    _id(id)
+    _id(id),
+    _detached(false)
 {
 }
 
 IceUtil::ThreadControl::ThreadControl() :
-    _id(pthread_self())
+    _id(pthread_self()),
+    _detached(false)
 {
 }
 
@@ -245,6 +247,11 @@ IceUtil::ThreadControl::join()
 {
     if(_id)
     {
+	if (_detached)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
+	_detached = true;
 	void* ignore = 0;
 	int rc = pthread_join(_id, &ignore);
 	if(rc != 0)
@@ -259,6 +266,11 @@ IceUtil::ThreadControl::detach()
 {
     if(_id)
     {
+	if (_detached)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__);
+	}
+	_detached = true;
 	int rc = pthread_detach(_id);
 	if(rc != 0)
 	{
