@@ -31,8 +31,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void ::IceInternal::incRef(::IceSSL::Context* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::Context* p) { p->__decRef(); }
+void IceInternal::incRef(::IceSSL::Context* p) { p->__incRef(); }
+void IceInternal::decRef(::IceSSL::Context* p) { p->__decRef(); }
 
 IceSSL::Context::~Context()
 {

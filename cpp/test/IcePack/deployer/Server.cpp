@@ -27,7 +27,7 @@ public:
 };
 
 int
-::Server::run(int argc, char* argv[])
+Server::run(int argc, char* argv[])
 {
     Ice::PropertiesPtr properties = communicator()->getProperties();
 

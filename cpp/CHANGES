@@ -1,13 +1,18 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added support for GCC 2.95.3.
+
 - Several incompatible IceStorm changes:
+
   * Moved the subscribe and unsubscribe operations to the Topic
     interface.
-  * Added a type attribute to Topic to support the use of
-    checkedCast on Topic publisher objects.
-  * Added an object adapter to host publisher objects, and hence
-    a new configuration property IceStorm.Publish.Endpoints.
+
+  * Added a type attribute to Topic to support the use of checkedCast
+    on Topic publisher objects.
+
+  * Added an object adapter to host publisher objects, and hence a new
+    configuration property IceStorm.Publish.Endpoints.
 
 - Added dynamic thread pools, i.e., thread pools that grow and shrink
   based on a calculated load factor. Please see the section about

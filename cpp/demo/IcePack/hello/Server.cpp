@@ -26,7 +26,7 @@ public:
 };
 
 int
-::Server::run(int argc, char* argv[])
+Server::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
 

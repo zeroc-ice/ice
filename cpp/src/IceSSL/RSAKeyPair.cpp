@@ -19,8 +19,8 @@
 #include <IceSSL/RSAPublicKey.h>
 #include <assert.h>
 
-void ::IceInternal::incRef(::IceSSL::RSAKeyPair* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::RSAKeyPair* p) { p->__decRef(); }
+void IceInternal::incRef(::IceSSL::RSAKeyPair* p) { p->__incRef(); }
+void IceInternal::decRef(::IceSSL::RSAKeyPair* p) { p->__decRef(); }
 
 using std::back_inserter;
 using std::string;

@@ -20,8 +20,8 @@
 #include <IceSSL/Exception.h>
 #include <assert.h>
 
-void ::IceInternal::incRef(::IceSSL::RSAPrivateKey* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::RSAPrivateKey* p) { p->__decRef(); }
+void IceInternal::incRef(::IceSSL::RSAPrivateKey* p) { p->__incRef(); }
+void IceInternal::decRef(::IceSSL::RSAPrivateKey* p) { p->__decRef(); }
 
 using std::back_inserter;
 using std::string;

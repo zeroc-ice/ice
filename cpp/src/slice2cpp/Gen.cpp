@@ -2539,7 +2539,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
-	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new ::IceAsync" << classScopedAMD << '_' << name
+	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
 	      << "(__in);";
 	    C << nl << "try";
 	    C << sb;
@@ -2694,7 +2694,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	  << scoped << "Prx& d)";
 	C << sb;
 	C << nl << "d = 0;";
-	C << nl << "if(b)";
+	C << nl << "if(b.get())"; // COMPILERFIX: 'if(b)' doesn't work for GCC 2.95.3.
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
 	C << nl << "if(!d && b->ice_isA(\"" << p->scoped() << "\"))";
@@ -3400,7 +3400,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> "
 	  << classNameAMI << '_' << name  << "Ptr;";
 	
-	C << sp << nl << "void" << nl << classScopedAMI << '_' << name << "::__response(bool __ok)";
+	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
 	C << sb;
 	writeAllocateCode(C, outParams, ret);
 	C << nl << "try";
@@ -3606,7 +3606,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	H << nl << "virtual void ice_exception();";
 	H << eb << ';';
 	
-	C << sp << nl << "::IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
+	C << sp << nl << "IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
 	  << "(::IceInternal::Incoming& in) :";
 	C.inc();
 	C << nl << "IncomingAsync(in)";
@@ -3614,7 +3614,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << eb;
 
-	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name << "::ice_response("
+	C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name << "::ice_response("
 	  << paramsDecl << ')';
 	C << sb;
 	C << nl << "if(!_finished)";
@@ -3636,7 +3636,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << eb;
 
-	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
+	C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception(const ::Ice::Exception& ex)";
 	C << sb;
 	C << nl << "if(!_finished)";
@@ -3668,7 +3668,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << eb;
 
-	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
+	C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception(const ::std::exception& ex)";
 	C << sb;
 	C << nl << "if(!_finished)";
@@ -3677,7 +3677,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << eb;
 
-	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
+	C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception()";
 	C << sb;
 	C << nl << "if(!_finished)";

@@ -1187,7 +1187,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_id(__current);
     }
-    return false; // To keep the Visual C++ compiler happy.
+    return string(); // To keep the Visual C++ compiler happy.
 }
 
 FacetPath

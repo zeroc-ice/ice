@@ -24,17 +24,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 
-//
-// COMPILERBUG: Visual C++ .NET doesn't like my template
-// specializations.
-//
-
-#if defined(_MSC_VER) && _MSC_VER > 1200
-
-#   define ice_copy std::copy
-
-#else
-
 template<typename InputIter, typename OutputIter>
 void
 ice_copy(InputIter first, InputIter last, OutputIter result)
@@ -49,24 +38,6 @@ ice_copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::c
 {
     memcpy(&*result, &*first, last - first);
 }
-
-template<>
-void
-ice_copy(std::string::const_iterator first, std::string::const_iterator last,
-       std::vector<Ice::Byte>::iterator result)
-{
-    memcpy(&*result, &*first, last - first);
-}
-
-template<>
-void
-ice_copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const_iterator last,
-       std::string::iterator result)
-{
-    memcpy(&*result, &*first, last - first);
-}
-
-#endif
 
 using namespace std;
 using namespace Ice;

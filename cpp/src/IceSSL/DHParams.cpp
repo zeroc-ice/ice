@@ -14,8 +14,8 @@
 
 #include <IceSSL/DHParams.h>
 
-void ::IceInternal::incRef(::IceSSL::DHParams* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::DHParams* p) { p->__decRef(); }
+void IceInternal::incRef(::IceSSL::DHParams* p) { p->__incRef(); }
+void IceInternal::decRef(::IceSSL::DHParams* p) { p->__decRef(); }
 
 IceSSL::DHParams::DHParams(DH* dhParams) :
     _dhParams(dhParams)

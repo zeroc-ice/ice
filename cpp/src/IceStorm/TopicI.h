@@ -19,25 +19,56 @@
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/IdentityLinkDict.h>
 #include <IceStorm/SubscriberFactory.h>
+#include <list>
 
 namespace IceStorm
 {
 
-//
-// Forward declarations.
-//
+struct Event;
+
 class TopicSubscribers;
 typedef IceUtil::Handle<TopicSubscribers> TopicSubscribersPtr;
 
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class Subscriber;
+typedef IceUtil::Handle<Subscriber> SubscriberPtr;
+
 class SubscriberFactory;
 typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
 
-//
-// TopicInternal implementation.
-//
+typedef std::list<SubscriberPtr> SubscriberList;
+
+class TopicSubscribers : public IceUtil::Shared
+{
+public:
+
+    TopicSubscribers(const TraceLevelsPtr&);
+    virtual ~TopicSubscribers();
+
+    void add(const SubscriberPtr&);
+    void remove(const Ice::ObjectPrx&);
+    void publish(const Event& event);
+    SubscriberList clearErrorList();
+
+private:
+	
+    TraceLevelsPtr _traceLevels;
+
+    //
+    // TODO: Should there be a map from identity to subscriber?
+    //
+    IceUtil::Mutex _subscribersMutex;
+    SubscriberList _subscribers;
+
+    //
+    // Set of subscribers that have encountered an error.
+    //
+    IceUtil::Mutex _errorMutex;
+    SubscriberList _error;
+};
+
 class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:

@@ -26,7 +26,7 @@ public:
 };
 
 int
-::Server::run(int argc, char* argv[])
+Server::run(int argc, char* argv[])
 {
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
     args = communicator()->getProperties()->parseCommandLineOptions("TestAdapter", args);
