@@ -175,19 +175,6 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual UserExceptionFactoryManager userExceptionFactoryManager()
-	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
-		}
-		
-		return _userExceptionFactoryManager;
-	    }
-	}
-	
 	public virtual ObjectAdapterFactory objectAdapterFactory()
 	{
 	    lock(this)
@@ -378,8 +365,6 @@ namespace IceInternal
 		
 		_servantFactoryManager = new ObjectFactoryManager();
 		
-		_userExceptionFactoryManager = new UserExceptionFactoryManager();
-		
 		_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 		
 		_bufferManager = new BufferManager(); // Must be created before the ThreadPool
@@ -399,7 +384,7 @@ namespace IceInternal
 	    Debug.Assert(_outgoingConnectionFactory == null);
 	    Debug.Assert(_connectionMonitor == null);
 	    Debug.Assert(_servantFactoryManager == null);
-	    Debug.Assert(_userExceptionFactoryManager == null);
+	    // Debug.Assert(_userExceptionFactoryManager == null);
 	    Debug.Assert(_objectAdapterFactory == null);
 	    Debug.Assert(_clientThreadPool == null);
 	    Debug.Assert(_serverThreadPool == null);
@@ -519,12 +504,6 @@ namespace IceInternal
 		    _servantFactoryManager = null;
 		}
 		
-		if(_userExceptionFactoryManager != null)
-		{
-		    _userExceptionFactoryManager.destroy();
-		    _userExceptionFactoryManager = null;
-		}
-		
 		if(_referenceFactory != null)
 		{
 		    _referenceFactory.destroy();
@@ -591,7 +570,6 @@ namespace IceInternal
 	private OutgoingConnectionFactory _outgoingConnectionFactory;
 	private ConnectionMonitor _connectionMonitor;
 	private ObjectFactoryManager _servantFactoryManager;
-	private UserExceptionFactoryManager _userExceptionFactoryManager;
 	private ObjectAdapterFactory _objectAdapterFactory;
 	private ThreadPool _clientThreadPool;
 	private ThreadPool _serverThreadPool;

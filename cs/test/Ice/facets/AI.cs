@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class AI : A_Disp
+public sealed class AI : _ADisp
 {
     public AI()
     {

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class IB1I : MB.IB1_Disp
+public sealed class IB1I : MB._IB1Disp
 {
     public IB1I()
     {

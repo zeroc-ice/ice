@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class TestI : Test_Disp
+public sealed class TestI : _TestDisp
 {
     public override void transient(Ice.Current current)
     {

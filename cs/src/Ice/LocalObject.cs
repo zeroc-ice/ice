@@ -12,7 +12,16 @@ namespace Ice
 
     public interface LocalObject
     {
-	int ice_hash();
+        int ice_hash();
+    }
+
+    public abstract class LocalObjectImpl : LocalObject
+    {
+        public virtual int
+            ice_hash()
+        {
+            return GetHashCode();
+        }
     }
 
 }

@@ -8,10 +8,11 @@
 // **********************************************************************
 
 
+using System.Collections;
+using System.Diagnostics;
+
 namespace IceInternal
 {
-
-    using System.Diagnostics;
 
     public sealed class LocatorInfo
     {
@@ -259,5 +260,148 @@ namespace IceInternal
 	private Ice.LocatorRegistryPrx _locatorRegistry;
 	private readonly LocatorTable _table;
     }
-    
+
+    public sealed class LocatorManager
+    {
+        internal LocatorManager()
+        {
+            _table = new Hashtable();
+            _locatorTables = new Hashtable();
+        }
+	
+        internal void destroy()
+        {
+            lock(this)
+            {
+                foreach(LocatorInfo info in _table.Values)
+                {
+                    info.destroy();
+                }
+                _table.Clear();
+                _locatorTables.Clear();
+            }
+        }
+	
+        //
+        // Returns locator info for a given locator. Automatically creates
+        // the locator info if it doesn't exist yet.
+        //
+        public LocatorInfo get(Ice.LocatorPrx loc)
+        {
+            if(loc == null)
+            {
+                return null;
+            }
+	    
+            //
+            // The locator can't be located.
+            //
+            Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(loc.ice_locator(null));
+	    
+            //
+            // TODO: reap unused locator info objects?
+            //
+	    
+            lock(this)
+            {
+                LocatorInfo info = (LocatorInfo)_table[locator];
+                if(info == null)
+                {
+                    //
+                    // Rely on locator identity for the adapter table. We want to
+                    // have only one table per locator (not one per locator
+                    // proxy).
+                    //
+                    LocatorTable table = (LocatorTable)_locatorTables[locator.ice_getIdentity()];
+                    if(table == null)
+                    {
+                        table = new LocatorTable();
+                        _locatorTables[locator.ice_getIdentity()] = table;
+                    }
+		    
+                    info = new LocatorInfo(locator, table);
+                    _table[locator] = info;
+                }
+		
+                return info;
+            }
+        }
+	
+        private Hashtable _table;
+        private Hashtable _locatorTables;
+    }
+
+    sealed class LocatorTable
+    {
+        internal LocatorTable()
+        {
+            _adapterEndpointsTable = new Hashtable();
+            _objectTable = new Hashtable();
+        }
+	
+        internal void clear()
+        {
+            lock(this)
+            {
+                _adapterEndpointsTable.Clear();
+                _objectTable.Clear();
+            }
+        }
+	
+        internal IceInternal.Endpoint[] getAdapterEndpoints(string adapter)
+        {
+            lock(this)
+            {
+                return (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+            }
+        }
+	
+        internal void addAdapterEndpoints(string adapter, IceInternal.Endpoint[] endpoints)
+        {
+            lock(this)
+            {
+                _adapterEndpointsTable[adapter] = endpoints;
+            }
+        }
+	
+        internal IceInternal.Endpoint[] removeAdapterEndpoints(string adapter)
+        {
+            lock(this)
+            {
+                IceInternal.Endpoint[] endpoints = (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+                _adapterEndpointsTable.Remove(adapter);
+                return endpoints;
+            }
+        }
+	
+        internal Ice.ObjectPrx getProxy(Ice.Identity id)
+        {
+            lock(this)
+            {
+                return (Ice.ObjectPrx)_objectTable[id];
+            }
+        }
+	
+        internal void addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
+        {
+            lock(this)
+            {
+                _objectTable[id] = proxy;
+            }
+        }
+	
+        internal Ice.ObjectPrx removeProxy(Ice.Identity id)
+        {
+            lock(this)
+            {
+                Ice.ObjectPrx obj = (Ice.ObjectPrx)_objectTable[id];
+                _objectTable.Remove(id);
+                return obj;
+            }
+        }
+	
+        private Hashtable _adapterEndpointsTable;
+        private Hashtable _objectTable;
+    }
+
 }

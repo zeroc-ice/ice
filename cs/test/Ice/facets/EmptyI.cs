@@ -8,6 +8,6 @@
 // **********************************************************************
 
 
-public sealed class EmptyI : Empty_Disp
+public sealed class EmptyI : _EmptyDisp
 {
 }

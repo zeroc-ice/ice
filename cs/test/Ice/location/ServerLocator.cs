@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public class ServerLocator : Ice.Locator_Disp
+public class ServerLocator : Ice._LocatorDisp
 {
     public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
     {

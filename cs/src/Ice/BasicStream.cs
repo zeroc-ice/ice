@@ -1735,7 +1735,11 @@ namespace IceInternal
 	
 	private UserExceptionFactory getUserExceptionFactory(string id)
 	{
-	    UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
+	    UserExceptionFactory factory = null;
+
+	    _assemblyMutex.WaitOne();
+	    factory = (UserExceptionFactory)_exceptionFactories[id];
+	    _assemblyMutex.ReleaseMutex();
 
 	    if(factory == null)
 	    {
@@ -1753,7 +1757,9 @@ namespace IceInternal
 		    //
 		    Debug.Assert(!c.IsAbstract && !c.IsInterface);
 		    factory = new DynamicUserExceptionFactory(c);
-		    _instance.userExceptionFactoryManager().add(factory, id);
+		    _assemblyMutex.WaitOne();
+		    _exceptionFactories[id] = factory;
+		    _assemblyMutex.ReleaseMutex();
 		}
 		catch(Exception ex)
 		{
@@ -1839,9 +1845,10 @@ namespace IceInternal
 	private ArrayList _objectList;
 
 	private static volatile bool _assembliesLoaded = false;
-	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs
-	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs
-	private static Mutex _assemblyMutex = new Mutex(); // Protects the above three members
+	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
+	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
+	private static Hashtable _exceptionFactories = new Hashtable(); // <type name, factory> pairs.
+	private static Mutex _assemblyMutex = new Mutex(); // Protects the above four members.
     }
 
 }

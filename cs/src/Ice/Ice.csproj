@@ -74,22 +74,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "_AMD_Object_ice_invoke.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Acceptor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AMD_Object_ice_invoke.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AMI_Object_ice_invoke.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -109,21 +94,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Blobject.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BlobjectAsync.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BufferManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "ByteBuffer.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -135,6 +105,11 @@
                 />
                 <File
                     RelPath = "Connection.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ConnectionFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -155,11 +130,6 @@
                 />
                 <File
                     RelPath = "Direct.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "DispatchStatus.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -204,11 +174,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "IncomingConnectionFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Instance.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -224,22 +189,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "LocalObjectImpl.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "LocatorInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LocatorManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LocatorTable.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -254,27 +204,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NonRepeatable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Object.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Object_Del.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Object_DelD.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Object_DelM.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -294,26 +224,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ObjectImpl.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectPrx.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectPrxHelper.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectPrxHelperBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Outgoing.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -324,22 +234,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "OutgoingConnectionFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "OutputBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Patcher.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PluginFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -355,6 +255,11 @@
                 />
                 <File
                     RelPath = "Protocol.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Proxy.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -375,11 +280,6 @@
                 />
                 <File
                     RelPath = "RouterInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RouterManager.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -429,17 +329,17 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "TcpEndpointFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "TcpTransceiver.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "ThreadPool.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TieBase.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -464,11 +364,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "UdpEndpointFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "UdpTransceiver.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -480,11 +375,6 @@
                 />
                 <File
                     RelPath = "UserExceptionFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UserExceptionFactoryManager.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

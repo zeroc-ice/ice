@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class BI : B_Disp
+public sealed class BI : _BDisp
 {
     public BI()
     {

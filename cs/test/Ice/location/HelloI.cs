@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public class HelloI : Hello_Disp
+public class HelloI : _HelloDisp
 {
     public override void sayHello(Ice.Current current)
     {

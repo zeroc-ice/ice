@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class GI : G_Disp
+public sealed class GI : _GDisp
 {
     public GI(Ice.Communicator communicator)
     {

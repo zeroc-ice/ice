@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class DI : D_Disp
+public sealed class DI : _DDisp
 {
     public DI()
     {

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class InitialI : Initial_Disp
+public sealed class InitialI : _InitialDisp
 {
     public InitialI(Ice.ObjectAdapter adapter)
     {

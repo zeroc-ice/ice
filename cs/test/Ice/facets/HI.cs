@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class HI : H_Disp
+public sealed class HI : _HDisp
 {
     public HI(Ice.Communicator communicator)
     {

@@ -13,6 +13,11 @@ namespace Ice
     using System.Collections;
     using System.Diagnostics;
 
+    public interface PluginFactory
+    {
+        Plugin create(Communicator communicator, System.String name, string[] args);
+    }
+
     public sealed class PluginManagerI : LocalObjectImpl, PluginManager
     {
 	private static string _kindOfObject = "plug-in";

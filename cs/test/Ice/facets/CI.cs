@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class CI : C_Disp
+public sealed class CI : _CDisp
 {
     public CI()
     {

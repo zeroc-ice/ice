@@ -99,6 +99,7 @@ ifeq ($(DEBUG),yes)
 endif
 
 SLICE2CS		= slice2cs
+SLICE2CSFLAGS		=
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))

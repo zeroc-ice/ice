@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public class ServerManagerI : ServerManager_Disp
+public class ServerManagerI : _ServerManagerDisp
 {
     internal ServerManagerI(Ice.ObjectAdapter adapter)
     {

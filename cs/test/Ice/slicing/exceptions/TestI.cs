@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class TestI : Test_Disp
+public sealed class TestI : _TestDisp
 {
     public TestI(Ice.ObjectAdapter adapter)
     {

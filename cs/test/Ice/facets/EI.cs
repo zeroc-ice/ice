@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class EI : E_Disp
+public sealed class EI : _EDisp
 {
     public EI()
     {

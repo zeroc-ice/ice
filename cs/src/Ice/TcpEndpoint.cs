@@ -474,4 +474,39 @@ namespace IceInternal
 	private int _hashCode;
     }
 
+    sealed class TcpEndpointFactory : EndpointFactory
+    {
+        internal TcpEndpointFactory(Instance instance)
+        {
+            _instance = instance;
+        }
+	
+        public short type()
+        {
+            return TcpEndpoint.TYPE;
+        }
+	
+        public string protocol()
+        {
+            return "tcp";
+        }
+	
+        public Endpoint create(string str)
+        {
+            return new TcpEndpoint(_instance, str);
+        }
+	
+        public Endpoint read(BasicStream s)
+        {
+            return new TcpEndpoint(s);
+        }
+	
+        public void destroy()
+        {
+            _instance = null;
+        }
+	
+        private Instance _instance;
+    }
+
 }

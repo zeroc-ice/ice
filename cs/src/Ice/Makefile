@@ -13,23 +13,17 @@ LIBNAME		= Icicle.dll
 TARGETS		= $(libdir)/$(LIBNAME)
 
 SRCS		= Acceptor.cs \
-		  _AMD_Object_ice_invoke.cs \
-		  AMD_Object_ice_invoke.cs \
-		  AMI_Object_ice_invoke.cs \
 		  Application.cs \
 		  AssemblyInfo.cs \
 		  BasicStream.cs \
-		  BlobjectAsync.cs \
-		  Blobject.cs \
-		  BufferManager.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
 		  Connection.cs \
+		  ConnectionFactory.cs \
 		  ConnectionMonitor.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \
 		  Direct.cs \
-		  DispatchStatus.cs \
 		  Endpoint.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
@@ -37,43 +31,29 @@ SRCS		= Acceptor.cs \
 		  Exception.cs \
 		  IncomingAsync.cs \
 		  IncomingBase.cs \
-		  IncomingConnectionFactory.cs \
 		  Incoming.cs \
 		  Instance.cs \
 		  LinkedList.cs \
 		  LocalObject.cs \
-		  LocalObjectImpl.cs \
 		  LocatorInfo.cs \
-		  LocatorManager.cs \
-		  LocatorTable.cs \
 		  LoggerI.cs \
 		  Network.cs \
-		  NonRepeatable.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
-		  Object_Del.cs \
-		  Object_DelD.cs \
-		  Object_DelM.cs \
 		  ObjectFactoryManager.cs \
-		  ObjectImpl.cs \
-		  ObjectPrx.cs \
-		  ObjectPrxHelper.cs \
-		  ObjectPrxHelperBase.cs \
 		  OutgoingAsync.cs \
-		  OutgoingConnectionFactory.cs \
 		  Outgoing.cs \
 		  OutputBase.cs \
 		  Patcher.cs \
-		  PluginFactory.cs \
 		  PluginManagerI.cs \
 		  PropertiesI.cs \
 		  Protocol.cs \
+		  Proxy.cs \
 		  ProxyFactory.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
 		  RouterInfo.cs \
-		  RouterManager.cs \
 		  RoutingTable.cs \
 		  ServantManager.cs \
 		  Set.cs \
@@ -83,18 +63,16 @@ SRCS		= Acceptor.cs \
 		  TcpAcceptor.cs \
 		  TcpConnector.cs \
 		  TcpEndpoint.cs \
-		  TcpEndpointFactory.cs \
 		  TcpTransceiver.cs \
 		  ThreadPool.cs \
+		  TieBase.cs \
 		  TraceLevels.cs \
 		  TraceUtil.cs \
 		  Transceiver.cs \
 		  UdpEndpoint.cs \
-		  UdpEndpointFactory.cs \
 		  UdpTransceiver.cs \
 		  UnknownEndpoint.cs \
 		  UserExceptionFactory.cs \
-		  UserExceptionFactoryManager.cs \
 		  Util.cs \
 		  ValueWriter.cs \
 		  Version.cs \

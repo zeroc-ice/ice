@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class IB2I : MB.IB2_Disp
+public sealed class IB2I : MB._IB2Disp
 {
     public IB2I()
     {

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class IAI : MA.IA_Disp
+public sealed class IAI : MA._IADisp
 {
     public IAI()
     {

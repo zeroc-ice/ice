@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class FI : F_Disp
+public sealed class FI : _FDisp
 {
     public FI()
     {

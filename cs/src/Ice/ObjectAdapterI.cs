@@ -871,7 +871,7 @@ namespace Ice
 	    }
 	}
 
-	private sealed class ProcessI : Process_Disp
+	private sealed class ProcessI : _ProcessDisp
 	{
 	    public ProcessI(Communicator communicator)
 	    {

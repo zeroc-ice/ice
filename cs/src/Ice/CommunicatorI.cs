@@ -163,42 +163,6 @@ namespace Ice
 	    }
 	}
 	
-	public void addUserExceptionFactory(IceInternal.UserExceptionFactory factory, string id)
-	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.userExceptionFactoryManager().add(factory, id);
-	    }
-	}
-	
-	public void removeUserExceptionFactory(string id)
-	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.userExceptionFactoryManager().remove(id);
-	    }
-	}
-	
-	public IceInternal.UserExceptionFactory findUserExceptionFactory(string id)
-	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.userExceptionFactoryManager().find(id);
-	    }
-	}
-	
 	public Properties getProperties()
 	{
 	    lock(this)

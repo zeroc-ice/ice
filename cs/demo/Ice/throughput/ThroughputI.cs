@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class ThroughputI : Throughput_Disp
+public sealed class ThroughputI : _ThroughputDisp
 {
     public ThroughputI()
     {

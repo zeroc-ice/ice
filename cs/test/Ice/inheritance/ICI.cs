@@ -8,7 +8,7 @@
 // **********************************************************************
 
 
-public sealed class ICI : MA.IC_Disp
+public sealed class ICI : MA._ICDisp
 {
     public ICI()
     {
