@@ -17,10 +17,10 @@ SUBDIRS		= IceUtil \
                   IceSSL \
 		  IceXML \
 		  IceStorm \
+		  Yellow \
 		  IcePack \
 		  Freeze \
-		  Glacier \
-		  Yellow
+		  Glacier
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
