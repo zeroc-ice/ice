@@ -30,7 +30,7 @@ public:
     virtual int run(int, char*[]);
 };
 
-} // End namespace IceBox
+}
 
 int
 main(int argc, char* argv[])

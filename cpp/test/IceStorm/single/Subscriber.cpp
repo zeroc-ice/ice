@@ -28,7 +28,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-class SingleI : public Single
+class SingleI : public Single, public IceUtil::Mutex
 {
 public:
 
@@ -40,8 +40,9 @@ public:
 
     virtual void event(const Current&)
     {
-	++_count;
-	if(_count == 10)
+	IceUtil::Mutex::Lock sync(*this);
+
+	if(++_count == 10)
 	{
 	    _communicator->shutdown();
 	}

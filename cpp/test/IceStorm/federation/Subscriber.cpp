@@ -30,7 +30,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-class EventI : public Event
+class EventI : public Event, public IceUtil::Mutex
 {
 public:
 
@@ -40,8 +40,11 @@ public:
     {
     }
 
-    virtual void pub(const string& data, const Ice::Current&)
+    virtual void
+    pub(const string& data, const Ice::Current&)
     {
+	IceUtil::Mutex::Lock sync(*this);
+
 	if(data == "shutdown")
 	{
 	    _communicator->shutdown();
@@ -50,7 +53,13 @@ public:
 	++_count;
     }
 
-    int count() const { return _count; }
+    int
+    count() const
+    {
+	IceUtil::Mutex::Lock sync(*this);
+
+	return _count;
+    }
 
 private:
 

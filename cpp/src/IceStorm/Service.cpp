@@ -36,9 +36,9 @@ public:
     virtual ~ServiceI();
 
     virtual void start(const string&,
-                      const CommunicatorPtr&,
-                      const StringSeq&,
-                      const string&);
+		       const CommunicatorPtr&,
+		       const StringSeq&,
+		       const string&);
 
     virtual void stop();
 
@@ -49,14 +49,11 @@ private:
     ObjectAdapterPtr _publishAdapter;
 };
 
-} // End namespace IceStorm
+}
 
 extern "C"
 {
 
-//
-// Factory function
-//
 ICESTORM_SERVICE_API ::IceBox::FreezeService*
 create(CommunicatorPtr communicator)
 {

@@ -76,30 +76,13 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	
     }
 
-    ObjectPrx obj;
-    obj = fed1->getPublisher();
-    if(!obj->ice_isDatagram())
-    {
-        obj = obj->ice_oneway();
-    }
-    EventPrx eventFed1 = EventPrx::uncheckedCast(obj);
-
-    obj = fed2->getPublisher();
-    if(!obj->ice_isDatagram())
-    {
-        obj = obj->ice_oneway();
-    }
-    EventPrx eventFed2 = EventPrx::uncheckedCast(obj);
-
-    obj = fed3->getPublisher();
-    if(!obj->ice_isDatagram())
-    {
-        obj = obj->ice_oneway();
-    }
-    EventPrx eventFed3 = EventPrx::uncheckedCast(obj);
+    EventPrx eventFed1 = EventPrx::uncheckedCast(fed1->getPublisher()->ice_oneway());
+    EventPrx eventFed2 = EventPrx::uncheckedCast(fed2->getPublisher()->ice_oneway());
+    EventPrx eventFed3 = EventPrx::uncheckedCast(fed3->getPublisher()->ice_oneway());
 
     Ice::Context context;
     int i;
+
     context["cost"] = "0";
     for(i = 0; i < 10; ++i)
     {
@@ -136,13 +119,10 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	eventFed3->pub("fed3:0", context);
     }
 
-    //
-    // Sleep for 5 seconds before shutting down.
-    //
 #ifdef _WIN32
-    Sleep(5*1000);
+    Sleep(10 * 1000);
 #else
-    sleep(5);
+    sleep(10);
 #endif
 
     eventFed3->pub("shutdown");
