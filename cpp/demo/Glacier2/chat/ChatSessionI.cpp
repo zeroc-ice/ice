@@ -28,12 +28,14 @@ void
 ChatRoomMembers::remove(const ChatCallbackPrx& callback)
 {
     IceUtil::Mutex::Lock sync(*this);
-    for(list<ChatCallbackPrx>::iterator p = _members.begin(); p != _members.end(); ++p)
+    list<ChatCallbackPrx>::iterator p = _members.begin();
+    while(p != _members.end())
     {
 	if(Ice::proxyIdentityEqual(callback, *p))
 	{
 	    break;
 	}
+	++p;
     }
     if(p != _members.end())
     {
