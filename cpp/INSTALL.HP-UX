@@ -34,15 +34,18 @@ Third-party libraries
   The Berkeley DB source distribution can be downloaded from 
   http://www.sleepycat.com
   
-  We recommend to configure Berkeley DB with:
-
-  CXX="aCC -AA" ../dist/configure --enable-cxx
+  We recommend to configure and build Berkeley DB with:
+  $ export CXXOPTS="-AA"
+  $ ../dist/configure --enable-cxx
   (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
 
   For 64 bit builds, use:
-
-  CXX="aCC -AA +DD64" CC="cc +DD64" ../dist/configure --enable-cxx 
+  $ export CXXOPTS="-AA +DD64"
+  $ export CCOPTS="+DD64"
+  $ ../dist/configure --enable-cxx 
   (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
  
 - OpenSSL 0.9.7c, which can be downloaded from http://www.openssl.org
 
