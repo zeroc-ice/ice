@@ -49,6 +49,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <list>
 
 //
 // Define Ice and _Ice namespace, for those files which do not include

@@ -8,32 +8,27 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_H
-#define ICE_OUTGOING_H
+#ifndef ICE_BUFFER_H
+#define ICE_BUFFER_H
 
 #include <Ice/ReferenceF.h>
-#include <Ice/Buffer.h>
 
 namespace _Ice
 {
 
-class ICE_API Outgoing
+class ICE_API Buffer
 {
 public:
 
-    Outgoing(const Reference&, const char*);
-    ~Outgoing();
+    Buffer() : i(b.begin()) { }
 
-    void invoke();
+    std::vector<char> b;
+    std::vector<char>::iterator i;
 
 private:
 
-    Outgoing(const Outgoing&);
-    void operator=(const Outgoing&);
-
-    const Reference& reference_;
-    const char* operation_;
-    Buffer buffer_;
+    Buffer(const Buffer&);
+    void operator=(const Buffer&);
 };
 
 }
