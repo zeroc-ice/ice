@@ -17,7 +17,7 @@ using namespace Ice;
 using namespace std;
 using namespace Demo;
 
-static void
+void
 testFailed(const char* expr, const char* file, unsigned int line)
 {
     std::cout << "failed!" << std::endl;
