@@ -109,58 +109,6 @@ final class TcpTransceiver implements Transceiver
         }
     }
 
-    public boolean
-    tryRead(BasicStream stream)
-    {
-        java.nio.ByteBuffer buf = stream.prepareRead();
-
-        int remaining = 0;
-        if(_traceLevels.network >= 3)
-        {
-            remaining = buf.remaining();
-        }
-
-        while(true)
-        {
-            try
-            {
-                int ret = _fd.read(buf);
-
-                if(ret == -1)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-
-                if(ret > 0 && _traceLevels.network >= 3)
-                {
-                    String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-
-                break;
-            }
-            catch(java.io.InterruptedIOException ex)
-            {
-                continue;
-            }
-            catch(java.io.IOException ex)
-            {
-                if(Network.connectionLost(ex))
-                {
-                    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                    se.initCause(ex);
-                    throw se;
-                }
-
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
-
-        return buf.hasRemaining();
-    }
-
     public void
     read(BasicStream stream, int timeout)
     {

@@ -418,27 +418,18 @@ public final class ThreadPool
                     }
                 }
 
-                //
-                // First, we call selectNonBlocking(). This is necessary to
-                // ensure that the selected key set is updated (i.e., new
-                // channels added, closed channels removed, etc.). If no keys
-                // are present in the key set, then we'll call select() to
-                // block until a new event is ready.
-                //
-                //selectNonBlocking();
-                //if(_keys.size() == 0)
+                select();
+                if(_keys.size() == 0) // Timeout.
                 {
-                    int ret = select();
-                    if(ret == 0) // Timeout.
+                    if(TRACE_SELECT)
                     {
-                        if(TRACE_SELECT)
-                        {
-                            trace("timeout");
-                        }
-
-                        _timeout = 0;
-                        shutdown = true;
+                        trace("timeout");
                     }
+
+                    assert(_timeout > 0);
+                    _timeout = 0;
+                    shutdown = true;
+                    continue repeatSelect;
                 }
 
                 EventHandler handler = null;
@@ -764,7 +755,7 @@ public final class ThreadPool
         }
     }
 
-    private int
+    private void
     select()
     {
         int ret = 0;
@@ -811,8 +802,6 @@ public final class ThreadPool
 
             break;
         }
-
-        return ret;
     }
 
     private void
