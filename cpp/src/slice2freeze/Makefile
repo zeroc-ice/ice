@@ -14,8 +14,7 @@ NAME		= $(top_srcdir)/bin/slice2freeze
 
 TARGETS		= $(NAME)
 
-OBJS		= Main.o \
-		  GenUtil.o
+OBJS		= Main.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

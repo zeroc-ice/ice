@@ -12,7 +12,7 @@
 
 #include <Ice/Ice.h>
 #include <Parser.h>
-#include <Grammer.h>
+#include <Grammar.h>
 
 using namespace std;
 using namespace Ice;

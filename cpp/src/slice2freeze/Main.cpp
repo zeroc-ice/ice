@@ -8,9 +8,7 @@
 //
 // **********************************************************************
 
-#include <Slice/Parser.h>
-#include <Slice/OutputUtil.h>
-#include <GenUtil.h>
+#include <Slice/CPlusPlusUtil.h>
 #include <fstream>
 
 using namespace std;
@@ -21,21 +19,6 @@ struct Dict
     string name;
     string key;
     string value;
-};
-
-struct ToIfdef
-{
-    char operator()(char c)
-    {
-	if (!isalnum(c))
-	{
-	    return '_';
-	}
-	else
-	{
-	    return c;
-	}
-    }
 };
 
 void
@@ -81,41 +64,9 @@ checkIdentifier(string n, string t, string s)
     return true;
 }
 
-string
-changeInclude(const string& orig, const vector<string>& includePaths)
-{
-    string file = orig;
-    for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
-    {
-	if (orig.compare(0, p->length(), *p) == 0)
-	{
-	    string s = orig.substr(p->length());
-	    if (s.size() < file.size())
-	    {
-		file = s;
-	    }
-	}
-    }
-    return file;
-}
-
 void
-printHeader(Output& out, const vector<Dict>& dicts)
+printFreezeTypes(Output& out, const vector<Dict>& dicts)
 {
-    static const char* header = 
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) 2001\n"
-"// MutableRealms, Inc.\n"
-"// Huntsville, AL, USA\n"
-"//\n"
-"// All Rights Reserved\n"
-"//\n"
-"// **********************************************************************\n"
-	;
-
-    out << header;
-    out << "\n// Ice version " << ICE_STRING_VERSION;
     out << '\n';
     out << "\n// Freeze types in this file:";
     for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
@@ -212,9 +163,9 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
     C << nl << "IceInternal::Stream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
     C << nl << "IceInternal::Stream valueStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "value", "valueStream", true);
+    writeMarshalUnmarshalCode(C, keyType, "value", true, "valueStream", false);
     C << nl << "_db->put(keyStream.b, valueStream.b);";
     C << eb;
     C << sp << nl << typeToString(valueType) << nl << absolute << "::get(" << inputTypeToString(keyType)
@@ -222,19 +173,19 @@ writeDict(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
     C << nl << "IceInternal::Stream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
     C << nl << "IceInternal::Stream valueStream(instance);";
     C << nl << "valueStream.b = _db->get(keyStream.b);";
     C << nl << "valueStream.i = valueStream.b.begin();";
     C << nl << typeToString(valueType) << " value;";
-    writeMarshalUnmarshalCode(C, keyType, "value", "valueStream", false);
+    writeMarshalUnmarshalCode(C, keyType, "value", false, "valueStream", false);
     C << nl << "return value;";
     C << eb;
     C << sp << nl << "void" << nl << absolute << "::del(" << inputTypeToString(keyType) << " key)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());";
     C << nl << "IceInternal::Stream keyStream(instance);";
-    writeMarshalUnmarshalCode(C, keyType, "key", "keyStream", true);
+    writeMarshalUnmarshalCode(C, keyType, "key", true, "keyStream", false);
     C << nl << "_db->del(keyStream.b);";
     C << eb;
     
@@ -501,7 +452,8 @@ main(int argc, char* argv[])
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
-	printHeader(H, dicts);
+	printHeader(H);
+	printFreezeTypes(H, dicts);
 
 	Output C;
 	C.open(fileC.c_str());
@@ -511,7 +463,8 @@ main(int argc, char* argv[])
 	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
-	printHeader(C, dicts);
+	printHeader(C);
+	printFreezeTypes(C, dicts);
 	
 	string s = fileH;
 	transform(s.begin(), s.end(), s.begin(), ToIfdef());
@@ -529,32 +482,6 @@ main(int argc, char* argv[])
 	    }
 	}
 	
-	H << sp;
-	H << "\n#ifndef ICE_IGNORE_VERSION";
-	H << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
-	H << "\n#       error Ice version mismatch!";
-	H << "\n#   endif";
-	H << "\n#endif";
-	
-	if (dllExport.size())
-	{
-	    dllExport += " ";
-	}
-	
-	if (dllExport.size())
-	{
-	    H << sp;
-	    H << "\n#ifdef WIN32";
-	    H << "\n#   ifdef " << dllExport.substr(0, dllExport.size() - 1) << "_EXPORTS";
-	    H << "\n#       define " << dllExport << "__declspec(dllexport)";
-	    H << "\n#   else";
-	    H << "\n#       define " << dllExport << "__declspec(dllimport)";
-	    H << "\n#   endif";
-	    H << "\n#else";
-	    H << "\n#   define " << dllExport << "/**/";
-	    H << "\n#endif";
-	}
-
 	C << "\n#include <";
 	if (include.size())
 	{
@@ -562,13 +489,15 @@ main(int argc, char* argv[])
 	}
 	C << fileH << '>';
 
-	C << sp;
-	C << "\n#ifndef ICE_IGNORE_VERSION";
-	C << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
-	C << "\n#       error Ice version mismatch!";
-	C << "\n#   endif";
-	C << "\n#endif";
-	
+	printVersionCheck(H);
+	printVersionCheck(C);
+
+	printDllExportStuff(H, dllExport);
+	if (dllExport.size())
+	{
+	    dllExport += " ";
+	}
+
 	{
 	    for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
 	    {

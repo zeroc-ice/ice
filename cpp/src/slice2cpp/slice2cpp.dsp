@@ -93,10 +93,6 @@ SOURCE=.\Gen.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GenUtil.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Main.cpp
 # End Source File
 # End Group
@@ -106,10 +102,6 @@ SOURCE=.\Main.cpp
 # Begin Source File
 
 SOURCE=.\Gen.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GenUtil.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

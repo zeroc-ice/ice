@@ -9,27 +9,12 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
+#include <Slice/CPlusPlusUtil.h>
 #include <Gen.h>
-#include <GenUtil.h>
 #include <limits>
 
 using namespace std;
 using namespace Slice;
-
-struct ToIfdef
-{
-    char operator()(char c)
-    {
-	if (!isalnum(c))
-        {
-	    return '_';
-	}
-	else
-	{
-	    return c;
-	}
-    }
-};
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& include, const vector<string>& includePaths,
 		const string& dllExport, const string& dir) :
@@ -38,11 +23,6 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& include, c
     _includePaths(includePaths),
     _dllExport(dllExport)
 {
-    if (_dllExport.size())
-    {
-	_dllExport += " ";
-    }
-
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
 	if (p->length() && (*p)[p->length() - 1] != '/')
@@ -81,6 +61,8 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& include, c
 
     printHeader(H);
     printHeader(C);
+    H << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
+    C << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
 
     string s = fileH;
     if (_include.size())
@@ -137,35 +119,16 @@ Slice::Gen::generate(const UnitPtr& unit)
     StringList includes = unit->includeFiles();
     for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
-	H << "\n#include <" << changeInclude(*q) << ".h>";
+	H << "\n#include <" << changeInclude(*q, _includePaths) << ".h>";
     }
 
-    H << sp;
-    H << "\n#ifndef ICE_IGNORE_VERSION";
-    H << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
-    H << "\n#       error Ice version mismatch!";
-    H << "\n#   endif";
-    H << "\n#endif";
+    printVersionCheck(H);
+    printVersionCheck(C);
 
-    C << sp;
-    C << "\n#ifndef ICE_IGNORE_VERSION";
-    C << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
-    C << "\n#       error Ice version mismatch!";
-    C << "\n#   endif";
-    C << "\n#endif";
-
+    printDllExportStuff(H, _dllExport);
     if (_dllExport.size())
     {
-	H << sp;
-	H << "\n#ifdef WIN32";
-	H << "\n#   ifdef " << _dllExport.substr(0, _dllExport.size() - 1) << "_EXPORTS";
-	H << "\n#       define " << _dllExport << "__declspec(dllexport)";
-	H << "\n#   else";
-	H << "\n#       define " << _dllExport << "__declspec(dllimport)";
-	H << "\n#   endif";
-	H << "\n#else";
-	H << "\n#   define " << _dllExport << "/**/";
-	H << "\n#endif";
+	_dllExport += " ";
     }
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
@@ -197,52 +160,6 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     ObjectVisitor objectVisitor(H, C, _dllExport);
     unit->visit(&objectVisitor);
-}
-
-string
-Slice::Gen::changeInclude(const string& orig)
-{
-    string file = orig;
-    for (vector<string>::const_iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
-    {
-	if (orig.compare(0, p->length(), *p) == 0)
-	{
-	    string s = orig.substr(p->length());
-	    if (s.size() < file.size())
-	    {
-		file = s;
-	    }
-	}
-    }
-    
-    string::size_type pos = file.rfind('.');
-    if (pos != string::npos)
-    {
-	file.erase(pos);
-    }
-
-    return file;
-}
-
-void
-Slice::Gen::printHeader(Output& out)
-{
-    static const char* header = 
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) 2001\n"
-"// MutableRealms, Inc.\n"
-"// Huntsville, AL, USA\n"
-"//\n"
-"// All Rights Reserved\n"
-"//\n"
-"// **********************************************************************\n"
-	;
-
-    out << header;
-    out << "\n// Generated from file `" << changeInclude(_base) << ".ice'";
-    out << "\n// Ice version " << ICE_STRING_VERSION;
-    out << '\n';
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :

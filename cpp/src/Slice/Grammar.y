@@ -10,7 +10,7 @@
 //
 // **********************************************************************
 
-#include <Slice/GrammerUtil.h>
+#include <Slice/GrammarUtil.h>
 
 using namespace std;
 using namespace Slice;

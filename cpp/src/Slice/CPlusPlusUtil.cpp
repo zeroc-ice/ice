@@ -8,10 +8,97 @@
 //
 // **********************************************************************
 
-#include <GenUtil.h>
+#include <Slice/CPlusPlusUtil.h>
 
 using namespace std;
 using namespace Slice;
+
+char
+Slice::ToIfdef::operator()(char c)
+{
+    if (!isalnum(c))
+    {
+	return '_';
+    }
+    else
+    {
+	return c;
+    }
+}
+
+string
+Slice::changeInclude(const string& orig, const vector<string>& includePaths)
+{
+    string file = orig;
+
+    for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    {
+	if (orig.compare(0, p->length(), *p) == 0)
+	{
+	    string s = orig.substr(p->length());
+	    if (s.size() < file.size())
+	    {
+		file = s;
+	    }
+	}
+    }
+
+    string::size_type pos = file.rfind('.');
+    if (pos != string::npos)
+    {
+	file.erase(pos);
+    }
+
+    return file;
+}
+
+void
+Slice::printHeader(Output& out)
+{
+    static const char* header = 
+"// **********************************************************************\n"
+"//\n"
+"// Copyright (c) 2001\n"
+"// MutableRealms, Inc.\n"
+"// Huntsville, AL, USA\n"
+"//\n"
+"// All Rights Reserved\n"
+"//\n"
+"// **********************************************************************\n"
+	;
+
+    out << header;
+    out << "\n// Ice version " << ICE_STRING_VERSION;
+}
+
+void
+Slice::printVersionCheck(Output& out)
+{
+    out << "\n";
+    out << "\n#ifndef ICE_IGNORE_VERSION";
+    out << "\n#   if ICE_INT_VERSION != 0x" << hex << ICE_INT_VERSION;
+    out << "\n#       error Ice version mismatch!";
+    out << "\n#   endif";
+    out << "\n#endif";
+}
+
+void
+Slice::printDllExportStuff(Output& out, const string& dllExport)
+{
+    if (dllExport.size())
+    {
+	out << sp;
+	out << "\n#ifdef WIN32";
+	out << "\n#   ifdef " << dllExport.substr(0, dllExport.size() - 1) << "_EXPORTS";
+	out << "\n#       define " << dllExport << "__declspec(dllexport)";
+	out << "\n#   else";
+	out << "\n#       define " << dllExport << "__declspec(dllimport)";
+	out << "\n#   endif";
+	out << "\n#else";
+	out << "\n#   define " << dllExport << "/**/";
+	out << "\n#endif";
+    }
+}
 
 string
 Slice::typeToString(const TypePtr& type)
@@ -239,14 +326,48 @@ Slice::exceptionTypeToString(const TypePtr& type)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
+				 const string& str, bool pointer)
 {
-    const char* func = marshal ? "write(" : "read(";
-    const char* stream = marshal ? "__os" : "__is";
+    string stream;
+    if (str.empty())
+    {
+	stream = marshal ? "__os" : "__is";
+    }
+    else
+    {
+	stream = str;
+    }
+    
+    string deref;
+    if (pointer)
+    {
+	deref = "->";
+    }
+    else
+    {
+	deref = '.';
+    }
+    
+    string obj;
+    if (stream.find("__") == 0)
+    {
+	obj = "__obj";
+    }
+    else
+    {
+	obj = "obj;";
+    }
+
+    string func = marshal ? "write(" : "read(";
+    if (!pointer)
+    {
+	func += '&';
+    }
 
     if (BuiltinPtr::dynamicCast(type))
     {
-	out << nl << stream << "->" << func << param << ");";
+	out << nl << stream << deref << func << param << ");";
 	return;
     }
     
@@ -256,27 +377,27 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	out << sb;
 	if (marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr __obj = " << param << ';';
-	    out << nl << stream << "->write(__obj);";
+	    out << nl << "::Ice::ObjectPtr " << obj << ' ' << param << ';';
+	    out << nl << stream << deref << "write(" << obj << ");";
 	}
 	else
 	{
-	    out << nl << "::Ice::ObjectPtr __obj;";
-	    out << nl << stream << "->read(__obj, " << cl->scoped() << "::__classIds[0]);";
-	    out << nl << "if (!__obj)";
+	    out << nl << "::Ice::ObjectPtr " << obj << ';';
+	    out << nl << stream << deref << func << obj << ", " << cl->scoped() << "::__classIds[0]);";
+	    out << nl << "if (!" << obj << ')';
 	    out << sb;
 	    ClassDefPtr def = cl->definition();
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << "__obj = new " << cl->scoped() << ";";
-		out << nl << "__obj->__read(__is);";
+		out << nl << obj << " = new " << cl->scoped() << ";";
+		out << nl << obj << "->" << func << stream << ");";
 	    }
 	    else
 	    {
 		out << nl << "throw ::Ice::NoServantFactoryException(__FILE__, __LINE__);";
 	    }
 	    out << eb;
-	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(__obj);";
+	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
 	    out << nl << "if (!" << param << ')';
 	    out << sb;
 	    out << nl << "throw ::Ice::ServantUnmarshalException(__FILE__, __LINE__);";
@@ -299,7 +420,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     {
 	if (BuiltinPtr::dynamicCast(seq->type()))
 	{
-	    out << nl << stream << "->" << func << param << ");";
+	    out << nl << stream << deref << func << param << ");";
 	}
 	else
 	{

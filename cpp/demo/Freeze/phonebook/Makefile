@@ -18,7 +18,7 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= PhoneBook.o
 
-COBJS		= Grammer.o \
+COBJS		= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
 		  RunParser.o \
@@ -29,7 +29,7 @@ SOBJS		= PhoneBookI.o \
 		  ServantFactory.o \
 		  Server.o
 
-COLOBJS		= Grammer.o \
+COLOBJS		= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
 		  RunParser.o \
@@ -60,17 +60,17 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(LIBS) -lFreeze -ldb -lreadline -lcurses
 
-Grammer.cpp Grammer.h: Grammer.y
-	bison -dvt Grammer.y
-	rm -f Grammer.cpp ; mv Grammer.tab.c Grammer.cpp
-	rm -f Grammer.h ; mv Grammer.tab.h Grammer.h
+Grammar.cpp Grammar.h: Grammar.y
+	bison -dvt Grammar.y
+	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
+	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
 
-Scanner.cpp: Scanner.l Grammer.h
+Scanner.cpp: Scanner.l Grammar.h
 	flex Scanner.l
 	rm -f Scanner.cpp ; mv lex.yy.c Scanner.cpp
 
 clean::
-	-rm -f Grammer.cpp Grammer.h Grammer.output
+	-rm -f Grammar.cpp Grammar.h Grammar.output
 	-rm -f Scanner.cpp lex.yy.c
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)

@@ -104,11 +104,15 @@ PostBuild_Cmds=copy Debug\slice001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Grammer.cpp
+SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\OutputUtil.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CPlusPlusUtil.cpp
 # End Source File
 # Begin Source File
 
@@ -124,15 +128,19 @@ SOURCE=.\Scanner.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Grammer.h
+SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\GrammerUtil.h
+SOURCE=.\GrammarUtil.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\incluce\Slice\OutputUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\incluce\Slice\CPlusPlusUtil.h
 # End Source File
 # Begin Source File
 
@@ -144,41 +152,41 @@ SOURCE=..\..\include\Slice\Parser.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Grammer.y
+SOURCE=.\Grammar.y
 
 !IF  "$(CFG)" == "Slice - Win32 Release"
 
 # Begin Custom Build
-InputPath=.\Grammer.y
+InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt Grammer.y \
-	move Grammer.tab.c Grammer.cpp \
-	move Grammer.tab.h Grammer.h \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
 	
 
-"Grammer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Grammer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
 
 # Begin Custom Build
-InputPath=.\Grammer.y
+InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt Grammer.y \
-	move Grammer.tab.c Grammer.cpp \
-	move Grammer.tab.h Grammer.h \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
 	
 
-"Grammer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Grammer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -35,9 +35,6 @@ public:
 
 private:
 
-    std::string changeInclude(const std::string&);
-    void printHeader(Output&);
-
     Output H;
     Output C;
 
