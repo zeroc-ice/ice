@@ -10,7 +10,7 @@
 
 #include <Ice/Application.h>
 #include <IcePatch/NodeDescFactory.h>
-#include <IcePatch/NodeUtil.h>
+#include <IcePatch/Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -104,7 +104,8 @@ IcePatch::Client::run(int argc, char* argv[])
 	//
 	// Display node structure.
 	//
-	ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
+	Identity identity = pathToIdentity(".");
+	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
 	NodePrx top = NodePrx::checkedCast(topObj);
 	printNodeDesc(top->describe());
     }

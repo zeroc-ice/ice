@@ -23,8 +23,6 @@ public:
 
     NodeI(const Ice::ObjectAdapterPtr&);
 
-    static std::string normalizePath(const std::string&);
-
 protected:
 
     Ice::ObjectAdapterPtr _adapter;

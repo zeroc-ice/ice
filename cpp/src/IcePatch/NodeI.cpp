@@ -9,8 +9,7 @@
 // **********************************************************************
 
 #include <IcePatch/NodeI.h>
-#include <IcePatch/NodeUtil.h>
-#include <dirent.h>
+#include <IcePatch/Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -19,36 +18,6 @@ using namespace IcePatch;
 IcePatch::NodeI::NodeI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
-}
-
-string
-IcePatch::NodeI::normalizePath(const string& path)
-{
-    string result = path;
-    
-    string::size_type pos;
-    
-    for (pos = 0; pos < result.size(); ++pos)
-    {
-	if (result[pos] == '\\')
-	{
-	    result[pos] = '/';
-	}
-    }
-    
-    pos = 0;
-    while ((pos = result.find("//", pos)) != string::npos)
-    {
-	result.erase(pos, 1);
-    }
-    
-    pos = 0;
-    while ((pos = result.find("/./", pos)) != string::npos)
-    {
-	result.erase(pos, 2);
-    }
-
-    return result;
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -67,76 +36,35 @@ IcePatch::DirectoryI::describe(const Ice::Current& current)
 NodeDescSeq
 IcePatch::DirectoryI::getContents(const Ice::Current& current)
 {
-    string path = normalizePath(current.identity.name);
-
-    struct dirent **namelist;
-    int n = scandir(path.c_str(), &namelist, 0, alphasort);
-    if (n < 0)
-    {
-	NodeAccessException ex;
-	ex.reason = "cannot read directory `" + path + "':" + strerror(errno);
-	throw ex;
-    }
+    StringSeq paths = readDirectory(identityToPath(current.identity));
 
     NodeDescSeq result;
-    result.reserve(n - 2);
+    result.reserve(paths.size());
 
-    int i;
-
-    try
+    StringSeq::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p)
     {
-	Identity identity;
-	identity.category = "IcePatch";
-	
-	for (i = 0; i < n; ++i)
+	string::size_type pos;
+	if ((pos = p->rfind(".md5")) != string::npos)
 	{
-	    string name = namelist[i]->d_name;
-
-	    if (name == ".." || name == ".")
+	    if (p->size() == pos + 4)
 	    {
 		continue;
 	    }
-
-	    string::size_type pos;
-	    if ((pos = name.rfind(".md5")) != string::npos)
-	    {
-		if (name.size() == pos + 4)
-		{
-		    continue;
-		}
-	    }
-	    
-	    identity.name = path + '/' + name;
-	    NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(identity));
-	    try
-	    {
-		    result.push_back(node->describe());
-	    }
-	    catch (const ObjectNotExistException&)
-	    {
-		//
-		// Ignore. This can for example happen if the node
-		// locator cannot call stat() on the file.
-		//
-	    }
 	}
-
-	for (i = 0; i < n; ++i)
+	
+	NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(pathToIdentity(*p)));
+	try
 	{
-	    free(namelist[i]);
+	    result.push_back(node->describe());
 	}
-	free(namelist);
-
-    }
-    catch (...)
-    {
-	for (i = 0; i < n; ++i)
+	catch (const ObjectNotExistException&)
 	{
-	    free(namelist[i]);
+	    //
+	    // Ignore. This can for example happen if the node
+	    // locator cannot call stat() on the file.
+	    //
 	}
-	free(namelist);
-
-	throw;
     }
 	
     return result;
@@ -152,14 +80,12 @@ IcePatch::FileI::describe(const Ice::Current& current)
 {
     FileDescPtr desc = new FileDesc;
     desc->file = FilePrx::uncheckedCast(_adapter->createProxy(current.identity));
-    string path = normalizePath(current.identity.name);
-    desc->md5 = getMD5(path);
+    desc->md5 = getMD5(identityToPath(current.identity));
     return desc;
 }
 
 ByteSeq
 IcePatch::FileI::getBytes(Int startPos, Int howMuch, const Ice::Current& current)
 {
-    string path = normalizePath(current.identity.name);
     return ByteSeq();
 }

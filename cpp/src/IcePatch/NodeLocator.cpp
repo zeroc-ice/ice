@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <IcePatch/NodeLocator.h>
+#include <IcePatch/Util.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -26,12 +27,10 @@ IcePatch::NodeLocator::NodeLocator(const Ice::ObjectAdapterPtr& adapter) :
 ObjectPtr
 IcePatch::NodeLocator::locate(const ObjectAdapterPtr&, const Current& current, LocalObjectPtr&)
 {
-    assert(current.identity.category == "IcePatch");
-
     //
-    // Check whether the path (= identity.name) is valid.
+    // Check whether the path is valid.
     //
-    string path = current.identity.name;
+    string path = identityToPath(current.identity);
 
     if (path.empty())
     {

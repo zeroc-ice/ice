@@ -8,16 +8,95 @@
 //
 // **********************************************************************
 
-#include <IcePatch/NodeUtil.h>
+#include <IcePatch/Util.h>
+#include <IcePatch/Node.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <openssl/md5.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePatch;
+
+static string
+normalizePath(const string& path)
+{
+    string result = path;
+    
+    string::size_type pos;
+    
+    for (pos = 0; pos < result.size(); ++pos)
+    {
+	if (result[pos] == '\\')
+	{
+	    result[pos] = '/';
+	}
+    }
+    
+    pos = 0;
+    while ((pos = result.find("//", pos)) != string::npos)
+    {
+	result.erase(pos, 1);
+    }
+    
+    pos = 0;
+    while ((pos = result.find("/./", pos)) != string::npos)
+    {
+	result.erase(pos, 2);
+    }
+
+    return result;
+}
+
+string
+IcePatch::identityToPath(const Identity& identity)
+{
+    assert(identity.category == "IcePatch");
+    return normalizePath(identity.name);
+}
+
+Identity
+IcePatch::pathToIdentity(const string& path)
+{
+    Identity identity;
+    identity.category = "IcePatch";
+    identity.name = normalizePath(path);
+    return identity;
+}
+
+StringSeq
+IcePatch::readDirectory(const string& path)
+{
+    struct dirent **namelist;
+    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    if (n < 0)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot read directory `" + path + "':" + strerror(errno);
+	throw ex;
+    }
+
+    StringSeq result;
+    result.reserve(n - 2);
+
+    for (int i = 0; i < n; ++i)
+    {
+	string name = namelist[i]->d_name;
+
+	free(namelist[i]);
+	
+	if (name != ".." && name != ".")
+	{
+	    result.push_back(path + '/' + name);
+	}
+    }
+    
+    free(namelist);
+    return result;
+}
 
 ByteSeq
 IcePatch::getMD5(const std::string& path)
@@ -137,7 +216,7 @@ IcePatch::getMD5(const std::string& path)
 	// Write the MD5 hash value to the corresponding .md5 file.
 	//
 	{
-	    int fd = open(pathmd5.c_str(), O_WRONLY | O_CREAT);
+	    int fd = open(pathmd5.c_str(), O_WRONLY | O_CREAT, 00644);
 	    
 	    if (fd == -1)
 	    {
