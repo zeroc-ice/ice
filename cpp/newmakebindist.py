@@ -7,16 +7,13 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, re, string, getopt, glob
+import os, sys, shutil, re, string, getopt, glob, logging
 
 #
 # TODO:
 #
-#  * Finalize what is going where.
 #  * Tidying and tracing.
 #  * Testing on platforms besides Linux.
-#  * Ant build tasks for Ice got missed.
-#  * Demo build system
 #
 # NOTES:
 #  There are python-ese ways to do some of the things I've shelled out to do.
@@ -50,13 +47,22 @@ class Package:
         ofile.write("%defattr(644, root, root, 755)\n\n")
         for perm, f in self.filelist:
             prefix = ""
+	    
+	    #
+	    # Select an RPM spec file attribute depending on the type of
+	    # file or directory we've specified.
+	    #
             if perm == "exe" or perm == "lib":
                 prefix = "%attr(755, root, root) "
+	    elif perm == "xdir":
+		prefix = "%dir "
+
             if f.find("%version%"):
                 f = f.replace("%version%", version)
             if f.endswith(".so"):
                 ofile.write(prefix + "/usr/" + f + "." + version + "\n")
                 ofile.write(prefix + "/usr/" + f + "." + str(intVersion) + "\n")
+
             ofile.write(prefix + "/usr/" + f + "\n")
         ofile.write("\n")    
 
@@ -132,7 +138,11 @@ fileLists = [
              ("lib", "lib/libIceXML.so"),
              ("lib", "lib/libSlice.so"),
              ("dir", "share/slice"),
-             ("dir", "share/doc/Ice-%version%")]),
+             ("dir", "share/doc/Ice-%version%/images"),
+             ("dir", "share/doc/Ice-%version%/manual"),
+	     ("xdir", "share/doc/Ice-%version%/config"),
+	     ("file", "share/doc/Ice-%version%/config/Make.rules"),
+	     ("xdir", "share/doc/Ice-%version%/certs")]),
     Subpackage("c++-devel",
                "",
                "Ice tools, files and libraries for developing Ice applications in C++",
@@ -140,36 +150,80 @@ fileLists = [
                "",
                [("exe", "bin/slice2cpp"),
                 ("exe", "bin/slice2freeze"),
-                ("dir", "include")]),
-    Subpackage("dotnet",
+                ("dir", "include"),
+		("dir", "share/doc/Ice-%version%/demo_cpp"),
+		("file", "share/doc/Ice-%version%/config/Make.cxx.rules"),
+		("file", "share/doc/Ice-%version%/config/makedepend.py"),
+		("file", "share/doc/Ice-%version%/config/makecerts"),
+		("file", "share/doc/Ice-%version%/config/makeprops.py"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.AIX"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.Darwin"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.FreeBSD"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.HP-UX"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
+		("file", "share/doc/Ice-%version%/config/Make.rules.SunOS"),
+		("file", "share/doc/Ice-%version%/config/PropertyNames.def"),
+		("file", "share/doc/Ice-%version%/config/server.cnf"),
+		("file", "share/doc/Ice-%version%/config/client.cnf"),
+		("file", "share/doc/Ice-%version%/config/generic.cnf"),
+		("file", "share/doc/Ice-%version%/config/ice_ca.cnf"),
+	        ("file", "share/doc/Ice-%version%/certs/cacert.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/c_dh1024.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/client_sslconfig.xml"),
+	        ("file", "share/doc/Ice-%version%/certs/server_sslconfig.xml"),
+	        ("file", "share/doc/Ice-%version%/certs/c_rsa1024_priv.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/c_rsa1024_pub.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/s_dh1024.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/s_rsa1024_priv.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/s_rsa1024_pub.pem"),
+	        ("file", "share/doc/Ice-%version%/certs/sslconfig.dtd"),
+	        ("file", "share/doc/Ice-%version%/certs/sslconfig.xml")
+		]),
+    Subpackage("csharp",
                "ice mono-core",
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
                [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
                 ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
-    Subpackage("dotnet-devel",
-               "ice-dotnet mono-devel",
+    Subpackage("csharp-devel",
+               "ice-csharp mono-devel",
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
-               [("exe", "bin/slice2cs")]),
+               [("exe", "bin/slice2cs"),
+		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
+	        ("dir", "share/doc/Ice-%version%/demo_csharp")]),
     Subpackage("java",
-               "",
+               "ice",
                "Ice runtime for Java applications",
                "Development/Libraries",
                "",
-               [("doc", "lib/Ice-%version%/Ice.jar"),
-	        ("dir", "lib/Ice-%version%/ant")]),
+               [("dir", "lib/Ice-%version%/Ice.jar")
+	       ]),
     Subpackage("java-devel",
                "ice-java",
                "Ice tools developing Ice applications in Java",
                "Development/Libraries Development/Tools",
                "",
                [("exe", "bin/slice2java"),
-                ("exe", "bin/slice2freezej")]),
+                ("exe", "bin/slice2freezej"),
+		("dir", "lib/Ice-%version%/ant"),
+	        ("file", "share/doc/Ice-%version%/certs/certs.jks"),
+	        ("file", "share/doc/Ice-%version%/certs/client.jks"),
+	        ("file", "share/doc/Ice-%version%/certs/server.jks"),
+	        ("file", "share/doc/Ice-%version%/certs/makecerts"),
+	        ("dir", "share/doc/Ice-%version%/certs/openssl"),
+	        ("dir", "share/doc/Ice-%version%/certs/cpp"),
+	        ("file", "share/doc/Ice-%version%/config/build.properties"),
+	        ("file", "share/doc/Ice-%version%/config/common.cvs.xml"),
+	        ("file", "share/doc/Ice-%version%/config/common.opt.xml"),
+	        ("file", "share/doc/Ice-%version%/config/common.rpm.xml"),
+	        ("file", "share/doc/Ice-%version%/config/common.src.xml"),
+	        ("file", "share/doc/Ice-%version%/config/common.xml"),
+		("dir", "share/doc/Ice-%version%/demo_java")]),
     Subpackage("python",
-               "",
+               "ice",
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
@@ -179,7 +233,8 @@ fileLists = [
                "Ice tools for developing Ice applications in Python",
                "Development/Libraries Development/Tools",
                "",
-               [("exe", "bin/slice2py")])
+               [("exe", "bin/slice2py"),
+	        ("dir", "share/doc/Ice-%version%/demo_python")])
     ]
 
 def getIceVersion(file):
@@ -211,10 +266,6 @@ def getPlatform():
         return "aix"
     else:
         return None
-
-def trace(s):
-    if verbose:
-        print s
     
 def initDirectory(d):
     """Check for the existance of the directory. If it isn't there make it."""
@@ -228,9 +279,9 @@ def initDirectory(d):
             sys.exit(1)
             
         if os.access(d, os.X_OK | os.R_OK | os.W_OK):
-            trace("Path " + d + " exists and is ok, continuing")
+            logging.info("Path " + d + " exists and is ok, continuing")
         else:
-            print "Directory " + d + " exists, but has incorrect permissions"
+            logging.warning("Directory " + d + " exists, but has incorrect permissions")
             sys.exit(1)
     else:
         #
@@ -263,7 +314,7 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     if cvsdir == "icepy" or cvsdir == "ice":
         os.system("./makedist.py " + tag)
     else:
-        os.system("./makedist.py -d" + tag)
+        os.system("./makedist.py -d " + tag)
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -280,6 +331,10 @@ def extractDemos(buildDir, version, distro, demoDir):
     # 'System' copying of files here because its just easier!
     # 
     os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
+    if not os.path.exists(buildDir + "/Ice-" + version + "-demos/certs"):
+	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
+
+    os.system("cp -aR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
 
     #
     # The following hunks spawn a perl process to do an in-place edit
@@ -320,7 +375,7 @@ def extractDemos(buildDir, version, distro, demoDir):
     #
     # C# specific build modifications
     #
-    elif demoDir == "cs":
+    elif demoDir == "csharp":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cs.rules")
@@ -377,13 +432,16 @@ def archiveDemoTree(buildDir, version):
 #
 # **********************************************************************
 
-ifeq ($(findstring demo_cs, $(CURDIR)), demo_cs)
+ifeq ($(findstring demo_csharp, $(CURDIR)), demo_csharp)
    include $(top_srcdir)/config/Make.cs.rules
 else
    include $(top_srcdir)/config/Make.cxx.rules
 endif
 """)
     ofile.close()
+     
+    os.remove("Ice-" + version + "-demos/config/TestUtil.py")
+    os.remove("Ice-" + version + "-demos/config/IcePackAdmin.py")
     os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
     os.chdir(cwd)
 
@@ -419,7 +477,7 @@ def makeInstall(buildDir, installDir, distro, clean):
             pyHome = None
             
         if pyHome == None or pyHome == "":
-            trace("PYTHON_HOME is not set, figuring it out and trying that")
+            logging.info("PYTHON_HOME is not set, figuring it out and trying that")
             pyHome = sys.exec_prefix
             
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + "/' config/Make.rules")
@@ -609,11 +667,11 @@ def main():
             printSpecFile = True
 
     if buildDir == None:
-        trace("No build directory specified, defaulting to $HOME/tmp/icebuild")
+        logging.info("No build directory specified, defaulting to $HOME/tmp/icebuild")
         buildDir = os.environ.get('HOME') + "/tmp/icebuild"
 
     if installDir == None:
-        trace("No install directory specified, default to $HOME/tmp/iceinstall")
+        logging.info("No install directory specified, default to $HOME/tmp/iceinstall")
         installDir = os.environ.get('HOME') + "/tmp/iceinstall"
 
     if build:
@@ -668,8 +726,8 @@ def main():
         #
         sourceTarBalls = [ ("ice", "Ice-" + version, "cpp"),
                            ("icej","IceJ-" + version, "java"),
-                           ("icecs","IceCS-" + version, "cs"),
-                           ("icepy","IcePy-" + version, "py") ]
+                           ("icecs","IceCS-" + version, "csharp"),
+                           ("icepy","IcePy-" + version, "python") ]
 
         os.environ['ICE_HOME'] = installDir + "/Ice-" + version
         currentLibraryPath = None
@@ -722,7 +780,13 @@ def main():
         for v in fileLists:
             v.writeFiles(ofile, version, soVersion)
             ofile.write("\n")
+	os.system("tar xvfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
         shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
+	#
+	# Copy demo files so the RPM spec file can pick them up.
+	#
+	os.system("cp -aR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
+	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
         cwd = os.getcwd()
         os.chdir(buildDir)
         ofile.flush()
