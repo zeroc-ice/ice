@@ -122,7 +122,6 @@ struct FileTree0
     Ice::ByteSeq checksum;
 };
 
-ICE_PATCH2_API void getFileTree1(const FileInfoSeq&, FileTree1&);
 ICE_PATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
 
 }

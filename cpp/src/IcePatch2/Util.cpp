@@ -862,72 +862,48 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 }
 
 void
-IcePatch2::getFileTree1(const FileInfoSeq& infoSeq, FileTree1& tree1)
-{
-    if(infoSeq.empty())
-    {
-	tree1.files.clear();
-	tree1.checksum.resize(20, 0);
-    }
-    else
-    {
-	tree1.files.reserve(infoSeq.size());
-
-	FileInfoSeq::const_iterator p = infoSeq.begin();
-
-	ByteSeq allChecksums;
-	allChecksums.resize(infoSeq.size() * 20);
-	ByteSeq::iterator q = allChecksums.begin();
-
-	while(p < infoSeq.end())
-	{
-	    tree1.files.push_back(*p);
-
-	    assert(p->checksum.size() == 20);
-	    copy(p->checksum.begin(), p->checksum.end(), q);
-
-	    ++p;
-	    q += 20;
-	}
-
-	tree1.checksum.resize(20);
-	SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
-	     reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
-    }
-}
-
-void
 IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
 {
     tree0.nodes.resize(256);
+    tree0.checksum.resize(20);
 
-    ByteSeq allChecksums;
-    allChecksums.resize(256 * 20);
-    ByteSeq::iterator q = allChecksums.begin();
+    ByteSeq allChecksums0;
+    allChecksums0.resize(256 * 20);
+    ByteSeq::iterator c0 = allChecksums0.begin();
 
-    for(int i = 0; i < 256; ++i)
+    for(int i = 0; i < 256; ++i, c0 += 20)
     {
-	FileInfoSeq infoSeq1;
-	infoSeq1.reserve(infoSeq.size() / 256 * 2);
+	FileTree1& tree1 = tree0.nodes[i];
 
-	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
+	tree1.files.clear();
+	tree1.checksum.resize(20);
+	
+	FileInfoSeq::const_iterator p;
+	
+	for(p = infoSeq.begin(); p != infoSeq.end(); ++p)
 	{
 	    if(i == static_cast<int>(p->checksum[0]))
 	    {
-		infoSeq1.push_back(*p);
+		tree1.files.push_back(*p);
 	    }
 	}
+	
+	ByteSeq allChecksums1;
+	allChecksums1.resize(tree1.files.size() * 20);
+	ByteSeq::iterator c1 = allChecksums1.begin();
+	
+	for(p = tree1.files.begin(); p != tree1.files.end(); ++p, c1 += 20)
+	{
+	    copy(p->checksum.begin(), p->checksum.end(), c1);
+	}
+	
+	SHA1(reinterpret_cast<unsigned char*>(&allChecksums1[0]), allChecksums1.size(),
+	     reinterpret_cast<unsigned char*>(&tree1.checksum[0]));
 
-	getFileTree1(infoSeq1, tree0.nodes[i]);
-
-	assert(tree0.nodes[i].checksum.size() == 20);
-	copy(tree0.nodes[i].checksum.begin(), tree0.nodes[i].checksum.end(), q);
-
-	q += 20;
+	copy(tree1.checksum.begin(), tree1.checksum.end(), c0);
     }
 
-    tree0.checksum.resize(20);
-    SHA1(reinterpret_cast<unsigned char*>(&allChecksums[0]), allChecksums.size(),
+    SHA1(reinterpret_cast<unsigned char*>(&allChecksums0[0]), allChecksums0.size(),
 	 reinterpret_cast<unsigned char*>(&tree0.checksum[0]));
 }
 
