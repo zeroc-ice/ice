@@ -423,7 +423,6 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 {
     int packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
-    int bytesPending;
     int bytesRead;
 
     int initReturn = 0;
@@ -448,17 +447,9 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
 
         // initReturn must be > 0, so we're okay to try a read
 
-        bytesPending = pending();
-
-        if (!bytesPending && readSelect(_readTimeout))
+        if (!pending() && !readSelect(_readTimeout))
         {
-            bytesPending = 1;
-        }
-
-        _readTimeout = timeout;
-
-        if (!bytesPending)
-        {
+            // Nothing is left to read (according to SSL).
             if (_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
                 _logger->trace(_traceLevels->securityCat, "no pending application-level bytes");
@@ -467,6 +458,8 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             // We're done here.
             break;
         }
+
+        _readTimeout = timeout;
 
         bytesRead = sslRead((char *)buf.i, packetSize);
 
@@ -496,8 +489,17 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                 continue;
             }
 
-            case SSL_ERROR_WANT_WRITE:
             case SSL_ERROR_WANT_READ:
+            {
+                if (!readSelect(timeout))
+                {
+                    // Timeout and wait for them to arrive.
+                    throw TimeoutException(__FILE__, __LINE__);
+                }
+                continue;
+            }
+
+            case SSL_ERROR_WANT_WRITE:
             case SSL_ERROR_WANT_X509_LOOKUP:
             {
                 // Perform another read.  The read should take care of this.

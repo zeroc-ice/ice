@@ -220,7 +220,8 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     assert(x509SelfSigned != 0);
 
     // Set version to V3.
-    assert(X509_set_version(x509SelfSigned, 2) != 0);
+    int setVersionReturn = X509_set_version(x509SelfSigned, 2);
+    assert(setVersionReturn != 0);
 
     ASN1_INTEGER_set(X509_get_serialNumber(x509SelfSigned), 0);
 
