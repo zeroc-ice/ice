@@ -270,8 +270,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_twoway()
     {
-        IceInternal.Reference ref =
-            _reference.changeMode(IceInternal.Reference.ModeTwoway);
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeTwoway);
         if (ref.equals(_reference))
         {
             return this;
@@ -287,8 +286,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_oneway()
     {
-        IceInternal.Reference ref =
-            _reference.changeMode(IceInternal.Reference.ModeOneway);
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeOneway);
         if (ref.equals(_reference))
         {
             return this;
@@ -304,8 +302,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_batchOneway()
     {
-        IceInternal.Reference ref =
-            _reference.changeMode(IceInternal.Reference.ModeBatchOneway);
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeBatchOneway);
         if (ref.equals(_reference))
         {
             return this;
@@ -321,8 +318,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_datagram()
     {
-        IceInternal.Reference ref =
-            _reference.changeMode(IceInternal.Reference.ModeDatagram);
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeDatagram);
         if (ref.equals(_reference))
         {
             return this;
@@ -338,8 +334,7 @@ public class ObjectPrxHelper implements ObjectPrx
     public final ObjectPrx
     ice_batchDatagram()
     {
-        IceInternal.Reference ref =
-            _reference.changeMode(IceInternal.Reference.ModeBatchDatagram);
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeBatchDatagram);
         if (ref.equals(_reference))
         {
             return this;
@@ -507,12 +502,6 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             ++cnt;
         }
-        /* TODO: SSL
-        catch (IceSecurity.SecurityException e) // TODO: bandaid to make retry
-        {                                       // w/ ssl work
-            ++cnt;
-        }
-        */
         catch (DNSException e)
         {
             ++cnt;
@@ -522,16 +511,14 @@ public class ObjectPrxHelper implements ObjectPrx
             ++cnt;
         }
 
-        IceInternal.TraceLevels traceLevels =
-            _reference.instance.traceLevels();
+        IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();
 
         if (cnt > max)
         {
             if (traceLevels.retry >= 1)
             {
-                String s = "cannot retry operation call because retry limit " +
-                    "has been exceeded\n" + ex;
+                String s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
                 logger.trace(traceLevels.retryCat, s);
             }
             throw ex;
@@ -570,8 +557,7 @@ public class ObjectPrxHelper implements ObjectPrx
             throw new ReferenceIdentityException();
         }
 
-        _reference =
-            _reference.changeEndpoints(h.__reference().endpoints);
+        _reference = _reference.changeEndpoints(h.__reference().endpoints);
 
         /*
         IceInternal.TraceLevels traceLevels =
@@ -580,8 +566,7 @@ public class ObjectPrxHelper implements ObjectPrx
 
         if (traceLevels.locationForward >= 1)
         {
-            String s = "location forward for object with identity `" +
-                _reference.identity + "'";
+            String s = "location forward for object with identity `" + _reference.identity + "'";
             logger.trace(traceLevels.locationForwardCat, s);
         }
         */
