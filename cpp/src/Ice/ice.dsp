@@ -488,6 +488,10 @@ SOURCE=..\..\include\Ice\Exception.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\Facet.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Functional.h
 # End Source File
 # Begin Source File
@@ -497,10 +501,6 @@ SOURCE=..\..\include\Ice\Handle.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Ice.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\Facet.h
 # End Source File
 # Begin Source File
 
@@ -1000,7 +1000,7 @@ SOURCE=..\..\slice\Ice\Facet.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__IDENT="../../bin/slice2cpp.exe"	
+USERDEP__FACET="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Facet.ice
 
@@ -1019,7 +1019,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__IDENT="../../bin/slice2cpp.exe"	
+USERDEP__FACET="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Facet.ice
 
@@ -1137,6 +1137,7 @@ SOURCE=..\..\slice\Ice\Locator.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__LOCAT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Locator.ice
 
@@ -1164,6 +1165,7 @@ SOURCE=..\..\slice\Ice\LocatorF.ice
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
+USERDEP__LOCATO="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\LocatorF.ice
 
