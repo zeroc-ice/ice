@@ -1,42 +1,42 @@
-<!DOCTYPE BOOK PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
-<BOOK ID="ICE"><?dbhtml filename="index.html">
-<BOOKINFO>
-<TITLE>Ice User's Manual</TITLE>
-<SUBTITLE>A Guide to the Internet Communications Engine</SUBTITLE>
-<AUTHORGROUP>
-<AUTHOR>
-<FIRSTNAME>Marc</FIRSTNAME>
-<SURNAME>Laukien</SURNAME>
-</AUTHOR>
-</AUTHORGROUP>
-<PUBLISHER>
-<PUBLISHERNAME>Mutable Realms, Inc.</PUBLISHERNAME>
-<ADDRESS>
-<CITY>Huntsville</CITY>
-<STATE>Alabama</STATE>
-<COUNTRY>USA</COUNTRY>
-</ADDRESS>
-</PUBLISHER>
-<RELEASEINFO>Version 0.0.1</RELEASEINFO>
-<PUBDATE>Date to be inserted here...</PUBDATE>
-<LEGALNOTICE>
-<PARA>Legal stuff to be inserted here...</PARA>
-</LEGALNOTICE>
-<COPYRIGHT>
-<YEAR>2001</YEAR>
-<HOLDER>Mutable Realms, Inc. All rights reserved.</HOLDER>
-</COPYRIGHT>
-</BOOKINFO>
-<CHAPTER ID="INTRO"><?dbhtml filename="intro.html">
-<TITLE>Introduction</TITLE>
-<PARA>blahblahblah...</PARA>
-</CHAPTER>
-<CHAPTER ID="SLICE"><?dbhtml filename="slice.html">
-<TITLE>Slice</TITLE>
-<PARA>blahblahblah...</PARA>
-</CHAPTER>
-<CHAPTER ID="CPPMAP"><?dbhtml filename="cppmap.html">
-<TITLE>The Slice to C++ Mapping</TITLE>
-<PARA>blahblahblah...</PARA>
-</CHAPTER>
-</BOOK>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<book id="ice"><?dbhtml filename="index.html">
+<bookinfo>
+<title>Ice User's Manual</title>
+<subtitle>A Guide to the Internet Communications Engine</subtitle>
+<authorgroup>
+<author>
+<firstname>Marc</firstname>
+<surname>Laukien</surname>
+</author>
+</authorgroup>
+<publisher>
+<publishername>Mutable Realms, Inc.</publishername>
+<address>
+<city>Huntsville</city>
+<state>Alabama</state>
+<country>USA</country>
+</address>
+</publisher>
+<releaseinfo>Version 0.0.1</releaseinfo>
+<pubdate>Date to be inserted here...</pubdate>
+<legalnotice>
+<para>Legal stuff to be inserted here...</para>
+</legalnotice>
+<copyright>
+<year>2001</year>
+<holder>Mutable Realms, Inc. All rights reserved.</holder>
+</copyright>
+</bookinfo>
+<chapter id="intro"><?dbhtml filename="intro.html">
+<title>Introduction</title>
+<para>blahblahblah...</para>
+</chapter>
+<chapter id="SLICE"><?dbhtml filename="slice.html">
+<title>Slice</title>
+<para>blahblahblah...</para>
+</chapter>
+<chapter id="CPPMAP"><?dbhtml filename="cppmap.html">
+<title>The Slice to C++ Mapping</title>
+<para>blahblahblah...</para>
+</chapter>
+</book>
