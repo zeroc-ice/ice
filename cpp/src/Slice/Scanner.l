@@ -40,6 +40,7 @@ void initScanner();
 %option noyywrap
 %option never-interactive
 
+identifier		\\?[[:alpha:]_][[:alnum:]_]*
 integer_constant	(\+|-)?((0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+))
 fractional_constant	([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
 exponent_part		(e|E)(\+|-)?[[:digit:]]+
@@ -121,7 +122,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     return ICE_SCOPE_DELIMITER;
 }
 
-\\?[[:alpha:]_][[:alnum:]_]* {
+{identifier} {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;

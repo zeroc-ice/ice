@@ -1123,9 +1123,11 @@ parameters
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
-    unit->currentContainer()->checkIntroduced(ident, pd);
+    if(op)
+    {
+	ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
+	unit->currentContainer()->checkIntroduced(ident, pd);
+    }
 }
 | parameters ',' out_qualifier type_id
 {
@@ -1134,9 +1136,11 @@ parameters
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
-    unit->currentContainer()->checkIntroduced(ident, pd);
+    if(op)
+    {
+	ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
+	unit->currentContainer()->checkIntroduced(ident, pd);
+    }
 }
 | out_qualifier type keyword
 {
@@ -1144,9 +1148,11 @@ parameters
     TypePtr type = TypePtr::dynamicCast($2);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    op->createParamDecl(ident->v, type, isOutParam->v);
-    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+    if(op)
+    {
+	op->createParamDecl(ident->v, type, isOutParam->v);
+	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+    }
 }
 | parameters ',' out_qualifier type keyword
 {
@@ -1154,27 +1160,33 @@ parameters
     TypePtr type = TypePtr::dynamicCast($4);
     StringTokPtr ident = StringTokPtr::dynamicCast($5);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    op->createParamDecl(ident->v, type, isOutParam->v);
-    unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+    if(op)
+    {
+	op->createParamDecl(ident->v, type, isOutParam->v);
+	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+    }
 }
 | out_qualifier type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
     TypePtr type = TypePtr::dynamicCast($2);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
-    unit->error("missing parameter name");
+    if(op)
+    {
+	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
+	unit->error("missing parameter name");
+    }
 }
 | parameters ',' out_qualifier type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
     TypePtr type = TypePtr::dynamicCast($4);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
-    assert(op);
-    op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
-    unit->error("missing parameter name");
+    if(op)
+    {
+	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
+	unit->error("missing parameter name");
+    }
 }
 ;
 
@@ -1264,42 +1276,56 @@ type
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    TypeList types = cont->lookupType(scoped->v);
-    if(types.empty())
+    if(cont)
     {
-	YYERROR; // Can't continue, jump to next yyerrok
+	TypeList types = cont->lookupType(scoped->v);
+	if(types.empty())
+	{
+	    YYERROR; // Can't continue, jump to next yyerrok
+	}
+	cont->checkIntroduced(scoped->v);
+	$$ = types.front();
     }
-    cont->checkIntroduced(scoped->v);
-    $$ = types.front();
+    else
+    {
+        $$ = 0;
+    }
 }
 | scoped_name '*'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    TypeList types = cont->lookupType(scoped->v);
-    if(types.empty())
+    if(cont)
     {
-	YYERROR; // Can't continue, jump to next yyerrok
-    }
-    for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
-    {
-	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-	if(!cl)
+	TypeList types = cont->lookupType(scoped->v);
+	if(types.empty())
 	{
-	    string msg = "`";
-	    msg += scoped->v;
-	    msg += "' must be class or interface";
-	    unit->error(msg);
 	    YYERROR; // Can't continue, jump to next yyerrok
 	}
-	cont->checkIntroduced(scoped->v);
-	if(cl->isLocal())
+	for(TypeList::iterator p = types.begin(); p != types.end(); ++p)
 	{
-	    unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'");
+	    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
+	    if(!cl)
+	    {
+		string msg = "`";
+		msg += scoped->v;
+		msg += "' must be class or interface";
+		unit->error(msg);
+		YYERROR; // Can't continue, jump to next yyerrok
+	    }
+	    cont->checkIntroduced(scoped->v);
+	    if(cl->isLocal())
+	    {
+		unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'");
+	    }
+	    *p = new Proxy(cl);
 	}
-	*p = new Proxy(cl);
+	$$ = types.front();
     }
-    $$ = types.front();
+    else
+    {
+        $$ = 0;
+    }
 }
 ;
 
