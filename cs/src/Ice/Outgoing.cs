@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -296,9 +292,28 @@ namespace IceInternal
     		    
 			ex.id = new Ice.Identity();
 			ex.id.__read(_is);
-			ex.facet = _is.readFacetPath();
+
+                        //
+                        // For compatibility with the old FacetPath.
+                        //
+                        string[] facetPath = _is.readStringSeq();
+                        if(facetPath.Length > 0)
+                        {
+                            if(facetPath.Length > 1)
+                            {
+                                throw new Ice.MarshalException();
+                            }
+                            ex.facet = facetPath[0];
+                        }
+                        else
+                        {
+                            ex.facet = "";
+                        }
+
 			ex.operation = _is.readString();
 			_exception = ex;
+
+                        _state = StateLocalException; // The state must be set last, in case there is an exception.
 			break;
 		    }
     		
@@ -306,8 +321,6 @@ namespace IceInternal
 		    case DispatchStatus.DispatchUnknownLocalException:
 		    case DispatchStatus.DispatchUnknownUserException:
 		    {
-			_state = StateLocalException;
-    		    
 			Ice.UnknownException ex = null;
 			switch(status)
 			{
@@ -338,13 +351,15 @@ namespace IceInternal
     		    
 			ex.unknown = _is.readString();
 			_exception = ex;
+
+                        _state = StateLocalException; // The state must be set last, in case there is an exception.
 			break;
 		    }
     		
 		    default:
 		    {
-			_state = StateLocalException;
 			_exception = new Ice.UnknownReplyStatusException();
+                        _state = StateLocalException;
 			break;
 		    }
 		}
@@ -398,9 +413,24 @@ namespace IceInternal
 	    }
 	    
 	    _reference.identity.__write(_os);
-	    _os.writeStringSeq(_reference.facet);
+
+            //
+            // For compatibility with the old FacetPath.
+            //
+            if(_reference.facet == null || _reference.facet.Length == 0)
+            {
+                _os.writeStringSeq(null);
+            }
+            else
+            {
+                string[] facetPath = { _reference.facet };
+                _os.writeStringSeq(facetPath);
+            }
+
 	    _os.writeString(operation);
+
 	    _os.writeByte((byte)mode);
+
 	    if(context == null)
 	    {
 		_os.writeSize(0);

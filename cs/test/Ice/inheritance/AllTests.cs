@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,15 +25,15 @@ public class AllTests
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         string ref_Renamed = "initial:default -p 12345 -t 2000";
-        Ice.ObjectPrx base_Renamed = communicator.stringToProxy(ref_Renamed);
-        test(base_Renamed != null);
+        Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
+        test(@base != null);
         Console.Out.WriteLine("ok");
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        InitialPrx initial = InitialPrxHelper.checkedCast(base_Renamed);
+        InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
-        test(initial.Equals(base_Renamed));
+        test(initial.Equals(@base));
         Console.Out.WriteLine("ok");
         
         Console.Out.Write("getting proxies for class hierarchy... ");

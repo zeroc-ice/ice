@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -68,7 +64,24 @@ namespace IceInternal
 	    // Read the current.
 	    //
 	    _current.id.__read(_is);
-	    _current.facet = _is.readFacetPath();
+
+            //
+            // For compatibility with the old FacetPath.
+            //
+            string[] facetPath = _is.readStringSeq();
+            if(facetPath.Length > 0)
+            {
+                if(facetPath.Length > 1)
+                {
+                    throw new Ice.MarshalException();
+                }
+                _current.facet = facetPath[0];
+            }
+            else
+            {
+                _current.facet = "";
+            }
+
 	    _current.operation = _is.readString();
 	    _current.mode = (Ice.OperationMode)(int)_is.readByte();
 	    int sz = _is.readSize();
@@ -104,7 +117,7 @@ namespace IceInternal
 	    {
 		if(servantManager != null)
 		{
-		    _servant = servantManager.findServant(_current.id);
+		    _servant = servantManager.findServant(_current.id, _current.facet);
 		    
 		    if(_servant == null && _current.id.category.Length > 0)
 		    {
@@ -127,27 +140,19 @@ namespace IceInternal
 		
 		if(_servant == null)
 		{
-		    status = DispatchStatus.DispatchObjectNotExist;
-		}
-		else
-		{
-		    if(_current.facet.Count > 0)
-		    {
-			Ice.Object facetServant = _servant.ice_findFacetPath(_current.facet, 0);
-			if(facetServant == null)
-			{
-			    status = DispatchStatus.DispatchFacetNotExist;
-			}
-			else
-			{
-			    status = facetServant.__dispatch(this, _current);
-			}
-		    }
-		    else
-		    {
-			status = _servant.__dispatch(this, _current);
-		    }
-		}
+                    if(servantManager.hasServant(_current.id))
+                    {
+                        status = DispatchStatus.DispatchFacetNotExist;
+                    }
+                    else
+                    {
+                        status = DispatchStatus.DispatchObjectNotExist;
+                    }
+                }
+                else
+                {
+                    status = _servant.__dispatch(this, _current);
+                }		
 	    }
 	    catch(Ice.RequestFailedException ex)
 	    {
@@ -192,7 +197,20 @@ namespace IceInternal
 			Debug.Assert(false);
 		    }
 		    ex.id.__write(_os);
-		    _os.writeStringSeq(ex.facet);
+ 
+                    //
+                    // For compatibility with the old FacetPath.
+                    //
+                    if(ex.facet == null || ex.facet.Length == 0)
+                    {
+                        _os.writeStringSeq(null);
+                    }
+                    else
+                    {
+                        string[] facetPath2 = { ex.facet };
+                        _os.writeStringSeq(facetPath2);
+                    }
+
 		    _os.writeString(ex.operation);
 		}
 		
@@ -282,7 +300,20 @@ namespace IceInternal
 		    _os.writeByte((byte)status);
 		    
 		    _current.id.__write(_os);
-		    _os.writeStringSeq(_current.facet);
+
+                    //
+                    // For compatibility with the old FacetPath.
+                    //
+                    if(_current.facet == null || _current.facet.Length == 0)
+                    {
+                        _os.writeStringSeq(null);
+                    }
+                    else
+                    {
+                        string[] facetPath2 = { _current.facet };
+                        _os.writeStringSeq(facetPath2);
+                    }
+
 		    _os.writeString(_current.operation);
 		}
 		else

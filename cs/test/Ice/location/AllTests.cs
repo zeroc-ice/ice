@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +28,7 @@ public class AllTests
         
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        Ice.ObjectPrx base_Renamed = communicator.stringToProxy("test @ TestAdapter");
+        Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base3 = communicator.stringToProxy("test");
         Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
@@ -50,7 +46,7 @@ public class AllTests
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestPrx obj = TestPrxHelper.checkedCast(base_Renamed);
+        TestPrx obj = TestPrxHelper.checkedCast(@base);
         test(obj != null);
         TestPrx obj2 = TestPrxHelper.checkedCast(base2);
         test(obj2 != null);
@@ -97,8 +93,8 @@ public class AllTests
         Console.Out.Flush();
         try
         {
-            base_Renamed = communicator.stringToProxy("unknown/unknown");
-            base_Renamed.ice_ping();
+            @base = communicator.stringToProxy("unknown/unknown");
+            @base.ice_ping();
             test(false);
         }
         catch(Ice.NotRegisteredException ex)
@@ -112,8 +108,8 @@ public class AllTests
         Console.Out.Flush();
         try
         {
-            base_Renamed = communicator.stringToProxy("test @ TestAdapterUnknown");
-            base_Renamed.ice_ping();
+            @base = communicator.stringToProxy("test @ TestAdapterUnknown");
+            @base.ice_ping();
             test(false);
         }
         catch(Ice.NotRegisteredException ex)

@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -496,12 +492,12 @@ namespace IceInternal
 	//
 	// Compare endpoints for sorting purposes
 	//
-	public override bool Equals(System.Object obj)
+	public override bool Equals(object obj)
 	{
 	    return CompareTo(obj) == 0;
 	}
 	
-	public int CompareTo(System.Object obj)
+	public int CompareTo(object obj)
 	{
 	    UdpEndpoint p = null;
 	    

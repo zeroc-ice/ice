@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,6 +12,7 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
+    using System.IO;
 
     public class IncomingBase
     {
@@ -150,7 +147,8 @@ namespace IceInternal
 	{
 	    Debug.Assert(_os != null);
 	    
-	    IceUtil.OutputBase output = new IceUtil.OutputBase("");
+	    StringWriter sw = new StringWriter();
+	    IceUtil.OutputBase output = new IceUtil.OutputBase(sw);
 	    output.setUseTab(false);
 	    output.print("dispatch exception:");
 	    output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
@@ -159,7 +157,7 @@ namespace IceInternal
 	    output.print("\noperation: " + _current.operation);
 	    output.print("\n");
 	    output.print(ex.ToString());
-	    _os.instance().logger().warning(output.ToString()); // TODO: need to override ToString()?
+	    _os.instance().logger().warning(sw.ToString());
 	}
 	
 	protected internal Ice.Current _current;

@@ -1,18 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-
 using System;
+using System.Diagnostics;
 
 public sealed class ThrowerI : Thrower_Disp
 {
@@ -27,6 +23,11 @@ public sealed class ThrowerI : Thrower_Disp
     }
     
     public override bool supportsUndeclaredExceptions(Ice.Current current)
+    {
+        return false;
+    }
+
+    public override bool supportsAssertException(Ice.Current current)
     {
         return false;
     }
@@ -94,6 +95,11 @@ public sealed class ThrowerI : Thrower_Disp
     public override void throwNonIceException(Ice.Current current)
     {
         throw new Exception();
+    }
+
+    public override void throwAssertException(Ice.Current current)
+    {
+        Debug.Assert(false);
     }
     
     public override void throwUndeclaredA(int a, Ice.Current current)

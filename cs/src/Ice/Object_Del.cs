@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +16,6 @@ namespace Ice
 	void ice_ping(Ice.Context context);
 	string[] ice_ids(Ice.Context context);
 	string ice_id(Ice.Context context);
-	FacetPath ice_facets(Ice.Context context);
 	bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
 			Ice.Context context);
     }

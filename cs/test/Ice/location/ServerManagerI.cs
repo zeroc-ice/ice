@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -39,8 +35,8 @@ public class ServerManagerI : ServerManager_Disp
         Ice.ObjectPrx locator = _serverCommunicator.stringToProxy("locator:default -p 12345");
         adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
         
-        Ice.Object object_Renamed = new TestI(adapter);
-        Ice.ObjectPrx proxy = adapter.add(object_Renamed, Ice.Util.stringToIdentity("test"));
+        Ice.Object @object = new TestI(adapter);
+        Ice.ObjectPrx proxy = adapter.add(@object, Ice.Util.stringToIdentity("test"));
         adapter.activate();
     }
     

@@ -84,7 +84,22 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "BI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Client.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "DI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

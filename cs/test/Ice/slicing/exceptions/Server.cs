@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,8 +16,8 @@ public class Server
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object_Renamed = new TestI(adapter);
-        adapter.add(object_Renamed, Ice.Util.stringToIdentity("Test"));
+        Ice.Object @object = new TestI(adapter);
+        adapter.add(@object, Ice.Util.stringToIdentity("Test"));
         adapter.activate();
         communicator.waitForShutdown();
         return 0;

@@ -314,6 +314,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ObjectPrxHelperBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Outgoing.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -529,7 +534,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Facet.cs"
+                    RelPath = "generated\FacetMap.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -22,7 +17,7 @@ namespace IceInternal
 	public Reference
 	create(Ice.Identity ident,
 	       Ice.Context context,
-	       Ice.FacetPath facet,
+	       string facet,
 	       int mode,
 	       bool secure,
 	       string adapterId,
@@ -143,7 +138,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    Ice.FacetPath facet = new Ice.FacetPath();
+	    string facet = "";
 	    int mode = Reference.ModeTwoway;
 	    bool secure = false;
 	    string adapter = "";
@@ -233,57 +228,12 @@ namespace IceInternal
 			    throw e;
 			}
 			
-			int argLen = argument.Length;
-			string token;
-			
-			int argBeg = 0;
-			while(argBeg < argLen)
-			{
-			    //
-			    // Skip slashes
-			    //
-			    argBeg = StringUtil.findFirstNotOf(argument, "/", argBeg);
-			    if(argBeg == -1)
-			    {
-				break;
-			    }
-			    
-			    //
-			    // Find unescaped slash
-			    //
-			    int argEnd = argBeg;
-			    //UPGRADE_WARNING: Method 'java.lang.String.indexOf' was converted to 'string.IndexOf' which may throw an exception. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1101"'
-			    while((argEnd = argument.IndexOf((System.Char) '/', argEnd)) != -1)
-			    {
-				if(argument[argEnd - 1] != '\\')
-				{
-				    break;
-				}
-				argEnd++;
-			    }
-			    
-			    if(argEnd == -1)
-			    {
-				argEnd = argLen;
-			    }
-			    
-			    if(!IceInternal.StringUtil.decodeString(argument, argBeg, argEnd, out token))
-			    {
-				Ice.ProxyParseException e = new Ice.ProxyParseException();
-				e.str = s;
-				throw e;
-			    }
-			    facet.Add(token);
-			    argBeg = argEnd + 1;
-			}
-			
-			if(facet.Count == 0)
+			if(!IceInternal.StringUtil.unescapeString(argument, 0, argument.Length, out facet))
 			{
 			    Ice.ProxyParseException e = new Ice.ProxyParseException();
 			    e.str = s;
 			    throw e;
 			}
-			
 			break;
 		    }
 		    
@@ -421,7 +371,7 @@ namespace IceInternal
 		    }
 		    
 		    string token;
-		    if(!IceInternal.StringUtil.decodeString(s, beg, end, out token) || token.Length == 0)
+		    if(!IceInternal.StringUtil.unescapeString(s, beg, end, out token) || token.Length == 0)
 		    {
 			Ice.ProxyParseException e = new Ice.ProxyParseException();
 			e.str = s;
@@ -451,7 +401,23 @@ namespace IceInternal
 		return null;
 	    }
 	    
-	    Ice.FacetPath facet = s.readFacetPath();
+            //
+            // For compatibility with the old FacetPath.
+            //
+            string[] facetPath = s.readStringSeq();
+            string facet;
+            if(facetPath.Length > 0)
+            {
+                if(facetPath.Length > 1)
+                {
+                    throw new Ice.ProxyUnmarshalException();
+                }
+                facet = facetPath[0];
+            }
+            else
+            {
+                facet = "";
+            }
 	    
 	    int mode = (int) s.readByte();
 	    if(mode < 0 || mode > Reference.ModeLast)

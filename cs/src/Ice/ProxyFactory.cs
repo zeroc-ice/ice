@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +23,7 @@ namespace IceInternal
 	{
 	    if(proxy != null)
 	    {
-		Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper) proxy;
+		Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
 		return h.__reference().ToString();
 	    }
 	    else
@@ -49,7 +45,7 @@ namespace IceInternal
 	{
 	    if(r != null)
 	    {
-		Ice.ObjectPrxHelper proxy = new Ice.ObjectPrxHelper();
+		Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
 		proxy.setup(r);
 		return proxy;
 	    }
@@ -63,7 +59,7 @@ namespace IceInternal
 	{
 	    if(proxy != null)
 	    {
-		Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
+		Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
 		Reference r = h.__reference();
 		r.identity.__write(s);
 		r.streamWrite(s);

@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,31 +13,10 @@ namespace Ice
     using System.Collections;
     using System.Diagnostics;
 
-    public class ObjectImpl : Object, System.ICloneable
+    public class ObjectImpl : Object
     {
 	public ObjectImpl()
 	{
-	    _activeFacetMap = new Hashtable();
-	}
-
-	public object Clone()
-	{
-	    //
-	    // Use base Clone() to perform a shallow copy of all members,
-	    // and then clone the facets manually.
-	    //
-	    ObjectImpl result = (ObjectImpl) base.MemberwiseClone();
-	    
-	    result._activeFacetMap = new Hashtable();
-	    lock(_activeFacetMap)
-	    {
-		foreach(DictionaryEntry e in _activeFacetMap)
-		{
-		    result._activeFacetMap[e.Key] = ((Object)e.Key).Clone();
-		}
-	    }
-	    
-	    return result;
 	}
 
 	public virtual int ice_hash()
@@ -106,27 +81,6 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOK;
 	}
 	
-	public FacetPath ice_facets(Current current)
-	{
-	    lock(_activeFacetMap)
-	    {	    
-		FacetPath fp = new FacetPath();
-		foreach(string path in _activeFacetMap.Keys)
-		{
-		    fp.Add(path);
-		}
-		return fp;
-	    }
-	}
-	
-	public static IceInternal.DispatchStatus ___ice_facets(Ice.Object __obj, IceInternal.Incoming __in,
-	                                                       Current __current)
-	{
-	    IceInternal.BasicStream __os = __in.ostr();
-	    __os.writeStringSeq(__obj.ice_facets(__current));
-	    return IceInternal.DispatchStatus.DispatchOK;
-	}
-	
 	public static string ice_staticId()
 	{
 	    return __ids[0];
@@ -142,7 +96,7 @@ namespace Ice
 
 	private static readonly string[] __all = new string[]
 	{
-	    "ice_facets", "ice_id", "ice_ids", "ice_isA", "ice_ping"
+	    "ice_id", "ice_ids", "ice_isA", "ice_ping"
 	};
 	
 	public virtual IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
@@ -157,21 +111,17 @@ namespace Ice
 	    {
 		case 0: 
 		{
-			return ___ice_facets(this, inc, current);
+			return ___ice_id(this, inc, current);
 		}
 		case 1: 
 		{
-			return ___ice_id(this, inc, current);
+			return ___ice_ids(this, inc, current);
 		}
 		case 2: 
 		{
-			return ___ice_ids(this, inc, current);
-		}
-		case 3: 
-		{
 			return ___ice_isA(this, inc, current);
 		}
-		case 4: 
+		case 3: 
 		{
 			return ___ice_ping(this, inc, current);
 		}
@@ -181,153 +131,33 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOperationNotExist;
 	}
 	
-	public virtual void __write(IceInternal.BasicStream __os, bool __marshalFacets)
+	public virtual void __write(IceInternal.BasicStream __os)
 	{
 	    __os.writeTypeId(ice_staticId());
 	    __os.startWriteSlice();
-	    
-	    if(__marshalFacets)
-	    {
-		lock(_activeFacetMap)
-		{
-		    __os.writeSize(_activeFacetMap.Count);
-		    foreach(DictionaryEntry entry in _activeFacetMap)
-		    {
-			__os.writeString((string)entry.Key);
-			__os.writeObject((Object)entry.Value);
-		    }
-		}
-	    }
-	    else
-	    {
-		__os.writeSize(0);
-	    }
-	    
+            __os.writeSize(0); // For compatibility with the old AFM.  
 	    __os.endWriteSlice();
-	}
-	
-	private class Patcher : IceInternal.Patcher
-	{
-	    internal Patcher(ObjectImpl enclosingInstance, string key)
-	    {
-		_enclosingInstance = enclosingInstance;
-		__key = key;
-	    }
-	    
-	    public virtual void patch(Ice.Object v)
-	    {
-		_enclosingInstance._activeFacetMap[__key] = v;
-	    }
-	    
-	    public virtual string type()
-	    {
-		return Ice.ObjectImpl.ice_staticId();
-	    }
-	    
-	    private ObjectImpl _enclosingInstance;
-	    private string __key;
 	}
 	
 	public virtual void __read(IceInternal.BasicStream __is, bool __rid)
 	{
-	    lock(_activeFacetMap)
+
+	    if(__rid)
 	    {
-		if(__rid)
-		{
-		    string myId = __is.readTypeId();
-		}
-		
-		__is.startReadSlice();
-		
-		int sz = __is.readSize();
-		
-		_activeFacetMap.Clear();
-		
-		while(sz-- > 0)
-		{
-		    string key = __is.readString();
-		    __is.readObject(new Patcher(this, key));
-		}
-		
-		__is.endReadSlice();
-	    }
-	}
-	
-	public void ice_addFacet(Object facet, string name)
-	{
-	    lock(_activeFacetMap)
-	    {
-		Object o = (Object)_activeFacetMap[name];
-		if(o != null)
-		{
-		    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		    ex.id = name;
-		    ex.kindOfObject = "facet";
-		    throw ex;
-		}
-		_activeFacetMap[name] = facet;
-	    }
-	}
-	
-	public Object ice_removeFacet(string name)
-	{
-	    lock(_activeFacetMap)
-	    {
-		Object o = (Object)_activeFacetMap[name];
-		if(o == null)
-		{
-		    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-		    ex.id = name;
-		    ex.kindOfObject = "facet";
-		    throw ex;
-		}
-		_activeFacetMap.Remove(name);
-		return o;
-	    }
-	}
-	
-	public void ice_removeAllFacets()
-	{
-	    lock(_activeFacetMap)
-	    {
-		_activeFacetMap.Clear();
-	    }
-	}
-	
-	public Object ice_findFacet(string name)
-	{
-	    lock(_activeFacetMap)
-	    {
-		return (Object)_activeFacetMap[name];
-	    }
-	}
-	
-	public Object ice_findFacetPath(FacetPath path, int start)
-	{
-	    int sz = path.Count;
-	    
-	    if(start > sz)
-	    {
-		return null;
+		string myId = __is.readTypeId();
 	    }
 	    
-	    if(start == sz)
-	    {
-		return this;
-	    }
+	    __is.startReadSlice();
 	    
-	    Object f = ice_findFacet(path[start]);
-	    if(f != null)
-	    {
-		return f.ice_findFacetPath(path, start + 1);
-	    }
-	    else
-	    {
-		return f;
-	    }
+            // For compatibility with the old AFM.
+	    int sz = __is.readSize();
+            if(sz != 0)
+            {
+                throw new MarshalException();
+            }
+	    
+	    __is.endReadSlice();
 	}
-      
-	private Hashtable _activeFacetMap;
     }
 
 }

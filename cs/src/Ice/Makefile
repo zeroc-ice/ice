@@ -1,16 +1,11 @@
 # **********************************************************************
 #
-# Copyright (c) 2003 - 2004
-# ZeroC, Inc.
-# North Palm Beach, FL, USA
-#
-# All Rights Reserved.
+# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-
 
 top_srcdir	= ../..
 
@@ -109,7 +104,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Communicator.ice \
 		  $(SDIR)/Current.ice \
-		  $(SDIR)/Facet.ice \
+		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/LocatorF.ice \

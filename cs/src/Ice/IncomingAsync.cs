@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -117,7 +113,20 @@ namespace IceInternal
 			Debug.Assert(false);
 		    }
 		    ex.id.__write(_os);
-		    _os.writeStringSeq(ex.facet);
+
+                    //
+                    // For compatibility with the old FacetPath.
+                    //
+                    if(ex.facet == null || ex.facet.Length == 0)
+                    {
+                        _os.writeStringSeq(null);
+                    }
+                    else
+                    {
+                        string[] facetPath = { ex.facet };
+                        _os.writeStringSeq(facetPath);
+                    }
+
 		    _os.writeString(ex.operation);
 		}
 	    }

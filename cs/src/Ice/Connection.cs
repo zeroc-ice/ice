@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,6 +13,7 @@ namespace IceInternal
 
     using System.Collections;
     using System.Diagnostics;
+    using System.Threading;
 
     public sealed class Connection : EventHandler
     {
@@ -229,10 +226,29 @@ namespace IceInternal
 
 	public bool isFinished()
 	{
-	    lock(this)
-	    {
-		return _transceiver == null && _dispatchCount == 0;
-	    }
+            lock(this)
+            {
+                if(_transceiver == null && _dispatchCount == 0)
+                {
+                    //
+                    // We must destroy the incoming cache. It is now not
+                    // needed anymore.
+                    //
+                    _incomingCacheMutex.WaitOne();
+                    while(_incomingCache != null)
+                    {
+                        _incomingCache.__destroy();
+                        _incomingCache = _incomingCache.next;
+                    }
+                    _incomingCacheMutex.ReleaseMutex();
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
 	}
 
 	public void waitUntilHolding()
@@ -241,13 +257,7 @@ namespace IceInternal
 	    {
 		while(_state < StateHolding || _dispatchCount > 0)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    Monitor.Wait(this);
 		}
 	    }
 	}
@@ -265,13 +275,7 @@ namespace IceInternal
 		//
 		while(_state < StateClosing || _dispatchCount > 0)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    Monitor.Wait(this);
 		}
 		
 		//
@@ -280,51 +284,57 @@ namespace IceInternal
 		//
 		while(_transceiver != null)
 		{
-		    try
+		    if(_state != StateClosed && _endpoint.timeout() >= 0)
 		    {
-			if(_state != StateClosed && _endpoint.timeout() >= 0)
+			long absoluteWaitTime = _stateTime + _endpoint.timeout();
+			int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
+			
+			if(waitTime > 0)
 			{
-			    long absoluteWaitTime = _stateTime + _endpoint.timeout();
-			    int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
-			    
-			    if(waitTime > 0)
+			    //
+			    // We must wait a bit longer until we close
+			    // this connection.
+			    //
+			    Monitor.Wait(this, waitTime);
+			    if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
 			    {
-			        //
-				// We must wait a bit longer until we close
-				// this connection.
-				//
-				System.Threading.Monitor.Wait(this, waitTime);
-				if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
-				{
-				    setState(StateClosed, new Ice.CloseTimeoutException());
-				}
-			    }
-			    else
-			    {
-				//
-			        // We already waited long enough, so let's
-				// close this connection!
-				//
 				setState(StateClosed, new Ice.CloseTimeoutException());
 			    }
-
-			    //
-			    // No return here, we must still wait until
-			    // close() is called on the _transceiver.
-			    //
 			}
 			else
 			{
-			    System.Threading.Monitor.Wait(this);
+			    //
+			    // We already waited long enough, so let's
+			    // close this connection!
+			    //
+			    setState(StateClosed, new Ice.CloseTimeoutException());
 			}
+
+			//
+			// No return here, we must still wait until
+			// close() is called on the _transceiver.
+			//
 		    }
-		    catch(System.Threading.ThreadInterruptedException)
+		    else
 		    {
+			Monitor.Wait(this);
 		    }
 		}
 	    }
 
 	    Debug.Assert(_state == StateClosed);
+
+	    //
+	    // We must destroy the incoming cache. It is now not
+	    // needed anymore.
+	    //
+	    _incomingCacheMutex.WaitOne();
+	    while(_incomingCache != null)
+	    {
+		_incomingCache.__destroy();
+		_incomingCache = _incomingCache.next;
+	    }
+	    _incomingCacheMutex.ReleaseMutex();
 	}
 	
 	public void monitor()
@@ -610,13 +620,7 @@ namespace IceInternal
 	    {
 		while(_batchStreamInUse && _exception == null)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    Monitor.Wait(this);
 		}
 		
 		if(_exception != null)
@@ -670,7 +674,7 @@ namespace IceInternal
 		//
 		Debug.Assert(_batchStreamInUse);
 		_batchStreamInUse = false;
-		System.Threading.Monitor.PulseAll(this);
+		Monitor.PulseAll(this);
 	    }
 	}
 	
@@ -680,13 +684,7 @@ namespace IceInternal
 	    {
 		while(_batchStreamInUse && _exception == null)
 		{
-		    try
-		    {
-			System.Threading.Monitor.Wait(this);
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
+		    Monitor.Wait(this);
 		}
 		
 		if(_exception != null)
@@ -766,7 +764,7 @@ namespace IceInternal
 		_batchStream = new BasicStream(_instance);
 		_batchRequestNum = 0;
 		_batchStreamInUse = false;
-		System.Threading.Monitor.PulseAll(this);
+		Monitor.PulseAll(this);
 	    }
 	}
 	
@@ -811,7 +809,7 @@ namespace IceInternal
 		{
 		    if(--_dispatchCount == 0)
 		    {
-		        System.Threading.Monitor.PulseAll(this);
+		        Monitor.PulseAll(this);
 		    }
 
 		    if(_state == StateClosing && _dispatchCount == 0)
@@ -841,7 +839,7 @@ namespace IceInternal
 		{
 		    if(--_dispatchCount == 0)
 		    {
-			System.Threading.Monitor.PulseAll(this);
+			Monitor.PulseAll(this);
 		    }
 		    
 		    if(_state == StateClosing && _dispatchCount == 0)
@@ -872,6 +870,14 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
+		// Before we set an adapter (or reset it) we wait until the
+		// dispatch count with any old adapter is zero.
+		//
+		while(_dispatchCount > 0)
+		{
+		    Monitor.Wait(this);
+		}
+
 		//
 		// We never change the thread pool with which we were
 		// initially registered, even if we add or remove an object
@@ -1100,7 +1106,7 @@ namespace IceInternal
 	    Incoming inc = null;
 	    try
 	    {
-		while(invoke-- > 0)
+		while(invoke > 0)
 		{
 		    //
 		    // Prepare the invocation.
@@ -1116,7 +1122,7 @@ namespace IceInternal
 		    //
 		    if(response)
 		    {
-			Debug.Assert(invoke == 0); // No further invocations if a response is expected.
+			Debug.Assert(invoke == 1); // No further invocations if a response is expected.
 			os.writeBlob(_replyHdr);
 			
 			//
@@ -1130,7 +1136,7 @@ namespace IceInternal
 		    //
 		    // If there are more invocations, we need the stream back.
 		    //
-		    if(invoke > 0)
+		    if(--invoke > 0)
 		    {
 			stream.swap(ins);
 		    }
@@ -1141,6 +1147,8 @@ namespace IceInternal
 	    }
 	    catch(Ice.LocalException ex)
 	    {
+	        Debug.Assert(invoke > 0);
+
 		lock(this)
 		{
 		    setState(StateClosed, ex);
@@ -1164,6 +1172,25 @@ namespace IceInternal
 		if(inc != null)
 		{
 		    reclaimIncoming(inc);
+		}
+
+		//
+		// If invoke() above raised an exception, and therefore
+		// neither sendResponse() nor sendNoResponse() has been
+		// called, then we must decrement _dispatchCount here.
+		//
+		if(invoke > 0)
+		{
+		    lock(this)
+		    {
+			Debug.Assert(_dispatchCount > 0);
+			_dispatchCount -= invoke;
+			Debug.Assert(_dispatchCount >= 0);
+			if(_dispatchCount == 0)
+			{
+			    Monitor.PulseAll(this);
+			}
+		    }
 		}
 	    }
 	}
@@ -1202,18 +1229,7 @@ namespace IceInternal
 			}
 
 			_transceiver = null;
-			System.Threading.Monitor.PulseAll(this);
-		    }
-
-		    //
-		    // We must destroy the incoming cache. It is now not
-		    // needed anymore.
-		    //
-		    lock(_incomingCacheMutex)
-		    {
-			Debug.Assert(_dispatchCount == 0);
-			inc = _incomingCache;
-			_incomingCache = null;
+			Monitor.PulseAll(this);
 		    }
 		}
 
@@ -1457,7 +1473,7 @@ namespace IceInternal
 			    }
 
 			    _transceiver = null;
-			    //System.Threading.Monitor.PulseAll(); // We notify already below.
+			    //Monitor.PulseAll(); // We notify already below.
 			}
 		    }
 		    else
@@ -1471,7 +1487,7 @@ namespace IceInternal
 	    
 	    _state = state;
 	    _stateTime = System.DateTime.Now.Ticks / 10;
-	    System.Threading.Monitor.PulseAll(this);
+	    Monitor.PulseAll(this);
 	    
 	    if(_state == StateClosing && _dispatchCount == 0)
 	    {
@@ -1654,6 +1670,6 @@ namespace IceInternal
 	private object _sendMutex = new object();
 
 	private Incoming _incomingCache;
-	private System.Threading.Mutex _incomingCacheMutex = new System.Threading.Mutex();
+	private Mutex _incomingCacheMutex = new Mutex();
     }
 }

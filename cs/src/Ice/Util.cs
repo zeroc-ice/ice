@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -101,7 +97,7 @@ namespace Ice
 	    
 	    if(slash == -1)
 	    {
-		if(!IceInternal.StringUtil.decodeString(s, 0, s.Length, out ident.name))
+		if(!IceInternal.StringUtil.unescapeString(s, 0, s.Length, out ident.name))
 		{
 		    IdentityParseException ex = new IdentityParseException();
 		    ex.str = s;
@@ -111,7 +107,7 @@ namespace Ice
 	    }
 	    else
 	    {
-		if(!IceInternal.StringUtil.decodeString(s, 0, slash, out ident.category))
+		if(!IceInternal.StringUtil.unescapeString(s, 0, slash, out ident.category))
 		{
 		    IdentityParseException ex = new IdentityParseException();
 		    ex.str = s;
@@ -119,7 +115,7 @@ namespace Ice
 		}
 		if(slash + 1 < s.Length)
 		{
-		    if(!IceInternal.StringUtil.decodeString(s, slash + 1, s.Length, out ident.name))
+		    if(!IceInternal.StringUtil.unescapeString(s, slash + 1, s.Length, out ident.name))
 		    {
 			IdentityParseException ex = new IdentityParseException();
 			ex.str = s;
@@ -139,11 +135,11 @@ namespace Ice
 	{
 	    if(ident.category.Length == 0)
 	    {
-		return IceInternal.StringUtil.encodeString(ident.name, "/");
+		return IceInternal.StringUtil.escapeString(ident.name, "/");
 	    }
 	    else
 	    {
-		return IceInternal.StringUtil.encodeString(ident.category, "/") + '/' + IceInternal.StringUtil.encodeString(ident.name, "/");
+		return IceInternal.StringUtil.escapeString(ident.category, "/") + '/' + IceInternal.StringUtil.escapeString(ident.name, "/");
 	    }
 	}
 	
@@ -343,29 +339,24 @@ namespace Ice
 		    return n;
 		}
 
-		FacetPath lhsFacet = lhs.ice_getFacet();
-		FacetPath rhsFacet = rhs.ice_getFacet();
-		for(int i = 0; i < lhsFacet.Count && i < rhsFacet.Count; ++i)
-		{
-		    if((n = lhsFacet[i].CompareTo(rhsFacet[i])) != 0)
-		    {
-			return n;
-		    }
-		}
-
-		if(lhsFacet.Count == rhsFacet.Count)
-		{
-		    return 0;
-		}
-		else if(lhsFacet.Count < rhsFacet.Count)
-		{
-		    return -1;
-
-		}
-		else
-		{
-		    return 1;
-		}
+		string lhsFacet = lhs.ice_getFacet();
+		string rhsFacet = rhs.ice_getFacet();
+                if(lhsFacet == null && rhsFacet == null)
+                {
+                    return 0;
+                }
+                else if(lhsFacet == null)
+                {
+                    return -1;
+                }
+                else if(rhsFacet == null)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return lhsFacet.CompareTo(rhsFacet);
+                }
 	    }
 	}
 	

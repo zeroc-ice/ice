@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -858,16 +854,16 @@ public class AllTests
         
         Console.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        String ref_Renamed = "thrower:default -p 12345 -t 2000";
-        Ice.ObjectPrx base_Renamed = communicator.stringToProxy(ref_Renamed);
-        test(base_Renamed != null);
+        String @ref = "thrower:default -p 12345 -t 2000";
+        Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
+        test(@base != null);
         Console.WriteLine("ok");
         
         Console.Write("testing checked cast... ");
         Console.Out.Flush();
-        ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(base_Renamed);
+        ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(@base);
         test(thrower != null);
-        test(thrower.Equals(base_Renamed));
+        test(thrower.Equals(@base));
         Console.WriteLine("ok");
         
         Console.Write("catching exact types... ");
@@ -1119,21 +1115,7 @@ public class AllTests
             }
             catch(Ice.FacetNotExistException ex)
             {
-                test(ex.facet.Count == 1);
-                test(ex.facet[0].Equals("no such facet"));
-            }
-            
-            ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(thrower2, "no such facet either");
-            try
-            {
-                thrower3.ice_ping();
-                test(false);
-            }
-            catch(Ice.FacetNotExistException ex)
-            {
-                test(ex.facet.Count == 2);
-                test(ex.facet[0].Equals("no such facet"));
-                test(ex.facet[1].Equals("no such facet either"));
+                test(ex.facet.Equals("no such facet"));
             }
         }
         catch(Exception)

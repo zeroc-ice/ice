@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,8 +22,8 @@ public class Server
         
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
         
-        Ice.Object object_Renamed = new ServerManagerI(adapter);
-        adapter.add(object_Renamed, Ice.Util.stringToIdentity("ServerManager"));
+        Ice.Object @object = new ServerManagerI(adapter);
+        adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
         
         //
         // We also register a sample server locator which implements the

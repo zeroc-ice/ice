@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -293,44 +289,105 @@ namespace Ice
 	    }
 	}
 	
-	public ObjectPrx add(Ice.Object servant, Identity ident)
+	public ObjectPrx add(Ice.Object obj, Identity ident)
 	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-		checkIdentity(ident);
-		
-		//
-		// Create a copy of the Identity argument, in case the caller
-		// reuses it.
-		//
-		Identity id = new Identity();
-		id.category = ident.category;
-		id.name = ident.name;
-		
-		_servantManager.addServant(servant, id);
-		
-		return newProxy(id);
-	    }
+	    return addFacet(obj, ident, "");
+	}
+
+	public ObjectPrx addFacet(Ice.Object obj, Identity ident, string facet)
+	{
+	    checkForDeactivation();
+	    checkIdentity(ident);
+
+	    //
+	    // Create a copy of the Identity argument, in case the caller
+	    // reuses it.
+	    //
+	    Identity id = new Identity();
+	    id.category = ident.category;
+	    id.name = ident.name;
+
+	    _servantManager.addServant(obj, id, facet);
+
+	    return newProxy(id);
 	}
 	
-	public ObjectPrx addWithUUID(Ice.Object servant)
+	public ObjectPrx addWithUUID(Ice.Object obj)
+	{
+	    return addFacetWithUUID(obj, "");
+	}
+
+	public ObjectPrx addFacetWithUUID(Ice.Object obj, string facet)
 	{
 	    Identity ident = new Identity();
 	    ident.category = "";
 	    ident.name = Util.generateUUID();
 	    
-	    return add(servant, ident);
+	    return addFacet(obj, ident, facet);
 	}
 	
-	public void remove(Identity ident)
+	public Ice.Object remove(Identity ident)
+	{
+	    return removeFacet(ident, "");
+	}
+
+	public Ice.Object removeFacet(Identity ident, string facet)
 	{
 	    lock(this)
 	    {
 		checkForDeactivation();
 		checkIdentity(ident);
 		
-		_servantManager.removeServant(ident);
+		return _servantManager.removeServant(ident, facet);
+	    }
+	}
+
+	public FacetMap removeAllFacets(Identity ident)
+	{
+	    lock(this)
+	    {
+	        checkForDeactivation();
+		checkIdentity(ident);
+
+		return _servantManager.removeAllFacets(ident);
+	    }
+	}
+
+	public Ice.Object find(Identity ident)
+	{
+	    return findFacet(ident, "");
+	}
+
+	public Ice.Object findFacet(Identity ident, string facet)
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+		checkIdentity(ident);
+
+		return _servantManager.findServant(ident, facet);
+	    }
+	}
+
+	public FacetMap findAllFacets(Identity ident)
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+		checkIdentity(ident);
+
+		return _servantManager.findAllFacets(ident);
+	    }
+	}
+
+	public Ice.Object findByProxy(ObjectPrx proxy)
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+
+		IceInternal.Reference @ref = ((ObjectPrxHelperBase)proxy).__reference();
+		return findFacet(@ref.identity, @ref.facet);
 	    }
 	}
 	
@@ -351,28 +408,6 @@ namespace Ice
 		checkForDeactivation();
 		
 		return _servantManager.findServantLocator(prefix);
-	    }
-	}
-	
-	public Ice.Object identityToServant(Identity ident)
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-		checkIdentity(ident);
-		
-		return _servantManager.findServant(ident);
-	    }
-	}
-	
-	public Ice.Object proxyToServant(ObjectPrx proxy)
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-		
-		IceInternal.Reference r = ((ObjectPrxHelper) proxy).__reference();
-		return identityToServant(r.identity);
 	    }
 	}
 	
@@ -411,7 +446,7 @@ namespace Ice
 		//
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		IceInternal.Reference r =
-		    _instance.referenceFactory().create(ident, new Ice.Context(), new FacetPath(),
+		    _instance.referenceFactory().create(ident, new Ice.Context(), "",
 							IceInternal.Reference.ModeTwoway, false,
 							"", endpoints, null, null, this, true);
 		
@@ -432,7 +467,7 @@ namespace Ice
 		    // Add the router's server proxy endpoints to this object
 		    // adapter.
 		    //
-		    ObjectPrxHelper proxy = (ObjectPrxHelper)routerInfo.getServerProxy();
+		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
 		    IceInternal.Endpoint[] endpoints = proxy.__reference().endpoints;
 		    for(int i = 0; i < endpoints.Length; ++i)
 		    {
@@ -499,7 +534,7 @@ namespace Ice
 	    {
 		checkForDeactivation();
 		
-		IceInternal.Reference r = ((ObjectPrxHelper)proxy).__reference();
+		IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).__reference();
 		IceInternal.Endpoint[] endpoints = r.endpoints;
 		
 		if(!r.adapterId.Equals(""))
@@ -775,7 +810,7 @@ namespace Ice
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		//UPGRADE_TODO: Field java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
 		IceInternal.Reference reference =
-		    _instance.referenceFactory().create(ident, new Context(), new FacetPath(),
+		    _instance.referenceFactory().create(ident, new Context(), "",
 							IceInternal.Reference.ModeTwoway, false,
 							_id, endpoints, null, _locatorInfo, null, true);
 		return _instance.proxyFactory().referenceToProxy(reference);
@@ -814,7 +849,7 @@ namespace Ice
 	    // Create a reference and return a proxy for this reference.
 	    //
 	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new Context(), new FacetPath(),
+		_instance.referenceFactory().create(ident, new Context(), "",
 						    IceInternal.Reference.ModeTwoway, false,
 						    "", endpoints, null, _locatorInfo, null, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);

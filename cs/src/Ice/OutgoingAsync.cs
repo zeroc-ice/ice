@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -48,32 +43,63 @@ namespace IceInternal
 		    }
 		    
 		    case DispatchStatus.DispatchObjectNotExist:
-		    {
-			Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readFacetPath();
-			ex.operation = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus.DispatchFacetNotExist:
-		    {
-			Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readFacetPath();
-			ex.operation = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus.DispatchOperationNotExist:
 		    {
-			Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
-			ex.id = new Ice.Identity();
-			ex.id.__read(__is);
-			ex.facet = __is.readFacetPath();
-			ex.operation = __is.readString();
+                        Ice.Identity id = new Ice.Identity();
+                        id.__read(__is);
+
+                        //
+                        // For compatibility with the old FacetPath.
+                        //
+                        string[] facetPath = __is.readStringSeq();
+                        string facet;
+                        if(facetPath.Length > 0)
+                        {
+                            if(facetPath.Length > 1)
+                            {
+                                throw new Ice.MarshalException();
+                            }
+                            facet = facetPath[0];
+                        }
+                        else
+                        {
+                            facet = "";
+                        }
+
+                        string operation = __is.readString();
+
+                        Ice.RequestFailedException ex = null;
+                        switch(status)
+                        {
+                            case DispatchStatus.DispatchObjectNotExist:
+                            {
+                                ex = new Ice.ObjectNotExistException();
+                                break;
+                            }
+                            
+                            case DispatchStatus.DispatchFacetNotExist:
+                            {
+                                ex = new Ice.FacetNotExistException();
+                                break;
+                            }
+                            
+                            case DispatchStatus.DispatchOperationNotExist:
+                            {
+                                ex = new Ice.OperationNotExistException();
+                                break;
+                            }
+
+                            default:
+                            {
+                                Debug.Assert(false);
+                                break;
+                            }
+                        }
+
+			ex.id = id;
+			ex.facet = facet;;
+			ex.operation = operation;
 			throw ex;
 		    }
 		    
@@ -241,9 +267,24 @@ namespace IceInternal
 		_connection.prepareRequest(__os);
 		
 		r.identity.__write(__os);
-		__os.writeStringSeq(r.facet);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(_reference.facet == null || _reference.facet.Length == 0)
+                {
+                    __os.writeStringSeq(null);
+                }
+                else
+                {
+                    string[] facetPath = { _reference.facet };
+                    __os.writeStringSeq(facetPath);
+                }
+
 		__os.writeString(operation);
+
 		__os.writeByte((byte)mode);
+
 		if(context == null)
 		{
 		    __os.writeSize(0);

@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -128,8 +123,19 @@ namespace IceInternal
 	    // Don't write the identity here. Operations calling streamWrite
 	    // write the identity.
 	    //
-	    
-	    s.writeStringSeq(facet);
+
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    if(facet.Length == 0)
+	    {
+	        s.writeStringSeq(null);
+	    }
+	    else
+	    {
+	        string[] facetPath = { facet };
+		s.writeStringSeq(facetPath);
+	    }
 	    
 	    s.writeByte((byte)mode);
 	    
@@ -176,25 +182,15 @@ namespace IceInternal
 		s.Append(id);
 	    }
 	    
-	    if(facet.Count > 0)
+	    if(facet.Length > 0)
 	    {
-		System.Text.StringBuilder f = new System.Text.StringBuilder();
-		for(int i = 0; i < facet.Count; i++)
-		{
-		    f.Append(StringUtil.encodeString(facet[i], "/"));
-		    if(i < facet.Count - 1)
-		    {
-			f.Append('/');
-		    }
-		}
-		
 		//
 		// If the encoded facet string contains characters which
 		// the reference parser uses as separators, then we enclose
 		// the facet string in quotes.
 		//
 		s.Append(" -f ");
-		string fs = f.ToString();
+		string fs = StringUtil.escapeString(facet, "");
 		if(StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
 		{
 		    s.Append('"');
@@ -261,7 +257,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		string a = StringUtil.encodeString(adapterId, null);
+		string a = StringUtil.escapeString(adapterId, null);
 		//
 		// If the encoded adapter id string contains characters which
 		// the reference parser uses as separators, then we enclose
@@ -289,7 +285,7 @@ namespace IceInternal
 	public readonly Instance instance;
 	public readonly Ice.Identity identity;
 	public readonly Ice.Context context;
-	public readonly Ice.FacetPath facet;
+	public readonly string facet;
 	public readonly int mode;
 	public readonly bool secure;
 	public readonly string adapterId;
@@ -332,7 +328,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Reference changeFacet(Ice.FacetPath newFacet)
+	public Reference changeFacet(string newFacet)
 	{
 	    if(newFacet.Equals(facet))
 	    {
@@ -550,7 +546,7 @@ namespace IceInternal
 	    RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
 	    LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 	    
-	    return instance.referenceFactory().create(identity, context, new Ice.FacetPath(), ModeTwoway, false,
+	    return instance.referenceFactory().create(identity, context, "", ModeTwoway, false,
 						      adapterId, endpoints, routerInfo, locatorInfo, null, true);
 	}
 	
@@ -609,7 +605,7 @@ namespace IceInternal
 			// proxy endpoints.
 			//
 			Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-			endpts = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+			endpts = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
 		    }
 		    else if(endpoints.Length > 0)
 		    {
@@ -811,10 +807,18 @@ namespace IceInternal
 	//
 	// Only for use by ReferenceFactory
 	//
-	internal Reference(Instance inst, Ice.Identity ident, Ice.Context ctx, Ice.FacetPath fac, int md,
+	internal Reference(Instance inst, Ice.Identity ident, Ice.Context ctx, string fac, int md,
 		           bool sec, string adptId, Endpoint[] endpts, RouterInfo rtrInfo, LocatorInfo locInfo,
 		           Ice.ObjectAdapter rvAdapter, bool collocationOpt)
 	{
+	    //
+	    // Validate string arguments.
+	    //
+	    Debug.Assert(ident.name != null);
+	    Debug.Assert(ident.category != null);
+	    Debug.Assert(fac != null);
+	    Debug.Assert(adptId != null);
+
 	    //
 	    // It's either adapter id or endpoints, it can't be both.
 	    //

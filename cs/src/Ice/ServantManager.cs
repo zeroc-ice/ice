@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -20,51 +15,149 @@ using System.Diagnostics;
 
 public sealed class ServantManager : SupportClass.ThreadClass
 {
-    public void addServant(Ice.Object servant, Ice.Identity ident)
+    public void addServant(Ice.Object servant, Ice.Identity ident, string facet)
     {
 	lock(this)
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    Ice.Object o = (Ice.Object)_servantMap[ident];
-	    if(o != null)
+	    if(facet == null)
 	    {
-		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = Ice.Util.identityToString(ident);
-		ex.kindOfObject = "servant";
-		throw ex;
+	        facet = "";
+	    }
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    if(m == null)
+	    {
+		_servantMapMap[ident] = (m = new Ice.FacetMap());
+	    }
+	    else
+	    {
+                if(m.Contains(facet))
+                {
+                    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+                    ex.id = Ice.Util.identityToString(ident);
+                    ex.kindOfObject = "servant";
+                    if(facet.Length > 0)
+                    {
+                        ex.id += " -f " + IceInternal.StringUtil.escapeString(facet, "");
+                    }
+                    throw ex;
+                }
 	    }
 	    
-	    _servantMap[ident] = servant;
+	    m[facet] = servant;
 	}
     }
     
-    public void removeServant(Ice.Identity ident)
+    public Ice.Object removeServant(Ice.Identity ident, string facet)
     {
 	lock(this)
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    Ice.Object o = (Ice.Object)_servantMap[ident];
-	    if(o == null)
+	    if(facet == null)
+	    {
+	        facet = "";
+	    }
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    Ice.Object obj = null;
+	    if(m == null || !m.Contains(facet))
+	    {
+		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+		ex.id = Ice.Util.identityToString(ident);
+		ex.kindOfObject = "servant";
+		if(facet.Length > 0)
+		{
+		    ex.id += " -f " + IceInternal.StringUtil.escapeString(facet, "");
+		}
+		throw ex;
+	    }
+	    m.Remove(facet);
+	    
+	    if(m.Count == 0)
+	    {
+		_servantMapMap.Remove(ident);
+	    }
+	    return obj;
+	}
+    }
+    
+    public Ice.FacetMap removeAllFacets(Ice.Identity ident)
+    {
+        lock(this)
+	{
+	    Debug.Assert(_instance != null);
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    if(m == null)
 	    {
 		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		ex.id = Ice.Util.identityToString(ident);
 		ex.kindOfObject = "servant";
 		throw ex;
 	    }
-	    
-	    _servantMap.Remove(ident);
+	    _servantMapMap.Remove(ident);
+
+	    return m;
 	}
     }
-    
-    public Ice.Object findServant(Ice.Identity ident)
+
+    public Ice.Object findServant(Ice.Identity ident, string facet)
     {
 	lock(this)
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    return (Ice.Object)_servantMap[ident];
+	    if(facet == null)
+	    {
+	        facet = "";
+	    }
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    Ice.Object obj = null;
+	    if(m != null)
+	    {
+	        obj = m[facet];
+	    }
+
+	    return obj;
+	}
+    }
+
+    public Ice.FacetMap findAllFacets(Ice.Identity ident)
+    {
+        lock(this)
+	{
+	    Debug.Assert(_instance != null); // Must not be called after destruction.
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    if(m != null)
+	    {
+	        return new Ice.FacetMap(m);
+	    }
+
+	    return new Ice.FacetMap();
+	}
+    }
+
+    public bool hasServant(Ice.Identity ident)
+    {
+        lock(this)
+	{
+	    Debug.Assert(_instance != null); // Must not be called after destruction.
+
+	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
+	    if(m == null)
+	    {
+	        return false;
+	    }
+	    else
+	    {
+	        Debug.Assert(m.Count != 0);
+		return true;
+	    }
 	}
     }
     
@@ -117,7 +210,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
     }
     
     //
-    // Only for use by Ice.ObjectAdatperI.
+    // Only for use by Ice.ObjectAdapterI.
     //
     public void destroy()
     {
@@ -125,7 +218,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    _servantMap.Clear();
+	    _servantMapMap.Clear();
 	    
 	    foreach(DictionaryEntry p in _locatorMap)
 	    {
@@ -150,7 +243,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
     
     private Instance _instance;
     private readonly string _adapterName;
-    private Hashtable _servantMap = new Hashtable();
+    private Hashtable _servantMapMap = new Hashtable();
     private Hashtable _locatorMap = new Hashtable();
 }
 

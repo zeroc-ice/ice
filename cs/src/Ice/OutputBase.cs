@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,7 +30,7 @@ public class OutputBase
     }
     
     public
-    OutputBase(StreamWriter writer)
+    OutputBase(TextWriter writer)
     {
 	_out = writer;
 	_pos = 0;
@@ -186,7 +182,7 @@ public class OutputBase
 	return _out != null;
     }
     
-    protected internal StreamWriter _out;
+    protected internal TextWriter _out;
     protected internal int _pos;
     protected internal int _indent;
     protected internal int _indentSize;

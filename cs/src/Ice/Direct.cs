@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -40,7 +35,7 @@ namespace IceInternal
 	    
 	    try
 	    {
-		_servant = servantManager.findServant(_current.id);
+		_servant = servantManager.findServant(_current.id, current.facet);
 		
 		if(_servant == null && _current.id.category.Length > 0)
 		{
@@ -62,23 +57,21 @@ namespace IceInternal
 		
 		if(_servant == null)
 		{
-		    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
-		    ex.id = _current.id;
-		    ex.facet = _current.facet;
-		    ex.operation = _current.operation;
-		    throw ex;
-		}
-		
-		if(_current.facet.Count > 0)
-		{
-		    _facetServant = _servant.ice_findFacetPath(_current.facet, 0);
-		    if(_facetServant == null)
+		    if(servantManager.hasServant(_current.id))
 		    {
-			    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-			    ex.id = _current.id;
-			    ex.facet = _current.facet;
-			    ex.operation = _current.operation;
-			    throw ex;
+		        Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
+			ex.id = _current.id;
+			ex.facet = _current.facet;
+			ex.operation = _current.operation;
+			throw ex;
+		    }
+		    else
+		    {
+			Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+			ex.id = _current.id;
+			ex.facet = _current.facet;
+			ex.operation = _current.operation;
+			throw ex;
 		    }
 		}
 	    }
@@ -117,21 +110,13 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.Object facetServant()
+	public Ice.Object servant()
 	{
-	    if(_facetServant != null)
-	    {
-		return _facetServant;
-	    }
-	    else
-	    {
-		return _servant;
-	    }
+	    return _servant;
 	}
 	
 	private Ice.Current _current;
 	private Ice.Object _servant;
-	private Ice.Object _facetServant;
 	private Ice.ServantLocator _locator;
 	private Ice.LocalObject _cookie;
     }

@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,7 +24,7 @@ namespace Ice
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
 		try
 		{
-		    return __direct.facetServant().ice_isA(__id, __current);
+		    return __direct.servant().ice_isA(__id, __current);
 		}
 		finally
 		{
@@ -46,7 +42,7 @@ namespace Ice
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
 		try
 		{
-		    __direct.facetServant().ice_ping(__current);
+		    __direct.servant().ice_ping(__current);
 		    return;
 		}
 		finally
@@ -65,7 +61,7 @@ namespace Ice
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
 		try
 		{
-		    return __direct.facetServant().ice_ids(__current);
+		    return __direct.servant().ice_ids(__current);
 		}
 		finally
 		{
@@ -83,25 +79,7 @@ namespace Ice
 		IceInternal.Direct __direct = new IceInternal.Direct(__current);
 		try
 		{
-		    return __direct.facetServant().ice_id(__current);
-		}
-		finally
-		{
-		    __direct.destroy();
-		}
-	    }
-	}
-	
-	public virtual Ice.FacetPath ice_facets(Ice.Context __context)
-	{
-	    Current __current = new Current();
-	    __initCurrent(__current, "ice_facets", OperationMode.Nonmutating, __context);
-	    while(true)
-	    {
-		IceInternal.Direct __direct = new IceInternal.Direct(__current);
-		try
-		{
-		    return __direct.facetServant().ice_facets(__current);
+		    return __direct.servant().ice_id(__current);
 		}
 		finally
 		{

@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 using System.Diagnostics;
 
@@ -165,11 +160,11 @@ namespace IceInternal
 	    }
 	}
 	
-	//
-	// Encodes a string into UTF8, escaping all characters outside the range [32-126]
-	// as well as any special characters determined by the caller.
-	//
-	public static string encodeString(string s, string special)
+        //
+        // Add escape sequences (like "\n", or "\0xxx") to make a string
+        // readable in ASCII.
+        //
+	public static string escapeString(string s, string special)
 	{
 	    System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding();
 	    byte[] bytes = utf8.GetBytes(s);
@@ -183,13 +178,10 @@ namespace IceInternal
 	    return result.ToString();
 	}
 	
-	//
-	// Decodes a UTF8 string. Decoding starts at the given start position
-	// (inclusive) and stops at the given end position (exclusive). Upon success,
-	// the result parameter holds the decoded string and true is returned.
-	// A return value of false indicates an error was detected in the encoding.
-	//
-	public static bool decodeString(string s, int start, int end, out string result)
+        //
+        // Remove escape sequences added by escapeString.
+        //
+	public static bool unescapeString(string s, int start, int end, out string result)
 	{
 	    Debug.Assert(start >= 0);
 	    Debug.Assert(end <= s.Length);

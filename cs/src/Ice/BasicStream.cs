@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 namespace IceInternal
 {
@@ -40,11 +35,11 @@ namespace IceInternal
 	    
 	    _traceSlicing = -1;
 	    
-	    _marshalFacets = true;
 	    _sliceObjects = true;
 	    
 	    _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
+	    _seqDataStack = null;
 	    _objectList = null;
 	}
 	
@@ -127,6 +122,10 @@ namespace IceInternal
 	    int tmpWriteSlice = other._writeSlice;
 	    other._writeSlice = _writeSlice;
 	    _writeSlice = tmpWriteSlice;
+
+	    SeqData tmpSeqDataStack = other._seqDataStack;
+	    other._seqDataStack = _seqDataStack;
+	    _seqDataStack = tmpSeqDataStack;
 
 	    ArrayList tmpObjectList = other._objectList;
 	    other._objectList = _objectList;
@@ -660,8 +659,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 1);
 		byte[] v = new byte[sz];
 		_buf.get(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -707,8 +708,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 1);
 		bool[] v = new bool[sz];
 		_buf.getBoolSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -754,8 +757,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 2);
 		short[] v = new short[sz];
 		_buf.getShortSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -801,8 +806,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 4);
 		int[] v = new int[sz];
 		_buf.getIntSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -848,8 +855,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 8);
 		long[] v = new long[sz];
 		_buf.getLongSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -895,8 +904,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 4);
 		float[] v = new float[sz];
 		_buf.getFloatSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -942,8 +953,10 @@ namespace IceInternal
 	    try
 	    {
 		int sz = readSize();
+		startSeq(sz, 8);
 		double[] v = new double[sz];
 		_buf.getDoubleSeq(v);
+		endSeq(sz);
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -989,22 +1002,6 @@ namespace IceInternal
 		}
 	    }
 	}
-	
-	public virtual void writeStringSeq(Ice.FacetPath v)
-	{
-	    if(v == null)
-	    {
-		writeSize(0);
-	    }
-	    else
-	    {
-		writeSize(v.Count);
-		for(int i = 0; i < v.Count; i++)
-		{
-		    writeString(v[i]);
-		}
-	    }
-	}
 
 	public virtual string readString()
 	{
@@ -1042,22 +1039,15 @@ namespace IceInternal
 	public virtual string[] readStringSeq()
 	{
 	    int sz = readSize();
+	    startSeq(sz, 1);
 	    string[] v = new string[sz];
 	    for(int i = 0; i < sz; i++)
 	    {
 		v[i] = readString();
+		checkSeq();
+		endElement();
 	    }
-	    return v;
-	}
-
-	public virtual Ice.FacetPath readFacetPath()
-	{
-	    int sz = readSize();
-	    Ice.FacetPath v = new Ice.FacetPath();
-	    for(int i = 0; i < sz; i++)
-	    {
-		v.Add(readString());
-	    }
+	    endSeq(sz);
 	    return v;
 	}
 	
@@ -1294,11 +1284,7 @@ namespace IceInternal
 		//
 		// Look for a factory for this ID.
 		//
-		UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
-		if(factory == null)
-		{
-		    factory = loadUserExceptionFactory(id);
-		}
+		UserExceptionFactory factory = getUserExceptionFactory(id);
 		
 		if(factory != null)
 		{
@@ -1415,11 +1401,6 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void marshalFacets(bool b)
-	{
-	    _marshalFacets = b;
-	}
-
 	public void
 	sliceObjects(bool b)
 	{
@@ -1437,7 +1418,7 @@ namespace IceInternal
 	    {
 		_instance.logger().warning("exception raised by ice_preMarshal::\n" + ex);
 	    }
-	    v.__write(this, _marshalFacets);
+	    v.__write(this);
 	}
 	
 	internal virtual void patchReferences(object instanceIndex, object patchIndex)
@@ -1743,29 +1724,32 @@ namespace IceInternal
 	    private Type _class;
 	}
 	
-	private UserExceptionFactory loadUserExceptionFactory(string id)
+	private UserExceptionFactory getUserExceptionFactory(string id)
 	{
-	    UserExceptionFactory factory = null;
+	    UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 
-	    try
+	    if(factory == null)
 	    {
-		loadAssemblies(); // Lazy initialization
-
-		Type c = findTypeForId(id);
-		if(c == null)
+		try
 		{
-		    return null;
+		    loadAssemblies(); // Lazy initialization
+
+		    Type c = findTypeForId(id);
+		    if(c == null)
+		    {
+			return null;
+		    }
+		    //
+		    // Ensure the class is instantiable.
+		    //
+		    Debug.Assert(!c.IsAbstract && !c.IsInterface);
+		    factory = new DynamicUserExceptionFactory(c);
+		    _instance.userExceptionFactoryManager().add(factory, id);
 		}
-		//
-		// Ensure the class is instantiable.
-		//
-		Debug.Assert(!c.IsAbstract && !c.IsInterface);
-		factory = new DynamicUserExceptionFactory(c);
-		_instance.userExceptionFactoryManager().add(factory, id);
-	    }
-	    catch(Exception ex)
-	    {
-		throw new Ice.UnknownUserException(ex);
+		catch(Exception ex)
+		{
+		    throw new Ice.UnknownUserException(ex);
+		}
 	    }
 	    
 	    return factory;
@@ -1825,7 +1809,6 @@ namespace IceInternal
 	private int _traceSlicing;
 	private string _slicingCat;
 	
-	private bool _marshalFacets;
 	private bool _sliceObjects;
 	
 	private int _messageSizeMax;

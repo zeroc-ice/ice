@@ -1,16 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 #ifndef TEST_ICE
 #define TEST_ICE
@@ -22,6 +17,9 @@ class A
 {
     B theB;
     C theC;
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class B extends A
@@ -32,6 +30,9 @@ class B extends A
 class C
 {
     B theB;
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class D
@@ -39,6 +40,9 @@ class D
     A theA;
     B theB;
     C theC;    
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class Initial
@@ -49,7 +53,6 @@ class Initial
     C getC();
     D getD();
     void getAll(out B b1, out B b2, out C theC, out D theD);
-    void addFacetsToB1();
 };
 
 #endif

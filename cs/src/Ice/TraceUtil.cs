@@ -1,10 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003 - 2004
-// ZeroC, Inc.
-// North Palm Beach, FL, USA
-//
-// All Rights Reserved.
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -293,12 +289,12 @@ namespace IceInternal
 		identity.__read(stream);
 		o.Write("\nidentity = " + Ice.Util.identityToString(identity));
 		
-		Ice.FacetPath facet = stream.readFacetPath();
+		string[] facet = stream.readStringSeq();
 		o.Write("\nfacet = ");
-		for(int i = 0; i < facet.Count; i++)
+		for(int i = 0; i < facet.Length; i++)
 		{
-		    o.Write(StringUtil.encodeString(facet[i], "/"));
-		    if(i < facet.Count - 1)
+		    o.Write(StringUtil.escapeString(facet[i], "/"));
+		    if(i < facet.Length - 1)
 		    {
 			o.Write('/');
 		    }
