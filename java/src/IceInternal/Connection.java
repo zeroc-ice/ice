@@ -81,18 +81,32 @@ public final class Connection extends EventHandler
     public synchronized void
     waitUntilFinished()
     {
-	while(_transceiver != null || _dispatchCount > 0)
+	//
+	// We wait indefinitely until all outstanding requests are
+	// completed. Otherwise we couldn't guarantee that there are
+	// no outstanding calls when deactivate() is called on the
+	// servant locators.
+	//
+	while(_dispatchCount > 0)
 	{
 	    try
 	    {
-		//
-		// We wait indefinitely until all outstanding requests are
-		// completed. If we were using a timeout here we couldn't
-		// guarantee that there are no outstanding calls when
-		// deactivate() is called on the servant locators.
-		//
 		wait();
-/*
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	    
+	}
+	
+	//
+	// Now we must wait for connection closure. If there is a
+	// timeout, we force the connection closure.
+	//
+	while(_transceiver != null)
+	{
+	    try
+	    {
 		if(_endpoint.timeout() >= 0)
 		{
 		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
@@ -102,7 +116,6 @@ public final class Connection extends EventHandler
 		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
 		    {
 			setState(StateClosed, new Ice.CloseTimeoutException());
-			assert(_dispatchCount == 0);
 			// No return here, we must still wait until _transceiver becomes null.
 		    }
 		}
@@ -110,7 +123,6 @@ public final class Connection extends EventHandler
 		{
 		    wait();
 		}
-*/
 	    }
 	    catch(InterruptedException ex)
 	    {

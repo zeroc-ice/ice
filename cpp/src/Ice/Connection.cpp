@@ -103,22 +103,28 @@ IceInternal::Connection::waitUntilFinished()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-    while(_transceiver || _dispatchCount > 0)
+    //
+    // We wait indefinitely until all outstanding requests are
+    // completed. Otherwise we couldn't guarantee that there are no
+    // outstanding calls when deactivate() is called on the servant
+    // locators.
+    //
+    while(_dispatchCount > 0)
     {
-	//
-	// We wait indefinitely until all outstanding requests are
-	// completed. If we were using a timeout here we couldn't
-	// guarantee that there are no outstanding calls when
-	// deactivate() is called on the servant locators.
-	//
 	wait();
-/*
+    }
+
+    //
+    // Now we must wait for connection closure. If there is a timeout,
+    // we force the connection closure.
+    //
+    while(_transceiver)
+    {
 	if(_endpoint->timeout() >= 0)
 	{
 	    if(!timedWait(IceUtil::Time::milliSeconds(_endpoint->timeout())))
 	    {
 		setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
-		assert(_dispatchCount == 0);
 		// No return here, we must still wait until _transceiver becomes null.
 	    }
 	}
@@ -126,7 +132,6 @@ IceInternal::Connection::waitUntilFinished()
 	{
 	    wait();
 	}
-*/
     }
 
     assert(_state == StateClosed);
