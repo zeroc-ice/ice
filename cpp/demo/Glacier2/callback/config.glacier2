@@ -73,8 +73,8 @@ Glacier2.Client.ThreadStackSize=262144
 #
 # Various settings to trace requests, overrides, etc.
 #
-#Glacier2.Client.Trace.Request=1
-#Glacier2.Server.Trace.Request=1
+Glacier2.Client.Trace.Request=1
+Glacier2.Server.Trace.Request=1
 Glacier2.Client.Trace.Override=1
 Glacier2.Server.Trace.Override=1
 Glacier2.Client.Trace.Reject=1
@@ -86,7 +86,7 @@ Glacier2.Trace.RoutingTable=1
 #
 
 #Ice.Trace.Network=1
-Ice.Trace.Protocol=1
+#Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
 
 Ice.Plugin.IceSSL=IceSSL:create

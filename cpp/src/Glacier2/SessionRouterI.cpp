@@ -88,7 +88,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     _verifier(verifier),
     _sessionManager(sessionManager),
     _sessionTimeout(IceUtil::Time::seconds(_properties->getPropertyAsInt("Glacier2.SessionTimeout"))),
-    _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this) : 0),
+    _sessionThread(_sessionTimeout > IceUtil::Time() ? new SessionThread(this, _sessionTimeout) : 0),
     _routersByConnectionHint(_routersByConnection.end()),
     _routersByCategoryHint(_routersByCategory.end()),
     _destroy(false)
@@ -132,12 +132,15 @@ Glacier2::SessionRouterI::~SessionRouterI()
     assert(_destroy);
     assert(_routersByConnection.empty());
     assert(_routersByCategory.empty());
+    assert(_pending.empty());
+    assert(!_sessionThread);
 }
 
 void
 Glacier2::SessionRouterI::destroy()
 {
     map<ConnectionPtr, RouterIPtr> routers;
+    SessionThreadPtr sessionThread;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -151,6 +154,9 @@ Glacier2::SessionRouterI::destroy()
 	
 	_routersByCategory.clear();
 	_routersByCategoryHint = _routersByCategory.end();
+	
+	sessionThread = _sessionThread;
+	_sessionThread = 0;
     }
 
     //
@@ -165,7 +171,7 @@ Glacier2::SessionRouterI::destroy()
 	{
 	    router->destroy();
 	}
-	catch(const Ice::Exception& ex)
+	catch(const Exception& ex)
 	{
 	    if(_traceLevel >= 1)
 	    {
@@ -175,9 +181,10 @@ Glacier2::SessionRouterI::destroy()
 	}
     }
 
-    if(_sessionThread)
+    if(sessionThread)
     {
-	_sessionThread->getThreadControl().join();
+	sessionThread->destroy();
+	sessionThread->getThreadControl().join();
     }
 }
 
@@ -202,95 +209,224 @@ Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& curren
 SessionPrx
 Glacier2::SessionRouterI::createSession(const std::string& userId, const std::string& password, const Current& current)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-    if(_destroy)
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
-    }
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	if(_destroy)
+	{
+	    throw ObjectNotExistException(__FILE__, __LINE__);
+	}
 
-    //
-    // Check the user-id and password.
-    //
-    string reason;
-    bool ok;
+	//
+	// Check whether a session already exists for the connection.
+	//
+	{
+	    map<ConnectionPtr, RouterIPtr>::iterator p;    
+	    if(_routersByConnectionHint != _routersByConnection.end() &&
+	       _routersByConnectionHint->first == current.con)
+	    {
+		p = _routersByConnectionHint;
+	    }
+	    else
+	    {
+		p = _routersByConnection.find(current.con);
+	    }
+	    
+	    if(p != _routersByConnection.end())
+	    {
+		CannotCreateSessionException exc;
+		exc.reason = "session exists";
+		throw exc;
+	    }
+	}
+	
+	//
+	// If some other thread is currently trying to create a
+	// session, we wait until this thread is finished.
+	//
+	bool searchAgain = false;
+	while(_pending.find(current.con) != _pending.end())
+	{
+	    wait();
+	    
+	    if(_destroy)
+	    {
+		throw ObjectNotExistException(__FILE__, __LINE__);
+	    }
+
+	    searchAgain = true;
+	}
+
+	//
+	// Check for existing sessions again if we waited above, as
+	// new sessions have been added in the meantime.
+	//
+	if(searchAgain)
+	{
+	    map<ConnectionPtr, RouterIPtr>::iterator p;    
+	    if(_routersByConnectionHint != _routersByConnection.end() &&
+	       _routersByConnectionHint->first == current.con)
+	    {
+		p = _routersByConnectionHint;
+	    }
+	    else
+	    {
+		p = _routersByConnection.find(current.con);
+	    }
+	    
+	    if(p != _routersByConnection.end())
+	    {
+		CannotCreateSessionException exc;
+		exc.reason = "session exists";
+		throw exc;
+	    }
+	}
+
+	//
+	// No session exists yet, so we will try to create one. To
+	// avoid that other threads try to create sessions for the
+	// same connection, we add our endpoints to _pending.
+	//
+	_pending.insert(current.con);
+    }
 
     try
     {
-	ok = _verifier->checkPermissions(userId, password, reason);
+	//
+	// Check the user-id and password.
+	//
+	string reason;
+	bool ok;
+	
+	try
+	{
+	    ok = _verifier->checkPermissions(userId, password, reason);
+	}
+	catch(const Exception& ex)
+	{
+	    if(_traceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "exception while verifying password\n" << ex;
+	    }
+	    
+	    PermissionDeniedException exc;
+	    exc.reason = "internal server error";
+	    throw exc;
+	}
+	
+	if(!ok)
+	{
+	    PermissionDeniedException exc;
+	    exc.reason = reason;
+	    throw exc;
+	}
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+	//
+	// Signal other threads that we are done with trying to
+	// establish a session for our connection;
+	//
+	_pending.erase(current.con);
+	notify();
+
+	ex.ice_throw();
+    }
+
+
+    SessionPrx session;
+    RouterIPtr router;
+
+    try
+    {
+        //
+	// If we have a session manager configured, we create a
+	// client-visible session object.
+	//
+	if(_sessionManager)
+	{
+	    session = _sessionManager->create(userId);
+	}
+    
+	//
+	// Add a new per-client router.
+	//
+	router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, session);
+    }
+    catch(const Exception& ex)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+	//
+	// Signal other threads that we are done with trying to
+	// establish a session for our connection;
+	//
+	_pending.erase(current.con);
+	notify();
+	
+	assert(!router);
+	
+	if(session)
+	{
+	    try
+	    {
+		session->destroy();
+	    }
+	    catch(const Exception&)
+	    {
+		// Ignore all exceptions here.
+	    }
+	}
+
+	ex.ice_throw();
+    }
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	//
+	// Signal other threads that we are done with trying to
+	// establish a session for our connection;
+	//
+	_pending.erase(current.con);
+	notify();
+	
+	if(_destroy)
+	{
+	    try
+	    {
+		router->destroy();
+	    }
+	    catch(const Exception&)
+	    {
+		// Ignore all exceptions here.
+	    }
+	    
+	    throw ObjectNotExistException(__FILE__, __LINE__);
+	}
+	
+	_routersByConnectionHint = _routersByConnection.insert(
+	    _routersByConnectionHint, pair<const ConnectionPtr, RouterIPtr>(current.con, router));
+	
+	if(_serverAdapter)
+	{
+	    string category = router->getServerProxy(current)->ice_getIdentity().category;
+	    assert(!category.empty());
+	    _routersByCategoryHint = _routersByCategory.insert(
+		_routersByCategoryHint, pair<const string, RouterIPtr>(category, router));
+	}
+	
 	if(_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier2");
-	    out << "exception while verifying password\n" << ex;
+	    out << "created session\n";
+	    out << router->toString();
 	}
-	
-	PermissionDeniedException exc;
-	exc.reason = "internal server error";
-	throw exc;
     }
-
-    if(!ok)
-    {
-	PermissionDeniedException exc;
-	exc.reason = reason;
-	throw exc;
-    }
-
-    //
-    // Check if a session already exists for the client.
-    //
-    map<ConnectionPtr, RouterIPtr>::iterator p;    
-
-    if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == current.con)
-    {
-	p = _routersByConnectionHint;
-    }
-    else
-    {
-	p = _routersByConnection.find(current.con);
-    }
-
-    if(p != _routersByConnection.end())
-    {
-	SessionExistsException exc;
-	exc.existingSession = p->second->getSession();
-	throw exc;
-    }
-
-    //
-    // If we have a session manager configured, we create a
-    // client-visible session object.
-    //
-    SessionPrx session;
-    if(_sessionManager)
-    {
-	session = _sessionManager->create(userId);
-    }
-
-    //
-    // Add a new per-client router.
-    //
-    RouterIPtr router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, session);
-    _routersByConnectionHint = _routersByConnection.insert(_routersByConnectionHint,
-							   pair<const ConnectionPtr, RouterIPtr>(current.con, router));
-    if(_serverAdapter)
-    {
-	string category = router->getServerProxy(current)->ice_getIdentity().category;
-	assert(!category.empty());
-	_routersByCategoryHint = _routersByCategory.insert(_routersByCategoryHint,
-							   pair<const string, RouterIPtr>(category, router));
-    }
-    
-    if(_traceLevel >= 1)
-    {
-	Trace out(_logger, "Glacier2");
-	out << "creating session\n";
-	out << router->toString();
-    }
-
+	    
     return session;
 }
 
@@ -353,7 +489,7 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 
 	router->destroy();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
 	if(_traceLevel >= 1)
 	{
@@ -424,96 +560,124 @@ Glacier2::SessionRouterI::getRouter(const string& category) const
 }
 
 void
-Glacier2::SessionRouterI::run()
+Glacier2::SessionRouterI::expireSessions()
 {
-    while(true)
+    vector<RouterIPtr> routers;
+    
     {
-	vector<RouterIPtr> routers;
-
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	
+	if(_destroy)
 	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	    
-	    if(_destroy)
+	    return;
+	}
+	
+	assert(_sessionTimeout > IceUtil::Time());
+	IceUtil::Time minTimestamp = IceUtil::Time::now() - _sessionTimeout;
+	
+	map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin();
+	
+	while(p != _routersByConnection.end())
+	{
+	    if(p->second->getTimestamp() < minTimestamp)
 	    {
-		return;
-	    }
-
-	    assert(_sessionTimeout > IceUtil::Time());
-	    timedWait(_sessionTimeout / 4);
-
-	    if(_destroy)
-	    {
-		return;
-	    }
-
-	    IceUtil::Time minTimestamp = IceUtil::Time::now() - _sessionTimeout;
-	    
-	    map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin();
-	    
-	    while(p != _routersByConnection.end())
-	    {
-		if(p->second->getTimestamp() < minTimestamp)
+		RouterIPtr router = p->second;
+		routers.push_back(router);
+		
+		_routersByConnection.erase(p++);
+		_routersByConnectionHint = p;
+		
+		if(_serverAdapter)
 		{
-		    RouterIPtr router = p->second;
-		    routers.push_back(router);
-
-		    _routersByConnection.erase(p++);
-		    _routersByConnectionHint = p;
-
-		    if(_serverAdapter)
-		    {
-			string category = router->getServerProxy(Current())->ice_getIdentity().category;
-			assert(!category.empty());
-			_routersByCategory.erase(category);
-			_routersByCategoryHint = _routersByCategory.end();
-		    }
+		    string category = router->getServerProxy(Current())->ice_getIdentity().category;
+		    assert(!category.empty());
+		    _routersByCategory.erase(category);
+		    _routersByCategoryHint = _routersByCategory.end();
 		}
-		else
-		{
-		    ++p;
-		}
+	    }
+	    else
+	    {
+		++p;
 	    }
 	}
-
-	//
-	// We destroy the expired routers outside the thread
-	// synchronization, to avoid deadlocks.
-	//
-	for(vector<RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
+    }
+    
+    //
+    // We destroy the expired routers outside the thread
+    // synchronization, to avoid deadlocks.
+    //
+    for(vector<RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
+    {
+	RouterIPtr router = *p;
+	
+	try
 	{
-	    RouterIPtr router = *p;
-
-	    try
+	    if(_traceLevel >= 1)
 	    {
-		if(_traceLevel >= 1)
-		{
-		    Trace out(_logger, "Glacier2");
-		    out << "expiring session\n";
-		    out << router->toString();
-		}
-
-		router->destroy();
+		Trace out(_logger, "Glacier2");
+		out << "expiring session\n";
+		out << router->toString();
 	    }
-	    catch(const Ice::Exception& ex)
+	    
+	    router->destroy();
+	}
+	catch(const Exception& ex)
+	{
+	    if(_traceLevel >= 1)
 	    {
-		if(_traceLevel >= 1)
-		{
-		    Trace out(_logger, "Glacier2");
-		    out << "exception while expiring session\n" << ex;
-		}
+		Trace out(_logger, "Glacier2");
+		out << "exception while expiring session\n" << ex;
 	    }
 	}
     }
 }
 
-Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter) :
-    _sessionRouter(sessionRouter)
+Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter,
+						       const IceUtil::Time& sessionTimeout) :
+    _sessionRouter(sessionRouter),
+    _sessionTimeout(sessionTimeout)
 {
+}
+
+Glacier2::SessionRouterI::SessionThread::~SessionThread()
+{
+    assert(!_sessionRouter);
+}
+
+void
+Glacier2::SessionRouterI::SessionThread::destroy()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    _sessionRouter = 0;
+    notify();
 }
 
 void
 Glacier2::SessionRouterI::SessionThread::run()
 {
-    _sessionRouter->run();
-    _sessionRouter = 0; // Break cyclic dependencies.
+    while(true)
+    {
+	SessionRouterIPtr sessionRouter;
+
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+	    if(!_sessionRouter)
+	    {
+		return;
+	    }
+	    
+	    assert(_sessionTimeout > IceUtil::Time());
+	    timedWait(_sessionTimeout / 4);
+
+	    if(!_sessionRouter)
+	    {
+		return;
+	    }
+
+	    sessionRouter = _sessionRouter;
+	}
+
+	sessionRouter->expireSessions();
+    }
 }

@@ -11,7 +11,7 @@
 #define GLACIER2_ROUTER_ICE
 
 #include <Ice/Router.ice>
-#include <Glacier2/SessionF.ice>
+#include <Glacier2/Session.ice>
 
 /**
  *
@@ -36,31 +36,10 @@ exception PermissionDeniedException
 {
     /**
      *
-     * Details as to why session creation has been denied.
+     * Details as to why the permission was denied.
      *
      **/
     string reason;
-};
-
-/**
- *
- * This exception is raised if a client attempts to create a new
- * session, even though there is already an existing session for this
- * client.
- *
- * @see Router::createSession
- *
- **/
-exception SessionExistsException
-{
-    /**
-     *
-     * The session that exists already for the client, or null if no
-     * [SessionManager] is installed, and therefore the session is
-     * Glacier2 internal only.
-     *
-     **/
-    Session* existingSession;
 };
 
 /**
@@ -106,12 +85,12 @@ interface Router extends Ice::Router
      * the given user id is not correct, or if the user isn't allowed
      * access.
      *
-     * @throws SessionExistsException Raised if there is already a
-     * session for the calling client.
+     * @throws CannotCreateSessionException Raised if the session
+     * cannot be created.
      *
      **/
     Session* createSession(string userId, string password)
-	throws PermissionDeniedException, SessionExistsException;
+	throws PermissionDeniedException, CannotCreateSessionException;
 
     /**
      *

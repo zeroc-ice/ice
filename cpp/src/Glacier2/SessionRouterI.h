@@ -15,6 +15,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
+#include <set>
 
 namespace Glacier2
 {
@@ -43,7 +44,7 @@ public:
     RouterIPtr getRouter(const Ice::ConnectionPtr&) const;    
     RouterIPtr getRouter(const std::string&) const;    
 
-    virtual void run();
+    void expireSessions();
 
 private:
 
@@ -56,29 +57,31 @@ private:
     const SessionManagerPrx _sessionManager;
     const IceUtil::Time _sessionTimeout;
 
-    //
-    // TODO: I can't inherit directly from IceUtil::Thread, because of
-    // the inheritance of GCShared.
-    //
-    class SessionThread : public IceUtil::Thread
+    class SessionThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
     {
     public:
 
-	SessionThread(const SessionRouterIPtr&);
+	SessionThread(const SessionRouterIPtr&, const IceUtil::Time&);
+	virtual ~SessionThread();
+	void destroy();
 
 	virtual void run();
 
     private:
 
 	SessionRouterIPtr _sessionRouter;
+	const IceUtil::Time _sessionTimeout;
     };
-    const IceUtil::Handle<SessionThread> _sessionThread;
+    typedef IceUtil::Handle<SessionThread> SessionThreadPtr;
+    SessionThreadPtr _sessionThread;
 
     std::map<Ice::ConnectionPtr, RouterIPtr> _routersByConnection;
     mutable std::map<Ice::ConnectionPtr, RouterIPtr>::iterator _routersByConnectionHint;
 
     std::map<std::string, RouterIPtr> _routersByCategory;
     mutable std::map<std::string, RouterIPtr>::iterator _routersByCategoryHint;
+
+    std::set<Ice::ConnectionPtr> _pending;
 
     bool _destroy;
 };

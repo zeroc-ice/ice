@@ -133,7 +133,7 @@ CallbackClient::run(int argc, char* argv[])
 	    router->createSession("dummy", "abc123");
 	    test(false);
 	}
-	catch(const Glacier2::SessionExistsException&)
+	catch(const Glacier2::CannotCreateSessionException&)
 	{
 	    cout << "ok" << endl;
 	}

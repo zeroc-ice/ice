@@ -15,6 +15,25 @@ module Glacier2
 
 /**
  *
+ * This exception is raised if an attempt to create a new session
+ * failed.
+ *
+ * @see Router::createSession
+ * @see SessionManager::createSession
+ *
+ **/
+exception CannotCreateSessionException
+{
+    /**
+     *
+     * Details as to why session creation has failed.
+     *
+     **/
+    string reason;
+};
+
+/**
+ *
  * A client-visible session object, which is tied to the lifecycle of
  * a [Router].
  *
@@ -55,8 +74,12 @@ interface SessionManager
      *
      * @return A proxy to the newly created session.
      *
+     * @throws CannotCreateSessionException Raised if the session
+     * cannot be created.
+     *
      **/
-    Session* create(string userId);
+    Session* create(string userId)
+	throws CannotCreateSessionException;
 };
 
 };
