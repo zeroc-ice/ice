@@ -7,6 +7,7 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+import os, sys, shutil, fnmatch, re, string, getopt, glob
 
 #
 # TODO:
@@ -15,9 +16,10 @@
 #  * Tidying and tracing.
 #  * Testing on platforms besides Linux.
 #  * Ant build tasks for Ice got missed.
+#  * Demo build system
+#  * We need to transform some directories before the RPMs are built to reflect the structure that we want.
+#  * Update usage message.
 #
-
-import os, sys, shutil, fnmatch, re, string, getopt, glob
 
 #
 # defaults.
@@ -29,20 +31,40 @@ verbose = False
 #
 fileLists = dict()
 
-class Subpackage:
+class Package:
     """Encapsulates RPM spec file information to be used to generate a spec file on Linux
        and create RPMs for Ice"""
-    def __init__(self, name, summary, group, description, filelist):
+    def __init__(self, name, requires, summary, group, description, filelist):
         self.name = name
+        self.requires = requires
         self.summary = summary
         self.group = group
         self.description = description
         self.filelist = filelist
+        
+    def writeHdr(self, ofile):
+        ofile.write("\n")
+
+    def writeFiles(self, ofile, version, intVersion):
+        ofile.write("%files\n")
+        ofile.write("%defattr(-, root, root, -)\n\n")
+        for f in self.filelist:
+            if f.find("%version%"):
+                f = f.replace("%version%", version)
+            if f.endswith(".so"):
+                ofile.write("/usr/" + f + "." + version + "\n")
+                ofile.write("/usr/" + f + "." + str(intVersion) + "\n")
+            ofile.write("/usr/" + f + "\n")
+        ofile.write("\n")
+
+class Subpackage(Package):
 
     def writeHdr(self, ofile):
         ofile.write("%package " + self.name + "\n")
         ofile.write("Summary: " + self.summary + "\n")
         ofile.write("Group: " + self.group + "\n")
+        if not self.requires == "":
+            ofile.write("Requires: " + self.requires + "\n")
         ofile.write("%description " + self.name + "\n")
         ofile.write(self.description)
 
@@ -50,102 +72,108 @@ class Subpackage:
         ofile.write("%files " + self.name + "\n")
         ofile.write("%defattr(-, root, root, -)\n\n")
         for f in self.filelist:
+            if f.find("%version%"):
+                f = f.replace("%version%", version)
             if f.endswith(".so"):
                 ofile.write("/usr/" + f + "." + version + "\n")
                 ofile.write("/usr/" + f + "." + str(intVersion) + "\n")
             ofile.write("/usr/" + f + "\n")
         ofile.write("\n")
-                    
-fileLists['core'] = Subpackage("core",
-                               "The core Ice libraries and tools.",
-                               "Development/Libraries Development/Tools System Environment/Libraries",
-                               "",
-                               ["ICE_LICENSE",
-                                "LICENSE",
-                                "bin/dumpdb",
-                                "bin/transformdb",
-                                "bin/glacier2router",
-                                "bin/icebox",
-                                "bin/iceboxadmin",
-                                "bin/icepackadmin",
-                                "bin/icecpp",
-                                "bin/icepacknode",
-                                "bin/icepackregistry",
-                                "bin/icepatch2calc",
-                                "bin/icepatch2client",
-                                "bin/icepatch2server",
-                                "bin/icestormadmin",
-                                "bin/slice2docbook", 
-                                "lib/libFreeze.so",
-                                "lib/libGlacier2.so",
-                                "lib/libIceBox.so",
-                                "lib/libIcePack.so",
-                                "lib/libIcePatch2.so",
-                                "lib/libIce.so",
-                                "lib/libIceSSL.so",
-                                "lib/libIceStormService.so",
-                                "lib/libIceStorm.so",
-                                "lib/libIceUtil.so",
-                                "lib/libIceXML.so",
-                                "lib/libSlice.so",
-                                "lib/glacier2cs.dll",
-                                "lib/icecs.dll",
-                                "lib/icepackcs.dll",
-                                "lib/Ice.jar",
-                                "lib/IcePy.so",
-                                "slice"])
 
-fileLists['c++'] = Subpackage("c++",
-                              "Ice tools, files and libraries for developing Ice applications in C++",
-                              "Development/Libraries Development/Tools",
-                              "",
-                              ["ICE_LICENSE",
-                               "LICENSE",
-                               "bin/slice2cpp",
-                               "bin/slice2freeze",
-                               "include"])
-
-fileLists['cs'] = Subpackage("cs",
-                             "Ice tools, files and libraries for developing Ice applications in C\#",
-                             "Development/Libraries Development/Tools",
-                             "",
-                             ["ICE_LICENSE",
-                              "LICENSE",
-                              "bin/slice2cs"])
-
-fileLists['java'] = Subpackage("java",
-                               "Ice tools, files and libraries for developing Ice applications in Java",
-                               "Development/Libraries Development/Tools",
-                               "",
-                               ["ICE_LICENSE",
-                                "LICENSE",
-                                "bin/slice2java",
-                                "bin/slice2freezej"])
-
-fileLists['py'] = Subpackage("py",
-                             "Ice tools, files and libraries for developing Ice applications in Python",
-                             "Development/Libraries Development/Tools",
-                             "",
-                             ["ICE_LICENSE",
-                              "LICENSE",
-                              "bin/slice2py",
-                              "python"])
-
-fileLists['vb'] = Subpackage("vb",
-                             "Ice tools, files and libraries for developing Ice client applications using vb.",
-                             "Development/Libraries Development/Tools",
-                             "",
-                             ["ICE_LICENSE",
-                              "LICENSE",
-                              "bin/slice2vb"])
-
-fileLists['docs'] = Subpackage("docs",
-                               "Browsable documentation for Ice",
-                               "Development/Libraries Development/Tools",
-                               "",
-                               ["ICE_LICENSE",
-                                "LICENSE",
-                                "doc"])
+transforms = [ ("slice", "share/slice"),
+               ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
+               ("doc", "share/doc/Ice-%version%"),
+               ("ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
+               ("LICENSE", "share/doc/Ice-%version%/LICENSE"),
+               ("include", "include/ice")]
+               
+fileLists = [
+    Package("main",
+            "",
+            "The Ice runtime and tools.",
+            "Development/Libraries Development/Tools System Environment/Libraries",
+            "",
+            ["share/doc/Ice-%version%/ICE_LICENSE",
+             "share/doc/Ice-%version%/LICENSE",
+             "bin/dumpdb",
+             "bin/transformdb",
+             "bin/glacier2router",
+             "bin/icebox",
+             "bin/iceboxadmin",
+             "bin/icepackadmin",
+             "bin/icecpp",
+             "bin/icepacknode",
+             "bin/icepackregistry",
+             "bin/icepatch2calc",
+             "bin/icepatch2client",
+             "bin/icepatch2server",
+             "bin/icestormadmin",
+             "bin/slice2docbook", 
+             "lib/libFreeze.so",
+             "lib/libGlacier2.so",
+             "lib/libIceBox.so",
+             "lib/libIcePack.so",
+             "lib/libIcePatch2.so",
+             "lib/libIce.so",
+             "lib/libIceSSL.so",
+             "lib/libIceStormService.so",
+             "lib/libIceStorm.so",
+             "lib/libIceUtil.so",
+             "lib/libIceXML.so",
+             "lib/libSlice.so",
+             "share/slice"]),
+    Subpackage("c++-devel",
+               "",
+               "Ice tools, files and libraries for developing Ice applications in C++",
+               "Development/Libraries Development/Tools",
+               "",
+               ["bin/slice2cpp",
+                "bin/slice2freeze",
+                "include/ice"]),
+    Subpackage("dotnet",
+               "ice mono-core",
+               "Ice runtime for C\# applications",
+               "Development/Libraries Development/Tools",
+               "",
+               ["lib/glacier2cs.dll", "lib/icecs.dll", "lib/icepackcs.dll"]),
+    Subpackage("dotnet-devel",
+               "ice-dotnet mono-devel",
+               "Ice tools for developing Ice applications in C\#",
+               "Development/Libraries Development/Tools",
+               "",
+               ["bin/slice2cs"]),
+    Subpackage("java",
+               "",
+               "Ice runtime for Java applications",
+               "Development/Libraries",
+               "",
+               ["lib/Ice-%version%/Ice.jar"]),
+    Subpackage("java-devel",
+               "ice-java",
+               "Ice tools developing Ice applications in Java",
+               "Development/Libraries Development/Tools",
+               "",
+               ["bin/slice2java",
+                "bin/slice2freezej"]),
+    Subpackage("python",
+               "",
+               "Ice runtime for Python applications",
+               "Development/Libraries",
+               "",
+               ["lib/IcePy.so", "python"]),
+    Subpackage("python-devel",
+               "ice-python",
+               "Ice tools for developing Ice applications in Python",
+               "Development/Libraries Development/Tools",
+               "",
+               ["bin/slice2py"]),
+    Subpackage("docs",
+               "",
+               "Browsable documentation for Ice",
+               "Development/Libraries Development/Tools",
+               "",
+               ["share/doc/Ice-%version%"])
+    ]
 
 def usage():
     """Print usage/help information"""
@@ -320,7 +348,7 @@ def printRPMHeader(ofile, version, release, installDir):
     ofile.write("%define _unpackaged_files_terminate_build 0\n")
     ofile.write("Summary: The Internet Communications Engine (ICE) is a modern alternative to object middleware such ")
     ofile.write("as CORBA\n")
-    ofile.write("Name: Ice\n")
+    ofile.write("Name: ice\n")
     ofile.write("Version: " + version + "\n")
     ofile.write("Release: " + release + "\n")
     ofile.write("License: GPL\n")
@@ -348,7 +376,64 @@ Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz
 
 """)
 
+def missingDirs(source, dest):
+    print "Calculating :  " + source + " and " + dest
+        
+    startPath = dest.find(source)
+
+    result = dest[0:startPath]
+    #
+    # There is no common element, we'll need to create the whole destination tree.
+    #
+    if startPath == -1:
+        result = dest
+    #
+    # The common element is at the head, but we already know the path doesn't exists
+    # so we need to remaining path elements
+    #
+    elif startPath == 0:
+        result = dest
+    #
+    # If the common element is not at the tail of destination, then we probably
+    # need to create the whole path
+    #
+    elif startPath + len(source) + 1 < len(dest):
+        result = dest
+        
+    print "Making " + result
+    return result
+
+def transformDirectories(transforms, version, installDir):
+    """Transforms a directory tree that was created with 'make installs' to an RPM friendly
+       directory tree"""
+    cwd = os.getcwd()
+    os.chdir(installDir + "/Ice-" + version)
+    for source, dest in transforms:
+        if dest.find("%version%"):
+            dest = dest.replace("%version%", version)
+
+        sourcedir = source
+        destdir = dest
+        if not os.path.isdir(sourcedir):
+            sourcedir = os.path.dirname(sourcedir)
+
+        # This is a special problem.  What this implies is that we are trying to move the contents of a directory
+        # into a subdirectory of itself.  The regular shutil.move() won't cut it.
+        if os.path.isdir(sourcedir) and sourcedir.split("/")[0] == destdir.split("/")[0]:
+            shutil.move(source, "./tmp")
+            os.makedirs(destdir)
+            shutil.move("./tmp", destdir)
+        else:
+            if not os.path.exists(os.path.dirname(dest)):
+                os.makedirs(missingDirs(sourcedir, destdir))
+            shutil.move(source, dest)
+    os.chdir(cwd)
+
 def main():
+
+    #
+    # Process args.
+    #
     try:
         buildDir = None
         installDir = None
@@ -417,20 +502,27 @@ def main():
 
     version, soVersion = getVersion(cvsTag, buildDir)
 
+    if verbose:
+        print "Building binary distributions for Ice-" + version + " on " + getPlatform()
+        print "Using build directory: " + buildDir
+        print "Using install directory: " + installDir
+        if getPlatform() == "linux":
+            print "(RPMs will be built)"
+        print
+
     #
     # Primarily for debugging spec file creation.
     #
     if printSpecFile:
         ofile = sys.stdout
         printRPMHeader(ofile, version, "1", installDir)
-        for k, v in fileLists.iteritems():
+        for v in fileLists:
             v.writeHdr(ofile)
             ofile.write("\n\n\n")
-        for k, v in fileLists.iteritems():
+        for v in fileLists:
             v.writeFiles(ofile, version, soVersion)
             ofile.write("\n")
         sys.exit(0)
-
 
     #
     # This last directory we have to wait until we've got the version number for the distribution.
@@ -489,12 +581,13 @@ def main():
     # that is running the script has massaged the permissions on /usr/src/redhat/.
     #
     if getPlatform() == "linux":
+        transformDirectories(transforms, version, installDir)
         ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
         printRPMHeader(ofile, version, "1", installDir)
-        for k, v in fileLists.iteritems():
+        for v in fileLists:
             v.writeHdr(ofile)
             ofile.write("\n\n\n")
-        for k, v in fileLists.iteritems():
+        for v in fileLists:
             v.writeFiles(ofile, version, soVersion)
             ofile.write("\n")
         shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
@@ -507,7 +600,6 @@ def main():
     #
     # TODO: Cleanups?  I've left everything in place so that the process can be easily debugged.
     #
-
 
 if __name__ == "__main__":
     main()
