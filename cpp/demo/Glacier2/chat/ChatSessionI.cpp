@@ -28,7 +28,13 @@ void
 ChatRoomMembers::remove(const ChatCallbackPrx& callback)
 {
     IceUtil::Mutex::Lock sync(*this);
-    list<ChatCallbackPrx>::iterator p = find(_members.begin(), _members.end(), callback);
+    for(list<ChatCallbackPrx>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+	if(Ice::proxyIdentityEqual(callback, *p))
+	{
+	    break;
+	}
+    }
     if(p != _members.end())
     {
 	_members.erase(p);
@@ -60,7 +66,6 @@ ChatSessionI::ChatSessionI(const ChatRoomMembersPtr& members, const string& user
     _userId(userId),
     _destroy(false)
 {
-    _members->message(_userId + " has entered the chat room.");
 }
 
 void
@@ -70,6 +75,7 @@ ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current& c
     if(!_callback)
     {
 	_callback = callback;
+	_members->message(_userId + " has entered the chat room.");
 	_members->add(callback);
     }
 }
@@ -91,9 +97,8 @@ ChatSessionI::destroy(const Ice::Current& current)
 	{
 	    _members->remove(_callback);
 	    _callback = 0;
+	    _members->message(_userId + " has left the chat room.");
 	}
 	current.adapter->remove(current.id);
-	_members->message(_userId + " has left the chat room.");
     }
 }
-
