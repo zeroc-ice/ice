@@ -134,6 +134,10 @@ SOURCE=.\Preprocessor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PythonUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Scanner.cpp
 # End Source File
 # End Group
@@ -171,6 +175,10 @@ SOURCE=..\..\include\Slice\Parser.h
 # Begin Source File
 
 SOURCE=..\..\include\Slice\Preprocessor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Slice\PythonUtil.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
