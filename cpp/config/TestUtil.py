@@ -14,14 +14,14 @@ import sys, os
 protocol = "ssl"
 
 serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30" + \
-                " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml --Ice.Protocol=" + \
-                protocol
+                " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml" + \
+		" --Ice.Protocol=" + protocol
 
-clientOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml --Ice.Protocol=" + \
-                protocol
+clientOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml" + \
+		" --Ice.Protocol=" + protocol
 
-collocatedOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml --Ice.Protocol=" + \
-                    protocol
+collocatedOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml" + \
+		    " --Ice.Protocol=" + protocol
 
 serverPids = []
 
@@ -69,12 +69,14 @@ def clientServerTest(toplevel, name):
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting server...",
+    print server + updatedServerOptions
     serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
+    print client + updatedClientOptions
     clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
     if not output:
