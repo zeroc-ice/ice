@@ -41,8 +41,7 @@ public abstract class Application
     {
         if(_communicator != null)
         {
-            System.err.println(appName + ": only one instance of the " +
-                               "Application class can be used");
+            System.err.println(appName + ": only one instance of the Application class can be used");
             return 1;
         }
 
@@ -63,6 +62,11 @@ public abstract class Application
             {
                 _communicator = Util.initialize(argHolder);
             }
+
+            // The default is to shutdown when a signal is received
+            //
+            shutdownOnInterrupt();
+
             status = run(argHolder.value);
         }
         catch(LocalException ex)
