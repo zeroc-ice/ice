@@ -1,0 +1,69 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			= /opt/IcePy-$(VERSION)
+
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION			= 1.6.0
+SOVERSION		= 16
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+
+ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
+slicedir		= $(top_srcdir)/slice
+else
+slicedir		= $(ICE_HOME)/slice
+endif
+
+install_libdir		= $(prefix)/lib
+install_slicedir	= $(prefix)/slice
+install_pythondir	= $(prefix)/python
+install_docdir		= $(prefix)/doc
+
+INSTALL			= cp -fp
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
+
+UNAME			:= $(shell uname)
+
+ICECPPFLAGS		= -I$(slicedir)
+SLICE2PYFLAGS		= $(ICECPPFLAGS)
+
+ifndef ICE_HOME
+SLICE2PY		= $(ICE_HOME)/bin/slice2py
+else
+SLICE2PY		= slice2py
+endif
+
+EVERYTHING		= all clean install
+
+.SUFFIXES:
+.SUFFIXES:		.py
+
+all:: $(SRCS)
+
+%_ice.py: $(SDIR)/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) $(SLICE2PYFLAGS) $<
+
+clean::
+	-rm -f core *.pyc *.bak
+
+install::
