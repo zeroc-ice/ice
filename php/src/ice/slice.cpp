@@ -67,12 +67,14 @@ public:
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
+    virtual void visitDataMember(const Slice::DataMemberPtr&);
     virtual void visitDictionary(const Slice::DictionaryPtr&);
     virtual void visitEnum(const Slice::EnumPtr&);
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
     zend_class_entry* findClass(const string&);
+    bool getDefaultValue(zval*, const Slice::TypePtr&);
 
     TypeMap& _typeMap;
     int _module;
@@ -80,6 +82,7 @@ private:
     TSRMLS_D;
 #endif
     zend_class_entry* _iceObjectClass;
+    zend_class_entry* _currentClass;
 };
 
 //
@@ -365,7 +368,7 @@ Slice_isNativeKey(const Slice::TypePtr& type)
 }
 
 PHPVisitor::PHPVisitor(TypeMap& typeMap, int module TSRMLS_DC) :
-    _typeMap(typeMap), _module(module)
+    _typeMap(typeMap), _module(module), _currentClass(0)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -452,8 +455,9 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     }
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
+    _currentClass = cls;
 
-    return false;
+    return true;
 }
 
 bool
@@ -481,8 +485,9 @@ PHPVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     }
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
+    _currentClass = cls;
 
-    return false;
+    return true;
 }
 
 bool
@@ -494,8 +499,24 @@ PHPVisitor::visitStructStart(const Slice::StructPtr& p)
     cls->ce_flags |= ZEND_ACC_FINAL;
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
+    _currentClass = cls;
 
-    return false;
+    return true;
+}
+
+void
+PHPVisitor::visitDataMember(const Slice::DataMemberPtr& p)
+{
+    assert(_currentClass);
+
+    zval* zv;
+    MAKE_STD_ZVAL(zv);
+    if(getDefaultValue(zv, p->type()))
+    {
+        string name = ice_fixIdent(p->name());
+        zend_hash_add(&_currentClass->default_properties, const_cast<char*>(name.c_str()), name.length() + 1,
+                      (void**)&zv, sizeof(zval*), NULL);
+    }
 }
 
 void
@@ -508,7 +529,7 @@ PHPVisitor::visitDictionary(const Slice::DictionaryPtr& p)
         // TODO: Generate class.
         //
         string scoped = p->scoped();
-        zend_error(E_WARNING, "dictionary %s uses an unsupported key type", scoped.c_str());
+        zend_error(E_WARNING, "skipping dictionary %s - unsupported key type", scoped.c_str());
     }
 }
 
@@ -531,11 +552,11 @@ PHPVisitor::visitEnum(const Slice::EnumPtr& p)
     long i;
     for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
     {
-        string name = (*q)->name();
+        string name = ice_fixIdent((*q)->name());
         zval* en;
         MAKE_STD_ZVAL(en);
         ZVAL_LONG(en, i);
-        zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, &en,
+        zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, (void**)&en,
                          sizeof(zval*), NULL);
     }
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
@@ -651,4 +672,65 @@ PHPVisitor::findClass(const string& scoped)
     }
 
     return result;
+}
+
+bool
+PHPVisitor::getDefaultValue(zval* zv, const Slice::TypePtr& type)
+{
+    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
+    if(b)
+    {
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+            ZVAL_FALSE(zv);
+            return true;
+
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindLong:
+            ZVAL_LONG(zv, 0);
+            return true;
+
+        case Slice::Builtin::KindString:
+            ZVAL_EMPTY_STRING(zv);
+            return true;
+
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+            ZVAL_DOUBLE(zv, 0.0);
+            return true;
+
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            ZVAL_NULL(zv);
+            return true;
+        }
+    }
+
+    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        ZVAL_LONG(zv, 0);
+        return true;
+    }
+
+    Slice::SequencePtr seq = Slice::SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        array_init(zv);
+        return true;
+    }
+
+    Slice::DictionaryPtr dict = Slice::DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        array_init(zv);
+        return true;
+    }
+
+    ZVAL_NULL(zv);
+    return true;
 }
