@@ -291,7 +291,7 @@ public abstract class OutgoingAsync
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(ref.facet == null)
+                if(ref.facet == null || ref.facet.length() == 0)
                 {
                     __os.writeStringSeq(null);
                 }

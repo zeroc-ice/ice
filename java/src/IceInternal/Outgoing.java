@@ -413,7 +413,7 @@ public final class Outgoing
         //
         // For compatibility with the old FacetPath.
         //
-        if(_reference.facet == null)
+        if(_reference.facet == null || _reference.facet.length() == 0)
         {
             _os.writeStringSeq(null);
         }

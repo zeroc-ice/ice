@@ -198,7 +198,7 @@ final public class Incoming extends IncomingBase
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(ex.facet == null)
+                if(ex.facet == null || ex.facet.length() == 0)
                 {
                     _os.writeStringSeq(null);
                 }
@@ -321,7 +321,7 @@ final public class Incoming extends IncomingBase
                 //
                 // For compatibility with the old FacetPath.
                 //
-                if(_current.facet == null)
+                if(_current.facet == null || _current.facet.length() == 0)
                 {
                     _os.writeStringSeq(null);
                 }
