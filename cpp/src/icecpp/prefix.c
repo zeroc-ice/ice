@@ -85,7 +85,7 @@ static char *lookup_key		PROTO((char *));
 static HKEY reg_key = (HKEY) INVALID_HANDLE_VALUE;
 #endif
 
-extern char *getenv ();
+//extern char *getenv ();
 
 /* Given KEY, as above, return its value.  */
 

@@ -202,16 +202,16 @@ static void hack_vms_include_specification ();
 
 extern char *version_string;
 extern char *update_path PROTO((char *, char *));
-#ifndef VMS
-#ifndef HAVE_STRERROR
-extern int sys_nerr;
-extern char *sys_errlist[];
-#else	/* HAVE_STRERROR */
-char *strerror ();
-#endif
-#else	/* VMS */
-char *strerror (int,...);
-#endif
+//#ifndef VMS
+//#ifndef HAVE_STRERROR
+//extern int sys_nerr;
+//extern char *sys_errlist[];
+//#else	/* HAVE_STRERROR */
+//char *strerror ();
+//#endif
+//#else	/* VMS */
+//char *strerror (int,...);
+//#endif
 HOST_WIDE_INT parse_escape PROTO((char **, HOST_WIDE_INT));
 HOST_WIDE_INT parse_c_expression PROTO((char *, int));
 

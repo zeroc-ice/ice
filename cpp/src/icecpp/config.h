@@ -23,7 +23,7 @@
 #   define HAVE_INDEX 1
 #   define HAVE_RINDEX 1
 #   define HAVE_UNISTD_H 1
-#elif defined(__WIN32)
+#elif defined(_WIN32)
 #   include <malloc.h>
 #   include <io.h>
 #   pragma warning( disable : 4018 )
