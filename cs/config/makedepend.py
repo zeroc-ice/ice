@@ -26,6 +26,5 @@ for line in fileinput.input():
 
     for s in line.split():
         if(s[0] != "/"):
-            print re.sub(r'^(.*)\.cpp:(.*)$', r'generated/\1.cs:\2', s),
-
+            print s,
     print
