@@ -232,7 +232,8 @@ Ice::PropertiesI::parseLine(const string& line)
     {
 	return;
     }
-    
+    ++end;
+
     string value;
     beg = s.find_first_not_of(delim, end);
     if (beg != string::npos)
