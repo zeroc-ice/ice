@@ -392,7 +392,7 @@ SOURCE=.\dummy1.ice
 
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
-USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	"..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\dummy1.ice
 
@@ -417,7 +417,7 @@ SOURCE=.\dummy2.ice
 
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
-USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	"..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\dummy2.ice
 
@@ -442,7 +442,7 @@ SOURCE=.\dummy3.ice
 
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
-USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	"..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
+USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\dummy3.ice
 
