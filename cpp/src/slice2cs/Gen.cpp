@@ -196,7 +196,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
     _out << sp << nl << "public override bool ice_isA(string s)";
     _out << sb;
-    _out << nl << "if(IceInternal.AssemblyUtil._runtime == IceInternal.Runtime.Mono)"
+    _out << nl << "if(IceInternal.AssemblyUtil._runtime == IceInternal.AssemblyUtil.Runtime.Mono)"
                   " // Bug in Mono 1.0 DefaultInvariant";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
