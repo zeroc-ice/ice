@@ -424,8 +424,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	out << sb;
 	if(marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << " = " << fixedParam << ';';
-	    out << nl << stream << deref << func << obj << ");";
+	    string scope = fixKwd(cl->scope());
+	    out << nl << scope << "__write(" << stream << ", " << fixedParam << ");";
 	}
 	else
 	{
@@ -643,8 +643,9 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	out << sb;
 	if(marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << " = " << fixedParam << ';';
-	    out << nl << stream << deref << streamFunc << "Object(" << tagName << ", " << obj << ");";
+	    string scope = fixKwd(cl->scope());
+	    out << nl << scope << "__" << streamFunc << "Object(" << stream << ", " << tagName << ", "
+		<< fixedParam << ");";
 	}
 	else
 	{

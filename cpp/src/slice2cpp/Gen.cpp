@@ -2803,6 +2803,9 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << sp;
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Ptr&);";
+	H << nl << _dllExport << "void __writeObject(const ::Ice::StreamPtr&, const ::std::string&, const "
+	  << name << "Ptr&);";
 
 	H << sp;
 	H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
@@ -2842,6 +2845,20 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "v = new ::IceProxy" << scoped << ';';
 	C << nl << "v->__copyFrom(proxy);";
 	C << eb;
+	C << eb;
+
+	C << sp;
+	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const " << scoped
+	  << "Ptr& v)";
+	C << sb;
+	C << nl << "__os->write(::Ice::ObjectPtr(v));";
+	C << eb;
+
+	C << sp;
+	C << nl << "void" << nl << scope.substr(2) << "__writeObject(const ::Ice::StreamPtr& __os, "
+	  << "const ::std::string& __s, const " << scoped << "Ptr& v)";
+	C << sb;
+	C << nl << "__os->writeObject(__s, ::Ice::ObjectPtr(v));";
 	C << eb;
 
 	C << sp;
