@@ -27,16 +27,16 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     PropertiesPtr properties = _communicator->getProperties();
     _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
 
-    size_t current = 0;
     const string ws = " \t";
-    do
+    size_t current = allowCategories.find_first_not_of(ws, 0);
+    while (current != string::npos)
     {
 	size_t pos = allowCategories.find_first_of(ws, current);
 	size_t len = (pos == string::npos) ? string::npos : pos - current;
-	_allowCategories.insert(allowCategories.substr(current, len));
+	string category = allowCategories.substr(current, len);
+	_allowCategories.insert(category);
 	current = allowCategories.find_first_not_of(ws, pos);
     }
-    while (current != string::npos);
 }
 
 Glacier::ClientBlobject::~ClientBlobject()
