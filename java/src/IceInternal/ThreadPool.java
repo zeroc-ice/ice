@@ -500,7 +500,7 @@ public final class ThreadPool
             int size = stream.readInt();
             if (size < Protocol.headerSize)
             {
-                throw new Ice.IllegalMessageSizeException();
+                //throw new Ice.IllegalMessageSizeException();
             }
             if (size > 1024 * 1024) // TODO: Configurable
             {
