@@ -196,6 +196,13 @@ IceSSL::SslServerTransceiver::handshake(int timeout)
             }
         }
 
+        if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+        {
+ 	    Trace out(_logger, _traceLevels->securityCat);
+            out << "Performing handshake.\n";
+            out << fdToString(SSL_get_fd(_sslConnection));
+        }
+
         int result = accept();
 
         // We're doing an Accept and we don't get a retry on the socket.

@@ -55,8 +55,8 @@ public:
                            const CertificateAuthority&,
                            const BaseCertificates&);
 
-    // Takes a socket fd as the first parameter.
-    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&) = 0;
+    // Takes a socket fd as the first parameter, and the initial handshake timeout as the final.
+    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int) = 0;
 
 protected:
 
@@ -83,7 +83,7 @@ protected:
 
     SSL* createSSLConnection(int);
 
-    void transceiverSetup(const SslTransceiverPtr&);
+    void transceiverSetup(const SslTransceiverPtr&, int);
 
     void setCipherList(const std::string&);
 
@@ -98,9 +98,9 @@ protected:
     std::string _dsaPrivateKeyProperty;
     std::string _dsaPublicKeyProperty;
     std::string _caCertificateProperty;
-    std::string _handshakeTimeoutProperty;
     std::string _passphraseRetriesProperty;
     std::string _maxPassphraseRetriesDefault;
+    std::string _connectionHandshakeRetries;
 
     CertificateVerifierPtr _certificateVerifier;
 

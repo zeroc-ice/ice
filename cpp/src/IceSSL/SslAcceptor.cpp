@@ -76,7 +76,7 @@ IceSSL::SslAcceptor::accept(int timeout)
 	out << "accepted ssl connection\n" << fdToString(fd);
     }
 
-    return _plugin->createTransceiver(IceSSL::Server, fd);
+    return _plugin->createTransceiver(IceSSL::Server, fd, timeout);
 }
 
 string

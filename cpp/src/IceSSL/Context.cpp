@@ -610,12 +610,13 @@ IceSSL::Context::createSSLConnection(int socket)
 }
 
 void
-IceSSL::Context::transceiverSetup(const SslTransceiverPtr& transceiver)
+IceSSL::Context::transceiverSetup(const SslTransceiverPtr& transceiver, int timeout)
 {
-    // Set the Post-Handshake Read timeout
     // This timeout is implemented once on the first read after hanshake.
-    int handshakeReadTimeout = _properties->getPropertyAsIntWithDefault(_handshakeTimeoutProperty, 5000);
-    transceiver->setHandshakeReadTimeout(handshakeReadTimeout);
+    transceiver->setHandshakeReadTimeout(timeout < 5000 ? 5000 : timeout);
+
+    int retries = _properties->getPropertyAsIntWithDefault(_connectionHandshakeRetries, 10);
+    transceiver->setHandshakeRetries(retries);
 }
 
 void

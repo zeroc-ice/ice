@@ -138,8 +138,10 @@ public:
     virtual void read(IceInternal::Buffer&, int);
     virtual std::string toString() const;
 
+    void forceHandshake();
     virtual int handshake(int timeout = 0) = 0;
-    void setHandshakeReadTimeout(int timeout);
+    void setHandshakeReadTimeout(int);
+    void setHandshakeRetries(int);
     static SslTransceiverPtr getTransceiver(SSL*);
 
     // Callback from OpenSSL for purposes of certificate verification
@@ -195,6 +197,7 @@ protected:
     int _initWantRead;
     int _initWantWrite;
     int _handshakeReadTimeout;
+    int _handshakeRetries;
     int _readTimeout;
 
     ConnectPhase _phase;

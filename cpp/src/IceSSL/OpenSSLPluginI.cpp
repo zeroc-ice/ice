@@ -192,7 +192,7 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
 }
 
 IceSSL::SslTransceiverPtr
-IceSSL::OpenSSLPluginI::createTransceiver(ContextType connectionType, int socket)
+IceSSL::OpenSSLPluginI::createTransceiver(ContextType connectionType, int socket, int timeout)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
@@ -215,11 +215,11 @@ IceSSL::OpenSSLPluginI::createTransceiver(ContextType connectionType, int socket
 
     if(connectionType == Client)
     {
-        transceiver = _clientContext.createTransceiver(socket, this);
+        transceiver = _clientContext.createTransceiver(socket, this, timeout);
     }
     else if(connectionType == Server)
     {
-        transceiver = _serverContext.createTransceiver(socket, this);
+        transceiver = _serverContext.createTransceiver(socket, this, timeout);
     }
 
     return transceiver;

@@ -28,8 +28,8 @@ public:
                            const CertificateAuthority&,
                            const BaseCertificates&);
 
-    // Takes a socket fd as the first parameter.
-    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&);
+    // Takes a socket fd as the first parameter, and the initial handshake timeout as the final.
+    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int);
 
 protected:
 

@@ -54,7 +54,7 @@ public:
     virtual ~OpenSSLPluginI();
 
 
-    virtual SslTransceiverPtr createTransceiver(ContextType, int);
+    virtual SslTransceiverPtr createTransceiver(ContextType, int, int);
 
     virtual bool isConfigured(ContextType);
     virtual void configure();

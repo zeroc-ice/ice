@@ -75,7 +75,7 @@ IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
 }
 
 IceSSL::SslTransceiverPtr 
-IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& plugin)
+IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& plugin, int timeout)
 {
     if(_sslContext == 0)
     {
@@ -87,7 +87,7 @@ IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& pl
     SSL* ssl = createSSLConnection(socket);
     SslTransceiverPtr transceiver = new SslServerTransceiver(plugin, socket, _certificateVerifier, ssl);
 
-    transceiverSetup(transceiver);
+    transceiverSetup(transceiver, timeout);
 
     return transceiver;
 }
@@ -105,8 +105,8 @@ IceSSL::ServerContext::ServerContext(const TraceLevelsPtr& traceLevels, const Lo
     _dsaPrivateKeyProperty = "IceSSL.Server.Overrides.DSA.PrivateKey";
     _dsaPublicKeyProperty  = "IceSSL.Server.Overrides.DSA.Certificate";
     _caCertificateProperty = "IceSSL.Server.Overrides.CACertificate";
-    _handshakeTimeoutProperty = "IceSSL.Server.Handshake.ReadTimeout";
-    _passphraseRetriesProperty = "IceSSL.Client.Passphrase.Retries";
+    _passphraseRetriesProperty = "IceSSL.Server.Passphrase.Retries";
+    _connectionHandshakeRetries = "IceSSL.Server.Handshake.Retries";
 }
 
 void

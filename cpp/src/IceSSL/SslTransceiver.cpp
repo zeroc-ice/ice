@@ -273,9 +273,58 @@ IceSSL::SslTransceiver::toString() const
 }
 
 void
+IceSSL::SslTransceiver::forceHandshake()
+{
+    int retryCount = 0;
+
+    while(retryCount < _handshakeRetries)
+    {
+	++retryCount;
+
+        try
+        {
+            if(handshake(_handshakeReadTimeout) > 0)
+            {
+                // Handshake complete.
+                break;
+            }
+        }
+        catch(TimeoutException)
+        {
+	    // Do nothing.
+        }
+    }
+
+    if(retryCount >= _handshakeRetries)
+    {
+        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        {
+ 	    Trace out(_logger, _traceLevels->securityCat);
+            out << "Handshake retry maximum reached.\n";
+            out << fdToString(SSL_get_fd(_sslConnection));
+        }
+
+        // If the handshake fails, the connection failed.
+        ConnectFailedException ex(__FILE__, __LINE__);
+#ifdef _WIN32
+        ex.error = WSAECONNREFUSED;
+#else
+        ex.error = ECONNREFUSED;
+#endif
+        throw ex;
+    }
+}
+
+void
 IceSSL::SslTransceiver::setHandshakeReadTimeout(int timeout)
 {
     _handshakeReadTimeout = timeout;
+}
+
+void
+IceSSL::SslTransceiver::setHandshakeRetries(int retries)
+{
+    _handshakeRetries = retries;
 }
 
 IceSSL::SslTransceiverPtr
@@ -958,8 +1007,8 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
     _initWantRead = 0;
     _initWantWrite = 0;
 
-    // None configured, default to indicated timeout
     _handshakeReadTimeout = 0;
+    _handshakeRetries = 0;
 
     // Set up the SSL to be able to refer back to our connection object.
     addTransceiver(_sslConnection, this);

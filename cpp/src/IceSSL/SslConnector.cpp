@@ -48,7 +48,11 @@ IceSSL::SslConnector::connect(int timeout)
 	logger->trace(traceLevels->networkCat, s.str());
     }
 
-    return _plugin->createTransceiver(IceSSL::Client, fd);
+    SslTransceiverPtr transceiver = _plugin->createTransceiver(IceSSL::Client, fd, timeout);
+
+    transceiver->forceHandshake();
+
+    return transceiver;
 }
 
 string
