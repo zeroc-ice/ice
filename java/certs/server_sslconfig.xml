@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?> 
+<!DOCTYPE SSLConfig SYSTEM "sslconfig.dtd"> 
+<SSLConfig> 
+    <server> 
+        <general version="SSLv23" cipherlist="ADH"/> 
+        <basecerts> 
+	    <dhparams keysize="512" filename="dummy"/>
+        </basecerts> 
+    </server> 
+</SSLConfig>
