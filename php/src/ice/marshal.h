@@ -36,8 +36,8 @@ public:
     static MarshalerPtr createMarshaler(const Slice::TypePtr&);
 
     virtual std::string getArgType() const = 0;
-    virtual bool marshal(zval*, IceInternal::BasicStream&) = 0;
-    virtual bool unmarshal(zval*, IceInternal::BasicStream&) = 0;
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
 
 protected:
     Marshaler();

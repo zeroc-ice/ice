@@ -130,26 +130,7 @@ Ice_ObjectPrx_init(TSRMLS_DC)
     Ice_ObjectPrx_entry_ptr = zend_register_internal_class(&ce_ObjectPrx TSRMLS_CC);
     memcpy(&Ice_ObjectPrx_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     Ice_ObjectPrx_handlers.get_method = Ice_ObjectPrx_get_method;
-    //Ice_ObjectPrx_handlers.call_method = Ice_ObjectPrx_call;
 
-    return true;
-}
-
-//
-// Overloaded version of create for internal use.
-//
-static bool
-Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr& def TSRMLS_DC)
-{
-    if(object_init_ex(zv, Ice_ObjectPrx_entry_ptr) != SUCCESS)
-    {
-        php_error(E_ERROR, "unable to initialize Ice_ObjectPrx in %s()", get_active_function_name(TSRMLS_C));
-        return false;
-    }
-
-    ice_object* zprx = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    assert(!zprx->ptr);
-    zprx->ptr = new Proxy(p, def);
     return true;
 }
 
@@ -160,13 +141,60 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p TSRMLS_DC)
 }
 
 bool
+Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPtr& decl TSRMLS_DC)
+{
+    Slice::ClassDefPtr def;
+    if(decl)
+    {
+        def = decl->definition();
+        if(!def)
+        {
+            string scoped = decl->scoped();
+            php_error(E_ERROR, "%s(): no definition for type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
+            return false;
+        }
+
+        if(decl->isLocal())
+        {
+            string scoped = decl->scoped();
+            php_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
+            return false;
+        }
+    }
+
+    if(object_init_ex(zv, Ice_ObjectPrx_entry_ptr) != SUCCESS)
+    {
+        php_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
+        return false;
+    }
+
+    ice_object* zprx = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+    assert(!zprx->ptr);
+    zprx->ptr = new Proxy(p, def);
+    return true;
+}
+
+bool
 Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx TSRMLS_DC)
 {
     if(!ZVAL_IS_NULL(zv))
     {
-        ice_object* p = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-        assert(p->ptr);
-        Proxy* proxy = static_cast<Proxy*>(p->ptr);
+        void* p = zend_object_store_get_object(zv TSRMLS_CC);
+        if(!p)
+        {
+            php_error(E_ERROR, "unable to retrieve proxy object from object store in %s()",
+                      get_active_function_name(TSRMLS_C));
+            return false;
+        }
+        zend_object* zo = static_cast<zend_object*>(p);
+        if(zo->ce != Ice_ObjectPrx_entry_ptr)
+        {
+            php_error(E_ERROR, "value is not a proxy in %s()", get_active_function_name(TSRMLS_C));
+            return false;
+        }
+        ice_object* obj = static_cast<ice_object*>(p);
+        assert(obj->ptr);
+        Proxy* proxy = static_cast<Proxy*>(obj->ptr);
         prx = proxy->getProxy();
     }
     return true;
@@ -885,19 +913,6 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
                 RETURN_NULL();
             }
 
-            def = decl->definition();
-            if(!def)
-            {
-                php_error(E_ERROR, "%s(): no definition for type %s", get_active_function_name(TSRMLS_C), id);
-                RETURN_NULL();
-            }
-
-            if(decl->isLocal())
-            {
-                php_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), id);
-                RETURN_NULL();
-            }
-
             if(check)
             {
                 //
@@ -910,7 +925,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
                 }
             }
 
-            if(!Ice_ObjectPrx_create(return_value, _this->getProxy(), def TSRMLS_CC))
+            if(!Ice_ObjectPrx_create(return_value, _this->getProxy(), decl TSRMLS_CC))
             {
                 RETURN_NULL();
             }
@@ -1023,7 +1038,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         vector<MarshalerPtr>::iterator p;
         for(i = 0, p = _inParams.begin(); p != _inParams.end(); ++i, ++p)
         {
-            if(!(*p)->marshal(*args[i], os))
+            if(!(*p)->marshal(*args[i], os TSRMLS_CC))
             {
                 return;
             }
@@ -1050,14 +1065,19 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         is.i = is.b.begin();
         for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
         {
-            if(!(*p)->unmarshal(*args[i], is))
+            //
+            // It appears we must explicitly destroy the contents of all zvals passed
+            // as out parameters, otherwise leaks occur.
+            //
+            zval_dtor(*args[i]);
+            if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
             {
                 return;
             }
         }
         if(_result)
         {
-            if(!_result->unmarshal(return_value, is))
+            if(!_result->unmarshal(return_value, is TSRMLS_CC))
             {
                 return;
             }
@@ -1175,7 +1195,6 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
             return NULL;
         }
 
-        // TODO: Leak?
         zend_internal_function* zif = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
         zif->arg_types = NULL;
         zif->function_name = estrndup(method, len);

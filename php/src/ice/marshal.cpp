@@ -17,6 +17,7 @@
 #endif
 
 #include "marshal.h"
+#include "objectprx.h"
 
 #include <IceUtil/InputUtil.h>
 
@@ -29,8 +30,8 @@ public:
     ~PrimitiveMarshaler();
 
     virtual std::string getArgType() const;
-    virtual bool marshal(zval*, IceInternal::BasicStream&);
-    virtual bool unmarshal(zval*, IceInternal::BasicStream&);
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
 private:
     Slice::BuiltinPtr _type;
@@ -43,12 +44,26 @@ public:
     ~SequenceMarshaler();
 
     virtual std::string getArgType() const;
-    virtual bool marshal(zval*, IceInternal::BasicStream&);
-    virtual bool unmarshal(zval*, IceInternal::BasicStream&);
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
 private:
     Slice::SequencePtr _type;
     MarshalerPtr _elementMarshaler;
+};
+
+class ProxyMarshaler : public Marshaler
+{
+public:
+    ProxyMarshaler(const Slice::TypePtr&);
+    ~ProxyMarshaler();
+
+    virtual std::string getArgType() const;
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    Slice::TypePtr _type;
 };
 
 //
@@ -81,9 +96,11 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
             return new PrimitiveMarshaler(builtin);
 
         case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
             // TODO
             return 0;
+
+        case Slice::Builtin::KindObjectProxy:
+            return new ProxyMarshaler(type);
 
         case Slice::Builtin::KindLocalObject:
             php_error(E_ERROR, "unexpected local type");
@@ -97,14 +114,15 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
         return new SequenceMarshaler(seq);
     }
 
+    Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
+    if(proxy)
+    {
+        return new ProxyMarshaler(type);
+    }
+
 #if 0
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-    {
-    }
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
     {
     }
 
@@ -205,7 +223,7 @@ PrimitiveMarshaler::getArgType() const
 }
 
 bool
-PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
+PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     //
     // TODO: Use convert_to_XXX functions? For example, this would allow users to provide a stringified 
@@ -354,7 +372,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
 }
 
 bool
-PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is)
+PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     switch(_type->kind())
     {
@@ -488,7 +506,7 @@ SequenceMarshaler::getArgType() const
 }
 
 bool
-SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
+SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
@@ -506,7 +524,7 @@ SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     zend_hash_internal_pointer_reset_ex(arr, &pos);
     while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
     {
-        if(!_elementMarshaler->marshal(*val, os))
+        if(!_elementMarshaler->marshal(*val, os TSRMLS_CC))
         {
             return false;
         }
@@ -517,7 +535,7 @@ SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
 }
 
 bool
-SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is)
+SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
     array_init(zv);
 
@@ -530,11 +548,84 @@ SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is)
     {
         zval* val;
         MAKE_STD_ZVAL(val);
-        if(!_elementMarshaler->unmarshal(val, is))
+        if(!_elementMarshaler->unmarshal(val, is TSRMLS_CC))
         {
             return false;
         }
         add_index_zval(zv, i, val);
+    }
+
+    return true;
+}
+
+//
+// ProxyMarshaler implementation.
+//
+ProxyMarshaler::ProxyMarshaler(const Slice::TypePtr& type) :
+    _type(type)
+{
+}
+
+ProxyMarshaler::~ProxyMarshaler()
+{
+}
+
+string
+ProxyMarshaler::getArgType() const
+{
+    return "o!";
+}
+
+bool
+ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_OBJECT && Z_TYPE_P(zv) != IS_NULL)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        php_error(E_ERROR, "expected proxy value but received %s", s.c_str());
+        return false;
+    }
+
+    Ice::ObjectPrx proxy;
+    if(!ZVAL_IS_NULL(zv))
+    {
+        if(!Ice_ObjectPrx_fetch(zv, proxy TSRMLS_CC))
+        {
+            return false;
+        }
+    }
+    os.write(proxy);
+
+    return true;
+}
+
+bool
+ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    Ice::ObjectPrx proxy;
+    is.read(proxy);
+
+    if(!proxy)
+    {
+        ZVAL_NULL(zv);
+        return true;
+    }
+
+    //
+    // If _type is not a primitive proxy (i.e., Builtin::KindObjectProxy), then we
+    // want to associate our class with the proxy so that it is considered to be
+    // "narrowed".
+    //
+    Slice::ClassDeclPtr decl;
+    Slice::ProxyPtr type = Slice::ProxyPtr::dynamicCast(_type);
+    if(type)
+    {
+        decl = type->_class();
+    }
+
+    if(!Ice_ObjectPrx_create(zv, proxy, decl TSRMLS_CC))
+    {
+        return false;
     }
 
     return true;
