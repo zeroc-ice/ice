@@ -30,6 +30,17 @@ Ice::LocalException::LocalException(const char* file, int line) :
 }
 
 void
+Ice::InitializationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\ninitialization exception";
+    if(!reason.empty())
+    {
+	out << ":\n" << reason;
+    }
+}
+
+void
 Ice::UnknownException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
