@@ -37,10 +37,11 @@ public:
     ~DBEnvironmentMap()
     {
 	// 
-	// Unfortunately we can have this assertion here. If a Freeze
+	// Unfortunately we can't use this assertion here. If a Freeze
 	// application forks processes and if it can't execv a new
 	// process, the forked process will unload the Freeze shared
-	// library and will hit this assertion.
+	// library and the assertion will fail if a database
+	// environment was already open before the process forked.
 	//
 	// assert(_map.empty());
     }
@@ -1028,19 +1029,19 @@ void
 Freeze::DBDeadlockException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunknown local exception";
+    out << ":\ndatabase deadlock:\n" << message;
 }
 
 void
 Freeze::DBNotFoundException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunknown local exception";
+    out << ":\ndatabase record not found:\n" << message;
 }
 
 void
 Freeze::DBException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunknown local exception";
+    out << ":\n" << message;
 }
