@@ -30,7 +30,7 @@ public class Client
         PingPrx ping = PingPrxHelper.checkedCast(base);
         if(ping == null)
         {
-            System.err.println("invalid object reference");
+            System.err.println("invalid proxy");
             return 1;
         }
 
