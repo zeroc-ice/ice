@@ -98,17 +98,17 @@ PhoneBookServer::run(int argc, char* argv[])
     }
     catch(const LocalException& ex)
     {
-	cerr << argv[0] << ": local exception: " << ex << endl;
+	cerr << appName() << ": local exception: " << ex << endl;
 	status = EXIT_FAILURE;
     }
     catch(const DBExceptionPtrE& ex)
     {
-	cerr << argv[0] << ": database exception: " << ex->message << endl;
+	cerr << appName() << ": database exception: " << ex->message << endl;
 	status = EXIT_FAILURE;
     }
     catch(...)
     {
-	cerr << argv[0] << ": unknown exception" << endl;
+	cerr << appName() << ": unknown exception" << endl;
 	status = EXIT_FAILURE;
     }
 
@@ -120,17 +120,17 @@ PhoneBookServer::run(int argc, char* argv[])
 	}
 	catch(const LocalException& ex)
 	{
-	    cerr << argv[0] << ": local exception: " << ex << endl;
+	    cerr << appName() << ": local exception: " << ex << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(const DBExceptionPtrE& ex)
 	{
-	    cerr << argv[0] << ": database exception: " << ex->message << endl;
+	    cerr << appName() << ": database exception: " << ex->message << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(...)
 	{
-	    cerr << argv[0] << ": unknown exception" << endl;
+	    cerr << appName() << ": unknown exception" << endl;
 	    status = EXIT_FAILURE;
 	}
     }

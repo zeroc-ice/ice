@@ -30,8 +30,28 @@ void
 IceInternal::ServantFactoryManager::remove(const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    _factoryMap.erase(id);
-    _factoryMapHint = _factoryMap.end();
+
+    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.end();
+    
+    if (_factoryMapHint != _factoryMap.end())
+    {
+	if (_factoryMapHint->first == id)
+	{
+	    p = _factoryMapHint;
+	}
+    }
+    
+    if (p != _factoryMap.end())
+    {
+	p = _factoryMap.find(id);
+    }
+    
+    if (p != _factoryMap.end())
+    {
+	p->second->destroy();
+	_factoryMap.erase(p);
+	_factoryMapHint = _factoryMap.end();
+    }
 }
 
 ServantFactoryPtr
@@ -39,15 +59,21 @@ IceInternal::ServantFactoryManager::find(const string& id)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
+    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.end();
+    
     if (_factoryMapHint != _factoryMap.end())
     {
 	if (_factoryMapHint->first == id)
 	{
-	    return _factoryMapHint->second;
+	    p = _factoryMapHint;
 	}
     }
     
-    map<string, ::Ice::ServantFactoryPtr>::iterator p = _factoryMap.find(id);
+    if (p != _factoryMap.end())
+    {
+	p = _factoryMap.find(id);
+    }
+    
     if (p != _factoryMap.end())
     {
 	_factoryMapHint = p;

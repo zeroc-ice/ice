@@ -203,7 +203,7 @@ Ice::CommunicatorI::~CommunicatorI()
 {
     if (_instance)
     {
-	_instance->logger()->warning("communicator object has not been destroyed");
+	_instance->logger()->warning("communicator has not been destroyed");
     }
 }
 

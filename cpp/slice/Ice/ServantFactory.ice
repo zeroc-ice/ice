@@ -47,9 +47,10 @@ local interface ServantFactory
 
     /**
      *
-     * Called when the Communicator this Servant Factory is installed
-     * with is destroyed.
+     * Called when the factory is removed from the Communicator, or if
+     * the Communicator is destroyed.
      *
+     * @see Communicator::removeServantFactory
      * @see Communicator::destroy
      *
      **/

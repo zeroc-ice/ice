@@ -30,7 +30,7 @@ Ice::Application::~Application()
 int
 Ice::Application::main(int argc, char* argv[], const char* configFile)
 {
-    if (_communicator && _appName)
+    if (_communicator)
     {
 	cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
 	return EXIT_FAILURE;
@@ -82,8 +82,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	}
 	_communicator = 0;
     }
-
-    _appName = 0;
 
     return status;
 }
