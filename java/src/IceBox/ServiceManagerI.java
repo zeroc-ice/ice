@@ -19,7 +19,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         _logger = _communicator.getLogger();
         _argv = args;
 
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = _communicator.getProperties();
         _options = properties.getCommandLineOptions();
     }
 
@@ -52,12 +52,14 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // IceBox.Service.Foo=Package.Foo [args]
             //
             final String prefix = "IceBox.Service.";
-            Ice.Properties properties = _communicator.getProperties();
-            String[] services = properties.getProperties(prefix);
-            for (int i = 0; i < services.length; i += 2)
-            {
-                String name = services[i].substring(prefix.length());
-                String value = services[i + 1];
+	    Ice.Properties properties = _communicator.getProperties();
+	    java.util.Map services = properties.getPropertiesForPrefix(prefix);
+	    java.util.Iterator p = services.entrySet().iterator();
+	    while (p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		String name = ((String)entry.getKey()).substring(prefix.length());
+		String value = (String)entry.getValue();
 
                 //
                 // Separate the entry point from the arguments.

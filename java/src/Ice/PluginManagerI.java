@@ -62,11 +62,13 @@ public final class PluginManagerI implements PluginManager
         //
         final String prefix = "Ice.Plugin.";
         Ice.Properties properties = _instance.properties();
-        String[] plugins = properties.getProperties(prefix);
-        for (int i = 0; i < plugins.length; i += 2)
+        java.util.Map plugins = properties.getPropertiesForPrefix(prefix);
+        java.util.Iterator p = plugins.entrySet().iterator();
+        while (p.hasNext())
         {
-            String name = plugins[i].substring(prefix.length());
-            String value = plugins[i + 1];
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            String name = ((String)entry.getKey()).substring(prefix.length());
+            String value = (String)entry.getValue();
 
             //
             // Separate the entry point from the arguments.

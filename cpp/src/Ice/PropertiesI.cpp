@@ -70,19 +70,18 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
     }
 }
 
-StringSeq
-Ice::PropertiesI::getProperties(const string& prefix)
+PropertyDict
+Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    StringSeq result;
+    PropertyDict result;
     map<string, string>::const_iterator p;
     for (p = _properties.begin(); p != _properties.end(); ++p)
     {
-        if (prefix.empty() || p->first.find(prefix) == 0)
+        if (prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
         {
-            result.push_back(p->first);
-            result.push_back(p->second);
+            result.insert(*p);
         }
     }
 

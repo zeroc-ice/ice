@@ -18,6 +18,16 @@ module Ice
 
 /**
  *
+ * A simple collection of properties, represented as a dictionary of
+ * key/value pairs. Both key and value are [string]s.
+ *
+ * @see Properties::getPropertiesForPrefix
+ *
+ **/
+local dictionary<string, string> PropertyDict;
+
+/**
+ *
  * A property set to configure &Ice; and applications based on
  * &Ice;. Properties are key/value pairs, with both keys and values
  * being strings. By conventions, property keys should have the form
@@ -94,10 +104,10 @@ local interface Properties
      * <replaceable>prefix</replaceable> is an empty string,
      * then all properties are returned.
      *
-     * @return The matching properties, in [key,value] pairs.
+     * @return The matching property set.
      *
      **/
-    StringSeq getProperties(string prefix);
+    PropertyDict getPropertiesForPrefix(string prefix);
 
     /**
      *

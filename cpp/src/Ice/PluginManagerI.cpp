@@ -83,11 +83,12 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     //
     const string prefix = "Ice.Plugin.";
     PropertiesPtr properties = _instance->properties();
-    StringSeq plugins = properties->getProperties(prefix);
-    for (StringSeq::size_type i = 0; i < plugins.size(); i += 2)
+    PropertyDict plugins = properties->getPropertiesForPrefix(prefix);
+    PropertyDict::const_iterator p;
+    for (p = plugins.begin(); p != plugins.end(); ++p)
     {
-        string name = plugins[i].substr(prefix.size());
-        string value = plugins[i + 1];
+        string name = p->first.substr(prefix.size());
+        const string& value = p->second;
 
         //
         // Separate the entry point from the arguments.

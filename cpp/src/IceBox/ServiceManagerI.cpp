@@ -72,11 +72,12 @@ IceBox::ServiceManagerI::run()
         //
         const string prefix = "IceBox.Service.";
         PropertiesPtr properties = _communicator->getProperties();
-        StringSeq services = properties->getProperties(prefix);
-        for (StringSeq::size_type i = 0; i < services.size(); i += 2)
-        {
-            string name = services[i].substr(prefix.size());
-            string value = services[i + 1];
+        PropertyDict services = properties->getPropertiesForPrefix(prefix);
+	PropertyDict::const_iterator p;
+	for (p = services.begin(); p != services.end(); ++p)
+	{
+	    string name = p->first.substr(prefix.size());
+	    const string& value = p->second;
 
             //
             // Separate the entry point from the arguments.

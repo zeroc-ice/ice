@@ -71,25 +71,22 @@ class PropertiesI implements Properties
 	}
     }
 
-    public synchronized String[]
-    getProperties(String prefix)
+    public synchronized java.util.Map
+    getPropertiesForPrefix(String prefix)
     {
-        java.util.ArrayList l = new java.util.ArrayList();
+	java.util.HashMap result = new java.util.HashMap();
         java.util.Iterator p = _properties.entrySet().iterator();
         while (p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String key = (String)entry.getKey();
+            String value = (String)entry.getValue();
             if (prefix.length() == 0 || key.startsWith(prefix))
             {
-                l.add(key);
-                l.add(entry.getValue());
+		result.put(key, value);
             }
         }
-
-        String[] result = new String[l.size()];
-        l.toArray(result);
-        return result;
+	return result;
     }
 
     public synchronized void
