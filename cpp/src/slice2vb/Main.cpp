@@ -63,6 +63,7 @@ main(int argc, char* argv[])
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
     opts.addOpt("", "tie");
     opts.addOpt("", "impl");
