@@ -1311,6 +1311,22 @@ SOURCE=..\..\slice\Ice\SecurityException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecurityException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SecurityException.ice \
+	move SecurityException.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SecurityException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SecurityException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 USERDEP__SECUR="../../bin/slice2cpp.exe"	
