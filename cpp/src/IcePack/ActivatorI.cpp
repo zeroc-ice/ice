@@ -16,15 +16,21 @@
 #include <IcePack/ActivatorI.h>
 #include <IcePack/Admin.h>
 #include <IcePack/ServerManager.h>
+#include <IcePack/TraceLevels.h>
+
+#include <sys/types.h>
+#include <signal.h>
 #include <fcntl.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator) :
+IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) :
     _communicator(communicator),
-    _destroy(false)
+    _traceLevels(traceLevels),
+    _destroy(false),
+    _deactivating(false)
 {
     int fds[2];
     if(pipe(fds) != 0)
@@ -43,12 +49,10 @@ IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator) :
 IcePack::ActivatorI::~ActivatorI()
 {
     assert(_destroy);
+    assert(_processes.empty());
+    
     close(_fdIntrRead);
     close(_fdIntrWrite);
-    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
-    {
-	close(p->fd);
-    }
 }
 
 void
@@ -73,23 +77,74 @@ IcePack::ActivatorI::run()
 void
 IcePack::ActivatorI::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(_destroy) // Don't destroy twice.
     {
-	return;
+	IceUtil::Mutex::Lock sync(*this);
+	
+	if(_destroy || _deactivating) // Don't destroy or deactivate twice.
+	{
+	    return;
+	}
+	
+	//
+	// This ensure that no new processes will be activated.
+	//
+	_deactivating = true;
     }
 
-    _destroy = true;
-    setInterrupt();
+
+    //
+    // Stop all activated processes.
+    //
+    while(true)
+    {
+	ServerPrx server;
+	{
+	    IceUtil::Mutex::Lock sync(*this);
+	    if(!_processes.empty())
+	    {
+		server = _processes.begin()->server;
+	    }
+	    else
+	    {
+		//
+		// No more process to deactivate.
+		//
+		break;
+	    }
+	}
+
+	//
+	// Stop the server. The activator thread should detect the
+	// process deactivation and remove it from the activator
+	// active processes. This garantees that this loop will end at
+	// one point.
+	//
+	server->stop();
+    }
+
+    //
+    // Set the state as destroyed, this will cause the
+    // activator thread to exit.
+    //
+    {
+	IceUtil::Mutex::Lock sync(*this);
+
+	_destroy = true;
+	setInterrupt();
+    }
+    
+    //
+    // Join the activator thread.
+    //
+    getThreadControl().join();
 }
 
 Ice::Int
-IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
+IcePack::ActivatorI::activate(const ServerPrx& server)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if(_destroy)
+    if(_destroy || _deactivating)
     {
 	return false;
     }
@@ -116,7 +171,58 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
     }
 
     //
-    // Process does not exist, activate and create.
+    // Normalize the path to the working directory.
+    //
+    string pwd = desc.pwd;
+    if(!pwd.empty())
+    {
+	string::size_type pos;
+	while((pos = pwd.find("//")) != string::npos)
+	{
+	    pwd.erase(pos, 1);
+	}
+	while((pos = pwd.find("/./")) != string::npos)
+	{
+	    pwd.erase(pos, 2);
+	}
+    }
+    
+    //
+    // Compute arguments.
+    //
+    int argc = desc.args.size() + 2;
+    char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
+    argv[0] = strdup(path.c_str());
+    unsigned int i = 0;
+    vector<string>::const_iterator q;
+    for(q = desc.args.begin(); q != desc.args.end(); ++q, ++i)
+    {
+	argv[i + 1] = strdup(q->c_str());
+    }
+    argv[argc - 1] = 0;
+    
+    if(_traceLevels->activator > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	out << "activating server `" << desc.name << "'";
+	if(_traceLevels->activator > 2)
+	{
+	    out << "\n";
+	    out << "path = " << path << "\n";
+	    out << "pwd = " << pwd << "\n";
+	    out << "args = ";
+
+	    char **args = argv;
+	    while(*args)
+	    {
+		out << " " << *args;
+		args++;
+	    }
+	}
+    }
+
+    //
+    // Activate and create.
     //
     int fds[2];
     if(pipe(fds) != 0)
@@ -183,19 +289,8 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	//
 	// Change working directory.
 	//
-	string pwd = desc.pwd;
 	if(!pwd.empty())
 	{
-	    string::size_type pos;
-	    while((pos = pwd.find("//")) != string::npos)
-	    {
-		pwd.erase(pos, 1);
-	    }
-	    while((pos = pwd.find("/./")) != string::npos)
-	    {
-		pwd.erase(pos, 2);
-	    }
-
 	    if(chdir(pwd.c_str()) == -1)
 	    {
 		//
@@ -210,21 +305,7 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 		close(fds[1]);
 		exit(EXIT_FAILURE);
 	    }
-	}
-	
-	//
-	// Compute arguments.
-	//
-	int argc = desc.args.size() + 2;
-	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
-	argv[0] = strdup(path.c_str());
-	unsigned int i = 0;
-	vector<string>::const_iterator q;
-	for(q = desc.args.begin(); q != desc.args.end(); ++q, ++i)
-	{
-	    argv[i + 1] = strdup(q->c_str());
-	}
-	argv[argc - 1] = 0;
+	}	
 
 	if(execvp(argv[0], argv) == -1)
 	{
@@ -256,9 +337,63 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	fcntl(process.fd, F_SETFL, flags);
 
 	setInterrupt();
+
+	if(_traceLevels->activator > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	    out << "activated server `" << desc.name << "'(pid = " << pid << ")";
+	}
     }
 
     return pid;
+}
+
+void
+IcePack::ActivatorI::deactivate(const ServerPrx& server)
+{
+    pid_t pid = static_cast<pid_t>(server->getPid());
+    
+    //
+    // Send a SIGTERM to the process.
+    //
+    if(::kill(pid, SIGTERM))
+    {
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+    
+    if(_traceLevels->activator > 1)
+    {
+	ServerDescription desc = server->getServerDescription();
+
+	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	out << "sent SIGTERM to server `" << desc.name << "' (pid = " << pid << ")";
+    }
+}
+
+void
+IcePack::ActivatorI::kill(const ServerPrx& server)
+{
+    pid_t pid = static_cast<pid_t>(server->getPid());
+    
+    //
+    // Send a SIGKILL to the process.
+    //
+    if(::kill(pid, SIGKILL))
+    {
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+
+    if(_traceLevels->activator > 1)
+    {
+	ServerDescription desc = server->getServerDescription();
+
+	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	out << "sent SIGKILL to server `" << desc.name << "' (pid = " << pid << ")";
+    }
 }
 
 void
@@ -278,7 +413,7 @@ IcePack::ActivatorI::terminationListener()
 	    {
 		return;
 	    }
-	    
+
 	    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
 	    {
 		int fd = p->fd;
@@ -358,20 +493,19 @@ IcePack::ActivatorI::terminationListener()
 			//
 			p = _processes.erase(p);
 			close(fd);
+
+			if(_traceLevels->activator > 0)
+			{
+			    ServerDescription desc = server->getServerDescription();
+			    
+			    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+			    out << "detected server `" << desc.name << "' termination";
+			}
 			
 			//
 			// Notify the server it has terminated.
 			//
-			try
-			{
-			    server->terminationCallback();
-			}
-			catch(const Ice::ObjectAdapterDeactivatedException&)
-			{
-			    //
-			    // Expected when IcePack is shutdown.
-			    //
-			}
+			server->terminationCallback();			
 		    }
 
 		    //

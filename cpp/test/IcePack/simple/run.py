@@ -26,11 +26,10 @@ name = os.path.join("IcePack", "simple")
 testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 
 #
-# Add locator options for client and servers. All servers are now
-# clients since they need to make requests to IcePack.
+# Add locator options for the client and server. Since the server
+# invokes on the locator it's also considered to be a client.
 #
-additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\" " + \
-                    "--Ice.Adapter.TestAdapter.Endpoints=default"
+additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
 TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
 
@@ -40,82 +39,49 @@ TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
 icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346", testdir)
 
 #
-# Test client/server, collocated w/o automatic activation.
+# Test client/server, collocated without on demand activation.
 #
 TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
 TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
-# Get adapter list, ensure that TestAdapter is in the list.
+# Remove the adapter (registered by the server) before deploying the
+# server.
 #
-print "testing adapter registration...",
-hasTestAdapter = 0;
-icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
-for adaptername in icePackAdminPipe.xreadlines():
-    if adaptername.strip() == "TestAdapter":
-        hasTestAdapter = 1
-        
-if hasTestAdapter == 0:
-    print "failed!"
-    TestUtil.killServers()
-    sys.exit(1)
-
-icePackStatus = icePackAdminPipe.close()
-if icePackStatus:
-    TestUtil.killServers()
-    sys.exit(1)   
-print "ok"
-
 IcePackAdmin.removeAdapter(toplevel, "TestAdapter")
 
 #
-# This test doesn't work under Windows.
+# Test client/server with on demand activation.
 #
-if TestUtil.isWin32() == 0 and TestUtil.protocol != "ssl":
+server = os.path.join(testdir, "server")
+client = os.path.join(testdir, "client")
 
-    server = os.path.join(testdir, "server")
-    client = os.path.join(testdir, "client")
+if TestUtil.protocol == "ssl":
+    targets = "ssl"
+else:
+    targets = ""
 
-    print "registering server with icepack...",
-    IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", "");
-    print "ok"
+print "registering server with icepack...",
+IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", targets);
+print "ok"
     
-    print "testing adapter registration...",
-    hasTestAdapter = 0;
-    icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
-    for adaptername in icePackAdminPipe.xreadlines():
-        if adaptername.strip() == "TestAdapter":
-            hasTestAdapter = 1
-            
-    if hasTestAdapter == 0:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-        
-    icePackStatus = icePackAdminPipe.close()
-    if icePackStatus:
-       TestUtil.killServers()
-       sys.exit(1)
-       
-    print "ok"    
+updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
 
-    updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
+print "starting client...",
+clientPipe = os.popen(client + updatedClientOptions)
+print "ok"
 
-    print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions)
-    print "ok"
-
-    for output in clientPipe.xreadlines():
-       print output,
-
-    clientStatus = clientPipe.close()
-    if clientStatus:
-	TestUtil.killServers()
-	sys.exit(1)
+for output in clientPipe.xreadlines():
+    print output,
     
-    print "unregister server with icepack...",
-    IcePackAdmin.removeServer(toplevel, "server");
-    print "ok"
+clientStatus = clientPipe.close()
+if clientStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+    
+print "unregister server with icepack...",
+IcePackAdmin.removeServer(toplevel, "server");
+print "ok"
 
 IcePackAdmin.shutdownIcePack(toplevel, icePackPipe)
 

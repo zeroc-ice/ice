@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2001
@@ -198,6 +199,15 @@ struct ServerDescription
      *
      **/
     Args args;
+    
+    /**
+     *
+     * True if the server is an &IceBox;. &IceBox; servers are
+     * shutdown using the service manager instead of relying on
+     * signals.
+     *
+     **/
+    bool isIceBox;
 };
 
 /**

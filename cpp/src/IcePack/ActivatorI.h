@@ -18,17 +18,22 @@
 namespace IcePack
 {
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class ActivatorI : public Activator, public IceUtil::Thread, public IceUtil::Mutex
 {
 public:
 
-    ActivatorI(const Ice::CommunicatorPtr&);
+    ActivatorI(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     virtual ~ActivatorI();
 
     virtual void run();
-    void destroy();
 
-    virtual Ice::Int activate(const ::IcePack::ServerPrx&, const ::Ice::Current&);
+    virtual Ice::Int activate(const ::IcePack::ServerPrx&);
+    virtual void deactivate(const ::IcePack::ServerPrx&);
+    virtual void kill(const ::IcePack::ServerPrx&);
+    virtual void destroy();
 
 private:
 
@@ -44,8 +49,11 @@ private:
     };
 
     Ice::CommunicatorPtr _communicator;
+    TraceLevelsPtr _traceLevels;
     std::vector<Process> _processes;
     bool _destroy;
+    bool _deactivating;
+
     int _fdIntrRead;
     int _fdIntrWrite;
 };

@@ -58,6 +58,7 @@ tests = [ \
 if TestUtil.isWin32() == 0:
     tests += [ \
         "IcePack/simple", \
+        "IcePack/deployer", \
         "Glacier/starter", \
         ]
 

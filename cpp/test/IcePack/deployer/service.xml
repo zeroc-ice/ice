@@ -1,0 +1,20 @@
+<service kind="standard" entry="TestService:create">
+
+  <adapters>
+    <adapter name="${name}Adapter" endpoints="default">
+      <offer interface="::Test" identity="${name}"/>
+    </adapter>
+  </adapters>
+
+  <properties>
+    <property name="${name}.Type" value="standard"/>
+    <property name="${name}.ServiceName" value="${name}"/>
+  </properties>
+
+  <target name="debug">
+    <properties>
+      <property name="${name}.DebugProperty" value="debug"/>
+    </properties>
+  </target>
+
+</service>

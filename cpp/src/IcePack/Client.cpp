@@ -175,12 +175,10 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy("IcePack/admin@IcePack.Admin");
-
-    AdminPrx admin = AdminPrx::checkedCast(base);
+    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin@IcePackAdminAdapter"));
     if(!admin)
     {
-	cerr << appName() << ": `" <<  "' are no valid administrative endpoints" << endl;
+	cerr << appName() << ": no valid administrative endpoints" << endl;
 	return EXIT_FAILURE;
     }
 

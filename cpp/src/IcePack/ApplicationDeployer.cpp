@@ -142,8 +142,7 @@ IcePack::ApplicationDeployer::addServer(const string& name,
 	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
     }
 
-    string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
-
-    _tasks.push_back(new AddServer(_admin, name, xmlFile, binpath, libpath, _targets));
+    _tasks.push_back(new AddServer(_admin, name, toLocation(descriptor),  toLocation(binpath), toLocation(libpath), 
+				   _targets));
 }
 

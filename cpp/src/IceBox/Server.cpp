@@ -49,9 +49,6 @@ Server::usage()
 int
 Server::run(int argc, char* argv[])
 {
-    ServiceManagerPtr serviceManager;
-    int status;
-
     PropertiesPtr properties = communicator()->getProperties();
     StringSeq args = argsToStringSeq(argc, argv);
     args = properties->parseCommandLineOptions("IceBox", args);
@@ -78,8 +75,6 @@ Server::run(int argc, char* argv[])
     }
 
     ServiceManagerI* serviceManagerImpl = new ServiceManagerI(this, argc, argv);
-    serviceManager = serviceManagerImpl;
-    status = serviceManagerImpl->run();
-
-    return EXIT_SUCCESS;
+    ServiceManagerPtr serviceManager = serviceManagerImpl;
+    return serviceManagerImpl->run();
 }

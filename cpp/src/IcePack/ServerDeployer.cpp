@@ -363,7 +363,7 @@ IcePack::ServerDeployer::addAdapter(const string& name, const string& endpoints)
     if(_automaticActivation)
     {
 	desc.server = ServerPrx::uncheckedCast(
-	    _communicator->stringToProxy("server/" + _description.name + "@IcePack.Internal"));
+	    _communicator->stringToProxy("server/" + _description.name + "@IcePackInternalAdapter"));
 
 	_description.adapters.push_back(desc.name);
     }
@@ -404,8 +404,7 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
     ServiceDeployer* task = new ServiceDeployer(_communicator, *this, variables, componentPath, _targets);
     try
     {
-	string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
-	task->parse(xmlFile);
+	task->parse(toLocation(descriptor));
     }
     catch(const ParserDeploymentException& ex)
     {
@@ -437,12 +436,15 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
 	{
 	    throw DeploySAXParseException("C++ server path is not specified", _locator);
 	}
-	
+	_description.isIceBox = false;
+	break;
+
     case ServerKindJavaServer:	
 	if(_description.path.empty())
 	{
 	    _description.path = "java";
 	}
+	_description.isIceBox = false;
 	break;
 
     case ServerKindJavaIceBox:
@@ -450,6 +452,7 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
 	{
 	    _description.path = "java";
 	}
+	_description.isIceBox = true;
 	_className = "IceBox.Server";
 	createDirectory("/dbs");
 	addProperty("IceBox.Name", _variables["name"]);
@@ -461,6 +464,7 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
 	{
 	    _description.path = "icebox";
 	}
+	_description.isIceBox = true;
 	createDirectory("/dbs");
 	addProperty("IceBox.Name", _variables["name"]);
 	addAdapter(_variables["name"] + ".ServiceManagerAdapter","");

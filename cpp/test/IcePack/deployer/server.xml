@@ -1,8 +1,21 @@
-<server kind="cpp-icebox" endpoints="default">
- 
-  <services>
-    <service name="Yellow" descriptor="yellow_service.xml"/>
-  </services>
+<server kind="cpp">
+
+  <target name="manual">
+    <activation mode="manual"/>
+    <property name="Mode" value="manual"/>
+  </target>
+
+  <adapters>
+    <adapter name="${name}Adapter" endpoints="default">
+      <offer interface="::Test" identity="${name}"/>
+    </adapter>
+  </adapters>
+
+  <properties>
+    <property name="Type" value="Server"/>
+    <property name="Name" value="${name}"/>
+    <property name="Ice.ConnectionWarnings" value="1"/>
+  </properties>
 
   <target name="ssl">
     <properties>

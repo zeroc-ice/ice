@@ -20,11 +20,14 @@
 namespace IcePack
 {
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class AdapterI : public Adapter, public IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
-    AdapterI(::Ice::Int);
+    AdapterI(const TraceLevelsPtr&, ::Ice::Int);
     virtual ~AdapterI();
     
     virtual AdapterDescription getAdapterDescription(const ::Ice::Current&);
@@ -35,6 +38,7 @@ public:
 
 private:
 
+    TraceLevelsPtr _traceLevels;
     ::Ice::Int _waitTime;
     bool _active;
 };
@@ -43,7 +47,8 @@ class AdapterManagerI : public AdapterManager, public IceUtil::Mutex
 {
 public:
 
-    AdapterManagerI(const Ice::ObjectAdapterPtr&, const Freeze::DBEnvironmentPtr&);
+    AdapterManagerI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const Freeze::DBEnvironmentPtr&);
+    virtual ~AdapterManagerI();
     
     virtual AdapterPrx create(const AdapterDescription&, const ::Ice::Current&);
     virtual AdapterPrx findByName(const ::std::string&, const ::Ice::Current&);
@@ -53,6 +58,7 @@ public:
 private:
 
     ::Ice::ObjectAdapterPtr _adapter;
+    TraceLevelsPtr _traceLevels;
     ::Freeze::EvictorPtr _evictor;
     ::std::set< ::std::string> _adapterNames;
     ::Ice::Int _waitTime;

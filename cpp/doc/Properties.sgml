@@ -862,7 +862,7 @@ interface. The locator endpoints must be accessible to &Ice; clients
 that are using &IcePack; to locate objects.
 </para>
 <para>The default value for <literal>IcePack.Locator.Identity</literal>
-is <literal>IcePack/locator</literal>.
+is <literal>IcePack/Locator</literal>.
 </para>
 </section>
 
@@ -884,7 +884,7 @@ servers that are using &IcePack; to register their object adapters.
 </para>
 <para>The default value for
 <literal>IcePack.LocatorRegistry.Identity</literal>
-is <literal>IcePack/locatorregistry</literal>.
+is <literal>IcePack/LocatorRegistry</literal>.
 </para>
 </section>
 
@@ -906,7 +906,7 @@ accessible to clients which are using the &IcePack; administrative
 interface such as the &IcePack; administrative tool.
 </para>
 <para>The default value for IcePack.Admin.Identity is
-<literal>IcePack/admin</literal>.
+<literal>IcePack/Admin</literal>.
 </para>
 <note><para>Allowing access to the &IcePack; admin interface is a
 security risk! If you don't specify the administrative endpoints the
@@ -923,11 +923,130 @@ IcePack.Activation.WaitTime=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the interval in seconds that &IcePack; will wait for the
-server to register its adapters. If the server didn't register its
-adapters during this time interval and a client is waiting for the
-activation of one of the server object adapters, &IcePack; will return
-empty endpoints to the client. The default value is 10 seconds.
+Defines the interval in seconds that &IcePack; will wait for server
+activation and deactivation.</para>
+<para>If a server is automatically activated as a result of a client object
+adapter lookup and if the server doesn't register its object adapters
+during this time interval, &IcePack; will return empty endpoints to
+the client.</para>
+<para>If a server is being gracefully deactivated and &IcePack; doesn't
+detect the server deactivation during this time interval, &IcePack;
+will kill the server.</para>
+<note><para>The default value is 60 seconds.</para></note>
+</section>
+</section>
+
+<section><title>IcePack.Trace.ServerManager</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Trace.ServerManager=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The server manager tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No server manager tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace server addition, removal.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes server activation and
+deactivation and more diagnostic messages.</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Like 2, but more verbose, includes server transitional state
+change (activating and deactivating).</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Trace.AdapterManager</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Trace.AdapterManager=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The adapter manager tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No adapter manager tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace adapter addition, removal.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes adapter activation and
+deactivation and more diagnostic messages.</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Like 2, but more verbose, includes adapter transitional state
+change (`waiting for activation' for example).</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Trace.Activator</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Trace.Activator=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The activator tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No activator tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace process activation, termination.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes process signaling and more
+diagnostic messages on process activation.</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Like 2, but more verbose, includes more diagnostic messages on
+process activation (path, working directory and arguments of the
+activated process for instance).</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>

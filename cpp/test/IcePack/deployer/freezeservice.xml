@@ -1,0 +1,18 @@
+<service kind="freeze" entry="TestService:createFreezeService">
+
+  <adapters>
+    <adapter name="${name}Adapter" endpoints="default">
+      <offer interface="::Test" identity="${name}"/>
+    </adapter>
+  </adapters>
+
+  <properties>
+    <property name="${name}.Type" value="freeze"/>
+    <property name="${name}.ServiceName" value="${name}"/>
+  </properties>
+
+  <target name="manual">
+    <property name="Mode" value="manual"/>
+  </target>
+
+</service>

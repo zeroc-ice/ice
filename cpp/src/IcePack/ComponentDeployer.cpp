@@ -488,20 +488,8 @@ IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& commun
     assert(!serversPath.empty());
     _variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
 
-    //
-    // TODO: Find a better way to bootstrap the yellow service. We
-    // need to set the locator on the proxy here, because the
-    // communicator doesn't have a default locator since it's the
-    // locator communicator...
-    //
-    Ice::ObjectPrx object =
-	_communicator->stringToProxy(_communicator->getProperties()->getProperty("IcePack.Yellow.Admin"));
-    if(object)
-    {
-	Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(
-	    _communicator->stringToProxy(_communicator->getProperties()->getProperty("Ice.Default.Locator")));
-	_yellowAdmin = Yellow::AdminPrx::uncheckedCast(object->ice_locator(locator));
-    }
+    _yellowAdmin = Yellow::AdminPrx::uncheckedCast(
+	_communicator->stringToProxy(_communicator->getProperties()->getProperty("IcePack.Yellow.Admin")));
 }
 
 void 
@@ -735,6 +723,23 @@ IcePack::ComponentDeployer::overrideBaseDir(const string& basedir)
     {
 	_variables["basedir"] += "/" + basedir;
     }
+}
+
+//
+// Returns a path including the base directory if path is a relative
+// path.
+//
+string
+IcePack::ComponentDeployer::toLocation(const string& path) const
+{
+    if(path.empty())
+    {
+	return "";
+    }
+
+    map<string, string>::const_iterator p = _variables.find("basedir");
+    assert(p != _variables.end());
+    return path[0] != '/' ? p->second + "/" + path : path;
 }
 
 //

@@ -17,6 +17,8 @@
 #include <IcePack/AdapterManager.h>
 #include <IcePack/Activator.h>
 #include <IcePack/ServerDeployer.h>
+#include <IcePack/TraceLevels.h>
+#include <IceBox/IceBox.h>
 
 using namespace std;
 using namespace Ice;
@@ -52,8 +54,9 @@ class ServerFactory : public ObjectFactory
 {
 public:
 
-    ServerFactory(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
+    ServerFactory(const ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const ActivatorPtr& activator) :
 	_adapter(adapter),
+	_traceLevels(traceLevels),
 	_activator(activator)
     {
     }
@@ -62,7 +65,7 @@ public:
     create(const std::string& type)
     {
 	assert(type == "::IcePack::Server");
-	return new ServerI(_adapter, _activator);
+	return new ServerI(_adapter, _traceLevels, _activator);
     }
 
     virtual void 
@@ -75,17 +78,21 @@ public:
 private:
     
     ObjectAdapterPtr _adapter;
-    ActivatorPrx _activator;
+    TraceLevelsPtr _traceLevels;
+    ActivatorPtr _activator;
 };
 
 }
 
-IcePack::ServerI::ServerI(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
+IcePack::ServerI::ServerI(const ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, 
+			  const ActivatorPtr& activator) :
     _adapter(adapter), 
+    _traceLevels(traceLevels),
     _activator(activator),
     _state(Inactive),
     _pid(0)
 {
+    assert(_activator);
 }
 
 IcePack::ServerI::~ServerI()
@@ -104,11 +111,6 @@ IcePack::ServerI::start(const Current&)
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	if(!_activator)
-	{
-	    return false;
-	}
-
 	switch(_state)
 	{
 	case Inactive:
@@ -122,19 +124,22 @@ IcePack::ServerI::start(const Current&)
 	    continue;
 	}
  	case Active:
-	{
-	    return true; // Raise an exception instead?
-	}
 	case Deactivating:
 	{
-	    wait();
-	    continue;
+	    return true; // Raise an exception instead?
 	}
 	case Destroyed:
 	{
 	    throw ObjectNotExistException(__FILE__,__LINE__);
 	}
 	}
+
+	if(_traceLevels->serverMgr > 2)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	    out << "changed server `" << description.name << "' state to `Activating'";
+	}
+	assert(_state == Activating);
 	break;
     }
 
@@ -157,14 +162,203 @@ IcePack::ServerI::start(const Current&)
 }
 
 void
+IcePack::ServerI::stop(const Current&)
+{
+    while(true)
+    {
+	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	switch(_state)
+	{
+	case Inactive:
+	{
+	    return;
+	}
+	case Activating:
+	{
+	    wait(); // TODO: Timeout?
+	    continue;
+	}
+ 	case Active:
+	{	    
+	    _state = Deactivating;
+	    break;
+	}
+	case Deactivating:
+	{
+	    wait();
+	    continue;
+	}
+	case Destroyed:
+	{
+	    throw ObjectNotExistException(__FILE__,__LINE__);
+	}
+	}
+
+	if(_traceLevels->serverMgr > 2)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	    out << "changed server `" << description.name << "' state to `Deactivating'";
+	}
+	assert(_state == Deactivating);
+	break;
+    }
+
+    Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+    Int waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 60);
+
+    //
+    // If the server is an icebox, first try to use the IceBox service
+    // manager to shutdown the server.
+    //
+    bool deactivate = true;
+
+    if(description.isIceBox)
+    {
+	try
+	{
+	    Ice::ObjectPrx object = _adapter->getCommunicator()->stringToProxy(
+		description.name + ".ServiceManager@" + description.name + ".ServiceManagerAdapter");
+
+	    if(object)
+	    {
+		IceBox::ServiceManagerPrx serviceManager = 
+		    IceBox::ServiceManagerPrx::uncheckedCast(object->ice_timeout(waitTime));
+
+		if(serviceManager)
+		{
+		    serviceManager->shutdown();
+		    
+		    //
+		    // No need to deactivate the process by sending a signal
+		    // since we successfully called shutdown on the service
+		    // manager.
+		    //
+		    deactivate = false;
+		}
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    if(_traceLevels->serverMgr > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+		out << "couldn't contact the IceBox `" << description.name << "' service manager:\n";
+		out << ex;
+	    }
+	}
+
+    }
+
+    if(deactivate)
+    {
+	//
+	// Deactivate the server by sending a SIGTERM.
+	//
+	try
+	{
+	    _activator->deactivate(ServerNameToServer(_adapter)(description.name));
+	}
+	catch (const SystemException& ex)
+	{
+	    Warning out(_adapter->getCommunicator()->getLogger());
+	    out << "deactivation failed for server `" << description.name << "':\n";
+	    out << ex;
+	    
+	    setState(Active);
+	    return;
+	}
+    }
+
+    //
+    // Wait for the server to be inactive (the activator monitors the
+    // process and should notify us when it detects the process
+    // termination by calling the terminationCallback() method).
+    //
+    {
+	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	while(true)
+	{
+	    if(_state == Inactive)
+	    {
+		//
+		// State changed to inactive, the server has been
+		// correctly deactivated, we can return.
+		//
+		return;
+	    }
+	    
+	    //
+	    // Wait for a state change.
+	    //
+	    bool notify = timedWait(IceUtil::Time::seconds(waitTime));
+	    if(!notify)
+	    {
+		//
+		// Timeout.
+		//
+		assert(_state == Deactivating);
+		break;
+	    }
+	}
+    }
+    
+    if(_traceLevels->serverMgr > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	out << "gracefull server shutdown failed, killing server `" << description.name << "'";
+    }
+    
+    //
+    // The server is still not inactive, kill it.
+    //
+    try
+    {
+	_activator->kill(ServerNameToServer(_adapter)(description.name));
+    }
+    catch (const SystemException& ex)
+    {
+	Warning out(_adapter->getCommunicator()->getLogger());
+	out << "deactivation failed for server `" << description.name << "':\n";
+	out << ex;
+	
+	setState(Active);
+    }
+}
+
+void
 IcePack::ServerI::terminationCallback(const Current&)
 {
-    //
-    // Callback from the activator indicating that the server
-    // stopped. Change state to deactivating while we mark the server
-    // adapters as inactive.
-    //
-    setState(Deactivating);
+    while(true)
+    {
+	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	switch(_state)
+	{
+	case Inactive:
+	case Activating:
+	case Destroyed:
+	{
+	    assert(false);
+	}
+ 	case Active:
+	{
+	    _state = Deactivating;
+
+	    if(_traceLevels->serverMgr > 2)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+		out << "changed server `" << description.name << "' state to `Deactivating'";
+	    }
+	    break;
+	}
+	case Deactivating:
+	{
+	    // Deactivation was initiated by stop().
+	    break;
+	}
+	}
+	assert(_state == Deactivating);
+	break;
+    }
 
     //
     // Mark each adapter as inactive. adapters is immutable when
@@ -204,6 +398,33 @@ IcePack::ServerI::setState(ServerState state)
 
     _state = state;
 
+    if(_traceLevels->serverMgr > 1)
+    {
+	if(_state == Active)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	    out << "changed server `" << description.name << "' state to `Active'";
+	}
+	else if(_state == Inactive)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	    out << "changed server `" << description.name << "' state to `Inactive'";
+	}
+	else if(_traceLevels->serverMgr > 2)
+	{
+	    if(_state == Activating)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+		out << "changed server `" << description.name << "' state to `Activating'";
+	    }
+	    else if(_state == Deactivating)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+		out << "changed server `" << description.name << "' state to `Deactivating'";
+	    }
+	}
+    }    
+
     notifyAll();
 }
 
@@ -215,19 +436,21 @@ IcePack::ServerI::setPid(int pid)
 }
 
 IcePack::ServerManagerI::ServerManagerI(const ObjectAdapterPtr& adapter,
+					const TraceLevelsPtr& traceLevels,
 					const Freeze::DBEnvironmentPtr& dbEnv,
 					const AdapterManagerPrx& adapterManager,
-					const ActivatorPrx& activator) :
+					const ActivatorPtr& activator) :
     _adapter(adapter),
+    _traceLevels(traceLevels),
     _adapterManager(adapterManager),
     _activator(activator)
 {
-    ObjectFactoryPtr serverFactory = new ServerFactory(adapter, activator);
+    ObjectFactoryPtr serverFactory = new ServerFactory(adapter, _traceLevels, activator);
     adapter->getCommunicator()->addObjectFactory(serverFactory, "::IcePack::Server");
 
     Freeze::DBPtr dbServers = dbEnv->openDB("servers", true);
     _evictor = dbServers->createEvictor(Freeze::SaveUponEviction);
-    _evictor->setSize(100);
+    _evictor->setSize(1000);
     _adapter->addServantLocator(_evictor, "server");
 
     //
@@ -263,17 +486,26 @@ IcePack::ServerManagerI::create(const ServerDescription& desc, const Current&)
     {
     }
     
-    ServerPtr serverI = new ServerI(_adapter, _activator);
+    ServerPtr serverI = new ServerI(_adapter, _traceLevels, _activator);
     serverI->description = desc;
     for(AdapterNames::const_iterator p = desc.adapters.begin(); p != desc.adapters.end(); ++p)
     {
 	AdapterPrx adapter = _adapterManager->findByName(*p);
-	serverI->adapters.push_back(adapter);
+	if(adapter)
+	{
+	    serverI->adapters.push_back(adapter);
+	}
     }
 
     _evictor->createObject(server->ice_getIdentity(), serverI);
 
     _serverNames.insert(desc.name);
+
+    if(_traceLevels->serverMgr > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	out << "added server `" << desc.name << "'";
+    }
 
     return server;
 }
@@ -310,9 +542,20 @@ IcePack::ServerManagerI::remove(const string& name, const Current&)
 	throw ServerNotExistException();
     }
 
+    //
+    // Stop the server before removing it.
+    //
+    server->stop();
+
     _evictor->destroyObject(server->ice_getIdentity());
 
     _serverNames.erase(_serverNames.find(name));
+
+    if(_traceLevels->serverMgr > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->serverMgrCat);
+	out << "removed server `" << name << "'";
+    }
 }
 
 ServerNames
@@ -326,4 +569,3 @@ IcePack::ServerManagerI::getAll(const Current&)
 
     return names;
 }
-

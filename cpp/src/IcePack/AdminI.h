@@ -22,7 +22,9 @@ class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const ServerManagerPrx&, const AdapterManagerPrx&);
+    AdminI(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const ServerManagerPrx&, 
+	   const AdapterManagerPrx&);
+    virtual ~AdminI();
 
     virtual void addApplication(const std::string&, const Targets&, const Ice::Current& = Ice::Current());
     virtual void removeApplication(const std::string&, const Ice::Current& = Ice::Current());
@@ -45,7 +47,8 @@ public:
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _shutdownCommunicator;
+    Ice::CommunicatorPtr _backendCommunicator;
     ServerManagerPrx _serverManager;
     AdapterManagerPrx _adapterManager;
 };

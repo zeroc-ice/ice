@@ -12,7 +12,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= simple
+SUBDIRS		= simple deployer
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -19,26 +19,38 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const ServerManagerPrx& serverManager,
-			const AdapterManagerPrx& adapterManager) :
-    _communicator(communicator),
+IcePack::AdminI::AdminI(const CommunicatorPtr& shutdownCommunicator, const CommunicatorPtr& backendCommunicator, 
+			const ServerManagerPrx& serverManager, const AdapterManagerPrx& adapterManager) :
+    _shutdownCommunicator(shutdownCommunicator),
+    _backendCommunicator(backendCommunicator),
     _serverManager(serverManager),
     _adapterManager(adapterManager)
+{
+}
+
+IcePack::AdminI::~AdminI()
 {
 }
 
 void
 IcePack::AdminI::addApplication(const string& descriptor, const Targets& targets, const Current&)
 {
-    ApplicationDeployer deployer(_communicator, this, targets);
-    deployer.parse(descriptor);
-    deployer.deploy();
+    try
+    {
+	ApplicationDeployer deployer(_backendCommunicator, this, targets);
+	deployer.parse(descriptor);
+	deployer.deploy();
+    }
+    catch(const LocalException& ex)
+    {
+	cout << ex << endl;
+    }
 }
 
 void
 IcePack::AdminI::removeApplication(const string& descriptor, const Current&)
 {
-    ApplicationDeployer deployer(_communicator, this, Targets());
+    ApplicationDeployer deployer(_backendCommunicator, this, Targets());
     deployer.parse(descriptor);
     deployer.undeploy();
 }
@@ -47,7 +59,7 @@ void
 IcePack::AdminI::addServer(const string& name, const string& path, const string& ldpath, const string& descriptor,
 			   const Targets& targets, const Current&)
 {
-    ServerDeployer deployer(_communicator, name, path, ldpath, targets);
+    ServerDeployer deployer(_backendCommunicator, name, path, ldpath, targets);
     deployer.setServerManager(_serverManager);
     deployer.setAdapterManager(_adapterManager);
     deployer.parse(descriptor);
@@ -126,18 +138,24 @@ void
 IcePack::AdminI::removeServer(const string& name, const Current&)
 {
     ServerPrx server = _serverManager->findByName(name);
-    if(!server)
+    if(server)
     {
-	throw ServerNotExistException();
+	try
+	{
+	    ServerDescription desc = server->getServerDescription();
+	    
+	    ServerDeployer deployer(_backendCommunicator, desc.name, desc.path, "", desc.targets);
+	    deployer.setServerManager(_serverManager);
+	    deployer.setAdapterManager(_adapterManager);
+	    deployer.parse(desc.descriptor);
+	    deployer.undeploy();
+	    return;
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
     }
-
-    ServerDescription desc = server->getServerDescription();
-    
-    ServerDeployer deployer(_communicator, desc.name, desc.path, "", desc.targets);
-    deployer.setServerManager(_serverManager);
-    deployer.setAdapterManager(_adapterManager);
-    deployer.parse(desc.descriptor);
-    deployer.undeploy();
+    throw ServerNotExistException();
 }
 
 ServerNames
@@ -160,7 +178,7 @@ IcePack::AdminI::addAdapterWithEndpoints(const string& name, const string& endpo
     //
     // Set the adapter direct proxy.
     //
-    ObjectPrx object = _communicator->stringToProxy("dummy:" + endpoints);
+    ObjectPrx object = _backendCommunicator->stringToProxy("dummy:" + endpoints);
     adapter->setDirectProxy(object);
 }
 
@@ -178,7 +196,7 @@ IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&) const
     {
 	try
 	{
-	    return _communicator->proxyToString(adapter->getDirectProxy(false));
+	    return _backendCommunicator->proxyToString(adapter->getDirectProxy(false));
 	}
 	catch(const ObjectNotExistException&)
 	{
@@ -196,5 +214,5 @@ IcePack::AdminI::getAllAdapterNames(const Current&) const
 void
 IcePack::AdminI::shutdown(const Current&)
 {
-    _communicator->shutdown();
+    _shutdownCommunicator->shutdown();
 }

@@ -147,7 +147,7 @@ IcePack::ServiceDeployer::setDBEnv(const string& dir)
     }
     else
     {
-	path = dir[0] == '/' ? dir : _variables["basedir"] + "/" + dir;
+	path = toLocation(dir);
     }
     _serverDeployer.addProperty("IceBox.DBEnvName." + _variables["name"], path);
 }

@@ -160,6 +160,7 @@ IceBox::ServiceManagerI::run()
 
 	_server->shutdownOnInterrupt();
         _server->communicator()->waitForShutdown();
+	_server->ignoreInterrupt();
 
         //
         // Invoke stop() on the services.

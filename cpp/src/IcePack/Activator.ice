@@ -16,7 +16,7 @@
 module IcePack
 {
 
-interface Activator
+local interface Activator
 {
     /**
      *
@@ -27,6 +27,27 @@ interface Activator
      *
      **/
     int activate(Server* server);
+
+    /**
+     *
+     * Deactivate a server.
+     *
+     **/
+    void deactivate(Server* server);
+
+    /**
+     *
+     * Kill a server.
+     *
+     **/
+    void kill(Server* server);
+    
+    /**
+     *
+     * Destroy the activator.
+     *
+     **/
+    void destroy();
 };
 
 };

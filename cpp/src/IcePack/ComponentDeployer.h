@@ -120,7 +120,6 @@ public:
 
     void parse(const std::string&, ComponentDeployHandler&);
     void setDocumentLocator(const Locator*const locator);
-    std::string substitute(const std::string&) const;
 
     bool isTargetDeployable(const std::string&) const;
 
@@ -130,9 +129,12 @@ public:
     void addOffer(const std::string&, const std::string&, const std::string&);
     void overrideBaseDir(const std::string&);
 
+    std::string toLocation(const std::string&) const;
+    std::string substitute(const std::string&) const;
+    void undeployFrom(std::vector<TaskPtr>::iterator);
+
 protected:
 
-    void undeployFrom(std::vector<TaskPtr>::iterator);
 
     Ice::CommunicatorPtr _communicator;
     Yellow::AdminPrx _yellowAdmin;

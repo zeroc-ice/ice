@@ -41,7 +41,8 @@ SOBJS		= Server.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
-		  ActivatorI.o
+		  ActivatorI.o \
+		  TraceLevels.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -71,7 +72,7 @@ $(CLIENT): $(COBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack -lIceBox -lFreeze $(XERCESC_LIBS) $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

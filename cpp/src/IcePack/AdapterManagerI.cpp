@@ -13,6 +13,7 @@
 #include <Freeze/Evictor.h>
 #include <IcePack/AdapterManagerI.h>
 #include <IcePack/ServerManager.h>
+#include <IcePack/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -48,7 +49,9 @@ class AdapterFactory : public ObjectFactory
 {
 public:
 
-    AdapterFactory(int waitTime) : _waitTime(waitTime)
+    AdapterFactory(const TraceLevelsPtr& traceLevels, int waitTime) : 
+	_traceLevels(traceLevels),
+	_waitTime(waitTime)
     {
     }
 
@@ -59,7 +62,7 @@ public:
     create(const std::string& type)
     {
 	assert(type == "::IcePack::Adapter");
-	return new AdapterI(_waitTime);
+	return new AdapterI(_traceLevels, _waitTime);
     }
 
     virtual void 
@@ -69,12 +72,14 @@ public:
 
 private:
     
+    TraceLevelsPtr _traceLevels;
     int _waitTime;
 };
 
 }
 
-IcePack::AdapterI::AdapterI(Int waitTime) :
+IcePack::AdapterI::AdapterI(const TraceLevelsPtr& traceLevels, Int waitTime) :
+    _traceLevels(traceLevels),
     _waitTime(waitTime),
     _active(false)
 {
@@ -104,19 +109,38 @@ IcePack::AdapterI::getDirectProxy(bool activate, const Current&)
     // If there's a server associated to this adapter, try to start
     // the server and wait for the adapter state to change.
     //
-    if(description.server && description.server->start())
+    if(description.server)
     {
-	//
-	// Wait for this adapter to be marked as active or the
-	// activation timeout.
-	//
-	while(!_active)
+	if(_traceLevels->adapterMgr > 2)
 	{
-	    bool notify = timedWait(IceUtil::Time::seconds(_waitTime));
-	    if(!notify)
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	    out << "waiting for activation of adapter `" << description.name << "'";
+	}
+
+	if(description.server->start())
+	{
+	    //
+	    // Wait for this adapter to be marked as active or the
+	    // activation timeout.
+	    //
+	    while(!_active)
 	    {
-		throw AdapterActivationTimeoutException();
+		bool notify = timedWait(IceUtil::Time::seconds(_waitTime));
+		if(!notify)
+		{
+		    if(_traceLevels->adapterMgr > 1)
+		    {
+			Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+			out << "adapter `" << description.name << "' activation timed out";
+		    }
+		    throw AdapterActivationTimeoutException();
+		}
 	    }
+	}
+	else if(_traceLevels->adapterMgr > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	    out << "adapter `" << description.name << "' activation failed, couldn't start the server";
 	}
     }
     
@@ -135,6 +159,13 @@ IcePack::AdapterI::markAsActive(const Current&)
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     _active = true;
+
+    if(_traceLevels->adapterMgr > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	out << "adapter `" << description.name << "' activated";
+    }
+
     notifyAll();
 }
 
@@ -143,21 +174,30 @@ IcePack::AdapterI::markAsInactive(const Current&)
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     _active = false;
+
+    if(_traceLevels->adapterMgr > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	out << "adapter `" << description.name << "' deactivated";
+    }
+
     notifyAll();
 }
 
-IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter, const Freeze::DBEnvironmentPtr& dbEnv) :
-    _adapter(adapter)
+IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels,
+					  const Freeze::DBEnvironmentPtr& dbEnv) :
+    _adapter(adapter),
+    _traceLevels(traceLevels)
 {
     Ice::PropertiesPtr properties = adapter->getCommunicator()->getProperties();
     _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Activation.WaitTime", 60);
 
-    ObjectFactoryPtr adapterFactory = new AdapterFactory(_waitTime);
+    ObjectFactoryPtr adapterFactory = new AdapterFactory(_traceLevels, _waitTime);
     adapter->getCommunicator()->addObjectFactory(adapterFactory, "::IcePack::Adapter");
 
     Freeze::DBPtr dbAdapters = dbEnv->openDB("adapters", true);
     _evictor = dbAdapters->createEvictor(Freeze::SaveUponEviction);
-    _evictor->setSize(100);
+    _evictor->setSize(1000);
     _adapter->addServantLocator(_evictor, "adapter");
 
     //
@@ -172,6 +212,10 @@ IcePack::AdapterManagerI::AdapterManagerI(const ObjectAdapterPtr& adapter, const
 	AdapterDescription desc = a->getAdapterDescription();
 	_adapterNames.insert(desc.name);
     }
+}
+
+IcePack::AdapterManagerI::~AdapterManagerI()
+{
 }
 
 AdapterPrx
@@ -193,7 +237,7 @@ IcePack::AdapterManagerI::create(const AdapterDescription& description, const Cu
     {
     }
     
-    AdapterPtr adapterI = new AdapterI(_waitTime);
+    AdapterPtr adapterI = new AdapterI(_traceLevels, _waitTime);
     adapterI->description = description;
     adapterI->proxy = 0;
 
@@ -203,6 +247,12 @@ IcePack::AdapterManagerI::create(const AdapterDescription& description, const Cu
     _adapterNames.insert(description.name);
 
     _evictor->createObject(adapter->ice_getIdentity(), adapterI);
+
+    if(_traceLevels->adapterMgr > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	out << "added adapter `" << description.name << "'";
+    }
 
     return adapter;
 }
@@ -243,6 +293,12 @@ IcePack::AdapterManagerI::remove(const string& name, const Current&)
     // Remove the adapter name from our internal name set.
     //
     _adapterNames.erase(_adapterNames.find(name));
+
+    if(_traceLevels->adapterMgr > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterMgrCat);
+	out << "removed adapter `" << name << "'";
+    }
 }
 
 AdapterNames

@@ -40,6 +40,15 @@ class Server
 
     /**
      *
+     * Stop the server. This methods returns only when the server is
+     * deactivated. If the server doesn't stop after a configurable
+     * amount of time, it will be killed.
+     *
+     **/
+    void stop();
+
+    /**
+     *
      * This method is called by the activator when it detects that the
      * server has terminated.
      *
@@ -55,7 +64,7 @@ class Server
 
     /**
      *
-     * Set the server pid.
+     * Get the server pid.
      *
      **/
     int getPid();
@@ -83,7 +92,8 @@ class ServerManager
      *
      **/
     Server* create(ServerDescription desc)
-	throws DeploymentException, ServerExistsException;
+	throws ServerExistsException;
+
 
     /**
      *
