@@ -655,6 +655,7 @@ local exception MarshalException extends ProtocolException
     string reason;
 };
 
+#ifndef ICEE
 /**
  *
  * This exception is a specialization of [MarshalException] that is
@@ -677,6 +678,7 @@ local exception NoObjectFactoryException extends MarshalException
      **/
     string type;
 };
+#endif
 
 /**
  *
