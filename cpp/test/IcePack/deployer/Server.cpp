@@ -15,6 +15,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Application.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
 
@@ -56,6 +57,12 @@ Server::run(int argc, char* argv[])
 int
 main(int argc, char* argv[])
 {
+    //
+    // Test if MY_ENV_VARIABLE is set.
+    //
+    char* value = getenv("MY_ENV_VARIABLE");
+    test(value != 0 && string(value) == "12");
+
     Server app;
     int rc = app.main(argc, argv);
     return rc;

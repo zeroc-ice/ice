@@ -420,7 +420,7 @@ interface ServerDeployer
      * deployment.
      *
      **/
-    void add(string name, string xmlfile, string binPath, string libPath, ServerTargets targets)
+    void add(string name, string xmlfile, string binPath, string libPath, Ice::StringSeq targets)
 	throws DeploymentException;
 
     /**

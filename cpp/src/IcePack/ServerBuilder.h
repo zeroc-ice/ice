@@ -50,6 +50,7 @@ public:
     void addService(const std::string&, const std::string&, const std::string&);
     void addOption(const std::string&);
     void addJavaOption(const std::string&);
+    void addEnvVar(const std::string&);
     void setKind(ServerKind);
 
     ServerPrx getServer() const;

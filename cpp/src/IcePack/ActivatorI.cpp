@@ -184,8 +184,8 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 
     string locatorArg = "--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator");
     argv[argc - 2] = strdup(locatorArg.c_str());
-    argv[argc - 1] = 0;
-    
+    argv[argc - 1] = 0;    
+
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
@@ -236,6 +236,20 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    if(fd != fds[1])
 	    {
 		close(fd);
+	    }
+	}
+
+	for(q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
+	{
+	    if(putenv(strdup(q->c_str())) != 0)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		ostringstream s;
+		s << "can't set environment variable: " << *q << "':\n" << ex;
+		write(fds[1], s.str().c_str(), s.str().length());
+		close(fds[1]);
+		exit(EXIT_FAILURE);
 	    }
 	}
 

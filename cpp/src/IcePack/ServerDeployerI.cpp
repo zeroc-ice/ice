@@ -32,7 +32,7 @@ IcePack::ServerDeployerI::~ServerDeployerI()
 
 void
 IcePack::ServerDeployerI::add(const string& name, const string& descriptor, const string& binPath, 
-			      const string& libPath, const ServerTargets& targets, const Ice::Current&)
+			      const string& libPath, const Ice::StringSeq& targets, const Ice::Current&)
 {
     //
     // Setup required variables.

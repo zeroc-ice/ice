@@ -26,7 +26,7 @@ class AddServer : public Task
 public:
     
     AddServer(const ServerDeployerPrx& deployer, const string& node, const string& name, const string& descriptor,
-	      const string& binpath, const string& libpath, const ServerTargets& targets) :
+	      const string& binpath, const string& libpath, const Ice::StringSeq& targets) :
 	_deployer(deployer),
 	_node(node),
 	_name(name),
@@ -96,7 +96,7 @@ private:
     string _descriptor;
     string _binpath;
     string _libpath;
-    ServerTargets _targets;
+    Ice::StringSeq _targets;
 };
 
 class ApplicationHandler : public ComponentHandler

@@ -320,6 +320,10 @@ IcePack::ServerHandler::endElement(const XMLCh *const name)
 	{
 	    _builder.addJavaOption(elementValue());
 	}
+	else if(str == "env")
+	{
+	    _builder.addEnvVar(elementValue());
+	}
     }
 
     ComponentHandler::endElement(name);
@@ -619,6 +623,12 @@ void
 IcePack::ServerBuilder::addJavaOption(const string& option)
 {
     _javaOptions.push_back(option);
+}
+
+void
+IcePack::ServerBuilder::addEnvVar(const string& env)
+{
+    _description.envs.push_back(env);
 }
 
 void

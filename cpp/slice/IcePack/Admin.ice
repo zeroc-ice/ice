@@ -25,20 +25,6 @@ module IcePack
 
 /**
  *
- * A vector of strings representing command line arguments.
- *
- **/
-sequence<string> ServerArgs;
-
-/**
- *
- * A vector of strings representing deployment targets.
- *
- **/
-sequence<string> ServerTargets;
-
-/**
- *
  * An enumeration representing the state of the server.
  *
  **/
@@ -148,7 +134,7 @@ struct ServerDescription
      * Targets used to deploy the server.
      *
      **/
-    ServerTargets targets;
+    Ice::StringSeq targets;
 
     /**
      *
@@ -169,7 +155,14 @@ struct ServerDescription
      * The server arguments.
      *
      **/
-    ServerArgs args;
+    Ice::StringSeq args;
+
+    /**
+     *
+     * The server environment variables.
+     *
+     **/
+    Ice::StringSeq envs;
     
     /**
      *
@@ -206,7 +199,7 @@ interface Admin
      * @see removeApplication
      *
      **/
-    void addApplication(string descriptor, ServerTargets targets)
+    void addApplication(string descriptor, Ice::StringSeq targets)
 	throws DeploymentException;    
 
     /**
@@ -256,7 +249,8 @@ interface Admin
      * @see removeServer
      *
      **/
-    void addServer(string node, string name, string path, string libraryPath, string descriptor, ServerTargets targets)
+    void addServer(string node, string name, string path, string libraryPath, string descriptor, 
+		   Ice::StringSeq targets)
 	throws DeploymentException, NodeUnreachableException;
 
     /**

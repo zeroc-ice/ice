@@ -28,11 +28,11 @@ public:
 	   const ObjectRegistryPtr&);
     virtual ~AdminI();
 
-    virtual void addApplication(const std::string&, const ServerTargets&, const Ice::Current& = Ice::Current());
+    virtual void addApplication(const std::string&, const Ice::StringSeq&, const Ice::Current& = Ice::Current());
     virtual void removeApplication(const std::string&, const Ice::Current& = Ice::Current());
 
     virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&, 
-			   const std::string&, const ServerTargets&, const Ice::Current& = Ice::Current());
+			   const std::string&, const Ice::StringSeq&, const Ice::Current& = Ice::Current());
     virtual void removeServer(const ::std::string&, const Ice::Current&);
 
     virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&) const;

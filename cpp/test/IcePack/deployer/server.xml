@@ -32,4 +32,8 @@
     </properties>    
   </target>
 
+  <envs>
+    <env>MY_ENV_VARIABLE=12</env>
+  </envs>
+
 </server>

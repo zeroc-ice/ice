@@ -36,7 +36,7 @@ IcePack::AdminI::~AdminI()
 }
 
 void
-IcePack::AdminI::addApplication(const string& descriptor, const ServerTargets& targets, const Current&)
+IcePack::AdminI::addApplication(const string& descriptor, const StringSeq& targets, const Current&)
 {
     ApplicationBuilder builder(_communicator, _nodeRegistry, targets);
     builder.parse(descriptor);
@@ -46,14 +46,14 @@ IcePack::AdminI::addApplication(const string& descriptor, const ServerTargets& t
 void
 IcePack::AdminI::removeApplication(const string& descriptor, const Current&)
 {
-    ApplicationBuilder builder(_communicator, _nodeRegistry, ServerTargets());
+    ApplicationBuilder builder(_communicator, _nodeRegistry, StringSeq());
     builder.parse(descriptor);
     builder.undo();
 }
 
 void
 IcePack::AdminI::addServer(const string& node, const string& name, const string& path, const string& ldpath, 
-			   const string& descriptor, const ServerTargets& targets, const Current&)
+			   const string& descriptor, const StringSeq& targets, const Current&)
 {
     ApplicationBuilder builder(_communicator, _nodeRegistry, targets);
     builder.addServer(name, node, descriptor, path, ldpath, "");

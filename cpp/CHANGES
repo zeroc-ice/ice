@@ -1,6 +1,9 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added support for `env' XML element in IcePack descriptors to allow
+  setting environment variables.
+
 - Fixed a bug in the Slice parser: the semantic check to see
   whether an identifier introduced into a scope has changed
   meaning was too stringent.
