@@ -137,7 +137,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         }
         else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
         {
-            trace(ICE_STRING_VERSION);
+            print(ICE_STRING_VERSION);
             return false;
         }
         else if(strcmp(argv[i], "--nowarn") == 0)
@@ -442,7 +442,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     string bundleName = properties->getProperty("IcePack.Node.PrintServersReady");
     if(!bundleName.empty())
     {
-	cout << bundleName << " ready" << endl;
+	print(bundleName + " ready");
     }
 
     return true;
@@ -558,8 +558,7 @@ IcePack::NodeService::usage(const string& appName)
         "--nochdir            Do not change the current working directory."
     );
 #endif
-    cerr << "Usage: " << appName << " [options]" << endl;
-    cerr << options << endl;
+    print("Usage: " + appName + " [options]\n" + options);
 }
 
 int

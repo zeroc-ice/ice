@@ -58,14 +58,11 @@ protected:
 private:
 
     void usage(const std::string&);
-
-    const LoggerPtr _logger;
 };
 
 };
 
-IcePatch2::PatcherService::PatcherService() :
-    _logger(communicator()->getLogger())
+IcePatch2::PatcherService::PatcherService()
 {
 }
 
@@ -85,7 +82,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
-        _logger->error(e.reason);
+        error(e.reason);
 	usage(argv[0]);
 	return false;
     }
@@ -97,13 +94,13 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
-	_logger->print(ICE_STRING_VERSION);
+	print(ICE_STRING_VERSION);
 	return false;
     }
 
     if(args.size() > 1)
     {
-	_logger->error("too many arguments");
+	error("too many arguments");
 	usage(argv[0]);
 	return false;
     }
@@ -119,7 +116,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	dataDir = properties->getProperty("IcePatch2.Directory");
 	if(dataDir.empty())
 	{
-	    _logger->error("no data directory specified");
+	    error("no data directory specified");
 	    usage(argv[0]);
 	    return false;
 	}
@@ -151,38 +148,37 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     catch(const string& ex)
     {
-        _logger->error(ex);
+        error(ex);
         return false;
     }
     catch(const char* ex)
     {
-        _logger->error(ex);
+        error(ex);
         return false;
     }
     
-    const char* endpointsProperty = "IcePatch2.Endpoints";
+    const string endpointsProperty = "IcePatch2.Endpoints";
     if(properties->getProperty(endpointsProperty).empty())
     {
-	Error err(_logger);
-	err << "property `" << endpointsProperty << "' is not set";
+	error("property `" + endpointsProperty + "' is not set");
 	return false;
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch2");
 
-    const char* adminEndpointsProperty = "IcePatch2.Admin.Endpoints";
+    const string adminEndpointsProperty = "IcePatch2.Admin.Endpoints";
     ObjectAdapterPtr adminAdapter;
     if(!properties->getProperty(adminEndpointsProperty).empty())
     {
 	adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
     }
 
-    const char* idProperty = "IcePatch2.Identity";
+    const string idProperty = "IcePatch2.Identity";
     Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
     adapter->add(new FileServerI(dataDir, infoSeq), id);
 
     if(adminAdapter)
     {
-	const char* adminIdProperty = "IcePatch2.AdminIdentity";
+	const string adminIdProperty = "IcePatch2.AdminIdentity";
 	Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IcePatch2/admin"));
 	adminAdapter->add(new AdminI(communicator()), adminId);
     }
@@ -248,9 +244,7 @@ IcePatch2::PatcherService::usage(const string& appName)
 	// --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
-
-    Print out(_logger);
-    out << "Usage: " << appName << " [options] [DIR]\n" << options;
+    print("Usage: " + appName + " [options] [DIR]\n" + options);
 }
 
 int

@@ -81,7 +81,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
-        cerr << e.reason << endl;
+        error(e.reason);
 	usage(argv[0]);
 	return false;
     }
@@ -93,7 +93,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
+	print(ICE_STRING_VERSION);
 	return false;
     }
 
@@ -108,10 +108,10 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     // Initialize the client object adapter.
     //
-    const char* clientEndpointsProperty = "Glacier2.Client.Endpoints";
+    const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
     if(properties->getProperty(clientEndpointsProperty).empty())
     {
-	cerr << argv[0] << ": property `" << clientEndpointsProperty << "' is not set" << endl;
+	error("property `" + clientEndpointsProperty + "' is not set");
 	return false;
     }
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
@@ -120,7 +120,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // Initialize the server object adapter only if server endpoints
     // are defined.
     //
-    const char* serverEndpointsProperty = "Glacier2.Server.Endpoints";
+    const string serverEndpointsProperty = "Glacier2.Server.Endpoints";
     ObjectAdapterPtr serverAdapter;
     if(!properties->getProperty(serverEndpointsProperty).empty())
     {
@@ -131,7 +131,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // Initialize the admin object adapter only if admin endpoints
     // are defined.
     //
-    const char* adminEndpointsProperty = "Glacier2.Admin.Endpoints";
+    const string adminEndpointsProperty = "Glacier2.Admin.Endpoints";
     ObjectAdapterPtr adminAdapter;
     if(!properties->getProperty(adminEndpointsProperty).empty())
     {
@@ -226,7 +226,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     //
     if(adminAdapter)
     {
-	const char* adminIdProperty = "Glacier2.AdminIdentity";
+	const string adminIdProperty = "Glacier2.AdminIdentity";
 	Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "Glacier2/admin"));
 	adminAdapter->add(new AdminI(communicator()), adminId);
     }
@@ -340,8 +340,7 @@ Glacier2::RouterService::usage(const string& appName)
         "--nochdir            Do not change the current working directory."
     );
 #endif
-    cerr << "Usage: " << appName << " [options]" << endl;
-    cerr << options << endl;
+    print("Usage: " + appName + " [options]\n" + options);
 }
 
 int

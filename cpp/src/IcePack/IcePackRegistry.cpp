@@ -60,7 +60,7 @@ IcePack::RegistryService::start(int argc, char* argv[])
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
-        cerr << e.reason << endl;
+        error(e.reason);
 	usage(argv[0]);
 	return false;
     }
@@ -72,7 +72,7 @@ IcePack::RegistryService::start(int argc, char* argv[])
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
+	print(ICE_STRING_VERSION);
 	return false;
     }
     nowarn = opts.isSet("nowarn");
@@ -145,8 +145,7 @@ IcePack::RegistryService::usage(const string& appName)
         "--nochdir            Do not change the current working directory."
     );
 #endif
-    cerr << "Usage: " << appName << " [options]" << endl;
-    cerr << options << endl;
+    print("Usage: " + appName + " [options]\n" + options);
 }
 
 int
