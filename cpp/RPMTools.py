@@ -80,6 +80,10 @@ class Package:
 	ofile.write("\n")
 	ofile.write("%clean\n")
 	ofile.write("\n")
+	ofile.write("%changelog\n")
+	ofile.write("* Tue Mar 8 2005 ZeroC Staff\n")
+	ofile.write("- See source distributions or the ZeroC website for more information\n")
+	ofile.write("  about the changes in this release\n") 
 	ofile.write("\n")
 
     def writeFileList(self, ofile, version, intVersion, installDir):
@@ -216,7 +220,7 @@ transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 fileLists = [
     Package("ice",
             "",
-	    "The Internet Communications Engine (Ice) runtime and services",
+	    "The Ice base runtime and services",
             "System Environment/Libraries",
 	    iceDescription,
 	    "",
@@ -268,7 +272,7 @@ fileLists = [
 	     ("file", "share/doc/Ice-%version%/README.DEMOS")]),
     Subpackage("c++-devel",
                "",
-               "Tools, files and libraries for developing Ice applications in C++",
+               "Tools and demos for developing Ice applications in C++",
                "Development/Tools",
 	       iceDescription,
 	       "",
@@ -297,7 +301,7 @@ fileLists = [
 		]),
     Subpackage("dotnet",
                "ice = %version%, mono-core >= 1.0.6, mono-core < 1.1",
-               "Ice runtime for C# applications",
+               "The Ice runtime for C# applications",
                "System Environment/Libraries",
 	       iceDescription,
 	       "",
@@ -308,7 +312,7 @@ fileLists = [
 		("dll", "bin/icestormcs.dll")]),
     Subpackage("csharp-devel",
                "ice-dotnet = %version%",
-               "Tools for developing Ice applications in C#",
+               "Tools  and demos for developing Ice applications in C#",
                "Development/Tools",
 	       iceDescription,
 	       "",
@@ -319,7 +323,7 @@ fileLists = [
 	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
                "ice-java = %version%",
-               "Tools developing Ice applications in Java",
+               "Tools and demos for developing Ice applications in Java",
                "Development/Tools",
 	       iceDescription,
 	       "",
@@ -338,14 +342,14 @@ fileLists = [
 		("dir", "share/doc/Ice-%version%/demoj")]),
     Subpackage("python",
                "ice = %version%, python >= 2.3.4",
-               "Ice runtime for Python applications",
+               "The Ice runtime for Python applications",
                "System Environment/Libraries",
 	       iceDescription,
 	       "",
                [("lib", "lib/IcePy.so.VERSION"), ("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
     Subpackage("python-devel",
                "ice-python = %version%",
-               "Tools for developing Ice applications in Python",
+               "Tools and demos for developing Ice applications in Python",
                "Development/Tools",
 	       iceDescription,
 	       "",
@@ -357,7 +361,7 @@ fileLists = [
 noarchFileList = [
     Package("ice-java",
 	    "ice = %version%, db4-java = 4.2.52",
-	    "The Internet Communications Engine (ICE) runtime for Java",
+	    "The Ice runtime for Java",
 	    "System Environment/Libraries",
 	    iceDescription,
 	    "BuildArch: noarch",
