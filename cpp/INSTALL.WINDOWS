@@ -21,15 +21,15 @@ C++ compiler
 
 The following Microsoft Visual C++ compilers are supported:
 
-- Visual C++ 6.0 SP5 with STLport 4.5
+- Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 
 - Visual C++ .NET 2002 (aka VC 7.0)
 
 - Visual C++ .NET 2003 (aka VC 7.1)
 
 The STL (Standard Template Library) that is included with Visual C++
-6.0 is not supported! You must use STLport 4.5 with Visual C++
-6.0. You can download STLport 4.5 from:
+6.0 is not supported! You must use STLport 4.5 (or later) with Visual
+C++ 6.0. You can download STLport from:
 
 http://www.stlport.org/download.html
 
