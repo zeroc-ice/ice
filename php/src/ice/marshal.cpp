@@ -324,7 +324,8 @@ IcePHP::Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
             return new ProxyMarshaler(0);
 
         case Slice::Builtin::KindLocalObject:
-            zend_error(E_ERROR, "%s(): unexpected local type", get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): unexpected local type",
+			     get_active_function_name(TSRMLS_C));
             return 0;
         }
     }
@@ -388,8 +389,9 @@ IcePHP::Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
         if(!def)
         {
             string scoped = cl->scoped();
-            zend_error(E_ERROR, "%s(): cannot use Slice %s %s because it has not been defined",
-                       get_active_function_name(TSRMLS_C), cl->isInterface() ? "interface" : "class", scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): cannot use Slice %s %s because it has not been defined",
+			     get_active_function_name(TSRMLS_C),
+			     cl->isInterface() ? "interface" : "class", scoped.c_str());
             return 0;
         }
         return new ObjectMarshaler(def TSRMLS_CC);
@@ -434,8 +436,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_BOOL)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected boolean value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected boolean value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         os->writeBool(Z_BVAL_P(zv) ? true : false);
@@ -446,14 +448,15 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected byte value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected byte value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < 0 || val > 255)
         {
-            zend_error(E_ERROR, "%s(): value %ld is out of range for a byte", get_active_function_name(TSRMLS_C), val);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value %ld is out of range for a byte",
+			     get_active_function_name(TSRMLS_C), val);
             return false;
         }
         os->writeByte(static_cast<Ice::Byte>(val));
@@ -464,14 +467,15 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected short value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected short value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < SHRT_MIN || val > SHRT_MAX)
         {
-            zend_error(E_ERROR, "%s(): value %ld is out of range for a short", get_active_function_name(TSRMLS_C), val);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value %ld is out of range for a short",
+			     get_active_function_name(TSRMLS_C), val);
             return false;
         }
         os->writeShort(static_cast<Ice::Short>(val));
@@ -482,14 +486,15 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected int value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected int value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < INT_MIN || val > INT_MAX)
         {
-            zend_error(E_ERROR, "%s(): value %ld is out of range for an int", get_active_function_name(TSRMLS_C), val);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value %ld is out of range for an int",
+			     get_active_function_name(TSRMLS_C), val);
             return false;
         }
         os->writeInt(static_cast<Ice::Int>(val));
@@ -504,8 +509,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected long value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected long value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         Ice::Long val;
@@ -519,8 +524,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
             string::size_type pos;
             if(!IceUtil::stringToInt64(sval, val, pos))
             {
-                zend_error(E_ERROR, "%s(): invalid long value `%s'", get_active_function_name(TSRMLS_C),
-                           Z_STRVAL_P(zv));
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): invalid long value `%s'",
+				 get_active_function_name(TSRMLS_C), Z_STRVAL_P(zv));
                 return false;
             }
         }
@@ -532,8 +537,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected float value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected float value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -545,8 +550,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected double value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected double value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -567,8 +572,8 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         else
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            zend_error(E_ERROR, "%s(): expected string value but received %s", get_active_function_name(TSRMLS_C),
-                       s.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected string value but received %s",
+			     get_active_function_name(TSRMLS_C), s.c_str());
             return false;
         }
         break;
@@ -683,8 +688,8 @@ IcePHP::SequenceMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Obj
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected array value but received %s", get_active_function_name(TSRMLS_C),
-                   s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected array value but received %s",
+			 get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
 
@@ -751,8 +756,8 @@ IcePHP::ProxyMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
     if(Z_TYPE_P(zv) != IS_OBJECT && Z_TYPE_P(zv) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected proxy value but received %s", get_active_function_name(TSRMLS_C),
-                   s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected proxy value but received %s",
+			 get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
 
@@ -773,15 +778,15 @@ IcePHP::ProxyMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Object
                 if(!def->isA(scoped))
                 {
                     string s = def->scoped();
-                    zend_error(E_ERROR, "%s(): expected a proxy of type %s but received %s",
-                               get_active_function_name(TSRMLS_C), scoped.c_str(), s.c_str());
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected a proxy of type %s but received %s",
+				     get_active_function_name(TSRMLS_C), scoped.c_str(), s.c_str());
                     return false;
                 }
             }
             else
             {
-                zend_error(E_ERROR, "%s(): expected a proxy of type %s", get_active_function_name(TSRMLS_C),
-                           scoped.c_str());
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected a proxy of type %s",
+				 get_active_function_name(TSRMLS_C), scoped.c_str());
                 return false;
             }
         }
@@ -840,7 +845,8 @@ IcePHP::MemberMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     zval** val;
     if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, (void**)&val) == FAILURE)
     {
-        zend_error(E_ERROR, "%s(): member `%s' is not defined", get_active_function_name(TSRMLS_C), _name.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): member `%s' is not defined",
+			 get_active_function_name(TSRMLS_C), _name.c_str());
         return false;
     }
 
@@ -860,7 +866,8 @@ IcePHP::MemberMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSRML
 
     if(add_property_zval(zv, const_cast<char*>(_name.c_str()), val) == FAILURE)
     {
-        zend_error(E_ERROR, "%s(): unable to set member `%s'", get_active_function_name(TSRMLS_C), _name.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): unable to set member `%s'",
+			 get_active_function_name(TSRMLS_C), _name.c_str());
         return false;
     }
     zval_ptr_dtor(&val); // add_property_zval increments the refcount
@@ -899,8 +906,8 @@ IcePHP::StructMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected struct value of type %s but received %s",
-                   get_active_function_name(TSRMLS_C), _class->name, s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected struct value of type %s but received %s",
+		         get_active_function_name(TSRMLS_C), _class->name, s.c_str());
         return false;
     }
 
@@ -910,8 +917,8 @@ IcePHP::StructMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != _class)
     {
-        zend_error(E_ERROR, "%s(): expected struct value of type %s but received %s",
-                   get_active_function_name(TSRMLS_C), _class->name, ce->name);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected struct value of type %s but received %s",
+		         get_active_function_name(TSRMLS_C), _class->name, ce->name);
         return false;
     }
 
@@ -931,7 +938,7 @@ IcePHP::StructMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSRML
 {
     if(object_init_ex(zv, _class) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize object of type %s", _class->name);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize object of type %s", _class->name);
         return false;
     }
 
@@ -973,8 +980,8 @@ IcePHP::EnumMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     if(Z_TYPE_P(zv) != IS_LONG)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected long value for enum %s but received %s",
-                   get_active_function_name(TSRMLS_C), _class->name, s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected long value for enum %s but received %s",
+		         get_active_function_name(TSRMLS_C), _class->name, s.c_str());
         return false;
     }
 
@@ -984,8 +991,8 @@ IcePHP::EnumMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectM
     long val = Z_LVAL_P(zv);
     if(val < 0 || val >= _count)
     {
-        zend_error(E_ERROR, "%s(): value %ld is out of range for enum %s", get_active_function_name(TSRMLS_C),
-                   val, _class->name);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value %ld is out of range for enum %s",
+			 get_active_function_name(TSRMLS_C), val, _class->name);
         return false;
     }
 
@@ -1051,7 +1058,8 @@ IcePHP::NativeDictionaryMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr&
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s: expected array value but received %s", get_active_function_name(TSRMLS_C), s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s: expected array value but received %s",
+			 get_active_function_name(TSRMLS_C), s.c_str());
         return false;
     }
 
@@ -1219,7 +1227,7 @@ IcePHP::ExceptionMarshaler::marshal(zval*, const Ice::OutputStreamPtr&, ObjectMa
     //
     // We never need to marshal an exception.
     //
-    zend_error(E_ERROR, "exception marshaling is not supported");
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "exception marshaling is not supported");
     return false;
 }
 
@@ -1228,7 +1236,7 @@ IcePHP::ExceptionMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TS
 {
     if(object_init_ex(zv, _class) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to initialize exception %s", _class->name);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize exception %s", _class->name);
         return false;
     }
 
@@ -1654,9 +1662,8 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "%s(): expected object value of type %s but received %s",
-                   get_active_function_name(TSRMLS_C), _class ? _class->name : "ice_object",
-                   s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected object value of type %s but received %s",
+			 get_active_function_name(TSRMLS_C), _class ? _class->name : "ice_object", s.c_str());
         return false;
     }
 
@@ -1677,8 +1684,8 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
 
         if(parent == NULL)
         {
-            zend_error(E_ERROR, "%s(): expected object value of type %s but received %s",
-                       get_active_function_name(TSRMLS_C), _class->name, ce->name);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected object value of type %s but received %s",
+			     get_active_function_name(TSRMLS_C), _class->name, ce->name);
             return false;
         }
     }
@@ -1813,7 +1820,7 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
             {
                 if(Z_TYPE_P(zresult) != IS_OBJECT)
                 {
-                    zend_error(E_ERROR, "object factory did not return an object");
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "object factory did not return an object");
                     throw AbortMarshaling();
                 }
 
@@ -1821,7 +1828,8 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
                 zend_class_entry* base = findClass("Ice_ObjectImpl" TSRMLS_CC);
                 if(!checkClass(ce, base))
                 {
-                    zend_error(E_ERROR, "object returned by factory does not implement Ice_ObjectImpl");
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR,
+				     "object returned by factory does not implement Ice_ObjectImpl");
                     throw AbortMarshaling();
                 }
 

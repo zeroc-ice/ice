@@ -88,7 +88,7 @@ IcePHP::createCommunicator(TSRMLS_D)
     //
     if(object_init_ex(global, _communicatorClassEntry) != SUCCESS)
     {
-        zend_error(E_ERROR, "unable to create object for communicator");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create object for communicator");
         return false;
     }
 
@@ -125,7 +125,7 @@ IcePHP::getCommunicator(TSRMLS_D)
             {
                 ostringstream ostr;
                 ex.ice_print(ostr);
-                zend_error(E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
                 return 0;
             }
         }
@@ -148,7 +148,7 @@ IcePHP::getCommunicatorZval(TSRMLS_D)
 
 ZEND_FUNCTION(Ice_Communicator___construct)
 {
-    zend_error(E_ERROR, "Ice_Communicator cannot be instantiated, use the global variable $ICE");
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_Communicator cannot be instantiated, use the global variable $ICE");
 }
 
 ZEND_FUNCTION(Ice_Communicator_getProperty)
@@ -311,7 +311,8 @@ ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
     assert(base);
     if(!checkClass(ce, base))
     {
-        zend_error(E_ERROR, "%s(): object does not implement Ice_ObjectFactory", get_active_function_name(TSRMLS_C));
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): object does not implement Ice_ObjectFactory",
+			 get_active_function_name(TSRMLS_C));
         return;
     }
 
@@ -551,7 +552,7 @@ handleFreeStorage(zend_object* p TSRMLS_DC)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            zend_error(E_ERROR, "unable to destroy communicator:\n%s", ostr.str().c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to destroy communicator:\n%s", ostr.str().c_str());
         }
         delete _this;
     }
@@ -567,7 +568,7 @@ handleClone(zval* zv TSRMLS_DC)
 {
     zend_object_value result;
     memset(&result, 0, sizeof(zend_object_value));
-    zend_error(E_ERROR, "__clone is not supported for Ice_Communicator");
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "__clone is not supported for Ice_Communicator");
     return result;
 }
 
@@ -595,7 +596,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
             {
                 ostringstream ostr;
                 ex.ice_print(ostr);
-                zend_error(E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
                 return 0;
             }
         }

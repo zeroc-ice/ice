@@ -292,7 +292,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit)
         }
         else if(arg[0] == '-')
         {
-            zend_error(E_ERROR, "unknown option `%s' in ice.slice", arg.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown option `%s' in ice.slice", arg.c_str());
             return false;
         }
         else
@@ -303,7 +303,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit)
 
     if(files.empty())
     {
-        zend_error(E_ERROR, "no Slice files specified in ice.slice");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "no Slice files specified in ice.slice");
         return false;
     }
 
@@ -347,7 +347,7 @@ createProfile(const string& name, const string& config, const string& options, c
     map<string, Profile*>::iterator p = _profiles.find(name);
     if(p != _profiles.end())
     {
-        zend_error(E_ERROR, "profile `%s' already exists", name.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "profile `%s' already exists", name.c_str());
         return false;
     }
 
@@ -363,7 +363,8 @@ createProfile(const string& name, const string& config, const string& options, c
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            zend_error(E_ERROR, "unable to load Ice configuration file %s:\n%s", config.c_str(), ostr.str().c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to load Ice configuration file %s:\n%s", config.c_str(),
+			     ostr.str().c_str());
             return false;
         }
     }
@@ -413,7 +414,7 @@ createProfile(const string& name, const string& config, const string& options, c
             module = Slice::ModulePtr::dynamicCast(c.front());
             if(!module)
             {
-                zend_error(E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
+                php_error_docref(NULL TSRMLS_CC, E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
                 return false;
             }
         }
@@ -474,7 +475,7 @@ IcePHP::profileInit(TSRMLS_D)
         ifstream in(profiles);
         if(!in)
         {
-            zend_error(E_ERROR, "unable to open Ice profiles in %s", profiles);
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to open Ice profiles in %s", profiles);
             return false;
         }
 
@@ -509,7 +510,8 @@ IcePHP::profileInit(TSRMLS_D)
                 string::size_type end = s.find_first_of(" \t]", beg);
                 if(end == string::npos || s[s.length() - 1] != ']')
                 {
-                    zend_error(E_ERROR, "invalid profile section in file %s:\n%s\n", profiles, line);
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "invalid profile section in file %s:\n%s\n", profiles,
+				     line);
                     return false;
                 }
 
@@ -536,7 +538,8 @@ IcePHP::profileInit(TSRMLS_D)
                 end = s.find('=', end);
                 if(end == string::npos)
                 {
-                    zend_error(E_ERROR, "invalid profile entry in file %s:\n%s\n", profiles, line);
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "invalid profile entry in file %s:\n%s\n", profiles,
+				     line);
                     return false;
                 }
                 ++end;
@@ -563,13 +566,15 @@ IcePHP::profileInit(TSRMLS_D)
                 }
                 else
                 {
-                    zend_error(E_ERROR, "unknown profile entry in file %s:\n%s\n", profiles, line);
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown profile entry in file %s:\n%s\n", profiles,
+				     line);
                     return false;
                 }
 
                 if(currentName.empty())
                 {
-                    zend_error(E_ERROR, "no section for profile entry in file %s:\n%s\n", profiles, line);
+                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "no section for profile entry in file %s:\n%s\n",
+				     profiles, line);
                     return false;
                 }
             }
@@ -597,7 +602,8 @@ IcePHP::profileShutdown(TSRMLS_D)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            zend_error(E_ERROR, "error while destroying Slice parse tree:\n%s\n", ostr.str().c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "error while destroying Slice parse tree:\n%s\n",
+			     ostr.str().c_str());
         }
 
         delete p->second;
@@ -615,7 +621,8 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
 
     if(profile)
     {
-        zend_error(E_ERROR, "an Ice profile (`%s') has already been loaded", profile->name.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "an Ice profile (`%s') has already been loaded",
+			 profile->name.c_str());
         return false;
     }
 
@@ -628,7 +635,7 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     map<string, Profile*>::iterator p = _profiles.find(profileName);
     if(p == _profiles.end())
     {
-        zend_error(E_ERROR, "profile `%s' not found", profileName.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "profile `%s' not found", profileName.c_str());
         return false;
     }
     profile = p->second;
@@ -638,7 +645,7 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     //
     if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
     {
-        zend_error(E_ERROR, "unable to create core types:\n%s\n", _coreTypes);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create core types:\n%s\n", _coreTypes);
         return false;
     }
 
@@ -647,7 +654,7 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     //
     if(zend_eval_string(const_cast<char*>(profile->code.c_str()), NULL, "__slice" TSRMLS_CC) == FAILURE)
     {
-        zend_error(E_ERROR, "unable to create Slice types:\n%s\n", profile->code.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create Slice types:\n%s\n", profile->code.c_str());
         return false;
     }
 
@@ -710,7 +717,8 @@ ZEND_FUNCTION(Ice_loadProfileWithArgs)
     {
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            zend_error(E_ERROR, "%s(): argument array must contain strings", get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): argument array must contain strings",
+			     get_active_function_name(TSRMLS_C));
             return;
         }
         args.push_back(Z_STRVAL_PP(val));
@@ -727,7 +735,7 @@ ZEND_FUNCTION(Ice_dumpProfile)
 
     if(!profile)
     {
-        zend_error(E_ERROR, "no profile has been loaded");
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "no profile has been loaded");
         return;
     }
 
@@ -774,8 +782,8 @@ IcePHP::CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
     if(!def)
     {
         string scoped = p->scoped();
-        zend_error(E_WARNING, "%s %s declared but not defined", p->isInterface() ? "interface" : "class",
-                   scoped.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s %s declared but not defined",
+			 p->isInterface() ? "interface" : "class", scoped.c_str());
     }
 }
 
@@ -968,7 +976,7 @@ IcePHP::CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
         // TODO: Generate class.
         //
         string scoped = p->scoped();
-        zend_error(E_WARNING, "skipping dictionary %s - unsupported key type", scoped.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "skipping dictionary %s - unsupported key type", scoped.c_str());
     }
 }
 
