@@ -87,11 +87,12 @@ tests = [ \
     ]
 
 #
-# This test is currently disabled on cygwin
+# These tests are currently disabled on cygwin
 #
 if TestUtil.isCygwin() == 0:
     tests += [ \
        "Glacier/starter", \
+       "Glacier2/router", \
       ]
 
 def usage():
