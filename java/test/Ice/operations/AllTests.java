@@ -24,7 +24,7 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, boolean collocated)
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();
@@ -37,8 +37,7 @@ public class AllTests
         System.out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
         test(cl != null);
-        Test.MyDerivedClassPrx derived =
-            Test.MyDerivedClassPrxHelper.checkedCast(cl);
+        Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(cl);
         test(derived != null);
         test(cl.equals(base));
         test(derived.equals(base));
@@ -51,6 +50,15 @@ public class AllTests
         Twoways.twoways(derived);
         derived.opDerived();
         System.out.println("ok");
+
+	if(!collocated)
+	{
+	    System.out.print("testing twoway operations with AMI... ");
+	    System.out.flush();
+	    TwowaysAMI.twowaysAMI(cl);
+	    TwowaysAMI.twowaysAMI(derived);
+	    System.out.println("ok");
+	}
 
         return cl;
     }

@@ -22,7 +22,7 @@ public class Collocated
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
         adapter.add(object, Ice.Util.stringToIdentity("test"));
 
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, true);
 
         return 0;
     }

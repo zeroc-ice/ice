@@ -87,7 +87,7 @@ public abstract class OutgoingAsync
 	_connection.incProxyCount();
 	try
 	{
-//	    _connection.sendAsyncRequest(this);
+	    _connection.sendAsyncRequest(this);
 	}
         catch(RuntimeException ex)
 	{

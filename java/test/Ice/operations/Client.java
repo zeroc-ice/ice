@@ -17,7 +17,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator);
+        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
 
         System.out.print("testing server shutdown... ");
         System.out.flush();
