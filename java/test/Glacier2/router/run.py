@@ -31,10 +31,11 @@ router = os.path.join(ice_home, "bin", "glacier2router")
 command = router + TestUtil.clientServerOptions + \
           r' --Ice.PrintProcessId' \
           r' --Glacier2.RouterIdentity="abc/def"' + \
-          r' --Glacier2.Client.Endpoints="default -p 12347 -t 30000"' + \
-          r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1"' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"' + \
-          " 2>&1"
+          r' --Glacier2.AdminIdentity="ABC/DEF"' + \
+          r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
+          r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
+          r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"'
 
 print "starting router...",
 starterPipe = os.popen(command)
@@ -48,18 +49,17 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 
 TestUtil.mixedClientServerTest()
 
+#
 # We run the test again, to check whether the glacier router can
-# handle multiple clients.
-TestUtil.mixedClientServerTest()
-
-print "shutting down glacier starter...",
-TestUtil.killServers() # TODO: Graceful shutdown.
-print "ok"
+# handle multiple clients. Also, when we run for the second time, we
+# want the client to shutdown the router after running the tests.
+#
+TestUtil.mixedClientServerTestWithOptions("", " --shutdown")
 
 starterStatus = starterPipe.close()
 
 if starterStatus:
     TestUtil.killServers()
-    #sys.exit(1) # TODO: Uncomment when when we have graceful shutdown.
+    sys.exit(1)
 
 sys.exit(0)

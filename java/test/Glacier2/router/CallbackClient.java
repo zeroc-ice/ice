@@ -310,7 +310,54 @@ class CallbackClient extends Ice.Application
                 System.out.println("ok");
             }
         }
-
+	
+	if(args.length >= 1 && args[0].equals("--shutdown"))
+	{
+	    {
+		System.out.print("uninstalling router with communicator... ");
+		System.out.flush();
+		communicator().setDefaultRouter(null);
+		System.out.println("ok");
+	    }
+	    
+	    Ice.ObjectPrx adminBase;
+	    
+	    {
+		System.out.print("testing stringToProxy for admin object... ");
+		adminBase = communicator().stringToProxy("ABC/DEF:tcp -h 127.0.0.1 -p 12348 -t 10000");
+		System.out.println("ok");
+	    }
+	    
+/*
+	    {
+		System.out.print("uninstalling router with admin object... ");
+		adminBase.ice_router(null);
+		System.out.println("ok");
+	    }
+*/
+	    
+	    Glacier2.AdminPrx admin;
+	    
+	    {
+		System.out.print("testing checked cast for admin object... ");
+		admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
+		test(admin != null);
+		System.out.println("ok");
+	    }
+	    
+	    System.out.print("testing Glacier2 shutdown... ");
+	    admin.shutdown();
+	    try
+	    {
+		admin.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		System.out.println("ok");
+	    }
+	}
+	
         return 0;
     }
 

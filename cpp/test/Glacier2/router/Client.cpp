@@ -305,11 +305,13 @@ CallbackClient::run(int argc, char* argv[])
 	    cout << "ok" << endl;
 	}
 	
+/*
 	{
 	    cout << "uninstalling router with admin object... " << flush;
 	    adminBase->ice_router(0);
 	    cout << "ok" << endl;
 	}
+*/
 
 	Glacier2::AdminPrx admin;
 	
@@ -331,7 +333,6 @@ CallbackClient::run(int argc, char* argv[])
 	{
 	    cout << "ok" << endl;
 	}
-	
     }
     
     return EXIT_SUCCESS;

@@ -610,6 +610,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 
     private static final String _glacier2Props[] =
     {
+	"Admin.Endpoints",
+	"AdminIdentity",
 	"Client.AlwaysBatch",
 	"Client.Endpoints",
 	"Client.ForwardContext",

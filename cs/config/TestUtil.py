@@ -62,14 +62,7 @@ def killServers():
 
     if isCygwin():
 	print "killServers(): not implemented for cygwin python."
-
-	#
-	# TODO: Michi: Not sure why exit(1) was here. This means that, when
-	# we run the test suite with allTests.py under Cygwin, the first sub-test that
-	# calls killServers will return non-zero exit status and, therefore,
-	# terminate allTests.py, so the subsequent tests are never run.
-	#
-	#sys.exit(1)
+        return;
 
     for pid in serverPids:
         if isWin32():

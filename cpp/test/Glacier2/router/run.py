@@ -51,6 +51,6 @@ starterStatus = starterPipe.close()
 
 if starterStatus:
     TestUtil.killServers()
-    #sys.exit(1) # TODO: Uncomment when when we have graceful shutdown.
+    sys.exit(1)
 
 sys.exit(0)

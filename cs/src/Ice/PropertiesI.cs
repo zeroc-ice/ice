@@ -618,6 +618,8 @@ namespace Ice
 	    
 	private static readonly string[] _glacier2Props = new string[]
 	{
+	    "Admin.Endpoints",
+	    "AdminIdentity",
 	    "Client.AlwaysBatch",
 	    "Client.Endpoints",
 	    "Client.ForwardContext",
