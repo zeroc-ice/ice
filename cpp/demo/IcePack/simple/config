@@ -4,6 +4,14 @@
 Ice.Default.Locator=IcePack/Locator:default -p 12000
 
 #
+# IceSSL Configuration (NOTE: this is only necessary for the client
+# to establish secure connections to the servers.)
+#
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+
+#
 # IcePack registry configuration.
 #
 IcePack.Registry.Client.Endpoints=default -p 12000
