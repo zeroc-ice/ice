@@ -2823,7 +2823,7 @@ Transform::DictionaryData::transform(const DataPtr& data, DataInterceptor& inter
 {
     if(interceptor.preTransform(this, data))
     {
-        transformI(data, interceptor);
+        transformI(data, interceptor, false);
     }
     interceptor.postTransform(this, data);
 }
@@ -2837,7 +2837,7 @@ Transform::DictionaryData::set(const DataPtr& value, DataInterceptor& intercepto
     }
     else
     {
-        transformI(value, interceptor);
+        transformI(value, interceptor, true);
     }
 }
 
@@ -2947,7 +2947,7 @@ Transform::DictionaryData::printI(IceUtil::Output& out, ObjectDataHistory& histo
 }
 
 void
-Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& interceptor)
+Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& interceptor, bool checkTypes)
 {
     DictionaryDataPtr d = DictionaryDataPtr::dynamicCast(data);
     if(d && isCompatible(_type, d->_type, interceptor))
@@ -3002,7 +3002,7 @@ Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& inte
         _map = m;
         _length = _factory->createInteger(static_cast<Ice::Long>(_map.size()), true);
     }
-    else
+    else if(checkTypes)
     {
         _errorReporter->typeMismatchError(_type, data->getType(), false);
     }

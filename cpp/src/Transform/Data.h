@@ -538,7 +538,7 @@ private:
 
     DictionaryData(const DataFactoryPtr&, const Slice::DictionaryPtr&, const ErrorReporterPtr&, bool, const DataMap&);
 
-    void transformI(const DataPtr&, DataInterceptor&);
+    void transformI(const DataPtr&, DataInterceptor&, bool);
 
     DataFactoryPtr _factory;
     Slice::DictionaryPtr _type;
