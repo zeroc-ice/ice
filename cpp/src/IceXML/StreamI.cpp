@@ -81,9 +81,9 @@ public:
     {
 	ostringstream os;
 	os << "xerces:  file: \"" << toString(ex.getSystemId())
-	   << "\", line:" << ex.getLineNumber()
+	   << "\", line: " << ex.getLineNumber()
 	   << ", column: " << ex.getColumnNumber()
-	   << "\n,essage: " << toString(ex.getMessage()) << endl;
+	   << "\nmessage: " << toString(ex.getMessage()) << endl;
 	_logger->warning(os.str());
     }
     
@@ -252,7 +252,7 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
     // parser->setEntityResolver
 
     //
-    //  Parse the XML file, catching any XML exceptions that might propogate
+    //  Parse the XML file, catching any XML exceptions that might propagate
     //  out of it.
     //
     bool errorsOccured = false;
@@ -680,7 +680,12 @@ IceXML::StreamI::readShort(const string& name, ::Ice::Short& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = atoi(s.c_str());
+    ::Ice::Int i = atoi(s.c_str());
+    if (i < -32767 || i > 32768)
+    {
+	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
+    }
+    value = (::Ice::Short)i;
 
     endRead();
 }
@@ -992,7 +997,7 @@ IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
     startWrite(name);
     for (::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << nl << "<e>" << *p << "</e>"; // TODO: Escape
     }
     endWrite();
 }
