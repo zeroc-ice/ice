@@ -31,6 +31,7 @@
                 <include name="ObjectFactory.ice" />
                 <include name="Properties.ice" />
                 <include name="ServantLocator.ice" />
+                <include name="Stream.ice" />
             </fileset>
         </slice2java>
     </target>
