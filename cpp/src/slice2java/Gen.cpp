@@ -1355,7 +1355,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "__is.startReadSlice();";
         iter = 0;
 	DataMemberList classMembers = p->classDataMembers();
-	int classMemberCount = allClassMembers.size() - classMembers.size();
+	long classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
             list<string> metaData = (*d)->getMetaData();
@@ -1573,7 +1573,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	out << nl << "__is.startReadSlice();";
         iter = 0;
 	DataMemberList classMembers = p->classDataMembers();
-	int classMemberCount = allClassMembers.size() - classMembers.size();
+	long classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
 	    ostringstream patchParams;
@@ -2969,8 +2969,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             else
             {
                 string s = typeToString(type, TypeModeIn, scope);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+		BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
+		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
 		{
 		    writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false, list<string>(),
 					      "__r, __key");

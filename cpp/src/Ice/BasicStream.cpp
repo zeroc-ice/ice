@@ -355,7 +355,7 @@ IceInternal::BasicStream::startWriteSlice()
 void
 IceInternal::BasicStream::endWriteSlice()
 {
-    Int sz = b.size() - _writeSlice + sizeof(Int);
+    Int sz = static_cast<Int>(b.size() - _writeSlice + sizeof(Int));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));

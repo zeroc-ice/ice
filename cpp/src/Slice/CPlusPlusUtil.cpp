@@ -611,21 +611,21 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	{
 	    ClassDefPtr def = cl->definition();
 	    string factory;
-	    string type;
+	    string typeName;
 	    if(def && !def->isAbstract())
 	    {
 		factory = fixKwd(cl->scoped());
 		factory += "::ice_factory()";
-		type = fixKwd(cl->scoped());
-		type += "::ice_staticId()";
+		typeName = fixKwd(cl->scoped());
+		typeName += "::ice_staticId()";
 	    }
 	    else
 	    {
 		factory = "0";
-		type = "\"\"";
+		typeName = "\"\"";
 	    }
 	    out << nl << scope << "__" << streamFunc << "Object(" << stream << ", " << tagName << ", "
-		<< type << ", " << factory << ", " << fixedParam << ");";
+		<< typeName << ", " << factory << ", " << fixedParam << ");";
 	}
 	out << eb;
 

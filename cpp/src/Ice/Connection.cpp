@@ -533,7 +533,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    // No compression, just fill in the message size.
 	    //
 	    Int sz = static_cast<Int>(os->b.size());
-	    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+	    p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
