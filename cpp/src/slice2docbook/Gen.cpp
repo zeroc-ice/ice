@@ -98,178 +98,129 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
     StringList throws = getTagged("throws", comment);
     StringList see = getTagged("see", comment);
 
+    start("para");
     string::size_type pos = comment.find_last_not_of(" \t\r\n");
     if(pos != string::npos)
     {
 	comment.erase(pos + 1);
-	out << nl << "<para>";
 	out.zeroIndent();
 	out << nl << comment;
 	out.restoreIndent();
-	out << nl << "</para>";
     }
+    end();
 
     if(!par.empty())
     {
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect2");
+	start("title");
 	out << nl << "Parameters";
-	out.dec();
-	out << nl << "</title>";
-	out << nl << "<variablelist>";
-	out.inc();
-	
+	end();
+	start("variablelist");
 	for(StringList::iterator p = par.begin();
 	    p != par.end();
 	    ++p)
 	{
 	    string::size_type pos;
-	    string term = "???";
+	    string term;
 	    pos = p -> find_first_of(" \t\r\n");
 	    if(pos != string::npos)
 		term = p -> substr(0, pos);
-	    string item = "???";
+	    string item;
 	    pos = p -> find_first_not_of(" \t\r\n", pos);
 	    if(pos != string::npos)
 		item = p -> substr(pos);
 	    
-	    out << nl << "<varlistentry>";
-	    out.inc();
-	    out << nl << "<term>";
-	    out.inc();
-	    out << nl << "<parameter>";
-	    out.inc();
+	    start("varlistentry");
+	    start("term");
+	    start("parameter");
 	    out << nl << term;
-	    out.dec();
-	    out << nl << "</parameter>";
-	    out.dec();
-	    out << nl << "</term>";
-	    out << nl << "<listitem>";
-	    out.inc();
-	    out << nl << "<para>";
-	    out.zeroIndent();
+	    end();
+	    end();
+	    start("listitem");
+	    start("para");
 	    out << nl << item;
-	    out.restoreIndent();
-	    out << nl << "</para>";
-	    out.dec();
-	    out << nl << "</listitem>";
-	    out.dec();
-	    out << nl << "</varlistentry>";
+	    end();
+	    end();
+	    end();
 	}
 
-	out.dec();
-	out << nl << "</variablelist>";
-	out.dec();
-	out << nl << "</section>";
+	end();
+	end();
     }
 
     if(!ret.empty())
     {
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect2");
+	start("title");
 	out << nl << "Return Value";
-	out.dec();
-	out << nl << "</title>";
-	out << nl << "<para>";
-	out.zeroIndent();
+	end();
+	start("para");
 	out << nl << ret.front();
-	out.restoreIndent();
-	out << nl << "</para>";
-	out.dec();
-	out << nl << "</section>";
+	end();
+	end();
     }
 
     if(!throws.empty())
     {
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect2");
+	start("title");
 	out << nl << "Exceptions";
-	out.dec();
-	out << nl << "</title>";
-	out << nl << "<variablelist>";
-	out.inc();
+	end();
+	start("variablelist");
 	
 	for(StringList::iterator p = throws.begin();
 	    p != throws.end();
 	    ++p)
 	{
 	    string::size_type pos;
-	    string term = "???";
+	    string term;
 	    pos = p -> find_first_of(" \t\r\n");
 	    if(pos != string::npos)
 		term = p -> substr(0, pos);
-	    string item = "???";
+	    string item;
 	    pos = p -> find_first_not_of(" \t\r\n", pos);
 	    if(pos != string::npos)
 		item = p -> substr(pos);
 	    
-	    out << nl << "<varlistentry>";
-	    out.inc();
-	    out << nl << "<term>";
-	    out.inc();
+	    start("varlistentry");
+	    start("term");
 	    out << nl << term;
-	    out.dec();
-	    out << nl << "</term>";
-	    out << nl << "<listitem>";
-	    out.inc();
-	    out << nl << "<para>";
-	    out.zeroIndent();
+	    end();
+	    start("listitem");
+	    start("para");
 	    out << nl << item;
-	    out.restoreIndent();
-	    out << nl << "</para>";
-	    out.dec();
-	    out << nl << "</listitem>";
-	    out.dec();
-	    out << nl << "</varlistentry>";
+	    end();
+	    end();
+	    end();
 	}
 
-	out.dec();
-	out << nl << "</variablelist>";
-	out.dec();
-	out << nl << "</section>";
+	end();
+	end();
     }
 
     if(!see.empty())
     {
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect2");
+	start("title");
 	out << nl << "See Also";
-	out.dec();
-	out << nl << "</title>";
-	out << nl << "<para>";
-	out.inc();
-	out << nl << "<itemizedlist>";
-	out.inc();
+	end();
+	start("para");
+	start("itemizedlist");
 	
 	for(StringList::iterator p = see.begin();
 	    p != see.end();
 	    ++p)
 	{
-	    out << nl << "<listitem>";
-	    out.inc();
-	    out << nl << "<para>";
-	    out.zeroIndent();
+	    start("listitem");
+	    start("para");
 	    out << nl << *p;
-	    out.restoreIndent();
-	    out << nl << "</para>";
-	    out.dec();
-	    out << nl << "</listitem>";
+	    end();
+	    end();
 	}
 
-	out.dec();
-	out << nl << "</itemizedlist>";
-	out.dec();
-	out << nl << "</para>";
-	out.dec();
-	out << nl << "</section>";
+	end();
+	end();
+	end();
     }
 }
 
@@ -277,16 +228,17 @@ void
 Slice::Gen::printSummary(Output& out, const Contained_ptr& p)
 {
     string comment = p -> comment();
+
+    start("para");
     string::size_type pos = comment.find('.');
     if(pos != string::npos)
     {
 	comment.erase(pos + 1);
-	out << nl << "<para>";
 	out.zeroIndent();
 	out << nl << comment;
 	out.restoreIndent();
-	out << nl << "</para>";
     }
+    end();
 }
 
 void
@@ -310,6 +262,33 @@ Slice::Gen::popFile()
 }
 
 void
+Slice::Gen::start(const std::string& s)
+{
+    elementStack_.push(s);
+
+    Output& out = *outputStack_.top();
+    if(!out)
+	return;
+
+    out << nl << '<' << s << '>';
+    out.inc();
+}
+
+void
+Slice::Gen::end()
+{
+    string s = elementStack_.top();
+    elementStack_.pop();
+
+    Output& out = *outputStack_.top();
+    if(!out)
+	return;
+
+    out.dec();
+    out << nl << "</" << s << '>';
+}
+
+void
 Slice::Gen::visitUnitStart(const Unit_ptr& p)
 {
     pushFile("toplevel");
@@ -320,8 +299,7 @@ Slice::Gen::visitUnitStart(const Unit_ptr& p)
 
     out << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
     printHeader(out);
-    out << nl << "<book>";
-    out.inc();
+    start("book");
 }
 
 void
@@ -331,8 +309,7 @@ Slice::Gen::visitUnitEnd(const Unit_ptr& p)
     if(!out)
 	return;
 
-    out.dec();
-    out << nl << "</book>";
+    end();
     popFile();
 }
 
@@ -362,45 +339,24 @@ Slice::Gen::visitModuleStart(const Module_ptr& p)
 }
 
 void
-Slice::Gen::visitModuleEnd(const Module_ptr& p)
-{
-/*
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    out.inc();
-    out << eb << ';';
-
-    popFile();
-*/
-}
-
-void
 Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 {
     Output& out = *outputStack_.top();
     if(!out)
 	return;
 
-    out << nl << "<chapter>";
-    out.inc();
-    out << nl << "<title>";
-    out.inc();
+    start("chapter");
+    start("title");
     out << nl << p -> scoped().substr(2);
-    out.dec();
-    out << nl << "</title>";
+    end();
 
-    out << nl << "<section>";
-    out.inc();
-    out << nl << "<title>";
-    out.inc();
+    start("sect1");
+    start("title");
     out << nl << "Overview";
-    out.dec();
-    out << nl << "</title>";
+    end();
 
     out.zeroIndent();
-    out << nl << "<synopsis>";
+    out << "<synopsis>";
     if(p -> isLocal())
 	out << "local ";
     if(p -> isInterface())
@@ -412,9 +368,9 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
     if(!bases.empty() && !bases.front() -> isInterface())
     {
 	out.inc();
-	out << nl << "extends";
+	out << nl << "extends ";
 	out.inc();
-	out << nl << "<classname>" << bases.front() -> scoped().substr(2)
+	out << "<classname>" << bases.front() -> scoped().substr(2)
 	    << "</classname>";
 	bases.pop_front();
 	out.dec();
@@ -424,9 +380,9 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
     {
 	out.inc();
 	if(p -> isInterface())
-	    out << nl << "extends";
+	    out << nl << "extends ";
 	else
-	    out << nl << "implements";
+	    out << nl << "implements ";
 	out.inc();
 	ClassList::iterator q = bases.begin();
 	while(q != bases.end())
@@ -434,7 +390,7 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	    out << nl << "<classname>" << (*q) -> scoped().substr(2)
 		<< "</classname>";
 	    if(++q != bases.end())
-		out << ',';
+		out << ",";
 	}
 	out.dec();
 	out.dec();
@@ -448,48 +404,33 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
     operations.sort();
     if(!operations.empty())
     {
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect2");
+	start("title");
 	out << nl << "Operation Index";
-	out.dec();
-	out << nl << "</title>";
-	out << nl << "<variablelist>";
-	out.inc();
+	end();
+	start("variablelist");
 	
 	for(OperationList::iterator q = operations.begin();
 	    q != operations.end();
 	    ++q)
 	{
-	    out << nl << "<varlistentry>";
-	    out.inc();
-	    out << nl << "<term>";
-	    out.inc();
-	    out << nl << "<function>";
-	    out.inc();
+	    start("varlistentry");
+	    start("term");
+	    start("function");
 	    out << nl << (*q) -> name();
-	    out.dec();
-	    out << nl << "</function>";
-	    out.dec();
-	    out << nl << "</term>";
-	    out << nl << "<listitem>";
-	    out.inc();
+	    end();
+	    end();
+	    start("listitem");
 	    printSummary(out, *q);
-	    out.dec();
-	    out << nl << "</listitem>";
-	    out.dec();
-	    out << nl << "</varlistentry>";
+	    end();
+	    end();
 	}
 
-	out.dec();
-	out << nl << "</variablelist>";
-	out.dec();
-	out << nl << "</section>";
+	end();
+	end();
     }
 
-    out.dec();
-    out << nl << "</section>";
+    end();
 
     for(OperationList::iterator q = operations.begin();
 	q != operations.end();
@@ -500,18 +441,14 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	TypeStringList outputParams = (*q) -> outputParameters();
 	TypeList throws =  (*q) -> throws();
 	
-	out << nl << "<section>";
-	out.inc();
-	out << nl << "<title>";
-	out.inc();
+	start("sect1");
+	start("title");
 	out << nl << (*q) -> name();
-	out.dec();
-	out << nl << "</title>";
+	end();
 	
 	out.zeroIndent();
-	out << nl << "<synopsis>"
-	    << (returnType ?
-		typeToString(returnType) : "<type>void</type>")
+	out << "<synopsis>"
+	    << (returnType ? typeToString(returnType) : "<type>void</type>")
 	    << " <function>" << (*q) -> name() << "</function>(";
 	out.inc();
 	TypeStringList::iterator r = inputParams.begin();
@@ -524,7 +461,7 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	}
 	if(!outputParams.empty())
 	{
-	    out << ';' << nl;
+	    out << ';';
 	    r = outputParams.begin();
 	    while(r != outputParams.end())
 	    {
@@ -557,43 +494,10 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	
 	printComment(out, *q);
 	
-	out.dec();
-	out << nl << "</section>";
+	end();
     }
-}
 
-void
-Slice::Gen::visitClassDefEnd(const ClassDef_ptr& p)
-{
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    out.dec();
-    out << nl << "</chapter>";
-}
-
-void
-Slice::Gen::visitOperation(const Operation_ptr& p)
-{
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-}
-
-void
-Slice::Gen::visitDataMember(const DataMember_ptr& p)
-{
-/*
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    printComment(out, p);
-
-    out << nl << typeToString(p -> type()) << ' ' << p -> name() << ';';
-*/
+    end();
 }
 
 void

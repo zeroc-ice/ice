@@ -61,7 +61,7 @@ L			[a-zA-Z_]
 "/*" {
     // C-style comment
    
-    string comment = yytext + 1;
+    string comment = yytext + 2;
     while(true)
     {
 	int c = yyinput();
