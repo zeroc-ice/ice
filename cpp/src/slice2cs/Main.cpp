@@ -242,12 +242,10 @@ main(int argc, char* argv[])
 		    return EXIT_FAILURE;
 		}
 		gen.generate(p);
-#if 0
 		if(tie)
 		{
 		    gen.generateTie(p);
 		}
-#endif
 		if(impl)
 		{
 		    gen.generateImpl(p);

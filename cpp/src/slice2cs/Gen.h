@@ -50,6 +50,7 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
 
 private:
@@ -106,8 +107,9 @@ private:
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
-	virtual void visitClassDefEnd(const ClassDefPtr&);
-	virtual void visitOperation(const OperationPtr&);
+
+    private:
+        void writeOperations(const ClassDefPtr&, bool);
     };
 
     class HelperVisitor : public CsVisitor
@@ -184,6 +186,23 @@ private:
 	virtual void visitOperation(const OperationPtr&);
     };
 
+    class TieVisitor : public CsVisitor
+    {
+    public:
+
+        TieVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+
+    private:
+
+	typedef ::std::set<::std::string> NameSet;
+	void writeInheritedOperations(const ClassDefPtr&, NameSet&);
+    };
+
     class ImplVisitor : public CsVisitor
     {
     public:
@@ -194,6 +213,9 @@ private:
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
+
+    private:
+
 	void writeOperation(const OperationPtr&, bool);
 	::std::string writeValue(const TypePtr&);
     };
