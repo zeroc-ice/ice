@@ -15,12 +15,20 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.taskdefs.ExecTask;
+import org.apache.tools.ant.taskdefs.Execute;
+import org.apache.tools.ant.taskdefs.PumpStreamHandler;
+import org.apache.tools.ant.types.Commandline;
 import org.apache.tools.ant.types.Commandline.Argument;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.StringReader;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 
 /**
  * An ant task for slice2java. The task minimizes regeneration by
@@ -163,7 +171,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         // Compose a list of the files that need to be translated
         //
         java.util.Vector buildList = new java.util.Vector();
-        java.util.Vector tagList = new java.util.Vector();
         java.util.Iterator p = _fileSets.iterator();
         while(p.hasNext())
         {
@@ -174,18 +181,50 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             String[] files = scanner.getIncludedFiles();
             for(int i = 0; i < files.length; i++)
             {
+		boolean translate = false;
+
                 File slice = new File(fileset.getDir(project), files[i]);
                 File tag = new File(_tagDir, "." + slice.getName() + ".tag");
 
                 if(tag.exists() && slice.lastModified() <= tag.lastModified())
                 {
-                    log("skipping " + files[i]);
+		    try
+		    {
+			BufferedReader reader = new BufferedReader(new FileReader(tag));
+			String dependency;
+			while((dependency = reader.readLine()) != null)
+			{
+			    File dependencyFile = new File(dependency);
+			    if(!dependencyFile.exists() || tag.lastModified() < dependencyFile.lastModified())
+			    {
+				translate = true;
+				break;
+			    }
+			}
+			reader.close();
+		    }
+		    catch(java.io.FileNotFoundException ex)
+		    {
+			translate = true;
+		    }
+		    catch(java.io.IOException ex)
+		    {
+			translate = true;
+		    }
                 }
-                else
+		else
+		{
+		    translate = true;
+		}
+
+		if(translate)
                 {
                     buildList.addElement(slice);
-                    tagList.addElement(tag);
                 }
+		else
+		{
+                    log("skipping " + files[i]);
+		}
             }
         }
 
@@ -270,21 +309,89 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             task.execute();
 
             //
-            // Touch the tag files
+            // Create the tag files
             //
-            for(int i = 0; i < tagList.size(); i++)
+	    cmd = new StringBuffer("--depend");
+
+            //
+            // Add include directives
+            //
+            if(_includePath != null)
             {
-                File f = (File)tagList.elementAt(i);
-                try
+                String[] dirs = _includePath.list();
+                for(int i = 0; i < dirs.length; i++)
                 {
-                    FileOutputStream out = new FileOutputStream(f);
-                    out.close();
-                }
-                catch(java.io.IOException ex)
-                {
-                    throw new BuildException("Unable to create tag file " + f + ": " + ex);
+                    cmd.append(" -I");
+                    cmd.append(dirs[i]);
                 }
             }
+
+            //
+            // Add files for which we need to check dependencies.
+            //
+            for(int i = 0; i < buildList.size(); i++)
+            {
+                File f = (File)buildList.elementAt(i);
+                cmd.append(" ");
+                cmd.append(f.toString());
+            }
+
+	    task = (ExecTask)project.createTask("exec");
+            task.setFailonerror(true);
+	    arg = task.createArg();
+            arg.setLine(cmd.toString() + " --depend");
+            task.setExecutable("slice2java");
+	    task.setOutputproperty("slice2java.depend");
+            task.execute();
+
+	    try
+	    {
+		BufferedReader in = new BufferedReader(new StringReader(project.getProperty("slice2java.depend")));
+		StringBuffer depline = new StringBuffer();
+		String line;
+		while((line = in.readLine()) != null)
+		{
+		    depline.append(line);
+
+		    if(!line.endsWith("\\"))
+		    {
+			String[] deps = depline.toString().split("[\\s\\\\]");
+			if(deps.length > 0)
+			{
+			    int pos = deps[0].indexOf('.');
+			    if(pos != -1)
+			    {
+				String sliceFile = deps[0].substring(0, pos);
+				File tag = new File(_tagDir, "." + sliceFile + ".ice.tag");
+				
+				try
+				{
+				    BufferedWriter out = new BufferedWriter(new FileWriter(tag));
+				    for(int i = 2; i < deps.length; ++i)
+				    {
+					if(deps[i].length() > 0)
+					{
+					    out.write(deps[i]);
+					    out.newLine();
+					}
+				    }
+				    out.close();
+				}
+				catch(java.io.IOException ex)
+				{
+				    throw new BuildException("Unable to create tag file " + tag + ": " + ex);
+				}
+			    }
+			}
+			
+			depline = new StringBuffer();
+		    }
+		}
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		throw new BuildException("Unable to read dependencies to create tag files: " + ex);
+	    }
         }
     }
 
