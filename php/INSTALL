@@ -230,7 +230,7 @@ Linux Issues
 =========================================================================
 
 The threading issue on RedHat 9, discussed in the file INSTALL.LINUX in
-the Ice source distribution, can Ice cause programs to hang indefinitely
+the Ice source distribution, can cause Ice programs to hang indefinitely
 in certain circumstances.
 
 If you are using the Ice extension in a PHP-CGI executable, or in a PHP
