@@ -11,8 +11,12 @@ package IceInternal;
 
 public final class ConnectionMonitor extends Thread
 {
+    //
+    // Renamed from destroy to _destroy to avoid a deprecation warning caused
+    // by the destroy method inherited from Thread.
+    //
     public void
-    destroy()
+    _destroy()
     {
 	synchronized(this)
 	{

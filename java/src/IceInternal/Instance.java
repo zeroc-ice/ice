@@ -544,7 +544,7 @@ public class Instance
 
 	    if(_connectionMonitor != null)
 	    {
-		_connectionMonitor.destroy();
+		_connectionMonitor._destroy();
 		_connectionMonitor = null;
 	    }
 
