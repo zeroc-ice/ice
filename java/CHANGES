@@ -1,7 +1,7 @@
 Changes since version 1.0.1
 ---------------------------
 
-- Ice now implements slicing for exceptions and classes: if process
+- Ice now implements slicing for exceptions and classes: if a process
   receives an exception or class that is of a more derived type than
   the receiver understands, the exception or class is automatically
   sliced. (Previously, this situation resulted in an exception.)
