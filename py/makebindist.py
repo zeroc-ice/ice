@@ -33,7 +33,7 @@ def getIceSoVersion(file):
     minorVersion = intVersion / 100 - 100 * majorVersion
     return '%d' % (majorVersion * 10 + minorVersion)
 
-def copyLibrary(src, dst, name):
+def copyLibrary(src, dst, name, python):
     global platform, version, intVer
 
     if platform == "hpux":
@@ -43,7 +43,7 @@ def copyLibrary(src, dst, name):
         soBase = name + ".so"
         soLib = soBase
 
-    if platform == "macosx":
+    if not python and platform == "macosx":
         soVer = name + '.' + version + ".dylib"
         soInt = name + '.' + intVer + ".dylib"
         soLib = name + ".dylib"
@@ -155,12 +155,11 @@ if version != version2:
 #
 print "Copying Slice directories..."
 slicedirs = [\
-    "Glacier",\
     "Glacier2",\
     "Ice",\
     "IceBox",\
     "IcePack",\
-    "IcePatch",\
+    "IcePatch2",\
     "IceStorm",\
 ]
 os.mkdir(os.path.join("icepy", "slice"))
@@ -236,10 +235,10 @@ for x in iceExecutables:
 
 if symlinks:
     for so in iceLibraries:
-        copyLibrary(icehome + "/lib", libdir, so)
+        copyLibrary(icehome + "/lib", libdir, so, 0)
 
     for so in pyLibraries:
-        copyLibrary(topdir + "/lib", libdir, so)
+        copyLibrary(topdir + "/lib", libdir, so, 1)
 else:
     for lib in iceLibraries:
 	if platform == "aix":
@@ -274,8 +273,6 @@ if strip:
     for x in pyLibraries:
         if platform == "hpux":
             soLib = x + ".sl"
-	elif platform == "macosx":
-            soLib = x + ".dylib"
 	elif platform == "aix":
             soLib = x + ".a"
         else:

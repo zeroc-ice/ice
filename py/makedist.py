@@ -86,19 +86,19 @@ os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + t
 #
 print "Copying Slice directories..."
 slicedirs = [\
-    "Glacier",\
     "Glacier2",\
     "Ice",\
     "IceBox",\
     "IcePack",\
-    "IcePatch",\
+    "IcePatch2",\
     "IceStorm",\
 ]
 os.mkdir(os.path.join("icepy", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icepy", "slice", x), 1)
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
-    shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
+    if not os.path.exists(os.path.join("icepy", "config", os.path.basename(x))):
+	shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
 
 #
 # Remove files.

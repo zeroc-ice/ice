@@ -95,7 +95,7 @@ UNAME			:= $(shell uname)
 #
 # Platform specific definitions
 #
-ifeq ($(shell test -d $(top_srcdir)/config/Make.rules.Linux && echo 0),0)
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
     configdir		= $(top_srcdir)/config
 else
     configdir		= $(ICE_HOME)/config
