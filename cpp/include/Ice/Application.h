@@ -54,11 +54,9 @@ public:
     static CommunicatorPtr communicator();
 
     //
-    // These methods can be used to set a Ctrl+C Handler callback 
-    // that calls communicator()->shutdown() upon interrupt (to 
-    // make communicator()->waitForShutdown() return) or to ignore
-    // interrupts.
+    // These methods can be used to set a Ctrl+C Handler callback.
     //
+    static void destroyOnInterrupt();
     static void shutdownOnInterrupt();
     static void ignoreInterrupt();
 
@@ -68,7 +66,8 @@ public:
     // is received after holdInterrupt() was called is remember and
     // delivered when releaseInterupt() is called. That signal is then
     // handled according to the signal disposition established with
-    // shutdownOnInterrupt() or ignoreInterrupt().
+    // destroyOnInterrupt(), shutdownOnInterrupt() or
+    // ignoreInterrupt().
     //
     static void holdInterrupt();
     static void releaseInterrupt();

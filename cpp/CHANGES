@@ -1,56 +1,61 @@
 Changes since version 1.1.0
 ---------------------------
 
-- ObjectAdapter::removeServantLocator() no longer exists.
-  The life cycle of servant locators that are registered
-  with an object adapter ends when the adapter is destroyed.
+- Added destroyOnInterrupt() to the Application
+  class. destroyOnInterrupt() is now the default behavior, because
+  shutdownOnInterrupt() only shuts down the server side of an
+  application, and therefore doesn't work with pure clients.
 
-- Changed Ice::ServantLocator::deactivate to be passed the category for
-  which a servant locator is being deactivated.
+- ObjectAdapter::removeServantLocator() no longer exists.  The life
+  cycle of servant locators that are registered with an object adapter
+  ends when the adapter is destroyed.
 
-- Added --noindex option to slice2docbook to suppress generation of index
-  pages for pdf version of documentation.
+- Changed Ice::ServantLocator::deactivate to be passed the category
+  for which a servant locator is being deactivated.
 
-- Changed the behavior of Freeze::Map::insert to match the insert behavior 
-  on associative containers in the C++ standard: if the element is already
-  there, it is not updated.
-  Added Freeze::Map::put function, to insert or replace an element, like
-  the old insert. This corresponds to the behavior of Berkeley DB's 
-  DB->put().
+- Added --noindex option to slice2docbook to suppress generation of
+  index pages for pdf version of documentation.
+
+- Changed the behavior of Freeze::Map::insert to match the insert
+  behavior on associative containers in the C++ standard: if the
+  element is already there, it is not updated.  Added Freeze::Map::put
+  function, to insert or replace an element, like the old insert. This
+  corresponds to the behavior of Berkeley DB's DB->put().
 
 - Added saveObject() operation on Evictor, and savedObject() operation
-  on PersistenceStrategy.
-  saveObject() saves a persistent object immediately. Once an operation 
-  has called saveObject(), the object is considered "clean": other updates
-  by the same operation can only be reliably saved by another call to 
-  saveObject().
+  on PersistenceStrategy.  saveObject() saves a persistent object
+  immediately. Once an operation has called saveObject(), the object
+  is considered "clean": other updates by the same operation can only
+  be reliably saved by another call to saveObject().
 
-- Added a test to the Slice parser to complain if an operation on a local
-  interface or class has an exception specification.
+- Added a test to the Slice parser to complain if an operation on a
+  local interface or class has an exception specification.
 
-- Added a test to the property parsing code to print a warning on stderr
-  if a property is not recognized. This prevents silly typos, such as
-  "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from slipping through
-  undetected.
+- Added a test to the property parsing code to print a warning on
+  stderr if a property is not recognized. This prevents silly typos,
+  such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from
+  slipping through undetected.
 
-- Changed the mapping of the Slice byte type: ::Ice::Byte is now a typedef
-  for unsigned char. (Previously, ::Ice::Byte was a typedef to char.) This
-  change guarantees that byte values are always in the range 0..255 (instead
-  of either -128..127 or 0..255, depending on the CPU architecture). This
-  change also permits function overloading for ::Ice::Byte and char (which
-  can be useful if you use both strings and byte sequences).
+- Changed the mapping of the Slice byte type: ::Ice::Byte is now a
+  typedef for unsigned char. (Previously, ::Ice::Byte was a typedef to
+  char.) This change guarantees that byte values are always in the
+  range 0..255 (instead of either -128..127 or 0..255, depending on
+  the CPU architecture). This change also permits function overloading
+  for ::Ice::Byte and char (which can be useful if you use both
+  strings and byte sequences).
 
 - Portability fix in src/IceSSL/OpenSSLPluginI.cpp.
 
 - config/Make.rules now checks that mkshlib is defined.
 
-- src/IceUtil/CtrlCHandler.cpp now handles (ignores) EINTR returned by 
+- src/IceUtil/CtrlCHandler.cpp now handles (ignores) EINTR returned by
   sigwait.
 
-- added DB_PRIVATE flag to DBEnv->open() on Linux, to be able to use 
+- Added DB_PRIVATE flag to DBEnv->open() on Linux, to be able to use
   the Berkeley DB that ships with RedHat 9.
 
-- Changed the python code for printing output from test clients, so that you get each line as it comes.
+- Changed the python code for printing output from test clients, so
+  that you get each line as it comes.
 
 Changes since version 1.0.1
 ---------------------------

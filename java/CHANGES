@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added destroyOnInterrupt() to the Application
+  class. destroyOnInterrupt() is now the default behavior, because
+  shutdownOnInterrupt() only shuts down the server side of an
+  application, and therefore doesn't work with pure clients.
+
 - ObjectAdapter::removeServantLocator() no longer exists.
   The life cycle of servant locators that are registered
   with an object adapter ends when the adapter is destroyed.

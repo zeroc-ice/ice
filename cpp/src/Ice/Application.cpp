@@ -63,6 +63,50 @@ static void holdInterruptCallback(int signal)
     }
 }
 
+static void destroyOnInterruptCallback(int signal)
+{
+    if(_nohup && signal == SIGHUP)
+    {
+	return;
+    }
+	
+    {
+	StaticMutex::Lock lock(_mutex);
+	_interrupted = true;
+    }
+
+    try
+    {
+	_communicator->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << _appName << " (while destroying in response to signal " << signal 
+	     << "): " << ex << endl;
+    }
+    catch(const std::exception& ex)
+    {
+	cerr << _appName << " (while destroying in response to signal " << signal 
+	     << "): std::exception: " << ex.what() << endl;
+    }
+    catch(const std::string& msg)
+    {
+	cerr << _appName << " (while destroying in response to signal " << signal
+	     << "): " << msg << endl;
+    }
+    catch(const char * msg)
+    {
+	cerr << _appName << " (while destroying in response to signal " << signal
+	     << "): " << msg << endl;
+    }
+    catch(...)
+    {
+	cerr << _appName << " (while destroying in response to signal " << signal 
+	     << "): unknown exception" << endl;
+    }
+}
+
+
 static void shutdownOnInterruptCallback(int signal)
 {
     if(_nohup && signal == SIGHUP)
@@ -151,13 +195,15 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	    _communicator = initialize(argc, argv);
 	}
 
-	// Used by shutdownOnInterruptCallback
+	//
+	// Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
 	//
 	_nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
 	
-	// The default is to shutdown when a signal is received:
 	//
-	shutdownOnInterrupt();
+	// The default is to destroy when a signal is received.
+	//
+	destroyOnInterrupt();
 
 	status = run(argc, argv);
     }
@@ -239,6 +285,25 @@ CommunicatorPtr
 Ice::Application::communicator()
 {
     return _communicator;
+}
+
+void
+Ice::Application::destroyOnInterrupt()
+{
+    assert(_ctrlCHandler.get() != 0);
+    
+    StaticMutex::Lock lock(_mutex);
+    if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+    {
+	_released = true;
+	_ctrlCHandler->setCallback(destroyOnInterruptCallback);
+	lock.release();
+	_condVar->signal();
+    }
+    else
+    {
+	_ctrlCHandler->setCallback(destroyOnInterruptCallback);
+    }
 }
 
 void

@@ -64,9 +64,9 @@ public abstract class Application
             }
 
             //
-            // The default is to shutdown when a signal is received.
+            // The default is to destroy when a signal is received.
             //
-            shutdownOnInterrupt();
+            destroyOnInterrupt();
 
             status = run(argHolder.value);
         }
@@ -106,6 +106,11 @@ public abstract class Application
 
         synchronized(this)
         {
+            if(_destroyHook != null)
+            {
+                _destroyHook.done();
+            }
+
             if(_shutdownHook != null)
             {
                 _shutdownHook.done();
@@ -141,6 +146,31 @@ public abstract class Application
         return _communicator;
     }
 
+    synchronized public static void
+    destroyOnInterrupt()
+    {
+	if(_destroyHook == null)
+	{
+	    //
+	    // As soon as the destroy hook ends all the threads are
+	    // terminated. So the destroy hook will join the current
+	    // thread before to end.
+	    //
+	    _destroyHook = new DestroyHook();
+	    try
+	    {
+		Runtime.getRuntime().addShutdownHook(_destroyHook);
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		if(_communicator != null)
+		{
+		    _communicator.destroy();
+		}
+	    }
+	}
+    }
+    
     synchronized public static void
     shutdownOnInterrupt()
     {
@@ -197,6 +227,53 @@ public abstract class Application
     	_interrupted = true;
     }
 
+    static class DestroyHook extends Thread
+    {
+        DestroyHook()
+        {
+            _done = false;
+        }
+
+        public void
+        run()
+        {
+            synchronized(_doneMutex)
+            {
+		setInterrupt();
+
+                Communicator communicator = communicator();
+                if(communicator != null)
+                {
+                    communicator.destroy();
+                }
+
+                while(!_done)
+                {
+                    try
+                    {
+                        _doneMutex.wait();
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
+                }
+            }
+        }
+
+        void
+        done()
+        {
+            synchronized(_doneMutex)
+            {
+                _done = true;
+                _doneMutex.notify();
+            }
+        }
+
+        private boolean _done;
+        private java.lang.Object _doneMutex = new java.lang.Object();
+    }
+
     static class ShutdownHook extends Thread
     {
         ShutdownHook()
@@ -246,6 +323,7 @@ public abstract class Application
 
     private static String _appName;
     private static Communicator _communicator;
+    private static DestroyHook _destroyHook;
     private static ShutdownHook _shutdownHook;
     private static boolean _interrupted;
 }
