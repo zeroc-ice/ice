@@ -15,27 +15,27 @@
 using namespace std;
 using namespace Ice;
 
-EntryI::EntryI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
     _phoneBook(phoneBook),
     _evictor(evictor)
 {
 }
 
 void
-EntryI::setIdentity(const string& identity)
+ContactI::setIdentity(const string& identity)
 {
     _identity = identity;
 }
 
 string
-EntryI::getName()
+ContactI::getName()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _name;
 }
 
 void
-EntryI::setName(const string& name)
+ContactI::setName(const string& name)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.empty());
@@ -44,35 +44,35 @@ EntryI::setName(const string& name)
 }
 
 string
-EntryI::getAddress()
+ContactI::getAddress()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _address;
 }
 
 void
-EntryI::setAddress(const string& address)
+ContactI::setAddress(const string& address)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _address = address;
 }
 
 string
-EntryI::getPhone()
+ContactI::getPhone()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _phone;
 }
 
 void
-EntryI::setPhone(const string& phone)
+ContactI::setPhone(const string& phone)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phone = phone;
 }
 
 void
-EntryI::destroy()
+ContactI::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.empty());
@@ -83,22 +83,22 @@ EntryI::destroy()
 PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
     _adapter(adapter),
     _evictor(evictor),
-    _nextEntryIdentity(0)
+    _nextContactIdentity(0)
 {
 }
 
-class IdentityToEntry
+class IdentityToContact
 {
 public:
 
-    IdentityToEntry(const ObjectAdapterPtr& adapter) :
+    IdentityToContact(const ObjectAdapterPtr& adapter) :
 	_adapter(adapter)
     {
     }
 
-    EntryPrx operator()(const string& identity)
+    ContactPrx operator()(const string& identity)
     {
-	return EntryPrx::uncheckedCast(_adapter->createProxy(identity));
+	return ContactPrx::uncheckedCast(_adapter->createProxy(identity));
     }
 
 private:
@@ -106,36 +106,36 @@ private:
     ObjectAdapterPtr _adapter;
 };
 
-EntryPrx
-PhoneBookI::createEntry()
+ContactPrx
+PhoneBookI::createContact()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
     
     //
     // Get a unique ID
     //
-    string identity = "phonebook.entry#";
+    string identity = "phonebook.contact#";
 #ifdef WIN32 // COMPILERBUG
     char s[20];
-    sprintf(s, "%I64d", _nextEntryIdentity++);
+    sprintf(s, "%I64d", _nextContactIdentity++);
     identity += s;
 #else
     ostringstream s;
-    s << _nextEntryIdentity++;
+    s << _nextContactIdentity++;
     identity += s.str();
 #endif
     
     //
-    // Create a new entry Servant.
+    // Create a new contact Servant.
     //
-    EntryIPtr entry = new EntryI(this, _evictor);
-    entry->setIdentity(identity);
+    ContactIPtr contact = new ContactI(this, _evictor);
+    contact->setIdentity(identity);
 
     //
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
     //
-    _evictor->createObject(identity, entry);
+    _evictor->createObject(identity, contact);
 
     //
     // Add identity to our name/identity map. The initial name is the
@@ -147,29 +147,29 @@ PhoneBookI::createEntry()
     // Turn the identity into a Proxy and return the Proxy to the
     // caller.
     //
-    return IdentityToEntry(_adapter)(identity);
+    return IdentityToContact(_adapter)(identity);
 }
 
-Entries
-PhoneBookI::findEntries(const string& name)
+Contacts
+PhoneBookI::findContacts(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
-    // Lookup all phone book entries that match a name, and return
+    // Lookup all phone book contacts that match a name, and return
     // them to the caller.
     //
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
     if (p != _nameIdentitiesDict.end())
     {
-	Entries entries;
-	entries.reserve(p->second.size());
-	transform(p->second.begin(), p->second.end(), back_inserter(entries), IdentityToEntry(_adapter));
-	return entries;
+	Contacts contacts;
+	contacts.reserve(p->second.size());
+	transform(p->second.begin(), p->second.end(), back_inserter(contacts), IdentityToContact(_adapter));
+	return contacts;
     }
     else
     {
-	return Entries();
+	return Contacts();
     }
 }
 
@@ -185,7 +185,7 @@ PhoneBookI::getAllNames()
     for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.end(); ++p)
     {
 	//
-	// If there are multiple entries for one name, I want the name
+	// If there are multiple contacts for one name, I want the name
 	// listed just as many times.
 	//
 	for (Identities::size_type i = 0; i < p->second.size(); ++i)
@@ -211,7 +211,7 @@ PhoneBookI::remove(const string& identity, const string& name)
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
-    // Called by EntryI to remove itself from the phone book.
+    // Called by ContactI to remove itself from the phone book.
     //
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
     assert(p != _nameIdentitiesDict.end());
@@ -225,7 +225,7 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
-    // Called by EntryI in case the name has been changed.
+    // Called by ContactI in case the name has been changed.
     //
     remove(identity, oldName);
     _nameIdentitiesDict[newName].push_back(identity);

@@ -54,9 +54,9 @@ public:
 
     void usage();
 
-    void addEntries(const std::list<std::string>&);
-    void findEntries(const std::list<std::string>&);
-    void nextFoundEntry();
+    void addContacts(const std::list<std::string>&);
+    void findContacts(const std::list<std::string>&);
+    void nextFoundContact();
     void printCurrent();
     void setCurrentName(const std::list<std::string>&);
     void setCurrentAddress(const std::list<std::string>&);
@@ -83,8 +83,8 @@ private:
 
     Parser(const Ice::CommunicatorPtr&, const PhoneBookPrx&);
 
-    Entries _foundEntries;
-    Entries::iterator _current;
+    Contacts _foundContacts;
+    Contacts::iterator _current;
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;

@@ -498,6 +498,7 @@ IceDelegateM::Ice::Object::~Object()
 const EmitterPtr&
 IceDelegateM::Ice::Object::__emitter()
 {
+    assert(_emitter);
     return _emitter;
 }
 
@@ -559,4 +560,5 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 
     EmitterFactoryPtr factory = _reference->instance->emitterFactory();
     _emitter = factory->create(endpoints);
+    assert(_emitter);
 }

@@ -18,7 +18,7 @@ using namespace Freeze;
 
 Evictor::Evictor(const DBPtr& db, Int size) :
     _db(db),
-    _evictorSize(static_cast<map<string, EvictorEntry>::size_type>(size))
+    _evictorSize(static_cast<map<string, EvictorElement>::size_type>(size))
 {
 }
 
@@ -49,7 +49,7 @@ Evictor::destroyObject(const string& identity)
     //
     // If the Ice Object is currently in the evictor, remove it.
     //
-    map<string, EvictorEntry>::iterator p = _evictorMap.find(identity);
+    map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
     if (p != _evictorMap.end())
     {
 	_evictorList.erase(p->second.position);
@@ -62,7 +62,7 @@ Evictor::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
-    map<string, EvictorEntry>::iterator p = _evictorMap.find(identity);
+    map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
     if (p != _evictorMap.end())
     {
 	//
@@ -103,7 +103,7 @@ Evictor::locate(const ObjectAdapterPtr&, const string& identity, ObjectPtr&)
 	//
 	// TODO: That's the only PhoneBook specific stuff!
 	//
-	EntryIPtr entry = EntryIPtr::dynamicCast(servant);
+	ContactIPtr entry = ContactIPtr::dynamicCast(servant);
 	assert(entry);
 	entry->setIdentity(identity);
 
@@ -134,7 +134,7 @@ Evictor::deactivate()
     // Save all Ice Objects in the database upon deactivation, and
     // clear the evictor map and list.
     //
-    for (map<string, EvictorEntry>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
+    for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
     {
 	_db->put(*(p->second.position), p->second.servant);
     }
@@ -160,7 +160,7 @@ Evictor::evict()
 	//
 	// Find corresponding element in the evictor map
 	//
-	map<string, EvictorEntry>::iterator p = _evictorMap.find(identity);
+	map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
 	assert(p != _evictorMap.end());
 
 	//
@@ -184,8 +184,8 @@ Evictor::add(const string& identity, const ObjectPtr& servant)
     // evictor map.
     //
     _evictorList.push_front(identity);
-    EvictorEntry evictorEntry;
-    evictorEntry.servant = servant;
-    evictorEntry.position = _evictorList.begin();
-    _evictorMap[identity] = evictorEntry;
+    EvictorElement evictorElement;
+    evictorElement.servant = servant;
+    evictorElement.position = _evictorList.begin();
+    _evictorMap[identity] = evictorElement;
 }

@@ -11,7 +11,7 @@
 #ifndef PHONE_BOOK_ICE
 #define PHONE_BOOK_ICE
 
-class Entry
+class Contact
 {
     nonmutating string getName();
     void setName(string name);
@@ -29,15 +29,15 @@ class Entry
     string _phone;
 };
 
-sequence<Entry*> Entries;
+sequence<Contact*> Contacts;
 sequence<string> Identities;
 dictionary<string, Identities> NameIdentitiesDict;
 sequence<string> Names;
 
 class PhoneBook
 {
-    Entry* createEntry();
-    nonmutating Entries findEntries(string name);
+    Contact* createContact();
+    nonmutating Contacts findContacts(string name);
     nonmutating Names getAllNames();
     void shutdown();
 

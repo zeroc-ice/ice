@@ -20,14 +20,14 @@
 class PhoneBookI;
 typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 
-class EntryI;
-typedef IceUtil::Handle<EntryI> EntryIPtr;
+class ContactI;
+typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class EntryI : public Entry, public JTCMutex
+class ContactI : public Contact, public JTCMutex
 {
 public:
 
-    EntryI(const PhoneBookIPtr&, const EvictorPtr&);
+    ContactI(const PhoneBookIPtr&, const EvictorPtr&);
 
     void setIdentity(const std::string&);
 
@@ -55,8 +55,8 @@ public:
 
     PhoneBookI(const Ice::ObjectAdapterPtr&, const EvictorPtr&);
 
-    virtual EntryPrx createEntry();
-    virtual Entries findEntries(const std::string&);
+    virtual ContactPrx createContact();
+    virtual Contacts findContacts(const std::string&);
     virtual Names getAllNames();
     virtual void shutdown();
     
@@ -67,7 +67,7 @@ private:
 
     Ice::ObjectAdapterPtr _adapter;
     EvictorPtr _evictor;
-    Ice::Long _nextEntryIdentity;
+    Ice::Long _nextContactIdentity;
 };
 
 #endif

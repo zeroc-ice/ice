@@ -31,21 +31,21 @@ PhoneBookFactory::destroy()
     // Nothing to do
 }
 
-EntryFactory::EntryFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
     _phoneBook(phoneBook),
     _evictor(evictor)
 {
 }
 
 Ice::ObjectPtr
-EntryFactory::create(const string& type)
+ContactFactory::create(const string& type)
 {
-    assert(type == "::Entry");
-    return new EntryI(_phoneBook, _evictor);
+    assert(type == "::Contact");
+    return new ContactI(_phoneBook, _evictor);
 }
 
 void
-EntryFactory::destroy()
+ContactFactory::destroy()
 {
     // Nothing to do
 }

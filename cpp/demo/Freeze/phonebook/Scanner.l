@@ -192,15 +192,15 @@ L	[a-zA-Z_]
 }
 
 "add" {
-    return TOK_ADD_ENTRIES;
+    return TOK_ADD_CONTACTS;
 }
 
 "find" {
-    return TOK_FIND_ENTRIES;
+    return TOK_FIND_CONTACTS;
 }
 
 "next" {
-    return TOK_NEXT_FOUND_ENTRY;
+    return TOK_NEXT_FOUND_CONTACT;
 }
 
 "current" {

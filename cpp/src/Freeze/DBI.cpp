@@ -338,7 +338,7 @@ Freeze::DBEnvI::~DBEnvI()
 DBPtr
 Freeze::DBEnvI::open(const string& name)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
 
     if(!_dbenv)
     {
@@ -389,7 +389,7 @@ Freeze::DBEnvI::open(const string& name)
 void
 Freeze::DBEnvI::close()
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
 
     if (!_dbenv)
     {
@@ -419,7 +419,7 @@ Freeze::DBEnvI::close()
 void
 Freeze::DBEnvI::remove(const string& name)
 {
-    JTCSyncT<JTCMutex> sync(*this);
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
 
     _dbmap.erase(name);
 }

@@ -28,9 +28,9 @@ yyerror(const char* s)
 
 %token TOK_HELP
 %token TOK_EXIT
-%token TOK_ADD_ENTRIES
-%token TOK_FIND_ENTRIES
-%token TOK_NEXT_FOUND_ENTRY
+%token TOK_ADD_CONTACTS
+%token TOK_FIND_CONTACTS
+%token TOK_NEXT_FOUND_CONTACT
 %token TOK_PRINT_CURRENT
 %token TOK_SET_CURRENT_NAME
 %token TOK_SET_CURRENT_ADDRESS
@@ -75,17 +75,17 @@ command
 {
     return 0;
 }
-| TOK_ADD_ENTRIES strings ';'
+| TOK_ADD_CONTACTS strings ';'
 {
-    parser->addEntries($2);
+    parser->addContacts($2);
 }
-| TOK_FIND_ENTRIES strings ';'
+| TOK_FIND_CONTACTS strings ';'
 {
-    parser->findEntries($2);
+    parser->findContacts($2);
 }
-| TOK_NEXT_FOUND_ENTRY ';'
+| TOK_NEXT_FOUND_CONTACT ';'
 {
-    parser->nextFoundEntry();
+    parser->nextFoundContact();
 }
 | TOK_PRINT_CURRENT ';'
 {

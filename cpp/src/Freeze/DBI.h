@@ -46,7 +46,7 @@ private:
     std::string _name;
 };
 
-class DBEnvI : public DBEnv, public JTCMutex
+class DBEnvI : public DBEnv, public JTCRecursiveMutex
 {
 public:
 

@@ -28,11 +28,11 @@ private:
     EvictorPtr _evictor;
 };
 
-class EntryFactory : public Ice::ServantFactory
+class ContactFactory : public Ice::ServantFactory
 {
 public:
 
-    EntryFactory(const PhoneBookIPtr&, const EvictorPtr&);
+    ContactFactory(const PhoneBookIPtr&, const EvictorPtr&);
 
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();

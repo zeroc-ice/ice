@@ -30,7 +30,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr&
     ObjectPtr servant = db->get("phonebook");
     if (!servant)
     {
-	PhoneBookIPtr phoneBook = new PhoneBookI(adapter, evictor);
+	phoneBook = new PhoneBookI(adapter, evictor);
     }
     else
     {
@@ -39,8 +39,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr&
     assert(phoneBook);
     adapter->add(phoneBook, "phonebook");
 
-    ServantFactoryPtr entryFactory = new EntryFactory(phoneBook, evictor);
-    communicator->installServantFactory(entryFactory, "::Entry");
+    ServantFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
+    communicator->installServantFactory(contactFactory, "::Contact");
 
     adapter->activate();
     communicator->waitForShutdown();

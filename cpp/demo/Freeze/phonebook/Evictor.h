@@ -39,14 +39,14 @@ private:
 
     Freeze::DBPtr _db;
 
-    struct EvictorEntry
+    struct EvictorElement
     {
 	Ice::ObjectPtr servant;
 	std::list<std::string>::iterator position;
     };
-    std::map<std::string, EvictorEntry> _evictorMap;
+    std::map<std::string, EvictorElement> _evictorMap;
     std::list<std::string> _evictorList;
-    std::map<std::string, EvictorEntry>::size_type _evictorSize;
+    std::map<std::string, EvictorElement>::size_type _evictorSize;
 };
 
 #endif
