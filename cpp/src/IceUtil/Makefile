@@ -25,6 +25,7 @@ OBJS		= Exception.o \
 		  Cond.o \
 		  Thread.o \
 		  Time.o \
+		  InputUtil.o \
 		  OutputUtil.o \
                   Base64.o
 

@@ -6,5 +6,6 @@ RWRecMutex.o: RWRecMutex.cpp ../../include/IceUtil/RWRecMutex.h ../../include/Ic
 Cond.o: Cond.cpp ../../include/IceUtil/Cond.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Time.h
 Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Time.h
 Time.o: Time.cpp ../../include/IceUtil/Time.h ../../include/IceUtil/Config.h
+InputUtil.o: InputUtil.cpp ../../include/IceUtil/InputUtil.h ../../include/IceUtil/Config.h
 OutputUtil.o: OutputUtil.cpp ../../include/IceUtil/OutputUtil.h ../../include/IceUtil/Config.h
 Base64.o: Base64.cpp ../../include/IceUtil/Base64.h ../../include/IceUtil/Config.h
