@@ -28,50 +28,64 @@ public abstract class OutgoingAsync
     public void
     __setup(Connection connection, Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
     {
-	_connection = connection;
-	if(_is != null)
+	try
 	{
-	    _is.destroy();
+	    _connection = connection;
+	    if(_is == null)
+	    {
+		_is = new BasicStream(ref.instance);
+	    }
+	    else
+	    {
+		_is.reset();
+	    }
+	    if(_os == null)
+	    {
+		_os = new BasicStream(ref.instance);
+	    }
+	    else
+	    {
+		_os.reset();
+	    }
+
+	    _connection.prepareRequest(_os);
+
+	    ref.identity.__write(_os);
+	    _os.writeStringSeq(ref.facet);
+	    _os.writeString(operation);
+	    _os.writeByte((byte)mode.value());
+	    if(context == null)
+	    {
+		_os.writeSize(0);
+	    }
+	    else
+	    {
+		final int sz = context.size();
+		_os.writeSize(sz);
+		if(sz > 0)
+		{
+		    java.util.Iterator i = context.entrySet().iterator();
+		    while(i.hasNext())
+		    {
+			java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
+			_os.writeString((String)entry.getKey());
+			_os.writeString((String)entry.getValue());
+		    }
+		}
+	    }
+	    
+	    //
+	    // Input and output parameters are always sent in an
+	    // encapsulation, which makes it possible to forward
+	    // requests as blobs.
+	    //
+	    _os.startWriteEncaps();
 	}
-	if(_os != null)
+        catch(RuntimeException ex)
 	{
-	    _os.destroy();
+	    destroy();
+	    throw ex;
 	}
-	_is = new BasicStream(ref.instance);
-	_os = new BasicStream(ref.instance);
-
-	_connection.prepareRequest(_os);
-
-        ref.identity.__write(_os);
-        _os.writeStringSeq(ref.facet);
-        _os.writeString(operation);
-        _os.writeByte((byte)mode.value());
-        if(context == null)
-        {
-            _os.writeSize(0);
-        }
-        else
-        {
-            final int sz = context.size();
-            _os.writeSize(sz);
-            if(sz > 0)
-            {
-                java.util.Iterator i = context.entrySet().iterator();
-                while(i.hasNext())
-                {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-                    _os.writeString((String)entry.getKey());
-                    _os.writeString((String)entry.getValue());
-                }
-            }
-        }
-
-        //
-        // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward requests as
-        // blobs.
-        //
-        _os.startWriteEncaps();
     }
 
     public void

@@ -17,18 +17,9 @@ package IceInternal;
 public class IncomingAsync extends IncomingBase
 {
     public
-    IncomingAsync(Incoming in) // Adopts the Incoming argument. It must not be used afterwards.
+    IncomingAsync(Incoming in) // Adopts the argument. It must not be used afterwards.
     {
-	_current = in._current;
-	_servant = in._servant;
-	_locator = in._locator;
-	_cookie = in._cookie;
-	_connection = in._connection;
-	_response = in._response;
-	_is = in._is;
-	in._is = null;
-	_os = in._os;
-	in._os = null;
+	super(in);
     }
 
     final protected void
@@ -54,6 +45,7 @@ public class IncomingAsync extends IncomingBase
 	}
 	
 	__finishInvoke();
+	__destroy();
     }
 
     final protected void
@@ -106,8 +98,6 @@ public class IncomingAsync extends IncomingBase
 		_os.writeStringSeq(ex.facet);
 		_os.writeString(ex.operation);
             }
-
-	    __finishInvoke();
         }
         catch(Ice.LocalException ex)
         {
@@ -120,8 +110,6 @@ public class IncomingAsync extends IncomingBase
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		_os.writeString(ex.toString());
             }
-	    
-	    __finishInvoke();
         }
         catch(Ice.UserException ex)
         {
@@ -134,8 +122,6 @@ public class IncomingAsync extends IncomingBase
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
 		_os.writeString(ex.toString());
             }
-	    
-	    __finishInvoke();
         }
 	catch(Exception ex)
 	{
@@ -148,9 +134,10 @@ public class IncomingAsync extends IncomingBase
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 		_os.writeString(ex.toString());
             }
-	    
-	    __finishInvoke();
 	}
+
+	__finishInvoke();
+	__destroy();
     }
 
     final protected BasicStream

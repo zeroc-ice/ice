@@ -1135,7 +1135,7 @@ public final class Connection extends EventHandler
 
         while(in != null)
         {
-            in.destroy();
+            in.__destroy();
             in = in.next;
         }
     }

@@ -19,14 +19,7 @@ final public class Incoming extends IncomingBase
     public
     Incoming(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
     {
-        _current = new Ice.Current();
-        _current.id = new Ice.Identity();
-        _current.adapter = adapter;
-        _cookie = new Ice.LocalObjectHolder();
-	_connection = connection;
-	_response = response;
-        _is = new BasicStream(instance);
-        _os = new BasicStream(instance);
+	super(instance, adapter, connection, response);
     }
 
     //
@@ -61,24 +54,6 @@ final public class Incoming extends IncomingBase
 	else
 	{
 	    _os.reset();
-	}
-    }
-
-    //
-    // Reclaim resources.
-    //
-    public void
-    destroy()
-    {
-	if(_is != null)
-	{
-	    _is.destroy();
-	    _is = null;
-	}
-	if(_os != null)
-	{
-	    _os.destroy();
-	    _os = null;
 	}
     }
 

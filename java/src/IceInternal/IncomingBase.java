@@ -16,6 +16,52 @@ package IceInternal;
 
 public class IncomingBase
 {
+    protected
+    IncomingBase(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
+    {
+        _current = new Ice.Current();
+        _current.id = new Ice.Identity();
+        _current.adapter = adapter;
+        _cookie = new Ice.LocalObjectHolder();
+	_connection = connection;
+	_response = response;
+        _is = new BasicStream(instance);
+        _os = new BasicStream(instance);
+    }
+
+    protected
+    IncomingBase(IncomingBase in) // Adopts the IncomingBase argument. It must not be used afterwards.
+    {
+	_current = in._current;
+	_servant = in._servant;
+	_locator = in._locator;
+	_cookie = in._cookie;
+	_connection = in._connection;
+	_response = in._response;
+	_is = in._is;
+	in._is = null;
+	_os = in._os;
+	in._os = null;
+    }
+
+    //
+    // Reclaim resources.
+    //
+    final public void
+    __destroy()
+    {
+	if(_is != null)
+	{
+	    _is.destroy();
+	    _is = null;
+	}
+	if(_os != null)
+	{
+	    _os.destroy();
+	    _os = null;
+	}
+    }
+
     final protected void
     __finishInvoke()
     {
