@@ -133,15 +133,6 @@ ZEND_RINIT_FUNCTION(ice)
         return FAILURE;
     }
 
-    //
-    // Register factories in the communicator.
-    //
-    Ice::CommunicatorPtr communicator = Ice_Communicator_instance(TSRMLS_C);
-    if(!Slice_registerFactories(communicator TSRMLS_CC))
-    {
-        return FAILURE;
-    }
-
     return SUCCESS;
 }
 
