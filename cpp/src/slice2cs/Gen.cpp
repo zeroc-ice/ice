@@ -15,7 +15,11 @@
 #include <IceUtil/Functional.h>
 #include <Gen.h>
 #include <limits>
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#include <direct.h>
+#endif
 #include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
 
@@ -882,7 +886,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << eb;
 	_out << nl << "__is.startReadSlice();";
 	DataMemberList classMembers = p->classDataMembers();
-	long classMemberCount = allClassMembers.size() - classMembers.size();
+	int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
 	for(d = members.begin(); d != members.end(); ++d)
 	{
 	    StringList metaData = (*d)->getMetaData();
@@ -1475,7 +1479,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	_out << eb;
 	_out << nl << "__is.startReadSlice();";
 	DataMemberList classMembers = p->classDataMembers();
-	long classMemberCount = allClassMembers.size() - classMembers.size();
+	int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
 	    ostringstream patchParams;

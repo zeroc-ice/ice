@@ -1013,6 +1013,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IcePatchCalc
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cs
+    End Project Dependency
 }}}
 
 ###############################################################################
