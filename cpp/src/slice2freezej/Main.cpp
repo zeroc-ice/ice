@@ -424,6 +424,7 @@ usage(const char* n)
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         ;
+    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -436,6 +437,7 @@ main(int argc, char* argv[])
     string output;
     bool debug = false;
     bool ice = false;
+    bool caseSensitive = false;
     vector<Dict> dicts;
 
     int idx = 1;
@@ -555,6 +557,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--case-sensitive") == 0)
+	{
+	    caseSensitive = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
         else if(strcmp(argv[idx], "--include-dir") == 0)
         {
             if(idx + 1 >= argc)
@@ -615,7 +626,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false, ice);
+    UnitPtr unit = Unit::createUnit(true, false, ice, caseSensitive);
 
     StringList includes;
 

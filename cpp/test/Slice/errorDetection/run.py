@@ -32,7 +32,10 @@ for file in files:
 
     print file + "...",
 
-    command = slice2cpp + " -I. " + os.path.join(directory, file);
+    if file == "CaseSensitive.ice":
+	command = slice2cpp + " --case-sensitive -I. " + os.path.join(directory, file);
+    else:
+	command = slice2cpp + " -I. " + os.path.join(directory, file);
     stdin, stdout, stderr = os.popen3(command)
     lines1 = stdout.readlines()
     lines2 = open(os.path.join(directory, regex1.sub(".err", file)), "r").readlines()

@@ -36,6 +36,7 @@ usage(const char* n)
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         ;
+    // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
@@ -51,6 +52,7 @@ main(int argc, char* argv[])
     bool clone = false;
     bool debug = false;
     bool ice = false;
+    bool caseSensitive = false;
     bool depend = false;
 
     int idx = 1;
@@ -110,6 +112,15 @@ main(int argc, char* argv[])
 	else if(strcmp(argv[idx], "--ice") == 0)
 	{
 	    ice = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if(strcmp(argv[idx], "--case-sensitive") == 0)
+	{
+	    caseSensitive = true;
 	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
@@ -282,7 +293,7 @@ main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
-	    UnitPtr unit = Unit::createUnit(false, false, ice);
+	    UnitPtr unit = Unit::createUnit(false, false, ice, caseSensitive);
 	    int parseStatus = unit->parse(cppHandle, debug);
 
 #ifdef _WIN32

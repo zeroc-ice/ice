@@ -796,11 +796,12 @@ class SLICE_API Unit : virtual public Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, bool);
+    static UnitPtr createUnit(bool, bool, bool, bool);
 
     bool ignRedefs() const;
 
     bool allowIcePrefix() const;
+    bool caseSensitive() const;
 
     void setComment(const std::string&);
     std::string currentComment(); // Not const, as this function removes the current comment.
@@ -843,11 +844,12 @@ public:
 
 private:
 
-    Unit(bool, bool, bool);
+    Unit(bool, bool, bool, bool);
 
     bool _ignRedefs;
     bool _all;
     bool _allowIcePrefix;
+    bool _caseSensitive;
     int _errors;
     std::string _currentComment;
     int _currentLine;
