@@ -53,23 +53,12 @@ Slice to Java translator
 ------------------------
 
 You will need the Slice to Java translator and supporting executables
-and libraries. You can download a pre-compiled archive from our FTP
-server, or you can build Ice for C++ yourself.
+and libraries. You can download a binary distribution from the ZeroC
+web site, or you can build Ice for C++ yourself.
 
-The pre-compiled archives are available for the supported platforms
-from http://www.zeroc.com/download.html.
+Binary distributions for the supported platforms are available at
 
-
-Other Ice utilities
--------------------
-
-Some of the Ice for Java tests and demonstration programs require
-additional Ice for C++ utilities, such as IcePack and Glacier2. For
-space reasons, the pre-compiled archives ZeroC supplies for Unix
-platforms contain only the Slice-to-Java translator (slice2java), the
-Slice-to-Freeze translator (slice2freezej), and the documentation
-generator (slice2docbook). Therefore, not all Ice for Java tests can
-be run without building Ice for C++ yourself.
+http://www.zeroc.com/download.html
 
 
 Berkeley DB
@@ -169,7 +158,7 @@ distribution already contains the class files for the Ice core, Ice
 services, examples and tests.
 
 If you want to rebuild the source code, you will need the 'ant'
-utility, version 1.6.2 or later, which is available here:
+utility, version 1.6 or later, which is available here:
 
 http://ant.apache.org/
 
