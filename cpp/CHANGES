@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed transformdb to take separate arguments for specifying
+  include paths. The option -I has been replaced with the options
+  --include-old and --include-new.
+
 - Added twoway-throttling to Glacier. See the descriptions of the
   properties Glacier.Router.Client.Throttle.Twoways and
   Glacier.Router.Server.Throttle.Twoways for details. To trace

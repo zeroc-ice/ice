@@ -39,7 +39,6 @@ usage(const char* n)
         "-DNAME                Define NAME as 1.\n"
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
-        "-IDIR                 Put DIR in the include file search path.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         "-o FILE               Output transformation descriptors into the file FILE.\n"
@@ -48,6 +47,10 @@ usage(const char* n)
         "-p                    Purge objects whose types no longer exist.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         "                      Database transformation is not performed.\n"
+        "--include-old DIR     Put DIR in the include file search path for old Slice\n"
+        "                      definitions.\n"
+        "--include-new DIR     Put DIR in the include file search path for new Slice\n"
+        "                      definitions.\n"
         "--old SLICE           Load old Slice definitions from the file SLICE.\n"
         "--new SLICE           Load new Slice definitions from the file SLICE.\n"
         "-e                    Indicates the database is an Evictor database.\n"
@@ -101,8 +104,8 @@ parseSlice(const string& n, const Slice::UnitPtr& u, const vector<string>& files
 static int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
-    string cppArgs;
-    vector<string> includePaths;
+    string oldCppArgs;
+    string newCppArgs;
     bool debug = false;
     bool ice = true; // Needs to be true in order to create default definitions.
     bool caseSensitive = false;
@@ -132,25 +135,10 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
         else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
         {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strncmp(argv[idx], "-I", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            string path = argv[idx] + 2;
-            if(path.length())
-            {
-                includePaths.push_back(path);
-            }
+            oldCppArgs += ' ';
+            oldCppArgs += argv[idx];
+            newCppArgs += ' ';
+            newCppArgs += argv[idx];
 
             for(int i = idx ; i + 1 < argc ; ++i)
             {
@@ -230,6 +218,28 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
 
             inputFile = argv[idx + 1];
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+        else if(strcmp(argv[idx], "--include-old") == 0)
+        {
+            oldCppArgs += " -I";
+            oldCppArgs += argv[idx + 1];
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+        else if(strcmp(argv[idx], "--include-new") == 0)
+        {
+            newCppArgs += " -I";
+            newCppArgs += argv[idx + 1];
 
             for(int i = idx ; i + 2 < argc ; ++i)
             {
@@ -347,14 +357,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, false, ice, caseSensitive);
     Transform::Destroyer<Slice::UnitPtr> oldD(oldUnit);
-    if(!parseSlice(argv[0], oldUnit, oldSlice, cppArgs, debug))
+    if(!parseSlice(argv[0], oldUnit, oldSlice, oldCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
 
     Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, false, ice, caseSensitive);
     Transform::Destroyer<Slice::UnitPtr> newD(newUnit);
-    if(!parseSlice(argv[0], newUnit, newSlice, cppArgs, debug))
+    if(!parseSlice(argv[0], newUnit, newSlice, newCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
