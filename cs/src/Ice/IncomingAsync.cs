@@ -39,7 +39,7 @@ namespace IceInternal
 	    {
 		if(_locator != null && _servant != null)
 		{
-		    _locator.finished(_current, _servant, _cookie.value);
+		    _locator.finished(_current, _servant, _cookie);
 		}
 
 		if(_response)
@@ -85,7 +85,7 @@ namespace IceInternal
 	    {
 		if(_locator != null && _servant != null)
 		{
-		    _locator.finished(_current, _servant, _cookie.value);
+		    _locator.finished(_current, _servant, _cookie);
 		}
 
 		try

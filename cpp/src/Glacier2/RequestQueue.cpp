@@ -276,7 +276,7 @@ Glacier2::RequestQueue::run()
 	    {
 		for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(&Connection::flushBatchRequests));
 	    }
-	    catch(const LocalException& ex)
+	    catch(const LocalException&)
 	    {
 		// Ignore.
 	    }

@@ -126,7 +126,8 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	_os.startWriteEncaps();
     }
 
-    DispatchStatus status;
+    // Initialize status to some value, to keep the compiler happy.
+    DispatchStatus status = DispatchOK;
 
     //
     // Don't put the code above into the try block below. Exceptions
