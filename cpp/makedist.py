@@ -118,7 +118,7 @@ def fixProject(file, target):
             inSource = 0
             for s in source:
                 if doComment:
-                    newLines.append('#' + s)
+                    newLines.append('#xxx#' + s)
                 else:
                     newLines.append(s)
             doComment = 0
