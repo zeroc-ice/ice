@@ -325,25 +325,6 @@ public class Incoming
 	}
     }
 
-    private void
-    warning(String msg)
-    {
-	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	    out.setUseTab(false);
-	    out.print("dispatch exception: " + msg);
-	    out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	    out.print("\nfacet: ");
-	    IceInternal.ValueWriter.write(_current.facet, out);
-	    out.print("\noperation: " + _current.operation);
-	    pw.flush();
-	    _os.instance().logger().warning(sw.toString());
-	}
-    }
-
     private Ice.Current _current;
     private Ice.Object _servant;
     private Ice.ServantLocator _locator;
