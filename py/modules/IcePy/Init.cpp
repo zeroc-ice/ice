@@ -9,7 +9,9 @@
 
 #include <Communicator.h>
 #include <Current.h>
+#include <Logger.h>
 #include <ObjectAdapter.h>
+#include <Operation.h>
 #include <Properties.h>
 #include <Proxy.h>
 #include <Slice.h>
@@ -18,39 +20,41 @@
 using namespace std;
 using namespace IcePy;
 
+extern "C" PyObject* Ice_registerTypes(PyObject*, PyObject*);
+
 static PyMethodDef methods[] =
 {
-    { "initialize", (PyCFunction)Ice_initialize, METH_VARARGS,
+    { "initialize", (PyCFunction)IcePy_initialize, METH_VARARGS,
         PyDoc_STR("initialize([args]) -> Ice.Communicator") },
-    { "initializeWithProperties", (PyCFunction)Ice_initializeWithProperties, METH_VARARGS,
+    { "initializeWithProperties", (PyCFunction)IcePy_initializeWithProperties, METH_VARARGS,
         PyDoc_STR("initializeWithProperties(args, properties) -> Ice.Communicator") },
-    { "identityToString", (PyCFunction)Ice_identityToString, METH_VARARGS,
+    { "identityToString", (PyCFunction)IcePy_identityToString, METH_VARARGS,
         PyDoc_STR("identityToString(id) -> string") },
-    { "stringToIdentity", (PyCFunction)Ice_stringToIdentity, METH_VARARGS,
+    { "stringToIdentity", (PyCFunction)IcePy_stringToIdentity, METH_VARARGS,
         PyDoc_STR("stringToIdentity(str) -> Ice.Identity") },
-    { "createProperties", (PyCFunction)Ice_createProperties, METH_VARARGS,
+    { "createProperties", (PyCFunction)IcePy_createProperties, METH_VARARGS,
         PyDoc_STR("createProperties([args]) -> Ice.Properties") },
-    { "getDefaultProperties", (PyCFunction)Ice_getDefaultProperties, METH_VARARGS,
+    { "getDefaultProperties", (PyCFunction)IcePy_getDefaultProperties, METH_VARARGS,
         PyDoc_STR("getDefaultProperties([args]) -> Ice.Properties") },
-    { "defineEnum", (PyCFunction)Ice_defineEnum, METH_VARARGS,
+    { "defineEnum", (PyCFunction)IcePy_defineEnum, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineStruct", (PyCFunction)Ice_defineStruct, METH_VARARGS,
+    { "defineStruct", (PyCFunction)IcePy_defineStruct, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineSequence", (PyCFunction)Ice_defineSequence, METH_VARARGS,
+    { "defineSequence", (PyCFunction)IcePy_defineSequence, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineDictionary", (PyCFunction)Ice_defineDictionary, METH_VARARGS,
+    { "defineDictionary", (PyCFunction)IcePy_defineDictionary, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "declareProxy", (PyCFunction)Ice_declareProxy, METH_VARARGS,
+    { "declareProxy", (PyCFunction)IcePy_declareProxy, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineProxy", (PyCFunction)Ice_defineProxy, METH_VARARGS,
+    { "defineProxy", (PyCFunction)IcePy_defineProxy, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "declareClass", (PyCFunction)Ice_declareClass, METH_VARARGS,
+    { "declareClass", (PyCFunction)IcePy_declareClass, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineClass", (PyCFunction)Ice_defineClass, METH_VARARGS,
+    { "defineClass", (PyCFunction)IcePy_defineClass, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "defineException", (PyCFunction)Ice_defineException, METH_VARARGS,
+    { "defineException", (PyCFunction)IcePy_defineException, METH_VARARGS,
         PyDoc_STR("internal function") },
-    { "loadSlice", (PyCFunction)Ice_loadSlice, METH_VARARGS,
+    { "loadSlice", (PyCFunction)IcePy_loadSlice, METH_VARARGS,
         PyDoc_STR("loadSlice(cmd) -> None") },
     { NULL, NULL} /* sentinel */
 };
@@ -75,6 +79,14 @@ initIcePy(void)
     //
     // Install built-in Ice types.
     //
+    if(!initProxy(module))
+    {
+        return;
+    }
+    if(!initTypes(module))
+    {
+        return;
+    }
     if(!initProperties(module))
     {
         return;
@@ -91,11 +103,11 @@ initIcePy(void)
     {
         return;
     }
-    if(!initProxy(module))
+    if(!initOperation(module))
     {
         return;
     }
-    if(!initTypes(module))
+    if(!initLogger(module))
     {
         return;
     }
