@@ -15,20 +15,15 @@
 #ifndef ICE_PHP_SLICE_H
 #define ICE_PHP_SLICE_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
-
+#include "common.h"
 #include <Slice/Parser.h>
 
 bool Slice_init(TSRMLS_D);
 bool Slice_shutdown(TSRMLS_D);
-bool Slice_defineClasses(int TSRMLS_DC);
+bool Slice_createClasses(int TSRMLS_DC);
+bool Slice_destroyClasses(TSRMLS_D);
+bool Slice_registerFactories(const Ice::CommunicatorPtr& TSRMLS_DC);
 Slice::UnitPtr Slice_getUnit();
-zend_class_entry* Slice_getClass(const std::string&);
 bool Slice_isNativeKey(const Slice::TypePtr&);
 
 #endif
