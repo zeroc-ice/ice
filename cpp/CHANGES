@@ -1,6 +1,8 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Added a fix to the mutex tests in test/IceUtil/thread for FreeBSD.
+
 - Modified the Ice::Service class to support the Ice.Nohup property,
   rename the win9x function to checkSystem, and add more flexibility
   in configuring services. See the reference manual for more
