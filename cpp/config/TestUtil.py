@@ -131,7 +131,7 @@ else:
     os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.environ["LD_LIBRARY_PATH"]
 
 if protocol == "ssl":
-    plugin = " --Ice.Plugin.IceSSL=IceSSL:create"
+    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
                            " --IceSSL.Client.Config=client_sslconfig.xml"
