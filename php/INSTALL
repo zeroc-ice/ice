@@ -8,7 +8,7 @@ Requirements
 
 
 =========================================================================
-Building PHP with the Ice extension (Linux/Solaris)
+Building PHP with the Ice extension (Linux/Solaris/HP-UX)
 =========================================================================
 
 PHP's build system can create several versions of the PHP interpreter.
