@@ -103,6 +103,10 @@ def extractDemos(buildDir, version, distro, demoDir):
     os.chdir(buildDir + "/demotree")
     os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
+    if demoDir == "":
+	os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar xf - " + distro + "/install/rpm/README.DEMOS")
+	shutil.move(distro + "/install/rpm/README.DEMOS", buildDir + "/Ice-" + version + "-demos/README.DEMOS")
+	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
     #
@@ -509,8 +513,10 @@ def main():
         # Ice must be first or building the other source distributions will fail.
         #
         sourceTarBalls = [ ("ice", "Ice-" + version, ""),
-                           ("icej","IceJ-" + version, "j"),
-                           ("icepy","IcePy-" + version, "py") ]
+                           ("icej","IceJ-" + version, "j") ]
+
+	if getPlatform() <> "aix":
+	    sourceTarBalls.append(("icepy","IcePy-" + version, "py"))
 
 	if getPlatform() == "linux":
 	    sourceTarBalls.append(("icecs","IceCS-" + version, "cs"))
