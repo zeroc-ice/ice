@@ -23,12 +23,18 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
     _os(instance)
 {
     _current.adapter = adapter;
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+    if(_current.adapter)
+    {
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+    }
 }
 
 IceInternal::Incoming::~Incoming()
 {
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+    if(_current.adapter)
+    {
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+    }
 }
 
 void
@@ -80,23 +86,26 @@ IceInternal::Incoming::invoke(bool response)
 
     try
     {
-	servant = _current.adapter->identityToServant(_current.id);
-	
-	if(!servant && !_current.id.category.empty())
+	if(_current.adapter)
 	{
-	    locator = _current.adapter->findServantLocator(_current.id.category);
-	    if(locator)
+	    servant = _current.adapter->identityToServant(_current.id);
+	    
+	    if(!servant && !_current.id.category.empty())
 	    {
-		servant = locator->locate(_current, cookie);
+		locator = _current.adapter->findServantLocator(_current.id.category);
+		if(locator)
+		{
+		    servant = locator->locate(_current, cookie);
+		}
 	    }
-	}
-	
-	if(!servant)
-	{
-	    locator = _current.adapter->findServantLocator("");
-	    if(locator)
+	    
+	    if(!servant)
 	    {
-		servant = locator->locate(_current, cookie);
+		locator = _current.adapter->findServantLocator("");
+		if(locator)
+		{
+		    servant = locator->locate(_current, cookie);
+		}
 	    }
 	}
 	    
@@ -122,11 +131,6 @@ IceInternal::Incoming::invoke(bool response)
 	    {
 		status = servant->__dispatch(*this, _current);
 	    }
-	}
-
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
 	}
     }
     catch(const LocationForward& ex)
@@ -277,6 +281,11 @@ IceInternal::Incoming::invoke(bool response)
     // in the code below are considered fatal, and must propagate to
     // the caller of this operation.
     //
+
+    if(locator && servant)
+    {
+	locator->finished(_current, servant, cookie);
+    }
 
     _is.endReadEncaps();
 

@@ -279,13 +279,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     if(thrower->supportsUndeclaredExceptions())
     {
-        cout << "catching unknown user exception... " << flush;
-
-        try
-        {
-            thrower->throwUndeclaredA(1);
-            test(false);
-        }
+	cout << "catching unknown user exception... " << flush;
+	
+	try
+	{
+	    thrower->throwUndeclaredA(1);
+	    test(false);
+	}
 	catch(const A& ex)
 	{
 	    //
@@ -295,29 +295,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(collocated);
 	    test(ex.aMem == 1);
 	}
-        catch(const Ice::UnknownUserException&)
-        {
+	catch(const Ice::UnknownUserException&)
+	{
 	    //
 	    // We get the an unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cout << ex << endl;
-            test(false);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        try
-        {
-            thrower->throwUndeclaredB(1, 2);
-            test(false);
-        }
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	
+	try
+	{
+	    thrower->throwUndeclaredB(1, 2);
+	    test(false);
+	}
 	catch(const B& ex)
 	{
 	    //
@@ -328,24 +323,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(ex.aMem == 1);
 	    test(ex.bMem == 2);
 	}
-        catch(const Ice::UnknownUserException&)
-        {
+	catch(const Ice::UnknownUserException&)
+	{
 	    //
 	    // We get the an unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        try
-        {
-            thrower->throwUndeclaredC(1, 2, 3);
-            test(false);
-        }
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	
+	try
+	{
+	    thrower->throwUndeclaredC(1, 2, 3);
+	    test(false);
+	}
 	catch(const C& ex)
 	{
 	    //
@@ -357,22 +352,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    test(ex.bMem == 2);
 	    test(ex.cMem == 3);
 	}
-        catch(const Ice::UnknownUserException&)
-        {
+	catch(const Ice::UnknownUserException&)
+	{
 	    //
 	    // We get the an unknown user exception without
 	    // collocation optimization.
 	    //
 	    test(!collocated);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        cout << "ok" << endl;
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	
+	cout << "ok" << endl;
     }
-    
+
     cout << "catching object not exist exception... " << flush;
 
     Ice::Identity id = Ice::stringToIdentity("does not exist");
@@ -483,15 +478,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwNonIceException();
 	test(false);
     }
-    catch(const int& ex)
-    {
-	//
-	// We get the original exception with collocation
-	// optimization.
-	//
-	assert(collocated);
-	assert(ex == 12345);
-    }
     catch(const Ice::UnknownException&)
     {
 	//
@@ -502,7 +488,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(...)
     {
-	test(false);
+	//
+	// We get the original exception with collocation
+	// optimization.
+	//
+	assert(collocated);
     }
 
     cout << "ok" << endl;

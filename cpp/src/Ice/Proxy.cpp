@@ -1053,7 +1053,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_isA(__id, __current);
     }
-    return false; // To keep VC++ compiler happy.
+    return false; // To keep the Visual C++ compiler happy.
 }
 
 void
@@ -1079,7 +1079,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_ids(__current);
     }
-    return vector<string>(); // To keep VC++ compiler happy.
+    return vector<string>(); // To keep the Visual C++ compiler happy.
 }
 
 string
@@ -1092,7 +1092,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_id(__current);
     }
-    return false; // To keep VC++ compiler happy.
+    return false; // To keep the Visual C++ compiler happy.
 }
 
 vector<string>
@@ -1105,7 +1105,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_facets(__current);
     }
-    return vector<string>(); // To keep VC++ compiler happy.
+    return vector<string>(); // To keep the Visual C++ compiler happy.
 }
 
 bool
@@ -1120,16 +1120,18 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
     while(true)
     {
 	Direct __direct(current);
-	Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
-	if(!__servant)
+	Blobject* servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
+	if(!servant)
 	{
-	    OperationNotExistException ex(__FILE__, __LINE__);
-	    ex.operation = current.operation;
-	    throw ex;
+	    OperationNotExistException opEx(__FILE__, __LINE__);
+	    opEx.id = current.id;
+	    opEx.facet = current.facet;
+	    opEx.operation = current.operation;
+	    throw opEx;
 	}
-	return __servant->ice_invoke(inParams, outParams, current);
+	return servant->ice_invoke(inParams, outParams, current);
     }
-    return false; // To keep VC++ compiler happy.
+    return false; // To keep the Visual C++ compiler happy.
 }
 
 void

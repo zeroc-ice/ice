@@ -50,6 +50,8 @@ IceInternal::Direct::Direct(const Current& current) :
 	{
 	    ObjectNotExistException ex(__FILE__, __LINE__);
 	    ex.id = _current.id;
+	    ex.facet = _current.facet;
+	    ex.operation = _current.operation;
 	    throw ex;
 	}
 
@@ -59,7 +61,9 @@ IceInternal::Direct::Direct(const Current& current) :
 	    if(!_facetServant)
 	    {
 		FacetNotExistException ex(__FILE__, __LINE__);
+		ex.id = _current.id;
 		ex.facet = _current.facet;
+		ex.operation = _current.operation;
 		throw ex;
 	    }
 	}

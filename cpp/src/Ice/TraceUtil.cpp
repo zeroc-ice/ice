@@ -191,6 +191,7 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 	{
 	    s << " (oneway)";
 	}
+
 	printRequestHeader(s, stream);
 
 	logger->trace(tl->protocolCat, s.str());

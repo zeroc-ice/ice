@@ -214,6 +214,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	_is.swap(is);
 	Byte status;
 	_is.read(status);
+
 	switch(static_cast<DispatchStatus>(status))
 	{
 	    case DispatchOK:

@@ -1741,6 +1741,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << nl << "if(!__servant)";
     C << sb;
     C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
+    C << nl << "__opEx.id = __current.id;";
+    C << nl << "__opEx.facet = __current.facet;";
     C << nl << "__opEx.operation = __current.operation;";
     C << nl << "throw __opEx;";
     C << eb;

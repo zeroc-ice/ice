@@ -3157,11 +3157,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "catch(ClassCastException __ex)";
         out << sb;
         out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
+	out << nl << "__opEx.id = __current.id;";
+	out << nl << "__opEx.facet = __current.facet;";
 	out << nl << "__opEx.operation = __current.operation;";
 	out << nl << "throw __opEx;";
         out << eb;
-        out << nl << "try";
-        out << sb;
         out << nl;
         if(ret)
         {
@@ -3178,34 +3178,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "return;";
         }
         out << eb;
-        ExceptionList::const_iterator r;
-        for(r = throws.begin(); r != throws.end(); ++r)
-        {
-            out << nl << "catch(" << getAbsolute((*r)->scoped(), scope) << " __ex)";
-            out << sb;
-            out << nl << "throw __ex;";
-            out << eb;
-        }
-        //
-        // No need to catch Ice.UserException because it's not possible in Java
-        //
-        out << nl << "catch(Ice.LocalException __ex)";
-        out << sb;
-        out << nl << "throw __ex;";
-        out << eb;
-        out << nl << "catch(java.lang.RuntimeException __ex)";
-        out << sb;
-        out << nl << "Ice.UnknownException __e = new Ice.UnknownException();";
-        out << nl << "__e.initCause(__ex);";
-        out << nl << "throw __e;";
-        out << eb;
-        out << eb;
         out << nl << "finally";
         out << sb;
         out << nl << "__direct.destroy();";
         out << eb;
         out << eb;
-
         out << eb;
     }
 

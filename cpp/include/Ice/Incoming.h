@@ -22,7 +22,7 @@ class ICE_API Incoming : public ::IceUtil::noncopyable
 {
 public:
 
-    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr& adapter);
+    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
     ~Incoming();
 
     void invoke(bool);
