@@ -12,10 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_UTIL_H
-#define ICE_PHP_UTIL_H
+#ifndef ICE_PHP_ICE_UTIL_H
+#define ICE_PHP_ICE_UTIL_H
 
-#include "common.h"
+#include "ice_common.h"
 
 //
 // PHP wrapper for C++ objects.

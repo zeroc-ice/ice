@@ -12,10 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_COMMUNICATOR_H
-#define ICE_PHP_COMMUNICATOR_H
+#ifndef ICE_PHP_ICE_COMMUNICATOR_H
+#define ICE_PHP_ICE_COMMUNICATOR_H
 
-#include "common.h"
+#include "ice_common.h"
 
 bool Ice_Communicator_init(TSRMLS_D);
 bool Ice_Communicator_create(TSRMLS_D);

@@ -12,10 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_SLICE_H
-#define ICE_PHP_SLICE_H
+#ifndef ICE_PHP_ICE_SLICE_H
+#define ICE_PHP_ICE_SLICE_H
 
-#include "common.h"
+#include "ice_common.h"
 #include <Slice/Parser.h>
 
 bool Slice_init(TSRMLS_D);

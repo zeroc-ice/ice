@@ -12,8 +12,15 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_COMMON_H
-#define ICE_PHP_COMMON_H
+#ifndef ICE_PHP_ICE_COMMON_H
+#define ICE_PHP_ICE_COMMON_H
+
+#include <Ice/Ice.h>
+
+#ifdef WIN32
+#include <crtdbg.h>
+#include <math.h>
+#endif
 
 extern "C"
 {
@@ -23,7 +30,6 @@ extern "C"
 }
 
 #include "php_ice.h"
-#include <Ice/Ice.h>
 
 //
 // Extension of zend_class_entry that stores some extra data.

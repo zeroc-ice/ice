@@ -12,26 +12,25 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_EXCEPTION_H
-#define ICE_PHP_EXCEPTION_H
+#ifndef ICE_PHP_ICE_IDENTITY_H
+#define ICE_PHP_ICE_IDENTITY_H
 
-#include "common.h"
+#include "ice_common.h"
 
-bool Ice_LocalException_init(TSRMLS_D);
-
-void ice_throw_exception(const IceUtil::Exception& TSRMLS_DC);
+bool Ice_Identity_create(zval*, const Ice::Identity& TSRMLS_DC);
+bool Ice_Identity_extract(zval*, Ice::Identity& TSRMLS_DC);
 
 //
-// Ice_LocalException class methods.
+// Ice_Identity global functions.
 //
 extern "C"
 {
-ZEND_FUNCTION(Ice_LocalException___construct);
-ZEND_FUNCTION(Ice_LocalException_message);
+ZEND_FUNCTION(Ice_stringToIdentity);
+ZEND_FUNCTION(Ice_identityToString);
 }
 
-#define ICE_PHP_LOCAL_EXCEPTION_FUNCTIONS \
-    ZEND_FE(Ice_LocalException___construct, NULL) \
-    ZEND_FE(Ice_LocalException_message,     NULL)
+#define ICE_PHP_IDENTITY_FUNCTIONS \
+    ZEND_FE(Ice_stringToIdentity,   NULL) \
+    ZEND_FE(Ice_identityToString,   NULL)
 
 #endif

@@ -12,10 +12,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PHP_OBJECT_PRX_H
-#define ICE_PHP_OBJECT_PRX_H
+#ifndef ICE_PHP_ICE_PROXY_H
+#define ICE_PHP_ICE_PROXY_H
 
-#include "common.h"
+#include "ice_common.h"
 #include <Slice/Parser.h>
 
 bool Ice_ObjectPrx_init(TSRMLS_D);
@@ -66,7 +66,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 }
 
-#define ICE_PHP_OBJECT_PRX_FUNCTIONS \
+#define ICE_PHP_PROXY_FUNCTIONS \
     ZEND_FE(Ice_ObjectPrx___construct,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isA,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_ping,              NULL) \
