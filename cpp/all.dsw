@@ -669,6 +669,48 @@ Package=<4>
 
 ###############################################################################
 
+Project: "chatC"=.\demo\Glacier2\chat\chatC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "chatS"=.\demo\Glacier2\chat\chatS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name glacier2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "checksumC"=.\test\ice\checksum\client\checksumC.dsp - Package Owner=<4>
 
 Package=<5>
