@@ -49,7 +49,7 @@ public abstract class Application
 	    StringSeqHolder argHolder = new StringSeqHolder(args);
             if(configFile != null)
             {
-                Properties properties = Util.createProperties(argHolder);
+                Properties properties = Util.createProperties();
                 properties.load(configFile);
                 _communicator = Util.initializeWithProperties(argHolder, properties);
             }
