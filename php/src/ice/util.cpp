@@ -134,8 +134,7 @@ IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
 
     if(object_init_ex(zv, cls) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): unable to initialize Ice::Identity",
-			 get_active_function_name(TSRMLS_C));
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize Ice::Identity");
         return false;
     }
 
@@ -151,8 +150,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): value does not contain an object",
-			 get_active_function_name(TSRMLS_C));
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "value does not contain an object");
         return false;
     }
 
@@ -162,8 +160,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != cls)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected an identity but received %s",
-			 get_active_function_name(TSRMLS_C), ce->name);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an identity but received %s", ce->name);
         return false;
     }
 
@@ -174,8 +171,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     zval** nameVal;
     if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), (void**)&nameVal) == FAILURE)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): identity value does not contain member `name'",
-			 get_active_function_name(TSRMLS_C));
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "identity value does not contain member `name'");
         return false;
     }
     zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), (void**)&categoryVal);
@@ -183,9 +179,8 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
         string s = zendTypeToString(Z_TYPE_PP(nameVal));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR,
-			 "%s(): expected a string value for identity member `name' but received %s",
-			 get_active_function_name(TSRMLS_C), s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected a string value for identity member `name' but received %s",
+			 s.c_str());
         return false;
     }
 
@@ -193,8 +188,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     {
         string s = zendTypeToString(Z_TYPE_PP(categoryVal));
         php_error_docref(NULL TSRMLS_CC, E_ERROR,
-			 "%s(): expected a string value for identity member `category' but received %s",
-			 get_active_function_name(TSRMLS_C), s.c_str());
+			 "expected a string value for identity member `category' but received %s", s.c_str());
         return false;
     }
 
@@ -235,8 +229,8 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): expected an array for the context argument but received %s",
-			 get_active_function_name(TSRMLS_C), s.c_str());
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an array for the context argument but received %s",
+			 s.c_str());
         return false;
     }
 
@@ -260,16 +254,14 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
         //
         if(keyType != HASH_KEY_IS_STRING)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): context key must be a string",
-			     get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "context key must be a string");
             return false;
         }
 
         zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s(): context value must be a string",
-			     get_active_function_name(TSRMLS_C));
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "context value must be a string");
             return false;
         }
 
