@@ -3,7 +3,7 @@
 // Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICE_LICENSE file included in this distirbution.
 //
 // **********************************************************************
 
@@ -19,7 +19,6 @@
 #include <Ice/LocatorF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
-#include <Ice/TransportInfoF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/Identity.h>
 
@@ -69,7 +68,7 @@ public:
     const std::vector<EndpointPtr> endpoints;
     const RouterInfoPtr routerInfo; // Null if no router is used.
     const LocatorInfoPtr locatorInfo; // Null if no locator is used.
-    const Ice::TransportInfoPtr reverseTransport; // If not null, use this transport for reverse communications.
+    const std::vector<ConnectionPtr> fixedConnections; // For using fixed connections, otherwise empty.
     const bool collocationOptimization;
     const Ice::Int hashValue;
 
@@ -97,15 +96,16 @@ public:
     ConnectionPtr getConnection(bool&) const;
 
     //
-    // Filter endpoints based on criteria from this reference.
+    // Filter endpoints or connections based on criteria from this reference.
     //
     std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&) const;
+    std::vector<ConnectionPtr> filterConnections(const std::vector<ConnectionPtr>&) const;
 
 private:
 
     Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
-	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::TransportInfoPtr&, bool);
+	      const RouterInfoPtr&, const LocatorInfoPtr&, const std::vector<ConnectionPtr>&, bool);
     friend class ReferenceFactory;
 };
 

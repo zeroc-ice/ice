@@ -21,7 +21,6 @@
 #include <Ice/Functional.h>
 #include <Ice/Connection.h>
 #include <Ice/ConnectionFactory.h>
-#include <Ice/TransportInfoI.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <IceUtil/StringUtil.h>
@@ -30,8 +29,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(::IceInternal::Reference* p) { p->__incRef(); }
-void IceInternal::decRef(::IceInternal::Reference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
 bool
 IceInternal::Reference::operator==(const Reference& r) const
@@ -86,7 +85,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(reverseTransport != r.reverseTransport)
+    if(fixedConnections != r.fixedConnections)
     {
 	return false;
     }
@@ -194,11 +193,11 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(reverseTransport < r.reverseTransport)
+    if(fixedConnections < r.fixedConnections)
     {
 	return true;
     }
-    else if(r.reverseTransport < reverseTransport)
+    else if(r.fixedConnections < fixedConnections)
     {
 	return false;
     }
@@ -384,7 +383,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     else
     {
 	return instance->referenceFactory()->create(newIdentity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -399,7 +398,7 @@ IceInternal::Reference::changeContext(const Context& newContext) const
     else
     {
 	return instance->referenceFactory()->create(identity, newContext, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -414,7 +413,7 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, newFacet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -465,7 +464,7 @@ IceInternal::Reference::changeTimeout(int newTimeout) const
     }
 
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, newRouterInfo, newLocatorInfo, reverseTransport,
+						newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
 						collocationOptimization);
 }
 
@@ -479,7 +478,7 @@ IceInternal::Reference::changeMode(Mode newMode) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, newMode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -494,7 +493,7 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, newSecure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -545,7 +544,7 @@ IceInternal::Reference::changeCompress(bool newCompress) const
     }
 
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, newRouterInfo, newLocatorInfo, reverseTransport,
+						newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
 						collocationOptimization);
 }
 
@@ -559,7 +558,7 @@ IceInternal::Reference::changeAdapterId(const string& newAdapterId) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, newAdapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -574,7 +573,7 @@ IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints)
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    newEndpoints, routerInfo, locatorInfo, reverseTransport,
+						    newEndpoints, routerInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -591,7 +590,7 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, newRouterInfo, locatorInfo, reverseTransport,
+						    endpoints, newRouterInfo, locatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -608,7 +607,7 @@ IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, newLocatorInfo, reverseTransport,
+						    endpoints, routerInfo, newLocatorInfo, fixedConnections,
 						    collocationOptimization);
     }
 }
@@ -623,7 +622,7 @@ IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimiz
     else
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseTransport,
+						    endpoints, routerInfo, locatorInfo, fixedConnections,
 						    newCollocationOptimization);
     }
 }
@@ -637,7 +636,8 @@ IceInternal::Reference::changeDefault() const
 	get(instance->referenceFactory()->getDefaultLocator());
 
     return instance->referenceFactory()->create(identity, context, "", ModeTwoway, false, adapterId,
-						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, true);
+						endpoints, defaultRouterInfo, defaultLocatorInfo,
+						vector<ConnectionPtr>(), true);
 }
 
 ConnectionPtr
@@ -645,26 +645,29 @@ IceInternal::Reference::getConnection(bool& compress) const
 {
     ConnectionPtr connection;
 
-    if(reverseTransport)
+    //
+    // If we have a fixed connection, we return such fixed connection.
+    //
+    if(!fixedConnections.empty())
     {
-	connection = dynamic_cast<TransportInfoI*>(reverseTransport.get())->getConnection();
-	
-	if(!connection)
+	vector<ConnectionPtr> filteredConns = filterConnections(fixedConnections);
+	if(filteredConns.empty())
 	{
 	    NoEndpointException ex(__FILE__, __LINE__);
 	    ex.proxy = toString();
 	    throw ex;
 	}
-	
+
+	connection = filteredConns[0];
 	compress = connection->endpoint()->compress();
     }
     else
-    {	
+    {
 	while(true)
 	{
 	    bool cached;
 	    vector<EndpointPtr> endpts;
-
+	    
 	    if(routerInfo)
 	    {
 		//
@@ -683,7 +686,7 @@ IceInternal::Reference::getConnection(bool& compress) const
 		ReferencePtr self = const_cast<Reference*>(this);
 		endpts = locatorInfo->getEndpoints(self, cached);
 	    }
-
+	    
 	    vector<EndpointPtr> filteredEndpts = filterEndpoints(endpts);
 	    if(filteredEndpts.empty())
 	    {
@@ -691,7 +694,7 @@ IceInternal::Reference::getConnection(bool& compress) const
 		ex.proxy = toString();
 		throw ex;
 	    }
-
+	    
 	    try
 	    {
 		OutgoingConnectionFactoryPtr factory = instance->outgoingConnectionFactory();
@@ -722,10 +725,10 @@ IceInternal::Reference::getConnection(bool& compress) const
 		
 		throw;
 	    }
-
+	    
 	    break;
 	}
-
+	
 	//
 	// If we have a router, set the object adapter for this router
 	// (if any) to the new connection, so that callbacks from the
@@ -749,7 +752,7 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
     //
     // Filter out unknown endpoints.
     //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::unknown)),
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::unknown)),
                     endpoints.end());
 
     switch(mode)
@@ -761,7 +764,7 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
 	    //
 	    // Filter out datagram endpoints.
 	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::datagram)),
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::datagram)),
                             endpoints.end());
 	    break;
 	}
@@ -773,7 +776,7 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
 	    // Filter out non-datagram endpoints.
 	    //
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(::Ice::constMemFun(&Endpoint::datagram))),
+                                      not1(Ice::constMemFun(&Endpoint::datagram))),
                             endpoints.end());
 	    break;
 	}
@@ -792,7 +795,7 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
     //
     if(secure)
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure))),
 			endpoints.end());
     }
     else
@@ -802,12 +805,93 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
 	// partition(), because otherwise some STL implementations
 	// order our now randomized endpoints.
 	//
-	stable_partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
+	stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure)));
     }
     
     return endpoints;
 }
 
+class ConnectionIsDatagram : public unary_function<ConnectionPtr, bool>
+{
+public:
+
+    bool
+    operator()(ConnectionPtr p) const
+    {
+	return p->endpoint()->datagram();
+    }
+};
+
+class ConnectionIsSecure : public unary_function<ConnectionPtr, bool>
+{
+public:
+
+    bool
+    operator()(ConnectionPtr p) const
+    {
+	return p->endpoint()->secure();
+    }
+};
+
+vector<ConnectionPtr>
+IceInternal::Reference::filterConnections(const vector<ConnectionPtr>& allConnections) const
+{
+    vector<ConnectionPtr> connections = allConnections;
+
+    switch(mode)
+    {
+	case ModeTwoway:
+	case ModeOneway:
+	case ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
+			      connections.end());
+	    break;
+	}
+	
+	case ModeDatagram:
+	case ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
+			      connections.end());
+	    break;
+	}
+    }
+    
+    //
+    // Randomize the order of connections.
+    //
+    random_shuffle(connections.begin(), connections.end());
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // connections. Otherwise make non-secure connections preferred over
+    // secure connections by partitioning the connection vector, so that
+    // non-secure connections come first.
+    //
+    if(secure)
+    {
+	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
+			  connections.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized connections.
+	//
+	stable_partition(connections.begin(), connections.end(), not1(ConnectionIsSecure()));
+    }
+    
+    return connections;
+}
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const Identity& ident,
@@ -819,7 +903,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const vector<EndpointPtr>& endpts,
 				  const RouterInfoPtr& rtrInfo,
 				  const LocatorInfoPtr& locInfo,
-				  const TransportInfoPtr& rvTransport,
+				  const vector<ConnectionPtr>& fixedConns,
 				  bool collocationOpt) :
     instance(inst),
     identity(ident),
@@ -831,7 +915,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     endpoints(endpts),
     routerInfo(rtrInfo),
     locatorInfo(locInfo),
-    reverseTransport(rvTransport),
+    fixedConnections(fixedConns),
     collocationOptimization(collocationOpt),
     hashValue(0)
 {

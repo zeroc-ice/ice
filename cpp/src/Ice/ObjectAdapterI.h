@@ -38,9 +38,9 @@ class ObjectAdapterI : public ObjectAdapter, public IceUtil::Monitor<IceUtil::Re
 {
 public:
 
-    virtual std::string getName();
+    virtual std::string getName() const;
 
-    virtual CommunicatorPtr getCommunicator();
+    virtual CommunicatorPtr getCommunicator() const;
 
     virtual void activate();
     virtual void hold();
@@ -55,26 +55,24 @@ public:
     virtual ObjectPtr remove(const Identity&);
     virtual ObjectPtr removeFacet(const Identity&, const std::string&);
     virtual FacetMap removeAllFacets(const Identity&);
-    virtual ObjectPtr find(const Identity&);
-    virtual ObjectPtr findFacet(const Identity&, const std::string&);
-    virtual FacetMap findAllFacets(const Identity&);
-    virtual ObjectPtr findByProxy(const ObjectPrx&);
+    virtual ObjectPtr find(const Identity&) const;
+    virtual ObjectPtr findFacet(const Identity&, const std::string&) const;
+    virtual FacetMap findAllFacets(const Identity&) const;
+    virtual ObjectPtr findByProxy(const ObjectPrx&) const;
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
-    virtual ServantLocatorPtr findServantLocator(const std::string&);
+    virtual ServantLocatorPtr findServantLocator(const std::string&) const;
 
-    virtual ObjectPrx createProxy(const Identity&);
-    virtual ObjectPrx createDirectProxy(const Identity&);
-    virtual ObjectPrx createReverseProxy(const Identity&, const TransportInfoPtr&);
+    virtual ObjectPrx createProxy(const Identity&) const;
+    virtual ObjectPrx createDirectProxy(const Identity&) const;
+    virtual ObjectPrx createReverseProxy(const Identity&) const;
 
     virtual void addRouter(const RouterPrx&);
 
     virtual void setLocator(const LocatorPrx&);
-    virtual LocatorPrx getLocator();
+//    virtual LocatorPrx getLocator() const;
     
     bool isLocal(const ObjectPrx&) const;
-
-//    std::list<IceInternal::ConnectionPtr> getIncomingConnections() const;
 
     void flushBatchRequests();
 

@@ -40,7 +40,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    string getName();
+    nonmutating string getName();
 
     /**
      *
@@ -51,7 +51,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    Communicator getCommunicator();
+    nonmutating Communicator getCommunicator();
 
     /**
      *
@@ -310,7 +310,7 @@ local interface ObjectAdapter
      * @see findByProxy
      *
      **/
-    Object find(Identity id);
+    nonmutating Object find(Identity id);
 
     /**
      *
@@ -333,7 +333,7 @@ local interface ObjectAdapter
      * @see findByProxy
      *
      **/
-    Object findFacet(Identity id, string facet);
+    nonmutating Object findFacet(Identity id, string facet);
 
     /**
      *
@@ -351,7 +351,7 @@ local interface ObjectAdapter
      * @see findFacet
      *
      **/
-    FacetMap findAllFacets(Identity id);
+    nonmutating FacetMap findAllFacets(Identity id);
 
     /**
      *
@@ -371,7 +371,7 @@ local interface ObjectAdapter
      * @see findFacet
      *
      **/
-    Object findByProxy(Object* proxy);
+    nonmutating Object findByProxy(Object* proxy);
 
     /**
      *
@@ -439,7 +439,7 @@ local interface ObjectAdapter
      * @see ServantLocator
      *
      **/
-    ServantLocator findServantLocator(string category);
+    nonmutating ServantLocator findServantLocator(string category);
 
     /**
      *
@@ -454,7 +454,7 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    Object* createProxy(Identity id);
+    nonmutating Object* createProxy(Identity id);
 
     /**
      *
@@ -474,34 +474,28 @@ local interface ObjectAdapter
      * @see Identity
      *
      **/
-    Object* createDirectProxy(Identity id);
+    nonmutating Object* createDirectProxy(Identity id);
 
     /**
      *
      * Create a "reverse proxy" that matches this object adapter and
-     * the given identity. A reverse proxy uses connections that have
-     * been established from a client to this object adapter.
+     * the given identity. A reverse proxy uses the incoming
+     * connections that have been established from a client to this
+     * object adapter.
      *
-     * <note><para> Like the [Router] interface, this operation is
-     * intended to be used by router implementations. Regular user
-     * code should not attempt to use this operation.
-     * </para></note>
+     * <note><para> This operation is intended to be used by special
+     * services, such as [Router] implementations. Regular user code
+     * should not attempt to use this operation. </para></note>
      *
      * @param id The identity for which a proxy is to be created.
      *
-     * @param transport The transport that should be used, or null if
-     * the first available connection to this object adapater should
-     * be used.
-     *
      * @return A "reverse proxy" that matches the given identity and
-     * this object adapter. If no connections have been established to
-     * this object adapter, a null proxy is returned.
+     * uses the incoming connections of this object adapter.
      *
      * @see Identity
-     * @see TransportInfo
      *
      **/
-    Object* createReverseProxy(Identity id, TransportInfo transport);
+    nonmutating Object* createReverseProxy(Identity id);
 
     /**
      *
@@ -512,9 +506,9 @@ local interface ObjectAdapter
      * a separate connection back to this object adapter.
      *
      * <note><para> You can add a particular router to only a single
-     * object adapter. Adding the same router to more than one object adapter
-     * results in undefined behavior. However, it is possible to
-     * add different routers to different object
+     * object adapter. Adding the same router to more than one object
+     * adapter results in undefined behavior. However, it is possible
+     * to add different routers to different object
      * adapters. </para></note>
      *
      * @param rtr The router to add to this object adapter.

@@ -8,8 +8,6 @@
 // **********************************************************************
 
 #include <Ice/EventHandler.h>
-
-
 #include <Ice/Instance.h>
 
 using namespace std;
@@ -18,6 +16,12 @@ using namespace IceInternal;
 
 void IceInternal::incRef(EventHandler* p) { p->__incRef(); }
 void IceInternal::decRef(EventHandler* p) { p->__decRef(); }
+
+InstancePtr
+IceInternal::EventHandler::instance() const
+{
+    return _instance;
+}
 
 IceInternal::EventHandler::EventHandler(const InstancePtr& instance) :
     _instance(instance),

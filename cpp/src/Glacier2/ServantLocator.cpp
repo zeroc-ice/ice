@@ -60,7 +60,7 @@ Glacier::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
 		ostringstream name;
 		name << "Glacier2.Server." << _serverAdapterCount++;
 		adapter = communicator->createObjectAdapterWithEndpoints(name.str(), endpoints);
-		ServerBlobjectPtr blobject = new ServerBlobject(_clientAdapter, current.transport);
+		ServerBlobjectPtr blobject = new ServerBlobject(communicator, current.transport);
 		ServantLocatorPtr locator = new ServerServantLocator(blobject);
 		adapter->addServantLocator(locator, "");
 		adapter->activate();

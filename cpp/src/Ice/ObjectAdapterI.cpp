@@ -15,7 +15,6 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointFactoryManager.h>
-#include <Ice/Connection.h> // For Connection::getTransportInfo()
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ServantManager.h>
 #include <Ice/RouterInfo.h>
@@ -40,7 +39,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 string
-Ice::ObjectAdapterI::getName()
+Ice::ObjectAdapterI::getName() const
 {
     //
     // No mutex lock necessary, _name is immutable.
@@ -49,7 +48,7 @@ Ice::ObjectAdapterI::getName()
 }
 
 CommunicatorPtr
-Ice::ObjectAdapterI::getCommunicator()
+Ice::ObjectAdapterI::getCommunicator() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -363,13 +362,13 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::find(const Identity& ident)
+Ice::ObjectAdapterI::find(const Identity& ident) const
 {
     return findFacet(ident, "");
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet)
+Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -380,7 +379,7 @@ Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet)
 }
 
 FacetMap
-Ice::ObjectAdapterI::findAllFacets(const Identity& ident)
+Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -391,7 +390,7 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident)
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy)
+Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -412,7 +411,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 }
 
 ServantLocatorPtr
-Ice::ObjectAdapterI::findServantLocator(const string& prefix)
+Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -422,7 +421,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createProxy(const Identity& ident)
+Ice::ObjectAdapterI::createProxy(const Identity& ident) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -433,7 +432,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
+Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
@@ -444,7 +443,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createReverseProxy(const Identity& ident, const TransportInfoPtr& transport)
+Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
@@ -452,31 +451,14 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident, const TransportIn
     checkIdentity(ident);
 
     //
-    // If no connection is specified, we use the first connection of
-    // this object adapter.
+    // Get all incoming connections for this object adapter.
     //
-    TransportInfoPtr tr = transport;
-    if(!tr)
+    vector<ConnectionPtr> connections;
+    vector<IncomingConnectionFactoryPtr>::const_iterator p;
+    for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
     {
-	vector<IncomingConnectionFactoryPtr>::const_iterator p;
-	for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
-	{
-	    list<ConnectionPtr> connections = (*p)->connections();
-	    if(!connections.empty())
-	    {
-		tr = (*connections.begin())->getTransportInfo();
-		break;
-	    }
-	}
-
-	//
-	// If there is no incoming connection for the object adapter,
-	// we return a null proxy.
-	//
-	if(!tr)
-	{
-	    return 0;
-	}
+	list<ConnectionPtr> cons = (*p)->connections();
+	copy(cons.begin(), cons.end(), back_inserter(connections));
     }
 
     //
@@ -485,7 +467,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident, const TransportIn
     //
     vector<EndpointPtr> endpoints;
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, tr, true);
+							     false, "", endpoints, 0, 0, connections, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -535,8 +517,9 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
 
+/*
 LocatorPrx
-Ice::ObjectAdapterI::getLocator()
+Ice::ObjectAdapterI::getLocator() const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -551,6 +534,7 @@ Ice::ObjectAdapterI::getLocator()
 
     return locator;
 }
+*/
 
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
@@ -603,25 +587,6 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	
     return false;
 }
-
-/*
-list<ConnectionPtr>
-Ice::ObjectAdapterI::getIncomingConnections() const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
-    list<ConnectionPtr> connections;
-    vector<IncomingConnectionFactoryPtr>::const_iterator p;
-    for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
-    {
-	list<ConnectionPtr> cons = (*p)->connections();
-	connections.splice(connections.end(), cons);
-    }
-    return connections;
-}
-*/
 
 void
 Ice::ObjectAdapterI::flushBatchRequests()
@@ -823,7 +788,8 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
-								 endpoints, 0, _locatorInfo, 0, true);
+								 endpoints, 0, _locatorInfo,
+								 vector<ConnectionPtr>(), true);
 
 	//
 	// Return a proxy for the reference. 
@@ -855,7 +821,8 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, _locatorInfo, 0, true);
+							     false, "", endpoints, 0, _locatorInfo,
+							     vector<ConnectionPtr>(), true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

@@ -14,9 +14,8 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter, const TransportInfoPtr& transport) :
-    Glacier::Blobject(clientAdapter->getCommunicator(), true),
-    _clientAdapter(clientAdapter),
+Glacier::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const TransportInfoPtr& transport) :
+    Glacier::Blobject(communicator, true),
     _transport(transport)
 {
 }
@@ -28,7 +27,6 @@ Glacier::ServerBlobject::destroy()
     // No mutex protection necessary, destroy is only called after all
     // object adapters have shut down.
     //
-    _clientAdapter = 0;
     _transport = 0;
     Blobject::destroy();
 }
@@ -37,9 +35,9 @@ void
 Glacier::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					  const Current& current)
 {
-    assert(_clientAdapter); // Destroyed?
+    assert(_transport); // Destroyed?
 
-    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.id, _transport);
+    ObjectPrx proxy = _transport->createProxy(current.id);
     assert(proxy);
 
     invoke(proxy, amdCB, inParams, current);

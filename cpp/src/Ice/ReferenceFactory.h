@@ -25,7 +25,7 @@ public:
 
     ReferencePtr create(const Ice::Identity&, const Ice::Context&, const std::string&,
 			Reference::Mode, bool, const std::string&, const std::vector<EndpointPtr>&,
-			const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::TransportInfoPtr&, bool);
+			const RouterInfoPtr&, const LocatorInfoPtr&, const std::vector<ConnectionPtr>&, bool);
     ReferencePtr create(const std::string&);
     ReferencePtr create(const Ice::Identity&, BasicStream*);
 

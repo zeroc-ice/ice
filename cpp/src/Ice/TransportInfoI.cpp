@@ -9,6 +9,9 @@
 
 #include <Ice/TransportInfoI.h>
 #include <Ice/Connection.h>
+#include <Ice/ReferenceFactory.h>
+#include <Ice/ProxyFactory.h>
+#include <Ice/Instance.h>
 
 using namespace std;
 using namespace Ice;
@@ -33,16 +36,27 @@ Ice::TransportInfoI::flushBatchRequests()
     }
 }
 
+ObjectPrx
+Ice::TransportInfoI::createProxy(const Identity& ident) const
+{
+    IceUtil::Mutex::Lock sync(_connectionMutex);
+
+    //
+    // Create a reference and return a reverse proxy for this
+    // reference.
+    //
+    vector<EndpointPtr> endpoints;
+    vector<ConnectionPtr> connections;
+    connections.push_back(_connection);
+    ReferencePtr ref = _connection->instance()->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
+									   false, "", endpoints, 0, 0,
+									   connections, true);
+    return _connection->instance()->proxyFactory()->referenceToProxy(ref);
+}
+
 void
 Ice::TransportInfoI::setConnection(const ConnectionPtr& connection)
 {
     IceUtil::Mutex::Lock sync(_connectionMutex);
     _connection = connection;
-}
-
-ConnectionPtr
-Ice::TransportInfoI::getConnection() const
-{
-    IceUtil::Mutex::Lock sync(_connectionMutex);
-    return _connection;
 }

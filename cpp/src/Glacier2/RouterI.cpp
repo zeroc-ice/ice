@@ -138,4 +138,3 @@ Glacier::RouterI::createSession(const Current&)
 
     return _session;
 }
-

@@ -9,8 +9,6 @@
 
 #include <IceUtil/Base64.h>
 #include <Ice/Application.h>
-#include <IceSSL/CertificateVerifierF.h>
-#include <IceSSL/Plugin.h>
 #include <Glacier2/ServantLocator.h>
 
 using namespace std;
@@ -66,42 +64,6 @@ Glacier::RouterApp::run(int argc, char* argv[])
     }
 
     PropertiesPtr properties = communicator()->getProperties();
-
-    string clientConfig = properties->getProperty("IceSSL.Client.Config");
-    string serverConfig = properties->getProperty("IceSSL.Server.Config");
-
-    //
-    // Only do this if we've been configured for SSL.
-    //
-    if(!clientConfig.empty() && !serverConfig.empty())
-    {
-        IceSSL::ContextType contextType = IceSSL::ClientServer;
-
-        //
-        // Get the SSL plugin.
-        //
-        PluginManagerPtr pluginManager = communicator()->getPluginManager();
-        PluginPtr plugin = pluginManager->getPlugin("IceSSL");
-        IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
-        assert(sslPlugin);
-
-        //
-        // The plug-in must configure itself (using config files as specified).
-        //
-        sslPlugin->configure(contextType);
-
-        // If we have been told only to only accept a single certificate.
-        string clientCertBase64 = properties->getProperty("Glacier2.AcceptCert");
-        if(!clientCertBase64.empty())
-        {
-            // Install a Certificate Verifier that only accepts indicated certificate.
-            ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
-            sslPlugin->setCertificateVerifier(contextType, sslPlugin->getSingleCertVerifier(clientCert));
-        
-            // Add the Client's certificate as a trusted certificate.
-            sslPlugin->addTrustedCertificateBase64(contextType, clientCertBase64);
-        }
-    }
 
     //
     // Initialize the client object adapter and servant locator.

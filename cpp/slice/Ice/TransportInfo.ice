@@ -10,6 +10,8 @@
 #ifndef ICE_TRANSPORT_INFO_ICE
 #define ICE_TRANSPORT_INFO_ICE
 
+#include <Ice/Identity.ice>
+
 module Ice
 {
 
@@ -28,6 +30,26 @@ local interface TransportInfo
      *
      **/
     void flushBatchRequests();
+
+    /**
+     *
+     * Create a proxy that always uses this connection. This is
+     * typically used for reverse communications using connections
+     * that have been established from a client to an object adapter.
+     *
+     * <note><para> This operation is intended to be used by special
+     * services, such as [Router] implementations. Regular user code
+     * should not attempt to use this operation. </para></note>
+     *
+     * @param id The identity for which a proxy is to be created.
+     *
+     * @return A proxy that matches the given identity and uses this
+     * connection.
+     *
+     * @see Identity
+     *
+     **/
+    nonmutating Object* createProxy(Identity id);
 
     /**
      *

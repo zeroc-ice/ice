@@ -417,22 +417,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     public synchronized ObjectPrx
-    createReverseProxy(Identity ident, TransportInfo transport)
+    createReverseProxy(Identity ident)
     {
 	checkForDeactivation();
         checkIdentity(ident);
 
-        //
-        // Create a reference and return a reverse proxy for this
-        // reference.
-        //
-        IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-        IceInternal.Reference ref =
-            _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
-						IceInternal.Reference.ModeTwoway, false,
-						"", endpoints, null, null, this, true);
+	// TODO
+	assert(false);
 
-        return _instance.proxyFactory().referenceToProxy(ref);
+        return null;
     }
 
     public synchronized void

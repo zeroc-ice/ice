@@ -23,16 +23,13 @@ class ICE_PROTOCOL_API TransportInfoI : public TransportInfo
 public:
 
     virtual void flushBatchRequests();
+    virtual ObjectPrx createProxy(const Identity& ident) const;
 
 private:
 
     // This method is for IceInternal::Connection only.
     friend class IceInternal::Connection;
     void setConnection(const IceInternal::ConnectionPtr&);
-
-    // IceInternal::Reference needs this method.
-    friend class IceInternal::Reference;
-    IceInternal::ConnectionPtr getConnection() const;
 
     IceInternal::ConnectionPtr _connection;
     IceUtil::Mutex _connectionMutex;

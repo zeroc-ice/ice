@@ -233,7 +233,7 @@ Glacier::RequestQueue::run()
 		(*p)->invoke(_forwardContext);
 	    }
 
-	    for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(TransportInfo::flushBatchRequests));
+	    for_each(flushSet.begin(), flushSet.end(), Ice::voidMemFun(&TransportInfo::flushBatchRequests));
 	}
         catch(const Ice::Exception& ex)
         {
