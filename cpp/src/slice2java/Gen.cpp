@@ -475,8 +475,9 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope,
     ExceptionList::size_type localCount = 0;
 
     //
-    // MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
-    // hence the exceptionIsLocal function.
+    // MSVC gets confused if
+    // ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used hence
+    // the exceptionIsLocal function.
     //
     localCount = count_if(throws.begin(), throws.end(),	exceptionIsLocal);
 
@@ -1176,7 +1177,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         throws.unique();
 
 	//
-	// MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// MSVC gets confused if
+	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
         remove_if(throws.begin(), throws.end(), exceptionIsLocal);
@@ -3076,7 +3078,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
 
 	//
-	// MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// MSVC gets confused if
+	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
         remove_if(throws.begin(), throws.end(), exceptionIsLocal);
