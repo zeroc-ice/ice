@@ -155,40 +155,44 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     finished()
     {
+        assert(_state == StateClosed || _state == StateHolding);
+
         _threadPool.promoteFollower();
 
-        assert(_state == StateClosed);
-        assert(_connections.isEmpty());
-
-        try
+        if (_state == StateClosed)
         {
-            //
-            // Clear listen() backlog properly by accepting all queued
-            // connections, and then shutting them down.
-            //
-            while (true)
+            assert(_connections.isEmpty());
+
+            try
             {
-                try
+                //
+                // Clear listen() backlog properly by accepting all queued
+                // connections, and then shutting them down.
+                //
+                while (true)
                 {
-                    Transceiver transceiver = _acceptor.accept(0);
-                    Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
-                    connection.exception(new Ice.ObjectAdapterDeactivatedException());
-                }
-                catch (Ice.TimeoutException ex)
-                {
-                    break; // Exit loop on timeout.
+                    try
+                    {
+                        Transceiver transceiver = _acceptor.accept(0);
+                        Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+                        connection.exception(new Ice.ObjectAdapterDeactivatedException());
+                    }
+                    catch (Ice.TimeoutException ex)
+                    {
+                        break; // Exit loop on timeout.
+                    }
                 }
             }
-        }
-        catch (Ice.LocalException ex)
-        {
-            if (_warn)
+            catch (Ice.LocalException ex)
             {
-                warning(ex);
+                if (_warn)
+                {
+                    warning(ex);
+                }
             }
-        }
 
-        _acceptor.close();
+            _acceptor.close();
+        }
     }
 
     public void
@@ -307,14 +311,14 @@ public class IncomingConnectionFactory extends EventHandler
 
             case StateHolding:
             {
-                if (_state != StateActive) // Can only switch from active to
-                {                          // holding
+                if (_state != StateActive) // Can only switch from active to holding
+                {
                     return;
                 }
 
                 if (_threadPool != null)
                 {
-                    _threadPool.unregister(_acceptor.fd(), false);
+                    _threadPool.unregister(_acceptor.fd());
                 }
 
                 java.util.ListIterator iter = _connections.listIterator();
@@ -338,7 +342,7 @@ public class IncomingConnectionFactory extends EventHandler
                     {
                         _threadPool._register(_acceptor.fd(), this);
                     }
-                    _threadPool.unregister(_acceptor.fd(), true);
+                    _threadPool.unregister(_acceptor.fd());
                 }
 
                 java.util.ListIterator iter = _connections.listIterator();

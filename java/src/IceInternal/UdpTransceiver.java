@@ -195,6 +195,7 @@ final class UdpTransceiver implements Transceiver
         try
         {
             _fd = Network.createUdpSocket();
+            Network.setBlock(_fd, false);
             _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
@@ -226,6 +227,7 @@ final class UdpTransceiver implements Transceiver
         try
         {
             _fd = Network.createUdpSocket();
+            Network.setBlock(_fd, false);
             java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
             _addr = Network.doBind(_fd, addr);
 

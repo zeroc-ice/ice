@@ -76,10 +76,11 @@ public final class Connection extends EventHandler
         try
         {
 	    assert(_proxyUsageCount >= 0);
-	    if (--_proxyUsageCount == 0)
+	    --_proxyUsageCount;
+	    if (_proxyUsageCount == 0 && _adapter == null)
 	    {
 		assert(_requests.isEmpty());
-		setState(StateClosing);
+		setState(StateClosing, new Ice.CloseConnectionException());
 	    }
 	}
         finally
@@ -285,6 +286,25 @@ public final class Connection extends EventHandler
         _mutex.lock();
         try
         {
+            //
+            // In closed and holding state, we are not registered with the
+            // thread pool. For all other states, we have to notify the thread
+            // pool in case this event handler changed from a client to a
+            // server or vice versa.
+            //
+            if (_state != StateHolding && _state != StateClosed)
+            {
+                if (adapter != null && _adapter == null)
+                {
+                    _threadPool.clientIsNowServer();
+                }
+                
+                if (adapter == null && _adapter != null)
+                {
+                    _threadPool.serverIsNowClient();
+                }
+            }
+
             _adapter = adapter;
         }
         finally
@@ -611,11 +631,14 @@ public final class Connection extends EventHandler
         _mutex.lock();
         try
         {
+            assert(_state == StateClosed || _state == StateHolding);
+
             _threadPool.promoteFollower();
 
-            assert(_state == StateClosed);
-
-            _transceiver.close();
+            if (_state == StateClosed)
+            {
+                _transceiver.close();
+            }
         }
         finally
         {
@@ -651,7 +674,7 @@ public final class Connection extends EventHandler
 
         try
         {
-            setState(StateClosing);
+            setState(StateClosing, new Ice.CloseConnectionException());
             return true;
         }
         finally
@@ -810,7 +833,7 @@ public final class Connection extends EventHandler
                 {
                     return;
                 }
-                _threadPool.unregister(_transceiver.fd(), false);
+                _threadPool.unregister(_transceiver.fd());
                 break;
             }
 
@@ -841,7 +864,7 @@ public final class Connection extends EventHandler
                     //
                     _threadPool._register(_transceiver.fd(), this);
                 }
-                _threadPool.unregister(_transceiver.fd(), true);
+                _threadPool.unregister(_transceiver.fd());
                 break;
             }
         }

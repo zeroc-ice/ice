@@ -21,7 +21,6 @@ public final class Network
             java.net.Socket socket = fd.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
-            fd.configureBlocking(false);
             return fd;
         }
         catch (java.io.IOException ex)
@@ -45,7 +44,6 @@ public final class Network
             //java.net.Socket socket = fd.socket();
             //socket.setTcpNoDelay(true);
             //socket.setKeepAlive(true);
-            fd.configureBlocking(false);
             return fd;
         }
         catch (java.io.IOException ex)
@@ -61,9 +59,22 @@ public final class Network
     {
         try
         {
-            java.nio.channels.DatagramChannel fd = java.nio.channels.DatagramChannel.open();
-            fd.configureBlocking(false);
-            return fd;
+            return java.nio.channels.DatagramChannel.open();
+        }
+        catch (java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static void
+    setBlock(java.nio.channels.SelectableChannel fd, boolean block)
+    {
+        try
+        {
+            fd.configureBlocking(block);
         }
         catch (java.io.IOException ex)
         {
@@ -304,10 +315,6 @@ public final class Network
             java.net.Socket socket = result.socket();
             socket.setTcpNoDelay(true);
             socket.setKeepAlive(true);
-            //
-            // Need to set non-blocking in order to use Selector
-            //
-            result.configureBlocking(false);
         }
         catch (java.io.IOException ex)
         {

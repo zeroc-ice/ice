@@ -58,6 +58,7 @@ class TcpAcceptor implements Acceptor
     accept(int timeout)
     {
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd, timeout);
+        Network.setBlock(fd, false);
 
         if (_traceLevels.network >= 1)
         {
@@ -102,6 +103,7 @@ class TcpAcceptor implements Acceptor
         try
         {
             _fd = Network.createTcpServerSocket();
+            Network.setBlock(_fd, false);
             java.net.InetSocketAddress addr = new java.net.InetSocketAddress(host, port);
             _addr = Network.doBind(_fd, addr);
         }
