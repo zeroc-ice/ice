@@ -838,8 +838,11 @@ enum_def
 '{' enumerator_list '}'
 {
     EnumPtr en = EnumPtr::dynamicCast($3);
-    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-    en->setEnumerators(enumerators->v);
+    if (en)
+    {
+	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+	en->setEnumerators(enumerators->v);
+    }
 }
 | ICE_ENUM keyword
 {

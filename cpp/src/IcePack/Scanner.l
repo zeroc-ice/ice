@@ -24,27 +24,24 @@ using namespace IcePack;
 
 WS	[ \t\v\f]
 NL	[\n\r]
-S	[ \t]
-D	[0-9]
-L	[a-zA-Z_]
 
 %option noyywrap
 
 %%
 
-^"#"{S}*{D}+{S}*$ {
+^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
     parser->scanPosition(yytext);
 }
 
-^"#"{S}*{D}+{S}+"\""[^\"]*"\"".*$ {
+^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
     parser->scanPosition(yytext);
 }
 
-^"#"{S}*"line"{S}+{D}+{S}*$ {
+^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
     parser->scanPosition(yytext);
 }
 
-^"#"{S}*"line"{S}+{D}+{S}+"\""[^\"]*"\"".*$ {
+^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
     parser->scanPosition(yytext);
 }
 
