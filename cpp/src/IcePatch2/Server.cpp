@@ -22,6 +22,26 @@ using namespace IcePatch2;
 namespace IcePatch2
 {
 
+class AdminI : public Admin
+{
+public:
+    
+    AdminI(const CommunicatorPtr& communicator) :
+	_communicator(communicator)
+    {
+    }
+
+    virtual void
+    shutdown(const Current&)
+    {
+	_communicator->shutdown();
+    }
+
+private:
+
+    const CommunicatorPtr _communicator;
+};
+
 class PatcherService : public Service
 {
 public:
@@ -149,7 +169,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     {
 	const char* adminIdProperty = "IcePatch2.AdminIdentity";
 	Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IcePatch2/admin"));
-//	adminAdapter->add(new AdminI(communicator()), adminId);
+	adminAdapter->add(new AdminI(communicator()), adminId);
     }
 
     adapter->activate();

@@ -21,7 +21,7 @@ using namespace IcePatch2;
 
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(communicator->getProperties()->getProperty("IcePatch2.Directory")),
+    _dataDir(normalize(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
     _dryRun(communicator->getProperties()->getPropertyAsInt("IcePatch2.DryRun") > 0),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
@@ -50,11 +50,6 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     
     const_cast<string&>(_dataDir) = normalize(string(cwd) + '/' + _dataDir);
     
-    if(chdir(_dataDir.c_str()) == -1)
-    {
-	throw "cannot change directory to `" + _dataDir + "': " + strerror(errno);
-    }
-
     PropertiesPtr properties = communicator->getProperties();
 
     const char* endpointsProperty = "IcePatch2.Endpoints";
@@ -106,7 +101,7 @@ IcePatch2::Patcher::patch()
     
     if(thorough)
     {
-	getFileInfoSeq(".", infoSeq, false, false, false);
+	getFileInfoSeq(_dataDir, infoSeq, false, false, false);
 	saveFileInfoSeq(_dataDir, infoSeq);
     }
         
@@ -261,7 +256,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 	
 	while(p != files.end())
 	{
-	    removeRecursive(p->path);
+	    removeRecursive(_dataDir + '/' + p->path);
 	    
 	    string dir = p->path + '/';
 	    
@@ -297,7 +292,7 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 	{
 	    if(!_dryRun)
 	    {
-		createDirectoryRecursive(p->path);
+		createDirectoryRecursive(_dataDir + '/' + p->path);
 		
 		{
 		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -309,7 +304,7 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 	{
 	    _feedback->patchStart(p->path, p->size, updated, total);
 
-	    string pathBZ2 = p->path + ".bz2";
+	    string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
 	    ofstream fileBZ2;
 	    
 	    if(!_dryRun)
@@ -425,8 +420,8 @@ IcePatch2::Patcher::run()
 	
 	try
 	{
-	    decompressFile(info.path);
-	    remove(info.path + ".bz2");
+	    decompressFile(_dataDir + '/' + info.path);
+	    remove(_dataDir + '/' + info.path + ".bz2");
 	}
 	catch(const string& ex)
 	{

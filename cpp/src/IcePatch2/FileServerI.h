@@ -20,7 +20,7 @@ class FileServerI : public FileServer
 {
 public:
 
-    FileServerI(const FileInfoSeq&);
+    FileServerI(const std::string&, const FileInfoSeq&);
 
     FileInfoSeq getFileInfo1Seq(Ice::Int, const Ice::Current&) const;
 
@@ -32,6 +32,7 @@ public:
 
 private:
 
+    const std::string _dataDir;
     const FileTree0 _tree0;
 };
 

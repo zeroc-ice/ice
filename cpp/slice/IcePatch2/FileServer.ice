@@ -39,6 +39,22 @@ interface FileServer
 	throws FileAccessException;
 };
 
+/**
+ *
+ * The &IcePatch2; administrative interface. This must only be
+ * accessible from inside the firewall.
+ *
+ **/
+interface Admin
+{
+    /**
+     *
+     * Shut down the &IcePatch2; server.
+     *
+     **/
+    idempotent void shutdown();
+};
+
 };
 
 #endif

@@ -101,13 +101,8 @@ main(int argc, char* argv[])
 
 	dataDir = normalize(string(cwd) + '/' + dataDir);
 
-	if(chdir(dataDir.c_str()) == -1)
-	{
-	    throw "cannot change directory to `" + dataDir + "': " + strerror(errno);
-	}
-
 	FileInfoSeq infoSeq;
-	getFileInfoSeq(".", infoSeq, true, compress, verbose);
+	getFileInfoSeq(dataDir, infoSeq, true, compress, verbose);
 	saveFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)

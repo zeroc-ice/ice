@@ -22,7 +22,8 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
-IcePatch2::FileServerI::FileServerI(const FileInfoSeq& infoSeq)
+IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
+    _dataDir(dataDir)
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
@@ -61,7 +62,7 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 ByteSeq
 IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, const Current&) const
 {
-    string path = normalize(pa);
+    string path = normalize(_dataDir + '/' + pa);
     path += ".bz2";
 
     if(num <= 0 || pos < 0)

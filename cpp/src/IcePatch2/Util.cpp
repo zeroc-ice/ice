@@ -532,9 +532,10 @@ IcePatch2::decompressFile(const string& pa)
 }
 
 static void
-getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
+getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileInfoSeq& infoSeq,
+		       bool size, bool compress, bool verbose)
 {
-    const string path = normalize(pa);
+    const string path = basePath + '/' + relativePath;
 
     if(ignoreSuffix(path))
     {
@@ -590,11 +591,11 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
     if(S_ISDIR(buf.st_mode))
     {
 	FileInfo info;
-	info.path = path;
+	info.path = relativePath;
 	info.size = -1;
 
-	ByteSeq bytes(path.size());
-	copy(path.begin(), path.end(), bytes.begin());
+	ByteSeq bytes(relativePath.size());
+	copy(relativePath.begin(), relativePath.end(), bytes.begin());
 
 	ByteSeq bytesSHA(20);
 	SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
@@ -606,17 +607,17 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
 	StringSeq content = readDirectory(path);
 	for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
 	{
-	    getFileInfoSeqNoSort(path + '/' + *p, infoSeq, size, compress, verbose);
+	    getFileInfoSeqInternal(basePath, normalize(relativePath + '/' + *p), infoSeq, size, compress, verbose);
 	}
     }
     else if(S_ISREG(buf.st_mode))
     {
 	FileInfo info;
-	info.path = path;
+	info.path = relativePath;
 	info.size = 0;
 
-	ByteSeq bytes(path.size() + buf.st_size);
-	copy(path.begin(), path.end(), bytes.begin());
+	ByteSeq bytes(relativePath.size() + buf.st_size);
+	copy(relativePath.begin(), relativePath.end(), bytes.begin());
 
 	if(buf.st_size != 0)
 	{
@@ -642,7 +643,7 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
 		throw "cannot open `" + path + "' for reading: " + strerror(errno);
 	    }
 
-	    if(read(fd, &bytes[path.size()], buf.st_size) == -1)
+	    if(read(fd, &bytes[relativePath.size()], buf.st_size) == -1)
 	    {
 		close(fd);
 		throw "cannot read `" + path + "': " + strerror(errno);
@@ -653,7 +654,7 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
 	    if(compress)
 	    {
 		string pathBZ2 = path + ".bz2";
-		compressBytesToFile(pathBZ2, bytes, path.size());
+		compressBytesToFile(pathBZ2, bytes, relativePath.size());
 	    }
 
 	    if(size)
@@ -696,7 +697,10 @@ getFileInfoSeqNoSort(const string& pa, FileInfoSeq& infoSeq, bool size, bool com
 void
 IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
 {
-    getFileInfoSeqNoSort(pa, infoSeq, size, compress, verbose);
+    const string path = normalize(pa);
+
+    getFileInfoSeqInternal(path, ".", infoSeq, size, compress, verbose);
+
     sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
 }

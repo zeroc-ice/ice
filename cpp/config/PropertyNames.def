@@ -244,6 +244,7 @@ IcePatch2:
     Admin.ThreadPool.SizeMax
     Admin.ThreadPool.SizeWarn
     Admin.ThreadPool.StackSize
+    ChunkSize
     Directory
     DryRun
     Endpoints

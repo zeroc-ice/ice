@@ -41,21 +41,30 @@ class ICE_PATCH2_API Patcher : public IceUtil::Thread, IceUtil::Monitor<IceUtil:
 public:
 
     Patcher(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-    ~Patcher();
+    virtual ~Patcher();
 
     void patch();
 
-    virtual void run();
-    
 private:
 
-    const Ice::CommunicatorPtr _communicator;
-    const PatcherFeedbackPtr _feedback;
+    void removeFiles(const FileInfoSeq&);
+    void updateFiles(const FileInfoSeq&);
 
-    bool _stop;
-    std::string _exception;
-    std::list<FileInfo> _infoSeq;
+    virtual void run();
+
+    const PatcherFeedbackPtr _feedback;
+    const std::string _dataDir;
+    const bool _dryRun;
+    const bool _thorough;
+    const Ice::Int _chunkSize;
+    const FileServerPrx _serverCompress;
+    const FileServerPrx _serverNoCompress;
+
     std::ofstream _fileLog;
+
+    bool _decompress;
+    std::string _decompressException;
+    std::list<FileInfo> _decompressList;
 };
 
 typedef IceUtil::Handle<Patcher> PatcherPtr;
