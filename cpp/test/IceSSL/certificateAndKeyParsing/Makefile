@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2001
+# Copyright (c) 2002
 # MutableRealms, Inc.
 # Huntsville, AL, USA
 #
@@ -14,7 +14,7 @@ CLIENT		= certificateAndKeyParsing
 
 TARGETS		= $(CLIENT)
 
-OBJS		= Test.o
+OBJS		= CertificateAndKeyParsing.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
