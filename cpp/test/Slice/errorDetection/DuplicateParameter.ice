@@ -11,15 +11,15 @@
 class Foo
 {
     string bar1(string s, int s);
-    string bar2(string s; int s);
-    string bar3(; string s, int s);
-    string bar4(string s, int i; int i);
+    string bar2(string s, out int s);
+    string bar3(out string s, out int s);
+    string bar4(string s, int i, out int i);
 };
 
 interface IFoo
 {
     string bar1(string s, int s);
-    string bar2(string s; int s);
-    string bar3(; string s, int s);
-    string bar4(string s, int i; int i);
+    string bar2(string s, out int s);
+    string bar3(out string s, out int s);
+    string bar4(string s, int i, out int i);
 };

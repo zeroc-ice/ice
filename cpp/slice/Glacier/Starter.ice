@@ -71,8 +71,8 @@ interface Starter
      * given user id is not correct.
      *
      **/
-    Glacier::Router* startRouter(string userId, string password;
-			     Ice::ByteSeq privateKey, Ice::ByteSeq publicKey, Ice::ByteSeq routerCert)
+    Glacier::Router* startRouter(string userId, string password,
+			     out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
 	throws InvalidPasswordException, CannotStartRouterException;
 };
 

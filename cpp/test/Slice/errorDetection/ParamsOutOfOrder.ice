@@ -10,6 +10,6 @@
 
 interface Foo
 {
-    int bar(string, long l, out bool, out short s);
-    int bar2(string s, long, out bool b, out short);
+    void bar(long l1, out long l2, long l3);
+    void baz(out long l2, long l3);
 };

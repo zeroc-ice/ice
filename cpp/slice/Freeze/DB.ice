@@ -216,7 +216,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void curr(; Key k, Value v) throws DBException;
+    void curr(out Key k, out Value v) throws DBException;
 
     /**
      *

@@ -17,6 +17,7 @@ namespace Slice
 {
 
 class StringTok;
+class TypeStringTok;
 class TypeStringListTok;
 class StringListTok;
 class BoolTok;
@@ -25,6 +26,7 @@ class ClassListTok;
 class EnumeratorListTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
+typedef ::IceUtil::Handle<TypeStringTok> TypeStringTokPtr;
 typedef ::IceUtil::Handle<TypeStringListTok> TypeStringListTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
 typedef ::IceUtil::Handle<BoolTok> BoolTokPtr;
@@ -42,6 +44,18 @@ public:
 
     StringTok() { }
     std::string v;
+};
+
+// ----------------------------------------------------------------------
+// TypeStringTok
+// ----------------------------------------------------------------------
+
+class SLICE_API TypeStringTok : public GrammarBase
+{
+public:
+
+    TypeStringTok() { }
+    TypeString v;
 };
 
 // ----------------------------------------------------------------------

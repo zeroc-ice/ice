@@ -43,6 +43,7 @@ yyerror(const char* s)
 %token ICE_SEQUENCE
 %token ICE_DICTIONARY
 %token ICE_ENUM
+%token ICE_OUT
 %token ICE_EXTENDS
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
@@ -819,43 +820,60 @@ operation
 ;
  
 // ----------------------------------------------------------------------
-parameters
+param_decl
 // ----------------------------------------------------------------------
-: type ICE_IDENTIFIER ',' parameters
+: type ICE_IDENTIFIER
 {
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
-    parms->v.push_front(make_pair(type, ident->v));
-    $$ = parms;
-}
-| type ICE_IDENTIFIER
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr parms = new TypeStringListTok;
-    parms->v.push_front(make_pair(type, ident->v));
-    $$ = parms;
-}
-| type ',' parameters
-{
-    unit->error("missing declarator");
-    $$ = $3
-}
-| type
-{
-    unit->error("missing declarator");
-    $$ = new TypeStringListTok;
-}
-| type keyword ',' parameters
-{
-    unit->error("keyword cannot be used as declarator");
-    $$ = $4
+    TypeStringTokPtr typestring = new TypeStringTok;
+    typestring->v = make_pair(type, ident->v);
+    $$ = typestring;
 }
 | type keyword
 {
-    unit->error("keyword cannot be used as declarator");
-    $$ = new TypeStringListTok;
+    unit->error("keyword cannot be used as a parameter name");
+    $$ = new TypeStringTok;
+}
+| type
+{
+    TypePtr type = TypePtr::dynamicCast($1);
+    unit->error("missing parameter name");
+    $$ = new TypeStringTok;
+}
+;
+
+// ----------------------------------------------------------------------
+out_param_decl
+// ----------------------------------------------------------------------
+: ICE_OUT param_decl
+{
+    $$ = $2;
+}
+|
+out_param_decl ',' param_decl
+{
+    unit->error("in parameters cannot follow out parameters");
+    $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+parameters
+// ----------------------------------------------------------------------
+:  param_decl ',' parameters
+{
+    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($3);
+    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    parms->v.push_front(typestring->v);
+    $$ = parms;
+}
+| param_decl
+{
+    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    TypeStringListTokPtr parms = new TypeStringListTok;
+    parms->v.push_front(typestring->v);
+    $$ = parms;
 }
 |
 {
@@ -866,9 +884,32 @@ parameters
 // ----------------------------------------------------------------------
 output_parameters
 // ----------------------------------------------------------------------
+
+//
+// TODO: remove the first rule before releasing stable_39 -- the syntax
+// for out parameters has changed to use the out keyword, and the
+// semicolon syntax is deprecated for stable_38, to be removed with
+// stable_39.
+//
 : ';' parameters
 {
+    unit->warning("Deprecated use of semicolon to indicate out parameters");
+    unit->warning("Use the out keyword instead");
     $$ = $2
+}
+| out_param_decl ',' output_parameters
+{
+    TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($3);
+    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    parms->v.push_front(typestring->v);
+    $$ = parms;
+}
+| out_param_decl
+{
+    TypeStringTokPtr typestring = TypeStringTokPtr::dynamicCast($1);
+    TypeStringListTokPtr parms = new TypeStringListTok;
+    parms->v.push_front(typestring->v);
+    $$ = parms;
 }
 |
 {
@@ -1124,6 +1165,9 @@ keyword
 {
 }
 | ICE_ENUM
+{
+}
+| ICE_OUT
 {
 }
 ;

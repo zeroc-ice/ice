@@ -62,7 +62,7 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(ObjectAdapter adapter, Current current; LocalObject cookie);
+    Object locate(ObjectAdapter adapter, Current current, out LocalObject cookie);
 
     /**
      *

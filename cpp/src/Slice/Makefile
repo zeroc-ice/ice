@@ -39,6 +39,7 @@ $(NAME): $(VERSIONED_NAME)
 	ln -s $(VERSIONED_BASE) $@
 
 Grammar.cpp Grammar.h: Grammar.y
+	@echo "Expect 1 shift/reduce conflict"
 	bison -dvt Grammar.y
 	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
 	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h

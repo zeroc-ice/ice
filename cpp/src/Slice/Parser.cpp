@@ -1352,7 +1352,14 @@ Slice::ClassDef::createOperation(const string& name,
 	    ++q;
 	    while (q != allParams.end())
 	    {
-		if (p->second == q->second)
+		//
+		// Complain about duplicate parameters only if they are
+		// non-empty; otherwise, we get a complaint about duplicates
+		// if two or more parameter names are missing in an operation
+		// signature (but the missing parameters have been reported
+		// already).
+		//
+		if (p->second == q->second && p->second != "")
 		{
 		    string msg = "duplicate parameter `";
 		    msg += p->second;

@@ -15,9 +15,9 @@
 
 class KeyManager
 {
-    void getServerCerts(; Ice::ByteSeq trusted, Ice::ByteSeq untrusted);
-    void getTrustedClientKeys(; Ice::ByteSeq key, Ice::ByteSeq cert);
-    void getUntrustedClientKeys(; Ice::ByteSeq key, Ice::ByteSeq cert);
+    void getServerCerts(out Ice::ByteSeq trusted, out Ice::ByteSeq untrusted);
+    void getTrustedClientKeys(out Ice::ByteSeq key, out Ice::ByteSeq cert);
+    void getUntrustedClientKeys(out Ice::ByteSeq key, out Ice::ByteSeq cert);
     void shutdown();
 };
 

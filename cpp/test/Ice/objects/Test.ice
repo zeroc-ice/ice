@@ -44,7 +44,7 @@ class Initial
     B getB2();
     C getC();
     D getD();
-    void getAll(; B b1, B b2, C c, D d);
+    void getAll(out B b1, out B b2, out C c, out D d);
     void addFacetsToB1();
 };
 

@@ -6,10 +6,10 @@ IllegalUseOfKeyword.ice:23: keyword cannot be used as class name
 IllegalUseOfKeyword.ice:25: keyword cannot be used as class name
 IllegalUseOfKeyword.ice:32: keyword cannot be used as interface name
 IllegalUseOfKeyword.ice:38: keyword cannot be used as operation name
-IllegalUseOfKeyword.ice:40: keyword cannot be used as declarator
-IllegalUseOfKeyword.ice:40: keyword cannot be used as declarator
-IllegalUseOfKeyword.ice:42: keyword cannot be used as declarator
-IllegalUseOfKeyword.ice:42: keyword cannot be used as declarator
+IllegalUseOfKeyword.ice:40: keyword cannot be used as a parameter name
+IllegalUseOfKeyword.ice:40: keyword cannot be used as a parameter name
+IllegalUseOfKeyword.ice:42: keyword cannot be used as a parameter name
+IllegalUseOfKeyword.ice:42: keyword cannot be used as a parameter name
 IllegalUseOfKeyword.ice:47: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:48: keyword cannot be used as data member name
 IllegalUseOfKeyword.ice:49: keyword cannot be used as data member name

@@ -231,6 +231,14 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
+"out" {
+    return ICE_OUT;
+}
+
+"out"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
 "extends" {
     return ICE_EXTENDS;
 }
