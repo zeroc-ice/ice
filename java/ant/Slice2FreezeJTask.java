@@ -144,20 +144,23 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	//
 	// Determine if the output file needs to be created.
 	//
-	DirectoryScanner scanner = _fileSet.getDirectoryScanner(project);
-        String[] files = scanner.getIncludedFiles();
-
-	java.util.List sliceFiles = new java.util.LinkedList();
-	for (int i = 0; i < files.length; i++)
-	{
-	    File slice = new File(_fileSet.getDir(project), files[i]);
-	    sliceFiles.add(slice);
-	}
-
-	java.util.List tagFiles = new java.util.LinkedList();
-
 	boolean build = false;
+	java.util.List sliceFiles = new java.util.LinkedList();
 
+	if (_fileSet != null)
+	{
+	    DirectoryScanner scanner = _fileSet.getDirectoryScanner(project);
+	    String[] files = scanner.getIncludedFiles();
+	    
+	    for (int i = 0; i < files.length; i++)
+	    {
+		File slice = new File(_fileSet.getDir(project), files[i]);
+		sliceFiles.add(slice);
+	    }
+	}
+	
+	java.util.List tagFiles = new java.util.LinkedList();
+	
 	java.util.Iterator p = _dicts.iterator();
 	while (p.hasNext())
 	{
@@ -168,7 +171,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    //
 	    File tag = new File(_tagDir, "." + ((Dict)p.next()).getName() + ".tag");
 	    tagFiles.add(tag);
-
+	    
 	    if (!build)
 	    {
 		if (!tag.exists())
@@ -176,6 +179,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 		    build = true;
 		    continue;
 		}
+
 		java.util.Iterator q = sliceFiles.iterator();
 		while (q.hasNext())
 		{

@@ -2,10 +2,12 @@
 
     <target name="all">
         <ant dir="phonebook"/>
+        <ant dir="bench"/>
     </target>
 
     <target name="clean">
         <ant dir="phonebook" target="clean"/>
+        <ant dir="bench" target="clean"/>
     </target>
 
 </project>

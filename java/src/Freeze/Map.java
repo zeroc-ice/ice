@@ -130,6 +130,41 @@ public abstract class Map extends java.util.AbstractMap
 	return o;
     }
 
+    //
+    // Proprietary API calls. These are much faster than the
+    // corresponding Java collections API methods since the unwanted
+    // reads are avoided.
+    //
+    public void
+    fastPut(Object key, Object value)
+    {
+	closeIterators();
+
+	byte[] k = encodeKey(key, _db.getCommunicator());
+	byte[] v = encodeValue(value, _db.getCommunicator());
+	_db.put(k, v);
+    }
+
+    //
+    // Returns true if the record was removed, false otherwise.
+    //
+    public boolean
+    fastRemove(Object key)
+    {
+	closeIterators();
+
+	byte[] k = encodeKey(key, _db.getCommunicator());
+	try
+	{
+	    _db.del(k);
+	}
+	catch(Freeze.DBNotFoundException e)
+	{
+	    return false;
+	}
+	return true;
+    }
+
     public void
     clear()
     {
