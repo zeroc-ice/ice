@@ -13,6 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IcePack/ComponentDeployer.h>
+// Remove duplicate empty line.
 
 
 namespace IcePack

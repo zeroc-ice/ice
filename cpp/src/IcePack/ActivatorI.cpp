@@ -158,6 +158,11 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	// Ice logger could be changed to flush the stream and not use
 	// automatic flushing.
 	//
+
+// TODO: ML: Can you be more specific? Sending messages through a pipe
+// is one of the most basic unix mechanisms. I don't see how this
+// could not work.
+
 // 	if(fds[1] != STDERR_FILENO)
 // 	{
 // 	    if(dup2(fds[1], STDERR_FILENO) != STDERR_FILENO)

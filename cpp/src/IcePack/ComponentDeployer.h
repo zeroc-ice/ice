@@ -31,6 +31,9 @@ public:
     virtual void undeploy() = 0;
 };
 
+// TODO: ML: Nonportable. The incRef/decRef declarations must be done
+// before the typedef below. Why not just use IceUtil::Handle in this
+// case?
 typedef ::IceInternal::Handle< ::IcePack::Task> TaskPtr;
 
 void incRef(::IcePack::Task*);
@@ -42,6 +45,9 @@ class DeploySAXParseException : public SAXParseException
 {
 public:
 
+    // TODO: ML: Space is missing: "const Locator* const
+    // locator". Also, why not just const Locator*? What's the point
+    // of making the pointer constant as well?
     DeploySAXParseException(const std::string&, const Locator*const locator);
 
 };
@@ -83,10 +89,16 @@ public:
 
     ComponentDeployHandler(ComponentDeployer&);
 
+    // TODO: ML: Incorrect spacing, should be "const XMLCh*
+    // const". Also, loose the last const -- there is no point in
+    // forcing the pointer itself to be const. (Here and everywhere
+    // else.)
     virtual void characters(const XMLCh *const, const unsigned int);
+    // TODO: ML: AttributeList&.
     virtual void startElement(const XMLCh *const, AttributeList &); 
     virtual void endElement(const XMLCh *const);
 
+    // TODO: ML: No reason to make inline, see style guide.
     virtual void ignorableWhitespace(const XMLCh *const, const unsigned int) { }
     virtual void processingInstruction(const XMLCh *const, const XMLCh *const) { }
     virtual void resetDocument() { }

@@ -69,7 +69,7 @@ public:
 	if(mkdir(_name.c_str(), 0755) != 0)
 	{
 	    DeploymentException ex;
-	    ex.reason = "Couldn't create directory " + _name + ": " + strerror(getSystemErrno());
+	    ex.reason = "couldn't create directory " + _name + ": " + strerror(getSystemErrno());
 	    throw ex;
 	}
     }
@@ -178,7 +178,7 @@ public:
 	if(!configfile)
 	{
 	    DeploymentException ex;
-	    ex.reason = "Couldn't create configuration file: " + _file;
+	    ex.reason = "couldn't create configuration file: " + _file;
 	    throw ex;
 	}
 	
@@ -228,7 +228,7 @@ public:
 	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
-	    os << "Couldn't contact the yellow service: " << lex << endl;
+	    os << "couldn't contact Yellow: " << lex << endl;
 
 	    OfferDeploymentException ex;
 	    ex.reason = os.str();
@@ -383,7 +383,7 @@ IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, c
     
     if(value == 0)
     {
-	throw DeploySAXParseException("Missing attribute '" + name + "'", _locator);
+	throw DeploySAXParseException("missing attribute '" + name + "'", _locator);
     }
 
     return _deployer.substitute(toString(value));
@@ -518,7 +518,10 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
 	delete parser;
 
 	ostringstream os;
-	os << xmlFile << ": UnknownException while parsing file.";
+	// TODO: ML: UnknownException? This it not UnknownException,
+	// that's an unknown exception. UnknownException is an Ice
+	// exception.
+	os << xmlFile << ": UnknownException while parsing file";
 
 	ParserDeploymentException ex;
 	ex.component = _variables["name"];
@@ -533,11 +536,12 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
     {
 	ParserDeploymentException ex;
 	ex.component = _variables["name"];
-	ex.reason = xmlFile + ": Parser returned non null error count";
+	ex.reason = xmlFile + ": parse error";
 	throw ex;
     }    
 }
 
+// TODO: ML: Add space, loose last const.
 void
 IcePack::ComponentDeployer::setDocumentLocator(const Locator*const locator)
 {
@@ -648,7 +652,7 @@ IcePack::ComponentDeployer::substitute(const string& v) const
 	
 	if(end == string::npos)
 	{
-	    throw DeploySAXParseException("Malformed variable name in the '" + value + "' value", _locator);
+	    throw DeploySAXParseException("malformed variable name in the '" + value + "' value", _locator);
 	}
 
 	
@@ -656,7 +660,7 @@ IcePack::ComponentDeployer::substitute(const string& v) const
 	map<string, string>::const_iterator p = _variables.find(name);
 	if(p == _variables.end())
 	{
-	    throw DeploySAXParseException("Unknown variable name in the '" + value + "' value", _locator);
+	    throw DeploySAXParseException("unknown variable name in the '" + value + "' value", _locator);
 	}
 
 	value.replace(beg, end - beg + 1, p->second);

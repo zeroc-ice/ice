@@ -124,7 +124,7 @@ main(int argc, char* argv[])
     }
     else
     {
-	cerr << argv[0] << ": IcePack.Data doesn't contain a valid directory path." << endl;
+	cerr << argv[0] << ": `IcePack.Data' doesn't contain a valid directory path." << endl;
 	return EXIT_FAILURE;
     }
 

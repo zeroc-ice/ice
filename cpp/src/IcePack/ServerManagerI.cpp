@@ -58,9 +58,6 @@ public:
     {
     }
 
-    //
-    // Operations from ObjectFactory
-    //
     virtual Ice::ObjectPtr 
     create(const std::string& type)
     {
@@ -106,7 +103,7 @@ IcePack::ServerI::start(const Current&)
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	if(!_activator)
+	if(!_activator) // TODO: ML: { } missing, here and in several places below.
 	    return false;
 
 	switch(_state)

@@ -44,13 +44,13 @@ public:
 	{
 	    AdapterDeploymentException ex;
 	    ex.adapter = _desc.name;
-	    ex.reason = "Adapter already exist";
+	    ex.reason = "adapter already exist";
 	    throw ex;
 	}
 	catch(const Ice::LocalException& lex)
 	{
 	    ostringstream os;
-	    os << "Couldn't contact the adpater manager: " << lex << endl;
+	    os << "couldn't contact the adpater manager: " << lex << endl;
 
 	    AdapterDeploymentException ex;
 	    ex.adapter = _desc.name;
@@ -277,7 +277,7 @@ IcePack::ServerDeployer::setClassName(const string& name)
 
     if(name.empty())
     {
-	throw DeploySAXParseException("Empty classname element value", _locator);
+	throw DeploySAXParseException("empty classname element value", _locator);
     }
 
     _className = name;
@@ -288,7 +288,7 @@ IcePack::ServerDeployer::setWorkingDirectory(const string& pwd)
 {
     if(pwd.empty())
     {
-	throw DeploySAXParseException("Empty working directory", _locator);
+	throw DeploySAXParseException("no working directory", _locator);
     }
 
     _description.pwd = pwd;
@@ -304,7 +304,7 @@ IcePack::ServerDeployer::addAdapter(const string& name, const string& endpoints)
 
     if(name.empty())
     {
-	throw DeploySAXParseException("Empty adapter name", _locator);
+	throw DeploySAXParseException("no adapter name", _locator);
     }
 
     AdapterDescription desc;
@@ -327,16 +327,17 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
 {
     if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
-	throw DeploySAXParseException("Service are only allows in IceBox servers", _locator);
+	// TODO: ML: Grammar. Should this be "allowed"?
+	throw DeploySAXParseException("services are only allows in IceBox servers", _locator);
     }
 
     if(name.empty())
     {
-	throw DeploySAXParseException("Name attribute value is empty", _locator);
+	throw DeploySAXParseException("name attribute value is empty", _locator);
     }
     if(descriptor.empty())
     {
-	throw DeploySAXParseException("Descriptor attribute value is empty", _locator);
+	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
     }
 
     //

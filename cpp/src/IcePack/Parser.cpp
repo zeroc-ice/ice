@@ -41,20 +41,19 @@ void
 IcePack::Parser::usage()
 {
     cout <<
-        "help                        Print this message.\n"
-        "exit, quit                  Exit this program.\n"
-        "server add NAME PATH LIBRARY_PATH DESCRIPTOR\n"
-        "                            Add server NAME with PATH.\n"
-	"server describe NAME        Get server NAME description.\n"
-	"server state NAME           Get server NAME state.\n"
-	"server start NAME           Starts server NAME.\n"
-        "server remove NAME          Remove server NAME.\n"
-        "server list                 List all server names.\n"
-	"adapter add NAME ENDPOINTS  Add adapter NAME with ENDPOINTS.\n"
-        "adapter list                List all adapter names.\n"
-        "adapter remove NAME         Remove adapter NAME.\n"
-	"adapter endpoints NAME      Get adapter NAME endpoints.\n"
-        "shutdown                    Shut the IcePack server down.\n";
+        "help                                Print this message.\n"
+        "exit, quit                          Exit this program.\n"
+        "server add NAME PATH LIBPATH DESC   Add server NAME with PATH.\n" // TODO: ML: What about LIBPATH, DESC?
+	"server describe NAME                Get server NAME description.\n"
+	"server state NAME                   Get server NAME state.\n"
+	"server start NAME                   Starts server NAME.\n"
+        "server remove NAME                  Remove server NAME.\n"
+        "server list                         List all server names.\n"
+	"adapter add NAME ENDPOINTS          Add adapter NAME with ENDPOINTS.\n"
+        "adapter list                        List all adapter names.\n"
+        "adapter remove NAME                 Remove adapter NAME.\n"
+	"adapter endpoints NAME              Get adapter NAME endpoints.\n"
+        "shutdown                            Shut the IcePack server down.\n";
 }
 
 void
@@ -63,7 +62,7 @@ IcePack::Parser::addServer(const list<string>& args, const std::list<std::string
 {
     if(args.size() != 4)
     {
-	error("`server add' requires four arguments (type `help' for more info)");
+	error("`server add' requires four arguments\n(`help' for more info)");
 	return;
     }
 
@@ -103,7 +102,7 @@ IcePack::Parser::startServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server start' requires exactly one argument (type `help' for more info)");
+	error("`server start' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -111,6 +110,9 @@ IcePack::Parser::startServer(const list<string>& args)
     {
 	if(!_admin->startServer(args.front()))
 	{
+	    // TODO: ML: That's not in our style guide, but don't
+	    // capitalize error messages, i.e., use "the server
+	    // didn't...". (Here and in other places.)
 	    error("The server didn't start successfully");
 	}
     }
@@ -127,7 +129,7 @@ IcePack::Parser::describeServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server describe' requires exactly one argument (type `help' for more info)");
+	error("`server describe' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -160,7 +162,7 @@ IcePack::Parser::stateServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server state' requires exactly one argument (type `help' for more info)");
+	error("`server state' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -170,20 +172,21 @@ IcePack::Parser::stateServer(const list<string>& args)
 
 	switch(state)
 	{
+	    // TODO: ML: Indentation wrong, { } missing.
 	case Inactive:
-	    cout << "Inactive" << endl;
+	    cout << "inactive" << endl;
 	    break;
 	case Activating:
-	    cout << "Activating" << endl;
+	    cout << "activating" << endl;
 	    break;
 	case Active:
-	    cout << "Active" << endl;
+	    cout << "active" << endl;
 	    break;
 	case Deactivating:
-	    cout << "Deactivating" << endl;
+	    cout << "deactivating" << endl;
 	    break;
 	case Destroyed:
-	    cout << "Destroyed" << endl;
+	    cout << "destroyed" << endl;
 	    break;
 	default:
 	    assert(false);
@@ -202,7 +205,7 @@ IcePack::Parser::removeServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server remove' requires exactly one argument (type `help' for more info)");
+	error("`server remove' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -239,7 +242,7 @@ IcePack::Parser::addAdapter(const list<string>& args)
 {
     if(args.size() < 2)
     {
-	error("`adapter add' requires at least two arguments (type `help' for more info)");
+	error("`adapter add' requires at least two arguments\n(`help' for more info)");
 	return;
     }
 
@@ -265,7 +268,7 @@ IcePack::Parser::endpointsAdapter(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`adapter endpoints' requires exactly one argument (type `help' for more info)");
+	error("`adapter endpoints' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -287,7 +290,7 @@ IcePack::Parser::removeAdapter(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`adapter remove' requires exactly one argument (type `help' for more info)");
+	error("`adapter remove' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 

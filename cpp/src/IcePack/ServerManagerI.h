@@ -23,7 +23,7 @@ namespace IcePack
 
 class ServerI : public Server, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
-public:
+public: // TODO: ML: Empty line missing.
     ServerI(const ::Ice::ObjectAdapterPtr&, const ActivatorPrx&);
     virtual ~ServerI();
     
