@@ -35,7 +35,6 @@ public:
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual void visitClassDefEnd(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
-    virtual void visitExceptionEnd(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
     virtual void visitOperation(const Slice::OperationPtr&);
     virtual void visitDataMember(const Slice::DataMemberPtr&);
@@ -56,7 +55,7 @@ private:
 static Slice::UnitPtr _unit;
 
 //
-// Map from flattened, lowercase type name to type information.
+// Map from flattened, lowercase name to Slice information.
 //
 struct TypeInfo : public IceUtil::SimpleShared
 {
@@ -218,7 +217,7 @@ Slice_shutdown(TSRMLS_DC)
 }
 
 zend_class_entry*
-Slice_get_class(const string& scoped)
+Slice_getClass(const string& scoped)
 {
     zend_class_entry* result = NULL;
 
@@ -233,7 +232,7 @@ Slice_get_class(const string& scoped)
 }
 
 bool
-Slice_is_native_key(const Slice::TypePtr& type)
+Slice_isNativeKey(const Slice::TypePtr& type)
 {
     //
     // PHP's native associative array supports only integer and string types for the key.
@@ -283,25 +282,58 @@ Visitor::visitClassDefEnd(const Slice::ClassDefPtr&)
 }
 
 bool
-Visitor::visitExceptionStart(const Slice::ExceptionPtr&)
+Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 {
-    return false;
-}
+    //
+    // Get the class entry for the base exception (if any).
+    //
+    zend_class_entry* parent = NULL;
+    Slice::ExceptionPtr base = p->base();
+    if(base)
+    {
+        string s = base->scoped();
+        string f = ice_lowercase(ice_flatten(s));
+        TypeMap::iterator q = _typeMap.find(f);
+        if(q != _typeMap.end())
+        {
+            parent = q->second->entry;
+        }
+        else
+        {
+            zend_error(E_ERROR, "base exception %s not found", f.c_str());
+            return false;
+        }
+    }
 
-void
-Visitor::visitExceptionEnd(const Slice::ExceptionPtr&)
-{
+    string scoped = p->scoped();
+    string flat = ice_lowercase(ice_flatten(scoped));
+
+    zend_class_entry ce;
+    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
+    //
+    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
+    // is a string constant.
+    //
+    ce.name_length = flat.length();
+    // TODO: Check for conflicts with existing symbols?
+    zend_class_entry* cls = zend_register_internal_class_ex(&ce, parent, NULL TSRMLS_CC);
+
+    if(cls == NULL)
+    {
+        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
+    }
+    else
+    {
+        _typeMap[flat] = new TypeInfo(p, cls);
+    }
+
+    return false;
 }
 
 bool
 Visitor::visitStructStart(const Slice::StructPtr& p)
 {
-    zend_class_entry* cls = createZendClass(p);
-    if(cls != NULL)
-    {
-        // TODO: Add default properties?
-    }
-
+    createZendClass(p);
     return false;
 }
 
@@ -319,7 +351,7 @@ void
 Visitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
     Slice::TypePtr keyType = p->keyType();
-    if(!Slice_is_native_key(keyType))
+    if(!Slice_isNativeKey(keyType))
     {
         //
         // TODO: Generate class.
@@ -375,7 +407,7 @@ Visitor::createZendClass(const Slice::ContainedPtr& type)
     // is a string constant.
     //
     ce.name_length = flat.length();
-    // TODO: Check for conflicts with existing symbols
+    // TODO: Check for conflicts with existing symbols?
     zend_class_entry* result = zend_register_internal_class(&ce TSRMLS_CC);
 
     if(result == NULL)

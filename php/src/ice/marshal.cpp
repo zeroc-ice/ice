@@ -124,6 +124,20 @@ private:
     MarshalerPtr _valueMarshaler;
 };
 
+class ExceptionMarshaler : public Marshaler
+{
+public:
+    ExceptionMarshaler(const Slice::ExceptionPtr&);
+    ~ExceptionMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    Slice::ExceptionPtr _ex;
+    zend_class_entry* _class;
+};
+
 //
 // Marshaler implementation.
 //
@@ -193,7 +207,7 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
     Slice::DictionaryPtr dict = Slice::DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(Slice_is_native_key(dict->keyType()))
+        if(Slice_isNativeKey(dict->keyType()))
         {
             return new NativeDictionaryMarshaler(dict);
         }
@@ -219,6 +233,12 @@ Marshaler::createMemberMarshaler(const string& name, const Slice::TypePtr& type)
         result = new MemberMarshaler(name, m);
     }
     return result;
+}
+
+MarshalerPtr
+Marshaler::createExceptionMarshaler(const Slice::ExceptionPtr& ex)
+{
+   return new ExceptionMarshaler(ex);
 }
 
 std::string
@@ -731,7 +751,7 @@ MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 StructMarshaler::StructMarshaler(const Slice::StructPtr& type) :
     _type(type)
 {
-    _class = Slice_get_class(type->scoped());
+    _class = Slice_getClass(type->scoped());
     assert(_class);
 
     Slice::DataMemberList members = type->dataMembers();
@@ -810,7 +830,7 @@ StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 //
 EnumMarshaler::EnumMarshaler(const Slice::EnumPtr& type)
 {
-    _class = Slice_get_class(type->scoped());
+    _class = Slice_getClass(type->scoped());
     _count = static_cast<long>(type->getEnumerators().size());
 }
 
@@ -1040,6 +1060,65 @@ NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRM
         default:
             assert(false);
             return false;
+        }
+    }
+
+    return true;
+}
+
+ExceptionMarshaler::ExceptionMarshaler(const Slice::ExceptionPtr& ex) :
+    _ex(ex)
+{
+    _class = Slice_getClass(ex->scoped());
+    assert(_class);
+}
+
+ExceptionMarshaler::~ExceptionMarshaler()
+{
+}
+
+bool
+ExceptionMarshaler::marshal(zval*, IceInternal::BasicStream& TSRMLS_DC)
+{
+    //
+    // We never need to marshal an exception.
+    //
+    zend_error(E_ERROR, "exception marshaling is not supported");
+    return false;
+}
+
+bool
+ExceptionMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    if(object_init_ex(zv, _class) != SUCCESS)
+    {
+        zend_error(E_ERROR, "unable to initialize exception %s", _class->name);
+        return false;
+    }
+
+    //
+    // NOTE: The type id for the first slice has already been read.
+    //
+
+    Slice::ExceptionPtr ex = _ex;
+    while(ex)
+    {
+        Slice::DataMemberList members = ex->dataMembers();
+        is.startReadSlice();
+        for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
+        {
+            MarshalerPtr member = createMemberMarshaler((*p)->name(), (*p)->type());
+            if(!member->unmarshal(zv, is TSRMLS_CC))
+            {
+                return false;
+            }
+        }
+        is.endReadSlice();
+        ex = ex->base();
+        if(ex)
+        {
+            string id;
+            is.read(id);
         }
     }
 

@@ -43,6 +43,8 @@ public:
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
 
 private:
+    void throwException(IceInternal::BasicStream& TSRMLS_DC);
+
     Ice::ObjectPrx _proxy;
     Slice::OperationPtr _op;
     IceInternal::InstancePtr _instance;
@@ -151,21 +153,21 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPt
         if(!def)
         {
             string scoped = decl->scoped();
-            php_error(E_ERROR, "%s(): no definition for type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
+            zend_error(E_ERROR, "%s(): no definition for type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
             return false;
         }
 
         if(decl->isLocal())
         {
             string scoped = decl->scoped();
-            php_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
+            zend_error(E_ERROR, "%s(): cannot use local type %s", get_active_function_name(TSRMLS_C), scoped.c_str());
             return false;
         }
     }
 
     if(object_init_ex(zv, Ice_ObjectPrx_entry_ptr) != SUCCESS)
     {
-        php_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "unable to initialize proxy in %s()", get_active_function_name(TSRMLS_C));
         return false;
     }
 
@@ -183,14 +185,14 @@ Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx TSRMLS_DC)
         void* p = zend_object_store_get_object(zv TSRMLS_CC);
         if(!p)
         {
-            php_error(E_ERROR, "unable to retrieve proxy object from object store in %s()",
+            zend_error(E_ERROR, "unable to retrieve proxy object from object store in %s()",
                       get_active_function_name(TSRMLS_C));
             return false;
         }
         zend_object* zo = static_cast<zend_object*>(p);
         if(zo->ce != Ice_ObjectPrx_entry_ptr)
         {
-            php_error(E_ERROR, "value is not a proxy in %s()", get_active_function_name(TSRMLS_C));
+            zend_error(E_ERROR, "value is not a proxy in %s()", get_active_function_name(TSRMLS_C));
             return false;
         }
         ice_object* obj = static_cast<ice_object*>(p);
@@ -203,7 +205,7 @@ Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx TSRMLS_DC)
 
 ZEND_FUNCTION(Ice_ObjectPrx___construct)
 {
-    php_error(E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
+    zend_error(E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
@@ -396,7 +398,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
     {
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            php_error(E_ERROR, "facet must be a string array");
+            zend_error(E_ERROR, "facet must be a string array");
             RETURN_NULL();
         }
         facet.push_back(string(Z_STRVAL_PP(val), Z_STRLEN_PP(val)));
@@ -849,15 +851,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
-    if(ZEND_NUM_ARGS() != 1)
+    //
+    // First argument is required and should be a scoped name. The second argument
+    // is optional and represents a facet name.
+    //
+    if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
     {
         WRONG_PARAM_COUNT;
     }
 
     char *id;
-    int len;
+    int idLen;
+    char *facet = NULL;
+    int facetLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &id, &idLen, &facet, &facetLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -868,68 +876,68 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     try
     {
+        //
+        // The proxy may not have a class definition, in which case it represents an Ice::ObjectPrx
+        // (i.e., a proxy which has not been narrowed).
+        //
         Slice::ClassDefPtr def = _this->getClass();
-        if(def && def->scoped() == id)
+
+        Slice::UnitPtr unit = Slice_getUnit();
+        Slice::TypeList l;
+
+        if(unit)
         {
-            // TODO: legal?
-            *return_value = *(getThis());
-            return;
+            l = unit->lookupTypeNoBuiltin(id, false);
+        }
+
+        if(l.empty())
+        {
+            zend_error(E_ERROR, "%s(): no Slice definition found for type %s", get_active_function_name(TSRMLS_C), id);
+            RETURN_NULL();
+        }
+
+        //
+        // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
+        //
+        Slice::ClassDeclPtr decl;
+        Slice::TypePtr type = l.front();
+        Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
+        if(proxy)
+        {
+            decl = proxy->_class();
         }
         else
         {
-            Slice::UnitPtr unit = Slice_getUnit();
-            Slice::TypeList l;
+            decl = Slice::ClassDeclPtr::dynamicCast(type);
+        }
 
-            if(unit)
-            {
-                l = unit->lookupTypeNoBuiltin(id, false);
-            }
+        if(!decl)
+        {
+            zend_error(E_ERROR, "%s(): type %s is not a class or interface", get_active_function_name(TSRMLS_C), id);
+            RETURN_NULL();
+        }
 
-            if(l.empty())
-            {
-                php_error(E_ERROR, "%s(): no Slice definition found for type %s", get_active_function_name(TSRMLS_C),
-                          id);
-                RETURN_NULL();
-            }
-
+        if(check)
+        {
             //
-            // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
+            // Verify that the object supports the requested type. We don't use id here,
+            // because it might contain a proxy type (e.g., "::MyClass*").
             //
-            Slice::ClassDeclPtr decl;
-            Slice::TypePtr type = l.front();
-            Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
-            if(proxy)
-            {
-                decl = proxy->_class();
-            }
-            else
-            {
-                decl = Slice::ClassDeclPtr::dynamicCast(type);
-            }
-
-            if(!decl)
-            {
-                php_error(E_ERROR, "%s(): type %s is not a class or interface", get_active_function_name(TSRMLS_C),
-                          id);
-                RETURN_NULL();
-            }
-
-            if(check)
-            {
-                //
-                // Verify that the object supports the requested type. We don't use id here,
-                // because it might contain a proxy type (e.g., "::MyClass*").
-                //
-                if(!_this->getProxy()->ice_isA(decl->scoped()))
-                {
-                    RETURN_NULL();
-                }
-            }
-
-            if(!Ice_ObjectPrx_create(return_value, _this->getProxy(), decl TSRMLS_CC))
+            if(!_this->getProxy()->ice_isA(decl->scoped()))
             {
                 RETURN_NULL();
             }
+        }
+
+        Ice::ObjectPrx prx = _this->getProxy();
+        if(facet)
+        {
+            prx = prx->ice_appendFacet(facet);
+        }
+
+        if(!Ice_ObjectPrx_create(return_value, prx, decl TSRMLS_CC))
+        {
+            RETURN_NULL();
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -1021,7 +1029,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     vector<MarshalerPtr>::size_type numParams = _inParams.size() + _outParams.size();
     if(ZEND_NUM_ARGS() != numParams)
     {
-        php_error(E_ERROR, "operation %s expects %d parameter%s", _name.c_str(), numParams, numParams == 1 ? "" : "s");
+        zend_error(E_ERROR, "operation %s expects %d parameter%s", _name.c_str(), numParams, numParams == 1 ? "" : "s");
         return;
     }
 
@@ -1031,7 +1039,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     zval** args[ZEND_NUM_ARGS()];
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
-        php_error(E_ERROR, "unable to get arguments");
+        zend_error(E_ERROR, "unable to get arguments");
         return;
     }
 
@@ -1042,7 +1050,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
-            php_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
+            zend_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
             return;
         }
     }
@@ -1075,8 +1083,8 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         IceInternal::BasicStream is(_instance.get());
         if(!_proxy->ice_invoke(_name, mode, os.b, is.b))
         {
-            // TODO
-            php_error(E_ERROR, "user exception occurred");
+            is.i = is.b.begin();
+            throwException(is TSRMLS_CC);
             return;
         }
 
@@ -1091,7 +1099,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         for(i = _inParams.size(), p = _outParams.begin(); p != _outParams.end(); ++i, ++p)
         {
             //
-            // It appears we must explicitly destroy the contents of all zvals passed
+            // We must explicitly destroy the contents of all zvals passed
             // as out parameters, otherwise leaks occur.
             //
             zval_dtor(*args[i]);
@@ -1115,6 +1123,65 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     catch(const IceUtil::Exception& ex)
     {
         ice_throw_exception(ex TSRMLS_CC);
+    }
+}
+
+void
+Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
+{
+    Slice::UnitPtr unit = _op->unit();
+
+    bool usesClasses;
+    is.read(usesClasses);
+
+    string id;
+    is.read(id);
+    while(!id.empty())
+    {
+        //
+        // Look for a definition of this type.
+        //
+        Slice::ExceptionPtr ex = unit->lookupException(id, false);
+        if(ex)
+        {
+            if(ex->isLocal())
+            {
+                zend_error(E_ERROR, "cannot unmarshal local exception %s", id.c_str());
+                return;
+            }
+
+            MarshalerPtr m = Marshaler::createExceptionMarshaler(ex);
+            assert(m);
+
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(m->unmarshal(zex, is TSRMLS_CC))
+            {
+                if(usesClasses)
+                {
+                    is.readPendingObjects();
+                }
+                EG(exception) = zex;
+            }
+            else
+            {
+                zval_dtor(zex);
+            }
+
+            return;
+        }
+        else
+        {
+            is.skipSlice();
+            is.read(id);
+        }
+        //
+        // Getting here should be impossible: we can get here only if the
+        // sender has marshaled a sequence of type IDs, none of which we
+        // have factory for. This means that sender and receiver disagree
+        // about the Slice definitions they use.
+        //
+        throw Ice::UnknownUserException(__FILE__, __LINE__);
     }
 }
 
@@ -1213,14 +1280,14 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
 
         if(!_this->getClass())
         {
-            php_error(E_ERROR, "proxy has not been narrowed");
+            zend_error(E_ERROR, "proxy has not been narrowed");
             return NULL;
         }
 
         OperationPtr op = _this->getOperation(method);
         if(!op)
         {
-            php_error(E_ERROR, "unknown operation %s", method);
+            zend_error(E_ERROR, "unknown operation %s", method);
             return NULL;
         }
 
