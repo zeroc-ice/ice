@@ -134,7 +134,7 @@ private:
 
     bool closingOK() const;
 
-    TransceiverPtr _transceiver;
+    const TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
 
     Ice::ObjectAdapterPtr _adapter;
@@ -174,12 +174,10 @@ private:
     IceUtil::Time _stateTime; // The time when the state was changed the last time.
 
     //
-    // We need a special mutex for the isDestroyed() and isFinished()
-    // functions, because these functions must not block. Using the
-    // default mutex is therefore not possible, as the default mutex
-    // might be locked for a longer period of time.
+    // We have a separate mutex for sending, so that we don't block
+    // the whole connection when we do a blocking send.
     //
-    IceUtil::Mutex _queryMutex;
+    IceUtil::Mutex _sendMutex;
 };
 
 }

@@ -81,7 +81,17 @@ IceInternal::OutgoingAsync::__invoke()
 {
     _os->endWriteEncaps();
 
-    _connection->sendAsyncRequest(this);
+    try
+    {
+	_connection->sendAsyncRequest(this);
+    }
+    catch(const LocalException&)
+    {
+	//
+	// Twoway requests report exceptions using finished().
+	//
+	assert(false);
+    }
 
     if(_connection->timeout() >= 0)
     {

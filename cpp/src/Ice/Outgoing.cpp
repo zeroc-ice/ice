@@ -103,13 +103,33 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
+	    try
+	    {
+		_connection->sendRequest(this, false);
+	    }
+	    catch(const LocalException&)
+	    {
+		//
+		// Twoway requests report exceptions using finished().
+		//
+		assert(false);
+	    }
+	    
 	    auto_ptr<LocalException> exception;
 
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		
-		_connection->sendRequest(this, false);
-		_state = StateInProgress;
+
+		//
+                // It's possible that the request has already
+                // completed, due to a regular response, or because of
+                // an exception. So we only change the state to "in
+                // progress" if it is still "unsent".
+		//
+		if(_state == StateUnsent)
+		{
+		    _state = StateInProgress;
+		}
 		
 		Int timeout = _connection->timeout();
 		while(_state == StateInProgress)
@@ -227,11 +247,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
+
     //
     // The state might be StateLocalException if there was a timeout
     // in invoke().
     //
-    if(_state == StateInProgress)
+    if(_state <= StateInProgress)
     {
 	_is.swap(is);
 	Byte status;
@@ -376,11 +398,13 @@ IceInternal::Outgoing::finished(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
+    assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
+
     //
     // The state might be StateLocalException if there was a timeout
     // in invoke().
     //
-    if(_state == StateInProgress)
+    if(_state <= StateInProgress)
     {
 	_state = StateLocalException;
 	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));

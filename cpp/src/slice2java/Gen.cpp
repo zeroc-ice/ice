@@ -2349,10 +2349,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sb;
 	    out << nl << "try";
 	    out << sb;
-	    if(op->returnsData())
-	    {
-		out << nl << "__checkTwowayOnly(\"" << opName << "\");";
-	    }
+	    // Async requests may only be sent twoway.
+	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	    out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
 	    out << nl << '_' << name << "Del __del = (_" << name
 		<< "Del)__delBase;";

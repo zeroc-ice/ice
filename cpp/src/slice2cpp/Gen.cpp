@@ -1264,10 +1264,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "try";
 	C << sb;
-	if(p->returnsData())
-	{
-	    C << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
-	}
+	// Async requests may only be sent twoway.
+	C << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
 	C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
 	C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
 	  << thisPointer << ">(__delBase.get());";

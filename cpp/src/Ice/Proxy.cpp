@@ -333,6 +333,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
     {
 	try
 	{
+	    __checkTwowayOnly("ice_invoke_async");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->ice_invoke_async(cb, operation, mode, inParams, context);
 	    return;
