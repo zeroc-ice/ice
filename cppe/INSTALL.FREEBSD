@@ -1,0 +1,113 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating System
+----------------
+
+FreeBSD 5.1 for Intel x86.
+
+
+C++ compiler
+------------
+
+GCC 3.3
+
+
+Third-party libraries
+---------------------
+
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+
+  Note that Ice for Java is not compatible with version 4.3, therefore
+  if you intend to use Ice for Java with Berkeley DB, you must use
+  version 4.2.52 and the option --enable-java.
+
+- OpenSSL 0.96 or 0.97
+
+- expat 1.9x
+
+- bzip2 1.0
+
+- readline and ncurses (optional, but used unless you set USE_READLINE
+  to no in config/Make.rules)
+
+Berkeley DB, expat, OpenSSL, bzip2, readline and ncurses are usually
+available with your FreeBSD distribution, or you can download them
+from the following locations:
+
+Berkeley DB    http://www.sleepycat.com/download
+expat          http://sourceforge.net/projects/expat/
+OpenSSL        http://www.openssl.org
+bzip2          http://sources.redhat.com/bzip2
+readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
+ncurses        http://www.gnu.org/software/ncurses/ncurses.html
+
+
+Python
+------
+
+To run the automated test suite, you will need Python 2.2 or a newer
+version. If you have no interest in running the test scripts, Python
+is not required.
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Extract the Ice archive in any directory you like (for example, in
+your home directory):
+
+$ tar xvfz Ice-<version>.tar.gz
+
+Change the working directory to Ice-<version>:
+
+$ cd Ice-<version>
+
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
+
+Now you're ready to build Ice:
+
+$ make
+
+This will build the Ice core libraries, services, tests and examples.
+After a successful build, you can run the test suite, provided that
+you have installed Python:
+
+$ make test
+
+This is equivalent to:
+
+$ python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your
+LD_LIBRARY_PATH environment variable to add the "lib" directory:
+
+$ export PATH=`pwd`/bin:$PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "make install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
+
+After installation, make sure that the <prefix>/bin directory is in
+your PATH, and the <prefix>/lib directory is in your
+LD_LIBRARY_PATH. When compiling Ice programs, you must also make sure
+to pass the location of the <prefix>/include directory to the compiler
+with the -I option, and the location of the <prefix>/lib directory
+with the -L option.

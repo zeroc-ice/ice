@@ -1,0 +1,108 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is Linux.
+#
+
+USE_SPARC_ASM           = irrelevant
+MACHINE                 = $(shell uname -m)
+
+#
+# Default compiler is c++ (aka g++).
+#
+ifeq ($(CXX),)
+   CXX	                := c++
+endif
+
+ifeq ($(CXX),g++)
+   CXX	                := c++
+endif
+
+ifeq ($(CXX),c++)
+
+   ifeq ($(MACHINE),sparc64)
+      #
+      # We are an ultra, at least, and so have the atomic instructions
+      #
+      USE_SPARC_ASM           = yes
+      CXXARCHFLAGS            := -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+   endif
+
+   ifeq ($(MACHINE),sparc)
+      #
+      # We are a sun4m or sun4c
+      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+      # prevent us from using '-mcpu=v8'
+      #
+      USE_SPARC_ASM           = no
+      CXXARCHFLAGS            := -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+   endif
+
+   ifeq ($(MACHINE),x86_64)
+      ifeq ($(LP64),yes)
+         CXXARCHFLAGS    := -m64
+      else
+         CXXARCHFLAGS    := -m32
+      endif
+      lp64suffix          := 64
+   endif
+
+   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+   else
+      CXXFLAGS		:= -g $(CXXFLAGS)
+   endif
+
+   ifeq ($(USE_SPARC_ASM),yes)
+      CFLAGS                  := -O3 -mcpu=ultrasparc -pipe -DNDEBUG -fPIC -DUSE_SPARC_ASM
+   endif
+   ifeq ($(USE_SPARC_ASM),no)
+      CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+endif
+
+ifeq ($(CXX),icpc)
+
+   CXXFLAGS		= -fPIC -D_REENTRANT    
+
+   ifeq ($(OPTIMIZE),yes)
+      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+   else
+      CXXFLAGS		:= -g $(CXXFLAGS)
+   endif
+
+   #
+   # C++ run-time libraries, necessary for linking some shared libraries.
+   #
+   CXXLIBS		=
+
+   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+endif
+
+BASELIBS		= -lIceEUtil $(STLPORT_LIBS) -lpthread 
+LIBS			= -lIceE $(BASELIBS)
+
+ICEUTIL_OS_LIBS         = 
+ICE_OS_LIBS             = -ldl
+
+PLATFORM_HAS_READLINE   := yes
+
+export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)

@@ -1,0 +1,90 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when uname is HP-UX..
+#
+
+CXX               	:= aCC
+
+ifeq ($(LP64),yes)
+    CXXARCHFLAGS        := +DD64
+else
+    CXXARCHFLAGS        := +DA2.0N
+endif
+
+#
+# TODO: add -Bhidden_def (for declspec), when it works
+#
+
+#
+# Disable the following warnings:
+# 307: Function defines return type, but contains no return at end of function.
+# 361: Value-returning function might end without executing a return statement.
+# 829: Implicit conversion of string literal to 'char *' is deprecated.
+# 849: External symbol too long, truncated from xxx to 4000
+# 740: Unsafe cast between pointers/references to incomplete classes (required for db_cxx.h only)
+# 749: The cast from 'const DbTxnImp *' to 'const __db_txn *' is performed as a 'reinterpret_cast' (db_cxx.h only).
+DISABLEDWARNINGS        = +W307 +W361 +W829 +W849 +W740 +W749
+
+CXXFLAGS		= -AA +Z -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
+
+ifeq ($(OPTIMIZE),yes)
+     CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
+else
+     CXXFLAGS		:= -g0 $(CXXFLAGS)
+endif
+
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS			= -lCsup_v2 -lstd_v2
+
+#
+# On HP-UX, we need -L for all dependent libraries
+# 
+
+LIBPATH                 =
+
+ifneq ($(OPENSSL_HOME),)
+    LIBPATH             += -L$(OPENSSL_HOME)/$(libsubdir)
+endif
+
+ifneq ($(BZIP2_HOME),)
+   LIBPATH              += -L$(BZIP2_HOME)/$(libsubdir)
+endif
+
+ifneq ($(DB_HOME),)
+   LIBPATH              += -L$(DB_HOME)/$(libsubdir)
+endif
+
+ifneq ($(EXPAT_HOME),)
+   LIBPATH              += -L$(EXPAT_HOME)/$(libsubdir)
+endif
+
+LDPLATFORMFLAGS         =  -Wl,+s -Wl,+b$(prefix)/$(libsubdir) $(LIBPATH)
+
+mklibfilename           = $(if $(2),lib$(1).$(2),lib$(1).sl)
+mksoname                = $(if $(2),lib$(1).$(2),lib$(1).sl)
+mklibname               = lib$(1).sl
+mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
+
+BASELIBS		= -lIceEUtil -lxnet -lpthread
+LIBS			= -lIceE $(BASELIBS)
+
+ICEUTIL_OS_LIBS         := -lpthread -lrt
+ICE_OS_LIBS             :=
+
+lp64suffix              := /pa20_64
+
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH)
+else
+    export SHLIB_PATH	   := $(libdir):$(SHLIB_PATH)
+endif

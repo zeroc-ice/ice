@@ -1,0 +1,187 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Operating System
+----------------
+
+AIX 5.2 on Power or PowerPC
+
+
+C++ compiler
+------------
+
+VisualAge C++ 6.0 with the April 2004 PTF
+
+
+C compiler
+----------
+
+IBM xlc
+
+
+Third-party libraries
+---------------------
+
+Ice has dependencies on a number of third-party libraries:
+
+- Berkeley DB 4.2.52 or 4.3.27 with C++ support enabled, and built
+  with a C++ compiler compatible with the one you are using.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
+
+  We recommend that you configure and build Berkeley DB like this:
+
+  $ ../dist/configure --enable-cxx --enable-posixmutexes
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+  For 64 bit builds, use this configuration:
+
+  $ export OBJECT_MODE=64
+  $ ../dist/configure --enable-cxx --enable-posixmutexes
+  (plus --prefix=<dir> and/or --enable-java if you like)
+  $ gmake
+
+  Note that Ice for Java is not compatible with version 4.3, therefore
+  if you intend to use Ice for Java with Berkeley DB, you must use
+  version 4.2.52 and obtain a Berkeley DB patch (see INSTALL in your
+  IceJ distribution).
+ 
+- OpenSSL
+
+  For 32 bit builds, we recommend openssl-0.9.6m-2 from the "AIX
+  Toolbox for Linux Applications" (cryptographic section):
+  http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
+  Do not use openssl-0.9.6m-1, as it was not built properly.
+
+  For 64 bit builds, we recommend using OpenSSL 0.9.7d (or later).
+  You can download the source distribution from
+  http://www.openssl.org.
+
+- expat 1.9x, which can be downloaded from
+  http://sourceforge.net/projects/expat
+
+  You can also use the binary distribution for AIX 5.1 available in
+  the "AIX Toolbox for Linux Applications":
+
+  http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
+
+- bzip2 1.0
+
+  The source distribution can be downloaded from
+  http://sources.redhat.com/bzip2
+
+  For 32 bit builds, you can also use the binary distribution from the
+  "AIX Toolbox for Linux Applications".
+
+
+GNU Make 3.80
+-------------
+
+GNU Make 3.80 is required to build Ice on AIX. You can download GNU
+Make from the "AIX Toolbox for Linux Applications".
+
+
+Python
+------
+
+To run the automated test suite, you will need Python 2.2 or a newer
+version. If you have no interest in running the test scripts, Python
+is not required.
+
+You can download Python from the "AIX Toolbox for Linux Applications".
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Extract the Ice archive in any directory you like (for example, in
+your home directory):
+
+$ gunzip -c Ice-<version>.tar.gz | tar xvf -
+
+Change the working directory to Ice-<version>:
+
+$ cd Ice-<version>
+
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. Pay particular
+attention to the variables that define the locations of the third-
+party libraries.
+
+Now you're ready to build Ice:
+
+$ gmake
+
+This will build the Ice core libraries, services, tests and examples.
+After a successful build, you can run the test suite, provided that
+you have installed Python:
+
+$ gmake test
+
+This is equivalent to:
+
+$ python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your LIBPATH
+environment variable to add the "lib" directory:
+
+$ export PATH=`pwd`/bin:$PATH
+$ export LIBPATH=`pwd`/lib:$LIBPATH
+
+
+======================================================================
+Library versioning
+======================================================================
+
+Ice uses the same library versioning convention as the packages
+distributed in the "AIX Toolbox for Linux Applications". See the link
+below for more information:
+
+http://sourceforge.net/mailarchive/message.php?msg_id=10892444
+
+
+======================================================================
+64 bit builds
+======================================================================
+
+To build Ice in 64-bit mode, you need to do the following:
+
+- Obtain or build all the third-party dependencies in 64-bit mode. A
+  number of packages from the "AIX Toolbox for Linux Applications"
+  provide both 32 and 64 bit shared objects in the same archive
+  libraries.
+
+  For example:
+
+  $ ar -t -X32_64 /opt/freeware/lib/libexpat.a
+  libexpat.so.0
+  libexpat.so.0
+
+- Set the environment variable OBJECT_MODE to 64, as shown below:
+
+  $ export OBJECT_MODE=64
+
+- Build and test as described above.
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "gmake install". This will install Ice in the directory
+specified by the "prefix" variable in config/Make.rules.
+
+After installation, make sure that the <prefix>/bin directory is in
+your PATH, and the <prefix>/lib directory is in your LIBPATH. When
+compiling Ice programs, you must also make sure to pass the location
+of the <prefix>/include directory to the compiler with the -I option,
+and the location of the <prefix>/lib directory with the -L option.
