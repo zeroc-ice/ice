@@ -95,7 +95,7 @@ public final class LocatorInfo
 		    object = _locator.findAdapterById(ref.adapterId);
 		    if(object != null)
 		    {
-			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
+			endpoints = ((Ice.ObjectPrxHelperBase)object).__reference().endpoints;
 			
 			if(endpoints != null && endpoints.length > 0)
 			{
@@ -116,13 +116,13 @@ public final class LocatorInfo
 
 		if(object != null)
 		{
-		    if(((Ice.ObjectPrxHelper)object).__reference().endpoints.length > 0)
+		    if(((Ice.ObjectPrxHelperBase)object).__reference().endpoints.length > 0)
 		    {
-			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
+			endpoints = ((Ice.ObjectPrxHelperBase)object).__reference().endpoints;
 		    }
-		    else if(((Ice.ObjectPrxHelper)object).__reference().adapterId.length() > 0)
+		    else if(((Ice.ObjectPrxHelperBase)object).__reference().adapterId.length() > 0)
 		    {
-			endpoints = getEndpoints(((Ice.ObjectPrxHelper)object).__reference(), cached);
+			endpoints = getEndpoints(((Ice.ObjectPrxHelperBase)object).__reference(), cached);
 		    }
 		}
 		
@@ -192,7 +192,7 @@ public final class LocatorInfo
 	    Ice.ObjectPrx object = _table.removeProxy(ref.identity);
 	    if(object != null && ref.instance.traceLevels().location >= 2)
 	    {
-		Reference r = ((Ice.ObjectPrxHelper)object).__reference();
+		Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
 		if(r.endpoints.length > 0)
 		{
 		    trace("removed endpoints from locator table", ref, r.endpoints);
@@ -218,7 +218,7 @@ public final class LocatorInfo
 	    Ice.ObjectPrx object = _table.removeProxy(ref.identity);
 	    if(object != null)
 	    {
-		Reference r = ((Ice.ObjectPrxHelper)object).__reference();
+		Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
 		if(r.adapterId.length() > 0)
 		{
 		    clearCache(r);

@@ -2220,7 +2220,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // proxy interface, and provides static helper methods for use
     // by applications (e.g., checkedCast, etc.)
     //
-    out << sp << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelper implements " << name
+    out << sp << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelperBase implements " << name
         << "Prx";
 
     out << sb;

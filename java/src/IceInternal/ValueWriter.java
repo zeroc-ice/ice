@@ -68,10 +68,10 @@ public final class ValueWriter
                     writeValue(elem + "value", entry.getValue(), objectTable, out);
                 }
             }
-            else if(value instanceof Ice.ObjectPrxHelper)
+            else if(value instanceof Ice.ObjectPrxHelperBase)
             {
                 writeName(name, out);
-                Ice.ObjectPrxHelper proxy = (Ice.ObjectPrxHelper)value;
+                Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)value;
                 out.print(proxy.__reference().toString());
             }
             else if(value instanceof Ice.Object)

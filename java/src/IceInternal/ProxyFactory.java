@@ -28,7 +28,7 @@ public final class ProxyFactory
     {
         if(proxy != null)
         {
-            Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
+            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
             return h.__reference().toString();
         }
         else
@@ -52,7 +52,7 @@ public final class ProxyFactory
     {
         if(ref != null)
         {
-            Ice.ObjectPrxHelper proxy = new Ice.ObjectPrxHelper();
+            Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
             proxy.setup(ref);
             return proxy;
         }
@@ -67,7 +67,7 @@ public final class ProxyFactory
     {
         if(proxy != null)
         {
-            Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
+            Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
             Reference ref = h.__reference();
             ref.identity.__write(s);
             ref.streamWrite(s);

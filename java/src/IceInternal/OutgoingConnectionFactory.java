@@ -367,7 +367,7 @@ public class OutgoingConnectionFactory
             Ice.ObjectPrx proxy = routerInfo.getClientProxy();
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            Endpoint[] endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+            Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
             for(int i = 0; i < endpoints.length; i++)
             {
 		Endpoint endpoint = endpoints[i];

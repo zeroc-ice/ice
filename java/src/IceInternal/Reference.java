@@ -630,7 +630,7 @@ public final class Reference
 		    // proxy endpoints.
 		    //
 		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-		    endpts = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+		    endpts = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
 		}
 		else if(endpoints.length > 0)
 		{

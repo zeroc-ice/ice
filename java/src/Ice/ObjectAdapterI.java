@@ -365,7 +365,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	checkForDeactivation();
 
-        IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
+        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
         return findFacet(ref.identity, ref.facet);
     }
 
@@ -434,7 +434,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             // Add the router's server proxy endpoints to this object
             // adapter.
             //
-            ObjectPrxHelper proxy = (ObjectPrxHelper)routerInfo.getServerProxy();
+            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
             IceInternal.Endpoint[] endpoints = proxy.__reference().endpoints;
             for(int i = 0; i < endpoints.length; ++i)
             {
@@ -495,7 +495,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	checkForDeactivation();
 
-        IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
+        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
         final IceInternal.Endpoint[] endpoints = ref.endpoints;
 
 	if(!ref.adapterId.equals(""))
