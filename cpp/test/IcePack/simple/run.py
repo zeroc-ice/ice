@@ -52,7 +52,7 @@ TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additio
 # Shutdown the registry.
 #
 IcePackAdmin.shutdownIcePackRegistry()
-icepackRegistryThread.join()
+icePackRegistryThread.join()
 
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
@@ -88,8 +88,8 @@ IcePackAdmin.removeServer("server");
 print "ok"
 
 IcePackAdmin.shutdownIcePackNode()
-icepackNodeThread.join()
+icePackNodeThread.join()
 IcePackAdmin.shutdownIcePackRegistry()
-icepackRegistryThread.join()
+icePackRegistryThread.join()
 
 sys.exit(0)

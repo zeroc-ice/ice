@@ -92,8 +92,8 @@ print "ok"
 # Shutdown IcePack.
 #
 IcePackAdmin.shutdownIcePackNode()
-icepackNodeThread.join()
+icePackNodeThread.join()
 IcePackAdmin.shutdownIcePackRegistry()
-icepackRegistryThread.join()
+icePackRegistryThread.join()
 
 sys.exit(0)
