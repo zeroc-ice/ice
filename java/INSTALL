@@ -86,10 +86,10 @@ http://www.sleepycat.com/docs/index.html
 Make sure to add db.jar to your CLASSPATH.
 
 
-Python 2
---------
+Python 2.2
+----------
 
-To run the automated test suite, you will need Python 2. If you have
+To run the automated test suite, you will need Python 2.2. If you have
 no interest in running the test scripts, Python is not required.
 Linux distributions usually include Python. For Windows 2000/XP, you
 can download a Python distribution from:
