@@ -19,24 +19,33 @@
 #include <Ice/Service.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
+#include <Ice/LocalException.h>
 
 #ifdef _WIN32
 #   include <Ice/EventLoggerI.h>
 #else
 #   include <Ice/Logger.h>
+#   include <Ice/Network.h>
 #endif
+
+#include <fstream>
 
 using namespace std;
 
 Ice::Service* Ice::Service::_instance = 0;
 static IceUtil::CtrlCHandler* _ctrlCHandler = 0;
+ofstream _outChild;
 
 //
 // Callback for IceUtil::CtrlCHandler.
 //
 static void
-ctrlCHandlerCallback(int)
+ctrlCHandlerCallback(int sig)
 {
+    if(_outChild.is_open())
+    {
+        _outChild << "child: CtrlCHandler received signal " << sig << endl;
+    }
     Ice::Service* service = Ice::Service::instance();
     assert(service != 0);
     service->interrupt();
@@ -98,7 +107,7 @@ Ice::Service::Service()
 {
     assert(_instance == 0);
     _instance = this;
-    _ctrlCHandler = new IceUtil::CtrlCHandler;
+    //_ctrlCHandler = new IceUtil::CtrlCHandler;
 #ifdef _WIN32
     //
     // Check for Windows 9x/ME.
@@ -161,182 +170,53 @@ Ice::Service::main(int argc, char* argv[])
 {
     _prog = argv[0];
 
+    int status;
 #ifdef _WIN32
-    if(!_win9x)
+    if(checkService(argc, argv, status))
     {
-        string name;
-
-        //
-        // First check for the --service option.
-        //
-        int idx = 1;
-        while(idx < argc)
-        {
-            if(strcmp(argv[idx], "--service") == 0)
-            {
-                if(idx + 1 >= argc)
-                {
-                    error("service name argument expected for `" + string(argv[idx]) + "'");
-                    return EXIT_FAILURE;
-                }
-
-                name = argv[idx + 1];
-
-                for(int i = idx ; i + 2 < argc ; ++i)
-                {
-                    argv[i] = argv[i + 2];
-                }
-                argc -= 2;
-
-                _service = true;
-            }
-            else
-            {
-                ++idx;
-            }
-        }
-
-        //
-        // Next check for service control options.
-        //
-        string op;
-        idx = 1;
-        while(idx < argc)
-        {
-            if(strcmp(argv[idx], "--install") == 0 ||
-               strcmp(argv[idx], "--uninstall") == 0 ||
-               strcmp(argv[idx], "--start") == 0 ||
-               strcmp(argv[idx], "--stop") == 0)
-            {
-                if(_service)
-                {
-                    error("cannot specify `--service' and `" + string(argv[idx]) + "'");
-                    return EXIT_FAILURE;
-                }
-
-                if(!op.empty())
-                {
-                    error("cannot specify `" + op + "' and `" + string(argv[idx]) + "'");
-                    return EXIT_FAILURE;
-                }
-
-                if(idx + 1 >= argc)
-                {
-                    error("service name argument expected for `" + string(argv[idx]) + "'");
-                    return EXIT_FAILURE;
-                }
-
-                op = argv[idx];
-                name = argv[idx + 1];
-
-                for(int i = idx ; i + 2 < argc ; ++i)
-                {
-                    argv[i] = argv[i + 2];
-                }
-                argc -= 2;
-            }
-            else
-            {
-                ++idx;
-            }
-        }
-
-        if(!op.empty())
-        {
-            if(op == "--install")
-            {
-                return installService(name, argc, argv);
-            }
-            else if(op == "--uninstall")
-            {
-                return uninstallService(name, argc, argv);
-            }
-            else if(op == "--start")
-            {
-                return startService(name, argc, argv);
-            }
-            else
-            {
-                assert(op == "--stop");
-                return stopService(name, argc, argv);
-            }
-        }
-
-        //
-        // Run as a service.
-        //
-        if(_service)
-        {
-            //
-            // When running as a service, we need an event logger in order to report
-            // failures that occur prior to initializing a communicator. After we have
-            // a communicator, we can use the configured logger instead.
-            //
-            // We postpone the initialization of the communicator until serviceMain so
-            // that we can incorporate the executable's arguments and the service's
-            // arguments into one vector.
-            //
-            try
-            {
-                _logger = new EventLoggerI(name);
-            }
-            catch(const IceUtil::Exception& ex)
-            {
-                ostringstream ostr;
-                ostr << ex;
-                error("unable to create EventLogger:\n" + ostr.str());
-                return EXIT_FAILURE;
-            }
-
-            //
-            // Arguments passed to the executable are not passed to the service's main function,
-            // so save them now and serviceMain will merge them later.
-            //
-            for(idx = 1; idx < argc; ++idx)
-            {
-                _serviceArgs.push_back(argv[idx]);
-            }
-
-            SERVICE_TABLE_ENTRY ste[] =
-            {
-                { const_cast<char*>(name.c_str()), (LPSERVICE_MAIN_FUNCTIONA)Ice_Service_ServiceMain },
-                { NULL, NULL },
-            };
-
-            if(!StartServiceCtrlDispatcher(ste))
-            {
-                syserror("unable to start service control dispatcher");
-                return EXIT_FAILURE;
-            }
-
-            return EXIT_SUCCESS;
-        }
+        return status;
+    }
+#else
+    if(checkDaemon(argc, argv, status))
+    {
+        return status;
     }
 #endif
 
     try
     {
+        //
+        // Create the CtrlCHandler after any potential forking so that signals
+        // are initialized properly. We do this before initializing the
+        // communicator because we need to ensure that this is done before any
+        // additional threads are created.
+        //
+        _ctrlCHandler = new IceUtil::CtrlCHandler;
+
+        //
+        // Initialize the communicator.
+        //
         initializeCommunicator(argc, argv);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        ostringstream ostr;
-        ostr << ex;
-        error(ostr.str());
-        return EXIT_FAILURE;
-    }
 
-    //
-    // Use the configured logger.
-    //
-    _logger = _communicator->getLogger();
+        //
+        // Use the configured logger.
+        //
+        _logger = _communicator->getLogger();
 
-    int status = EXIT_FAILURE;
-    try
-    {
+        //
+        // Start the service.
+        //
+        status = EXIT_FAILURE;
         if(start(argc, argv))
         {
+            //
+            // Wait for service shutdown.
+            //
             waitForShutdown();
+
+            //
+            // Stop the service.
+            //
             if(stop())
             {
                 status = EXIT_SUCCESS;
@@ -480,6 +360,174 @@ Ice::Service::trace(const std::string& msg)
 }
 
 #ifdef _WIN32
+
+bool
+Ice::Service::checkService(int argc, char* argv[], int& status)
+{
+    if(_win9x)
+    {
+        return false;
+    }
+
+    string name;
+
+    //
+    // First check for the --service option.
+    //
+    int idx = 1;
+    while(idx < argc)
+    {
+        if(strcmp(argv[idx], "--service") == 0)
+        {
+            if(idx + 1 >= argc)
+            {
+                error("service name argument expected for `" + string(argv[idx]) + "'");
+                status = EXIT_FAILURE;
+                return true;
+            }
+
+            name = argv[idx + 1];
+
+            for(int i = idx; i + 2 < argc; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+
+            _service = true;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    //
+    // Next check for service control options.
+    //
+    string op;
+    idx = 1;
+    while(idx < argc)
+    {
+        if(strcmp(argv[idx], "--install") == 0 ||
+           strcmp(argv[idx], "--uninstall") == 0 ||
+           strcmp(argv[idx], "--start") == 0 ||
+           strcmp(argv[idx], "--stop") == 0)
+        {
+            if(_service)
+            {
+                error("cannot specify `--service' and `" + string(argv[idx]) + "'");
+                status = EXIT_FAILURE;
+                return true;
+            }
+
+            if(!op.empty())
+            {
+                error("cannot specify `" + op + "' and `" + string(argv[idx]) + "'");
+                status = EXIT_FAILURE;
+                return true;
+            }
+
+            if(idx + 1 >= argc)
+            {
+                error("service name argument expected for `" + string(argv[idx]) + "'");
+                status = EXIT_FAILURE;
+                return true;
+            }
+
+            op = argv[idx];
+            name = argv[idx + 1];
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    if(!op.empty())
+    {
+        if(op == "--install")
+        {
+            status = installService(name, argc, argv);
+        }
+        else if(op == "--uninstall")
+        {
+            status = uninstallService(name, argc, argv);
+        }
+        else if(op == "--start")
+        {
+            status = startService(name, argc, argv);
+        }
+        else
+        {
+            assert(op == "--stop");
+            status = stopService(name, argc, argv);
+        }
+        return true;
+    }
+
+    //
+    // Run as a service.
+    //
+    if(_service)
+    {
+        //
+        // When running as a service, we need an event logger in order to report
+        // failures that occur prior to initializing a communicator. After we have
+        // a communicator, we can use the configured logger instead.
+        //
+        // We postpone the initialization of the communicator until serviceMain so
+        // that we can incorporate the executable's arguments and the service's
+        // arguments into one vector.
+        //
+        try
+        {
+            _logger = new EventLoggerI(name);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            ostringstream ostr;
+            ostr << ex;
+            error("unable to create EventLogger:\n" + ostr.str());
+            status = EXIT_FAILURE;
+            return true;
+        }
+
+        //
+        // Arguments passed to the executable are not passed to the service's main function,
+        // so save them now and serviceMain will merge them later.
+        //
+        for(idx = 1; idx < argc; ++idx)
+        {
+            _serviceArgs.push_back(argv[idx]);
+        }
+
+        SERVICE_TABLE_ENTRY ste[] =
+        {
+            { const_cast<char*>(name.c_str()), (LPSERVICE_MAIN_FUNCTIONA)Ice_Service_ServiceMain },
+            { NULL, NULL },
+        };
+
+        if(!StartServiceCtrlDispatcher(ste))
+        {
+            syserror("unable to start service control dispatcher");
+            status = EXIT_FAILURE;
+            return true;
+        }
+
+        status = EXIT_SUCCESS;
+        return true;
+    }
+
+    return false;
+}
+
 int
 Ice::Service::installService(const std::string& name, int argc, char* argv[])
 {
@@ -847,6 +895,8 @@ Ice::Service::stopService(const std::string& name, int argc, char* argv[])
 void
 Ice::Service::serviceMain(int argc, char* argv[])
 {
+    _ctrlCHandler = new IceUtil::CtrlCHandler;
+
     //
     // Initialize the service status.
     //
@@ -1052,4 +1102,300 @@ Ice::ServiceStatusThread::stop(DWORD state, DWORD exitCode)
     _stopped = true;
     notify();
 }
+
+#else
+
+bool
+Ice::Service::checkDaemon(int argc, char* argv[], int& status)
+{
+    //
+    // Check for --daemon.
+    //
+    bool daemonize = false;
+    int idx = 1;
+    while(idx < argc)
+    {
+        if(strcmp(argv[idx], "--daemon") == 0)
+        {
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+
+            daemonize = true;
+        }
+        else
+        {
+            ++idx;
+        }
+    }
+
+    if(!daemonize)
+    {
+        return false;
+    }
+
+    //
+    // Create a pipe that is used to notify the parent when the child is ready.
+    //
+    SOCKET fds[2];
+    IceInternal::createPipe(fds);
+
+    pid_t pid = fork();
+    if(pid < 0)
+    {
+        cerr << argv[0] << ": " << strerror(errno) << endl;
+        status = EXIT_FAILURE;
+        return true;
+    }
+
+    if(pid != 0)
+    {
+        //
+        // Parent process.
+        //
+
+        close(fds[1]);
+
+        //
+        // Wait for the child to write a byte to the pipe to indicate that it
+        // is ready to receive requests.
+        //
+        char c = 0;
+        while(true)
+        {
+            if(read(fds[0], &c, 1) == -1)
+            {
+                if(IceInternal::interrupted())
+                {
+                    continue;
+                }
+
+                cerr << argv[0] << ": " << strerror(errno) << endl;
+                status = EXIT_FAILURE;
+                return true;
+            }
+            break;
+        }
+
+        if(c != 0)
+        {
+            //
+            // Read an error message.
+            //
+            char msg[1024];
+            size_t pos = 0;
+            while(pos < sizeof(msg))
+            {
+                int n = read(fds[0], &msg[pos], sizeof(msg) - pos);
+                if(n == -1)
+                {
+                    if(IceInternal::interrupted())
+                    {
+                        continue;
+                    }
+
+                    cerr << argv[0] << ": I/O error while reading error message from child:" << endl
+                         << strerror(errno) << endl;
+                    status = EXIT_FAILURE;
+                    return true;
+                }
+                pos += n;
+                break;
+            }
+            cerr << argv[0] << ": failure occurred in daemon:" << endl << msg << endl;
+            status = EXIT_FAILURE;
+        }
+        else
+        {
+            status = EXIT_SUCCESS;
+        }
+
+        return true;
+    }
+
+    //
+    // Child process.
+    //
+
+    string errMsg;
+    try
+    {
+        //
+        // Set the umask.
+        //
+        umask(0);
+
+        //
+        // Change the working directory.
+        //
+        if(chdir("/") != 0)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        //
+        // Become a session leader.
+        //
+        if(setsid() == -1)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        //
+        // Close open file descriptors.
+        //
+        int fdMax = sysconf(_SC_OPEN_MAX);
+        if(fdMax <= 0)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        int i;
+        for(i = 0; i < fdMax; ++i)
+        {
+            if(i != fds[1])
+            {
+                close(i);
+            }
+        }
+
+        //
+        // Associate stdin, stdout and stderr with /dev/null.
+        //
+        int fd;
+        fd = open("/dev/null", O_RDWR);
+        assert(fd == 0);
+        fd = dup2(0, 1);
+        assert(fd == 1);
+        fd = dup2(1, 2);
+        assert(fd == 2);
+
+        //
+        // Create the CtrlCHandler after forking the child so that signals
+        // are initialized properly. We do this before initializing the
+        // communicator because we need to ensure that this is done before any
+        // additional threads are created.
+        //
+        _ctrlCHandler = new IceUtil::CtrlCHandler;
+
+        //
+        // Initialize the communicator.
+        //
+        initializeCommunicator(argc, argv);
+
+        //
+        // Use the configured logger.
+        //
+        _logger = _communicator->getLogger();
+
+        //
+        // Start the service.
+        //
+        if(start(argc, argv))
+        {
+            //
+            // Notify the parent that the child is ready.
+            //
+            char c = 0;
+            while(true)
+            {
+                if(write(fds[1], &c, 1) == -1)
+                {
+                    if(IceInternal::interrupted())
+                    {
+                        continue;
+                    }
+                }
+                break;
+            }
+            close(fds[1]);
+            fds[1] = 0;
+
+            //
+            // Wait for service shutdown.
+            //
+            waitForShutdown();
+
+            //
+            // Stop the service.
+            //
+            if(stop())
+            {
+                status = EXIT_SUCCESS;
+            }
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        ostringstream ostr;
+        ostr << "service caught unhandled Ice exception:" << endl << ex;
+        errMsg = ostr.str();
+        error(errMsg);
+    }
+    catch(...)
+    {
+        errMsg = "service caught unhandled C++ exception";
+        error(errMsg);
+    }
+
+    //
+    // If the service failed and the pipe to the parent is still open,
+    // then send an error notification to the parent.
+    //
+    if(status != EXIT_SUCCESS && fds[1] != 0)
+    {
+        char c = 1;
+        while(true)
+        {
+            if(write(fds[1], &c, 1) == -1)
+            {
+                if(IceInternal::interrupted())
+                {
+                    continue;
+                }
+            }
+            break;
+        }
+        const char* msg = errMsg.c_str();
+        size_t len = strlen(msg) + 1; // Include null byte
+        size_t pos = 0;
+        while(len > 0)
+        {
+            int n = write(fds[1], &msg[pos], len);
+            if(n == -1)
+            {
+                if(IceInternal::interrupted())
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            len -= n;
+            pos += n;
+        }
+        close(fds[1]);
+    }
+
+    try
+    {
+        _communicator->destroy();
+    }
+    catch(...)
+    {
+    }
+
+    return true;
+}
+
 #endif

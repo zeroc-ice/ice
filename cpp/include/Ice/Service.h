@@ -57,6 +57,7 @@ protected:
 
 private:
 
+    bool checkService(int, char*[], int&);
     int installService(const std::string&, int, char*[]);
     int uninstallService(const std::string&, int, char*[]);
     int startService(const std::string&, int, char*[]);
@@ -73,6 +74,13 @@ private:
     SERVICE_STATUS_HANDLE _statusHandle;
     SERVICE_STATUS _status;
     std::vector<std::string> _serviceArgs;
+
+#else
+
+private:
+
+    bool checkDaemon(int, char*[], int&);
+
 #endif
 
 private:
