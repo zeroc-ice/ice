@@ -82,8 +82,7 @@ encodeChar(string::value_type b, string& s, const string& special)
     }
     default:
     {
-	// TODO: ML: Don't use old C-style casts.
-        if(((signed char)b) <= 31 || b == 127)
+        if(static_cast<signed char>(b) <= 31 || b == 127)
         {
             s.push_back('\\');
             string octal = toOctalString(b);
@@ -224,8 +223,7 @@ IceInternal::decodeString(const string& s, string::size_type start, string::size
             }
             default:
             {
-		// TODO: ML: No old C-style casts.
-                if(((signed char)ch) <= 31 || ch == 127)
+                if(static_cast<signed char>(ch) <= 31 || ch == 127)
                 {
                     return false; // Malformed encoding.
                 }
