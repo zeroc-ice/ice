@@ -10,7 +10,7 @@
 top_srcdir	= ../..
 
 LIBNAME		= glacier2cs.dll
-TARGETS		= $(libdir)/$(LIBNAME)
+TARGETS		= $(bindir)/$(LIBNAME)
 
 SRCS		= AssemblyInfo.cs
 
@@ -34,6 +34,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -r:$(libdir)/icecs.dll $^
 
 install:: all
-	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)
+	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
 
 include .depend

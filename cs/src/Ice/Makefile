@@ -10,7 +10,7 @@
 top_srcdir	= ../..
 
 LIBNAME		= icecs.dll
-TARGETS		= $(libdir)/$(LIBNAME)
+TARGETS		= $(bindir)/$(LIBNAME)
 
 SRCS		= Acceptor.cs \
 		  Application.cs \
@@ -131,6 +131,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $^
 
 install:: all
-	$(INSTALL) $(libdir)/$(LIBNAME) $(install_libdir)
+	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
 
 include .depend

@@ -90,6 +90,8 @@ install_slicedir	= $(prefix)/slice
 
 INSTALL			= cp -fp
 
+GACUTIL			= /usr/bin/mono /usr/bin/gacutil.exe
+
 MCS			= mcs
 
 LIBS			= $(libdir)/icecs.dll $(libdir)/glaciercs.dll
