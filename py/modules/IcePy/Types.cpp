@@ -385,7 +385,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         string val;
         if(PyString_Check(p))
         {
-            val = (const char*)PyString_AS_STRING(p);
+            val = PyString_AS_STRING(p);
         }
         else if(p != Py_None)
         {
@@ -485,6 +485,475 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
         break;
     }
     }
+}
+
+void
+IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& os)
+{
+    PyObjectHandle fs = PySequence_Fast(p, "expected a sequence value");
+    if(fs.get() == NULL)
+    {
+        return;
+    }
+
+    switch(kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::BoolSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            int isTrue = PyObject_IsTrue(item);
+            if(isTrue < 0)
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<bool>", i);
+                throw AbortMarshaling();
+            }
+            seq[i] = isTrue ? true : false;
+        }
+        os->writeBoolSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::ByteSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            long val = -1;
+            if(PyInt_Check(item))
+            {
+                val = PyInt_AS_LONG(item);
+            }
+            else if(PyLong_Check(item))
+            {
+                val = PyLong_AsLong(item);
+            }
+
+            if(val < 0 || val > 255)
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<byte>", i);
+                throw AbortMarshaling();
+            }
+            seq[i] = static_cast<Ice::Byte>(val);
+        }
+        os->writeByteSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::ShortSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            long val = SHRT_MIN - 1;
+            if(PyInt_Check(item))
+            {
+                val = PyInt_AS_LONG(item);
+            }
+            else if(PyLong_Check(item))
+            {
+                val = PyLong_AsLong(item);
+            }
+
+            if(val < SHRT_MIN || val > SHRT_MAX)
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<short>", i);
+                throw AbortMarshaling();
+            }
+            seq[i] = static_cast<Ice::Short>(val);
+        }
+        os->writeShortSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::IntSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            long val;
+            if(PyInt_Check(item))
+            {
+                val = PyInt_AS_LONG(item);
+            }
+            else if(PyLong_Check(item))
+            {
+                val = PyLong_AsLong(item);
+            }
+            else
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                throw AbortMarshaling();
+            }
+
+            if(val < INT_MIN || val > INT_MAX)
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                throw AbortMarshaling();
+            }
+            seq[i] = static_cast<Ice::Int>(val);
+        }
+        os->writeIntSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::LongSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            //
+            // The platform's 'long' type may not be 64 bits, so we also accept
+            // a string argument for this type.
+            //
+            Ice::Long val;
+            if(PyInt_Check(item))
+            {
+                val = PyInt_AS_LONG(item);
+            }
+            else if(PyLong_Check(item))
+            {
+                val = PyLong_AsLong(item);
+            }
+            else if(PyString_Check(item))
+            {
+                char* sval = PyString_AS_STRING(item);
+                assert(sval);
+                string::size_type pos;
+                if(!IceUtil::stringToInt64(sval, val, pos))
+                {
+                    PyErr_Format(PyExc_ValueError, "invalid long value `%s' in element %d of sequence<long>", sval, i);
+                    throw AbortMarshaling();
+                }
+            }
+            else
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                throw AbortMarshaling();
+            }
+            seq[i] = val;
+        }
+        os->writeLongSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::FloatSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            float val;
+            if(PyFloat_Check(item))
+            {
+                val = static_cast<float>(PyFloat_AS_DOUBLE(item));
+            }
+            else
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<float>", i);
+                throw AbortMarshaling();
+            }
+
+            seq[i] = val;
+        }
+        os->writeFloatSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::DoubleSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            double val;
+            if(PyFloat_Check(item))
+            {
+                val = PyFloat_AS_DOUBLE(item);
+            }
+            else
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<double>", i);
+                throw AbortMarshaling();
+            }
+
+            seq[i] = val;
+        }
+        os->writeDoubleSeq(seq);
+        break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+        int sz = PySequence_Fast_GET_SIZE(fs.get());
+        Ice::StringSeq seq;
+        seq.reserve(sz);
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);
+            if(item == NULL)
+            {
+                throw AbortMarshaling();
+            }
+
+            string val;
+            if(PyString_Check(item))
+            {
+                val = PyString_AS_STRING(item);
+            }
+            else if(p != Py_None)
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<string>", i);
+                throw AbortMarshaling();
+            }
+
+            seq[i] = val;
+        }
+        os->writeStringSeq(seq);
+        break;
+    }
+    }
+}
+
+void
+IcePy::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
+                                        void* closure)
+{
+    PyObjectHandle list;
+
+    switch(kind)
+    {
+    case PrimitiveInfo::KindBool:
+    {
+        Ice::BoolSeq seq = is->readBoolSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObject* val = seq[i] ? Py_True : Py_False;
+            Py_INCREF(val);
+            PyList_SET_ITEM(list.get(), i, val); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindByte:
+    {
+        Ice::ByteSeq seq = is->readByteSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyInt_FromLong(seq[i]);
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindShort:
+    {
+        Ice::ShortSeq seq = is->readShortSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyInt_FromLong(seq[i]);
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindInt:
+    {
+        Ice::IntSeq seq = is->readIntSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyInt_FromLong(seq[i]);
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindLong:
+    {
+        Ice::LongSeq seq = is->readLongSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item;
+            //
+            // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
+            //
+            if(sizeof(Ice::Long) > sizeof(long) && (seq[i] < LONG_MIN || seq[i] > LONG_MAX))
+            {
+                char buf[64];
+#ifdef WIN32
+                sprintf(buf, "%I64d", seq[i]);
+#else
+                sprintf(buf, "%lld", seq[i]);
+#endif
+                item = PyString_FromString(buf);
+            }
+            else
+            {
+                item = PyInt_FromLong(static_cast<long>(seq[i]));
+            }
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindFloat:
+    {
+        Ice::FloatSeq seq = is->readFloatSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyFloat_FromDouble(seq[i]);
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindDouble:
+    {
+        Ice::DoubleSeq seq = is->readDoubleSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyFloat_FromDouble(seq[i]);
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    case PrimitiveInfo::KindString:
+    {
+        Ice::StringSeq seq = is->readStringSeq();
+        int sz = static_cast<int>(seq.size());
+        list = PyList_New(sz);
+        if(list.get() == NULL)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(int i = 0; i < sz; ++i)
+        {
+            PyObjectHandle item = PyString_FromString(seq[i].c_str());
+            if(item.get() == NULL)
+            {
+                throw AbortMarshaling();
+            }
+            PyList_SET_ITEM(list.get(), i, item.release()); // PyList_SET_ITEM steals a reference.
+        }
+        break;
+    }
+    }
+    cb->unmarshaled(list.get(), target, closure);
 }
 
 //
@@ -671,59 +1140,47 @@ IcePy::SequenceInfo::getId() const
 bool
 IcePy::SequenceInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyList_Check(val) == 1 || PyTuple_Check(val) == 1;
+    return val == Py_None || PySequence_Check(val) == 1;
 }
 
 void
 IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
-    if(PyList_Check(p))
-    {
-        int sz = PyList_GET_SIZE(p);
-        os->writeSize(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PyList_GetItem(p, i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            if(!elementType->validate(item))
-            {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of `%s'", i,
-                             const_cast<char*>(id.c_str()));
-                throw AbortMarshaling();
-            }
-            elementType->marshal(item, os, objectMap);
-        }
-    }
-    else if(PyTuple_Check(p))
-    {
-        int sz = PyTuple_GET_SIZE(p);
-        os->writeSize(sz);
-        for(int i = 0; i < sz; ++i)
-        {
-            PyObject* item = PyTuple_GetItem(p, i);
-            if(item == NULL)
-            {
-                throw AbortMarshaling();
-            }
-            if(!elementType->validate(item))
-            {
-                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of `%s'", i,
-                             const_cast<char*>(id.c_str()));
-                throw AbortMarshaling();
-            }
-            elementType->marshal(item, os, objectMap);
-        }
-    }
-    else if(p == Py_None)
+    if(p == Py_None)
     {
         os->writeSize(0);
+        return;
     }
-    else
+
+    PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
+    if(pi)
     {
-        assert(false); // validate() should have caught this.
+        pi->marshalSequence(p, os);
+        return;
+    }
+
+    PyObjectHandle fastSeq = PySequence_Fast(p, "expected a sequence value");
+    if(fastSeq.get() == NULL)
+    {
+        return;
+    }
+
+    int sz = PySequence_Fast_GET_SIZE(fastSeq.get());
+    os->writeSize(sz);
+    for(int i = 0; i < sz; ++i)
+    {
+        PyObject* item = PySequence_Fast_GET_ITEM(fastSeq.get(), i);
+        if(item == NULL)
+        {
+            throw AbortMarshaling();
+        }
+        if(!elementType->validate(item))
+        {
+            PyErr_Format(PyExc_AttributeError, "invalid value for element %d of `%s'", i,
+                         const_cast<char*>(id.c_str()));
+            throw AbortMarshaling();
+        }
+        elementType->marshal(item, os, objectMap);
     }
 }
 
@@ -731,14 +1188,19 @@ void
 IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                                void* closure)
 {
+    PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
+    if(pi)
+    {
+        pi->unmarshalSequence(is, cb, target, closure);
+        return;
+    }
+
     Ice::Int sz = is->readSize();
     PyObjectHandle result = PyList_New(sz);
     if(result.get() == NULL)
     {
         throw AbortMarshaling();
     }
-
-    // TODO: Optimize for certain sequence types (e.g., bytes)?
 
     for(Ice::Int i = 0; i < sz; ++i)
     {

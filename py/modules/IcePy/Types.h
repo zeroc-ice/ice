@@ -112,6 +112,9 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    void marshalSequence(PyObject*, const Ice::OutputStreamPtr&);
+    void unmarshalSequence(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+
     enum Kind
     {
         KindBool,
