@@ -294,7 +294,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "):";
 
     _out.inc();
-    if(!p->isLocal())
+    if(p->isLocal())
+    {
+        _out << nl << "pass";
+    }
+    else
     {
         //
         // ice_ids
@@ -341,21 +345,21 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.dec();
     }
 
-    if(p->isLocal() && ops.empty())
-    {
-        _out << nl << "pass";
-    }
-    else
+    if(!ops.empty())
     {
         //
         // Emit a placeholder for each operation.
         //
+        _out << sp
+             << nl << "#"
+             << nl << "# Operation signatures."
+             << nl << "#";
         for(oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
             if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
             {
-                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+                _out << nl << "# def " << fixedOpName << "_async(self, _cb";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -371,13 +375,10 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << ", current=None";
                 }
                 _out << "):";
-                _out.inc();
-                _out << nl << "raise RuntimeError(\"operation `" << fixedOpName << "_async' not implemented\")";
-                _out.dec();
             }
             else
             {
-                _out << sp << nl << "def " << fixedOpName << "(self";
+                _out << nl << "# def " << fixedOpName << "(self";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -393,9 +394,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << ", current=None";
                 }
                 _out << "):";
-                _out.inc();
-                _out << nl << "raise RuntimeError(\"operation `" << fixedOpName << "' not implemented\")";
-                _out.dec();
             }
         }
     }
@@ -764,6 +762,28 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "return '" << scoped << "'";
     _out.dec();
 
+    //
+    // __str__
+    //
+    _out << sp << nl << "def __str__(self):";
+    _out.inc();
+    if(allMembers.empty())
+    {
+        _out << nl << "return '" << fixedScoped << "'";
+    }
+    else
+    {
+        _out << nl << "return '" << fixedScoped << ":'";
+        _out.inc();
+        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            _out << " +\\"
+                 << nl << "'\\n" << q->fixedName << ": ' + str(self." << q->fixedName << ')';
+        }
+        _out.dec();
+    }
+    _out.dec();
+
     _out.dec();
 
     //
@@ -847,6 +867,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out << nl << "self." << s << " = " << s;
     }
     _out.dec();
+
     _out.dec();
 
     //
