@@ -26,7 +26,7 @@ All Rights Reserved
 <arg>-c</arg>
 </group>
 <group>
-<arg choice=plain> @ <replaceable>adapter_name</replaceable></arg>
+<arg choice=plain> @ <replaceable>adapter_id</replaceable></arg>
 <arg choice=plain> : <replaceable>endpoints</replaceable></arg>
 </group>
 </cmdsynopsis>
@@ -34,14 +34,127 @@ All Rights Reserved
 
 <section><title>Description</title>
 <para>
-TBD
+A stringified proxy consists of an identity, proxy options, and an
+optional object adapter identifier or endpoint list. A proxy containing
+an identity with no endpoints, or an identity with an object adapter
+identifier, represents an indirect proxy that will be resolved using the
+&Ice; locator (see the <literal>Ice.Default.Locator</literal> property).
+</para>
+<para>
+Proxy options configure the invocation mode:
+</para>
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>-f <replaceable>facet</replaceable></entry>
+<entry>Select a facet of the Ice object.</entry>
+</row>
+<row>
+<entry>-t</entry>
+<entry>Configures the proxy for twoway invocations. (default)</entry>
+</row>
+<row>
+<entry>-o</entry>
+<entry>Configures the proxy for oneway invocations.</entry>
+</row>
+<row>
+<entry>-O</entry>
+<entry>Configures the proxy for batch oneway invocations.</entry>
+</row>
+<row>
+<entry>-d</entry>
+<entry>Configures the proxy for datagram invocations.</entry>
+</row>
+<row>
+<entry>-D</entry>
+<entry>Configures the proxy for batch datagram invocations.</entry>
+</row>
+<row>
+<entry>-s</entry>
+<entry>Configures the proxy for secure invocations.</entry>
+</row>
+<row>
+<entry>-c</entry>
+<entry>Configures the proxy for protocol compression. (C++ only)</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+<para>
+The proxy options <literal>-t</literal>, <literal>-o</literal>,
+<literal>-O</literal>, <literal>-d</literal>, and <literal>-D</literal>
+are mutually exclusive.
+</para>
+<para>
+The object identity <replaceable>identity</replaceable> is structured
+as <literal>[<replaceable>category</replaceable>/]<replaceable>name
+</replaceable></literal>, where the <replaceable>category</replaceable>
+component and slash separator are optional. If the identity as a whole
+contains whitespace or either of the characters <literal>:</literal> or
+<literal>@</literal>, it must be enclosed in single or double quotes. The
+<replaceable>category</replaceable> and <replaceable>name</replaceable>
+components are UTF8 strings that use the encoding described below. Any
+occurrence of a slash (<literal>/</literal>) character in
+<replaceable>category</replaceable> or <replaceable>name</replaceable>
+must be escaped with a backslash (i.e., <literal>\/</literal>).
+</para>
+<para>
+The <replaceable>facet</replaceable> argument of the <literal>-f</literal>
+option is a facet path consisting of one or more facets separated by a slash
+(<literal>/</literal>) character. If <replaceable>facet</replaceable>
+contains whitespace, it must be enclosed in single or double quotes. Each
+component of the facet path is a UTF8 string that uses the encoding described
+below. Any occurrence of a slash (<literal>/</literal>) character in a facet
+path component must be escaped with a backslash (i.e., <literal>\/</literal>).
+</para>
+<para>
+The object adapter identifier <replaceable>adapter_id</replaceable>
+is a UTF8 string that uses the encoding described below. If
+<replaceable>adapter_id</replaceable> contains whitespace, it must
+be enclosed in single or double quotes.
+</para>
+<para>
+UTF8 strings are encoded using ASCII characters for the ordinal
+range 32-126 (inclusive). Characters outside this range must be encoded
+using escape sequences (<literal>\b</literal>,
+<literal>\f</literal>, <literal>\n</literal>, <literal>\r</literal>,
+<literal>\t</literal>) or octal notation (e.g., <literal>\007</literal>).
+Quotation marks used to enclose a string can be escaped using a backslash,
+as can the backslash itself (<literal>\\</literal>).
+</para>
+<para>
+If endpoints are specified, they must be separated with a colon
+(<literal>:</literal>) and formatted as described in
+<link linkend='endpoints' endterm="endpoints.title"></link>. When a
+stringified proxy is converted into a proxy instance, the endpoint
+list is randomized for binding purposes, therefore the order of the
+endpoints in the stringified proxy is not necessarily the order in
+which connections are attempted.
+</para>
+<para>
+If the <literal>-s</literal> option is specified, only those endpoints that
+support secure invocations are considered during binding. If no valid
+endpoints are found, the application receives
+<literal>Ice::NoEndpointException</literal>.
+</para>
+<para>
+Otherwise, if the <literal>-s</literal> option is not specified, the endpoint
+list is ordered so that non-secure endpoints have priority over secure
+endpoints during binding. In other words, connections are attempted on all
+non-secure endpoints before any secure endpoints are attempted.
+</para>
+<para>
+If an unknown option is specified, or the stringified proxy is malformed,
+the application receives <literal>Ice::ProxyParseException</literal>.
+An invalid endpoint raises <literal>Ice::EndpointParseException</literal>.
 </para>
 </section>
 
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Endpoints</title>
+<section id="endpoints"><title id="endpoints.title">Endpoints</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -53,12 +166,34 @@ TBD
 
 <section><title>Description</title>
 <para>
-TBD
+An endpoint list consists of one or more endpoints separated by a
+colon (<literal>:</literal>) character. An endpoint has the
+following format:
+<cmdsynopsis>
+<arg choice=plain><replaceable>protocol</replaceable></arg>
+<arg rep=repeat><replaceable>option</replaceable></arg>
+</cmdsynopsis>
+The supported protocols are <literal>tcp</literal>, <literal>udp</literal>,
+<literal>ssl</literal>, and <literal>default</literal>. If
+<literal>default</literal> is used, it is replaced by the value of the
+<literal>Ice.Default.Protocol</literal> property. If an endpoint is
+malformed, or an unknown protocol is specified, the application receives
+<literal>Ice::EndpointParseException</literal>.
+</para>
+<note>
+<para>
+The <literal>ssl</literal> protocol is only available if the IceSSL plug-in
+is installed.
+</para>
+</note>
+<para>
+The protocols and their supported options are described in the sections that
+follow.
 </para>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Tcp Endpoint</title>
+<section><title>TCP Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -72,14 +207,57 @@ TBD
 
 <section><title>Description</title>
 <para>
-TBD
+A <literal>tcp</literal> endpoint supports the following options:
+<informaltable>
+<tgroup cols=4>
+<thead>
+<row>
+<entry>Option</entry>
+<entry>Description</entry>
+<entry>Client Semantics</entry>
+<entry>Server Semantics</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>-h <replaceable>host</replaceable></entry>
+<entry>Specifies the hostname or IP address of the endpoint. If not
+specified, the value of <literal>Ice.Default.Host</literal> is used
+instead.</entry>
+<entry>Determines the hostname or IP address to which a connection
+attempt is made.</entry>
+<entry>Determines the network interface on which the object adapter
+listens for connections, as well as the hostname that is advertised
+in proxies created by the adapter.</entry>
+</row>
+<row>
+<entry>-p <replaceable>port</replaceable></entry>
+<entry>Specifies the port number of the endpoint.</entry>
+<entry>Determines the port to which a connection attempt is made.
+(required)</entry>
+<entry>The port will be selected by the operating system if this option
+is not specified or <replaceable>port</replaceable> is zero.</entry>
+</row>
+<row>
+<entry>-t <replaceable>timeout</replaceable></entry>
+<entry>Specifies the endpoint timeout in milliseconds.</entry>
+<entry>If <replaceable>timeout</replaceable> is greater than zero,
+it sets a maximum delay for binding and proxy invocations. If a timeout
+occurs, the application receives <literal>Ice::TimeoutException</literal>.
+</entry>
+<entry>Determines the default timeout that is advertised in proxies
+created by the object adapter.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Udp Endpoint</title>
+<section><title>UDP Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -93,14 +271,53 @@ TBD
 
 <section><title>Description</title>
 <para>
-TBD
+A <literal>udp</literal> endpoint supports the following options:
+<informaltable>
+<tgroup cols=4>
+<thead>
+<row>
+<entry>Option</entry>
+<entry>Description</entry>
+<entry>Client Semantics</entry>
+<entry>Server Semantics</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>-h <replaceable>host</replaceable></entry>
+<entry>Specifies the hostname or IP address of the endpoint. If not
+specified, the value of <literal>Ice.Default.Host</literal> is used
+instead.</entry>
+<entry>Determines the hostname or IP address to which datagrams
+are sent.</entry>
+<entry>Determines the network interface on which the object adapter
+listens for datagrams, as well as the hostname that is advertised
+in proxies created by the adapter.</entry>
+</row>
+<row>
+<entry>-p <replaceable>port</replaceable></entry>
+<entry>Specifies the port number of the endpoint.</entry>
+<entry>Determines the port to which datagrams are sent. (required)</entry>
+<entry>The port will be selected by the operating system if this option
+is not specified or <replaceable>port</replaceable> is zero.</entry>
+</row>
+<row>
+<entry>-c</entry>
+<entry>Specifies that a connected UDP socket should be used.</entry>
+<entry>None.</entry>
+<entry>Causes the server to connect to the socket of the first peer
+that sends a datagram to this endpoint.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>Ssl Endpoint</title>
+<section><title>SSL Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -114,28 +331,50 @@ TBD
 
 <section><title>Description</title>
 <para>
-TBD
-</para>
-</section>
-
-</section>
-
-<!-- ********************************************************************** -->
-<section><title>SUdp Endpoint</title>
-<!-- ********************************************************************** -->
-
-<section><title>Synopsis</title>
-<cmdsynopsis>
-<command>sudp</command>
-<arg>-h <replaceable>host</replaceable></arg>
-<arg>-p <replaceable>port</replaceable></arg>
-<arg>-c</arg>
-</cmdsynopsis>
-</section>
-
-<section><title>Description</title>
-<para>
-TBD
+An <literal>ssl</literal> endpoint supports the following options:
+<informaltable>
+<tgroup cols=4>
+<thead>
+<row>
+<entry>Option</entry>
+<entry>Description</entry>
+<entry>Client Semantics</entry>
+<entry>Server Semantics</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry>-h <replaceable>host</replaceable></entry>
+<entry>Specifies the hostname or IP address of the endpoint. If not
+specified, the value of <literal>Ice.Default.Host</literal> is used
+instead.</entry>
+<entry>Determines the hostname or IP address to which a connection
+attempt is made.</entry>
+<entry>Determines the network interface on which the object adapter
+listens for connections, as well as the hostname that is advertised
+in proxies created by the adapter.</entry>
+</row>
+<row>
+<entry>-p <replaceable>port</replaceable></entry>
+<entry>Specifies the port number of the endpoint.</entry>
+<entry>Determines the port to which a connection attempt is made.
+(required)</entry>
+<entry>The port will be selected by the operating system if this option
+is not specified or <replaceable>port</replaceable> is zero.</entry>
+</row>
+<row>
+<entry>-t <replaceable>timeout</replaceable></entry>
+<entry>Specifies the endpoint timeout in milliseconds.</entry>
+<entry>If <replaceable>timeout</replaceable> is greater than zero,
+it sets a maximum delay for binding and proxy invocations. If a timeout
+occurs, the application receives <literal>Ice::TimeoutException</literal>.
+</entry>
+<entry>Determines the default timeout that is advertised in proxies
+created by the object adapter.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 
