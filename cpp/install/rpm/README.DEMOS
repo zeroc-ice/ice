@@ -65,10 +65,10 @@ Ice for Java
 
 The Java demos require that you have the Ice.jar, the Ice ant tasks
 and the Berkeley DB db.jar in your CLASSPATH. If Ice was installed
-from RPMs, Ice.jar and the ant tasks are in /usr/lib/Ice-(the Ice
-version number)/Ice.jar and /usr/lib/Ice-(the Ice version number)/ant,
+from RPMs, Ice.jar and the ant tasks are in
+/usr/lib/Ice-<version>/Ice.jar and /usr/lib/Ice-<version>/ant,
 respectively. Otherwise, Ice.jar and the ant tasks will be in the Ice
-installation's lib and ant directories, respectively. 
+installation's lib and ant directories, respectively.
 
 Ice for C#
 ----------
@@ -92,19 +92,16 @@ distribution, you may have installed it in a directory other than the
 ICE_HOME directory.  
 
 For RPM installations, the environment variables should be:
+
 ICEPY_HOME=/usr
-PYTHONPATH=/usr/lib:/usr/lib/Ice-(the Ice version)/python:[other non-ice
-components]
+PYTHONPATH=/usr/lib:/usr/lib/Ice-<version>/python:$PYTHONPATH
 
 For non-RPM installations, the environment variables should be:
 
-ICEPY_HOME=/opt/IcePy-(the Ice version) 
-PYTHONPATH=/opt/IcePy-(the Ice version)/lib:/opt/IcePy-(the Ice version)/python:
-  [other non-ice components]
+ICEPY_HOME=/opt/IcePy-<version>
+PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
 
 -- or --
 
-ICEPY_HOME=/opt/Ice-(the Ice version) 
-PYTHONPATH=/opt/Ice-(the Ice version)/lib:/opt/Ice-(the Ice version)/python:
-  [other non-ice components]
-
+ICEPY_HOME=/opt/Ice-<version>
+PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
