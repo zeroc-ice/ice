@@ -10,7 +10,7 @@
 
 package Ice;
 
-public final class PluginManagerI implements PluginManager
+public final class PluginManagerI extends LocalObjectImpl implements PluginManager
 {
     public synchronized Plugin
     getPlugin(String name)

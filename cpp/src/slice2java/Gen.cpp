@@ -946,7 +946,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << sp << nl << "public interface " << name << " extends ";
         out.useCurrentPosAsIndent();
-        out << name << "Operations";
+        if(p->isLocal())
+        {
+            out << "Ice.LocalObject";
+        }
+        else
+        {
+            out << "Ice.Object";
+        }
+        out << "," << nl << name << "Operations";
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -971,11 +979,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(p->isLocal())
             {
-                out << " extends Ice.LocalObject";
+                out << " extends Ice.LocalObjectImpl";
             }
             else
             {
-                out << " extends Ice.Object";
+                out << " extends Ice.ObjectImpl";
             }
         }
         else
@@ -1122,7 +1130,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isAbstract())
     {
         out << sp;
-        out << nl << "private static class __F implements Ice.ObjectFactory";
+        out << nl << "private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory";
         out << sb;
         out << nl << "public Ice.Object" << nl << "create(String type)";
         out << sb;
@@ -2117,47 +2125,47 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public static " << name << "Prx"
         << nl << "checkedCast(Ice.ObjectPrx b)";
     out << sb;
-     out << nl << name << "Prx d = null;";
-     out << nl << "if(b != null)";
-     out << sb;
-      out << nl << "try";
-      out << sb;
-       out << nl << "d = (" << name << "Prx)b;";
-      out << eb;
-      out << nl << "catch(ClassCastException ex)";
-      out << sb;
-       out << nl << "if(b.ice_isA(\"" << scoped << "\"))";
-       out << sb;
-        out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-        out << nl << "h.__copyFrom(b);";
-        out << nl << "d = h;";
-       out << eb;
-      out << eb;
-     out << eb;
-     out << nl << "return d;";
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "d = (" << name << "Prx)b;";
+    out << eb;
+    out << nl << "catch(ClassCastException ex)";
+    out << sb;
+    out << nl << "if(b.ice_isA(\"" << scoped << "\"))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(b);";
+    out << nl << "d = h;";
+    out << eb;
+    out << eb;
+    out << eb;
+    out << nl << "return d;";
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
         << nl << "checkedCast(Ice.ObjectPrx b, String f)";
     out << sb;
-     out << nl << name << "Prx d = null;";
-     out << nl << "if(b != null)";
-     out << sb;
-      out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
-      out << nl << "try";
-      out << sb;
-       out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
-       out << sb;
-	out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-	out << nl << "h.__copyFrom(bb);";
-	out << nl << "d = h;";
-       out << eb;
-      out << eb;
-      out << nl << "catch(Ice.FacetNotExistException ex)";
-      out << sb;
-      out << eb;
-     out << eb;
-     out << nl << "return d;";
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    out << nl << "try";
+    out << sb;
+    out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(bb);";
+    out << nl << "d = h;";
+    out << eb;
+    out << eb;
+    out << nl << "catch(Ice.FacetNotExistException ex)";
+    out << sb;
+    out << eb;
+    out << eb;
+    out << nl << "return d;";
     out << eb;
 
     //
@@ -2166,28 +2174,28 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public static " << name << "Prx"
         << nl << "uncheckedCast(Ice.ObjectPrx b)";
     out << sb;
-     out << nl << name << "Prx d = null;";
-     out << nl << "if(b != null)";
-     out << sb;
-      out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-      out << nl << "h.__copyFrom(b);";
-      out << nl << "d = h;";
-     out << eb;
-     out << nl << "return d;";
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(b);";
+    out << nl << "d = h;";
+    out << eb;
+    out << nl << "return d;";
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
         << nl << "uncheckedCast(Ice.ObjectPrx b, String f)";
     out << sb;
-     out << nl << name << "Prx d = null;";
-     out << nl << "if(b != null)";
-     out << sb;
-      out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
-      out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-      out << nl << "h.__copyFrom(bb);";
-      out << nl << "d = h;";
-     out << eb;
-     out << nl << "return d;";
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(bb);";
+    out << nl << "d = h;";
+    out << eb;
+    out << nl << "return d;";
     out << eb;
 
     //
@@ -3299,7 +3307,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = output();
 
     out << sp << nl << "public abstract class _" << name
-        << "Disp extends Ice.Object implements " << name;
+        << "Disp extends Ice.ObjectImpl implements " << name;
     out << sb;
 
     //

@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class DBTransactionI implements DBTransaction
+class DBTransactionI extends Ice.LocalObjectImpl implements DBTransaction
 {
     public synchronized void
     commit()

@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class DBEnvironmentI implements DBEnvironment, com.sleepycat.db.DbErrcall
+class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.sleepycat.db.DbErrcall
 {
     public String
     getName()

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-class ContactFactory implements Ice.ObjectFactory, Freeze.ServantInitializer
+class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory, Freeze.ServantInitializer
 {
     public Ice.Object
     create(String type)

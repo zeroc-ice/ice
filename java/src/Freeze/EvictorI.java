@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class EvictorI implements Evictor
+class EvictorI extends Ice.LocalObjectImpl implements Evictor
 {
     synchronized public DB
     getDB()
@@ -411,7 +411,7 @@ class EvictorI implements Evictor
 	}    
     }
 
-    class EvictorElement extends Ice.LocalObject
+    class EvictorElement extends Ice.LocalObjectImpl
     {
 	public Ice.Object servant;
 	java.util.Iterator position;

@@ -10,7 +10,7 @@
 
 package Ice;
 
-public class LoggerI implements Logger
+public class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
     LoggerI(String prefix)
@@ -59,5 +59,5 @@ public class LoggerI implements Logger
     }
 
     String _prefix = "";
-    static Object _globalMutex = new Object();
+    static java.lang.Object _globalMutex = new java.lang.Object();
 }

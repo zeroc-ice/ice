@@ -374,7 +374,7 @@ public class Client
         }
     }
 
-    private static class Class3Factory implements Ice.ObjectFactory
+    private static class Class3Factory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
@@ -408,7 +408,7 @@ public class Client
 
         java.io.StringReader sr = new java.io.StringReader(sw.toString());
         Ice.Stream istream = new IceXML.StreamI(communicator, sr);
-        Ice.Object o = Ice.Object.ice_unmarshal(element, istream);
+        Ice.Object o = Ice.ObjectImpl.ice_unmarshal(element, istream);
 
         Test.Class3 out = (Test.Class3)o;
         test(in.c == out.c && in.name.equals(out.name));
@@ -437,7 +437,7 @@ public class Client
 
         java.io.StringReader sr = new java.io.StringReader(sw.toString());
         Ice.Stream istream = new IceXML.StreamI(communicator, sr);
-        Ice.Object o = Ice.Object.ice_unmarshal(element, istream);
+        Ice.Object o = Ice.ObjectImpl.ice_unmarshal(element, istream);
         Test.Class3 out = (Test.Class3)o;
         test(out.r != null);
         test(out.r.r != null);

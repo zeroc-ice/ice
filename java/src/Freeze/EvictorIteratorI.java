@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class EvictorIteratorI implements EvictorIterator
+class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 {
     EvictorIteratorI(java.util.Iterator iterator)
     {

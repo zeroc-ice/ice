@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-public class FreezeService implements IceBox.FreezeService
+public class FreezeService extends Ice.LocalObjectImpl implements IceBox.FreezeService
 {
     public void
     start(String name, Ice.Communicator communicator, Ice.Properties properties, String[] args, 

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-class ObjectFactory implements Ice.ObjectFactory
+class ObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
 {
     public Ice.Object
     create(String type)

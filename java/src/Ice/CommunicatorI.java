@@ -10,7 +10,7 @@
 
 package Ice;
 
-class CommunicatorI implements Communicator
+class CommunicatorI extends LocalObjectImpl implements Communicator
 {
     public synchronized void
     destroy()

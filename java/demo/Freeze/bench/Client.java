@@ -478,7 +478,7 @@ class TestApp extends Freeze.Application
         }
     }
 
-    static private class MyFactory implements Ice.ObjectFactory
+    static private class MyFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
 	public Ice.Object
 	create(String type)

@@ -10,7 +10,7 @@
 
 package Freeze;
 
-class DBCursorI implements DBCursor
+class DBCursorI extends Ice.LocalObjectImpl implements DBCursor
 {
     public Ice.Communicator
     getCommunicator()

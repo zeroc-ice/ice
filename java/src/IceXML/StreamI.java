@@ -10,7 +10,7 @@
 
 package IceXML;
 
-public class StreamI implements Ice.Stream
+public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
 {
     private
     StreamI()
@@ -1039,7 +1039,7 @@ public class StreamI implements Ice.Stream
         {
             if(type.value.equals("::Ice::Object"))
             {
-                value = new Ice.Object();
+                value = new Ice.ObjectImpl();
             }
             else
             {
@@ -1334,7 +1334,7 @@ public class StreamI implements Ice.Stream
         }
     }
 
-    private static final class DynamicObjectFactory implements Ice.ObjectFactory
+    private static final class DynamicObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         DynamicObjectFactory(Class c)
         {

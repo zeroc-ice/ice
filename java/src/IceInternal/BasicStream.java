@@ -924,7 +924,7 @@ public class BasicStream
             }
             else if(id.equals("::Ice::Object"))
             {
-                v = new Ice.Object();
+                v = new Ice.ObjectImpl();
             }
             else
             {
@@ -1064,7 +1064,7 @@ public class BasicStream
         }
     }
 
-    private static final class DynamicObjectFactory implements Ice.ObjectFactory
+    private static final class DynamicObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         DynamicObjectFactory(Class c)
         {
@@ -1128,7 +1128,8 @@ public class BasicStream
         return factory;
     }
 
-    private static final class DynamicUserExceptionFactory implements Ice.UserExceptionFactory
+    private static final class DynamicUserExceptionFactory extends Ice.LocalObjectImpl
+        implements Ice.UserExceptionFactory
     {
         DynamicUserExceptionFactory(Class c)
         {

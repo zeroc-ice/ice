@@ -10,9 +10,8 @@
 
 package Freeze;
 
-class DBI implements DB
+class DBI extends Ice.LocalObjectImpl implements DB
 {
-
     public String
     getName()
     {

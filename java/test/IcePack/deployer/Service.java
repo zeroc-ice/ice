@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-public class Service implements IceBox.Service
+public class Service extends Ice.LocalObjectImpl implements IceBox.Service
 {
     public void
     start(String name, Ice.Communicator communicator, Ice.Properties properties, String[] args)

@@ -10,7 +10,7 @@
 
 package Ice;
 
-public abstract class Blobject extends Ice.Object
+public abstract class Blobject extends Ice.ObjectImpl
 {
     // Returns true if ok, false if user exception.
     public abstract boolean
