@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in slice2java that caused byte constants to be
+  initialized incorrectly.
+
 - Changed the Java language mapping to overload
   operations on classes such that a version without
   the trailing Ice.Current parameter is provided. This
