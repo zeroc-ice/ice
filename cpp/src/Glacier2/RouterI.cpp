@@ -8,15 +8,13 @@
 // **********************************************************************
 
 #include <Ice/RoutingTable.h>
-#include <Glacier/Session.h>
-#include <Glacier/SessionManager.h>
 #include <Glacier2/RouterI.h>
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
-Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
+Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 			  const ObjectAdapterPtr& serverAdapter,
 			  const IceInternal::RoutingTablePtr& routingTable) :
     _clientAdapter(clientAdapter),
@@ -29,22 +27,15 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
     PropertiesPtr properties = communicator->getProperties();
 
     _routingTableTraceLevel = properties->getPropertyAsInt("Glacier2.Trace.RoutingTable");
-
-    //
-    // If the property is empty, _sessionManager is null.
-    //
-    _sessionManager = SessionManagerPrx::checkedCast(
-	communicator->stringToProxy(properties->getProperty("Glacier2.SessionManager")));
 }
 
-Glacier::RouterI::~RouterI()
+Glacier2::RouterI::~RouterI()
 {
     assert(!_clientAdapter);
-    assert(!_session);
 }
 
 void
-Glacier::RouterI::destroy()
+Glacier2::RouterI::destroy()
 {
     //
     // No mutex protection necessary, destroy is only called after all
@@ -54,26 +45,10 @@ Glacier::RouterI::destroy()
     _serverAdapter = 0;
     _logger = 0;
     _routingTable = 0;
-
-    {
-	IceUtil::Mutex::Lock lock(_sessionMutex);
-	if(_session)
-	{
-	    try
-	    {
-		_session->destroy();
-	    }
-	    catch(...)
-	    {
-		// Ignore all exceptions.
-	    }
-	    _session = 0;
-	}
-    }
 }
 
 ObjectPrx
-Glacier::RouterI::getClientProxy(const Current&) const
+Glacier2::RouterI::getClientProxy(const Current&) const
 {
     assert(_clientAdapter); // Destroyed?
 
@@ -81,7 +56,7 @@ Glacier::RouterI::getClientProxy(const Current&) const
 }
 
 ObjectPrx
-Glacier::RouterI::getServerProxy(const Current&) const
+Glacier2::RouterI::getServerProxy(const Current&) const
 {
     assert(_clientAdapter); // Destroyed?
 
@@ -96,13 +71,13 @@ Glacier::RouterI::getServerProxy(const Current&) const
 }
 
 void
-Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
+Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 {
     assert(_clientAdapter); // Destroyed?
 
     if(_routingTableTraceLevel)
     {
-	Trace out(_logger, "Glacier");
+	Trace out(_logger, "Glacier2");
 	out << "adding proxy to routing table:\n" << _clientAdapter->getCommunicator()->proxyToString(proxy);
     }
 
@@ -110,30 +85,6 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 }
 
 void
-Glacier::RouterI::shutdown(const Current&)
+Glacier2::RouterI::createSession(const std::string&, const std::string&, const Ice::Current&)
 {
-    assert(_clientAdapter); // Destroyed?
-
-    assert(_routingTable);
-    _clientAdapter->getCommunicator()->shutdown();
-}
-
-SessionPrx
-Glacier::RouterI::createSession(const Current&)
-{
-    assert(_clientAdapter); // Destroyed?
-
-    IceUtil::Mutex::Lock lock(_sessionMutex);
-
-    if(!_session)
-    {
-	if(!_sessionManager)
-	{
-	    throw NoSessionManagerException();
-	}
-	
-	_session = _sessionManager->create(_userId); 
-    }
-
-    return _session;
 }

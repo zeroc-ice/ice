@@ -12,13 +12,13 @@
 
 #include <Glacier2/Blobject.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class ServerBlobject;
 typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
 
-class ServerBlobject : public Glacier::Blobject
+class ServerBlobject : public Glacier2::Blobject
 {
 public:
 

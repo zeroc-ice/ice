@@ -169,7 +169,7 @@ Ice::CommunicatorI::waitForShutdown()
 }
 
 ObjectPrx
-Ice::CommunicatorI::stringToProxy(const string& s)
+Ice::CommunicatorI::stringToProxy(const string& s) const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -180,7 +180,7 @@ Ice::CommunicatorI::stringToProxy(const string& s)
 }
 
 string
-Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
+Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy) const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -234,7 +234,7 @@ Ice::CommunicatorI::removeObjectFactory(const string& id)
 }
 
 ObjectFactoryPtr
-Ice::CommunicatorI::findObjectFactory(const string& id)
+Ice::CommunicatorI::findObjectFactory(const string& id) const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -245,7 +245,7 @@ Ice::CommunicatorI::findObjectFactory(const string& id)
 }
 
 PropertiesPtr
-Ice::CommunicatorI::getProperties()
+Ice::CommunicatorI::getProperties() const
 {
     RecMutex::Lock sync(*this);
     //
@@ -256,7 +256,7 @@ Ice::CommunicatorI::getProperties()
 }
 
 LoggerPtr
-Ice::CommunicatorI::getLogger()
+Ice::CommunicatorI::getLogger() const
 {
     RecMutex::Lock sync(*this);
     //
@@ -279,7 +279,7 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 }
 
 StatsPtr
-Ice::CommunicatorI::getStats()
+Ice::CommunicatorI::getStats() const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -300,6 +300,17 @@ Ice::CommunicatorI::setStats(const StatsPtr& stats)
     _instance->stats(stats);
 }
 
+RouterPrx
+Ice::CommunicatorI::getDefaultRouter() const
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->referenceFactory()->getDefaultRouter();
+}
+
 void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
@@ -309,6 +320,17 @@ Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     _instance->referenceFactory()->setDefaultRouter(router);
+}
+
+LocatorPrx
+Ice::CommunicatorI::getDefaultLocator() const
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->referenceFactory()->getDefaultLocator();
 }
 
 void
@@ -323,7 +345,7 @@ Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
 }
 
 PluginManagerPtr
-Ice::CommunicatorI::getPluginManager()
+Ice::CommunicatorI::getPluginManager() const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)

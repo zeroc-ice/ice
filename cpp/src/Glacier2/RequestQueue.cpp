@@ -12,9 +12,9 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
-Glacier::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
+Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
 			  const AMI_Object_ice_invokePtr& amiCB) :
     _proxy(proxy),
     _inParams(inParams),
@@ -29,7 +29,7 @@ Glacier::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, 
 }
 
 void
-Glacier::Request::invoke(bool forwardContext)
+Glacier2::Request::invoke(bool forwardContext)
 {
     if(_proxy->ice_isTwoway())
     {
@@ -65,7 +65,7 @@ Glacier::Request::invoke(bool forwardContext)
 }
 
 bool
-Glacier::Request::override(const RequestPtr& other) const
+Glacier2::Request::override(const RequestPtr& other) const
 {
     //
     // Both override values have to be non-empty.
@@ -96,13 +96,13 @@ Glacier::Request::override(const RequestPtr& other) const
 }
 
 const ObjectPrx&
-Glacier::Request::getProxy() const
+Glacier2::Request::getProxy() const
 {
     return _proxy;
 }
 
 const Current&
-Glacier::Request::getCurrent() const
+Glacier2::Request::getCurrent() const
 {
     return _current;
 }
@@ -116,7 +116,7 @@ static const string clientForwardContext = "Glacier2.Client.ForwardContext";
 static const string serverSleepTime = "Glacier2.Server.SleepTime";
 static const string clientSleepTime = "Glacier2.Client.SleepTime";
 
-Glacier::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, bool reverse) :
+Glacier2::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, bool reverse) :
     _logger(communicator->getLogger()),
     _reverse(reverse),
     _traceLevelRequest(reverse ?
@@ -135,14 +135,14 @@ Glacier::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, bo
 {
 }
 
-Glacier::RequestQueue::~RequestQueue()
+Glacier2::RequestQueue::~RequestQueue()
 {
     assert(_destroy);
     assert(_requests.empty());
 }
 
 void 
-Glacier::RequestQueue::destroy()
+Glacier2::RequestQueue::destroy()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -155,7 +155,7 @@ Glacier::RequestQueue::destroy()
 }
 
 void 
-Glacier::RequestQueue::addRequest(const RequestPtr& request)
+Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     
@@ -182,7 +182,7 @@ Glacier::RequestQueue::addRequest(const RequestPtr& request)
 }
 
 void 
-Glacier::RequestQueue::run()
+Glacier2::RequestQueue::run()
 {
     while(true)
     {
@@ -241,7 +241,7 @@ Glacier::RequestQueue::run()
             
 	    if(_traceLevelRequest >= 1)
 	    {
-		Trace out(_logger, "Glacier");
+		Trace out(_logger, "Glacier2");
 		if(_reverse)
 		{
 		    out << "reverse ";
@@ -262,9 +262,9 @@ Glacier::RequestQueue::run()
 }
 
 void
-Glacier::RequestQueue::traceRequest(const RequestPtr& request, const string& extra) const
+Glacier2::RequestQueue::traceRequest(const RequestPtr& request, const string& extra) const
 {
-    Trace out(_logger, "Glacier");
+    Trace out(_logger, "Glacier2");
     
     const ObjectPrx& proxy = request->getProxy();
     const Current& current = request->getCurrent();

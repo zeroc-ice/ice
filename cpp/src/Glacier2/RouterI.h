@@ -7,16 +7,14 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER_ROUTER_I_H
-#define GLACIER_ROUTER_I_H
+#ifndef GLACIER2_ROUTER_I_H
+#define GLACIER2_ROUTER_I_H
 
 #include <Ice/RoutingTableF.h>
-#include <Glacier/SessionManagerF.h>
-#include <Glacier/SessionF.h>
-#include <Glacier/Router.h>
+#include <Glacier2/Router.h>
 #include <Ice/Ice.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class RouterI;
@@ -35,8 +33,7 @@ public:
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
-    virtual SessionPrx createSession(const Ice::Current&);
+    virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
 
 private:
 
@@ -47,9 +44,6 @@ private:
     int _routingTableTraceLevel;
 
     std::string _userId;
-    SessionManagerPrx _sessionManager;
-    SessionPrx _session;
-    IceUtil::Mutex _sessionMutex;
 };
 
 }

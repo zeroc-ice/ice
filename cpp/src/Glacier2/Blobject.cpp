@@ -11,12 +11,12 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
 static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
 static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
 
-Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
+Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _logger(communicator->getLogger()),
     _alwaysBatch(reverse ?
 		 communicator->getProperties()->getPropertyAsInt(serverAlwaysBatch) > 0 :
@@ -26,13 +26,13 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _requestQueue->start();
 }
 
-Glacier::Blobject::~Blobject()
+Glacier2::Blobject::~Blobject()
 {
     assert(!_requestQueue);
 }
 
 void
-Glacier::Blobject::destroy()
+Glacier2::Blobject::destroy()
 {
     //
     // No mutex protection necessary, destroy is only called after all
@@ -43,11 +43,11 @@ Glacier::Blobject::destroy()
     _requestQueue = 0;
 }
 
-class GlacierCB : public AMI_Object_ice_invoke
+class Glacier2CB : public AMI_Object_ice_invoke
 {
 public:
 
-    GlacierCB(const AMD_Object_ice_invokePtr& cb) :
+    Glacier2CB(const AMD_Object_ice_invokePtr& cb) :
 	_cb(cb)
     {
     }
@@ -70,7 +70,7 @@ private:
 };
 
 void
-Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
+Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 			  const Current& current)
 {
     //
@@ -164,7 +164,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
     assert(_requestQueue);
     if(proxy->ice_isTwoway())
     {
-	AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+	AMI_Object_ice_invokePtr amiCB = new Glacier2CB(amdCB);
 	_requestQueue->addRequest(new Request(proxy, inParams, current, amiCB));
     }
     else

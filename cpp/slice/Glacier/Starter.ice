@@ -18,7 +18,7 @@
  *
  * &Glacier; is a firewall solution for Ice. &Glacier; authenticates
  * and filters client requests and allows callbacks to the client in a
- * secure fashion. In combination with &IceSSL;, Glacier provides a
+ * secure fashion. In combination with &IceSSL;, &Glacier; provides a
  * security solution that is both non-intrusive and easy to configure.
  *
  **/
@@ -107,9 +107,9 @@ interface PermissionsVerifier
 {
     /**
      *
-     * Check whether user has permission to access router.
+     * Check whether a user has permission to access the router.
      *
-     * @param userId The user id for which to check permissions.
+     * @param userId The user id for which to check permission.
      *
      * @param password The user's password.
      *
@@ -118,8 +118,7 @@ interface PermissionsVerifier
      * @return true if access is allowed, or false otherwise.
      *
      **/
-    nonmutating
-    bool checkPermissions(string userId, string password, out string reason);
+    nonmutating bool checkPermissions(string userId, string password, out string reason);
 };
 
 };

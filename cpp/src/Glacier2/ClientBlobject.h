@@ -13,13 +13,13 @@
 #include <Ice/RoutingTableF.h>
 #include <Glacier2/Blobject.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class ClientBlobject;
 typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
 
-class ClientBlobject : public Glacier::Blobject
+class ClientBlobject : public Glacier2::Blobject
 {
 public:
 

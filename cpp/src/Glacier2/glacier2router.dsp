@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Glacier2" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Glacier2Router" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Glacier2 - Win32 Debug
+CFG=Glacier2Router - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier2.mak".
+!MESSAGE NMAKE /f "Glacier2Router.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier2.mak" CFG="Glacier2 - Win32 Debug"
+!MESSAGE NMAKE /f "Glacier2Router.mak" CFG="Glacier2Router - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Glacier2 - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Glacier2 - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Glacier2Router - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Glacier2Router - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Glacier2 - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Glacier2 - Win32 Release"
+!IF  "$(CFG)" == "Glacier2Router - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -55,12 +55,12 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=Glacier2
+TargetName=glacier2router
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Glacier2Router - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -87,7 +87,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=Glacier2
+TargetName=glacier2router
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -96,8 +96,8 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "Glacier2 - Win32 Release"
-# Name "Glacier2 - Win32 Debug"
+# Name "Glacier2Router - Win32 Release"
+# Name "Glacier2Router - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -111,7 +111,7 @@ SOURCE=.\ClientBlobject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Glacier2.cpp
+SOURCE=.\Glacier2Router.cpp
 # End Source File
 # Begin Source File
 

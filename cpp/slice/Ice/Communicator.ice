@@ -113,7 +113,7 @@ local interface Communicator
      * @see proxyToString
      *
      **/
-    Object* stringToProxy(string str);
+    nonmutating Object* stringToProxy(string str);
 
     /**
      *
@@ -126,7 +126,7 @@ local interface Communicator
      * @see stringToProxy
      *
      **/
-    string proxyToString(Object* obj);
+    nonmutating string proxyToString(Object* obj);
 
     /**
      *
@@ -241,7 +241,7 @@ local interface Communicator
      * @see ObjectFactory
      *
      **/
-    ObjectFactory findObjectFactory(string id);
+    nonmutating ObjectFactory findObjectFactory(string id);
 
     /**
      *
@@ -252,7 +252,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    Properties getProperties();
+    nonmutating Properties getProperties();
 
     /**
      *
@@ -260,10 +260,11 @@ local interface Communicator
      *
      * @return This communicator's logger.
      *
+     * @see setLogger
      * @see Logger
      *
      **/
-    Logger getLogger();
+    nonmutating Logger getLogger();
 
     /**
      *
@@ -271,6 +272,7 @@ local interface Communicator
      *
      * @param log The logger to use for this communicator.
      *
+     * @see getLogger
      * @see Logger
      *
      **/
@@ -282,10 +284,11 @@ local interface Communicator
      *
      * @return This communicator's statistics callback object.
      *
+     * @see setStats
      * @see Stats
      *
      **/
-    Stats getStats();
+    nonmutating Stats getStats();
 
     /**
      *
@@ -294,10 +297,23 @@ local interface Communicator
      * @param st The statistics callback object to use for this
      * communicator.
      *
+     * @see getStats
      * @see Stats
      *
      **/
     void setStats(Stats st);
+
+    /**
+     *
+     * Get the default router this communicator.
+     *
+     * @return The default router for this communicator.
+     *
+     * @see setDefaultRouter
+     * @see Router
+     *
+     **/
+    nonmutating Router* getDefaultRouter();
 
     /**
      *
@@ -311,11 +327,24 @@ local interface Communicator
      *
      * @param rtr The default router to use for this communicator.
      *
+     * @see getDefaultRouter
      * @see Router
      * @see ObjectAdapter::addRouter
      *
      **/
     void setDefaultRouter(Router* rtr);
+
+    /**
+     *
+     * Get the default locator this communicator.
+     *
+     * @return The default locator for this communicator.
+     *
+     * @see setDefaultLocator
+     * @see Locator
+     *
+     **/
+    nonmutating Locator* getDefaultLocator();
 
     /**
      *
@@ -332,6 +361,7 @@ local interface Communicator
      *
      * @param loc The default locator to use for this communicator.
      *
+     * @see getDefaultLocator
      * @see Locator
      * @see ObjectAdapter::setLocator
      *
@@ -347,7 +377,7 @@ local interface Communicator
      * @see PluginManager
      *
      **/
-    PluginManager getPluginManager();
+    nonmutating PluginManager getPluginManager();
 
     /**
      *

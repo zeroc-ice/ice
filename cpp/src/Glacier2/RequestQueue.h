@@ -14,7 +14,7 @@
 #include <IceUtil/Monitor.h>
 #include <Ice/Ice.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class Request;

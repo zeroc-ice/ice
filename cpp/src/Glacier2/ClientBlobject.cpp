@@ -15,14 +15,14 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
 static const string clientTraceReject = "Glacier2.Client.Trace.Reject";
 
-Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
+Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					const IceInternal::RoutingTablePtr& routingTable,
 					const string& allowCategories) :
-    Glacier::Blobject(communicator, false),
+    Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
     _traceLevelReject(communicator->getProperties()->getPropertyAsInt(clientTraceReject))
 {
@@ -41,7 +41,7 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 }
 
 void
-Glacier::ClientBlobject::destroy()
+Glacier2::ClientBlobject::destroy()
 {
     //
     // No mutex protection necessary, destroy is only called after all
@@ -52,7 +52,7 @@ Glacier::ClientBlobject::destroy()
 }
 
 void
-Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
+Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					  const Current& current)
 {
     cout << "xxxxxxxxxxxxxx 8" << endl;
@@ -65,7 +65,7 @@ Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
 	{
 	    if(_traceLevelReject >= 1)
 	    {
-		Trace out(current.adapter->getCommunicator()->getLogger(), "Glacier");
+		Trace out(current.adapter->getCommunicator()->getLogger(), "Glacier2");
 		out << "rejecting request\n";
 		out << "identity: " << identityToString(current.id);
 	    }

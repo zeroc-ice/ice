@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Glacier2/Router.h>
 #include <CallbackI.h>
 
 using namespace std;
@@ -45,6 +46,43 @@ menu()
 int
 CallbackClient::run(int argc, char* argv[])
 {
+    RouterPrx defaultRouter = communicator()->getDefaultRouter();
+    if(!defaultRouter)
+    {
+	cerr << argv[0] << ": no default router set" << endl;
+	return EXIT_FAILURE;
+    }
+
+    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+    {
+	if(!router)
+	{
+	    cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
+	    return EXIT_FAILURE;
+	}
+    }
+
+    while(true)
+    {
+	string id;
+	cout << "user id: " << flush;
+	cin >> id;
+
+	string pw;
+	cout << "password: " << flush;
+	cin >> pw;
+    
+	try
+	{
+	    router->createSession(id, pw);
+	    break;
+	}
+	catch(const Glacier2::PermissionDeniedException& ex)
+	{
+	    cout << "permission denied:\n" << ex.reason << endl;
+	}
+    }
+
     PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Callback.Client.Callback";
     std::string proxy = properties->getProperty(proxyProperty);

@@ -12,16 +12,16 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
-Glacier::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const TransportInfoPtr& transport) :
-    Glacier::Blobject(communicator, true),
+Glacier2::ServerBlobject::ServerBlobject(const CommunicatorPtr& communicator, const TransportInfoPtr& transport) :
+    Glacier2::Blobject(communicator, true),
     _transport(transport)
 {
 }
 
 void
-Glacier::ServerBlobject::destroy()
+Glacier2::ServerBlobject::destroy()
 {
     //
     // No mutex protection necessary, destroy is only called after all
@@ -32,7 +32,7 @@ Glacier::ServerBlobject::destroy()
 }
 
 void
-Glacier::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
+Glacier2::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					  const Current& current)
 {
     assert(_transport); // Destroyed?

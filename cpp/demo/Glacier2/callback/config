@@ -17,13 +17,13 @@ Callback.Client.Endpoints=
 # Glacier2.Client.Endpoints. Glacier2 only supports one connection per
 # client, and no UDP. Therefore we have only one single TCP endpoint.
 #
-Callback.Client.Router=Glacier/router:ssl -p 10005
+Callback.Client.Router=Glacier2/router:ssl -p 10005
 
 #
 # The proxy to Glacier2 router for all outgoing connections. This must
 # correspond to Glacier2.Client.Endpoints.
 #
-Ice.Default.Router=Glacier/router:ssl -p 10005
+Ice.Default.Router=Glacier2/router:ssl -p 10005
 
 #
 # No active connection management is permitted with

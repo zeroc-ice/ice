@@ -8,6 +8,7 @@
 <!ENTITY IceStorm "<phrase>IceStorm</phrase>">
 <!ENTITY IcePatch "<phrase>IcePatch</phrase>">
 <!ENTITY Glacier "<phrase>Glacier</phrase>">
+<!ENTITY Glacier2 "<phrase>Glacier2</phrase>">
 <!ENTITY Freeze "<phrase>Freeze</phrase>">
 
 <!ENTITY SliceDoc SYSTEM "SliceDoc.sgml">

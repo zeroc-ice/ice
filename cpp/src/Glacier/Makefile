@@ -22,9 +22,7 @@ TARGETS         = $(LIBTARGETS) $(ROUTER) $(STARTER)
 OBJS		= Starter.o \
 		  Router.o \
 		  Session.o \
-		  SessionF.o \
-		  SessionManager.o \
-		  SessionManagerF.o
+		  SessionManager.o
 
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \

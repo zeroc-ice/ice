@@ -42,7 +42,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     const char* glacierStarterEndpointsProperty = "Glacier.Starter.Endpoints";
     string glacierStarterEndpoints = properties->getProperty(glacierStarterEndpointsProperty);
-    assert (!glacierStarterEndpoints.empty());
     Ice::ObjectPrx starterBase = communicator->stringToProxy("Glacier/starter:" + glacierStarterEndpoints);
     Glacier::StarterPrx starter = Glacier::StarterPrx::checkedCast(starterBase);
     if(!starter)

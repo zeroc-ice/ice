@@ -13,14 +13,14 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
-Glacier::ClientServantLocator::ClientServantLocator(const ObjectAdapterPtr& clientAdapter) :
+Glacier2::ClientServantLocator::ClientServantLocator(const ObjectAdapterPtr& clientAdapter) :
     _communicator(clientAdapter->getCommunicator()),
     _properties(_communicator->getProperties()),
     _logger(_communicator->getLogger()),
     _clientAdapter(clientAdapter),
-    _routerId(stringToIdentity(_properties->getPropertyWithDefault("Glacier2.Identity", "Glacier/router"))),
+    _routerId(stringToIdentity(_properties->getPropertyWithDefault("Glacier2.Identity", "Glacier2/router"))),
     _serverEndpoints(_properties->getProperty("Glacier2.Server.Endpoints")),
     _traceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
     _serverAdapterCount(0),
@@ -29,7 +29,7 @@ Glacier::ClientServantLocator::ClientServantLocator(const ObjectAdapterPtr& clie
 }
 
 ObjectPtr
-Glacier::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
+Glacier2::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -78,7 +78,7 @@ Glacier::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
 
 	    if(_traceLevel >= 1)
 	    {
-		Trace out(_logger, "Glacier");
+		Trace out(_logger, "Glacier2");
 		out << "added session for:\n";
 		out << current.transport->toString();
 		if(client.serverAdapter)
@@ -106,13 +106,13 @@ Glacier::ClientServantLocator::locate(const Current& current, LocalObjectPtr&)
 }
 
 void
-Glacier::ClientServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
+Glacier2::ClientServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
 {
     // Nothing to do
 }
 
 void
-Glacier::ClientServantLocator::deactivate(const string&)
+Glacier2::ClientServantLocator::deactivate(const string&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -130,25 +130,25 @@ Glacier::ClientServantLocator::deactivate(const string&)
     _clientMapHint = _clientMap.end();
 }
 
-Glacier::ServerServantLocator::ServerServantLocator(const ServerBlobjectPtr& serverBlobject) :
+Glacier2::ServerServantLocator::ServerServantLocator(const ServerBlobjectPtr& serverBlobject) :
     _serverBlobject(serverBlobject)
 {
 }
 
 ObjectPtr
-Glacier::ServerServantLocator::locate(const Current& current, LocalObjectPtr&)
+Glacier2::ServerServantLocator::locate(const Current& current, LocalObjectPtr&)
 {
     return _serverBlobject;
 }
 
 void
-Glacier::ServerServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
+Glacier2::ServerServantLocator::finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)
 {
     // Nothing to do
 }
 
 void
-Glacier::ServerServantLocator::deactivate(const string&)
+Glacier2::ServerServantLocator::deactivate(const string&)
 {
     _serverBlobject->destroy();
     _serverBlobject = 0;

@@ -13,10 +13,10 @@
 
 using namespace std;
 using namespace Ice;
-using namespace Glacier;
+using namespace Glacier2;
 
 
-namespace Glacier
+namespace Glacier2
 {
 
 class RouterApp : public Application
@@ -30,7 +30,7 @@ public:
 };
 
 void
-Glacier::RouterApp::usage()
+Glacier2::RouterApp::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
@@ -41,7 +41,7 @@ Glacier::RouterApp::usage()
 }
 
 int
-Glacier::RouterApp::run(int argc, char* argv[])
+Glacier2::RouterApp::run(int argc, char* argv[])
 {
     for(int i = 1; i < argc; ++i)
     {

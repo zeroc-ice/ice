@@ -10,7 +10,7 @@
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/ServerBlobject.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class ClientServantLocator : public Ice::ServantLocator, public IceUtil::Mutex
@@ -36,7 +36,7 @@ private:
     struct Client
     {
 	Ice::RouterPtr router;
-	Glacier::ClientBlobjectPtr clientBlobject;
+	Glacier2::ClientBlobjectPtr clientBlobject;
 	Ice::ObjectAdapterPtr serverAdapter;
     };
 
@@ -50,7 +50,7 @@ class ServerServantLocator : public Ice::ServantLocator
 {
 public:
 
-    ServerServantLocator(const Glacier::ServerBlobjectPtr&);
+    ServerServantLocator(const Glacier2::ServerBlobjectPtr&);
     
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    Glacier::ServerBlobjectPtr _serverBlobject;
+    Glacier2::ServerBlobjectPtr _serverBlobject;
 };
 
 }

@@ -13,7 +13,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/RequestQueue.h>
 
-namespace Glacier
+namespace Glacier2
 {
 
 class Blobject : public Ice::BlobjectAsync

@@ -28,29 +28,31 @@ public:
     virtual void shutdown();
     virtual void waitForShutdown();
 
-    virtual ObjectPrx stringToProxy(const std::string&);
-    virtual std::string proxyToString(const ObjectPrx&);
+    virtual ObjectPrx stringToProxy(const std::string&) const;
+    virtual std::string proxyToString(const ObjectPrx&) const;
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 
     virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
     virtual void removeObjectFactory(const std::string&);
-    virtual ObjectFactoryPtr findObjectFactory(const std::string&);
+    virtual ObjectFactoryPtr findObjectFactory(const std::string&) const;
 
-    virtual PropertiesPtr getProperties();
+    virtual PropertiesPtr getProperties() const;
 
-    virtual LoggerPtr getLogger();
+    virtual LoggerPtr getLogger() const;
     virtual void setLogger(const LoggerPtr&);
 
-    virtual StatsPtr getStats();
+    virtual StatsPtr getStats() const;
     virtual void setStats(const StatsPtr&);
 
+    virtual RouterPrx getDefaultRouter() const;
     virtual void setDefaultRouter(const RouterPrx&);
 
+    virtual LocatorPrx getDefaultLocator() const;
     virtual void setDefaultLocator(const LocatorPrx&);
 
-    virtual PluginManagerPtr getPluginManager();
+    virtual PluginManagerPtr getPluginManager() const;
 
     virtual void flushBatchRequests();
 
