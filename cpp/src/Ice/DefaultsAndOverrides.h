@@ -27,6 +27,7 @@ public:
     std::string defaultHost;
     std::string defaultProtocol;
     std::string defaultRouter;
+    std::string defaultLocator;
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;

@@ -91,15 +91,39 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Activator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManagerI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.cpp
+SOURCE=.\LocatorAdminI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorI.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Server.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManagerI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -107,16 +131,172 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Activator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ActivatorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManagerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManagerI.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\AdminI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.h
+SOURCE=.\LocatorAdminI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManagerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManagerI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Activator.ice
+
+!IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Activator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. Activator.ice \
+	
+
+"Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Activator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManager.ice
+
+!IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\AdapterManager.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManager.ice \
+	
+
+"AdapterManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"AdapterManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\AdapterManagerF.ice
+
+!IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\AdapterManagerF.ice
+
+"AdapterManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. AdapterManagerF.ice 
+	del AdapterManagerF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManager.ice
+
+!IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\ServerManager.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManager.ice \
+	
+
+"ServerManager.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ServerManager.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerManagerF.ice
+
+!IF  "$(CFG)" == "IcePackS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\ServerManagerF.ice
+
+"ServerManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir IcePack -I../../slice -I.. ServerManagerF.ice 
+	del ServerManagerF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -148,7 +148,7 @@ Ice.Adapter.<replaceable>name</replaceable>.Router=<replaceable>router</replacea
 <section>
 <title>Description</title>
 <para>
-Specifies a router (as stingified proxy to the &Glacier; router
+Specifies a router (as stringified proxy to the &Glacier; router
 control interface) for the object adapter with the name
 <replaceable>name</replaceable>. By doing so, the object adapter can
 receive callbacks from this router, using connections which are
@@ -158,6 +158,24 @@ having to establish a connection back to the named object adapter.
 object adapter. Specifying the same router for more than one object
 adapter will result in undefined behavior. The default value is no
 router. </para></note>
+</para>
+</section>
+</section>
+
+<section><title>Ice.Adapter.<replaceable>name</replaceable>.Locator</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Adapter.<replaceable>name</replaceable>.Locator=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a locator (as stringified proxy to the &Ice; locator
+interface) for the object adapter with the name
+<replaceable>name</replaceable>. By doing so, the object adapter will
+register itself and its endpoints with the locator registry from this
+locator.
 </para>
 </section>
 </section>
@@ -300,6 +318,25 @@ router control interface) which is to be used for all proxies, unless
 the router is overwritten with a proxy's
 <literal>ice_router()</literal> operation. The default value is no
 router.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Default.Locator</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Default.Locator=<replaceable>locator</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default locator (as stingified proxy to the &Ice; locator
+interface) which is to be used for all proxies and object adapters unless
+the locator is overwritten with a proxy's
+<literal>ice_locator()</literal> operation or with an object adapter
+<literal>Ice.Adapter.<replaceable>name</replaceable>.Locator</literal>
+property. The default value is no locator.
 </para>
 </section>
 </section>
@@ -714,18 +751,87 @@ There are no default values for these properties.
 <section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Admin.Endpoints, IcePack.Forward.Endpoints</title>
+<section><title>IcePack.Locator.Endpoints,IcePack.Locator.Identity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Admin.Endpoints=<replaceable>endpoints</replaceable>
-IcePack.Forward.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Locator.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Locator.Identity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; administrative interface and of
-the &IcePack; forwarder.
+Defines the endpoints and identity of the &IcePack; locator
+interface. The locator endpoints must be accessible to &Ice; clients
+that are using &IcePack; to locate objects.
+</para>
+<para>The default value for <literal>IcePack.Locator.Identity</literal>
+is <literal>IcePack/locator</literal>.
+</para>
+</section>
+
+</section>
+
+<section><title>IcePack.LocatorRegistry.Endpoints,IcePack.LocatorRegistry.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.LocatorRegistry.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.LocatorRegistry.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints and identity of the &IcePack; locator registry
+interface. The locator registry endpoints must be accessible to &Ice;
+servers that are using &IcePack; to register their object adapters.
+</para>
+<para>The default value for
+<literal>IcePack.LocatorRegistry.Identity</literal>
+is <literal>IcePack/locatorregistry</literal>.
+</para>
+</section>
+
+</section>
+
+<section><title>IcePack.Admin.Endpoints,IcePack.Admin.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Admin.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Admin.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the optional administrative endpoints and identity of the
+&IcePack; admin interface. The administrative endpoints must be
+accessible to clients which are using the &IcePack; administrative
+interface such as the &IcePack; administrative tool.
+</para>
+<para>The default value for IcePack.Admin.Identity is
+<literal>IcePack/admin</literal>.
+</para>
+<note><para>Allowing access to the &IcePack; admin interface is a
+security risk! If you don't specify the administrative endpoints the
+admin interface will be disabled.</para></note>
+</section>
+</section>
+
+<section><title>IcePack.Activation.WaitTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Activation.WaitTime=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the interval in seconds that &IcePack; will wait for the
+server to register its adapters. If the server didn't register its
+adapters during this time interval and a client is waiting for the
+activation of one of the server object adapters, &IcePack; will return
+empty endpoints to the client. The default value is 10 seconds.
 </para>
 </section>
 </section>

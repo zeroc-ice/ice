@@ -17,7 +17,9 @@
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/RouterF.h>
+#include <Ice/LocatorF.h>
 #include <Ice/RouterInfoF.h>
+#include <Ice/LocatorInfoF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/Identity.h>
 
@@ -63,9 +65,10 @@ public:
     const Mode mode;
     const bool secure;
     const bool compress;
-    const std::vector<EndpointPtr> origEndpoints; // Original endpoints.
-    const std::vector<EndpointPtr> endpoints; // Actual endpoints, changed by a location forwards.
+    const std::string adapterId;
+    const std::vector<EndpointPtr> endpoints;
     const RouterInfoPtr routerInfo; // Null if no router is used.
+    const LocatorInfoPtr locatorInfo; // Null if no locator is used.
     const Ice::ObjectAdapterPtr reverseAdapter; // For reverse communications using the adapter's incoming connections.
     const Ice::Int hashValue;
 
@@ -79,15 +82,17 @@ public:
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
     ReferencePtr changeCompress(bool) const;
+    ReferencePtr changeAdapterId(const std::string&) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
     ReferencePtr changeRouter(const ::Ice::RouterPrx&) const;
+    ReferencePtr changeLocator(const ::Ice::LocatorPrx&) const;
     ReferencePtr changeDefault() const;
  
 private:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool, bool,
-	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&,
-	      const RouterInfoPtr&, const Ice::ObjectAdapterPtr&);
+    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool, bool, const std::string&,
+	      const std::vector<EndpointPtr>&, const RouterInfoPtr&, const LocatorInfoPtr&,
+	      const Ice::ObjectAdapterPtr&);
     friend class ReferenceFactory;
 };
 

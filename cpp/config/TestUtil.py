@@ -131,7 +131,7 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
-def clientServerTest(toplevel, name):
+def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
@@ -141,13 +141,13 @@ def clientServerTest(toplevel, name):
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions)
+    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions)
+    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -160,7 +160,12 @@ def clientServerTest(toplevel, name):
 	killServers()
 	sys.exit(1)
 
-def mixedClientServerTest(toplevel, name):
+def clientServerTest(toplevel, name):
+
+    clientServerTestWithOptions(toplevel, name, "", "")
+
+
+def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
@@ -170,13 +175,13 @@ def mixedClientServerTest(toplevel, name):
     updatedClientOptions = updatedServerOptions
 
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions)
+    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions)
+    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
@@ -191,7 +196,11 @@ def mixedClientServerTest(toplevel, name):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(toplevel, name):
+def mixedClientServerTest(toplevel, name):
+
+    mixedClientServerTestWithOptions(toplevel, name, "", "")
+
+def collocatedTestWithOptions(toplevel, name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     collocated = os.path.join(testdir, "collocated")
@@ -199,7 +208,7 @@ def collocatedTest(toplevel, name):
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
+    collocatedPipe = os.popen(collocated + updatedCollocatedOptions + additionalOptions)
     print "ok"
 
     for output in collocatedPipe.xreadlines():
@@ -210,6 +219,10 @@ def collocatedTest(toplevel, name):
     if collocatedStatus:
 	killServers()
 	sys.exit(1)
+
+def collocatedTest(toplevel, name):
+
+    collocatedTestWithOptions(toplevel, name, "")
 
 def cleanDbDir(path):
 

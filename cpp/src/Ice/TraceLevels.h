@@ -32,6 +32,9 @@ public:
 
     const int retry;
     const char* retryCat;
+
+    const int location;
+    const char* locationCat;
 };
 
 }

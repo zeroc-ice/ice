@@ -96,6 +96,14 @@ NL	[\n]
     return ICE_PACK_EXIT;
 }
 
+"server" {
+    return ICE_PACK_SERVER;
+}
+
+"adapter" {
+    return ICE_PACK_ADAPTER;
+}
+
 "add" {
     return ICE_PACK_ADD;
 }
@@ -110,6 +118,38 @@ NL	[\n]
 
 "shutdown" {
     return ICE_PACK_SHUTDOWN;
+}
+
+"describe" {
+    return ICE_PACK_DESCRIBE;
+}
+
+"state" {
+    return ICE_PACK_STATE;
+}
+
+"endpoints" {
+    return ICE_PACK_ENDPOINTS;
+}
+
+"start" {
+    return ICE_PACK_START;
+}
+
+"adapters" {
+    return ICE_PACK_ADAPTERS;
+}
+
+"options" {
+    return ICE_PACK_OPTIONS;
+}
+
+"{" {
+    return ICE_PACK_OPEN_BRACKET;
+}
+
+"}" {
+    return ICE_PACK_CLOSE_BRACKET;
 }
 
 {WS}*(\\{WS}*{NL})? {

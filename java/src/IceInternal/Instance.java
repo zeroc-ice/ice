@@ -57,6 +57,12 @@ public class Instance
         return _routerManager;
     }
 
+    public synchronized LocatorManager
+    locatorManager()
+    {
+        return _locatorManager;
+    }
+
     public synchronized ReferenceFactory
     referenceFactory()
     {
@@ -164,6 +170,8 @@ public class Instance
 
             _routerManager = new RouterManager();
 
+            _locatorManager = new LocatorManager();
+
             _referenceFactory = new ReferenceFactory(this);
 
             _proxyFactory = new ProxyFactory(this);
@@ -175,12 +183,6 @@ public class Instance
             _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(this);
-
-            if(_defaultsAndOverrides.defaultRouter.length() > 0)
-            {
-                _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
-            }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -213,6 +215,7 @@ public class Instance
         assert(_clientThreadPool == null);
         assert(_serverThreadPool == null);
         assert(_routerManager == null);
+        assert(_locatorManager == null);
         assert(_endpointFactoryManager == null);
         assert(_pluginManager == null);
 
@@ -228,6 +231,23 @@ public class Instance
         //pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         //pluginManagerImpl.loadPlugins(args);
 
+	//
+	// Get default router and locator proxies. Don't move this
+	// initialization before the plug-in initialization!!! The proxies
+	// might depend on endpoint factories to be installed by plug-ins.
+	//
+	if(_defaultsAndOverrides.defaultRouter.length() > 0)
+	{
+	    _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
+		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
+	}
+
+	if(_defaultsAndOverrides.defaultLocator.length() > 0)
+	{
+	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
+		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
+	}
+	
         //
         // Thread pool initialization is now lazy initialization in
         // clientThreadPool() and serverThreadPool().
@@ -302,6 +322,12 @@ public class Instance
 		_routerManager = null;
 	    }
 
+	    if(_locatorManager != null)
+	    {
+		_locatorManager.destroy();
+		_locatorManager = null;
+	    }
+
             if(_endpointFactoryManager != null)
             {
                 _endpointFactoryManager.destroy();
@@ -350,6 +376,7 @@ public class Instance
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
+    private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;

@@ -84,9 +84,10 @@ class CommunicatorI implements Communicator
             adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
 
-	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
+	String locator = _instance.properties().getProperty("Ice.Adapter." + name + ".Locator");
+	if(locator.length() > 0)
 	{
-	    _serverThreadPool = _instance.serverThreadPool();
+	    adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
 	}
 
         return adapter;
@@ -114,6 +115,12 @@ class CommunicatorI implements Communicator
         }
 
         ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
+
+	String locator = _instance.defaultsAndOverrides().defaultLocator;
+	if(locator.length() > 0)
+	{
+	    adapter.setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+	}
 
 	if(_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{

@@ -22,6 +22,7 @@ SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Identity.ice \
 		  ../slice/Ice/LocalException.ice \
+		  ../slice/Ice/Locator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ObjectFactory.ice \

@@ -1193,11 +1193,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
     C << sb;
+    C << nl << "try";
+    C << sb;
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
     C << nl << "::IceDelegate" << scope.substr(0, scope.size() - 2) << "* __del = dynamic_cast< ::IceDelegate"
       << scope.substr(0, scope.size() - 2) << "*>(__delBase.get());";
-    C << nl << "try";
-    C << sb;
     C << nl;
     if(ret)
     {

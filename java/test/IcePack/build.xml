@@ -1,0 +1,11 @@
+<project name="test_IcePack" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="simple"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="simple" target="clean"/>
+    </target>
+
+</project>

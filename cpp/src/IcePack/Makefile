@@ -21,7 +21,10 @@ SERVER		= $(top_srcdir)/bin/icepack
 
 TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
 
-OBJS		= Admin.o
+OBJS		= Admin.o \
+		  ServerManager.o \
+		  AdapterManager.o \
+		  Activator.o
 
 COBJS		= Grammar.o \
 		  Scanner.o \
@@ -29,9 +32,12 @@ COBJS		= Grammar.o \
 		  Client.o
 
 SOBJS		= Server.o \
-		  Forward.o \
+		  AdapterManagerI.o \
+		  ServerManagerI.o \
+		  LocatorI.o \
+		  LocatorRegistryI.o \
 		  AdminI.o \
-		  Activator.o
+		  ActivatorI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -92,5 +98,42 @@ $(HDIR)/AdminF.h: $(SDIR)/AdminF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/AdminF.h
+
+AdapterManager.h AdapterManager.cpp: AdapterManager.ice $(SLICE2CPP)
+	rm -f AdapterManager.h AdapterManager.cpp
+	$(SLICECMD) -I.. AdapterManager.ice
+
+clean::
+	rm -f AdapterManager.h AdapterManager.cpp
+
+AdapterManagerF.h: AdapterManagerF.ice $(SLICE2CPP)
+	rm -f AdapterManagerF.h AdapterManagerF.cpp
+	$(SLICECMD) -I.. AdapterManagerF.ice
+	rm -f AdapterManagerF.cpp
+
+clean::
+	rm -f AdapterManagerF.h
+
+ServerManager.h ServerManager.cpp: ServerManager.ice $(SLICE2CPP)
+	rm -f ServerManager.h ServerManager.cpp
+	$(SLICECMD) -I.. ServerManager.ice
+
+clean::
+	rm -f ServerManager.h ServerManager.cpp
+
+ServerManagerF.h: ServerManagerF.ice $(SLICE2CPP)
+	rm -f ServerManagerF.h ServerManagerF.cpp
+	$(SLICECMD) -I.. ServerManagerF.ice
+	rm -f ServerManagerF.cpp
+
+clean::
+	rm -f ServerManagerF.h
+
+Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
+	rm -f Activator.h Activator.cpp
+	$(SLICECMD) -I.. Activator.ice
+
+clean::
+	rm -f Activator.h Activator.cpp
 
 include .depend

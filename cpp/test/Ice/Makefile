@@ -18,7 +18,8 @@ SUBDIRS		= operations \
 		  facets \
 		  objects \
 		  faultTolerance \
-		  locationForward
+		  locationForward \
+		  location
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -25,7 +25,10 @@ All Rights Reserved
 <arg>-s</arg>
 <arg>-c</arg>
 </group>
+<group>
+<arg choice=plain> @ <replaceable>adapter_name</replaceable></arg>
 <arg choice=plain> : <replaceable>endpoints</replaceable></arg>
+</group>
 </cmdsynopsis>
 </section>
 

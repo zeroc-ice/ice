@@ -18,7 +18,7 @@ TestPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref = "test:default -p 12346 -t 2000";
+    string ref = "test @ TestAdapter";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

@@ -17,6 +17,8 @@
 #include <Ice/BasicStream.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/Router.h>
+#include <Ice/LocatorInfo.h>
+#include <Ice/Locator.h>
 
 using namespace std;
 using namespace Ice;
@@ -58,7 +60,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(origEndpoints != r.origEndpoints)
+    if(adapterId != r.adapterId)
     {
 	return false;
     }
@@ -69,6 +71,11 @@ IceInternal::Reference::operator==(const Reference& r) const
     }
 
     if(routerInfo != r.routerInfo)
+    {
+	return false;
+    }
+
+    if(locatorInfo != r.locatorInfo)
     {
 	return false;
     }
@@ -139,12 +146,12 @@ IceInternal::Reference::operator<(const Reference& r) const
     {
 	return false;
     }
-    
-    if(origEndpoints < r.origEndpoints)
+
+    if(adapterId < r.adapterId)
     {
 	return true;
     }
-    else if(r.origEndpoints < origEndpoints)
+    else if(r.adapterId < adapterId)
     {
 	return false;
     }
@@ -163,6 +170,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return true;
     }
     else if(r.routerInfo < routerInfo)
+    {
+	return false;
+    }
+    
+    if(locatorInfo < r.locatorInfo)
+    {
+	return true;
+    }
+    else if(r.locatorInfo < locatorInfo)
     {
 	return false;
     }
@@ -194,27 +210,23 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     s->write(secure);
 
     s->write(compress);
-    
-    vector<EndpointPtr>::const_iterator p;
 
-    s->writeSize(Ice::Int(origEndpoints.size()));
-    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
-    {
-	(*p)->streamWrite(s);
-    }
+    s->writeSize(Ice::Int(endpoints.size()));
 
-    if(endpoints == origEndpoints)
+    if(!endpoints.empty())
     {
-	s->write(true);
-    }
-    else
-    {
-	s->write(false);
-	s->writeSize(Ice::Int(endpoints.size()));
+	assert(adapterId.empty());
+
+	vector<EndpointPtr>::const_iterator p;
+
 	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    (*p)->streamWrite(s);
 	}
+    }
+    else
+    {
+	s->write(adapterId);
     }
 }
 
@@ -270,25 +282,25 @@ IceInternal::Reference::toString() const
 
     if(compress)
     {
-	s << " -s";
+	s << " -c";
     }
 
-    vector<EndpointPtr>::const_iterator p;
+    if(!endpoints.empty())
+    {
+	assert(adapterId.empty());
 
-    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
-    {
-	s << ':' << (*p)->toString();
-    }
-    
-    if(endpoints != origEndpoints)
-    {
-	s << ':';
+	vector<EndpointPtr>::const_iterator p;
+	
 	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    s << ':' << (*p)->toString();
 	}
     }
-
+    else if(!adapterId.empty())
+    {
+	s << " @ " << adapterId;
+    }
+    
     return s.str();
 }
 
@@ -301,9 +313,8 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     }
     else
     {
-	return instance->referenceFactory()->create(newIdentity, facet, mode, secure, compress,
-						    origEndpoints, endpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(newIdentity, facet, mode, secure, compress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -316,9 +327,8 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, newFacet, mode, secure, compress,
-						    origEndpoints, endpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, newFacet, mode, secure, compress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -330,12 +340,6 @@ IceInternal::Reference::changeTimeout(int timeout) const
     //
     vector<EndpointPtr>::const_iterator p;
 
-    vector<EndpointPtr> newOrigEndpoints;
-    for(p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
-    {
-	newOrigEndpoints.push_back((*p)->timeout(timeout));
-    }
-    
     vector<EndpointPtr> newEndpoints;
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
@@ -362,9 +366,19 @@ IceInternal::Reference::changeTimeout(int timeout) const
 	}
     }
 
-    return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
-						newOrigEndpoints, newEndpoints,
-						newRouterInfo, reverseAdapter);
+    //
+    // If we have a locator, we also change the timeout settings on the
+    // locator.
+    //
+    LocatorInfoPtr newLocatorInfo;
+    if(locatorInfo)
+    {
+	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_timeout(timeout));
+	newLocatorInfo = instance->locatorManager()->get(newLocator);
+    }
+
+    return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
+						newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
 }
 
 ReferencePtr
@@ -376,9 +390,8 @@ IceInternal::Reference::changeMode(Mode newMode) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, newMode, secure, compress,
-						    origEndpoints, endpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, facet, newMode, secure, compress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -391,9 +404,8 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, newSecure, compress,
-						    origEndpoints, endpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, facet, mode, newSecure, compress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -406,9 +418,22 @@ IceInternal::Reference::changeCompress(bool newCompress) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, secure, newCompress,
-						    origEndpoints, endpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, facet, mode, secure, newCompress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeAdapterId(const string& newAdapterId) const
+{
+    if(newAdapterId == adapterId)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, newAdapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -421,9 +446,8 @@ IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints)
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
-						    origEndpoints, newEndpoints,
-						    routerInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
+						    newEndpoints, routerInfo, locatorInfo, reverseAdapter);
     }
 }
 
@@ -438,18 +462,32 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
-						    origEndpoints, endpoints,
-						    newRouterInfo, reverseAdapter);
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
+						    endpoints, newRouterInfo, locatorInfo, reverseAdapter);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
+{
+    LocatorInfoPtr newLocatorInfo = instance->locatorManager()->get(newLocator);
+
+    if(newLocatorInfo == locatorInfo)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
+						    endpoints, routerInfo, newLocatorInfo, reverseAdapter);
     }
 }
 
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
-    return instance->referenceFactory()->create(identity, "", ModeTwoway, false, false,
-						origEndpoints, origEndpoints,
-						0, 0);
+    return instance->referenceFactory()->create(identity, "", ModeTwoway, false, false, adapterId,
+						endpoints, 0, 0, 0);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
@@ -458,9 +496,10 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  Mode md,
 				  bool sec,
 				  bool com,
-				  const vector<EndpointPtr>& origEndpts,
+				  const string& adptid,
 				  const vector<EndpointPtr>& endpts,
 				  const RouterInfoPtr& rtrInfo,
+				  const LocatorInfoPtr& locInfo,
 				  const ObjectAdapterPtr& rvAdapter) :
     instance(inst),
     identity(ident),
@@ -468,14 +507,20 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     mode(md),
     secure(sec),
     compress(com),
-    origEndpoints(origEndpts),
+    adapterId(adptid),
     endpoints(endpts),
     routerInfo(rtrInfo),
+    locatorInfo(locInfo),
     reverseAdapter(rvAdapter),
     hashValue(0)
 {
-    Int h = 0;
+    //
+    // It's either adapter id or endpoints, it can't be both.
+    //
+    assert(!(!adapterId.empty() && !endpoints.empty()));
 
+    Int h = 0;
+	
     string::const_iterator p;
 
     for(p = identity.name.begin(); p != identity.name.end(); ++p)

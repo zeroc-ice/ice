@@ -21,6 +21,7 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 //#include <Ice/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
+//#include <Ice/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 #include <Ice/Current.h>
 
 namespace IceProxy
@@ -30,6 +31,7 @@ namespace Ice
 {
 
 class Router;
+class Locator;
 
 }
 
@@ -44,12 +46,19 @@ ICE_API void decRef(::IceProxy::Ice::Router*);
 ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
 ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
 
+ICE_API void incRef(::IceProxy::Ice::Locator*);
+ICE_API void decRef(::IceProxy::Ice::Locator*);
+
+ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
+ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
+
 }
 
 namespace Ice
 {
 
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
 class LocalException;
 class LocationForward;
@@ -90,6 +99,7 @@ public:
     ::Ice::ObjectPrx ice_compress(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
+    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
     ::Ice::ObjectPrx ice_default() const;
 
     void ice_flush(); // Flush batch messages
@@ -109,11 +119,12 @@ protected:
 
 private:
 
-    void setup(const ::IceInternal::ReferencePtr&);
+    void setup(const ::IceInternal::ReferencePtr&, const ::std::vector<int>&);
     friend class ::IceInternal::ProxyFactory;
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
+    ::std::vector<int> _retryIntervals;
 };
 
 } }

@@ -14,6 +14,7 @@
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
 #include <Ice/RouterF.ice>
+#include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -313,6 +314,26 @@ local interface ObjectAdapter
 
     /**
      *
+     * Create a "direct proxy" that matches this object adapter and
+     * the given identity. A direct proxy always contains the current
+     * adapter endpoints.
+     *
+     * <note><para> This operation is intended to be used by locator
+     * implementations. Regular user code should not attempt to use
+     * this operation.</para></note>
+     *
+     * @param identity The identity for which a proxy is to be created.
+     *
+     * @return A proxy that matches the given identity and this object
+     * adapter.
+     *
+     * @see Identity
+     *
+     **/
+    Object* createDirectProxy(Identity identity);
+
+    /**
+     *
      * Create a "reverse proxy" that matches this object adapter and
      * the given identity. A reverse proxy uses connections that have
      * been established from a client to this object adapter.
@@ -353,6 +374,22 @@ local interface ObjectAdapter
      *
      **/
     void addRouter(Router* router);
+
+    /**
+     * Set an &Ice; locator for this object adapter. By doing so, the
+     * object adapter will register itself with the locator registry
+     * when it's activated for the first time and the proxies created
+     * with the object adapter will contain the adapter name instead
+     * of its endpoints.
+     *
+     * @param locator The locator used by this object adapter.
+     *
+     * @see createDirectProxy
+     * @see Locator
+     * @see LocatorRegistry
+     * 
+     **/
+    void setLocator(Locator* locator);
 };
 
 };

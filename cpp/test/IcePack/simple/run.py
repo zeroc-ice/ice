@@ -20,37 +20,49 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
-
-icePack = os.path.join(toplevel, "bin", "icepack")
-icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
-
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-
-print "starting icepack...",
-command = icePack + updatedClientServerOptions + ' --nowarn' + \
-          r' "--IcePack.Forward.Endpoints=default -p 12346 -t 5000"' + \
-          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000"'
-icePackPipe = os.popen(command)
-TestUtil.getServerPid(icePackPipe)
-TestUtil.getAdapterReady(icePackPipe)
-TestUtil.getAdapterReady(icePackPipe)
-print "ok"
-
-print "registering server with icepack...",
-command = icePackAdmin + updatedClientOptions + \
-          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "add \"test:default -p 12345 -t 5000\""'
-icePackAdminPipe = os.popen(command)
-icePackAdminStatus = icePackAdminPipe.close()
-if icePackAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+import IcePackAdmin
 
 name = os.path.join("IcePack", "simple")
-TestUtil.clientServerTest(toplevel, name)
-TestUtil.collocatedTest(toplevel, name)
+
+#
+# Add locator options for client and servers. All servers are now
+# clients since they need to make requests to IcePack.
+#
+additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\""
+
+#
+# Start IcePack
+# 
+icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346")
+
+#
+# Test client/server, collocated w/o automatic activation.
+#
+TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, additionalOptions)
+TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
+
+#
+# Get adapter list, ensure that TestAdapter is in the list.
+#
+print "testing adapter registration...",
+hasTestAdapter = 0;
+icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
+for adaptername in icePackAdminPipe.xreadlines():
+    if adaptername == "TestAdapter\n":
+        hasTestAdapter = 1
+        
+if hasTestAdapter == 0:
+    print "failed!"
+    TestUtil.killServers()
+    sys.exit(1)
+
+icePackStatus = icePackAdminPipe.close()
+if icePackStatus:
+    TestUtil.killServers()
+    sys.exit(1)   
+print "ok"
+
+IcePackAdmin.removeAdapter(toplevel, "TestAdapter")
 
 #
 # This test doesn't work under Windows.
@@ -61,19 +73,40 @@ if TestUtil.isWin32() == 0:
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    print "registering server with icepack for automatic activation...",
-    command = icePackAdmin + updatedClientOptions + \
-              r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000"' + \
-              r' -e "add \"test:default -p 12345 -t 5000\" ' + server + updatedServerOptions + '"'
-    icePackAdminPipe = os.popen(command)
-    icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminStatus:
+    #
+    # Don't pass Ice.Locator.* properties for the server. The IcePack
+    # activator should take care of this.
+    #
+    updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+
+    print "registering server with icepack...",
+    IcePackAdmin.addServer(toplevel, "server", server, "", updatedClientServerOptions, "TestAdapter")
+    print "ok"
+    
+    print "testing adapter registration...",
+    hasTestAdapter = 0;
+    icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
+    for adaptername in icePackAdminPipe.xreadlines():
+        if adaptername == "TestAdapter\n":
+            hasTestAdapter = 1
+            
+    if hasTestAdapter == 0:
+        print "failed!"
         TestUtil.killServers()
         sys.exit(1)
-    print "ok"
+        
+    icePackStatus = icePackAdminPipe.close()
+    if icePackStatus:
+       TestUtil.killServers()
+       sys.exit(1)
+       
+    print "ok"    
+
+#    IcePackAdmin.startServer(toplevel, "server")
+
+    updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
 
     print "starting client...",
-    exit
     clientPipe = os.popen(client + updatedClientOptions)
     print "ok"
 
@@ -86,20 +119,6 @@ if TestUtil.isWin32() == 0:
 	TestUtil.killServers()
 	sys.exit(1)
     
-print "shutting down icepack...",
-command = icePackAdmin + updatedClientOptions + \
-          r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "shutdown"'
-icePackAdminPipe = os.popen(command)
-icePackAdminStatus = icePackAdminPipe.close()
-if icePackAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
-
-icePackStatus = icePackPipe.close()
-
-if icePackStatus:
-    TestUtil.killServers()
-    sys.exit(1)
+IcePackAdmin.shutdownIcePack(toplevel, icePackPipe)
 
 sys.exit(0)

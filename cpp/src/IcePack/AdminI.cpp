@@ -10,58 +10,139 @@
 
 #include <Ice/Ice.h>
 #include <IcePack/AdminI.h>
+#include <IcePack/ServerManager.h>
+#include <IcePack/AdapterManager.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::AdminI::AdminI(const CommunicatorPtr& communicator) :
-    _communicator(communicator)
+IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const ServerManagerPrx& serverManager,
+			const AdapterManagerPrx& adapterManager) :
+    _communicator(communicator),
+    _serverManager(serverManager),
+    _adapterManager(adapterManager)
 {
 }
 
 void
-IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
+IcePack::AdminI::addServer(const ServerDescription& desc, const Current&)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(desc.obj)
-    {
-	_serverDescriptions[desc.obj->ice_getIdentity()] = desc;
-    }
-}
-
-void
-IcePack::AdminI::remove(const Identity& ident, const Ice::Current&)
-{
-    IceUtil::Mutex::Lock sync(*this);
-    _serverDescriptions.erase(ident);
+    _serverManager->create(desc);
 }
 
 ServerDescription
-IcePack::AdminI::find(const Identity& ident, const Ice::Current&)
+IcePack::AdminI::getServerDescription(const string& name, const Current&)
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    ServerDescriptions::iterator p = _serverDescriptions.find(ident);
-    if(p != _serverDescriptions.end())
+    ServerPrx server = _serverManager->findByName(name);
+    if(server)
     {
-	return p->second;
+	try
+	{
+	    return server->getServerDescription();
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
     }
-    else
-    {
-	return ServerDescription();
-    }
+    throw ServerNotExistException();
 }
 
-ServerDescriptions
-IcePack::AdminI::getAll(const Ice::Current&)
+ServerState
+IcePack::AdminI::getServerState(const string& name, const Current&)
 {
-    return _serverDescriptions;
+    ServerPrx server = _serverManager->findByName(name);
+    if(server)
+    {
+	try
+	{
+	    return server->getState();
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
+    }
+    throw ServerNotExistException();
+}
+
+bool
+IcePack::AdminI::startServer(const string& name, const Current&)
+{
+    ServerPrx server = _serverManager->findByName(name);
+    if(server)
+    {
+	try
+	{
+	    return server->start();
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
+    }
+    throw ServerNotExistException();
 }
 
 void
-IcePack::AdminI::shutdown(const Ice::Current&)
+IcePack::AdminI::removeServer(const string& name, const Current&)
+{
+    _serverManager->remove(name);
+}
+
+ServerNames
+IcePack::AdminI::getAllServerNames(const Current&)
+{
+    return _serverManager->getAll();
+}
+
+void 
+IcePack::AdminI::addAdapterWithEndpoints(const string& name, const string& endpoints, const Current&)
+{
+    AdapterDescription desc;
+    desc.name = name;
+
+    //
+    // Create the adapter.
+    //
+    AdapterPrx adapter = _adapterManager->create(desc);
+
+    //
+    // Set the adapter direct proxy.
+    //
+    ObjectPrx object = _communicator->stringToProxy("dummy:" + endpoints);
+    adapter->setDirectProxy(object);
+}
+
+void 
+IcePack::AdminI::removeAdapter(const string& name, const Current&)
+{
+    _adapterManager->remove(name);
+}
+
+string 
+IcePack::AdminI::getAdapterEndpoints(const string& name, const Current&)
+{
+    AdapterPrx adapter = _adapterManager->findByName(name);
+    if(adapter)
+    {
+	try
+	{
+	    return _communicator->proxyToString(adapter->getDirectProxy(false));
+	}
+	catch(const ObjectNotExistException&)
+	{
+	}
+    }
+    throw AdapterNotExistException();
+}
+
+AdapterNames
+IcePack::AdminI::getAllAdapterNames(const Current&)
+{
+    return _adapterManager->getAll();
+}
+
+void
+IcePack::AdminI::shutdown(const Current&)
 {
     _communicator->shutdown();
 }

@@ -142,19 +142,12 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
-    string adminEndpoints = properties->getProperty(adminEndpointsProperty);
-    if(adminEndpoints.empty())
-    {
-	cerr << appName() << ": property `" << adminEndpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
-    }
+    Ice::ObjectPrx base = communicator()->stringToProxy("IcePack/admin@IcePack.Admin");
 
-    Ice::ObjectPrx base = communicator()->stringToProxy("admin:" + adminEndpoints);
     AdminPrx admin = AdminPrx::checkedCast(base);
     if(!admin)
     {
-	cerr << appName() << ": `" << adminEndpoints << "' are no valid administrative endpoints" << endl;
+	cerr << appName() << ": `" <<  "' are no valid administrative endpoints" << endl;
 	return EXIT_FAILURE;
     }
 

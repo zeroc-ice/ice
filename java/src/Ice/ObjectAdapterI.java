@@ -32,6 +32,24 @@ public class ObjectAdapterI implements ObjectAdapter
             throw new ObjectAdapterDeactivatedException();
         }
 
+	if(!_printAdapterReadyDone)
+	{
+	    if(_locatorInfo != null)
+	    {
+		Identity ident = new Identity();
+		ident.category = "";
+		ident.name = "dummy";
+
+		//
+		// TODO: This might throw if we can't connect to the
+		// locator. Shall we raise a special exception for the
+		// activate operation instead of a non obvious network
+		// exception?
+		//
+		_locatorInfo.getLocatorRegistry().addAdapter(_name, newDirectProxy(ident));
+	    }
+	}
+
         final int sz = _incomingConnectionFactories.size();
         for(int i = 0; i < sz; ++i)
         {
@@ -46,7 +64,7 @@ public class ObjectAdapterI implements ObjectAdapter
 	    {
 		System.out.println(_name + " ready");
 	    }
-
+		
 	    _printAdapterReadyDone = true;
 	}
     }
@@ -88,9 +106,9 @@ public class ObjectAdapterI implements ObjectAdapter
             factory.destroy();
         }
 
-        _instance.outgoingConnectionFactory().removeAdapter(this);
+	_instance.outgoingConnectionFactory().removeAdapter(this);
 
-        _activeServantMap.clear();
+	_activeServantMap.clear();
 
         java.util.Iterator p = _locatorMap.values().iterator();
         while(p.hasNext())
@@ -231,6 +249,17 @@ public class ObjectAdapterI implements ObjectAdapter
     }
 
     public synchronized ObjectPrx
+    createDirectProxy(Identity ident)
+    {
+        if(_instance == null)
+        {
+            throw new ObjectAdapterDeactivatedException();
+        }
+
+        return newDirectProxy(ident);
+    }
+
+    public synchronized ObjectPrx
     createReverseProxy(Identity ident)
     {
         if(_instance == null)
@@ -243,8 +272,8 @@ public class ObjectAdapterI implements ObjectAdapter
         //
         IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
         IceInternal.Reference ref =
-            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, false, false, endpoints,
-                                                endpoints, null, this);
+            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, false, false, "",
+                                                endpoints, null, null, this);
 
         return _instance.proxyFactory().referenceToProxy(ref);
     }
@@ -294,7 +323,37 @@ public class ObjectAdapterI implements ObjectAdapter
             // callbacks.
             //      
             _instance.outgoingConnectionFactory().setRouter(routerInfo.getRouter());
+
+	    //
+	    // Creates proxies with endpoints instead of the adapter name.
+	    //
+	    _useEndpointsInProxy = true;
         }
+    }
+
+    public synchronized void
+    setLocator(LocatorPrx locator)
+    {
+	if(_instance == null)
+	{
+	    throw new ObjectAdapterDeactivatedException();
+	}
+
+	_locatorInfo = _instance.locatorManager().get(locator);
+	if(_locatorInfo != null)
+	{	
+	    //
+	    // If a locator is set, we create proxies with adapter names in
+	    // the reference instead of endpoints. If it's not set, we create
+	    // proxies with endpoints if there's at least one incoming
+	    // connection factory or router endpoints.
+	    //
+	    _useEndpointsInProxy = false;
+	}
+	else
+	{
+	    _useEndpointsInProxy = _incomingConnectionFactories.size() > 0 || _routerEndpoints.size() > 0;
+	}
     }
 
     public IceInternal.Connection[]
@@ -330,8 +389,8 @@ public class ObjectAdapterI implements ObjectAdapter
         _instance = instance;
 	_printAdapterReadyDone = false;
         _name = name;
-
-        String s = endpts.toLowerCase();
+	
+	String s = endpts.toLowerCase();
 
         int beg = 0;
         int end;
@@ -375,6 +434,14 @@ public class ObjectAdapterI implements ObjectAdapter
             throw ex;
         }
 
+	//
+	// Create proxies with the adapter endpoints only if there's
+	// incoming connection factories. If there's no incoming
+	// connection factories we will create proxies with the adapter
+	// name in the reference (to allow collocation to work).
+	//
+	_useEndpointsInProxy = _incomingConnectionFactories.size() > 0;
+
 //
 // Object Adapters without incoming connection factories are
 // permissible, as such Object Adapters can still be used with a
@@ -402,6 +469,28 @@ public class ObjectAdapterI implements ObjectAdapter
 
     private ObjectPrx
     newProxy(Identity ident)
+    {
+	if(_useEndpointsInProxy)
+	{
+	    return newDirectProxy(ident);
+	}
+	else
+	{	    
+	    //
+	    // Create a reference with the adapter id and return a
+	    // proxy for the reference.
+	    //
+	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+	    IceInternal.Reference reference = _instance.referenceFactory().create(ident, "",
+										  IceInternal.Reference.ModeTwoway,
+										  false, false, _name, 
+										  endpoints, null, null, null);
+	    return _instance.proxyFactory().referenceToProxy(reference);
+	}
+    }
+
+    private ObjectPrx
+    newDirectProxy(Identity ident)
     {
         IceInternal.Endpoint[] endpoints =
             new IceInternal.Endpoint[_incomingConnectionFactories.size() + _routerEndpoints.size()];
@@ -434,8 +523,8 @@ public class ObjectAdapterI implements ObjectAdapter
         //
         IceInternal.Reference reference = _instance.referenceFactory().create(ident, "",
 									      IceInternal.Reference.ModeTwoway,
-									      false, false,
-                                                                              endpoints, endpoints, null, null);
+									      false, false, "",
+									      endpoints, null, null, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
@@ -444,6 +533,15 @@ public class ObjectAdapterI implements ObjectAdapter
     {
         IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
         final IceInternal.Endpoint[] endpoints = ref.endpoints;
+
+	if(!ref.adapterId.equals(""))
+	{
+	    //
+	    // Proxy is local if the reference adapter id matches this
+	    // adapter name.
+	    //
+	    return ref.adapterId.equals(_name);
+	}
 
         //
         // Proxies which have at least one endpoint in common with the
@@ -494,8 +592,10 @@ public class ObjectAdapterI implements ObjectAdapter
     private IceInternal.Instance _instance;
     private boolean _printAdapterReadyDone;
     private String _name;
+    private boolean _useEndpointsInProxy;
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
     private java.util.HashMap _locatorMap = new java.util.HashMap();
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
+    private IceInternal.LocatorInfo _locatorInfo;
 }

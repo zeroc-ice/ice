@@ -13,6 +13,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;
@@ -85,13 +86,57 @@ ObjectPrx
 IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     ObjectPrx proxy = new ::IceProxy::Ice::Object;
-    proxy->setup(ref);
+    proxy->setup(ref, _retryIntervals);
     return proxy;
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
     _instance(instance)
 {
+    string str = _instance->properties()->getPropertyWithDefault("Ice.RetryIntervals", "0");
+
+    string::size_type beg;
+    string::size_type end = 0;
+
+    while(true)
+    {
+	static const string delim = " \t";
+    
+	beg = str.find_first_not_of(delim, end);
+	if(beg == string::npos)
+	{
+	    if(_retryIntervals.empty())
+	    {
+		_retryIntervals.push_back(0);
+	    }
+	    break;
+	}
+
+	end = str.find_first_of(delim, beg);
+	if(end == string::npos)
+	{
+	    end = str.length();
+	}
+	
+	if(beg == end)
+	{
+	    break;
+	}
+
+	string value = str.substr(beg, end - beg);
+
+	int v = atoi(value.c_str());
+
+	//
+	// If -1 is the first value, no retry and wait intervals.
+	//
+	if(v == -1 && _retryIntervals.empty())
+	{
+	    break;
+	}
+
+	_retryIntervals.push_back(v > 0 ? v : 0);
+    }
 }
 
 IceInternal::ProxyFactory::~ProxyFactory()

@@ -29,7 +29,9 @@ tests = [ \
     "Ice/objects", \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
+    "Ice/location", \
     "IceXML/encoding", \
+    "IcePack/simple", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \

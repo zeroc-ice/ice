@@ -13,17 +13,19 @@
 #endif
 
 #include <Ice/Ice.h>
-#include <IcePack/Activator.h>
+#include <IcePack/ActivatorI.h>
 #include <IcePack/Admin.h>
+#include <IcePack/ServerManager.h>
 #include <fcntl.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::Activator::Activator(const CommunicatorPtr& communicator) :
+IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator, const vector<string>& defaultArgs) :
     _communicator(communicator),
-    _destroy(false)
+    _destroy(false),
+    _defaultArgs(defaultArgs)
 {
     int fds[2];
     if(pipe(fds) != 0)
@@ -39,30 +41,30 @@ IcePack::Activator::Activator(const CommunicatorPtr& communicator) :
     fcntl(_fdIntrRead, F_SETFL, flags);
 }
 
-IcePack::Activator::~Activator()
+IcePack::ActivatorI::~ActivatorI()
 {
     assert(_destroy);
     close(_fdIntrRead);
     close(_fdIntrWrite);
-    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
     {
-	close(p->second.fd);
+	close(p->fd);
     }
 }
 
 void
-IcePack::Activator::run()
+IcePack::ActivatorI::run()
 {
     try
     {
 	terminationListener();
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	Error out(_communicator->getLogger());
 	out << "exception in process termination listener:\n" << ex;
     }
-    catch (...)
+    catch(...)
     {
 	Error out(_communicator->getLogger());
 	out << "unknown exception in process termination listener";
@@ -70,7 +72,7 @@ IcePack::Activator::run()
 }
 
 void
-IcePack::Activator::destroy()
+IcePack::ActivatorI::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -84,7 +86,7 @@ IcePack::Activator::destroy()
 }
 
 bool
-IcePack::Activator::activate(const ServerDescription& desc)
+IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -92,6 +94,8 @@ IcePack::Activator::activate(const ServerDescription& desc)
     {
 	return false;
     }
+
+    ServerDescription desc = server->getServerDescription();
 
     string path = desc.path;
     if(path.empty())
@@ -110,14 +114,6 @@ IcePack::Activator::activate(const ServerDescription& desc)
     while((pos = path.find("/./")) != string::npos)
     {
 	path.erase(pos, 2);
-    }
-
-    //
-    // Do nothing if the process exists.
-    //
-    if(_processes.count(path))
-    {
-	return false;
     }
 
     //
@@ -153,12 +149,53 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	    }
 	}
 
-	int argc = desc.args.size() + 2;
+	//
+	// Change working directory.
+	//
+	string pwd = desc.pwd;
+	if(!pwd.empty())
+	{
+	    string::size_type pos;
+	    while((pos = pwd.find("//")) != string::npos)
+	    {
+		pwd.erase(pos, 1);
+	    }
+	    while((pos = pwd.find("/./")) != string::npos)
+	    {
+		pwd.erase(pos, 2);
+	    }
+
+	    if(chdir(pwd.c_str()) == -1)
+	    {
+		//
+		// Send any errors to the parent process, using the write
+		// end of the pipe.
+		//
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		ostringstream s;
+		s << "can't change working directory to `" << pwd << "':\n" << ex;
+		write(fds[1], s.str().c_str(), s.str().length());
+		close(fds[1]);
+		exit(EXIT_FAILURE);
+	    }
+	}
+	
+	//
+	// Compute arguments.
+	//
+	int argc = desc.args.size() + _defaultArgs.size() + 2;
 	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
 	argv[0] = strdup(path.c_str());
-	for(unsigned int i = 0; i < desc.args.size(); ++i)
+	unsigned int i = 0;
+	vector<string>::const_iterator q;
+	for(q = desc.args.begin(); q != desc.args.end(); ++q, ++i)
 	{
-	    argv[i + 1] = strdup(desc.args[i].c_str());
+	    argv[i + 1] = strdup(q->c_str());
+	}
+	for(q = _defaultArgs.begin(); q != _defaultArgs.end(); ++q, ++i)
+	{
+	    argv[i + 1] = strdup(q->c_str());
 	}
 	argv[argc - 1] = 0;
 
@@ -184,12 +221,13 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	Process process;
 	process.pid = pid;
 	process.fd = fds[0];
-	_processes[path] = process;
-
+	process.server = server;
+	_processes.push_back(process);
+	
 	int flags = fcntl(process.fd, F_GETFL);
 	flags |= O_NONBLOCK;
 	fcntl(process.fd, F_SETFL, flags);
-	
+
 	setInterrupt();
     }
 
@@ -197,7 +235,7 @@ IcePack::Activator::activate(const ServerDescription& desc)
 }
 
 void
-IcePack::Activator::terminationListener()
+IcePack::ActivatorI::terminationListener()
 {
     while(true)
     {
@@ -214,9 +252,9 @@ IcePack::Activator::terminationListener()
 		return;
 	    }
 	    
-	    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+	    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
 	    {
-		int fd = p->second.fd;
+		int fd = p->fd;
 		FD_SET(fd, &fdSet);
 		if(maxFd < fd)
 		{
@@ -254,48 +292,68 @@ IcePack::Activator::terminationListener()
 		return;
 	    }
 
-	    map<string, Process>::iterator p = _processes.begin();
+	    vector<Process>::iterator p = _processes.begin();
 	    while(p != _processes.end())
 	    {
-		int fd = p->second.fd;
+		int fd = p->fd;
 		if(FD_ISSET(fd, &fdSet))
 		{
 		    char s[16];
-		    int ret = read(fd, &s, 16);
+		    int ret;
+		    string message;
+
+		    //
+		    // Read the message over the pipe.
+		    //
+		    while((ret = read(fd, &s, 16)) > 0)
+		    {
+			message.append(s, ret);
+		    }
+
 		    if(ret == -1)
 		    {
-			SystemException ex(__FILE__, __LINE__);
-			ex.error = getSystemErrno();
-			throw ex;
+			if(errno != EAGAIN || message.empty())
+			{
+			    SystemException ex(__FILE__, __LINE__);
+			    ex.error = getSystemErrno();
+			    throw ex;
+			}
+
+			++p;
 		    }
 		    else if(ret == 0)
 		    {
+			ServerPrx server = p->server;
+
 			//
 			// If the pipe was closed, the process has
 			// terminated.
 			//
-			map<string, Process>::iterator q = p;
-			++p;
-			_processes.erase(q);
+			p = _processes.erase(p);
 			close(fd);
-		    }
-		    else
-		    {
+			
 			//
-			// Other messages that are sent down the pipe
-			// are interpreted as error messages and
-			// logged as error.
+			// Notify the server it has terminated.
 			//
-			string err;
-			do
+			try
 			{
-			    err.append(s, ret);
-			    ret = read(fd, &s, 16);
+			    server->terminationCallback();
 			}
-			while(ret != 0);
+			catch(const Ice::ObjectAdapterDeactivatedException&)
+			{
+			    //
+			    // Expected when IcePack is shutdown.
+			    //
+			}
+		    }
 
+		    //
+		    // Log the received message.
+		    //
+		    if(!message.empty())
+		    {
 			Error out(_communicator->getLogger());
-			out << err;
+			out << message;
 		    }
 		}
 		else
@@ -308,7 +366,7 @@ IcePack::Activator::terminationListener()
 }
 
 void
-IcePack::Activator::clearInterrupt()
+IcePack::ActivatorI::clearInterrupt()
 {
     char s[32]; // Clear up to 32 interrupts at once.
     while(read(_fdIntrRead, s, 32) == 32)
@@ -317,7 +375,7 @@ IcePack::Activator::clearInterrupt()
 }
 
 void
-IcePack::Activator::setInterrupt()
+IcePack::ActivatorI::setInterrupt()
 {
     char c = 0;
     write(_fdIntrWrite, &c, 1);

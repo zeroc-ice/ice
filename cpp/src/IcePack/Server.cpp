@@ -9,9 +9,13 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <IcePack/LocatorI.h>
+#include <IcePack/LocatorRegistryI.h>
+#include <IcePack/ServerManagerI.h>
+#include <IcePack/AdapterManagerI.h>
 #include <IcePack/AdminI.h>
-#include <IcePack/Forward.h>
 #ifndef _WIN32
+#   include <IcePack/ActivatorI.h>
 #   include <signal.h>
 #   include <sys/wait.h>
 #endif
@@ -52,12 +56,12 @@ main(int argc, char* argv[])
     sigaction(SIGCHLD, &action, 0);
 #endif
 
-    Server app;
+    ::Server app;    
     return app.main(argc, argv);
 }
 
 void
-Server::usage()
+::Server::usage()
 {
     cerr << "Usage: " << appName() << " [options]\n";
     cerr <<	
@@ -69,7 +73,7 @@ Server::usage()
 }
 
 int
-Server::run(int argc, char* argv[])
+::Server::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
 
@@ -102,38 +106,135 @@ Server::run(int argc, char* argv[])
 	}
     }
 
-    const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
-    string adminEndpoints = properties->getProperty(adminEndpointsProperty);
-    if(!adminEndpoints.empty() && !nowarn)
+    string locatorEndpoints = properties->getProperty("IcePack.Locator.Endpoints");
+    if(locatorEndpoints.empty())
     {
-	cerr << appName() << ": warning: administrative endpoints property `" << adminEndpointsProperty << "' enabled"
-	     << endl;
-    }
-
-    const char* forwardEndpointsProperty = "IcePack.Forward.Endpoints";
-    string forwardEndpoints = properties->getProperty(forwardEndpointsProperty);
-    if(forwardEndpoints.empty())
-    {
-	cerr << appName() << ": property `" << forwardEndpointsProperty << "' is not set" << endl;
+	cerr << appName() << ": property `IcePack.Locator.Endpoints' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    AdminPtr admin = new AdminI(communicator());
-    ServantLocatorPtr forward = new Forward(communicator(), admin);
-
-    if(adminEndpoints.length() != 0)
+    string locatorRegistryEndpoints = properties->getProperty("IcePack.LocatorRegistry.Endpoints");
+    if(locatorRegistryEndpoints.empty())
     {
-	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapterFromProperty("Admin",
-											adminEndpointsProperty);
-	adminAdapter->add(admin, stringToIdentity("admin"));
-	adminAdapter->activate();
+	cerr << appName() << ": property `IcePack.LocatorRegistry.Endpoints' is not set" << endl;
+	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr forwardAdapter = communicator()->createObjectAdapterFromProperty("Forward",
-										      forwardEndpointsProperty);
-    forwardAdapter->addServantLocator(forward, "");
-    forwardAdapter->activate();
+    string adminEndpoints = properties->getProperty("IcePack.Admin.Endpoints");
+    if(!adminEndpoints.empty())
+    {
+	if(!nowarn)
+	{
+	    cerr << appName() << ": warning: administrative endpoints `IcePack.Admin.Endpoints' enabled" << endl;
+	}
+    }
 
+    string locatorId = properties->getPropertyWithDefault("IcePack.Locator.Identity", "IcePack/locator");
+    string locatorRegistryId = properties->getPropertyWithDefault("IcePack.LocatorRegistry.Identity", 
+								  "IcePack/locatorregistry");
+    string adminId = properties->getPropertyWithDefault("IcePack.Admin.Identity", "IcePack/admin");
+    
+    //
+    // Register the server manager and adapter manager with an
+    // internal object adapter. We ensure that the internal object
+    // adapter doesn't have any endpoints, all the objects registered
+    // with this adapter are *only* accessed internally through
+    // collocation.
+    //
+    ObjectAdapterPtr internalAdapter = communicator()->createObjectAdapterWithEndpoints("IcePack.Internal", "");
+    internalAdapter->setLocator(0);
+
+    //
+    // Activator isn't supported on Windows yet, just pass an empty
+    // acticator proxy.
+    //
+    ActivatorPrx activatorProxy;
+
+#ifndef _WIN32
+    //
+    // Setup default arguments which will be passed to each activated
+    // process. Then, create and start the activator.
+    //
+    Args defaultArgs;
+    defaultArgs.push_back("--Ice.Default.Locator=" + locatorId + ":" + locatorEndpoints);
+
+    ActivatorIPtr activator = new ActivatorI(communicator(), defaultArgs);
+    activator->start();
+    activatorProxy = ActivatorPrx::uncheckedCast(internalAdapter->add(activator, 
+								      stringToIdentity("IcePack/activator")));
+#endif
+
+    AdapterManagerPtr adapterManager = new AdapterManagerI(internalAdapter);
+    AdapterManagerPrx adapterManagerProxy = 
+	AdapterManagerPrx::uncheckedCast(internalAdapter->add(adapterManager, 
+							      stringToIdentity("IcePack/adaptermanager")));
+
+    ServerManagerPtr serverManager = new ServerManagerI(internalAdapter, adapterManagerProxy, activatorProxy);
+    ServerManagerPrx serverManagerProxy = 
+	ServerManagerPrx::uncheckedCast(internalAdapter->add(serverManager, 
+							     stringToIdentity("IcePack/servermanager")));
+    internalAdapter->activate();
+
+    //
+    // Create the "IcePack.Admin" object adapter and register the
+    // admin object. The admin object is used by icepackadmin to
+    // administrate IcePack.
+    //
+    ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapterWithEndpoints("IcePack.Admin", adminEndpoints);
+    AdminPtr admin = new AdminI(communicator(), serverManagerProxy, adapterManagerProxy);
+    adminAdapter->add(admin, stringToIdentity(adminId));
+
+    //
+    // Create the "IcePack.LocatorRegistry" object adapter and
+    // registry the locator registry object.
+    //
+    // The locator registry object provides an implementation of the
+    // Ice::LocatorRegistry interface. This interface is used by Ice
+    // servers to register their object adapters.
+    //
+    ObjectAdapterPtr locatorRegistryAdapter = 
+	communicator()->createObjectAdapterWithEndpoints("IcePack.LocatorRegistry", locatorRegistryEndpoints);
+    locatorRegistryAdapter->setLocator(0);
+    LocatorRegistryPtr locatorRegistry = new LocatorRegistryI(adapterManagerProxy);
+    LocatorRegistryPrx locatorRegistryProxy =
+	LocatorRegistryPrx::uncheckedCast(locatorRegistryAdapter->add(locatorRegistry, stringToIdentity(adminId)));
+
+    //
+    // Create the "IcePack.Locator" object adapter and register the
+    // locator object.
+    //
+    // The locator locator object provides an implementation of the
+    // Ice::Locator interface. This interface is used by Ice clients
+    // to locate object adapters and their associated endpoints.
+    //
+    LocatorPtr locator = new LocatorI(adapterManagerProxy, locatorRegistryProxy);
+    ObjectAdapterPtr locatorAdapter = communicator()->createObjectAdapterWithEndpoints("IcePack.Locator", 
+										       locatorEndpoints);
+    locatorAdapter->setLocator(0);
+    LocatorPrx locatorProxy = LocatorPrx::uncheckedCast(locatorAdapter->add(locator, stringToIdentity(locatorId)));
+
+    //
+    // Set the locator for the admin object adapter.
+    //
+    adminAdapter->setLocator(locatorProxy);
+    
+    //
+    // Activate the adapters.
+    //
+    shutdownOnInterrupt();
+    adminAdapter->activate();
+    locatorAdapter->activate();
+    locatorRegistryAdapter->activate();
     communicator()->waitForShutdown();
+    ignoreInterrupt();
+
+#ifndef _WIN32
+    //
+    // Destroy and join with activator.
+    //
+    activator->destroy();
+    activator->getThreadControl().join();
+#endif
+
     return EXIT_SUCCESS;
 }

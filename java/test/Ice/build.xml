@@ -6,6 +6,7 @@
         <ant dir="faultTolerance"/>
         <ant dir="inheritance"/>
         <ant dir="locationForward"/>
+        <ant dir="location"/>
         <ant dir="objects"/>
         <ant dir="operations"/>
     </target>
@@ -16,6 +17,7 @@
         <ant dir="faultTolerance" target="clean"/>
         <ant dir="inheritance" target="clean"/>
         <ant dir="locationForward" target="clean"/>
+        <ant dir="location" target="clean"/>
         <ant dir="objects" target="clean"/>
         <ant dir="operations" target="clean"/>
     </target>

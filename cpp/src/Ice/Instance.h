@@ -21,6 +21,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
+#include <Ice/LocatorInfoF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
@@ -53,6 +54,7 @@ public:
     TraceLevelsPtr traceLevels();
     DefaultsAndOverridesPtr defaultsAndOverrides();
     RouterManagerPtr routerManager();
+    LocatorManagerPtr locatorManager();
     ReferenceFactoryPtr referenceFactory();
     ProxyFactoryPtr proxyFactory();
     OutgoingConnectionFactoryPtr outgoingConnectionFactory();
@@ -78,6 +80,7 @@ private:
     TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
+    LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;

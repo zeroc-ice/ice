@@ -12,6 +12,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/RouterInfo.h>
+#include <Ice/LocatorInfo.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
@@ -28,6 +29,7 @@
 #include <Ice/TcpEndpoint.h>
 #include <Ice/UdpEndpoint.h>
 #include <Ice/PluginManagerI.h>
+#include <Ice/Communicator.h>
 #include <Ice/Initialize.h>
 
 #ifndef _WIN32
@@ -119,6 +121,13 @@ IceInternal::Instance::routerManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
     return _routerManager;
+}
+
+LocatorManagerPtr
+IceInternal::Instance::locatorManager()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _locatorManager;
 }
 
 ReferenceFactoryPtr
@@ -308,6 +317,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_routerManager = new RouterManager;
 
+	_locatorManager = new LocatorManager;
+
 	_referenceFactory = new ReferenceFactory(this);
 
 	_proxyFactory = new ProxyFactory(this);
@@ -319,12 +330,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
         _endpointFactoryManager->add(udpEndpointFactory);
 
         _pluginManager = new PluginManagerI(this);
-
-	if(!_defaultsAndOverrides->defaultRouter.empty())
-	{
-	    _referenceFactory->setDefaultRouter(
-		RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
-	}
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -357,6 +362,7 @@ IceInternal::Instance::~Instance()
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
     assert(!_routerManager);
+    assert(!_locatorManager);
     assert(!_endpointFactoryManager);
     assert(!_pluginManager);
 
@@ -404,6 +410,23 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+    //
+    // Get default router and locator proxies. Don't move this
+    // initialization before the plug-in initialization!!! The proxies
+    // might depend on endpoint factories to be installed by plug-ins.
+    //
+    if(!_defaultsAndOverrides->defaultRouter.empty())
+    {
+	_referenceFactory->setDefaultRouter(
+	    RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
+    }
+
+    if(!_defaultsAndOverrides->defaultLocator.empty())
+    {
+	_referenceFactory->setDefaultLocator(
+	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
+    }
 
 #ifndef _WIN32
     //
@@ -520,12 +543,18 @@ IceInternal::Instance::destroy()
 	    _routerManager = 0;
 	}
 
+	if(_locatorManager)
+	{
+	    _locatorManager->destroy();
+	    _locatorManager = 0;
+	}
+
 	if(_endpointFactoryManager)
 	{
 	    _endpointFactoryManager->destroy();
 	    _endpointFactoryManager = 0;
 	}
-	
+
 	//
 	// We destroy the thread pool outside the thread
 	// synchronization.

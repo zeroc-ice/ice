@@ -42,6 +42,7 @@ private:
     friend class Instance;
 
     InstancePtr _instance;
+    ::std::vector<int> _retryIntervals;
 };
 
 }

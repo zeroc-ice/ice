@@ -1967,11 +1967,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "int __cnt = 0;";
         out << nl << "while(true)";
         out << sb;
+        out << nl << "try";
+        out << sb;
         out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
         out << nl << '_' << name << "Del __del = (_" << name
             << "Del)__delBase;";
-        out << nl << "try";
-        out << sb;
         out << nl;
         if(ret)
         {

@@ -50,6 +50,7 @@ else:
     defaultHost = ""
 
 sep = ""
+
 if sys.platform == "win32":
     sep = ";"
 elif sys.platform == "cygwin":
@@ -65,6 +66,22 @@ clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+
+    if sys.platform == "win32" or isCygwin():
+        return 1
+    else:
+        return 0
+        
 # Only used for C++ programs
 serverPids = []
 def killServers():
@@ -111,7 +128,7 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
-def clientServerTest(toplevel, name):
+def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
@@ -123,12 +140,46 @@ def clientServerTest(toplevel, name):
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions)
+    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions)
+    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
+    print "ok"
+
+    for output in clientPipe.xreadlines():
+	print output,
+
+    clientStatus = clientPipe.close()
+    serverStatus = serverPipe.close()
+
+    if clientStatus or serverStatus:
+	killServers()
+	sys.exit(1)
+
+def clientServerTest(toplevel, name):
+
+    clientServerTestWithOptions(toplevel, name, "", "")
+
+def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
+
+    testdir = os.path.join(toplevel, "test", name)
+    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
+	 os.getenv("CLASSPATH", "")
+    server = "java -ea -classpath \"" + classpath + "\" Server "
+    client = "java -ea -classpath \"" + classpath + "\" Client "
+
+    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
+    updatedClientOptions = updatedServerOptions
+
+    print "starting server...",
+    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
+    getAdapterReady(serverPipe)
+    print "ok"
+    
+    print "starting client...",
+    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -143,35 +194,9 @@ def clientServerTest(toplevel, name):
 
 def mixedClientServerTest(toplevel, name):
 
-    testdir = os.path.join(toplevel, "test", name)
-    classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
-	 os.getenv("CLASSPATH", "")
-    server = "java -ea -classpath \"" + classpath + "\" Server "
-    client = "java -ea -classpath \"" + classpath + "\" Client "
+    mixedClientServerTestWithOptions(toplevel, name, "", "")
 
-    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
-    updatedClientOptions = updatedServerOptions
-
-    print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions)
-    getAdapterReady(serverPipe)
-    print "ok"
-    
-    print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions)
-    print "ok"
-
-    for output in clientPipe.xreadlines():
-	print output,
-
-    clientStatus = clientPipe.close()
-    serverStatus = serverPipe.close()
-
-    if clientStatus or serverStatus:
-	killServers()
-	sys.exit(1)
-
-def collocatedTest(toplevel, name):
+def collocatedTestWithOptions(toplevel, name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + \
@@ -181,7 +206,7 @@ def collocatedTest(toplevel, name):
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
+    collocatedPipe = os.popen(collocated + updatedCollocatedOptions + additionalOptions)
     print "ok"
 
     for output in collocatedPipe.xreadlines():
@@ -192,6 +217,10 @@ def collocatedTest(toplevel, name):
     if collocatedStatus:
 	killServers()
 	sys.exit(1)
+
+def collocatedTest(toplevel, name):
+
+    collocatedTestWithOptions(toplevel, name, "")
 
 def cleanDbDir(path):
 

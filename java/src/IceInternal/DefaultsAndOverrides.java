@@ -53,11 +53,14 @@ public final class DefaultsAndOverrides
 	    overrideComppress = false;
 	    overrideComppressValue = false;
 	}
+
+	defaultLocator = properties.getProperty("Ice.Default.Locator");
     }
 
     final public String defaultHost;
     final public String defaultProtocol;
     final public String defaultRouter;
+    final public String defaultLocator;
 
     final public boolean overrideTimeout;
     final public int overrideTimeoutValue;

@@ -16,6 +16,8 @@
 #   include <readline/history.h>
 #endif
 
+#include <iterator>
+
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
@@ -41,19 +43,28 @@ IcePack::Parser::usage()
     cout <<
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
-        "add PROXY [PATH [ARGS...]]  Add PROXY with an optional PATH and program\n"
-        "                            arguments ARGS.\n"
-        "remove PROXY                Remove PROXY.\n"
-        "list                        List all server descriptions.\n"
+        "server add NAME PATH [PWD] [adapters { NAMES }] [options { OPTIONS }]\n"
+        "                            Add server NAME with PATH, optional working\n"
+	"                            directory PWD, adapters and options.\n"
+	"server describe NAME        Get server NAME description.\n"
+	"server state NAME           Get server NAME state.\n"
+	"server start NAME           Starts server NAME.\n"
+        "server remove NAME          Remove server NAME.\n"
+        "server list                 List all server names.\n"
+	"adapter add NAME ENDPOINTS  Add adapter NAME with ENDPOINTS.\n"
+        "adapter list                List all adapter names.\n"
+        "adapter remove NAME         Remove adapter NAME.\n"
+	"adapter endpoints NAME      Get adapter NAME endpoints.\n"
         "shutdown                    Shut the IcePack server down.\n";
 }
 
 void
-IcePack::Parser::add(const list<string>& args)
+IcePack::Parser::addServer(const list<string>& args, const std::list<std::string>& adapters, 
+			   const std::list<std::string>& options)
 {
-    if(args.empty())
+    if(args.size() < 2)
     {
-	error("`add' requires at least one argument (type `help' for more info)");
+	error("`server add' requires at least two arguments (type `help' for more info)");
 	return;
     }
 
@@ -61,16 +72,19 @@ IcePack::Parser::add(const list<string>& args)
     {
 	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
-	desc.obj = _communicator->stringToProxy(*p);
-	if(++p != args.end())
+	
+	desc.name = *p++;
+	desc.path = *p++;
+
+	if(p != args.end())
 	{
-	    desc.path = *p;
-	    while(++p != args.end())
-	    {
-		desc.args.push_back(*p);
-	    }
+	    desc.pwd = *p++;
 	}
-	_admin->add(desc);
+
+	copy(adapters.begin(), adapters.end(), back_inserter(desc.adapters));
+	copy(options.begin(), options.end(), back_inserter(desc.args));
+
+	_admin->addServer(desc);
 
     }
     catch(const Exception& ex)
@@ -82,17 +96,20 @@ IcePack::Parser::add(const list<string>& args)
 }
 
 void
-IcePack::Parser::remove(const list<string>& args)
+IcePack::Parser::startServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`remove' requires exactly one argument (type `help' for more info)");
+	error("`server start' requires exactly one argument (type `help' for more info)");
 	return;
     }
 
     try
     {
-	_admin->remove(stringToIdentity(args.front()));
+	if(!_admin->startServer(args.front()))
+	{
+	    error("The server didn't start successfully");
+	}
     }
     catch(const Exception& ex)
     {
@@ -103,29 +120,193 @@ IcePack::Parser::remove(const list<string>& args)
 }
 
 void
-IcePack::Parser::listAll()
+IcePack::Parser::describeServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server describe' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	ServerDescription desc = _admin->getServerDescription(args.front());
+
+	cout << "name = " << desc.name << endl;
+	cout << "path = " << desc.path << endl;
+	cout << "pwd = " << desc.pwd << endl;
+
+	cout << "args = ";
+	copy(desc.args.begin(), desc.args.end(), ostream_iterator<string>(cout," "));
+	cout << endl;
+
+	cout << "adapters = ";
+	copy(desc.adapters.begin(), desc.adapters.end(), ostream_iterator<string>(cout," "));
+	cout << endl;
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::stateServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server state' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	ServerState state = _admin->getServerState(args.front());
+
+	switch(state)
+	{
+	case Inactive:
+	    cout << "Inactive" << endl;
+	    break;
+	case Activating:
+	    cout << "Activating" << endl;
+	    break;
+	case Active:
+	    cout << "Active" << endl;
+	    break;
+	case Deactivating:
+	    cout << "Deactivating" << endl;
+	    break;
+	case Destroyed:
+	    cout << "Destroyed" << endl;
+	    break;
+	default:
+	    assert(false);
+	}
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::removeServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server remove' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->removeServer(args.front());
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::listAllServers()
 {
     try
     {
-	ServerDescriptions descriptions = _admin->getAll();
-	ServerDescriptions::iterator p = descriptions.begin();
-	while(p != descriptions.end())
-	{
-	    cout << "identity = " << p->first << endl;
-	    cout << "object = " << _communicator->proxyToString(p->second.obj) << endl;
-	    cout << "host = " << p->second.host << endl;
-	    cout << "path = " << p->second.path << endl;
-	    cout << "args =";
-	    for(Args::iterator q = p->second.args.begin(); q != p->second.args.end(); ++q)
-	    {
-		cout << ' ' << *q;
-	    }
-	    cout << endl;
-	    if(++p != descriptions.end())
-	    {
-		cout << endl;
-	    }
-	}
+	ServerNames names = _admin->getAllServerNames();
+	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::addAdapter(const list<string>& args)
+{
+    if(args.size() < 2)
+    {
+	error("`adapter add' requires at least two arguments (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+
+	string name = *p++;
+	string endpoints = *p++;
+
+	_admin->addAdapterWithEndpoints(name, endpoints);
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::endpointsAdapter(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`adapter endpoints' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	string endpoints = _admin->getAdapterEndpoints(args.front());
+	cout << endpoints << endl;
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::removeAdapter(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`adapter remove' requires exactly one argument (type `help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->removeAdapter(args.front());
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::listAllAdapters()
+{
+    try
+    {
+	AdapterNames names = _admin->getAllAdapterNames();
+	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
     }
     catch(const Exception& ex)
     {

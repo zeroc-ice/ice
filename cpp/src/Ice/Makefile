@@ -81,7 +81,9 @@ OBJS		= Initialize.o \
 		  DynamicLibrary.o \
 		  Plugin.o \
 		  PluginManagerI.o \
-		  ProtocolPluginFacade.o
+		  ProtocolPluginFacade.o \
+		  Locator.o \
+		  LocatorInfo.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -299,5 +301,22 @@ $(HDIR)/PluginF.h: $(SDIR)/PluginF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/PluginF.h
+
+$(HDIR)/Locator.h Locator.cpp: $(SDIR)/Locator.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Locator.h Locator.cpp
+	$(SLICECMD) $(SDIR)/Locator.ice
+	mv Locator.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Locator.h Locator.cpp
+
+$(HDIR)/LocatorF.h: $(SDIR)/LocatorF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/LocatorF.h LocatorF.cpp
+	$(SLICECMD) $(SDIR)/LocatorF.ice
+	mv LocatorF.h $(HDIR)
+	rm -f LocatorF.cpp
+
+clean::
+	rm -f $(HDIR)/LocatorF.h
 
 include .depend

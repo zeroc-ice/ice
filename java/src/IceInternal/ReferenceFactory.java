@@ -18,9 +18,10 @@ public final class ReferenceFactory
            int mode,
            boolean secure,
 	   boolean compress,
-           Endpoint[] origEndpoints,
+	   String adapterId,
            Endpoint[] endpoints,
            RouterInfo routerInfo,
+           LocatorInfo locatorInfo,
            Ice.ObjectAdapter reverseAdapter)
     {
         if(_instance == null)
@@ -31,9 +32,8 @@ public final class ReferenceFactory
         //
         // Create a new reference
         //
-        Reference ref = new Reference(_instance, ident, facet, mode, secure, compress,
-                                      origEndpoints, endpoints,
-                                      routerInfo, reverseAdapter);
+        Reference ref = new Reference(_instance, ident, facet, mode, secure, compress, adapterId,
+				      endpoints, routerInfo, locatorInfo, reverseAdapter);
 
         //
         // If we already have an equivalent reference, use such equivalent
@@ -77,6 +77,9 @@ public final class ReferenceFactory
         }
 
         int colon = s.indexOf(':');
+	if(colon == -1)
+	    colon = s.indexOf('@');
+
         String init;
         if(colon == -1)
         {
@@ -93,6 +96,7 @@ public final class ReferenceFactory
         int mode = Reference.ModeTwoway;
         boolean secure = false;
         boolean compress = false;
+	String adapter = "";
 
         int i = 1;
         while(i < arr.length)
@@ -210,63 +214,43 @@ public final class ReferenceFactory
             }
         }
 
-        java.util.ArrayList origEndpoints = new java.util.ArrayList();
         java.util.ArrayList endpoints = new java.util.ArrayList();
 
-        boolean orig = true;
-        final int len = s.length();
-        int end = colon;
-        while(end < len && s.charAt(end) == ':')
-        {
-            int beg = end + 1;
+	if(colon != -1)
+	{
+	    if(s.charAt(colon) == ':')
+	    {
+		final int len = s.length();
+		int end = colon;
+		while(end < len && s.charAt(end) == ':')
+		{
+		    int beg = end + 1;
+		    
+		    end = s.indexOf(':', beg);
+		    if(end == -1)
+		    {
+			end = len;
+		    }
+		    
+		    String es = s.substring(beg, end);
+		    Endpoint endp = _instance.endpointFactoryManager().create(es);
+		    endpoints.add(endp);
+		}
+	    }
+	    else if(s.charAt(colon) == '@')
+	    {
+		init = s.substring(colon + 1, s.length()).trim();
+		arr = init.split("[ \t\n\r]+");
+		adapter = arr[0];
+	    }
+	}
 
-            end = s.indexOf(':', beg);
-            if(end == -1)
-            {
-                end = len;
-            }
-
-            if(beg == end) // "::"
-            {
-                if(!orig)
-                {
-                    throw new Ice.ProxyParseException();
-                }
-
-                orig = false;
-                continue;
-            }
-
-            String es = s.substring(beg, end);
-            Endpoint endp = _instance.endpointFactoryManager().create(es);
-
-            if(orig)
-            {
-                origEndpoints.add(endp);
-            }
-            else
-            {
-                endpoints.add(endp);
-            }
-        }
-
-        if(orig)
-        {
-            endpoints = origEndpoints;
-        }
-
-        if(origEndpoints.size() == 0 || endpoints.size() == 0)
-        {
-            throw new Ice.ProxyParseException();
-        }
-
-        Endpoint[] origEndp = new Endpoint[origEndpoints.size()];
-        origEndpoints.toArray(origEndp);
         Endpoint[] endp = new Endpoint[endpoints.size()];
         endpoints.toArray(endp);
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        return create(ident, facet, mode, secure, compress, origEndp, endp, routerInfo, null);
+        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+        return create(ident, facet, mode, secure, compress, adapter, endp, routerInfo, locatorInfo, null);
     }
 
     public Reference
@@ -289,33 +273,27 @@ public final class ReferenceFactory
 
         boolean compress = s.readBool();
 
-        Endpoint[] origEndpoints;
         Endpoint[] endpoints;
+	String adapterId = "";
 
         int sz = s.readSize();
-        origEndpoints = new Endpoint[sz];
-        for(int i = 0; i < sz; i++)
-        {
-            origEndpoints[i] = _instance.endpointFactoryManager().read(s);
-        }
-
-        boolean same = s.readBool();
-        if(same) // origEndpoints == endpoints
-        {
-            endpoints = origEndpoints;
-        }
-        else
-        {
-            sz = s.readSize();
-            endpoints = new Endpoint[sz];
-            for(int i = 0; i < sz; i++)
-            {
-                endpoints[i] = _instance.endpointFactoryManager().read(s);
-            }
-        }
+	if(sz > 0)
+	{
+	    endpoints = new Endpoint[sz];
+	    for(int i = 0; i < sz; i++)
+	    {
+		endpoints[i] = _instance.endpointFactoryManager().read(s);
+	    }
+	}
+	else
+	{
+	    endpoints = new Endpoint[0];
+	    adapterId = s.readString();
+	}
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, null);
+        LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+        return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, null);
     }
 
     public synchronized void
@@ -328,6 +306,18 @@ public final class ReferenceFactory
     getDefaultRouter()
     {
         return _defaultRouter;
+    }
+
+    public synchronized void
+    setDefaultLocator(Ice.LocatorPrx defaultLocator)
+    {
+        _defaultLocator = defaultLocator;
+    }
+
+    public synchronized Ice.LocatorPrx
+    getDefaultLocator()
+    {
+        return _defaultLocator;
     }
 
     //
@@ -348,10 +338,12 @@ public final class ReferenceFactory
 
         _instance = null;
         _defaultRouter = null;
+        _defaultLocator = null;
         _references.clear();
     }
 
     private Instance _instance;
     private Ice.RouterPrx _defaultRouter;
+    private Ice.LocatorPrx _defaultLocator;
     private java.util.WeakHashMap _references = new java.util.WeakHashMap();
 }

@@ -211,30 +211,72 @@ public class _ObjectDelM implements _ObjectDel
         }
         else
         {
-            IceInternal.Endpoint[] endpoints = null;
-            if(__reference.routerInfo != null)
-            {
-                //
-                // If we route, we send everything to the router's client
-                // proxy endpoints.
-                //
-                ObjectPrx proxy = __reference.routerInfo.getClientProxy();
-                endpoints = filterEndpoints(((ObjectPrxHelper)proxy).__reference().endpoints);
-            }
-            else
-            {
-                endpoints = filterEndpoints(__reference.endpoints);
-            }
+	    while(true)
+	    {
+		IceInternal.Endpoint[] endpoints = null;
+		BooleanHolder cached = new BooleanHolder();
+		cached.value = false;
 
-            if(endpoints.length == 0)
-            {
-                throw new NoEndpointException();
-            }
+		if(__reference.routerInfo != null)
+		{
+		    //
+		    // If we route, we send everything to the router's client
+		    // proxy endpoints.
+		    //
+		    ObjectPrx proxy = __reference.routerInfo.getClientProxy();
+		    endpoints = filterEndpoints(((ObjectPrxHelper)proxy).__reference().endpoints);
+		}
+		else if(__reference.endpoints.length > 0)
+		{
+		    endpoints = filterEndpoints(__reference.endpoints);
+		}
+		else if(__reference.locatorInfo != null)
+		{
+		    endpoints = __reference.locatorInfo.getEndpoints(__reference, cached);
+		}
 
-            IceInternal.OutgoingConnectionFactory factory = __reference.instance.outgoingConnectionFactory();
-            __connection = factory.create(endpoints);
-            assert(__connection != null);
-	    __connection.incProxyUsageCount();
+		IceInternal.Endpoint[] filteredEndpoints = filterEndpoints(endpoints);
+		if(filteredEndpoints.length == 0)
+		{
+		    throw new NoEndpointException();
+		}
+
+		try
+		{
+		    IceInternal.OutgoingConnectionFactory factory = __reference.instance.outgoingConnectionFactory();
+		    __connection = factory.create(filteredEndpoints);
+		    assert(__connection != null);
+		    __connection.incProxyUsageCount();
+		}
+		catch (LocalException ex)
+		{
+		    if(cached.value)
+		    {
+			IceInternal.TraceLevels traceLevels = __reference.instance.traceLevels();
+			Logger logger = __reference.instance.logger();
+		    
+			if(traceLevels.retry >= 1)
+			{
+			    String s = "connection to cached endpoint failed, removing endpoint from cache\n" +
+ 				       "and trying one more time\n" + ex;
+			    logger.trace(traceLevels.retryCat, s);
+			}
+			
+			__reference.locatorInfo.removeEndpoints(__reference);
+			continue;
+		    }
+		    else
+		    {
+			throw ex;
+		    }
+		}   
+
+		if(__reference.locatorInfo != null && !cached.value)
+		{
+		    __reference.locatorInfo.addEndpoints(__reference, endpoints);
+		}
+		break;
+	    }
 
             //
             // If we have a router, set the object adapter for this

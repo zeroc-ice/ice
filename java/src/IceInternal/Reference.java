@@ -69,12 +69,12 @@ public final class Reference
         {
             return false;
         }
-
-        if(!compare(origEndpoints, r.origEndpoints))
-        {
-            return false;
-        }
-
+	
+	if(!adapterId.equals(r.adapterId))
+	{
+	    return false;
+	}
+	
         if(!compare(endpoints, r.endpoints))
         {
             return false;
@@ -86,7 +86,18 @@ public final class Reference
         }
 
         if(routerInfo != null && r.routerInfo != null &&
-            !routerInfo.equals(r.routerInfo))
+	   !routerInfo.equals(r.routerInfo))
+        {
+            return false;
+        }
+
+        if(locatorInfo != r.locatorInfo)
+        {
+            return false;
+        }
+
+        if(locatorInfo != null && r.locatorInfo != null &&
+	   !locatorInfo.equals(r.locatorInfo))
         {
             return false;
         }
@@ -118,24 +129,20 @@ public final class Reference
 
         s.writeBool(compress);
 
-        s.writeSize(origEndpoints.length);
-        for(int i = 0; i < origEndpoints.length; i++)
-        {
-            origEndpoints[i].streamWrite(s);
-        }
+	s.writeSize(endpoints.length);
 
-        if(endpointsEqual())
-        {
-            s.writeBool(true);
-        }
-        else
-        {
-            s.writeBool(false);
-            s.writeSize(endpoints.length);
+	if(endpoints.length > 0)
+	{
+	    assert(adapterId.equals(""));
+	    
             for(int i = 0; i < endpoints.length; i++)
             {
                 endpoints[i].streamWrite(s);
             }
+	}
+        else
+        {
+	    s.writeString(adapterId);
         }
     }
 
@@ -197,21 +204,20 @@ public final class Reference
             s.append(" -c");
         }
 
-        for(int i = 0; i < origEndpoints.length; i++)
-        {
-            s.append(':');
-            s.append(origEndpoints[i].toString());
-        }
+	if(endpoints.length > 0)
+	{
+	    assert(adapterId.equals(""));
 
-        if(!endpointsEqual())
-        {
-            s.append(':');
-            for(int i = 0; i < endpoints.length; i++)
-            {
-                s.append(':');
-                s.append(endpoints[i].toString());
-            }
-        }
+	    for(int i = 0; i < endpoints.length; i++)
+	    {
+		s.append(':');
+		s.append(endpoints[i].toString());
+	    }
+	}
+	else
+	{
+	    s.append(" @ " + adapterId);
+	}
 
         return s.toString();
     }
@@ -225,9 +231,10 @@ public final class Reference
     final public int mode;
     final public boolean secure;
     final public boolean compress;
-    final public Endpoint[] origEndpoints; // Original endpoints.
+    final public String adapterId;
     final public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
     final public RouterInfo routerInfo; // Null if no router is used.
+    final public LocatorInfo locatorInfo; // Null if no locator is used.
     final public Ice.ObjectAdapter reverseAdapter; // For reverse comm. using the adapter's incoming connections.
     final public int hashValue;
 
@@ -244,9 +251,8 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(newIdentity, facet, mode, secure, compress,
-                                                      origEndpoints, endpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(newIdentity, facet, mode, secure, compress, adapterId,
+ 						      endpoints, routerInfo, locatorInfo, reverseAdapter);
         }
     }
 
@@ -259,9 +265,8 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, newFacet, mode, secure, compress,
-                                                      origEndpoints, endpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, newFacet, mode, secure, compress, adapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter);
         }
     }
 
@@ -271,12 +276,6 @@ public final class Reference
         //
         // We change the timeout settings in all endpoints.
         //
-        Endpoint[] newOrigEndpoints = new Endpoint[origEndpoints.length];
-        for(int i = 0; i < origEndpoints.length; i++)
-        {
-            newOrigEndpoints[i] = origEndpoints[i].timeout(timeout);
-        }
-
         Endpoint[] newEndpoints = new Endpoint[endpoints.length];
         for(int i = 0; i < endpoints.length; i++)
         {
@@ -304,9 +303,20 @@ public final class Reference
             }
         }
 
-        return instance.referenceFactory().create(identity, facet, mode, secure, compress,
-                                                  newOrigEndpoints, newEndpoints,
-                                                  newRouterInfo, reverseAdapter);
+	//
+	// If we have a locator, we also change the timeout settings
+	// on the locator.
+	//
+	LocatorInfo newLocatorInfo = null;
+	if(locatorInfo != null)
+	{
+	    Ice.LocatorPrx newLocator = 
+		Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(timeout));
+	    newLocatorInfo = instance.locatorManager().get(newLocator);
+	}
+
+        return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId, 
+						  endpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
     }
 
     public Reference
@@ -318,9 +328,8 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, newMode, secure, compress,
-                                                      origEndpoints, endpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, facet, newMode, secure, compress, adapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter);
         }
     }
 
@@ -333,9 +342,8 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, newSecure, compress,
-                                                      origEndpoints, endpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, facet, mode, newSecure, compress, adapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter);
         }
     }
 
@@ -348,10 +356,23 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, newCompress,
-                                                      origEndpoints, endpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, facet, mode, secure, newCompress, adapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter);
         }
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+	if(adapterId.equals(newAdapterId))
+	{
+	    return this;
+	}
+	else
+	{
+	    return instance.referenceFactory().create(identity, facet, mode, secure, compress, newAdapterId,
+						      endpoints, routerInfo, locatorInfo, reverseAdapter);
+	}
     }
 
     public Reference
@@ -363,9 +384,8 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress,
-                                                      origEndpoints, newEndpoints,
-                                                      routerInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+						      newEndpoints, routerInfo, locatorInfo, reverseAdapter);
         }
     }
 
@@ -381,18 +401,33 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress,
-                                                      origEndpoints, endpoints,
-                                                      newRouterInfo, reverseAdapter);
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+						      endpoints, newRouterInfo, locatorInfo, reverseAdapter);
+        }
+    }
+
+    public Reference
+    changeLocator(Ice.LocatorPrx newLocator)
+    {
+        LocatorInfo newLocatorInfo = instance.locatorManager().get(newLocator);
+
+        if((locatorInfo == newLocatorInfo) ||
+            (locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(locatorInfo)))
+        {
+            return this;
+        }
+        else
+        {
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+						      endpoints, routerInfo, newLocatorInfo, reverseAdapter);
         }
     }
 
     public Reference
     changeDefault()
     {
-        return instance.referenceFactory().create(identity, "", ModeTwoway, false, false,
-                                                  origEndpoints, origEndpoints,
-                                                  null, null);
+        return instance.referenceFactory().create(identity, "", ModeTwoway, false, false, adapterId, endpoints,
+                                                  null, null, null);
     }
 
     //
@@ -404,20 +439,27 @@ public final class Reference
               int md,
               boolean sec,
               boolean com,
-              Endpoint[] origEndpts,
+	      String adptId,
               Endpoint[] endpts,
               RouterInfo rtrInfo,
+	      LocatorInfo locInfo,
               Ice.ObjectAdapter rvAdapter)
     {
+	//
+	// It's either adapter id or endpoints, it can't be both.
+	//
+	assert(!(!adptId.equals("") && !(endpts.length == 0)));
+
         instance = inst;
         identity = ident;
         facet = fac;
         mode = md;
         secure = sec;
         compress = com;
-        origEndpoints = origEndpts;
+	adapterId = adptId;
         endpoints = endpts;
         routerInfo = rtrInfo;
+        locatorInfo = locInfo;
         reverseAdapter = rvAdapter;
 
         int h = 0;
@@ -455,21 +497,6 @@ public final class Reference
 	hashValue = h;
     }
 
-    //
-    // Check if origEndpoints == endpoints
-    //
-    private boolean
-    endpointsEqual()
-    {
-        if(_checkEndpointsEqual)
-        {
-            _endpointsEqual = compare(origEndpoints, endpoints);
-            _checkEndpointsEqual = false;
-        }
-
-        return _endpointsEqual;
-    }
-
     private boolean
     compare(Endpoint[] arr1, Endpoint[] arr2)
     {
@@ -493,7 +520,4 @@ public final class Reference
 
         return false;
     }
-
-    private boolean _endpointsEqual = false;
-    private boolean _checkEndpointsEqual = true;
 }

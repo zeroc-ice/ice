@@ -50,4 +50,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 	const_cast<bool&>(overrideComppress) = true;
 	const_cast<bool&>(overrideComppressValue) = atoi(value.c_str());
     }
+
+    const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");
 }

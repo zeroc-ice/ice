@@ -19,6 +19,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
+#include <Ice/DefaultsAndOverrides.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,6 +35,7 @@ Ice::CommunicatorI::destroy()
 	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
 	_instance = 0;
+	    
     }
 }
 
@@ -92,18 +94,19 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-
+    
     ObjectAdapterPtr adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
-
+    
     string router = _instance->properties()->getProperty("Ice.Adapter." + name + ".Router");
     if(!router.empty())
     {
 	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
     }
 
-    if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
+    string locator = _instance->properties()->getProperty("Ice.Adapter." + name + ".Locator");
+    if(!locator.empty())
     {
-	_serverThreadPool = _instance->serverThreadPool();
+	adapter->setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
     }
 
     return adapter;
@@ -131,9 +134,15 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-
+    
     ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
 
+    string locator = _instance->defaultsAndOverrides()->defaultLocator;
+    if(!locator.empty())
+    {
+	adapter->setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
+    }
+    
     if(!_serverThreadPool) // Lazy initialization of _serverThreadPool.
     {
 	_serverThreadPool = _instance->serverThreadPool();

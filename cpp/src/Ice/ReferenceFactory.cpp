@@ -16,6 +16,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
+#include <Ice/LocatorInfo.h>
 
 using namespace std;
 using namespace Ice;
@@ -30,9 +31,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      Reference::Mode mode,
 				      bool secure,
 				      bool compress,
-				      const vector<EndpointPtr>& origEndpoints,
+				      const string& adapter,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
+				      const LocatorInfoPtr& locatorInfo,
 				      const ObjectAdapterPtr& reverseAdapter)
 {
     Mutex::Lock sync(*this);
@@ -45,9 +47,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress,
-				     origEndpoints, endpoints,
-				     routerInfo, reverseAdapter);
+    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress, adapter,
+				     endpoints, routerInfo, locatorInfo, reverseAdapter);
 
     //
     // If we already have an equivalent reference, use such equivalent
@@ -118,7 +119,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	throw ProxyParseException(__FILE__, __LINE__);
     }
     
-    end = s.find_first_of(delim + ":", beg);
+    end = s.find_first_of(delim + ":@", beg);
     if(end == string::npos)
     {
 	end = s.length();
@@ -134,6 +135,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
     bool compress = false;
+    string adapter;
 
     while(true)
     {
@@ -143,12 +145,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    break;
 	}
 
-        if(s[beg] == ':')
+        if(s[beg] == ':' || s[beg] == '@')
         {
             break;
         }
         
-	end = s.find_first_of(delim + ":", beg);
+	end = s.find_first_of(delim + ":@", beg);
 	if(end == string::npos)
 	{
 	    end = s.length();
@@ -170,7 +172,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	if(argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
 	    beg = argumentBeg;
-	    end = str.find_first_of(delim + ":", beg);
+	    end = str.find_first_of(delim + ":@", beg);
 	    if(end == string::npos)
 	    {
 		end = str.length();
@@ -271,56 +273,53 @@ IceInternal::ReferenceFactory::create(const string& str)
 	}
     }
 
-    vector<EndpointPtr> origEndpoints;
     vector<EndpointPtr> endpoints;
-
-    bool orig = true;
-    while(end < s.length() && s[end] == ':')
+    if(beg != string::npos)
     {
-	beg = end + 1;
-	
-	end = s.find(':', beg);
-	if(end == string::npos)
+	if(s[beg] == ':')
 	{
-	    end = s.length();
+	    end = beg;
+	    
+	    while (end < s.length() && s[end] == ':')
+	    {
+		beg = end + 1;
+		
+		end = s.find(':', beg);
+		if (end == string::npos)
+		{
+		    end = s.length();
+		}
+		
+		string es = s.substr(beg, end - beg);
+		EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
+		endpoints.push_back(endp);
+	    }
 	}
-
-	if(beg == end) // "::"
+	else if(s[beg] == '@')
 	{
-	    if(!orig)
+	    beg = str.find_first_not_of(delim, beg + 1);
+	    if (beg == string::npos)
+	    {
+		beg = end + 1;
+	    }
+	    
+	    end = str.find_first_of(delim, beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    
+	    adapter = str.substr(beg, end - beg);
+	    if(adapter.empty())
 	    {
 		throw ProxyParseException(__FILE__, __LINE__);
 	    }
-
-	    orig = false;
-	    continue;
 	}
-	
-	string es = s.substr(beg, end - beg);
-	EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
-
-	if(orig)
-	{
-	    origEndpoints.push_back(endp);
-	}
-	else
-	{
-	    endpoints.push_back(endp);
-	}
-    }
-
-    if(orig)
-    {
-	endpoints = origEndpoints;
-    }
-
-    if(!origEndpoints.size() || !endpoints.size())
-    {
-	throw ProxyParseException(__FILE__, __LINE__);
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, 0);
+    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
+    return create(ident, facet, mode, secure, compress, adapter, endpoints, routerInfo, locatorInfo, 0);
 }
 
 ReferencePtr
@@ -348,37 +347,29 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     bool compress;
     s->read(compress);
 
-    vector<EndpointPtr> origEndpoints;
     vector<EndpointPtr> endpoints;
+    string adapterId;
 
     Ice::Int sz;
     s->readSize(sz);
-    origEndpoints.reserve(sz);
-    while(sz--)
+    
+    if(sz > 0)
     {
-	EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
-	origEndpoints.push_back(endpoint);
-    }
-
-    bool same;
-    s->read(same);
-    if(same) // origEndpoints == endpoints
-    {
-	endpoints = origEndpoints;
-    }
-    else
-    {
-	s->readSize(sz);
 	endpoints.reserve(sz);
 	while(sz--)
 	{
-            EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
+	    EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
     }
+    else
+    {
+	s->read(adapterId);
+    }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, 0);
+    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
+    return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, 0);
 }
 
 void
@@ -393,6 +384,20 @@ IceInternal::ReferenceFactory::getDefaultRouter() const
 {
     IceUtil::Mutex::Lock sync(*this);
     return _defaultRouter;
+}
+
+void
+IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    _defaultLocator = defaultLocator;
+}
+
+LocatorPrx
+IceInternal::ReferenceFactory::getDefaultLocator() const
+{
+    IceUtil::Mutex::Lock sync(*this);
+    return _defaultLocator;
 }
 
 IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance) :
@@ -414,6 +419,7 @@ IceInternal::ReferenceFactory::destroy()
 
     _instance = 0;
     _defaultRouter = 0;
+    _defaultLocator = 0;
     _references.clear();
     _referencesHint = _references.end();
 }

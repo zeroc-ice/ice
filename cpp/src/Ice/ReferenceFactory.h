@@ -24,14 +24,17 @@ class ReferenceFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
-    ReferencePtr create(const Ice::Identity&, const std::string&, Reference::Mode, bool, bool,
-			const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&,
-			const RouterInfoPtr&, const Ice::ObjectAdapterPtr&);
+    ReferencePtr create(const Ice::Identity&, const std::string&, Reference::Mode, bool, bool, const std::string&,
+			const std::vector<EndpointPtr>&, const RouterInfoPtr&, const LocatorInfoPtr&,
+			const Ice::ObjectAdapterPtr&);
     ReferencePtr create(const std::string&);
     ReferencePtr create(const Ice::Identity&, BasicStream*);
 
     void setDefaultRouter(const ::Ice::RouterPrx&);
     Ice::RouterPrx getDefaultRouter() const;
+
+    void setDefaultLocator(const ::Ice::LocatorPrx&);
+    Ice::LocatorPrx getDefaultLocator() const;
 
 private:
 
@@ -41,6 +44,7 @@ private:
 
     InstancePtr _instance;
     Ice::RouterPrx _defaultRouter;
+    Ice::LocatorPrx _defaultLocator;
     std::set<ReferencePtr> _references;
     std::set<ReferencePtr>::iterator _referencesHint;
     int _evict;

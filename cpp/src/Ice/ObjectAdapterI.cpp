@@ -22,6 +22,8 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
+#include <Ice/LocatorInfo.h>
+#include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
 
 #ifdef _WIN32
@@ -62,6 +64,23 @@ Ice::ObjectAdapterI::activate()
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
+    
+    if(!_printAdapterReadyDone)
+    {
+	if(_locatorInfo)
+	{
+	    Identity ident;
+	    ident.name = "dummy";
+	    
+	    //
+	    // TODO: This might throw if we can't connect to the
+	    // locator. Shall we raise a special exception for the
+	    // activate operation instead of a non obvious network
+	    // exception?
+	    //
+	    _locatorInfo->getLocatorRegistry()->addAdapter(_name, newDirectProxy(ident));
+	}
+    }
 
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::activate));
@@ -72,7 +91,7 @@ Ice::ObjectAdapterI::activate()
 	{
 	    cout << _name << " ready" << endl;
 	}
-
+	
 	_printAdapterReadyDone = true;
     }
 }
@@ -86,11 +105,11 @@ Ice::ObjectAdapterI::hold()
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
-
+	
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::hold));
 }
-
+    
 void
 Ice::ObjectAdapterI::deactivate()
 {
@@ -99,20 +118,20 @@ Ice::ObjectAdapterI::deactivate()
     if(!_instance)
     {
 	//
-        // Ignore deactivation requests if the Object Adapter has
-        // already been deactivated.
+	// Ignore deactivation requests if the Object Adapter has
+	// already been deactivated.
 	//
 	return;
     }
-
+	
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
 
     _instance->outgoingConnectionFactory()->removeAdapter(this);
-
+	
     _activeServantMap.clear();
     _activeServantMapHint = _activeServantMap.end();
-
+	
     for_each(_locatorMap.begin(), _locatorMap.end(),
 	     Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
     _locatorMap.clear();
@@ -316,6 +335,19 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 }
 
 ObjectPrx
+Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    if(!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+    
+    return newDirectProxy(ident);
+}
+
+ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -329,8 +361,8 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
     // Create a reference and return a reverse proxy for this reference.
     //
     vector<EndpointPtr> endpoints;
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, "", Reference::ModeTwoway, false, false,
-							     endpoints, endpoints, 0, this);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, "", Reference::ModeTwoway, false, false,"",
+							     endpoints, 0, 0, this);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -374,6 +406,40 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// callbacks.
 	//	
 	_instance->outgoingConnectionFactory()->setRouter(routerInfo->getRouter());
+
+	//
+	// Creates proxies with endpoints instead of the adapter name
+	// when there is a router.
+	//
+	_useEndpointsInProxy = true;
+    }
+}
+
+void
+Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    if(!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
+    _locatorInfo = _instance->locatorManager()->get(locator);
+    if(_locatorInfo)
+    {
+	//
+	// If a locator is set, we create proxies with adapter names in
+	// the reference instead of endpoints. If it's not set, we create
+	// proxies with endpoints if there's at least one incoming
+	// connection factory or router endpoints.
+	//
+	_useEndpointsInProxy = false;
+    }
+    else
+    {
+	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
+	_useEndpointsInProxy = !_incomingConnectionFactories.empty() || !_routerEndpoints.empty();
     }
 }
 
@@ -452,6 +518,14 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     }
     __setNoDelete(false);
   
+    //
+    // Create proxies with the adapter endpoints only if there's
+    // incoming connection factories. If there's no incoming
+    // connection factories we will create proxies with the adapter
+    // name in the reference (to allow collocation to work).
+    //
+    _useEndpointsInProxy = !_incomingConnectionFactories.empty();
+
 //
 // Object Adapters without incoming connection factories are
 // permissible, as such Object Adapters can still be used with a
@@ -477,15 +551,38 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 {
+    if(_useEndpointsInProxy)
+    {
+	return newDirectProxy(ident);
+    }
+    else
+    {
+	//
+	// Create a reference with the adapter id.
+	//
+	vector<EndpointPtr> endpoints;
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, "", Reference::ModeTwoway, false, false, _name,
+								 endpoints, 0, 0, 0);
+
+	//
+	// Return a proxy for the reference. 
+	//
+	return _instance->proxyFactory()->referenceToProxy(ref);
+    }
+}
+
+ObjectPrx
+Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
+{
     vector<EndpointPtr> endpoints;
 
-    //
+    // 
     // First we add all endpoints from all incoming connection
     // factories.
     //
     transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
 	      Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-
+    
     //
     // Now we also add the endpoints of the router's server proxy, if
     // any. This way, object references created by this object adapter
@@ -499,9 +596,10 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, "", Reference::ModeTwoway, false, false,
-							     endpoints, endpoints, 0, 0);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, "", Reference::ModeTwoway, false, false, "",
+							     endpoints, 0, 0, 0);
     return _instance->proxyFactory()->referenceToProxy(ref);
+
 }
 
 bool
@@ -509,6 +607,15 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
     ReferencePtr ref = proxy->__reference();
     vector<EndpointPtr>::const_iterator p;
+
+    if(!ref->adapterId.empty())
+    {
+	//
+	// Proxy is local if the reference adapter id matches this
+	// adapter name.
+	//
+	return ref->adapterId == _name;
+    }
 
     //
     // Proxies which have at least one endpoint in common with the
