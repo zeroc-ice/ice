@@ -38,7 +38,7 @@ if not output:
     clientPipe.close()
     sys.exit(1)
 print "ok"
-print output,
+print output
 
 clientPipe.close()
 
@@ -50,7 +50,7 @@ if not output:
     clientPipe.close()
     sys.exit(1)
 print "ok"
-print output,
+print output
 
 clientPipe.close()
 
