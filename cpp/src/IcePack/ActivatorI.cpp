@@ -185,9 +185,11 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    out << "pwd = " << pwd << "\n";
 	    out << "args = ";
 
-	    for(StringSeq::const_iterator p = ++args.begin(); p != args.end(); ++p)
+	    StringSeq::const_iterator p = args.begin();
+            ++p;
+	    for(StringSeq::const_iterator q = p; q != args.end(); ++q)
 	    {
-		out << " " << *p;
+		out << " " << *q;
 	    }
 	}
     }
