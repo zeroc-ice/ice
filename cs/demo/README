@@ -14,17 +14,3 @@ on the various demos.
 
 The book directory contains demos for some of the code examples
 in "Distributed Programming with Ice".
-
-If you run the demos with Mono on Linux, the instructions assume that
-you have configured your kernel to automatically execute the Mono
-interpreter. To do this, run the following commands as root
-(replace /opt/mono/bin/mono with the location of your mono interpreter):
-
-    if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
-	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
-    fi 
-    if [ -e /proc/sys/fs/binfmt_misc/register ]; then
-	echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
-    else
-	echo "No binfmt_misc support" exit 1
-    fi 
