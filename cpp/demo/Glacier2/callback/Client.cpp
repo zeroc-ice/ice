@@ -96,7 +96,7 @@ CallbackClient::run(int argc, char* argv[])
     callbackReceiverFakeIdent.category = "fake";
 
     PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Callback.Client.Callback";
+    const char* proxyProperty = "Callback.Proxy";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {

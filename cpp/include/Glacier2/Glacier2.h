@@ -10,8 +10,8 @@
 #ifndef GLACIER2_H
 #define GLACIER2_H
 
-#include <Glacier/Router.h>
-#include <Glacier/Session.h>
-#include <Glacier/PermissionVerifier.h>
+#include <Glacier2/Router.h>
+#include <Glacier2/Session.h>
+#include <Glacier2/PermissionsVerifier.h>
 
 #endif
