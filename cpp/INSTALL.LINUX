@@ -128,7 +128,7 @@ If you want to try out any of the demos, make sure to add "bin" to
 PATH and "lib" to LD_LIBRARY_PATH:
 
 $ export PATH=`pwd`/bin:$PATH
-$ export LD_LIBRARY_PATH=`pwd`/bin:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 ======================================================================
 64 bit builds on AMD Opteron
