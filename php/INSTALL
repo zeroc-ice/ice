@@ -134,10 +134,35 @@ mod_php extension php_ice.dll
 Dependencies
 =========================================================================
 
-Whether you build a dynamic or static Ice extension, you will still require
-the Ice and C++ run-time libraries.
+Whether you build a dynamic or static Ice extension, PHP will need to be
+able to locate the Ice run-time libraries "Ice", "Slice" and "IceUtil").
+In general, these libraries must reside in a directory of the user's
+PATH. For Web servers, the libraries may need to reside in a system
+directory.
 
-TODO
+You can verify that the Ice extension is installed properly by examining
+the output of the "php -m" command, or by calling the phpinfo() function
+from a script.
+
+=========================================================================
+Linux Issues
+=========================================================================
+
+The threading issue on RedHat 9, discussed in the file INSTALL.LINUX in
+the Ice source distribution, can Ice cause programs to hang indefinitely
+in certain circumstances.
+
+If you are using the Ice extension in a PHP-CGI executable, or in a PHP
+Apache module, then you must ensure that the environment variable
+LD_ASSUME_KERNEL has the value "2.4.1".
+
+For the CGI case, you can set this variable in the Apache configuration
+with the following directive:
+
+SetEnv LD_ASSUME_KERNEL 2.4.1
+
+For an Apache module, you must ensure the httpd server executable is
+started with this environment variable defined correctly.
 
 =========================================================================
 Configuring Ice for PHP
