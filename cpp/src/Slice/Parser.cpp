@@ -534,6 +534,81 @@ Slice::Container::lookupType(const string& scoped)
     }
 }
 
+ModuleList
+Slice::Container::modules()
+{
+    ModuleList result;
+    for(ContainedList::const_iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	Module_ptr q = Module_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
+    }
+    return result;
+}
+
+ClassList
+Slice::Container::classes()
+{
+    ClassList result;
+    for(ContainedList::const_iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	ClassDef_ptr q = ClassDef_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
+    }
+    return result;
+}
+
+VectorList
+Slice::Container::vectors()
+{
+    VectorList result;
+    for(ContainedList::const_iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	Vector_ptr q = Vector_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
+    }
+    return result;
+}
+
+EnumList
+Slice::Container::enums()
+{
+    EnumList result;
+    for(ContainedList::const_iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	Enum_ptr q = Enum_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
+    }
+    return result;
+}
+
+NativeList
+Slice::Container::natives()
+{
+    NativeList result;
+    for(ContainedList::const_iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	Native_ptr q = Native_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
+    }
+    return result;
+}
+
 int
 Slice::Container::includeLevel()
 {

@@ -84,7 +84,7 @@ main(int argc, char* argv[])
 	{
 	    if(idx + 1 >= argc)
             {
-		cerr << argv[0] << ": error: argument expected for`"
+		cerr << argv[0] << ": argument expected for`"
 		     << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
@@ -99,7 +99,7 @@ main(int argc, char* argv[])
 	{
 	    if(idx + 1 >= argc)
             {
-		cerr << argv[0] << ": error: argument expected for`"
+		cerr << argv[0] << ": argument expected for`"
 		     << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
@@ -112,7 +112,7 @@ main(int argc, char* argv[])
 	}
 	else if(argv[idx][0] == '-')
 	{
-	    cerr << argv[0] << ": error: unknown option `" << argv[idx] << "'"
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
 		 << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
@@ -123,7 +123,7 @@ main(int argc, char* argv[])
 
     if(argc < 2)
     {
-	cerr << argv[0] << ": error: no input file" << endl;
+	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }

@@ -15,9 +15,15 @@
 using namespace std;
 using namespace Slice;
 
-Slice::Gen::Gen(const string& name)
-    : name_(name)
+Slice::Gen::Gen(const string& name, const string& file)
 {
+    O.open(file.c_str());
+    if(!O)
+    {
+	cerr << name << ": can't open `" << file << "' for writing: "
+	     << strerror(errno) << endl;
+	return;
+    }
 }
 
 Slice::Gen::~Gen()
@@ -27,7 +33,7 @@ Slice::Gen::~Gen()
 bool
 Slice::Gen::operator!() const
 {
-    return false;
+    return !O;
 }
 
 void
@@ -39,7 +45,463 @@ Slice::Gen::generate(const Unit_ptr& unit)
 }
 
 void
-Slice::Gen::printHeader(Output& out)
+Slice::Gen::visitUnitStart(const Unit_ptr& p)
+{
+    O << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
+    printHeader();
+    start("book");
+
+    start("chapter", "Global Module");
+    start("section", "Overview");
+    visitContainer(p);
+}
+
+void
+Slice::Gen::visitUnitEnd(const Unit_ptr& p)
+{
+    end();
+}
+
+void
+Slice::Gen::visitModuleStart(const Module_ptr& p)
+{
+    start("chapter", p -> scoped().substr(2));
+    start("section", "Overview");
+    O.zeroIndent();
+    O << nl << "<synopsis>module <classname>" << p -> name()
+      << "</classname></synopsis>";
+    O.restoreIndent();
+    printComment(p);
+    visitContainer(p);
+}
+
+void
+Slice::Gen::visitContainer(const Container_ptr& p)
+{
+    ModuleList modules = p -> modules();
+    modules.sort();
+    if(!modules.empty())
+    {
+	start("section", "Module Index");
+	start("variablelist");
+	
+	for(ModuleList::iterator q = modules.begin();
+	    q != modules.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("classname");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    ClassList classes = p -> classes();
+    ClassList interfaces;
+    interfaces.splice(interfaces.end(), classes,
+		      remove_if(classes.begin(), classes.end(),
+				::Ice::memFun(&ClassDef::isInterface)),
+		      classes.end());
+
+    classes.sort();
+    if(!classes.empty())
+    {
+	start("section", "Class Index");
+	start("variablelist");
+	
+	for(ClassList::iterator q = classes.begin();
+	    q != classes.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("classname");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    interfaces.sort();
+    if(!interfaces.empty())
+    {
+	start("section", "Interface Index");
+	start("variablelist");
+	
+	for(ClassList::iterator q = interfaces.begin();
+	    q != interfaces.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("classname");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    VectorList vectors = p -> vectors();
+    vectors.sort();
+    if(!vectors.empty())
+    {
+	start("section", "Vector Index");
+	start("variablelist");
+	
+	for(VectorList::iterator q = vectors.begin();
+	    q != vectors.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("type");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    EnumList enums = p -> enums();
+    enums.sort();
+    if(!enums.empty())
+    {
+	start("section", "Enum Index");
+	start("variablelist");
+	
+	for(EnumList::iterator q = enums.begin();
+	    q != enums.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("type");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    NativeList natives = p -> natives();
+    natives.sort();
+    if(!natives.empty())
+    {
+	start("section", "Native Index");
+	start("variablelist");
+	
+	for(NativeList::iterator q = natives.begin();
+	    q != natives.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("type");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    end();
+
+    for(VectorList::iterator q = vectors.begin();
+	q != vectors.end();
+	++q)
+    {
+	Type_ptr type = (*q) -> type();
+	
+	start("section", (*q) -> name());
+	
+	O.zeroIndent();
+	O << nl << "<synopsis>vector&lt; "
+	  << typeToString(type) << " &gt; <type>" << (*q) -> name()
+	  << "</type>;</synopsis>";
+	O.restoreIndent();
+	
+	printComment(*q);
+	
+	end();
+    }
+
+    for(EnumList::iterator q = enums.begin();
+	q != enums.end();
+	++q)
+    {
+	start("section", (*q) -> name());
+	
+	O.zeroIndent();
+	O << nl << "<synopsis>enum <type>" << (*q) -> name() << "</type>";
+	O << sb;
+	StringList enumerators = (*q) -> enumerators();
+	StringList::iterator r = enumerators.begin();
+	while(r != enumerators.end())
+	{
+	    O << nl << "<structfield>" << *r << "</structfield>";
+	    if(++r != enumerators.end())
+		O << ',';
+	}
+	O << eb << ";</synopsis>";
+	O.restoreIndent();
+	
+	printComment(*q);
+	
+	end();
+    }
+
+    for(NativeList::iterator q = natives.begin();
+	q != natives.end();
+	++q)
+    {
+	start("section", (*q) -> name());
+	
+	O.zeroIndent();
+	O << nl << "<synopsis>native <type>" << (*q) -> name()
+	  << "</type>;</synopsis>";
+	O.restoreIndent();
+	
+	printComment(*q);
+	
+	end();
+    }
+
+    end();
+}
+
+void
+Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
+{
+    start("chapter", p -> scoped().substr(2));
+
+    start("section", "Overview");
+    O.zeroIndent();
+    O << nl << "<synopsis>";
+    if(p -> isLocal())
+	O << "local ";
+    if(p -> isInterface())
+	O << "interface";
+    else
+	O << "class";
+    O << " <classname>" << p -> name() << "</classname>";
+    ClassList bases = p -> bases();
+    if(!bases.empty() && !bases.front() -> isInterface())
+    {
+	O.inc();
+	O << nl << "extends ";
+	O.inc();
+	O << "<classname>" << bases.front() -> scoped().substr(2)
+	  << "</classname>";
+	bases.pop_front();
+	O.dec();
+	O.dec();
+    }
+    if(!bases.empty())
+    {
+	O.inc();
+	if(p -> isInterface())
+	    O << nl << "extends ";
+	else
+	    O << nl << "implements ";
+	O.inc();
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    O << nl << "<classname>" << (*q) -> scoped().substr(2)
+	      << "</classname>";
+	    if(++q != bases.end())
+		O << ",";
+	}
+	O.dec();
+	O.dec();
+    }
+    O << "</synopsis>";
+    O.restoreIndent();
+
+    printComment(p);
+
+    OperationList operations = p -> operations();
+    operations.sort();
+    if(!operations.empty())
+    {
+	start("section", "Operation Index");
+	start("variablelist");
+	
+	for(OperationList::iterator q = operations.begin();
+	    q != operations.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("function");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    DataMemberList dataMembers = p -> dataMembers();
+    dataMembers.sort();
+    if(!dataMembers.empty())
+    {
+	start("section", "Data Member Index");
+	start("variablelist");
+	
+	for(DataMemberList::iterator q = dataMembers.begin();
+	    q != dataMembers.end();
+	    ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    start("function");
+	    O << nl << (*q) -> name();
+	    end();
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    end();
+
+    for(OperationList::iterator q = operations.begin();
+	q != operations.end();
+	++q)
+    {
+	Type_ptr returnType = (*q) -> returnType();
+	TypeStringList inputParams = (*q) -> inputParameters();
+	TypeStringList outputParams = (*q) -> outputParameters();
+	TypeList throws =  (*q) -> throws();
+	
+	start("section", (*q) -> name());
+	
+	O.zeroIndent();
+	O << nl << "<synopsis>"
+	  << (returnType ? typeToString(returnType) : "<type>void</type>")
+	  << " <function>" << (*q) -> name() << "</function>(";
+	O.inc();
+	TypeStringList::iterator r = inputParams.begin();
+	while(r != inputParams.end())
+	{
+	    O << nl << typeToString(r -> first) << " <parameter>"
+	      << r -> second << "</parameter>";
+	    if(++r != inputParams.end())
+		O << ',';
+	}
+	if(!outputParams.empty())
+	{
+	    O << ';';
+	    r = outputParams.begin();
+	    while(r != outputParams.end())
+	    {
+		O << nl << typeToString(r -> first) << " <parameter>"
+		  << r -> second << "</parameter>";
+		if(++r != outputParams.end())
+		    O << ',';
+	    }
+	}
+	O << ')';
+	O.dec();
+	if(!throws.empty())
+	{
+	    O.inc();
+	    O << nl << "throws";
+	    O.inc();
+	    TypeList::iterator r = throws.begin();
+	    while(r != throws.end())
+	    {
+		O << nl << typeToString(*r);
+		if(++r != throws.end())
+		    O << ',';
+	    }
+	    O.dec();
+	    O.dec();
+	}
+	O << ";</synopsis>";
+	O.restoreIndent();
+	
+	printComment(*q);
+	
+	end();
+    }
+
+    for(DataMemberList::iterator q = dataMembers.begin();
+	q != dataMembers.end();
+	++q)
+    {
+	Type_ptr type = (*q) -> type();
+	
+	start("section", (*q) -> name());
+	
+	O.zeroIndent();
+	O << nl << "<synopsis>"
+	  << typeToString(type) << " <structfield>" << (*q) -> name()
+	  << "</structfield>;</synopsis>";
+	O.restoreIndent();
+	
+	printComment(*q);
+	
+	end();
+    }
+
+    end();
+}
+
+void
+Slice::Gen::printHeader()
 {
     static const char* header =
 	"<!--\n"
@@ -52,9 +514,9 @@ Slice::Gen::printHeader(Output& out)
 	"Generated by the `slice2docbook' converter\n"
 	"-->";
     
-    out.zeroIndent();
-    out << nl << header;
-    out.restoreIndent();
+    O.zeroIndent();
+    O << nl << header;
+    O.restoreIndent();
 }
 
 StringList
@@ -90,7 +552,7 @@ Slice::Gen::getTagged(const string& tag, string& comment)
 }
 
 void
-Slice::Gen::printComment(Output& out, const Contained_ptr& p)
+Slice::Gen::printComment(const Contained_ptr& p)
 {
     string comment = p -> comment();
     StringList par = getTagged("param", comment);
@@ -103,18 +565,15 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
     if(pos != string::npos)
     {
 	comment.erase(pos + 1);
-	out.zeroIndent();
-	out << nl << comment;
-	out.restoreIndent();
+	O.zeroIndent();
+	O << nl << comment;
+	O.restoreIndent();
     }
     end();
 
     if(!par.empty())
     {
-	start("sect2");
-	start("title");
-	out << nl << "Parameters";
-	end();
+	start("section", "Parameters");
 	start("variablelist");
 	for(StringList::iterator p = par.begin();
 	    p != par.end();
@@ -133,12 +592,12 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 	    start("varlistentry");
 	    start("term");
 	    start("parameter");
-	    out << nl << term;
+	    O << nl << term;
 	    end();
 	    end();
 	    start("listitem");
 	    start("para");
-	    out << nl << item;
+	    O << nl << item;
 	    end();
 	    end();
 	    end();
@@ -150,22 +609,16 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 
     if(!ret.empty())
     {
-	start("sect2");
-	start("title");
-	out << nl << "Return Value";
-	end();
+	start("section", "Return Value");
 	start("para");
-	out << nl << ret.front();
+	O << nl << ret.front();
 	end();
 	end();
     }
 
     if(!throws.empty())
     {
-	start("sect2");
-	start("title");
-	out << nl << "Exceptions";
-	end();
+	start("section", "Exceptions");
 	start("variablelist");
 	
 	for(StringList::iterator p = throws.begin();
@@ -184,11 +637,11 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 	    
 	    start("varlistentry");
 	    start("term");
-	    out << nl << term;
+	    O << nl << term;
 	    end();
 	    start("listitem");
 	    start("para");
-	    out << nl << item;
+	    O << nl << item;
 	    end();
 	    end();
 	    end();
@@ -200,10 +653,7 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 
     if(!see.empty())
     {
-	start("sect2");
-	start("title");
-	out << nl << "See Also";
-	end();
+	start("section", "See Also");
 	start("para");
 	start("itemizedlist");
 	
@@ -213,7 +663,7 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 	{
 	    start("listitem");
 	    start("para");
-	    out << nl << *p;
+	    O << nl << *p;
 	    end();
 	    end();
 	}
@@ -225,7 +675,7 @@ Slice::Gen::printComment(Output& out, const Contained_ptr& p)
 }
 
 void
-Slice::Gen::printSummary(Output& out, const Contained_ptr& p)
+Slice::Gen::printSummary(const Contained_ptr& p)
 {
     string comment = p -> comment();
 
@@ -234,297 +684,37 @@ Slice::Gen::printSummary(Output& out, const Contained_ptr& p)
     if(pos != string::npos)
     {
 	comment.erase(pos + 1);
-	out.zeroIndent();
-	out << nl << comment;
-	out.restoreIndent();
+	O.zeroIndent();
+	O << nl << comment;
+	O.restoreIndent();
     }
     end();
 }
 
 void
-Slice::Gen::pushFile(const string& scoped)
+Slice::Gen::start(const std::string& element)
 {
-    string file = scopedToFile(scoped);
-    outputStack_.push(new Output(file.c_str()));
-    Output& out = *outputStack_.top();
-    if(!out)
-    {
-	cerr << name_ << ": can't open `" << file << "' for writing: "
-	     << strerror(errno) << endl;
-    }
+    elementStack_.push(element);
+    O << nl << '<' << element << '>';
+    O.inc();
 }
 
 void
-Slice::Gen::popFile()
+Slice::Gen::start(const std::string& element, const std::string& title)
 {
-    delete outputStack_.top();
-    outputStack_.pop();
-}
-
-void
-Slice::Gen::start(const std::string& s)
-{
-    elementStack_.push(s);
-
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    out << nl << '<' << s << '>';
-    out.inc();
+    elementStack_.push(element);
+    O << nl << '<' << element << '>';
+    O.inc();
+    start("title");
+    O << nl << title;
+    end();
 }
 
 void
 Slice::Gen::end()
 {
-    string s = elementStack_.top();
+    string element = elementStack_.top();
     elementStack_.pop();
-
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    out.dec();
-    out << nl << "</" << s << '>';
-}
-
-void
-Slice::Gen::visitUnitStart(const Unit_ptr& p)
-{
-    pushFile("toplevel");
-
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    out << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
-    printHeader(out);
-    start("book");
-}
-
-void
-Slice::Gen::visitUnitEnd(const Unit_ptr& p)
-{
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    end();
-    popFile();
-}
-
-void
-Slice::Gen::visitModuleStart(const Module_ptr& p)
-{
-/*
-    {
-	Output& out = *outputStack_.top();
-	if(!out)
-	    return;
-
-	out << nl << "module " << p -> name() << ';';
-    }
-
-    {
-	if(!pushFile(p -> scoped()))
-	    return; // TODO: Return false
-
-	printComment(out, p);
-
-	out << nl << "module " << p -> name();
-	out << sb;
-	out.dec();
-    }
-*/
-}
-
-void
-Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
-{
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    start("chapter");
-    start("title");
-    out << nl << p -> scoped().substr(2);
-    end();
-
-    start("sect1");
-    start("title");
-    out << nl << "Overview";
-    end();
-
-    out.zeroIndent();
-    out << "<synopsis>";
-    if(p -> isLocal())
-	out << "local ";
-    if(p -> isInterface())
-	out << "interface";
-    else
-	out << "class";
-    out << " <classname>" << p -> name() << "</classname>";
-    ClassList bases = p -> bases();
-    if(!bases.empty() && !bases.front() -> isInterface())
-    {
-	out.inc();
-	out << nl << "extends ";
-	out.inc();
-	out << "<classname>" << bases.front() -> scoped().substr(2)
-	    << "</classname>";
-	bases.pop_front();
-	out.dec();
-	out.dec();
-    }
-    if(!bases.empty())
-    {
-	out.inc();
-	if(p -> isInterface())
-	    out << nl << "extends ";
-	else
-	    out << nl << "implements ";
-	out.inc();
-	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
-	{
-	    out << nl << "<classname>" << (*q) -> scoped().substr(2)
-		<< "</classname>";
-	    if(++q != bases.end())
-		out << ",";
-	}
-	out.dec();
-	out.dec();
-    }
-    out << "</synopsis>";
-    out.restoreIndent();
-
-    printComment(out, p);
-
-    OperationList operations = p -> operations();
-    operations.sort();
-    if(!operations.empty())
-    {
-	start("sect2");
-	start("title");
-	out << nl << "Operation Index";
-	end();
-	start("variablelist");
-	
-	for(OperationList::iterator q = operations.begin();
-	    q != operations.end();
-	    ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    start("function");
-	    out << nl << (*q) -> name();
-	    end();
-	    end();
-	    start("listitem");
-	    printSummary(out, *q);
-	    end();
-	    end();
-	}
-
-	end();
-	end();
-    }
-
-    end();
-
-    for(OperationList::iterator q = operations.begin();
-	q != operations.end();
-	++q)
-    {
-	Type_ptr returnType = (*q) -> returnType();
-	TypeStringList inputParams = (*q) -> inputParameters();
-	TypeStringList outputParams = (*q) -> outputParameters();
-	TypeList throws =  (*q) -> throws();
-	
-	start("sect1");
-	start("title");
-	out << nl << (*q) -> name();
-	end();
-	
-	out.zeroIndent();
-	out << "<synopsis>"
-	    << (returnType ? typeToString(returnType) : "<type>void</type>")
-	    << " <function>" << (*q) -> name() << "</function>(";
-	out.inc();
-	TypeStringList::iterator r = inputParams.begin();
-	while(r != inputParams.end())
-	{
-	    out << nl << typeToString(r -> first) << " <parameter>"
-		<< r -> second << "</parameter>";
-	    if(++r != inputParams.end())
-		out << ',';
-	}
-	if(!outputParams.empty())
-	{
-	    out << ';';
-	    r = outputParams.begin();
-	    while(r != outputParams.end())
-	    {
-		out << nl << typeToString(r -> first) << " <parameter>"
-		    << r -> second << "</parameter>";
-		if(++r != outputParams.end())
-		    out << ',';
-	    }
-	}
-	out << ')';
-	out.dec();
-	if(!throws.empty())
-	{
-	    out.inc();
-	    out << nl << "throws";
-	    out.inc();
-	    TypeList::iterator r = throws.begin();
-	    while(r != throws.end())
-	    {
-		out << nl << typeToString(*r);
-		if(++r != throws.end())
-		    out << ',';
-	    }
-	    out.dec();
-	    out.dec();
-	}
-	out << ';';
-	out << "</synopsis>";
-	out.restoreIndent();
-	
-	printComment(out, *q);
-	
-	end();
-    }
-
-    end();
-}
-
-void
-Slice::Gen::visitVector(const Vector_ptr& p)
-{
-/*
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    printComment(out, p);
-
-    out << nl << "vector< " << typeToString(p -> type()) << " > "
-	<< p -> name() << ';';
-*/
-}
-
-void
-Slice::Gen::visitNative(const Native_ptr& p)
-{
-/*
-    Output& out = *outputStack_.top();
-    if(!out)
-	return;
-
-    printComment(out, p);
-
-    out << nl << "native " << p -> name() << ';';
-*/
+    O.dec();
+    O << nl << "</" << element << '>';
 }

@@ -122,7 +122,11 @@ typedef std::list<std::string> StringList;
 typedef std::pair<Type_ptr, std::string> TypeString;
 typedef std::list<TypeString> TypeStringList;
 typedef std::list<Contained_ptr> ContainedList;
+typedef std::list<Module_ptr> ModuleList;
 typedef std::list<ClassDef_ptr> ClassList;
+typedef std::list<Vector_ptr> VectorList;
+typedef std::list<Enum_ptr> EnumList;
+typedef std::list<Native_ptr> NativeList;
 typedef std::list<Operation_ptr> OperationList;
 typedef std::list<DataMember_ptr> DataMemberList;
 
@@ -284,6 +288,11 @@ public:
     Enumerator_ptr createEnumerator(const std::string&);
     Native_ptr createNative(const std::string&);
     TypeList lookupType(const std::string&);
+    ModuleList modules();
+    ClassList classes();
+    VectorList vectors();
+    EnumList enums();
+    NativeList natives();
     int includeLevel();
     bool hasProxies();
     bool hasClassDecls();

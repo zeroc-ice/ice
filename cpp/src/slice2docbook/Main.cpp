@@ -17,7 +17,7 @@ using namespace Slice;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] slice-files ...\n";
+    cerr << "Usage: " << n << " [options] docbook-file slice-files ...\n";
     cerr <<	
 "Options:\n"
 "-h, --help           Show this message.\n"
@@ -78,7 +78,7 @@ main(int argc, char* argv[])
 	}
 	else if(argv[idx][0] == '-')
 	{
-	    cerr << argv[0] << ": error: unknown option `" << argv[idx] << "'"
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
 		 << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
@@ -89,7 +89,29 @@ main(int argc, char* argv[])
 
     if(argc < 2)
     {
-	cerr << argv[0] << ": error: no input file" << endl;
+	cerr << argv[0] << ": no docbook file specified" << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
+    string docbook(argv[1]);
+    string suffix;
+    string::size_type pos = docbook.rfind('.');
+    if(pos != string::npos)
+    {
+	suffix = docbook.substr(pos);
+	transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
+    }
+    if(suffix != ".sgml")
+    {
+	cerr << argv[0] << ": docbook file must end with `.sgml'"
+	     << endl;
+	return EXIT_FAILURE;
+    }
+
+    if(argc < 3)
+    {
+	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
@@ -98,7 +120,7 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for(idx = 1 ; idx < argc ; ++idx)
+    for(idx = 2 ; idx < argc ; ++idx)
     {
 	string base(argv[idx]);
 	string suffix;
@@ -157,7 +179,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS)
     {
-	Gen gen(argv[0]);
+	Gen gen(argv[0], docbook);
 	if(!gen)
 	{
 	    unit -> destroy();
