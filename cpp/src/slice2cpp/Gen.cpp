@@ -1459,6 +1459,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    transform(allOperations.begin(), allOperations.end(), back_inserter(allOpNames),
 		      ::Ice::memFun(&Operation::name));
 	    allOpNames.push_back("_isA");
+	    allOpNames.push_back("_ping");
 	    allOpNames.sort();
 	    allOpNames.unique();
 	    

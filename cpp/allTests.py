@@ -17,7 +17,7 @@ for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", ".
 else:
     raise "can't find toplevel directory!"
 
-for name in ["parser", "operations", "exceptions", "inheritance", "faultTolerance"]:
+for name in ["parser", "operations", "exceptions", "inheritance", "faultTolerance", "locationForward"]:
 
     dir = os.path.join(toplevel, "test", name)
     

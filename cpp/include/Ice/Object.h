@@ -74,7 +74,9 @@ public:
 
     virtual void _throw();
     virtual bool _isA(const std::string&);
+    virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
+    ::IceInternal::DispatchStatus ____ping(::IceInternal::Incoming&);
     virtual const std::string* _classIds() = 0;
 
     static std::string __names[];

@@ -60,6 +60,7 @@ public:
 
     virtual void _throw();
     bool _isA(const std::string&);
+    void _ping();
 
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
@@ -103,6 +104,7 @@ class ICE_API Object : public ::IceInternal::Shared
 public:
 
     virtual bool _isA(const std::string&) = 0;
+    virtual void _ping() = 0;
 
 protected:
 
@@ -125,6 +127,7 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 public:
 
     virtual bool _isA(const std::string&);
+    virtual void _ping();
 
 protected:
 
