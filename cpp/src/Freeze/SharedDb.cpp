@@ -166,9 +166,6 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	out << "opening Db \"" << _key.dbName << "\"";
     }
 
-    // set_pagesize(1024);
-
-
     try
     {
 	u_int32_t flags = DB_AUTO_COMMIT | DB_THREAD;
@@ -177,7 +174,6 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	    flags |= DB_CREATE;
 	}
 	open(0, key.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
-	set_cache_priority(DB_PRIORITY_VERY_HIGH);
     }
     catch(const ::DbException& dx)
     {
