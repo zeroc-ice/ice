@@ -383,6 +383,10 @@ _previousCallback = None
 import signal, traceback
 class Application(object):
 
+    def __init__(self):
+        if type(self) == Application:
+            raise RuntimeError("Ice.Application is an abstract class")
+
     def main(self, args, configFile=None):
         if Application._communicator:
             print args[0] + ": only one instance of the Application class can be used"
