@@ -321,42 +321,8 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	return 0;
     }
 
-    //
-    // Check whether, for multiple inheritance, any of the bases define
-    // the same operations.
-    //
-    if(bases.size() > 1)
-    {
-	//
-	// We have multiple inheritance. Build a list of paths through the
-	// inheritance graph, such that multiple inheritance is legal if
-	// the union of the names defined in classes on each path are disjoint.
-	//
-	GraphPartitionList gpl;
-	for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
-	{
-	    ClassList cl;
-	    gpl.push_back(cl);
-	    addPartition(gpl, gpl.rbegin(), *p);
-	}
-
-	//
-	// We now have a list of partitions, with each partition containing
-	// a list of class definitions. Turn the list of partitions of class
-	// definitions into a list of sets of strings, with each
-	// set containing the names of operations and data members defined in
-	// the classes in each partition.
-	//
-	StringPartitionList spl = toStringPartitionList(gpl);
-
-	//
-	// Multiple inheritance is legal if no two partitions contain a common
-	// name (that is, if the union of the intersections of all possible pairs
-	// of partitions is empty).
-	//
-	checkPairIntersections(spl, name);
-    }
-
+    ClassDecl::checkBasesAreLegal(name, bases, _unit);
+ 
     ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
     _contents.push_back(def);
 
@@ -583,7 +549,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	_unit->warning(msg);	// TODO: change to error in stable_39
     }
     
-    if(!legalDictionaryKey(keyType))
+    if(!Dictionary::legalKeyType(keyType))
     {
 	_unit->error("dictionary `" + name + "' uses an illegal key type");
 	return 0;
@@ -692,7 +658,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the constant type is legal
     //
-    if(!legalConstType(name, constType))
+    if(!ConstDef::isLegalType(name, constType, _unit))
     {
 	return 0;
     }
@@ -700,7 +666,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the type of the constant is compatible with the type of the initializer
     //
-    if(!constTypesAreCompatible(name, constType, literalType, value))
+    if(!ConstDef::typesAreCompatible(name, constType, literalType, value, _unit))
     {
 	return 0;
     }
@@ -708,7 +674,7 @@ Slice::Container::createConstDef(const string name, const TypePtr& constType,
     //
     // Check that the initializer is in range
     //
-    if(!checkRange(name, constType, value))
+    if(!ConstDef::isInRange(name, constType, value, _unit))
     {
 	return 0;
     }
@@ -1338,368 +1304,6 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
     return true;
 }
 
-//
-// Return true if the class definition cdp is on one of the class lists in gpl, false otherwise.
-//
-bool
-Slice::Container::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp) const
-{
-    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
-    {
-	if(find(i->begin(), i->end(), cdp) != i->end())
-	{
-	    return true;
-	}
-    }
-    return false;
-}
-
-void
-Slice::Container::addPartition(GraphPartitionList& gpl,
-	                       GraphPartitionList::reverse_iterator tail,
-			       const ClassDefPtr base) const
-{
-    //
-    // If this base is on one of the partition lists already, do nothing.
-    //
-    if(isInList(gpl, base))
-    {
-	return;
-    }
-    //
-    // Put the current base at the end of the current partition.
-    //
-    tail->push_back(base);
-    //
-    // If the base has bases in turn, recurse, adding the first base
-    // of base (the left-most "grandbase") to the current partition.
-    //
-    if(base->_bases.size())
-    {
-	addPartition(gpl, tail, *(base->_bases.begin()));
-    }
-    //
-    // If the base has multiple bases, each of the "grandbases"
-    // except for the left-most (which we just dealt with)
-    // adds a new partition.
-    //
-    if(base->_bases.size() > 1)
-    {
-	ClassList::const_iterator i = base->_bases.begin();
-	while(++i != base->_bases.end())
-	{
-	    ClassList cl;
-	    gpl.push_back(cl);
-	    addPartition(gpl, gpl.rbegin(), *i);
-	}
-    }
-}
-
-//
-// Convert the list of partitions of class definitions into a
-// list of lists, with each member list containing the operation
-// names defined by the interfaces in each partition.
-// 
-Slice::Container::StringPartitionList
-Slice::Container::toStringPartitionList(const GraphPartitionList& gpl) const
-{
-    StringPartitionList spl;
-    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
-    {
-	StringList sl;
-	spl.push_back(sl);
-	for(ClassList::const_iterator j = i->begin(); j != i->end(); ++j)
-	{
-	    OperationList operations = (*j)->operations();
-	    for(OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
-	    {
-		spl.rbegin()->push_back((*l)->name());
-	    }
-	}
-    }
-    return spl;
-}
-
-//
-// For all (unique) pairs of string lists, check whether an identifier in one list occurs
-// in the other and, if so, complain.
-//
-void
-Slice::Container::checkPairIntersections(const StringPartitionList& l, const string& name) const
-{
-    set<string> reported;
-    for(StringPartitionList::const_iterator i = l.begin(); i != l.end(); ++i)
-    {
-	StringPartitionList::const_iterator cursor = i;
-	++cursor;
-	for(StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
-	{
-	    for(StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
-	    {
-		for(StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
-		{
-		    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
-		    {
-			string msg = "ambiguous multiple inheritance: `" + name;
-			msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
-			_unit->error(msg);
-			reported.insert(*s1);
-		    }
-		    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
-			     reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
-		    {
-			string msg = "ambiguous multiple inheritance: `" + name;
-			msg += "' inherits operations `" + *s1 + "' and `" + *s2;
-			msg += "', which differ only in capitalization, from unrelated base interfaces";
-			_unit->error(msg);
-			reported.insert(*s1);
-			reported.insert(*s2);
-		    }
-		}
-	    }
-	}
-    }
-}
-
-bool
-Slice::Container::legalConstType(const string& name, const TypePtr& constType, bool printError) const
-{
-    if(constType == 0)
-    {
-	return false;
-    }
-
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-    if(ct)
-    {
-	switch(ct->kind())
-	{
-	    case Builtin::KindBool:
-	    case Builtin::KindByte:
-	    case Builtin::KindShort:
-	    case Builtin::KindInt:
-	    case Builtin::KindLong:
-	    case Builtin::KindFloat:
-	    case Builtin::KindDouble:
-	    case Builtin::KindString:
-	    {
-		return true;
-		break;
-	    }
-	    default:
-	    {
-		string msg = "constant `" + name + "' has illegal type: `" + ct->kindAsString() + "'";
-		_unit->error(msg);
-		return false;
-		break;
-	    }
-	}
-    }
-
-    EnumPtr ep = EnumPtr::dynamicCast(constType);
-    if(!ep)
-    {
-	string msg = "constant `" + name + "' has illegal type";
-	_unit->error(msg);
-	return false;
-    }
-    return true;
-}
-
-bool
-Slice::Container::constTypesAreCompatible(const string& name,
-	                                  const TypePtr& constType,
-					  const SyntaxTreeBasePtr& literalType,
-					  const string& value,
-					  bool printError) const
-{
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-    BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
-    if(ct && lt)
-    {
-	switch(ct->kind())
-	{
-	    case Builtin::KindBool:
-	    {
-		if(lt->kind() == Builtin::KindBool)
-		{
-		    return true;
-		}
-		break;
-	    }
-	    case Builtin::KindByte:
-	    case Builtin::KindShort:
-	    case Builtin::KindInt:
-	    case Builtin::KindLong:
-	    {
-		if(lt->kind() == Builtin::KindLong)
-		{
-		    return true;
-		}
-		break;
-	    }
-	    case Builtin::KindFloat:
-	    case Builtin::KindDouble:
-	    {
-		if(lt->kind() == Builtin::KindDouble)
-		{
-		    return true;
-		}
-		break;
-	    }
-	    case Builtin::KindString:
-	    {
-		if(lt->kind() == Builtin::KindString)
-		{
-		    return true;
-		}
-		break;
-	    }
-	}
-	string msg = "initializer of type `" + lt->kindAsString();
-	msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
-	_unit->error(msg);
-	return false;
-    }
-
-    if(ct && !lt)
-    {
-	string msg = "type of initializer is incompatible with the type `" + ct->kindAsString();
-	msg += "' of constant `" + name + "'";
-	_unit->error(msg);
-	return false;
-    }
-
-    EnumPtr enumP = EnumPtr::dynamicCast(constType);
-    assert(enumP);
-    EnumeratorPtr enumeratorP = EnumeratorPtr::dynamicCast(literalType);
-    if(!enumeratorP)
-    {
-	string msg = "type of initializer is incompatible with the type of constant `" + name + "'";
-	_unit->error(msg);
-	return false;
-    }
-    EnumeratorList elist = enumP->getEnumerators();
-    if(find(elist.begin(), elist.end(), enumeratorP) == elist.end())
-    {
-	string msg = "enumerator `" + value + "' is not defined in enumeration `" + enumP->scoped() + "'";
-	_unit->error(msg);
-	return false;
-    }
-    return true;
-}
-
-bool
-Slice::Container::checkRange(const string& name, const TypePtr& constType, const string& value, bool printError) const
-{
-    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
-    if (!ct)
-	return true;	// Enums are checked elsewhere
-
-    switch(ct->kind())
-    {
-	case Builtin::KindByte:
-	{
-	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
-	    if(l < ByteMin || l > ByteMax)
-	    {
-		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
-		_unit->error(msg);
-		return false;
-	    }
-	    break;
-	}
-	case Builtin::KindShort:
-	{
-	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
-	    if(l < Int16Min || l > Int16Max)
-	    {
-		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
-		_unit->error(msg);
-		return false;
-	    }
-	    break;
-	}
-	case Builtin::KindInt:
-	{
-	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
-	    if(l < Int32Min || l > Int32Max)
-	    {
-		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";
-		_unit->error(msg);
-		return false;
-	    }
-	    break;
-	}
-    }
-    return true;	// Everything else is either in range or doesn't need checking
-}
-
-bool
-Slice::Container::legalSimpleKeyType(const TypePtr& type)
-{
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp)
-    {
-	switch(bp->kind())
-	{
-	    case Builtin::KindByte:
-	    case Builtin::KindBool:
-	    case Builtin::KindShort:
-	    case Builtin::KindInt:
-	    case Builtin::KindLong:
-	    case Builtin::KindString:
-	    {
-		return true;
-		break;
-	    }
-	}
-    }
-
-    EnumPtr ep = EnumPtr::dynamicCast(type);
-    if(ep)
-    {
-	return true;
-    }
-
-    return false;
-}
-
-//
-// Check that the key type of a dictionary is legal. Legal types are integral types, string, and sequences and
-// structs containing only integral types or strings.
-//
-bool
-Slice::Container::legalDictionaryKey(const TypePtr& type) const
-{
-    if(legalSimpleKeyType(type))
-    {
-	return true;
-    }
-
-    SequencePtr seqp = SequencePtr::dynamicCast(type);
-    if(seqp && legalSimpleKeyType(seqp->type()))
-    {
-	return true;
-    }
-
-    StructPtr strp = StructPtr::dynamicCast(type);
-    if(strp)
-    {
-	DataMemberList dml = strp->dataMembers();
-	for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
-	{
-	    if(!legalSimpleKeyType((*mem)->type()))
-	    {
-		return false;
-	    }
-	}
-	return true;
-    }
-
-    return false;
-}
-
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
@@ -1838,6 +1442,46 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
     }
 }
 
+void
+Slice::ClassDecl::checkBasesAreLegal(const string& name, const ClassList& bases, const UnitPtr& unit)
+{
+    //
+    // Check whether, for multiple inheritance, any of the bases define
+    // the same operations.
+    //
+    if(bases.size() > 1)
+    {
+	//
+	// We have multiple inheritance. Build a list of paths through the
+	// inheritance graph, such that multiple inheritance is legal if
+	// the union of the names defined in classes on each path are disjoint.
+	//
+	GraphPartitionList gpl;
+	for(ClassList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+	{
+	    ClassList cl;
+	    gpl.push_back(cl);
+	    addPartition(gpl, gpl.rbegin(), *p);
+	}
+
+	//
+	// We now have a list of partitions, with each partition containing
+	// a list of class definitions. Turn the list of partitions of class
+	// definitions into a list of sets of strings, with each
+	// set containing the names of operations and data members defined in
+	// the classes in each partition.
+	//
+	StringPartitionList spl = toStringPartitionList(gpl);
+
+	//
+	// Multiple inheritance is legal if no two partitions contain a common
+	// name (that is, if the union of the intersections of all possible pairs
+	// of partitions is empty).
+	//
+	checkPairIntersections(spl, name, unit);
+    }
+}
+
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
     Constructed(container, name, local),
     Type(container->unit()),
@@ -1845,6 +1489,130 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, b
     SyntaxTreeBase(container->unit()),
     _interface(intf)
 {
+}
+
+//
+// Return true if the class definition cdp is on one of the class lists in gpl, false otherwise.
+//
+bool
+Slice::ClassDecl::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp)
+{
+    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    {
+	if(find(i->begin(), i->end(), cdp) != i->end())
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
+void
+Slice::ClassDecl::addPartition(GraphPartitionList& gpl,
+	                       GraphPartitionList::reverse_iterator tail,
+			       const ClassDefPtr base)
+{
+    //
+    // If this base is on one of the partition lists already, do nothing.
+    //
+    if(isInList(gpl, base))
+    {
+	return;
+    }
+    //
+    // Put the current base at the end of the current partition.
+    //
+    tail->push_back(base);
+    //
+    // If the base has bases in turn, recurse, adding the first base
+    // of base (the left-most "grandbase") to the current partition.
+    //
+    if(base->bases().size())
+    {
+	addPartition(gpl, tail, *(base->bases().begin()));
+    }
+    //
+    // If the base has multiple bases, each of the "grandbases"
+    // except for the left-most (which we just dealt with)
+    // adds a new partition.
+    //
+    if(base->bases().size() > 1)
+    {
+	ClassList grandBases = base->bases();
+	ClassList::const_iterator i = grandBases.begin();
+	while(++i != grandBases.end())
+	{
+	    ClassList cl;
+	    gpl.push_back(cl);
+	    addPartition(gpl, gpl.rbegin(), *i);
+	}
+    }
+}
+
+//
+// Convert the list of partitions of class definitions into a
+// list of lists, with each member list containing the operation
+// names defined by the interfaces in each partition.
+// 
+Slice::ClassDecl::StringPartitionList
+Slice::ClassDecl::toStringPartitionList(const GraphPartitionList& gpl)
+{
+    StringPartitionList spl;
+    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    {
+	StringList sl;
+	spl.push_back(sl);
+	for(ClassList::const_iterator j = i->begin(); j != i->end(); ++j)
+	{
+	    OperationList operations = (*j)->operations();
+	    for(OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
+	    {
+		spl.rbegin()->push_back((*l)->name());
+	    }
+	}
+    }
+    return spl;
+}
+
+//
+// For all (unique) pairs of string lists, check whether an identifier in one list occurs
+// in the other and, if so, complain.
+//
+void
+Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& unit)
+{
+    set<string> reported;
+    for(StringPartitionList::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+	StringPartitionList::const_iterator cursor = i;
+	++cursor;
+	for(StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
+	{
+	    for(StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
+	    {
+		for(StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+		{
+		    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
+		    {
+			string msg = "ambiguous multiple inheritance: `" + name;
+			msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
+			unit->error(msg);
+			reported.insert(*s1);
+		    }
+		    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
+			     reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
+		    {
+			string msg = "ambiguous multiple inheritance: `" + name;
+			msg += "' inherits operations `" + *s1 + "' and `" + *s2;
+			msg += "', which differ only in capitalization, from unrelated base interfaces";
+			unit->error(msg);
+			reported.insert(*s1);
+			reported.insert(*s2);
+		    }
+		}
+	    }
+	}
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -2791,6 +2559,41 @@ Slice::Dictionary::recDependencies(set<ConstructedPtr>& dependencies)
     }
 }
 
+//
+// Check that the key type of a dictionary is legal. Legal types are integral types, string, and sequences and
+// structs containing only integral types or strings.
+//
+bool
+Slice::Dictionary::legalKeyType(const TypePtr& type)
+{
+    if(legalSimpleKeyType(type))
+    {
+	return true;
+    }
+
+    SequencePtr seqp = SequencePtr::dynamicCast(type);
+    if(seqp && legalSimpleKeyType(seqp->type()))
+    {
+	return true;
+    }
+
+    StructPtr strp = StructPtr::dynamicCast(type);
+    if(strp)
+    {
+	DataMemberList dml = strp->dataMembers();
+	for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
+	{
+	    if(!legalSimpleKeyType((*mem)->type()))
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    return false;
+}
+
 Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
 			      const TypePtr& valueType, bool local) :
     Constructed(container, name, local),
@@ -2800,6 +2603,36 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
     _keyType(keyType),
     _valueType(valueType)
 {
+}
+
+bool
+Slice::Dictionary::legalSimpleKeyType(const TypePtr& type)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp)
+    {
+	switch(bp->kind())
+	{
+	    case Builtin::KindByte:
+	    case Builtin::KindBool:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    case Builtin::KindString:
+	    {
+		return true;
+		break;
+	    }
+	}
+    }
+
+    EnumPtr ep = EnumPtr::dynamicCast(type);
+    if(ep)
+    {
+	return true;
+    }
+
+    return false;
 }
 
 // ----------------------------------------------------------------------
@@ -2923,6 +2756,179 @@ void
 Slice::ConstDef::visit(ParserVisitor* visitor)
 {
     visitor->visitConstDef(this);
+}
+
+bool
+Slice::ConstDef::isLegalType(const string& name, const TypePtr& constType, const UnitPtr& unit, bool printError)
+{
+    if(constType == 0)
+    {
+	return false;
+    }
+
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    if(ct)
+    {
+	switch(ct->kind())
+	{
+	    case Builtin::KindBool:
+	    case Builtin::KindByte:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    case Builtin::KindFloat:
+	    case Builtin::KindDouble:
+	    case Builtin::KindString:
+	    {
+		return true;
+		break;
+	    }
+	    default:
+	    {
+		string msg = "constant `" + name + "' has illegal type: `" + ct->kindAsString() + "'";
+		unit->error(msg);
+		return false;
+		break;
+	    }
+	}
+    }
+
+    EnumPtr ep = EnumPtr::dynamicCast(constType);
+    if(!ep)
+    {
+	string msg = "constant `" + name + "' has illegal type";
+	unit->error(msg);
+	return false;
+    }
+    return true;
+}
+
+bool
+Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType,
+				    const SyntaxTreeBasePtr& literalType, const string& value,
+				    const UnitPtr& unit, bool printError)
+{
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
+    if(ct && lt)
+    {
+	switch(ct->kind())
+	{
+	    case Builtin::KindBool:
+	    {
+		if(lt->kind() == Builtin::KindBool)
+		{
+		    return true;
+		}
+		break;
+	    }
+	    case Builtin::KindByte:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    {
+		if(lt->kind() == Builtin::KindLong)
+		{
+		    return true;
+		}
+		break;
+	    }
+	    case Builtin::KindFloat:
+	    case Builtin::KindDouble:
+	    {
+		if(lt->kind() == Builtin::KindDouble)
+		{
+		    return true;
+		}
+		break;
+	    }
+	    case Builtin::KindString:
+	    {
+		if(lt->kind() == Builtin::KindString)
+		{
+		    return true;
+		}
+		break;
+	    }
+	}
+	string msg = "initializer of type `" + lt->kindAsString();
+	msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
+	unit->error(msg);
+	return false;
+    }
+
+    if(ct && !lt)
+    {
+	string msg = "type of initializer is incompatible with the type `" + ct->kindAsString();
+	msg += "' of constant `" + name + "'";
+	unit->error(msg);
+	return false;
+    }
+
+    EnumPtr enumP = EnumPtr::dynamicCast(constType);
+    assert(enumP);
+    EnumeratorPtr enumeratorP = EnumeratorPtr::dynamicCast(literalType);
+    if(!enumeratorP)
+    {
+	string msg = "type of initializer is incompatible with the type of constant `" + name + "'";
+	unit->error(msg);
+	return false;
+    }
+    EnumeratorList elist = enumP->getEnumerators();
+    if(find(elist.begin(), elist.end(), enumeratorP) == elist.end())
+    {
+	string msg = "enumerator `" + value + "' is not defined in enumeration `" + enumP->scoped() + "'";
+	unit->error(msg);
+	return false;
+    }
+    return true;
+}
+
+bool
+Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const string& value,
+	                   const UnitPtr& unit, bool printError)
+{
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    if (!ct)
+	return true;	// Enums are checked elsewhere
+
+    switch(ct->kind())
+    {
+	case Builtin::KindByte:
+	{
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < ByteMin || l > ByteMax)
+	    {
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
+		unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+	case Builtin::KindShort:
+	{
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < Int16Min || l > Int16Max)
+	    {
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
+		unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+	case Builtin::KindInt:
+	{
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < Int32Min || l > Int32Max)
+	    {
+		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";
+		unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+    }
+    return true;	// Everything else is either in range or doesn't need checking
 }
 
 Slice::ConstDef::ConstDef(const ContainerPtr& container, const string& name,

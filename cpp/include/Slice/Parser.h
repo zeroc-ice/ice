@@ -353,26 +353,6 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
 
     ContainedList _contents;
-
-private:
-
-    typedef std::list<ClassList> GraphPartitionList;
-    typedef std::list<StringList> StringPartitionList;
-
-    bool isInList(const GraphPartitionList&, const ClassDefPtr) const;
-    void addPartition(GraphPartitionList&,
-		      GraphPartitionList::reverse_iterator,
-		      const ClassDefPtr) const;
-    StringPartitionList toStringPartitionList(const GraphPartitionList&) const;
-    void checkPairIntersections(const StringPartitionList&, const std::string&) const;
-
-    bool legalConstType(const std::string&, const TypePtr&, bool = true) const;
-    bool constTypesAreCompatible(const std::string&, const TypePtr&,
-	                         const SyntaxTreeBasePtr&, const std::string&, bool = true) const;
-    bool checkRange(const std::string&, const TypePtr&, const std::string&, bool = true) const;
-
-    static bool legalSimpleKeyType(const TypePtr&);
-    bool legalDictionaryKey(const TypePtr&) const;
 };
 
 // ----------------------------------------------------------------------
@@ -430,6 +410,8 @@ public:
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
+    static void checkBasesAreLegal(const std::string&, const ClassList&, const UnitPtr&);
+
 protected:
 
     ClassDecl(const ContainerPtr&, const std::string&, bool, bool);
@@ -438,6 +420,16 @@ protected:
 
     ClassDefPtr _definition;
     bool _interface;
+
+private:
+
+    typedef std::list<ClassList> GraphPartitionList;
+    typedef std::list<StringList> StringPartitionList;
+
+    static bool isInList(const GraphPartitionList&, const ClassDefPtr);
+    static void addPartition(GraphPartitionList&, GraphPartitionList::reverse_iterator, const ClassDefPtr);
+    static StringPartitionList toStringPartitionList(const GraphPartitionList&);
+    static void checkPairIntersections(const StringPartitionList&, const std::string&, const UnitPtr&);
 };
 
 // ----------------------------------------------------------------------
@@ -594,6 +586,8 @@ public:
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
+    static bool legalKeyType(const TypePtr&);
+
 protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&, bool);
@@ -601,6 +595,10 @@ protected:
 
     TypePtr _keyType;
     TypePtr _valueType;
+
+private:
+
+    static bool legalSimpleKeyType(const TypePtr&);
 };
 
 // ----------------------------------------------------------------------
@@ -659,6 +657,11 @@ public:
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
+
+    static bool isLegalType(const std::string&, const TypePtr&, const UnitPtr&, bool = true);
+    static bool typesAreCompatible(const std::string&, const TypePtr&,
+	                           const SyntaxTreeBasePtr&, const std::string&, const UnitPtr&, bool = true);
+    static bool isInRange(const std::string&, const TypePtr&, const std::string&, const UnitPtr&, bool = true);
 
 protected:
 
