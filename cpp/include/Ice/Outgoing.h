@@ -12,6 +12,7 @@
 #define ICE_OUTGOING_H
 
 #include <Ice/EmitterF.h>
+#include <Ice/ReferenceF.h>
 #include <Ice/Stream.h>
 
 namespace Ice
@@ -28,7 +29,7 @@ class ICE_API Outgoing : public JTCMonitorT< JTCMutex >
 {
 public:
 
-    Outgoing(const Emitter&);
+    Outgoing(const Emitter&, const Reference&);
     ~Outgoing();
 
     void invoke();
@@ -44,6 +45,7 @@ private:
     void operator=(const Outgoing&);
 
     Emitter emitter_;
+    Reference reference_;
     std::auto_ptr< ::Ice::LocalException> exception_;
 
     enum

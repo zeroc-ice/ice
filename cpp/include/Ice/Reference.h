@@ -35,6 +35,14 @@ public:
     const Instance instance;
     const std::string identity;
     const Endpoint endpoint;
+    const bool oneway;
+
+    //
+    // Get a new reference, based on the existing one, overwriting
+    // certain values.
+    //
+    Reference getOneway() const;
+    Reference getTwoway() const;
  
 private:
 

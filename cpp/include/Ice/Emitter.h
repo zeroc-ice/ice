@@ -38,10 +38,9 @@ class ICE_API EmitterI : public EventHandlerI, public JTCMutex
 {
 public:
 
-    Instance instance() const;
     void destroy();
     void prepareRequest(Outgoing*);
-    void sendRequest(Outgoing*);
+    void sendRequest(Outgoing*, bool);
 
     //
     // Operations from EventHandlerI
@@ -87,7 +86,7 @@ class ICE_API EmitterFactoryI : public Shared, public JTCMutex
 public:
 
     void destroy();
-    Emitter create();
+    const Emitter& create(); // const reference for performance reasons
 
 private:
 

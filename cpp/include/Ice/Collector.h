@@ -40,7 +40,6 @@ class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
 {
 public:
 
-    Instance instance() const;
     void destroy();
     bool destroyed() const;
     void hold();
@@ -140,8 +139,7 @@ class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    CollectorFactory create(const ::Ice::ObjectAdapter&,
-			    const Endpoint&);
+    CollectorFactory create(const ::Ice::ObjectAdapter&, const Endpoint&);
 
 private:
 

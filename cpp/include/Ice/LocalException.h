@@ -53,6 +53,20 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API ObjectAdapterDeactivatedException : public LocalException
+{
+public:    
+
+    ObjectAdapterDeactivatedException(const char*, int);
+    ObjectAdapterDeactivatedException(
+	const ObjectAdapterDeactivatedException&);
+    ObjectAdapterDeactivatedException& operator=(
+	const ObjectAdapterDeactivatedException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    
@@ -184,6 +198,18 @@ public:
     UnknownMessageException(const char*, int);
     UnknownMessageException(const UnknownMessageException&);
     UnknownMessageException& operator=(const UnknownMessageException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API UnknownRequestIdException : public ProtocolException
+{
+public:    
+
+    UnknownRequestIdException(const char*, int);
+    UnknownRequestIdException(const UnknownRequestIdException&);
+    UnknownRequestIdException& operator=(const UnknownRequestIdException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;

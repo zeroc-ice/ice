@@ -28,6 +28,9 @@ public:
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
+    Object _oneway() const;
+    Object _twoway() const;
+
     ::__Ice::Reference __reference() const;
     void __copyTo(ObjectI*) const;
 
@@ -90,8 +93,9 @@ protected:
     ObjectI();
     virtual ~ObjectI();
 
-    ::__Ice::Emitter __emitter();
-    const std::string& __identity();
+    
+    const ::__Ice::Emitter& __emitter(); // const...& for performance
+    const ::__Ice::Reference& __reference(); // const...& for performance
 
 private:
 
