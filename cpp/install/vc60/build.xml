@@ -29,6 +29,7 @@
 	<property name="expat.dir" value="${top.dir}/Expat-1.95.8"/>
 	<property name="openssl.dir" value="${top.dir}/openssl-0.9.7e"/>
 	<property name="stlport.dir" value="${top.dir}/STLPort-4.6.2"/>
+	<property name="common.dir" value="${ice.dir}/install/common"/>
 
 	<!-- Targets -->
 	<property name="install.dir" value="./install"/>
@@ -90,6 +91,32 @@
 	<!-- Jars -->
 	<mkdir dir="${install.dir}/ice-java/runtime/lib"/>
 	<copy file="${icej.dir}/lib/Ice.jar" todir="${install.dir}/ice-java/runtime/lib"/>
+
+    </target>
+
+    <!-- Ice Common -->
+    <target name="ice-common" depends="setup">
+
+	<!-- Docs, license, etc. -->
+	<mkdir dir="${install.dir}/ice-common/docs"/>
+	<copy todir="${install.dir}/ice-common/docs">
+	    <fileset dir="${common.dir}">
+		<include name="Ice*"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <!-- Packages Common -->
+    <target name="packages-common" depends="setup">
+
+	<!-- Docs, license, etc. -->
+	<mkdir dir="${install.dir}/packages-common/docs"/>
+	<copy todir="${install.dir}/packages-common/docs">
+	    <fileset dir="${common.dir}">
+		<include name="ThirdParty*"/>
+	    </fileset>
+	</copy>
 
     </target>
 
@@ -209,8 +236,8 @@
     <!-- Ice for C++ Demo -->
     <target name="ice-cpp-demo" depends="setup">
 
-	<mkdir dir="${install.dir}/ice-cpp/demo/demo_cpp"/>
-	<copy todir="${install.dir}/ice-cpp/demo/demo_cpp">
+	<mkdir dir="${install.dir}/ice-cpp/demo/demo"/>
+	<copy todir="${install.dir}/ice-cpp/demo/demo">
 	    <fileset dir="${ice.dir}/demo">
 		<exclude name="**/*.exe"/>
 		<exclude name="**/*.ilk"/>
@@ -253,8 +280,8 @@
     <!-- Ice for Java Demo -->
     <target name="ice-java-demo" depends="setup">
 
-	<mkdir dir="${install.dir}/ice-java/demo/demo_java"/>
-	<copy todir="${install.dir}/ice-java/demo/demo_java">
+	<mkdir dir="${install.dir}/ice-java/demo/demoj"/>
+	<copy todir="${install.dir}/ice-java/demo/demoj">
 	    <fileset dir="${icej.dir}/demo">
 		<exclude name="**/.dummy"/>
 		<exclude name="**/classes/**"/>
@@ -301,8 +328,8 @@
     <!-- Ice for Python Demo -->
     <target name="ice-python-demo" depends="setup">
 
-	<mkdir dir="${install.dir}/ice-python/demo/demo_python"/>
-	<copy todir="${install.dir}/ice-python/demo/demo_python">
+	<mkdir dir="${install.dir}/ice-python/demo/demopy"/>
+	<copy todir="${install.dir}/ice-python/demo/demopy">
 	    <fileset dir="${icepy.dir}/demo">
 		<include name="**"/>
 	    </fileset>
@@ -321,8 +348,8 @@
     <!-- Ice PHP Demo -->
     <target name="ice-php-demo" depends="setup">
 
-	<mkdir dir="${install.dir}/ice-php/demo/demo_php"/>
-	<copy todir="${install.dir}/ice-php/demo/demo_php">
+	<mkdir dir="${install.dir}/ice-php/demo/demophp"/>
+	<copy todir="${install.dir}/ice-php/demo/demophp">
 	    <fileset dir="${icephp.dir}/demo">
 		<include name="**"/>
 	    </fileset>
@@ -456,7 +483,7 @@
 
 	<mkdir dir="${install.dir}/openssl/dev/include"/>
 	<copy todir="${install.dir}/openssl/dev/include">
-	    <fileset dir="${openssl.dir}/include">
+	    <fileset dir="${openssl.dir}/inc32">
 		<include name="**"/>
 	    </fileset>
 	</copy>
@@ -490,7 +517,7 @@
 	<mkdir dir="${install.dir}/stlport/dev/lib"/>
 	<copy todir="${install.dir}/stlport/dev/lib">
 	    <fileset dir="${stlport.dir}/lib">
-		<include name="*debug*.lib"/>
+		<include name="*.lib"/>
 		<exclude name="*static*.lib"/>
 	    </fileset>
 	</copy>
@@ -518,7 +545,8 @@
     </target>
 
     <target name="vc60-packages" 
-            depends="berkeley-dev,
+            depends="packages-common,
+		     berkeley-dev,
 		     berkeley-runtime,
 		     bzip2-dev,
 		     expat-dev,
@@ -534,6 +562,7 @@
 
     <target name="vc60" 
             depends="vc60-packages,
+	             ice-common,
 	             ice-support,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
@@ -547,7 +576,7 @@
 		     ice-php-extension,
 		     ice-php-demo"/>
 
-    <target name="merge-modules">
+    <target name="merge-modules" depends="vc60-packages">
 	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p BerkeleyDBDevKit.ism -c COMP -a ZEROC -R BERKELEYDB_DEV_KIT"/>
 	</exec>
@@ -577,7 +606,7 @@
 	</exec>
     </target>
 
-    <target name="vc60-merge-modules" depends="setup">
+    <target name="vc60-merge-modules" depends="merge-modules">
 	<zip destfile="${install.dir}/ThirdPartyMergeModules-2.1.0-VC60.zip">
 	    <zipfileset dir="BerkeleyDBDevKit/ZEROC/BERKELEYDB_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BerkeleyDBRuntime/ZEROC/BERKELEYDB_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
@@ -603,7 +632,7 @@
 	</exec>
     </target>
 
-    <!--<target name="all" depends="vc60-installer,vc60-packages-installer"/>-->
-    <target name="all" depends="vc60"/>
+    <target name="all" depends="vc60-merge-modules,vc60-packages-installer,vc60-installer"/>
+    <!--<target name="all" depends="vc60"/>-->
 
 </project>
