@@ -8,6 +8,15 @@
 #
 # **********************************************************************
 
+#
+# TODO:
+#
+#  * Finalize what is going where.
+#  * Tidying and tracing.
+#  * Testing on platforms besides Linux.
+#  * Ant build tasks for Ice got missed.
+#
+
 import os, sys, shutil, fnmatch, re, string, getopt, glob
 
 #
