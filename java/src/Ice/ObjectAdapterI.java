@@ -150,8 +150,6 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public void
     waitForDeactivate()
     {
-	java.util.HashMap locatorMap;
-
 	synchronized(this)
 	{
 	    //
@@ -169,40 +167,52 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		{
 		}
 	    }
-
+	    
 	    //
-	    // Now we wait for until all incoming connection factories are
-	    // finished.
+	    // If some other thread is currently deactivating, we wait
+	    // until this thread is finished.
 	    //
-	    final int sz = _incomingConnectionFactories.size();
-	    for(int i = 0; i < sz; ++i)
+	    while(_waitForDeactivate)
 	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		factory.waitUntilFinished();
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
-
-	    //
-	    // We're done, now we can throw away all incoming connection
-	    // factories.
-	    //
-	    _incomingConnectionFactories.clear();
-	
-	    //
-	    // Now it's also time to clean up the active servant map.
-	    //
-	    _activeServantMap.clear();
-	
-	    //
-	    // And the servant locators, too (first we make a copy of
-	    // the map in order to invoke servant locator deactivate
-	    // method outside the synchronization block).
-	    //
-	    locatorMap = new java.util.HashMap(_locatorMap);	    
-	    _locatorMap.clear();
+	    _waitForDeactivate = true;
 	}
-
-	java.util.Iterator p = locatorMap.entrySet().iterator();
+	
+	
+	//
+	// Now we wait for until all incoming connection factories are
+	// finished.
+	//
+	final int sz = _incomingConnectionFactories.size();
+	for(int i = 0; i < sz; ++i)
+	{
+	    IceInternal.IncomingConnectionFactory factory =
+		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+	    factory.waitUntilFinished();
+	}
+	
+	//
+	// We're done, now we can throw away all incoming connection
+	// factories.
+	//
+	_incomingConnectionFactories.clear();
+	
+	//
+	// Now it's also time to clean up the active servant map.
+	//
+	_activeServantMap.clear();
+	
+	//
+	// And the servant locators, too.
+	//
+	java.util.Iterator p = _locatorMap.entrySet().iterator();
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
@@ -221,6 +231,15 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		    "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
 		_logger.error(s);
 	    }
+	}
+
+	synchronized(this)
+	{
+	    //
+	    // Signal that waiting is complete.
+	    //
+	    _waitForDeactivate = false;
+	    notifyAll();
 	}
     }
 
@@ -503,6 +522,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	_id = id;
         _logger = instance.logger();
 	_directCount = 0;
+	_waitForDeactivate = false;
 	
 	String s = endpts.toLowerCase();
 
@@ -564,6 +584,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    assert(_activeServantMap.size() == 0);
 	    assert(_locatorMap.size() == 0);
 	    assert(_directCount == 0);
+	    assert(!_waitForDeactivate);
 	}
 
         super.finalize();
@@ -743,4 +764,5 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
+    private boolean _waitForDeactivate;
 }

@@ -41,6 +41,7 @@ private:
     InstancePtr _instance;
     ::Ice::CommunicatorPtr _communicator;
     std::map<std::string, ::Ice::ObjectAdapterIPtr> _adapters;
+    bool _waitForShutdown;
 };
 
 }

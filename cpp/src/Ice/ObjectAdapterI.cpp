@@ -164,8 +164,6 @@ Ice::ObjectAdapterI::deactivate()
 void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
-    map<string, ServantLocatorPtr> locatorMap;
-
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -179,38 +177,39 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	}
 
 	//
-	// Now we wait for until all incoming connection factories are
-	// finished.
+	// If some other thread is currently deactivating, we wait
+	// until this thread is finished.
 	//
-	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		 Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
-    
-	//
-	// We're done, now we can throw away all incoming connection
-	// factories.
-	//
-	_incomingConnectionFactories.clear();
-
-	//
-	// Now it's also time to clean up the active servant map.
-	//
-	_activeServantMap.clear();
-	_activeServantMapHint = _activeServantMap.end();
-
-	//
-	// And the servant locators, too (first we make a copy of the
-	// map in order to invoke servant locator deactivate method
-	// outside the synchronization block).
-	//
-	locatorMap = _locatorMap;
-	_locatorMap.clear();
-	_locatorMapHint = _locatorMap.end();
+	while(_waitForDeactivate)
+	{
+	    wait();
+	}
+	_waitForDeactivate = true;
     }
 
     //
-    // Deactivate servant locators.
+    // Now we wait for until all incoming connection factories are
+    // finished.
     //
-    for(map<string, ServantLocatorPtr>::iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+    
+    //
+    // We're done, now we can throw away all incoming connection
+    // factories.
+    //
+    _incomingConnectionFactories.clear();
+
+    //
+    // Now it's also time to clean up the active servant map.
+    //
+    _activeServantMap.clear();
+    _activeServantMapHint = _activeServantMap.end();
+
+    //
+    // And the servant locators, too.
+    //
+    for(map<string, ServantLocatorPtr>::iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
     {
 	try
 	{
@@ -231,6 +230,19 @@ Ice::ObjectAdapterI::waitForDeactivate()
 		<< "object adapter: `" << _name << "'\n"
 		<< "locator prefix: `" << p->first << "'";
 	}
+    }
+
+    _locatorMap.clear();
+    _locatorMapHint = _locatorMap.end();
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	//
+	// Signal that waiting is complete.
+	//
+	_waitForDeactivate = false;
+	notifyAll();
     }
 }
 
@@ -581,7 +593,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _logger(instance->logger()),
     _activeServantMapHint(_activeServantMap.end()),
     _locatorMapHint(_locatorMap.end()),
-    _directCount(0)
+    _directCount(0),
+    _waitForDeactivate(false)
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -649,6 +662,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 	assert(_activeServantMap.empty());
 	assert(_locatorMap.empty());
 	assert(_directCount == 0);
+	assert(!_waitForDeactivate);
     }
 }
 

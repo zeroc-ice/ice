@@ -50,14 +50,26 @@ IceInternal::ObjectAdapterFactory::shutdown()
 void
 IceInternal::ObjectAdapterFactory::waitForShutdown()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
-    //
-    // First we wait for the shutdown of the factory itself.
-    //
-    while(_instance)
     {
-	wait();
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// First we wait for the shutdown of the factory itself.
+	//
+	while(_instance)
+	{
+	    wait();
+	}
+
+	//
+	// If some other thread is currently shutting down, we wait
+	// until this thread is finished.
+	//
+	while(_waitForShutdown)
+	{
+	    wait();
+	}
+	_waitForShutdown = true;
     }
     
     //
@@ -70,6 +82,16 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     // We're done, now we can throw away the object adapters.
     //
     _adapters.clear();
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	//
+	// Signal that waiting is complete.
+	//
+	_waitForShutdown = false;
+	notifyAll();
+    }
 }
 
 ObjectAdapterPtr
@@ -124,7 +146,8 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
 							const CommunicatorPtr& communicator) :
     _instance(instance),
-    _communicator(communicator)
+    _communicator(communicator),
+    _waitForShutdown(false)
 {
 }
 
@@ -133,4 +156,5 @@ IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
     assert(!_instance);
     assert(!_communicator);
     assert(_adapters.empty());
+    assert(!_waitForShutdown);
 }

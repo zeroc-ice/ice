@@ -41,21 +41,40 @@ public final class ObjectAdapterFactory
 	notifyAll();
     }
 
-    public synchronized void
+    public void
     waitForShutdown()
     {
-	//
-	// First we wait for the shutdown of the factory itself.
-	//
-	while(_instance != null)
+	synchronized(this)
 	{
-	    try
+	    //
+	    // First we wait for the shutdown of the factory itself.
+	    //
+	    while(_instance != null)
 	    {
-		wait();
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
-	    catch(InterruptedException ex)
+	    
+	    //
+	    // If some other thread is currently shutting down, we wait
+	    // until this thread is finished.
+	    //
+	    while(_waitForShutdown)
 	    {
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
+	    _waitForShutdown = true;
 	}
 	
 	//
@@ -72,6 +91,15 @@ public final class ObjectAdapterFactory
 	// We're done, now we can throw away the object adapters.
 	//
 	_adapters.clear();
+
+	synchronized(this)
+	{
+	    //
+	    // Signal that waiting is complete.
+	    //
+	    _waitForShutdown = false;
+	    notifyAll();
+	}
     }
     
     public synchronized Ice.ObjectAdapter
@@ -128,6 +156,7 @@ public final class ObjectAdapterFactory
     {
         _instance = instance;
 	_communicator = communicator;
+	_waitForShutdown = false;
     }
 
     protected void
@@ -137,6 +166,7 @@ public final class ObjectAdapterFactory
 	assert(_instance == null);
 	assert(_communicator == null);
 	assert(_adapters.size() == 0);
+	assert(!_waitForShutdown);
 
         super.finalize();
     }
@@ -144,4 +174,5 @@ public final class ObjectAdapterFactory
     private Instance _instance;
     private Ice.Communicator _communicator;
     private java.util.HashMap _adapters = new java.util.HashMap();
+    private boolean _waitForShutdown;
 }
