@@ -688,7 +688,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 	//
 	Freeze::ConnectionPtr connectionNew = Freeze::createConnection(communicator, dbEnvNameNew, dbEnvNew);
 	txNew = connectionNew->beginTransaction();
-	DbTxn* txnNew = getTxn(txNew);
+	DbTxn* txnNew = Freeze::getTxn(txNew);
 
 
 	if(allDb)
