@@ -132,7 +132,25 @@ local interface System
      * DER format, to be trusted.
      *
      **/
-    void addTrustedCertificate(ContextType contextType, string certificate);
+    void addTrustedCertificateBase64(ContextType contextType, string certificate);
+
+    /**
+     *
+     * Add a trusted certificate to the System's default certificate
+     * store.  The provided certificate (passed in binary DER format)
+     * will be added to the trust list, so that it, and all certificates
+     * signed by the corresponding private key, will be trusted.
+     *
+     * This method only affects new connections -- existing
+     * connections are left unchanged.
+     *
+     * @param contextType The <literal>Context</literal>(s) in which to add
+     * the trusted certificate.
+     *
+     * @param certificate The certificate, in binary DER format, to be trusted.
+     *
+     **/
+    void addTrustedCertificate(ContextType contextType, Ice::ByteSeq certificate);
 
     /**
      *
