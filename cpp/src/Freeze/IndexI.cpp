@@ -82,6 +82,12 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 		    {
 			try
 			{
+			    //
+			    // It is critical to set key size to key capacity before the
+			    // get, as a resize that increases the size inserts 0
+			    //
+			    pkey.resize(pkey.capacity());
+
 			    found = (dbc->pget(&dbKey, &pdbKey, &dbValue, flags) == 0);
 			    if(found)
 			    {

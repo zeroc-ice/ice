@@ -121,6 +121,12 @@ Freeze::EvictorIteratorI::nextBatch()
 		    {
 			try
 			{
+			    //
+			    // It is critical to set key size to key capacity before the
+			    // get, as a resize that increases the size inserts 0
+			    //
+			    _key.resize(_key.capacity());
+
 			    _more = (dbc->get(&dbKey, &dbValue, flags) == 0);
 			    if(_more)
 			    {
