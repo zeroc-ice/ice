@@ -84,16 +84,33 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if(c == 'd')
 	    {
-		datagram->sayHello();
+		if(secure)
+		{
+		    cout << "secure datagrams are not supported" << endl;
+		}
+		else
+		{
+		    datagram->sayHello();
+		}
 	    }
 	    else if(c == 'D')
 	    {
-		batchDatagram->sayHello();
+		if(secure)
+		{
+		    cout << "secure datagrams are not supported" << endl;
+		}
+		else
+		{
+		    batchDatagram->sayHello();
+		}
 	    }
 	    else if(c == 'f')
 	    {
 		batchOneway->ice_flush();
-		batchDatagram->ice_flush();
+		if(!secure)
+		{
+		    batchDatagram->ice_flush();
+		}
 	    }
 	    else if(c == 'T')
 	    {
