@@ -27,7 +27,15 @@ Transform::typeName(const Slice::TypePtr& type)
     else
     {
         Slice::ContainedPtr c = Slice::ContainedPtr::dynamicCast(type);
-        assert(c);
-        return c->scoped();
+        if(!c)
+        {
+            Slice::ProxyPtr p = Slice::ProxyPtr::dynamicCast(type);
+            c = p->_class();
+            return c->scoped() + "*";
+        }
+        else
+        {
+            return c->scoped();
+        }
     }
 }
