@@ -156,7 +156,7 @@ IcePack::AdminI::stopServer(const string& name, const Current&)
     ServerPrx server = _serverRegistry->findByName(name);
     try
     {
-	return server->stop();
+	server->stop();
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -198,7 +198,7 @@ IcePack::AdminI::setServerActivation(const ::std::string& name, ServerActivation
     ServerPrx server = _serverRegistry->findByName(name);
     try
     {
-	return server->setActivationMode(mode);
+	server->setActivationMode(mode);
     }
     catch(const Ice::ObjectNotExistException&)
     {
