@@ -205,7 +205,10 @@ class PropertiesI implements Properties
                 }
             }
 
-            idx++;
+            if (!match)
+            {
+                idx++;
+            }
         }
     }
 
