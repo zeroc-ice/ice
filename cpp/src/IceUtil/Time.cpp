@@ -110,3 +110,9 @@ Time::Time(Int64 usec) :
     _usec(usec)
 {
 }
+
+std::ostream&
+IceUtil::operator<<(std::ostream& out, const Time& tm)
+{
+    return out << tm.toMicroSeconds() / 1000000.0;
+}

@@ -27,8 +27,6 @@ testFailed(const char* expr, const char* file, unsigned int line)
 
 #define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))
 
-
-
 int
 main(int argc, char* argv[])
 {

@@ -179,8 +179,8 @@ private:
 	IceUtil::Time total = _watch.stop();
 	IceUtil::Time perRecord = total / _repetitions;
 
-	cout << "\ttime for " << _repetitions << " writes: " << total.toMicroSeconds() / 1000.0  << "ms" << endl;
-	cout << "\ttime per write: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Read each record.
@@ -195,8 +195,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " reads: " << total.toMicroSeconds() / 1000.0  << "ms" << endl;
-	cout << "\ttime per read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " reads: " << total * 1000  << "ms" << endl;
+	cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Optional index sub-test
@@ -218,8 +218,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " removes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per remove: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
     }
    
     
@@ -239,9 +239,9 @@ private:
 	IceUtil::Time total = _watch.stop();
 	IceUtil::Time perRecord = total / reads;
 	
-	cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: "
-	     << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: " << total * 1000 << "ms"
+	     << endl;
+	cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
 	
 	generatedReadWithIndex(m, reads, gen);
     }
@@ -282,8 +282,8 @@ private:
 	IceUtil::Time total = _watch.stop();
 	IceUtil::Time perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " writes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per write: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Read each record.
@@ -301,8 +301,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " reads: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " reads: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Optional index test
@@ -325,8 +325,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " removes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per remove: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
     }
 
    
@@ -363,8 +363,8 @@ private:
 	IceUtil::Time total = _watch.stop();
 	IceUtil::Time perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " writes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per write: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Read each record.
@@ -382,8 +382,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " reads: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " reads: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Optional index test
@@ -407,8 +407,8 @@ private:
 	total = _watch.stop();
 	perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " removes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per remove: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
     }
    
     void IntIntMapReadIndexTest(IntIntMap&)
@@ -438,8 +438,8 @@ private:
 	IceUtil::Time total = _watch.stop();
 	IceUtil::Time perRecord = total / _repetitions;
 	
-	cout << "\ttime for " << _repetitions << " writes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	cout << "\ttime per write: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
+	cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
 	
 	//
 	// Do some read tests.
@@ -469,8 +469,8 @@ private:
 	 total = _watch.stop();
 	 perRecord = total / _repetitions;
 	 
-	 cout << "\ttime for " << _repetitions << " removes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-	 cout << "\ttime per remove: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	 cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
+	 cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 	*/
     }
 
@@ -505,9 +505,9 @@ TestApp::IntIntMapIndexTest(IndexedIntIntMap& m)
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
 
-    cout << "\ttime for " << _repetitions << " reverse (indexed) reads: " << total.toMicroSeconds() / 1000.0 << "ms"
+    cout << "\ttime for " << _repetitions << " reverse (indexed) reads: " << total * 1000 << "ms"
 	 << endl;
-    cout << "\ttime per reverse read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime per reverse read: " << perRecord * 1000 << "ms" << endl;
 }
 
 void
@@ -525,8 +525,8 @@ TestApp::generatedReadWithIndex(IndexedIntIntMap& m, int reads, const GeneratorP
     IceUtil::Time perRecord = total / reads;
 
     cout << "\ttime for " << reads << " reverse (indexed) reads of " << gen->toString() << " records: "
-	 << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per reverse read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+	 << total * 1000 << "ms" << endl;
+    cout << "\ttime per reverse read: " << perRecord * 1000 << "ms" << endl;
 }
 
 
@@ -559,8 +559,8 @@ TestApp::Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map& m)
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / (2 *_repetitions);
 
-    cout << "\ttime for " << 2 *_repetitions << " indexed reads: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per indexed read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime for " << 2 *_repetitions << " indexed reads: " << total * 1000 << "ms" << endl;
+    cout << "\ttime per indexed read: " << perRecord * 1000 << "ms" << endl;
 }
 
 void
@@ -582,8 +582,8 @@ TestApp::Struct1Class1MapIndexTest(IndexedStruct1Class1Map& m)
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
 
-    cout << "\ttime for " << _repetitions << " indexed reads: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per indexed read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime for " << _repetitions << " indexed reads: " << total * 1000 << "ms" << endl;
+    cout << "\ttime per indexed read: " << perRecord * 1000 << "ms" << endl;
 }
 
 
@@ -627,8 +627,8 @@ TestApp::Struct1ObjectMapTest()
     IceUtil::Time total = _watch.stop();
     IceUtil::Time perRecord = total / _repetitions;
 
-    cout << "\ttime for " << _repetitions << " writes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per write: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime for " << _repetitions << " writes: " << total * 1000 << "ms" << endl;
+    cout << "\ttime per write: " << perRecord * 1000 << "ms" << endl;
 
     //
     // Read each record.
@@ -661,8 +661,8 @@ TestApp::Struct1ObjectMapTest()
     total = _watch.stop();
     perRecord = total / _repetitions;
 
-    cout << "\ttime for " << _repetitions << " reads: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per read: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime for " << _repetitions << " reads: " << total * 1000 << "ms" << endl;
+    cout << "\ttime per read: " << perRecord * 1000 << "ms" << endl;
 
     //
     // Remove each record.
@@ -680,8 +680,8 @@ TestApp::Struct1ObjectMapTest()
     total = _watch.stop();
     perRecord = total / _repetitions;
 
-    cout << "\ttime for " << _repetitions << " removes: " << total.toMicroSeconds() / 1000.0 << "ms" << endl;
-    cout << "\ttime per remove: " << perRecord.toMicroSeconds() / 1000.0 << "ms" << endl;
+    cout << "\ttime for " << _repetitions << " removes: " << total * 1000 << "ms" << endl;
+    cout << "\ttime per remove: " << perRecord * 1000 << "ms" << endl;
 }
 
 class MyFactory : public Ice::ObjectFactory

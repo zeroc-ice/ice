@@ -59,7 +59,7 @@ printGCStats(const IceUtil::GCStats& stats)
 	if(gcTraceLevel > 1)
 	{
 	    Trace out(gcLogger, gcTraceCat);
-	    out << stats.collected << "/" << stats.examined << ", " << stats.time.toMilliSeconds() << "ms";
+	    out << stats.collected << "/" << stats.examined << ", " << stats.time * 1000 << "ms";
 	}
 	++gcStats.runs;
 	gcStats.examined += stats.examined;
@@ -108,7 +108,7 @@ Ice::CommunicatorI::destroy()
 	    {
 		Trace out(gcLogger, gcTraceCat);
 		out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
-		    << gcStats.time.toMilliSeconds() << "ms" << ", " << gcStats.runs << " run";
+		    << gcStats.time * 1000 << "ms" << ", " << gcStats.runs << " run";
 		if(gcStats.runs != 1)
 		{
 		    out << "s";

@@ -128,8 +128,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		}
 
 		tm = IceUtil::Time::now() - tm;
-		cout << "time for " << repetitions << " sequences: " << tm.toMicroSeconds() / 1000.0 << "ms" << endl;
-		cout << "time per sequence: " << tm.toMicroSeconds() / 1000.0 / repetitions << "ms" << endl;
+		cout << "time for " << repetitions << " sequences: " << tm * 1000 << "ms" << endl;
+		cout << "time per sequence: " << tm * 1000 / repetitions << "ms" << endl;
 		double mbit = repetitions * seqSize * 8.0 / tm.toMicroSeconds();
 		if(c == 'e')
 		{
