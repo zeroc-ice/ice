@@ -16,7 +16,7 @@
 #   include <sys/time.h>
 #endif
 
-#include <IntIntMap.h>
+#include <BenchTypes.h>
 
 using namespace std;
 

@@ -14,7 +14,7 @@ CLIENT		= client
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
-OBJS		= Client.o IntIntMap.o Test.o
+OBJS		= Client.o BenchTypes.o Test.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -34,13 +34,13 @@ Test.h Test.cpp: Test.ice $(SLICE2CPP)
 clean::
 	rm -f Test.h Test.cpp
 
-IntIntMap.h IntIntMap.cpp: Test.ice $(SLICE2FREEZE)
-	rm -f IntIntMap.h IntIntMap.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 \
+BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
+	rm -f BenchTypes.h BenchTypes.cpp
+	$(SLICE2FREEZE) -I$(slicedir) --dict BenchTypes,int,int --dict Struct1Struct2Map,Struct1,Struct2 \
 	--dict Struct1Class1Map,Struct1,Class1 \
-	--dict Struct1ObjectMap,Struct1,Object IntIntMap Test.ice
+	--dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice
 
 clean::
-	rm -f IntIntMap.h IntIntMap.cpp
+	rm -f BenchTypes.h BenchTypes.cpp
 
 include .depend
