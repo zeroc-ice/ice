@@ -2440,7 +2440,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	string name = fixKwd(p->name());
 	string scope = fixKwd(p->scope());
 
-	H << sp << nl << "void __patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
+	H << sp << nl << "void " << _dllExport << "__patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
 
 	C << sp << nl << "void";
 	C << nl << scope << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
