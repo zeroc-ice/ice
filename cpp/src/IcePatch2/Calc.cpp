@@ -175,82 +175,81 @@ main(int argc, char* argv[])
 
     try
     {
-	{
+	StringSeq::iterator p;
+	string absDataDir = dataDir;
+    
 #ifdef _WIN32
-	    char cwd[_MAX_PATH];
-	    if(_getcwd(cwd, _MAX_PATH) == NULL)
-	    {
-		throw "cannot get the current directory:\n" + lastError();
-	    }
-	    
-	    if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
-	    {
-		dataDir = string(cwd) + '/' + dataDir;
-	    }
-	    
-	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	    {
-		if((*p)[0] != '/' && !(p->size() > 1 && isalpha((*p)[0]) && (*p)[1] == ':'))
-		{
-		    *p = string(cwd) + '/' + *p;
-		}
-	    }
-#else
-	    char cwd[PATH_MAX];
-	    if(getcwd(cwd, PATH_MAX) == NULL)
-	    {
-		throw "cannot get the current directory:\n" + lastError();
-	    }
-	    
-	    if(dataDir[0] != '/')
-	    {
-		dataDir = string(cwd) + '/' + dataDir;
-	    }
-	    
-	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	    {
-		if((*p)[0] != '/')
-		{
-		    *p = string(cwd) + '/' + *p;
-		}
-	    }
-#endif
+	char cwd[_MAX_PATH];
+	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
 	}
 	
+	if(absDataDir[0] != '/' && !(absDataDir.size() > 1 && isalpha(absDataDir[0]) && absDataDir[1] == ':'))
 	{
-	    string dataDirWithSlash = dataDir + '/';
-
-	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    absDataDir = string(cwd) + '/' + absDataDir;
+	}
+	
+	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	{
+	    if((*p)[0] != '/' && !(p->size() > 1 && isalpha((*p)[0]) && (*p)[1] == ':'))
 	    {
-		if(p->compare(0, dataDirWithSlash.size(), dataDirWithSlash) != 0)
-		{
-		    throw "`" + *p + "' is not a path in `" + dataDir + "'";
-		}
-
-		p->erase(0, dataDirWithSlash.size());
+		*p = string(cwd) + '/' + *p;
 	    }
 	}
+#else
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
+	
+	if(absDataDir[0] != '/')
+	{
+	    absDataDir = string(cwd) + '/' + absDataDir;
+	}
+	
+	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	{
+	    if((*p)[0] != '/')
+	    {
+		*p = string(cwd) + '/' + *p;
+	    }
+	}
+#endif
+
+	string absDataDirWithSlash = absDataDir + '/';
+	
+	for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	{
+	    if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
+	    {
+		throw "`" + *p + "' is not a path in `" + dataDir + "'";
+	    }
 	    
+	    p->erase(0, absDataDirWithSlash.size());
+	}
+    
 	FileInfoSeq infoSeq;
 	    
 	if(fileSeq.empty())
 	{
 	    CalcCB calcCB;
-	    if(!getFileInfoSeq(dataDir, compress, verbose ? &calcCB : 0, infoSeq))
+	    if(!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
 	    {
 		return EXIT_FAILURE;
 	    }
 	}
 	else
 	{
-	    loadFileInfoSeq(dataDir, infoSeq);
+	    loadFileInfoSeq(absDataDir, infoSeq);
 
 	    for(StringSeq::const_iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	    {
 		FileInfoSeq partialInfoSeq;
 
 		CalcCB calcCB;
-		if(!getFileInfoSeqSubDir(dataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
+		if(!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
 		{
 		    return EXIT_FAILURE;
 		}
@@ -292,7 +291,7 @@ main(int argc, char* argv[])
 	    {
 		do
 		{
-		    ex += '\n' + p->path;
+		    ex += '\n' + dataDir + '/' + p->path;
 		    ++p;
 		}
 		while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
@@ -305,7 +304,7 @@ main(int argc, char* argv[])
 	    }
 	}
 
-	saveFileInfoSeq(dataDir, infoSeq);
+	saveFileInfoSeq(absDataDir, infoSeq);
     }
     catch(const string& ex)
     {
