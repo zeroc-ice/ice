@@ -60,10 +60,8 @@ sequence<MyClassS> MyClassSS;
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
-dictionary<double, string> DoubleStringD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
-dictionary<MyClass*, string> MyClassStringD;
 
 class MyClass
 {
@@ -133,17 +131,12 @@ class MyClass
     LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
 			    out LongFloatD p3);
 
-    DoubleStringD opDoubleStringD(DoubleStringD p1, DoubleStringD p2,
-				  out DoubleStringD p3);
-
     StringStringD opStringStringD(StringStringD p1, StringStringD p2,
 				  out StringStringD p3);
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
 				  out StringMyEnumD p3);
 
-    MyClassStringD opMyClassStringD(MyClassStringD p1, MyClassStringD p2,
-				    out MyClassStringD p3);
 };
 
 class MyDerivedClass extends MyClass

@@ -370,6 +370,9 @@ private:
     bool constTypesAreCompatible(const std::string&, const TypePtr&,
 	                         const SyntaxTreeBasePtr&, const std::string&, bool = true) const;
     bool checkRange(const std::string&, const TypePtr&, const std::string&, bool = true) const;
+
+    static bool legalSimpleKeyType(const TypePtr&);
+    bool legalDictionaryKey(const TypePtr&) const;
 };
 
 // ----------------------------------------------------------------------

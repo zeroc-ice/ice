@@ -530,26 +530,6 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
-	Test::DoubleStringD di1;
-	di1[999999110.10E10] = "abc -1.1";
-	di1[9999991100.10E10] = "abc 123123.2";
-	Test::DoubleStringD di2;
-	di2[999999110.10E10] = "abc -1.1";
-	di2[999999111.10E10] = "abc -100.4";
-	di2[9999991101.10E10] = "abc 0.5";
-
-	Test::DoubleStringD _do;
-	Test::DoubleStringD ro = p->opDoubleStringD(di1, di2, _do);
-
-	test(_do == di1);
-	test(ro.size() == 4);
-	test(ro[999999110.10E10] == "abc -1.1");
-	test(ro[999999111.10E10] == "abc -100.4");
-	test(ro[9999991100.10E10] == "abc 123123.2");
-	test(ro[9999991101.10E10] == "abc 0.5");
-    }
-
-    {
 	Test::StringStringD di1;
 	di1["foo"] = "abc -1.1";
 	di1["bar"] = "abc 123123.2";
@@ -587,37 +567,5 @@ twoways(const Test::MyClassPrx& p)
 	test(ro["qwerty"] == Test::enum3);
 	test(ro[""] == Test::enum2);
 	test(ro["Hello!!"] == Test::enum2);
-    }
-
-    {
-	Test::MyClassStringD di1;
-	di1[p] = "abc";
-	di1[0] = "def";
-	Test::MyClassStringD di2;
-	di2[p] = "abc";
-
-	Test::MyClassStringD _do;
-	Test::MyClassStringD ro = p->opMyClassStringD(di1, di2, _do);
-
-	test(_do == di1);
-	test(ro.size() == 2);
-	test(ro[p] == "abc");
-	test(ro[0] == "def");
-
-	int i = 0;
-	for(Test::MyClassStringD::iterator q = ro.begin(); q != ro.end(); ++q, ++i)
-	{
-	    test(i < 2);
-
-	    if(i == 0)
-	    {
-		test(!q->first);
-	    }
-	    else
-	    {
-		test(q->first);
-		q->first->opVoid();
-	    }
-	}
     }
 }

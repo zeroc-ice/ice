@@ -582,6 +582,12 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	_unit->warning(msg);	// TODO: change to error in stable_39
     }
+    
+    if(!legalDictionaryKey(keyType))
+    {
+	_unit->error("dictionary `" + name + "' uses an illegal key type");
+	return 0;
+    }
 
     DictionaryPtr p = new Dictionary(this, name, keyType, valueType, local);
     _contents.push_back(p);
@@ -1627,6 +1633,71 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
 	}
     }
     return true;	// Everything else is either in range or doesn't need checking
+}
+
+bool
+Slice::Container::legalSimpleKeyType(const TypePtr& type)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp)
+    {
+	switch(bp->kind())
+	{
+	    case Builtin::KindByte:
+	    case Builtin::KindBool:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    case Builtin::KindString:
+	    {
+		return true;
+		break;
+	    }
+	}
+    }
+
+    EnumPtr ep = EnumPtr::dynamicCast(type);
+    if(ep)
+    {
+	return true;
+    }
+
+    return false;
+}
+
+//
+// Check that the key type of a dictionary is legal. Legal types are integral types, string, and sequences and
+// structs containing only integral types or strings.
+//
+bool
+Slice::Container::legalDictionaryKey(const TypePtr& type) const
+{
+    if(legalSimpleKeyType(type))
+    {
+	return true;
+    }
+
+    SequencePtr seqp = SequencePtr::dynamicCast(type);
+    if(seqp && legalSimpleKeyType(seqp->type()))
+    {
+	return true;
+    }
+
+    StructPtr strp = StructPtr::dynamicCast(type);
+    if(strp)
+    {
+	DataMemberList dml = strp->dataMembers();
+	for(DataMemberList::const_iterator mem = dml.begin(); mem != dml.end(); ++mem)
+	{
+	    if(!legalSimpleKeyType((*mem)->type()))
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    return false;
 }
 
 // ----------------------------------------------------------------------

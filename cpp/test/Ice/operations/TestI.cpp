@@ -299,18 +299,6 @@ MyDerivedClassI::opLongFloatD(const Test::LongFloatD& p1,
     return r;
 }
 
-Test::DoubleStringD
-MyDerivedClassI::opDoubleStringD(const Test::DoubleStringD& p1,
-				 const Test::DoubleStringD& p2,
-				 Test::DoubleStringD& p3,
-				 const Ice::Current&)
-{
-    p3 = p1;
-    Test::DoubleStringD r = p1;
-    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
-    return r;
-}
-
 Test::StringStringD
 MyDerivedClassI::opStringStringD(const Test::StringStringD& p1,
 				 const Test::StringStringD& p2,
@@ -331,19 +319,6 @@ MyDerivedClassI::opStringMyEnumD(const Test::StringMyEnumD& p1,
 {
     p3 = p1;
     Test::StringMyEnumD r = p1;
-    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
-    return r;
-}
-
-Test::MyClassStringD
-MyDerivedClassI::opMyClassStringD(const Test::MyClassStringD& p1,
-				  const Test::MyClassStringD& p2,
-				  Test::MyClassStringD& p3,
-				  const Ice::Current&)
-{
-    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
-    p3 = p1;
-    Test::MyClassStringD r;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }

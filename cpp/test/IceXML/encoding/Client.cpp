@@ -212,49 +212,6 @@ TestStringStruct4Dict(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-TestStruct3Struct4Dict(const Ice::CommunicatorPtr& communicator)
-{
-    static const string element = "Test.Struct3Struct4Dict";
-    Test::Struct3Struct4Dict dictin;
-
-    Test::Struct3 s3in;
-    s3in.l = 20;
-    s3in.s2.s1.l = 10;
-
-    Test::Struct4 s4in;
-    s4in.l = 30;
-    s4in.s3.l = 20;
-    s4in.s3.s2.s1.l = 10;
-    dictin[s3in] = s4in;
-
-    s3in.l = 30;
-    s3in.s2.s1.l = 20;
-
-    s4in.l = 40;
-    s4in.s3.l = 30;
-    s4in.s3.s2.s1.l = 20;
-    dictin[s3in] = s4in;
-
-    ostringstream os;
-    os << header;
-    Ice::StreamPtr ostream = new IceXML::StreamI(communicator, os);
-    Test::Struct3Struct4DictHelper::ice_marshal(element, ostream, dictin);
-    os << footer;
-
-    istringstream is(os.str());
-    Ice::StreamPtr istream = new IceXML::StreamI(communicator, is);
-    Test::Struct3Struct4Dict dictout;
-    Test::Struct3Struct4DictHelper::ice_unmarshal(element, istream, dictout);
-    test(dictout.size() == dictin.size());
-    for(Test::Struct3Struct4Dict::const_iterator p = dictin.begin(); p != dictin.end(); ++p)
-    {
-	Test::Struct3Struct4Dict::const_iterator q = dictout.find(p->first);
-	test(q != dictout.end());
-	test(q->second == p->second);
-    }
-}
-
-void
 TestColor(const Ice::CommunicatorPtr& communicator)
 {
     static const string element = "Test.Color";
@@ -528,7 +485,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << "testing dictionaries... ";
     TestStringStruct4Dict(communicator);
-    TestStruct3Struct4Dict(communicator);
     cout << "ok" << endl;
 
     cout << "testing enumerations... ";

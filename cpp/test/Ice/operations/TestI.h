@@ -134,10 +134,6 @@ public:
 					  Test::LongFloatD&,
 					  const Ice::Current&);
 
-    virtual Test::DoubleStringD opDoubleStringD(const Test::DoubleStringD&, const Test::DoubleStringD&,
-						Test::DoubleStringD&,
-						const Ice::Current&);
-
     virtual Test::StringStringD opStringStringD(const Test::StringStringD&, const Test::StringStringD&,
 						Test::StringStringD&,
 						const Ice::Current&);
@@ -145,10 +141,6 @@ public:
     virtual Test::StringMyEnumD opStringMyEnumD(const Test::StringMyEnumD&, const Test::StringMyEnumD&,
 						Test::StringMyEnumD&,
 						const Ice::Current&);
-
-    virtual Test::MyClassStringD opMyClassStringD(const Test::MyClassStringD&, const Test::MyClassStringD&,
-						  Test::MyClassStringD&,
-						  const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
 
