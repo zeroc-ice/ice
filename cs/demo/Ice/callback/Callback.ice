@@ -10,6 +10,9 @@
 #ifndef CALLBACK_ICE
 #define CALLBACK_ICE
 
+module Demo
+{
+
 interface CallbackReceiver
 {
     void callback();
@@ -19,6 +22,8 @@ interface Callback
 {
     void initiateCallback(CallbackReceiver* proxy);
     void shutdown();
+};
+
 };
 
 #endif

@@ -7,12 +7,13 @@
 //
 // **********************************************************************
 
+using Test;
 
 public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        TestPrx test = AllTests.allTests(communicator, false);
+        TestIntfPrx test = AllTests.allTests(communicator, false);
         test.shutdown();
         return 0;
     }

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-
 using System;
+using Test;
 
 public class AllTests
 {
@@ -38,10 +38,10 @@ public class AllTests
         
         Console.Out.Write("getting proxies for class hierarchy... ");
         Console.Out.Flush();
-        MA.CAPrx ca = initial.caop();
-        MB.CBPrx cb = initial.cbop();
-        MA.CCPrx cc = initial.ccop();
-        MA.CDPrx cd = initial.cdop();
+        Test.MA.CAPrx ca = initial.caop();
+        Test.MB.CBPrx cb = initial.cbop();
+        Test.MA.CCPrx cc = initial.ccop();
+        Test.MA.CDPrx cd = initial.cdop();
         test(ca != cb);
         test(ca != cc);
         test(ca != cd);
@@ -52,10 +52,10 @@ public class AllTests
         
         Console.Out.Write("getting proxies for interface hierarchy... ");
         Console.Out.Flush();
-        MA.IAPrx ia = initial.iaop();
-        MB.IB1Prx ib1 = initial.ib1op();
-        MB.IB2Prx ib2 = initial.ib2op();
-        MA.ICPrx ic = initial.icop();
+        Test.MA.IAPrx ia = initial.iaop();
+        Test.MB.IB1Prx ib1 = initial.ib1op();
+        Test.MB.IB2Prx ib2 = initial.ib2op();
+        Test.MA.ICPrx ic = initial.icop();
         test(ia != ib1);
         test(ia != ib2);
         test(ia != ic);
@@ -65,9 +65,9 @@ public class AllTests
         
         Console.Out.Write("invoking proxy operations on class hierarchy... ");
         Console.Out.Flush();
-        MA.CAPrx cao;
-        MB.CBPrx cbo;
-        MA.CCPrx cco;
+        Test.MA.CAPrx cao;
+        Test.MB.CBPrx cbo;
+        Test.MA.CCPrx cco;
         
         cao = ca.caop(ca);
         test(cao.Equals(ca));
@@ -115,10 +115,10 @@ public class AllTests
         
         Console.Out.Write("ditto, but for interface hierarchy... ");
         Console.Out.Flush();
-        MA.IAPrx iao;
-        MB.IB1Prx ib1o;
-        MB.IB2Prx ib2o;
-        MA.ICPrx ico;
+        Test.MA.IAPrx iao;
+        Test.MB.IB1Prx ib1o;
+        Test.MB.IB2Prx ib2o;
+        Test.MA.ICPrx ico;
         
         iao = ia.iaop(ia);
         test(iao.Equals(ia));

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using Test;
 
 public class Client
 {
@@ -14,7 +15,7 @@ public class Client
     {
         public override int run(string[] args)
         {
-            TestPrx obj = AllTests.allTests(communicator());
+            TestIntfPrx obj = AllTests.allTests(communicator());
             return 0;
         }
     }

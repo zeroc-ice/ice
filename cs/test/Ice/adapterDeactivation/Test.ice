@@ -10,7 +10,10 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-interface Test
+module Test
+{
+
+interface TestIntf
 {
     void transient();
     void deactivate();
@@ -19,6 +22,8 @@ interface Test
 local class Cookie
 {
     nonmutating string message();
+};
+
 };
 
 #endif

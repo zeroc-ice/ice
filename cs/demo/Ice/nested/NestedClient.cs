@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-
 using System;
+using Demo;
 
 class NestedClient : Ice.Application
 {

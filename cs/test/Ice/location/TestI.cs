@@ -7,8 +7,9 @@
 //
 // **********************************************************************
 
+using Test;
 
-public class TestI : _TestDisp
+public class TestI : _TestIntfDisp
 {
     internal TestI(Ice.ObjectAdapter adapter)
     {

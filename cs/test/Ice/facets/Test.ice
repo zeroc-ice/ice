@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 interface Empty
 {
 };
@@ -53,6 +56,8 @@ interface G
 interface H extends G
 {
     string callH();
+};
+
 };
 
 #endif

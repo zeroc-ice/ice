@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using Demo;
 
 public sealed class ThroughputI : _ThroughputDisp
 {

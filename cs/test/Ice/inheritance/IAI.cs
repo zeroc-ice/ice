@@ -7,14 +7,13 @@
 //
 // **********************************************************************
 
-
-public sealed class IAI : MA._IADisp
+public sealed class IAI : Test.MA._IADisp
 {
     public IAI()
     {
     }
     
-    public override MA.IAPrx iaop(MA.IAPrx p, Ice.Current current)
+    public override Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }

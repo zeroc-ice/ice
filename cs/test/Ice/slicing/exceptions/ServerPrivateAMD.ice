@@ -12,6 +12,9 @@
 
 #include <TestAMD.ice>
 
+module Test
+{
+
 exception UnknownDerived extends Base
 {
     string ud;
@@ -30,6 +33,8 @@ exception UnknownMostDerived1 extends KnownIntermediate
 exception UnknownMostDerived2 extends UnknownIntermediate
 {
    string umd2;
+};
+
 };
 
 #endif

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using Demo;
+
 sealed class HelloSessionI : _HelloSessionDisp
 {
     public HelloSessionI(string userId, HelloSessionManagerI manager)

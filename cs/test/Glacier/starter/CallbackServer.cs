@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using Test;
+
 class CallbackServer : Ice.Application
 {
     public override int run(string[] args)

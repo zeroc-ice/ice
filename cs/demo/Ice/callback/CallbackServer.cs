@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using Demo;
 
 class CallbackServer : Ice.Application
 {

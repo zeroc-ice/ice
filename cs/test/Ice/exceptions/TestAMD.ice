@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 interface Empty
 {
 };
@@ -60,6 +63,8 @@ exception D
 ["ami", "amd"] interface WrongOperation
 {
     void noSuchOperation();
+};
+
 };
 
 #endif

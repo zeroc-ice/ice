@@ -10,6 +10,9 @@
 #ifndef VALUE_ICE
 #define VALUE_ICE
 
+module Demo
+{
+
 class Simple
 {
     string message;
@@ -39,6 +42,8 @@ class Initial
     void getPrinter(out Printer impl, out Printer* proxy);
     Printer getDerivedPrinter();
     void throwDerivedPrinter() throws DerivedPrinterException;
+};
+
 };
 
 #endif

@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Test;
 
 public class AllTests
 {
@@ -61,12 +61,12 @@ public class AllTests
         private bool _called;
     }
     
-    private class AMI_Test_SBaseAsObjectI : AMI_Test_SBaseAsObject
+    private class AMI_Test_SBaseAsObjectI : AMI_TestIntf_SBaseAsObject
     {
         public override void ice_response(Ice.Object o)
         {
             AllTests.test(o != null);
-            AllTests.test(o.ice_id().Equals("::SBase"));
+            AllTests.test(o.ice_id().Equals("::Test::SBase"));
             SBase sb = (SBase) o;
             AllTests.test(sb != null);
             AllTests.test(sb.sb.Equals("SBase.sb"));
@@ -86,7 +86,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBaseAsSBaseI : AMI_Test_SBaseAsSBase
+    private class AMI_Test_SBaseAsSBaseI : AMI_TestIntf_SBaseAsSBase
     {
         public override void ice_response(SBase sb)
         {
@@ -107,7 +107,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSKnownDerivedAsSBaseI : AMI_Test_SBSKnownDerivedAsSBase
+    private class AMI_Test_SBSKnownDerivedAsSBaseI : AMI_TestIntf_SBSKnownDerivedAsSBase
     {
         public override void ice_response(SBase sb)
         {
@@ -131,7 +131,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : AMI_Test_SBSKnownDerivedAsSBSKnownDerived
+    private class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived
     {
         public override void ice_response(SBSKnownDerived sbskd)
         {
@@ -152,7 +152,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSUnknownDerivedAsSBaseI : AMI_Test_SBSUnknownDerivedAsSBase
+    private class AMI_Test_SBSUnknownDerivedAsSBaseI : AMI_TestIntf_SBSUnknownDerivedAsSBase
     {
         public override void ice_response(SBase sb)
         {
@@ -173,7 +173,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SUnknownAsObjectI : AMI_Test_SUnknownAsObject
+    private class AMI_Test_SUnknownAsObjectI : AMI_TestIntf_SUnknownAsObject
     {
         public override void ice_response(Ice.Object o)
         {
@@ -194,12 +194,12 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_oneElementCycleI : AMI_Test_oneElementCycle
+    private class AMI_Test_oneElementCycleI : AMI_TestIntf_oneElementCycle
     {
         public override void ice_response(B b)
         {
             AllTests.test(b != null);
-            AllTests.test(b.ice_id().Equals("::B"));
+            AllTests.test(b.ice_id().Equals("::Test::B"));
             AllTests.test(b.sb.Equals("B1.sb"));
             AllTests.test(b.pb == b);
             callback.called();
@@ -218,17 +218,17 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_twoElementCycleI : AMI_Test_twoElementCycle
+    private class AMI_Test_twoElementCycleI : AMI_TestIntf_twoElementCycle
     {
         public override void ice_response(B b1)
         {
             AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::B"));
+            AllTests.test(b1.ice_id().Equals("::Test::B"));
             AllTests.test(b1.sb.Equals("B1.sb"));
             
             B b2 = b1.pb;
             AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::B"));
+            AllTests.test(b2.ice_id().Equals("::Test::B"));
             AllTests.test(b2.sb.Equals("B2.sb"));
             AllTests.test(b2.pb == b1);
             callback.called();
@@ -247,12 +247,12 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D1AsBI : AMI_Test_D1AsB
+    private class AMI_Test_D1AsBI : AMI_TestIntf_D1AsB
     {
         public override void ice_response(B b1)
         {
             AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::D1"));
+            AllTests.test(b1.ice_id().Equals("::Test::D1"));
             AllTests.test(b1.sb.Equals("D1.sb"));
             AllTests.test(b1.pb != null);
             AllTests.test(b1.pb != b1);
@@ -267,7 +267,7 @@ public class AllTests
             AllTests.test(b2 != null);
             AllTests.test(b2.pb == b1);
             AllTests.test(b2.sb.Equals("D2.sb"));
-            AllTests.test(b2.ice_id().Equals("::B"));
+            AllTests.test(b2.ice_id().Equals("::Test::B"));
             callback.called();
         }
         
@@ -284,19 +284,19 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D1AsD1I : AMI_Test_D1AsD1
+    private class AMI_Test_D1AsD1I : AMI_TestIntf_D1AsD1
     {
         public override void ice_response(D1 d1)
         {
             AllTests.test(d1 != null);
-            AllTests.test(d1.ice_id().Equals("::D1"));
+            AllTests.test(d1.ice_id().Equals("::Test::D1"));
             AllTests.test(d1.sb.Equals("D1.sb"));
             AllTests.test(d1.pb != null);
             AllTests.test(d1.pb != d1);
             
             B b2 = d1.pb;
             AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::B"));
+            AllTests.test(b2.ice_id().Equals("::Test::B"));
             AllTests.test(b2.sb.Equals("D2.sb"));
             AllTests.test(b2.pb == d1);
             callback.called();
@@ -315,19 +315,19 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D2AsBI : AMI_Test_D2AsB
+    private class AMI_Test_D2AsBI : AMI_TestIntf_D2AsB
     {
         public override void ice_response(B b2)
         {
             AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::B"));
+            AllTests.test(b2.ice_id().Equals("::Test::B"));
             AllTests.test(b2.sb.Equals("D2.sb"));
             AllTests.test(b2.pb != null);
             AllTests.test(b2.pb != b2);
             
             B b1 = b2.pb;
             AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::D1"));
+            AllTests.test(b1.ice_id().Equals("::Test::D1"));
             AllTests.test(b1.sb.Equals("D1.sb"));
             AllTests.test(b1.pb == b2);
             D1 d1 = (D1) b1;
@@ -350,12 +350,12 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest1I : AMI_Test_paramTest1
+    private class AMI_Test_paramTest1I : AMI_TestIntf_paramTest1
     {
         public override void ice_response(B b1, B b2)
         {
             AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::D1"));
+            AllTests.test(b1.ice_id().Equals("::Test::D1"));
             AllTests.test(b1.sb.Equals("D1.sb"));
             AllTests.test(b1.pb == b2);
             D1 d1 = (D1) b1;
@@ -364,7 +364,7 @@ public class AllTests
             AllTests.test(d1.pd1 == b2);
             
             AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::B")); // No factory, must be sliced
+            AllTests.test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
             AllTests.test(b2.sb.Equals("D2.sb"));
             AllTests.test(b2.pb == b1);
             callback.called();
@@ -383,12 +383,12 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest2I : AMI_Test_paramTest2
+    private class AMI_Test_paramTest2I : AMI_TestIntf_paramTest2
     {
         public override void ice_response(B b2, B b1)
         {
             AllTests.test(b1 != null);
-            AllTests.test(b1.ice_id().Equals("::D1"));
+            AllTests.test(b1.ice_id().Equals("::Test::D1"));
             AllTests.test(b1.sb.Equals("D1.sb"));
             AllTests.test(b1.pb == b2);
             D1 d1 = (D1) b1;
@@ -397,7 +397,7 @@ public class AllTests
             AllTests.test(d1.pd1 == b2);
             
             AllTests.test(b2 != null);
-            AllTests.test(b2.ice_id().Equals("::B")); // No factory, must be sliced
+            AllTests.test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
             AllTests.test(b2.sb.Equals("D2.sb"));
             AllTests.test(b2.pb == b1);
             callback.called();
@@ -416,7 +416,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest1I : AMI_Test_returnTest1
+    private class AMI_Test_returnTest1I : AMI_TestIntf_returnTest1
     {
         public override void ice_response(B r, B p1, B p2)
         {
@@ -437,7 +437,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest2I : AMI_Test_returnTest2
+    private class AMI_Test_returnTest2I : AMI_TestIntf_returnTest2
     {
         public override void ice_response(B r, B p1, B p2)
         {
@@ -458,7 +458,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest3I : AMI_Test_returnTest3
+    private class AMI_Test_returnTest3I : AMI_TestIntf_returnTest3
     {
         public override void ice_response(B b)
         {
@@ -481,24 +481,24 @@ public class AllTests
         public B r;
     }
     
-    private class AMI_Test_paramTest3I : AMI_Test_paramTest3
+    private class AMI_Test_paramTest3I : AMI_TestIntf_paramTest3
     {
         public override void ice_response(B ret, B p1, B p2)
         {
             AllTests.test(p1 != null);
             AllTests.test(p1.sb.Equals("D2.sb (p1 1)"));
             AllTests.test(p1.pb == null);
-            AllTests.test(p1.ice_id().Equals("::B"));
+            AllTests.test(p1.ice_id().Equals("::Test::B"));
             
             AllTests.test(p2 != null);
             AllTests.test(p2.sb.Equals("D2.sb (p2 1)"));
             AllTests.test(p2.pb == null);
-            AllTests.test(p2.ice_id().Equals("::B"));
+            AllTests.test(p2.ice_id().Equals("::Test::B"));
             
             AllTests.test(ret != null);
             AllTests.test(ret.sb.Equals("D1.sb (p2 2)"));
             AllTests.test(ret.pb == null);
-            AllTests.test(ret.ice_id().Equals("::D1"));
+            AllTests.test(ret.ice_id().Equals("::Test::D1"));
             callback.called();
         }
         
@@ -515,19 +515,19 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest4I : AMI_Test_paramTest4
+    private class AMI_Test_paramTest4I : AMI_TestIntf_paramTest4
     {
         public override void ice_response(B ret, B b)
         {
             AllTests.test(b != null);
             AllTests.test(b.sb.Equals("D4.sb (1)"));
             AllTests.test(b.pb == null);
-            AllTests.test(b.ice_id().Equals("::B"));
+            AllTests.test(b.ice_id().Equals("::Test::B"));
             
             AllTests.test(ret != null);
             AllTests.test(ret.sb.Equals("B.sb (2)"));
             AllTests.test(ret.pb == null);
-            AllTests.test(ret.ice_id().Equals("::B"));
+            AllTests.test(ret.ice_id().Equals("::Test::B"));
             callback.called();
         }
         
@@ -544,7 +544,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_sequenceTestI : AMI_Test_sequenceTest
+    private class AMI_Test_sequenceTestI : AMI_TestIntf_sequenceTest
     {
         public override void ice_response(SS ss)
         {
@@ -567,7 +567,7 @@ public class AllTests
         public SS r;
     }
     
-    private class AMI_Test_dictionaryTestI : AMI_Test_dictionaryTest
+    private class AMI_Test_dictionaryTestI : AMI_TestIntf_dictionaryTest
     {
         public override void ice_response(BDict r, BDict bout)
         {
@@ -592,7 +592,7 @@ public class AllTests
         public BDict bout;
     }
     
-    private class AMI_Test_throwBaseAsBaseI : AMI_Test_throwBaseAsBase
+    private class AMI_Test_throwBaseAsBaseI : AMI_TestIntf_throwBaseAsBase
     {
         public override void ice_response()
         {
@@ -624,7 +624,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwDerivedAsBaseI : AMI_Test_throwDerivedAsBase
+    private class AMI_Test_throwDerivedAsBaseI : AMI_TestIntf_throwDerivedAsBase
     {
         public override void ice_response()
         {
@@ -662,7 +662,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwDerivedAsDerivedI : AMI_Test_throwDerivedAsDerived
+    private class AMI_Test_throwDerivedAsDerivedI : AMI_TestIntf_throwDerivedAsDerived
     {
         public override void ice_response()
         {
@@ -700,7 +700,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwUnknownDerivedAsBaseI : AMI_Test_throwUnknownDerivedAsBase
+    private class AMI_Test_throwUnknownDerivedAsBaseI : AMI_TestIntf_throwUnknownDerivedAsBase
     {
         public override void ice_response()
         {
@@ -732,7 +732,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_useForwardI : AMI_Test_useForward
+    private class AMI_Test_useForwardI : AMI_TestIntf_useForward
     {
         public override void ice_response(Forward f)
         {
@@ -753,7 +753,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    public static TestPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
@@ -764,7 +764,7 @@ public class AllTests
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestPrx testPrx = TestPrxHelper.checkedCast(basePrx);
+        TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(basePrx);
         test(testPrx != null);
         test(testPrx.Equals(basePrx));
         Console.Out.WriteLine("ok");
@@ -778,7 +778,7 @@ public class AllTests
             {
                 o = testPrx.SBaseAsObject();
                 test(o != null);
-                test(o.ice_id().Equals("::SBase"));
+                test(o.ice_id().Equals("::Test::SBase"));
                 sb = (SBase) o;
             }
             catch(Exception)
@@ -935,7 +935,7 @@ public class AllTests
             {
                 B b = testPrx.oneElementCycle();
                 test(b != null);
-                test(b.ice_id().Equals("::B"));
+                test(b.ice_id().Equals("::Test::B"));
                 test(b.sb.Equals("B1.sb"));
                 test(b.pb == b);
             }
@@ -962,12 +962,12 @@ public class AllTests
             {
                 B b1 = testPrx.twoElementCycle();
                 test(b1 != null);
-                test(b1.ice_id().Equals("::B"));
+                test(b1.ice_id().Equals("::Test::B"));
                 test(b1.sb.Equals("B1.sb"));
                 
                 B b2 = b1.pb;
                 test(b2 != null);
-                test(b2.ice_id().Equals("::B"));
+                test(b2.ice_id().Equals("::Test::B"));
                 test(b2.sb.Equals("B2.sb"));
                 test(b2.pb == b1);
             }
@@ -995,7 +995,7 @@ public class AllTests
                 B b1;
                 b1 = testPrx.D1AsB();
                 test(b1 != null);
-                test(b1.ice_id().Equals("::D1"));
+                test(b1.ice_id().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb != null);
                 test(b1.pb != b1);
@@ -1010,7 +1010,7 @@ public class AllTests
                 test(b2 != null);
                 test(b2.pb == b1);
                 test(b2.sb.Equals("D2.sb"));
-                test(b2.ice_id().Equals("::B"));
+                test(b2.ice_id().Equals("::Test::B"));
             }
             catch(Exception)
             {
@@ -1036,14 +1036,14 @@ public class AllTests
                 D1 d1;
                 d1 = testPrx.D1AsD1();
                 test(d1 != null);
-                test(d1.ice_id().Equals("::D1"));
+                test(d1.ice_id().Equals("::Test::D1"));
                 test(d1.sb.Equals("D1.sb"));
                 test(d1.pb != null);
                 test(d1.pb != d1);
                 
                 B b2 = d1.pb;
                 test(b2 != null);
-                test(b2.ice_id().Equals("::B"));
+                test(b2.ice_id().Equals("::Test::B"));
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == d1);
             }
@@ -1071,14 +1071,14 @@ public class AllTests
                 B b2;
                 b2 = testPrx.D2AsB();
                 test(b2 != null);
-                test(b2.ice_id().Equals("::B"));
+                test(b2.ice_id().Equals("::Test::B"));
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb != null);
                 test(b2.pb != b2);
                 
                 B b1 = b2.pb;
                 test(b1 != null);
-                test(b1.ice_id().Equals("::D1"));
+                test(b1.ice_id().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
@@ -1112,7 +1112,7 @@ public class AllTests
                 testPrx.paramTest1(out b1, out b2);
                 
                 test(b1 != null);
-                test(b1.ice_id().Equals("::D1"));
+                test(b1.ice_id().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
@@ -1121,7 +1121,7 @@ public class AllTests
                 test(d1.pd1 == b2);
                 
                 test(b2 != null);
-                test(b2.ice_id().Equals("::B")); // No factory, must be sliced
+                test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
@@ -1151,7 +1151,7 @@ public class AllTests
                 testPrx.paramTest2(out b2, out b1);
                 
                 test(b1 != null);
-                test(b1.ice_id().Equals("::D1"));
+                test(b1.ice_id().Equals("::Test::D1"));
                 test(b1.sb.Equals("D1.sb"));
                 test(b1.pb == b2);
                 D1 d1 = (D1) b1;
@@ -1160,7 +1160,7 @@ public class AllTests
                 test(d1.pd1 == b2);
                 
                 test(b2 != null);
-                test(b2.ice_id().Equals("::B")); // No factory, must be sliced
+                test(b2.ice_id().Equals("::Test::B")); // No factory, must be sliced
                 test(b2.sb.Equals("D2.sb"));
                 test(b2.pb == b1);
             }
@@ -1252,7 +1252,7 @@ public class AllTests
                 
                 test(b1 != null);
                 test(b1.sb.Equals("D1.sb"));
-                test(b1.ice_id().Equals("::D1"));
+                test(b1.ice_id().Equals("::Test::D1"));
                 D1 p1 = (D1) b1;
                 test(p1 != null);
                 test(p1.sd1.Equals("D1.sd1"));
@@ -1261,7 +1261,7 @@ public class AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.sb.Equals("D3.sb"));
-                test(b2.ice_id().Equals("::B")); // Sliced by server
+                test(b2.ice_id().Equals("::Test::B")); // Sliced by server
                 test(b2.pb == b1);
                 bool gotException = false;
                 try
@@ -1307,7 +1307,7 @@ public class AllTests
             
             test(b1 != null);
             test(b1.sb.Equals("D1.sb"));
-            test(b1.ice_id().Equals("::D1"));
+            test(b1.ice_id().Equals("::Test::D1"));
             D1 p1 = (D1) b1;
             test(p1 != null);
             test(p1.sd1.Equals("D1.sd1"));
@@ -1316,7 +1316,7 @@ public class AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb.Equals("D3.sb"));
-            test(b2.ice_id().Equals("::B")); // Sliced by server
+            test(b2.ice_id().Equals("::Test::B")); // Sliced by server
             test(b2.pb == b1);
             bool gotException = false;
             try
@@ -1356,7 +1356,7 @@ public class AllTests
                 
                 test(b1 != null);
                 test(b1.sb.Equals("D3.sb"));
-                test(b1.ice_id().Equals("::B")); // Sliced by server
+                test(b1.ice_id().Equals("::Test::B")); // Sliced by server
                 
                 bool gotException = false;
                 try
@@ -1372,7 +1372,7 @@ public class AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.sb.Equals("D1.sb"));
-                test(b2.ice_id().Equals("::D1"));
+                test(b2.ice_id().Equals("::Test::D1"));
                 test(b2.pb == b1);
                 D1 p3 = (D1) b2;
                 test(p3 != null);
@@ -1412,7 +1412,7 @@ public class AllTests
             
             test(b1 != null);
             test(b1.sb.Equals("D3.sb"));
-            test(b1.ice_id().Equals("::B")); // Sliced by server
+            test(b1.ice_id().Equals("::Test::B")); // Sliced by server
             
             bool gotException = false;
             try
@@ -1428,7 +1428,7 @@ public class AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb.Equals("D1.sb"));
-            test(b2.ice_id().Equals("::D1"));
+            test(b2.ice_id().Equals("::Test::D1"));
             test(b2.pb == b1);
             D1 p3 = (D1) b2;
             test(p3 != null);
@@ -1454,17 +1454,17 @@ public class AllTests
                 test(p1 != null);
                 test(p1.sb.Equals("D2.sb (p1 1)"));
                 test(p1.pb == null);
-                test(p1.ice_id().Equals("::B"));
+                test(p1.ice_id().Equals("::Test::B"));
                 
                 test(p2 != null);
                 test(p2.sb.Equals("D2.sb (p2 1)"));
                 test(p2.pb == null);
-                test(p2.ice_id().Equals("::B"));
+                test(p2.ice_id().Equals("::Test::B"));
                 
                 test(ret != null);
                 test(ret.sb.Equals("D1.sb (p2 2)"));
                 test(ret.pb == null);
-                test(ret.ice_id().Equals("::D1"));
+                test(ret.ice_id().Equals("::Test::D1"));
             }
             catch(Exception)
             {
@@ -1493,12 +1493,12 @@ public class AllTests
                 test(b != null);
                 test(b.sb.Equals("D4.sb (1)"));
                 test(b.pb == null);
-                test(b.ice_id().Equals("::B"));
+                test(b.ice_id().Equals("::Test::B"));
                 
                 test(ret != null);
                 test(ret.sb.Equals("B.sb (2)"));
                 test(ret.pb == null);
-                test(ret.ice_id().Equals("::B"));
+                test(ret.ice_id().Equals("::Test::B"));
             }
             catch(Exception)
             {
@@ -1538,7 +1538,7 @@ public class AllTests
                 B ret = testPrx.returnTest3(d3, b2);
                 
                 test(ret != null);
-                test(ret.ice_id().Equals("::B"));
+                test(ret.ice_id().Equals("::Test::B"));
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
@@ -1572,7 +1572,7 @@ public class AllTests
             B rv = cb.r;
             
             test(rv != null);
-            test(rv.ice_id().Equals("::B"));
+            test(rv.ice_id().Equals("::Test::B"));
             test(rv.sb.Equals("D3.sb"));
             test(rv.pb == rv);
         }
@@ -1602,7 +1602,7 @@ public class AllTests
                 
                 B ret = testPrx.returnTest3(d3, d12);
                 test(ret != null);
-                test(ret.ice_id().Equals("::B"));
+                test(ret.ice_id().Equals("::Test::B"));
                 test(ret.sb.Equals("D3.sb"));
                 test(ret.pb == ret);
             }
@@ -1639,7 +1639,7 @@ public class AllTests
             B rv = cb.r;
             
             test(rv != null);
-            test(rv.ice_id().Equals("::B"));
+            test(rv.ice_id().Equals("::Test::B"));
             test(rv.sb.Equals("D3.sb"));
             test(rv.pb == rv);
         }
@@ -1720,13 +1720,13 @@ public class AllTests
                 test(ss2d2.pb == ss2b2);
                 test(ss2d4.pb == ss2b2);
                 
-                test(ss1b2.ice_id().Equals("::B"));
-                test(ss1d2.ice_id().Equals("::D1"));
-                test(ss1d4.ice_id().Equals("::B"));
+                test(ss1b2.ice_id().Equals("::Test::B"));
+                test(ss1d2.ice_id().Equals("::Test::D1"));
+                test(ss1d4.ice_id().Equals("::Test::B"));
                 
-                test(ss2b2.ice_id().Equals("::B"));
-                test(ss2d2.ice_id().Equals("::D1"));
-                test(ss2d4.ice_id().Equals("::B"));
+                test(ss2b2.ice_id().Equals("::Test::B"));
+                test(ss2d2.ice_id().Equals("::Test::D1"));
+                test(ss2d4.ice_id().Equals("::Test::B"));
             }
             catch(Exception)
             {
@@ -1810,13 +1810,13 @@ public class AllTests
             test(ss2d6.pb == ss2b3);
             test(ss2d6.pb == ss2b3);
             
-            test(ss1b3.ice_id().Equals("::B"));
-            test(ss1d5.ice_id().Equals("::D1"));
-            test(ss1d6.ice_id().Equals("::B"));
+            test(ss1b3.ice_id().Equals("::Test::B"));
+            test(ss1d5.ice_id().Equals("::Test::D1"));
+            test(ss1d6.ice_id().Equals("::Test::B"));
             
-            test(ss2b3.ice_id().Equals("::B"));
-            test(ss2d5.ice_id().Equals("::D1"));
-            test(ss2d6.ice_id().Equals("::B"));
+            test(ss2b3.ice_id().Equals("::Test::B"));
+            test(ss2d5.ice_id().Equals("::Test::D1"));
+            test(ss2d6.ice_id().Equals("::Test::B"));
         }
         Console.Out.WriteLine("ok");
         
@@ -1937,7 +1937,7 @@ public class AllTests
             }
             catch(BaseException e)
             {
-                test(e.GetType().FullName.Equals("BaseException"));
+                test(e.GetType().FullName.Equals("Test.BaseException"));
                 test(e.sbe.Equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.Equals("sb"));
@@ -1969,7 +1969,7 @@ public class AllTests
             }
             catch(DerivedException e)
             {
-                test(e.GetType().FullName.Equals("DerivedException"));
+                test(e.GetType().FullName.Equals("Test.DerivedException"));
                 test(e.sbe.Equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.Equals("sb1"));
@@ -2007,7 +2007,7 @@ public class AllTests
             }
             catch(DerivedException e)
             {
-                test(e.GetType().FullName.Equals("DerivedException"));
+                test(e.GetType().FullName.Equals("Test.DerivedException"));
                 test(e.sbe.Equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.Equals("sb1"));
@@ -2045,7 +2045,7 @@ public class AllTests
             }
             catch(BaseException e)
             {
-                test(e.GetType().FullName.Equals("BaseException"));
+                test(e.GetType().FullName.Equals("Test.BaseException"));
                 test(e.sbe.Equals("sbe"));
                 test(e.pb != null);
                 test(e.pb.sb.Equals("sb d2"));

@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Test;
 
 public class AllTests
 {
@@ -61,7 +61,7 @@ public class AllTests
 	private bool _called;
     }
 
-    private class AMI_Test_pidI : AMI_Test_pid
+    private class AMI_Test_pidI : AMI_TestIntf_pid
     {
 	public override void ice_response(int pid)
 	{
@@ -89,7 +89,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private class AMI_Test_shutdownI : AMI_Test_shutdown
+    private class AMI_Test_shutdownI : AMI_TestIntf_shutdown
     {
 	public override void ice_response()
 	{
@@ -109,7 +109,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private class AMI_Test_abortI : AMI_Test_abort
+    private class AMI_Test_abortI : AMI_TestIntf_abort
     {
 	public override void ice_response()
 	{
@@ -146,7 +146,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private class AMI_Test_idempotentAbortI : AMI_Test_idempotentAbort
+    private class AMI_Test_idempotentAbortI : AMI_TestIntf_idempotentAbort
     {
 	public override void ice_response()
 	{
@@ -166,7 +166,7 @@ public class AllTests
 	private AMI_Test_abortI @delegate = new AMI_Test_abortI();
     }
     
-    private class AMI_Test_nonmutatingAbortI : AMI_Test_nonmutatingAbort
+    private class AMI_Test_nonmutatingAbortI : AMI_TestIntf_nonmutatingAbort
     {
 	public override void ice_response()
 	{
@@ -201,7 +201,7 @@ public class AllTests
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestPrx obj = TestPrxHelper.checkedCast(basePrx);
+        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(basePrx);
         test(obj != null);
         test(obj.Equals(basePrx));
         Console.Out.WriteLine("ok");

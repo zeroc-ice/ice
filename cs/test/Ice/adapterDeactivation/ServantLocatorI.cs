@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-
 using System;
+using Test;
 
 public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
 {

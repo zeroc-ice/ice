@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Diagnostics;
+using Test;
 
 public class Client
 {
@@ -15,15 +16,15 @@ public class Client
     {
         public Ice.Object create(string type)
         {
-            if(type.Equals("::B"))
+            if(type.Equals("::Test::B"))
             {
                 return new BI();
             }
-            else if(type.Equals("::C"))
+            else if(type.Equals("::Test::C"))
             {
                 return new CI();
             }
-            else if(type.Equals("::D"))
+            else if(type.Equals("::Test::D"))
             {
                 return new DI();
             }
@@ -41,9 +42,9 @@ public class Client
     private static int run(string[] args, Ice.Communicator communicator)
     {
 	Ice.ObjectFactory factory = new MyObjectFactory();
-	communicator.addObjectFactory(factory, "::B");
-	communicator.addObjectFactory(factory, "::C");
-	communicator.addObjectFactory(factory, "::D");
+	communicator.addObjectFactory(factory, "::Test::B");
+	communicator.addObjectFactory(factory, "::Test::C");
+	communicator.addObjectFactory(factory, "::Test::D");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-
 using System;
+using Test;
 
 public class AllTests
 {
@@ -20,7 +20,7 @@ public class AllTests
         }
     }
     
-    public static TestPrx allTests(Ice.Communicator communicator)
+    public static TestIntfPrx allTests(Ice.Communicator communicator)
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
@@ -31,7 +31,7 @@ public class AllTests
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestPrx obj = TestPrxHelper.checkedCast(@base);
+        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");

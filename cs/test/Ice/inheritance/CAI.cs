@@ -7,14 +7,13 @@
 //
 // **********************************************************************
 
-
-public sealed class CAI : MA.CA
+public sealed class CAI : Test.MA.CA
 {
     public CAI()
     {
     }
     
-    public override MA.CAPrx caop(MA.CAPrx p, Ice.Current current)
+    public override Test.MA.CAPrx caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }

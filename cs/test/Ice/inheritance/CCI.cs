@@ -7,24 +7,23 @@
 //
 // **********************************************************************
 
-
-public sealed class CCI : MA.CC
+public sealed class CCI : Test.MA.CC
 {
     public CCI()
     {
     }
     
-    public override MA.CAPrx caop(MA.CAPrx p, Ice.Current current)
+    public override Test.MA.CAPrx caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MA.CCPrx ccop(MA.CCPrx p, Ice.Current current)
+    public override Test.MA.CCPrx ccop(Test.MA.CCPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MB.CBPrx cbop(MB.CBPrx p, Ice.Current current)
+    public override Test.MB.CBPrx cbop(Test.MB.CBPrx p, Ice.Current current)
     {
         return p;
     }

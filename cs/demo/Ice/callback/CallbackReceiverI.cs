@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using Demo;
 
 public sealed class CallbackReceiverI : _CallbackReceiverDisp
 {

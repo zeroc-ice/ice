@@ -8,35 +8,36 @@
 // **********************************************************************
 
 using System;
+using Test;
 
-public sealed class TestI : _TestDisp
+public sealed class TestI : _TestIntfDisp
 {
     public TestI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
     
-    public override void shutdown_async(AMD_Test_shutdown cb, Ice.Current current)
+    public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
     
-    public override void SBaseAsObject_async(AMD_Test_SBaseAsObject cb, Ice.Current current)
+    public override void SBaseAsObject_async(AMD_TestIntf_SBaseAsObject cb, Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         cb.ice_response(sb);
     }
     
-    public override void SBaseAsSBase_async(AMD_Test_SBaseAsSBase cb, Ice.Current current)
+    public override void SBaseAsSBase_async(AMD_TestIntf_SBaseAsSBase cb, Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         cb.ice_response(sb);
     }
     
-    public override void SBSKnownDerivedAsSBase_async(AMD_Test_SBSKnownDerivedAsSBase cb, Ice.Current current)
+    public override void SBSKnownDerivedAsSBase_async(AMD_TestIntf_SBSKnownDerivedAsSBase cb, Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -44,7 +45,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(sbskd);
     }
     
-    public override void SBSKnownDerivedAsSBSKnownDerived_async(AMD_Test_SBSKnownDerivedAsSBSKnownDerived cb, Ice.Current current)
+    public override void SBSKnownDerivedAsSBSKnownDerived_async(AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived cb, Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
@@ -52,7 +53,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(sbskd);
     }
     
-    public override void SBSUnknownDerivedAsSBase_async(AMD_Test_SBSUnknownDerivedAsSBase cb, Ice.Current current)
+    public override void SBSUnknownDerivedAsSBase_async(AMD_TestIntf_SBSUnknownDerivedAsSBase cb, Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -60,14 +61,14 @@ public sealed class TestI : _TestDisp
         cb.ice_response(sbsud);
     }
     
-    public override void SUnknownAsObject_async(AMD_Test_SUnknownAsObject cb, Ice.Current current)
+    public override void SUnknownAsObject_async(AMD_TestIntf_SUnknownAsObject cb, Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
         cb.ice_response(su);
     }
     
-    public override void oneElementCycle_async(AMD_Test_oneElementCycle cb, Ice.Current current)
+    public override void oneElementCycle_async(AMD_TestIntf_oneElementCycle cb, Ice.Current current)
     {
         B b = new B();
         b.sb = "B1.sb";
@@ -75,7 +76,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(b);
     }
     
-    public override void twoElementCycle_async(AMD_Test_twoElementCycle cb, Ice.Current current)
+    public override void twoElementCycle_async(AMD_TestIntf_twoElementCycle cb, Ice.Current current)
     {
         B b1 = new B();
         b1.sb = "B1.sb";
@@ -86,7 +87,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(b1);
     }
     
-    public override void D1AsB_async(AMD_Test_D1AsB cb, Ice.Current current)
+    public override void D1AsB_async(AMD_TestIntf_D1AsB cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -101,7 +102,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d1);
     }
     
-    public override void D1AsD1_async(AMD_Test_D1AsD1 cb, Ice.Current current)
+    public override void D1AsD1_async(AMD_TestIntf_D1AsD1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -116,7 +117,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d1);
     }
     
-    public override void D2AsB_async(AMD_Test_D2AsB cb, Ice.Current current)
+    public override void D2AsB_async(AMD_TestIntf_D2AsB cb, Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb";
@@ -131,7 +132,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d2);
     }
     
-    public override void paramTest1_async(AMD_Test_paramTest1 cb, Ice.Current current)
+    public override void paramTest1_async(AMD_TestIntf_paramTest1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -146,7 +147,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d1, d2);
     }
     
-    public override void paramTest2_async(AMD_Test_paramTest2 cb, Ice.Current current)
+    public override void paramTest2_async(AMD_TestIntf_paramTest2 cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -161,7 +162,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d2, d1);
     }
     
-    public override void paramTest3_async(AMD_Test_paramTest3 cb, Ice.Current current)
+    public override void paramTest3_async(AMD_TestIntf_paramTest3 cb, Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
@@ -189,7 +190,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d3, d2, d4);
     }
     
-    public override void paramTest4_async(AMD_Test_paramTest4 cb, Ice.Current current)
+    public override void paramTest4_async(AMD_TestIntf_paramTest4 cb, Ice.Current current)
     {
         D4 d4 = new D4();
         d4.sb = "D4.sb (1)";
@@ -201,7 +202,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d4.p2, d4);
     }
     
-    public override void returnTest1_async(AMD_Test_returnTest1 cb, Ice.Current current)
+    public override void returnTest1_async(AMD_TestIntf_returnTest1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -216,7 +217,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d2, d2, d1);
     }
     
-    public override void returnTest2_async(AMD_Test_returnTest2 cb, Ice.Current current)
+    public override void returnTest2_async(AMD_TestIntf_returnTest2 cb, Ice.Current current)
     {
         D1 d1 = new D1();
         d1.sb = "D1.sb";
@@ -231,12 +232,12 @@ public sealed class TestI : _TestDisp
         cb.ice_response(d1, d1, d2);
     }
     
-    public override void returnTest3_async(AMD_Test_returnTest3 cb, B p1, B p2, Ice.Current current)
+    public override void returnTest3_async(AMD_TestIntf_returnTest3 cb, B p1, B p2, Ice.Current current)
     {
         cb.ice_response(p1);
     }
     
-    public override void sequenceTest_async(AMD_Test_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
+    public override void sequenceTest_async(AMD_TestIntf_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
     {
         SS ss = new SS();
         ss.c1 = p1;
@@ -244,7 +245,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(ss);
     }
     
-    public override void dictionaryTest_async(AMD_Test_dictionaryTest cb, BDict bin, Ice.Current current)
+    public override void dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, BDict bin, Ice.Current current)
     {
         BDict bout = new BDict();
         int i;
@@ -272,7 +273,7 @@ public sealed class TestI : _TestDisp
         cb.ice_response(r, bout);
     }
     
-    public override void throwBaseAsBase_async(AMD_Test_throwBaseAsBase cb, Ice.Current current)
+    public override void throwBaseAsBase_async(AMD_TestIntf_throwBaseAsBase cb, Ice.Current current)
     {
         BaseException be = new BaseException();
         be.sbe = "sbe";
@@ -282,7 +283,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(be);
     }
     
-    public override void throwDerivedAsBase_async(AMD_Test_throwDerivedAsBase cb, Ice.Current current)
+    public override void throwDerivedAsBase_async(AMD_TestIntf_throwDerivedAsBase cb, Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -298,7 +299,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(de);
     }
     
-    public override void throwDerivedAsDerived_async(AMD_Test_throwDerivedAsDerived cb, Ice.Current current)
+    public override void throwDerivedAsDerived_async(AMD_TestIntf_throwDerivedAsDerived cb, Ice.Current current)
     {
         DerivedException de = new DerivedException();
         de.sbe = "sbe";
@@ -314,7 +315,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(de);
     }
     
-    public override void throwUnknownDerivedAsBase_async(AMD_Test_throwUnknownDerivedAsBase cb, Ice.Current current)
+    public override void throwUnknownDerivedAsBase_async(AMD_TestIntf_throwUnknownDerivedAsBase cb, Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "sb d2";
@@ -330,7 +331,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(ude);
     }
     
-    public override void useForward_async(AMD_Test_useForward cb, Ice.Current current)
+    public override void useForward_async(AMD_TestIntf_useForward cb, Ice.Current current)
     {
         Forward f = new Forward();
         f = new Forward();

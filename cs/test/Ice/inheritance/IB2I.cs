@@ -7,19 +7,18 @@
 //
 // **********************************************************************
 
-
-public sealed class IB2I : MB._IB2Disp
+public sealed class IB2I : Test.MB._IB2Disp
 {
     public IB2I()
     {
     }
     
-    public override MA.IAPrx iaop(MA.IAPrx p, Ice.Current current)
+    public override Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MB.IB2Prx ib2op(MB.IB2Prx p, Ice.Current current)
+    public override Test.MB.IB2Prx ib2op(Test.MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Test;
 
 public class AllTests
 {
@@ -61,7 +61,7 @@ public class AllTests
         private bool _called;
     }
     
-    private class AMI_Test_baseAsBaseI : AMI_Test_baseAsBase
+    private class AMI_Test_baseAsBaseI : AMI_TestIntf_baseAsBase
     {
         public override void ice_response()
         {
@@ -94,7 +94,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownDerivedAsBaseI : AMI_Test_unknownDerivedAsBase
+    private class AMI_Test_unknownDerivedAsBaseI : AMI_TestIntf_unknownDerivedAsBase
     {
         public override void ice_response()
         {
@@ -127,7 +127,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownDerivedAsBaseI : AMI_Test_knownDerivedAsBase
+    private class AMI_Test_knownDerivedAsBaseI : AMI_TestIntf_knownDerivedAsBase
     {
         public override void ice_response()
         {
@@ -161,7 +161,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownDerivedAsKnownDerivedI : AMI_Test_knownDerivedAsKnownDerived
+    private class AMI_Test_knownDerivedAsKnownDerivedI : AMI_TestIntf_knownDerivedAsKnownDerived
     {
         public override void ice_response()
         {
@@ -195,7 +195,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownIntermediateAsBaseI : AMI_Test_unknownIntermediateAsBase
+    private class AMI_Test_unknownIntermediateAsBaseI : AMI_TestIntf_unknownIntermediateAsBase
     {
         public override void ice_response()
         {
@@ -228,7 +228,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownIntermediateAsBaseI : AMI_Test_knownIntermediateAsBase
+    private class AMI_Test_knownIntermediateAsBaseI : AMI_TestIntf_knownIntermediateAsBase
     {
         public override void ice_response()
         {
@@ -262,7 +262,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsBaseI : AMI_Test_knownMostDerivedAsBase
+    private class AMI_Test_knownMostDerivedAsBaseI : AMI_TestIntf_knownMostDerivedAsBase
     {
         public override void ice_response()
         {
@@ -297,7 +297,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownIntermediateAsKnownIntermediateI : AMI_Test_knownIntermediateAsKnownIntermediate
+    private class AMI_Test_knownIntermediateAsKnownIntermediateI : AMI_TestIntf_knownIntermediateAsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -331,7 +331,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsKnownIntermediateI : AMI_Test_knownMostDerivedAsKnownIntermediate
+    private class AMI_Test_knownMostDerivedAsKnownIntermediateI : AMI_TestIntf_knownMostDerivedAsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -366,7 +366,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsKnownMostDerivedI : AMI_Test_knownMostDerivedAsKnownMostDerived
+    private class AMI_Test_knownMostDerivedAsKnownMostDerivedI : AMI_TestIntf_knownMostDerivedAsKnownMostDerived
     {
         public override void ice_response()
         {
@@ -401,7 +401,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived1AsBaseI : AMI_Test_unknownMostDerived1AsBase
+    private class AMI_Test_unknownMostDerived1AsBaseI : AMI_TestIntf_unknownMostDerived1AsBase
     {
         public override void ice_response()
         {
@@ -435,7 +435,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived1AsKnownIntermediateI : AMI_Test_unknownMostDerived1AsKnownIntermediate
+    private class AMI_Test_unknownMostDerived1AsKnownIntermediateI : AMI_TestIntf_unknownMostDerived1AsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -469,7 +469,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived2AsBaseI : AMI_Test_unknownMostDerived2AsBase
+    private class AMI_Test_unknownMostDerived2AsBaseI : AMI_TestIntf_unknownMostDerived2AsBase
     {
         public override void ice_response()
         {
@@ -502,7 +502,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    public static TestPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
@@ -513,7 +513,7 @@ public class AllTests
         
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
-        TestPrx testPrx = TestPrxHelper.checkedCast(@base);
+        TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
         Console.Out.WriteLine("ok");
@@ -529,7 +529,7 @@ public class AllTests
             catch(Base b)
             {
                 test(b.b.Equals("Base.b"));
-                test(b.GetType().FullName.Equals("Base"));
+                test(b.GetType().FullName.Equals("Test.Base"));
                 gotException = true;
             }
             catch(Exception)
@@ -560,7 +560,7 @@ public class AllTests
             catch(Base b)
             {
                 test(b.b.Equals("UnknownDerived.b"));
-                test(b.GetType().FullName.Equals("Base"));
+                test(b.GetType().FullName.Equals("Test.Base"));
                 gotException = true;
             }
             catch(Exception)
@@ -592,7 +592,7 @@ public class AllTests
             {
                 test(k.b.Equals("KnownDerived.b"));
                 test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("KnownDerived"));
+                test(k.GetType().FullName.Equals("Test.KnownDerived"));
                 gotException = true;
             }
             catch(Exception)
@@ -624,7 +624,7 @@ public class AllTests
             {
                 test(k.b.Equals("KnownDerived.b"));
                 test(k.kd.Equals("KnownDerived.kd"));
-                test(k.GetType().FullName.Equals("KnownDerived"));
+                test(k.GetType().FullName.Equals("Test.KnownDerived"));
                 gotException = true;
             }
             catch(Exception)
@@ -655,7 +655,7 @@ public class AllTests
             catch(Base b)
             {
                 test(b.b.Equals("UnknownIntermediate.b"));
-                test(b.GetType().FullName.Equals("Base"));
+                test(b.GetType().FullName.Equals("Test.Base"));
                 gotException = true;
             }
             catch(Exception)
@@ -687,7 +687,7 @@ public class AllTests
             {
                 test(ki.b.Equals("KnownIntermediate.b"));
                 test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("KnownIntermediate"));
+                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
                 gotException = true;
             }
             catch(Exception)
@@ -720,7 +720,7 @@ public class AllTests
                 test(kmd.b.Equals("KnownMostDerived.b"));
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("KnownMostDerived"));
+                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
                 gotException = true;
             }
             catch(Exception)
@@ -752,7 +752,7 @@ public class AllTests
             {
                 test(ki.b.Equals("KnownIntermediate.b"));
                 test(ki.ki.Equals("KnownIntermediate.ki"));
-                test(ki.GetType().FullName.Equals("KnownIntermediate"));
+                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
                 gotException = true;
             }
             catch(Exception)
@@ -785,7 +785,7 @@ public class AllTests
                 test(kmd.b.Equals("KnownMostDerived.b"));
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("KnownMostDerived"));
+                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
                 gotException = true;
             }
             catch(Exception)
@@ -818,7 +818,7 @@ public class AllTests
                 test(kmd.b.Equals("KnownMostDerived.b"));
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                test(kmd.GetType().FullName.Equals("KnownMostDerived"));
+                test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
                 gotException = true;
             }
             catch(Exception)
@@ -850,7 +850,7 @@ public class AllTests
             {
                 test(ki.b.Equals("UnknownMostDerived1.b"));
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("KnownIntermediate"));
+                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
                 gotException = true;
             }
             catch(Exception)
@@ -882,7 +882,7 @@ public class AllTests
             {
                 test(ki.b.Equals("UnknownMostDerived1.b"));
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                test(ki.GetType().FullName.Equals("KnownIntermediate"));
+                test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
                 gotException = true;
             }
             catch(Exception)
@@ -913,7 +913,7 @@ public class AllTests
             catch(Base b)
             {
                 test(b.b.Equals("UnknownMostDerived2.b"));
-                test(b.GetType().FullName.Equals("Base"));
+                test(b.GetType().FullName.Equals("Test.Base"));
                 gotException = true;
             }
             catch(Exception)

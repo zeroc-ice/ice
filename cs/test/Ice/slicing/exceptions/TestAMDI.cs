@@ -8,28 +8,29 @@
 // **********************************************************************
 
 using System;
+using Test;
 
-public sealed class TestI : _TestDisp
+public sealed class TestI : _TestIntfDisp
 {
     public TestI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
     }
     
-    public override void shutdown_async(AMD_Test_shutdown cb, Ice.Current current)
+    public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
     
-    public override void baseAsBase_async(AMD_Test_baseAsBase cb, Ice.Current current)
+    public override void baseAsBase_async(AMD_TestIntf_baseAsBase cb, Ice.Current current)
     {
         Base b = new Base();
         b.b = "Base.b";
         cb.ice_exception(b);
     }
     
-    public override void unknownDerivedAsBase_async(AMD_Test_unknownDerivedAsBase cb, Ice.Current current)
+    public override void unknownDerivedAsBase_async(AMD_TestIntf_unknownDerivedAsBase cb, Ice.Current current)
     {
         UnknownDerived d = new UnknownDerived();
         d.b = "UnknownDerived.b";
@@ -37,7 +38,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(d);
     }
     
-    public override void knownDerivedAsBase_async(AMD_Test_knownDerivedAsBase cb, Ice.Current current)
+    public override void knownDerivedAsBase_async(AMD_TestIntf_knownDerivedAsBase cb, Ice.Current current)
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -45,7 +46,8 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(d);
     }
     
-    public override void knownDerivedAsKnownDerived_async(AMD_Test_knownDerivedAsKnownDerived cb, Ice.Current current)
+    public override void knownDerivedAsKnownDerived_async(AMD_TestIntf_knownDerivedAsKnownDerived cb,
+    							  Ice.Current current)
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -53,7 +55,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(d);
     }
     
-    public override void unknownIntermediateAsBase_async(AMD_Test_unknownIntermediateAsBase cb, Ice.Current current)
+    public override void unknownIntermediateAsBase_async(AMD_TestIntf_unknownIntermediateAsBase cb, Ice.Current current)
     {
         UnknownIntermediate ui = new UnknownIntermediate();
         ui.b = "UnknownIntermediate.b";
@@ -61,7 +63,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(ui);
     }
     
-    public override void knownIntermediateAsBase_async(AMD_Test_knownIntermediateAsBase cb, Ice.Current current)
+    public override void knownIntermediateAsBase_async(AMD_TestIntf_knownIntermediateAsBase cb, Ice.Current current)
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -69,7 +71,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(ki);
     }
     
-    public override void knownMostDerivedAsBase_async(AMD_Test_knownMostDerivedAsBase cb, Ice.Current current)
+    public override void knownMostDerivedAsBase_async(AMD_TestIntf_knownMostDerivedAsBase cb, Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -78,7 +80,8 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(kmd);
     }
     
-    public override void knownIntermediateAsKnownIntermediate_async(AMD_Test_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
+    public override void knownIntermediateAsKnownIntermediate_async(
+    				AMD_TestIntf_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -86,7 +89,8 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(ki);
     }
     
-    public override void knownMostDerivedAsKnownIntermediate_async(AMD_Test_knownMostDerivedAsKnownIntermediate cb, Ice.Current current)
+    public override void knownMostDerivedAsKnownIntermediate_async(AMD_TestIntf_knownMostDerivedAsKnownIntermediate cb,
+    								   Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -95,7 +99,8 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(kmd);
     }
     
-    public override void knownMostDerivedAsKnownMostDerived_async(AMD_Test_knownMostDerivedAsKnownMostDerived cb, Ice.Current current)
+    public override void knownMostDerivedAsKnownMostDerived_async(AMD_TestIntf_knownMostDerivedAsKnownMostDerived cb,
+    								  Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -104,7 +109,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(kmd);
     }
     
-    public override void unknownMostDerived1AsBase_async(AMD_Test_unknownMostDerived1AsBase cb, Ice.Current current)
+    public override void unknownMostDerived1AsBase_async(AMD_TestIntf_unknownMostDerived1AsBase cb, Ice.Current current)
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
@@ -113,7 +118,8 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(umd1);
     }
     
-    public override void unknownMostDerived1AsKnownIntermediate_async(AMD_Test_unknownMostDerived1AsKnownIntermediate cb, Ice.Current current)
+    public override void unknownMostDerived1AsKnownIntermediate_async(
+    				AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb, Ice.Current current)
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";
@@ -122,7 +128,7 @@ public sealed class TestI : _TestDisp
         cb.ice_exception(umd1);
     }
     
-    public override void unknownMostDerived2AsBase_async(AMD_Test_unknownMostDerived2AsBase cb, Ice.Current current)
+    public override void unknownMostDerived2AsBase_async(AMD_TestIntf_unknownMostDerived2AsBase cb, Ice.Current current)
     {
         UnknownMostDerived2 umd2 = new UnknownMostDerived2();
         umd2.b = "UnknownMostDerived2.b";

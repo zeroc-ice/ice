@@ -7,29 +7,28 @@
 //
 // **********************************************************************
 
-
-public sealed class ICI : MA._ICDisp
+public sealed class ICI : Test.MA._ICDisp
 {
     public ICI()
     {
     }
     
-    public override MA.IAPrx iaop(MA.IAPrx p, Ice.Current current)
+    public override Test.MA.IAPrx iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MA.ICPrx icop(MA.ICPrx p, Ice.Current current)
+    public override Test.MA.ICPrx icop(Test.MA.ICPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MB.IB1Prx ib1op(MB.IB1Prx p, Ice.Current current)
+    public override Test.MB.IB1Prx ib1op(Test.MB.IB1Prx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MB.IB2Prx ib2op(MB.IB2Prx p, Ice.Current current)
+    public override Test.MB.IB2Prx ib2op(Test.MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

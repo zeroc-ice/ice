@@ -10,7 +10,10 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-["ami"] interface Test
+module Test
+{
+
+["ami"] interface TestIntf
 {
     void shutdown();
     void abort();
@@ -22,6 +25,8 @@
 interface Cleaner
 {
     void cleanup();
+};
+
 };
 
 #endif

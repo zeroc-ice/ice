@@ -11,6 +11,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using Test;
 
 public class AllTests
 {

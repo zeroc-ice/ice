@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Diagnostics;
+using Test;
 
 public class ThrowerI : _ThrowerDisp
 {

@@ -10,10 +10,15 @@
 #ifndef HELLO_ICE
 #define HELLO_ICE
 
+module Demo
+{
+
 interface Hello
 {
     nonmutating void sayHello();
     idempotent void shutdown();
+};
+
 };
 
 #endif

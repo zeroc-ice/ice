@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using Test;
 
 class CallbackClient : Ice.Application
 {

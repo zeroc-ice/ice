@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using Test;
+
 sealed class CallbackI : Callback
 {
     internal CallbackI(Ice.Communicator communicator)

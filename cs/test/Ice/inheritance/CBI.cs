@@ -7,19 +7,18 @@
 //
 // **********************************************************************
 
-
-public sealed class CBI : MB.CB
+public sealed class CBI : Test.MB.CB
 {
     public CBI()
     {
     }
     
-    public override MA.CAPrx caop(MA.CAPrx p, Ice.Current current)
+    public override Test.MA.CAPrx caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
     
-    public override MB.CBPrx cbop(MB.CBPrx p, Ice.Current current)
+    public override Test.MB.CBPrx cbop(Test.MB.CBPrx p, Ice.Current current)
     {
         return p;
     }
