@@ -95,6 +95,13 @@ protected:
                                    bool = false);
 
     //
+    // Generate generic code to marshal or unmarshal a type
+    //
+    void writeGenericMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
+                                          const std::string&, const std::string&, bool, int&,
+                                          bool = false);
+
+    //
     // Generate code to compute a hash code for a type
     //
     void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
