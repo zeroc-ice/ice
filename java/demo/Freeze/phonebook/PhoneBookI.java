@@ -61,7 +61,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    // Turn the identity into a Proxy and return the Proxy to
 	    // the caller.
 	    //
-	    return ContactPrxHelper.uncheckedCast(_adapter.createProxy(ident));
+	    return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
 	}
 	catch(Freeze.DBException ex)
 	{
@@ -91,7 +91,7 @@ class PhoneBookI extends _PhoneBookDisp
 	    {
 		for(int i = 0; i < length; ++i)
 		{
-		    contacts[i] = ContactPrxHelper.uncheckedCast(_adapter.createProxy(identities[i]));
+		    contacts[i] = ContactPrxHelper.uncheckedCast(current.adapter.createProxy(identities[i]));
 		}
 	    }
 
@@ -118,10 +118,7 @@ class PhoneBookI extends _PhoneBookDisp
     public void
     shutdown(Ice.Current current)
     {
-	//
-	// No synchronization necessary, _adapter is immutable.
-	//
-	_adapter.getCommunicator().shutdown();
+	current.adapter.getCommunicator().shutdown();
     }
 
     protected synchronized void
@@ -238,9 +235,8 @@ class PhoneBookI extends _PhoneBookDisp
 	}
     }
 
-    PhoneBookI(Ice.ObjectAdapter adapter, Freeze.DB db, Freeze.Evictor evictor)
+    PhoneBookI(Freeze.DB db, Freeze.Evictor evictor)
     {
-	_adapter = adapter;
 	_evictor = evictor;
 	_nameIdentitiesDict = new NameIdentitiesDict(db);
     }
@@ -302,7 +298,6 @@ class PhoneBookI extends _PhoneBookDisp
 	}
     }
 
-    private Ice.ObjectAdapter _adapter;
     private Freeze.Evictor _evictor;
     private NameIdentitiesDict _nameIdentitiesDict;
 }

@@ -51,7 +51,7 @@ class PhoneBookCollocated extends Freeze.Application
 	//
 	// Create the phonebook, and add it to the Object Adapter.
 	//
-	PhoneBookI phoneBook = new PhoneBookI(adapter, dbPhoneBook, evictor);
+	PhoneBookI phoneBook = new PhoneBookI(dbPhoneBook, evictor);
 	adapter.add(phoneBook, Ice.Util.stringToIdentity("phonebook"));
     
 	//

@@ -22,20 +22,11 @@ class PasswordVerifierI : public Glacier::PasswordVerifier
 {
 public:
 
-    PasswordVerifierI(const Ice::ObjectAdapterPtr& adapter) :
-	_adapter(adapter)
-    {
-    }
-
     virtual bool
     checkPassword(const string& userId, const string& password, const Ice::Current&) const
     {
 	return userId == password;
     }
-    
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
 };
 
 int
@@ -52,7 +43,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Create the PasswordVerifier.
     //
-    Ice::ObjectPtr passwdVerifier = new PasswordVerifierI(adapter);
+    Ice::ObjectPtr passwdVerifier = new PasswordVerifierI;
     adapter->add(passwdVerifier, Ice::stringToIdentity("PasswordVerifier"));
 
     adapter->activate();
