@@ -1143,7 +1143,6 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	    {
 		Warning out(_logger);
 		out << "connection exception:\n" << *_exception.get() << '\n' << _transceiver->toString();
-		out << '\n' << (int)_state << " -> " << (int)state;
 	    }
 	}
     }
