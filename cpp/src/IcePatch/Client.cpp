@@ -210,14 +210,18 @@ IcePatch::Client::run(int argc, char* argv[])
 	    getcwd(cwd, PATH_MAX);
 #endif
 	    cout << "WARNING: All orphaned files in `" << cwd << "' will be removed." << endl;
-	    cout << "Do you want to proceed? (yes/no)" << endl;
 	    string answer;
-	    cin >> answer;
-	    transform(answer.begin(), answer.end(), answer.begin(), tolower);
-	    if(answer != "yes")
+	    do
 	    {
-		return EXIT_SUCCESS;
+		cout << "Do you want to proceed? (yes/no)" << endl;
+		cin >> answer;
+		transform(answer.begin(), answer.end(), answer.begin(), tolower);
+		if(answer == "no")
+		{
+		    return EXIT_SUCCESS;
+		}
 	    }
+	    while(answer != "yes");
 	}	
 
 	//
