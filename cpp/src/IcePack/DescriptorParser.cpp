@@ -218,7 +218,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 
 	string kind = getAttributeValue(attrs, "kind");
-	if(kind == "cpp")
+	if(kind == "cpp" || kind == "cs")
 	{
 	    _currentServer = new ServerDescriptor();
 	    _currentServer->exe = getAttributeValue(attrs, "exe");
