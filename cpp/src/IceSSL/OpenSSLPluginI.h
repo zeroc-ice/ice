@@ -94,7 +94,6 @@ private:
     const IceInternal::ProtocolPluginFacadePtr _protocolPluginFacade;
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
-    const Ice::StatsPtr _stats;
     const Ice::PropertiesPtr _properties;
 
     IceSSL::ServerContext _serverContext;

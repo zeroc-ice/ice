@@ -40,8 +40,8 @@ using namespace IceInternal;
 IceSSL::SslTransceiverMap IceSSL::SslTransceiver::_transceiverMap;
 IceUtil::Mutex IceSSL::SslTransceiver::_transceiverRepositoryMutex;
 
-void ::IceInternal::incRef(::IceSSL::SslTransceiver* p) { p->__incRef(); }
-void ::IceInternal::decRef(::IceSSL::SslTransceiver* p) { p->__decRef(); }
+void IceInternal::incRef(IceSSL::SslTransceiver* p) { p->__incRef(); }
+void IceInternal::decRef(IceSSL::SslTransceiver* p) { p->__decRef(); }
 
 SOCKET
 IceSSL::SslTransceiver::fd()

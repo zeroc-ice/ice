@@ -183,7 +183,6 @@ IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPl
     _protocolPluginFacade(protocolPluginFacade),
     _traceLevels(new TraceLevels(_protocolPluginFacade)),
     _logger(_protocolPluginFacade->getCommunicator()->getLogger()),
-    _stats(_protocolPluginFacade->getCommunicator()->getStats()),
     _properties(_protocolPluginFacade->getCommunicator()->getProperties()),
     _serverContext(new TraceLevels(protocolPluginFacade),
                    protocolPluginFacade->getCommunicator()->getLogger(),
@@ -714,7 +713,11 @@ IceSSL::OpenSSLPluginI::getLogger() const
 StatsPtr
 IceSSL::OpenSSLPluginI::getStats() const
 {
-    return _stats;
+    //
+    // Don't cache the stats object. It might not be set on the
+    // communicator when the plug-in is initialized.
+    //
+    return _protocolPluginFacade->getCommunicator()->getStats();
 }
 
 PropertiesPtr
