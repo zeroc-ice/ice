@@ -98,8 +98,8 @@ IceInternal::ThreadPool::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
     assert(!_destroyed);
-    assert(_changes.empty());
     assert(_handlerMap.empty());
+    assert(_changes.empty());
     _destroyed = true;
     setInterrupt(0);
 }
