@@ -49,8 +49,7 @@ print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports)
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
 
 for i in range(0, num):
     serverPipes[i].close()

@@ -51,6 +51,7 @@ def getIceVersion():
     return re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 def getIceSoVersion():
+
     config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
     intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
     majorVersion = intVersion / 10000
@@ -87,7 +88,6 @@ def isHpUx():
    else:
         return 0
      
- 
 serverPids = []
 def killServers():
 
@@ -146,10 +146,13 @@ def waitServiceReady(pipe, token):
             break
 
 def printOutputFromPipe(pipe):
+
     while 1:
+
         line = pipe.readline()
         if not line:
             break
+
         os.write(1, line)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:

@@ -197,6 +197,7 @@ def removeServer(name):
         sys.exit(1)
 
 def startServer(name):
+
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
@@ -211,6 +212,7 @@ def startServer(name):
         sys.exit(1)
 
 def listAdapters():
+
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 

@@ -39,8 +39,7 @@ print "starting configuration...",
 clientPipe = os.popen(client + localClientOptions)
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
     
 clientStatus = clientPipe.close()
 

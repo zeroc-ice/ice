@@ -49,8 +49,7 @@ print "starting client...",
 clientPipe = os.popen(client + clientOptions)
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe);
     
 os.remove("numeric.txt")
 os.remove("utf8.txt")

@@ -105,10 +105,13 @@ def waitServiceReady(pipe, token):
             break
 
 def printOutputFromPipe(pipe):
+
     while 1:
+
         line = pipe.readline()
         if not line:
             break
+
         os.write(1, line)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:

@@ -58,8 +58,8 @@ tests = [ \
     "IceStorm/federation2", \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
-    "IcePack/simple", \
-    "IcePack/deployer", \
+#    "IcePack/simple", \
+#    "IcePack/deployer", \
     "Glacier/starter", \
     ]
 

@@ -15,6 +15,7 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
+#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
@@ -67,6 +68,19 @@ private:
     Ice::OperationMode _mode;
 
     IceUtil::Time _absoluteTimeout;
+
+    //
+    // We don't want to derive from a mutex, because this would be too
+    // intrusive for user code, i.e., classes that derive from this
+    // one in order to implement ice_exception() and ice_response().
+    //
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+
+    enum
+    {
+	StateUnsent,
+	StateSent
+    } _state;
 };
 
 }

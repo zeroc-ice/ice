@@ -40,8 +40,7 @@ print "starting populate...",
 populatePipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " populate")
 print "ok"
 
-for output in populatePipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(populatePipe)
 
 populateStatus = populatePipe.close()
 
@@ -52,8 +51,7 @@ print "starting verification client...",
 clientPipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " validate")
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
 
 clientStatus = clientPipe.close()
 

@@ -35,7 +35,8 @@ void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::OutgoingAsync::OutgoingAsync() :
     __is(0),
-    __os(0)
+    __os(0),
+    _state(StateUnsent)
 {
 }
 
@@ -50,6 +51,17 @@ IceInternal::OutgoingAsync::~OutgoingAsync()
 void
 IceInternal::OutgoingAsync::__finished(BasicStream& is)
 {
+    //
+    // Wait until sending has completed.
+    //
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	while(_state < StateSent)
+	{
+	    _monitor.wait();
+	}
+    }
+
     assert(_reference);
     assert(_connection);
     assert(__is);
@@ -158,6 +170,17 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 void
 IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
+    //
+    // Wait until sending has completed.
+    //
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	while(_state < StateSent)
+	{
+	    _monitor.wait();
+	}
+    }
+
     assert(_reference);
     assert(_connection);
     assert(__is);
@@ -168,6 +191,8 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	_reference->locatorInfo->clearObjectCache(_reference);
     }
     
+    bool doRetry = false;
+
     //
     // A CloseConnectionException indicates graceful server shutdown,
     // and is therefore always repeatable without violating
@@ -176,10 +201,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     // can safely be repeated. Otherwise, we can also retry if the
     // operation mode Nonmutating or Idempotent.
     //
-    bool canRetry = _mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc);
-    bool doRetry = false;
-
-    if(canRetry)
+    if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc))
     {
 	try
 	{
@@ -202,6 +224,11 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 
     if(doRetry)
     {
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	    assert(_state == StateSent);
+	    _state = StateUnsent;
+	}
 	_connection = 0;
 	__send();
     }
@@ -248,6 +275,7 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
     assert(!_connection);
     assert(!__is);
     assert(!__os);
+    assert(_state == StateUnsent);
 
     _reference = ref;
     _connection = _reference->getConnection();
@@ -280,6 +308,7 @@ IceInternal::OutgoingAsync::__send()
     //assert(_connection); // Might be 0, in case we retry from __finished().
     assert(__is);
     assert(__os);
+    assert(_state == StateUnsent);
 
     try
     {
@@ -323,7 +352,22 @@ IceInternal::OutgoingAsync::__send()
     }
     catch(const LocalException& ex)
     {
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	    assert(_state == StateUnsent);
+	    _state = StateSent;
+	    _monitor.notify();
+	}
+
 	__finished(ex);
+	return;
+    }
+    
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	assert(_state == StateUnsent);
+	_state = StateSent;
+	_monitor.notify();
     }
 }
 
@@ -341,6 +385,12 @@ IceInternal::OutgoingAsync::__cleanup()
     __is = 0;
     delete __os;
     __os = 0;
+
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+	assert(_state == StateSent);
+	_state = StateUnsent;
+    }
 }
 
 void

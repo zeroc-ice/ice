@@ -79,8 +79,7 @@ print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions + " --with-deploy")
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
     
 clientStatus = clientPipe.close()
 if clientStatus:

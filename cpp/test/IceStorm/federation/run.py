@@ -91,8 +91,7 @@ def doTest(batch):
     publisherPipe = os.popen(command)
     print "ok"
 
-    for output in publisherPipe.xreadlines():
-        print output,
+    TestUtil.printOutputFromPipe(publisherPipe)
 
     #
     # Verify that the subscriber has terminated.

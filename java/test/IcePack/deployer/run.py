@@ -48,8 +48,7 @@ def startClient(options):
     clientPipe = os.popen("java -ea Client " + fullClientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-        print output,
+    TestUtil.printOutputFromPipe(clientPipe)
     
     clientStatus = clientPipe.close()
     if clientStatus:

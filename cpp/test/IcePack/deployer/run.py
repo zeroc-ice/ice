@@ -48,8 +48,7 @@ def startClient(options):
     clientPipe = os.popen(os.path.join(testdir, "client") + fullClientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-        print output,
+    TestUtil.printOutputFromPipe(clientPipe)
     
     clientStatus = clientPipe.close()
     if clientStatus:

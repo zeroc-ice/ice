@@ -51,7 +51,6 @@ def startIcePackRegistry(port, testdir):
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     print "ok"
-
     return icePackPipe
 
 def startIcePackNode(testdir):
@@ -183,6 +182,7 @@ def removeServer(name):
         sys.exit(1)
 
 def startServer(name):
+
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
@@ -197,6 +197,7 @@ def startServer(name):
         sys.exit(1)
 
 def listAdapters():
+
     global icePackPort
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 

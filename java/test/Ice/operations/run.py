@@ -49,8 +49,7 @@ classpath = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
 clientPipe = os.popen(client + TestUtil.clientOptions)
 print "ok"
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
 clientStatus = clientPipe.close()
 serverStatus = serverPipe.close()
 if clientStatus or serverStatus:

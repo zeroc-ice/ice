@@ -34,8 +34,7 @@ print "starting client...",
 clientPipe = os.popen(client)
 print "ok"
 
-for output in clientPipe.xreadlines():
-    print output,
+TestUtil.printOutputFromPipe(clientPipe)
     
 clientStatus = clientPipe.close()
 
