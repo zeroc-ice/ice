@@ -864,7 +864,7 @@ IceInternal::BasicStream::write(const vector<Float>& v)
 void
 IceInternal::BasicStream::read(Float& v)
 {
-    if(b.end() - i < static_cast<int>(sizeof(Int)))
+    if(b.end() - i < static_cast<int>(sizeof(Float)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -981,7 +981,7 @@ IceInternal::BasicStream::write(const vector<Double>& v)
 void
 IceInternal::BasicStream::read(Double& v)
 {
-    if(b.end() - i < static_cast<int>(sizeof(Int)))
+    if(b.end() - i < static_cast<int>(sizeof(Double)))
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
