@@ -15,7 +15,7 @@
 using namespace std;
 
 void
-exceptions(Test::MyClassPrx p)
+exceptions(const Test::MyClassPrx& p)
 {
     p->opEx(0);
 

@@ -14,7 +14,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("LatencyAdapter");
     Ice::ObjectPtr object = new PingI;

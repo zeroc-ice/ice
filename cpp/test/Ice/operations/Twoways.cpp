@@ -26,7 +26,7 @@
 using namespace std;
 
 void
-twoways(Test::MyClassPrx p)
+twoways(const Test::MyClassPrx& p)
 {
     {
 	p->opVoid();

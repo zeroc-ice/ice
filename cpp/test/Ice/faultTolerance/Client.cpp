@@ -21,7 +21,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     vector<int> ports;
     for (int i = 1; i < argc; ++i)
@@ -43,7 +43,7 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	return EXIT_FAILURE;
     }
 
-    void allTests(Ice::CommunicatorPtr, const vector<int>&);
+    void allTests(const Ice::CommunicatorPtr, const vector<int>&&);
     allTests(communicator, ports);
     return EXIT_SUCCESS;
 }

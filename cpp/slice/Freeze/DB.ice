@@ -24,31 +24,12 @@ local class DBFactory;
 
 /**
  *
- * The base class for all Freeze exceptions.
+ * A database exception.
  *
  **/
-local class Exception
+struct DBException
 {
-    /**
-     *
-     * Get a message describing the failure that caused the exception.
-     *
-     * @return The message describing the exception.
-     *
-     **/
-    string message();
-};
-
-/**
- *
- * This exception is raised by <literal>DB</literal>
- * operations.
- *
- * @see DB
- *
- **/
-local class DBException extends Exception
-{
+    string message;
 };
 
 /**
@@ -87,21 +68,9 @@ local class DB
 
 /**
  *
- * This exception is raised by <literal>DBFactory</literal>
- * operations.
- *
- * @see DBFactory
- *
- **/
-local class DBFactoryException extends Exception
-{
-};
-
-/**
- *
  * A factory for database objects.
  *
- * @see DBFactoryException
+ * @see DBException
  * @see DB
  *
  **/
@@ -116,14 +85,14 @@ local class DBFactory
      * @see DB
      *
      **/
-    DB createDB() throws DBFactoryException;
+    DB createDB() throws DBException;
 
     /**
      *
      * Destroy this factory and all database objects that have been created by this factory.
      *
      **/
-    void destroy() throws DBFactoryException, DBException;
+    void destroy() throws DBException;
 };
 
 };

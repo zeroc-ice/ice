@@ -13,6 +13,7 @@
 
 #include <Freeze/Initialize.h>
 #include <Freeze/DB.h>
+#include <db.h>
 
 namespace Freeze
 {
@@ -36,6 +37,7 @@ private:
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::PropertiesPtr _properties;
     bool _destroy;
+    DB_ENV* _dbenv;
 };
 
 }

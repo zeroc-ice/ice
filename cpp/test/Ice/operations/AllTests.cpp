@@ -15,7 +15,7 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(Ice::CommunicatorPtr communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref("test:tcp -p 12345 -t 2000");
@@ -34,14 +34,14 @@ allTests(Ice::CommunicatorPtr communicator)
     cout << "ok" << endl;
 
     cout << "testing twoway operations... " << flush;
-    void twoways(Test::MyClassPrx);
+    void twoways(const Test::MyClassPrx&);
     twoways(cl);
     twoways(derived);
     derived->opDerived();
     cout << "ok" << endl;
 
     cout << "testing exceptions... " << flush;
-    void exceptions(Test::MyClassPrx);
+    void exceptions(const Test::MyClassPrx&);
     exceptions(cl);
     cout << "ok" << endl;
 

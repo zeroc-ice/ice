@@ -16,7 +16,7 @@
 using namespace std;
 
 TestPrx
-allTests(Ice::CommunicatorPtr communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref("test:tcp -p 12346 -t 5000");

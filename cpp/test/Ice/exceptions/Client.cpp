@@ -15,9 +15,9 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    ThrowerPrx allTests(Ice::CommunicatorPtr);
+    ThrowerPrx allTests(const Ice::CommunicatorPtr&);
     ThrowerPrx thrower = allTests(communicator);
     thrower->shutdown();
     return EXIT_SUCCESS;

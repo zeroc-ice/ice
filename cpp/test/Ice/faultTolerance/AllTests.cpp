@@ -16,7 +16,7 @@
 using namespace std;
 
 void
-allTests(Ice::CommunicatorPtr communicator, const vector<int>& ports)
+allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 {
     cout << "testing stringToProxy... " << flush;
     ostringstream ref;

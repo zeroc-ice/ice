@@ -29,7 +29,8 @@ SLICECMD	= $(SLICE) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(DB)/include
+LDLAGS		:= $(LDFLAGS) -I$(DB)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@

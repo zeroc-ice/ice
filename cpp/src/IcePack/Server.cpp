@@ -29,7 +29,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator)
+run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     bool nowarn = false;
     for (int i = 1; i < argc; ++i)

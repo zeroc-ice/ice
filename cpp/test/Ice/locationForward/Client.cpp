@@ -21,7 +21,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     int port = 0;
     int lastPort = 0;
@@ -57,7 +57,7 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	return EXIT_FAILURE;
     }
 
-    void allTests(Ice::CommunicatorPtr, int, int);
+    void allTests(const Ice::CommunicatorPtr, int, int&);
     allTests(communicator, port, lastPort);
     return EXIT_SUCCESS;
 }

@@ -27,7 +27,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator)
+run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     string commands;
     bool debug = false;

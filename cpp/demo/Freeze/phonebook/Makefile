@@ -13,7 +13,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) db
 
 OBJS		= PhoneBook.o
 
@@ -32,7 +32,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS) -I$(DB)/include
+LDLAGS		:= $(LDFLAGS) -I$(DB)/lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -40,7 +41,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -ldb $(LIBS)
 
 Grammer.cpp Grammer.h: Grammer.y
 	bison -dvt Grammer.y
@@ -61,5 +62,11 @@ PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE)
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp
+
+db:
+	mkdir db;
+
+clean::
+	rm -rf db;
 
 include .depend

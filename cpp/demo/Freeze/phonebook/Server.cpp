@@ -14,7 +14,7 @@ using namespace Ice;
 using namespace std;
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator)
+run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     PhoneBookIPtr phoneBook = new PhoneBookI(adapter);

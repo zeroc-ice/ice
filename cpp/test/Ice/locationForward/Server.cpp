@@ -21,7 +21,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     int port = 0;
     Ice::ObjectPrx fwd;

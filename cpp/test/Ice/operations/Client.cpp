@@ -15,9 +15,9 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Test::MyClassPrx allTests(Ice::CommunicatorPtr);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrx myClass = allTests(communicator);
 
     cout << "testing server shutdown... " << flush;

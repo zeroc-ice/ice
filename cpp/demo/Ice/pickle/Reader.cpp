@@ -16,7 +16,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ValueFactoryPtr factory = new Factory;
     communicator->installValueFactory(factory, "::Persistent");

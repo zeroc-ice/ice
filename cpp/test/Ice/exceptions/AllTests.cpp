@@ -15,7 +15,7 @@
 using namespace std;
 
 ThrowerPrx
-allTests(Ice::CommunicatorPtr communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref("thrower:tcp -p 12345 -t 2000");

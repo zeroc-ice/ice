@@ -15,7 +15,7 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     PersistentPtr persistent = new Persistent;
     persistent->aString = "this is the persistent string";
