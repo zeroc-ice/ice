@@ -45,8 +45,13 @@ IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, string& sy
 
     _lastError = SSL_ERROR_NONE;
 
-    initWantRead = 0;
-    initWantWrite = 0;
+    _initWantRead = 0;
+    _initWantWrite = 0;
+
+    _timeoutEncountered = false;
+
+    // None configured, default to indicated timeout
+    _handshakeReadTimeout = 0;
 }
 
 IceSecurity::Ssl::OpenSSL::Connection::~Connection()
@@ -324,6 +329,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 
     if (ret == 0)
     {
+        _timeoutEncountered = true;
         throw TimeoutException(__FILE__, __LINE__);
     }
 
@@ -400,10 +406,12 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
         {
             bytesPending = pending();
 
-            if (!bytesPending && readSelect(timeout))
+            if (!bytesPending && readSelect(_readTimeout))
             {
                 bytesPending = 1;
             }
+
+            _readTimeout = timeout;
 
             if (!bytesPending)
             {

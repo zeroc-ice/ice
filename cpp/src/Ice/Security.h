@@ -33,7 +33,21 @@ typedef enum
 
 }
 
+#ifdef WIN32
+#define GETTHREADID GetCurrentThreadId()
+#else
+#define GETTHREADID getpid()
+#endif
+
+#ifdef ICE_SECURITY_DISPLAYTHREADS
+#define ICE_SECURITY_LOGGER(s) \
+    ostringstream thread; \
+    thread << "Thread(" << dec << GETTHREADID << ") "; \
+    _logger->trace(_traceLevels->securityCat, thread.str() + s);
+#else
 #define ICE_SECURITY_LOGGER(s) _logger->trace(_traceLevels->securityCat, s);
+#endif
+
 
 #ifdef ICE_SECURITY_DEBUG
 

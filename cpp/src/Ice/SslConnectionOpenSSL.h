@@ -47,6 +47,7 @@ public:
     void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
     void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
 
+    void setHandshakeReadTimeout(int timeout) { _handshakeReadTimeout = timeout; };
 
 protected:
 
@@ -103,8 +104,11 @@ protected:
     System* _system;
 
     JTCMutex _initMutex;
-    int initWantRead;
-    int initWantWrite;
+    int _initWantRead;
+    int _initWantWrite;
+    bool _timeoutEncountered;
+    int _handshakeReadTimeout;
+    int _readTimeout;
 };
 
 }

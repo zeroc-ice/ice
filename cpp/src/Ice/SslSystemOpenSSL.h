@@ -161,6 +161,8 @@ private:
     // Retrieves errors from the OpenSSL library.
     string sslGetErrors();
 
+    void commonConnectionSetup(Connection*);
+
     // Create a connection.
     SSL* createConnection(SSL_CTX*, int);
 

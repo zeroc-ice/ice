@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Hello=hello:tcp -h localhost -p 10000:udp -h localhost -p 10000:ssl -h localhost -p 10001
+Hello.Hello=hello:tcp -h pugdragon -p 10000:udp -h pugdragon -p 10000:ssl -h pugdragon -p 10001
 
 #
 # The server creates one single object adapter with the name
@@ -53,5 +53,5 @@ Ice.Trace.Security=2
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
-Ice.Ssl.CertPath=../../../certs
-Ice.Ssl.Config=sslconfig.xml
+Ice.Security.Ssl.CertPath=../../../certs
+Ice.Security.Ssl.Config=sslconfig.xml

@@ -82,35 +82,50 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 {
     JTCSyncT<JTCMutex> sync(_initMutex);
 
-    int retCode = 0;
-    
     ICE_METHOD_INV("OpenSSL::ServerConnection::init()");
 
-    if (!SSL_is_init_finished(_sslConnection))
+    if (_timeoutEncountered)
+    {
+        throw TimeoutException(__FILE__, __LINE__);
+    }
+
+    int retCode = SSL_is_init_finished(_sslConnection);
+    
+    while (!retCode)
     {
         int i = 0;
 
-        if (initWantRead)
+        _readTimeout = timeout;
+
+        try
         {
-            i = readSelect(timeout);
+            if (_initWantRead)
+            {
+                i = readSelect(timeout);
+            }
+            else if (_initWantWrite)
+            {
+                i = writeSelect(timeout);
+            }
         }
-        else if (initWantWrite)
+        catch (const TimeoutException&)
         {
-            i = writeSelect(timeout);
+            _timeoutEncountered = true;
+            throw;
         }
 
-        if (initWantRead && i == 0)
+        if (_initWantRead && i == 0)
         {
             return 0;
         }
 
-        if (initWantWrite && i == 0)
+        if (_initWantWrite && i == 0)
         {
             return 0;
         }
 
-        initWantRead = 0;
-        initWantWrite = 0;
+        _initWantRead = 0;
+        _initWantWrite = 0;
 
         int result = accept();
 
@@ -150,13 +165,13 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
         {
             case SSL_ERROR_WANT_READ:
             {
-                initWantRead = 1;
+                _initWantRead = 1;
                 break;
             }
 
             case SSL_ERROR_WANT_WRITE:
             {
-                initWantWrite = 1;
+                _initWantWrite = 1;
                 break;
             }
 
@@ -231,13 +246,11 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 
         if (retCode > 0)
         {
+            _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
+
             // Init finished, look at the connection information.
             showConnectionInfo();
         }
-    }
-    else
-    {
-        retCode = 1;
     }
 
     ICE_METHOD_RET("OpenSSL::ServerConnection::init()");

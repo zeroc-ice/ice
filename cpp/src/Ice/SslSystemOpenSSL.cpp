@@ -279,7 +279,6 @@ verifyCallback(int ok, X509_STORE_CTX *ctx)
     }
 
     // Only if ICE_PROTOCOL level logging is on do we worry about this.
-//    if (IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
     if (ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL)
     {
         char buf[256];
@@ -426,7 +425,7 @@ bio_dump_cb(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
 
         if (cmd == (BIO_CB_READ|BIO_CB_RETURN))
         {
-            outStringStream << "PTC ";
+            outStringStream << "PTC Thread(" << dec << GETTHREADID << ") ";
             outStringStream << "read from " << hex << (void *)bio << " [" << hex << (void *)argp;
             outStringStream << "] (" << dec << argi << " bytes => " << ret << " (0x";
             outStringStream << hex << ret << "))";
@@ -434,7 +433,7 @@ bio_dump_cb(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
         }
         else if (cmd == (BIO_CB_WRITE|BIO_CB_RETURN))
         {
-            outStringStream << "PTC ";
+            outStringStream << "PTC Thread(" << dec << GETTHREADID << ") ";
             outStringStream << "write to " << hex << (void *)bio << " [" << hex << (void *)argp;
             outStringStream << "] (" << dec << argi << " bytes => " << ret << " (0x";
             outStringStream << hex << ret << "))";
@@ -518,29 +517,7 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
 
     Connection* connection = new ServerConnection(sslConnection, _systemID);
 
-    connection->setTrace(_traceLevels);
-    connection->setLogger(_logger);
-
-    continueInit:
-    try
-    {
-        while (!connection->init()) { }
-    }
-    catch (const TimeoutException&)
-    {
-        // Ignore, this might happen a lot during handshake.
-        goto continueInit;
-    }
-    catch (...)
-    {
-        if (connection != 0)
-        {
-            delete connection;
-            connection = 0;
-        }
-
-        throw;
-    }
+    commonConnectionSetup(connection);
 
     ICE_METHOD_RET("OpenSSL::System::createServerConnection()");
 
@@ -571,29 +548,7 @@ IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
 
     Connection* connection = new ClientConnection(sslConnection, _systemID);
 
-    connection->setTrace(_traceLevels);
-    connection->setLogger(_logger);
-
-    continueInit:
-    try
-    {
-        while (!connection->init()) { }
-    }
-    catch (const TimeoutException&)
-    {
-        // Ignore, this might happen a lot during handshake.
-        goto continueInit;
-    }
-    catch (...)
-    {
-        if (connection != 0)
-        {
-            delete connection;
-            connection = 0;
-        }
-
-        throw;
-    }
+    commonConnectionSetup(connection);
 
     ICE_METHOD_RET("OpenSSL::System::createClientConnection()");
 
@@ -663,13 +618,9 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
         _globalLogger = _logger;
     }
 
-    // TODO: Get the Path and File properly here.
-    string configFile = _properties->getProperty("Ice.Ssl.Config");
-    string certificatePath = _properties->getProperty("Ice.Ssl.CertPath");
+    string configFile = _properties->getProperty("Ice.Security.Ssl.Config");
+    string certificatePath = _properties->getProperty("Ice.Security.Ssl.CertPath");
     Parser sslConfig(configFile, certificatePath);
-
-    // const string& systemID = getSystemID();
-    // Parser sslConfig(systemID);
 
     sslConfig.setTrace(_traceLevels);
     sslConfig.setLogger(_logger);
@@ -1237,6 +1188,29 @@ IceSecurity::Ssl::OpenSSL::System::sslGetErrors()
     ICE_METHOD_RET("OpenSSL::System::sslGetErrors()");
 
     return errorMessage;
+}
+
+void
+IceSecurity::Ssl::OpenSSL::System::commonConnectionSetup(Connection* connection)
+{
+    connection->setTrace(_traceLevels);
+    connection->setLogger(_logger);
+
+    // Set the Post-Hanshake Read timeout
+    // This timeout is implemented once on the first read after hanshake.
+    int handshakeReadTimeout;
+    string value = _properties->getProperty("Ice.Security.Ssl.Handshake.ReadTimeout");
+
+    if (!value.empty())
+    {
+	const_cast<int&>(handshakeReadTimeout) = atoi(value.c_str());
+    }
+    else
+    {
+        handshakeReadTimeout = 10000;
+    }
+
+    connection->setHandshakeReadTimeout(handshakeReadTimeout);
 }
 
 SSL*

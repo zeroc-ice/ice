@@ -13,6 +13,15 @@
 
 #include <Ice/SslFactory.h>
 #include <Ice/SslSystemOpenSSL.h>
+#include <Ice/Security.h>
+
+#define OPENSSL_THREAD_DEFINES
+#include <openssl/opensslconf.h>
+#if defined(THREADS)
+#else
+#error "Thread support not enabled"
+#endif
+
 
 namespace IceSecurity
 {
@@ -20,14 +29,53 @@ namespace IceSecurity
 namespace Ssl
 {
 
+
+extern "C"
+{
+    void lockingCallback(int, int, const char*, int);
+}
+
 // Static member instantiations.
 JTCMutex Factory::_systemRepositoryMutex;
 SystemMap Factory::_systemRepository;
 SslHandleSystemMap Factory::_sslHandleSystemRepository;
 
+class SslLockKeeper
+{
+
+public:
+    SslLockKeeper()
+    {
+        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int))lockingCallback);
+    }
+
+    ~SslLockKeeper()
+    {
+        CRYPTO_set_locking_callback(NULL);
+    }
+
+    JTCMutex sslLocks[CRYPTO_NUM_LOCKS];
+
+};
+
+SslLockKeeper lockKeeper;
+
 }
 
 }
+
+void IceSecurity::Ssl::lockingCallback(int mode, int type, const char *file, int line)
+{
+    if (mode & CRYPTO_LOCK)
+    {
+        lockKeeper.sslLocks[type].lock();
+    }
+    else
+    {
+        lockKeeper.sslLocks[type].unlock();
+    }
+}
+
 
 IceSecurity::Ssl::System*
 IceSecurity::Ssl::Factory::getSystem(string& systemIdentifier)

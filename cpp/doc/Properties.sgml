@@ -279,10 +279,10 @@ The number of threads in the thread pool. Default is 10.
 <section><title>Security</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.Ssl.CertPath</title>
+<section><title>Ice.Security.Ssl.CertPath</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Ssl.CertPath=<replaceable>path</replaceable>
+Ice.Security.Ssl.CertPath=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
@@ -291,16 +291,17 @@ Ice.Ssl.CertPath=<replaceable>path</replaceable>
 Defines the path (relative or absolute) where the SSL Security Extension can
 find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
 parameter files.
-In the case that the <literal>Ice.Ssl.Config</literal> is a relative path,
-it will be relative to the value of <literal>Ice.Ssl.CertPath</literal>
+In the case that the <literal>Ice.Security.Ssl.Config</literal> is a relative
+path, it will be relative to the value of
+<literal>Ice.Security.Ssl.CertPath</literal>
 </para>
 </section>
 </section>
 
-<section><title>Ice.Ssl.Config</title>
+<section><title>Ice.Security.Ssl.Config</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Ssl.Config=<replaceable>config_file</replaceable>
+Ice.Security.Ssl.Config=<replaceable>config_file</replaceable>
 </synopsis>
 </section>
 <section>
@@ -309,9 +310,26 @@ Ice.Ssl.Config=<replaceable>config_file</replaceable>
 Defines the XML-based configuration file that the SSL Security Extension will
 use to load initialization information and certificates from. If this property
 contains a relative path, the path will be interpreted in terms of
-<literal>Ice.Ssl.CertPath</literal>. Xerces-c, the XML parser used to read this
-file, will look for the DTD file in the same directory that it finds the XML
-configuration file.
+<literal>Ice.Security.Ssl.CertPath</literal>. Xerces-c, the XML parser used to
+read this file, will look for the DTD file in the same directory that it finds
+the XML configuration file.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Security.Ssl.Handshake.ReadTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Security.Ssl.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+In order to tweak the behavior of SSL with regards to hanshake, this timeout
+value, expressed in milliseconds, will be used for the first read directly
+after the SSL handshake is completed.  This gives the other party time to send
+application data before the connection times-out and resets.
 </para>
 </section>
 </section>
