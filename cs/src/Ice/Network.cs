@@ -401,7 +401,7 @@ namespace IceInternal
 		    // The only fix appears to be to restart the call to Connect() -- the second attempt
 		    // works and establishes the connection.
 		    //
-		    if(ready && !socket.Connected)
+		    if(ready && System.Type.GetType("Mono.Runtime") != null && !socket.Connected)
 		    {
 			goto repeatConnect;
 		    }
