@@ -20,7 +20,7 @@ class ICE_API Buffer
 {
 public:
 
-    Buffer() : i(b.begin()) { }
+    Buffer() { }
 
     std::vector<char> b;
     std::vector<char>::iterator i;
