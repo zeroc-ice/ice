@@ -192,7 +192,7 @@ IceUtil::GC::collectGarbage()
 	    //
 	    if(pos == counts.end())
 	    {
-		counts.insert(pos, ObjectCounts::value_type(*i, (*i)->_ref - 1));
+		counts.insert(pos, ObjectCounts::value_type(*i, (*i)->__getRefUnsafe() - 1));
 	    }
 	    else
 	    {

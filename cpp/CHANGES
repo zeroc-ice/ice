@@ -1,3 +1,11 @@
+Changes since version 2.0.0
+---------------------------
+
+- Changed IceUtil::GCShared to derive from IceUtil::Shared.
+  (Previously, these two classes were unrelated.) This change
+  allows servants to be derived from IceUtil::Thread, which was
+  impossible previously.
+
 Changes since version 1.5.1
 ---------------------------
 
