@@ -60,6 +60,7 @@ SRCS		= Acceptor.cs \
 		  ObjectImpl.cs \
 		  ObjectPrx.cs \
 		  ObjectPrxHelper.cs \
+		  ObjectPrxHelperBase.cs \
 		  OutgoingAsync.cs \
 		  OutgoingConnectionFactory.cs \
 		  Outgoing.cs \

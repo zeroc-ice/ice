@@ -11,9 +11,9 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe
 
-C_SRCS		= AllTests.cs Client.cs
-S_SRCS		= InitialI.cs Server.cs
-COL_SRCS	= AllTests.cs Collocated.cs InitialI.cs
+C_SRCS		= AllTests.cs BI.cs CI.cs DI.cs Client.cs
+S_SRCS		= InitialI.cs BI.cs CI.cs DI.cs Server.cs
+COL_SRCS	= AllTests.cs BI.cs CI.cs DI.cs Collocated.cs InitialI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 
