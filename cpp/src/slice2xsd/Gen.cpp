@@ -563,7 +563,6 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
 	"xs:float",
 	"xs:double",
 	"xs:string",
-	"xs:string",
 	"ice:_internal.objectType", /* Object */
 	"ice:_internal.proxyType", /* Object* */
 	"???" /* LocalObject */
@@ -586,7 +585,8 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     if (cl)
     {
 	string scopeId = containedToId(cl);
-	s = "tns:" + internalId + scopeId + cl->name() + "Type";
+	//s = "tns:" + internalId + scopeId + cl->name() + "Type";
+	s = "ice:_internal.reference";
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);

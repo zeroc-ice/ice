@@ -34,6 +34,7 @@ All Rights Reserved
       <xs:element name="facets" type="tns:_internal.facetType"/>
     </xs:sequence>
     <xs:attribute name="id" type="xs:string"/>
+    <xs:attribute name="type" type="xs:string"/>
   </xs:complexType>
 
   <xs:element name="object" type="tns:_internal.objectType"/>
@@ -60,10 +61,15 @@ All Rights Reserved
 
   <xs:complexType name="dataType">
     <xs:sequence>
-       <xs:any namespace="##any" minOccurs="0"/>
+       <xs:any namespace="##any" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:element name="data" type="tns:dataType"/>
+
+  <xs:complexType name="_internal.reference">
+    <xs:sequence/>
+    <xs:attribute name="href" type="xs:anyURI" use="required"/>
+  </xs:complexType>
 
 </xs:schema>
