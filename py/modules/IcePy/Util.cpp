@@ -189,28 +189,37 @@ PyObject*
 IcePy::lookupType(const string& typeName)
 {
     string::size_type dot = typeName.rfind('.');
-    string moduleName;
-    string name;
-    if(dot == string::npos)
+    assert(dot != string::npos);
+    string moduleName = typeName.substr(0, dot);
+    string name = typeName.substr(dot + 1);
+
+    //
+    // First search for the module in sys.modules.
+    //
+    PyObject* sysModules = PyImport_GetModuleDict();
+    assert(sysModules != NULL);
+
+    PyObject* module = PyDict_GetItemString(sysModules, const_cast<char*>(moduleName.c_str()));
+    PyObject* dict;
+    if(module == NULL)
     {
-        moduleName = "__main__";
-        name = typeName;
+        //
+        // Not found, so we need to import the module.
+        //
+        PyObjectHandle h = PyImport_ImportModule(const_cast<char*>(moduleName.c_str()));
+        if(h.get() == NULL)
+        {
+            return NULL;
+        }
+
+        dict = PyModule_GetDict(h.get());
     }
     else
     {
-        moduleName = typeName.substr(0, dot);
-        name = typeName.substr(dot + 1);
+        dict = PyModule_GetDict(module);
     }
 
-    PyObjectHandle module = PyImport_ImportModule(const_cast<char*>(moduleName.c_str()));
-    if(module.get() == NULL)
-    {
-        return NULL;
-    }
-
-    PyObject* dict = PyModule_GetDict(module.get());
-    assert(dict);
-
+    assert(dict != NULL);
     return PyDict_GetItemString(dict, const_cast<char*>(name.c_str()));
 }
 
@@ -383,7 +392,10 @@ IcePy::setPythonException(const Ice::Exception& ex)
 static void
 throwLocalException(PyObject* ex)
 {
-    string typeName = ex->ob_type->tp_name;
+    assert(PyInstance_Check(ex));
+    PyObject* cls = (PyObject*)((PyInstanceObject*)ex)->in_class;
+    IcePy::PyObjectHandle h = PyObject_Str(cls);
+    string typeName = PyString_AsString(h.get());
 
     try
     {
@@ -610,7 +622,7 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& identity)
 
 extern "C"
 PyObject*
-Ice_identityToString(PyObject* /*self*/, PyObject* args)
+IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
     PyObject* identityType = IcePy::lookupType("Ice.Identity");
     PyObject* p;
@@ -640,7 +652,7 @@ Ice_identityToString(PyObject* /*self*/, PyObject* args)
 
 extern "C"
 PyObject*
-Ice_stringToIdentity(PyObject* /*self*/, PyObject* args)
+IcePy_stringToIdentity(PyObject* /*self*/, PyObject* args)
 {
     char* str;
     if(!PyArg_ParseTuple(args, "s", &str))

@@ -136,7 +136,7 @@ bool getIdentity(PyObject*, Ice::Identity&);
 
 }
 
-extern "C" PyObject* Ice_identityToString(PyObject*, PyObject*);
-extern "C" PyObject* Ice_stringToIdentity(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_identityToString(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringToIdentity(PyObject*, PyObject*);
 
 #endif
