@@ -1,0 +1,28 @@
+Build instructions
+------------------
+
+The code has been built and tested with Visual Basic Version 7.1.3088 and
+.NET Framework 1.1 Version 1.1.4322.
+
+Unpack the archive. The sources will be contained in the 'icevb'
+subdirectory.
+
+You can either build the slice2vb compiler from the Ice for C++ source
+distribution, or you can download the Ice binary package for Windows,
+which contains a compiled versions of slice2vb. Make sure that
+the directory containing slice2vb is in your PATH. Note that icecpp.exe
+must be in your path as well, as must be the Ice for C++ run-time libraries
+iceutil and slice).
+
+Open icevb/All.sln in Visual Basic# and build the "All" solution (both
+debug and release builds are supported). Note that Ice for Visual Basic
+is just a language mapping on top of Ice for C# -- the actual run-time
+support is provided by icecs.dll. The build environment expects icecs.dll
+to be installed in $(solutiondir)/icecs/bin. Alternatively, you can install
+icecs.dll in the GAC. (See Ice for C# for details of how to do this.)
+
+Known issues
+------------
+
+Please let us know about any bugs, comments, or feedback in the Ice
+forum at http://www.zeroc.com/vbulletin/.
