@@ -920,10 +920,17 @@ IceInternal::Connection::read(BasicStream& stream)
     }
 
     //
-    // Updating _acmAbsoluteTimeout is to expensive here, because we
+    // Updating _acmAbsoluteTimeout is too expensive here, because we
     // would have to acquire a lock just for this purpose. Instead, we
     // update _acmAbsoluteTimeout in message().
     //
+}
+
+// used for the COMPILERFIX below
+static void
+setAbsoluteTimeout(int timeout, IceUtil::Time& result)
+{
+    result = IceUtil::Time::now() + IceUtil::Time::seconds(timeout);
 }
 
 void
@@ -946,9 +953,14 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    return;
 	}
 	
+//	if(_acmTimeout > 0)
+//	{
+//	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+//	}
+// COMPILERFIX without this change VC6 sp5 + processor pack generates code that crashed on exceptions
 	if(_acmTimeout > 0)
 	{
-	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+	    setAbsoluteTimeout(_acmTimeout, _acmAbsoluteTimeout);
 	}
 
 	try
