@@ -240,6 +240,11 @@ namespace IceInternal
 	    }
 	}
 	
+	public string prefix()
+	{
+	    return _prefix;
+	}
+
 	private void clearInterrupt()
 	{
 	    #if TRACE_INTERRUPT

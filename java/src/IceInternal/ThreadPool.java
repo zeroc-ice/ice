@@ -287,6 +287,12 @@ public final class ThreadPool
             }
         }
     }
+
+    public String
+    prefix()
+    {
+	return _prefix;
+    }
     
     private void
     clearInterrupt()
