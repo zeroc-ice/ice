@@ -599,7 +599,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	
 	do
 	{
-	    entry = gethostbyname(host);
+	    entry = gethostbyname(host.c_str());
 	}
 #ifdef _WIN32
 	while(!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
