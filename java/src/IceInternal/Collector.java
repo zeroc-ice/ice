@@ -415,6 +415,8 @@ public class Collector extends EventHandler
         throws Throwable
     {
         assert(_state == StateClosed);
+
+        super.finalize();
     }
 
     private static final int StateActive = 0;

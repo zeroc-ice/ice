@@ -199,6 +199,8 @@ class CommunicatorI implements Communicator
         {
             _instance.logger().warning("communicator has not been destroyed");
         }
+
+        super.finalize();
     }
 
     private IceInternal.Instance _instance;

@@ -53,6 +53,8 @@ public final class Outgoing
         {
             _emitter.abortBatchRequest();
         }
+
+        super.finalize();
     }
 
     public boolean

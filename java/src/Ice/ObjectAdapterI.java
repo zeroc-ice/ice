@@ -283,6 +283,8 @@ public class ObjectAdapterI implements ObjectAdapter
         {
             deactivate();
         }
+
+        super.finalize();
     }
 
     private ObjectPrx
