@@ -146,6 +146,7 @@ Slice::Builtin::typeId() const
 	}
     }
     assert(false);
+    return ""; // Keep the compiler happy
 }
 
 bool
