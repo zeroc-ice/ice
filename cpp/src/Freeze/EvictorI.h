@@ -65,7 +65,7 @@ public:
     //
     // Thread
     //
-    virtual void run() throw ();
+    virtual void run();
 
 
     //
