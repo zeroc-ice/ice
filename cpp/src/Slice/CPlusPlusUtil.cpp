@@ -26,7 +26,7 @@ Slice::ToIfdef::operator()(char c)
     }
 }
 
-static string
+string
 Slice::normalizePath(const string& path)
 {
     string result = path;
