@@ -508,7 +508,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	    {
 		removeRecursive(*p + ".md5");
 	    }
-	    catch(const FileAccessException&);
+	    catch(const FileAccessException&)
 	    {
 		// Ignore, the MD5 file might not exist.
 	    }

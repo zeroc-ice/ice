@@ -15,15 +15,42 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
-IceUtil::RWRecMutex IcePatch::FileI::_globalMutex;
+static IceUtil::RWRecMutex globalMutex;
+
+IcePatch::InfoI::InfoI(const ObjectAdapterPtr& adapter) :
+    _adapter(adapter),
+    _busyTimeout(IceUtil::Time::seconds(adapter->getCommunicator()->getProperties()->
+					getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10)))
+{
+}
+
+Long
+IcePatch::InfoI::getStamp(const Current& current) const
+{
+    //
+    // ".icepatch" is our reserved name for the IcePatch info object,
+    // as well as for the directory that contains IcePatch info.
+    //
+    assert(current.id.name == ".icepatch");
+
+    try
+    {
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+	return readStamp();
+    }
+    catch(const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
+}
 
 IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _logger(adapter->getCommunicator()->getLogger())
+    _logger(adapter->getCommunicator()->getLogger()),
+    _traceLevel(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files")),
+    _busyTimeout(IceUtil::Time::seconds(adapter->getCommunicator()->getProperties()->
+					getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10)))
 {
-    PropertiesPtr properties = adapter->getCommunicator()->getProperties();
-    _traceLevel = properties->getPropertyAsInt("IcePatch.Trace.Files");
-    _busyTimeout = IceUtil::Time::seconds(properties->getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10));
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -32,7 +59,7 @@ IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
 }
 
 FileDescPtr
-IcePatch::DirectoryI::describe(const Current& current)
+IcePatch::DirectoryI::describe(const Current& current) const
 {
     // No mutex lock necessary.
     DirectoryDescPtr desc = new DirectoryDesc;
@@ -41,17 +68,18 @@ IcePatch::DirectoryI::describe(const Current& current)
 }
 
 FileDescSeq
-IcePatch::DirectoryI::getContents(const Current& current)
+IcePatch::DirectoryI::getContents(const Current& current) const
 {
     StringSeq filteredPaths;
 
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 
 	bool syncUpgraded = false;
 	string path = identityToPath(current.id);
 	StringSeq paths = readDirectory(path);
+	paths.erase(remove(paths.begin(), paths.end(), ".icepatch"), paths.end());
 	filteredPaths.reserve(paths.size() / 3);
 	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
@@ -67,6 +95,7 @@ IcePatch::DirectoryI::getContents(const Current& current)
 			syncUpgraded = true;
 		    }
 		    StringSeq paths2 = readDirectory(path);
+		    paths.erase(remove(paths2.begin(), paths2.end(), ".icepatch"), paths2.end());
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if(r2.first == r2.second)
@@ -122,11 +151,11 @@ IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter) :
 }
 
 FileDescPtr
-IcePatch::RegularI::describe(const Current& current)
+IcePatch::RegularI::describe(const Current& current) const
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 	
 	string path = identityToPath(current.id);
 	FileInfo info = getFileInfo(path, true);
@@ -141,6 +170,7 @@ IcePatch::RegularI::describe(const Current& current)
 	    if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	    {
 		createMD5(path);
+		writeStamp(readStamp() + 1);
 		
 		if(_traceLevel > 0)
 		{
@@ -162,11 +192,11 @@ IcePatch::RegularI::describe(const Current& current)
 }
 
 Int
-IcePatch::RegularI::getBZ2Size(const Current& current)
+IcePatch::RegularI::getBZ2Size(const Current& current) const
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 	
 	string path = identityToPath(current.id);
 	FileInfo info = getFileInfo(path, true);
@@ -206,11 +236,11 @@ IcePatch::RegularI::getBZ2Size(const Current& current)
 }
 
 ByteSeq
-IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current)
+IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 	
 	string path = identityToPath(current.id);
 	FileInfo info = getFileInfo(path, true);
@@ -243,11 +273,11 @@ IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current)
 }
 
 ByteSeq
-IcePatch::RegularI::getBZ2MD5(Int size, const Current& current)
+IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 {
     try
     {
-	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 	
 	string path = identityToPath(current.id);
 	FileInfo info = getFileInfo(path, true);

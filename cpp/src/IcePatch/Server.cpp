@@ -11,6 +11,7 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Application.h>
 #include <IcePatch/FileLocator.h>
+#include <IcePatch/IcePatchI.h>
 #include <IcePatch/Util.h>
 #ifdef _WIN32
 #   include <direct.h>
@@ -125,6 +126,12 @@ IcePatch::Server::run(int argc, char* argv[])
     ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
     ServantLocatorPtr fileLocator = new FileLocator(adapter);
     adapter->addServantLocator(fileLocator, "IcePatch");
+
+    //
+    // Create the "info" Ice Object.
+    //
+    InfoPtr info = new InfoI(adapter);
+    adapter->add(info, pathToIdentity(".icepatch")); // .icepatch is reserved, so lets use this for info identity.
     
     //
     // Start the updater if an update period is set.

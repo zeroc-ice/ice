@@ -23,7 +23,8 @@ TARGETS		= $(NAME) $(VERSIONED_NAME) $(CLIENT) $(SERVER)
 
 OBJS		= IcePatch.o \
 		  FileDescFactory.o \
-		  Util.o
+		  Util.o \
+		  ClientUtil.o
 
 COBJS		= Client.o
 

@@ -16,6 +16,11 @@
 module IcePatch
 {
 
+interface Info
+{
+    nonmutating long getStamp();
+};
+
 exception FileAccessException
 {
     string reason;
@@ -33,13 +38,13 @@ sequence<FileDesc> FileDescSeq;
 
 interface File
 {
-    FileDesc describe()
+    nonmutating FileDesc describe()
 	throws FileAccessException, BusyException;
 };
 
 interface Directory extends File
 {
-    FileDescSeq getContents()
+    nonmutating FileDescSeq getContents()
 	throws FileAccessException, BusyException;
 };
 
@@ -50,13 +55,13 @@ class DirectoryDesc extends FileDesc
 
 interface Regular extends File
 {
-    int getBZ2Size()
+    nonmutating int getBZ2Size()
 	throws FileAccessException, BusyException;
 
-    Ice::ByteSeq getBZ2(int pos, int num)
+    nonmutating Ice::ByteSeq getBZ2(int pos, int num)
 	throws FileAccessException, BusyException;
 
-    Ice::ByteSeq getBZ2MD5(int size)
+    nonmutating Ice::ByteSeq getBZ2MD5(int size)
 	throws FileAccessException, BusyException;
 };
 

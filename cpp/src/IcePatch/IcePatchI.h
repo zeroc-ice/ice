@@ -18,6 +18,20 @@
 namespace IcePatch
 {
 
+class InfoI : public Info
+{
+public:
+
+    InfoI(const Ice::ObjectAdapterPtr&);
+
+    Ice::Long getStamp(const Ice::Current&) const;
+
+private:
+
+    const Ice::ObjectAdapterPtr _adapter;
+    const IceUtil::Time _busyTimeout;
+};
+
 class FileI : virtual public File
 {
 public:
@@ -26,11 +40,10 @@ public:
 
 protected:
 
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::LoggerPtr _logger;
-    Ice::Int _traceLevel;
-    IceUtil::Time _busyTimeout;
-    static IceUtil::RWRecMutex _globalMutex;
+    const Ice::ObjectAdapterPtr _adapter;
+    const Ice::LoggerPtr _logger;
+    const Ice::Int _traceLevel;
+    const IceUtil::Time _busyTimeout;
 };
 
 class DirectoryI : virtual public Directory,
@@ -40,8 +53,8 @@ public:
     
     DirectoryI(const Ice::ObjectAdapterPtr&);
 
-    virtual FileDescPtr describe(const Ice::Current&);
-    virtual FileDescSeq getContents(const Ice::Current&);
+    virtual FileDescPtr describe(const Ice::Current&) const;
+    virtual FileDescSeq getContents(const Ice::Current&) const;
 };
 
 class RegularI : virtual public Regular,
@@ -51,10 +64,10 @@ public:
     
     RegularI(const Ice::ObjectAdapterPtr&);
 
-    virtual FileDescPtr describe(const Ice::Current&);
-    virtual Ice::Int getBZ2Size(const Ice::Current&);
-    virtual Ice::ByteSeq getBZ2(Ice::Int, Ice::Int, const Ice::Current&);
-    virtual Ice::ByteSeq getBZ2MD5(Ice::Int, const Ice::Current&);
+    virtual FileDescPtr describe(const Ice::Current&) const;
+    virtual Ice::Int getBZ2Size(const Ice::Current&) const;
+    virtual Ice::ByteSeq getBZ2(Ice::Int, Ice::Int, const Ice::Current&) const;
+    virtual Ice::ByteSeq getBZ2MD5(Ice::Int, const Ice::Current&) const;
 };
 
 }
