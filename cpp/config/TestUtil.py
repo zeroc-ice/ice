@@ -36,7 +36,11 @@ def killServers():
     global serverPids
 
     for pid in serverPids:
-        if sys.platform == "cygwin" or sys.platform == "win32":
+        if sys.platform == "cygwin":
+	    print "killServers(): not implemented for cygwin python"
+	    sys.exit(1)
+
+        if sys.platform == "win32":
             import win32api
             handle = win32api.OpenProcess(1, 0, pid)
             return (0 != win32api.TerminateProcess(handle, 0))
