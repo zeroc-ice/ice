@@ -36,7 +36,7 @@ TestString(const Ice::CommunicatorPtr& communicator)
 	"hello >world",
 	"hello >>world",
 	"hello <<>>world",
-	"hello &&''""<<>>world",
+	"hello &&''\"\"<<>>world",
 	""
     };
     for (int i = 0; !strings[i].empty(); ++i)
