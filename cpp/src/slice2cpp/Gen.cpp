@@ -520,6 +520,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	}
 
+	H << sp << nl << "struct __" << p->name() << "_init";
+	H << sb;
+	H << nl << "__" << p->name() << "_init();";
+	H << eb << ';';
+
+	C << sp << nl << p->name() << "::__" << p->name() << "_init::__" << p->name() << "_init()";
+	C << sb;
+	C << eb;
+
 	string factoryName = "__F" + flattenedScope + name;
 
 	C << sp << nl << "class " << factoryName << " : public ::IceInternal::UserExceptionFactory";
@@ -570,6 +579,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     H << sp << nl << "static const ::std::string _name;";
 
     H << eb << ';';
+
+    if(!p->isLocal())
+    {
+	H << sp << nl << "static " << name << "::__" << p->name() << "_init __"
+	  << p->name() << "_initializer; // Force initializers in .cpp file to run";
+    }
 }
 
 bool
@@ -2259,6 +2274,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
 
+	    H << sp << nl << "struct __" << p->name() << "_init";
+	    H << sb;
+	    H << nl << "__" << p->name() << "_init();";
+	    H << eb << ';';
+
+	    C << sp << nl << name << "::__" << p->name() << "_init::__" << name << "_init()";
+	    C << sb;
+	    C << eb;
+
 	    H.dec();
 	    H << sp << nl << "private:";
 	    H.inc();
@@ -2267,6 +2291,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     H << eb << ';';
+
+    if(!p->isAbstract() && !p->isLocal())
+    {
+	H << sp << nl << "static " << fixKwd(p->name()) << "::__" << p->name() << "_init __"
+	  << p->name() << "_initializer; // Force initializers in .cpp file to run";
+    }
 
     if(p->isLocal())
     {
