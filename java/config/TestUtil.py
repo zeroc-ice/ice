@@ -91,6 +91,19 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
+def waitServiceReady(pipe, token):
+
+    while 1:
+
+        output = pipe.readline().strip()
+
+        if not output:
+            print "failed!"
+            sys.exit(1)
+
+        if output == token + " ready":
+            break
+
 def printOutputFromPipe(pipe):
     while 1:
         line = pipe.readline()
