@@ -31,6 +31,7 @@ usage(const char* n)
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
+        "--clone                 Generate clone().\n"
         "-d, --debug             Print debug messages.\n"
         ;
 }
@@ -45,6 +46,7 @@ main(int argc, char* argv[])
     bool tie = false;
     bool impl = false;
     bool implTie = false;
+    bool clone = false;
     bool debug = false;
 
     int idx = 1;
@@ -162,6 +164,15 @@ main(int argc, char* argv[])
             }
             --argc;
         }
+        else if (strcmp(argv[idx], "--clone") == 0)
+        {
+            clone = true;
+            for (int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
         else if (argv[idx][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
@@ -245,7 +256,7 @@ main(int argc, char* argv[])
         }
         else
         {
-            Gen gen(argv[0], base, includePaths, package, output);
+            Gen gen(argv[0], base, includePaths, package, output, clone);
             if (!gen)
             {
                 unit->destroy();

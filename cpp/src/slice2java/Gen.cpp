@@ -595,11 +595,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& package,
-                const string& dir) :
+                const string& dir, bool clone) :
     _base(base),
     _includePaths(includePaths),
     _package(package),
-    _dir(dir)
+    _dir(dir),
+    _clone(clone)
 {
 }
 
@@ -619,7 +620,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     OpsVisitor opsVisitor(_dir, _package);
     unit->visit(&opsVisitor);
 
-    TypesVisitor typesVisitor(_dir, _package);
+    TypesVisitor typesVisitor(_dir, _package, _clone);
     unit->visit(&typesVisitor);
 
     HolderVisitor holderVisitor(_dir, _package);
@@ -917,8 +918,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
-                                       const string& package) :
-    JavaVisitor(dir, package)
+                                       const string& package,
+                                       bool clone) :
+    JavaVisitor(dir, package),
+    _clone(clone)
 {
 }
 
@@ -985,24 +988,44 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             bases.pop_front();
         }
 
-        if (p->isAbstract() || !bases.empty())
+        //
+        // Implement interfaces
+        //
+        StringList implements;
+        if (p->isAbstract())
+        {
+            implements.push_back(name + "Operations");
+        }
+        if (!bases.empty())
+        {
+            ClassList::const_iterator q = bases.begin();
+            while (q != bases.end())
+            {
+                implements.push_back(getAbsolute((*q)->scoped(), scope));
+                q++;
+            }
+        }
+        if (_clone && !p->isAbstract())
+        {
+            implements.push_back("java.lang.Cloneable");
+        }
+
+        if (!implements.empty())
         {
             out << nl << " implements ";
             out.useCurrentPosAsIndent();
-            out << name << "Operations";
 
-            //
-            // Implement interfaces
-            //
-            if (!bases.empty())
+            StringList::const_iterator q = implements.begin();
+            while (q != implements.end())
             {
-                ClassList::const_iterator q = bases.begin();
-                while (q != bases.end())
+                if (q != implements.begin())
                 {
-                    out << ',' << nl << getAbsolute((*q)->scoped(), scope);
-                    q++;
+                    out << nl << ',';
                 }
+                out << *q;
+                q++;
             }
+
             out.restoreIndent();
         }
 
@@ -1059,6 +1082,49 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << eb;
         }
+    }
+
+    //
+    // clone
+    //
+    if (_clone && !p->isAbstract())
+    {
+        out << sp << nl << "public java.lang.Object"
+            << nl << "clone()";
+        out << sb;
+        out << nl << name << " __result = new " << name << "();";
+
+        //
+        // Perform a shallow copy. Start with the base members.
+        //
+        ClassList cl = p->bases();
+        while (!cl.empty())
+        {
+            if (cl.front()->isAbstract())
+            {
+                break;
+            }
+            DataMemberList members = cl.front()->dataMembers();
+            DataMemberList::const_iterator d;
+            for (d = members.begin(); d != members.end(); ++d)
+            {
+                string memberName = fixKwd((*d)->name());
+                out << nl << "__result." << memberName << " = " << memberName << ';';
+            }
+
+            cl = cl.front()->bases();
+        }
+
+        DataMemberList members = p->dataMembers();
+        DataMemberList::const_iterator d;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = fixKwd((*d)->name());
+            out << nl << "__result." << memberName << " = " << memberName << ';';
+        }
+
+        out << nl << "return __result;";
+        out << eb;
     }
 
     if (!p->isAbstract())
@@ -1374,6 +1440,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     Output& out = output();
 
     out << sp << nl << "public final class " << name;
+    if (_clone)
+    {
+        out << " implements java.lang.Cloneable";
+    }
     out << sb;
 
     return true;
@@ -1474,6 +1544,32 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             writeHashCode(out, (*d)->type(), memberName, iter, metaData);
         }
         out << nl << "return __h;";
+        out << eb;
+    }
+
+    //
+    // clone()
+    //
+    if (_clone)
+    {
+        string name = fixKwd(p->name());
+
+        out << sp << nl << "public java.lang.Object"
+            << nl << "clone()";
+        out << sb;
+        out << nl << name << " __result = new " << name << "();";
+
+        //
+        // Perform a shallow copy.
+        //
+        DataMemberList::const_iterator d;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = fixKwd((*d)->name());
+            out << nl << "__result." << memberName << " = " << memberName << ';';
+        }
+
+        out << nl << "return __result;";
         out << eb;
     }
 
