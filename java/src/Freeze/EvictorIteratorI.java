@@ -51,11 +51,15 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	
 	assert(batchSize > 0);
 
-	_key.set_flags(com.sleepycat.db.Db.DB_DBT_REALLOC);
+	//
+	// We should use DB_DBT_REALLOC, but it's buggy in 4.1.25 
+	// (causes weird problems, e.g. can't find some values)
+	//
+	_key.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 
 	if(_loadServants)
 	{
-	    _value.set_flags(com.sleepycat.db.Db.DB_DBT_REALLOC);
+	    _value.set_flags(com.sleepycat.db.Db.DB_DBT_MALLOC);
 	}
 	else
 	{
@@ -77,7 +81,14 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	java.util.List evictorElements = null;
 
 	Ice.Communicator communicator = _evictor.communicator();
-
+	
+	byte[] firstKey = null;
+	if(_key.get_size() > 0)
+	{
+	    firstKey = new byte[_key.get_size()];
+	    System.arraycopy(_key.get_data(), 0, firstKey, 0, firstKey.length);
+	}
+	
 	int loadedGeneration = 0;
 
 	try
@@ -91,16 +102,14 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 		{
 		    evictorElements = new java.util.ArrayList();
 		}
-		
-		int count = _batchSize;
-		
+			
 		try
 		{
 		    //
 		    // Move to the first record
 		    // 
 		    int flags = com.sleepycat.db.Db.DB_NEXT;
-		    if(_key.get_size() > 0)
+		    if(firstKey != null)
 		    {
 			//
 			// _key represents the next element not yet returned
@@ -115,38 +124,36 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 		    }
 		    dbc = _evictor.db().cursor(null, 0);
 		    _more = (dbc.get(_key, _value, flags) == 0);
-		    
-		    while(count > 0 && _more)
+
+		    while(_batch.size() < _batchSize && _more)
 		    {
-			EvictorStorageKey esk = EvictorI.unmarshalKey(_key.get_data(), communicator);
-			
-			//
-			// Because of the Ice encoding and default binary comparison, records with
-			// facet length = 0 are before records with facet length > 0 (for a given
-			// identity).
-			//
-			assert(esk.facet.length == 0);
-			
-			Ice.Identity ident = esk.identity;
-			_batch.add(ident);
-			count--;
-			
 			//
 			// Even when count is 0, we read one more record (unless we reach the end)
 			//
 			if(_loadServants)
 			{
-			    _more = _evictor.load(ident, dbc, _key, _value, evictorElements);
+			    _more = _evictor.load(dbc, _key, _value, _batch, evictorElements);
 			}
 			else
 			{
-			    _more = _evictor.skipFacets(ident, dbc, _key, _value);
+			    _more = _evictor.load(dbc, _key, _value, _batch);
 			}
 		    }
 		    break; // for (;;)
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
+		    if(firstKey != null)
+		    {
+			assert(_key.get_data().length >= firstKey.length);
+			System.arraycopy(firstKey, 0, _key.get_data(), 0, firstKey.length);
+			_key.set_size(firstKey.length);
+		    }
+		    else
+		    {
+			_key.set_size(0);
+		    }
+
 		    //
 		    // Retry
 		    //
@@ -187,6 +194,7 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	    {
 		_evictor.insert(_batch, evictorElements, loadedGeneration);
 	    }
+
 	    return _batch.listIterator();
 	}
     }

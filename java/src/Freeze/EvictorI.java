@@ -1247,28 +1247,33 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
     
     boolean
-    load(Ice.Identity ident, com.sleepycat.db.Dbc dbc, 
-	 com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value, java.util.List evictorElements)
+    load(com.sleepycat.db.Dbc dbc, com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value, 
+	 java.util.List identities, java.util.List evictorElements)
 	throws com.sleepycat.db.DbException
     {
-	byte[] root = marshalRootKey(ident, _communicator);
 	EvictorElement elt = new EvictorElement();
 	int rs = 0;
+	byte[] root = null;
+		
 	do
 	{
 	    //
 	    // Unmarshal key and data and insert it into elt's facet map
 	    //
 	    EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-	    
+   
 	    Facet facet = new Facet(elt);
 	    facet.status = clean;
 	    facet.rec = unmarshalValue(value.get_data(), _communicator);
 	    facet.path = esk.facet;
 	    assert(facet.path != null);
 	    elt.facets.put(new StringArray(esk.facet), facet);
-	    if(esk.facet.length == 0)
+
+	    if(root == null)
 	    {
+		assert(esk.facet.length == 0);
+		identities.add(esk.identity);
+		root = marshalRootKey(esk.identity, _communicator);
 		elt.mainObject = facet;
 	    }
 
@@ -1276,26 +1281,32 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
 	while(rs == 0 && startWith(key.get_data(), root));
 
-	buildFacetMap(elt.facets);	
+	buildFacetMap(elt.facets);
 	evictorElements.add(elt);
 	return (rs == 0);
     }
 
     boolean
-    skipFacets(Ice.Identity ident, com.sleepycat.db.Dbc dbc, 
-	       com.sleepycat.db.Dbt key, com.sleepycat.db.Dbt value)
+    load(com.sleepycat.db.Dbc dbc, com.sleepycat.db.Dbt key, 
+	 com.sleepycat.db.Dbt value, java.util.List identities)
 	throws com.sleepycat.db.DbException
     {
-	byte[] root = marshalRootKey(ident, _communicator);
 	int rs = 0;
+	byte[] root = null;
 	do
-	{
+	{ 
+	    if(root == null)
+	    {
+		EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
+		assert(esk.facet.length == 0);
+		identities.add(esk.identity);
+		root = marshalRootKey(esk.identity, _communicator);
+	    }
 	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
 	while(rs == 0 && startWith(key.get_data(), root));
 	return (rs == 0);
     }
-
 
     void
     insert(java.util.List identities, java.util.List evictorElements, int loadedGeneration)
