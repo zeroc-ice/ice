@@ -408,22 +408,22 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::ice_readMyClassS(in, arr2);
         in->finished();
         test(arr2.size() == arr.size());
-        for(Test::MyClassS::size_type i = 0; i < arr2.size(); ++i)
+        for(Test::MyClassS::size_type j = 0; j < arr2.size(); ++j)
         {
-            test(arr2[i]);
-            test(arr2[i]->c == arr2[i]);
-            test(arr2[i]->o == arr2[i]);
-            test(arr2[i]->s.e == Test::enum2);
-            test(arr2[i]->seq1 == arr[i]->seq1);
-            test(arr2[i]->seq2 == arr[i]->seq2);
-            test(arr2[i]->seq3 == arr[i]->seq3);
-            test(arr2[i]->seq4 == arr[i]->seq4);
-            test(arr2[i]->seq5 == arr[i]->seq5);
-            test(arr2[i]->seq6 == arr[i]->seq6);
-            test(arr2[i]->seq7 == arr[i]->seq7);
-            test(arr2[i]->seq8 == arr[i]->seq8);
-            test(arr2[i]->seq9 == arr[i]->seq9);
-            test(arr2[i]->d["hi"] == arr2[i]);
+            test(arr2[j]);
+            test(arr2[j]->c == arr2[j]);
+            test(arr2[j]->o == arr2[j]);
+            test(arr2[j]->s.e == Test::enum2);
+            test(arr2[j]->seq1 == arr[j]->seq1);
+            test(arr2[j]->seq2 == arr[j]->seq2);
+            test(arr2[j]->seq3 == arr[j]->seq3);
+            test(arr2[j]->seq4 == arr[j]->seq4);
+            test(arr2[j]->seq5 == arr[j]->seq5);
+            test(arr2[j]->seq6 == arr[j]->seq6);
+            test(arr2[j]->seq7 == arr[j]->seq7);
+            test(arr2[j]->seq8 == arr[j]->seq8);
+            test(arr2[j]->seq9 == arr[j]->seq9);
+            test(arr2[j]->d["hi"] == arr2[j]);
         }
     }
 

@@ -263,11 +263,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 {
                     in->throwException();
                 }
-                catch(const Demo::PrintFailure& ex)
+                catch(const Demo::PrintFailure&)
                 {
                     // Expected.
                 }
-                catch(const Ice::UserException& ex)
+                catch(const Ice::UserException&)
                 {
                     cout << "Unknown user exception" << endl;
                 }

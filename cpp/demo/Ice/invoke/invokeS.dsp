@@ -128,7 +128,7 @@ USERDEP__PRINTER="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"
 InputPath=.\Printer.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Printer.ice
+	..\..\..\bin\slice2cpp.exe --stream Printer.ice
 
 "Printer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -144,7 +144,7 @@ USERDEP__PRINTER="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"
 InputPath=.\Printer.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Printer.ice
+	..\..\..\bin\slice2cpp.exe --stream Printer.ice
 
 "Printer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
