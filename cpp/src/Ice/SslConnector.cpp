@@ -21,7 +21,7 @@
 #include <Ice/Network.h>
 #include <Ice/Properties.h>
 #include <Ice/Exception.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 #include <sstream>
 
 using namespace std;

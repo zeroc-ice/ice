@@ -228,6 +228,14 @@ SOURCE=.\Reference.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SecurityException.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SecurityException2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ServantLocator.cpp
 # End Source File
 # Begin Source File
@@ -269,10 +277,6 @@ SOURCE=.\SslConnectionOpenSSLServer.cpp
 # Begin Source File
 
 SOURCE=.\SslConnector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslException.cpp
 # End Source File
 # Begin Source File
 
@@ -641,10 +645,6 @@ SOURCE=.\SslConnectionOpenSSLServer.h
 # Begin Source File
 
 SOURCE=.\SslConnector.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslException.h
 # End Source File
 # Begin Source File
 
@@ -1164,6 +1164,33 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 	move PropertiesF.h ..\..\include\Ice 
 	del PropertiesF.cpp 
 	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\SecurityException.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecurityException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SecurityException.ice \
+	move SecurityException.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SecurityException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SecurityException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 

@@ -20,7 +20,7 @@
 #include <util/Janitor.hpp>
 
 #include <Ice/Security.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 #include <Ice/SslConfigErrorReporter.h>
 #include <Ice/SslConfig.h>
 
@@ -60,11 +60,15 @@ IceSecurity::Ssl::Parser::process()
     }
     catch(const XMLException& toCatch)
     {
-	ostringstream s;
+        ConfigParseException configEx(__FILE__, __LINE__);
+
+        ostringstream s;
         s << "While parsing " << _configFile << flush;
 	s << "Xerces-c Init Exception: " << DOMString(toCatch.getMessage());
 
-        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
+        configEx._message = s.str();
+
+        throw configEx;
     }
 
     int errorCount = 0;
@@ -128,11 +132,15 @@ IceSecurity::Ssl::Parser::process()
             delete errReporter;
         }
 
+        ConfigParseException configEx(__FILE__, __LINE__);
+
         ostringstream s;
         s << "While parsing " << _configFile << flush;
 	s << "Xerces-c Parsing Error: " << DOMString(e.getMessage());
 
-        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
+        configEx._message = s.str();
+
+        throw configEx;
     }
     catch (const DOM_DOMException& e)
     {
@@ -141,12 +149,16 @@ IceSecurity::Ssl::Parser::process()
             delete errReporter;
         }
 
+        ConfigParseException configEx(__FILE__, __LINE__);
+
 	ostringstream s;
         s << "While parsing " << _configFile << flush;
 	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
-        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
+        configEx._message = s.str();
+
+        throw configEx;
     }
     catch (...)
     {
@@ -155,9 +167,11 @@ IceSecurity::Ssl::Parser::process()
             delete errReporter;
         }
 
-        string s = "While parsing " + _configFile + "\n" + "An unknown error occured during parsing.";
+        ConfigParseException configEx(__FILE__, __LINE__);
 
-        throw ConfigParseException(s.c_str(), __FILE__, __LINE__);
+        configEx._message = "While parsing " + _configFile + "\n" + "An unknown error occured during parsing.";
+
+        throw configEx;
     }
 
     if (errReporter != 0)
@@ -167,9 +181,11 @@ IceSecurity::Ssl::Parser::process()
 
     if (errorCount)
     {
-        string s = errorCount + "errors occured during parsing.";
+        ConfigParseException configEx(__FILE__, __LINE__);
 
-        throw ConfigParseException(s.c_str(), __FILE__, __LINE__);
+        configEx._message = errorCount + "errors occured during parsing.";
+
+        throw configEx;
     }
 }
 

@@ -17,7 +17,7 @@
 #include <Ice/Network.h>
 #include <JTC/JTC.h>
 #include <Ice/Security.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystemOpenSSL.h>
 
@@ -513,24 +513,28 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                     }
                     else // (bytesRead == 0)
                     {
+                        ProtocolException protocolEx(__FILE__, __LINE__);
+
                         // Protocol Error: Unexpected EOF
-                        string errorString = "Encountered an EOF that violates the SSL Protocol.\n";
+                        protocolEx._message = "Encountered an EOF that violates the SSL Protocol.";
 
-                        ICE_SSLERRORS(errorString);
-                        ICE_EXCEPTION(errorString);
+                        ICE_SSLERRORS(protocolEx._message);
+                        ICE_EXCEPTION(protocolEx._message);
 
-                        throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                        throw protocolEx;
                     }
                 }
 
                 case SSL_ERROR_SSL:
                 {
-                    string errorString = "Encountered a violation of the SSL Protocol.\n";
+                    ProtocolException protocolEx(__FILE__, __LINE__);
 
-                    ICE_SSLERRORS(errorString);
-                    ICE_EXCEPTION(errorString);
+                    protocolEx._message = "Encountered a violation of the SSL Protocol.";
 
-                    throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                    ICE_SSLERRORS(protocolEx._message);
+                    ICE_EXCEPTION(protocolEx._message);
+
+                    throw protocolEx;
                 }
 
                 case SSL_ERROR_ZERO_RETURN:

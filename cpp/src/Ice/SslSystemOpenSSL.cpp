@@ -17,7 +17,7 @@
 #include <openssl/rand.h>
 #include <Ice/Security.h>
 #include <Ice/SslSystem.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLClient.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 #include <Ice/SslConfig.h>
@@ -1079,16 +1079,16 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         // Set which Public Key file to use.
         if (SSL_CTX_use_certificate_file(sslContext, publicFile, publicEncoding) <= 0)
         {
-            string errorString;
+            ContextException contextEx(__FILE__, __LINE__);
 
-            errorString = "Unable to get certificate from '";
-            errorString += publicFile;
-            errorString += "'\n";
-            errorString += sslGetErrors();
+            contextEx._message = "Unable to get certificate from '";
+            contextEx._message += publicFile;
+            contextEx._message += "'\n";
+            contextEx._message += sslGetErrors();
 
-            ICE_EXCEPTION(errorString);
+            ICE_EXCEPTION(contextEx._message);
 
-            throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+            throw contextEx;
         }
 
         if (privateKey.getFileName().empty())
@@ -1102,35 +1102,37 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         // Set which Private Key file to use.
         if (SSL_CTX_use_PrivateKey_file(sslContext, privKeyFile, privKeyFileType) <= 0)
         {
-            string errorString;
+            ContextException contextEx(__FILE__, __LINE__);
 
-            errorString = "Unable to get private key from '";
-            errorString += privKeyFile;
-            errorString += "'\n";
-            errorString += sslGetErrors();
+            contextEx._message = "Unable to get private key from '";
+            contextEx._message += privKeyFile;
+            contextEx._message += "'\n";
+            contextEx._message += sslGetErrors();
 
-            ICE_EXCEPTION(errorString);
+            ICE_EXCEPTION(contextEx._message);
 
-	    throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+	    throw contextEx;
         }
 
         // Check to see if the Private and Public keys that have been
         // set against the SSL context match up.
         if (!SSL_CTX_check_private_key(sslContext))
         {
-            string errorString = "Private key does not match the certificate public key.";
+            ContextException contextEx(__FILE__, __LINE__);
+
+            contextEx._message = "Private key does not match the certificate public key.";
             string sslError = sslGetErrors();
 
             if (!sslError.empty())
             {
-                errorString += sslError;
+                contextEx._message += "\n";
+                contextEx._message += sslError;
             }
 
-            ICE_EXCEPTION(errorString);
+            ICE_EXCEPTION(contextEx._message);
 
-            throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+            throw contextEx;
         }
-
     }
 
     ICE_METHOD_RET("OpenSSL::System::addKeyCert()");
@@ -1146,11 +1148,13 @@ IceSecurity::Ssl::OpenSSL::System::createContext(SslProtocol sslProtocol)
 
     if (context == 0)
     {
-        string errorString = "Unable to create SSL Context.\n" + sslGetErrors();
+        ContextException contextEx(__FILE__, __LINE__);
 
-        ICE_EXCEPTION(errorString);
+        contextEx._message = "Unable to create SSL Context.\n" + sslGetErrors();
 
-        throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+        ICE_EXCEPTION(contextEx._message);
+
+        throw contextEx;
     }
 
     ICE_METHOD_RET("OpenSSL::System::createContext()");

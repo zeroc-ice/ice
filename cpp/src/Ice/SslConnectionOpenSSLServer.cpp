@@ -12,7 +12,7 @@
 #include <sstream>
 #include <Ice/Network.h>
 #include <Ice/Security.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 
 using IceSecurity::Ssl::CertificateException;
@@ -125,20 +125,24 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
 
             if (verify_error != X509_V_OK)
             {
-                string errorString = "SSL certificate verification error.";
+                CertificateException certEx(__FILE__, __LINE__);
 
-                ICE_EXCEPTION(errorString);
+                certEx._message = "SSL certificate verification error.";
 
-                throw CertificateException(errorString.c_str(), __FILE__, __LINE__);
+                ICE_EXCEPTION(certEx._message);
+
+                throw certEx;
             }
             else
             {
-                string errorString = "Encountered an SSL Protocol violation during handshake.";
+                ProtocolException protocolEx(__FILE__, __LINE__);
 
-                ICE_SSLERRORS(errorString);
-                ICE_EXCEPTION(errorString);
+                protocolEx._message = "Encountered an SSL Protocol violation during handshake.";
 
-                throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                ICE_SSLERRORS(protocolEx._message);
+                ICE_EXCEPTION(protocolEx._message);
+
+                throw protocolEx;
             }
         }
 
@@ -198,24 +202,28 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::init(int timeout)
                 }
                 else
                 {
+                    ProtocolException protocolEx(__FILE__, __LINE__);
+
                     // Protocol Error: Unexpected EOF
-                    string errorString = "Encountered an EOF during handshake that violates the SSL Protocol.\n";
+                    protocolEx._message = "Encountered an EOF during handshake that violates the SSL Protocol.";
 
-                    ICE_SSLERRORS(errorString);
-                    ICE_EXCEPTION(errorString);
+                    ICE_SSLERRORS(protocolEx._message);
+                    ICE_EXCEPTION(protocolEx._message);
 
-                    throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                    throw protocolEx;
                 }
             }
 
             case SSL_ERROR_SSL:
             {
-                string errorString = "Encountered a violation of the SSL Protocol during handshake.\n";
+                ProtocolException protocolEx(__FILE__, __LINE__);
 
-                ICE_SSLERRORS(errorString);
-                ICE_EXCEPTION(errorString);
+                protocolEx._message = "Encountered a violation of the SSL Protocol during handshake.";
 
-                throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                ICE_SSLERRORS(protocolEx._message);
+                ICE_EXCEPTION(protocolEx._message);
+
+                throw protocolEx;
             }
         }
 
@@ -376,24 +384,28 @@ IceSecurity::Ssl::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                     }
                     else
                     {
+                        ProtocolException protocolEx(__FILE__, __LINE__);
+
                         // Protocol Error: Unexpected EOF
-                        string errorString = "Encountered an EOF that violates the SSL Protocol.\n";
+                        protocolEx._message = "Encountered an EOF that violates the SSL Protocol.";
 
-                        ICE_SSLERRORS(errorString);
-                        ICE_EXCEPTION(errorString);
+                        ICE_SSLERRORS(protocolEx._message);
+                        ICE_EXCEPTION(protocolEx._message);
 
-                        throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                        throw protocolEx;
                     }
                 }
 
                 case SSL_ERROR_SSL:
                 {
-                    string errorString = "Encountered a violation of the SSL Protocol.\n";
+                    ProtocolException protocolEx(__FILE__, __LINE__);
 
-                    ICE_SSLERRORS(errorString);
-                    ICE_EXCEPTION(errorString);
+                    protocolEx._message = "Encountered a violation of the SSL Protocol.";
 
-                    throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
+                    ICE_SSLERRORS(protocolEx._message);
+                    ICE_EXCEPTION(protocolEx._message);
+
+                    throw protocolEx;
                 }
 
                 case SSL_ERROR_ZERO_RETURN:

@@ -22,7 +22,7 @@
 #include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
-#include <Ice/SslException.h>
+#include <Ice/SecurityException.h>
 
 using namespace std;
 using namespace Ice;

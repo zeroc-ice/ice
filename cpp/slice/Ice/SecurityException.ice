@@ -25,7 +25,7 @@ module IceSecurity
  * for external clients/servers.
  *
  **/
-local exception SecurityException extemds LocalException
+local exception SecurityException
 {
     /**
      *
@@ -50,7 +50,7 @@ module Ssl
  * <literal>communicator</literal>.
  *
  **/
-local exception ConfigParseException extemds SecurityException
+local exception ConfigParseException extends SecurityException
 {
 };
 
@@ -60,7 +60,7 @@ local exception ConfigParseException extemds SecurityException
  * problem that has led to the shutdown of an SSL connection.
  *
  **/
-local exception ShutdownException extemds SecurityException
+local exception ShutdownException extends SecurityException
 {
 };
 
@@ -70,7 +70,7 @@ local exception ShutdownException extemds SecurityException
  * protocol, causing the shutdown of the connection.
  *
  **/
-local exception ProtocolException extemds ShutdownException
+local exception ProtocolException extends ShutdownException
 {
 };
 
@@ -80,7 +80,7 @@ local exception ProtocolException extemds ShutdownException
  * a client certificate during SSL protocol handshake.
  *
  **/
-local exception CertificateException extemds ShutdownException
+local exception CertificateException extends ShutdownException
 {
 };
 
@@ -94,8 +94,10 @@ module OpenSSL
  * key files or allocating a <literal>SSL_CTX</literal> structure.
  *
  **/
-local exception ContextException extemds SecurityException
+local exception ContextException extends SecurityException
 {
+};
+
 };
 
 };
