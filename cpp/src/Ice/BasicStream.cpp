@@ -93,8 +93,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 {
     assert(_instance == other._instance);
 
-    b.swap(other.b);
-    std::swap(i, other.i);
+    Buffer::swap(other);
 
     //
     // Swap is never called for BasicStreams that have more than one
@@ -139,17 +138,6 @@ IceInternal::BasicStream::swap(BasicStream& other)
 
     std::swap(_seqDataStack, other._seqDataStack);
     std::swap(_objectList, other._objectList);
-}
-
-void
-IceInternal::BasicStream::reserve(Container::size_type sz)
-{
-    if(sz > _messageSizeMax)
-    {
-	throw MemoryLimitException(__FILE__, __LINE__);
-    }
-
-    b.reserve(sz);
 }
 
 //

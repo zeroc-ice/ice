@@ -169,7 +169,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, b
     {
         C << nl << "stream.endWriteEncaps();";
     }
-    C << nl << "bytes.swap(stream.b);";
+    C << nl << "stream.b.copyToVector(bytes);";
     C << eb;
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "
@@ -181,7 +181,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, b
     {
         C << nl << "stream.sliceObjects(false);";
     }
-    C << nl << "stream.b = bytes;";
+    C << nl << "stream.b.copyFromVector(bytes);";
     C << nl << "stream.i = stream.b.begin();";
     if(encaps)
     {
@@ -468,7 +468,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
 	    {
 		C << nl << "__stream.writePendingObjects();";
 	    }
-	    C << nl << "__bytes.swap(__stream.b);";
+	    C << nl << "__stream.b.copyToVector(__bytes);";
 	}
 	C << eb;
     }
@@ -850,7 +850,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     {
         C << nl << "__stream.writePendingObjects();";
     }
-    C << nl << "__bytes.swap(__stream.b);";
+    C << nl << "__stream.b.copyToVector(__bytes);";
     C << eb;
 }
 

@@ -50,23 +50,8 @@ public:
 	    throwMemoryLimitException(__FILE__, __LINE__);
 	}
 	
-	Container::size_type capacity = b.capacity();
-	if(capacity < sz)
-	{
-	    //
-	    // COMPILERBUG: Stupid Visual C++ defines max as a
-	    // macro. But I can't undefine it in a header file,
-	    // because this might cause side effects with other code
-	    // that depends on this macro being defined.
-	    //
-	    //b.reserve(std::max(sz, 2 * capacity));
-	    b.reserve(sz > 2 * capacity ? sz : 2 * capacity);
-	}
-
 	b.resize(sz);
     }
-
-    void reserve(Container::size_type);
 
     void startSeq(int, int);
     void checkSeq();
