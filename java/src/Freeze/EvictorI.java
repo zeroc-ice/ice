@@ -1311,45 +1311,65 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    // Unmarshal key and data and insert it into elt's facet map
 	    //
 	    EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-   
-	    Facet facet = new Facet(elt);
-	    facet.status = clean;
-	    facet.rec = unmarshalValue(value.get_data(), _communicator);
-	    facet.path = esk.facet;
-	    assert(facet.path != null);
-	    elt.facets.put(new StringArray(esk.facet), facet);
 
 	    if(root == null)
 	    {
-		if(esk.facet.length != 0)
+		if(esk.facet.length == 0)
 		{
-		    _communicator.getLogger().warning
-			("Found orphan facet \"" + Ice.Util.identityToString(esk.identity) 
-			 + "\" " + facetPathToString(esk.facet));
-		    assert(false);
+		    //
+		    // Good, we found the object
+		    //
+		    root = marshalRootKey(esk.identity, _communicator);
 		}
 		else
 		{
+		    //
+		    // Otherwise, skip this orphan facet (could be a temporary
+		    // inconsistency on disk)
+		    //
+
 		    if(_trace >= 3)
 		    {
 			_communicator.getLogger().trace
 			    ("Freeze.Evictor",
-			     "Iterator is reading facet \"" + Ice.Util.identityToString(esk.identity) 
+			     "Iterator is skipping orphan facet \"" + Ice.Util.identityToString(esk.identity) 
 			     + "\" " + facetPathToString(esk.facet));
 		    }
 		}
-
-		identities.add(esk.identity);
-		root = marshalRootKey(esk.identity, _communicator);
-		elt.mainObject = facet;
 	    }
 
+	    if(root != null)
+	    {
+		if(_trace >= 3)
+		{
+		    _communicator.getLogger().trace
+			("Freeze.Evictor",
+			 "Iterator is reading facet \"" + Ice.Util.identityToString(esk.identity) 
+			 + "\" " + facetPathToString(esk.facet));
+		}
+
+		Facet facet = new Facet(elt);
+		facet.status = clean;
+		facet.rec = unmarshalValue(value.get_data(), _communicator);
+		facet.path = esk.facet;
+		assert(facet.path != null);
+		elt.facets.put(new StringArray(esk.facet), facet);
+		
+		if(esk.facet.length != 0)
+		{
+		    identities.add(esk.identity);
+		    elt.mainObject = facet;
+		}
+	    }
 	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
-	while(rs == 0 && startWith(key.get_data(), root));
+	while(rs == 0 && (root == null || startWith(key.get_data(), root)));
 
-	buildFacetMap(elt.facets);
-	evictorElements.add(elt);
+	if(root != null)
+	{
+	    buildFacetMap(elt.facets);
+	    evictorElements.add(elt);
+	}
 	return (rs == 0);
     }
 
@@ -1358,25 +1378,49 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	 com.sleepycat.db.Dbt value, java.util.List identities)
 	throws com.sleepycat.db.DbException
     {
-	EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-
-	if(esk.facet.length != 0)
-	{
-	    _communicator.getLogger().warning
-		("Found orphan facet \"" + Ice.Util.identityToString(esk.identity) 
-		 + "\" " + facetPathToString(esk.facet));
-	    assert(false);
-	}
-	
-	identities.add(esk.identity);
-	byte[] root = marshalRootKey(esk.identity, _communicator);
-
+	byte[] root = null;
 	int rs = 0;
 	do
 	{ 
+	    if(root == null)
+	    {
+		EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
+		
+		if(esk.facet.length == 0)
+		{
+		    //
+		    // Good, we found a main object
+		    //
+		    root = marshalRootKey(esk.identity, _communicator);
+
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace
+			    ("Freeze.Evictor",
+			     "Iterator read \"" + Ice.Util.identityToString(esk.identity) 
+			     + "\"");
+		    }
+		    identities.add(esk.identity);
+		}
+		else
+		{
+		    //
+		    // Otherwise, skip this orphan facet (could be a temporary
+		    // inconsistency on disk)
+		    //
+
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace
+			    ("Freeze.Evictor",
+			     "Iterator is skipping orphan facet \"" + Ice.Util.identityToString(esk.identity) 
+			     + "\" " + facetPathToString(esk.facet));
+		    }
+		}
+	    }
 	    rs = dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT);
 	}
-	while(rs == 0 && startWith(key.get_data(), root));
+	while(rs == 0 && (root == null || startWith(key.get_data(), root)));
 	return (rs == 0);
     }
 
@@ -1682,7 +1726,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 		else
 		{
-		    assert(false);
 		    throw new DatabaseException();
 		}
 	    }
@@ -1819,11 +1862,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//	
                 dbKey = new com.sleepycat.db.Dbt(root);
 		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET_RANGE);
-		if(rs == 0)
-		{
-		    assert(dbKey.get_data() != root);
-		}
-
+	
 		while(rs == 0 && startWith(dbKey.get_data(), root))
 		{
 		    //
@@ -1835,7 +1874,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    facet.status = clean;
 		    facet.rec = unmarshalValue(dbValue.get_data(), _communicator);
 		    facet.path = esk.facet;
-		    assert(facet.path != null);
 		    result.facets.put(new StringArray(esk.facet), facet);
 		    if(esk.facet.length == 0)
 		    {
@@ -1915,18 +1953,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		String[] parent = new String[path.length - 1];
 		System.arraycopy(path, 0, parent, 0, path.length - 1);
 		Facet parentFacet = (Facet) facets.get(new StringArray(parent));
-		if(parentFacet == null)
-		{
-		    //
-		    // TODO: log warning for this orphan facet
-		    // 
-		    assert(false);
-		}
-		else
+		if(parentFacet != null)
 		{
 		    Facet childFacet = (Facet) entry.getValue();
 		    parentFacet.rec.servant.ice_addFacet(childFacet.rec.servant, path[path.length - 1]);
 		}
+		//
+		// otherwise skip disconnected facet (could be a temporary inconsistency on disk)
+		//
+
 	    }
 	}
     }

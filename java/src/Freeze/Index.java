@@ -94,8 +94,15 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 		    while((firstN <= 0 || identities.size() < firstN) && more)
 		    {
 			EvictorStorageKey esk = EvictorI.unmarshalKey(pkey.get_data(), communicator);
-			assert(esk.facet.length == 0);
-			identities.add(esk.identity);
+
+			if(esk.facet.length == 0)
+			{
+			    identities.add(esk.identity);
+			}
+			//
+			// Else skip "orphan" facet (could be just a temporary inconsistency
+			// on disk)
+			//
 
 			more = (dbc.pget(key, pkey, value, com.sleepycat.db.Db.DB_NEXT_DUP) == 0);
 		    }
