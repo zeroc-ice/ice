@@ -59,6 +59,10 @@ IceInternal::IncomingAsync::__response(bool ok)
 	}
     }
 
+    //
+    // Must be called last, so that if an exception is raised,
+    // this function is definitely *not* called.
+    //
     __finishInvoke();
 }
 
@@ -186,6 +190,10 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	}
     }
 
+    //
+    // Must be called last, so that if an exception is raised,
+    // this function is definitely *not* called.
+    //
     __finishInvoke();
 }
 
@@ -210,6 +218,10 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 	_os.write(str.str());
     }
 
+    //
+    // Must be called last, so that if an exception is raised,
+    // this function is definitely *not* called.
+    //
     __finishInvoke();
 }
 
@@ -233,6 +245,10 @@ IceInternal::IncomingAsync::__exception()
 	_os.write(reason);
     }
 
+    //
+    // Must be called last, so that if an exception is raised,
+    // this function is definitely *not* called.
+    //
     __finishInvoke();
 }
 

@@ -36,6 +36,13 @@ ThrowerI::supportsUndeclaredExceptions_async(const AMD_Thrower_supportsUndeclare
 }
 
 void
+ThrowerI::supportsAssertException_async(const AMD_Thrower_supportsAssertExceptionPtr& cb,
+					const Ice::Current&)
+{
+    cb->ice_response(false);
+}
+
+void
 ThrowerI::throwAasA_async(const AMD_Thrower_throwAasAPtr& cb,
 			  Ice::Int a, const Ice::Current&)
 {
@@ -171,4 +178,11 @@ ThrowerI::throwNonIceException_async(const AMD_Thrower_throwNonIceExceptionPtr&,
 				     const Ice::Current&)
 {
     throw int(12345);
+}
+
+void
+ThrowerI::throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
+				     const Ice::Current&)
+{
+    assert(false); // Not supported in C++.
 }

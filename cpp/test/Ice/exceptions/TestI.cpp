@@ -32,6 +32,12 @@ ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
     return true;
 }
 
+bool
+ThrowerI::supportsAssertException(const Ice::Current&)
+{
+    return false;
+}
+
 void
 ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {
@@ -140,4 +146,10 @@ void
 ThrowerI::throwNonIceException(const Ice::Current&)
 {
     throw int(12345);
+}
+
+void
+ThrowerI::throwAssertException(const Ice::Current&)
+{
+    assert(false); // Not supported in C++.
 }

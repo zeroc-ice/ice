@@ -1303,7 +1303,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     //
     try
     {
-	while(invoke-- > 0)
+	while(invoke > 0)
 	{
 	    //
 	    // Prepare the invocation.
@@ -1319,7 +1319,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    //
 	    if(response)
 	    {
-		assert(invoke == 0); // No further invocations if a response is expected.
+		assert(invoke == 1); // No further invocations if a response is expected.
 		os->writeBlob(_replyHdr);
 		
 		//
@@ -1333,7 +1333,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    //
 	    // If there are more invocations, we need the stream back.
 	    //
-	    if(invoke > 0)
+	    if(--invoke > 0)
 	    {
 		stream.swap(*is);
 	    }
@@ -1343,6 +1343,20 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
+
+	//
+	// If invoke() above raised an exception, and therefore
+	// neither sendResponse() nor sendNoResponse() has been
+	// called, then we must decrement _dispatchCount here.
+	//
+	assert(invoke > 0);
+	assert(_dispatchCount > 0);
+	_dispatchCount -= invoke;
+	assert(_dispatchCount >= 0);
+	if(_dispatchCount == 0)
+	{
+	    notifyAll();
+	}
     }
 }
 

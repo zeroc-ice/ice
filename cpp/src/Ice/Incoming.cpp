@@ -200,6 +200,8 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(RequestFailedException& ex)
     {
+	_is.endReadEncaps();
+
 	if(ex.id.name.empty())
 	{
 	    ex.id = _current.id;
@@ -260,12 +262,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(ex.operation);
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
     catch(const LocalException& ex)
     {
+	_is.endReadEncaps();
+
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
@@ -281,12 +288,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
     catch(const UserException& ex)
     {
+	_is.endReadEncaps();
+
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
@@ -302,12 +314,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
     catch(const Exception& ex)
     {
+	_is.endReadEncaps();
+
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
@@ -323,12 +340,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
     catch(const std::exception& ex)
     {
+	_is.endReadEncaps();
+
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(string("std::exception: ") + ex.what());
@@ -344,12 +366,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
     catch(...)
     {
+	_is.endReadEncaps();
+
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning("unknown c++ exception");
@@ -364,8 +391,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(reason);
 	}
 
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
 	__finishInvoke();
-	_is.endReadEncaps();
 	return;
     }
 
@@ -375,6 +405,8 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     // the caller of this operation.
     //
     
+    _is.endReadEncaps();
+
     //
     // DispatchAsync is "pseudo dispatch status", used internally only
     // to indicate async dispatch.
@@ -386,7 +418,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	// do *not* call __finishInvoke(), because the call is not
 	// finished yet.
 	//
-	_is.endReadEncaps();
 	return;
     }
 
@@ -427,6 +458,9 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	}
     }
 
+    //
+    // Must be called last, so that if an exception is raised,
+    // this function is definitely *not* called.
+    //
     __finishInvoke();
-    _is.endReadEncaps();
 }

@@ -27,6 +27,8 @@ public:
 				const Ice::Current&);
     virtual void supportsUndeclaredExceptions_async(const AMD_Thrower_supportsUndeclaredExceptionsPtr&,
 						    const Ice::Current&);
+    virtual void supportsAssertException_async(const AMD_Thrower_supportsAssertExceptionPtr&,
+					       const Ice::Current&);
 
     virtual void throwAasA_async(const AMD_Thrower_throwAasAPtr&,
 				 Ice::Int, const Ice::Current&);
@@ -55,6 +57,8 @@ public:
     virtual void throwLocalException_async(const AMD_Thrower_throwLocalExceptionPtr&,
 					   const Ice::Current&);
     virtual void throwNonIceException_async(const AMD_Thrower_throwNonIceExceptionPtr&,
+					    const Ice::Current&);
+    virtual void throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
 					    const Ice::Current&);
 
 private:

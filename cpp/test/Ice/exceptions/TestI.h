@@ -25,6 +25,7 @@ public:
 
     virtual void shutdown(const Ice::Current&);
     virtual bool supportsUndeclaredExceptions(const Ice::Current&);
+    virtual bool supportsAssertException(const Ice::Current&);
 
     virtual void throwAasA(Ice::Int, const Ice::Current&);
     virtual void throwAorDasAorD(Ice::Int, const Ice::Current&);
@@ -41,6 +42,7 @@ public:
     virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
     virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
+    virtual void throwAssertException(const Ice::Current&);
 
 private:
 
