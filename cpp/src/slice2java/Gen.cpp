@@ -800,10 +800,12 @@ Slice::Gen::HolderVisitor::HolderVisitor(const string& dir,
 {
 }
 
-void
-Slice::Gen::HolderVisitor::visitClassDecl(const ClassDeclPtr& p)
+bool
+Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    writeHolder(p);
+    ClassDeclPtr decl = p->declaration();
+    writeHolder(decl);
+    return false;
 }
 
 bool

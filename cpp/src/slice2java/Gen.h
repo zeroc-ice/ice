@@ -113,7 +113,7 @@ private:
 
         HolderVisitor(const std::string&, const std::string&);
 
-        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
