@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 libdb42.lib /nologo /dll /machine:I386 /out:"Release/freeze20.dll" /implib:"Release/freeze.lib"
+# ADD LINK32 libdb42.lib /nologo /dll /machine:I386 /out:"Release/freeze21.dll" /implib:"Release/freeze.lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\freeze.lib ..\..\lib	copy $(OutDir)\freeze20.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\freeze.lib ..\..\lib	copy $(OutDir)\freeze21.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 libdb42d.lib /nologo /dll /debug /machine:I386 /out:"Debug/freeze20d.dll" /implib:"Debug/freezed.lib"
+# ADD LINK32 libdb42d.lib /nologo /dll /debug /machine:I386 /out:"Debug/freeze21d.dll" /implib:"Debug/freezed.lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\freezed.lib ..\..\lib	copy $(OutDir)\freeze20d.pdb ..\..\bin	copy $(OutDir)\freeze20d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\freezed.lib ..\..\lib	copy $(OutDir)\freeze21d.pdb ..\..\bin	copy $(OutDir)\freeze21d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

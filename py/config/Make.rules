@@ -48,10 +48,10 @@ prefix			= /opt/IcePy-$(VERSION)
 
 PYTHON_VERSION		?= python2.3
 PYTHON_HOME		?= /opt/python-2.3.4
-PYTHON_INCLUDE_DIR	?= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
-#PYTHON_INCLUDE_DIR	?= /usr/include/$(PYTHON_VERSION)
-PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
-#PYTHON_LIB_DIR		?= /usr/lib/$(PYTHON_VERSION)
+#PYTHON_INCLUDE_DIR	?= $(PYTHON_HOME)/include/$(PYTHON_VERSION)
+PYTHON_INCLUDE_DIR	?= /usr/include/$(PYTHON_VERSION)
+#PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
+PYTHON_LIB_DIR		?= /usr/lib/$(PYTHON_VERSION)
 #PYTHON_LIB_DIR		?= $(PYTHON_HOME)/lib  # HP-UX
 
 PYTHON_FLAGS		?= -I$(PYTHON_INCLUDE_DIR)
@@ -66,8 +66,8 @@ ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 2.0.0
-SOVERSION		= 20
+VERSION			= 2.1.0
+SOVERSION		= 21
 libdir			= $(top_srcdir)/lib
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
