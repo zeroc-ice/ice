@@ -1073,6 +1073,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleFSS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name streamC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name invokeC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name invokeS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2039,6 +2048,42 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "invokeC"=.\demo\Ice\invoke\invokeC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "invokeS"=.\demo\Ice\invoke\invokeS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
@@ -3100,6 +3145,24 @@ Package=<4>
 ###############################################################################
 
 Project: "starterS"=.\test\Glacier\starter\starterS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "streamC"=.\test\Ice\stream\streamC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
