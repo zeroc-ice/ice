@@ -198,6 +198,7 @@ public class Slice2JavaETask extends SliceTask
             //
             // Add defines
             //
+	    cmd.append(" -DICEE");
             if(!_defines.isEmpty())
             {
                 java.util.Iterator i = _defines.iterator();
