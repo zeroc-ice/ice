@@ -15,6 +15,7 @@ final class UdpTransceiver implements Transceiver
     public java.nio.channels.SelectableChannel
     fd()
     {
+        assert(_fd != null);
         return _fd;
     }
 
@@ -27,16 +28,15 @@ final class UdpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        java.nio.channels.DatagramChannel fd = _fd;
-        _fd = null;
-        java.net.DatagramSocket socket = fd.socket();
+        assert(_fd != null);
         try
         {
-            fd.close();
+            _fd.close();
         }
         catch(java.io.IOException ex)
         {
         }
+        _fd = null;
     }
 
     public void
@@ -57,6 +57,7 @@ final class UdpTransceiver implements Transceiver
         {
             try
             {
+                assert(_fd != null);
                 int ret = _fd.write(buf);
 
                 if(_traceLevels.network >= 3)
@@ -101,6 +102,7 @@ final class UdpTransceiver implements Transceiver
                 //
                 try
                 {
+                    assert(_fd != null);
                     java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)_fd.receive(buf);
                     ret = buf.position();
                     Network.doConnect(_fd, peerAddr, -1);
@@ -127,6 +129,7 @@ final class UdpTransceiver implements Transceiver
             {
                 try
                 {
+                    assert(_fd != null);
                     _fd.receive(buf);
                     ret = buf.position();
                 }

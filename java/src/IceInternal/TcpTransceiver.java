@@ -15,6 +15,7 @@ final class TcpTransceiver implements Transceiver
     public java.nio.channels.SelectableChannel
     fd()
     {
+        assert(_fd != null);
         return _fd;
     }
 
@@ -27,9 +28,8 @@ final class TcpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        java.nio.channels.SocketChannel fd = _fd;
-        _fd = null;
-        java.net.Socket socket = fd.socket();
+        assert(_fd != null);
+        java.net.Socket socket = _fd.socket();
         try
         {
             socket.shutdownInput(); // helps to unblock threads in recv()
@@ -46,22 +46,24 @@ final class TcpTransceiver implements Transceiver
         }
         try
         {
-            fd.close();
+            _fd.close();
         }
         catch(java.io.IOException ex)
         {
         }
+        _fd = null;
     }
 
     public void
     shutdown()
     {
-        if(_traceLevels.network >= 1)
+        if(_traceLevels.network >= 2)
         {
             String s = "shutting down tcp connection\n" + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
+        assert(_fd != null);
         java.net.Socket socket = _fd.socket();
         try
         {
@@ -80,6 +82,7 @@ final class TcpTransceiver implements Transceiver
         {
             try
             {
+                assert(_fd != null);
                 int ret = _fd.write(buf);
 
                 /* TODO: Review
@@ -124,6 +127,7 @@ final class TcpTransceiver implements Transceiver
         {
             try
             {
+                assert(_fd != null);
                 int ret = _fd.read(buf);
 
                 if(ret == -1)
@@ -133,13 +137,12 @@ final class TcpTransceiver implements Transceiver
 
                 if(ret == 0)
                 {
-                    // Copy fd, in case another thread calls close()
-                    java.nio.channels.SocketChannel fd = _fd;
+                    assert(_fd != null);
 
                     if(_selector == null)
                     {
                         _selector = java.nio.channels.Selector.open();
-                        fd.register(_selector, java.nio.channels.SelectionKey.OP_READ, null);
+                        _fd.register(_selector, java.nio.channels.SelectionKey.OP_READ, null);
                     }
 
                     while(true)

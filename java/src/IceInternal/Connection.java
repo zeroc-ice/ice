@@ -698,12 +698,12 @@ public final class Connection extends EventHandler
         _adapter = adapter;
         _logger = instance.logger();
         _traceLevels = instance.traceLevels();
+	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
         _responseCount = 0;
 	_proxyUsageCount = 0;
         _state = StateHolding;
-	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
 	_registeredWithPool = false;
 
 	if(_endpoint.datagram())
@@ -985,7 +985,7 @@ public final class Connection extends EventHandler
 	{
 	    if(_adapter != null)
 	    {
-		if(_serverThreadPool == null)
+		if(_serverThreadPool == null) // Lazy initialization.
 		{
 		    _serverThreadPool = _instance.serverThreadPool();
 		    assert(_serverThreadPool != null);
@@ -994,7 +994,7 @@ public final class Connection extends EventHandler
 	    }
 	    else
 	    {
-		if(_clientThreadPool == null)
+		if(_clientThreadPool == null) // Lazy initialization.
 		{
 		    _clientThreadPool = _instance.clientThreadPool();
 		    assert(_clientThreadPool != null);
@@ -1072,13 +1072,14 @@ public final class Connection extends EventHandler
         _incomingCache = in;
     }
 
-    private Transceiver _transceiver;
-    private Endpoint _endpoint;
+    private final Transceiver _transceiver;
+    private final Endpoint _endpoint;
     private Ice.ObjectAdapter _adapter;
-    private Ice.Logger _logger;
-    private TraceLevels _traceLevels;
+    private final Ice.Logger _logger;
+    private final TraceLevels _traceLevels;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
+    private final boolean _warn;
     private int _nextRequestId;
     private IntMap _requests = new IntMap();
     private Ice.LocalException _exception;
@@ -1086,7 +1087,6 @@ public final class Connection extends EventHandler
     private int _responseCount;
     private int _proxyUsageCount;
     private int _state;
-    private boolean _warn;
     private boolean _registeredWithPool;
     private boolean _connectionValidated;
     private RecursiveMutex _mutex = new RecursiveMutex();

@@ -182,15 +182,16 @@ public class IncomingConnectionFactory extends EventHandler
     {
         super(instance);
         _endpoint = endpoint;
+        _adapter = adapter;
+	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
+        _state = StateHolding;
+	_registeredWithPool = false;
+
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 	if(defaultsAndOverrides.overrideTimeout)
 	{
 	    _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	}
-        _adapter = adapter;
-        _state = StateHolding;
-	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
-	_registeredWithPool = false;
 
         try
         {
@@ -348,7 +349,7 @@ public class IncomingConnectionFactory extends EventHandler
         {
 	    if(!_registeredWithPool)
 	    {
-		if(_serverThreadPool == null)
+		if(_serverThreadPool == null) // Lazy initialization.
 		{
 		    _serverThreadPool = _instance.serverThreadPool();
 		    assert(_serverThreadPool != null);
@@ -385,12 +386,12 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     private Endpoint _endpoint;
-    private Ice.ObjectAdapter _adapter;
+    private Ice.ObjectAdapter _adapter; // Cannot be final, because it must be set to null to break cyclic dependency.
     private Acceptor _acceptor;
-    private Transceiver _transceiver;
+    private final Transceiver _transceiver;
     private ThreadPool _serverThreadPool;
+    private final boolean _warn;
     private java.util.LinkedList _connections = new java.util.LinkedList();
     private int _state;
-    private boolean _warn;
     private boolean _registeredWithPool;
 }
