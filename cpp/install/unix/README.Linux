@@ -25,9 +25,11 @@ This distribution is a binary release of Ice 2.1.0 for Linux and
 includes the following components:
 
 - The Ice run time, including executables for the Ice services, HTML
-  documentation and Slice files.
+  documentation, and Slice files.
+
 - Run time libraries for C++, Java, Python, and C# (Mono). These
   libraries enable you to execute Ice applications.
+
 - Tools and libraries for developing Ice applications.
 
 
@@ -70,7 +72,7 @@ Java
 ----
 
 Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained
-from JavaSoft at http://www.javasoft.com/j2se
+from JavaSoft at http://www.javasoft.com/j2se.
 
 
 Python
@@ -175,7 +177,10 @@ $ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH
 Alternatively, you can add the libraries to the GAC yourself using a
 command like this:
 
-$ gacutil -i $ICE_HOME/bin/icecs.dll
+$ gacutil -i bin/icecs.dll
+
+(Note that the gacutil that ships with Mono 1.0.6 only accepts a
+relative path, but not an absolute one.)
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
