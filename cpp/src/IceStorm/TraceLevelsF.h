@@ -11,7 +11,7 @@
 #ifndef ICE_STORM_TRACE_LEVELS_F_H
 #define ICE_STORM_TRACE_LEVELS_F_H
 
-#include <Ice/Handle.h>
+#include <IceUtil/Handle.h>
 
 namespace IceStorm
 {
