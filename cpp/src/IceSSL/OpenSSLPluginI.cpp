@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Mutex.h>
-
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
@@ -173,13 +171,6 @@ IceSSL::SslLockKeeper::~SslLockKeeper()
     CRYPTO_set_locking_callback(0);
     CRYPTO_set_id_callback(0);
 }
-
-//
-// PluginI implementation
-//
-
-IceUtil::StaticMutex IceSSL::OpenSSLPluginI::_threadIdCacheMutex = ICE_STATIC_MUTEX_INITIALIZER;
-std::vector<unsigned long> IceSSL::OpenSSLPluginI::_threadIdCache;
 
 //
 // Public Methods
@@ -900,7 +891,7 @@ IceSSL::OpenSSLPluginI::registerThread()
 {
     unsigned long threadID = idFunction();
 
-    IceUtil::StaticMutex::Lock sync(_threadIdCacheMutex);
+    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
 
     if(find(_threadIdCache.begin(), _threadIdCache.end(), threadID) == _threadIdCache.end())
     {
@@ -911,7 +902,7 @@ IceSSL::OpenSSLPluginI::registerThread()
 void
 IceSSL::OpenSSLPluginI::unregisterThreads()
 {
-    IceUtil::StaticMutex::Lock sync(_threadIdCacheMutex);
+    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
 
     for_each(_threadIdCache.begin(), _threadIdCache.end(), ERR_remove_state);
 }
