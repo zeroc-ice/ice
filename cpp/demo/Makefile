@@ -8,11 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= .
+top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= src test demo
+SUBDIRS		= hello
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
