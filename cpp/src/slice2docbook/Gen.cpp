@@ -94,9 +94,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Module Index");
 	start("variablelist");
 	
-	for (ModuleList::iterator q = modules.begin();
-	    q != modules.end();
-	    ++q)
+	for (ModuleList::iterator q = modules.begin(); q != modules.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -115,7 +113,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     ClassList classes = p->classes();
     ClassList interfaces;
     interfaces.splice(interfaces.end(),
-		      classes, remove_if(classes.begin(), classes.end(), ::Ice::memFun(&ClassDef::isInterface)),
+		      classes,
+		      remove_if(classes.begin(), classes.end(), ::Ice::memFun(&ClassDef::isInterface)),
 		      classes.end());
 
     classes.sort();
@@ -124,9 +123,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Class Index");
 	start("variablelist");
 	
-	for (ClassList::iterator q = classes.begin();
-	    q != classes.end();
-	    ++q)
+	for (ClassList::iterator q = classes.begin(); q != classes.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -148,9 +145,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Interface Index");
 	start("variablelist");
 	
-	for (ClassList::iterator q = interfaces.begin();
-	    q != interfaces.end();
-	    ++q)
+	for (ClassList::iterator q = interfaces.begin(); q != interfaces.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -173,9 +168,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Vector Index");
 	start("variablelist");
 	
-	for (VectorList::iterator q = vectors.begin();
-	    q != vectors.end();
-	    ++q)
+	for (VectorList::iterator q = vectors.begin(); q != vectors.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -198,9 +191,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Enum Index");
 	start("variablelist");
 	
-	for (EnumList::iterator q = enums.begin();
-	    q != enums.end();
-	    ++q)
+	for (EnumList::iterator q = enums.begin(); q != enums.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -243,62 +234,62 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 
     end();
 
-    for (VectorList::iterator q = vectors.begin();
-	q != vectors.end();
-	++q)
     {
-	TypePtr type = (*q)->type();
-	
-	start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
-	
-	O.zeroIndent();
-	O << nl << "<synopsis>vector&lt; " << typeToString(type) << " &gt; <type>" << (*q)->name()
-	  << "</type>;</synopsis>";
-	O.restoreIndent();
-	
-	printComment(*q);
-	
-	end();
-    }
-
-    for (EnumList::iterator q = enums.begin();
-	q != enums.end();
-	++q)
-    {
-	start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
-	
-	O.zeroIndent();
-	O << nl << "<synopsis>enum <type>" << (*q)->name() << "</type>";
-	O << sb;
-	StringList enumerators = (*q)->enumerators();
-	StringList::iterator r = enumerators.begin();
-	while (r != enumerators.end())
+	for (VectorList::iterator q = vectors.begin(); q != vectors.end(); ++q)
 	{
-	    O << nl << "<structfield>" << *r << "</structfield>";
-	    if (++r != enumerators.end())
-		O << ',';
+	    TypePtr type = (*q)->type();
+	    
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>vector&lt; " << typeToString(type) << " &gt; <type>" << (*q)->name()
+	      << "</type>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
 	}
-	O << eb << ";</synopsis>";
-	O.restoreIndent();
-	
-	printComment(*q);
-	
-	end();
+    }
+    
+    {
+	for (EnumList::iterator q = enums.begin(); q != enums.end(); ++q)
+	{
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>enum <type>" << (*q)->name() << "</type>";
+	    O << sb;
+	    StringList enumerators = (*q)->enumerators();
+	    StringList::iterator r = enumerators.begin();
+	    while (r != enumerators.end())
+	    {
+		O << nl << "<structfield>" << *r << "</structfield>";
+		if (++r != enumerators.end())
+		    O << ',';
+	    }
+	    O << eb << ";</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
     }
 
-    for (NativeList::iterator q = natives.begin();
-	q != natives.end();
-	++q)
     {
-	start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
-	
-	O.zeroIndent();
-	O << nl << "<synopsis>native <type>" << (*q)->name() << "</type>;</synopsis>";
-	O.restoreIndent();
-	
-	printComment(*q);
-	
-	end();
+	for (NativeList::iterator q = natives.begin(); q != natives.end(); ++q)
+	{
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>native <type>" << (*q)->name() << "</type>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
     }
 
     end();
@@ -360,9 +351,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	start("section", "Operation Index");
 	start("variablelist");
 	
-	for (OperationList::iterator q = operations.begin();
-	    q != operations.end();
-	    ++q)
+	for (OperationList::iterator q = operations.begin(); q != operations.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -385,9 +374,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	start("section", "Data Member Index");
 	start("variablelist");
 	
-	for (DataMemberList::iterator q = dataMembers.begin();
-	    q != dataMembers.end();
-	    ++q)
+	for (DataMemberList::iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
@@ -405,82 +392,82 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
     end();
 
-    for (OperationList::iterator q = operations.begin();
-	q != operations.end();
-	++q)
     {
-	TypePtr returnType = (*q)->returnType();
-	TypeStringList inputParams = (*q)->inputParameters();
-	TypeStringList outputParams = (*q)->outputParameters();
-	TypeList throws =  (*q)->throws();
-	
-	start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
-	
-	O.zeroIndent();
-	O << nl << "<synopsis>" << (returnType ? typeToString(returnType) : "<type>void</type>")
-	  << " <function>" << (*q)->name() << "</function>(";
-	O.inc();
-	TypeStringList::iterator r = inputParams.begin();
-	while (r != inputParams.end())
+	for (OperationList::iterator q = operations.begin(); q != operations.end(); ++q)
 	{
-	    O << nl << typeToString(r->first) << " <parameter>" << r->second << "</parameter>";
-	    if (++r != inputParams.end())
-		O << ',';
-	}
-	if (!outputParams.empty())
-	{
-	    O << ';';
-	    r = outputParams.begin();
-	    while (r != outputParams.end())
+	    TypePtr returnType = (*q)->returnType();
+	    TypeStringList inputParams = (*q)->inputParameters();
+	    TypeStringList outputParams = (*q)->outputParameters();
+	    TypeList throws =  (*q)->throws();
+	    
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>" << (returnType ? typeToString(returnType) : "<type>void</type>")
+	      << " <function>" << (*q)->name() << "</function>(";
+	    O.inc();
+	    TypeStringList::iterator r = inputParams.begin();
+	    while (r != inputParams.end())
 	    {
 		O << nl << typeToString(r->first) << " <parameter>" << r->second << "</parameter>";
-		if (++r != outputParams.end())
+		if (++r != inputParams.end())
 		    O << ',';
 	    }
-	}
-	O << ')';
-	O.dec();
-	if (!throws.empty())
-	{
-	    O.inc();
-	    O << nl << "throws";
-	    O.inc();
-	    TypeList::iterator r = throws.begin();
-	    while (r != throws.end())
+	    if (!outputParams.empty())
 	    {
-		O << nl << typeToString(*r);
-		if (++r != throws.end())
-		    O << ',';
+		O << ';';
+		r = outputParams.begin();
+		while (r != outputParams.end())
+		{
+		    O << nl << typeToString(r->first) << " <parameter>" << r->second << "</parameter>";
+		    if (++r != outputParams.end())
+			O << ',';
+		}
 	    }
+	    O << ')';
 	    O.dec();
-	    O.dec();
+	    if (!throws.empty())
+	    {
+		O.inc();
+		O << nl << "throws";
+		O.inc();
+		TypeList::iterator r = throws.begin();
+		while (r != throws.end())
+		{
+		    O << nl << typeToString(*r);
+		    if (++r != throws.end())
+			O << ',';
+		}
+		O.dec();
+		O.dec();
+	    }
+	    O << ";</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
 	}
-	O << ";</synopsis>";
-	O.restoreIndent();
-	
-	printComment(*q);
-	
-	end();
     }
 
-    for (DataMemberList::iterator q = dataMembers.begin();
-	q != dataMembers.end();
-	++q)
     {
-	TypePtr type = (*q)->type();
-	
-	start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
-	
-	O.zeroIndent();
-	O << nl << "<synopsis>" << typeToString(type) << " <structfield>" << (*q)->name()
-	  << "</structfield>;</synopsis>";
-	O.restoreIndent();
-	
-	printComment(*q);
-	
-	end();
+	for (DataMemberList::iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    TypePtr type = (*q)->type();
+	    
+	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>" << typeToString(type) << " <structfield>" << (*q)->name()
+	      << "</structfield>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
     }
-
+	
     end();
 }
 

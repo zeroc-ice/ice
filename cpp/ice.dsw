@@ -197,6 +197,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name exceptionsS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name docbook
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name python
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -385,6 +391,21 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "python"=.\src\slice\python\python.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name parser
     End Project Dependency
 }}}
 
