@@ -293,7 +293,7 @@ IceInternal::Collector::finished()
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
     //
-    // We also unregister with the thread poool if we go to holding
+    // We also unregister with the thread pool if we go to holding
     // state, but in this case we may not close the connection.
     //
     if (_state == StateClosed)
@@ -576,7 +576,7 @@ IceInternal::CollectorFactory::message(BasicStream&)
     catch (const LocalException& ex)
     {
 	warning(ex);
-	destroy();
+        setState(StateClosed);
     }
 }
 
@@ -592,7 +592,7 @@ IceInternal::CollectorFactory::finished()
     JTCSyncT<JTCMutex> sync(*this);
 
     //
-    // We also unregister with the thread poool if we go to holding
+    // We also unregister with the thread pool if we go to holding
     // state, but in this case we may not close the acceptor.
     //
     if (_state == StateClosed)
