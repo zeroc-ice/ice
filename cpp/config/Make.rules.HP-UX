@@ -29,7 +29,9 @@ endif
 # 361: Value-returning function might end without executing a return statement.
 # 829: Implicit conversion of string literal to 'char *' is deprecated.
 # 849: External symbol too long, truncated from xxx to 4000
-DISABLEDWARNINGS        = +W307 +W361 +W829 +W849
+# 740: Unsafe cast between pointers/references to incomplete classes (required for db_cxx.h only)
+# 749: The cast from 'const DbTxnImp *' to 'const __db_txn *' is performed as a 'reinterpret_cast' (db_cxx.h only).
+DISABLEDWARNINGS        = +W307 +W361 +W829 +W849 +W740 +W749
 
 CXXFLAGS		= -AA +Z -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
 
