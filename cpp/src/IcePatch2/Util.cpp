@@ -210,56 +210,10 @@ IcePatch2::stringToBytes(const string& str)
     return bytes;
 }
 
-bool
-IcePatch2::isDir(const string& path)
-{
-    struct stat buf;
-    if(stat(path.c_str(), &buf) == -1)
-    {
-	throw "cannot stat `" + path + "':\n" + lastError();
-    }
-    return S_ISDIR(buf.st_mode);
-}
-
 string
 IcePatch2::normalize(const string& path)
 {
-    assert(!path.empty());
-
-    static IceUtil::StaticMutex mutex = ICE_STATIC_MUTEX_INITIALIZER;
-
-#ifdef _WIN32
-    static char cwd[_MAX_PATH];
-#else
-    static char cwd[PATH_MAX];
-#endif
-
-    {
-	IceUtil::StaticMutex::Lock sync(mutex);
-
-	if(*cwd == '\0')
-	{
-#ifdef _WIN32
-	    if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-	    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
-	    {
-		throw "cannot get the current directory:\n" + lastError();
-	    }
-	}
-    }
-
-    string result;
-#ifdef _WIN32
-    if(path[0] != '/' && path[0] != '\\' && !(path.size() > 1 && isalpha(path[0]) && path[1] == ':'))
-#else
-    if(path[0] != '/')
-#endif
-    {
-	result = cwd + '/';
-    }
-    result += path;
+    string result = path;
 
     string::size_type pos;
 
@@ -282,41 +236,23 @@ IcePatch2::normalize(const string& path)
     pos = 0;
     while((pos = result.find("/./", pos)) != string::npos)
     {
-	result.erase(pos, 2); // Remove redundant current directory components.
+	result.erase(pos, 2);
     }
-
-    if(result.size() > 1 && result[result.size() - 1] == '/')
-    {
-	result.erase(result.size() - 1, 1);
-    }
-
-    while(result.size() > 2 && result.substr(0, 2) == "./")
-    {
-	result.erase(0, 2);
-    }
-
-
 
     if(result.substr(0, 2) == "./")
     {
 	result.erase(0, 2);
     }
 
-    if(result == "/.")
-    {
-	return "/";
-    }
-
-    while(result.size() > 2 && result.substr(result.size() - 2, 2) == "/.")
+    if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
     {
 	result.erase(result.size() - 2, 2);
     }
 
-    if(result.size() > 1 && result[result.size() - 1] == '/')
+    if(result.size() >= 1 && result[result.size() - 1] == '/')
     {
 	result.erase(result.size() - 1);
     }
-    cerr << "normalize: returning " << result << endl;
 
     return result;
 }
@@ -325,20 +261,32 @@ string
 IcePatch2::getSuffix(const string& pa)
 {
     const string path = normalize(pa);
-    string::size_type slashPos = path.rfind('/');
-    slashPos = slashPos == string::npos ? 0 : slashPos + 1;
-    string::size_type dotPos = path.find('.', slashPos);
-    return dotPos == string::npos ? string() : path.substr(dotPos + 1);
+
+    string::size_type pos = path.rfind('.');
+    if(pos == string::npos)
+    {
+	return string();
+    }
+    else
+    {
+	return path.substr(pos + 1);
+    }
 }
 
 string
 IcePatch2::getWithoutSuffix(const string& pa)
 {
     const string path = normalize(pa);
-    string::size_type slashPos = path.rfind('/');
-    slashPos = slashPos == string::npos ? 0 : slashPos + 1;
-    string::size_type dotPos = path.rfind('.', slashPos);
-    return dotPos == string::npos ? path : path.substr(0, dotPos);
+
+    string::size_type pos = path.rfind('.');
+    if(pos == string::npos)
+    {
+	return path;
+    }
+    else
+    {
+	return path.substr(0, pos);
+    }
 }
 
 bool
@@ -354,24 +302,32 @@ string
 IcePatch2::getBasename(const string& pa)
 {
     const string path = normalize(pa);
-    if(path == "/")
+
+    string::size_type pos = path.rfind('/');
+    if(pos == string::npos)
     {
 	return path;
     }
-    string::size_type slashPos = path.rfind('/');
-    return slashPos == string::npos ? path : path.substr(slashPos + 1);
+    else
+    {
+	return path.substr(pos + 1);
+    }
 }
 
 string
 IcePatch2::getDirname(const string& pa)
 {
     const string path = normalize(pa);
-    if(path == "/")
+
+    string::size_type pos = path.rfind('/');
+    if(pos == string::npos)
     {
-	return path;
+	return string();
     }
-    string::size_type slashPos = path.rfind('/');
-    return slashPos == string::npos ? string() : path.substr(0, slashPos);
+    else
+    {
+	return path.substr(0, pos);
+    }
 }
 
 void
