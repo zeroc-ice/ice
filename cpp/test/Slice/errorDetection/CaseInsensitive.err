@@ -5,10 +5,8 @@ CaseInsensitive.ice:30: redefinition of data member `l' as operation `l'
 CaseInsensitive.ice:36: operation `L' differs only in capitalization from data member `l'
 CaseInsensitive.ice:36: redefinition of data member `l' as operation `L'
 CaseInsensitive.ice:43: module `M1' is capitalized inconsistently with its previous name: `m1'
-CaseInsensitive.ice:43: `M1' has changed meaning
 CaseInsensitive.ice:45: redefinition of class `c1' as module
 CaseInsensitive.ice:47: module `C1' differs only in capitalization from class name `c1'
-CaseInsensitive.ice:47: `C1' has changed meaning
 CaseInsensitive.ice:52: redefinition of parameter `aa'
 CaseInsensitive.ice:53: parameter `BB' differs only in capitalization from parameter `bb'
 CaseInsensitive.ice:53: `BB' has changed meaning

@@ -146,7 +146,7 @@ Slice::Builtin::typeId() const
 	}
     }
     assert(false);
-    return ""; // Keep the compiler happy
+    return ""; // Keep the compiler happy.
 }
 
 bool
@@ -315,48 +315,34 @@ Slice::Container::createModule(const string& name)
 {
     checkPrefix(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
-    matches.sort();	// Modules can occur many times...
-    matches.unique();	// ... but we only want one instance of each
+    matches.sort(); // Modules can occur many times...
+    matches.unique(); // ... but we only want one instance of each.
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
-	string msg; // ML: Why not have this local there it is needed?
-	bool differsOnlyInCase = matches.front()->name() != name;
+	bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
 	ModulePtr module = ModulePtr::dynamicCast(*p);
 	if(module)
 	{
-	    if(_unit->caseSensitive())
+	    if(differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
 	    {
-		// ML: Continue is unnecessary.
-		// ML: Use (differsOnlyInCase && _unit->caseSensitive()) below instead.
-		// ML: Or even better use this above:
-		// ML: bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name
-		continue;			// Reopening modules is permissible...
-	    }
-	    // ML: Comments should end with '.', and only one space between code and comment.
-	    else if(differsOnlyInCase)		// ... but only if they are capitalized correctly
-	    {
-		msg += "module `" + name + "' is capitalized inconsistently with its previous name: `";
+		string msg = "module `" + name + "' is capitalized inconsistently with its previous name: `";
 		msg += module->name() + "'";
 		_unit->error(msg);
 	    }
 	}
-	else if(!_unit->caseSensitive() && differsOnlyInCase)
+	else if(differsOnlyInCase)
 	{
-	    msg = "module `" + name + "' differs only in capitalization from ";
+	    string msg = "module `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
 	    _unit->error(msg);
-	    continue; // ML: Continue unnecessary.
 	}
 	else
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as module";
 	    _unit->error(msg);
-	    return 0; // ML: Why return 0 here, but continue above?
 	}
-
-	// ML: What happens if one of the error conditions occur? You
-	// still create a Module below in this case. Shouldn't there be a return 0 here?
+	return 0;
     }
 
     ModulePtr q = new Module(this, name);
@@ -381,60 +367,11 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    return 0;
 	}
 
-	string msg;
-	bool differsOnlyInCase = matches.front()->name() != name;
-	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
-	if(def)
-	{
-	    // ML: Move to the end of this block. Otherwise you won't
-	    // catch capitalization errors.
-	    if(_unit->ignRedefs())
-	    {
-		def->updateIncludeLevel();
-		return def;
-	    }
-
-	    if(!differsOnlyInCase)
-	    {
-		msg = "redefinition of ";
-		msg += intf ? "interface" : "class";
-		msg += " `" + name + "'";
-		_unit->error(msg);
-		return 0; // ML: return 0 here, but now below?
-	    }
-	    else if(!_unit->caseSensitive())
-	    {
-		msg = intf ? "interface" : "class";
-		msg += " definition `" + name + "' is capitalized inconsistently with its previous name: `";
-		msg += def->name() + "'";
-		_unit->error(msg);
-	    }
-	}
-
-	if(!_unit->caseSensitive() && differsOnlyInCase)
-	{
-	    msg = intf ? "interface" : "class";
-	    msg = " definition `" + name + "' differs only in capitalization from ";
-	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-	    _unit->error(msg);
-	}
-	else
-	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name() + "' as ";
-	    msg += intf ? "interface" : "class";
-	    _unit->error(msg);
-	    return 0; // ML: return 0 unnecessary.
-	}
-	
-	return 0;
-    }
-
-/* ML: How about: 
 	bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
 	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
  	if(def)
 	{
-	    if(!differsOnlyInCase)
+	    if(differsOnlyInCase)
 	    {
 	        string msg = intf ? "interface" : "class";
 		msg += " definition `" + name + "' is capitalized inconsistently with its previous name: `";
@@ -468,10 +405,8 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    msg += intf ? "interface" : "class";
 	    _unit->error(msg);
 	}
-	
 	return 0;
-*/
-// ML: The same comments apply to the rest of the code.
+    }
 
     ClassDecl::checkBasesAreLegal(name, local, bases, _unit);
  
@@ -514,7 +449,6 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 		def = clDef;
 		continue;
 	    }
-
 	    return 0;
 	}
 	
@@ -525,21 +459,19 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	    {
 		continue;
 	    }
-
 	    return 0;
 	}
 	
-	string msg;
-	bool differsOnlyInCase = matches.front()->name() != name;
-	if(!_unit->caseSensitive() && differsOnlyInCase)
+	bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
+	if(differsOnlyInCase)
 	{
-	    msg = "class declaration `" + name + "' differs only in capitalization from ";
+	    string msg = "class declaration `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
 	else
     	{
-	    msg = "declaration of already defined `";
+	    string msg = "declaration of already defined `";
 	    msg += name;
 	    msg += "' as ";
 	    msg += intf ? "interface" : "class";
@@ -595,24 +527,22 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as exception";
 	    _unit->error(msg);
-	    return 0;
 	}
 	else if(!_unit->caseSensitive())
 	{
-	    msg = "exception `" + name + "' differs only in capitalization from ";
+	    string msg = "exception `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
     }
 
     //
-    // If this definition is non-local, base cannot be local
+    // If this definition is non-local, base cannot be local.
     //
     if(!local && base && base->isLocal())
     {
@@ -641,17 +571,15 @@ Slice::Container::createStruct(const string& name, bool local)
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as struct";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "struct `" + name + "' differs only in capitalization from ";
+	    string msg = "struct `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
@@ -679,24 +607,22 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as sequence";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "sequence `" + name + "' differs only in capitalization from ";
+	    string msg = "sequence `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
     }
 
     //
-    // If sequence is non-local, element type cannot be local
+    // If sequence is non-local, element type cannot be local.
     //
     if(!local && type->isLocal())
     {
@@ -726,17 +652,15 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as dictionary";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "dictionary `" + name + "' differs only in capitalization from ";
+	    string msg = "dictionary `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
@@ -784,17 +708,15 @@ Slice::Container::createEnum(const string& name, bool local)
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as enumeration";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "enumeration `" + name + "' differs only in capitalization from ";
+	    string msg = "enumeration `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
@@ -822,17 +744,15 @@ Slice::Container::createEnumerator(const string& name)
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as enumerator";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "enumerator `" + name + "' differs only in capitalization from ";
+	    string msg = "enumerator `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
@@ -861,24 +781,22 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
 		return p;
 	    }
 	}
-	string msg;
 	if(matches.front()->name() == name)
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as constant";
 	    _unit->error(msg);
-	    return 0;
 	}
-	if(!_unit->caseSensitive())
+	else if(!_unit->caseSensitive())
 	{
-	    msg = "constant `" + name + "' differs only in capitalization from ";
+	    string msg = "constant `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
     }
 
     //
-    // Check that the constant type is legal
+    // Check that the constant type is legal.
     //
     if(!Const::isLegalType(name, constType, _unit))
     {
@@ -886,7 +804,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
     }
 
     //
-    // Check that the type of the constant is compatible with the type of the initializer
+    // Check that the type of the constant is compatible with the type of the initializer.
     //
     if(!Const::typesAreCompatible(name, constType, literalType, value, _unit))
     {
@@ -894,7 +812,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
     }
 
     //
-    // Check that the initializer is in range
+    // Check that the initializer is in range.
     //
     if(!Const::isInRange(name, constType, value, _unit))
     {
@@ -971,7 +889,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 	    ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
 	    if(def)
 	    {
-		continue; // Ignore class definitions
+		continue; // Ignore class definitions.
 	    }
 
 	    if(printError && !_unit->caseSensitive() && matches.front()->scoped() != (thisScope() + sc))
@@ -1008,7 +926,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 	    ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
 	    if(def)
 	    {
-		continue; // Ignore class definitions
+		continue; // Ignore class definitions.
 	    }
 
 	    if(printError && !_unit->caseSensitive() && matches.front()->scoped() != (thisScope() + sc))
@@ -1096,7 +1014,7 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
     ContainedList results;
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
-	if(!ClassDefPtr::dynamicCast(*p)) // Ignore class definitions
+	if(!ClassDefPtr::dynamicCast(*p)) // Ignore class definitions.
 	{
 	    results.push_back(*p);
 
@@ -1537,7 +1455,7 @@ Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 bool
 Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 {
-    if(scoped[0] == ':')	// Only unscoped names introduce anything
+    if(scoped[0] == ':') // Only unscoped names introduce anything.
     {
 	return true;
     }
@@ -1559,7 +1477,7 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 	{
 	    if(cl.empty())
 	    {
-		return true;	// Ignore types whose creation failed previously
+		return true; // Ignore types whose creation failed previously.
 	    }
 	}
 	namedThing = cl.front();
@@ -1757,7 +1675,7 @@ Slice::Constructed::dependencies()
     recDependencies(resultSet);
 
 #if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
-    // TODO: find a more usable work-around for this std lib limitation
+    // TODO: find a more usable work-around for this std lib limitation.
     ConstructedList result;
     set<ConstructedPtr>::iterator it = resultSet.begin();
     while(it != resultSet.end())
@@ -1856,7 +1774,7 @@ void
 Slice::ClassDecl::checkBasesAreLegal(const string& name, bool local, const ClassList& bases, const UnitPtr& unit)
 {
     //
-    // If this definition is non-local, no base can be local
+    // If this definition is non-local, no base can be local.
     //
     if(!local)
     {
@@ -2073,14 +1991,13 @@ Slice::ClassDef::createOperation(const string& name,
 		return p;
 	    }
 	}
-	string msg;
 	if(!_unit->caseSensitive() && matches.front()->name() != name)
 	{
-	    msg = "operation `" + name + "' differs only in capitalization from ";
+	    string msg = "operation `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
-	msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	msg += "' as operation `" + name + "'";
 	_unit->error(msg);
 	return 0;
@@ -2113,7 +2030,7 @@ Slice::ClassDef::createOperation(const string& name,
     }
 
     //
-    // Check whether any bases have defined something with the same name already
+    // Check whether any bases have defined something with the same name already.
     //
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
@@ -2155,7 +2072,7 @@ Slice::ClassDef::createOperation(const string& name,
     }
 
     //
-    // Non-local class/interface cannot have operation with local return type
+    // Non-local class/interface cannot have operation with local return type.
     //
     if(!isLocal() && returnType && returnType->isLocal())
     {
@@ -2187,16 +2104,15 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 		return p;
 	    }
 	}
-	string msg;
 	if(!_unit->caseSensitive() && matches.front()->name() != name)
 	{
-	    msg = "data member `" + name + "' differs only in capitalization from ";
+	    string msg = "data member `" + name + "' differs only in capitalization from ";
 	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
 	else
 	{
-	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as data member `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
@@ -2204,7 +2120,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // Check whether enclosing class has the same name
+    // Check whether enclosing class has the same name.
     //
     if(name == this->name())
     {
@@ -2229,7 +2145,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // Check whether any bases have defined something with the same name already
+    // Check whether any bases have defined something with the same name already.
     //
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
@@ -2271,7 +2187,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // If data member is local, enclosing class/interface must be local
+    // If data member is local, enclosing class/interface must be local.
     //
     if(!isLocal() && type->isLocal())
     {
@@ -2514,7 +2430,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
 {
     //
     // First element of bases may be a class, all others must be
-    // interfaces
+    // interfaces.
     //
 #ifndef NDEBUG
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
@@ -2587,23 +2503,22 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 		return p;
 	    }
 	}
-	string msg;
 	if(!_unit->caseSensitive() && matches.front()->name() != name)
 	{
-	    msg = "exception member `" + name + "' differs only in capitalization from ";
+	    string msg = "exception member `" + name + "' differs only in capitalization from ";
 	    msg += "exception member `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
 	else
 	{
-	    msg = "redefinition of exception member `" + name + "'";
+	    string msg = "redefinition of exception member `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
 	}
     }
 
     //
-    // Check whether enclosing exception has the same name
+    // Check whether enclosing exception has the same name.
     //
     if(name == this->name())
     {
@@ -2628,7 +2543,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // Check whether any bases have defined a member with the same name already
+    // Check whether any bases have defined a member with the same name already.
     //
     ExceptionList bl = allBases();
     for(ExceptionList::const_iterator q = bl.begin(); q != bl.end(); ++q)
@@ -2661,7 +2576,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // If data member is local, enclosing class/interface must be local
+    // If data member is local, enclosing class/interface must be local.
     //
     if(!isLocal() && type->isLocal())
     {
@@ -2841,23 +2756,22 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 		return p;
 	    }
 	}
-	string msg;
 	if(!_unit->caseSensitive() && matches.front()->name() != name)
 	{
-	    msg = "member `" + name + "' differs only in capitalization from ";
+	    string msg = "member `" + name + "' differs only in capitalization from ";
 	    msg += "member `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
 	else
 	{
-	    msg = "redefinition of struct member `" + name + "'";
+	    string msg = "redefinition of struct member `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
 	}
     }
 
     //
-    // Check whether enclosing struct has the same name
+    // Check whether enclosing struct has the same name.
     //
     if(name == this->name())
     {
@@ -2882,7 +2796,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // Structures cannot contain themselves
+    // Structures cannot contain themselves.
     //
     if(type.get() == this)
     {
@@ -2894,7 +2808,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
     }
 
     //
-    // If data member is local, enclosing class/interface must be local
+    // If data member is local, enclosing class/interface must be local.
     //
     if(!isLocal() && type->isLocal())
     {
@@ -3410,7 +3324,7 @@ Slice::Const::typesAreCompatible(const string& name, const TypePtr& constType,
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
 
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
-// Strange Sun C++ 5.3 bug
+// Strange Sun C++ 5.3 bug.
     const IceUtil::HandleBase<SyntaxTreeBase>& hb = literalType;
     BuiltinPtr lt = BuiltinPtr::dynamicCast(hb);
 #else
@@ -3507,7 +3421,7 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
     if (!ct)
     {
-	return true; // Enums are checked elsewhere
+	return true; // Enums are checked elsewhere.
     }
 
     switch(ct->kind())
@@ -3551,7 +3465,7 @@ Slice::Const::isInRange(const string& name, const TypePtr& constType, const stri
 	    break;
 	}
     }
-    return true; // Everything else is either in range or doesn't need checking
+    return true; // Everything else is either in range or doesn't need checking.
 }
 
 Slice::Const::Const(const ContainerPtr& container, const string& name,
@@ -3594,23 +3508,22 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
 		return p;
 	    }
 	}
-	string msg;
 	if(!_unit->caseSensitive() && matches.front()->name() != name)
 	{
-	    msg = "parameter `" + name + "' differs only in capitalization from ";
+	    string msg = "parameter `" + name + "' differs only in capitalization from ";
 	    msg += "parameter `" + matches.front()->name() + "'";
 	    _unit->error(msg);
 	}
 	else
 	{
-	    msg = "redefinition of parameter `" + name + "'";
+	    string msg = "redefinition of parameter `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
 	}
     }
 
     //
-    // Check whether enclosing operation has the same name
+    // Check whether enclosing operation has the same name.
     //
     if(name == this->name())
     {
@@ -3635,7 +3548,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     //
-    // Check that in parameters don't follow out parameters
+    // Check that in parameters don't follow out parameters.
     //
     if(!_contents.empty())
     {
@@ -3648,7 +3561,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     }
 
     //
-    // Non-local class/interface cannot have operation with local parameters
+    // Non-local class/interface cannot have operation with local parameters.
     //
     ClassDefPtr cl = ClassDefPtr::dynamicCast(this->container());
     assert(cl);
@@ -3706,7 +3619,7 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     }
 
     //
-    // Check that no exception occurs more than once in the throws clause
+    // Check that no exception occurs more than once in the throws clause.
     //
     ExceptionList uniqueExceptions = el;
     uniqueExceptions.sort();
@@ -3714,7 +3627,7 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     if(uniqueExceptions.size() != el.size())
     {
 	//
-	// At least one exception appears twice
+	// At least one exception appears twice.
 	//
 	ExceptionList tmp = el;
 	tmp.sort();
@@ -3742,7 +3655,7 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     }
 
     //
-    // If the interface is non-local, no local exception can be thrown
+    // If the interface is non-local, no local exception can be thrown.
     //
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container());
     assert(cl);
