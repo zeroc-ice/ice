@@ -50,4 +50,5 @@ Ice.Trace.Security=2
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
+Ice.Ssl.CertPath=../../../certs
 Ice.Ssl.Config=sslconfig.xml
