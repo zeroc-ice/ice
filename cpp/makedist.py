@@ -227,6 +227,7 @@ os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + t
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
+    os.path.join("ice", "fixCopyright.py"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
 filesToRemove.extend(find("ice/src/slice2cs", "*"))
