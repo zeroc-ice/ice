@@ -663,15 +663,21 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is->readSize(sz);";
 	//
-	// ML:
-	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
-	// be checked whether sz is a reasonable value.
+	// ML: Don't use v.resize(sz) or v.reserve(sz) here, as it
+	// cannot be checked whether sz is a reasonable value.
 	//
-	// Michi: I don't think it matters -- if the size is unreasonable, we just fall over after having
-	// unmarshaled a whole lot of stuff instead of falling over straight away. I need to preallocate
-	// space for the entire sequence up-front because, otherwise, resizing the sequence may move it in
-	// memory and cause the wrong locations to be patched for classes. Also, doing a single large allocation
-	// up-front will be faster the repeatedly growing the vector.
+	// Michi: I don't think it matters -- if the size is
+	// unreasonable, we just fall over after having unmarshaled a
+	// whole lot of stuff instead of falling over straight away. I
+	// need to preallocate space for the entire sequence up-front
+	// because, otherwise, resizing the sequence may move it in
+	// memory and cause the wrong locations to be patched for
+	// classes. Also, doing a single large allocation up-front
+	// will be faster the repeatedly growing the vector.
+	//
+	// ML: It does matter. If we resize to a huge number, the
+	// program will crash. If we don't, but just loop, then we
+	// will eventually get an UnmarshalOutOfBoundsException.
 	//
 	C << nl << "v.resize(sz);";
 	C << nl << "for(int i = 0; i < sz; ++i)";

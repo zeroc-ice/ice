@@ -1106,12 +1106,16 @@ IceInternal::BasicStream::read(vector<string>& v)
     Int sz;
     readSize(sz);
     v.clear();
-    v.reserve(sz);
+
+    //
+    // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
+    // checked whether sz is a reasonable value.
+    //
+
     while(sz--)
     {
-	string s;
-	read(s);
-	v.push_back(s);
+	v.resize(v.size() + 1);
+	read(v.back());
     }
 }
 
