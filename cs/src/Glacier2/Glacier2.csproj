@@ -90,6 +90,7 @@
                 />
                 <File
                     RelPath = "generated\PermissionsVerifierF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -99,6 +100,7 @@
                 />
                 <File
                     RelPath = "generated\RouterF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -108,6 +110,7 @@
                 />
                 <File
                     RelPath = "generated\SessionF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
             </Include>
