@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2005 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, fnmatch, re, string, getopt, glob
+import os, sys, shutil, re, string, getopt, glob
 
 #
 # TODO:
@@ -17,8 +17,11 @@ import os, sys, shutil, fnmatch, re, string, getopt, glob
 #  * Testing on platforms besides Linux.
 #  * Ant build tasks for Ice got missed.
 #  * Demo build system
-#  * We need to transform some directories before the RPMs are built to reflect the structure that we want.
-#  * Update usage message.
+#
+# NOTES:
+#  There are python-ese ways to do some of the things I've shelled out to do.
+#  We might want to convert some of these things, but a lot of things can be
+#  done with one command.
 #
 
 #
@@ -45,20 +48,26 @@ class Package:
     def writeHdr(self, ofile):
         ofile.write("\n")
 
-    def writeFiles(self, ofile, version, intVersion):
-        ofile.write("%files\n")
-        ofile.write("%defattr(-, root, root, -)\n\n")
-        for f in self.filelist:
+    def writeFileList(self, ofile, version, intVersion):
+        ofile.write("%defattr(644, root, root, 755)\n\n")
+        for perm, f in self.filelist:
+            prefix = ""
+            if perm == "exe" or perm == "lib":
+                prefix = "%attr(755, root, root) "
             if f.find("%version%"):
                 f = f.replace("%version%", version)
             if f.endswith(".so"):
-                ofile.write("/usr/" + f + "." + version + "\n")
-                ofile.write("/usr/" + f + "." + str(intVersion) + "\n")
-            ofile.write("/usr/" + f + "\n")
-        ofile.write("\n")
+                ofile.write(prefix + "/usr/" + f + "." + version + "\n")
+                ofile.write(prefix + "/usr/" + f + "." + str(intVersion) + "\n")
+            ofile.write(prefix + "/usr/" + f + "\n")
+        ofile.write("\n")    
+
+    def writeFiles(self, ofile, version, intVersion):
+        ofile.write("%files\n")
+        self.writeFileList(ofile, version, intVersion)
+
 
 class Subpackage(Package):
-
     def writeHdr(self, ofile):
         ofile.write("%package " + self.name + "\n")
         ofile.write("Summary: " + self.summary + "\n")
@@ -70,22 +79,14 @@ class Subpackage(Package):
 
     def writeFiles(self, ofile, version, intVersion):
         ofile.write("%files " + self.name + "\n")
-        ofile.write("%defattr(-, root, root, -)\n\n")
-        for f in self.filelist:
-            if f.find("%version%"):
-                f = f.replace("%version%", version)
-            if f.endswith(".so"):
-                ofile.write("/usr/" + f + "." + version + "\n")
-                ofile.write("/usr/" + f + "." + str(intVersion) + "\n")
-            ofile.write("/usr/" + f + "\n")
-        ofile.write("\n")
+        self.writeFileList(ofile, version, intVersion)
 
 transforms = [ ("slice", "share/slice"),
                ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
                ("doc", "share/doc/Ice-%version%"),
                ("ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
                ("LICENSE", "share/doc/Ice-%version%/LICENSE"),
-               ("include", "include/ice")]
+               ]
                
 fileLists = [
     Package("main",
@@ -93,101 +94,82 @@ fileLists = [
             "The Ice runtime and tools.",
             "Development/Libraries Development/Tools System Environment/Libraries",
             "",
-            ["share/doc/Ice-%version%/ICE_LICENSE",
-             "share/doc/Ice-%version%/LICENSE",
-             "bin/dumpdb",
-             "bin/transformdb",
-             "bin/glacier2router",
-             "bin/icebox",
-             "bin/iceboxadmin",
-             "bin/icepackadmin",
-             "bin/icecpp",
-             "bin/icepacknode",
-             "bin/icepackregistry",
-             "bin/icepatch2calc",
-             "bin/icepatch2client",
-             "bin/icepatch2server",
-             "bin/icestormadmin",
-             "bin/slice2docbook", 
-             "lib/libFreeze.so",
-             "lib/libGlacier2.so",
-             "lib/libIceBox.so",
-             "lib/libIcePack.so",
-             "lib/libIcePatch2.so",
-             "lib/libIce.so",
-             "lib/libIceSSL.so",
-             "lib/libIceStormService.so",
-             "lib/libIceStorm.so",
-             "lib/libIceUtil.so",
-             "lib/libIceXML.so",
-             "lib/libSlice.so",
-             "share/slice"]),
+            [("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
+             ("doc", "share/doc/Ice-%version%/LICENSE"),
+             ("exe", "bin/dumpdb"),
+             ("exe", "bin/transformdb"),
+             ("exe", "bin/glacier2router"),
+             ("exe", "bin/icebox"),
+             ("exe", "bin/iceboxadmin"),
+             ("exe", "bin/icepackadmin"),
+             ("exe", "bin/icecpp"),
+             ("exe", "bin/icepacknode"),
+             ("exe", "bin/icepackregistry"),
+             ("exe", "bin/icepatch2calc"),
+             ("exe", "bin/icepatch2client"),
+             ("exe", "bin/icepatch2server"),
+             ("exe", "bin/icestormadmin"),
+             ("exe", "bin/slice2docbook"), 
+             ("lib", "lib/libFreeze.so"),
+             ("lib", "lib/libGlacier2.so"),
+             ("lib", "lib/libIceBox.so"),
+             ("lib", "lib/libIcePack.so"),
+             ("lib", "lib/libIcePatch2.so"),
+             ("lib", "lib/libIce.so"),
+             ("lib", "lib/libIceSSL.so"),
+             ("lib", "lib/libIceStormService.so"),
+             ("lib", "lib/libIceStorm.so"),
+             ("lib", "lib/libIceUtil.so"),
+             ("lib", "lib/libIceXML.so"),
+             ("lib", "lib/libSlice.so"),
+             ("dir", "share/slice"),
+             ("dir", "share/doc/Ice-%version%")]),
     Subpackage("c++-devel",
                "",
                "Ice tools, files and libraries for developing Ice applications in C++",
                "Development/Libraries Development/Tools",
                "",
-               ["bin/slice2cpp",
-                "bin/slice2freeze",
-                "include/ice"]),
+               [("exe", "bin/slice2cpp"),
+                ("exe", "bin/slice2freeze"),
+                ("dir", "include")]),
     Subpackage("dotnet",
                "ice mono-core",
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
-               ["lib/glacier2cs.dll", "lib/icecs.dll", "lib/icepackcs.dll"]),
+               [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll")]),
     Subpackage("dotnet-devel",
                "ice-dotnet mono-devel",
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
-               ["bin/slice2cs"]),
+               [("exe", "bin/slice2cs")]),
     Subpackage("java",
                "",
                "Ice runtime for Java applications",
                "Development/Libraries",
                "",
-               ["lib/Ice-%version%/Ice.jar"]),
+               [("doc", "lib/Ice-%version%/Ice.jar")]),
     Subpackage("java-devel",
                "ice-java",
                "Ice tools developing Ice applications in Java",
                "Development/Libraries Development/Tools",
                "",
-               ["bin/slice2java",
-                "bin/slice2freezej"]),
+               [("exe", "bin/slice2java"),
+                ("exe", "bin/slice2freezej")]),
     Subpackage("python",
                "",
                "Ice runtime for Python applications",
                "Development/Libraries",
                "",
-               ["lib/IcePy.so", "python"]),
+               [("lib", "lib/IcePy.so"), ("dir", "python")]),
     Subpackage("python-devel",
                "ice-python",
                "Ice tools for developing Ice applications in Python",
                "Development/Libraries Development/Tools",
                "",
-               ["bin/slice2py"]),
-    Subpackage("docs",
-               "",
-               "Browsable documentation for Ice",
-               "Development/Libraries Development/Tools",
-               "",
-               ["share/doc/Ice-%version%"])
+               [("exe", "bin/slice2py")])
     ]
-
-def usage():
-    """Print usage/help information"""
-    print "Usage: " + sys.argv[0] + " [options] [tag]"
-    print
-    print "Options:"
-    print "-h    Show this message."
-    print "--build-dir     Specify the directory where the distributions will be unpacked and built."
-    print "--install-dir   Specify the directory where the distribution contents will be installed to."
-    print "--install-root  Specify the root directory that will appear in the tarball."
-    print "--sources       Specify the location of the sources directory.  If this is omitted makebindist"
-    print "                will traverse ../icej ../icepy ../icecs, etc and make the distributions for you."
-    print
-    print "If no tag is specified, HEAD is used."
 
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
@@ -270,7 +252,7 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     if cvsdir == "icepy":
         os.system("./makedist.py " + tag)
     else:
-        os.system("./makedist.py -d " + tag)
+        os.system("./makedist.py " + tag)
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -280,15 +262,52 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config")
-    shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/" + demoDir)
-    os.system("cp " + distro + "/config/*.* " + buildDir + "/Ice-" + version + "-demos/config")
+    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " + distro + "/ant")
+    shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo_" + demoDir)
+    shutil.move(distro + "/config", buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
+    if demoDir == "java":
+        shutil.move(distro + "/ant", buildDir + "/Ice-" + version + "-demos/ant")
+
+    # Change make includes to point to the right config directories.
+    script = "find " + buildDir + "/Ice-" + version + "-demos/demo_" + demoDir + " -name Makefile | xargs "
+    script = script + "perl -pi -e 's/config\/Make.rules/config_" + demoDir + "\/Make.rules/'"
+    os.system(script)
+
+    # Change make includes within the config directory to point to the right directory.
+    script = "find " + buildDir + "/Ice-" + version + "-demos/config_" + demoDir + " -name Make* | xargs "
+    script = script + "perl -pi -e 's/config\//config_" + demoDir + "\//'"
+    os.system(script)
+
+    # C++ specific build modifications.
+    if demoDir == "cpp":
+        tcwd = os.getcwd()
+        os.chdir(buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
+        script = "perl -pi -e 's/^prefix.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
+        script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
+        script = script + "endif\n/' Make.rules"
+        os.system(script)
+
+        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/' Make.rules"
+        os.system(script)
+
+        script = "perl -pi -e 's/^slicedir.*$/ifeq (\$(ICE_DIR),\/usr)\n    slicedir \= \$(ICE_DIR)\/share\/slice\n"
+        script = script + "else\n    slicedir \= \$(ICE_DIR)\/slice\nendif\n/' Make.rules"
+        os.system(script)
+        
+        # Dependency files are all going to be bogus.  The makedepend
+        # script doesn't seem to work properly for the slice files.
+        os.chdir("..")
+        os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
+        
+        os.chdir(tcwd)
+        
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
     os.chdir(cwd)
 
 def archiveDemoTree(buildDir, version):
     cwd = os.getcwd()
     os.chdir(buildDir)
+    os.system("perl -pi -e 's/^prefix.*$/prefix = /opt/Ice-" + version + " Ice-" + version + "-demos/config/Make.rules")
     os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
     os.chdir(cwd)
 
@@ -376,7 +395,7 @@ Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz
 
 """)
 
-def missingDirs(source, dest):
+def missingPathParts(source, dest):
     print "Calculating :  " + source + " and " + dest
         
     startPath = dest.find(source)
@@ -425,9 +444,28 @@ def transformDirectories(transforms, version, installDir):
             shutil.move("./tmp", destdir)
         else:
             if not os.path.exists(os.path.dirname(dest)):
-                os.makedirs(missingDirs(sourcedir, destdir))
+                os.makedirs(missingPathParts(sourcedir, destdir))
             shutil.move(source, dest)
     os.chdir(cwd)
+
+def usage():
+    """Print usage/help information"""
+    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print
+    print "Options:"
+    print "-h    Show this message."
+    print "--build-dir     Specify the directory where the distributions will be unpacked and built."
+    print "--install-dir   Specify the directory where the distribution contents will be installed to."
+    print "--install-root  Specify the root directory that will appear in the tarball."
+    print "--sources       Specify the location of the sources directory.  If this is omitted makebindist"
+    print "                will traverse ../icej ../icepy ../icecs, etc and make the distributions for you."
+    print "-v, --verbose   Print verbose processing messages."
+    print "-t, --tag       Specify the CVS version tag for the packages."
+    print "--noclean       Do not clean up current sources where applicable (some bits will still be cleaned."
+    print "--nobuild       Run through the process but don't build anything new."
+    print "--specfile      Just print the RPM spec file and exit."
+    print
+    print "If no tag is specified, HEAD is used."
 
 def main():
 
@@ -445,12 +483,11 @@ def main():
         build = True
         version = None
         soVersion = 0
-        buildDemos = True
         printSpecFile = False
         
         optionList, args = getopt.getopt(sys.argv[1:], "hvt:",
                                          [ "build-dir=", "install-dir=", "install-root=", "sources=",
-                                           "verbose", "tag=", "noclean", "nobuild", "nodemos", "specfile"])
+                                           "verbose", "tag=", "noclean", "nobuild", "specfile"])
                
     except getopt.GetoptError:
         usage()
@@ -476,8 +513,6 @@ def main():
             clean = False
         elif o == "--nobuild":
             build = False
-        elif o == "--nodemos":
-            buildDemos = False
         elif o == "--specfile":
             printSpecFile = True
 
@@ -532,17 +567,17 @@ def main():
 
     if build:
         collectSources = False
-        if sources == None:
+        if sources == None and clean:
             sources = buildDir + "/sources"
             collectSources = True
 
         #
         # Ice must be first or building the other source distributions will fail.
         #
-        sourceTarBalls = [ ("ice", "Ice-" + version, "demo_cpp"),
-                           ("icej","IceJ-" + version, "demo_java"),
-                           ("icecs","IceCS-" + version, "demo_cs"),
-                           ("icepy","IcePy-" + version, "demo_py") ]
+        sourceTarBalls = [ ("ice", "Ice-" + version, "cpp"),
+                           ("icej","IceJ-" + version, "java"),
+                           ("icecs","IceCS-" + version, "cs"),
+                           ("icepy","IcePy-" + version, "py") ]
 
         os.environ['ICE_HOME'] = installDir + "/Ice-" + version
         currentLibraryPath = None
@@ -557,10 +592,15 @@ def main():
         for cvs, tarball, demoDir in sourceTarBalls:
             if collectSources:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
+
             extractDemos(buildDir, version, tarball, demoDir)
             makeInstall(buildDir, installDir + "/Ice-" + version, tarball, clean)
 
+        #
+        # Pack up demos
+        #
         archiveDemoTree(buildDir, version)
+        shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
 
     #
     # Sources should have already been built and installed.  We
