@@ -1,6 +1,19 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Improved support for on demand server activation in IcePack.
+
+- Improved the IcePack registry to prevent potential deadlocks caused by
+  thread starvation. NOTE: it's now required to configure the endpoints of
+  IcePack.Registry.Internal object adapter.
+
+- Fixed a bug where Ice::ObjectAdapter::activate() could throw 
+  Ice::ObjectAdapterDeactivatedException if the object adapter was deactivated
+  concurrently.
+
+- Fixed a bug where setting the locator proxy on a indirect proxy could
+  cause an assert.
+
 - Fixed a bug in IceSSL when multiple communicators are used.
 
 - Added ice_ping optimization in the Freeze evictor: for operation
