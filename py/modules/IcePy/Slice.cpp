@@ -40,11 +40,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     }
 
     string cppArgs;
+    Ice::StringSeq includePaths;
     Ice::StringSeq files;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
     bool caseSensitive = false;
     bool all = false;
+    bool checksum = false;
 
     vector<string>::const_iterator p;
     for(p = argSeq.begin(); p != argSeq.end(); ++p)
@@ -63,6 +65,11 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             {
                 cppArgs += arg;
             }
+
+            if(arg.substr(0, 2) == "-I" && arg.size() > 2)
+            {
+                includePaths.push_back(arg.substr(2));
+            }
         }
         else if(arg == "--case-sensitive")
         {
@@ -71,6 +78,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         else if(arg == "--all")
         {
             all = true;
+        }
+        else if(arg == "--checksum")
+        {
+            checksum = true;
         }
         else if(arg[0] == '-')
         {
@@ -119,7 +130,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         ostringstream codeStream;
         IceUtil::Output out(codeStream);
         out.setUseTab(false);
-        generate(unit, all, out);
+        generate(unit, all, checksum, includePaths, out);
         unit->destroy();
 
         string code = codeStream.str();
