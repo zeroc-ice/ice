@@ -14,7 +14,7 @@
 #include <Ice/Config.h>
 #include <cassert>
 
-namespace Ice
+namespace _Ice
 {
 
 //

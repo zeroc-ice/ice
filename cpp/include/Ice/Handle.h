@@ -14,7 +14,7 @@
 #include <Ice/Config.h>
 #include <algorithm>
 
-namespace Ice
+namespace _Ice
 {
 
 //
@@ -119,13 +119,13 @@ private:
 template<typename T, typename U>
 inline bool operator==(const Handle<T>& a, const Handle<U>& b)
 {
-    return a.get() == b.get();
+    return *a.get() == *b.get();
 }
 
 template<typename T, typename U>
 inline bool operator!=(const Handle<T>& a, const Handle<U>& b)
 {
-    return a.get() != b.get();
+    return *a.get() != *b.get();
 }
 
 }

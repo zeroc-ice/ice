@@ -11,22 +11,18 @@
 #ifndef ICE_COMMUNICATOR_H
 #define ICE_COMMUNICATOR_H
 
-#include <Ice/Shared.h>
-#include <Ice/Handle.h>
+#include <Ice/CommunicatorF.h>
+#include <Ice/Stub.h>
 
 namespace Ice
 {
 
-class CommunicatorI;
-
-void ICE_API _incRef(CommunicatorI*);
-void ICE_API _decRef(CommunicatorI*);
-
-typedef Handle<CommunicatorI> Communicator;
-
-class ICE_API CommunicatorI : public SimpleShared
+class ICE_API CommunicatorI : public ::_Ice::SimpleShared
 {
 public:
+    
+    Object referenceFromString(const std::string&);
+    std::string referenceToString(const Object&);
 
 private:
 

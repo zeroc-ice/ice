@@ -11,33 +11,14 @@
 #ifndef ICE_STUB_H
 #define ICE_STUB_H
 
+#include <Ice/StubF.h>
 #include <Ice/Shared.h>
-#include <Ice/Handle.h>
-
-namespace _IceIntf { namespace Ice { class Object; } }
-namespace _IceStub { namespace Ice { class Object; } }
-namespace _IceStubM { namespace Ice { class Object; } }
-
-namespace Ice
-{
-
-void ICE_API _incRef(::_IceIntf::Ice::Object*);
-void ICE_API _decRef(::_IceIntf::Ice::Object*);
-
-void ICE_API _incRef(::_IceStub::Ice::Object*);
-void ICE_API _decRef(::_IceStub::Ice::Object*);
-
-void ICE_API _incRef(::_IceStubM::Ice::Object*);
-void ICE_API _decRef(::_IceStubM::Ice::Object*);
-
-typedef Handle< ::_IceIntf::Ice::Object > Object;
-
-}
+#include <string>
 
 namespace _IceIntf { namespace Ice
 {
 
-class ICE_API Object : virtual public ::Ice::SimpleShared
+class ICE_API Object : virtual public ::_Ice::SimpleShared
 {
 public:
 
@@ -48,6 +29,11 @@ protected:
 
 private:
 
+    // TODO: Only for getting started...
+    std::string host_;
+    int port_;
+    std::string identity_;
+
     Object(const Object&);
     void operator=(const Object&);
 };
@@ -57,7 +43,7 @@ private:
 namespace _IceStub { namespace Ice
 {
 
-class ICE_API Object : virtual public ::Ice::SimpleShared
+class ICE_API Object : virtual public ::_Ice::SimpleShared
 {
 public:
 
@@ -77,7 +63,7 @@ private:
 namespace _IceStubM { namespace Ice
 {
 
-class ICE_API Object : virtual public ::Ice::SimpleShared
+class ICE_API Object : virtual public ::_Ice::SimpleShared
 {
 public:
 
