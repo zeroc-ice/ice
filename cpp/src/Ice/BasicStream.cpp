@@ -24,10 +24,9 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
-    _instance(instance)
+    _instance(instance),
+    _encapsStack(1)
 {
-    _encapsStack.reserve(4);
-    _encapsStack.resize(1);
     _encapsStack.back().encoding = 0;
     _encapsStack.back().start = 0;
 }
@@ -652,19 +651,23 @@ IceInternal::BasicStream::read(vector<Double>& v)
 void
 IceInternal::BasicStream::write(const string& v)
 {
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
     map<string, Int>::const_iterator p = _encapsStack.back().stringsWritten.find(v);
     if (p != _encapsStack.back().stringsWritten.end())
     {
 	write(p->second);
     }
     else
+#endif
     {
 	Int len = v.size();
 	write(len);
 	if (len > 0)
 	{
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
 	    Int num = _encapsStack.back().stringsWritten.size();
 	    _encapsStack.back().stringsWritten[v] = -(num + 1);
+#endif
 	    int pos = b.size();
 	    resize(pos + len);
 	    copy(v.begin(), v.end(), b.begin() + pos);
@@ -739,19 +742,23 @@ IceInternal::BasicStream::read(vector<string>& v)
 void
 IceInternal::BasicStream::write(const wstring& v)
 {
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
     map<wstring, Int>::const_iterator p = _encapsStack.back().wstringsWritten.find(v);
     if (p != _encapsStack.back().wstringsWritten.end())
     {
 	write(p->second);
     }
     else
+#endif
     {
 	Int len = v.size();
 	write(len);
 	if (len > 0)
 	{
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
 	    Int num = _encapsStack.back().wstringsWritten.size();
 	    _encapsStack.back().wstringsWritten[v] = -(num + 1);
+#endif
 	    wstring::const_iterator p;
 	    for (p = v.begin(); p != v.end(); ++p)
 	    {

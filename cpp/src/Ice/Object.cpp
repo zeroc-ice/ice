@@ -52,13 +52,13 @@ Ice::Object::ice_hash() const
     return reinterpret_cast<Int>(this);
 }
 
-string Ice::Object::__classIds[] =
+const string Ice::Object::__classIds[] =
 {
     "::Ice::Object"
 };
 
-string*
-Ice::Object::__getClassIds()
+const string*
+Ice::Object::__getClassIds() const
 {
     return __classIds;
 }
@@ -103,7 +103,9 @@ string Ice::Object::__all[] =
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
-    pair<string*, string*> r = equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
+    pair<const string*, const string*> r =
+	equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
+
     if (r.first == r.second)
     {
 	return DispatchOperationNotExist;

@@ -16,6 +16,8 @@
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
 
+//#define ICE_ACTIVE_STRING_INDIRECTION
+
 namespace Ice
 {
 
@@ -119,9 +121,13 @@ private:
 	Container::size_type start;
 	Ice::Byte encoding;
 	std::vector<std::string> stringsRead;
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
 	std::map<std::string, Ice::Int> stringsWritten;
+#endif
 	std::vector<std::wstring> wstringsRead;
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
 	std::map<std::wstring, Ice::Int> wstringsWritten;
+#endif
 	std::vector<Ice::ObjectPtr> objectsRead;
 	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
     };

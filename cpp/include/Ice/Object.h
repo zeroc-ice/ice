@@ -70,8 +70,8 @@ public:
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 
-    static ::std::string __classIds[];
-    virtual ::std::string* __getClassIds();
+    static const ::std::string __classIds[];
+    virtual const ::std::string* __getClassIds() const;
 
     virtual bool ice_isA(const ::std::string&, const Current&);
     ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);

@@ -281,9 +281,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	StringList::const_iterator q;
 	
 	H << sp;
-	H << nl << _dllExport << "static ::std::string __exceptionIds[" << exceptionIds.size() << "];";
-	H << nl << _dllExport << "virtual ::std::string* __getExceptionIds() const;";
-	C << sp << nl << "::std::string " << scoped.substr(2) << "::__exceptionIds[" << exceptionIds.size() << "] =";
+	H << nl << _dllExport << "static const ::std::string __exceptionIds[" << exceptionIds.size() << "];";
+	H << nl << _dllExport << "virtual const ::std::string* __getExceptionIds() const;";
+	C << sp << nl << "const ::std::string " << scoped.substr(2) << "::__exceptionIds[" << exceptionIds.size()
+	  << "] =";
 	C << sb;
 	q = exceptionIds.begin();
 	while (q != exceptionIds.end())
@@ -295,7 +296,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	    }
 	}
 	C << eb << ';';
-	C << sp << nl << "::std::string*" << nl << scoped.substr(2) << "::__getExceptionIds() const";
+	C << sp << nl << "const ::std::string*" << nl << scoped.substr(2) << "::__getExceptionIds() const";
 	C << sb;
 	C << nl << "return __exceptionIds;";
 	C << eb;
@@ -1580,12 +1581,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	StringList::const_iterator q;
 
 	H << sp;
-	H << nl << exp2 << "static ::std::string __ids[" << ids.size() << "];";
-	H << nl << exp2 << "static ::std::string __classIds[" << classIds.size() << "];";
+	H << nl << exp2 << "static const ::std::string __ids[" << ids.size() << "];";
+	H << nl << exp2 << "static const ::std::string __classIds[" << classIds.size() << "];";
 	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
-	H << nl << exp2 << "virtual ::std::string* __getClassIds();";
+	H << nl << exp2 << "virtual const ::std::string* __getClassIds() const;";
 	C << sp;
-	C << nl << "::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
+	C << nl << "const ::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
 	C << sb;
 	q = ids.begin();
 	while (q != ids.end())
@@ -1598,7 +1599,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "::std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
+	C << nl << "const ::std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
 	C << sb;
 	q = classIds.begin();
 	while (q != classIds.end())
@@ -1613,12 +1614,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const ::Ice::Current&)";
 	C << sb;
-	C << nl << "::std::string* b = __ids;";
-	C << nl << "::std::string* e = __ids + " << ids.size() << ';';
-	C << nl << "return ::std::binary_search(b, e, s);";
+	C << nl << "return ::std::binary_search(__ids, __ids + " << ids.size() << ", s);";
 	C << eb;
 	C << sp;
-	C << nl << "::std::string*" << nl << scoped.substr(2) << "::__getClassIds()";
+	C << nl << "const ::std::string*" << nl << scoped.substr(2) << "::__getClassIds() const";
 	C << sb;
 	C << nl << "return __classIds;";
 	C << eb;
@@ -1684,7 +1683,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
 	      << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
 	    C << sb;
-	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
+	    C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
 	      << "::std::equal_range(__all, __all + " << allOpNames.size() << ", current.operation);";
 	    C << nl << "if (r.first == r.second)";
 	    C << sb;
