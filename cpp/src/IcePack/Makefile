@@ -95,8 +95,8 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PACK_API_EXPORTS $(READLINE_FLAGS)
-ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_PACK_API_EXPORTS $(READLINE_FLAGS)
+ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
 LINKWITH        := -lIceBox -lIce -lIceUtil
 

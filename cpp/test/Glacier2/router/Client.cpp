@@ -26,6 +26,14 @@ public:
 int
 main(int argc, char* argv[])
 {
+    //
+    // We must disable connection warnings, because we attempt to ping
+    // the router before session establishment, as well as after
+    // session destruction. Both will cause a ConnectionLostException.
+    //
+    Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+
     CallbackClient app;
     return app.main(argc, argv);
 }
@@ -86,7 +94,7 @@ CallbackClient::run(int argc, char* argv[])
 	    base->ice_ping();
 	    test(false);
 	}
-	catch(const ObjectNotExistException&)
+	catch(const ConnectionLostException&)
 	{
 	    cout << "ok" << endl;
 	}
@@ -275,7 +283,7 @@ CallbackClient::run(int argc, char* argv[])
 	    base->ice_ping();
 	    test(false);
 	}
-	catch(const ObjectNotExistException&)
+	catch(const ConnectionLostException&)
 	{
 	    cout << "ok" << endl;
 	}

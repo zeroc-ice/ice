@@ -100,7 +100,7 @@ interface Router extends Ice::Router
      * for the calling client.
      *
      **/
-    void destroySession()
+    ["amd"] void destroySession()
 	throws SessionNotExistException;
 };
 

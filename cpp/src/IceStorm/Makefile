@@ -65,8 +65,8 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_STORM_API_EXPORTS $(READLINE_FLAGS) 
-ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_STORM_API_EXPORTS $(READLINE_FLAGS) 
+ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
 SVCLINKWITH	:= -lFreeze -lIce -lIceUtil
