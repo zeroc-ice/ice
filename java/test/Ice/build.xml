@@ -25,6 +25,7 @@ the Free Software Foundation.
         <ant dir="operations"/>
         <ant dir="operationsAMD"/>
         <ant dir="slicing"/>
+        <ant dir="custom"/>
     </target>
 
     <target name="clean">
@@ -39,6 +40,7 @@ the Free Software Foundation.
         <ant dir="operations" target="clean"/>
         <ant dir="operationsAMD" target="clean"/>
         <ant dir="slicing" target="clean"/>
+        <ant dir="custom" target="clean"/>
     </target>
 
 </project>

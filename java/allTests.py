@@ -36,6 +36,7 @@ tests = [ \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
+    "Ice/custom", \
     "IceXML/encoding", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
