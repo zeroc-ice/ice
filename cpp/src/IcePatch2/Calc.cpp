@@ -103,7 +103,7 @@ main(int argc, char* argv[])
 	}
 
 	FileInfoSeq infoSeq;
-	getFileInfoSeq(".", infoSeq, compress, verbose);
+	getFileInfoSeq(".", infoSeq, true, compress, verbose);
 
 	sort(infoSeq.begin(), infoSeq.end(), FileInfoCompare());
 

@@ -524,7 +524,7 @@ IcePatch2::uncompressFile(const string& pa)
 }
 
 void
-IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool compress, bool verbose)
+IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
 {
     const string path = normalize(pa);
 
@@ -598,7 +598,7 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool compress,
 	StringSeq content = readDirectory(path);
 	for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
 	{
-	    getFileInfoSeq(path + '/' + *p, infoSeq, compress, verbose);
+	    getFileInfoSeq(path + '/' + *p, infoSeq, size, compress, verbose);
 	}
     }
     else if(S_ISREG(buf.st_mode))
@@ -642,6 +642,11 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool compress,
 	    {
 		string pathBZ2 = path + ".bz2";
 		compressBytesToFile(pathBZ2, bytes, path.size());
+	    }
+
+	    if(size)
+	    {
+		string pathBZ2 = path + ".bz2";
 
 		struct stat bufBZ2;
 		if(stat(pathBZ2.c_str(), &bufBZ2) == -1)

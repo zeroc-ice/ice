@@ -60,7 +60,7 @@ struct FileInfoCompare : public std::binary_function<const FileInfo&, const File
     }
 };
 
-ICEPATCH2_API void getFileInfoSeq(const std::string&, FileInfoSeq&, bool, bool);
+ICEPATCH2_API void getFileInfoSeq(const std::string&, FileInfoSeq&, bool, bool, bool);
 ICEPATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
 ICEPATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 

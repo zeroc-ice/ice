@@ -149,7 +149,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 	
 	if(thorough)
 	{
-	    getFileInfoSeq(".", infoSeq, false, false);
+	    getFileInfoSeq(".", infoSeq, false, false, false);
 	    saveFileInfoSeq(dataDir + ".sum", infoSeq);
 	}
 
