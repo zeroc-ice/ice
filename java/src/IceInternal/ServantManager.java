@@ -196,7 +196,7 @@ public final class ServantManager extends Thread
     }
 
     //
-    // Only for use by Ice.ObjectAdatperI.
+    // Only for use by Ice.ObjectAdapterI.
     //
     public synchronized void
     destroy()
