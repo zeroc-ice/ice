@@ -20,7 +20,7 @@ class ChatCallbackI : public ChatCallback
 public:
 
     virtual void
-    message(const string& data, const Ice::Current&)
+    message(const string& data, const Current&)
     {
 	cout << data << endl;
     }
@@ -56,12 +56,12 @@ public:
 
 	    string id;
 	    cout << "user id: " << flush;
-	    std::getline(cin, id);
+	    getline(cin, id);
 	    id = trim(id);
 
 	    string pw;
 	    cout << "password: " << flush;
-	    std::getline(cin, pw);
+	    getline(cin, pw);
 	    pw = trim(pw);
 
 	    try
@@ -88,42 +88,39 @@ public:
 	session->setCallback(callback);
 
 	menu();
-	do
+
+	try
 	{
-	    try
+	    do
 	    {
 		string s;
 		cout << "==> ";
-		std::getline(cin, s);
+		getline(cin, s);
 		s = trim(s);
-		if(s.empty())
+		if(!s.empty())
 		{
-		    continue;
-		}
-		if(s[0] == '/')
-		{
-		    if(s == "/quit")
+		    if(s[0] == '/')
 		    {
-			session->destroy();
-			break;
+			if(s == "/quit")
+			{
+			    break;
+			}
+			menu();
 		    }
 		    else
 		    {
-			menu();
+			session->say(s);
 		    }
 		}
-		else
-		{
-		    session->say(s);
-		}
 	    }
-	    catch(const Exception& ex)
-	    {
-		cerr << ex << endl;
-		return EXIT_FAILURE;
-	    }
+	    while(cin.good());
+	    router->destroySession();
 	}
-	while(cin.good());
+	catch(const Exception& ex)
+	{
+	    cerr << ex << endl;
+	    return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
     }
@@ -155,5 +152,3 @@ main(int argc, char* argv[])
     ChatClient app;
     return app.main(argc, argv, "config");
 }
-
-

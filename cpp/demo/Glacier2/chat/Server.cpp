@@ -21,43 +21,34 @@ class DummyPermissionsVerifierI : public Glacier2::PermissionsVerifier
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
+    checkPermissions(const string& userId, const string& passwd, string&, const Current&) const
     {
 	return true;
     }
 };
 
-class ChatRoomSessionManagerI : public Glacier2::SessionManager
+class ChatSessionManagerI : public Glacier2::SessionManager
 {
 public:
 
-    ChatRoomSessionManagerI() :
-	_members(new ChatRoomMembers())
-    {
-    }
-
     virtual Glacier2::SessionPrx
-    create(const string& userId, const ::Ice::Current& current)
+    create(const string& userId, const Current& current)
     {
-	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new ChatSessionI(_members, userId)));
+	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new ChatSessionI(userId)));
     }
-
-private:
-
-    ChatRoomMembersPtr _members;
 };
 
-class ChatSessionServer : public Application
+class ChatServer : public Application
 {
 public:
 
     virtual int
     run(int, char*[])
     {
-	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
+	ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
 	
-	adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
-	adapter->add(new ChatRoomSessionManagerI, Ice::stringToIdentity("ChatRoomSessionManager"));
+	adapter->add(new DummyPermissionsVerifierI, stringToIdentity("verifier"));
+	adapter->add(new ChatSessionManagerI, stringToIdentity("ChatSessionManager"));
 	adapter->activate();
 	communicator()->waitForShutdown();
 	
@@ -68,6 +59,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-    ChatSessionServer app;
+    ChatServer app;
     return app.main(argc, argv, "config.server");
 }
