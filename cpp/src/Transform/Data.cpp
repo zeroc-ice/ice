@@ -1861,11 +1861,11 @@ Transform::StructData::operator<(const Data& rhs) const
 }
 
 void
-Transform::StructData::registerObjects(ObjectDataMap& map) const
+Transform::StructData::registerObjects(ObjectDataMap& m) const
 {
     for(DataMemberMap::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-        p->second->registerObjects(map);
+        p->second->registerObjects(m);
     }
 }
 
@@ -2098,13 +2098,13 @@ Transform::SequenceData::operator<(const Data& rhs) const
 }
 
 void
-Transform::SequenceData::registerObjects(ObjectDataMap& map) const
+Transform::SequenceData::registerObjects(ObjectDataMap& m) const
 {
     if(_type->type()->usesClasses())
     {
         for(DataList::const_iterator p = _elements.begin(); p != _elements.end(); ++p)
         {
-            (*p)->registerObjects(map);
+            (*p)->registerObjects(m);
         }
     }
 }
@@ -2321,7 +2321,7 @@ Transform::EnumData::operator<(const Data& rhs) const
 }
 
 void
-Transform::EnumData::registerObjects(ObjectDataMap& map) const
+Transform::EnumData::registerObjects(ObjectDataMap&) const
 {
 }
 
@@ -2554,10 +2554,10 @@ Transform::DictionaryData::DictionaryData(const DataFactoryPtr& factory, const S
 }
 
 Transform::DictionaryData::DictionaryData(const DataFactoryPtr& factory, const Slice::DictionaryPtr& type,
-                                          const ErrorReporterPtr& errorReporter, bool readOnly, const DataMap& map) :
+                                          const ErrorReporterPtr& errorReporter, bool readOnly, const DataMap& m) :
     Data(errorReporter, readOnly), _factory(factory), _type(type)
 {
-    for(DataMap::const_iterator p = map.begin(); p != map.end(); ++p)
+    for(DataMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
         _map.insert(DataMap::value_type(p->first->clone(), p->second->clone()));
     }
@@ -2622,13 +2622,13 @@ Transform::DictionaryData::operator<(const Data& rhs) const
 }
 
 void
-Transform::DictionaryData::registerObjects(ObjectDataMap& map) const
+Transform::DictionaryData::registerObjects(ObjectDataMap& m) const
 {
     if(_type->valueType()->usesClasses())
     {
         for(DataMap::const_iterator p = _map.begin(); p != _map.end(); ++p)
         {
-            p->second->registerObjects(map);
+            p->second->registerObjects(m);
         }
     }
 }
@@ -2767,15 +2767,15 @@ Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& inte
     DictionaryDataPtr d = DictionaryDataPtr::dynamicCast(data);
     if(d && isCompatible(_type, d->_type))
     {
-        DataMap map;
+        DataMap m;
         for(DataMap::const_iterator p = d->_map.begin(); p != d->_map.end(); ++p)
         {
             DataPtr key = _factory->create(_type->keyType(), _readOnly);
             DataPtr value = _factory->create(_type->valueType(), _readOnly);
             key->transform(p->first, interceptor);
             value->transform(p->second, interceptor);
-            DataMap::const_iterator q = map.find(key);
-            if(q != map.end())
+            DataMap::const_iterator q = m.find(key);
+            if(q != m.end())
             {
                 ostringstream ostr;
                 ostr << "duplicate dictionary key (";
@@ -2785,10 +2785,10 @@ Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& inte
             }
             else
             {
-                map.insert(DataMap::value_type(key, value));
+                m.insert(DataMap::value_type(key, value));
             }
         }
-        _map = map;
+        _map = m;
         _length = _factory->createInteger(static_cast<Ice::Long>(_map.size()), true);
     }
     else
@@ -2924,15 +2924,15 @@ Transform::ObjectData::operator<(const Data& rhs) const
 }
 
 void
-Transform::ObjectData::registerObjects(ObjectDataMap& map) const
+Transform::ObjectData::registerObjects(ObjectDataMap& m) const
 {
-    ObjectDataMap::iterator p = map.find(this);
-    if(p == map.end())
+    ObjectDataMap::iterator p = m.find(this);
+    if(p == m.end())
     {
-        map.insert(ObjectDataMap::value_type(this, 0));
+        m.insert(ObjectDataMap::value_type(this, 0));
         for(DataMemberMap::const_iterator q = _members.begin(); q != _members.end(); ++q)
         {
-            q->second->registerObjects(map);
+            q->second->registerObjects(m);
         }
     }
 }
@@ -3183,11 +3183,11 @@ Transform::ObjectRef::operator<(const Data& rhs) const
 }
 
 void
-Transform::ObjectRef::registerObjects(ObjectDataMap& map) const
+Transform::ObjectRef::registerObjects(ObjectDataMap& m) const
 {
     if(_value)
     {
-        _value->registerObjects(map);
+        _value->registerObjects(m);
     }
 }
 

@@ -84,7 +84,7 @@ Transform::EvaluateException::ice_name() const
 void
 Transform::EvaluateException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Exception::ice_print(out);
     out << ":\nerror occurred while evaluating expression";
     if(!_reason.empty())
     {

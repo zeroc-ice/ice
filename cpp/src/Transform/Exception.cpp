@@ -33,7 +33,7 @@ Transform::TransformException::ice_name() const
 void
 Transform::TransformException::ice_print(ostream& out) const
 {
-    IceUtil::Exception::ice_print(out);
+    Exception::ice_print(out);
     out << ":\nerror occurred during transformation";
     if(!_reason.empty())
     {
