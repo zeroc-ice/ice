@@ -18,10 +18,15 @@ public class ObjectAdapterI implements ObjectAdapter
         return _name; // _name is immutable
     }
 
-    public Communicator
+    public synchronized Communicator
     getCommunicator()
     {
-        return _instance.communicator(); // _instance is immutable
+	if(_instance == null)
+	{
+            throw new ObjectAdapterDeactivatedException();
+	}
+	
+	return _communicator;
     }
 
     public synchronized void
@@ -126,6 +131,7 @@ public class ObjectAdapterI implements ObjectAdapter
         _locatorMap.clear();
 
         _instance = null;
+	_communicator = null;
     }
 
     public void
@@ -391,9 +397,10 @@ public class ObjectAdapterI implements ObjectAdapter
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, String name, String endpts)
+    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpts)
     {
         _instance = instance;
+	_communicator = communicator;
 	_printAdapterReadyDone = false;
         _name = name;
 	
@@ -597,6 +604,7 @@ public class ObjectAdapterI implements ObjectAdapter
     }
 
     private IceInternal.Instance _instance;
+    private Communicator _communicator;
     private boolean _printAdapterReadyDone;
     private String _name;
     private boolean _useEndpointsInProxy;

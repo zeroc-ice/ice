@@ -34,7 +34,7 @@ public final class ObjectAdapterFactory
             return adapter;
         }
 
-        adapter = new Ice.ObjectAdapterI(_instance, name, endpts);
+        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpts);
         _adapters.put(name, adapter);
         return adapter;
     }
@@ -58,11 +58,13 @@ public final class ObjectAdapterFactory
     //
     // Only for use by Instance
     //
-    ObjectAdapterFactory(Instance instance)
+    ObjectAdapterFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
+	_communicator = communicator;
     }
 
     private Instance _instance;
+    private Ice.Communicator _communicator;
     private java.util.HashMap _adapters = new java.util.HashMap();
 }

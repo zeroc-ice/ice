@@ -12,12 +12,6 @@ package IceInternal;
 
 public class Instance
 {
-    public synchronized Ice.Communicator
-    communicator()
-    {
-        return _communicator;
-    }
-
     public Ice.Properties
     properties()
     {
@@ -102,7 +96,7 @@ public class Instance
     public synchronized ThreadPool
     clientThreadPool()
     {
-        if(_communicator != null) // Not destroyed?
+        if(!_destroyed)
         {
             if(_clientThreadPool == null) // Lazy initialization.
             {
@@ -116,7 +110,7 @@ public class Instance
     public synchronized ThreadPool
     serverThreadPool()
     {
-        if(_communicator != null) // Not destroyed?
+        if(!_destroyed)
         {
             if(_serverThreadPool == null) // Lazy initialization.
             {
@@ -152,7 +146,7 @@ public class Instance
     public
     Instance(Ice.Communicator communicator, Ice.StringSeqHolder args, Ice.Properties properties)
     {
-        _communicator = communicator;
+        _destroyed = false;
         _properties = properties;
 
         //
@@ -182,7 +176,7 @@ public class Instance
             EndpointFactory udpEndpointFactory = new UdpEndpointFactory(this);
             _endpointFactoryManager.add(udpEndpointFactory);
 
-            _pluginManager = new Ice.PluginManagerI(this);
+            _pluginManager = new Ice.PluginManagerI(communicator);
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -190,7 +184,7 @@ public class Instance
 
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
 
-            _objectAdapterFactory = new ObjectAdapterFactory(this);
+            _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
             _bufferManager = new BufferManager(); // Must be created before the ThreadPool
         }
@@ -205,7 +199,7 @@ public class Instance
     finalize()
         throws Throwable
     {
-        assert(_communicator == null);
+        assert(_destroyed);
         assert(_referenceFactory == null);
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
@@ -266,17 +260,12 @@ public class Instance
 
 	synchronized(this)
 	{
-	    //
-	    // Destroy all contained objects. Then set all references to null,
-	    // to avoid cyclic object dependencies.
-	    //
-	    
-	    if(_communicator != null)
+	    if(_destroyed)
 	    {
-		// Don't destroy the communicator -- the communicator destroys
-		// this object, not the other way.
-		_communicator = null;
+		return; // Don't destroy twice.
 	    }
+	    
+	    _destroyed = true;
 
 	    if(_objectAdapterFactory != null)
 	    {
@@ -370,7 +359,7 @@ public class Instance
         }
     }
 
-    private Ice.Communicator _communicator;
+    private boolean _destroyed;
     private Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().

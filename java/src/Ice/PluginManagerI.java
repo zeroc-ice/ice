@@ -15,6 +15,11 @@ public final class PluginManagerI implements PluginManager
     public synchronized Plugin
     getPlugin(String name)
     {
+	if(_communicator == null)
+	{
+	    throw new CommunicatorDestroyedException();
+	}
+
         Plugin p = (Plugin)_plugins.get(name);
         if(p != null)
         {
@@ -26,6 +31,11 @@ public final class PluginManagerI implements PluginManager
     public synchronized void
     addPlugin(String name, Plugin plugin)
     {
+	if(_communicator == null)
+	{
+	    throw new CommunicatorDestroyedException();
+	}
+
         if(_plugins.containsKey(name))
         {
             throw new PluginExistsException();
@@ -36,23 +46,30 @@ public final class PluginManagerI implements PluginManager
     public synchronized void
     destroy()
     {
-        java.util.Iterator i = _plugins.entrySet().iterator();
-        while(i.hasNext())
-        {
-            Plugin p = (Plugin)i.next();
-            p.destroy();
-        }
+	if(_communicator != null)
+	{
+	    java.util.Iterator i = _plugins.entrySet().iterator();
+	    while(i.hasNext())
+	    {
+		Plugin p = (Plugin)i.next();
+		p.destroy();
+	    }
+
+	    _communicator = null;
+	}
     }
 
     public
-    PluginManagerI(IceInternal.Instance instance)
+    PluginManagerI(Communicator communicator)
     {
-        _instance = instance;
+        _communicator = communicator;
     }
 
-    public void
+    private void
     loadPlugins(StringSeqHolder cmdArgs)
     {
+	assert(_communicator != null);
+
         //
         // Load and initialize the plug-ins defined in the property set
         // with the prefix "Ice.Plugin.". These properties should
@@ -61,7 +78,7 @@ public final class PluginManagerI implements PluginManager
         // Ice.Plugin.name=entry_point [args]
         //
         final String prefix = "Ice.Plugin.";
-        Ice.Properties properties = _instance.properties();
+        Ice.Properties properties = _communicator.getProperties();
         java.util.Map plugins = properties.getPropertiesForPrefix(prefix);
         java.util.Iterator p = plugins.entrySet().iterator();
         while(p.hasNext())
@@ -110,6 +127,8 @@ public final class PluginManagerI implements PluginManager
     private void
     loadPlugin(String name, String className, String[] args)
     {
+	assert(_communicator != null);
+
         //
         // Instantiate the class.
         //
@@ -158,7 +177,7 @@ public final class PluginManagerI implements PluginManager
         Plugin plugin = null;
         try
         {
-            plugin = factory.create(_instance.communicator(), name, args);
+            plugin = factory.create(_communicator, name, args);
         }
         catch(Exception ex)
         {
@@ -171,6 +190,6 @@ public final class PluginManagerI implements PluginManager
         _plugins.put(name, plugin);
     }
 
-    private IceInternal.Instance _instance;
+    private Communicator _communicator;
     private java.util.HashMap _plugins = new java.util.HashMap();
 }
