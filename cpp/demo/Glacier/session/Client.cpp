@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <Glacier/Glacier.h>
 #include <Glacier/Router.h>
+#include <IceSSL/Plugin.h>
 
 #include <HelloSession.h>
 
@@ -83,6 +84,29 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 	break;
     }
+
+    //
+    // Required in order to activate the trust relationship with
+    // the glacier router.
+    //
+
+    //
+    // Get the SSL plugin.
+    //
+    Ice::PluginManagerPtr pluginManager = communicator->getPluginManager();
+    Ice::PluginPtr plugin = pluginManager->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
+    assert(sslPlugin);
+
+    // Configure the client context of the IceSSL Plugin
+    sslPlugin->configure(IceSSL::Client);
+
+    // Trust only the router certificate, no other certificate.
+    sslPlugin->addTrustedCertificate(IceSSL::Client, routerCert);
+    sslPlugin->setCertificateVerifier(IceSSL::Client, sslPlugin->getSingleCertVerifier(routerCert));
+
+    // Set the public and private keys that the Router will accept.
+    sslPlugin->setRSAKeys(IceSSL::Client, privateKey, publicKey);
     
     communicator->setDefaultRouter(router);
 
