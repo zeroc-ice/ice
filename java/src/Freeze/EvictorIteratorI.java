@@ -36,5 +36,11 @@ class EvictorIteratorI implements EvictorIterator
 	}
     }
 
+    public void
+    destroy()
+    {
+	((Map.EntryIterator)_iterator).close();
+    }
+    
     private java.util.Iterator _iterator;
 }

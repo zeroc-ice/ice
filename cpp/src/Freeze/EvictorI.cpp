@@ -27,6 +27,7 @@ public:
 
     virtual bool hasNext();
     virtual Ice::Identity next();
+    virtual void destroy();
 
 private:
 
@@ -499,6 +500,15 @@ Freeze::EvictorIteratorI::next()
     Ice::Identity ident = _curr->first;
     ++_curr;
     return ident;
+}
+
+void
+Freeze::EvictorIteratorI::destroy()
+{
+    //
+    // Set the current element to the end.
+    //
+    _curr = _end;
 }
 
 //

@@ -93,6 +93,14 @@ local interface EvictorIterator
      *
      **/
     Ice::Identity next() throws DBException;
+
+    /**
+     *
+     * Destroy the iterator. Once the iterator has been destroyed it
+     * may no longer be accessed.
+     *
+     **/
+    void destroy();
 };
 
 /**

@@ -370,7 +370,10 @@ public abstract class Map extends java.util.AbstractMap
 	    _current = null;
 	}
 	
-	protected void
+	//
+	// Extra operation.
+	//
+	public void
 	close()
 	{
 	    DBCursor copy = _cursor;
