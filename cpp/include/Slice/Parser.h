@@ -17,11 +17,6 @@
 #include <stack>
 #include <map>
 
-extern int yynerrs;
-
-int yyparse();
-int yylex();
-
 namespace Slice
 {
 
@@ -120,6 +115,24 @@ typedef ::IceInternal::Handle<Unit> UnitPtr;
 
 }
 
+//
+// Stuff for flex and bison
+//
+
+#define YYSTYPE Slice::GrammerBasePtr
+#define YY_DECL int yylex(YYSTYPE* yylvalp)
+YY_DECL;
+int yyparse();
+
+//
+// I must set the initial bison stack depth to the maximum stack
+// depth, because the bison stack extension routines use simple
+// malloc/alloc, which doesn't work for C++ smart pointers with
+// constructors and destructors
+//
+#define YYMAXDEPTH  20000 // 20000 should suffice. Default is 10000 for maximum
+#define YYINITDEPTH YYMAXDEPTH // initial depth == max depth, as described above
+
 namespace Slice
 {
 
@@ -171,8 +184,6 @@ public:
 class ICE_API GrammerBase : public ::IceInternal::SimpleShared
 {
 };
-
-#define YYSTYPE Slice::GrammerBasePtr
 
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
@@ -393,7 +404,6 @@ class ICE_API ClassDef : virtual public Container, virtual public Contained
 {
 public:
 
-    virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
 				 const TypeList&, bool);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
@@ -647,6 +657,7 @@ private:
 
     bool _ignRedefs;
     bool _all;
+    int _errors;
     std::string _currentComment;
     int _currentLine;
     int _currentIncludeLevel;
