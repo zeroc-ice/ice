@@ -478,7 +478,7 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
 
 	struct hostent* entry;
-	int retry = 5; // TODO: Should be configurable
+	int retry = 5;
 
 	do
 	{
@@ -512,7 +512,7 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
 	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
 	
 	struct hostent* entry;
-	int retry = 5; // TODO: Should be configurable
+	int retry = 5;
 	
 	do
 	{
@@ -542,7 +542,7 @@ IceInternal::getLocalHost(bool numeric)
 	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
 	
 	struct hostent* entry;
-	int retry = 5; // TODO: Should be configurable
+	int retry = 5;
 	
 	do
 	    entry = gethostbyname(host);

@@ -16,6 +16,7 @@
 #include <Ice/ValueFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LocalException.h>
+#include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 #include <Ice/PicklerI.h>
 
@@ -145,6 +146,16 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
     if (++_globalStateCounter == 1) // Only on first call
     {
+	string value = properties->getProperty("Ice.PrintProcessId");
+	if (atoi(value.c_str()) >= 1)
+	{
+#ifdef WIN32
+	    cout << _getpid() << endl;
+#else
+	    cout << getpid() << endl;
+#endif
+	}
+
 #ifdef WIN32
 	WORD version = MAKEWORD(1, 1);
 	WSADATA data;

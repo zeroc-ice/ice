@@ -11,20 +11,20 @@
 
 import os, sys
 
-for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", "..")]:
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
+sys.path.append(os.path.normpath(toplevel + "/config"))
 import TestUtil
 
-icePack = os.path.join(toplevel, "bin", "icepack")
-icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
+icePack = os.path.normpath(toplevel + "/bin/icepack")
+icePackAdmin = os.path.normpath(toplevel + "/bin/icepackadmin")
 
 print "starting icepack...",
-icePackPipe = os.popen(icePack + ' --nowarn --pid' + \
+icePackPipe = os.popen(icePack + ' --Ice.PrintProcessId --nowarn' + \
                        ' "--Ice.Adapter.Forward.Endpoints=tcp -p 12346 -t 2000"' + \
                        ' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"')
 output = icePackPipe.readline().strip()
@@ -41,7 +41,7 @@ icePackAdminPipe = os.popen(icePackAdmin + \
 icePackAdminPipe.close()
 print "ok"
 
-name = os.path.join("IcePack", "simple")
+name = "IcePack/simple"
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 

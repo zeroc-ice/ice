@@ -16,8 +16,6 @@
 #   include <windows.h>
 #   include <process.h>
 
-inline int getpid() { return _getpid(); }
-
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
 #   pragma warning( disable : 4800 )
 // ... identifier was truncated to '255' characters in the debug information

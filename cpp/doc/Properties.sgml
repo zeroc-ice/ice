@@ -168,3 +168,27 @@ The number of threads in the thread pool. Default is 10.
 
 </section>
 
+<!-- ********************************************************************** -->
+<section><title>Miscellaneous</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.PrintProcessId</title>
+
+<section><title>Synopsis</title>
+<synopsis>
+Ice.PrintProcessId=<replaceable>num</replaceable>
+</synopsis>
+</section>
+
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger or equal to
+1, the process ID is printed on standard output upon startup.
+</para>
+</section>
+
+</section>
+
+</section>
+

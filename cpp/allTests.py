@@ -11,8 +11,8 @@
 
 import os
 
-for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", "..")]:
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"

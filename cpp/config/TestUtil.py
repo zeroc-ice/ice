@@ -29,12 +29,12 @@ def killServers():
 
 def clientServerTest(toplevel, name):
 
-    testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(testdir, "server")
-    client = os.path.join(testdir, "client")
+    testdir = os.path.normpath(toplevel + "/test/" + name)
+    server = os.path.normpath(testdir + "/server")
+    client = os.path.normpath(testdir + "/client")
 
     print "starting server...",
-    serverPipe = os.popen(os.path.join(testdir, "server --pid"))
+    serverPipe = os.popen(server + " --Ice.PrintProcessId")
     output = serverPipe.readline().strip()
     if not output:
         print "failed!"
@@ -43,7 +43,7 @@ def clientServerTest(toplevel, name):
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(os.path.join(testdir, "client"))
+    clientPipe = os.popen(client)
     output = clientPipe.readline()
     if not output:
 	print "failed!"
@@ -59,11 +59,11 @@ def clientServerTest(toplevel, name):
 
 def collocatedTest(toplevel, name):
 
-    testdir = os.path.join(toplevel, "test", name)
-    collocated = os.path.join(testdir, "collocated")
+    testdir = os.path.normpath(toplevel + "/test/" + name)
+    collocated = os.path.normpath(testdir + "/collocated")
 
     print "starting collocated...",
-    collocatedPipe = os.popen(os.path.join(testdir, "collocated"))
+    collocatedPipe = os.popen(collocated)
     output = collocatedPipe.read().strip()
     if not output:
         print "failed!"

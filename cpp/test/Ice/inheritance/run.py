@@ -11,16 +11,16 @@
 
 import os, sys
 
-for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", "..")]:
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
+sys.path.append(os.path.normpath(toplevel + "/config"))
 import TestUtil
 
-name = os.path.join("Ice", "inheritance")
+name = "Ice/inheritance"
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
 sys.exit(1)

@@ -25,12 +25,11 @@ usage(const char* n)
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
 	"--nowarn             Don't print any security warnings.\n"
-	"--pid                Print the process id on standard output upon startup.\n"
 	;
 }
 
 int
-run(int argc, char* argv[], CommunicatorPtr communicator, bool pid, bool nowarn)
+run(int argc, char* argv[], CommunicatorPtr communicator, bool nowarn)
 {
     PropertiesPtr properties = communicator->getProperties();
 
@@ -61,11 +60,6 @@ run(int argc, char* argv[], CommunicatorPtr communicator, bool pid, bool nowarn)
     forwardAdapter->setObjectLocator(forward);
     forwardAdapter->activate();
 
-    if (pid)
-    {
-	cout << getpid() << endl;
-    }
-
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
@@ -76,7 +70,6 @@ main(int argc, char* argv[])
     PropertiesPtr properties = getDefaultProperties(argc, argv);
 
     bool nowarn = false;
-    bool pid = false;
     for (int i = 1; i < argc; ++i)
     {
 	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -93,10 +86,6 @@ main(int argc, char* argv[])
 	{
 	    nowarn = true;
 	}
-	else if(strcmp(argv[i], "--pid") == 0)
-	{
-	    pid = true;
-	}
 	else
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
@@ -111,7 +100,7 @@ main(int argc, char* argv[])
     try
     {
 	communicator = initializeWithProperties(properties);
-	status = run(argc, argv, communicator, pid, nowarn);
+	status = run(argc, argv, communicator, nowarn);
     }
     catch(const LocalException& ex)
     {

@@ -11,20 +11,18 @@
 
 import os, sys
 
-for toplevel in ["", "..", os.path.join("..", ".."), os.path.join("..", "..", "..")]:
-    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-sys.path.append(os.path.join(toplevel, "config"))
+sys.path.append(os.path.normpath(toplevel + "/config"))
 import TestUtil
 
-name = os.path.join("Ice", "locationForward")
-
-testdir = os.path.join(toplevel, "test", name)
-server = os.path.join(testdir, "server")
-client = os.path.join(testdir, "client")
+testdir = os.path.normpath(toplevel + "/test/Ice/locationForward")
+server = os.path.normpath(testdir + "/server")
+client = os.path.normpath(testdir + "/client")
 
 num = 5
 base = 12340
@@ -33,10 +31,10 @@ serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     if i + 1 < num:
-        s = "server --pid --fwd \"test:tcp -t 2000 -p %d\" %d" % ((base + i + 1), (base + i))
+        s = "--Ice.PrintProcessId --fwd \"test:tcp -t 2000 -p %d\" %d" % ((base + i + 1), (base + i))
     else:
-        s = "server --pid %d" % (base + i)
-    serverPipes[i] = os.popen(os.path.join(testdir, s))
+        s = "--Ice.PrintProcessId %d" % (base + i)
+    serverPipes[i] = os.popen(server + " " + s)
     output = serverPipes[i].readline().strip()
     if not output:
         print "failed!"
@@ -45,8 +43,8 @@ for i in range(0, num):
     print "ok"
 
 print "starting client...",
-s = "client %d %d" % (base, (base + num - 1))
-clientPipe = os.popen(os.path.join(testdir, s))
+s = "%d %d" % (base, (base + num - 1))
+clientPipe = os.popen(client + " " + s)
 output = clientPipe.readline()
 if not output:
     print "failed!"

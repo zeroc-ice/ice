@@ -17,21 +17,16 @@ using namespace std;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [--pid] port\n";
+    cerr << "Usage: " << n << " port\n";
 }
 
 int
 run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 {
     int port = 0;
-    bool pid = false;
     for (int i = 1; i < argc; ++i)
     {
-	if(strcmp(argv[i], "--pid") == 0)
-	{
-	    pid = true;
-	}
-	else if (argv[i][0] == '-')
+	if (argv[i][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
 	    usage(argv[0]);
@@ -61,10 +56,6 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, "test");
     adapter->activate();
-    if (pid)
-    {
-	cout << getpid() << endl;
-    }
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
