@@ -120,7 +120,7 @@ if TestUtil.isWin32() == 0:
 	sys.exit(1)
 
     print "unregister server with icepack...",
-    IcePackAdmin.removeServer(toplevel, "server");
+    IcePackAdmin.removeServer(ice_home, "server");
     print "ok"
     
 IcePackAdmin.shutdownIcePack(ice_home, icePackPipe)
