@@ -62,8 +62,8 @@ And bzip2 from:
 
 http://sources.redhat.com/bzip2
 
-We are not aware of any download possibilities for e2fsprogs (or the
-UUID routines included in this package). But to our knowledge, every
+We are not aware of any download possibilities for e2fsprogs-devel (or
+the UUID routines included in this RPM). But to our knowledge, every
 Linux distribution includes this, so there should be no problem.
 
 
