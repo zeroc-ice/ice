@@ -37,10 +37,11 @@ public:
 int
 main(int argc, char* argv[])
 {
+    addArgumentPrefix("IceStorm");
+    PropertiesPtr defaultProperties;
     try
     {
-	addArgumentPrefix("IceStorm");
-	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+	defaultProperties = getDefaultProperties(argc, argv);
     }
     catch(const Exception& ex)
     {

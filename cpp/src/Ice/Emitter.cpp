@@ -219,7 +219,7 @@ IceInternal::Emitter::timeout() const
 bool
 IceInternal::Emitter::server() const
 {
-    return true;
+    return false;
 }
 
 bool

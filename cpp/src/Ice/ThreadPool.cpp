@@ -68,7 +68,7 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 
-    while (_servers > 0 && _threadNum > 0)
+    while (_servers != 0 && _threadNum != 0)
     {
 	try
 	{
@@ -79,7 +79,7 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 	}
     }
 
-    if (_servers > 0)
+    if (_servers != 0)
     {
 	_instance->logger()->error("can't wait for graceful server termination in thread pool\n"
 				   "since all threads have vanished");
@@ -91,7 +91,7 @@ IceInternal::ThreadPool::waitUntilFinished()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
     
-    while (_handlerMap.size() > 0 && _threadNum > 0) // Faster than _reapList.size() with most STLs.
+    while (!_handlerMap.empty() && _threadNum != 0)
     {
 	try
 	{
@@ -102,7 +102,7 @@ IceInternal::ThreadPool::waitUntilFinished()
 	}
     }
 
-    if (_handlerMap.size() > 0)
+    if (!_handlerMap.empty())
     {
 	_instance->logger()->error("can't wait for graceful application termination in thread pool\n"
 				   "since all threads have vanished");
