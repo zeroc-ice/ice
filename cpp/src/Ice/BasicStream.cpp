@@ -114,52 +114,47 @@ IceInternal::BasicStream::reserve(Container::size_type sz)
 
 //
 // startSeq() and endSeq() sanity-check sequence sizes during
-// unmarshaling and prevent malicious messages with incorrect
-// sequence sizes from causing the receiver to use up all
-// available memory by allocating sequences with an impossibly
-// large number of elements.
+// unmarshaling and prevent malicious messages with incorrect sequence
+// sizes from causing the receiver to use up all available memory by
+// allocating sequences with an impossibly large number of elements.
 //
-// The code generator inserts calls to startSeq() and endSeq()
-// around the code to unmarshal a sequence. startSeq() is called
-// immediately after reading the sequence size, and endSeq() is
-// called after reading the final element of a sequence.
+// The code generator inserts calls to startSeq() and endSeq() around
+// the code to unmarshal a sequence. startSeq() is called immediately
+// after reading the sequence size, and endSeq() is called after
+// reading the final element of a sequence.
 //
-// For sequences that contain constructed types that, in turn,
-// contain sequences, the code generator also inserts a call
-// to endElement() (inlined in BasicStream.h) after unmarshaling
-// each element.
+// For sequences that contain constructed types that, in turn, contain
+// sequences, the code generator also inserts a call to endElement()
+// (inlined in BasicStream.h) after unmarshaling each element.
 //
-// startSeq() is passed the unmarshaled element count, plus
-// the minimum size (in bytes) occupied by the sequence's
-// element type. numElements * minSize is the smallest
-// possible number of bytes that the sequence will occupy
-// on the wire.
+// startSeq() is passed the unmarshaled element count, plus the
+// minimum size (in bytes) occupied by the sequence's element
+// type. numElements * minSize is the smallest possible number of
+// bytes that the sequence will occupy on the wire.
 //
-// Every time startSeq() is called, it pushes the element
-// count and the minimum size on a stack. Every time endSeq()
-// is called, it pops the stack.
+// Every time startSeq() is called, it pushes the element count and
+// the minimum size on a stack. Every time endSeq() is called, it pops
+// the stack.
 //
-// For an ordinary sequence (one that does not (recursively)
-// contain nested sequences), numElements * minSize must be
-// less than the number of bytes remaining in the stream.
+// For an ordinary sequence (one that does not (recursively) contain
+// nested sequences), numElements * minSize must be less than the
+// number of bytes remaining in the stream.
 //
-// For a sequence that is nested within some other sequence,
-// there must be enough bytes remaining in the stream for
-// this sequence (numElements + minSize), plus the sum of
-// the bytes required by the remaining elements of all
-// the enclosing sequences.
+// For a sequence that is nested within some other sequence, there
+// must be enough bytes remaining in the stream for this sequence
+// (numElements + minSize), plus the sum of the bytes required by the
+// remaining elements of all the enclosing sequences.
 //
-// For the enclosing sequences, numElements - 1 is the
-// number of elements for which unmarshaling has not started
-// yet. (The call to endElement() in the generated code
-// decrements that number whenever a sequence element is
-// unmarshaled.)
+// For the enclosing sequences, numElements - 1 is the number of
+// elements for which unmarshaling has not started yet. (The call to
+// endElement() in the generated code decrements that number whenever
+// a sequence element is unmarshaled.)
 //
 // For sequence that variable-length elements, checkSeq() is called
-// whenever an element is unmarshaled. checkSeq() also checks
-// whether the stream has a sufficient number of bytes remaining.
-// This means that, for messages with bogus sequence sizes,
-// unmarshaling is aborted at the earliest possible point.
+// whenever an element is unmarshaled. checkSeq() also checks whether
+// the stream has a sufficient number of bytes remaining.  This means
+// that, for messages with bogus sequence sizes, unmarshaling is
+// aborted at the earliest possible point.
 //
 
 void
@@ -198,7 +193,8 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
 //
 // Check, given the number of elements requested for this sequence,
 // that this sequence, plus the sum of the sizes of the remaining
-// number of elements of all enclosing sequences, would still fit within the message.
+// number of elements of all enclosing sequences, would still fit
+// within the message.
 //
 void
 IceInternal::BasicStream::checkSeq()
@@ -1168,10 +1164,10 @@ IceInternal::BasicStream::read(vector<Double>& v)
 
 //
 // NOTE: This member function is intentionally omitted in order to
-// cause a link error if it is used. This is for efficiency
-// reasons: writing a const char * requires a traversal of the string
-// to get the string length first, which takes O(n) time, whereas getting
-// the string length from a std::string takes constant time.
+// cause a link error if it is used. This is for efficiency reasons:
+// writing a const char * requires a traversal of the string to get
+// the string length first, which takes O(n) time, whereas getting the
+// string length from a std::string takes constant time.
 //
 /*
 void
@@ -1233,8 +1229,8 @@ IceInternal::BasicStream::read(vector<string>& v)
     v.clear();
 
     //
-    // For efficiency, we use reserve() here to avoid having the vector
-    // reallocate repeatedly.
+    // For efficiency, we use reserve() here to avoid having the
+    // vector reallocate repeatedly.
     //
     v.reserve(sz);
     for(int i = 0; i < sz; ++i)
@@ -1290,12 +1286,13 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	    if(q == _currentWriteEncaps->marshaledMap->end())
 	    {
 		//
-		// We haven't seen this instance previously, create a new index, and
-		// insert it into the to-be-marshaled map.
+		// We haven't seen this instance previously, create a
+		// new index, and insert it into the to-be-marshaled
+		// map.
 		//
 		q = _currentWriteEncaps->toBeMarshaledMap->insert(
-			_currentWriteEncaps->toBeMarshaledMap->end(),
-			pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
+		    _currentWriteEncaps->toBeMarshaledMap->end(),
+		    pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
 	    }
 	    p = q;
 	}
@@ -1374,7 +1371,8 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         }
 
         //
-        // If that fails, invoke the default factory if one has been registered.
+        // If that fails, invoke the default factory if one has been
+        // registered.
         //
         if(!v)
         {
@@ -1386,9 +1384,10 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         }
 
         //
-        // There isn't a static factory for Ice::Object, so check for that case now.
-        // We do this *after* the factory inquiries above so that a factory could be
-        // registered for "::Ice::Object".
+        // There isn't a static factory for Ice::Object, so check for
+        // that case now.  We do this *after* the factory inquiries
+        // above so that a factory could be registered for
+        // "::Ice::Object".
         //
         if(!v && id == Ice::Object::ice_staticId())
         {
@@ -1396,8 +1395,8 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         }
 
         //
-        // Last chance: check the table of static factories (i.e., automatically generated
-        // factories for concrete classes).
+        // Last chance: check the table of static factories (i.e.,
+        // automatically generated factories for concrete classes).
         //
         if(!v)
         {
@@ -1440,8 +1439,9 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
 
         //
-        // Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
-        // after all objects have been unmarshaled.
+        // Record each object instance so that readPendingObjects can
+        // invoke ice_postUnmarshal after all objects have been
+        // unmarshaled.
         //
         if(!_objectList)
         {
@@ -1455,8 +1455,9 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     }
 
     //
-    // We can't possibly end up here: at the very least, the type ID "::Ice::Object" must be recognized, or
-    // client and server were compiled with mismatched Slice definitions.
+    // We can't possibly end up here: at the very least, the type ID
+    // "::Ice::Object" must be recognized, or client and server were
+    // compiled with mismatched Slice definitions.
     //
     throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
 }
@@ -1510,7 +1511,8 @@ IceInternal::BasicStream::throwException()
 	else
 	{
 	    //
-	    // Performance sensitive, so we use lazy initialization for tracing.
+	    // Performance sensitive, so we use lazy initialization
+	    // for tracing.
 	    //
 	    if(_traceSlicing == -1)
 	    {
@@ -1588,9 +1590,10 @@ IceInternal::BasicStream::readPendingObjects()
     while(num);
 
     //
-    // Iterate over the object list and invoke ice_postUnmarshal on each object.
-    // We must do this after all objects have been unmarshaled in order to ensure
-    // that any object data members have been properly patched.
+    // Iterate over the object list and invoke ice_postUnmarshal on
+    // each object.  We must do this after all objects have been
+    // unmarshaled in order to ensure that any object data members
+    // have been properly patched.
     //
     if(_objectList)
     {

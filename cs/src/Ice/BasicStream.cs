@@ -25,9 +25,10 @@ namespace IceInternal
         static BasicStream()
         {
             //
-            // Simple trick to find out whether libbz2.dll is installed:
-            // Call the BZ2_bzlibVersion() function in the library. If we get
-            // a DllImportException, the library is not available.
+            // Simple trick to find out whether libbz2.dll is
+            // installed: Call the BZ2_bzlibVersion() function in the
+            // library. If we get a DllImportException, the library is
+            // not available.
             //
             _bzlibInstalled = true;
             try
@@ -66,9 +67,9 @@ namespace IceInternal
 	}
 	
 	//
-	// Do NOT use a finalizer, this would cause a sever performance
-	// penalty! We must make sure that destroy() is called instead, to
-	// reclaim resources.
+	// Do NOT use a finalizer, this would cause a sever
+	// performance penalty! We must make sure that destroy() is
+	// called instead, to reclaim resources.
 	//
 	public virtual void destroy()
 	{
@@ -172,9 +173,9 @@ namespace IceInternal
 	    }
 	    //
 	    // If this stream is used for reading, then we want to set
-	    // the buffer's limit to the new total size. If this buffer
-	    // is used for writing, then we must set the buffer's limit
-	    // to the buffer's capacity.
+	    // the buffer's limit to the new total size. If this
+	    // buffer is used for writing, then we must set the
+	    // buffer's limit to the buffer's capacity.
 	    //
 	    if(reading)
 	    {
@@ -208,9 +209,10 @@ namespace IceInternal
 	// large number of elements.
 	//
 	// The code generator inserts calls to startSeq() and endSeq()
-	// around the code to unmarshal a sequence. startSeq() is called
-	// immediately after reading the sequence size, and endSeq() is
-	// called after reading the final element of a sequence.
+	// around the code to unmarshal a sequence. startSeq() is
+	// called immediately after reading the sequence size, and
+	// endSeq() is called after reading the final element of a
+	// sequence.
 	//
 	// For sequences that contain constructed types that, in turn,
 	// contain sequences, the code generator also inserts a call
@@ -219,8 +221,8 @@ namespace IceInternal
 	// startSeq() is passed the unmarshaled element count, plus
 	// the minimum size (in bytes) occupied by the sequence's
 	// element type. numElements * minSize is the smallest
-	// possible number of bytes that the sequence will occupy
-	// on the wire.
+	// possible number of bytes that the sequence will occupy on
+	// the wire.
 	//
 	// Every time startSeq() is called, it pushes the element
 	// count and the minimum size on a stack. Every time endSeq()
@@ -231,22 +233,23 @@ namespace IceInternal
 	// less than the number of bytes remaining in the stream.
 	//
 	// For a sequence that is nested within some other sequence,
-	// there must be enough bytes remaining in the stream for
-	// this sequence (numElements + minSize), plus the sum of
-	// the bytes required by the remaining elements of all
-	// the enclosing sequences.
+	// there must be enough bytes remaining in the stream for this
+	// sequence (numElements + minSize), plus the sum of the bytes
+	// required by the remaining elements of all the enclosing
+	// sequences.
 	//
-	// For the enclosing sequences, numElements - 1 is the
-	// number of elements for which unmarshaling has not started
+	// For the enclosing sequences, numElements - 1 is the number
+	// of elements for which unmarshaling has not started
 	// yet. (The call to endElement() in the generated code
 	// decrements that number whenever a sequence element is
 	// unmarshaled.)
 	//
-	// For sequence that variable-length elements, checkSeq() is called
-	// whenever an element is unmarshaled. checkSeq() also checks
-	// whether the stream has a sufficient number of bytes remaining.
-	// This means that, for messages with bogus sequence sizes,
-	// unmarshaling is aborted at the earliest possible point.
+	// For sequence that variable-length elements, checkSeq() is
+	// called whenever an element is unmarshaled. checkSeq() also
+	// checks whether the stream has a sufficient number of bytes
+	// remaining.  This means that, for messages with bogus
+	// sequence sizes, unmarshaling is aborted at the earliest
+	// possible point.
 	//
 
 	public void startSeq(int numElements, int minSize)
@@ -281,9 +284,10 @@ namespace IceInternal
 	}
 
 	//
-	// Check, given the number of elements requested for this sequence,
-	// that this sequence, plus the sum of the sizes of the remaining
-	// number of elements of all enclosing sequences, would still fit within the message.
+	// Check, given the number of elements requested for this
+	// sequence, that this sequence, plus the sum of the sizes of
+	// the remaining number of elements of all enclosing
+	// sequences, would still fit within the message.
 	//
 	public void
 	checkSeq()
@@ -402,10 +406,11 @@ namespace IceInternal
 	    _readEncapsStack.start = _buf.position();
 	    
 	    //
-	    // I don't use readSize() and writeSize() for encapsulations,
-	    // because when creating an encapsulation, I must know in
-	    // advance how many bytes the size information will require in
-	    // the data stream. If I use an Int, it is always 4 bytes. For
+	    // I don't use readSize() and writeSize() for
+	    // encapsulations, because when creating an encapsulation,
+	    // I must know in advance how many bytes the size
+	    // information will require in the data stream. If I use
+	    // an Int, it is always 4 bytes. For
 	    // readSize()/writeSize(), it could be 1 or 5 bytes.
 	    //
 	    int sz = readInt();
@@ -1089,8 +1094,7 @@ namespace IceInternal
 	
 	public virtual void writeObject(Ice.Object v)
 	{
-	    if(_writeEncapsStack == null)
-	    // Lazy initialization
+	    if(_writeEncapsStack == null) // Lazy initialization
 	    {
 		_writeEncapsStack = _writeEncapsCache;
 		if(_writeEncapsStack != null)
@@ -1124,8 +1128,9 @@ namespace IceInternal
 		    if(q == null)
 		    {
 			//
-			// We haven't seen this instance previously, create a new index, and
-			// insert it into the to-be-marshaled map.
+			// We haven't seen this instance previously,
+			// create a new index, and insert it into the
+			// to-be-marshaled map.
 			//
 			q = ++_writeEncapsStack.writeIndex;
 			_writeEncapsStack.toBeMarshaledMap[v] = q;
@@ -1144,8 +1149,7 @@ namespace IceInternal
 	{
 	    Ice.Object v = null;
 	    
-	    if(_readEncapsStack == null)
-	    // Lazy initialization
+	    if(_readEncapsStack == null) // Lazy initialization
 	    {
 		_readEncapsStack = _readEncapsCache;
 		if(_readEncapsStack != null)
@@ -1180,15 +1184,17 @@ namespace IceInternal
 		if(patchlist == null)
 		{
 		    //
-		    // We have no outstanding instances to be patched for this index, so make a new entry
-		    // in the patch map.
+		    // We have no outstanding instances to be patched
+		    // for this index, so make a new entry in the
+		    // patch map.
 		    //
 		    patchlist = new IceUtil.LinkedList();
 		    _readEncapsStack.patchMap[i] = patchlist;
 		}
 		//
-		// Append a patcher for this instance and see if we can patch the instance. (The instance
-		// may have been unmarshaled previously.)
+		// Append a patcher for this instance and see if we
+		// can patch the instance. (The instance may have been
+		// unmarshaled previously.)
 		//
 		patchlist.Add(patcher);
 		patchReferences(null, i);
@@ -1200,7 +1206,8 @@ namespace IceInternal
 		string id = readTypeId();
 		
 		//
-		// Try to find a factory registered for the specific type.
+		// Try to find a factory registered for the specific
+		// type.
 		//
 		Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
 		if(userFactory != null)
@@ -1209,7 +1216,8 @@ namespace IceInternal
 		}
 		
 		//
-		// If that fails, invoke the default factory if one has been registered.
+		// If that fails, invoke the default factory if one
+		// has been registered.
 		//
 		if(v == null)
 		{
@@ -1221,8 +1229,9 @@ namespace IceInternal
 		}
 		
 		//
-		// There isn't a static factory for Ice::Object, so check for that case now.
-		// We do this *after* the factory inquiries above so that a factory could be
+		// There isn't a static factory for Ice::Object, so
+		// check for that case now.  We do this *after* the
+		// factory inquiries above so that a factory could be
 		// registered for "::Ice::Object".
 		//
 		if(v == null && id.Equals(Ice.ObjectImpl.ice_staticId()))
@@ -1231,8 +1240,9 @@ namespace IceInternal
 		}
 		
 		//
-		// Last chance: check whether the class is non-abstract and
-                // dynamically instantiate it using reflection.
+		// Last chance: check whether the class is
+		// non-abstract and dynamically instantiate it using
+		// reflection.
 		//
 		if(v == null)
 		{
@@ -1248,7 +1258,8 @@ namespace IceInternal
 		    if(_sliceObjects)
 		    {
 			//
-			// Performance sensitive, so we use lazy initialization for tracing.
+			// Performance sensitive, so we use lazy
+			// initialization for tracing.
 			//
 			if(_traceSlicing == -1)
 			{
@@ -1274,7 +1285,8 @@ namespace IceInternal
 		_readEncapsStack.unmarshaledMap[i] = v;
 
 		//
-		// Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
+		// Record each object instance so that
+		// readPendingObjects can invoke ice_postUnmarshal
 		// after all objects have been unmarshaled.
 		//
 		if(_objectList == null)
@@ -1315,8 +1327,9 @@ namespace IceInternal
 		if(factory != null)
 		{
 		    //
-		    // Got factory -- get the factory to instantiate the exception, initialize the
-		    // exception members, and throw the exception.
+		    // Got factory -- get the factory to instantiate
+		    // the exception, initialize the exception
+		    // members, and throw the exception.
 		    //
 		    try
 		    {
@@ -1335,7 +1348,8 @@ namespace IceInternal
 		else
 		{
 		    //
-		    // Performance sensitive, so we use lazy initialization for tracing.
+		    // Performance sensitive, so we use lazy
+		    // initialization for tracing.
 		    //
 		    if(_traceSlicing == -1)
 		    {
@@ -1352,11 +1366,12 @@ namespace IceInternal
 	    }
 
 	    //
-	    // The only way out of the loop above is to find an exception for
-	    // which the receiver has a factory. If this does not happen,
-	    // sender and receiver disagree about the Slice definitions they
-	    // use. In that case, the receiver will eventually fail to read
-	    // another type ID and throw a MarshalException.
+	    // The only way out of the loop above is to find an
+	    // exception for which the receiver has a factory. If this
+	    // does not happen, sender and receiver disagree about the
+	    // Slice definitions they use. In that case, the receiver
+	    // will eventually fail to read another type ID and throw
+	    // a MarshalException.
 	    //
 	}
 	
@@ -1371,17 +1386,21 @@ namespace IceInternal
 		    foreach(DictionaryEntry e in savedMap)
 		    {
 			//
-			// Add an instance from the old to-be-marshaled map to the marshaled map and then
-			// ask the instance to marshal itself. Any new class instances that are triggered
-			// by the classes marshaled are added to toBeMarshaledMap.
+			// Add an instance from the old
+			// to-be-marshaled map to the marshaled map
+			// and then ask the instance to marshal
+			// itself. Any new class instances that are
+			// triggered by the classes marshaled are
+			// added to toBeMarshaledMap.
 			//
 			_writeEncapsStack.marshaledMap[e.Key] = e.Value;
 			writeInstance((Ice.Object)e.Key, (int)e.Value);
 		    }
 		    
 		    //
-		    // We have marshaled all the instances for this pass, substract what we have
-		    // marshaled from the toBeMarshaledMap.
+		    // We have marshaled all the instances for this
+		    // pass, substract what we have marshaled from the
+		    // toBeMarshaledMap.
 		    //
 		    foreach(DictionaryEntry e in savedMap)
 		    {
@@ -1406,10 +1425,11 @@ namespace IceInternal
 	    while(num > 0);
 
 	    //
-	    // Iterate over unmarshaledMap and invoke ice_postUnmarshal on each object.
-	    // We must do this after all objects in this encapsulation have been
-	    // unmarshaled in order to ensure that any object data members have been
-	    // properly patched.
+	    // Iterate over unmarshaledMap and invoke
+	    // ice_postUnmarshal on each object.  We must do this
+	    // after all objects in this encapsulation have been
+	    // unmarshaled in order to ensure that any object data
+	    // members have been properly patched.
 	    //
 	    if(_objectList != null)
 	    {
@@ -1450,10 +1470,12 @@ namespace IceInternal
 	internal virtual void patchReferences(object instanceIndex, object patchIndex)
 	{
 	    //
-	    // Called whenever we have unmarshaled a new instance or an index.
-	    // The instanceIndex is the index of the instance just unmarshaled and patchIndex is the index
-	    // just unmarshaled. (Exactly one of the two parameters must be null.)
-	    // Patch any pointers in the patch map with the new address.
+	    // Called whenever we have unmarshaled a new instance or
+	    // an index.  The instanceIndex is the index of the
+	    // instance just unmarshaled and patchIndex is the index
+	    // just unmarshaled. (Exactly one of the two parameters
+	    // must be null.) Patch any pointers in the patch map with
+	    // the new address.
 	    //
 	    Debug.Assert(   ((object)instanceIndex != null && (object)patchIndex == null)
 	                 || ((object)instanceIndex == null && (object)patchIndex != null));
@@ -1463,12 +1485,13 @@ namespace IceInternal
 	    if((object)instanceIndex != null)
 	    {
 		//
-		// We have just unmarshaled an instance -- check if something needs patching for that instance.
+		// We have just unmarshaled an instance -- check if
+		// something needs patching for that instance.
 		//
 		patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[instanceIndex];
 		if(patchlist == null)
 		{
-		    return; // We don't have anything to patch for the instance just unmarshaled
+		    return; // We don't have anything to patch for the instance just unmarshaled.
 		}
 		v = (Ice.Object)_readEncapsStack.unmarshaledMap[instanceIndex];
 		patchIndex = instanceIndex;
@@ -1476,12 +1499,13 @@ namespace IceInternal
 	    else
 	    {
 		//
-		// We have just unmarshaled an index -- check if we have unmarshaled the instance for that index yet.
+		// We have just unmarshaled an index -- check if we
+		// have unmarshaled the instance for that index yet.
 		//
 		v = (Ice.Object)_readEncapsStack.unmarshaledMap[patchIndex];
 		if(v == null)
 		{
-		    return; // We haven't unmarshaled the instance for this index yet
+		    return; // We haven't unmarshaled the instance for this index yet.
 		}
 		patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[patchIndex];
 	    }
@@ -1500,9 +1524,11 @@ namespace IceInternal
 		catch(InvalidCastException ex)
 		{
                     //
-                    // TODO: Fix this (also for C++ and Java): NoObjectFactoryException
-                    // is misleading because the type sent by the sender is incompatible
-                    // with what is expected. This really should be a MarshalException.
+                    // TODO: Fix this (also for C++ and Java):
+                    // NoObjectFactoryException is misleading because
+                    // the type sent by the sender is incompatible
+                    // with what is expected. This really should be a
+                    // MarshalException.
                     //
 		    Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException(ex);
 		    nof.type = patcher.type();
@@ -1511,8 +1537,9 @@ namespace IceInternal
 	    }
 	    
 	    //
-	    // Clear out the patch map for that index -- there is nothing left to patch for that
-	    // index for the time being.
+	    // Clear out the patch map for that index -- there is
+	    // nothing left to patch for that index for the time
+	    // being.
 	    //
 	    _readEncapsStack.patchMap.Remove(patchIndex);
 	}
@@ -1619,7 +1646,12 @@ namespace IceInternal
                 ex.reason = getBZ2Error(rc);
                 throw ex;
             }
-            if(compressedLen >= uncompressedLen) // Don't bother if the compressed data is larger than the uncompressed data.
+	    
+	    //
+	    // Don't bother if the compressed data is larger than the
+	    // uncompressed data.
+	    //
+            if(compressedLen >= uncompressedLen)
             {
                 return false;
             }
@@ -1629,12 +1661,14 @@ namespace IceInternal
             cstream.pos(0);
             
             //
-            // Copy the header from the uncompressed stream to the compressed one.
+            // Copy the header from the uncompressed stream to the
+            // compressed one.
             //
             cstream._buf.put(_buf.rawBytes(0, Protocol.headerSize));
 
             //
-            // Add the size of the uncompressed stream before the message body.
+            // Add the size of the uncompressed stream before the
+            // message body.
             //
             cstream.writeInt(size());
 
@@ -1644,7 +1678,8 @@ namespace IceInternal
             cstream._buf.put(compressed, 0, compressedLen);
 
             //
-            // Write the size of the compressed stream into the header.
+            // Write the size of the compressed stream into the
+            // header.
             //
             cstream.pos(10);
             cstream.writeInt(cstream.size());       
@@ -1784,8 +1819,8 @@ namespace IceInternal
 		{
 		    Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
 		    //
-		    // We will try to install the dynamic factory, but another thread
-		    // may install a factory first.
+		    // We will try to install the dynamic factory, but
+		    // another thread may install a factory first.
 		    //
 		    while(factory == null)
 		    {
@@ -1797,10 +1832,12 @@ namespace IceInternal
 			catch(Ice.AlreadyRegisteredException)
 			{
 			    //
-			    // Another thread already installed the factory, so try
-			    // to obtain it. It's possible (but unlikely) that the factory
-			    // will have already been removed, in which case the return
-			    // value will be null and the while loop will attempt to
+			    // Another thread already installed the
+			    // factory, so try to obtain it. It's
+			    // possible (but unlikely) that the
+			    // factory will have already been removed,
+			    // in which case the return value will be
+			    // null and the while loop will attempt to
 			    // install the dynamic factory again.
 			    //
 			    factory = _instance.servantFactoryManager().find(id);

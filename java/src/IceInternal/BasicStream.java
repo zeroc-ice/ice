@@ -148,10 +148,10 @@ public class BasicStream
             _capacity = _buf.capacity();
         }
         //
-        // If this stream is used for reading, then we want to set
-        // the buffer's limit to the new total size. If this buffer
-        // is used for writing, then we must set the buffer's limit
-        // to the buffer's capacity.
+        // If this stream is used for reading, then we want to set the
+        // buffer's limit to the new total size. If this buffer is
+        // used for writing, then we must set the buffer's limit to
+        // the buffer's capacity.
         //
         if(reading)
         {
@@ -192,40 +192,37 @@ public class BasicStream
     // called after reading the final element of a sequence.
     //
     // For sequences that contain constructed types that, in turn,
-    // contain sequences, the code generator also inserts a call
-    // to endElement() after unmarshaling each element.
+    // contain sequences, the code generator also inserts a call to
+    // endElement() after unmarshaling each element.
     //
-    // startSeq() is passed the unmarshaled element count, plus
-    // the minimum size (in bytes) occupied by the sequence's
-    // element type. numElements * minSize is the smallest
-    // possible number of bytes that the sequence will occupy
-    // on the wire.
+    // startSeq() is passed the unmarshaled element count, plus the
+    // minimum size (in bytes) occupied by the sequence's element
+    // type. numElements * minSize is the smallest possible number of
+    // bytes that the sequence will occupy on the wire.
     //
-    // Every time startSeq() is called, it pushes the element
-    // count and the minimum size on a stack. Every time endSeq()
-    // is called, it pops the stack.
+    // Every time startSeq() is called, it pushes the element count
+    // and the minimum size on a stack. Every time endSeq() is called,
+    // it pops the stack.
     //
     // For an ordinary sequence (one that does not (recursively)
-    // contain nested sequences), numElements * minSize must be
-    // less than the number of bytes remaining in the stream.
+    // contain nested sequences), numElements * minSize must be less
+    // than the number of bytes remaining in the stream.
     //
-    // For a sequence that is nested within some other sequence,
-    // there must be enough bytes remaining in the stream for
-    // this sequence (numElements + minSize), plus the sum of
-    // the bytes required by the remaining elements of all
-    // the enclosing sequences.
+    // For a sequence that is nested within some other sequence, there
+    // must be enough bytes remaining in the stream for this sequence
+    // (numElements + minSize), plus the sum of the bytes required by
+    // the remaining elements of all the enclosing sequences.
     //
-    // For the enclosing sequences, numElements - 1 is the
-    // number of elements for which unmarshaling has not started
-    // yet. (The call to endElement() in the generated code
-    // decrements that number whenever a sequence element is
-    // unmarshaled.)
+    // For the enclosing sequences, numElements - 1 is the number of
+    // elements for which unmarshaling has not started yet. (The call
+    // to endElement() in the generated code decrements that number
+    // whenever a sequence element is unmarshaled.)
     //
-    // For sequence that variable-length elements, checkSeq() is called
-    // whenever an element is unmarshaled. checkSeq() also checks
-    // whether the stream has a sufficient number of bytes remaining.
-    // This means that, for messages with bogus sequence sizes,
-    // unmarshaling is aborted at the earliest possible point.
+    // For sequence that variable-length elements, checkSeq() is
+    // called whenever an element is unmarshaled. checkSeq() also
+    // checks whether the stream has a sufficient number of bytes
+    // remaining.  This means that, for messages with bogus sequence
+    // sizes, unmarshaling is aborted at the earliest possible point.
     //
 
     public void
@@ -261,9 +258,10 @@ public class BasicStream
     }
 
     //
-    // Check, given the number of elements requested for this sequence,
-    // that this sequence, plus the sum of the sizes of the remaining
-    // number of elements of all enclosing sequences, would still fit within the message.
+    // Check, given the number of elements requested for this
+    // sequence, that this sequence, plus the sum of the sizes of the
+    // remaining number of elements of all enclosing sequences, would
+    // still fit within the message.
     //
     public void
     checkSeq()
@@ -1107,14 +1105,17 @@ public class BasicStream
                     if(_stringBytes[i] < 0)
                     {
                         //
-                        // Multi-byte character found - we must
-                        // use conversion
+                        // Multi-byte character found - we must use
+                        // conversion.
                         //
-			// TODO: If the string contains garbage bytes that won't
-			//       correctly decode as UTF, the behavior of this
-			//       constructor is undefined. It would be better to
-			//       explicitly decode using java.nio.charset.CharsetDecoder
-			//       and to throw MarshalException if the string won't decode.
+			// TODO: If the string contains garbage bytes
+			// that won't correctly decode as UTF, the
+			// behavior of this constructor is
+			// undefined. It would be better to explicitly
+			// decode using
+			// java.nio.charset.CharsetDecoder and to
+			// throw MarshalException if the string won't
+			// decode.
 			//
                         return new String(_stringBytes, 0, len, "UTF8");
                     }
@@ -1202,8 +1203,9 @@ public class BasicStream
 		if(q == null)
 		{
 		    //
-		    // We haven't seen this instance previously, create a new index, and
-		    // insert it into the to-be-marshaled map.
+		    // We haven't seen this instance previously,
+		    // create a new index, and insert it into the
+		    // to-be-marshaled map.
 		    //
 		    q = new Integer(++_writeEncapsStack.writeIndex);
 		    _writeEncapsStack.toBeMarshaledMap.put(v, q);
@@ -1214,7 +1216,7 @@ public class BasicStream
 	}
 	else
 	{
-	    writeInt(0);	// Write null reference
+	    writeInt(0); // Write null reference
 	}
     }
 
@@ -1236,7 +1238,7 @@ public class BasicStream
             }
         }
 
-	if(_readEncapsStack.patchMap == null)	// Lazy initialization
+	if(_readEncapsStack.patchMap == null) // Lazy initialization
 	{
 	    _readEncapsStack.patchMap = new java.util.TreeMap();
 	    _readEncapsStack.unmarshaledMap = new java.util.TreeMap();
@@ -1258,15 +1260,16 @@ public class BasicStream
 	    if(patchlist == null)
 	    {
 		//
-		// We have no outstanding instances to be patched for this index, so make a new entry
-		// in the patch map.
+		// We have no outstanding instances to be patched for
+		// this index, so make a new entry in the patch map.
 		//
 		patchlist = new java.util.LinkedList();
 	        _readEncapsStack.patchMap.put(i, patchlist);
 	    }
 	    //
-	    // Append a patcher for this instance and see if we can patch the instance. (The instance
-	    // may have been unmarshaled previously.)
+	    // Append a patcher for this instance and see if we can
+	    // patch the instance. (The instance may have been
+	    // unmarshaled previously.)
 	    //
 	    patchlist.add(patcher);
 	    patchReferences(null, i);
@@ -1287,7 +1290,8 @@ public class BasicStream
             }
 
             //
-            // If that fails, invoke the default factory if one has been registered.
+            // If that fails, invoke the default factory if one has
+            // been registered.
             //
             if(v == null)
             {
@@ -1299,9 +1303,10 @@ public class BasicStream
             }
 
             //
-            // There isn't a static factory for Ice::Object, so check for that case now.
-            // We do this *after* the factory inquiries above so that a factory could be
-            // registered for "::Ice::Object".
+            // There isn't a static factory for Ice::Object, so check
+            // for that case now.  We do this *after* the factory
+            // inquiries above so that a factory could be registered
+            // for "::Ice::Object".
             //
 	    if(v == null && id.equals(Ice.ObjectImpl.ice_staticId()))
 	    {
@@ -1309,8 +1314,9 @@ public class BasicStream
 	    }
 
             //
-            // Last chance: check the table of static factories (i.e., automatically generated
-            // factories for concrete classes).
+            // Last chance: check the table of static factories (i.e.,
+            // automatically generated factories for concrete
+            // classes).
             //
             if(v == null)
             {
@@ -1326,7 +1332,8 @@ public class BasicStream
                 if(_sliceObjects)
                 {
                     //
-                    // Performance sensitive, so we use lazy initialization for tracing.
+                    // Performance sensitive, so we use lazy
+                    // initialization for tracing.
                     //
                     if(_traceSlicing == -1)
                     {
@@ -1337,7 +1344,7 @@ public class BasicStream
                     {
                         TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
                     }
-                    skipSlice();    // Slice off this derived part -- we don't understand it.
+                    skipSlice(); // Slice off this derived part -- we don't understand it.
                     continue;
                 }
                 else
@@ -1352,8 +1359,9 @@ public class BasicStream
 	    _readEncapsStack.unmarshaledMap.put(i, v);
 
             //
-            // Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
-            // after all objects have been unmarshaled.
+            // Record each object instance so that readPendingObjects
+            // can invoke ice_postUnmarshal after all objects have
+            // been unmarshaled.
             //
             if(_objectList == null)
             {
@@ -1396,8 +1404,9 @@ public class BasicStream
 	    if(factory != null)
 	    {
                 //
-                // Got factory -- get the factory to instantiate the exception, initialize the
-                // exception members, and throw the exception.
+                // Got factory -- get the factory to instantiate the
+                // exception, initialize the exception members, and
+                // throw the exception.
                 //
 		try
 		{
@@ -1416,7 +1425,8 @@ public class BasicStream
 	    else
 	    {
 		//
-		// Performance sensitive, so we use lazy initialization for tracing.
+		// Performance sensitive, so we use lazy
+		// initialization for tracing.
 		//
 		if(_traceSlicing == -1)
 		{
@@ -1433,11 +1443,12 @@ public class BasicStream
 	}
 
 	//
-	// The only way out of the loop above is to find an exception for
-	// which the receiver has a factory. If this does not happen,
-	// sender and receiver disagree about the Slice definitions they
-	// use. In that case, the receiver will eventually fail to read
-	// another type ID and throw a MarshalException.
+	// The only way out of the loop above is to find an exception
+	// for which the receiver has a factory. If this does not
+	// happen, sender and receiver disagree about the Slice
+	// definitions they use. In that case, the receiver will
+	// eventually fail to read another type ID and throw a
+	// MarshalException.
 	//
     }
 
@@ -1453,9 +1464,11 @@ public class BasicStream
 		for(java.util.Iterator p = savedMap.entrySet().iterator(); p.hasNext(); )
 		{
 		    //
-		    // Add an instance from the old to-be-marshaled map to the marshaled map and then
-		    // ask the instance to marshal itself. Any new class instances that are triggered
-		    // by the classes marshaled are added to toBeMarshaledMap.
+		    // Add an instance from the old to-be-marshaled
+		    // map to the marshaled map and then ask the
+		    // instance to marshal itself. Any new class
+		    // instances that are triggered by the classes
+		    // marshaled are added to toBeMarshaledMap.
 		    //
 		    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
 		    _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
@@ -1463,8 +1476,9 @@ public class BasicStream
 		}
 	    
 		//
-		// We have marshaled all the instances for this pass, substract what we have
-		// marshaled from the toBeMarshaledMap.
+		// We have marshaled all the instances for this pass,
+		// substract what we have marshaled from the
+		// toBeMarshaledMap.
 		//
 		for(java.util.Iterator p = savedMap.keySet().iterator(); p.hasNext(); )
 		{
@@ -1472,7 +1486,7 @@ public class BasicStream
 		}
 	    }
 	}
-	writeSize(0);   // Zero marker indicates end of sequence of sequences of instances.
+	writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
     }
 
     public void
@@ -1490,10 +1504,10 @@ public class BasicStream
         while(num > 0);
 
         //
-        // Iterate over unmarshaledMap and invoke ice_postUnmarshal on each object.
-        // We must do this after all objects in this encapsulation have been
-        // unmarshaled in order to ensure that any object data members have been
-        // properly patched.
+        // Iterate over unmarshaledMap and invoke ice_postUnmarshal on
+        // each object. We must do this after all objects in this
+        // encapsulation have been unmarshaled in order to ensure that
+        // any object data members have been properly patched.
         //
         if(_objectList != null)
         {
@@ -1552,10 +1566,12 @@ public class BasicStream
     patchReferences(Integer instanceIndex, Integer patchIndex)
     {
         //
-        // Called whenever we have unmarshaled a new instance or an index.
-	// The instanceIndex is the index of the instance just unmarshaled and patchIndex is the index
-	// just unmarshaled. (Exactly one of the two parameters must be null.)
-        // Patch any pointers in the patch map with the new address.
+        // Called whenever we have unmarshaled a new instance or an
+	// index.  The instanceIndex is the index of the instance just
+	// unmarshaled and patchIndex is the index just
+	// unmarshaled. (Exactly one of the two parameters must be
+	// null.) Patch any pointers in the patch map with the new
+	// address.
         //
 	assert((instanceIndex != null && patchIndex == null) || (instanceIndex == null && patchIndex != null));
 
@@ -1564,7 +1580,8 @@ public class BasicStream
 	if(instanceIndex != null)
 	{
 	    //
-	    // We have just unmarshaled an instance -- check if something needs patching for that instance.
+	    // We have just unmarshaled an instance -- check if
+	    // something needs patching for that instance.
 	    //
 	    patchlist = (java.util.LinkedList)_readEncapsStack.patchMap.get(instanceIndex);
 	    if(patchlist == null)
@@ -1577,7 +1594,8 @@ public class BasicStream
 	else
 	{
 	    //
-	    // We have just unmarshaled an index -- check if we have unmarshaled the instance for that index yet.
+	    // We have just unmarshaled an index -- check if we have
+	    // unmarshaled the instance for that index yet.
 	    //
 	    v = (Ice.Object)_readEncapsStack.unmarshaledMap.get(patchIndex);
 	    if(v == null)
@@ -1609,8 +1627,8 @@ public class BasicStream
 	}
 
 	//
-	// Clear out the patch map for that index -- there is nothing left to patch for that
-	// index for the time being.
+	// Clear out the patch map for that index -- there is nothing
+	// left to patch for that index for the time being.
 	//
 	_readEncapsStack.patchMap.remove(patchIndex);
     }
@@ -1708,8 +1726,8 @@ public class BasicStream
             {
                 Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
                 //
-                // We will try to install the dynamic factory, but another thread
-                // may install a factory first.
+                // We will try to install the dynamic factory, but
+                // another thread may install a factory first.
                 //
                 while(factory == null)
                 {
@@ -1721,11 +1739,13 @@ public class BasicStream
                     catch(Ice.AlreadyRegisteredException ex)
                     {
                         //
-                        // Another thread already installed the factory, so try
-                        // to obtain it. It's possible (but unlikely) that the factory
-                        // will have already been removed, in which case the return
-                        // value will be null and the while loop will attempt to
-                        // install the dynamic factory again.
+                        // Another thread already installed the
+                        // factory, so try to obtain it. It's possible
+                        // (but unlikely) that the factory will have
+                        // already been removed, in which case the
+                        // return value will be null and the while
+                        // loop will attempt to install the dynamic
+                        // factory again.
                         //
                         factory = _instance.servantFactoryManager().find(id);
                     }
