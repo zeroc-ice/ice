@@ -84,6 +84,7 @@ protected:
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
+    virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
 
 private:
 
@@ -111,10 +112,6 @@ protected:
     Object();
     virtual ~Object();
     friend class ::IceProxy::Ice::Object;
-
-private:
-
-    virtual void setup(const ::IceInternal::ReferencePtr&) = 0;
 };
 
 } }
@@ -141,7 +138,7 @@ protected:
 
 private:
 
-    virtual void setup(const ::IceInternal::ReferencePtr&);
+    void setup(const ::IceInternal::ReferencePtr&);
 };
 
 } }
@@ -168,7 +165,7 @@ protected:
 
 private:
 
-    virtual void setup(const ::IceInternal::ReferencePtr&);
+    void setup(const ::IceInternal::ReferencePtr&, const ::Ice::ObjectAdapterPtr&);
 };
 
 } }

@@ -181,29 +181,8 @@ Ice::ObjectAdapterI::identityToServant(const string& ident)
 ObjectPtr
 Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 {
-    //
-    // We must first check whether at least one endpoint contained in
-    // the proxy matches this object adapter.
-    //
     ReferencePtr ref = proxy->__reference();
-    vector<EndpointPtr>::const_iterator p;
-    for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
-    {
-	vector<CollectorFactoryPtr>::const_iterator q;
-	for (q = _collectorFactories.begin(); q != _collectorFactories.end(); ++q)
-	{
-	    if ((*q)->equivalent(*p))
-	    {
-		//
-		// OK, endpoints and object adapter match. Let's find
-		// the object.
-		//
-		return identityToServant(ref->identity);
-	    }
-	}
-    }
-
-    throw WrongObjectAdapterException(__FILE__, __LINE__);
+    return identityToServant(ref->identity);
 }
 
 ObjectPrx
@@ -304,4 +283,24 @@ Ice::ObjectAdapterI::newProxy(const string& ident)
 
     ReferencePtr reference = new Reference(_instance, ident, Reference::ModeTwoway, false, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
+}
+
+bool
+Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy)
+{
+    ReferencePtr ref = proxy->__reference();
+    vector<EndpointPtr>::const_iterator p;
+    for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    {
+	vector<CollectorFactoryPtr>::const_iterator q;
+	for (q = _collectorFactories.begin(); q != _collectorFactories.end(); ++q)
+	{
+	    if ((*q)->equivalent(*p))
+	    {
+		return true;
+	    }
+	}
+    }
+
+    return false;
 }

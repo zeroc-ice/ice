@@ -10,21 +10,20 @@
 
 #include <Ice/Application.h>
 #include <ServantFactory.h>
+#include <Parser.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-class PhoneBookServer : public Application
+class PhoneBookCollocated : public Application
 {
     int run(int argc, char* argv[]);
 };
 
 int
-PhoneBookServer::run(int argc, char* argv[])
+PhoneBookCollocated::run(int argc, char* argv[])
 {
-    ignoreInterrupt();
-    
     int status;
     DBEnvironmentPtr dbEnv;
     
@@ -83,11 +82,8 @@ PhoneBookServer::run(int argc, char* argv[])
 	//
 	// Everything ok, let's go.
 	//
-	adapter->activate();
-	shutdownOnInterrupt();
-	communicator()->waitForShutdown();
-	ignoreInterrupt();
-	status = EXIT_SUCCESS;
+	int runParser(int, char*[], const CommunicatorPtr&);
+	status = runParser(argc, argv, communicator());
     }
     catch(const LocalException& ex)
     {
@@ -104,7 +100,7 @@ PhoneBookServer::run(int argc, char* argv[])
 	cerr << argv[0] << ": unknown exception" << endl;
 	status = EXIT_FAILURE;
     }
-
+    
     if (dbEnv)
     {
 	try
@@ -128,13 +124,12 @@ PhoneBookServer::run(int argc, char* argv[])
 	}
     }
 
-    defaultInterrupt();
     return status;
 }
 
 int
 main(int argc, char* argv[])
 {
-    PhoneBookServer app;
+    PhoneBookCollocated app;
     return app.main(argc, argv, "config");
 }

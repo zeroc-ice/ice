@@ -35,74 +35,29 @@ ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpts)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    map<string, ObjectAdapterPtr>::iterator p = _adapters.find(name);
+    map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
     if (p != _adapters.end())
     {
 	return p->second;
     }
 
-    ObjectAdapterPtr adapter = new ObjectAdapterI(_instance, name, endpts);
+    ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, name, endpts);
     _adapters.insert(make_pair(name, adapter));
     return adapter;
 }
 
-ObjectPtr
-IceInternal::ObjectAdapterFactory::proxyToServant(const ObjectPrx& proxy)
+ObjectAdapterPtr
+IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
-    if (_adapters.empty())
+    for (map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-	//
-	// If there are no adapters at all, no endpoint can ever be
-	// local, and no object can exist locally. We indicate this by
-	// returning null to the caller.
-	//
-	return 0;	 
-    }
-
-    bool allEndpointsLocal = true;
-
-    for (map<string, ObjectAdapterPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-    {
-	try
+	if (p->second->isLocal(proxy))
 	{
-	    ObjectPtr servant = p->second->proxyToServant(proxy);
-	    if (servant)
-	    {
-		//
-		// Servant found, return it to the caller
-		//
-		return servant;
-	    }
-	}
-	catch(const WrongObjectAdapterException&)
-	{
-	    //
-	    // A WrongObjectAdapter exception indicates that there is
-	    // no endpoint from the proxy that matches at least one
-	    // endpoint from the object adapter. That means that we
-	    // have at least one non-local endpoint in the proxy.
-	    //
-	    allEndpointsLocal = false;
+	    return p->second;
 	}
     }
 
-    if (allEndpointsLocal)
-    {
-	//
-	// If we didn't find a servant even though all endpoints are
-	// local, we throw an ObjectNotExistException.
-	//
-	throw ObjectNotExistException(__FILE__, __LINE__);
-    }
-    else
-    {
-	//
-	// If at least one of the endpoints from the proxy are not
-	// local, it might be possible that the object exists
-	// remotely. We indicate this by returning null to the caller.
-	//
-	return 0;
-    }
+    return 0;
 }
 
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance) :

@@ -24,7 +24,10 @@
 namespace Ice
 {
 
-class ICE_API ObjectAdapterI : public ObjectAdapter, public JTCMutex
+class ObjectAdapterI;
+typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
+
+class ObjectAdapterI : public ObjectAdapter, public JTCMutex
 {
 public:
 
@@ -54,6 +57,7 @@ private:
     friend ::IceInternal::ObjectAdapterFactory;
     
     ObjectPrx newProxy(const ::std::string&);
+    bool isLocal(const ObjectPrx&);
 
     ::IceInternal::InstancePtr _instance;
     std::string _name;

@@ -11,12 +11,7 @@
 #ifndef ICE_OBJECT_ADAPTER_FACTORY_H
 #define ICE_OBJECT_ADAPTER_FACTORY_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
+#include <Ice/ObjectAdapterI.h>
 
 namespace IceInternal
 {
@@ -27,7 +22,7 @@ public:
 
     void shutdown();
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&);
-    ::Ice::ObjectPtr proxyToServant(const ::Ice::ObjectPrx&);
+    ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
 
 private:
 
@@ -36,7 +31,7 @@ private:
     friend class Instance;
 
     InstancePtr _instance;
-    std::map<std::string, ::Ice::ObjectAdapterPtr> _adapters;
+    std::map<std::string, ::Ice::ObjectAdapterIPtr> _adapters;
 };
 
 }

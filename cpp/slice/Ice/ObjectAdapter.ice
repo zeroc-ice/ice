@@ -173,14 +173,18 @@ local interface ObjectAdapter
 
     /**
      *
-     * Look up a Servant in this Object Adapter's Active Servant Map by
-     * the identity of the Ice Object it implements.
+     * Look up a Servant in this Object Adapter's Active Servant Map
+     * by the identity of the Ice Object it implements.
+     *
+     * <note><para>This operation does only try to lookup a Servant in
+     * the Active Servant Map. It does not attempt to find a Servant
+     * via any installed [ServantLocator]s.</para></note>
      *
      * @param identity The identity of the Ice Object for which the
      * Servant should be returned.
      *
      * @return The Servant that implements the Ice Object with the
-     * given identity.
+     * given identity, or null if no such Servant has been found.
      *
      * see proxyToServant
      *
@@ -192,9 +196,14 @@ local interface ObjectAdapter
      * Look up a Servant in this Object Adapter's Active Servant Map,
      * given a Proxy.
      *
-     * @param Proxy A proxy for which the Servant should be returned.
+     * <note><para>This operation does only try to lookup a Servant in
+     * the Active Servant Map. It does not attempt to find a Servant
+     * via any installed [ServantLocator]s.</para></note>
      *
-     * @return The Servant that matches the Proxy.
+     * @param Proxy The proxy for which the Servant should be returned.
+     *
+     * @return The Servant that matches the Proxy, or null if no such
+     * Servant has been found.
      *
      * see identityToServant
      *

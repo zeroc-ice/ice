@@ -10,6 +10,7 @@
 
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
+#include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
 #include <Ice/Direct.h>
 #include <Ice/Reference.h>
@@ -408,27 +409,19 @@ IceProxy::Ice::Object::__getDelegate()
     JTCSyncT<JTCMutex> sync(*this);
     if (!_delegate)
     {
-/*
-	ObjectPtr obj = _reference->instance->objectAdapterFactory()->proxyToServant(this);
-
-	if (obj)
+	ObjectAdapterPtr adapter = _reference->instance->objectAdapterFactory()->findObjectAdapter(this);
+	if (adapter)
 	{
-	    _delegate = obj;
+	    Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
+	    delegate->setup(_reference, adapter);
+	    _delegate = delegate;
 	}
 	else
 	{
-*/
-	    _delegate = __createDelegateM();
-	    try
-	    {
-		_delegate->setup(_reference);
-	    }
-	    catch(...)
-	    {
-		_delegate = 0;
-		throw;
-	    }
-//	}
+	    Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
+	    delegate->setup(_reference);
+	    _delegate = delegate;
+	}
     }
 
     return _delegate;
@@ -440,14 +433,20 @@ IceProxy::Ice::Object::__createDelegateM()
     return Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM::Ice::Object);
 }
 
+Handle< ::IceDelegateD::Ice::Object>
+IceProxy::Ice::Object::__createDelegateD()
+{
+    return Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD::Ice::Object);
+}
+
 void
-IceProxy::Ice::Object::setup(const ReferencePtr& reference)
+IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
     // No need to synchronize, as this operation is only called
     // upon initial initialization.
     //
-    _reference = reference;
+    _reference = ref;
 }
 
 IceDelegate::Ice::Object::Object()
@@ -502,13 +501,13 @@ IceDelegateM::Ice::Object::~Object()
 }
 
 void
-IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
+IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
     // No need to synchronize, as this operation is only called
     // upon initial initialization.
     //
-    __reference = reference;
+    __reference = ref;
 
     vector<EndpointPtr> endpoints;
     switch (__reference->mode)
@@ -585,12 +584,13 @@ IceDelegateD::Ice::Object::~Object()
 }
 
 void
-IceDelegateD::Ice::Object::setup(const ReferencePtr& reference)
+IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr& adapter)
 {
     //
     // No need to synchronize, as this operation is only called
     // upon initial initialization.
     //
-    __reference = reference;
+    __reference = ref;
+    __adapter = adapter;
 }
 

@@ -257,42 +257,6 @@ Ice::ObjectAdapterDeactivatedException::raise() const
     throw *this;
 }
 
-Ice::WrongObjectAdapterException::WrongObjectAdapterException(const char* file, int line) :
-    LocalException(file, line)
-{
-}
-
-Ice::WrongObjectAdapterException::WrongObjectAdapterException(const WrongObjectAdapterException& ex) :
-    LocalException(ex)
-{
-}
-
-WrongObjectAdapterException&
-Ice::WrongObjectAdapterException::operator=(const WrongObjectAdapterException& ex)
-{
-    LocalException::operator=(ex);
-    return *this;
-}
-
-string
-Ice::WrongObjectAdapterException::toString() const
-{
-    string s = debugInfo() + "wrong object adapter";
-    return s;
-}
-
-LocalException*
-Ice::WrongObjectAdapterException::clone() const
-{
-    return new WrongObjectAdapterException(*this);
-}
-
-void
-Ice::WrongObjectAdapterException::raise() const
-{
-    throw *this;
-}
-
 Ice::NoEndpointException::NoEndpointException(const char* file, int line) :
     LocalException(file, line)
 {

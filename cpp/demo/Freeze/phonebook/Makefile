@@ -12,14 +12,16 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+COLLOCATED	= collocated
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= PhoneBook.o
 
 COBJS		= Grammer.o \
 		  Scanner.o \
 		  Parser.o \
+		  RunParser.o \
 		  Client.o \
 
 SOBJS		= PhoneBookI.o \
@@ -27,9 +29,19 @@ SOBJS		= PhoneBookI.o \
 		  ServantFactory.o \
 		  Server.o
 
+COLOBJS		= Grammer.o \
+		  Scanner.o \
+		  Parser.o \
+		  RunParser.o \
+		  PhoneBookI.o \
+		  NameIdentitiesDict.o \
+		  ServantFactory.o \
+		  Collocated.o
+
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -43,6 +55,10 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -ldb $(LIBS)
+
+$(COLLOCATED): $(OBJS) $(COLOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(LIBS) -lFreeze -ldb -lreadline -lcurses
 
 Grammer.cpp Grammer.h: Grammer.y
 	bison -dvt Grammer.y

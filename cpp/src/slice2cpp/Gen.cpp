@@ -688,12 +688,19 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.inc();
     H << sp;
     H << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
+    H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
     H << eb << ';';
     C << sp;
     C << nl << "::IceInternal::Handle< ::IceDelegateM::Ice::Object>";
     C << nl << "IceProxy" << scoped << "::__createDelegateM()";
     C << sb;
     C << nl << "return ::IceInternal::Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM" << scoped << ");";
+    C << eb;
+    C << sp;
+    C << nl << "::IceInternal::Handle< ::IceDelegateD::Ice::Object>";
+    C << nl << "IceProxy" << scoped << "::__createDelegateD()";
+    C << sb;
+    C << nl << "return ::IceInternal::Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD" << scoped << ");";
     C << eb;
 }
 
