@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <TestCommon.h>
 #include <ByteIntMapXML.h>
@@ -50,6 +51,33 @@ populateDB(MAP& m)
 	m.insert(make_pair(*j, j-alphabet.begin()));
     }
 }
+
+template<class MAP>
+class StressThread : public IceUtil::Thread
+{
+public:
+
+    StressThread(MAP& m) :
+	_map(m)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	for(int i = 0; i < 50; ++i)
+	{
+	    typename MAP::iterator p = _map.begin();
+	    assert(p != _map.end());
+	    Byte b = p->second;
+	    test(b >= 0);
+	}
+    }
+
+private:
+
+    MAP& _map;
+};
 
 template<class MAP>
 static int
@@ -287,6 +315,19 @@ run(int argc, char* argv[], MAP& m)
     {
 	p = m.find(pit->first);
 	test(p != m.end());
+    }
+    cout << "ok" << endl;
+
+    cout << "  testing concurrent access... " << flush;
+    vector<IceUtil::ThreadControl> controls;
+    for(int i = 0; i < 10; ++i)
+    {
+	IceUtil::ThreadPtr t = new StressThread<MAP>(m);
+	controls.push_back(t->start());
+    }
+    for(vector<IceUtil::ThreadControl>::iterator p = controls.begin(); p != controls.end(); ++p)
+    {
+	p->join();
     }
     cout << "ok" << endl;
 
