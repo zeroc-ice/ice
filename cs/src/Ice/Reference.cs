@@ -100,8 +100,8 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-
-	    if(fixedConnections != null && r.fixedConnections != null && !fixedConnections.Equals(r.fixedConnections))
+	    
+	    if(!compare(fixedConnections, r.fixedConnections))
 	    {
 		return false;
 	    }
@@ -953,8 +953,8 @@ namespace IceInternal
 	    
 	    hashValue = h;
 	}
-	
-	private bool compare(Endpoint[] arr1, Endpoint[] arr2)
+
+	private bool compare(object[] arr1, object[] arr2)
 	{
 	    if(arr1 == arr2)
 	    {
@@ -975,7 +975,7 @@ namespace IceInternal
 	    }
 	    
 	    return false;
-	}
+	}	
     }
 
 }
