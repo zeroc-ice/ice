@@ -480,7 +480,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Transform"=.\src\Transform\Transform.dsp - Package Owner=<4>
+Project: "TransformDB"=.\src\FreezeScript\TransformDB.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -488,6 +488,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
@@ -499,30 +502,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Slice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "TransformC"=.\src\Transform\TransformC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Transform
     End Project Dependency
 }}}
 
@@ -909,18 +888,6 @@ Package=<4>
     Project_Dep_Name gcC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Transform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformDbmap
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name transformEvictor
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name mfcHelloC
     End Project Dependency
     Begin Project Dependency
@@ -970,6 +937,15 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name GlacierStarter
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name freezeScriptDbmap
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name freezeScriptEvictor
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name TransformDB
     End Project Dependency
 }}}
 
@@ -1557,6 +1533,48 @@ Package=<4>
 
 ###############################################################################
 
+Project: "freezeScriptDbmap"=.\test\FreezeScript\dbmap\freezeScriptDbmap.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "freezeScriptEvictor"=.\test\FreezeScript\evictor\freezeScriptEvictor.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "gcC"=.\test\Ice\gc\gcC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2085,12 +2103,6 @@ Package=<4>
     Project_Dep_Name Slice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Transform
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformC
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name IcePack
     End Project Dependency
     Begin Project Dependency
@@ -2110,6 +2122,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name TransformDB
     End Project Dependency
 }}}
 
@@ -2758,54 +2773,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name Ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "transformDbmap"=.\test\Transform\dbmap\transformDbmap.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformC
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "transformEvictor"=.\test\Transform\evictor\transformEvictor.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformC
     End Project Dependency
 }}}
 

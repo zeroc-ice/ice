@@ -56,8 +56,8 @@ tests = [ \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
-    "Transform/dbmap", \
-    "Transform/evictor", \
+    "FreezeScript/dbmap", \
+    "FreezeScript/evictor", \
     "IcePack/simple", \
     "IcePack/deployer", \
     "Glacier/starter", \
