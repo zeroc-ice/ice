@@ -18,6 +18,7 @@ the Free Software Foundation.
         <ant dir="hello"/>
         <ant dir="latency"/>
         <ant dir="nested"/>
+        <ant dir="throughput"/>
         <ant dir="value"/>
     </target>
 
@@ -26,6 +27,7 @@ the Free Software Foundation.
         <ant dir="hello" target="clean"/>
         <ant dir="latency" target="clean"/>
         <ant dir="nested" target="clean"/>
+        <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>
     </target>
 
