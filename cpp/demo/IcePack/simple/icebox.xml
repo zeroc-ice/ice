@@ -2,6 +2,25 @@
 
   <server name="${name}" kind="cpp-icebox" endpoints="default" activation="on-demand">
     <include descriptor="service.xml" name="Hello"/>
+
+    <properties>
+      <!-- Make sure the Hello service uses the IceBox communicator -->
+      <property name="IceBox.UseSharedCommunicator.Hello" value="1"/>
+
+      <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
+      <property name="IceSSL.Client.CertPath" value="${ice.dir}/certs"/>
+      <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
+      <property name="IceSSL.Client.Config" value="sslconfig.xml"/>
+      <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
+    </properties>
+ 
+    <target name="debug">
+      <properties>
+        <property name="Ice.Trace.Network" value="1"/>
+        <property name="Ice.Trace.Protocol" value="1"/>
+      </properties>
+    </target>
+
   </server>
 
 </icepack>

@@ -9,24 +9,10 @@
     </adapters>
 
     <properties>
-
       <!-- The identity of the hello object will be the name of the server -->
       <property name="Identity" value="${name}"/>
+    </properties>    
 
-      <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
-      <property name="IceSSL.Client.CertPath" value="${ice.dir}/certs"/>
-      <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
-      <property name="IceSSL.Client.Config" value="sslconfig.xml"/>
-      <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
-    </properties>
- 
-    <target name="debug">
-      <properties>
-        <property name="Ice.Trace.Network" value="1"/>
-        <property name="Ice.Trace.Protocol" value="1"/>
-      </properties>
-    </target>
-    
   </service>
 
 </icepack>
