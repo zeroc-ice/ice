@@ -2,19 +2,19 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Hello=hello:tcp -p 10000:udp -c -p 10000:ssl -p 10001 # :sudp -p 10002
+Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001#:sudp -p 10001
 
 #
 # The server creates one single object adapter with the name
 # "helloadapater". The following line sets the endpoints for this
 # adapter
 #
-Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -c -p 10000:ssl -p 10001 # :sudp -p 10002
+Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001#:sudp -p 10001
 
 #
 # Warn about connection exceptions
 #
-Ice.ConnectionWarnings=1
+#Ice.ConnectionWarnings=1
 
 #
 # Network Tracing
@@ -24,7 +24,7 @@ Ice.ConnectionWarnings=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=3
+#Ice.Trace.Network=3
 
 #
 # Protocol Tracing
@@ -32,7 +32,7 @@ Ice.Trace.Network=3
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-Ice.Trace.Protocol=1
+#Ice.Trace.Protocol=1
 
 #
 # Security Tracing
@@ -59,6 +59,8 @@ Ice.Security.Ssl.Config=sslconfig.xml
 #
 # If we use a router
 #
-#Glacier.Router.Endpoints=tcp -p 10005
-#Glacier.Client.Endpoints=tcp -p 10010:udp -p 10010:ssl -p 10011
+#Glacier.Router.Endpoints=default -p 10005
+#Glacier.Client.Endpoints=tcp:udp:ssl#:sudp
+#Glacier.Trace.Client=2
+#Glacier.Trace.RoutingTable=1
 #Ice.DefaultRouter=router:default -p 10005

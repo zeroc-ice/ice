@@ -44,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
-    HelloPrx twoway = HelloPrx::checkedCast(base);
+    HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if (!twoway)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;

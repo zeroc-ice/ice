@@ -5,5 +5,5 @@ Ice.Security.Ssl.CertPath=../../../certs
 Ice.Security.Ssl.Config=./sslconfig.xml
 
 #Glacier.Router.Endpoints=default -p 10005
-#Glacier.Client.Endpoints=default -p 10010
+#Glacier.Client.Endpoints=default
 #Ice.DefaultRouter=router:default -p 10005

@@ -13,9 +13,10 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= hello \
+		  latency \
 		  value \
-		  nested \
-		  latency
+		  callback \
+		  nested
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -1,0 +1,28 @@
+// **********************************************************************
+//
+// Copyright (c) 2001
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#include <Ice/Ice.h>
+#include <CallbackI.h>
+
+using namespace std;
+using namespace Ice;
+
+void
+CallbackReceiverI::callback(const Current&)
+{
+    cout << "received callback" << endl;
+}
+
+void
+CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
+{
+    cout << "initiating callback" << endl;
+    proxy->callback(current.context);
+}
