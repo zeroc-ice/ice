@@ -62,8 +62,8 @@ public class Client
         readline(in);
 
 	Ice.Object obj = initial.getPrinterAsObject();
-	System.out.println("The type ID of the received object is \"" + obj.ice_id(null) + "\"");
-	assert(obj.ice_id(null).equals("::Ice::Object"));
+	System.out.println("The type ID of the received object is \"" + obj.ice_id() + "\"");
+	assert(obj.ice_id().equals("::Ice::Object"));
 
         System.out.println();
         System.out.println("Yes, this worked. Now let's try to transfer an object for a class");
@@ -106,7 +106,7 @@ public class Client
         readline(in);
 
         System.out.print("==> ");
-        printer.value.printBackwards(null);
+        printer.value.printBackwards();
 
         System.out.println();
         System.out.println("Now we call the same method, but on the remote object. Watch the");
@@ -125,8 +125,8 @@ public class Client
         readline(in);
 
         Printer derivedAsBase = initial.getDerivedPrinter();
-	System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id(null) + "\"");
-	assert(derivedAsBase.ice_id(null).equals("::Printer"));
+	System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
+	assert(derivedAsBase.ice_id().equals("::Printer"));
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
@@ -141,7 +141,7 @@ public class Client
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
 
         System.out.println("==> class cast to derived object succeded");
-	System.out.println("The type ID of the received object is \"" + derived.ice_id(null) + "\"");
+	System.out.println("The type ID of the received object is \"" + derived.ice_id() + "\"");
 
         System.out.println();
         System.out.println("Let's print the message contained in the derived object, and");
@@ -152,7 +152,7 @@ public class Client
 
         System.out.println("==> " + derived.derivedMessage);
         System.out.print("==> ");
-        derived.printUppercase(null);
+        derived.printUppercase();
 
         System.out.println();
         System.out.println("Finally, we try the same again, but instead of returning the");
@@ -173,7 +173,7 @@ public class Client
 
         System.out.println("==> " + derived.derivedMessage);
         System.out.print("==> ");
-        derived.printUppercase(null);
+        derived.printUppercase();
 
         System.out.println();
         System.out.println("That's it for this demo. Have fun with Ice!");

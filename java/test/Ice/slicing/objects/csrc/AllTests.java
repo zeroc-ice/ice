@@ -66,7 +66,7 @@ public class AllTests
 	ice_response(Ice.Object o)
 	{
 	    test(o != null);
-	    test(o.ice_id(null).equals("::SBase"));
+	    test(o.ice_id().equals("::SBase"));
 	    SBase sb = (SBase)o;
 	    test(sb != null);
 	    test(sb.sb.equals("SBase.sb"));
@@ -222,7 +222,7 @@ public class AllTests
         public void
 	ice_response(Ice.Object o)
 	{
-	    test(o.ice_id(null).equals("::Ice::Object"));
+	    test(o.ice_id().equals("::Ice::Object"));
 	    callback.called();
 	}
 
@@ -253,7 +253,7 @@ public class AllTests
 	ice_response(B b)
 	{
 	    test(b != null);
-	    test(b.ice_id(null).equals("::B"));
+	    test(b.ice_id().equals("::B"));
 	    test(b.sb.equals("B1.sb"));
 	    test(b.pb == b);
 	    callback.called();
@@ -286,12 +286,12 @@ public class AllTests
 	ice_response(B b1)
 	{
 	    test(b1 != null);
-	    test(b1.ice_id(null).equals("::B"));
+	    test(b1.ice_id().equals("::B"));
 	    test(b1.sb.equals("B1.sb"));
 
 	    B b2 = b1.pb;
 	    test(b2 != null);
-	    test(b2.ice_id(null).equals("::B"));
+	    test(b2.ice_id().equals("::B"));
 	    test(b2.sb.equals("B2.sb"));
 	    test(b2.pb == b1);
 	    callback.called();
@@ -324,7 +324,7 @@ public class AllTests
 	ice_response(B b1)
 	{
 	    test(b1 != null);
-	    test(b1.ice_id(null).equals("::D1"));
+	    test(b1.ice_id().equals("::D1"));
 	    test(b1.sb.equals("D1.sb"));
 	    test(b1.pb != null);
 	    test(b1.pb != b1);
@@ -339,7 +339,7 @@ public class AllTests
 	    test(b2 != null);
 	    test(b2.pb == b1);
 	    test(b2.sb.equals("D2.sb"));
-	    test(b2.ice_id(null).equals("::B"));
+	    test(b2.ice_id().equals("::B"));
 	    callback.called();
 	}
 
@@ -370,14 +370,14 @@ public class AllTests
 	ice_response(D1 d1)
 	{
 	    test(d1 != null);
-	    test(d1.ice_id(null).equals("::D1"));
+	    test(d1.ice_id().equals("::D1"));
 	    test(d1.sb.equals("D1.sb"));
 	    test(d1.pb != null);
 	    test(d1.pb != d1);
 
 	    B b2 = d1.pb;
 	    test(b2 != null);
-	    test(b2.ice_id(null).equals("::B"));
+	    test(b2.ice_id().equals("::B"));
 	    test(b2.sb.equals("D2.sb"));
 	    test(b2.pb == d1);
 	    callback.called();
@@ -410,14 +410,14 @@ public class AllTests
 	ice_response(B b2)
 	{
 	    test(b2 != null);
-	    test(b2.ice_id(null).equals("::B"));
+	    test(b2.ice_id().equals("::B"));
 	    test(b2.sb.equals("D2.sb"));
 	    test(b2.pb != null);
 	    test(b2.pb != b2);
 
 	    B b1 = b2.pb;
 	    test(b1 != null);
-	    test(b1.ice_id(null).equals("::D1"));
+	    test(b1.ice_id().equals("::D1"));
 	    test(b1.sb.equals("D1.sb"));
 	    test(b1.pb == b2);
 	    D1 d1 = (D1)b1;
@@ -454,7 +454,7 @@ public class AllTests
 	ice_response(B b1, B b2)
 	{
 	    test(b1 != null);
-	    test(b1.ice_id(null).equals("::D1"));
+	    test(b1.ice_id().equals("::D1"));
 	    test(b1.sb.equals("D1.sb"));
 	    test(b1.pb == b2);
 	    D1 d1 = (D1)b1;
@@ -463,7 +463,7 @@ public class AllTests
 	    test(d1.pd1 == b2);
 
 	    test(b2 != null);
-	    test(b2.ice_id(null).equals("::B"));	// No factory, must be sliced
+	    test(b2.ice_id().equals("::B"));	// No factory, must be sliced
 	    test(b2.sb.equals("D2.sb"));
 	    test(b2.pb == b1);
 	    callback.called();
@@ -496,7 +496,7 @@ public class AllTests
 	ice_response(B b2, B b1)
 	{
 	    test(b1 != null);
-	    test(b1.ice_id(null).equals("::D1"));
+	    test(b1.ice_id().equals("::D1"));
 	    test(b1.sb.equals("D1.sb"));
 	    test(b1.pb == b2);
 	    D1 d1 = (D1)b1;
@@ -505,7 +505,7 @@ public class AllTests
 	    test(d1.pd1 == b2);
 
 	    test(b2 != null);
-	    test(b2.ice_id(null).equals("::B"));	// No factory, must be sliced
+	    test(b2.ice_id().equals("::B"));	// No factory, must be sliced
 	    test(b2.sb.equals("D2.sb"));
 	    test(b2.pb == b1);
 	    callback.called();
@@ -632,17 +632,17 @@ public class AllTests
 	    test(p1 != null);
 	    test(p1.sb.equals("D2.sb (p1 1)"));
 	    test(p1.pb == null);
-	    test(p1.ice_id(null).equals("::B"));
+	    test(p1.ice_id().equals("::B"));
 
 	    test(p2 != null);
 	    test(p2.sb.equals("D2.sb (p2 1)"));
 	    test(p2.pb == null);
-	    test(p2.ice_id(null).equals("::B"));
+	    test(p2.ice_id().equals("::B"));
 
 	    test(ret != null);
 	    test(ret.sb.equals("D1.sb (p2 2)"));
 	    test(ret.pb == null);
-	    test(ret.ice_id(null).equals("::D1"));
+	    test(ret.ice_id().equals("::D1"));
 	    callback.called();
 	}
 
@@ -675,12 +675,12 @@ public class AllTests
 	    test(b != null);
 	    test(b.sb.equals("D4.sb (1)"));
 	    test(b.pb == null);
-	    test(b.ice_id(null).equals("::B"));
+	    test(b.ice_id().equals("::B"));
 
 	    test(ret != null);
 	    test(ret.sb.equals("B.sb (2)"));
 	    test(ret.pb == null);
-	    test(ret.ice_id(null).equals("::B"));
+	    test(ret.ice_id().equals("::B"));
 	    callback.called();
 	}
 
@@ -1007,7 +1007,7 @@ public class AllTests
 	    {
 		o = test.SBaseAsObject();
 		test(o != null);
-		test(o.ice_id(null).equals("::SBase"));
+		test(o.ice_id().equals("::SBase"));
 		sb = (SBase)o;
 	    }
 	    catch(Exception ex)
@@ -1139,7 +1139,7 @@ public class AllTests
 	    try
 	    {
 		o = test.SUnknownAsObject();
-		test(o.ice_id(null).equals("::Ice::Object"));
+		test(o.ice_id().equals("::Ice::Object"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -1164,7 +1164,7 @@ public class AllTests
 	    {
 		B b = test.oneElementCycle();
 		test(b != null);
-		test(b.ice_id(null).equals("::B"));
+		test(b.ice_id().equals("::B"));
 		test(b.sb.equals("B1.sb"));
 		test(b.pb == b);
 	    }
@@ -1191,12 +1191,12 @@ public class AllTests
 	    {
 		B b1 = test.twoElementCycle();
 		test(b1 != null);
-		test(b1.ice_id(null).equals("::B"));
+		test(b1.ice_id().equals("::B"));
 		test(b1.sb.equals("B1.sb"));
 
 		B b2 = b1.pb;
 		test(b2 != null);
-		test(b2.ice_id(null).equals("::B"));
+		test(b2.ice_id().equals("::B"));
 		test(b2.sb.equals("B2.sb"));
 		test(b2.pb == b1);
 	    }
@@ -1224,7 +1224,7 @@ public class AllTests
 		B b1;
 		b1 = test.D1AsB();
 		test(b1 != null);
-		test(b1.ice_id(null).equals("::D1"));
+		test(b1.ice_id().equals("::D1"));
 		test(b1.sb.equals("D1.sb"));
 		test(b1.pb != null);
 		test(b1.pb != b1);
@@ -1239,7 +1239,7 @@ public class AllTests
 		test(b2 != null);
 		test(b2.pb == b1);
 		test(b2.sb.equals("D2.sb"));
-		test(b2.ice_id(null).equals("::B"));
+		test(b2.ice_id().equals("::B"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -1265,14 +1265,14 @@ public class AllTests
 		D1 d1;
 		d1 = test.D1AsD1();
 		test(d1 != null);
-		test(d1.ice_id(null).equals("::D1"));
+		test(d1.ice_id().equals("::D1"));
 		test(d1.sb.equals("D1.sb"));
 		test(d1.pb != null);
 		test(d1.pb != d1);
 
 		B b2 = d1.pb;
 		test(b2 != null);
-		test(b2.ice_id(null).equals("::B"));
+		test(b2.ice_id().equals("::B"));
 		test(b2.sb.equals("D2.sb"));
 		test(b2.pb == d1);
 	    }
@@ -1300,14 +1300,14 @@ public class AllTests
 		B b2;
 		b2 = test.D2AsB();
 		test(b2 != null);
-		test(b2.ice_id(null).equals("::B"));
+		test(b2.ice_id().equals("::B"));
 		test(b2.sb.equals("D2.sb"));
 		test(b2.pb != null);
 		test(b2.pb != b2);
 
 		B b1 = b2.pb;
 		test(b1 != null);
-		test(b1.ice_id(null).equals("::D1"));
+		test(b1.ice_id().equals("::D1"));
 		test(b1.sb.equals("D1.sb"));
 		test(b1.pb == b2);
 		D1 d1 = (D1)b1;
@@ -1341,7 +1341,7 @@ public class AllTests
 		test.paramTest1(b1, b2);
 
 		test(b1.value != null);
-		test(b1.value.ice_id(null).equals("::D1"));
+		test(b1.value.ice_id().equals("::D1"));
 		test(b1.value.sb.equals("D1.sb"));
 		test(b1.value.pb == b2.value);
 		D1 d1 = (D1)b1.value;
@@ -1350,7 +1350,7 @@ public class AllTests
 		test(d1.pd1 == b2.value);
 
 		test(b2.value != null);
-		test(b2.value.ice_id(null).equals("::B"));	// No factory, must be sliced
+		test(b2.value.ice_id().equals("::B"));	// No factory, must be sliced
 		test(b2.value.sb.equals("D2.sb"));
 		test(b2.value.pb == b1.value);
 	    }
@@ -1380,7 +1380,7 @@ public class AllTests
 		test.paramTest2(b2, b1);
 
 		test(b1.value != null);
-		test(b1.value.ice_id(null).equals("::D1"));
+		test(b1.value.ice_id().equals("::D1"));
 		test(b1.value.sb.equals("D1.sb"));
 		test(b1.value.pb == b2.value);
 		D1 d1 = (D1)b1.value;
@@ -1389,7 +1389,7 @@ public class AllTests
 		test(d1.pd1 == b2.value);
 
 		test(b2.value != null);
-		test(b2.value.ice_id(null).equals("::B"));	// No factory, must be sliced
+		test(b2.value.ice_id().equals("::B"));	// No factory, must be sliced
 		test(b2.value.sb.equals("D2.sb"));
 		test(b2.value.pb == b1.value);
 	    }
@@ -1481,7 +1481,7 @@ public class AllTests
 
 		test(b1 != null);
 		test(b1.sb.equals("D1.sb"));
-		test(b1.ice_id(null).equals("::D1"));
+		test(b1.ice_id().equals("::D1"));
 		D1 p1 = (D1)b1;
 		test(p1 != null);
 		test(p1.sd1.equals("D1.sd1"));
@@ -1490,7 +1490,7 @@ public class AllTests
 		B b2 = b1.pb;
 		test(b2 != null);
 		test(b2.sb.equals("D3.sb"));
-		test(b2.ice_id(null).equals("::B"));	// Sliced by server
+		test(b2.ice_id().equals("::B"));	// Sliced by server
 		test(b2.pb == b1);
 		boolean gotException = false;
 		try
@@ -1536,7 +1536,7 @@ public class AllTests
 
 	    test(b1 != null);
 	    test(b1.sb.equals("D1.sb"));
-	    test(b1.ice_id(null).equals("::D1"));
+	    test(b1.ice_id().equals("::D1"));
 	    D1 p1 = (D1)b1;
 	    test(p1 != null);
 	    test(p1.sd1.equals("D1.sd1"));
@@ -1545,7 +1545,7 @@ public class AllTests
 	    B b2 = b1.pb;
 	    test(b2 != null);
 	    test(b2.sb.equals("D3.sb"));
-	    test(b2.ice_id(null).equals("::B"));	// Sliced by server
+	    test(b2.ice_id().equals("::B"));	// Sliced by server
 	    test(b2.pb == b1);
 	    boolean gotException = false;
 	    try
@@ -1585,7 +1585,7 @@ public class AllTests
 
 		test(b1 != null);
 		test(b1.sb.equals("D3.sb"));
-		test(b1.ice_id(null).equals("::B"));	// Sliced by server
+		test(b1.ice_id().equals("::B"));	// Sliced by server
 
 		boolean gotException = false;
 		try
@@ -1601,7 +1601,7 @@ public class AllTests
 		B b2 = b1.pb;
 		test(b2 != null);
 		test(b2.sb.equals("D1.sb"));
-		test(b2.ice_id(null).equals("::D1"));
+		test(b2.ice_id().equals("::D1"));
 		test(b2.pb == b1);
 		D1 p3 = (D1)b2;
 		test(p3 != null);
@@ -1641,7 +1641,7 @@ public class AllTests
 
 	    test(b1 != null);
 	    test(b1.sb.equals("D3.sb"));
-	    test(b1.ice_id(null).equals("::B"));	// Sliced by server
+	    test(b1.ice_id().equals("::B"));	// Sliced by server
 
 	    boolean gotException = false;
 	    try
@@ -1657,7 +1657,7 @@ public class AllTests
 	    B b2 = b1.pb;
 	    test(b2 != null);
 	    test(b2.sb.equals("D1.sb"));
-	    test(b2.ice_id(null).equals("::D1"));
+	    test(b2.ice_id().equals("::D1"));
 	    test(b2.pb == b1);
 	    D1 p3 = (D1)b2;
 	    test(p3 != null);
@@ -1683,17 +1683,17 @@ public class AllTests
 		test(p1.value != null);
 		test(p1.value.sb.equals("D2.sb (p1 1)"));
 		test(p1.value.pb == null);
-		test(p1.value.ice_id(null).equals("::B"));
+		test(p1.value.ice_id().equals("::B"));
 
 		test(p2.value != null);
 		test(p2.value.sb.equals("D2.sb (p2 1)"));
 		test(p2.value.pb == null);
-		test(p2.value.ice_id(null).equals("::B"));
+		test(p2.value.ice_id().equals("::B"));
 
 		test(ret != null);
 		test(ret.sb.equals("D1.sb (p2 2)"));
 		test(ret.pb == null);
-		test(ret.ice_id(null).equals("::D1"));
+		test(ret.ice_id().equals("::D1"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -1722,12 +1722,12 @@ public class AllTests
 		test(b.value != null);
 		test(b.value.sb.equals("D4.sb (1)"));
 		test(b.value.pb == null);
-		test(b.value.ice_id(null).equals("::B"));
+		test(b.value.ice_id().equals("::B"));
 
 		test(ret != null);
 		test(ret.sb.equals("B.sb (2)"));
 		test(ret.pb == null);
-		test(ret.ice_id(null).equals("::B"));
+		test(ret.ice_id().equals("::B"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -1767,7 +1767,7 @@ public class AllTests
 		B r = test.returnTest3(d3, b2);
 
 		test(r != null);
-		test(r.ice_id(null).equals("::B"));
+		test(r.ice_id().equals("::B"));
 		test(r.sb.equals("D3.sb"));
 		test(r.pb == r);
 	    }
@@ -1801,7 +1801,7 @@ public class AllTests
 	    B r = cb.r;
 
 	    test(r != null);
-	    test(r.ice_id(null).equals("::B"));
+	    test(r.ice_id().equals("::B"));
 	    test(r.sb.equals("D3.sb"));
 	    test(r.pb == r);
 	}
@@ -1831,7 +1831,7 @@ public class AllTests
 
 		B r = test.returnTest3(d3, d12);
 		test(r != null);
-		test(r.ice_id(null).equals("::B"));
+		test(r.ice_id().equals("::B"));
 		test(r.sb.equals("D3.sb"));
 		test(r.pb == r);
 	    }
@@ -1868,7 +1868,7 @@ public class AllTests
 	    B r = cb.r;
 
 	    test(r != null);
-	    test(r.ice_id(null).equals("::B"));
+	    test(r.ice_id().equals("::B"));
 	    test(r.sb.equals("D3.sb"));
 	    test(r.pb == r);
 	}
@@ -1949,13 +1949,13 @@ public class AllTests
 		test(ss2d1.pb == ss2b);
 		test(ss2d3.pb == ss2b);
 
-		test(ss1b.ice_id(null).equals("::B"));
-		test(ss1d1.ice_id(null).equals("::D1"));
-		test(ss1d3.ice_id(null).equals("::B"));
+		test(ss1b.ice_id().equals("::B"));
+		test(ss1d1.ice_id().equals("::D1"));
+		test(ss1d3.ice_id().equals("::B"));
 
-		test(ss2b.ice_id(null).equals("::B"));
-		test(ss2d1.ice_id(null).equals("::D1"));
-		test(ss2d3.ice_id(null).equals("::B"));
+		test(ss2b.ice_id().equals("::B"));
+		test(ss2d1.ice_id().equals("::D1"));
+		test(ss2d3.ice_id().equals("::B"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -2039,13 +2039,13 @@ public class AllTests
 	    test(ss2d1.pb == ss2b);
 	    test(ss2d3.pb == ss2b);
 
-	    test(ss1b.ice_id(null).equals("::B"));
-	    test(ss1d1.ice_id(null).equals("::D1"));
-	    test(ss1d3.ice_id(null).equals("::B"));
+	    test(ss1b.ice_id().equals("::B"));
+	    test(ss1d1.ice_id().equals("::D1"));
+	    test(ss1d3.ice_id().equals("::B"));
 
-	    test(ss2b.ice_id(null).equals("::B"));
-	    test(ss2d1.ice_id(null).equals("::D1"));
-	    test(ss2d3.ice_id(null).equals("::B"));
+	    test(ss2b.ice_id().equals("::B"));
+	    test(ss2d1.ice_id().equals("::D1"));
+	    test(ss2d3.ice_id().equals("::B"));
 	}
 	System.out.println("ok");
 

@@ -43,7 +43,7 @@ public class Client
 		//
 		// Verify the stored record is correct.
 		//
-		test(key.result == ((Complex.Node)e.getValue()).calc(null));
+		test(key.result == ((Complex.Node)e.getValue()).calc());
 	    
 		//
 		// Verify that the expression & result again.

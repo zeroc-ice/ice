@@ -35,6 +35,12 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     };
 
     public boolean
+    ice_isA(String s)
+    {
+        return s.equals(__ids[0]);
+    }
+
+    public boolean
     ice_isA(String s, Current current)
     {
         return s.equals(__ids[0]);
@@ -52,6 +58,12 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public void
+    ice_ping()
+    {
+        // Nothing to do.
+    }
+
+    public void
     ice_ping(Current current)
     {
         // Nothing to do.
@@ -62,6 +74,12 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
         __obj.ice_ping(__current);
         return IceInternal.DispatchStatus.DispatchOK;
+    }
+
+    public String[]
+    ice_ids()
+    {
+        return __ids;
     }
 
     public String[]
@@ -77,6 +95,12 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         String[] __ret = __obj.ice_ids(__current);
         __os.writeStringSeq(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
+    }
+
+    public String
+    ice_id()
+    {
+        return __ids[0];
     }
 
     public String

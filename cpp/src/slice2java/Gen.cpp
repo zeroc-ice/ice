@@ -411,14 +411,29 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
     out << eb << ';';
 
+    out << sp << nl << "public boolean" << nl << "ice_isA(String s)";
+    out << sb;
+    out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
+    out << eb;
+
     out << sp << nl << "public boolean" << nl << "ice_isA(String s, Ice.Current __current)";
     out << sb;
     out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
     out << eb;
 
+    out << sp << nl << "public String[]" << nl << "ice_ids()";
+    out << sb;
+    out << nl << "return __ids;";
+    out << eb;
+
     out << sp << nl << "public String[]" << nl << "ice_ids(Ice.Current __current)";
     out << sb;
     out << nl << "return __ids;";
+    out << eb;
+
+    out << sp << nl << "public String" << nl << "ice_id()";
+    out << sb;
+    out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
     out << sp << nl << "public String" << nl << "ice_id(Ice.Current __current)";
@@ -431,19 +446,78 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
+    OperationList ops = p->allOperations();
+    OperationList::const_iterator r;
+
+    //
+    // Write the "no Current" implementation of each operation.
+    //
+    for(r = ops.begin(); r != ops.end(); ++r)
+    {
+	OperationPtr op = *r;
+        string opName = fixKwd(op->name());
+
+        ContainerPtr container = op->container();
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+	assert(cl);
+
+	bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+
+	vector<string> params;
+	vector<string> args;
+	TypePtr ret;
+
+	if(amd)
+	{
+	    opName += "_async";
+	    params = getParamsAsync(op, package, true);
+	    args = getArgsAsync(op);
+	}
+	else
+	{
+	    ret = op->returnType();
+	    params = getParams(op, package);
+	    args = getArgs(op);
+	}
+
+	ExceptionList throws = op->throws();
+	throws.sort();
+	throws.unique();
+	remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
+	
+	if(cl == p || cl->isInterface())
+	{
+	    out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package)
+		<< nl << opName << spar << params << epar;
+	    writeThrowsClause(package, throws);
+	    out << sb << nl;
+	    if(ret)
+	    {
+		out << nl << "return ";
+	    }
+	    out << opName << spar << args << "null" << epar << ';';
+	    out << eb;
+	}
+    }
+
     //
     // Dispatch operations. We only generate methods for operations
     // defined in this ClassDef, because we reuse existing methods
     // for inherited operations.
     //
-    OperationList ops = p->operations();
-    OperationList::const_iterator r;
+    ops = p->operations();
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        assert(cl);
+	assert(cl);
 
         string opName = fixKwd(op->name());
         out << sp << nl << "public static IceInternal.DispatchStatus" << nl << "___" << opName << '(' << name
@@ -920,11 +994,6 @@ Slice::Gen::OpsVisitor::OpsVisitor(const string& dir) :
 bool
 Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = fixKwd(p->name());
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "Operations");
-
     //
     // Don't generate an Operations interface for non-abstract classes
     //
@@ -933,9 +1002,28 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
+    writeOperations(p, false);
+    writeOperations(p, true);
+
+    return false;
+}
+
+void
+Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
+{
+    string name = fixKwd(p->name());
+    ClassList bases = p->bases();
+    string package = getPackage(p);
+    string operationsInterfaceName = "Operations";
+    if(noCurrent)
+    {
+	operationsInterfaceName += "NC";
+    }
+    string absolute = getAbsolute(p, "", "_", operationsInterfaceName);
+
     if(!open(absolute))
     {
-        return false;
+        return;
     }
 
     Output& out = output();
@@ -944,6 +1032,10 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Generate the operations interface
     //
     out << sp << nl << "public interface " << '_' << name << "Operations";
+    if(noCurrent)
+    {
+	out << "NC";
+    }
     if((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
@@ -963,64 +1055,69 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
                     first = false;
                 }
                 out << getAbsolute(*q, package, "_", "Operations");
+		if(noCurrent)
+		{
+		    out << "NC";
+		}
             }
             ++q;
         }
         out.restoreIndent();
     }
-
     out << sb;
 
-    return true;
-}
+    OperationList ops = p->operations();
+    OperationList::const_iterator r;
+    for(r = ops.begin(); r != ops.end(); ++r)
+    {
+	OperationPtr op = *r;
+	string name = fixKwd(op->name());
 
-void
-Slice::Gen::OpsVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    Output& out = output();
+	TypePtr ret;
+	vector<string> params;
+
+	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
+
+	if(amd)
+	{
+	    params = getParamsAsync(op, package, true);
+	}
+	else
+	{
+	    params = getParams(op, package);
+	    ret = op->returnType();
+	}
+
+	string retS = typeToString(ret, TypeModeReturn, package);
+	
+	ExceptionList throws = op->throws();
+	throws.sort();
+	throws.unique();
+	if(!noCurrent)
+	{
+	    out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params;
+	    if(!p->isLocal())
+	    {
+		out << "Ice.Current __current";
+	    }
+	    out << epar;
+	    writeThrowsClause(package, throws);
+	    out << ';';
+	}
+	else
+	{
+	    if(!p->isLocal())
+	    {
+		out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params << epar;
+		writeThrowsClause(package, throws);
+		out << ';';
+	    }
+	}
+    }
+
     out << eb;
+
     close();
-}
-
-void
-Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string package = getPackage(cl);
-
-    TypePtr ret;
-    vector<string> params;
-
-    bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
-
-    if(amd)
-    {
-	params = getParamsAsync(p, package, true);
-    }
-    else
-    {
-	params = getParams(p, package);
-	ret = p->returnType();
-    }
-
-    string retS = typeToString(ret, TypeModeReturn, package);
-    
-    Output& out = output();
-    
-    out << sp;
-    out << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params;
-    if(!cl->isLocal())
-    {
-	out << "Ice.Current __current";
-    }
-    out << epar;
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-    writeThrowsClause(package, throws);
-    out << ';';
 }
 
 Slice::Gen::TieVisitor::TieVisitor(const string& dir) :
@@ -1206,7 +1303,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "Ice.Object";
         }
-        out << "," << nl << '_' << name << "Operations";
+	out << "," << nl << '_' << name << "Operations, _" << name << "OperationsNC";
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -1253,6 +1350,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(p->isAbstract())
         {
             implements.push_back("_" + name + "Operations");
+            implements.push_back("_" + name + "OperationsNC");
         }
         if(!bases.empty())
         {

@@ -96,8 +96,9 @@ private:
         OpsVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+
+    private:
+	void writeOperations(const ClassDefPtr&, bool);
     };
 
     class TieVisitor : public JavaVisitor

@@ -17,12 +17,16 @@ public interface Object
 
     int ice_hash();
 
+    boolean ice_isA(String s);
     boolean ice_isA(String s, Current current);
 
+    void ice_ping();
     void ice_ping(Current current);
 
+    String[] ice_ids();
     String[] ice_ids(Current current);
 
+    String ice_id();
     String ice_id(Current current);
 
     void ice_preMarshal();
