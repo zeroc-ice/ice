@@ -225,22 +225,10 @@ public class SliceTask extends org.apache.tools.ant.Task
 		{
 		    depline.append(line);
 
-		    String[] deps = depline.toString().split("[ \t\n\r]+");
-		    assert(deps.length > 1);
-
-		    //
-		    // The first element is the target (<slice file>.cpp or .o dependending on the
-		    // pre-processor), the second element is the compiled slice file and the other 
-		    // elements are the dependency of the compiled slice file.
-		    //
-
 		    SliceDependency depend = new SliceDependency();
 
-		    depend._dependencies = new String[deps.length - 1];
-		    for(int i = 1; i < deps.length; ++i)
-		    {
-			depend._dependencies[i - 1] = deps[i];
-		    }	
+		    depend._dependencies = depline.toString().split("[ \t\n\r]+");
+		    assert(depend._dependencies.length > 0);
 		    depend._timeStamp = new java.util.Date().getTime();
 
 		    dependencies.add(depend);
