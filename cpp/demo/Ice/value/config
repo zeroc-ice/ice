@@ -1,10 +1,11 @@
 Value.Initial=initial:default -p 10000
 Ice.Adapter.ValueAdapter.Endpoints=default -p 10000
 
-Ice.SSL.Client.CertPath=../../../certs
-Ice.SSL.Client.Config=sslconfig.xml
-Ice.SSL.Server.CertPath=../../../certs
-Ice.SSL.Server.Config=sslconfig.xml
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Router.Client.Endpoints=default

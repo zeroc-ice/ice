@@ -13,7 +13,7 @@
 #endif
 
 #include <IceUtil/UUID.h>
-#include <Ice/RSAKeyPair.h>
+#include <IceSSL/RSAKeyPair.h>
 #include <Glacier/StarterI.h>
 #include <fcntl.h>
 #include <shadow.h>
@@ -173,10 +173,10 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// be seen with `ps'. Keys and certificate should rather be
 	// passed through a pipe? (ML will take care of this...)
 	//
-        args.push_back("--Ice.SSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--Ice.SSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
-        args.push_back("--Ice.SSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--Ice.SSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--IceSSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--IceSSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
 	args.push_back("--Glacier.Router.UserId=" + userId);
 	

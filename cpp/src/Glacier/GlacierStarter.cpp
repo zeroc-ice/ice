@@ -180,8 +180,6 @@ main(int argc, char* argv[])
     action.sa_flags = 0;
     sigaction(SIGCHLD, &action, 0);
 
-    addArgumentPrefix("Glacier");
-
     //
     // Make sure that this process doesn't use a router.
     //
@@ -189,6 +187,10 @@ main(int argc, char* argv[])
     try
     {
 	defaultProperties = getDefaultProperties(argc, argv);
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = defaultProperties->parseCommandLineOptions("Ice", args);
+        args = defaultProperties->parseCommandLineOptions("Glacier", args);
+        stringSeqToArgs(args, argc, argv);
     }
     catch(const Exception& ex)
     {

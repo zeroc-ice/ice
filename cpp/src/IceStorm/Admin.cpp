@@ -39,8 +39,6 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    addArgumentPrefix("IceStorm");
-
     Client app;
     int rc = app.main(argc, argv);
 
@@ -69,6 +67,12 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
+    PropertiesPtr properties = communicator()->getProperties();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IceStorm", args);
+    stringSeqToArgs(args, argc, argv);
+
     string cpp("cpp");
     string commands;
     bool debug = false;
@@ -154,7 +158,6 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())

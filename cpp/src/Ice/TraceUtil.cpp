@@ -98,6 +98,67 @@ printRequestHeader(ostream& s, BasicStream& stream)
     }
 }
 
+#if 0
+static void
+dumpOctets(const string& cat, const BasicStream& stream, const ::Ice::LoggerPtr& logger)
+{
+    ostringstream s;
+    s << endl;
+
+    const BasicStream::Container::size_type inc = 8;
+
+    for (BasicStream::Container::size_type i = 0; i < stream.b.size(); i += inc)
+    {
+        for (BasicStream::Container::size_type j = i; j - i < inc; j++)
+        {
+            if (j < stream.b.size())
+            {
+                int n = stream.b[j];
+                if (n < 0)
+                {
+                    n += 256;
+                }
+                if (n < 10)
+                {
+                    s << "  " << n;
+                }
+                else if (n < 100)
+                {
+                    s << " " << n;
+                }
+                else
+                {
+                    s << n;
+                }
+                s << " ";
+            }
+            else
+            {
+                s << "    ";
+            }
+        }
+
+        s << '"';
+
+        for (BasicStream::Container::size_type j = i; j < stream.b.size() && j - i < inc; j++)
+        {
+            if (stream.b[j] >= 32 && stream.b[j] < 127)
+            {
+                s << (char)stream.b[j];
+            }
+            else
+            {
+                s << '.';
+            }
+        }
+
+        s << '"' << endl;
+    }
+
+    logger->trace(cat, s.str());
+}
+#endif
+
 void
 IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
 			 const TraceLevelsPtr& tl)

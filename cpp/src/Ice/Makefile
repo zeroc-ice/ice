@@ -45,6 +45,10 @@ OBJS		= Initialize.o \
 		  UserExceptionFactory.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
+		  EndpointFactory.o \
+		  TcpEndpoint.o \
+		  UdpEndpoint.o \
+		  UnknownEndpoint.o \
 		  Reference.o \
 		  ReferenceFactory.o \
 		  Identity.o \
@@ -71,45 +75,10 @@ OBJS		= Initialize.o \
 		  TcpConnector.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
-                  SslException.o \
-                  SslException2.o \
-                  SslConnector.o \
-                  SslAcceptor.o \
-		  SslTransceiver.o \
-                  BaseCerts.o \
-                  CertificateAuthority.o \
-                  CertificateDesc.o \
-                  ConfigParser.o \
-                  ConfigParserErrorReporter.o \
-                  SslConnection.o \
-                  SslConnectionOpenSSLClient.o \
-                  SslConnectionOpenSSL.o \
-                  SslConnectionOpenSSLServer.o \
-                  ContextOpenSSL.o \
-                  ContextOpenSSLClient.o \
-                  ContextOpenSSLServer.o \
-                  SslExtension.o \
-                  SslExtensionInternal.o \
-                  SslFactory.o \
-                  GeneralConfig.o \
-                  System.o \
-                  SystemInternal.o \
-                  SystemOpenSSL.o \
-                  TempCerts.o \
-                  CertificateVerifier.o \
-                  CertificateVerifierOpenSSL.o \
-                  OpenSSLJanitors.o \
-                  RSACertificateGen.o \
-                  SslIceUtils.o \
-                  RSAPrivateKey.o \
-                  RSAPublicKey.o \
-                  RSAKeyPair.o \
-                  DHParams.o \
-                  OpenSSLUtils.o \
-                  DefaultCertificateVerifier.o \
-                  SingleCertificateVerifier.o \
 		  UdpTransceiver.o \
-		  DynamicLibrary.o
+		  DynamicLibrary.o \
+		  Plugin.o \
+		  PluginManagerI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -119,7 +88,7 @@ SLICECMD	= $(SLICE2CPP) --include-dir Ice --dll-export ICE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(OPENSSL_HOME)/include -I$(XERCESC_HOME)/include/xercesc
+CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -136,14 +105,6 @@ $(HDIR)/LocalException.h LocalException.cpp: $(SDIR)/LocalException.ice $(SLICE2
 
 clean::
 	rm -f $(HDIR)/LocalException.h LocalException.cpp
-
-$(HDIR)/SslException.h SslException.cpp: $(SDIR)/SslException.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslException.h SslException.cpp
-	$(SLICECMD) $(SDIR)/SslException.ice
-	mv SslException.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/SslException.h SslException.cpp
 
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
@@ -220,57 +181,6 @@ $(HDIR)/ObjectAdapterF.h: $(SDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
-
-$(HDIR)/CertificateVerifier.h CertificateVerifier.cpp: $(SDIR)/CertificateVerifier.ice $(SLICE2CPP)
-	rm -f $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp
-	$(SLICECMD) $(SDIR)/CertificateVerifier.ice
-	mv CertificateVerifier.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp
-
-$(HDIR)/CertificateVerifierF.h: $(SDIR)/CertificateVerifierF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/CertificateVerifierF.h CertificateVerifierF.cpp
-	$(SLICECMD) $(SDIR)/CertificateVerifierF.ice
-	mv CertificateVerifierF.h $(HDIR)
-	rm -f CertificateVerifierF.cpp
-
-clean::
-	rm -f $(HDIR)/CertificateVerifierF.h
-
-$(HDIR)/System.h System.cpp: $(SDIR)/System.ice $(SLICE2CPP)
-	rm -f $(HDIR)/System.h System.cpp
-	$(SLICECMD) $(SDIR)/System.ice
-	mv System.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/System.h System.cpp
-
-$(HDIR)/SystemF.h: $(SDIR)/SystemF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SystemF.h SystemF.cpp
-	$(SLICECMD) $(SDIR)/SystemF.ice
-	mv SystemF.h $(HDIR)
-	rm -f SystemF.cpp
-
-clean::
-	rm -f $(HDIR)/SystemF.h
-
-$(HDIR)/SslExtension.h SslExtension.cpp: $(SDIR)/SslExtension.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslExtension.h SslExtension.cpp
-	$(SLICECMD) $(SDIR)/SslExtension.ice
-	mv SslExtension.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/SslExtension.h SslExtension.cpp
-
-$(HDIR)/SslExtensionF.h: $(SDIR)/SslExtensionF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslExtensionF.h SslExtensionF.cpp
-	$(SLICECMD) $(SDIR)/SslExtensionF.ice
-	mv SslExtensionF.h $(HDIR)
-	rm -f SslExtensionF.cpp
-
-clean::
-	rm -f $(HDIR)/SslExtensionF.h
 
 $(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp
@@ -370,7 +280,21 @@ $(HDIR)/RouterF.h: $(SDIR)/RouterF.ice $(SLICE2CPP)
 	mv RouterF.h $(HDIR)
 	rm -f RouterF.cpp
 
+$(HDIR)/Plugin.h Plugin.cpp: $(SDIR)/Plugin.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Plugin.h Plugin.cpp
+	$(SLICECMD) $(SDIR)/Plugin.ice
+	mv Plugin.h $(HDIR)
+
 clean::
-	rm -f $(HDIR)/RouterF.h
+	rm -f $(HDIR)/Plugin.h Plugin.cpp
+
+$(HDIR)/PluginF.h: $(SDIR)/PluginF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/PluginF.h PluginF.cpp
+	$(SLICECMD) $(SDIR)/PluginF.ice
+	mv PluginF.h $(HDIR)
+	rm -f PluginF.cpp
+
+clean::
+	rm -f $(HDIR)/PluginF.h
 
 include .depend

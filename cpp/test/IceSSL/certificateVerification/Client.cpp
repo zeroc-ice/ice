@@ -9,9 +9,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/System.h>
-#include <Ice/SslException.h>
-#include <Ice/SslExtension.h>
+#include <IceSSL/Plugin.h>
+#include <IceSSL/Exception.h>
 #include <TestCommon.h>
 #include <Pinger.h>
 
@@ -35,18 +34,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     km->getTrustedClientKeys(clientTrustedKey,clientTrustedCert);
     km->getUntrustedClientKeys(clientUntrustedKey,clientUntrustedCert);
 
-    IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     // Use test related paths - override values in TestUtil.py
-    std::string clientCertPath = properties->getProperty("Ice.SSL.Test.Client.CertPath");
-    std::string serverCertPath = properties->getProperty("Ice.SSL.Test.Server.CertPath");
-    properties->setProperty("Ice.SSL.Client.CertPath", clientCertPath);
-    properties->setProperty("Ice.SSL.Server.CertPath", serverCertPath);
+    std::string clientCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
+    std::string serverCertPath = properties->getProperty("IceSSL.Test.Server.CertPath");
+    properties->setProperty("IceSSL.Client.CertPath", clientCertPath);
+    properties->setProperty("IceSSL.Server.CertPath", serverCertPath);
 
     bool singleCertVerifier = false;
-    if (properties->getProperty("Ice.SSL.Client.CertificateVerifier") == "singleCert")
+    if (properties->getProperty("IceSSL.Client.CertificateVerifier") == "singleCert")
     {
         singleCertVerifier = true;
     }
@@ -55,9 +55,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         cout << "client and server trusted, client using stock certificate... ";
 
-        properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
-        sslSystem->configure(IceSSL::Client);
-        sslSystem->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
+        properties->setProperty("IceSSL.Client.Config", "sslconfig_6.xml");
+        sslPlugin->configure(IceSSL::Client);
+        sslPlugin->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
         try
         {
             PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
@@ -72,20 +72,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         }
     }
 
-    properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
+    properties->setProperty("IceSSL.Client.Config", "sslconfig_7.xml");
 
     cout << "client and server do not trust each other... " << flush;
 
     // Neither Client nor Server will trust.
-    sslSystem->configure(IceSSL::Client);
-    sslSystem->addTrustedCertificate(IceSSL::Client, serverUntrustedCert);
+    sslPlugin->configure(IceSSL::Client);
+    sslPlugin->addTrustedCertificate(IceSSL::Client, serverUntrustedCert);
     if (singleCertVerifier)
     {
-        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
-        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(serverUntrustedCert);
-        sslSystem->setCertificateVerifier(IceSSL::Client, certVerifier);
+        IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(serverUntrustedCert);
+        sslPlugin->setCertificateVerifier(IceSSL::Client, certVerifier);
     }
-    sslSystem->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
+    sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
         PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
@@ -106,7 +105,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << "client trusted, server not trusted... " << flush;
 
     // Client will not trust Server, but Server will trust Client.
-    sslSystem->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
+    sslPlugin->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
     try
     {
         PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
@@ -127,15 +126,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << "client trusts server, server does not trust client... " << flush;
 
     // Client trusts, Server does not.
-    sslSystem->configure(IceSSL::Client);
-    sslSystem->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
+    sslPlugin->configure(IceSSL::Client);
+    sslPlugin->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
     if (singleCertVerifier)
     {
-        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
-        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(serverTrustedCert);
-        sslSystem->setCertificateVerifier(IceSSL::Client, certVerifier);
+        IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(serverTrustedCert);
+        sslPlugin->setCertificateVerifier(IceSSL::Client, certVerifier);
     }
-    sslSystem->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
+    sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
         PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
@@ -158,7 +156,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << "both client and server trust each other... " << flush;
 
     // Both Client and Server trust.
-    sslSystem->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
+    sslPlugin->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
 
     try
     {

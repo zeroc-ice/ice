@@ -256,7 +256,20 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IcePatch");
+    PropertiesPtr defaultProperties;
+    try
+    {
+	defaultProperties = getDefaultProperties(argc, argv);
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = defaultProperties->parseCommandLineOptions("IcePatch", args);
+        stringSeqToArgs(args, argc, argv);
+    }
+    catch(const Exception& ex)
+    {
+	cerr << argv[0] << ": " << ex << endl;
+	return EXIT_FAILURE;
+    }
+
     Server app;
     return app.main(argc, argv);
 }

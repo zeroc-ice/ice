@@ -13,8 +13,7 @@
 #include <IcePatch/Util.h>
 #include <Glacier/Glacier.h>
 #include <IceUtil/Base64.h>
-#include <Ice/System.h>
-#include <Ice/SslExtension.h>
+#include <IceSSL/Plugin.h>
 #include <iomanip>
 #ifdef _WIN32
 #   include <direct.h>
@@ -125,19 +124,21 @@ IcePatch::Client::run(int argc, char* argv[])
 		}
 	    }
 
-	    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
+	    string clientConfig = properties->getProperty("IceSSL.Client.Config");
 	    if (!clientConfig.empty())
 	    {
 		string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
 		string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
 		string routerCertString = IceUtil::Base64::encode(routerCert);
-		
-		IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
-		IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-		sslSystem->setCertificateVerifier(IceSSL::Client, sslExtension->getSingleCertVerifier(routerCert));
-		sslSystem->setRSAKeysBase64(IceSSL::Client, privateKeyBase64, publicKeyBase64);
-		sslSystem->addTrustedCertificateBase64(IceSSL::Client, routerCertString);
+                PluginManagerPtr pluginManager = communicator()->getPluginManager();
+                PluginPtr plugin = pluginManager->getPlugin("IceSSL");
+                IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
+                assert(sslPlugin);
+
+		sslPlugin->setCertificateVerifier(IceSSL::Client, sslPlugin->getSingleCertVerifier(routerCert));
+		sslPlugin->setRSAKeysBase64(IceSSL::Client, privateKeyBase64, publicKeyBase64);
+		sslPlugin->addTrustedCertificateBase64(IceSSL::Client, routerCertString);
 	    }
 
 	    communicator()->setDefaultRouter(router);
@@ -409,8 +410,21 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IcePatch");
-    addArgumentPrefix("Glacier");
+    PropertiesPtr defaultProperties;
+    try
+    {
+	defaultProperties = getDefaultProperties(argc, argv);
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = defaultProperties->parseCommandLineOptions("IcePatch", args);
+        args = defaultProperties->parseCommandLineOptions("Glacier", args);
+        stringSeqToArgs(args, argc, argv);
+    }
+    catch(const Exception& ex)
+    {
+	cerr << argv[0] << ": " << ex << endl;
+	return EXIT_FAILURE;
+    }
+
     Client app;
     return app.main(argc, argv);
 }

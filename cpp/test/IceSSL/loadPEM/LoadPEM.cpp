@@ -10,8 +10,8 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Ice/SslException.h>
-#include <Ice/System.h>
+#include <IceSSL/Exception.h>
+#include <IceSSL/Plugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -21,12 +21,13 @@ testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& comm
                                                 const std::string& configFile)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     try
     {
-        properties->setProperty("Ice.SSL.Client.Config", configFile);
-        system->configure(IceSSL::Client);
+        properties->setProperty("IceSSL.Client.Config", configFile);
+        sslPlugin->configure(IceSSL::Client);
         test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateLoadException&)
@@ -59,12 +60,13 @@ void
 testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     try
     {
-        properties->setProperty("Ice.SSL.Client.Config", configFile);
-        system->configure(IceSSL::Client);
+        properties->setProperty("IceSSL.Client.Config", configFile);
+        sslPlugin->configure(IceSSL::Client);
         test(false);
     }
     catch (const IceSSL::OpenSSL::PrivateKeyLoadException&)
@@ -93,12 +95,13 @@ void
 testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     try
     {
-        properties->setProperty("Ice.SSL.Client.Config", configFile);
-        system->configure(IceSSL::Client);
+        properties->setProperty("IceSSL.Client.Config", configFile);
+        sslPlugin->configure(IceSSL::Client);
         test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateLoadException&)
@@ -127,12 +130,13 @@ void
 testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     try
     {
-        properties->setProperty("Ice.SSL.Client.Config", configFile);
-        system->configure(IceSSL::Client);
+        properties->setProperty("IceSSL.Client.Config", configFile);
+        sslPlugin->configure(IceSSL::Client);
         test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateKeyMatchException&)
@@ -161,12 +165,13 @@ void
 testNoException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     try
     {
-        properties->setProperty("Ice.SSL.Client.Config", configFile);
-        system->configure(IceSSL::Client);
+        properties->setProperty("IceSSL.Client.Config", configFile);
+        sslPlugin->configure(IceSSL::Client);
         std::cout << "ok" << std::endl;
     }
     catch (const LocalException&)
@@ -191,7 +196,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
-    // properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
+    // properties->setProperty("IceSSL.Client.CertPath", "../certs");
 
     std::cout << "bad private key and certificate... " << std::flush;
     testExpectCertificateAndPrivateKeyLoadException(communicator, "sslconfig_1.xml");

@@ -166,9 +166,47 @@ Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</re
 <para>
 Sets the endpoints for the object adapter
 <replaceable>name</replaceable> to
-<replaceable>enpoints</replaceable>, provided that such object adapter
+<replaceable>endpoints</replaceable>, provided that such object adapter
 has been created with
 <literal>Ice::Communicator::createObjectAdapter</literal>.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Ice; Plug-in Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.Plugin.<replaceable>name</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Plugin.<replaceable>name</replaceable>=<replaceable>entry_point [args]</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines a plug-in to be installed during Communicator initialization.
+</para>
+<para>
+In C++, <replaceable>entry_point</replaceable> has the form
+<literal>basename[,version]:function</literal>. The <literal>basename</literal>
+and optional <literal>version</literal> components are used to construct
+the name of a DLL or shared library. If no version is supplied, the &Ice; version
+is used. The <literal>function</literal> component is the name of a function with
+C linkage.
+</para>
+<para>
+For example, the entry point <literal>MyPlugin,2.3:create</literal> would
+imply a shared library name of <literal>libMyPlugin.so.2.3</literal>
+on Unix and <literal>MyPlugin23.dll</literal> on Windows. Furthermore,
+if &Ice; is built on Windows with debugging, a <literal>d</literal> will
+be automatically appended to the version (e.g., <literal>MyPlugin23d.dll</literal>).
+</para>
+<para>
+In Java, <replaceable>entry_point</replaceable> is the name of a class.
 </para>
 </section>
 </section>
@@ -442,11 +480,11 @@ conditions in connections.
 <section><title>&Ice; SSL Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.SSL.Client.CertPath, Ice.SSL.Server.CertPath</title>
+<section><title>IceSSL.Client.CertPath, IceSSL.Server.CertPath</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.CertPath=<replaceable>path</replaceable>
-Ice.SSL.Server.CertPath=<replaceable>path</replaceable>
+IceSSL.Client.CertPath=<replaceable>path</replaceable>
+IceSSL.Server.CertPath=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
@@ -457,10 +495,10 @@ find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
 parameter files.
 </para>
 <para>
-In the case that the <literal>Ice.SSL.Client.Config</literal> or
-<literal>Ice.SSL.Server.Config</literal> is a relative path, it
-will be relative to the value of <literal>Ice.SSL.Client.CertPath</literal>
-or <literal>Ice.SSL.Server.CertPath</literal>.
+In the case that the <literal>IceSSL.Client.Config</literal> or
+<literal>IceSSL.Server.Config</literal> is a relative path, it
+will be relative to the value of <literal>IceSSL.Client.CertPath</literal>
+or <literal>IceSSL.Server.CertPath</literal>.
 </para>
 <para>
 If not specified, the application will use the current working directory
@@ -469,11 +507,11 @@ as the certificate path.
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Config, Ice.SSL.Server.Config</title>
+<section><title>IceSSL.Client.Config, IceSSL.Server.Config</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Config=<replaceable>config_file</replaceable>
-Ice.SSL.Server.Config=<replaceable>config_file</replaceable>
+IceSSL.Client.Config=<replaceable>config_file</replaceable>
+IceSSL.Server.Config=<replaceable>config_file</replaceable>
 </synopsis>
 </section>
 <section>
@@ -482,8 +520,8 @@ Ice.SSL.Server.Config=<replaceable>config_file</replaceable>
 Defines the XML-based configuration file that the SSL Extension will
 use to load initialization information and certificates from. If one of these
 properties contains a relative path, the path will be interpreted in terms of
-the matching <literal>Ice.SSL.Client.CertPath</literal> or
-<literal>Ice.SSL.Server.CertPath</literal>.
+the matching <literal>IceSSL.Client.CertPath</literal> or
+<literal>IceSSL.Server.CertPath</literal>.
 </para>
 <para>
 Xerces-c, the XML parser used to read this file, will look for the DTD file in
@@ -497,11 +535,11 @@ for the proper operation of the IceSSL extension.
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Handshake.ReadTimeout, Ice.SSL.Server.Handshake.ReadTimeout</title>
+<section><title>IceSSL.Client.Handshake.ReadTimeout, IceSSL.Server.Handshake.ReadTimeout</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Handshake.ReadTimeout=<replaceable>ms</replaceable>
-Ice.SSL.Server.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+IceSSL.Client.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+IceSSL.Server.Handshake.ReadTimeout=<replaceable>ms</replaceable>
 </synopsis>
 </section>
 <section>
@@ -518,11 +556,11 @@ If not specified, the default value for these properties is 5000ms, or 5 seconds
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Passphrase.Retries, Ice.SSL.Server.Passphrase.Retries</title>
+<section><title>IceSSL.Client.Passphrase.Retries, IceSSL.Server.Passphrase.Retries</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Passphrase.Retries=<replaceable>number of retries</replaceable>
-Ice.SSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
+IceSSL.Client.Passphrase.Retries=<replaceable>number of retries</replaceable>
+IceSSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
 </synopsis>
 </section>
 <section>
@@ -538,11 +576,11 @@ If not specified, the default value for these properties is 5 retries.
 </section>
 </section>
 
-<section><title>Ice.SSL.Server.Overrides.RSA.PrivateKey, Ice.SSL.Server.Overrides.RSA.Certificate</title>
+<section><title>IceSSL.Server.Overrides.RSA.PrivateKey, IceSSL.Server.Overrides.RSA.Certificate</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Server.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Server.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
 </synopsis>
 </section>
 <section>
@@ -550,7 +588,7 @@ Ice.SSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string<
 <para>
 These properties provides a method by which the RSA private key and public key (certificate)
 used by the Server context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
+(specified in <literal>IceSSL.Server.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
@@ -559,11 +597,11 @@ There is not default value for these properties.
 </section>
 </section>
 
-<section><title>Ice.SSL.Server.Overrides.DSA.PrivateKey, Ice.SSL.Server.Overrides.DSA.Certificate</title>
+<section><title>IceSSL.Server.Overrides.DSA.PrivateKey, IceSSL.Server.Overrides.DSA.Certificate</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Server.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Server.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
 </synopsis>
 </section>
 <section>
@@ -571,7 +609,7 @@ Ice.SSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string<
 <para>
 These properties provides a method by which the DSA private key and public key (certificate)
 used by the Server context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
+(specified in <literal>IceSSL.Server.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
@@ -580,11 +618,11 @@ There is not default value for these properties.
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Overrides.RSA.PrivateKey, Ice.SSL.Client.Overrides.RSA.Certificate</title>
+<section><title>IceSSL.Client.Overrides.RSA.PrivateKey, IceSSL.Client.Overrides.RSA.Certificate</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Client.Overrides.RSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
 </synopsis>
 </section>
 <section>
@@ -592,7 +630,7 @@ Ice.SSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string<
 <para>
 These properties provides a method by which the RSA private key and public key (certificate)
 used by the Client context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
+(specified in <literal>IceSSL.Client.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
@@ -601,11 +639,11 @@ There is not default value for these properties.
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Overrides.DSA.PrivateKey, Ice.SSL.Client.Overrides.DSA.Certificate</title>
+<section><title>IceSSL.Client.Overrides.DSA.PrivateKey, IceSSL.Client.Overrides.DSA.Certificate</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Client.Overrides.DSA.PrivateKey=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</replaceable>
 </synopsis>
 </section>
 <section>
@@ -613,7 +651,7 @@ Ice.SSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string<
 <para>
 These properties provides a method by which the DSA private key and public key (certificate)
 used by the Client context may be overridden from those specified in the config file
-(specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
+(specified in <literal>IceSSL.Client.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
 <para>
@@ -622,19 +660,19 @@ There is not default value for these properties.
 </section>
 </section>
 
-<section><title>Ice.SSL.Client.Overrides.CACertificate, Ice.SSL.Server.Overrides.CACertificate</title>
+<section><title>IceSSL.Client.Overrides.CACertificate, IceSSL.Server.Overrides.CACertificate</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.SSL.Client.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
-Ice.SSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Client.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
+IceSSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 These properties provide a method by which one may override any trusted Certificate
-Authority (CA) certificates specified in <literal>Ice.SSL.Server.Config</literal> or
-<literal>Ice.SSL.Client.Config</literal>.  The new certificate in question is represented
+Authority (CA) certificates specified in <literal>IceSSL.Server.Config</literal> or
+<literal>IceSSL.Client.Config</literal>.  The new certificate in question is represented
 as the base64 encoding of the DER binary representation of the certificate.
 </para>
 <para>
@@ -991,7 +1029,7 @@ Glacier.Router.SessionManager=<replaceable>proxy</replaceable>
 <section>
 <title>Description</title>
 <para>
-A stringified proxy to the session manager inteface. If not specified,
+A stringified proxy to the session manager interface. If not specified,
 it is not possible to use the <literal>Router::createSession</literal>
 method.
 </para>

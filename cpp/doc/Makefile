@@ -18,7 +18,6 @@ SGMLFILES	= manual.sgml \
 		  ReferencesEndpoints.sgml
 
 SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
-		  ../slice/Ice/CertificateVerifier.ice \
 		  ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Identity.ice \
@@ -26,15 +25,15 @@ SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ObjectFactory.ice \
+		  ../slice/Ice/Plugin.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/Router.ice \
 		  ../slice/Ice/ServantLocator.ice \
-		  ../slice/Ice/Service.ice \
-		  ../slice/Ice/SslException.ice \
-		  ../slice/Ice/SslExtension.ice \
 		  ../slice/Ice/Stream.ice \
-		  ../slice/Ice/System.ice \
 		  ../slice/Ice/UserExceptionFactory.ice \
+		  ../slice/IceSSL/CertificateVerifier.ice \
+		  ../slice/IceSSL/Exception.ice \
+		  ../slice/IceSSL/Plugin.ice \
 		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/DBException.ice \
 		  ../slice/Freeze/Evictor.ice \

@@ -1,7 +1,7 @@
 #
 # The IceBox server endpoint configuration
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998#:ssl -p 9999
+IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 
 #
 # The hello service
@@ -12,14 +12,14 @@ IceBox.Service.Hello=libHelloService.so:create
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Hello=hello:tcp -p 10000:udp -p 10000#:ssl -p 10001
+Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name
 # "helloadapater". The following line sets the endpoints for this
 # adapter
 #
-Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000#:ssl -p 10001
+Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -59,10 +59,11 @@ Ice.Trace.Network=1
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
-Ice.SSL.Client.CertPath=../../../certs
-Ice.SSL.Client.Config=sslconfig.xml
-Ice.SSL.Server.CertPath=../../../certs
-Ice.SSL.Server.Config=sslconfig.xml
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
 
 #
 # Glacier settings

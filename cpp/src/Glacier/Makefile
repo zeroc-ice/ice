@@ -56,11 +56,11 @@ $(NAME): $(VERSIONED_NAME)
 
 $(ROUTER): $(ROBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier $(SSL_LIBS) $(LIBS)
 
 $(STARTER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(SSL_LIBS) $(LIBS)
 
 $(HDIR)/Starter.h Starter.cpp: $(SDIR)/Starter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Starter.h Starter.cpp

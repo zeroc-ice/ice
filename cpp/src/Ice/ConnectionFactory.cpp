@@ -24,7 +24,6 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
-#include <Ice/SslException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;
@@ -104,10 +103,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 	    break;
 	}
 	catch (const SocketException& ex)
-	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	}
-	catch (const IceSSL::SslException& ex) // TODO: bandaid to make retry w/ ssl work.
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
@@ -321,11 +316,6 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
 	connection->activate();
 	_connections.push_back(connection);
-    }
-    catch (const IceSSL::SslException&)
-    {
-        // TODO: bandaid. Takes care of SSL Handshake problems during
-        // creation of a Transceiver. Ignore, nothing we can do here.
     }
     catch (const SocketException&)
     {

@@ -55,7 +55,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm -I$(slicedir) -I..
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. -I$(DB_HOME)/include -I$(XERCESC_HOME)/include/xercesc $(CPPFLAGS)
+CPPFLAGS	:= -I.. -I$(DB_HOME)/include $(XERCESC_FLAGS) $(CPPFLAGS)
 LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
@@ -68,11 +68,11 @@ $(NAME): $(VERSIONED_NAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze -ldb $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze $(XERCESC_LIBS) -ldb $(LIBS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(XERCESC_LIBS) $(LIBS) -lreadline -lcurses
 
 $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp

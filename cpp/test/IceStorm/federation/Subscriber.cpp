@@ -72,6 +72,12 @@ deleteLock(const string& name)
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
+    PropertiesPtr properties = communicator->getProperties();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IceStorm", args);
+    stringSeqToArgs(args, argc, argv);
+
     string lockfile = "subscriber.lock";
 
     if (argc != 1)
@@ -80,7 +86,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     createLock(lockfile);
 
-    PropertiesPtr properties = communicator->getProperties();
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())
@@ -148,7 +153,6 @@ main(int argc, char* argv[])
 
     try
     {
-	addArgumentPrefix("IceStorm");
 	communicator = initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

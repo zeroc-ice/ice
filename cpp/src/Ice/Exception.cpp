@@ -13,6 +13,7 @@
 #include <Ice/Network.h>
 #include <Ice/Stream.h>
 #include <Ice/IdentityUtil.h>
+#include <Ice/Plugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -296,4 +297,18 @@ Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: illegal message size";
+}
+
+void
+Ice::PluginExistsException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nplugin already exists";
+}
+
+void
+Ice::PluginNotFoundException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nplugin not found";
 }

@@ -16,8 +16,8 @@ import sys, os
 # protocol. Otherwise TCP is used.
 #
 
-#protocol = "ssl"
-protocol = ""
+protocol = "ssl"
+#protocol = ""
 
 #
 # Set the host to the host name the test servers are running on. If not
@@ -32,13 +32,14 @@ host = ""
 #
 
 if protocol == "ssl":
-    clientProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.SSL.Client.CertPath=TOPLEVELDIR/certs --Ice.SSL.Client.Config=client_sslconfig.xml"
-    serverProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.SSL.Server.CertPath=TOPLEVELDIR/certs --Ice.SSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.SSL.Client.CertPath=TOPLEVELDIR/certs --Ice.SSL.Client.Config=sslconfig.xml" + \
-    " --Ice.SSL.Server.CertPath=TOPLEVELDIR/certs --Ice.SSL.Server.Config=sslconfig.xml"
+    plugin = " --Ice.Plugin.IceSSL=IceSSL:create"
+    clientProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
+    serverProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
+    clientServerProtocol = plugin + " --Ice.DefaultProtocol=ssl" + \
+    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
+    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""

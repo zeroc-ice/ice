@@ -22,11 +22,15 @@ main(int argc, char* argv[])
     ServiceManagerPtr serviceManager;
     int status;
 
-    addArgumentPrefix("IceBox");
-
     try
     {
         communicator = initialize(argc, argv);
+
+        PropertiesPtr properties = communicator->getProperties();
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = properties->parseCommandLineOptions("IceBox", args);
+        stringSeqToArgs(args, argc, argv);
+
         ServiceManagerI* serviceManagerImpl = new ServiceManagerI(communicator, argc, argv);
         serviceManager = serviceManagerImpl;
         status = serviceManagerImpl->run();

@@ -6,8 +6,8 @@ Hello.Hello=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name
-# "helloadapater". The following line sets the endpoints for this
-# adapter
+# "HelloAdapter". The following line sets the endpoints for this
+# adapter.
 #
 Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
@@ -49,10 +49,11 @@ Ice.ConnectionWarnings=1
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
-Ice.SSL.Client.CertPath=../../../certs
-Ice.SSL.Client.Config=sslconfig.xml
-Ice.SSL.Server.CertPath=../../../certs
-Ice.SSL.Server.Config=sslconfig.xml
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
 
 #
 # Glacier settings

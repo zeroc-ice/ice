@@ -18,10 +18,17 @@
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #
-STLPORT_HOME	?= /opt/STLport
-DB_HOME		?= /opt/db
-OPENSSL_HOME	?= /opt/openssl
-XERCESC_HOME    ?= /opt/xerces-c
+STLPORT_HOME	?= /home/mark/mr/inst
+DB_HOME		?= /home/mark/mr/inst
+OPENSSL_HOME	?= /home/mark/mr/inst
+XERCESC_HOME    ?= /home/mark/mr/xerces-c-src1_5_2
+
+XERCESC_FLAGS	= -I$(XERCESC_HOME)/include/xercesc
+#XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
+XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c1_5_2
+
+OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
+OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 
 #
 # Don't change these lines!
@@ -41,9 +48,10 @@ CXX		= c++
 CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 #CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
-LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
+LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib
 BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl
-LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
+LIBS		= -lIce $(BASELIBS)
+SSL_LIBS	= -lIceSSL $(OPENSSL_LIBS)
 CC		= gcc
 CFLAGS		= $(CXXFLAGS)
 

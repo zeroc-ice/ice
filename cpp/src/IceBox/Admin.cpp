@@ -25,8 +25,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IceBox");
-
     Client app;
     int rc = app.main(argc, argv);
 
@@ -50,6 +48,12 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
+    PropertiesPtr properties = communicator()->getProperties();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IceBox", args);
+    stringSeqToArgs(args, argc, argv);
+
     vector<string> commands;
 
     int idx = 1;
@@ -84,7 +88,6 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
     const char* managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())

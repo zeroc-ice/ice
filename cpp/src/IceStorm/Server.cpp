@@ -37,11 +37,13 @@ public:
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IceStorm");
     PropertiesPtr defaultProperties;
     try
     {
 	defaultProperties = getDefaultProperties(argc, argv);
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = defaultProperties->parseCommandLineOptions("IceStorm", args);
+        stringSeqToArgs(args, argc, argv);
     }
     catch(const Exception& ex)
     {

@@ -10,10 +10,10 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Ice/CertificateVerifier.h>
-#include <Ice/CertificateVerifierOpenSSL.h>
-#include <Ice/SslException.h>
-#include <Ice/System.h>
+#include <IceSSL/CertificateVerifier.h>
+#include <IceSSL/CertificateVerifierOpenSSL.h>
+#include <IceSSL/Exception.h>
+#include <IceSSL/Plugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -44,13 +44,13 @@ GoodCertificateVerifier::verify(int preVerifyOk, X509_STORE_CTX* certificateStor
 //
 
 void
-testExpectCertificateVerifierTypeException(const IceSSL::SystemPtr& system,
+testExpectCertificateVerifierTypeException(const IceSSL::PluginPtr& plugin,
                                            IceSSL::ContextType context,
                                            const IceSSL::CertificateVerifierPtr& verifier)
 {
     try
     {
-        system->setCertificateVerifier(context, verifier);
+        plugin->setCertificateVerifier(context, verifier);
         test(false);
     }
     catch (const IceSSL::CertificateVerifierTypeException&)
@@ -76,13 +76,13 @@ testExpectCertificateVerifierTypeException(const IceSSL::SystemPtr& system,
 }
 
 void
-testExpectNoException(const IceSSL::SystemPtr& system,
+testExpectNoException(const IceSSL::PluginPtr& plugin,
                       IceSSL::ContextType context,
                       const IceSSL::CertificateVerifierPtr& verifier)
 {
     try
     {
-        system->setCertificateVerifier(context, verifier);
+        plugin->setCertificateVerifier(context, verifier);
         std::cout << "ok" << std::endl;
     }
     catch (const Ice::LocalException&)
@@ -106,10 +106,11 @@ testExpectNoException(const IceSSL::SystemPtr& system,
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    IceSSL::SystemPtr system = communicator->getSslSystem();
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
-    ::IceSSL::CertificateVerifierPtr badVerifier  = new BadCertificateVerifier();
-    ::IceSSL::CertificateVerifierPtr goodVerifier = new GoodCertificateVerifier();
+    IceSSL::CertificateVerifierPtr badVerifier  = new BadCertificateVerifier();
+    IceSSL::CertificateVerifierPtr goodVerifier = new GoodCertificateVerifier();
 
     //
     // Testing IceSSL::Client context type.
@@ -118,10 +119,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::cout << "setting Certificate Verifiers on Client context." << std::endl;
 
     std::cout << "setting verifier of wrong type... " << std::flush;
-    testExpectCertificateVerifierTypeException(system, IceSSL::Client, badVerifier);
+    testExpectCertificateVerifierTypeException(sslPlugin, IceSSL::Client, badVerifier);
 
     std::cout << "setting verifier of correct type... " << std::flush;
-    testExpectNoException(system, IceSSL::Client, goodVerifier);
+    testExpectNoException(sslPlugin, IceSSL::Client, goodVerifier);
 
     //
     // Testing IceSSL::Server context type.
@@ -130,10 +131,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::cout << "setting Certificate Verifiers on Server context." << std::endl;
 
     std::cout << "setting verifier of wrong type... " << std::flush;
-    testExpectCertificateVerifierTypeException(system, IceSSL::Server, badVerifier);
+    testExpectCertificateVerifierTypeException(sslPlugin, IceSSL::Server, badVerifier);
 
     std::cout << "setting verifier of correct type... " << std::flush;
-    testExpectNoException(system, IceSSL::Server, goodVerifier);
+    testExpectNoException(sslPlugin, IceSSL::Server, goodVerifier);
 
     //
     // Testing IceSSL::ClientServer context type.
@@ -142,10 +143,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::cout << "setting Certificate Verifiers on Client and Server contexts." << std::endl;
 
     std::cout << "setting verifier of wrong type... " << std::flush;
-    testExpectCertificateVerifierTypeException(system, IceSSL::ClientServer, badVerifier);
+    testExpectCertificateVerifierTypeException(sslPlugin, IceSSL::ClientServer, badVerifier);
 
     std::cout << "setting verifier of correct type... " << std::flush;
-    testExpectNoException(system, IceSSL::ClientServer, goodVerifier);
+    testExpectNoException(sslPlugin, IceSSL::ClientServer, goodVerifier);
 
     return EXIT_SUCCESS;
 }

@@ -16,9 +16,6 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
-#include <Ice/SslExtensionF.h>
-#include <Ice/SystemInternalF.h>
-#include <Ice/SystemF.h>
 
 namespace Ice
 {
@@ -53,16 +50,21 @@ public:
 
     virtual void setDefaultRouter(const RouterPrx&);
 
-    virtual ::IceSSL::SslExtensionPtr getSslExtension();
-    virtual ::IceSSL::SystemPtr getSslSystem();
+    virtual PluginManagerPtr getPluginManager();
 
 private:
 
-    CommunicatorI(const PropertiesPtr&);
+    CommunicatorI(int&, char*[], const PropertiesPtr&);
     virtual ~CommunicatorI();
 
+    //
+    // Certain initialization tasks need to be completed after the
+    // constructor.
+    //
+    void finishSetup(int&, char*[]);
+
     friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICE_API CommunicatorPtr initializeWithProperties(const PropertiesPtr&, Int);
+    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     ::IceInternal::InstancePtr _instance;

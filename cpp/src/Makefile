@@ -22,6 +22,7 @@ SUBDIRS		= IceUtil \
 		  slice2xsd \
 		  slice2wsdl \
 		  Ice \
+		  IceSSL \
 		  IceXML \
 		  Freeze \
 		  IceStorm \

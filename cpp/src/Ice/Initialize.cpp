@@ -27,11 +27,15 @@ Ice::initialize(int& argc, char* argv[], Int version)
     }
 #endif
 
-    return new CommunicatorI(getDefaultProperties(argc, argv));
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    CommunicatorI* communicatorI = new CommunicatorI(argc, argv, defaultProperties);
+    CommunicatorPtr result = communicatorI; // For exception safety.
+    communicatorI->finishSetup(argc, argv);
+    return result;
 }
 
 CommunicatorPtr
-Ice::initializeWithProperties(const PropertiesPtr& properties, Int version)
+Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     if (version != ICE_INT_VERSION)
@@ -40,7 +44,10 @@ Ice::initializeWithProperties(const PropertiesPtr& properties, Int version)
     }
 #endif
 
-    return new CommunicatorI(properties);
+    CommunicatorI* communicatorI = new CommunicatorI(argc, argv, properties);
+    CommunicatorPtr result = communicatorI; // For exception safety.
+    communicatorI->finishSetup(argc, argv);
+    return result;
 }
 
 static PropertiesPtr defaultProperties;
@@ -56,6 +63,16 @@ public:
 static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
 
 PropertiesPtr
+Ice::getDefaultProperties()
+{
+    if (!defaultProperties)
+    {
+	defaultProperties = createProperties();
+    }
+    return defaultProperties;
+}
+
+PropertiesPtr
 Ice::getDefaultProperties(int& argc, char* argv[])
 {
     if (!defaultProperties)
@@ -66,21 +83,51 @@ Ice::getDefaultProperties(int& argc, char* argv[])
 }
 
 PropertiesPtr
+Ice::createProperties()
+{
+    return new PropertiesI();
+}
+
+PropertiesPtr
 Ice::createProperties(int& argc, char* argv[])
 {
     return new PropertiesI(argc, argv);
 }
 
-PropertiesPtr
-Ice::createPropertiesFromFile(int& argc, char* argv[], const string& file)
+StringSeq
+Ice::argsToStringSeq(int argc, char* argv[])
 {
-    return new PropertiesI(argc, argv, file);
+    StringSeq result;
+    for (int i = 0; i < argc; i++)
+    {
+        result.push_back(argv[i]);
+    }
+    return result;
 }
 
 void
-Ice::addArgumentPrefix(const std::string& prefix)
+Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 {
-    PropertiesI::addArgumentPrefix(prefix);
+    //
+    // Shift all elements in argv which are present in args to the
+    // beginning of argv.
+    //
+    int i = 0;
+    while (i < argc)
+    {
+        if (find(args.begin(), args.end(), argv[i]) == args.end())
+        {
+            for (int j = i; j < argc - 1; j++)
+            {
+                argv[j] = argv[j + 1];
+            }
+            --argc;
+        }
+        else
+        {
+            ++i;
+        }
+    }
 }
 
 InstancePtr

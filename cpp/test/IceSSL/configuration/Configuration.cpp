@@ -10,11 +10,11 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Ice/SslException.h>
-#include <Ice/System.h>
+#include <IceSSL/Exception.h>
+#include <IceSSL/Plugin.h>
 
-// Note: This test must have a valid Ice.SSL.Client.CertPath
-//       and Ice.SSL.Server.CertPath specified.
+// Note: This test must have a valid IceSSL.Client.CertPath
+//       and IceSSL.Server.CertPath specified.
 
 using namespace std;
 using namespace Ice;
@@ -36,12 +36,14 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
                       bool expectFailure)
 {
     PropertiesPtr properties = communicator->getProperties();
-    IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
+
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
     std::string contextString;
 
-    std::string clientPropertyString = "Ice.SSL.Client.Config";
-    std::string serverPropertyString = "Ice.SSL.Server.Config";
+    std::string clientPropertyString = "IceSSL.Client.Config";
+    std::string serverPropertyString = "IceSSL.Server.Config";
 
     switch (contextType)
     {
@@ -89,7 +91,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
     {
         properties->setProperty(clientPropertyString, clientFile);
         properties->setProperty(serverPropertyString, serverFile);
-        sslSystem->configure(contextType);
+        sslPlugin->configure(contextType);
 
         if (expectFailure)
         {

@@ -171,8 +171,9 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createPropertiesFromFile(argc, argv, "config");
-	communicator = Ice::initializeWithProperties(properties);
+	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
+        properties->load("config");
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

@@ -44,8 +44,9 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     {
 	if (configFile)
 	{
-	    PropertiesPtr properties = createPropertiesFromFile(argc, argv, configFile);
-	    _communicator = initializeWithProperties(properties);
+	    PropertiesPtr properties = createProperties(argc, argv);
+            properties->load(configFile);
+	    _communicator = initializeWithProperties(argc, argv, properties);
 	}
 	else
 	{

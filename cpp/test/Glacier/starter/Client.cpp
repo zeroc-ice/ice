@@ -13,8 +13,7 @@
 #include <TestCommon.h>
 #include <CallbackI.h>
 #include <IceUtil/Base64.h>
-#include <Ice/System.h>
-#include <Ice/SslExtension.h>
+#include <IceSSL/Plugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -88,8 +87,8 @@ CallbackClient::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
-    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
+    string clientConfig = properties->getProperty("IceSSL.Client.Config");
+    string serverConfig = properties->getProperty("IceSSL.Server.Config");
 
     if (!clientConfig.empty() && !serverConfig.empty())
     {
@@ -97,16 +96,21 @@ CallbackClient::run(int argc, char* argv[])
         string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
         string routerCertString = IceUtil::Base64::encode(routerCert);
 
-        IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
-        IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
+        //
+        // Get the SSL plugin.
+        //
+        PluginManagerPtr pluginManager = communicator()->getPluginManager();
+        PluginPtr plugin = pluginManager->getPlugin("IceSSL");
+        IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
+        assert(sslPlugin);
 
-        // Configure server, client is already configured.
-        sslSystem->configure(IceSSL::Server);
-        sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
+        // Configure Server, client is already configured.
+        sslPlugin->configure(IceSSL::Server);
+        sslPlugin->setCertificateVerifier(IceSSL::ClientServer, sslPlugin->getSingleCertVerifier(routerCert));
 
         // Set the keys overrides.
-        sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
-        sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
+        sslPlugin->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
+        sslPlugin->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
     }
 
     test(router);

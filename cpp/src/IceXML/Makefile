@@ -24,11 +24,11 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(XERCESC_HOME)/include/xercesc
+CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) $(XERCESC_LIBS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

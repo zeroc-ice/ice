@@ -27,7 +27,6 @@ public:
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IcePack");
     Client app;
     return app.main(argc, argv);
 }
@@ -55,6 +54,12 @@ Client::run(int argc, char* argv[])
     string cpp("cpp");
     string commands;
     bool debug = false;
+
+    PropertiesPtr properties = communicator()->getProperties();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IcePack", args);
+    stringSeqToArgs(args, argc, argv);
 
     int idx = 1;
     while (idx < argc)
@@ -137,7 +142,6 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
     const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
     if (adminEndpoints.empty())

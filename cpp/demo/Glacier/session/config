@@ -43,10 +43,11 @@ Ice.Trace.Network=1
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
-Ice.SSL.Client.CertPath=../../../certs
-Ice.SSL.Client.Config=sslconfig.xml
-Ice.SSL.Server.CertPath=../../../certs
-Ice.SSL.Server.Config=sslconfig.xml
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
 
 #
 # Glacier Router settings

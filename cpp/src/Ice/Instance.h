@@ -27,8 +27,8 @@
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/SystemF.h>
-#include <Ice/SystemInternalF.h>
+#include <Ice/EndpointFactoryF.h>
+#include <Ice/PluginF.h>
 #include <list>
 
 namespace Ice
@@ -61,12 +61,14 @@ public:
     ThreadPoolPtr serverThreadPool();
     std::string defaultProtocol();
     std::string defaultHost();
-    ::IceSSL::SystemInternalPtr getSslSystem();
+    EndpointFactoryManagerPtr endpointFactoryManager();
+    ::Ice::PluginManagerPtr pluginManager();
     
 private:
 
-    Instance(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&);
+    Instance(const ::Ice::CommunicatorPtr&, int&, char*[], const ::Ice::PropertiesPtr&);
     virtual ~Instance();
+    void finishSetup(int&, char*[]);
     void destroy();
     friend class ::Ice::CommunicatorI;
 
@@ -85,7 +87,8 @@ private:
     ThreadPoolPtr _serverThreadPool;
     std::string _defaultProtocol; // Immutable, not reset by destroy().
     std::string _defaultHost; // Immutable, not reset by destroy().
-    ::IceSSL::SystemInternalPtr _sslSystem;
+    EndpointFactoryManagerPtr _endpointFactoryManager;
+    ::Ice::PluginManagerPtr _pluginManager;
 
     //
     // Global state management

@@ -17,11 +17,7 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
-
-#ifdef ICE_CPP 
-#   include <Ice/SystemF.ice>
-#   include <Ice/SslExtensionF.ice>
-#endif
+#include <Ice/PluginF.ice>
 
 /**
  *
@@ -345,37 +341,16 @@ local interface Communicator
      **/
     void setDefaultRouter(Router* router);
 
-#ifdef ICE_CPP 
-
     /**
      *
-     * Get an [IceSSL::SslExtension] intance, which can be used as a
-     * factory for generation of stock [IceSSL::CertificateVerifier]
-     * instances.
+     * Get the plug-in manager for this Communicator.
      *
-     * @return An [SslExtension] instance representing the SSL
-     * implementation.
+     * @return This Communicator's plug-in manager.
      *
-     * @see IceSSL::SslExtension
-     * @see IceSSL::CertificateVerifier
+     * @see PluginManager
      *
      **/
-    IceSSL::SslExtension getSslExtension();
-
-    /**
-     *
-     * Get the [IceSSL::System] instance being used by this
-     * Communicator.
-     *
-     * @return The [IceSSL::System] this Communicator is using.
-     *
-     * @see IceSSL::System
-     *
-     **/
-    IceSSL::System getSslSystem();
-
-#endif
-
+    PluginManager getPluginManager();
 };
 
 };

@@ -14,6 +14,7 @@
 #include <Ice/Instance.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/Endpoint.h>
+#include <Ice/EndpointFactory.h>
 #include <Ice/RouterInfo.h>
 
 using namespace std;
@@ -284,7 +285,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	}
 	
 	string es = s.substr(beg, end - beg);
-	EndpointPtr endp = Endpoint::endpointFromString(_instance, es);
+	EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
 
 	if (orig)
 	{
@@ -340,8 +341,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     origEndpoints.reserve(sz);
     while (sz--)
     {
-	EndpointPtr endpoint;
-	Endpoint::streamRead(s, endpoint);
+	EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	origEndpoints.push_back(endpoint);
     }
 
@@ -357,9 +357,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	endpoints.reserve(sz);
 	while (sz--)
 	{
-	    EndpointPtr endpoint;
-	    Endpoint::streamRead(s, endpoint);
-	    origEndpoints.push_back(endpoint);
+            EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
+	    endpoints.push_back(endpoint);
 	}
     }
 

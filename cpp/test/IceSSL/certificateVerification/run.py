@@ -26,12 +26,12 @@ if TestUtil.protocol != "ssl":
     sys.exit(0)
 
 TestUtil.clientOptions += \
-    " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+    " --IceSSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
 TestUtil.serverOptions += \
-    " --Ice.SSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+    " --IceSSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
 TestUtil.clientServerOptions += \
-    " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
-    " --Ice.SSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+    " --IceSSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
+    " --IceSSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
 
 name = os.path.join("IceSSL", "certificateVerification")
 
@@ -39,8 +39,8 @@ print "testing default certificate verifier."
 TestUtil.clientServerTest(toplevel, name)
 
 print "testing single-certificate certificate verifier."
-TestUtil.clientProtocol += " --Ice.SSL.Client.CertificateVerifier=singleCert"
-TestUtil.serverProtocol += " --Ice.SSL.Server.CertificateVerifier=singleCert"
+TestUtil.clientProtocol += " --IceSSL.Client.CertificateVerifier=singleCert"
+TestUtil.serverProtocol += " --IceSSL.Server.CertificateVerifier=singleCert"
 TestUtil.clientServerTest(toplevel, name)
 
 sys.exit(0)

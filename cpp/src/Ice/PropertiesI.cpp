@@ -16,8 +16,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-std::set<string> Ice::PropertiesI::_argumentPrefixes;
-
 string
 Ice::PropertiesI::getProperty(const string& key)
 {
@@ -114,23 +112,118 @@ Ice::PropertiesI::getCommandLineOptions()
     return result;
 }
 
+StringSeq
+Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq& options)
+{
+    StringSeq result;
+    StringSeq::size_type i;
+    for (i = 0; i < options.size(); i++)
+    {
+        string opt = options[i];
+        if (opt.find("--" + prefix + ".") == 0)
+        {
+            if (opt.find('=') == string::npos)
+            {
+                opt += "=1";
+            }
+            
+            parseLine(opt.substr(2));
+        }
+        else
+        {
+            result.push_back(opt);
+        }
+    }
+    return result;
+}
+
+void
+Ice::PropertiesI::load(const std::string& file)
+{
+    ifstream in(file.c_str());
+    if (!in)
+    {
+        SystemException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
+    }
+
+    char line[1024];
+    while (in.getline(line, 1024))
+    {
+	parseLine(line);
+    }
+}
+
 PropertiesPtr
 Ice::PropertiesI::clone()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    int dummy = 0;
-    PropertiesI* p = new PropertiesI(dummy, 0);
+    PropertiesI* p = new PropertiesI();
     p->_properties = _properties;
     return p;
 }
 
-void
-Ice::PropertiesI::addArgumentPrefix(const std::string& prefix)
+Ice::PropertiesI::PropertiesI()
 {
-    _argumentPrefixes.insert(prefix);
+    const char* s = getenv("ICE_CONFIG");
+    if (s && *s != '\0')
+    {
+        load(s);
+        setProperty("Ice.Config", s);
+    }
 }
 
+Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strncmp(argv[i], "--Ice.Config", 12) == 0)
+        {
+            string line = argv[i];
+            if (line.find('=') == string::npos)
+            {
+                line += "=1";
+            }
+            parseLine(line.substr(2));
+            for (int j = i; j + 1 < argc; ++j)
+            {
+                argv[j] = argv[j + 1];
+            }
+            --argc;
+        }
+    }
+
+    string file = getProperty("Ice.Config");
+
+    if (file.empty() || file == "1")
+    {
+        const char* s = getenv("ICE_CONFIG");
+        if (s && *s != '\0')
+        {
+            file = s;
+        }
+    }
+
+    if (!file.empty())
+    {
+        load(file);
+    }
+
+    setProperty("Ice.Config", file);
+
+    if (argc > 0)
+    {
+        string name = getProperty("Ice.ProgramName");
+        if (name.empty())
+        {
+            setProperty("Ice.ProgramName", argv[0]);
+        }
+    }
+}
+
+#if 0
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
@@ -245,19 +338,6 @@ Ice::PropertiesI::parseArgs(int& argc, char* argv[])
 }
 
 void
-Ice::PropertiesI::load(const std::string& file)
-{
-    ifstream in(file.c_str());
-    if (!in)
-    {
-	SystemException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-    parse(in);
-}
-
-void
 Ice::PropertiesI::parse(istream& in)
 {
     char line[1024];
@@ -266,6 +346,7 @@ Ice::PropertiesI::parse(istream& in)
 	parseLine(line);
     }
 }
+#endif
 
 void
 Ice::PropertiesI::parseLine(const string& line)

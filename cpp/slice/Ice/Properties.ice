@@ -113,13 +113,38 @@ local interface Properties
 
     /**
      *
-     * Get a sequence of command line options that is equivalent to
+     * Get a sequence of command-line options that is equivalent to
      * this property set.
      *
      * @return The command line options for this property set.
      *
      **/
     StringSeq getCommandLineOptions();
+
+    /**
+     *
+     * Convert a sequence of command-line options into properties.
+     * All options which begin with
+     * <screen>--<emphasis>prefix</emphasis>.</screen>
+     * will be converted into properties.
+     *
+     * @param prefix The property prefix.
+     * @param options The command-line options.
+     *
+     * @return The command-line options which were not converted,
+     * in the same order.
+     *
+     **/
+    StringSeq parseCommandLineOptions(string prefix, StringSeq options);
+
+    /**
+     *
+     * Load properties from a file.
+     *
+     * @param file The property file.
+     *
+     **/
+    void load(string file);
 
     /**
      *

@@ -19,8 +19,6 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
-#include <Ice/SslExtensionInternal.h>
-#include <Ice/SystemInternal.h>
 
 using namespace std;
 using namespace Ice;
@@ -230,24 +228,23 @@ Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
     _instance->referenceFactory()->setDefaultRouter(router);
 }
 
-::IceSSL::SslExtensionPtr
-Ice::CommunicatorI::getSslExtension()
+PluginManagerPtr
+Ice::CommunicatorI::getPluginManager()
 {
-    return ::IceSSL::SslExtensionPtr(new ::IceSSL::SslExtensionInternal(_instance));
+    RecMutex::Lock sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->pluginManager();
 }
 
-::IceSSL::SystemPtr
-Ice::CommunicatorI::getSslSystem()
-{
-    return ::IceSSL::SystemPtr::dynamicCast(_instance->getSslSystem());
-}
-
-Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
+Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties)
 {
     __setNoDelete(true);
     try
     {
-	_instance = new Instance(this, properties);
+	_instance = new Instance(this, argc, argv, properties);
     }
     catch(...)
     {
@@ -270,4 +267,10 @@ Ice::CommunicatorI::~CommunicatorI()
 	Warning out(_instance->logger());
 	out << "communicator has not been destroyed";
     }
+}
+
+void
+Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
+{
+    _instance->finishSetup(argc, argv);
 }

@@ -15,9 +15,8 @@
 #include <Glacier/ServerBlobject.h>
 #include <Glacier/SessionManager.h>
 #include <IceUtil/Base64.h>
-#include <Ice/CertificateVerifierF.h>
-#include <Ice/System.h>
-#include <Ice/SslExtension.h>
+#include <IceSSL/CertificateVerifierF.h>
+#include <IceSSL/Plugin.h>
 
 using namespace std;
 using namespace Ice;
@@ -123,32 +122,39 @@ Glacier::RouterApp::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
-    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
+    string clientConfig = properties->getProperty("IceSSL.Client.Config");
+    string serverConfig = properties->getProperty("IceSSL.Server.Config");
 
-    // Only do this if we've been configured for SSL
+    //
+    // Only do this if we've been configured for SSL.
+    //
     if (!clientConfig.empty() && !serverConfig.empty())
     {
         IceSSL::ContextType contextType = IceSSL::ClientServer;
 
-        // Get our SSL System
-        IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+        //
+        // Get the SSL plugin.
+        //
+        PluginManagerPtr pluginManager = communicator()->getPluginManager();
+        PluginPtr plugin = pluginManager->getPlugin("IceSSL");
+        IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
+        assert(sslPlugin);
 
-        // The system must configure itself (using config files as specified)
-        sslSystem->configure(contextType);
+        //
+        // The plug-in must configure itself (using config files as specified).
+        //
+        sslPlugin->configure(contextType);
 
         // If we have been told only to only accept a single certificate.
         string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
         if (!clientCertBase64.empty())
         {
-            // Get an instance of the SSL Extension itself
-            IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
             // Install a Certificate Verifier that only accepts indicated certificate.
             Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
-            sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
+            sslPlugin->setCertificateVerifier(contextType, sslPlugin->getSingleCertVerifier(clientCert));
         
             // Add the Client's certificate as a trusted certificate.
-            sslSystem->addTrustedCertificateBase64(contextType, clientCertBase64);
+            sslPlugin->addTrustedCertificateBase64(contextType, clientCertBase64);
         }
     }
 
@@ -287,8 +293,6 @@ Glacier::RouterApp::run(int argc, char* argv[])
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("Glacier");
-
     //
     // Make sure that this process doesn't use a router.
     //
@@ -296,6 +300,10 @@ main(int argc, char* argv[])
     try
     {
 	defaultProperties = getDefaultProperties(argc, argv);
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = defaultProperties->parseCommandLineOptions("Ice", args);
+        args = defaultProperties->parseCommandLineOptions("Glacier", args);
+        stringSeqToArgs(args, argc, argv);
     }
     catch(const Exception& ex)
     {

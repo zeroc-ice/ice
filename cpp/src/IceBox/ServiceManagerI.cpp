@@ -196,46 +196,33 @@ IceBox::ServiceManagerI::init(const string& service, const string& exec, const S
     //
     // We'll compose an array of arguments in the above order.
     //
-    vector<string> l;
+    StringSeq serviceArgs;
     StringSeq::size_type j;
     for (j = 0; j < _options.size(); j++)
     {
         if (_options[j].find("--" + service + ".") == 0)
         {
-            l.push_back(_options[j]);
+            serviceArgs.push_back(_options[j]);
         }
     }
     for (j = 0; j < args.size(); j++)
     {
-        l.push_back(args[j]);
+        serviceArgs.push_back(args[j]);
     }
     for (j = 0; j < _argv.size(); j++)
     {
         if (_argv[j].find("--" + service + ".") == 0)
         {
-            l.push_back(_argv[j]);
+            serviceArgs.push_back(_argv[j]);
         }
     }
 
     //
     // Create the service property set.
     //
-    addArgumentPrefix(service);
-    int serviceArgc = static_cast<int>(l.size() + 1);
-    char** serviceArgv = new char*[serviceArgc + 1];
-    serviceArgv[0] = const_cast<char*>(_progName.c_str());
-    int k;
-    for (k = 1; k < serviceArgc; k++)
-    {
-        serviceArgv[k] = const_cast<char*>(l[k - 1].c_str());
-    }
-    PropertiesPtr serviceProperties = createProperties(serviceArgc, serviceArgv);
-    StringSeq serviceArgs;
-    for (k = 1; k < serviceArgc; k++)
-    {
-        serviceArgs.push_back(serviceArgv[k]);
-    }
-    delete[] serviceArgv;
+    PropertiesPtr serviceProperties = createProperties();
+    serviceArgs = serviceProperties->parseCommandLineOptions("Ice", serviceArgs);
+    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
     //
     // Load the dynamic library.

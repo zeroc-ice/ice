@@ -52,7 +52,6 @@ main(int argc, char* argv[])
     sigaction(SIGCHLD, &action, 0);
 #endif
 
-    addArgumentPrefix("IcePack");
     Server app;
     return app.main(argc, argv);
 }
@@ -72,6 +71,12 @@ Server::usage()
 int
 Server::run(int argc, char* argv[])
 {
+    PropertiesPtr properties = communicator()->getProperties();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("IcePack", args);
+    stringSeqToArgs(args, argc, argv);
+
     bool nowarn = false;
     for (int i = 1; i < argc; ++i)
     {
@@ -96,8 +101,6 @@ Server::run(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
     }
-
-    PropertiesPtr properties = communicator()->getProperties();
 
     const char* adminEndpointsProperty = "IcePack.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);

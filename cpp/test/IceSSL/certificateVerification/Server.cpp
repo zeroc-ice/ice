@@ -9,10 +9,9 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/RSACertificateGen.h>
-#include <Ice/RSAKeyPair.h>
-#include <Ice/SslExtension.h>
-#include <Ice/System.h>
+#include <IceSSL/RSACertificateGen.h>
+#include <IceSSL/RSAKeyPair.h>
+#include <IceSSL/Plugin.h>
 #include <Pinger.h>
 
 using namespace std;
@@ -99,14 +98,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    std::string certPath = properties->getProperty("Ice.SSL.Test.Server.CertPath");
-    properties->setProperty("Ice.SSL.Server.CertPath", certPath);
+    std::string certPath = properties->getProperty("IceSSL.Test.Server.CertPath");
+    properties->setProperty("IceSSL.Server.CertPath", certPath);
 
     properties->setProperty("Ice.ConnectionWarnings", "0");
-    properties->setProperty("Ice.SSL.Server.Config", "sslconfig_8.xml");
+    properties->setProperty("IceSSL.Server.Config", "sslconfig_8.xml");
 
-    IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
-    sslSystem->configure(IceSSL::Server);
+    Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
+    IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
+    sslPlugin->configure(IceSSL::Server);
 
     IceSSL::OpenSSL::RSACertificateGen certGen;
 
@@ -150,14 +150,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     serverTrusted->certToByteSeq(serverCertificate);
     serverTrusted->keyToByteSeq(serverKey);
 
-    sslSystem->addTrustedCertificate(IceSSL::Server, trustedCertificate);
-    sslSystem->setRSAKeys(IceSSL::Server, serverKey, serverCertificate);
+    sslPlugin->addTrustedCertificate(IceSSL::Server, trustedCertificate);
+    sslPlugin->setRSAKeys(IceSSL::Server, serverKey, serverCertificate);
 
-    if (properties->getProperty("Ice.SSL.Server.CertificateVerifier") == "singleCert")
+    if (properties->getProperty("IceSSL.Server.CertificateVerifier") == "singleCert")
     {
-        IceSSL::SslExtensionPtr sslExtension = communicator->getSslExtension();
-        IceSSL::CertificateVerifierPtr certVerifier = sslExtension->getSingleCertVerifier(trustedCertificate);
-        sslSystem->setCertificateVerifier(IceSSL::Server, certVerifier);
+        IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(trustedCertificate);
+        sslPlugin->setCertificateVerifier(IceSSL::Server, certVerifier);
     }
 
     string kmEndpts = "tcp -p 12344 -t 2000";
@@ -183,7 +182,6 @@ main(int argc, char* argv[])
     {
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
-
     }
     catch(const Ice::Exception& ex)
     {

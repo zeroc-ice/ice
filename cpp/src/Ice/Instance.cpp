@@ -23,8 +23,11 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
-#include <Ice/SystemInternal.h>
-#include <Ice/SslFactory.h>
+#include <Ice/EndpointFactory.h>
+#include <Ice/TcpEndpoint.h>
+#include <Ice/UdpEndpoint.h>
+#include <Ice/PluginManagerI.h>
+#include <Ice/Initialize.h>
 
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
@@ -117,12 +120,6 @@ IceInternal::Instance::defaultHost()
     return _defaultHost;
 }
 
-::IceSSL::SystemInternalPtr
-IceInternal::Instance::getSslSystem()
-{
-    return _sslSystem;
-}
-
 RouterManagerPtr
 IceInternal::Instance::routerManager()
 {
@@ -204,12 +201,34 @@ IceInternal::Instance::serverThreadPool()
     return _serverThreadPool;
 }
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+EndpointFactoryManagerPtr
+IceInternal::Instance::endpointFactoryManager()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _endpointFactoryManager;
+}
+
+PluginManagerPtr
+IceInternal::Instance::pluginManager()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _pluginManager;
+}
+
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, char* argv[],
+                                const PropertiesPtr& properties) :
     _communicator(communicator),
     _properties(properties)
 {
     IceUtil::Mutex::Lock sync(*_globalStateMutex);
     ++_globalStateCounter;
+
+    //
+    // Convert command-line options beginning with --Ice. to properties.
+    //
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("Ice", args);
+    stringSeqToArgs(args, argc, argv);
 
     try
     {
@@ -303,6 +322,18 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_referenceFactory = new ReferenceFactory(this);
 
 	_proxyFactory = new ProxyFactory(this);
+
+        //
+        // Install TCP and UDP endpoint factories.
+        //
+	_endpointFactoryManager = new EndpointFactoryManager(this);
+        EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(this);
+        _endpointFactoryManager->add(tcpEndpointFactory);
+        EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(this);
+        _endpointFactoryManager->add(udpEndpointFactory);
+
+        _pluginManager = new PluginManagerI(this);
+
 	string router = _properties->getProperty("Ice.DefaultRouter");
 	if (!router.empty())
 	{
@@ -316,53 +347,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
-	
-        _sslSystem = IceSSL::Factory::getSystem(this);
-        _sslSystem->configure();
 
-#ifndef _WIN32
-	//
-	// daemon() must be called after the SSL system has been
-	// configured, since SSL might want to read a passphrase from
-	// standard input.
-	//
-	if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
-	{
-	    int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
-	    int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
-	    
-	    if (daemon(nochdir, noclose) == -1)
-	    {
-		SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	}
-#endif
-
-	//
-	// Must be done after daemon() is called, since daemon()
-	// forks. Does not work together with Ice.Daemon if
-	// Ice.DaemonNoClose is not set.
-	//
-	if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
-	{
-#ifdef _WIN32
-	    cout << _getpid() << endl;
-#else
-	    cout << getpid() << endl;
-#endif
-	}
-
-	//
-	// Thread pool initializations must be done after daemon() is
-	// called, since daemon() forks.
-	//
-
-	//
-	// Thread pool initialization is now lazy initialization in
-	// clientThreadPool() and serverThreadPool().
-	//
 	__setNoDelete(false);
     }
     catch(...)
@@ -386,7 +371,8 @@ IceInternal::Instance::~Instance()
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
     assert(!_routerManager);
-    assert(!_sslSystem);
+    assert(!_endpointFactoryManager);
+    assert(!_pluginManager);
 
     if (_globalStateMutex != 0)
     {
@@ -424,10 +410,66 @@ IceInternal::Instance::~Instance()
 }
 
 void
+IceInternal::Instance::finishSetup(int& argc, char* argv[])
+{
+    //
+    // Load plug-ins.
+    //
+    PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
+    assert(pluginManagerImpl);
+    pluginManagerImpl->loadPlugins(argc, argv);
+
+#ifndef _WIN32
+    //
+    // daemon() must be called after any plug-ins have been
+    // installed. For example, an SSL plug-in might want to
+    // read a passphrase from standard input.
+    //
+    if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
+    {
+        int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
+        int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
+        
+        if (daemon(nochdir, noclose) == -1)
+        {
+            SystemException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+    }
+#endif
+
+    //
+    // Must be done after daemon() is called, since daemon()
+    // forks. Does not work together with Ice.Daemon if
+    // Ice.DaemonNoClose is not set.
+    //
+    if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    {
+#ifdef _WIN32
+        cout << _getpid() << endl;
+#else
+        cout << getpid() << endl;
+#endif
+    }
+
+    //
+    // Thread pool initializations must be done after daemon() is
+    // called, since daemon() forks.
+    //
+
+    //
+    // Thread pool initialization is now lazy initialization in
+    // clientThreadPool() and serverThreadPool().
+    //
+}
+
+void
 IceInternal::Instance::destroy()
 {
     ThreadPoolPtr clientThreadPool;
     ThreadPoolPtr serverThreadPool;
+    PluginManagerPtr pluginManager;
 
     {
 	IceUtil::RecMutex::Lock sync(*this);
@@ -481,18 +523,18 @@ IceInternal::Instance::destroy()
 	    _outgoingConnectionFactory->destroy();
 	    _outgoingConnectionFactory = 0;
 	}
-	
+
 	if (_routerManager)
 	{
 	    _routerManager->destroy();
 	    _routerManager = 0;
 	}
 
-        if (_sslSystem)
-        {
-            // No destroy method defined.
-            _sslSystem = 0;
-        }
+	if (_endpointFactoryManager)
+	{
+	    _endpointFactoryManager->destroy();
+	    _endpointFactoryManager = 0;
+	}
 	
 	//
 	// We destroy the thread pool outside the thread
@@ -502,6 +544,12 @@ IceInternal::Instance::destroy()
         _clientThreadPool = 0;
 	serverThreadPool = _serverThreadPool;
         _serverThreadPool = 0;
+
+        //
+        // We destroy the plugin manager after the thread pools.
+        //
+        pluginManager = _pluginManager;
+        _pluginManager = 0;
     }
     
     if (clientThreadPool)
@@ -516,5 +564,10 @@ IceInternal::Instance::destroy()
 	serverThreadPool->waitUntilFinished();
 	serverThreadPool->destroy();
 	serverThreadPool->joinWithAllThreads();
+    }
+
+    if (pluginManager)
+    {
+        pluginManager->destroy();
     }
 }

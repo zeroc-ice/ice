@@ -16,6 +16,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Endpoint.h>
+#include <Ice/EndpointFactory.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
@@ -415,7 +416,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    // might change it, for example, to fill in the real port
 	    // number if a zero port number is given.
 	    //
-	    EndpointPtr endp = Endpoint::endpointFromString(instance, es);
+	    EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
 
 	    end = end + 1;

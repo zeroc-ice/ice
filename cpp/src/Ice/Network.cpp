@@ -630,7 +630,7 @@ IceInternal::getLocalHost(bool numeric)
 	{
 	    entry = gethostbyname(host);
 	}
-#ifdef WIN32
+#ifdef _WIN32
 	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
 #else
 	while (!entry && h_errno == TRY_AGAIN && --retry >= 0);
