@@ -17,7 +17,6 @@
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/UdpTransceiver.h>
-// #include <Ice/SUdpTransceiver.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -68,13 +67,6 @@ IceInternal::Endpoint::endpointFromString(const InstancePtr& instance, const str
 	return new UdpEndpoint(instance, str.substr(end));
     }
 
-/*
-    if (protocol == "sudp")
-    {
-	return new SUdpEndpoint(instance, str.substr(end));
-    }
-*/
-
     throw EndpointParseException(__FILE__, __LINE__);
 }
 
@@ -103,14 +95,6 @@ IceInternal::Endpoint::streamRead(BasicStream* s, EndpointPtr& v)
 	    v = new UdpEndpoint(s);
 	    break;
 	}
-
-/*
-	case SUdpEndpointType:
-	{
-	    v = new SUdpEndpoint(s);
-	    break;
-	}
-*/
 
 	default:
 	{
@@ -569,13 +553,6 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	    return false; // tcp is not "less than" udp
 	}
 
-/*
-	if (dynamic_cast<const SUdpEndpoint*>(&r))
-	{
-	    return false; // tcp is not "less than" sudp
-	}
-*/
-
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
 	    return false; // tcp is not "less than" unknown
@@ -911,13 +888,6 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	    return false; // ssl is not "less than" udp
 	}
 
-/*
-	if (dynamic_cast<const SUdpEndpoint*>(&r))
-	{
-	    return false; // ssl is not "less than" sudp
-	}
-*/
-
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
 	    return false; // ssl is not "less than" unknown
@@ -1248,13 +1218,6 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	    return true; // udp is "less than" tcp
 	}
 
-/*
-	if (dynamic_cast<const SUdpEndpoint*>(&r))
-	{
-	    return false; // udp is not "less than" sudp
-	}
-*/
-
 	if (dynamic_cast<const UnknownEndpoint*>(&r))
 	{
 	    return false; // udp is not "less than" unknown
@@ -1308,339 +1271,3 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
-/*
-IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const string& ho, Int po) :
-    _instance(instance),
-    _host(ho),
-    _port(po),
-    _connect(false)
-{
-}
-
-IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const string& str) :
-    _instance(instance),
-    _port(0),
-    _connect(false)
-{
-    static const string delim = " \t\n\r";
-
-    string::size_type beg;
-    string::size_type end = 0;
-
-    while (true)
-    {
-	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
-	{
-	    break;
-	}
-	
-	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
-	{
-	    end = str.length();
-	}
-
-	string option = str.substr(beg, end - beg);
-	if (option.length() != 2 || option[0] != '-')
-	{
-	    throw EndpointParseException(__FILE__, __LINE__);
-	}
-
-	string argument;
-	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if (argumentBeg != string::npos && str[argumentBeg] != '-')
-	{
-	    beg = argumentBeg;
-	    end = str.find_first_of(delim + ":", beg);
-	    if (end == string::npos)
-	    {
-		end = str.length();
-	    }
-	    argument = str.substr(beg, end - beg);
-	}
-
-	switch (option[1])
-	{
-	    case 'h':
-	    {
-		if (argument.empty())
-		{
-		    throw EndpointParseException(__FILE__, __LINE__);
-		}
-		const_cast<string&>(_host) = argument;
-		break;
-	    }
-
-	    case 'p':
-	    {
-		if (argument.empty())
-		{
-		    throw EndpointParseException(__FILE__, __LINE__);
-		}
-		const_cast<Int&>(_port) = atoi(argument.c_str());
-		break;
-	    }
-
-	    case 'c':
-	    {
-		if (!argument.empty())
-		{
-		    throw EndpointParseException(__FILE__, __LINE__);
-		}
-		const_cast<bool&>(_connect) = true;
-		break;
-	    }
-
-	    default:
-	    {
-		throw EndpointParseException(__FILE__, __LINE__);
-	    }
-	}
-    }
-
-    if (_host.empty())
-    {
-	const_cast<string&>(_host) = _instance->defaultHost();
-    }
-}
-
-IceInternal::SUdpEndpoint::SUdpEndpoint(BasicStream* s) :
-    _instance(s->instance()),
-    _port(0),
-    _connect(false)
-{
-    s->startReadEncaps();
-    s->read(const_cast<string&>(_host));
-    s->read(const_cast<Int&>(_port));
-    // Not transmitted.
-    //s->read(const_cast<bool&>(_connect));
-    s->endReadEncaps();
-}
-
-void
-IceInternal::SUdpEndpoint::streamWrite(BasicStream* s) const
-{
-    s->write(SUdpEndpointType);
-    s->startWriteEncaps();
-    s->write(_host);
-    s->write(_port);
-    // Not transmitted.
-    //s->write(_connect);
-    s->endWriteEncaps();
-}
-
-string
-IceInternal::SUdpEndpoint::toString() const
-{
-    ostringstream s;
-    s << "sudp -h " << _host << " -p " << _port;
-    if (_connect)
-    {
-	s << " -c";
-    }
-    return s.str();
-}
-
-Short
-IceInternal::SUdpEndpoint::type() const
-{
-    return SUdpEndpointType;
-}
-
-Int
-IceInternal::SUdpEndpoint::timeout() const
-{
-    return -1;
-}
-
-EndpointPtr
-IceInternal::SUdpEndpoint::timeout(Int) const
-{
-    return const_cast<SUdpEndpoint*>(this);
-}
-
-bool
-IceInternal::SUdpEndpoint::datagram() const
-{
-    return true;
-}
-
-bool
-IceInternal::SUdpEndpoint::secure() const
-{
-    return true;
-}
-
-bool
-IceInternal::SUdpEndpoint::unknown() const
-{
-    return false;
-}
-
-TransceiverPtr
-IceInternal::SUdpEndpoint::clientTransceiver() const
-{
-    return new SUdpTransceiver(_instance, _host, _port);
-}
-
-TransceiverPtr
-IceInternal::SUdpEndpoint::serverTransceiver(EndpointPtr& endp) const
-{
-    SUdpTransceiver* p = new SUdpTransceiver(_instance, _port, _connect);
-    endp = new SUdpEndpoint(_instance, _host, p->effectivePort());
-    return p;
-}
-
-ConnectorPtr
-IceInternal::SUdpEndpoint::connector() const
-{
-    return 0;
-}
-
-AcceptorPtr
-IceInternal::SUdpEndpoint::acceptor(EndpointPtr& endp) const
-{
-    endp = const_cast<SUdpEndpoint*>(this);
-    return 0;
-}
-
-bool
-IceInternal::SUdpEndpoint::equivalent(const TransceiverPtr& transceiver) const
-{
-    const SUdpTransceiver* sudpTransceiver = dynamic_cast<const SUdpTransceiver*>(transceiver.get());
-    if (!sudpTransceiver)
-    {
-	return false;
-    }
-    return sudpTransceiver->equivalent(_host, _port);
-}
-
-bool
-IceInternal::SUdpEndpoint::equivalent(const AcceptorPtr&) const
-{
-    return false;
-}
-
-bool
-IceInternal::SUdpEndpoint::operator==(const Endpoint& r) const
-{
-    const SUdpEndpoint* p = dynamic_cast<const SUdpEndpoint*>(&r);
-    if (!p)
-    {
-	return false;
-    }
-
-    if (this == p)
-    {
-	return true;
-    }
-
-    if (_port != p->_port)
-    {
-	return false;
-    }
-
-    if (_connect != p->_connect)
-    {
-	return false;
-    }
-
-    if (_host != p->_host)
-    {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
-	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
-	{
-	    return false;
-	}
-    }
-
-    return true;
-}
-
-bool
-IceInternal::SUdpEndpoint::operator!=(const Endpoint& r) const
-{
-    return !operator==(r);
-}
-
-bool
-IceInternal::SUdpEndpoint::operator<(const Endpoint& r) const
-{
-    const SUdpEndpoint* p = dynamic_cast<const SUdpEndpoint*>(&r);
-    if (!p)
-    {
-	if (dynamic_cast<const SslEndpoint*>(&r))
-	{
-	    return true; // sudp is "less than" ssl
-	}
-
-	if (dynamic_cast<const TcpEndpoint*>(&r))
-	{
-	    return true; // sudp is "less than" tcp
-	}
-
-	if (dynamic_cast<const UdpEndpoint*>(&r))
-	{
-	    return true; // sudp is "less than" udp
-	}
-
-	if (dynamic_cast<const UnknownEndpoint*>(&r))
-	{
-	    return false; // sudp is not "less than" unknown
-	}
-
-	assert(false);
-    }
-
-    if (this == p)
-    {
-	return false;
-    }
-
-    if (_port < p->_port)
-    {
-	return true;
-    }
-    else if (p->_port < _port)
-    {
-	return false;
-    }
-
-    if (!_connect && p->_connect)
-    {
-	return true;
-    }
-    else if (!p->_connect && _connect)
-    {
-	return false;
-    }
-
-    if (_host != p->_host)
-    {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	struct sockaddr_in raddr;
-	getAddress(_host.c_str(), _port, laddr);
-	getAddress(p->_host.c_str(), p->_port, raddr);
-	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-	{
-	    return true;
-	}
-	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-	{
-	    return false;
-	}
-    }
-
-    return false;
-}
-*/

@@ -27,7 +27,6 @@ const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short SslEndpointType = 2;
 const ::Ice::Short UdpEndpointType = 3;
-// const ::Ice::Short SUdpEndpointType = 4;
 
 class Endpoint : public ::IceUtil::Shared
 {
@@ -279,46 +278,6 @@ private:
     const ::Ice::Int _port;
     const bool _connect;
 };
-
-/*
-class SUdpEndpoint : public Endpoint
-{
-public:
-
-    SUdpEndpoint(const InstancePtr&, const std::string&, ::Ice::Int);
-    SUdpEndpoint(const InstancePtr&, const std::string&);
-    SUdpEndpoint(BasicStream*);
-
-    virtual void streamWrite(BasicStream*) const;
-    virtual std::string toString() const;
-    virtual ::Ice::Short type() const;
-    virtual ::Ice::Int timeout() const;
-    virtual EndpointPtr timeout(::Ice::Int) const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
-    virtual bool unknown() const;
-    virtual TransceiverPtr clientTransceiver() const;
-    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
-    virtual ConnectorPtr connector() const;
-    virtual AcceptorPtr acceptor(EndpointPtr&) const;
-    virtual bool equivalent(const TransceiverPtr&) const;
-    virtual bool equivalent(const AcceptorPtr&) const;
-
-    virtual bool operator==(const Endpoint&) const;
-    virtual bool operator!=(const Endpoint&) const;
-    virtual bool operator<(const Endpoint&) const;
-
-private:
-
-    //
-    // All members are const, because endpoints are immutable.
-    //
-    const InstancePtr _instance;
-    const std::string _host;
-    const ::Ice::Int _port;
-    const bool _connect;
-};
-*/
 
 }
 
