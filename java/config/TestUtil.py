@@ -153,8 +153,8 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
     scp = serverClasspath + sep + classpath
     ccp = clientClasspath + sep + classpath
 
-    server = "java -ea -cp " + scp + " Server --Ice.ProgramName=Server"
-    client = "java -ea -cp " + ccp + " Client --Ice.ProgramName=Client"
+    server = "java -ea -cp '" + scp + "' Server --Ice.ProgramName=Server"
+    client = "java -ea -cp '" + ccp + "' Client --Ice.ProgramName=Client"
 
     print "starting server...",
     serverPipe = os.popen(server + serverOptions)
