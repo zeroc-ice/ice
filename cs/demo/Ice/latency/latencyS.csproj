@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{6FFCB4C4-730F-4B04-9BF7-C156938B35BA}"
+        ProjectGuid = "{D300850A-2C91-45AD-BFE5-895DBB181696}"
     >
         <Build>
             <Settings
@@ -84,12 +84,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ThroughputI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Throughput.cs"
+                    RelPath = "generated\Latency.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
