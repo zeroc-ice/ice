@@ -72,6 +72,12 @@
             <fileset dir="." includes="TestSingleModuleWithPackage11.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage12.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage13.ice"/>
+        </slice2java>
+        <!-- We use 2 tasks to limit the size of the slice2java command line -->
+        <slice2java outputdir="${generated.dir}" tie="on">
+            <includepath>
+                <pathelement path="." />
+            </includepath>
             <fileset dir="." includes="TestDoubleModuleNoPackage1.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage2.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage3.ice"/>
