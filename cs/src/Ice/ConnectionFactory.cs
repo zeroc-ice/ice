@@ -156,7 +156,7 @@ namespace IceInternal
 	    {
 		try
 		{
-		    connection.flushBatchRequest();
+		    connection.flushBatchRequests();
 		}
 		catch(Ice.LocalException)
 		{
@@ -496,6 +496,7 @@ namespace IceInternal
 		}
 
 		_destroyed = true;
+		System.Threading.Monitor.PulseAll(this);
 	    }
 	}
 	
@@ -908,7 +909,7 @@ namespace IceInternal
 		{
 		    try
 		    {
-			conn.flushBatchRequest();
+			conn.flushBatchRequests();
 		    }
 		    catch(Ice.LocalException)
 		    {

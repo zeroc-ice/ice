@@ -100,13 +100,8 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    
-	    if(reverseAdapter != r.reverseAdapter)
-	    {
-		return false;
-	    }
-	    
-	    if(collocationOptimization != r.collocationOptimization)
+
+	    if(fixedConnections != null && r.fixedConnections != null && !fixedConnections.Equals(r.fixedConnections))
 	    {
 		return false;
 	    }
@@ -289,10 +284,10 @@ namespace IceInternal
 	public readonly int mode;
 	public readonly bool secure;
 	public readonly string adapterId;
-	public readonly Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
+	public readonly Endpoint[] endpoints;
 	public readonly RouterInfo routerInfo; // Null if no router is used.
 	public readonly LocatorInfo locatorInfo; // Null if no locator is used.
-	public readonly Ice.ObjectAdapter reverseAdapter; // For reverse comm. using the adapter's incoming connections.
+	public readonly Ice.ConnectionI[] fixedConnections; // // For using fixed connections, otherwise empty.
 	public readonly bool collocationOptimization;
 	public readonly int hashValue;
 	
@@ -310,7 +305,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(newIdentity, context, facet, mode, secure,
 							  adapterId, endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -324,7 +319,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, newContext, facet, mode, secure, adapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -338,7 +333,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, newFacet, mode, secure, adapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -362,7 +357,8 @@ namespace IceInternal
 	    {
 		try
 		{
-		    Ice.RouterPrx newRouter = Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
+		    Ice.RouterPrx newRouter =
+			Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
 		    Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(newTimeout);
 		    newRouterInfo = instance.routerManager().get(newRouter);
 		    newRouterInfo.setClientProxy(newClientProxy);
@@ -380,13 +376,14 @@ namespace IceInternal
 	    LocatorInfo newLocatorInfo = null;
 	    if(locatorInfo != null)
 	    {
-		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
+		Ice.LocatorPrx newLocator =
+		    Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
 		newLocatorInfo = instance.locatorManager().get(newLocator);
 	    }
 	    
 	    return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      newEndpoints, newRouterInfo, newLocatorInfo,
-						      reverseAdapter, collocationOptimization);
+						      fixedConnections, collocationOptimization);
 	}
 	
 	public Reference changeMode(int newMode)
@@ -399,7 +396,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, newMode, secure, adapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -413,7 +410,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, newSecure, adapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -437,7 +434,8 @@ namespace IceInternal
 	    {
 		try
 		{
-		    Ice.RouterPrx newRouter = Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
+		    Ice.RouterPrx newRouter =
+			Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
 		    Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_compress(newCompress);
 		    newRouterInfo = instance.routerManager().get(newRouter);
 		    newRouterInfo.setClientProxy(newClientProxy);
@@ -462,7 +460,7 @@ namespace IceInternal
 	    
 	    return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 						      newEndpoints, newRouterInfo, newLocatorInfo,
-						      reverseAdapter, collocationOptimization);
+						      fixedConnections, collocationOptimization);
 	}
 	
 	public Reference changeAdapterId(string newAdapterId)
@@ -475,7 +473,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, secure, newAdapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -489,7 +487,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 							  newEndpoints, routerInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -506,7 +504,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 							  endpoints, newRouterInfo, locatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -523,7 +521,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 							  endpoints, routerInfo, newLocatorInfo,
-							  reverseAdapter, collocationOptimization);
+							  fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -537,7 +535,7 @@ namespace IceInternal
 	    {
 		return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
 							  endpoints, routerInfo, locatorInfo,
-							  reverseAdapter, newCollocationOptimization);
+							  fixedConnections, newCollocationOptimization);
 	    }
 	}
 	
@@ -557,40 +555,21 @@ namespace IceInternal
 	{
 	    Ice.ConnectionI connection;
 
-	    if(reverseAdapter != null)
+	    //
+	    // If we have a fixed connection, we return such fixed connection.
+	    //
+	    if(fixedConnections.Length > 0)
 	    {
-		//
-		// If we have a reverse object adapter, we use the incoming
-		// connections from such object adapter.
-		//
-		Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
-		Ice.ConnectionI[] connections = adapter.getIncomingConnections();
-
-		Endpoint[] endpoints = new Endpoint[connections.Length];
-		for(int i = 0; i < connections.Length; i++)
-		{
-		    endpoints[i] = connections[i].endpoint();
-		}
-		endpoints = filterEndpoints(endpoints);
-
-		if(endpoints.Length == 0)
+		Ice.ConnectionI[] filteredConns = filterConnections(fixedConnections);
+		if(filteredConns.Length == 0)
 		{
 		    Ice.NoEndpointException e = new Ice.NoEndpointException();
 		    e.proxy = ToString();
 		    throw e;
 		}
 
-		int j;
-		for(j = 0; j < connections.Length; j++)
-		{
-		    if(connections[j].endpoint().Equals(endpoints[0]))
-		    {
-			break;
-		    }
-		}
-		Debug.Assert(j < connections.Length);
-		connection = connections[j];
-                compress = connection.endpoint().compress();
+		connection = filteredConns[0];
+		compress = connection.endpoint().compress();
 	    }
 	    else
 	    {
@@ -770,7 +749,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		endpoints.Sort(_comparator);
+		endpoints.Sort(_endpointComparator);
 	    }
 	    
 	    Endpoint[] arr = new Endpoint[endpoints.Count];
@@ -780,8 +759,6 @@ namespace IceInternal
 	    }
 	    return arr;
 	}
-
-	private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 
 	private class EndpointComparator : IComparer
 	{
@@ -806,14 +783,133 @@ namespace IceInternal
 	    }
 	}
 	
-	private static EndpointComparator _comparator = new EndpointComparator();
+	private static EndpointComparator _endpointComparator = new EndpointComparator();
+
+	//
+	// Filter connections based on criteria from this reference.
+	//
+	public Ice.ConnectionI[]
+	filterConnections(Ice.ConnectionI[] allConnections)
+	{
+	    ArrayList connections = new ArrayList();
+
+	    switch(mode)
+	    {
+		case Reference.ModeTwoway:
+		case Reference.ModeOneway:
+		case Reference.ModeBatchOneway:
+		{
+		    //
+		    // Filter out datagram endpoints.
+		    //
+		    for(int i = 0; i < allConnections.Length; ++i)
+		    {
+			if(!allConnections[i].endpoint().datagram())
+			{
+			    connections.Add(allConnections[i]);
+			}
+		    }
+
+		    break;
+		}
+
+		case Reference.ModeDatagram:
+		case Reference.ModeBatchDatagram:
+		{
+		    //
+		    // Filter out non-datagram endpoints.
+		    //
+		    for(int i = 0; i < allConnections.Length; ++i)
+		    {
+			if(allConnections[i].endpoint().datagram())
+			{
+			    connections.Add(allConnections[i]);
+			}
+		    }
+
+		    break;
+		}
+	    }
+
+	    //
+	    // Randomize the order of connections.
+	    //
+	    for(int i = 0; i < connections.Count - 2; ++i)
+	    {
+		int r = _rand.Next(connections.Count - i) + i;
+		Debug.Assert(r >= i && r < connections.Count);
+		if(r != i)
+		{
+		    object tmp = connections[i];
+		    connections[i] = connections[r];
+		    connections[r] = tmp;
+		}
+	    }
+
+	    //
+	    // If a secure connection is requested, remove all non-secure
+	    // endpoints. Otherwise make non-secure endpoints preferred over
+	    // secure endpoints by partitioning the endpoint vector, so that
+	    // non-secure endpoints come first.
+	    //
+	    if(secure)
+	    {
+		ArrayList tmp = new ArrayList();
+		foreach(Ice.ConnectionI connection in connections)
+		{
+		    if(connection.endpoint().secure())
+		    {
+			tmp.Add(connection);
+		    }
+		}
+		connections = tmp;
+	    }
+	    else
+	    {
+		connections.Sort(_connectionComparator);
+	    }
+	    
+	    Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
+	    if(arr.Length != 0)
+	    {
+		connections.CopyTo(arr);
+	    }
+	    return arr;
+	}
+
+	private class ConnectionComparator : IComparer
+	{
+	    public int Compare(object l, object r)
+	    {
+		Ice.ConnectionI lc = (Ice.ConnectionI)l;
+		Ice.ConnectionI rc = (Ice.ConnectionI)r;
+		bool ls = lc.endpoint().secure();
+		bool rs = rc.endpoint().secure();
+		if((ls && rs) || (!ls && !rs))
+		{
+		    return 0;
+		}
+		else if(!ls && rs)
+		{
+		    return -1;
+		}
+		else
+		{
+		    return 1;
+		}
+	    }
+	}
+	
+	private static ConnectionComparator _connectionComparator = new ConnectionComparator();
+
+	private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 
 	//
 	// Only for use by ReferenceFactory
 	//
 	internal Reference(Instance inst, Ice.Identity ident, Ice.Context ctx, string fac, int md,
 		           bool sec, string adptId, Endpoint[] endpts, RouterInfo rtrInfo, LocatorInfo locInfo,
-		           Ice.ObjectAdapter rvAdapter, bool collocationOpt)
+		           Ice.ConnectionI[] fixedConns, bool collocationOpt)
 	{
 	    //
 	    // Validate string arguments.
@@ -838,7 +934,7 @@ namespace IceInternal
 	    endpoints = endpts;
 	    routerInfo = rtrInfo;
 	    locatorInfo = locInfo;
-	    reverseAdapter = rvAdapter;
+	    fixedConnections = fixedConns;
 	    collocationOptimization = collocationOpt;
 	    
 	    int h = 0;

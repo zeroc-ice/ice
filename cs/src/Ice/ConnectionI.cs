@@ -14,8 +14,18 @@ namespace Ice
     using System.Diagnostics;
     using System.Threading;
 
-    public sealed class ConnectionI : IceInternal.EventHandler
+    public sealed class ConnectionI : IceInternal.EventHandler, Connection
     {
+        public int ice_hash() // From LocalObject.
+        {
+            return GetHashCode();
+        }
+
+        public object Clone() // From LocalObject.
+        {
+            return MemberwiseClone();
+        }
+
 	public void validate()
 	{
 	    lock(this)
@@ -727,7 +737,7 @@ namespace Ice
 	    }
 	}
 	
-	public void flushBatchRequest()
+	public void flushBatchRequests()
 	{
 	    IceInternal.BasicStream stream;
 
@@ -820,6 +830,25 @@ namespace Ice
 		_batchRequestCompress = false;
 		_batchStreamInUse = false;
 		Monitor.PulseAll(this);
+	    }
+	}
+
+	public ObjectPrx createProxy(Identity ident)
+	{
+	    lock(this)
+	    {
+		//
+		// Create a reference and return a reverse proxy for this
+		// reference.
+		//
+		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+		ConnectionI[] connections = new ConnectionI[1];
+		connections[0] = this;
+		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
+										 IceInternal.Reference.ModeTwoway,
+										 false, "", endpoints, null, null,
+										 connections, true);
+		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
 	
@@ -1354,10 +1383,20 @@ namespace Ice
 		setState(StateClosed, ex);
 	    }
 	}
-	
-	public override string ToString()
+
+	public string type()
+	{
+	    return _type; // No mutex lock, _type is immutable.
+	}
+
+	public string _Ice_toString()
 	{
 	    return _desc; // No mutex lock, _desc is immutable.
+	}
+
+	public override string ToString()
+	{
+	    return _Ice_toString();
 	}
 	
 	static ConnectionI()
@@ -1371,6 +1410,7 @@ namespace Ice
 	{
 	    _transceiver = transceiver;
 	    _desc = transceiver.ToString();
+	    _type = transceiver.type();
 	    _endpoint = endpoint;
 	    _adapter = adapter;
 	    _logger = instance.logger(); // Cached for better performance.
@@ -1702,6 +1742,7 @@ namespace Ice
 	
 	private volatile IceInternal.Transceiver _transceiver;
 	private volatile string _desc;
+	private volatile string _type;
 	private volatile IceInternal.Endpoint _endpoint;
 	
 	private Ice.ObjectAdapter _adapter;

@@ -18,6 +18,7 @@ namespace IceInternal
 	void shutdown();
 	void write(BasicStream stream, int timeout);
 	void read(BasicStream stream, int timeout);
+	string type();
 	//string toString(); // TODO
     }
 

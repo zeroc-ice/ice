@@ -108,7 +108,7 @@ namespace IceInternal
 		
 		if(_stats != null)
 		{
-		    _stats.bytesSent("udp", ret);
+		    _stats.bytesSent(type(), ret);
 		}
 
 		buf.position(remaining);
@@ -205,7 +205,7 @@ namespace IceInternal
 
 		if(_stats != null)
 		{
-		    _stats.bytesReceived("udp", ret);
+		    _stats.bytesReceived(type(), ret);
 		}
 
 		stream.resize(ret, true);
@@ -224,6 +224,11 @@ namespace IceInternal
 	    }
 	}
 	
+        public string type()
+        {
+            return "udp";
+        }
+
 	public override string ToString()
 	{
 	    return Network.fdToString(_fd);

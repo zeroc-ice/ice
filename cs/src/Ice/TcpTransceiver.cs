@@ -120,7 +120,7 @@ namespace IceInternal
 		    }
 		    if(_stats != null)
 		    {
-			_stats.bytesSent("tcp", ret);
+			_stats.bytesSent(type(), ret);
 		    }
 
 		    remaining -= ret;
@@ -204,7 +204,7 @@ namespace IceInternal
 		    }    
 		    if(_stats != null)
 		    {
-			_stats.bytesReceived("tcp", ret);
+			_stats.bytesReceived(type(), ret);
 		    }
 		    remaining -= ret;
 		    buf.position(position += ret);
@@ -231,7 +231,12 @@ namespace IceInternal
 		throw new Ice.SyscallException(ex);
 	    }
 	}
-	
+
+	public string type()
+	{
+	    return "tcp";
+	}
+
 	public override string ToString()
 	{
 	    return _desc;

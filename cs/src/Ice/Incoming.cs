@@ -20,25 +20,22 @@ namespace IceInternal
 	protected internal IncomingBase(Instance instance, Ice.ConnectionI connection,
 	                                Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
+	    _response = response;
+	    _compress = compress;
+	    _os = new BasicStream(instance);
+	    _connection = connection;
+
 	    _current = new Ice.Current();
 	    _current.id = new Ice.Identity();
 	    _current.adapter = adapter;
+	    _current.con = connection;
 	    
 	    _cookie = null;
-	    
-	    _response = response;
-	    
-	    _compress = compress;
-	    
-	    _os = new BasicStream(instance);
-	    
-	    _connection = connection;
 	}
 	
 	protected internal IncomingBase(IncomingBase inc)
 	{
 	    _current = inc._current;
-	    inc._current = null;
 	    
 	    _servant = inc._servant;
 	    inc._servant = null;
@@ -89,6 +86,7 @@ namespace IceInternal
 	    _current = new Ice.Current();
 	    _current.id = new Ice.Identity();
 	    _current.adapter = adapter;
+	    _current.con = connection;
 	    
 	    _servant = null;
 	    

@@ -24,7 +24,7 @@ namespace IceInternal
 	       Endpoint[] endpoints,
 	       RouterInfo routerInfo,
 	       LocatorInfo locatorInfo,
-	       Ice.ObjectAdapter reverseAdapter,
+	       Ice.ConnectionI[] fixedConnections,
 	       bool collocationOptimization)
 	{
 	    lock(this)
@@ -42,9 +42,8 @@ namespace IceInternal
 		//
 		// Create a new reference
 		//
-		return new Reference(_instance, ident, context, facet, mode, secure, adapterId,
-					     endpoints, routerInfo, locatorInfo,
-					     reverseAdapter, collocationOptimization);
+		return new Reference(_instance, ident, context, facet, mode, secure, adapterId, endpoints, routerInfo,
+				     locatorInfo, fixedConnections, collocationOptimization);
 	    }
 	}
 	
@@ -389,7 +388,8 @@ namespace IceInternal
 	    
 	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
 	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-	    return create(ident, new Ice.Context(), facet, mode, secure, adapter, endp2, routerInfo, locatorInfo, null, true);
+	    return create(ident, new Ice.Context(), facet, mode, secure, adapter, endp2, routerInfo, locatorInfo,
+			  new Ice.ConnectionI[0], true);
 	}
 	
 	public Reference create(Ice.Identity ident, BasicStream s)
@@ -450,7 +450,8 @@ namespace IceInternal
 	    
 	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
 	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-	    return create(ident, new Ice.Context(), facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo, null, true);
+	    return create(ident, new Ice.Context(), facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo,
+			  new Ice.ConnectionI[0], true);
 	}
 	
 	public void setDefaultRouter(Ice.RouterPrx defaultRouter)

@@ -430,10 +430,37 @@ namespace Ice
 		checkForDeactivation();
 		checkIdentity(ident);
 		
-		// TODO
-		Debug.Assert(false);
-		
-		return null;
+		//
+		// Get all incoming connections for this object adapter.
+		//
+		ArrayList connections = new ArrayList();
+		int sz = _incomingConnectionFactories.Count;
+		for(int i = 0; i < sz; ++i)
+		{
+		    IceInternal.IncomingConnectionFactory factory
+			= (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
+		    ConnectionI[] cons = factory.connections();
+		    for(int j = 0; j < cons.Length; j++)
+		    {
+			connections.Add(cons[j]);
+		    }
+		}
+
+		//
+		// Create a reference and return a reverse proxy for this
+		// reference.
+		//
+		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+		ConnectionI[] arr = new ConnectionI[connections.Count];
+		if(arr.Length != 0)
+		{
+		    connections.CopyTo(arr, 0);
+		}
+		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
+										 IceInternal.Reference.ModeTwoway,
+										 false, "", endpoints, null, null,
+										 arr, true);
+		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
 	
@@ -567,34 +594,6 @@ namespace Ice
 		
 		return false;
 	    }
-	}
-	
-	public ConnectionI[] getIncomingConnections()
-	{
-	    lock(this)
-	    {
-		checkForDeactivation();
-		
-		ArrayList connections = new ArrayList();
-		int sz = _incomingConnectionFactories.Count;
-		for(int i = 0; i < sz; ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory
-			= (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    ConnectionI[] cons = factory.connections();
-		    for(int j = 0; j < cons.Length; j++)
-		    {
-			connections.Add(cons[j]);
-		    }
-		}
-		ConnectionI[] arr = new ConnectionI[connections.Count];
-		if(arr.Length != 0)
-		{
-		    connections.CopyTo(arr, 0);
-		}
-		return arr;
-	    }
-	    
 	}
 	
 	public void flushBatchRequests()
@@ -797,10 +796,10 @@ namespace Ice
 		// proxy for the reference.
 		//
 		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+		ConnectionI[] connections = new ConnectionI[0];
 		IceInternal.Reference reference =
-		    _instance.referenceFactory().create(ident, new Context(), "",
-							IceInternal.Reference.ModeTwoway, false,
-							_id, endpoints, null, _locatorInfo, null, true);
+		    _instance.referenceFactory().create(ident, new Context(), "", IceInternal.Reference.ModeTwoway,
+							false, _id, endpoints, null, _locatorInfo, connections, true);
 		return _instance.proxyFactory().referenceToProxy(reference);
 	    }
 	}
@@ -836,10 +835,10 @@ namespace Ice
 	    //
 	    // Create a reference and return a proxy for this reference.
 	    //
+	    ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new Context(), "",
-						    IceInternal.Reference.ModeTwoway, false,
-						    "", endpoints, null, _locatorInfo, null, true);
+		_instance.referenceFactory().create(ident, new Context(), "", IceInternal.Reference.ModeTwoway, false,
+						    "", endpoints, null, _locatorInfo, connections, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
 	
