@@ -278,16 +278,6 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
     _servantManager->addServantLocator(locator, prefix);
 }
 
-void
-Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
-    _servantManager->removeServantLocator(prefix);
-}
-
 ServantLocatorPtr
 Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {

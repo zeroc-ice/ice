@@ -75,28 +75,6 @@ public final class ServantManager extends Thread
         _locatorMap.put(prefix, locator);
     }
 
-    public void
-    removeServantLocator(String prefix)
-    {
-	Ice.ServantLocator locator;
-
-	synchronized(this)
-	{
-	    assert(_instance != null); // Must not be called after destruction.
-	    
-	    locator = (Ice.ServantLocator)_locatorMap.remove(prefix);
-	    if(locator == null)
-	    {
-		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-		ex.id = prefix;
-		ex.kindOfObject = "servant locator";
-		throw ex;
-	    }
-	}
-
-	locator.deactivate(prefix);
-    }
-
     public synchronized Ice.ServantLocator
     findServantLocator(String prefix)
     {

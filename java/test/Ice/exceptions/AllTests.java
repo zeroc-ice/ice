@@ -745,17 +745,6 @@ public class AllTests
 	    }
 	    test(gotException);
 
-	    gotException = false;
-	    adapter.removeServantLocator("x");
-	    try
-            {
-		adapter.removeServantLocator("x");
-	    }
-	    catch(Ice.NotRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
 	    adapter.deactivate();
 	    System.out.println("ok");
 	}

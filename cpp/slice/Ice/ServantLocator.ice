@@ -28,7 +28,6 @@ module Ice
  *
  * @see ObjectAdapter
  * @see ObjectAdapter::addServantLocator
- * @see ObjectAdapter::removeServantLocator
  * @see ObjectAdapter::findServantLocator
  *
  **/

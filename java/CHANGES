@@ -1,10 +1,14 @@
 Changes since version 1.1.0
 ---------------------------
 
-- Added missing declaration for ice_invoke_async to Ice.ObjectPrx.
+- ObjectAdapter::removeServantLocator() no longer exists.
+  The life cycle of servant locators that are registered
+  with an object adapter ends when the adapter is destroyed.
 
 - Changed Ice::ServantLocator::deactivate to be passed the category for
   which a servant locator is being deactivated.
+
+- Added missing declaration for ice_invoke_async to Ice.ObjectPrx.
 
 - Added saveObject() operation on Evictor, and savedObject() operation
   on PersistenceStrategy.

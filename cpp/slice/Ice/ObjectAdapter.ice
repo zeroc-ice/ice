@@ -239,30 +239,11 @@ local interface ObjectAdapter
      * not belong to any specific category.
      *
      * @see Identity
-     * @see removeServantLocator
      * @see findServantLocator
      * @see ServantLocator
      *
      **/
     void addServantLocator(ServantLocator locator, string category);
-
-    /**
-     *
-     * Remove a Servant Locator from this object adapter. Removing
-     * a category for which no servant locator is registered throws
-     * [NotRegisteredException].
-     *
-     * @param category The category for which the Servant Locator can
-     * locate Servants, or an empty string if the Servant Locator does
-     * not belong to any specific category.
-     *
-     * @see Identity
-     * @see addServantLocator
-     * @see findServantLocator
-     * @see ServantLocator
-     *
-     **/
-    void removeServantLocator(string category);
 
     /**
      *
@@ -277,7 +258,6 @@ local interface ObjectAdapter
      *
      * @see Identity
      * @see addServantLocator
-     * @see removeServantLocator
      * @see ServantLocator
      *
      **/

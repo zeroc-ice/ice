@@ -605,18 +605,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	}
 	test(gotException);
 
-	gotException = false;
-	adapter->removeServantLocator("x");
-	try
-	{
-	    adapter->removeServantLocator("x");
-	}
-	catch(const Ice::NotRegisteredException&)
-	{
-	    gotException = true;
-	}
-	test(gotException);
-
 	adapter->deactivate();
     }
     cout << "ok" << endl;

@@ -285,14 +285,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_servantManager.addServantLocator(locator, prefix);
     }
 
-    public synchronized void
-    removeServantLocator(String prefix)
-    {
-	checkForDeactivation();
-
-	_servantManager.removeServantLocator(prefix);
-    }
-
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {

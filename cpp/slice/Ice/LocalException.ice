@@ -743,8 +743,8 @@ local exception AlreadyRegisteredException
 /**
  *
  * This exception is raised if an attempt is made to remove a servant,
- * servant locator, facet, object factory, plug-in, object adapter,
- * object, or user exception factory that is not currently registered.
+ * facet, object factory, plug-in, object adapter, object, or user
+ * exception factory that is not currently registered.
  *
  **/
 local exception NotRegisteredException
@@ -752,8 +752,8 @@ local exception NotRegisteredException
     /**
      *
      * The kind of object that could not be removed: "servant",
-     * "servant locator", "facet", "object factory", "plug-in",
-     * "object adapter", "object", or "user exception factory".
+     * "facet", "object factory", "plug-in", "object adapter",
+     * "object", or "user exception factory".
      *
      **/
     string kindOfObject;

@@ -109,34 +109,6 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
     _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, ServantLocatorPtr>(prefix, locator));
 }
 
-void
-IceInternal::ServantManager::removeServantLocator(const string& prefix)
-{
-    ServantLocatorPtr locator;
-
-    {
-	IceUtil::Mutex::Lock sync(*this);
-
-	assert(_instance); // Must not be called after destruction.
-
-	map<string, ServantLocatorPtr>::iterator p = _locatorMap.find(prefix);
-	if(p == _locatorMap.end())
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "servant locator";
-	    ex.id = prefix;
-	    throw ex;
-	}
-
-	locator = p->second;
-
-	_locatorMap.erase(p);
-	_locatorMapHint = _locatorMap.end();
-    }
-
-    locator->deactivate(prefix);
-}
-
 ServantLocatorPtr
 IceInternal::ServantManager::findServantLocator(const string& prefix) const
 {

@@ -57,7 +57,6 @@ public:
     virtual void remove(const Identity&);
 
     virtual void addServantLocator(const ServantLocatorPtr&, const std::string&);
-    virtual void removeServantLocator(const std::string&);
     virtual ServantLocatorPtr findServantLocator(const std::string&);
 
     virtual ObjectPtr identityToServant(const Identity&);
