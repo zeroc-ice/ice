@@ -1840,6 +1840,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__opEx.operation = __current.operation;";
 	C << nl << "throw __opEx;";
 	C << eb;
+        C << nl << "try";
+        C << sb;
 	C << nl;
 	if(ret)
 	{
@@ -1850,6 +1852,11 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	{
 	    C << nl << "return;";
 	}
+	C << eb;
+        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        C << sb;
+        C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
+	C << eb;
 	C << eb;
 	C << eb;
     }

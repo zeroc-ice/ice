@@ -1,6 +1,9 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Fixed a bug in the generated code that caused "at-most-once"
+  semantics to be ignored for collocated invocations.
+
 - Fixed ant tasks to use ICE_HOME (if defined) in the pathname of
   a translator executable.
 

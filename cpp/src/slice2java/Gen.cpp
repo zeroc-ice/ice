@@ -3324,6 +3324,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << "__opEx.operation = __current.operation;";
 	    out << nl << "throw __opEx;";
 	    out << eb;
+            out << nl << "try";
+            out << sb;
 	    out << nl;
 	    if(ret)
 	    {
@@ -3339,6 +3341,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		out << nl << "return;";
 	    }
+            out << eb;
+            out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+	    out << eb;
 	    out << eb;
 	    out << nl << "finally";
 	    out << sb;

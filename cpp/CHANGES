@@ -1,6 +1,9 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Fixed a bug in the generated code that caused "at-most-once"
+  semantics to be ignored for collocated invocations.
+
 - Removed all Ice dependencies on Xerces. Added a simple C++
   wrapper around the expat XML parser as IceXML/Parser.h.
 
