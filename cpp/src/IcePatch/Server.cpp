@@ -185,10 +185,13 @@ IcePatch::Updater::run()
 	catch(const Exception& ex)
 	{
 	    //
-	    // Log other exceptions.
+	    // Log other exceptions only if we are not destroyed.
 	    //
-	    Error out(_logger);
-	    out << "exception during update:\n" << ex;
+	    if(!_destroy)
+	    {
+		Error out(_logger);
+		out << "exception during update:\n" << ex;
+	    }
 	}
 
 	if(_destroy)
