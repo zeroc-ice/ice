@@ -339,7 +339,10 @@ if not skipDocs:
 config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
 version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 config.seek(0)
-soVersion = re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)
+intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+majorVersion = intVersion / 10000
+minorVersion = intVersion / 100 - 100 * majorVersion
+soVersion = '%d' % (majorVersion * 10 + minorVersion)
 rpmSpecFile = open(os.path.join('ice', 'install', 'rpm', 'Ice-' + version + '-1.spec'), 'w')
 RPMTools.createFullSpecFile(rpmSpecFile, '', version, soVersion)
 rpmSpecFile.close()
