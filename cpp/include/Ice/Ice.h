@@ -28,6 +28,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/IdentityUtil.h>
+#include <Ice/Application.h>
 
 //#include <Ice/Stream.h>
 
