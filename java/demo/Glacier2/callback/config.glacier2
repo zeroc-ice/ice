@@ -104,10 +104,10 @@ Glacier2.Trace.RoutingTable=1
 # Other settings.
 #
 
-Ice.Trace.Network=1
-Ice.Trace.Protocol=1
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
-IceSSL.Trace.Security=3
+#IceSSL.Trace.Security=3
 
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Server.CertPath=../../../certs/cpp
