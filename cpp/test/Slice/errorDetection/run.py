@@ -26,6 +26,8 @@ for file in os.listdir(directory):
     if(regex1.search(file)):
         files.append(file)
 
+status = 0
+
 files.sort()
 for file in files:
 
@@ -37,6 +39,7 @@ for file in files:
 
     if len(lines1) != len(lines2):
         print "failed!"
+        status = 1
         continue
     
     regex2 = re.compile(r"^.*(?=" + file + ")")
@@ -46,7 +49,10 @@ for file in files:
         line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
             print "failed!"
+            status = 1
             break
         i += 1
     else:
         print "ok"
+
+sys.exit(status)
