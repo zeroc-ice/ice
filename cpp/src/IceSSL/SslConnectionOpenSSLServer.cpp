@@ -197,6 +197,13 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
                 throw protocolEx;
             }
+
+            case SSL_ERROR_ZERO_RETURN:
+            {
+		ConnectionLostException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
+            }
         }
 
         retCode = SSL_is_init_finished(_sslConnection);

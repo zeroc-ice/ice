@@ -223,6 +223,7 @@ IceSSL::OpenSSL::Connection::connect()
 {
     assert(_sslConnection != 0);
 
+    ERR_clear_error();
     int result = SSL_connect(_sslConnection);
 
     setLastError(result);
@@ -235,6 +236,7 @@ IceSSL::OpenSSL::Connection::accept()
 {
     assert(_sslConnection != 0);
 
+    ERR_clear_error();
     int result = SSL_accept(_sslConnection);
 
     setLastError(result);
@@ -305,7 +307,9 @@ int
 IceSSL::OpenSSL::Connection::getLastError() const
 {
     assert(_sslConnection != 0);
-    return SSL_get_error(_sslConnection, _lastError);
+    int retCode = SSL_get_error(_sslConnection, _lastError);
+//    std::cout << "SSL_get_error(): " << std::dec << retCode << std::endl;
+    return retCode;
 }
 
 int
@@ -313,6 +317,7 @@ IceSSL::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 {
     assert(_sslConnection != 0);
 
+    ERR_clear_error();
     int bytesRead = SSL_read(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesRead);
@@ -325,6 +330,7 @@ IceSSL::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 {
     assert(_sslConnection != 0);
 
+    ERR_clear_error();
     int bytesWritten = SSL_write(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesWritten);
@@ -481,6 +487,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             {
                 if (!readSelect(timeout))
                 {
+//                    std::cout << "SSL_ERROR_WANT_READ" << std::endl;
                     // Timeout and wait for them to arrive.
                     throw TimeoutException(__FILE__, __LINE__);
                 }
@@ -514,10 +521,12 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                     {
                         ConnectionLostException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
+//                        std::cout << std::dec << clock() << " SSL_ERROR_SYSCALL: connectionLost() = " << std::dec << ex.error << std::endl;
                         throw ex;
                     }
                     else
                     {
+//                        std::cout << std::dec << clock() << " SSL_ERROR_SYSCALL" << std::endl;
                         SocketException ex(__FILE__, __LINE__);
                         ex.error = getSocketErrno();
                         throw ex;
@@ -525,6 +534,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                 }
                 else // (bytesRead == 0)
                 {
+//                    std::cout << std::dec << clock() << " SSL_ERROR_SYSCALL: (bytesRead == 0)" << std::endl;
                     ConnectionLostException ex(__FILE__, __LINE__);
                     ex.error = 0;
                     throw ex;
@@ -547,6 +557,8 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                 // But does not necessarily indicate that the underlying transport
                 // has been closed (in the case of Ice, it definitely hasn't yet).
 
+//                std::cout << std::dec << clock() << " SSL_ERROR_ZERO_RETURN" << std::endl;
+//                std::cout << "SslErrors:" << std::endl << sslGetErrors() << std::endl;
                 ConnectionLostException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
