@@ -42,7 +42,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
 SLICECMD	= $(SLICE2CPP) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm
 
 include $(top_srcdir)/config/Make.rules
 

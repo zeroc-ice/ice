@@ -97,6 +97,10 @@ SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringBoolDict.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Subscriber.cpp
 # End Source File
 # Begin Source File
@@ -126,6 +130,10 @@ SOURCE=.\FlusherF.h
 # Begin Source File
 
 SOURCE=.\IceStormI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringBoolDict.h
 # End Source File
 # Begin Source File
 
@@ -159,6 +167,32 @@ SOURCE=.\TraceLevelsF.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\dummy.ice
+
+!IF  "$(CFG)" == "IceStormS - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\dummy.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
+	
+
+"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project
