@@ -135,7 +135,7 @@ typedef std::pair<SyntaxTreeBasePtr, std::string> SyntaxTreeBaseString;
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
 
-class CICompare : public std::binary_function<std::string, std::string, bool>
+class SLICE_API CICompare : public std::binary_function<std::string, std::string, bool>
 {
 public:
 
@@ -571,6 +571,7 @@ public:
     bool isA(const std::string&) const;
     virtual bool isLocal() const;
     bool hasDataMembers() const;
+    bool hasOperations() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -584,6 +585,7 @@ protected:
     ClassDeclPtr _declaration;
     bool _interface;
     bool _hasDataMembers;
+    bool _hasOperations;
     ClassList _bases;
     bool _local;
 };
