@@ -201,8 +201,8 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 	    // send() or select() sometimes don't detect a connection
 	    // loss. Therefore this helper to make them detect it.
 	    //
-	    assert(_fd != INVALID_SOCKET);
-	    shutdownSocket(_fd);
+	    //assert(_fd != INVALID_SOCKET);
+	    //shutdownSocket(_fd);
 	    
 	    ConnectionLostException ex(__FILE__, __LINE__);
 	    ex.error = 0;
@@ -269,8 +269,8 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 		// socket if the connection is lost while reading
 		// data.
 		//
-		assert(_fd != INVALID_SOCKET);
-		shutdownSocket(_fd);
+		//assert(_fd != INVALID_SOCKET);
+		//shutdownSocket(_fd);
 	    
 		ConnectionLostException ex(__FILE__, __LINE__);
 		ex.error = getSocketErrno();
