@@ -556,7 +556,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Starter.Certificate.StateProvince",
 	"Starter.CryptPasswords",
 	"Starter.Endpoints",
-	"Starter.PasswordVerifier",
+	"Starter.PermissionsVerifier",
 	"Starter.PropertiesOverride",
 	"Starter.RouterPath",
 	"Starter.StartupTimeout",

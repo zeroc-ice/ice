@@ -14,15 +14,15 @@
 
 public class Server
 {
-    static class PasswordVerifierI extends Glacier._PasswordVerifierDisp
+    static class PermissionsVerifierI extends Glacier._PermissionsVerifierDisp
     {
-        PasswordVerifierI(Ice.ObjectAdapter adapter)
+        PermissionsVerifierI(Ice.ObjectAdapter adapter)
         {
             _adapter = adapter;
         }
 
         public boolean
-        checkPassword(String userId, String password, Ice.Current current)
+        checkPermissions(String userId, String password, Ice.StringHolder reason, Ice.Current current)
         {
             return userId.equals(password);
         }
@@ -42,10 +42,10 @@ public class Server
         adapter.add(object, Ice.Util.stringToIdentity("HelloSessionManager"));
 
         //
-        // Create the PasswordVerifier.
+        // Create the PermissionsVerifier.
         //
-        object = new PasswordVerifierI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("PasswordVerifier"));
+        object = new PermissionsVerifierI(adapter);
+        adapter.add(object, Ice.Util.stringToIdentity("PermissionsVerifier"));
 
         adapter.activate();
         communicator.waitForShutdown();

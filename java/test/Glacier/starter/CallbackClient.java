@@ -66,7 +66,7 @@ class CallbackClient extends Ice.Application
             System.out.println(appName() + ": " + ex + ":\n" + ex.reason);
             return 1;
         }
-        catch(Glacier.InvalidPasswordException ex)
+        catch(Glacier.PermissionDeniedException ex)
         {
             System.out.println(appName() + ": " + ex);
             return 1;
