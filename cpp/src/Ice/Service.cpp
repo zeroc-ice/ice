@@ -260,16 +260,16 @@ Ice::Service::main(int& argc, char* argv[])
             }
 
             vector<string> args;
-            for(idx = 1; idx < argc; ++idx)
-            {
-                args.push_back(argv[idx]);
-            }
             //
-            // Append the arguments "--service NAME" so that the service
+            // Prepend the arguments "--service NAME" so that the service
             // starts properly.
             //
             args.push_back("--service");
             args.push_back(name);
+            for(idx = 1; idx < argc; ++idx)
+            {
+                args.push_back(argv[idx]);
+            }
             return installService(name, display, executable, args);
         }
         else if(op == "--uninstall")
@@ -657,12 +657,13 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     }
 
     //
-    // Create argument vector.
+    // Create argument vector. Note that StartService() automatically adds the service name
+    // in argv[0], so the argv that is passed to StartService() must *not* include the
+    // the service name in argv[0].
     //
-    const int argc = args.size() + 1;
+    const int argc = args.size();
     LPCSTR* argv = new LPCSTR[argc];
-    argv[0] = strdup(name.c_str());
-    int i = 1;
+    int i = 0;
     for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
     {
         argv[i++] = strdup(p->c_str());
@@ -783,6 +784,7 @@ Ice::Service::startService(const string& name, const vector<string>& args)
              << "  Check point: " << status.dwCheckPoint << endl
              << "  Wait hint: " << status.dwWaitHint;
         trace(ostr.str());
+	return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
@@ -1120,8 +1122,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     }
     catch(const Ice::Exception& ex)
     {
-        // TODO: Enable delete when we figure out why it can cause a crash.
-        // delete[] args;
+        delete[] args;
         ostringstream ostr;
         ostr << ex;
         error(ostr.str());
@@ -1186,8 +1187,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
         error("service caught unhandled C++ exception");
     }
 
-    // TODO: Enable delete when we figure out why it can cause a crash.
-    // delete[] args;
+    delete[] args;
 
     try
     {
