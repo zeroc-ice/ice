@@ -172,23 +172,12 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	    p != indices.end(); ++p)
 	{
 	    const MapIndexBasePtr& indexBase = *p; 
-		
-	    if(indexBase->_impl != 0)
-	    {
-		DatabaseException ex(__FILE__, __LINE__);
-		ex.message = "Index \"" + indexBase->name() + "\" already initialized!";
-		throw ex;
-	    }
+	    assert(indexBase->_impl == 0);
 
 	    auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
 	    
 	    bool inserted = _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
-	    if(!inserted)
-	    {
-		DatabaseException ex(__FILE__, __LINE__);
-		ex.message = "Index \"" + indexBase->name() + "\" listed twice!";
-		throw ex;
-	    }
+	    assert(inserted);
 	    
 	    indexBase->_impl = indexI.release();
 	}
@@ -254,24 +243,10 @@ Freeze::SharedDb::connectIndices(const vector<MapIndexBasePtr>& indices) const
 	p != indices.end(); ++p)
     {
 	const MapIndexBasePtr& indexBase = *p; 
-
-	if(indexBase->_impl != 0)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = "Index \"" + indexBase->name() + "\" already initialized!";
-	    throw ex;
-	}
+	assert(indexBase->_impl == 0);
 
 	IndexMap::const_iterator q = _indices.find(indexBase->name());
-	
-	if(q == _indices.end())
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = "\"" + _key.dbName + "\" already opened but without index \"" 
-		+ indexBase->name() +"\"";
-	    throw ex;
-	}
-	
+	assert(q != _indices.end());
 	indexBase->_impl = q->second;
     }
 }

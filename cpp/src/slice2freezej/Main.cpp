@@ -14,11 +14,19 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
+struct DictIndex
+{
+    string member;
+    bool caseSensitive;
+};
+
 struct Dict
 {
     string name;
     string key;
     string value;
+
+    vector<DictIndex> indices;
 };
 
 struct Index
@@ -93,6 +101,106 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     }
     TypePtr valueType = valueTypes.front();
 
+    vector<TypePtr> indexTypes;
+    vector<string> capitalizedMembers;
+    vector<string> indexNames;
+    size_t i;
+    
+    for(i = 0; i < dict.indices.size(); ++i)
+    {
+	const DictIndex& index = dict.indices[i];
+	const string& member = index.member;
+
+	if(index.member.empty())
+	{
+	    if(dict.indices.size() > 1)
+	    {
+		cerr << _prog << ": bad index for dictionary `" << dict.name << "'" << endl;
+		return false;
+	    }
+	    
+	    if(index.caseSensitive == false)
+	    {
+		//
+		// Let's check value is a string
+		//
+		
+		BuiltinPtr builtInType = BuiltinPtr::dynamicCast(valueType);
+		
+		if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
+		{
+		    cerr << _prog << ": VALUE is a `" << dict.value << "', not a string " << endl;
+		    return false; 
+		}
+	    }
+	    indexTypes.push_back(valueType);
+	    capitalizedMembers.push_back("Value");
+	    indexNames.push_back("index");
+	}
+	else
+	{
+	    DataMemberPtr dataMember = 0;
+	    DataMemberList dataMembers;
+	    
+	    ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(valueType);
+	    if(classDecl != 0)
+	    {
+		dataMembers = classDecl->definition()->allDataMembers();
+	    }
+	    else
+	    {
+		StructPtr structDecl = StructPtr::dynamicCast(valueType);
+		if(structDecl == 0)
+		{
+		    cerr << _prog << ": `" << dict.value << "' is neither a class nor a struct." << endl;
+		    return false;
+		}
+		dataMembers = structDecl->dataMembers();
+	    }
+	    DataMemberList::const_iterator q = dataMembers.begin();
+	    while(q != dataMembers.end() && dataMember == 0)
+	    {
+		if((*q)->name() == index.member)
+		{
+		    dataMember = *q;
+		}
+		else
+		{
+		    ++q;
+		}
+	    }
+	    
+	    if(dataMember == 0)
+	    {
+		cerr << _prog << ": The value of `" << dict.name 
+		     << "' has no data member named `" << index.member << "'" << endl;
+		return false;
+	    }
+	    
+	    TypePtr dataMemberType = dataMember->type();
+	    
+	    if(index.caseSensitive == false)
+	    {
+		//
+		// Let's check member is a string
+		//
+		BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
+		if(memberType == 0 || memberType->kind() != Builtin::KindString)
+		{
+		    cerr << _prog << ": `" << index.member << "'is not a string " << endl;
+		    return false;
+		}
+	    }
+	    indexTypes.push_back(dataMemberType);
+
+	    string capitalizedMember = member;
+	    capitalizedMember[0] = toupper(capitalizedMember[0]);
+	    capitalizedMembers.push_back(capitalizedMember);
+	    indexNames.push_back(member);
+	}
+    }
+
+
     if(!open(dict.name))
     {
         cerr << _prog << ": unable to open class " << dict.name << endl;
@@ -107,11 +215,140 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Constructor
     //
-    out << sp << nl << "public" << nl << name << "(Freeze.Connection connection, String dbName, boolean createDb)";
+    out << sp << nl << "public" << nl << name 
+	<< "(Freeze.Connection __connection, String __dbName, boolean __createDb)";
     out << sb;
-    out << nl << "super(connection, dbName, createDb);";
+    if(dict.indices.size() == 0)
+    {
+	out << nl << "super(__connection, __dbName, __createDb);";
+    }
+    else
+    {
+	out << nl << "super(__connection, __dbName);";
+	out << nl << "_indices = new Freeze.Map.Index[" << dict.indices.size() << "];";
+	for(i = 0; i < dict.indices.size(); ++i)
+	{
+	    out << nl << "_indices[" << i << "] = new " << capitalizedMembers[i] 
+		<< "Index(\"" << indexNames[i] << "\");";
+	}
+	out << nl << "init(_indices, __dbName, __createDb);";
+    }
     out << eb;
 
+    //
+    // findBy, count and encode methods
+    // 
+
+    for(i = 0; i < capitalizedMembers.size(); ++i)
+    {
+	string indexClassName = capitalizedMembers[i] + "Index";
+
+	out << sp << nl << "public Freeze.Map.EntryIterator";
+	out << nl << "findBy" << capitalizedMembers[i] << "("
+	    << typeToString(indexTypes[i], TypeModeIn) << " __index)";
+	out << sb;
+	out << nl << "return _indices[" << i << "].untypedFind("
+	    << "encode" << indexClassName 
+	    << "(__index, ((Freeze.Connection)_connection).getCommunicator()));"; 
+	out << eb;
+	
+	
+	string countMethod = dict.indices[i].member.empty() ?
+	    "valueCount" : dict.indices[i].member + "Count";
+	out << sp << nl << "public int";
+	out << nl << countMethod << "("
+	    << typeToString(indexTypes[i], TypeModeIn) << " __index)";
+	out << sb;
+	out << nl << "return _indices[" << i << "].untypedCount("
+	    << "encode" << indexClassName 
+	    << "(__index, ((Freeze.Connection)_connection).getCommunicator()));";
+	out << eb;
+
+
+	out << sp << nl << "private byte[]";
+	out << nl << "encode" << indexClassName << "(" << typeToString(indexTypes[i], TypeModeIn) 
+	    << " __key, Ice.Communicator __communicator)";
+	out << sb;
+	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
+	{
+	    string param;
+	    BuiltinPtr b = BuiltinPtr::dynamicCast(indexTypes[i]);
+	    if(b != 0)
+	    {
+		switch(b->kind())
+		{
+		    case Builtin::KindByte:
+		    {
+			param = "new java.lang.Byte(__key)";
+			break;
+		    }
+		    case Builtin::KindBool:
+		    {
+			param = "new java.lang.Boolean(__key)";
+			break;
+		    }
+		    case Builtin::KindShort:
+		    {
+			param = "new java.lang.Short(__key)";
+			break;
+		    }
+		    case Builtin::KindInt:
+		    {
+			param = "new java.lang.Integer(__key)";
+			break;
+		    }
+		    case Builtin::KindLong:
+		    {
+			param = "new java.lang.Long(__key)";
+			break;
+		    }
+		    case Builtin::KindFloat:
+		    {
+			param = "new java.lang.Float(__key)";
+			break;
+		    }
+		    case Builtin::KindDouble:
+		    {
+			param = "new java.lang.Double(__key)";
+			break;
+		    }
+		    default:
+		    {
+			param = "__key";
+			break;
+		    }
+		}
+	    }
+	    
+	    out << nl << "return encodeValue(" << param << ", __communicator);";
+	}
+	else
+	{
+	    string valueS = dict.indices[i].caseSensitive ? "__key" : "__key.toLowerCase()";
+
+	    out << nl << "IceInternal.BasicStream __os = "
+		<< "new IceInternal.BasicStream(Ice.Util.getInstance(__communicator));";
+	    out << nl << "try";
+	    out << sb;
+	    int iter = 0;
+	    writeMarshalUnmarshalCode(out, "", indexTypes[i], valueS, true, iter, false);
+	    if(indexTypes[i]->usesClasses())
+	    {
+		out << nl << "__os.writePendingObjects();";
+	    }
+	    out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
+	    out << nl << "byte[] __r = new byte[__buf.limit()];";
+	    out << nl << "__buf.get(__r);";
+	    out << nl << "return __r;";
+	    out << eb;
+	    out << nl << "finally";
+	    out << sb;
+	    out << nl << "__os.destroy();";
+	    out << eb;
+	}
+	out << eb;
+    }
+    
     //
     // encode/decode
     //
@@ -344,6 +581,46 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << eb;
     }
 
+
+    //
+    // Inner index classes
+    //
+    for(i = 0; i < capitalizedMembers.size(); ++i)
+    {
+	string indexClassName = capitalizedMembers[i] + "Index";
+	out << sp << nl << "private class " << indexClassName << " extends Freeze.Map.Index";
+	out << sb;
+
+	out << sp << nl << "protected byte[]";
+	out << nl << "marshalKey(byte[] __value)";
+	out << sb;
+	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
+	{
+	    out << nl << "return __value;";
+	}
+	else
+	{
+	    out << nl << typeToString(valueType, TypeModeIn)
+		<< " __x = ("
+		<< typeToString(valueType, TypeModeIn) << 
+		")decodeValue(__value, ((Freeze.Connection)_connection).getCommunicator());";
+	    string param = "__x";
+	    if(!dict.indices[i].member.empty())
+	    {
+		param += "." + dict.indices[i].member;
+	    }
+	    out << nl << "return encode" << indexClassName << "(" << param 
+		<< ", ((Freeze.Connection)_connection).getCommunicator());";
+	}
+	out << eb;
+
+	out << sp << nl << "private " << indexClassName << "(String name)";
+	out << sb;
+	out << nl << "super(name);";
+	out << eb;
+	out << eb;
+    }
+
     //
     // Patcher class.
     //
@@ -380,7 +657,13 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << eb;
     }
 
+    //
+    // Fields
+    //
+    out << sp << nl << "private Freeze.Map.Index[] _indices;";
+
     out << eb;
+
 
     close();
 
@@ -574,6 +857,14 @@ usage(const char* n)
         "                          different names. NAME may be a scoped name.\n"
         "                          When member is a string, the case can be\n"
         "                          sensitive or insensitive (default is sensitive).\n"
+	"--dict-index DICT[,MEMBER][,{case-sensitive|case-insensitive}] \n"
+	"                          Add an index to dictionary DICT. If MEMBER is \n"
+        "                          specified, then DICT's VALUE must be a class or\n"
+	"                          a struct, and MEMBER must designate a member of\n"
+	"                          VALUE. Otherwise, the entire VALUE is used for \n"
+	"                          indexing. When the secondary key is a string, \n"
+	"                          the case can be sensitive or insensitive (default\n"
+	"                          is sensitive).\n"
         "--output-dir DIR          Create files in the directory DIR.\n"
 	"--depend                  Generate Makefile dependencies.\n"
         "-d, --debug               Print debug messages.\n"
@@ -757,6 +1048,92 @@ main(int argc, char* argv[])
 	    index.caseSensitive = (caseString == "case-sensitive");
 
             indices.push_back(index);
+
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
+        }
+	else if(strcmp(argv[idx], "--dict-index") == 0)
+        {
+            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
+            {
+                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            string s = argv[idx + 1];
+            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+            
+	    string dictName;
+	    DictIndex index;
+            string::size_type pos;
+          
+	    string caseString = "case-sensitive";
+	    pos = s.find(',');
+	    if(pos != string::npos)
+            {
+                dictName = s.substr(0, pos);
+                s.erase(0, pos + 1);
+
+		pos = s.find(',');
+		if(pos != string::npos)
+		{
+		    index.member = s.substr(0, pos);
+		    s.erase(0, pos + 1);
+		    caseString = s;
+		}
+		else
+		{
+		    if(s == "case-sensitive" || s == "case-insensitive")
+		    {
+			caseString = s;
+		    }
+		    else
+		    {
+			index.member = s;
+		    }
+		}
+            }
+	    else
+	    {
+		dictName = s;
+	    }
+
+	    if(dictName.empty())
+            {
+                cerr << argv[0] << ": " << argv[idx] << ": no dictionary specified" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
+            {
+                cerr << argv[0] << ": " << argv[idx]
+		     << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+	    index.caseSensitive = (caseString == "case-sensitive");
+
+	    bool found = false;
+	    for(vector<Dict>::iterator p = dicts.begin(); p != dicts.end(); ++p)
+	    {
+		if(p->name == dictName)
+		{
+		    p->indices.push_back(index);
+		    found = true;
+		    break;
+		}
+	    }
+	    if(!found)
+	    {
+		cerr << argv[0] << ": " << argv[idx] << ": unknown dictionary" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+	    }
 
             for(int i = idx ; i + 2 < argc ; ++i)
             {
