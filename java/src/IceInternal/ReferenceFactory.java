@@ -68,49 +68,78 @@ public final class ReferenceFactory
     }
 
     public Reference
-    create(String str)
+    create(String s)
     {
-        String s = str.trim();
-        if(s.length() == 0)
+        final String delim = " \t\n\r";
+
+        int beg;
+        int end = 0;
+
+        beg = StringUtil.findFirstNotOf(s, delim, end);
+        if(beg == -1)
         {
             throw new Ice.ProxyParseException();
         }
 
-        int colon = s.indexOf(':');
-	if(colon == -1)
-	    colon = s.indexOf('@');
-
-        String init;
-        if(colon == -1)
+        end = StringUtil.findFirstOf(s, delim + ":@", beg);
+        if(end == -1)
         {
-            init = s;
-        }
-        else
-        {
-            init = s.substring(0, colon);
+            end = s.length();
         }
 
-        String[] arr = init.split("[ \t\n\r]+");
-        Ice.Identity ident = Ice.Util.stringToIdentity(arr[0]);
-        String[] facet = new String[0];
+        if(beg == end)
+        {
+            throw new Ice.ProxyParseException();
+        }
+
+        Ice.Identity ident = Ice.Util.stringToIdentity(s.substring(beg, end));
+        java.util.ArrayList facet = new java.util.ArrayList();
         int mode = Reference.ModeTwoway;
         boolean secure = false;
         boolean compress = false;
 	String adapter = "";
 
-        int i = 1;
-        while(i < arr.length)
+        while(true)
         {
-            String option = arr[i++];
+            beg = StringUtil.findFirstNotOf(s, delim, end);
+            if(beg == -1)
+            {
+                break;
+            }
+
+            if(s.charAt(beg) == ':' || s.charAt(beg) == '@')
+            {
+                break;
+            }
+
+            end = StringUtil.findFirstOf(s, delim + ":@", beg);
+            if(end == -1)
+            {
+                end = s.length();
+            }
+
+            if(beg == end)
+            {
+                break;
+            }
+
+            String option = s.substring(beg, end);
             if(option.length() != 2 || option.charAt(0) != '-')
             {
                 throw new Ice.ProxyParseException();
             }
 
             String argument = null;
-            if(i < arr.length && arr[i].charAt(0) != '-')
+            int argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+            if(argumentBeg != -1 && s.charAt(argumentBeg) != '-')
             {
-                argument = arr[i++];
+                beg = argumentBeg;
+                end = StringUtil.findFirstOf(s, delim + ":@", beg);
+                if(end == -1)
+                {
+                    end = s.length();
+                    argument = s.substring(beg, end);
+                }
             }
 
             //
@@ -126,8 +155,24 @@ public final class ReferenceFactory
                         throw new Ice.EndpointParseException();
                     }
 
-		    // TODO: For Mark.
-                    //facet = argument;
+                    //
+                    // TODO: Escape for whitespace and slashes.
+                    //
+                    int argBeg = 0;
+                    while(argBeg < argument.length())
+                    {
+                        int argEnd = argument.indexOf('/', argBeg);
+                        if(argEnd == -1)
+                        {
+                            facet.add(argument.substring(argBeg));
+                        }
+                        else
+                        {
+                            facet.add(argument.substring(argBeg, argEnd));
+                            ++argEnd;
+                        }
+                        argBeg = argEnd;
+                    }
                     break;
                 }
 
@@ -137,7 +182,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     mode = Reference.ModeTwoway;
                     break;
                 }
@@ -148,7 +192,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     mode = Reference.ModeOneway;
                     break;
                 }
@@ -159,7 +202,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     mode = Reference.ModeBatchOneway;
                     break;
                 }
@@ -170,7 +212,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     mode = Reference.ModeDatagram;
                     break;
                 }
@@ -181,7 +222,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     mode = Reference.ModeBatchDatagram;
                     break;
                 }
@@ -192,7 +232,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     secure = true;
                     break;
                 }
@@ -203,7 +242,6 @@ public final class ReferenceFactory
                     {
                         throw new Ice.EndpointParseException();
                     }
-
                     compress = true;
                     break;
                 }
@@ -216,21 +254,20 @@ public final class ReferenceFactory
         }
 
         java.util.ArrayList endpoints = new java.util.ArrayList();
-
-	if(colon != -1)
-	{
-	    if(s.charAt(colon) == ':')
+        if(beg != -1)
+        {
+	    if(s.charAt(beg) == ':')
 	    {
-		final int len = s.length();
-		int end = colon;
-		while(end < len && s.charAt(end) == ':')
-		{
-		    int beg = end + 1;
+                end = beg;
+
+                while(end < s.length() && s.charAt(end) == ':')
+                {
+		    beg = end + 1;
 		    
 		    end = s.indexOf(':', beg);
 		    if(end == -1)
 		    {
-			end = len;
+			end = s.length();
 		    }
 		    
 		    String es = s.substring(beg, end);
@@ -238,20 +275,37 @@ public final class ReferenceFactory
 		    endpoints.add(endp);
 		}
 	    }
-	    else if(s.charAt(colon) == '@')
+	    else if(s.charAt(beg) == '@')
 	    {
-		init = s.substring(colon + 1, s.length()).trim();
-		arr = init.split("[ \t\n\r]+");
-		adapter = arr[0];
+                beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
+                if(beg == -1)
+                {
+                    beg = end + 1;
+                }
+
+                end = StringUtil.findFirstOf(s, delim, beg);
+                if(end == -1)
+                {
+                    end = s.length();
+                }
+
+                adapter = s.substring(beg, end);
+                if(adapter.length() == 0)
+                {
+                    throw new Ice.ProxyParseException();
+                }
 	    }
 	}
 
         Endpoint[] endp = new Endpoint[endpoints.size()];
         endpoints.toArray(endp);
 
+        String[] fac = new String[facet.size()];
+        facet.toArray(fac);
+
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, facet, mode, secure, compress, adapter, endp, routerInfo, locatorInfo, null);
+        return create(ident, fac, mode, secure, compress, adapter, endp, routerInfo, locatorInfo, null);
     }
 
     public Reference
