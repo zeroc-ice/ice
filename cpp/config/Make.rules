@@ -248,6 +248,7 @@ ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
 
+SLICEPARSERLIB		= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
 SLICE2CPP		= $(bindir)/slice2cpp
 SLICE2XSD		= $(bindir)/slice2xsd
 SLICE2FREEZE		= $(bindir)/slice2freeze
@@ -265,18 +266,18 @@ EVERYTHING		= all depend clean install
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 
-$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP)
+$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	mv $(*F)F.h $(HDIR)
 	rm -f $(*F)F.cpp
 
-$(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
+$(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	mv $(*F).h $(HDIR)
 
-%.h %.cpp: %.ice $(SLICE2CPP)
+%.h %.cpp: %.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
 
