@@ -1,3 +1,21 @@
+The Internet Communications Engine
+----------------------------------
+
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, Java, Python,
+PHP, C#, and Visual Basic mappings, a highly efficient protocol,
+asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.
+
+Ice is available under the terms of the GNU General Public License
+(GPL) (see LICENSE file). Commercial licenses are available for
+customers who wish to use Ice with proprietary products. Please
+contact sales@zeroc.com for more information about licensing Ice.
+
+
 ======================================================================
 Requirements
 ======================================================================
@@ -6,26 +24,29 @@ Requirements
 Operating System
 ----------------
 
-Ice RPMs and binaries from the Ice-<version>-bin-linux.tar.gz package
-require Redhat Fedora Core 3.
+Ice RPMs and binaries from the Ice-<version>-bin-fc3.tar.gz package
+require Linux Fedora Core 3.
 
 
 C++ compiler
 ------------
 
-- GCC installed with Redhat Fedora Core 3.
+- GCC installed with Linux Fedora Core 3.
 
 
 Third-party libraries
 ---------------------
 
-If you have installed Ice from RPMs, you already have the required
+If Ice was installed from RPMs, you already have the required
 third-party libraries!
 
 Otherwise, Ice has dependencies on a number of third-party libraries
 that you will need to install:
 
 - Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+
+  You can download the Berkeley DB source distribution from
+  http://www.sleepycat.com/download
 
   Note that Ice for Java is not compatible with version 4.3,
   therefore if you intend to use Ice for Java with Berkeley DB,
@@ -37,30 +58,20 @@ that you will need to install:
 
 - bzip2 1.0
 
-- readline and ncurses (optional, but used unless you set USE_READLINE
-  to no in config/Make.rules)
+- readline and ncurses
 
 BerkeleyDB, expat, OpenSSL, bzip2, readline and ncurses are included
-with your Fedora Core 3 distribution in the following RPMs:
+with your Linux Fedora Core 3 distribution in the following RPMs:
 
-BerkeleyDB     db4, db4-utils, db4-devel, db4-java
-expat 	       expat, expat-devel
+BerkeleyDB     db4, db4-utils, db4-java
+expat 	       expat
 OpenSSL	       openssl, openssl-devel
-bzip2          bzip2-libs, bzip2-devel
-readline       readline, readline-devel
-ncurses        ncurses, ncurses-devel
-
-Or you can download them from the following locations:
-
-BerkeleyDB     http://www.sleepycat.com/download
-expat          http://sourceforge.net/projects/expat/
-OpenSSL        http://www.openssl.org
-bzip2          http://sources.redhat.com/bzip2
-readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
-ncurses        http://www.gnu.org/software/ncurses/ncurses.html
+bzip2          bzip2-libs
+readline       readline
+ncurses        ncurses
 
 ======================================================================
-64 bit builds on AMD64
+64 bit builds on x86-64
 ======================================================================
 
 This distribution only contains 32 bits binaries. If you need a 64
@@ -73,9 +84,24 @@ information.
 Setting up your environment to use Ice
 ======================================================================
 
-You need to add the Ice bin directory to your PATH and the lib
-directory to your LD_LIBRARY_PATH.
+If Ice was installed from RPMs, you don't have anything to do to setup
+your environment.
 
-When compiling Ice programs, you must also make sure to pass the
-location of the Ice include directory to the compiler with the -I
-option, and the location of the Ice lib directory with the -L option.
+Otherwise you need to add the Ice bin directory to your PATH and the
+lib directory to your LD_LIBRARY_PATH and when compiling Ice programs,
+you must also make sure to pass the location of the Ice include
+directory to the compiler with the -I option, and the location of the
+Ice lib directory with the -L option.
+
+======================================================================
+Demos and documentation
+======================================================================
+
+If Ice was installed from RPMs, see README.DEMOS for instructions on
+building and running the demos. Otherwise, you need to download the
+Ice-<version>-demos.tar.gz package from
+http://www.zeroc.com/download.html and see the README.DEMOS file
+included in that package.
+
+See doc/README.html for information on the documentation included with
+this distribution.
