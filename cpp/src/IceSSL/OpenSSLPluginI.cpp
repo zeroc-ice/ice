@@ -219,8 +219,10 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
     _serverContext.cleanUp();
     _clientContext.cleanUp();
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090700fL
     ENGINE_cleanup();
     CRYPTO_cleanup_all_ex_data();
+#endif
 
     ERR_free_strings();
     unregisterThreads();
