@@ -293,6 +293,10 @@ public abstract class Map extends java.util.AbstractMap
 		_cursor = _db.getCursor();
 		_next = getCurr();
 	    }
+	    catch(DBNotFoundException e)
+	    {
+		_next = null;
+	    }
 	    catch(DBException e)
 	    {
 		if (_cursor != null)
@@ -378,7 +382,10 @@ public abstract class Map extends java.util.AbstractMap
 	    _next = null;
 	    _current = null;
 	    
-	    copy.close();
+	    if (copy != null)
+	    {
+		copy.close();
+	    }
 	}
 	
 	private Entry
