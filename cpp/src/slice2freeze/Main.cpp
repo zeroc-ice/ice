@@ -814,6 +814,10 @@ main(int argc, char* argv[])
     {
 	Preprocessor icecpp(argv[0], argv[idx], cppArgs);
 
+        //
+        // Add an include file for each Slice file. Note that the .h extension
+        // is replaced with headerExtension later.
+        //
 	includes.push_back(icecpp.getBaseName() + ".h");
 
 	FILE* cppHandle = icecpp.preprocess(false);
@@ -890,7 +894,7 @@ main(int argc, char* argv[])
 	{
 	    for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
 	    {
-		H << "\n#include <" << changeInclude(*p, includePaths) << ".h>";
+		H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
 	    }
 	}
 

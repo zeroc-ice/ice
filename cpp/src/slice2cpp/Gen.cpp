@@ -224,7 +224,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
-	H << "\n#include <" << changeInclude(*q, _includePaths) << ".h>";
+	H << "\n#include <" << changeInclude(*q, _includePaths) << "." << _headerExtension << ">";
     }
 
     printVersionCheck(H);
