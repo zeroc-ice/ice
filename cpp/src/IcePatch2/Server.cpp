@@ -107,7 +107,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     if(dataDir.empty())
     {
-	string dataDir = properties->getProperty("IcePatch2.Directory");
+	dataDir = properties->getProperty("IcePatch2.Directory");
 	if(dataDir.empty())
 	{
 	    cerr << argv[0] << ": no data directory specified" << endl;
