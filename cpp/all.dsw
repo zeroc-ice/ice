@@ -615,6 +615,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "encoding"=.\test\IceXML\encoding\encoding.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2xsd
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>

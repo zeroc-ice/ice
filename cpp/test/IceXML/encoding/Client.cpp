@@ -264,13 +264,13 @@ TestColor(const Ice::CommunicatorPtr& communicator)
     ostringstream os;
     os << header;
     Ice::StreamPtr ostream = new IceXML::StreamI(communicator, os);
-    ice_marshal(element, ostream, ein);
+    ::Test::ice_marshal(element, ostream, ein);
     os << footer;
 
     istringstream is(os.str());
     Ice::StreamPtr istream = new IceXML::StreamI(communicator, is);
     Test::Color eout;
-    ice_unmarshal(element, istream, eout);
+    ::Test::ice_unmarshal(element, istream, eout);
     test(ein == eout);
 }
 
