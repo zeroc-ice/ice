@@ -9,10 +9,11 @@
 
 #include <Proxy.h>
 #include <structmember.h>
-//#include <Operation.h>
 #include <Util.h>
 #include <Ice/LocalException.h>
+#include <Ice/Locator.h>
 #include <Ice/Proxy.h>
+#include <Ice/Router.h>
 
 using namespace std;
 using namespace IcePy;
@@ -724,7 +725,87 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator);
 }
 
-// TODO: ice_router, ice_locator
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceRouter(ProxyObject* self, PyObject* args)
+{
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, "O", &p))
+    {
+        return NULL;
+    }
+
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    Ice::RouterPrx routerProxy;
+    if(PyObject_IsInstance(p, routerProxyType))
+    {
+        routerProxy = Ice::RouterPrx::uncheckedCast(getProxy(p));
+    }
+    else if(p != Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, "ice_router requires None or Ice.RouterPrx");
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_router(routerProxy);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceLocator(ProxyObject* self, PyObject* args)
+{
+    PyObject* p;
+    if(!PyArg_ParseTuple(args, "O", &p))
+    {
+        return NULL;
+    }
+
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    Ice::LocatorPrx locatorProxy;
+    if(PyObject_IsInstance(p, locatorProxyType))
+    {
+        locatorProxy = Ice::LocatorPrx::uncheckedCast(getProxy(p));
+    }
+    else if(p != Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, "ice_locator requires None or Ice.LocatorPrx");
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_locator(locatorProxy);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
 
 // NOTE: ice_collocationOptimization is not currently supported.
 
@@ -963,6 +1044,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR("ice_compress(bool) -> Ice.ObjectPrx") },
     { "ice_timeout", (PyCFunction)proxyIceTimeout, METH_VARARGS,
         PyDoc_STR("ice_timeout(int) -> Ice.ObjectPrx") },
+    { "ice_router", (PyCFunction)proxyIceRouter, METH_VARARGS,
+        PyDoc_STR("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx") },
+    { "ice_locator", (PyCFunction)proxyIceLocator, METH_VARARGS,
+        PyDoc_STR("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx") },
     { "ice_default", (PyCFunction)proxyIceDefault, METH_NOARGS,
         PyDoc_STR("ice_default() -> Ice.ObjectPrx") },
     { "ice_checkedCast", (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
