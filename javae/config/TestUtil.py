@@ -29,8 +29,8 @@ compress = 0
 # thread per connection mode, or if you are using SSL.
 #
 
-threadPerConnection = 0
-#threadPerConnection = 1
+#threadPerConnection = 0
+threadPerConnection = 1
 
 if protocol == "ssl":
     threadPerConnection = 1
@@ -206,14 +206,6 @@ if compress:
     cppServerProtocol += " --Ice.Override.Compress"
     cppClientServerProtocol += " --Ice.Override.Compress"
 
-if threadPerConnection:
-    clientProtocol += " --Ice.ThreadPerConnection"
-    serverProtocol += " --Ice.ThreadPerConnection"
-    clientServerProtocol += " --Ice.ThreadPerConnection"
-    cppClientProtocol += " --Ice.ThreadPerConnection"
-    cppServerProtocol += " --Ice.ThreadPerConnection"
-    cppClientServerProtocol += " --Ice.ThreadPerConnection"
-
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
 else:
@@ -222,9 +214,7 @@ else:
 commonClientOptions = " --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintAdapterReady" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                      " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                      " --Ice.ThreadPool.Server.SizeWarn=0"
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
@@ -234,9 +224,7 @@ collocatedOptions = clientServerProtocol + defaultHost
 cppCommonClientOptions = " --Ice.Warn.Connections"
 
 cppCommonServerOptions = " --Ice.PrintAdapterReady" + \
-                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                         " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                         " --Ice.ThreadPool.Server.SizeWarn=0"
+                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 cppClientOptions = cppClientProtocol + defaultHost + cppCommonClientOptions
 cppServerOptions = cppServerProtocol + defaultHost + cppCommonServerOptions

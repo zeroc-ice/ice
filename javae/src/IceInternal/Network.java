@@ -130,21 +130,6 @@ public final class Network
         }
     }
 
-    public static java.nio.channels.DatagramChannel
-    createUdpSocket()
-    {
-        try
-        {
-            return java.nio.channels.DatagramChannel.open();
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
     public static void
     closeSocket(java.nio.channels.SelectableChannel fd)
     {
@@ -192,23 +177,6 @@ public final class Network
         }
     }
 
-    public static java.net.InetSocketAddress
-    doBind(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr)
-    {
-        try
-        {
-            java.net.DatagramSocket sock = fd.socket();
-            sock.bind(addr);
-            return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
     public static void
     doConnect(java.nio.channels.SocketChannel fd, java.net.InetSocketAddress addr, int timeout)
     {
@@ -244,52 +212,6 @@ public final class Network
                     }
                 }
             }
-        }
-        catch(java.net.ConnectException ex)
-        {
-            try
-            {
-                fd.close();
-            }
-            catch(java.io.IOException e)
-            {
-                // ignore
-            }
-
-            Ice.ConnectFailedException se;
-	    if(connectionRefused(ex))
-	    {
-		se = new Ice.ConnectionRefusedException();
-	    }
-	    else
-	    {
-		se = new Ice.ConnectFailedException();
-	    }
-            se.initCause(ex);
-            throw se;
-        }
-        catch(java.io.IOException ex)
-        {
-            try
-            {
-                fd.close();
-            }
-            catch(java.io.IOException e)
-            {
-                // ignore
-            }
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    public static void
-    doConnect(java.nio.channels.DatagramChannel fd, java.net.InetSocketAddress addr, int timeout)
-    {
-        try
-        {
-            fd.connect(addr);
         }
         catch(java.net.ConnectException ex)
         {
@@ -426,61 +348,11 @@ public final class Network
     }
 
     public static void
-    setSendBufferSize(java.nio.channels.DatagramChannel fd, int size)
-    {
-	try
-	{
-	    java.net.DatagramSocket socket = fd.socket();
-	    socket.setSendBufferSize(size);
-	}
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    public static int
-    getSendBufferSize(java.nio.channels.DatagramChannel fd)
-    {
-	int size;
-	try
-	{
-	    java.net.DatagramSocket socket = fd.socket();
-	    size = socket.getSendBufferSize();
-	}
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-	return size;
-    }
-
-    public static void
     setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
     {
     	try
 	{
 	    java.net.ServerSocket socket = fd.socket();
-	    socket.setReceiveBufferSize(size);
-	}
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    public static void
-    setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size)
-    {
-    	try
-	{
-	    java.net.DatagramSocket socket = fd.socket();
 	    socket.setReceiveBufferSize(size);
 	}
         catch(java.io.IOException ex)
@@ -498,24 +370,6 @@ public final class Network
 	try
 	{
 	    java.net.ServerSocket socket = fd.socket();
-	    size = socket.getReceiveBufferSize();
-	}
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-	return size;
-    }
-
-    public static int
-    getRecvBufferSize(java.nio.channels.DatagramChannel fd)
-    {
-        int size;
-	try
-	{
-	    java.net.DatagramSocket socket = fd.socket();
 	    size = socket.getReceiveBufferSize();
 	}
         catch(java.io.IOException ex)
@@ -696,14 +550,6 @@ public final class Network
 	if(fd instanceof java.nio.channels.SocketChannel)
 	{
 	    java.net.Socket socket = ((java.nio.channels.SocketChannel)fd).socket();
-	    localAddr = socket.getLocalAddress();
-	    localPort = socket.getLocalPort();
-	    remoteAddr = socket.getInetAddress();
-	    remotePort = socket.getPort();
-	}
-	else if(fd instanceof java.nio.channels.DatagramChannel)
-	{
-	    java.net.DatagramSocket socket = ((java.nio.channels.DatagramChannel)fd).socket();
 	    localAddr = socket.getLocalAddress();
 	    localPort = socket.getLocalPort();
 	    remoteAddr = socket.getInetAddress();

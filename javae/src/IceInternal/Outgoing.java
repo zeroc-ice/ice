@@ -191,10 +191,9 @@ public final class Outgoing
             }
 
             case Reference.ModeOneway:
-            case Reference.ModeDatagram:
             {
 		//
-		// For oneway and datagram requests, the connection object
+		// For oneway requests, the connection object
                 // never calls back on this object. Therefore we don't
                 // need to lock the mutex or save exceptions. We simply
                 // let all exceptions from sending propagate to the
@@ -207,11 +206,10 @@ public final class Outgoing
             }
 
             case Reference.ModeBatchOneway:
-            case Reference.ModeBatchDatagram:
             {
 		//
-		// For batch oneways and datagrams, the same rules as for
-		// regular oneways and datagrams (see comment above)
+		// For batch oneways the same rules as for
+		// regular oneways (see comment above)
 		// apply.
 		//
 		_state = StateInProgress;
@@ -230,12 +228,12 @@ public final class Outgoing
 	assert(_state == StateUnsent);
 
 	//
-	// If we didn't finish a batch oneway or datagram request, we
+	// If we didn't finish a batch oneway request, we
 	// must notify the connection about that we give up ownership
 	// of the batch stream.
 	//
 	int mode = _reference.getMode();
-	if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
+	if(mode == Reference.ModeBatchOneway)
 	{
 	    _connection.abortBatchRequest();
 
@@ -427,14 +425,12 @@ public final class Outgoing
         {
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
-            case Reference.ModeDatagram:
             {
                 _connection.prepareRequest(_os);
                 break;
             }
 
             case Reference.ModeBatchOneway:
-            case Reference.ModeBatchDatagram:
             {
                 _connection.prepareBatchRequest(_os);
                 break;

@@ -19,8 +19,6 @@ public class Client
             "t: send greeting as twoway\n" +
             "o: send greeting as oneway\n" +
             "O: send greeting as batch oneway\n" +
-            "d: send greeting as datagram\n" +
-            "D: send greeting as batch datagram\n" +
             "f: flush all batch requests\n" +
             "T: set a timeout\n" +
             "S: switch secure mode on/off\n" +
@@ -50,8 +48,6 @@ public class Client
         }
         HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
         HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
-        HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
-        HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
 	boolean secure = false;
         int timeout = -1;
@@ -83,28 +79,6 @@ public class Client
                 else if(line.equals("O"))
                 {
                     batchOneway.sayHello();
-                }
-                else if(line.equals("d"))
-                {
-		    if(secure)
-		    {
-			System.out.println("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			datagram.sayHello();
-		    }
-                }
-                else if(line.equals("D"))
-                {
-		    if(secure)
-		    {
-			System.out.println("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			batchDatagram.sayHello();
-		    }
                 }
                 else if(line.equals("f"))
                 {
@@ -141,8 +115,6 @@ public class Client
 		    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
 		    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
 		    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-		    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
                     if(secure)
                     {

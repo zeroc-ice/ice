@@ -337,30 +337,6 @@ public final class ReferenceFactory
                     break;
                 }
 
-                case 'd':
-                {
-                    if(argument != null)
-                    {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-                    }
-                    mode = Reference.ModeDatagram;
-                    break;
-                }
-
-                case 'D':
-                {
-                    if(argument != null)
-                    {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-                    }
-                    mode = Reference.ModeBatchDatagram;
-                    break;
-                }
-
                 case 's':
                 {
                     if(argument != null)

@@ -57,10 +57,6 @@ class TcpAcceptor implements Acceptor
     accept(int timeout)
     {
         java.nio.channels.SocketChannel fd = Network.doAccept(_fd, timeout);
-	if(!_instance.threadPerConnection())
-	{
-	    Network.setBlock(fd, false);
-	}
 
         if(_traceLevels.network >= 1)
         {

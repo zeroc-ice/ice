@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public final class IncomingConnectionFactory extends EventHandler
+public final class IncomingConnectionFactory
 {
     public synchronized void
     activate()
@@ -103,8 +103,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	    _connections = new java.util.LinkedList();
 	}
 
-	if(threadPerIncomingConnectionFactory != null &&
-	   threadPerIncomingConnectionFactory != Thread.currentThread())
+	if(threadPerIncomingConnectionFactory != Thread.currentThread())
 	{
 	    try
 	    {
@@ -182,162 +181,6 @@ public final class IncomingConnectionFactory extends EventHandler
 	}
     }
 
-    //
-    // Operations from EventHandler.
-    //
-
-    public boolean
-    datagram()
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-        return _endpoint.datagram();
-    }
-
-    public boolean
-    readable()
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-        return false;
-    }
-
-    public void
-    read(BasicStream unused)
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-        assert(false); // Must not be called.
-    }
-
-    public void
-    message(BasicStream unused, ThreadPool threadPool)
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-
-	Ice.ConnectionI connection = null;
-
-	synchronized(this)
-	{
-	    try
-	    {
-		if(_state != StateActive)
-		{
-		    Thread.yield();
-		    return;
-		}
-		
-		//
-		// Reap connections for which destruction has completed.
-		//
-		java.util.ListIterator p = _connections.listIterator();
-		while(p.hasNext())
-		{
-		    Ice.ConnectionI con = (Ice.ConnectionI)p.next();
-		    if(con.isFinished())
-		    {
-			p.remove();
-		    }
-		}
-		
-		//
-		// Now accept a new connection.
-		//
-		Transceiver transceiver;
-		try
-		{
-		    transceiver = _acceptor.accept(0);
-		}
-		catch(Ice.TimeoutException ex)
-		{
-		    // Ignore timeouts.
-		    return;
-		}
-		catch(Ice.LocalException ex)
-		{
-		    // Warn about other Ice local exceptions.
-		    if(_warn)
-		    {
-			warning(ex);
-		    }
-		    return;
-		}
-
-		assert(transceiver != null);
-
-		try
-		{
-		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
-		}
-		catch(Ice.LocalException ex)
-		{
-		    //
-		    // Ignore all exceptions while constructing the
-		    // connection. Warning or error messages for such
-		    // exceptions are printed directly by the
-		    // connection object constructor.
-		    //
-		    return;
-		}
-
-		_connections.add(connection);
-	    }
-	    finally
-	    {
-		//
-		// This makes sure that we promote a follower before
-		// we leave the scope of the mutex above, but after we
-		// call accept() (if we call it).
-		//
-		threadPool.promoteFollower();
-	    }
-	}
-
-	assert(connection != null);
-	
-	//
-	// We validate and activate outside the thread
-	// synchronization, to not block the factory.
-	//
-	try
-	{
-	    connection.validate();
-	}
-        catch(Ice.LocalException ex)
-	{
-	    //
-	    // Ignore all exceptions while validating the
-	    // connection. Warning or error messages for such
-	    // exceptions are printed directly by the validation code.
-	    //
-	    return;
-	}
-
-	connection.activate();
-    }
-
-    public synchronized void
-    finished(ThreadPool threadPool)
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-
-        threadPool.promoteFollower();
-
-	if(_state == StateActive)
-	{
-	    registerWithPool();
-	}
-	else if(_state == StateClosed)
-	{
-	    _acceptor.close();
-	    _acceptor = null;
-	    notifyAll();
-	}
-    }
-
-    public void
-    exception(Ice.LocalException ex)
-    {
-        assert(false); // Must not be called.
-    }
-
     public synchronized String
     toString()
     {
@@ -353,10 +196,9 @@ public final class IncomingConnectionFactory extends EventHandler
     public
     IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {
-        super(instance);
+        _instance = instance;
         _endpoint = endpoint;
         _adapter = adapter;
-	_registeredWithPool = false;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
 
@@ -407,39 +249,36 @@ public final class IncomingConnectionFactory extends EventHandler
 	    assert(_acceptor != null);
 	    _acceptor.listen();
 	    
-	    if(_instance.threadPerConnection())
+	    try
 	    {
-		try
-		{
-		    //
-		    // If we are in thread per connection mode, we also use
-		    // one thread per incoming connection factory, that
-		    // accepts new connections on this endpoint.
-		    //
-		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
-		    _threadPerIncomingConnectionFactory.start();
-		}
-		catch(java.lang.Exception ex)
-		{
-		    error("cannot create thread for incoming connection factory", ex);
-		    
-		    try
-		    {
-			_acceptor.close();
-		    }
-		    catch(Ice.LocalException e)
-		    {
-			// Here we ignore any exceptions in close().			
-		    }
-
-		    _state = StateClosed;
-		    _acceptor = null;
-		    _threadPerIncomingConnectionFactory = null;
-		    
-		    Ice.SyscallException e = new Ice.SyscallException();
-		    e.initCause(ex);
-		    throw e;
-		}
+	        //
+	        // If we are in thread per connection mode, we also use
+	        // one thread per incoming connection factory, that
+	        // accepts new connections on this endpoint.
+	        //
+	        _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
+	        _threadPerIncomingConnectionFactory.start();
+	    }
+	    catch(java.lang.Exception ex)
+	    {
+	        error("cannot create thread for incoming connection factory", ex);
+	        
+	        try
+	        {
+	    	    _acceptor.close();
+	        }
+	        catch(Ice.LocalException e)
+	        {
+	    	// Here we ignore any exceptions in close().			
+	        }
+    
+	        _state = StateClosed;
+	        _acceptor = null;
+	        _threadPerIncomingConnectionFactory = null;
+	        
+	        Ice.SyscallException e = new Ice.SyscallException();
+	        e.initCause(ex);
+	        throw e;
 	    }
         }
     }
@@ -452,14 +291,6 @@ public final class IncomingConnectionFactory extends EventHandler
 	assert(_acceptor == null);
 	assert(_connections.size() == 0);
 	assert(_threadPerIncomingConnectionFactory == null);
-
-        //
-        // Destroy the EventHandler's stream, so that its buffer
-        // can be reclaimed.
-        //
-        super._stream.destroy();
-
-        super.finalize();
     }
 
     private static final int StateActive = 0;
@@ -482,10 +313,6 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
-		{
-		    registerWithPool();
-		}
 
                 java.util.ListIterator p = _connections.listIterator();
                 while(p.hasNext())
@@ -502,10 +329,6 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
-		{
-		    unregisterWithPool();
-		}
 
                 java.util.ListIterator p = _connections.listIterator();
                 while(p.hasNext())
@@ -518,28 +341,13 @@ public final class IncomingConnectionFactory extends EventHandler
 
             case StateClosed:
             {
-		if(_instance.threadPerConnection())
-		{
-		    if(_acceptor != null)
-		    {
-			//
-			// Connect to our own acceptor, which unblocks our
-			// thread per incoming connection factory stuck in accept().
-			//
-			_acceptor.connectToSelf();
-		    }
-		}
-		else
+		if(_acceptor != null)
 		{
 		    //
-		    // If we come from holding state, we first need to
-		    // register again before we unregister.
+		    // Connect to our own acceptor, which unblocks our
+		    // thread per incoming connection factory stuck in accept().
 		    //
-		    if(_state == StateHolding)
-		    {
-			registerWithPool();
-		    }
-		    unregisterWithPool();
+		    _acceptor.connectToSelf();
 		}
 
                 java.util.ListIterator p = _connections.listIterator();
@@ -554,30 +362,6 @@ public final class IncomingConnectionFactory extends EventHandler
 
         _state = state;
 	notifyAll();
-    }
-
-    private void
-    registerWithPool()
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-
-        if(_acceptor != null && !_registeredWithPool)
-	{
-	    ((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_acceptor.fd(), this);
-	    _registeredWithPool = true;
-        }
-    }
-
-    private void
-    unregisterWithPool()
-    {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
-
-        if(_acceptor != null && _registeredWithPool)
-	{
-	    ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_acceptor.fd());
-	    _registeredWithPool = false;
-        }
     }
 
     private void
@@ -719,17 +503,14 @@ public final class IncomingConnectionFactory extends EventHandler
 		}
 	    }
 
-	    //
-	    // In thread per connection mode, the connection's thread
-	    // will take care of connection validation and activation
-	    // (for non-datagram connections). We don't want to block
-	    // this thread waiting until validation is complete,
-	    // because in contrast to thread pool mode, it is the only
-	    // thread that can accept connections with this factory's
-	    // acceptor. Therefore we don't call validate() and
-	    // activate() from the connection factory in thread per
-	    // connection mode.
-	    //
+            //
+            // In thread per connection mode, the connection's thread will
+            // take care of connection validation and activation. We don't want
+            // to block this thread waiting until validation is complete because 
+            // it is the only thread that can accept connections with this factory's
+            // acceptor. Therefore we don't call validate() and activate()
+            // from the connection factory in thread per connection mode.
+            //
 	}
     }
 
@@ -750,13 +531,12 @@ public final class IncomingConnectionFactory extends EventHandler
     }
     private Thread _threadPerIncomingConnectionFactory;
 
+    private Instance _instance;
     private Acceptor _acceptor;
     private final Transceiver _transceiver;
     private Endpoint _endpoint;
 
     private final Ice.ObjectAdapter _adapter;
-
-    private boolean _registeredWithPool;
 
     private final boolean _warn;
 

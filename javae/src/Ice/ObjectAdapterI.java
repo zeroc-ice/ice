@@ -258,15 +258,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _servantManager.destroy();
 	}
 	
-	//
-	// Destroy the thread pool.
-	//
-	if(_threadPool != null)
-	{
-	    _threadPool.destroy();
-	    _threadPool.joinWithAllThreads();
-	}
-
 	synchronized(this)
 	{
 	    //
@@ -285,7 +276,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // Remove object references (some of them cyclic).
 	    //
 	    _instance = null;
-	    _threadPool = null;
 	    _servantManager = null;
 	    _communicator = null;
 	}
@@ -622,32 +612,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }
 
-    public IceInternal.ThreadPool
-    getThreadPool()
-    {
-	// No mutex lock necessary, _threadPool and _instance are
-	// immutable after creation until they are removed in
-	// waitForDeactivate().
-	
-	// Not check for deactivation here!
-	
-	assert(_instance != null); // Must not be called after waitForDeactivate().
-
-	if(_threadPool != null)
-	{
-	    return _threadPool;
-	}
-	else
-	{
-	    return _instance.serverThreadPool();
-	}
-    }
-
     public IceInternal.ServantManager
     getServantManager()
     {	
-	// No mutex lock necessary, _threadPool and _instance are
-	// immutable after creation until they are removed in
+	// No mutex lock necessary, _instance is
+	// immutable after creation until it is removed in
 	// waitForDeactivate().
 	
 	// Not check for deactivation here!
@@ -711,16 +680,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    {
 		setLocator(_instance.referenceFactory().getDefaultLocator());
 	    }
-
-	    if(!_instance.threadPerConnection())
-	    {
-		int size = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.Size");
-		int sizeMax = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-		if(size > 0 || sizeMax > 0)
-		{
-		    _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
-		}
-	    }
         }
         catch(LocalException ex)
         {
@@ -744,7 +703,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
 	else
 	{
-	    assert(_threadPool == null);
 	    assert(_servantManager == null);
 	    assert(_communicator == null);
 	    assert(_incomingConnectionFactories.isEmpty());
@@ -937,7 +895,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _deactivated;
     private IceInternal.Instance _instance;
     private Communicator _communicator;
-    private IceInternal.ThreadPool _threadPool;
     private IceInternal.ServantManager _servantManager;
     private boolean _printAdapterReadyDone;
     final private String _name;

@@ -245,7 +245,7 @@ class TwowaysAMI
             test(c2.ice_getIdentity().equals(Ice.Util.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
 	    // We can't do the callbacks below in thread per connection mode.
-	    if(Ice.Util.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+	    /*
 	    {
 		r.opVoid();
 		c1.opVoid();
@@ -258,6 +258,7 @@ class TwowaysAMI
 		{
 		}
 	    }
+	    */
 	    callback.called();
 	}
 
@@ -287,10 +288,11 @@ class TwowaysAMI
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.equals("a new string"));
 	    // We can't do the callbacks below in thread per connection mode.
-	    if(Ice.Util.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+	    /*
 	    {
 		so.p.opVoid();
 	    }
+	    */
 	    callback.called();
 	}
 

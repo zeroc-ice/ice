@@ -96,15 +96,6 @@ final class UnknownEndpoint implements Endpoint
     }
 
     //
-    // Return true if the endpoint is datagram-based.
-    //
-    public boolean
-    datagram()
-    {
-        return false;
-    }
-    
-    //
     // Return true if the endpoint is secure.
     //
     public boolean

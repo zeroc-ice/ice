@@ -163,45 +163,6 @@ public class Instance
         return _objectAdapterFactory;
     }
 
-    public synchronized ThreadPool
-    clientThreadPool()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
-	if(_clientThreadPool == null) // Lazy initialization.
-	{
-	    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
-        }
-
-        return _clientThreadPool;
-    }
-
-    public synchronized ThreadPool
-    serverThreadPool()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
-	if(_serverThreadPool == null) // Lazy initialization.
-	{
-	    int timeout = _properties.getPropertyAsInt("Ice.ServerIdleTime");
-	    _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
-	}
-
-        return _serverThreadPool;
-    }
-
-    public boolean
-    threadPerConnection()
-    {
-	return _threadPerConnection;
-    }
-
     public int
     threadPerConnectionStackSize()
     {
@@ -399,8 +360,6 @@ public class Instance
 		}
 	    }
 
-	    _threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
-
 	    {
 		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 		if(stackSize < 0)
@@ -421,8 +380,6 @@ public class Instance
             _endpointFactoryManager = new EndpointFactoryManager(this);
             EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
             _endpointFactoryManager.add(tcpEndpointFactory);
-            EndpointFactory udpEndpointFactory = new UdpEndpointFactory(this);
-            _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
@@ -434,7 +391,7 @@ public class Instance
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
-            _bufferManager = new BufferManager(); // Must be created before the ThreadPool
+            _bufferManager = new BufferManager();
         }
         catch(Ice.LocalException ex)
         {
@@ -454,8 +411,6 @@ public class Instance
 	assert(_connectionMonitor == null);
         assert(_servantFactoryManager == null);
         assert(_objectAdapterFactory == null);
-        assert(_clientThreadPool == null);
-        assert(_serverThreadPool == null);
         assert(_routerManager == null);
         assert(_locatorManager == null);
         assert(_endpointFactoryManager == null);
@@ -498,11 +453,6 @@ public class Instance
 	{
 	    _connectionMonitor = new ConnectionMonitor(this, interval);
 	}
-
-        //
-        // Thread pool initialization is now lazy initialization in
-        // clientThreadPool() and serverThreadPool().
-        //
     }
 
     //
@@ -533,9 +483,6 @@ public class Instance
             _outgoingConnectionFactory.waitUntilFinished();
         }
 	
-	ThreadPool serverThreadPool = null;
-	ThreadPool clientThreadPool = null;
-
 	synchronized(this)
 	{
 	    _objectAdapterFactory = null;
@@ -546,20 +493,6 @@ public class Instance
 	    {
 		_connectionMonitor._destroy();
 		_connectionMonitor = null;
-	    }
-
-	    if(_serverThreadPool != null)
-	    {
-		_serverThreadPool.destroy();
-		serverThreadPool = _serverThreadPool;
-		_serverThreadPool = null;	
-	    }
-
-	    if(_clientThreadPool != null)
-	    {
-		_clientThreadPool.destroy();
-		clientThreadPool = _clientThreadPool;
-		_clientThreadPool = null;
 	    }
 
             if(_servantFactoryManager != null)
@@ -603,19 +536,6 @@ public class Instance
             }
 	    
 	    _destroyed = true;
-	}
-
-	//
-	// Join with the thread pool threads outside the
-	// synchronization.
-	//
-	if(clientThreadPool != null)
-	{
-	    clientThreadPool.joinWithAllThreads();
-	}
-	if(serverThreadPool != null)
-	{
-	    serverThreadPool.joinWithAllThreads();
 	}
     }
 
@@ -663,9 +583,6 @@ public class Instance
     private ConnectionMonitor _connectionMonitor;
     private ObjectFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
-    private ThreadPool _clientThreadPool;
-    private ThreadPool _serverThreadPool;
-    private final boolean _threadPerConnection;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
     private Ice.PluginManager _pluginManager;

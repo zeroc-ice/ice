@@ -50,10 +50,6 @@ public interface ObjectPrx
     boolean ice_isOneway();
     ObjectPrx ice_batchOneway();
     boolean ice_isBatchOneway();
-    ObjectPrx ice_datagram();
-    boolean ice_isDatagram();
-    ObjectPrx ice_batchDatagram();
-    boolean ice_isBatchDatagram();
 
     ObjectPrx ice_secure(boolean b);
     ObjectPrx ice_compress(boolean co);

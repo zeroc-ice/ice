@@ -44,8 +44,6 @@ public class Client
 	    //
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
 	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-	    properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
 	    //
 	    // We must set MessageSizeMax to an explicit values,

@@ -14,9 +14,7 @@ public abstract class Reference implements Cloneable
     public final static int ModeTwoway = 0;
     public final static int ModeOneway = 1;
     public final static int ModeBatchOneway = 2;
-    public final static int ModeDatagram = 3;
-    public final static int ModeBatchDatagram = 4;
-    public final static int ModeLast = ModeBatchDatagram;
+    public final static int ModeLast = ModeBatchOneway;
 
     public final int
     getMode()
@@ -302,18 +300,6 @@ public abstract class Reference implements Cloneable
                 s.append(" -O");
                 break;
             }
-
-            case ModeDatagram:
-            {
-                s.append(" -d");
-                break;
-            }
-
-            case ModeBatchDatagram:
-            {
-                s.append(" -D");
-                break;
-            }
         }
 
         if(getSecure())
@@ -435,46 +421,6 @@ public abstract class Reference implements Cloneable
             }
         }
 
-        switch(_mode)
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                //
-                // Filter out datagram endpoints.
-                //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    Endpoint endpoint = (Endpoint)i.next();
-                    if(endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
-                break;
-            }
-
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                //
-                // Filter out non-datagram endpoints.
-                //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    Endpoint endpoint = (Endpoint)i.next();
-                    if(!endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
-                break;
-            }
-        }
-
         //
         // Randomize the order of endpoints.
         //
@@ -565,44 +511,6 @@ public abstract class Reference implements Cloneable
     filterConnections(Ice.ConnectionI[] allConnections)
     {
         java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
-
-        switch(_mode)
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                //
-                // Filter out datagram connections.
-                //
-                for(int i = 0; i < allConnections.length; ++i)
-                {
-                    if(!allConnections[i].endpoint().datagram())
-                    {
-                        connections.add(allConnections[i]);
-                    }
-                }
-
-                break;
-            }
-
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                //
-                // Filter out non-datagram connections.
-                //
-                for(int i = 0; i < allConnections.length; i++)
-                {
-                    if(allConnections[i].endpoint().datagram())
-                    {
-                        connections.add(allConnections[i]);
-                    }
-                }
-
-                break;
-            }
-        }
 
         //
         // Randomize the order of connections.

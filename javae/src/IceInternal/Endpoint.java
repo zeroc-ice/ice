@@ -53,11 +53,6 @@ public interface Endpoint extends java.lang.Comparable
     Endpoint compress(boolean co);
 
     //
-    // Return true if the endpoint is datagram-based.
-    //
-    boolean datagram();
-
-    //
     // Return true if the endpoint is secure.
     //
     boolean secure();
