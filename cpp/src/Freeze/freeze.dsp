@@ -517,7 +517,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
-USERDEP__EVICT="..\..\bin\slice2freeze.exe" "..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__EVICT="..\..\bin\slice2freeze.exe" "..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
