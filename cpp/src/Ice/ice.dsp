@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "USE_SOCKETS" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "ICE_PROTOCOL_API_EXPORTS" /D "USE_SOCKETS" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
+# ADD LINK32 ws2_32.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "USE_SOCKETS" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "USE_SOCKETS" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "ICE_PROTOCOL_API_EXPORTS" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1D.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
+# ADD LINK32 ws2_32.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -112,27 +112,7 @@ SOURCE=.\Application.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\BaseCerts.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\BasicStream.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CertificateAuthority.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CertificateDesc.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CertificateVerifier.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CertificateVerifierOpenSSL.cpp
 # End Source File
 # Begin Source File
 
@@ -141,14 +121,6 @@ SOURCE=.\Communicator.cpp
 # Begin Source File
 
 SOURCE=.\CommunicatorI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ConfigParser.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ConfigParserErrorReporter.cpp
 # End Source File
 # Begin Source File
 
@@ -164,27 +136,7 @@ SOURCE=.\Connector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ContextOpenSSL.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLClient.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLServer.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Current.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\DefaultCertificateVerifier.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\DHParams.cpp
 # End Source File
 # Begin Source File
 
@@ -200,15 +152,19 @@ SOURCE=.\Endpoint.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\EndpointFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EndpointFactoryManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\EventHandler.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Exception.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GeneralConfig.cpp
 # End Source File
 # Begin Source File
 
@@ -280,15 +236,15 @@ SOURCE=.\ObjectFactoryManager.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\OpenSSLJanitors.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\OpenSSLUtils.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Outgoing.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Plugin.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PluginManagerI.cpp
 # End Source File
 # Begin Source File
 
@@ -297,6 +253,10 @@ SOURCE=.\Properties.cpp
 # Begin Source File
 
 SOURCE=.\PropertiesI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ProtocolPluginFacade.cpp
 # End Source File
 # Begin Source File
 
@@ -328,95 +288,11 @@ SOURCE=.\RoutingTable.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\RSACertificateGen.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RSAKeyPair.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RSAPrivateKey.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RSAPublicKey.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ServantLocator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SingleCertificateVerifier.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslAcceptor.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnection.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSL.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLClient.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLServer.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslException.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslException2.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslExtension.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslExtensionInternal.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslIceUtils.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslTransceiver.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Stream.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\System.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SystemInternal.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SystemOpenSSL.cpp
 # End Source File
 # Begin Source File
 
@@ -428,11 +304,11 @@ SOURCE=.\TcpConnector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TcpTransceiver.cpp
+SOURCE=.\TcpEndpoint.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TempCerts.cpp
+SOURCE=.\TcpTransceiver.cpp
 # End Source File
 # Begin Source File
 
@@ -452,7 +328,15 @@ SOURCE=.\Transceiver.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\UdpEndpoint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\UdpTransceiver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\UnknownEndpoint.cpp
 # End Source File
 # Begin Source File
 
@@ -492,26 +376,6 @@ SOURCE=..\..\include\Ice\Buffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CertificateAuthority.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\CertificateDesc.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\CertificateVerifier.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\CertificateVerifierF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\CertificateVerifierOpenSSL.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Communicator.h
 # End Source File
 # Begin Source File
@@ -525,14 +389,6 @@ SOURCE=.\CommunicatorI.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Config.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ConfigParser.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ConfigParserErrorReporter.h
 # End Source File
 # Begin Source File
 
@@ -560,35 +416,7 @@ SOURCE=.\ConnectorF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ContextOpenSSL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLClient.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLServer.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Current.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DefaultCertificateVerifier.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DHParams.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DHParamsF.h
 # End Source File
 # Begin Source File
 
@@ -601,6 +429,22 @@ SOURCE=.\Endpoint.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\EndpointF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\EndpointFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\EndpointFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EndpointFactoryManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\EndpointFactoryManagerF.h
 # End Source File
 # Begin Source File
 
@@ -617,10 +461,6 @@ SOURCE=..\..\include\Ice\Exception.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Functional.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\GeneralConfig.h
 # End Source File
 # Begin Source File
 
@@ -736,23 +576,23 @@ SOURCE=.\ObjectFactoryManagerF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\OpenSSL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\OpenSSLJanitors.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\OpenSSLUtils.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Outgoing.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\PicklerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Plugin.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\PluginF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PluginManagerI.h
 # End Source File
 # Begin Source File
 
@@ -769,6 +609,14 @@ SOURCE=.\PropertiesI.h
 # Begin Source File
 
 SOURCE=.\Protocol.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ProtocolPluginFacade.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ProtocolPluginFacadeF.h
 # End Source File
 # Begin Source File
 
@@ -836,107 +684,11 @@ SOURCE=..\..\include\Ice\RoutingTableF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\RSACertificateGen.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSACertificateGenF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAKeyPair.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAKeyPairF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAPrivateKey.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAPrivateKeyF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAPublicKey.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RSAPublicKeyF.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\ServantLocator.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\Ice\ServantLocatorF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SingleCertificateVerifier.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslAcceptor.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnection.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSL.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLClient.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnectionOpenSSLServer.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslConnector.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\SslException.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\SslExtension.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\SslExtensionF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslExtensionInternal.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslFactory.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslIceUtils.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslTransceiver.h
 # End Source File
 # Begin Source File
 
@@ -952,26 +704,6 @@ SOURCE=.\StreamI.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\System.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\SystemF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SystemInternal.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SystemInternalF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SystemOpenSSL.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\TcpAcceptor.h
 # End Source File
 # Begin Source File
@@ -980,11 +712,11 @@ SOURCE=.\TcpConnector.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\TcpTransceiver.h
+SOURCE=.\TcpEndpoint.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\TempCerts.h
+SOURCE=.\TcpTransceiver.h
 # End Source File
 # Begin Source File
 
@@ -1016,7 +748,15 @@ SOURCE=.\TransceiverF.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\UdpEndpoint.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\UdpTransceiver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\UnknownEndpoint.h
 # End Source File
 # Begin Source File
 
@@ -1076,86 +816,6 @@ BuildCmds= \
 
 "BuiltinSequences.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\CertificateVerifier.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__CERTI="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\CertificateVerifier.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CertificateVerifier.ice \
-	move CertificateVerifier.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\CertificateVerifier.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"CertificateVerifier.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__CERTI="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\CertificateVerifier.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CertificateVerifier.ice \
-	move CertificateVerifier.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\CertificateVerifier.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"CertificateVerifier.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\CertificateVerifierF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__CERTIF="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\CertificateVerifierF.ice
-
-"..\..\include\Ice\CertificateVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CertificateVerifierF.ice 
-	move CertificateVerifierF.h ..\..\include\Ice 
-	del CertificateVerifierF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__CERTIF="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\CertificateVerifierF.ice
-
-"..\..\include\Ice\CertificateVerifierF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CertificateVerifierF.ice 
-	move CertificateVerifierF.h ..\..\include\Ice 
-	del CertificateVerifierF.cpp 
-	
 # End Custom Build
 
 !ENDIF 
@@ -1618,6 +1278,86 @@ InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\Plugin.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__USERE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Plugin.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice \
+	move Plugin.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Plugin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Plugin.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__USERE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Plugin.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Plugin.ice \
+	move Plugin.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Plugin.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Plugin.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\PluginF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__USEREX="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\PluginF.ice
+
+"..\..\include\Ice\PluginF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PluginF.ice 
+	move PluginF.h ..\..\include\Ice 
+	del PluginF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__USEREX="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\PluginF.ice
+
+"..\..\include\Ice\PluginF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PluginF.ice 
+	move PluginF.h ..\..\include\Ice 
+	del PluginF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\Properties.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -1858,130 +1598,6 @@ InputPath=..\..\slice\Ice\ServantLocatorF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\SslException.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslException.ice \
-	move SslException.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\SslException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"SslException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SSLEX="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslException.ice \
-	move SslException.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\SslException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"SslException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\SslExtension.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SSLEXT="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslExtension.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtension.ice \
-	move SslExtension.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\SslExtension.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"SslExtension.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SSLEXT="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslExtension.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtension.ice \
-	move SslExtension.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\SslExtension.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"SslExtension.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\SslExtensionF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SSLEXTE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslExtensionF.ice
-
-"..\..\include\Ice\SslExtensionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtensionF.ice 
-	move SslExtensionF.h ..\..\include\Ice 
-	del SslExtensionF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SSLEXTE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SslExtensionF.ice
-
-"..\..\include\Ice\SslExtensionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtensionF.ice 
-	move SslExtensionF.h ..\..\include\Ice 
-	del SslExtensionF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Ice\Stream.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -2054,86 +1670,6 @@ InputPath=..\..\slice\Ice\StreamF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StreamF.ice 
 	move StreamF.h ..\..\include\Ice 
 	del StreamF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\System.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SYSTE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\System.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/System.ice \
-	move System.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\System.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"System.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SYSTE="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\System.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/System.ice \
-	move System.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\System.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"System.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\SystemF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__SYSTEM="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SystemF.ice
-
-"..\..\include\Ice\SystemF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SystemF.ice 
-	move SystemF.h ..\..\include\Ice 
-	del SystemF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__SYSTEM="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\SystemF.ice
-
-"..\..\include\Ice\SystemF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SystemF.ice 
-	move SystemF.h ..\..\include\Ice 
-	del SystemF.cpp 
 	
 # End Custom Build
 
