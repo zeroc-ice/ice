@@ -332,7 +332,7 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// Add the router's server proxy endpoints to this object
 	// adapter.
 	//
-	ObjectPrx proxy = routerInfo->getClientProxy();
+	ObjectPrx proxy = routerInfo->getServerProxy();
 	copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
 	     back_inserter(_routerEndpoints));
 	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.

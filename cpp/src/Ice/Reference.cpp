@@ -205,7 +205,51 @@ string
 IceInternal::Reference::toString() const
 {
     ostringstream s;
+
     s << identity;
+
+    if (!facet.empty())
+    {
+	s << " -f " << facet;
+    }
+
+    switch (mode)
+    {
+	case ModeTwoway:
+	{
+	    s << " -t";
+	    break;
+	}
+
+	case ModeOneway:
+	{
+	    s << " -o";
+	    break;
+	}
+
+	case ModeBatchOneway:
+	{
+	    s << " -O";
+	    break;
+	}
+
+	case ModeDatagram:
+	{
+	    s << " -d";
+	    break;
+	}
+
+	case ModeBatchDatagram:
+	{
+	    s << " -D";
+	    break;
+	}
+    }
+
+    if (secure)
+    {
+	s << " -s";
+    }
 
     vector<EndpointPtr>::const_iterator p;
 
@@ -283,10 +327,17 @@ IceInternal::Reference::changeTimeout(int timeout) const
     RouterInfoPtr newRouterInfo;
     if (routerInfo)
     {
-	RouterPrx newRouter = RouterPrx::uncheckedCast(routerInfo->getRouter()->ice_timeout(timeout));
-	ObjectPrx newClientProxy = routerInfo->getClientProxy()->ice_timeout(timeout);
-	newRouterInfo = instance->routerManager()->get(newRouter);
-	newRouterInfo->setClientProxy(newClientProxy);
+	try
+	{
+	    RouterPrx newRouter = RouterPrx::uncheckedCast(routerInfo->getRouter()->ice_timeout(timeout));
+	    ObjectPrx newClientProxy = routerInfo->getClientProxy()->ice_timeout(timeout);
+	    newRouterInfo = instance->routerManager()->get(newRouter);
+	    newRouterInfo->setClientProxy(newClientProxy);
+	}
+	catch (const NoEndpointException&)
+	{
+	    // Ignore non-existing client proxies.
+	}
     }
 
     return instance->referenceFactory()->create(identity, facet, mode, secure,

@@ -117,7 +117,10 @@ IceInternal::RouterInfo::getClientProxy()
     if (!_clientProxy) // Lazy initialization.
     {
 	_clientProxy = _router->getClientProxy();
-	assert(_clientProxy);
+	if (!_clientProxy)
+	{
+	    throw NoEndpointException(__FILE__, __LINE__);
+	}
 	_clientProxy = _clientProxy->ice_router(0); // The client proxy cannot be routed.
     }
     
@@ -139,7 +142,10 @@ IceInternal::RouterInfo::getServerProxy()
     if (!_serverProxy) // Lazy initialization.
     {
 	_serverProxy = _router->getServerProxy();
-	assert(_serverProxy);
+	if (!_serverProxy)
+	{
+	    throw NoEndpointException(__FILE__, __LINE__);
+	}
 	_serverProxy = _serverProxy->ice_router(0); // The server proxy cannot be routed.
     }
     

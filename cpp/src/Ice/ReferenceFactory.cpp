@@ -174,6 +174,10 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    argument = str.substr(beg, end - beg);
 	}
 
+	//
+	// If any new options are added here,
+	// IceInternal::Reference::toString() must be updated as well.
+	//
 	switch (option[1])
 	{
 	    case 'f':

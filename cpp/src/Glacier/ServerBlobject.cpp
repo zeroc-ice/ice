@@ -23,6 +23,11 @@ Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
     _traceLevel = atoi(properties->getProperty("Glacier.Trace.Server").c_str());
 }
 
+Glacier::ServerBlobject::~ServerBlobject()
+{
+    assert(!_clientAdapter);
+}
+
 void
 Glacier::ServerBlobject::destroy()
 {
@@ -40,8 +45,30 @@ Glacier::ServerBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 
     try
     {
-	ObjectPrx reverseProxy = _clientAdapter->createReverseProxy(current.identity);
-	reverseProxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
+	ObjectPrx proxy = _clientAdapter->createReverseProxy(current.identity);
+	assert(proxy);
+
+	if (!current.facet.empty())
+	{
+	    proxy = proxy->ice_newFacet(current.facet);
+	}
+
+	if (!current.response)
+	{
+	    proxy = proxy->ice_oneway();
+	}
+	
+	if (_traceLevel >= 2)
+	{
+	    ostringstream s;
+	    s << "reverse routing to:\n"
+	      << "proxy = " << _clientAdapter->getCommunicator()->proxyToString(proxy) << '\n'
+	      << "operation = " << current.operation << '\n'
+	      << "nonmutating = " << (current.nonmutating ? "true" : "false");
+	    _logger->trace("Glacier", s.str());
+	}
+
+	proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
     }
     catch (const Exception& ex)
     {

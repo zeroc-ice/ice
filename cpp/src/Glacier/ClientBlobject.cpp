@@ -25,6 +25,11 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _traceLevel = atoi(properties->getProperty("Glacier.Trace.Client").c_str());
 }
 
+Glacier::ClientBlobject::~ClientBlobject()
+{
+    assert(!_communicator);
+}
+
 void
 Glacier::ClientBlobject::destroy()
 {
@@ -60,6 +65,16 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
 	    proxy = proxy->ice_oneway();
 	}
 	
+	if (_traceLevel >= 2)
+	{
+	    ostringstream s;
+	    s << "routing to:\n"
+	      << "proxy = " << _communicator->proxyToString(proxy) << '\n'
+	      << "operation = " << current.operation << '\n'
+	      << "nonmutating = " << (current.nonmutating ? "true" : "false");
+	    _logger->trace("Glacier", s.str());
+	}
+
 	proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
     }
     catch (const Exception& ex)

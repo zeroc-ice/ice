@@ -22,6 +22,7 @@ class ClientBlobject : public Ice::Blobject
 public:
 
     ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&);
+    virtual ~ClientBlobject();
 
     void destroy();
     virtual void ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);

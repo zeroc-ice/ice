@@ -134,8 +134,8 @@ Glacier::Router::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr clientAdapter =
-	communicator()->createObjectAdapterFromProperty("Client", clientEndpointsProperty);
+    ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapterFromProperty("Client",
+										     clientEndpointsProperty);
     clientAdapter->activate();
 
     //
@@ -146,8 +146,7 @@ Glacier::Router::run(int argc, char* argv[])
     ObjectAdapterPtr serverAdapter;
     if (!serverEndpoints.empty())
     {
-	ObjectAdapterPtr serverAdapter =
-	    communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
+	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
 	serverAdapter->activate();
     }
 
@@ -186,7 +185,8 @@ Glacier::Router::run(int argc, char* argv[])
 
     ObjectAdapterPtr routerAdapter =
 	communicator()->createObjectAdapterFromProperty("Router", routerEndpointsProperty);
-    routerAdapter->add(new RouterI(clientAdapter, serverAdapter, routingTable), stringToIdentity(routerIdentity));
+    RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable);
+    routerAdapter->add(router, stringToIdentity(routerIdentity));
     routerAdapter->activate();
 
     //
@@ -194,6 +194,14 @@ Glacier::Router::run(int argc, char* argv[])
     //
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;
+
+    //
+    // Destroy the router. The client and server blobjects get
+    // destroyed by ServantLocator::deactivate.
+    //
+    RouterI* rtr = dynamic_cast<RouterI*>(router.get());
+    assert(rtr);
+    rtr->destroy();
 }
 
 int

@@ -18,21 +18,25 @@
 namespace Glacier
 {
 
-class RouterI : public ::Ice::Router
+class RouterI : public Ice::Router
 {
 public:
 
-    RouterI(const ::Ice::ObjectAdapterPtr&, const ::Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&);
+    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&);
+    virtual ~RouterI();
 
-    virtual ::Ice::ObjectPrx getClientProxy(const ::Ice::Current&);
-    virtual ::Ice::ObjectPrx getServerProxy(const ::Ice::Current&);
-    virtual void addProxy(const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    void destroy();
+    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&);
+    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&);
+    virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
 
 private:
 
-    ::Ice::ObjectAdapterPtr _clientAdapter;
-    ::Ice::ObjectAdapterPtr _serverAdapter;
+    Ice::ObjectAdapterPtr _clientAdapter;
+    Ice::ObjectAdapterPtr _serverAdapter;
+    Ice::LoggerPtr _logger;
     ::IceInternal::RoutingTablePtr _routingTable;
+    int _routingTableTraceLevel;
 };
 
 }
