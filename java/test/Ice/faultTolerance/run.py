@@ -27,7 +27,7 @@ classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir,
 server = "java -classpath \"" + classpath + "\" Server"
 client = "java -classpath \"" + classpath + "\" Client"
 
-num = 10
+num = 6
 base = 12340
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)

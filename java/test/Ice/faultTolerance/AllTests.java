@@ -65,7 +65,7 @@ public class AllTests
                     obj.abort();
                     test(false);
                 }
-                catch(Ice.SocketException ex)
+                catch(Ice.ConnectionLostException ex)
                 {
                     System.out.println("ok");
                 }
@@ -79,7 +79,7 @@ public class AllTests
                     obj.idempotentAbort();
                     test(false);
                 }
-                catch(Ice.SocketException ex)
+                catch(Ice.ConnectionLostException ex)
                 {
                     System.out.println("ok");
                 }
@@ -94,7 +94,7 @@ public class AllTests
                     obj.nonmutatingAbort();
                     test(false);
                 }
-                catch(Ice.SocketException ex)
+                catch(Ice.ConnectionLostException ex)
                 {
                     System.out.println("ok");
                 }
@@ -113,7 +113,11 @@ public class AllTests
             obj.ice_ping();
             test(false);
         }
-        catch(Ice.SocketException ex)
+        catch(Ice.CloseConnectionException ex)
+        {
+            System.out.println("ok");
+        }
+        catch(Ice.ConnectFailedException ex)
         {
             System.out.println("ok");
         }

@@ -25,7 +25,7 @@ testdir = os.path.join(toplevel,"test", "Ice", "faultTolerance")
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
-num = 10
+num = 6
 base = 12340
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)

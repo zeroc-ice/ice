@@ -54,7 +54,11 @@ public class AllTests
             lastObj.ice_ping();
             test(false);
         }
-        catch(Ice.SocketException ex)
+        catch(Ice.CloseConnectionException ex)
+        {
+            System.out.println("ok");
+        }
+        catch(Ice.ConnectFailedException ex)
         {
             System.out.println("ok");
         }

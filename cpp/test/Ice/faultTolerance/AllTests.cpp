@@ -57,7 +57,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		obj->abort();
 		test(false);
 	    }
-	    catch(const Ice::SocketException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -70,7 +70,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		obj->idempotentAbort();
 		test(false);
 	    }
-	    catch(const Ice::SocketException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -84,7 +84,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		obj->nonmutatingAbort();
 		test(false);
 	    }
-	    catch(const Ice::SocketException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -102,8 +102,12 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	obj->ice_ping();
 	test(false);
     }
-    catch(const Ice::SocketException&)
+    catch(const Ice::CloseConnectionException&)
     {
 	cout << "ok" << endl;
-    }    
+    }
+    catch(const Ice::ConnectFailedException&)
+    {
+	cout << "ok" << endl;
+    }
 }

@@ -72,7 +72,7 @@ public class AllTests
 	{
 	    obj2.ice_ping();
 	}
-	catch(Ice.SocketException ex)
+	catch(Ice.LocalException ex)
 	{
 	    test(false);
 	}
@@ -109,10 +109,14 @@ public class AllTests
 	    obj2.ice_ping();
 	    test(false);
 	}
-	catch(Ice.SocketException ex)
-	{
-	    System.out.println("ok");
-	}
+        catch(Ice.CloseConnectionException ex)
+        {
+            System.out.println("ok");
+        }
+        catch(Ice.ConnectFailedException ex)
+        {
+            System.out.println("ok");
+        }
 
 	System.out.print("shutdown server manager...");
         System.out.flush();

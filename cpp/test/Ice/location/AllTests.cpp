@@ -62,7 +62,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
 	obj2->ice_ping();
     }
-    catch(const Ice::SocketException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -95,7 +95,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2->ice_ping();
 	test(false);
     }
-    catch(const Ice::SocketException&)
+    catch(const Ice::CloseConnectionException&)
+    {
+	cout << "ok" << endl;
+    }
+    catch(const Ice::ConnectFailedException&)
     {
 	cout << "ok" << endl;
     }
