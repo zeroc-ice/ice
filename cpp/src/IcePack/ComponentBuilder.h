@@ -118,7 +118,7 @@ public:
 
 protected:
 
-    void generateConfigFile(const std::string&, const std::string&, const Ice::PropertiesPtr&);
+    void generateConfigFile(const std::string&, const std::string&, const std::string&, const Ice::PropertiesPtr&);
     
     Ice::CommunicatorPtr _communicator;
     ObjectRegistryPrx _objectRegistry;

@@ -170,13 +170,13 @@ IcePack::ServiceBuilder::setDBEnv(const string& dir)
     addProperty("Freeze.DbEnv." + getVariable("name") + ".DbHome", path);
 
     string dbConfigFile = path + "/DB_CONFIG";
-    generateConfigFile(" ", dbConfigFile, _dbProperties);
+    generateConfigFile(" ", "BdB.", dbConfigFile, _dbProperties);
 }
 
 void
 IcePack::ServiceBuilder::addDatabaseProperty(const string& name, const string& value)
 {
-    _dbProperties->setProperty(name, value);
+    _dbProperties->setProperty("BdB." + name, value);
 }
 
 //

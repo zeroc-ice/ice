@@ -189,7 +189,7 @@ class GenerateConfiguration : public Task
 	string 
 	operator()(const Ice::PropertyDict::value_type& p) const
 	{
-	    return p.first + _sep + p.second.substr(_prefix.length());
+	    return p.first.substr(_prefix.length()) + _sep + p.second;
 	}
 
     private:
