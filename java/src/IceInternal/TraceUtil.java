@@ -142,4 +142,45 @@ final class TraceUtil
             logger.trace(tl.protocolCat, s.toString());
         }
     }
+
+    private static void
+    printHeader(java.io.Writer out, Ice.Stream stream)
+    {
+        byte protVer = stream.readByte();
+        out.write("\nprotocol version = " + (int)protVer);
+        byte encVer = stream.readByte();
+        out.write("\nencoding version = " + (int)encVer);
+        byte type = stream.readByte();
+        out.write("\nmessage type = " + (int)type + ' ');
+        switch (type)
+        {
+            case Protocol.requestMsg:
+            {
+                out.write("(request)");
+                break;
+            }
+            case Protocol.requestBatchMsg:
+            {
+                out.write("(batch request)");
+                break;
+            }
+            case Protocol.replyMsg:
+            {
+                out.write("(reply)");
+                break;
+            }
+            case Protocol.closeConnectionMsg:
+            {
+                out.write("(close connection)");
+                break;
+            }
+            default:
+            {
+                out.write("(unknown)");
+                break;
+            }
+        }
+        int size = stream.readInt();
+        out.write("\nmessage size = " + size);
+    }
 }
