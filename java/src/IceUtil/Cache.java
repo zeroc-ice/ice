@@ -174,7 +174,27 @@ public class Cache
 	    } 
 	    else 
 	    {                     
-		Object obj = _store.load(key); 
+		Object obj;
+		try
+		{
+		    obj = _store.load(key);
+		}
+		catch(RuntimeException e)
+		{
+		    synchronized(_map) 
+		    {
+			_map.remove(key);
+			latch = val.latch; 
+			val.latch = null; 
+		    }
+		    if(latch != null)  
+		    { 
+			latch.countDown();
+			assert latch.getCount() == 0;
+		    }
+		    throw e;
+		}
+		
 		synchronized(_map) 
 		{ 
 		    if(obj != null) 
