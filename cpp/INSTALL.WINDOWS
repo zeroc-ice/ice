@@ -127,10 +127,15 @@ third-party packages (include files, libraries, and DLLs):
   If you used the binary installer for expat, then the proper include
   directory is C:\Expat-1.95.6\Source\lib.
 
+  For Visual C++ 6.0, also add the include directory for
+  STLport. Note that you must add the "include\stlport" directory,
+  not just "include" and that (This directory must precede any of
+  the Visual C++ include directories.)
+
 - Select "Library files".
 
 - Add the library directories for Berkeley DB, expat, OpenSSL, and
-  bzip2.
+  bzip2 (and STLport, if required).
 
   If you used the binary installer for expat, then the proper library
   directory is C:\Expat-1.95.6\Libs.
@@ -138,7 +143,7 @@ third-party packages (include files, libraries, and DLLs):
 - Select "Executable files".
 
 - Add the directories that contain DLLs for Berkeley DB, expat,
-  OpenSSL and bzip2, and STLport (if required).
+  OpenSSL and bzip2 (and STLport, if required).
 
 Now you are ready to compile Ice, so open the "all.dsw" workspace. If
 you are using Visual C++ .NET, then the project files must first be
