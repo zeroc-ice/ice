@@ -100,7 +100,10 @@ Ice::CommunicatorI::destroy()
 	{
 	    theCollector->stop();
 	}
-	theCollector->collectGarbage(); // Collect whenever a communicator is destroyed.
+	if(theCollector)
+	{
+	    theCollector->collectGarbage(); // Collect whenever a communicator is destroyed.
+	}
 	if(last)
 	{
 	    if(gcTraceLevel)

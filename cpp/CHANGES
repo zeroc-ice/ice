@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a bug that could cause a crash if an application used
+  Ice::Application and was interrupted by a signal, resulting
+  in two calls to Communicator::destroy().
+
 - Replaced interface Glacier::PasswordVerifier with
   Glacier::PermissionsVerifier, property
   Glacier.Starter.PasswordVerifier with
