@@ -1,0 +1,131 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Windows version
+---------------
+
+Ice has been extensively tested with Windows XP. Ice will most likely
+also work on Windows 2000 and Windows NT. Windows 95/98/ME is not
+supported.
+
+
+C++ compiler
+------------
+
+- Visual C++ .NET 7.0; or
+
+- Visual C++ 6.0 with STLport 4.5
+
+The STL (Standard Template Library) that is included with Visual C++
+6.0 is not supported! You must use STLport 4.5 with Visual C++
+6.0. You can download STLport 4.5 from:
+
+http://www.stlport.org/download.html
+
+For STLport installation instructions, please see:
+
+http://www.stlport.org/doc/install.html
+
+For Visual C++ .NET, you can use the included STL library. Downloading
+and installing STLport is not required for this compiler version.
+
+
+Third-party libraries
+---------------------
+
+- Xerces-C++ 2.1.0
+
+- Berkeley DB 3.3, 4.0, or 4.1
+
+- OpenSSL 0.9.6
+
+- bzip2 1.0
+
+You must install all these packages before proceeding with the
+installation of Ice.
+
+Xerces-C++ can be download from:
+
+http://xml.apache.org/xerces-c
+
+You can download Berkeley DB from:
+
+http://www.sleepycat.com/download.html
+
+And OpenSSL from:
+
+http://www.openssl.org
+
+And bzip2 from:
+
+http://sources.redhat.com/bzip2
+
+
+Python 2
+--------
+
+To run the automated test suite, you require Python 2. Other than for
+running the test scripts, Python is not required. You can download a
+Python distribution for Windows from:
+
+http://www.activestate.com
+
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+
+Using your favorite Zip tool, unzip the Ice archive in anywhere you
+like. Then start the Microsoft Visual C++ IDE.
+
+First, you must make sure that your compiler finds all the required
+third-party packages: Include files, libraries, and DLLs:
+
+- In the IDE, choose Tools->Options->Directories.
+
+- Select "Include files".
+
+- Add the include directories for Xerces-C++, Berekeley DB, OpenSSL,
+  bzip2.
+
+- If you're using STLport, also add the include files for
+  STLport. (Note that you must add the include\stlport directory, not
+  just "include".)
+
+- Select "Library files".
+
+- Add the library directories for Xerces-C++, Berekeley DB, OpenSSL,
+  bzip2, and STLport (if required).
+
+- Select "Executable files".
+
+- Add the directories which contain DLLs for Xerces-C++, Berekeley DB,
+  OpenSSL, bzip2, and STLport (if required).
+
+Now you're ready to compile Ice. Open the "all.dsw" workspace. Then
+using Project->Set Active Project, select either "all" or
+"minimal". "all" will compile everything including tests and
+demos. "minimal" will not compile tests and demos. To start the
+compilation, use Build->Build.
+
+If you built the tests with "all", you can run the test suite,
+provided that you installed Python 2. Open a command prompt, and
+change to the directory Ice-<version>. At the command prompt, execute:
+
+python allTests.py
+
+If everything worked out, you should see lots of "ok". In case of a
+failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add the "bin"
+directory, which contains DLLs and executables, to your PATH.
+
+
+======================================================================
+Installation
+======================================================================
+
+TBD
