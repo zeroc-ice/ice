@@ -14,5 +14,6 @@
 #include <Ice/Stub.h>
 #include <Ice/ObjectHandle.h>
 #include <Ice/Outgoing.h>
+#include <Ice/LocalException.h>
 
 #endif

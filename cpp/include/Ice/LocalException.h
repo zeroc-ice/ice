@@ -127,6 +127,18 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API NoFactoryException : public LocalException
+{
+public:    
+
+    NoFactoryException(const char*, int);
+    NoFactoryException(const NoFactoryException&);
+    NoFactoryException& operator=(const NoFactoryException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    
