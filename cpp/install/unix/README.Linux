@@ -43,22 +43,15 @@ party libraries.
 
 Otherwise, you will need to install the following libraries:
 
-- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+- Berkeley DB 4.2.52 configured with --enable-cxx and --enable-java.
 
-  You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
+- expat 1.95
 
-  Note that Ice for Java is not compatible with version 4.3,
-  therefore if you intend to use Ice for Java with Berkeley DB,
-  you must use version 4.2.52 and the option --enable-java.
+- OpenSSL 0.97
 
-- expat 1.9x
+- bzip2 1.0.2
 
-- OpenSSL 0.96 or 0.97
-
-- bzip2 1.0
-
-- readline and ncurses
+- readline 4.3 and ncurses 5.4
 
 BerkeleyDB, expat, OpenSSL, bzip2, readline and ncurses are included
 with your Linux Fedora Core 3 distribution in the following RPMs:
