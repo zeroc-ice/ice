@@ -393,7 +393,7 @@ property is also specified.
 </section>
 </section>
 
-<section><title><replaceable>name</replaceable>.PublishedEndpoints</title>
+<section id="adapter.PublishedEndpoints"><title><replaceable>name</replaceable>.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
 <replaceable>name</replaceable>.PublishedEndpoints=<replaceable>endpoints</replaceable>
@@ -406,7 +406,7 @@ When creating a proxy, the object adapter <replaceable>name</replaceable>
 normally includes the endpoints defined by
 <literal><replaceable>name</replaceable>.Endpoints</literal>. If
 <literal><replaceable>name</replaceable>.PublishedEndpoints</literal>
-is defined, the object adapter uses these proxies instead. This is
+is defined, the object adapter uses these endpoints instead. This is
 useful in many situations, such as when a server resides behind a
 port-forwarding firewall, in which case the object adapter's public
 endpoints must specify the address and port of the firewall.
@@ -1491,6 +1491,25 @@ administration tool to shutdown the &IceBox; server.
 </section>
 </section>
 
+<section><title>IceBox.ServiceManager.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.ServiceManager.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &IceBox; service manager interface. The
+service manager endpoints must be accessible to the &IceBox;
+administration tool to shutdown the &IceBox; server.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
 <section><title>IceBox.ServiceManager.Identity</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1687,6 +1706,25 @@ to locate objects (see <literal>Ice.Default.Locator</literal>).
 </section>
 </section>
 
+<section><title>IcePack.Registry.Client.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &IcePack; client interface. The client
+endpoints must be accessible to &Ice; clients that are using &IcePack;
+to locate objects (see <literal>Ice.Default.Locator</literal>).
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Registry.Client.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1763,6 +1801,25 @@ IcePack.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
 Defines the endpoints of the &IcePack; server interface. The server
 endpoints must be accessible to &Ice; servers that are using &IcePack;
 to register their object adapter endpoints.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Server.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Server.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &IcePack; server interface. The server
+endpoints must be accessible to &Ice; servers that are using &IcePack;
+to register their object adapter endpoints.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -1851,6 +1908,28 @@ is disabled.</para></note>
 </section>
 </section>
 
+<section><title>IcePack.Registry.Admin.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Admin.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the optional administrative published endpoints of the &IcePack; admin
+interface. The administrative endpoints must be accessible to clients
+which are using the &IcePack; administrative interface, such as the
+&IcePack; administrative tool.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+<note><para>Allowing access to the &IcePack; admin interface is a
+security risk!</para></note>
+</section>
+</section>
+
 <section><title>IcePack.Registry.Admin.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1927,6 +2006,25 @@ IcePack.Registry.Internal.Endpoints=<replaceable>endpoints</replaceable>
 Defines the endpoints of the &IcePack; internal interface. The
 internal endpoints must be accessible to &IcePack; nodes. Nodes use
 this interface to communicate with the registry.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Internal.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Internal.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &IcePack; internal interface. The
+internal endpoints must be accessible to &IcePack; nodes. Nodes use
+this interface to communicate with the registry.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -2149,6 +2247,25 @@ IcePack.Node.Endpoints=<replaceable>endpoints</replaceable>
 Defines the endpoints of the &IcePack; node interface. The node
 endpoints must be accessible to the &IcePack; registry. The registry
 uses this interface to communicate with the node.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Node.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &IcePack; node interface. The node
+endpoints must be accessible to the &IcePack; registry. The registry
+uses this interface to communicate with the node.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -2512,6 +2629,23 @@ Defines the endpoints for the &IceStorm; topic manager and topic objects.
 </section>
 </section>
 
+<section><title>IceStorm.TopicManager.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.TopicManager.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints for the &IceStorm; topic manager and topic objects.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
 <section><title>IceStorm.TopicManager.RegisterProcess</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2602,6 +2736,23 @@ IceStorm.Publish.Endpoints=<replaceable>endpoints</replaceable>
 <title>Description</title>
 <para>
 Defines the endpoints for the &IceStorm; publisher objects.
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Publish.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Publish.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints for the &IceStorm; publisher objects.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -2864,6 +3015,31 @@ the router forwards requests, and to which the router sends
 callbacks. The server endpoints must be accessible to Glacier servers
 to which the router forwards requests, and from which the router
 accepts callbacks for the client.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Router.PublishedEndpoints, Glacier.Router.Client.PublishedEndpoints, Glacier.Router.Server.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.PublishedEndpoints=<replaceable>endpoints</replaceable>
+Glacier.Router.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
+Glacier.Router.Server.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &Glacier; router control interface, the
+client interface, and the server interface. The router endpoints and
+the client endpoints must be accessible to Glacier clients from which
+the router forwards requests, and to which the router sends
+callbacks. The server endpoints must be accessible to Glacier servers
+to which the router forwards requests, and from which the router
+accepts callbacks for the client.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -3327,7 +3503,24 @@ Glacier.Starter.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &Glacier; router starter. (Unix only.)
+Defines the endpoints of the &Glacier; router starter.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Starter.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Starter.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published endpoints of the &Glacier; router starter.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
 </para>
 </section>
 </section>
@@ -3425,7 +3618,7 @@ Glacier.Starter.RouterPath=<replaceable>path</replaceable>
 <title>Description</title>
 <para>
 Sets the path of the &Glacier; router executable to be started. The
-default is <literal>glacier</literal>. (Unix only.)
+default is <literal>glacier</literal>.
 </para>
 </section>
 </section>
@@ -3451,7 +3644,6 @@ For example, in many cases it is desirable to set the property
 <literal>Ice.ServerIdleTime</literal> for the router, but not for the
 router starter. For an idle time of 60 seconds, this can be done by setting
 <literal>Glacier.Starter.PropertiesOverride=Ice.ServerIdleTime=60</literal>.
-(Unix only.)
 </para>
 </section>
 </section>
@@ -3518,7 +3710,7 @@ Glacier.Starter.Trace=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The router starter trace level: (Unix only.)
+The router starter trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -4043,6 +4235,23 @@ by both the IcePatch server and client.
 </section>
 </section>
 
+<section><title>IcePatch.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the published endpoints of the IcePatch server.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
 <section><title>IcePatch.Directory</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4159,6 +4368,510 @@ the IcePatch client dynamically calculates the unique signatures of
 local files rather than caching the signatures. This reduces the
 number of local cache files at the expense of more processing when
 comparing directories with the server. The default value is 1.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Glacier2; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Glacier2.Admin.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Admin.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the optional administrative endpoints of the &Glacier2; admin
+interface. The administrative endpoints must be accessible to clients
+that are using the &Glacier2; admin interface.
+</para>
+<note><para>Allowing access to the &Glacier2; admin interface is a
+security risk! If this property is not defined, the admin interface
+is disabled.</para></note>
+</section>
+</section>
+
+<section><title>Glacier2.Admin.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Admin.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the optional administrative published endpoints of the &Glacier2; admin
+interface. The administrative endpoints must be accessible to clients
+that are using the &Glacier2; administrative interface.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+<note><para>Allowing access to the &Glacier2; admin interface is a
+security risk!</para></note>
+</section>
+</section>
+
+<section><title>Glacier2.AdminIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.AdminIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the &Glacier2; admin interface. If not specified the
+default value <literal>Glacier2/admin</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.AlwaysBatch</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.AlwaysBatch=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router always batches queued oneway requests from
+clients to servers regardless of the value of their <literal>_fwd</literal>
+contexts. This property is only relevant when <literal>Glacier2.Client.Buffered=1</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the client endpoints of the &Glacier2; router.
+These endpoints must be accessible to router clients.
+Use of a secure transport is highly recommended.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published client endpoints of the &Glacier2; router.
+These endpoints must be accessible to router clients.
+Use of a secure transport is highly recommended.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.ForwardContext</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.ForwardContext=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router includes the context in forwarded requests from
+clients to servers. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.SleepTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.SleepTime=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router sleeps for the specified number of milliseconds
+after forwarding all queued requests from a client. This prevents the
+client from flooding the router with requests.
+This property is only relevant when <literal>Glacier2.Client.Buffered=1</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.Trace.Override</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.Trace.Override=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message whenever a request was
+overridden. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.Trace.Reject</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.Trace.Reject=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message whenever a request from a
+client was rejected because its identity category did not match one of
+the entries in <literal>REVISIT</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.Trace.Request</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.Trace.Request=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message for each request that is
+forwarded from a client. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Client.Buffered</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Client.Buffered=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router queues incoming requests from clients and creates
+an extra thread for each client connection that processes the queued
+requests. If <replaceable>num</replaceable> is set to zero, the router
+operates in unbuffered mode in which a request is forwarded in the
+same thread that received it. The default value is 1.
+</para>
+<note><para>In unbuffered mode, twoway requests from a client are
+serialized, and nested twoway requests are not supported.
+</para></note>
+</section>
+</section>
+
+<section><title>Glacier2.CryptPasswords</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.CryptPasswords=<replaceable>file</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the filename of a &Glacier2; access control list. Each
+line of the file must contain a username and a password, separated
+by whitespace. The password must be a 13-character, crypt-encoded
+string. If this property is not defined, the default value is
+<literal>passwords</literal>. This property is ignored if
+<literal>Glacier2.PermissionsVerifier</literal> is defined.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.PermissionsVerifier</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.PermissionsVerifier=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::PermissionsVerifier</literal> interface.
+The router invokes this proxy to validate each new session
+created by a client.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.RouterIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.RouterIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the &Glacier2; router interface. If not specified the
+default value <literal>Glacier2/router</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.AlwaysBatch</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.AlwaysBatch=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router always batches queued oneway requests from
+servers to clients regardless of the value of their <literal>_fwd</literal>
+contexts. This property is only relevant when <literal>Glacier2.Server.Buffered=1</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the server endpoints of the &Glacier2; router.
+These endpoints must be accessible to back end servers.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the published server endpoints of the &Glacier2; router.
+These endpoints must be accessible to back end servers.
+Refer to the description of the object adapter property
+<link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
+for more information.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.ForwardContext</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.ForwardContext=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router includes the context in forwarded requests from
+servers to clients. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.SleepTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.SleepTime=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router sleeps for the specified number of milliseconds
+after forwarding all queued requests from a server. This prevents the
+server from flooding the router with requests.
+This property is only relevant when <literal>Glacier2.Server.Buffered=1</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.Trace.Override</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.Trace.Override=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message whenever a request was
+overridden. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.Trace.Reject</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.Trace.Reject=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message whenever a request from a
+server was rejected because its identity category did not match one of
+the entries in <literal>REVISIT</literal>.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.Trace.Request</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.Trace.Request=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message for each request that is
+forwarded from a server. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Server.Buffered</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Server.Buffered=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router queues incoming requests from servers and creates
+an extra thread for each servers connection that processes the queued
+requests. If <replaceable>num</replaceable> is set to zero, the router
+operates in unbuffered mode in which a request is forwarded in the
+same thread that received it. The default value is 1.
+</para>
+<note><para>In unbuffered mode, twoway requests from a server are
+serialized, and nested twoway requests are not supported.
+</para></note>
+<note><para>Unbuffered mode for server requests is susceptible to
+a denial-of-service attack from hostile clients. Use caution!
+</para></note>
+</section>
+</section>
+
+<section><title>Glacier2.SessionManager</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.SessionManager=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the proxy of an object that implements the
+<literal>Glacier2::SessionManager</literal> interface.
+The router invokes this proxy to create a new session
+for a client, but only after the router validates the
+client's username and password.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.SessionTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.SessionTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+a client's session with the &Glacier2; router expires after the specified
+<replaceable>num</replaceable> seconds of inactivity.
+The default value is 0, meaning sessions do not expire due to inactivity.
+</para>
+<note><para>It is important that <replaceable>num</replaceable> be chosen
+so that client sessions do not expire prematurely.
+</para></note>
+</section>
+</section>
+
+<section><title>Glacier2.Trace.RoutingTable</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Trace.RoutingTable=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs a trace message for each new proxy that is
+added to the router's internal routing table.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.Trace.Session</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.Trace.Session=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the &Glacier2; router logs trace messages about session-related activities.
+The default value is 0.
 </para>
 </section>
 </section>
