@@ -80,7 +80,6 @@
 
 #if defined(_WIN32)
 
-
 //
 // Comment out the following block if you want to run on Windows 9x
 // or Windows NT 3.51.
@@ -91,7 +90,6 @@
         //
 #       define _WIN32_WINNT 0x0400
 #   endif
-
 
 #   if !defined(_DLL) || !defined(_MT)
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
@@ -114,7 +112,7 @@
 // windows.h to skip inclusion of winsock2.h, so we include it here if
 // necessary.
 // 
-#   ifndef _WINSOCK2API_
+#   if !defined(_WINSOCK2API_) && !defined(_WINSOCKAPI_)
 #      include <winsock2.h>
 #   endif
 
