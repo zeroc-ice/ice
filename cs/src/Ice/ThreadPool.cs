@@ -77,10 +77,10 @@ namespace IceInternal
 		size = 1;
 	    }
 	    
-	    int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", _size * 10);
-	    if(sizeMax < _size)
+	    int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+	    if(sizeMax < size)
 	    {
-		sizeMax = _size;
+		sizeMax = size;
 	    }
 	    
 	    int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
@@ -95,8 +95,7 @@ namespace IceInternal
 		_threads = new ArrayList();
 		for(int i = 0; i < _size; ++i)
 		{
-		    EventHandlerThread thread = new EventHandlerThread(this,
-								       _programNamePrefix + _prefix + "-" + _threadIndex++);
+		    EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix + _prefix + "-" + _threadIndex++);
 		    _threads.Add(thread);
 		    thread.Start();
 		    ++_running;
@@ -135,7 +134,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public void _register(Socket fd, EventHandler handler)
+	public void register(Socket fd, EventHandler handler)
 	{
 	    lock(this)
 	    {
@@ -259,16 +258,17 @@ namespace IceInternal
 		    }
 		#endif
 	    #endif
-	    
-	    byte[] buf = new byte[1];
 
 	repeat:
 	    try
 	    {
-		_fdIntrRead.Receive(buf);
+		_fdIntrRead.Receive(_intrBuf);
 	    }
 	    catch(SocketException ex)
 	    {
+		#if TRACE_INTERRUPT
+		    trace("clearInterrupt, handling exception");
+		#endif
 		if(Network.interrupted(ex))
 		{
 		    goto repeat;
@@ -333,7 +333,7 @@ namespace IceInternal
 			{
 			}
 		    }
-		    
+
 		    _promote = false;
 		}
 		
@@ -357,8 +357,13 @@ namespace IceInternal
 		readList.Add(_fdIntrRead);
 		readList.AddRange(_handlerMap.Keys);
 
-
+		#if TRACE_SELECT
+		    trace("calling Select(), _promote = " + _promote);
+		#endif
 		Network.doSelect(readList, null, null, _timeout);
+		#if TRACE_SELECT
+		    trace("Select() returned");
+		#endif
 
 		EventHandler handler = null;
 		bool finished = false;
@@ -366,6 +371,9 @@ namespace IceInternal
 
 		lock(this)
 		{
+		    #if TRACE_SELECT
+			trace("After Select, entered critical region");
+		    #endif
 		    if(readList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
 		    {
 			#if TRACE_SELECT
@@ -399,7 +407,7 @@ namespace IceInternal
 			    #endif
 			    
 			    //
-			    // There are three possibilities for an interrupt:
+			    // There are two possibilities for an interrupt:
 			    //
 			    // 1. The thread pool has been destroyed.
 			    //
@@ -422,6 +430,12 @@ namespace IceInternal
 				return true;
 			    }
 			    
+			    //
+			    // Remove the interrupt channel from the
+			    // readList.
+			    //
+			    readList.Remove(_fdIntrRead);
+
 			    clearInterrupt();
 			    
 			    //
@@ -556,6 +570,9 @@ namespace IceInternal
 				}
 				catch(Ice.TimeoutException) // Expected.
 				{
+				    #if TRACE_EXCEPTION
+					trace("restarting after a timeout exception");
+				    #endif
 				    continue;
 				}
 				catch(Ice.DatagramLimitException) // Expected.
@@ -565,7 +582,8 @@ namespace IceInternal
 				catch(Ice.LocalException ex)
 				{
 				    #if TRACE_EXCEPTION
-					trace("informing handler (" + handler.GetType().FullName + ") about exception " + ex);
+					trace("informing handler (" + handler.GetType().FullName + ") about "
+					      + ex.GetType().FullName + " exception " + ex);
 				    #endif
 				    
 				    handler.exception(ex);
@@ -814,7 +832,7 @@ namespace IceInternal
 	
 	private void trace(string msg)
 	{
-	    System.Console.Error.WriteLine(_prefix + ": " + msg);
+	    System.Console.Error.WriteLine(_prefix + "(" + System.Threading.Thread.CurrentThread.Name + "): " + msg);
 	}
 	
 	private sealed class FdHandlerPair

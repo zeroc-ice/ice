@@ -835,21 +835,24 @@ namespace IceInternal
 	{
 	    Debug.Assert(_state > StateNotValidated);
 
-	    try
+	    lock(this)
 	    {
-		if(--_dispatchCount == 0)
+		try
 		{
-		    System.Threading.Monitor.PulseAll(this);
+		    if(--_dispatchCount == 0)
+		    {
+			System.Threading.Monitor.PulseAll(this);
+		    }
+		    
+		    if(_state == StateClosing && _dispatchCount == 0)
+		    {
+			initiateShutdown();
+		    }
 		}
-		
-		if(_state == StateClosing && _dispatchCount == 0)
+		catch(Ice.LocalException ex)
 		{
-		    initiateShutdown();
+		    setState(StateClosed, ex);
 		}
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		setState(StateClosed, ex);
 	    }
 	}
 	
@@ -969,7 +972,7 @@ namespace IceInternal
 		    // provides us the stream.
 		    //
 		    Debug.Assert(stream.pos() == stream.size());
-		    stream.pos(0);
+		    stream.pos(8);
 		    byte messageType = stream.readByte();
 		    compress = stream.readByte();
 		    if(compress == (byte)2)
@@ -1173,6 +1176,7 @@ namespace IceInternal
 
 	    Hashtable requests = null;
 	    Hashtable asyncRequests = null;
+	    Incoming inc = null;
 
 	    lock(this)
 	    {
@@ -1200,6 +1204,17 @@ namespace IceInternal
 			_transceiver = null;
 			System.Threading.Monitor.PulseAll(this);
 		    }
+
+		    //
+		    // We must destroy the incoming cache. It is now not
+		    // needed anymore.
+		    //
+		    lock(_incomingCacheMutex)
+		    {
+			Debug.Assert(_dispatchCount == 0);
+			inc = _incomingCache;
+			_incomingCache = null;
+		    }
 		}
 
 		if(_state == StateClosed || _state == StateClosing)
@@ -1210,6 +1225,11 @@ namespace IceInternal
 		    asyncRequests = _asyncRequests;
 		    _asyncRequests = new Hashtable();
 		}
+	    }
+	    while(inc != null)
+	    {
+		inc.__destroy();
+		inc = inc.next;
 	    }
 
 	    if(requests != null)
@@ -1506,7 +1526,7 @@ namespace IceInternal
 	{
 	    if(!_registeredWithPool)
 	    {
-		_threadPool._register(_transceiver.fd(), this);
+		_threadPool.register(_transceiver.fd(), this);
 		_registeredWithPool = true;
 		
 		ConnectionMonitor connectionMonitor = _instance.connectionMonitor();

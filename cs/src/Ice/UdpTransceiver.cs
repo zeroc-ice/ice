@@ -122,6 +122,10 @@ namespace IceInternal
 	    {
 		throw new Ice.SocketException(ex);
 	    }
+	    catch(Ice.LocalException)
+	    {
+		throw;
+	    }
 	    catch(System.Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
@@ -214,6 +218,10 @@ namespace IceInternal
 	    catch(SocketException ex)
 	    {
 		throw new Ice.SocketException(ex);
+	    }
+	    catch(Ice.LocalException)
+	    {
+		throw;
 	    }
 	    catch(System.Exception ex)
 	    {

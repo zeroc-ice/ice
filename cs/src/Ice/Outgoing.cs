@@ -225,140 +225,146 @@ namespace IceInternal
 	
 	public void finished(BasicStream istr)
 	{
-	    Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
-
-	    Debug.Assert(_state <= StateInProgress);
-
-	    _is.swap(istr);
-	    DispatchStatus status = (DispatchStatus)_is.readByte();
-
-	    switch(status)
+	    lock(this)
 	    {
-		case DispatchStatus.DispatchOK:
-		{
-		    //
-		    // Input and output parameters are always sent in an
-		    // encapsulation, which makes it possible to forward
-		    // oneway requests as blobs.
-		    //
-		    _is.startReadEncaps();
-		    _state = StateOK;
-		    break;
-		}
-		
-		case DispatchStatus.DispatchUserException:
-		{
-		    //
-		    // Input and output parameters are always sent in an
-		    // encapsulation, which makes it possible to forward
-		    // oneway requests as blobs.
-		    //
-		    _is.startReadEncaps();
-		    _state = StateUserException;
-		    break;
-		}
-		
-		case DispatchStatus.DispatchObjectNotExist:
-		case DispatchStatus.DispatchFacetNotExist:
-		case DispatchStatus.DispatchOperationNotExist:
-		{
-		    _state = StateLocalException;
-		    
-		    Ice.RequestFailedException ex = null;
-		    switch(status)
-		    {
-			case DispatchStatus.DispatchObjectNotExist:
-			{
-			    ex = new Ice.ObjectNotExistException();
-			    break;
-			}
-			
-			case DispatchStatus.DispatchFacetNotExist:
-			{
-			    ex = new Ice.FacetNotExistException();
-			    break;
-			}
-			
-			case DispatchStatus.DispatchOperationNotExist:
-			{
-			    ex = new Ice.OperationNotExistException();
-			    break;
-			}
-			
-			default:
-			{
-			    Debug.Assert(false);
-			    break;
-			}
-		    }
-		    
-		    ex.id = new Ice.Identity();
-		    ex.id.__read(_is);
-		    ex.facet = _is.readFacetPath();
-		    ex.operation = _is.readString();
-		    _exception = ex;
-		    break;
-		}
-		
-		case DispatchStatus.DispatchUnknownException:
-		case DispatchStatus.DispatchUnknownLocalException:
-		case DispatchStatus.DispatchUnknownUserException:
-		{
-		    _state = StateLocalException;
-		    
-		    Ice.UnknownException ex = null;
-		    switch(status)
-		    {
-			case DispatchStatus.DispatchUnknownException:
-			{
-			    ex = new Ice.UnknownException();
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUnknownLocalException:
-			{
-			    ex = new Ice.UnknownLocalException();
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUnknownUserException: 
-			{
-			    ex = new Ice.UnknownUserException();
-			    break;
-			}
-			
-			default:
-			{
-			    Debug.Assert(false);
-			    break;
-			}
-		    }
-		    
-		    ex.unknown = _is.readString();
-		    _exception = ex;
-		    break;
-		}
-		
-		default:
-		{
-		    _state = StateLocalException;
-		    _exception = new Ice.UnknownReplyStatusException();
-		    break;
-		}
-	    }
+		Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
 
-	    System.Threading.Monitor.Pulse(this);
+		Debug.Assert(_state <= StateInProgress);
+
+		_is.swap(istr);
+		DispatchStatus status = (DispatchStatus)_is.readByte();
+
+		switch(status)
+		{
+		    case DispatchStatus.DispatchOK:
+		    {
+			//
+			// Input and output parameters are always sent in an
+			// encapsulation, which makes it possible to forward
+			// oneway requests as blobs.
+			//
+			_is.startReadEncaps();
+			_state = StateOK;
+			break;
+		    }
+    		
+		    case DispatchStatus.DispatchUserException:
+		    {
+			//
+			// Input and output parameters are always sent in an
+			// encapsulation, which makes it possible to forward
+			// oneway requests as blobs.
+			//
+			_is.startReadEncaps();
+			_state = StateUserException;
+			break;
+		    }
+    		
+		    case DispatchStatus.DispatchObjectNotExist:
+		    case DispatchStatus.DispatchFacetNotExist:
+		    case DispatchStatus.DispatchOperationNotExist:
+		    {
+			_state = StateLocalException;
+    		    
+			Ice.RequestFailedException ex = null;
+			switch(status)
+			{
+			    case DispatchStatus.DispatchObjectNotExist:
+			    {
+				ex = new Ice.ObjectNotExistException();
+				break;
+			    }
+    			
+			    case DispatchStatus.DispatchFacetNotExist:
+			    {
+				ex = new Ice.FacetNotExistException();
+				break;
+			    }
+    			
+			    case DispatchStatus.DispatchOperationNotExist:
+			    {
+				ex = new Ice.OperationNotExistException();
+				break;
+			    }
+    			
+			    default:
+			    {
+				Debug.Assert(false);
+				break;
+			    }
+			}
+    		    
+			ex.id = new Ice.Identity();
+			ex.id.__read(_is);
+			ex.facet = _is.readFacetPath();
+			ex.operation = _is.readString();
+			_exception = ex;
+			break;
+		    }
+    		
+		    case DispatchStatus.DispatchUnknownException:
+		    case DispatchStatus.DispatchUnknownLocalException:
+		    case DispatchStatus.DispatchUnknownUserException:
+		    {
+			_state = StateLocalException;
+    		    
+			Ice.UnknownException ex = null;
+			switch(status)
+			{
+			    case DispatchStatus.DispatchUnknownException:
+			    {
+				ex = new Ice.UnknownException();
+				break;
+			    }
+    			
+			    case DispatchStatus.DispatchUnknownLocalException:
+			    {
+				ex = new Ice.UnknownLocalException();
+				break;
+			    }
+    			
+			    case DispatchStatus.DispatchUnknownUserException: 
+			    {
+				ex = new Ice.UnknownUserException();
+				break;
+			    }
+    			
+			    default:
+			    {
+				Debug.Assert(false);
+				break;
+			    }
+			}
+    		    
+			ex.unknown = _is.readString();
+			_exception = ex;
+			break;
+		    }
+    		
+		    default:
+		    {
+			_state = StateLocalException;
+			_exception = new Ice.UnknownReplyStatusException();
+			break;
+		    }
+		}
+
+		System.Threading.Monitor.Pulse(this);
+	    }
 	}
 	
 	public void finished(Ice.LocalException ex)
 	{
-	    Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+	    lock(this)
+	    {
+		Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
 	    
-	    Debug.Assert(_state <= StateInProgress);
+		Debug.Assert(_state <= StateInProgress);
 
-	    _state = StateLocalException;
-	    _exception = ex;
-	    System.Threading.Monitor.Pulse(this);
+		_state = StateLocalException;
+		_exception = ex;
+		System.Threading.Monitor.Pulse(this);
+	    }
 	}
 	
 	public BasicStream istr()

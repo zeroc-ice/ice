@@ -448,7 +448,7 @@ namespace IceInternal
 	{
 	    if(_acceptor != null && !_registeredWithPool)
 	    {
-		((Ice.ObjectAdapterI) _adapter).getThreadPool()._register(_acceptor.fd(), this);
+		((Ice.ObjectAdapterI) _adapter).getThreadPool().register(_acceptor.fd(), this);
 		_registeredWithPool = true;
 	    }
 	}

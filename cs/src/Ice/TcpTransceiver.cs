@@ -143,6 +143,10 @@ namespace IceInternal
 		}
 		throw new Ice.SocketException(ex);
 	    }
+	    catch(Ice.LocalException)
+	    {
+		throw;
+	    }
 	    catch(System.Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
@@ -165,7 +169,7 @@ namespace IceInternal
 		    try
 		    {
 			//
-			// Try to receive first. Most of the time, this will work and we
+			// Try to receive first. Much of the time, this will work and we
 			// avoid the cost of calling Poll().
 			//	
 			ret = _fd.Receive(buf.rawBytes(), position, remaining, SocketFlags.None);
@@ -221,6 +225,10 @@ namespace IceInternal
 		    throw new Ice.TimeoutException();
 		}
 		throw new Ice.SocketException(ex);
+	    }
+	    catch(Ice.LocalException)
+	    {
+		throw;
 	    }
 	    catch(System.Exception ex)
 	    {

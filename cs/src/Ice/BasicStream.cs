@@ -41,6 +41,7 @@ namespace IceInternal
 	    _traceSlicing = -1;
 	    
 	    _marshalFacets = true;
+	    _sliceObjects = true;
 	    
 	    _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
@@ -531,15 +532,11 @@ namespace IceInternal
 	
 	public virtual byte[] readByteSeq()
 	{
-	    Console.WriteLine("readbytesSeq start");
 	    try
 	    {
 		int sz = readSize();
-    Console.WriteLine("readBytesSeq: read size of " + sz);
 		byte[] v = new byte[sz];
-    Console.WriteLine("calling array read");
 		_buf.get(v);
-		Console.WriteLine("done calling array read");
 		return v;
 	    }
 	    catch(InvalidOperationException ex)
@@ -1053,7 +1050,7 @@ namespace IceInternal
 	    
 	    if(index < 0 && patcher != null)
 	    {
-		int i = - index;
+		int i = -index;
 		IceUtil.LinkedList patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[i];
 		if(patchlist == null)
 		{
@@ -1159,6 +1156,7 @@ namespace IceInternal
 		{
 		    _objectList = new ArrayList();
 		}
+		_objectList.Add(v);
 
 		v.__read(this, false);
 		patchReferences(i, null);

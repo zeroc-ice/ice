@@ -37,6 +37,10 @@ namespace IceInternal
 
 	public void patch(Ice.Object v)
 	{
+	    if(!_type.IsInstanceOfType(v))
+	    {
+		throw new Ice.NoObjectFactoryException();
+	    }
 	    value = v;
 	}
 
@@ -62,6 +66,10 @@ namespace IceInternal
 	{
 	    //
 	    // Raise InvalidCastException if the element doesn't match the expected type.
+	    // TODO: Shouldn't this be a NoObjectFactoryException? If no factory is installed
+	    // for an abstract class, the instance can be sliced to Ice::Object, in which case
+	    // it won't be assignment compatible with the sequence. (The same problem appears
+	    // to be in the Java implementation.)
 	    //
 	    if(!(_type.IsAssignableFrom(v.GetType())))
 	    {

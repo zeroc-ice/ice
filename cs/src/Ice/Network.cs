@@ -146,7 +146,7 @@ namespace IceInternal
 		    setTcpNoDelay(socket);
 		    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 		}
-		catch(System.Exception ex)
+		catch(SocketException ex)
 		{
 		    throw new Ice.SocketException("Cannot set socket options", ex);
 		}
@@ -172,7 +172,14 @@ namespace IceInternal
 
 	public static void setBlock(Socket socket, bool block)
 	{
-	    socket.Blocking = block;
+	    try
+	    {
+		socket.Blocking = block;
+	    }
+	    catch(SocketException ex)
+	    {
+		throw new Ice.SocketException(ex);
+	    }
 	}
 
 	public static void setTcpNoDelay(Socket socket)
@@ -183,6 +190,13 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot set NoDelay option", ex);
 	    }
 	}
@@ -195,6 +209,13 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot set KeepAlive option", ex);
 	    }
 	}
@@ -205,8 +226,15 @@ namespace IceInternal
 	    {
 		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sz);
 	    }
-	    catch(System.Exception ex)
+	    catch(SocketException ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot set send buffer size", ex);
 	    }
 	}
@@ -218,8 +246,15 @@ namespace IceInternal
 	    {
 		sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
 	    }
-	    catch(System.Exception ex)
+	    catch(SocketException ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot read send buffer size", ex);
 	    }
 	    return sz;
@@ -231,8 +266,15 @@ namespace IceInternal
 	    {
 		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, sz);
 	    }
-	    catch(System.Exception ex)
+	    catch(SocketException ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot set receive buffer size", ex);
 	    }
 	}
@@ -244,49 +286,40 @@ namespace IceInternal
 	    {
 		sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer);
 	    }
-	    catch(System.Exception ex)
+	    catch(SocketException ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		Ice.SocketException se = new Ice.SocketException("Cannot read receive buffer size", ex);
 	    }
 	    return sz;
 	}
-
-    /*
-	public static void setSendTimeout(Socket socket, int timeout)
-	{
-	    try
-	    {
-		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, timeout);
-	    }
-	    catch(SocketException ex)
-	    {
-		throw new Ice.SocketException(ex);
-	    }
-	}
-
-	public static void setRecvTimeout(Socket socket, int timeout)
-	{
-	    try
-	    {
-		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, timeout);
-	    }
-	    catch(SocketException ex)
-	    {
-		throw new Ice.SocketException(ex);
-	    }
-	}
-    */
 	
 	public static IPEndPoint doBind(Socket socket, EndPoint addr)
 	{
 	    try
 	    {
-		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+		//
+		// Don't set ReuseAddress on Win32 -- it allows two processes to bind to the same port!
+		//
+		//socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
 		socket.Bind(addr);
 		return (IPEndPoint)socket.LocalEndPoint;
 	    }
-	    catch(System.Exception ex)
+	    catch(SocketException ex)
 	    {
+		try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException("Cannot bind", ex);
 	    }
 	}
@@ -309,9 +342,8 @@ namespace IceInternal
 		{
 		    socket.Close();
 		}
-		catch(System.Exception)
+		catch(SocketException)
 		{
-		    // ignore
 		}
 		throw new Ice.SocketException("Cannot listen", ex);
 	    }
@@ -371,7 +403,6 @@ namespace IceInternal
 		    }
 		    catch(SocketException)
 		    {
-			// ignore
 		    }
 		    throw new Ice.ConnectFailedException("Connect timed out after " + timeout + "msec");
 		}
@@ -452,7 +483,18 @@ namespace IceInternal
 
 	public static bool doPoll(Socket s, int timeout, PollMode mode)
 	{
-	    return s.Poll(timeout, (SelectMode)mode);
+	    //
+	    // Poll() wants microseconds, so we need to deal with overflow.
+	    //
+	    while((timeout > System.Int32.MaxValue / 1000))
+	    {
+		if(s.Poll((System.Int32.MaxValue / 1000) * 1000, (SelectMode)mode))
+		{
+		    return true;
+		}
+		timeout -= System.Int32.MaxValue / 1000;
+	    }
+	    return s.Poll(timeout * 1000, (SelectMode)mode);
 	}
 
 	public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
@@ -511,7 +553,7 @@ namespace IceInternal
 	    {
 		//
 		// Socket.Select() returns immediately if the timeout is < 0 (instead
-		// of blocking indefinitely), so we have to emulate a blocking select here, sigh...
+		// of blocking indefinitely), so we have to emulate a blocking select here.
 		// (Using Int32.MaxValue isn't good enough because that's only about 35 minutes.)
 		//
 		do {
@@ -541,7 +583,7 @@ namespace IceInternal
 	    else
 	    {
 		//
-		// Select() wants microseconds, whereas Poll() uses millseconds, so we need to deal with overflow, sigh...
+		// Select() wants microseconds, so we need to deal with overflow.
 		//
 		while((milliSeconds > System.Int32.MaxValue / 1000) &&
 		      ((cr == null) || cr.Count == 0) &&
