@@ -19,6 +19,7 @@
 #include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
+#include <Ice/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -235,23 +236,49 @@ IceInternal::Reference::toString() const
 {
     ostringstream s;
 
-    s << identity;
+    //  
+    // If the encoded identity string contains characters which
+    // the reference parser uses as separators, then we enclose
+    // the identity string in quotes.
+    //
+    string id = identityToString(identity);
+    if(id.find_first_of(" \t\n\r:@") != string::npos)
+    {
+        s << '"' << id << '"';
+    }
+    else
+    {
+        s << id;
+    }
 
     if(!facet.empty())
     {
-	s << " -f ";
-	vector<string>::const_iterator p = facet.begin();
-	while(p != facet.end())
-	{
-	    //
-	    // TODO: Escape for whitespace and slashes.
-	    //
-	    s << *p++;
-	    if(p != facet.end())
-	    {
-		s << '/';
-	    }
-	}
+        ostringstream f;
+        vector<string>::const_iterator p = facet.begin();
+        while(p != facet.end())
+        {
+            f << encodeString(*p++, "/");
+            if(p != facet.end())
+            {
+                f << '/';
+            }
+        }
+
+        //
+        // If the encoded facet string contains characters which
+        // the reference parser uses as separators, then we enclose
+        // the facet string in quotes.
+        //
+        s << " -f ";
+        const string& fs = f.str();
+        if(fs.find_first_of(" \t\n\r:@") != string::npos)
+        {
+            s << '"' << fs << '"';
+        }
+        else
+        {
+            s << fs;
+        }
     }
 
     switch(mode)
@@ -310,7 +337,21 @@ IceInternal::Reference::toString() const
     }
     else if(!adapterId.empty())
     {
-	s << " @ " << adapterId;
+        string a = encodeString(adapterId, "");
+        //
+        // If the encoded adapter id string contains characters which
+        // the reference parser uses as separators, then we enclose
+        // the adapter id string in quotes.
+        //
+        s << " @ ";
+        if(a.find_first_of(" \t\n\r") != string::npos)
+        {
+            s << '"' << a << '"';
+        }
+        else
+        {
+            s << adapterId;
+        }
     }
     
     return s.str();

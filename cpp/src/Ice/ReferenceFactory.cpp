@@ -17,6 +17,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -118,19 +119,39 @@ IceInternal::ReferenceFactory::create(const string& str)
     {
 	throw ProxyParseException(__FILE__, __LINE__);
     }
-    
-    end = s.find_first_of(delim + ":@", beg);
+
+    //
+    // Extract the identity, which may be enclosed in single
+    // or double quotation marks.
+    //
+    string idstr;
+    end = checkQuote(s, beg);
     if(end == string::npos)
     {
-	end = s.length();
+        throw ProxyParseException(__FILE__, __LINE__);
     }
-    
+    else if(end == 0)
+    {
+        end = s.find_first_of(delim + ":@", beg);
+        if(end == string::npos)
+        {
+            end = s.size();
+        }
+        idstr = s.substr(beg, end - beg);
+    }
+    else
+    {
+        beg++; // Skip leading quote
+        idstr = s.substr(beg, end - beg);
+        end++; // Skip trailing quote
+    }
+
     if(beg == end)
     {
 	throw ProxyParseException(__FILE__, __LINE__);
     }
 
-    Identity ident = stringToIdentity(s.substr(beg, end - beg));
+    Identity ident = stringToIdentity(idstr);
     vector<string> facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
@@ -166,18 +187,40 @@ IceInternal::ReferenceFactory::create(const string& str)
 	{
 	    throw ProxyParseException(__FILE__, __LINE__);
 	}
-	
+
+        //
+        // Check for the presence of an option argument. The
+        // argument may be enclosed in single or double
+        // quotation marks.
+        //
 	string argument;
-	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if(argumentBeg != string::npos && str[argumentBeg] != '-')
+	string::size_type argumentBeg = s.find_first_not_of(delim, end);
+	if(argumentBeg != string::npos)
 	{
-	    beg = argumentBeg;
-	    end = str.find_first_of(delim + ":@", beg);
-	    if(end == string::npos)
-	    {
-		end = str.length();
+            if(s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
+            {
+                beg = argumentBeg;
+                end = checkQuote(s, beg);
+                if(end == string::npos)
+                {
+                    throw ProxyParseException(__FILE__, __LINE__);
+                }
+                else if(end == 0)
+                {
+                    end = s.find_first_of(delim + ":@", beg);
+                    if(end == string::npos)
+                    {
+                        end = s.size();
+                    }
+                    argument = s.substr(beg, end - beg);
+                }
+                else
+                {
+                    beg++; // Skip leading quote
+                    argument = s.substr(beg, end - beg);
+                    end++; // Skip trailing quote
+                }
 	    }
-	    argument = str.substr(beg, end - beg);
 	}
 
 	//
@@ -192,25 +235,53 @@ IceInternal::ReferenceFactory::create(const string& str)
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
-		
-		//
-		// TODO: Escape for whitespace and slashes.
-		//
-		string::size_type beg = 0;
-		while(beg < argument.size())
-		{
-		    string::size_type end = argument.find('/', beg);
-		    if(end == string::npos)
-		    {
-			facet.push_back(argument.substr(beg));
-		    }
-		    else
-		    {
-			facet.push_back(argument.substr(beg, end - beg));
-			++end;
-		    }
-		    beg = end;
-		}
+
+                const string::size_type argLen = argument.size();
+
+                string::size_type argBeg = 0;
+                while(argBeg < argLen)
+                {
+                    //
+                    // Skip slashes
+                    //
+                    argBeg = argument.find_first_not_of("/", argBeg);
+                    if(argBeg == string::npos)
+                    {
+                        break;
+                    }
+
+                    //
+                    // Find unescaped slash
+                    //
+                    string::size_type argEnd = argBeg;
+                    while((argEnd = argument.find('/', argEnd)) != string::npos)
+                    {
+                        if(argument[argEnd - 1] != '\\')
+                        {
+                            break;
+                        }
+                        argEnd++;
+                    }
+
+                    if(argEnd == string::npos)
+                    {
+                        argEnd = argLen;
+                    }
+
+                    string token;
+                    if(!decodeString(argument, argBeg, argEnd, token))
+                    {
+                        throw ProxyParseException(__FILE__, __LINE__);
+                    }
+                    facet.push_back(token);
+                    argBeg = argEnd + 1;
+                }
+
+                if(facet.size() == 0)
+                {
+                    throw ProxyParseException(__FILE__, __LINE__);
+                }
+
 		break;
 	    }
 
@@ -315,23 +386,34 @@ IceInternal::ReferenceFactory::create(const string& str)
 	}
 	else if(s[beg] == '@')
 	{
-	    beg = str.find_first_not_of(delim, beg + 1);
+	    beg = s.find_first_not_of(delim, beg + 1);
 	    if(beg == string::npos)
 	    {
-		beg = end + 1;
+                throw ProxyParseException(__FILE__, __LINE__);
 	    }
-	    
-	    end = str.find_first_of(delim, beg);
-	    if(end == string::npos)
-	    {
-		end = str.length();
-	    }
-	    
-	    adapter = str.substr(beg, end - beg);
-	    if(adapter.empty())
-	    {
-		throw ProxyParseException(__FILE__, __LINE__);
-	    }
+
+            end = checkQuote(s, beg);
+            if(end == string::npos)
+            {
+                throw ProxyParseException(__FILE__, __LINE__);
+            }
+            else if(end == 0)
+            {
+                end = s.find_first_of(delim, beg);
+                if(end == string::npos)
+                {
+                    end = s.size();
+                }
+            }
+            else
+            {
+                beg++; // Skip leading quote
+            }
+
+            if(!decodeString(s, beg, end, adapter) || adapter.size() == 0)
+            {
+                throw ProxyParseException(__FILE__, __LINE__);
+            }
 	}
     }
 

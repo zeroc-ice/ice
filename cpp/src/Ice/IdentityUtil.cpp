@@ -9,6 +9,8 @@
 // **********************************************************************
 
 #include <Ice/IdentityUtil.h>
+#include <Ice/StringUtil.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -24,16 +26,42 @@ Identity
 Ice::stringToIdentity(const string& s)
 {
     Identity ident;
-    string::size_type pos = s.find_first_of("/");
-    if(pos != string::npos)
+
+    //
+    // Find unescaped separator
+    //
+    string::size_type slash = 0;
+    while((slash = s.find('/', slash)) != string::npos)
     {
-	ident.category = s.substr(0, pos);
-	ident.name = s.substr(pos + 1);
+        if(slash == 0 || s[slash - 1] != '\\')
+        {
+            break;
+        }
+        slash++;
+    }
+
+    if(slash == string::npos)
+    {
+        if(!decodeString(s, 0, 0, ident.name))
+        {
+            throw SystemException(__FILE__, __LINE__);
+        }
     }
     else
     {
-	ident.name = s;
+        if(!decodeString(s, 0, slash, ident.category))
+        {
+            throw SystemException(__FILE__, __LINE__);
+        }
+        if(slash + 1 < s.size())
+        {
+            if(!decodeString(s, slash + 1, 0, ident.name))
+            {
+                throw SystemException(__FILE__, __LINE__);
+            }
+        }
     }
+
     return ident;
 }
 
@@ -42,10 +70,10 @@ Ice::identityToString(const Identity& ident)
 {
     if(ident.category.empty())
     {
-	return ident.name;
+	return encodeString(ident.name, "/");
     }
     else
     {
-	return ident.category + '/' + ident.name;
+	return encodeString(ident.category, "/") + '/' + encodeString(ident.name, "/");
     }
 }
