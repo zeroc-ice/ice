@@ -214,6 +214,15 @@ class CommunicatorI implements Communicator
         super.finalize();
     }
 
+    //
+    // For use by Util.getInstance()
+    //
+    IceInternal.Instance
+    getInstance()
+    {
+        return _instance;
+    }
+
     private IceInternal.Instance _instance;
     private IceInternal.ThreadPool _threadPool;
 }

@@ -23,7 +23,23 @@ public final class Util
     }
 
     public static Properties
+    getDefaultProperties(StringSeqHolder args)
+    {
+        if (_defaultProperties == null)
+        {
+            _defaultProperties = createProperties(args);
+        }
+        return _defaultProperties;
+    }
+
+    public static Properties
     createProperties(String[] args)
+    {
+        return new PropertiesI(args);
+    }
+
+    public static Properties
+    createProperties(StringSeqHolder args)
     {
         return new PropertiesI(args);
     }
@@ -34,8 +50,20 @@ public final class Util
         return new PropertiesI(args, file);
     }
 
+    public static Properties
+    createPropertiesFromFile(StringSeqHolder args, String file)
+    {
+        return new PropertiesI(args, file);
+    }
+
     public static Communicator
     initialize(String[] args)
+    {
+        return new CommunicatorI(getDefaultProperties(args));
+    }
+
+    public static Communicator
+    initialize(StringSeqHolder args)
     {
         return new CommunicatorI(getDefaultProperties(args));
     }
@@ -50,6 +78,13 @@ public final class Util
     addArgumentPrefix(String prefix)
     {
         PropertiesI.addArgumentPrefix(prefix);
+    }
+
+    public static IceInternal.Instance
+    getInstance(Communicator communicator)
+    {
+        CommunicatorI p = (CommunicatorI)communicator;
+        return p.getInstance();
     }
 
     public static Identity

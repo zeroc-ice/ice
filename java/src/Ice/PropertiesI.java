@@ -75,25 +75,22 @@ class PropertiesI implements Properties
 
     PropertiesI(String[] args)
     {
-        for (int i = 0; i < args.length; i++)
+        String file = getConfigFile(args);
+
+        if (file.length() > 0)
         {
-            if (args[i].startsWith("--Ice.Config"))
-            {
-                String line = args[i];
-                if (line.indexOf('=') == -1)
-                {
-                    line += "=1";
-                }
-                parseLine(line.substring(2));
-            }
+            load(file);
         }
 
-        String file = getProperty("Ice.Config");
+        StringSeqHolder argsH = new StringSeqHolder();
+        argsH.value = args;
+        parseArgs(argsH);
+        setProperty("Ice.Config", file);
+    }
 
-        if (file == null || file.equals("1"))
-        {
-            file = "";
-        }
+    PropertiesI(StringSeqHolder args)
+    {
+        String file = getConfigFile(args.value);
 
         if (file.length() > 0)
         {
@@ -116,18 +113,62 @@ class PropertiesI implements Properties
             load(file);
         }
 
+        StringSeqHolder argsH = new StringSeqHolder();
+        argsH.value = args;
+        parseArgs(argsH);
+        setProperty("Ice.Config", file);
+    }
+
+    PropertiesI(StringSeqHolder args, String file)
+    {
+        if (file == null)
+        {
+            file = "";
+        }
+
+        if (file.length() > 0)
+        {
+            load(file);
+        }
+
         parseArgs(args);
         setProperty("Ice.Config", file);
     }
 
+    private String
+    getConfigFile(String[] args)
+    {
+        for (int i = 0; i < args.length; i++)
+        {
+            if (args[i].startsWith("--Ice.Config"))
+            {
+                String line = args[i];
+                if (line.indexOf('=') == -1)
+                {
+                    line += "=1";
+                }
+                parseLine(line.substring(2));
+            }
+        }
+
+        String file = getProperty("Ice.Config");
+
+        if (file == null || file.equals("1"))
+        {
+            file = "";
+        }
+
+        return file;
+    }
+
     private void
-    parseArgs(String[] args)
+    parseArgs(StringSeqHolder args)
     {
         int idx = 0;
-        while (idx < args.length)
+        while (idx < args.value.length)
         {
             boolean match = false;
-            String arg = args[idx];
+            String arg = args.value[idx];
             int beg = arg.indexOf("--");
             if (beg == 0)
             {
@@ -142,6 +183,14 @@ class PropertiesI implements Properties
 
                     if (match)
                     {
+                        String[] arr = new String[args.value.length - 1];
+                        System.arraycopy(args.value, 0, arr, 0, idx);
+                        if (idx < args.value.length - 1)
+                        {
+                            System.arraycopy(args.value, idx + 1, arr, idx, args.value.length - idx - 1);
+                        }
+                        args.value = arr;
+
                         if (arg.indexOf('=') == -1)
                         {
                             arg += "=1";
