@@ -24,9 +24,9 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
     }
  
     // Reserve enough space for the returned base64 string
-    long base64Bytes = (((plainSeq.size() * 4L) / 3L) + 1L);
-    long newlineBytes = (((base64Bytes * 2L) / 76L) + 1L);
-    long totalBytes = base64Bytes + newlineBytes;
+    unsigned long base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
+    unsigned long newlineBytes = (((base64Bytes * 2) / 76) + 1);
+    unsigned long totalBytes = base64Bytes + newlineBytes;
  
     retval.reserve(totalBytes);
 
@@ -38,7 +38,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
     unsigned char by6 = 0;
     unsigned char by7 = 0;
 
-    for (unsigned int i = 0; i < plainSeq.size(); i += 3)
+    for (unsigned long i = 0; i < plainSeq.size(); i += 3)
     {
         by1 = plainSeq[i];
         by2 = 0;
@@ -98,28 +98,34 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
 }
 
 IceUtil::ByteSeq
-IceUtil::Base64::decode(const string& s)
+IceUtil::Base64::decode(const string& str)
 {
-    string str;
+    string newStr;
 
-    for (unsigned int j = 0; j < s.length(); j++)
+    newStr.reserve(str.length());
+
+    for (unsigned long j = 0; j < str.length(); j++)
     {
-        if (isBase64(s[j]))
+        if (isBase64(str[j]))
         {
-            str += s[j];
+            newStr += str[j];
         }
     }
 
     ByteSeq retval;
 
-    if (str.length() == 0)
+    if (newStr.length() == 0)
     {
         return retval;
     }
 
+    // Note: This is how we were previously computing the size of the return
+    //       sequence.  The method below is more efficient (and correct).
+    // unsigned long lines = str.size() / 78;
+    // unsigned long totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
+
     // Figure out how long the final sequence is going to be.
-    long lines = s.size() / 78;
-    long totalBytes = (lines * 76) + (((s.size() - (lines * 78)) * 3) / 4);
+    unsigned long totalBytes = (newStr.size() * 3 / 4) + 1;
 
     retval.reserve(totalBytes);
 
@@ -130,28 +136,28 @@ IceUtil::Base64::decode(const string& s)
 
     char c1, c2, c3, c4;
 
-    for (unsigned int i = 0; i < str.length(); i += 4)
+    for (unsigned long i = 0; i < newStr.length(); i += 4)
     {
-        c1='A';
-        c2='A';
-        c3='A';
-        c4='A';
+        c1 = 'A';
+        c2 = 'A';
+        c3 = 'A';
+        c4 = 'A';
 
-        c1 = str[i];
+        c1 = newStr[i];
 
-        if ((i + 1) < str.length())
+        if ((i + 1) < newStr.length())
         {
-            c2 = str[i+1];
+            c2 = newStr[i + 1];
         }
 
-        if ((i + 2) < str.length())
+        if ((i + 2) < newStr.length())
         {
-            c3 = str[i+2];
+            c3 = newStr[i + 2];
         }
 
-        if ((i + 3) < str.length())
+        if ((i + 3) < newStr.length())
         {
-            c4 = str[i+3];
+            c4 = newStr[i + 3];
         }
 
         by1 = decode(c1);
@@ -180,17 +186,17 @@ IceUtil::Base64::encode(unsigned char uc)
 {
     if (uc < 26)
     {
-        return 'A'+uc;
+        return 'A' + uc;
     }
     
     if (uc < 52)
     {
-        return 'a'+(uc-26);
+        return 'a' + (uc - 26);
     }
     
     if (uc < 62)
     {
-        return '0'+(uc-52);
+        return '0' + (uc - 52);
     }
     
     if (uc == 62)
