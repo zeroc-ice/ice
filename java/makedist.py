@@ -40,7 +40,9 @@ def find(path, patt):
 #
 # Are we on Windows?
 #
-win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
+if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
+    print sys.argv[0] + ": this script must be run on a Unix platform."
+    sys.exit(1)
 
 #
 # Check arguments
@@ -64,10 +66,6 @@ for x in sys.argv[1:]:
     else:
         tag = "-r" + x
 
-if win32 and not skipDocs:
-    print sys.argv[0] + ": the documentation cannot be built on Windows."
-    sys.exit(1)
-
 #
 # Remove any existing "dist" directory and create a new one.
 #
@@ -78,21 +76,18 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export Java sources from CVS.
+# Export Java and C++ sources from CVS.
+#
+# NOTE: Assumes that the C++ and Java trees will use the same tag.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag +
+          " icej ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
 
-#
-# Export C++ sources.
-#
-# NOTE: Assumes that the C++ and Java trees will use the same tag.
-#
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 #
 # Copy Slice directories.
 #
@@ -103,11 +98,13 @@ slicedirs = [\
     "Ice",\
     "IceBox",\
     "IcePack",\
+    "IcePatch2",\
     "IceStorm",\
 ]
 os.mkdir(os.path.join("icej", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icej", "slice", x), 1)
+
 #
 # Generate HTML documentation. We need to build icecpp
 # and slice2docbook first.
@@ -134,7 +131,44 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
     os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
-shutil.rmtree("ice")
+
+#
+# Build slice2java and slice2freezej.
+#
+print "Building translators..."
+cwd = os.getcwd()
+os.chdir(os.path.join("ice", "src", "icecpp"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "IceUtil"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "Slice"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "slice2java"))
+os.system("gmake")
+os.chdir(cwd)
+os.chdir(os.path.join("ice", "src", "slice2freezej"))
+os.system("gmake")
+os.chdir(cwd)
+
+sys.path.append(os.path.join("ice", "config"))
+import TestUtil
+
+os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
+
+if TestUtil.isHpUx():
+    os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
+elif TestUtil.isDarwin():
+    os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+elif TestUtil.isAIX():
+    os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
+else:
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+if os.environ.has_key("ICE_HOME"):
+    del os.environ["ICE_HOME"]
 
 #
 # Remove files.
@@ -150,7 +184,7 @@ for x in filesToRemove:
 #
 # Build sources.
 #
-print "Compiling..."
+print "Compiling Java sources..."
 cwd = os.getcwd()
 os.chdir("icej")
 if verbose:
@@ -178,7 +212,7 @@ version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(
 #
 # Create source archives.
 #
-print "Creating distribution..."
+print "Creating distribution archives..."
 icever = "IceJ-" + version
 os.rename("icej", icever)
 if verbose:
@@ -202,4 +236,5 @@ shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
+shutil.rmtree("ice")
 print "Done."
