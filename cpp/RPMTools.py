@@ -208,7 +208,6 @@ transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 	       ("dir", "python", "lib/Ice-%version%/python"),
                ("dir", "doc", "share/doc/Ice-%version%/doc"),
                ("file", "README", "share/doc/Ice-%version%/README"),
-               ("file", "SOURCES", "share/doc/Ice-%version%/SOURCES"),
                ("file", "ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
                ("file", "LICENSE", "share/doc/Ice-%version%/LICENSE")
                ]
@@ -228,7 +227,6 @@ fileLists = [
              ("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
              ("doc", "share/doc/Ice-%version%/LICENSE"),
              ("doc", "share/doc/Ice-%version%/README"),
-             ("doc", "share/doc/Ice-%version%/SOURCES"),
              ("exe", "bin/dumpdb"),
              ("exe", "bin/transformdb"),
              ("exe", "bin/glacier2router"),

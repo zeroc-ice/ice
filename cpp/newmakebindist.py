@@ -16,6 +16,20 @@ import RPMTools
 #  * Tidying and tracing.
 #
 
+#
+# If a platform needs a third party library packaged in the binary, list it here alongside Berkeley DB.
+#
+# db = Berkeley DB
+# expat = expat library
+# bzip2 = bzip library
+# ssl = openssl 
+# 
+thirdPartyLibraries = { 'aix':['db'],
+ 			'hpux':['db'],
+			'solaris':['db'],
+			'linux':[],
+			'darwin':['db'] }
+
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
     config = open(file, "r")
@@ -82,6 +96,23 @@ def getVersion(cvsTag, buildDir):
     os.chdir(cwd)
     return result
 
+def getInstallFiles(cvsTag, buildDir):
+    """Gets the install sources for this revision"""
+    cwd = os.getcwd()
+    os.chdir(buildDir)
+    os.system('rm -rf ' + buildDir + '/ice/install')
+    os.system('cvs -d cvs.mutablerealms.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
+    os.system('cvs -d cvs.mutablerealms.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+    os.chdir(cwd)
+    return buildDir + '/ice/install'
+
+def getuname():
+    pipe_stdin, pipe_stdout = os.popen2('uname')
+    lines = pipe_stdout.readlines()
+    pipe_stdin.close()
+    pipe_stdout.close()
+    return lines[0]
+
 def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     """The location for the source distributions was not supplied so
        we are going to assume we are being called from a CVS tree and we
@@ -105,9 +136,6 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     os.chdir(buildDir + "/demotree")
     os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
-    if demoDir == "":
-	os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/install/unix/README.DEMOS")
-	shutil.move(distro + "/install/unix/README.DEMOS", buildDir + "/Ice-" + version + "-demos/README.DEMOS")
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -136,7 +164,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     #
     if demoDir == "":
 	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/Ice/MFC")	
-	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/IcePatch2/MFC")	
+	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/demo/IcePatch2")	
 
     #
     # C++ specific build modifications.
@@ -216,7 +244,7 @@ endif
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
     os.chdir(cwd)
 
-def archiveDemoTree(buildDir, version):
+def archiveDemoTree(buildDir, version, installFiles):
     cwd = os.getcwd()
     os.chdir(buildDir)
     
@@ -230,6 +258,7 @@ def archiveDemoTree(buildDir, version):
     os.remove('Ice-' + version + '-demos/config/makedepend.py')
     os.remove('Ice-' + version + '-demos/config/PropertyNames.def')
     os.system('Ice-' + version + '-demos/config/*.bak')
+    shutil.copy(installFiles + '/unix/README.DEMOS', 'README.DEMOS') 
 
     # 
     # Remove compiled Java.
@@ -317,14 +346,32 @@ def shlibExtensions(versionString, versionInt):
     else:
         return [".so." + versionString, ".so." + versionInt, ".so"]
 
-def strip(files):
-    stripCmd = "strip "
-    if getPlatform() == "macosx":
-        stripCmd = stripCmd + "-x "
-    for f in files:
-	if not f.endswith(".dll"):
-	    print "Stripping " + f
-	    os.system(stripCmd + f)
+def getPlatformLibExtension():
+    platform = getPlatform()
+    if platform == 'hpux':
+	return '.sl'
+    elif platform == 'macosx':
+	return '.dylib'
+    else:
+	return '.so'
+
+def getDBFiles(dbLocation):
+    cwd = os.getcwd()
+    os.chdir(dbLocation)
+    pipe_stdin, pipe_stdout = os.popen2('find bin -name "*" -type f')
+    lines = pipe_stdout.readlines()
+    pipe_stdin.close()
+    pipe_stdout.close()
+   
+    fileList = []
+    fileList.extend(lines)
+
+    pipe_stdin, pipe_stdout = os.popen2('find lib -name "*'  + getPlatformLibExtension() + '" -type f')
+    lines = pipe_stdout.readlines()
+    pipe_stdin.close()
+    pipe_stdout.close()
+    fileList.extend(lines)
+    os.chdir(cwd)
 
 def usage():
     """Print usage/help information"""
@@ -500,11 +547,17 @@ def main():
     for d in directories:
         initDirectory(d)
 
+    #
+    # Determine location of binary distribution-only files.
+    #
+    installFiles = None
     if cvsMode:
-	version = getIceVersion("include/IceUtil/Config.h")
-	soVersion = getIceSoVersion("include/IceUtil/Config.h")
+	version = getIceVersion('include/IceUtil/Config.h')
+	soVersion = getIceSoVersion('include/IceUtil/Config.h')
+	installFiles = 'install'
     else:
 	version, soVersion = getVersion(cvsTag, buildDir)
+	installFiles = getInstallFiles(cvsTag, buildDir)
 
     if verbose:
         print "Building binary distributions for Ice-" + version + " on " + getPlatform()
@@ -567,7 +620,7 @@ def main():
         # Pack up demos
         #
 	if getPlatform() == "linux":
-	    archiveDemoTree(buildDir, version)
+	    archiveDemoTree(buildDir, version, installFiles)
 	    shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
 
     elif cvsMode:
@@ -577,9 +630,9 @@ def main():
 	# TODO: Sanity check to make sure that the script is being run
 	# from a location that it expects.
 	#
-	cvsDirs = [ "ice", "icej", "icepy" ]
-	if getPlatform() == "linux":
-	    cvsDirs.append("icecs")
+	cvsDirs = [ 'ice', 'icej', 'icepy' ]
+	if getPlatform() == 'linux':
+	    cvsDirs.append('icecs')
 
         os.environ['ICE_HOME'] = os.getcwd()  
         currentLibraryPath = None
@@ -610,9 +663,24 @@ def main():
     #
     binaries = glob.glob(installDir + '/Ice-' + version + '/bin/*')
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
-    strip(binaries)
     cwd = os.getcwd()
     os.chdir(installDir)
+    if not getPlatform() in ['linux', 'aix']:
+	#
+	# I need to get third party libraries.
+	#
+	dbLocation = buildEnvironment['DB_HOME']
+	dbFiles = getDBfiles(dbLocation)
+	for f in dbFiles:
+	    shutil.copy(dbLocation + '/' + f, 'Ice-' + version + '/' + f)
+	
+
+    uname = getuname()
+    platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
+    for psf in platformSpecificFiles:
+	cf = installFiles + '/unix/' + psf + '.' + uname
+	if os.path.exists(cf):
+	    shutil.copy(cf, 'Ice-' + version + '/' + psf) 
     os.system('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     os.system('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
@@ -624,6 +692,7 @@ def main():
     if getPlatform() == "linux" and not cvsMode:
 	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
 	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
+	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
 	RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #
