@@ -25,15 +25,15 @@ Glacier2.Client.Endpoints=ssl -p 10005
 Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
 # 
-# The configures session manager. If no externals session manager is
-# used, sessions are only handled Glacier2 internally.
+# The configures the session manager. If no external session manager
+# is used, sessions are only handled Glacier2 internally.
 #
 Glacier2.SessionManager=sessionmanager:tcp -h 127.0.0.1 -p 10001
 
 # 
 # For this demo, we use a dummy permissions verifier that is
 # collocated with the session server process. This dummy permissions
-# verfier allows any user-id / password combination.
+# verifier allows any user-id / password combination.
 # 
 Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10001
 
@@ -63,7 +63,7 @@ Glacier2.Client.ForwardContext=1
 Glacier2.Server.ForwardContext=1
 
 #
-# To avoid that Glacier2 gets flooded with requests from or to one
+# To prevent Glacier2 from being flooded with requests from or to one
 # particular client, Glacier2 can be configured to sleep for a certain
 # period after all current requests for this client have been
 # forwarded. During this sleep period, new requests for the client are
