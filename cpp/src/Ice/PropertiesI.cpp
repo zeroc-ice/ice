@@ -275,7 +275,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
                 s += "=1";
             }
             parseLine(s.substr(2));
-            args.erase(q);
+            args.erase(q++);
         }
         else
         {
