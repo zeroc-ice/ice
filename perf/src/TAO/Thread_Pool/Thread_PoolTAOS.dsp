@@ -6,28 +6,26 @@
 
 CFG=Thread_PoolTAOS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
-!MESSAGE run the tool that generated this project file and specify the
-!MESSAGE nmake output type.  You can then use the following command:
-!MESSAGE
-!MESSAGE NMAKE.
-!MESSAGE
+!MESSAGE use the Export Makefile command and run
+!MESSAGE 
+!MESSAGE NMAKE /f "Thread_PoolTAOS.mak".
+!MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
-!MESSAGE
-!MESSAGE NMAKE CFG="Thread_PoolTAOS - Win32 Debug"
-!MESSAGE
+!MESSAGE 
+!MESSAGE NMAKE /f "Thread_PoolTAOS.mak" CFG="Thread_PoolTAOS - Win32 Debug"
+!MESSAGE 
 !MESSAGE Possible choices for configuration are:
-!MESSAGE
+!MESSAGE 
 !MESSAGE "Thread_PoolTAOS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE "Thread_PoolTAOS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "Thread_PoolTAOS - Win32 Debug"
@@ -37,34 +35,40 @@ RSC=rc.exe
 # PROP Output_Dir "."
 # PROP Intermediate_Dir "Debug\Thread_PoolTAOS"
 # PROP Target_Dir ""
-# ADD CPP /nologo /Ob0 /W3 /Gm /GX /Zi /MDd /GR /Gy /Fd"Debug\Thread_PoolTAOS/" /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D _DEBUG /D WIN32 /D _CONSOLE /FD /c
-# SUBTRACT CPP /YX
-
+MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD RSC /l 0x409 /d _DEBUG /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)"
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "_DEBUG"
 BSC32=bscmake.exe
-# ADD BSC32 /nologo 
+# ADD BSC32 /nologo
 LINK32=link.exe
-# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\lib" /nologo /subsystem:console /pdb:".\server.pdb" /debug /machine:I386 /out:".\server.exe"
+# ADD BASE LINK32 /machine:IX86
+# ADD LINK32 advapi32.lib user32.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "Thread_PoolTAOS - Win32 Release"
 
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release\Thread_PoolTAOS"
+# PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD CPP /nologo /O2 /W3 /GX /MD /GR /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D NDEBUG /D WIN32 /D _CONSOLE /FD /c
-# SUBTRACT CPP /YX
-
+MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD RSC /l 0x409 /d NDEBUG /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)"
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409
+# ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "NDEBUG"
 BSC32=bscmake.exe
-# ADD BSC32 /nologo 
+# ADD BSC32 /nologo
 LINK32=link.exe
-# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO TAO_Strategies.lib TAO_PortableServer.lib TAO.lib ACE.lib /libpath:"$(TAO_ROOT)\..\lib" /libpath:"$(TAO_ROOT)\..\lib" /nologo /subsystem:console /pdb:none  /machine:I386 /out:"Release\server.exe"
+# ADD BASE LINK32 /machine:IX86
+# ADD LINK32 advapi32.lib user32.lib TAO_Strategies.lib TAO_PortableServer.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 
-!ENDIF
+!ENDIF 
 
 # Begin Target
 
@@ -160,14 +164,15 @@ SOURCE="Test.idl"
 
 !IF  "$(CFG)" == "Thread_PoolTAOS - Win32 Debug"
 
-USERDEP__Test=$(TAO_ROOT)\..\bin\tao_idl.exe
 # PROP Ignore_Default_Tool 1
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\tao_idl on $(InputPath)
+USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
+# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -199,14 +204,15 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Thread_PoolTAOS - Win32 Release"
 
-USERDEP__Test=$(TAO_ROOT)\..\bin\tao_idl.exe
 # PROP Ignore_Default_Tool 1
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\tao_idl on $(InputPath)
+USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
+# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
 	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -236,7 +242,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ENDIF
+!ENDIF 
 
 # End Source File
 # End Group
