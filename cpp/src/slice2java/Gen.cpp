@@ -2021,7 +2021,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << ", ";
         }
-        out << "java.util.HashMap __context)";
+        out << "java.util.Map __context)";
         writeThrowsClause(scope, throws);
         out << sb;
         out << nl << "int __cnt = 0;";
@@ -2711,7 +2711,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         out << ", ";
     }
-    out << "java.util.HashMap __context)";
+    out << "java.util.Map __context)";
     writeThrowsClause(scope, throws);
     out << ';';
 }
@@ -2789,7 +2789,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << ", ";
         }
-        out << "java.util.HashMap __context)";
+        out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << ';';
     }
@@ -2862,7 +2862,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << ", ";
         }
-        out << "java.util.HashMap __context)";
+        out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << sb;
         out << nl << "IceInternal.Outgoing __out = new "
