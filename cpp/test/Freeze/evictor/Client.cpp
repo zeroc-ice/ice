@@ -185,7 +185,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	test(servants[i]->getValue() == i + 300);
 
-	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
 	test(facet1 == 0);
     }
     
