@@ -90,7 +90,7 @@ install_slicedir	= $(prefix)/slice
 
 INSTALL			= cp -fp
 
-GACUTIL			= /usr/bin/mono /usr/bin/gacutil.exe
+GACUTIL			= gacutil
 
 MCS			= mcs
 
