@@ -218,60 +218,90 @@ IceUtil::Thread::getThreadControl() const
 bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     return _id == rhs._id;
 }
 
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     return _id != rhs._id;
 }
 
 bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     return _id < rhs._id;
 }
 
@@ -465,61 +495,91 @@ IceUtil::Thread::getThreadControl() const
 bool
 IceUtil::Thread::operator==(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     return pthread_equal(_id, rhs._id);
 }
 
 bool
 IceUtil::Thread::operator!=(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     return !pthread_equal(_id, rhs._id);
 }
 
 bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
+    //
+    // Check that this thread was started.
+    //
     {
 	IceUtil::Mutex::Lock lock(_stateMutex);
 	if(!_started)
 	{
 	    throw ThreadNotStartedException(__FILE__, __LINE__);
 	}
-    }
+    }	// Release lock, to avoid mutual deadlock between this thread and rhs.
+
+    //
+    // Check that the rhs thread was started.
+    //
+    IceUtil::Mutex::Lock lock(rhs._stateMutex);
+    if(!rhs._started)
     {
-	IceUtil::Mutex::Lock lock(rhs._stateMutex);
-	if(!rhs._started)
-	{
-	    throw ThreadNotStartedException(__FILE__, __LINE__);
-	}
+	throw ThreadNotStartedException(__FILE__, __LINE__);
     }
+    //
+    // We perform the comparison within the scope of the lock, otherwise the hardware has no
+    // way of knowing that it might have to flush a cache line.
+    //
     // NOTE: Linux specific
+    //
     return _id < rhs._id;
 }
 
