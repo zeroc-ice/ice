@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libIceSSL.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libIceSSL.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
@@ -66,8 +63,8 @@ SLICE_SRCS	= $(SDIR)/Exception.ice \
 
 HDIR		= $(includedir)/IceSSL
 SDIR		= $(slicedir)/IceSSL
-SLICE2CPPFLAGS	= -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
+
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceSSL --dll-export ICE_SSL_API $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -75,12 +72,7 @@ CPPFLAGS	:= -I.. $(OPENSSL_FLAGS) $(XERCESC_FLAGS) $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS) \
-	$(OPENSSL_LIBS) $(XERCESC_LIBS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(OPENSSL_LIBS) $(XERCESC_LIBS)
 
 $(HDIR)/Exception.h Exception.cpp: $(SDIR)/Exception.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Exception.h Exception.cpp

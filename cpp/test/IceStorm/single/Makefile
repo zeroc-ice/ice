@@ -38,11 +38,11 @@ LIBS		:= -lIceStorm $(LIBS)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Single.h Single.cpp: Single.ice $(SLICE2CPP)
 	rm -f Single.h Single.cpp

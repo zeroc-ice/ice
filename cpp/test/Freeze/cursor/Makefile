@@ -29,6 +29,6 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) -ldb
 
 include .depend

@@ -39,11 +39,11 @@ LIBS		:= -lIceStorm $(LIBS)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Clock.h Clock.cpp: Clock.ice $(SLICE2CPP)
 	rm -f Clock.h Clock.cpp

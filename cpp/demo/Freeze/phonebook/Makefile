@@ -49,8 +49,6 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= PhoneBook.ice
 
-SLICE2CPPFLAGS	= -I$(slicedir)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(DB_HOME)/include $(CPPFLAGS)
@@ -58,15 +56,15 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) -ldb
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) -ldb -lreadline -lcurses
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y
@@ -85,14 +83,14 @@ clean::
 
 PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)
 	rm -f PhoneBook.h PhoneBook.cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) PhoneBook.ice
+	$(SLICE2CPP) $(ICECPPFLAGS) PhoneBook.ice
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp
 
 NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
+	$(SLICE2FREEZE) $(ICECPPFLAGS) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
 
 clean::
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp

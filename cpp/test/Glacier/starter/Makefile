@@ -38,11 +38,11 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier $(SSLLIBS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Callback.h Callback.cpp: Callback.ice $(SLICE2CPP)
 	rm -f Callback.h Callback.cpp

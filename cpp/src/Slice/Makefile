@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libSlice.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libSlice.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
@@ -37,11 +34,7 @@ CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

@@ -28,6 +28,6 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(BASELIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(BASELIBS)
 
 include .depend

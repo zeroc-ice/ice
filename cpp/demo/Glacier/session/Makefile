@@ -37,11 +37,11 @@ SLICECMD	= $(SLICE2CPP) -I$(slicedir)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lGlacier $(SSLLIBS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lGlacier $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lGlacier $(LIBS)
 
 HelloSession.h HelloSession.cpp: HelloSession.ice $(SLICE2CPP)
 	rm -f HelloSession.h HelloSession.cpp

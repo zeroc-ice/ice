@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libIceBox.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libIceBox.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 SERVER		= $(top_srcdir)/bin/icebox
 ADMIN		= $(top_srcdir)/bin/iceboxadmin
@@ -42,8 +39,7 @@ SLICE_SRCS	= $(SDIR)/IceBox.ice
 HDIR		= $(includedir)/IceBox
 SDIR		= $(slicedir)/IceBox
 
-SLICE2CPPFLAGS	= -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceBox $(SLICE2CPPFLAGS)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceBox $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -52,19 +48,15 @@ LDFLAGS         := $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze -lIceXML $(LIBS) -ldb
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceBox $(LIBS)
 
 $(HDIR)/IceBox.h IceBox.cpp: $(SDIR)/IceBox.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceBox.h IceBox.cpp

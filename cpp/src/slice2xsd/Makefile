@@ -33,10 +33,10 @@ CPPFLAGS	:= -I. $(CPPFLAGS) $(XERCESC_FLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS)
 
 $(VALIDATE): $(VOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(VOBJS) $(BASELIBS) $(XERCESC_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(VOBJS) $(BASELIBS) $(XERCESC_LIBS)
 
 include .depend

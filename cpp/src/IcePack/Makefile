@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libIcePack.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libIcePack.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 ADMIN		= $(top_srcdir)/bin/icepackadmin
 NODE_SERVER	= $(top_srcdir)/bin/icepacknode
@@ -85,34 +82,32 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
-SLICE2CPPFLAGS	= -I.. -I$(slicedir)
-SLICECMD    	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I.. -I$(slicedir)
+
+SLICECMD    	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack $(ICECPPFLAGS)
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
+ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(LIB_OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(LIB_OBJS) -lIceBox
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(LIB_OBJS) -lIceBox
 
 $(ADMIN): $(ADMIN_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lYellow -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lYellow -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
 	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
 
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
 	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y

@@ -31,7 +31,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) -ldb
 
 ByteIntMapXML.h ByteIntMapXML.cpp: $(SLICE2FREEZE)
 	rm -f ByteIntMapXML.h ByteIntMapXML.cpp

@@ -38,11 +38,11 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Hello.h Hello.cpp: Hello.ice $(SLICE2CPP)
 	rm -f Hello.h Hello.cpp

@@ -16,11 +16,8 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 
-BASE		= libHelloService.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(BASE)
-VERSIONED_NAME	= $(VERSIONED_BASE)
+NAME		= libHelloService.so
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 TARGETS		= $(CLIENT) $(NAME) $(VERSIONED_NAME)
 
@@ -43,15 +40,11 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) -shared -o $@ $(OBJS) $(SOBJS) $(LDFLAGS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_NAME) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS)  -o $@ $(OBJS) $(SOBJS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
 Hello.h Hello.cpp: Hello.ice $(SLICE2CPP)
 	rm -f Hello.h Hello.cpp

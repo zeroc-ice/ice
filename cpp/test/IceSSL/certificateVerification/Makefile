@@ -19,11 +19,11 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Pinger.o \
+OBJS		= Pinger.o
 
 COBJS		= Client.o 
 
-SOBJS		= Server.o \
+SOBJS		= Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
@@ -31,23 +31,21 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= Pinger.ice
 
-SLICE2CPPFLAGS	= -I$(slicedir)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(SSLLIBS) $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(SSLLIBS) $(LIBS)
 
 Pinger.h Pinger.cpp: Pinger.ice $(SLICE2CPP)
 	rm -f Pinger.h Pinger.cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) Pinger.ice
+	$(SLICE2CPP) $(ICECPPFLAGS) Pinger.ice
 
 clean::
 	rm -f Pinger.h Pinger.cpp

@@ -14,17 +14,11 @@
 
 top_srcdir	= ../..
 
-BASE		= libIceStorm.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
+NAME		= $(top_srcdir)/lib/libIceStorm.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
-
-SBASE		= libIceStormService.so
-VERSIONED_SBASE	= $(SBASE).$(VERSION)
-
-SNAME		= $(top_srcdir)/lib/$(SBASE)
-VERSIONED_SNAME	= $(top_srcdir)/lib/$(VERSIONED_SBASE)
+SNAME		= $(top_srcdir)/lib/libIceStormService.$(LIBEXT)
+VERSIONED_SNAME	= $(SNAME).$(VERSION)
 
 ADMIN		= $(top_srcdir)/bin/icestormadmin
 
@@ -65,34 +59,27 @@ SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
-SLICE2CPPFLAGS	= -I.. -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm -I$(slicedir) -I..
+
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IceStorm $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. -I$(DB_HOME)/include $(XERCESC_FLAGS) $(CPPFLAGS)
+ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 $(VERSIONED_SNAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_SBASE) $(LDFLAGS) -shared -o $@ $(SERVICE_OBJS)
-
-$(SNAME): $(VERSIONED_SNAME)
-	rm -f $@
-	ln -s $(VERSIONED_SBASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(SERVICE_OBJS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lcurses
 
 $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp

@@ -30,7 +30,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS) Test.xsd
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceXML $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceXML $(LIBS)
 
 Test.xsd: Test.ice $(SLICE2XSD)
 	rm -f Test.xsd

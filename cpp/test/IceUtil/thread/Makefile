@@ -37,6 +37,6 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(BASELIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(BASELIBS)
 
 include .depend

@@ -14,17 +14,11 @@
 
 top_srcdir	= ../..
 
-BASE		= libYellow.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
+NAME		= $(top_srcdir)/lib/libYellow.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
-
-SBASE		= libYellowService.so
-VERSIONED_SBASE	= $(SBASE).$(VERSION)
-
-SNAME		= $(top_srcdir)/lib/$(SBASE)
-VERSIONED_SNAME	= $(top_srcdir)/lib/$(VERSIONED_SBASE)
+SNAME		= $(top_srcdir)/lib/libYellowService.$(LIBEXT)
+VERSIONED_SNAME	= $(SNAME).$(VERSION)
 
 ADMIN		= $(top_srcdir)/bin/yellowadmin
 
@@ -51,9 +45,9 @@ SLICE_SRCS	= $(SDIR)/Yellow.ice
 
 HDIR		= $(includedir)/Yellow
 SDIR		= $(slicedir)/Yellow
-SLICE2CPPFLAGS	= -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow -I$(slicedir)
+
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -62,23 +56,15 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 $(VERSIONED_SNAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_SBASE) $(LDFLAGS) -shared -o $@ $(SERVICE_OBJS)
-
-$(SNAME): $(VERSIONED_SNAME)
-	rm -f $@
-	ln -s $(VERSIONED_SBASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(SERVICE_OBJS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lYellow $(LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lYellow $(LIBS) -lreadline -lcurses
 
 $(HDIR)/Yellow.h Yellow.cpp: $(SDIR)/Yellow.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Yellow.h Yellow.cpp

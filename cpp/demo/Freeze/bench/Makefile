@@ -31,7 +31,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) -ldb
 
 Test.h Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f Test.h Test.cpp

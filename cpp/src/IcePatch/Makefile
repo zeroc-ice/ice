@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libIcePatch.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libIcePatch.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 CLIENT		= $(top_srcdir)/bin/icepatchclient
 SERVER		= $(top_srcdir)/bin/icepatchserver
@@ -44,8 +41,8 @@ SLICE_SRCS	= $(SDIR)/IcePatch.ice
 
 HDIR		= $(includedir)/IcePatch
 SDIR		= $(slicedir)/IcePatch
-SLICE2CPPFLAGS	= -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(SLICE2CPPFLAGS)
+
+SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -53,19 +50,15 @@ CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier $(SSLLIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier $(SSLLIBS) $(LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
 $(HDIR)/IcePatch.h IcePatch.cpp: $(SDIR)/IcePatch.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IcePatch.h IcePatch.cpp

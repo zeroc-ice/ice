@@ -28,6 +28,16 @@ OPENSSL_HOME	?= /opt/openssl
 XERCESC_HOME    ?= /opt/xerces-c
 
 #
+# Define DEBUG as yes if you want to build with debug information. 
+#
+DEBUG=yes
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+#
+#OPTIMIZE=yes
+
+#
 # Don't change these lines!
 #
 SHELL		= /bin/sh
@@ -44,62 +54,80 @@ OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
 OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
 
 #
-# Experts only: You can change the following lines, for example, to
-# set different compilation options for debug or optimization
+# Experts only: You can change the following lines to set different
+# compiler options.
 #
 
 #
 # GCC 2.96
 #
 CXX		= c++
-CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-#CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
-CPPFLAGS	= -I$(includedir) -I$(STLPORT_HOME)/include/stlport
-LDFLAGS		= -L$(libdir) -L$(STLPORT_HOME)/lib
-BASELIBS	= -lIceUtil -lstlport_gcc_stldebug -lpthread -luuid -ldl -lbz2
-#BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl -lbz2
-LIBS		= -lIce $(BASELIBS)
-SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
+CXXFLAGS 	= -ftemplate-depth-128 -fPIC -Wall
+DBG_CXXFLAGS	= -g
+OPT_CXXFLAGS	= -O3 -DNDEBUG
+CPPFLAGS	= -I$(STLPORT_HOME)/include/stlport
+LDFLAGS		= -L$(STLPORT_HOME)/lib
+SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
+LIBEXT		= so
 CC		= gcc
 CFLAGS		= $(CXXFLAGS)
+ifeq ($(DEBUG),yes)
+  BASELIBS	= -lIceUtil -lstlport_gcc_stldebug -lpthread -luuid -ldl -lbz2
+else
+  BASELIBS	= -lIceUtil -lstlport_gcc -lpthread -luuid -ldl -lbz2
+endif
+LIBS		= -lIce $(BASELIBS)
+SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
 
 #
 # GCC 3.2
 #
 #CXX		= c++
-#CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
-##CXXFLAGS	= -O3 -DNDEBUG -ftemplate-depth-128 -fPIC -Wall
-#CPPFLAGS	= -I$(includedir)
-#LDFLAGS		= -L$(libdir)
-#BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
-#LIBS		= -lIce $(BASELIBS)
-#SSLLIBS		= -lIceSSL $(OPENSSL_LIBS)
+#CXXFLAGS	= -ftemplate-depth-128 -fPIC -Wall
+#DBG_CXXFLAGS	= -g 
+#OPT_CXXFLAGS	= -O3 -DNDEBUG
+#SHLIB_LDFLAGS	= -shared -Xlinker -soname -Xlinker $(@F)
+#LIBEXT		= so
 #CC		= gcc
 #CFLAGS		= $(CXXFLAGS)
+#BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
+#LIBS		= -lIce $(BASELIBS)
+#SSLLIBS	= -lIceSSL $(OPENSSL_LIBS)
 
 #
 # Intel's icc compiler (Experimental!)
 #
 #CXX		= icc
-#CXXFLAGS	= -g -KPIC -w1
-##CXXFLAGS	= -O3 -DNDEBUG -KPIC
-#CPPFLAGS	= -I$(includedir)
-#LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib
+#CXXFLAGS 	= -KPIC
+#DBG_CXXFLAGS	= -g -w1
+#OPT_CXXFLAGS	= -O3 -DNDEBUG
+#LIBEXT		= so
+#CC		= gcc
+#CFLAGS		= $(CXXFLAGS)
 #BASELIBS	= -lIceUtil -lpthread -luuid -ldl -lbz2
 #LIBS		= -lIce $(BASELIBS)
 #SSLLIBS	= -lIceSSL $(OPENSSL_LIBS)
-#CC		= gcc
-#CFLAGS		= $(CXXFLAGS)
 
 #
 # Don't change anything below this line!
 #
 
+CPPFLAGS	:= -I$(includedir) $(CPPFLAGS)
+LDFLAGS		:= -L$(libdir) $(LDFLAGS)
+ICECPPFLAGS	= -I$(slicedir)
+
+ifeq ($(OPTIMIZE),yes)
+CXXFLAGS	:= $(OPT_CXXFLAGS) $(CXXFLAGS)
+endif
+
+ifeq ($(DEBUG),yes)
+CXXFLAGS	:= $(DBG_CXXFLAGS) $(CXXFLAGS)
+endif
+
 SLICE2CPP	= $(bindir)/slice2cpp
 SLICE2XSD	= $(bindir)/slice2xsd
 SLICE2FREEZE	= $(bindir)/slice2freeze
 SLICE2DOCBOOK	= $(bindir)/slice2docbook
-
 
 EVERYTHING	= all depend clean
 
@@ -112,6 +140,10 @@ EVERYTHING	= all depend clean
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
+%.$(LIBEXT): %.$(LIBEXT).$(VERSION)
+	rm -f $@
+	ln -s $(@F).$(VERSION) $@
+
 all:: $(SRCS) $(TARGETS)
 
 depend:: $(SRCS) $(SLICE_SRCS)
@@ -121,7 +153,7 @@ depend:: $(SRCS) $(SLICE_SRCS)
 	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | \
+	    $(SLICE2CPP) --depend $(ICECPP_FLAGS) $(SLICE_SRCS) | \
 	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 

@@ -29,6 +29,6 @@ LDFLAGS		:= $(LDFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lYellow $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lYellow $(LIBS)
 
 include .depend

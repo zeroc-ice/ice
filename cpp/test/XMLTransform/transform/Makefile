@@ -68,11 +68,11 @@ LDFLAGS		:= $(LDFLAGS) $(XERCESC_LIBS) -L$(DB_HOME)/lib
 
 $(POPULATE): $(POPULATE_OBJS) $(SCHEMAS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(POPULATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(POPULATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
 
 $(VALIDATE): $(VALIDATE_OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(VALIDATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
+	$(CXX) $(LDFLAGS) -o $@ $(VALIDATE_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) -ldb
 
 IntByteMap.h IntByteMap.cpp: $(SLICE2FREEZE)
 	rm -f IntByteMap.h IntByteMap.cpp

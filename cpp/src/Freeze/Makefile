@@ -14,11 +14,8 @@
 
 top_srcdir	= ../..
 
-BASE		= libFreeze.so
-VERSIONED_BASE	= $(BASE).$(VERSION)
-
-NAME		= $(top_srcdir)/lib/$(BASE)
-VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
+NAME		= $(top_srcdir)/lib/libFreeze.$(LIBEXT)
+VERSIONED_NAME	= $(NAME).$(VERSION)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
@@ -40,9 +37,9 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
-SLICE2CPPFLAGS	= -I$(slicedir)
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze -I$(slicedir)
+
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -51,11 +48,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS)
-
-$(NAME): $(VERSIONED_NAME)
-	rm -f $@
-	ln -s $(VERSIONED_BASE) $@
+	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 $(HDIR)/DB.h DB.cpp: $(SDIR)/DB.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DB.h DB.cpp
