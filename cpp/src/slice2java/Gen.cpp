@@ -4285,7 +4285,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	}
 	out << nl << "ice_response(" << argsAMI << ");";
 	out << eb;
-	out << eb << ';';
+	out << eb;
 
 	close();
     }
@@ -4314,7 +4314,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << sb;
 	    out << sp << nl << "void ice_response(" << paramsAMD << ");";
 	    out << sp << nl << "void ice_exception(java.lang.Exception ex);";
-	    out << eb << ';';
+	    out << eb;
 	    
 	    close();
 	}
@@ -4420,7 +4420,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << eb;
 	    out << eb;
 
-	    out << eb << ';';
+	    out << eb;
 	    
 	    close();
 	}
