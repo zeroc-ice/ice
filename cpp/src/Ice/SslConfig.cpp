@@ -81,13 +81,13 @@ IceSecurity::Ssl::Parser::process()
     //  Create our parser, then attach an error handler to the parser.
     //  The parser will call back to methods of the ErrorHandler if it
     //  discovers errors during the course of parsing the XML document.
-    DOMParser* parser = new DOMParser;
-    parser->setValidationScheme(DOMParser::Val_Auto);
-    parser->setDoNamespaces(false);
-    parser->setDoSchema(false);
-    parser->setCreateEntityReferenceNodes(false);
-    parser->setToCreateXMLDeclTypeNode(true);
-    parser->setErrorHandler(errReporter);
+    DOMParser parser;
+    parser.setValidationScheme(DOMParser::Val_Auto);
+    parser.setDoNamespaces(false);
+    parser.setDoSchema(false);
+    parser.setCreateEntityReferenceNodes(false);
+    parser.setToCreateXMLDeclTypeNode(true);
+    parser.setErrorHandler(errReporter);
 
     try
     {
@@ -108,7 +108,7 @@ IceSecurity::Ssl::Parser::process()
             ArrayJanitor<XMLCh> janFile(xmlConfigFile);
             LocalFileInputSource configSource(xmlConfigPath, xmlConfigFile);
 
-            parser->parse(configSource);
+            parser.parse(configSource);
         }
         else
         {
@@ -116,15 +116,15 @@ IceSecurity::Ssl::Parser::process()
             ArrayJanitor<XMLCh> janFile(xmlConfigFile);
             LocalFileInputSource configSource(xmlConfigFile);
 
-            parser->parse(configSource);
+            parser.parse(configSource);
         }
 
-        errorCount = parser->getErrorCount();
+        errorCount = parser.getErrorCount();
 
         if (errorCount == 0)
         {
             // Get the root of the parse tree.
-            _root = parser->getDocument();
+            _root = parser.getDocument();
         }
     }
     catch (const XMLException& e)
