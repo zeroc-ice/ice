@@ -99,7 +99,10 @@
 
 // The Windows default of 64 is too small -- we want more concurrent
 // connections than that.
-#   define FD_SETSIZE 1024
+
+#   ifndef FS_SETSIZE
+#      define FD_SETSIZE 1024
+#   endif
 
 #   include <windows.h>
 
@@ -126,7 +129,9 @@
 // macros for minimum/maximum integer values should only be defined if
 // explicitly requested with __STDC_LIMIT_MACROS.
 //
-#   define __STDC_LIMIT_MACROS
+#   ifndef  __STDC_LIMIT_MACROS
+#      define __STDC_LIMIT_MACROS
+#   endif
 #   include <stdint.h>
 #endif
 
