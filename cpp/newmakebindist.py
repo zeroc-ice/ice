@@ -82,13 +82,24 @@ def getVersion(cvsTag, buildDir):
     os.chdir(cwd)
     return result
 
-def getInstallFiles(cvsTag, buildDir):
+def fixVersion(filename, version):
+    f = fileinput.input(filename, True)
+    for line in f:
+	print line.rstrip('\n').replace('@ver@', version)
+    f.close()
+
+def getInstallFiles(cvsTag, buildDir, version):
     """Gets the install sources for this revision"""
     cwd = os.getcwd()
     os.chdir(buildDir)
     os.system('rm -rf ' + buildDir + '/ice/install')
     os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
     os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+    snapshot = os.walk('./ice/install/unix')
+    for dirInfo in snapshot:
+	for f in dirInfo[2]:
+	    fixVersion(os.path.join(dirInfo[0], f), version)
+
     os.chdir(cwd)
     return buildDir + '/ice/install'
 
@@ -110,7 +121,7 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     if cvsdir in ['icepy', 'ice', 'icephp']:
         os.system("./makedist.py " + tag)
     else:
-        os.system("./makedist.py -d " + tag)
+        os.system("./makedist.py " + tag)
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -436,9 +447,9 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     # We currently run configure each time even if clean=false.  This is because a large part of the IcePHP build
     # process is actually the configure step.  This could probably be bypassed afterwards.
     #
-    phpMatches = glob.glob(sources + '/php*.tar.[gb]z?')
+    phpMatches = glob.glob(sources + '/php*.tar.[bg]z*')
     if len(phpMatches) == 0:
-	print 'Unable to find PHP source tarball'
+	print 'Unable to find PHP source tarball in %s' % sources
     	sys.exit(1)
 
     phpFile = ''
@@ -920,7 +931,7 @@ def main():
 	installFiles = 'install'
     else:
 	version, soVersion = getVersion(cvsTag, buildDir)
-	installFiles = getInstallFiles(cvsTag, buildDir)
+	installFiles = getInstallFiles(cvsTag, buildDir, version)
 
     if verbose:
         print "Building binary distributions for Ice-" + version + " on " + getPlatform()
