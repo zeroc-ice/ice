@@ -173,6 +173,7 @@ os.system("zip -9 -r " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
+shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
 
 #
 # Done.

@@ -309,6 +309,7 @@ os.system("zip -9r " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
+shutil.copyfile(os.path.join(icever, "CHANGES"), "Ice-" + version + "-CHANGES")
 
 #
 # Done.
