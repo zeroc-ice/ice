@@ -1819,6 +1819,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 	    case Builtin::KindLong:
 	    {
 		out << p->value() << "L";	// Need to append "L" modifier for long constants
+		break;
 	    }
             case Builtin::KindBool:
             case Builtin::KindShort:
@@ -1828,7 +1829,10 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
+	    {
+		out << p->value();
                 break;
+	    }
 	}
 
     }
