@@ -14,39 +14,13 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-class Glacier2CB : public AMI_Object_ice_invoke
-{
-public:
-
-    Glacier2CB(const AMD_Object_ice_invokePtr& cb) :
-	_cb(cb)
-    {
-    }
-
-    virtual void
-    ice_response(bool ok, const vector<Byte>& outParams)
-    {
-	_cb->ice_response(ok, outParams);
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-	_cb->ice_exception(ex);
-    }
-
-private:
-
-    AMD_Object_ice_invokePtr _cb;
-};
-
 Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
 			   bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams),
     _current(current),
     _forwardContext(forwardContext),
-    _amiCB(new Glacier2CB(amdCB))
+    _amdCB(amdCB)
 {
     Context::const_iterator p = current.ctx.find("_ovrd");
     if(p != current.ctx.end())
@@ -62,18 +36,21 @@ Glacier2::Request::invoke()
     {
 	if(_forwardContext)
 	{
-	    _proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams, _current.ctx);
+	    _proxy->ice_invoke_async(this, _current.operation, _current.mode, _inParams, _current.ctx);
 	}
 	else
 	{
-	    _proxy->ice_invoke_async(_amiCB, _current.operation, _current.mode, _inParams);
+	    _proxy->ice_invoke_async(this, _current.operation, _current.mode, _inParams);
 	}
     }
     else
     {
+	//
+	// Dummy values, since we are sending oneway.
+	//
 	bool ok;
 	vector<Byte> outParams;
-
+    
 	try
 	{
 	    if(_forwardContext)
@@ -84,14 +61,13 @@ Glacier2::Request::invoke()
 	    {
 		ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	    }
+
+	    ice_response(ok, outParams);
 	}
 	catch(const LocalException& ex)
 	{
-	    _amiCB->ice_exception(ex);
-	    return;
+	    ice_exception(ex);
 	}
-	
-	_amiCB->ice_response(ok, outParams);
     }
 }
 
@@ -132,31 +108,19 @@ Glacier2::Request::getProxy() const
     return _proxy;
 }
 
-const Current&
-Glacier2::Request::getCurrent() const
+void
+Glacier2::Request::ice_response(bool ok, const vector<Byte>& outParams)
 {
-    return _current;
+    _amdCB->ice_response(ok, outParams);
 }
 
-static const string serverSleepTime = "Glacier2.Server.SleepTime";
-static const string clientSleepTime = "Glacier2.Client.SleepTime";
-static const string serverTraceRequest = "Glacier2.Server.Trace.Request";
-static const string clientTraceRequest = "Glacier2.Client.Trace.Request";
-static const string serverTraceOverride = "Glacier2.Server.Trace.Override";
-static const string clientTraceOverride = "Glacier2.Client.Trace.Override";
+void
+Glacier2::Request::ice_exception(const Exception& ex)
+{
+    _amdCB->ice_exception(ex);
+}
 
-Glacier2::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, bool reverse) :
-    _logger(communicator->getLogger()),
-    _reverse(reverse),
-    _sleepTime(reverse ?
-	       IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(serverSleepTime)) :
-	       IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(clientSleepTime))),
-    _requestTraceLevel(_reverse ?
-		       communicator->getProperties()->getPropertyAsInt(serverTraceRequest) :
-		       communicator->getProperties()->getPropertyAsInt(clientTraceRequest)),
-    _overrideTraceLevel(reverse ?
-			communicator->getProperties()->getPropertyAsInt(serverTraceOverride) :
-			communicator->getProperties()->getPropertyAsInt(clientTraceOverride)),
+Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :
     _destroy(false)
 {
 }
@@ -192,7 +156,7 @@ Glacier2::RequestQueue::destroy()
     getThreadControl().detach();
 }
 
-void 
+bool
 Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
@@ -205,18 +169,15 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
         {
             *p = request; // Replace old request if this is an override.
 
-	    if(_overrideTraceLevel >= 1)
-	    {
-		traceRequest(request, "override");
-	    }
-
-            return;
+	    return true;
         }
     }
 
     _requests.push_back(request); // No override, add new request.
 
     notify();
+
+    return false;
 }
 
 void 
@@ -262,11 +223,6 @@ Glacier2::RequestQueue::run()
 		flushSet.insert(proxy->ice_connection());
 	    }
 	    
-	    if(_requestTraceLevel >= 1)
-	    {
-		traceRequest(*p, "");
-	    }
-	    
 	    (*p)->invoke();
 	}
 
@@ -289,42 +245,6 @@ Glacier2::RequestQueue::run()
 	if(_sleepTime > IceUtil::Time())
 	{
 	    IceUtil::ThreadControl::sleep(_sleepTime);
-	}
-    }
-}
-
-void
-Glacier2::RequestQueue::traceRequest(const RequestPtr& request, const string& extra) const
-{
-    Trace out(_logger, "Glacier2");
-    
-    const ObjectPrx& proxy = request->getProxy();
-    const Current& current = request->getCurrent();
-
-    if(_reverse)
-    {
-	out << "reverse ";
-    }
-
-    out << "routing";
-
-    if(!extra.empty())
-    {
-	out << ' ' << extra;
-    }
-
-    out << "\nproxy = " << current.adapter->getCommunicator()->proxyToString(proxy);
-
-    out << "\noperation = " << current.operation;
-
-    out << "\ncontext = ";
-    Context::const_iterator q = current.ctx.begin();
-    while(q != current.ctx.end())
-    {
-	out << q->first << '/' << q->second;
-	if(++q != current.ctx.end())
-	{
-	    out << ", ";
 	}
     }
 }
