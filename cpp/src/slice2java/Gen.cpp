@@ -1984,6 +1984,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << nl << "int __v = __is.readInt();";
         }
+        out << nl << "if(__v < 0 || __v >= " << sz << ')';
+        out << sb;
+        out << nl << "throw new Ice.MarshalException();";
+        out << eb;
         out << nl << "return " << name << ".convert(__v);";
         out << eb;
 
