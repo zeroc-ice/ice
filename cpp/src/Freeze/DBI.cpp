@@ -218,15 +218,6 @@ Freeze::DBEnvironmentI::openDB(const string& name, bool create)
     }
     catch(...)
     {
-	//
-	// Cleanup after a failure to open the database. Ignore any
-	// errors.
-	//
-	p = _dbMap.find(name);
-	if(p != _dbMap.end())
-	{
-	    _dbMap.erase(p);
-	}
 	db->close(db, 0);
 	throw;
     }

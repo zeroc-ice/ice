@@ -60,17 +60,8 @@ class DBEnvironmentI implements DBEnvironment, com.sleepycat.db.DbErrcall
 	{
 	    return new DBI(_communicator, this, db, name, create);
 	}
-	catch(DBException e)
+	catch(java.lang.Exception e)
 	{
-	    //
-	    // Cleanup after a failure to open the database. Ignore any
-	    // errors.
-	    //
-	    p = (DB)_dbMap.get(name);
-	    if(p != null)
-	    {
-		_dbMap.remove(name);
-	    }
 	    try
 	    {
 		db.close(0);
