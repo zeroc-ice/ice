@@ -37,6 +37,7 @@ main(int argc, char* argv[])
     {
         communicator = initialize(argc, argv);
 
+	/*
         for (int i = 1; i < argc; ++i)
         {
             if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -56,6 +57,7 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
         }
+	*/
 
         PropertiesPtr properties = communicator->getProperties();
         StringSeq args = argsToStringSeq(argc, argv);
