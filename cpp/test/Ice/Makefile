@@ -16,6 +16,7 @@ SUBDIRS		= operations \
 		  exceptions \
 		  inheritance \
 		  facets \
+		  objects \
 		  faultTolerance \
 		  locationForward
 

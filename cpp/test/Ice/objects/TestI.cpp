@@ -1,0 +1,84 @@
+// **********************************************************************
+//
+// Copyright (c) 2001
+// MutableRealms, Inc.
+// Huntsville, AL, USA
+//
+// All Rights Reserved
+//
+// **********************************************************************
+
+#include <Ice/Ice.h>
+#include <TestI.h>
+
+InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter),
+    _b1(new B),
+    _b2(new B),
+    _c(new C),
+    _d(new D)
+{
+}
+
+void
+InitialI::shutdown()
+{
+    _adapter->getCommunicator()->shutdown();
+
+    // Remove cyclic dependencies
+
+    _b1->a = 0;
+    _b1->b = 0;
+    _b1->c = 0;
+    _b1->_removeAllFacets();
+    _b1 = 0;
+
+    _b2->a = 0;
+    _b2->b = 0;
+    _b2->c = 0;
+    _b2->_removeAllFacets();
+    _b2 = 0;
+
+    _c->b = 0;
+    _c->_removeAllFacets();
+    _c = 0;
+
+    _d->a = 0;
+    _d->b = 0;
+    _d->c = 0;
+    _d->_removeAllFacets();
+    _d = 0;
+}
+
+BPtr
+InitialI::getB1()
+{
+    return _b1;
+}
+
+BPtr
+InitialI::getB2()
+{
+    return _b2;
+}
+
+CPtr
+InitialI::getC()
+{
+    return _c;
+}
+
+DPtr
+InitialI::getD()
+{
+    return _d;
+}
+
+void
+InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d)
+{
+    b1 = _b1;
+    b2 = _b2;
+    c = _c;
+    d = _d;
+}
