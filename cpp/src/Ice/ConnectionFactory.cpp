@@ -139,17 +139,21 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
-	    map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
-	    if(r != _connections.end())
+	    pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
+		 multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(*q);
+	    
+	    while(r.first != r.second)
 	    {
 		//
 		// Don't return connections for which destruction has
 		// been initiated.
 		//
-		if(!r->second->isDestroyed())
+		if(!r.first->second->isDestroyed())
 		{
-		    return r->second;
+		    return r.first->second;
 		}
+
+		++r.first;
 	    }
 	}
 
@@ -189,20 +193,24 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	// as new connections might have been added in the meantime.
 	//
 	if(searchAgain)
-	{
+	{	
 	    for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	    {
-		map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
-		if(r != _connections.end())
+		pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
+ 		     multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(*q);
+		
+		while(r.first != r.second)
 		{
 		    //
 		    // Don't return connections for which destruction has
 		    // been initiated.
 		    //
-		    if(!r->second->isDestroyed())
+		    if(!r.first->second->isDestroyed())
 		    {
-			return r->second;
+			return r.first->second;
 		    }
+
+		    ++r.first;
 		}
 	    }
 	}
@@ -282,7 +290,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	}
 	else
 	{
-	    _connections.insert(make_pair(connection->endpoint(), connection));
+	    _connections.insert(_connections.end(), make_pair(connection->endpoint(), connection));
 
 	    if(_destroyed)
 	    {
@@ -331,10 +339,13 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
 
-	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(endpoint);
-	    if(q != _connections.end())
+	    pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
+		 multimap<EndpointPtr, ConnectionPtr>::const_iterator> r = _connections.equal_range(endpoint);
+	    
+	    while(r.first != r.second)
 	    {
-		q->second->setAdapter(adapter);
+		r.first->second->setAdapter(adapter);
+		++r.first;
 	    }
 	}
     }    
@@ -350,7 +361,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    for(map<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    for(multimap<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
 	if(p->second->getAdapter() == adapter)
 	{

@@ -60,8 +60,8 @@ private:
 
     const InstancePtr _instance;
     bool _destroyed;
-    std::map<EndpointPtr, ConnectionPtr> _connections;
-    std::set<EndpointPtr> _pending;
+    std::multimap<EndpointPtr, ConnectionPtr> _connections;
+    std::set<EndpointPtr> _pending; // Endpoints for which connection establishment is pending.
 };
 
 class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>
