@@ -72,8 +72,8 @@ os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice
 filesToRemove = [ \
     "makedist.py", \
     ]
-#for x in filesToRemove:
-#    os.remove(x)
+for x in filesToRemove:
+    os.remove(x)
 
 #
 # Generate bison files.
