@@ -11,7 +11,7 @@
 #ifndef ICE_HANDLE_H
 #define ICE_HANDLE_H
 
-#include <cassert>
+#include <Ice/Config.h>
 #include <algorithm>
 
 namespace Ice
@@ -36,7 +36,7 @@ public:
     
     typedef T element_type;
     
-    explicit Handle(T* p = 0)
+    /*explicit*/ Handle(T* p = 0)
 	: ptr_(p)
     {
 	if(ptr_)
@@ -71,6 +71,7 @@ public:
 	return *this;
     }
         
+/*
     template<typename Y>
     Handle(const Handle<Y>& r)
 	: ptr_(r.ptr_)
@@ -94,6 +95,7 @@ public:
 	}
 	return *this;
     }
+*/
 
     T& operator*() { return *ptr_; }
     const T& operator*() const { return *ptr_; }
@@ -109,7 +111,8 @@ public:
 private:
 
     T* ptr_;
-    template<typename Y> friend class Handle;
+
+//    template<typename Y> friend class Handle;
 };
 
 template<typename T, typename U>

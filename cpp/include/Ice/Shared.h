@@ -11,6 +11,7 @@
 #ifndef ICE_SHARED_H
 #define ICE_SHARED_H
 
+#include <Ice/Config.h>
 #include <cassert>
 
 namespace Ice
@@ -24,7 +25,7 @@ namespace Ice
 // Simple, non thread-safe intrusive base class for reference-counted
 // types.
 //
-class SimpleShared
+class ICE_API SimpleShared
 {
 private:
 
