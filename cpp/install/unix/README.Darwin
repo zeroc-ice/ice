@@ -43,18 +43,6 @@ default C++ compiler, GCC 3.3.
 This distribution depends on a number of third-party libraries which
 are not included with the operating system:
 
-- Berkeley DB 4.2.52
-
-  This distribution includes Berkeley DB 4.2.52, configured with
-  --enable-cxx and --enable-java, and built with GCC 3.3.
-
-- expat 1.95.8 
-
-  You need to download and compile expat in order to use certain
-  Ice components. The expat source code is available at
-
-  http://sourceforge.net/projects/expat/
-
 
 Java
 ----
@@ -70,6 +58,16 @@ The Ice extension for Python included in this distribution requires
 Python 2.3 installed with Mac OS X 10.3. If you prefer to use Python
 2.4, you can download the Ice for Python source code from the ZeroC
 web site at http://www.zeroc.com/download.html.
+
+
+======================================================================
+Berkeley DB and Expat
+======================================================================
+
+This distribution includes the C++ and Java run time for Berkeley DB
+4.2.52 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
+built using GCC 3.3. The Berkeley DB and Expat licenses are provided
+in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
