@@ -380,8 +380,9 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
+	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
 	vector<EndpointPtr>::const_iterator p;
-	for(p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
+	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    EndpointPtr endpoint = *p;
 

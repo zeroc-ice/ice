@@ -263,12 +263,14 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
  
     print "starting " + serverName + "...",
+    #print server + serverOptions + additionalServerOptions
     serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
+    #print client + clientOptions + additionalClientOptions
     clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
     print "ok"
 

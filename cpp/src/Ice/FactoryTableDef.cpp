@@ -79,7 +79,7 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 //
 // Remove a factory from the exception factory table. If the factory
 // is not present, do nothing; otherwise, decrement the factory's
-// reference count if the count drops to zero, remove the factory's
+// reference count; if the count drops to zero, remove the factory's
 // entry from the table.
 //
 void

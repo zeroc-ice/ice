@@ -397,7 +397,7 @@ Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
     checkForDeactivation();
 
     ReferencePtr ref = proxy->__reference();
-    return findFacet(ref->identity, ref->facet);
+    return findFacet(ref->getIdentity(), ref->getFacet());
 }
 
 void
@@ -467,7 +467,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     //
     vector<EndpointPtr> endpoints;
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, connections, true);
+							     false, true, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -486,8 +486,8 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// adapter.
 	//
 	ObjectPrx proxy = routerInfo->getServerProxy();
-	copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
-	     back_inserter(_routerEndpoints));
+	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
+	copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
 	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
 	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
 
@@ -546,13 +546,18 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     ReferencePtr ref = proxy->__reference();
     vector<EndpointPtr>::const_iterator p;
 
-    if(!ref->adapterId.empty())
+    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
+    if(ir)
     {
-	//
-	// Proxy is local if the reference adapter id matches this
-	// adapter id.
-	//
-	return ref->adapterId == _id;
+	if(!ir->getAdapterId().empty())
+	{
+	    //
+	    // Proxy is local if the reference adapter id matches this
+	    // adapter id.
+	    //
+	    return ir->getAdapterId() == _id;
+	}
+	return false;
     }
 
     //
@@ -560,7 +565,8 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // endpoints used by this object adapter's incoming connection
     // factories are considered local.
     //
-    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    vector<EndpointPtr> endpoints = ref->getEndpoints();
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	vector<IncomingConnectionFactoryPtr>::const_iterator q;
 	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
@@ -577,7 +583,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // router's server proxy endpoints (if any), are also considered
     // local.
     //
-    for(p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
 	{
@@ -788,8 +794,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
-								 endpoints, 0, _locatorInfo,
-								 vector<ConnectionIPtr>(), true);
+								 0, _locatorInfo, true);
 
 	//
 	// Return a proxy for the reference. 
@@ -821,8 +826,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, _locatorInfo,
-							     vector<ConnectionIPtr>(), true);
+							     false, endpoints, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

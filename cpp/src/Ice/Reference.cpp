@@ -32,186 +32,156 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
-bool
-IceInternal::Reference::operator==(const Reference& r) const
+ReferencePtr
+IceInternal::Reference::changeMode(Mode newMode) const
 {
-    if(this == &r)
+    if(newMode == mode)
     {
-	return true;
+	return ReferencePtr(const_cast<Reference*>(this));
     }
-    
-    if(identity != r.identity)
-    {
-	return false;
-    }
-
-    if(context != r.context)
-    {
-	return false;
-    }
-
-    if(facet != r.facet)
-    {
-	return false;
-    }
-
-    if(mode != r.mode)
-    {
-	return false;
-    }
-
-    if(secure != r.secure)
-    {
-	return false;
-    }
-
-    if(adapterId != r.adapterId)
-    {
-	return false;
-    }
-
-    if(endpoints != r.endpoints)
-    {
-	return false;
-    }
-
-    if(routerInfo != r.routerInfo)
-    {
-	return false;
-    }
-
-    if(locatorInfo != r.locatorInfo)
-    {
-	return false;
-    }
-
-    if(fixedConnections != r.fixedConnections)
-    {
-	return false;
-    }
-
-    if(collocationOptimization != r.collocationOptimization)
-    {
-	return false;
-    }
-
-    return true;
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->mode = newMode;
+    return r;
 }
 
-bool
-IceInternal::Reference::operator!=(const Reference& r) const
+ReferencePtr
+IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 {
-    return !operator==(r);
+    if(newIdentity == identity)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->identity = newIdentity;
+    return r;
 }
 
-bool
-IceInternal::Reference::operator<(const Reference& r) const
+ReferencePtr
+IceInternal::Reference::changeContext(const Context& newContext) const
 {
-    if(this == &r)
+    if(newContext == context)
     {
-	return false;
+	return ReferencePtr(const_cast<Reference*>(this));
     }
-    
-    if(identity < r.identity)
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->context = newContext;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeFacet(const string& newFacet) const
+{
+    if(newFacet == facet)
     {
-	return true;
+	return ReferencePtr(const_cast<Reference*>(this));
     }
-    else if(r.identity < identity)
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->facet = newFacet;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeSecure(bool newSecure) const
+{
+    if(newSecure == secure)
     {
-	return false;
+	return ReferencePtr(const_cast<Reference*>(this));
     }
-    
-    if(context < r.context)
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->secure = newSecure;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimization) const
+{
+    if(newCollocationOptimization == collocationOptimization)
     {
-	return true;
+	return ReferencePtr(const_cast<Reference*>(this));
     }
-    else if(r.context < context)
+    ReferencePtr r = instance->referenceFactory()->clone(this);
+    r->collocationOptimization = newCollocationOptimization;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeRouter(const RouterPrx&) const
+{
+    return ReferencePtr(const_cast<Reference*>(this));
+}
+
+ReferencePtr
+IceInternal::Reference::changeLocator(const LocatorPrx&) const
+{
+    return ReferencePtr(const_cast<Reference*>(this));
+}
+
+ReferencePtr
+IceInternal::Reference::changeDefault() const
+{
+    return ReferencePtr(const_cast<Reference*>(this));
+}
+
+ReferencePtr
+IceInternal::Reference::changeCompress(bool) const
+{
+    return ReferencePtr(const_cast<Reference*>(this));
+}
+
+ReferencePtr
+IceInternal::Reference::changeTimeout(int) const
+{
+    return ReferencePtr(const_cast<Reference*>(this));
+}
+
+Int
+Reference::hash() const
+{
+    IceUtil::Mutex::Lock sync(hashMutex);
+
+    if(hashInitialized)
     {
-	return false;
+        return hashValue;
     }
 
-    if(facet < r.facet)
+    string::const_iterator p;
+    Context::const_iterator q;
+
+    Int h = static_cast<Int>(mode);
+
+    for(p = identity.name.begin(); p != identity.name.end(); ++p)
     {
-	return true;
-    }
-    else if(r.facet < facet)
-    {
-	return false;
+        h = 5 * h + *p;
     }
 
-    if(mode < r.mode)
+    for(p = identity.category.begin(); p != identity.category.end(); ++p)
     {
-	return true;
-    }
-    else if(r.mode < mode)
-    {
-	return false;
-    }
-    
-    if(!secure && r.secure)
-    {
-	return true;
-    }
-    else if(r.secure < secure)
-    {
-	return false;
-    }
-    
-    if(adapterId < r.adapterId)
-    {
-	return true;
-    }
-    else if(r.adapterId < adapterId)
-    {
-	return false;
-    }
-    
-    if(endpoints < r.endpoints)
-    {
-	return true;
-    }
-    else if(r.endpoints < endpoints)
-    {
-	return false;
-    }
-    
-    if(routerInfo < r.routerInfo)
-    {
-	return true;
-    }
-    else if(r.routerInfo < routerInfo)
-    {
-	return false;
-    }
-    
-    if(locatorInfo < r.locatorInfo)
-    {
-	return true;
-    }
-    else if(r.locatorInfo < locatorInfo)
-    {
-	return false;
-    }
-    
-    if(fixedConnections < r.fixedConnections)
-    {
-	return true;
-    }
-    else if(r.fixedConnections < fixedConnections)
-    {
-	return false;
-    }
-    
-    if(!collocationOptimization && r.collocationOptimization)
-    {
-	return true;
-    }
-    else if(r.collocationOptimization < collocationOptimization)
-    {
-	return false;
+        h = 5 * h + *p;
     }
 
-    return false;
+    for(q = context.begin(); q != context.end(); ++q)
+    {
+        for(p = q->first.begin(); p != q->first.end(); ++p)
+	{
+	    h = 5 * h + *p;
+	}
+        for(p = q->second.begin(); p != q->second.end(); ++p)
+	{
+	    h = 5 * h + *p;
+	}
+    }
+
+    for(p = facet.begin(); p != facet.end(); ++p)
+    {
+	h = 5 * h + *p;
+    }
+
+    h = 5 * h + static_cast<Int>(secure);
+
+    hashValue = h;
+    hashInitialized = true;
+
+    return h;
 }
 
 void
@@ -240,23 +210,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     
     s->write(secure);
 
-    s->writeSize(Ice::Int(endpoints.size()));
-
-    if(!endpoints.empty())
-    {
-	assert(adapterId.empty());
-
-	vector<EndpointPtr>::const_iterator p;
-
-	for(p = endpoints.begin(); p != endpoints.end(); ++p)
-	{
-	    (*p)->streamWrite(s);
-	}
-    }
-    else
-    {
-	s->write(adapterId);
-    }
+    // Derived class writes the remainder of the reference.
 }
 
 string
@@ -337,416 +291,119 @@ IceInternal::Reference::toString() const
 	s << " -s";
     }
 
-    if(!endpoints.empty())
-    {
-	assert(adapterId.empty());
-
-	vector<EndpointPtr>::const_iterator p;
-	for(p = endpoints.begin(); p != endpoints.end(); ++p)
-	{
-	    string endp = (*p)->toString();
-	    if(!endp.empty())
-	    {
-		s << ':' << endp;
-	    }
-	}
-    }
-    else if(!adapterId.empty())
-    {
-        string a = IceUtil::escapeString(adapterId, "");
-        //
-        // If the encoded adapter id string contains characters which
-        // the reference parser uses as separators, then we enclose
-        // the adapter id string in quotes.
-        //
-        s << " @ ";
-        if(a.find_first_of(" \t\n\r") != string::npos)
-        {
-            s << '"' << a << '"';
-        }
-        else
-        {
-            s << adapterId;
-        }
-    }
-    
     return s.str();
+
+    // Derived class writes the remainder of the string.
 }
 
-ReferencePtr
-IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
-{
-    if(newIdentity == identity)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(newIdentity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeContext(const Context& newContext) const
-{
-    if(newContext == context)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, newContext, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeFacet(const string& newFacet) const
-{
-    if(newFacet == facet)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, newFacet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeTimeout(int newTimeout) const
+bool
+IceInternal::Reference::operator==(const Reference& r) const
 {
     //
-    // We change the timeout settings in all endpoints.
+    // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
-    vector<EndpointPtr>::const_iterator p;
-
-    vector<EndpointPtr> newEndpoints;
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    
+    if(mode != r.mode)
     {
-	newEndpoints.push_back((*p)->timeout(newTimeout));
+	return false;
+    }
+
+    if(identity != r.identity)
+    {
+	return false;
+    }
+
+    if(context != r.context)
+    {
+	return false;
+    }
+
+    if(facet != r.facet)
+    {
+	return false;
+    }
+
+    if(secure != r.secure)
+    {
+	return false;
+    }
+
+    if(collocationOptimization != r.collocationOptimization)
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+IceInternal::Reference::operator!=(const Reference& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::Reference::operator<(const Reference& r) const
+{
+    //
+    // Note: if(this == &r) test is performed by each non-abstract derived class.
+    //
+    
+    if(mode < r.mode)
+    {
+	return true;
+    }
+    else if(r.mode < mode)
+    {
+	return false;
     }
     
-    return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						collocationOptimization);
-}
-
-ReferencePtr
-IceInternal::Reference::changeMode(Mode newMode) const
-{
-    if(newMode == mode)
+    if(identity < r.identity)
     {
-	return ReferencePtr(const_cast<Reference*>(this));
+	return true;
     }
-    else
+    else if(r.identity < identity)
     {
-	return instance->referenceFactory()->create(identity, context, facet, newMode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeSecure(bool newSecure) const
-{
-    if(newSecure == secure)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, facet, mode, newSecure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeCompress(bool newCompress) const
-{
-    //
-    // We change the compress settings in all endpoints.
-    //
-    vector<EndpointPtr>::const_iterator p;
-
-    vector<EndpointPtr> newEndpoints;
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-	newEndpoints.push_back((*p)->compress(newCompress));
+	return false;
     }
     
-    return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						collocationOptimization);
-}
-
-ReferencePtr
-IceInternal::Reference::changeAdapterId(const string& newAdapterId) const
-{
-    if(newAdapterId == adapterId)
+    if(context < r.context)
     {
-	return ReferencePtr(const_cast<Reference*>(this));
+	return true;
     }
-    else
+    else if(r.context < context)
     {
-	return instance->referenceFactory()->create(identity, context, facet, mode, secure, newAdapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
-{
-    if(newEndpoints == endpoints)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    newEndpoints, routerInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
-{
-    RouterInfoPtr newRouterInfo = instance->routerManager()->get(newRouter);
-
-    if(newRouterInfo == routerInfo)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, newRouterInfo, locatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
-{
-    LocatorInfoPtr newLocatorInfo = instance->locatorManager()->get(newLocator);
-
-    if(newLocatorInfo == locatorInfo)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, newLocatorInfo, fixedConnections,
-						    collocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimization) const
-{
-    if(newCollocationOptimization == collocationOptimization)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    else
-    {
-	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
-						    endpoints, routerInfo, locatorInfo, fixedConnections,
-						    newCollocationOptimization);
-    }
-}
-
-ReferencePtr
-IceInternal::Reference::changeDefault() const
-{
-    RouterInfoPtr defaultRouterInfo = instance->routerManager()->
-	get(instance->referenceFactory()->getDefaultRouter());
-    LocatorInfoPtr defaultLocatorInfo = instance->locatorManager()->
-	get(instance->referenceFactory()->getDefaultLocator());
-
-    return instance->referenceFactory()->create(identity, context, "", ModeTwoway, false, adapterId,
-						endpoints, defaultRouterInfo, defaultLocatorInfo,
-						vector<ConnectionIPtr>(), true);
-}
-
-ConnectionIPtr
-IceInternal::Reference::getConnection(bool& compress) const
-{
-    ConnectionIPtr connection;
-
-    //
-    // If we have a fixed connection, we return such fixed connection.
-    //
-    if(!fixedConnections.empty())
-    {
-	vector<ConnectionIPtr> filteredConns = filterConnections(fixedConnections);
-	if(filteredConns.empty())
-	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = toString();
-	    throw ex;
-	}
-
-	connection = filteredConns[0];
-	compress = connection->endpoint()->compress();
-    }
-    else
-    {
-	while(true)
-	{
-	    bool cached;
-	    vector<EndpointPtr> endpts;
-	    
-	    if(routerInfo)
-	    {
-		//
-		// If we route, we send everything to the router's client
-		// proxy endpoints.
-		//
-		ObjectPrx clientProxy = routerInfo->getClientProxy();
-		endpts = clientProxy->__reference()->endpoints;
-	    }
-	    else if(!endpoints.empty())
-	    {
-		endpts = endpoints;
-	    }
-	    else if(locatorInfo)
-	    {
-		ReferencePtr self = const_cast<Reference*>(this);
-		endpts = locatorInfo->getEndpoints(self, cached);
-	    }
-	    
-	    vector<EndpointPtr> filteredEndpts = filterEndpoints(endpts);
-	    if(filteredEndpts.empty())
-	    {
-		NoEndpointException ex(__FILE__, __LINE__);
-		ex.proxy = toString();
-		throw ex;
-	    }
-	    
-	    try
-	    {
-		OutgoingConnectionFactoryPtr factory = instance->outgoingConnectionFactory();
-		connection = factory->create(filteredEndpts, compress);
-		assert(connection);
-	    }
-	    catch(const LocalException& ex)
-	    {
-		if(!routerInfo && endpoints.empty())
-		{	
-		    assert(locatorInfo);
-		    ReferencePtr self = const_cast<Reference*>(this);
-		    locatorInfo->clearCache(self);
-		    
-		    if(cached)
-		    {
-			TraceLevelsPtr traceLevels = instance->traceLevels();
-			LoggerPtr logger = instance->logger();
-			if(traceLevels->retry >= 2)
-			{
-			    Trace out(logger, traceLevels->retryCat);
-			    out << "connection to cached endpoints failed\n"
-				<< "removing endpoints from cache and trying one more time\n" << ex;
-			}
-			continue;
-		    }
-		}
-		
-		throw;
-	    }
-	    
-	    break;
-	}
-	
-	//
-	// If we have a router, set the object adapter for this router
-	// (if any) to the new connection, so that callbacks from the
-	// router can be received over this new connection.
-	//
-	if(routerInfo)
-	{
-	    connection->setAdapter(routerInfo->getAdapter());
-	}
+	return false;
     }
 
-    assert(connection);
-    return connection;
-}
-
-vector<EndpointPtr>
-IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints) const
-{
-    vector<EndpointPtr> endpoints = allEndpoints;
-
-    //
-    // Filter out unknown endpoints.
-    //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::unknown)),
-                    endpoints.end());
-
-    switch(mode)
+    if(facet < r.facet)
     {
-	case ModeTwoway:
-	case ModeOneway:
-	case ModeBatchOneway:
-	{
-	    //
-	    // Filter out datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::datagram)),
-                            endpoints.end());
-	    break;
-	}
-	
-	case ModeDatagram:
-	case ModeBatchDatagram:
-	{
-	    //
-	    // Filter out non-datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(Ice::constMemFun(&Endpoint::datagram))),
-                            endpoints.end());
-	    break;
-	}
+	return true;
+    }
+    else if(r.facet < facet)
+    {
+	return false;
+    }
+
+    if(!secure && r.secure)
+    {
+	return true;
+    }
+    else if(r.secure < secure)
+    {
+	return false;
     }
     
-    //
-    // Randomize the order of endpoints.
-    //
-    random_shuffle(endpoints.begin(), endpoints.end());
-    
-    //
-    // If a secure connection is requested, remove all non-secure
-    // endpoints. Otherwise make non-secure endpoints preferred over
-    // secure endpoints by partitioning the endpoint vector, so that
-    // non-secure endpoints come first.
-    //
-    if(secure)
+    if(!collocationOptimization && r.collocationOptimization)
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure))),
-			endpoints.end());
+	return true;
     }
-    else
+    else if(r.collocationOptimization < collocationOptimization)
     {
-	//
-	// We must use stable_partition() instead of just simply
-	// partition(), because otherwise some STL implementations
-	// order our now randomized endpoints.
-	//
-	stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure)));
+	return false;
     }
-    
-    return endpoints;
+
+    return false;
 }
 
 class ConnectionIsDatagram : public unary_function<ConnectionIPtr, bool>
@@ -831,78 +488,715 @@ IceInternal::Reference::filterConnections(const vector<ConnectionIPtr>& allConne
     return connections;
 }
 
-IceInternal::Reference::Reference(const InstancePtr& inst,
-				  const Identity& ident,
-				  const Context& ctx,
-				  const string& fs,
-				  Mode md,
-				  bool sec,
-				  const string& adptid,
-				  const vector<EndpointPtr>& endpts,
-				  const RouterInfoPtr& rtrInfo,
-				  const LocatorInfoPtr& locInfo,
-				  const vector<ConnectionIPtr>& fixedConns,
-				  bool collocationOpt) :
-    instance(inst),
-    identity(ident),
-    context(ctx),
-    facet(fs),
-    mode(md),
-    secure(sec),
-    adapterId(adptid),
-    endpoints(endpts),
-    routerInfo(rtrInfo),
-    locatorInfo(locInfo),
-    fixedConnections(fixedConns),
-    collocationOptimization(collocationOpt),
-    hashValue(0)
+IceInternal::Reference::Reference(const InstancePtr& inst, const Ice::Identity& ident, const Ice::Context& ctx,
+                                  const std::string& fs, Mode md, bool sec, bool collocationOpt)
+    : instance(inst),
+      mode(md),
+      identity(ident),
+      context(ctx),
+      facet(fs),
+      secure(sec),
+      collocationOptimization(collocationOpt),
+      hashInitialized(false)
+{
+}
+
+IceInternal::Reference::Reference(const Reference& r)
+{
+    instance = r.instance;
+    mode = r.mode;
+    identity = r.identity;
+    context = r.context;
+    facet = r.facet;
+    secure = r.secure;
+    collocationOptimization = r.collocationOptimization;
+    hashInitialized = false;
+}
+
+void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
+
+IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Ice::Identity& ident,
+						  const Ice::Context& ctx, const std::string& fs, Mode md,
+						  bool sec, bool collocationOpt,
+						  const vector<Ice::ConnectionIPtr>& fixedConns)
+    : Reference(inst, ident, ctx, fs, md, sec, collocationOpt),
+      fixedConnections(fixedConns)
+{
+}
+
+vector<EndpointPtr>
+IceInternal::FixedReference::getEndpoints() const
+{
+    return vector<EndpointPtr>();
+}
+
+void
+IceInternal::FixedReference::streamWrite(BasicStream* s) const
+{
+    MarshalException ex(__FILE__, __LINE__);
+    ex.reason = "Cannot marshal a fixed reference";
+    throw ex;
+}
+
+string
+IceInternal::FixedReference::toString() const
+{
+    MarshalException ex(__FILE__, __LINE__);
+    ex.reason = "Cannot stringify a fixed reference";
+    throw ex;
+}
+
+ConnectionIPtr
+IceInternal::FixedReference::getConnection(bool& compress) const
+{
+    vector<ConnectionIPtr> filteredConns = filterConnections(fixedConnections);
+    if(filteredConns.empty())
+    {
+	NoEndpointException ex(__FILE__, __LINE__);
+	ex.proxy = toString();
+	throw ex;
+    }
+
+    ConnectionIPtr connection = filteredConns[0];
+    assert(connection);
+    compress = connection->endpoint()->compress();
+
+    return connection;
+}
+
+bool
+IceInternal::FixedReference::operator==(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return true;
+    }
+    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    if(!rhs || !Reference::operator==(r))
+    {
+        return false;
+    }
+    return fixedConnections == rhs->fixedConnections;
+}
+
+bool
+IceInternal::FixedReference::operator!=(const Reference& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::FixedReference::operator<(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return false;
+    }
+    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    if(!rhs || !Reference::operator<(r))
+    {
+        return false;
+    }
+    return fixedConnections < rhs->fixedConnections;
+}
+
+ReferencePtr
+IceInternal::FixedReference::clone() const
+{
+    return new FixedReference(*this);
+}
+
+IceInternal::FixedReference::FixedReference(const FixedReference& r)
+    : Reference(r)
+{
+    fixedConnections = r.fixedConnections;
+}
+
+void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
+
+std::vector<EndpointPtr>
+IceInternal::RoutableReference::getRoutedEndpoints() const
+{
+    if(routerInfo)
+    {
+        //
+	// If we route, we send everything to the router's client
+	// proxy endpoints.
+	//
+	ObjectPrx clientProxy = routerInfo->getClientProxy();
+	return clientProxy->__reference()->getEndpoints();
+    }
+    return vector<EndpointPtr>();
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
+{
+    RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
+    if(newRouterInfo == routerInfo)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->routerInfo = newRouterInfo;
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeDefault() const
+{
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
+    return r;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeCompress(bool newCompress) const
+{
+    return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeTimeout(int newTimeout) const
+{
+    return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+}
+
+void
+IceInternal::RoutableReference::streamWrite(BasicStream* s) const
+{
+    Reference::streamWrite(s);
+}
+
+string
+IceInternal::RoutableReference::toString() const
+{
+    return Reference::toString();
+}
+
+bool
+IceInternal::RoutableReference::operator==(const Reference& r) const
 {
     //
-    // It's either adapter id or endpoints, it can't be both.
-    //
-    assert(!(!adapterId.empty() && !endpoints.empty()));
-
-    Int h = 0;
-	
-    string::const_iterator p;
-    Context::const_iterator q;
-
-    for(p = identity.name.begin(); p != identity.name.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    for(p = identity.category.begin(); p != identity.category.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    for(q = context.begin(); q != context.end(); ++q)
-    {
-	for(p = q->first.begin(); p != q->first.end(); ++p)
-	{
-	    h = 5 * h + *p;
-	}
-	for(p = q->second.begin(); p != q->second.end(); ++p)
-	{
-	    h = 5 * h + *p;
-	}
-    }
-
-    for(p = facet.begin(); p != facet.end(); ++p)
-    {
-	h = 5 * h + *p;
-    }
-
-    h = 5 * h + static_cast<Int>(mode);
-
-    h = 5 * h + static_cast<Int>(secure);
-
-    //
-    // TODO: Should we also take the endpoints and other stuff into
-    // account for hash calculation? Perhaps not, the code above
-    // should be good enough for a good hash value.
+    // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
 
-    const_cast<Int&>(hashValue) = h;
+    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    if(!rhs || !Reference::operator==(r))
+    {
+        return false;
+    }
+    return routerInfo == rhs->routerInfo;
 }
+
+bool
+IceInternal::RoutableReference::operator!=(const Reference& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::RoutableReference::operator<(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return false;
+    }
+    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    if(!rhs || !Reference::operator<(r))
+    {
+        return false;
+    }
+    return routerInfo < rhs->routerInfo;
+}
+
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Ice::Identity& ident,
+						  const Ice::Context& ctx, const std::string& fs, Mode md,
+						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
+    : Reference(inst, ident, ctx, fs, md, sec, collocationOpt),
+      routerInfo(rtrInfo)
+{
+}
+
+IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
+    : Reference(r)
+{
+    routerInfo = r.routerInfo;
+}
+
+void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
+
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Ice::Identity& ident,
+					      const Ice::Context& ctx, const std::string& fs, Mode md,
+					      bool sec, const std::vector<EndpointPtr>& endpts,
+					      const RouterInfoPtr& rtrInfo, bool collocationOpt)
+    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+      endpoints(endpts)
+{
+}
+
+vector<EndpointPtr>
+IceInternal::DirectReference::getEndpoints() const
+{
+    return endpoints;
+}
+
+DirectReferencePtr
+IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
+{
+    if(newEndpoints == endpoints)
+    {
+	return DirectReferencePtr(const_cast<DirectReference*>(this));
+    }
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->endpoints = newEndpoints;
+    return r;
+}
+
+ReferencePtr
+IceInternal::DirectReference::changeCompress(bool newCompress) const
+{
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeCompress(newCompress));
+    vector<EndpointPtr> newEndpoints;
+    vector<EndpointPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	newEndpoints.push_back((*p)->compress(newCompress));
+    }
+    r->endpoints = newEndpoints;
+    return r;
+}
+
+ReferencePtr
+IceInternal::DirectReference::changeTimeout(int newTimeout) const
+{
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeTimeout(newTimeout));
+    vector<EndpointPtr> newEndpoints;
+    vector<EndpointPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	newEndpoints.push_back((*p)->timeout(newTimeout));
+    }
+    r->endpoints = newEndpoints;
+    return r;
+}
+
+void
+IceInternal::DirectReference::streamWrite(BasicStream* s) const
+{
+    RoutableReference::streamWrite(s);
+
+    s->writeSize(Ice::Int(endpoints.size()));
+    vector<EndpointPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	(*p)->streamWrite(s);
+    }
+}
+
+string
+IceInternal::DirectReference::toString() const
+{
+    string result = RoutableReference::toString();
+
+    vector<EndpointPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	string endp = (*p)->toString();
+	if(!endp.empty())
+	{
+	    result.append(":");
+	    result.append(endp);
+	}
+    }
+    return result;
+}
+
+ConnectionIPtr
+IceInternal::DirectReference::getConnection(bool& comp) const
+{
+    vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
+    if(endpts.empty())
+    {
+	endpts = endpoints;
+    }
+    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
+    if(filteredEndpoints.empty())
+    {
+        NoEndpointException ex(__FILE__, __LINE__);
+	ex.proxy = toString();
+	throw ex;
+    }
+
+    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
+    ConnectionIPtr connection = factory->create(filteredEndpoints, comp);
+    assert(connection);
+
+    //
+    // If we have a router, set the object adapter for this router
+    // (if any) to the new connection, so that callbacks from the
+    // router can be received over this new connection.
+    //
+    if(getRouterInfo())
+    {
+        connection->setAdapter(getRouterInfo()->getAdapter());
+    }
+
+    assert(connection);
+    return connection;
+}
+
+bool
+IceInternal::DirectReference::operator==(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return true;
+    }
+    const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
+    if(!rhs || !RoutableReference::operator==(r))
+    {
+        return false;
+    }
+    return endpoints == rhs->endpoints;
+}
+
+bool
+IceInternal::DirectReference::operator!=(const Reference& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::DirectReference::operator<(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return false;
+    }
+    const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
+    if(!rhs || !RoutableReference::operator<(r))
+    {
+        return false;
+    }
+    return endpoints < rhs->endpoints;
+}
+
+ReferencePtr
+IceInternal::DirectReference::clone() const
+{
+    return new DirectReference(*this);
+}
+
+IceInternal::DirectReference::DirectReference(const DirectReference& r)
+    : RoutableReference(r)
+{
+    endpoints = r.endpoints;
+}
+
+
+void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
+
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Ice::Identity& ident,
+                                                  const Ice::Context& ctx, const std::string& fs, Mode md,
+						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
+						  const LocatorInfoPtr& locInfo, bool collocationOpt)
+    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+      adapterId(adptid),
+      locatorInfo(locInfo)
+{
+}
+
+vector<EndpointPtr>
+IceInternal::IndirectReference::getEndpoints() const
+{
+    return vector<EndpointPtr>();
+}
+
+IndirectReferencePtr
+IceInternal::IndirectReference::changeAdapterId(const string& newAdapterId) const
+{
+    if(newAdapterId == adapterId)
+    {
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->adapterId = adapterId;
+    return r;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
+{
+    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+
+    if(newLocatorInfo == locatorInfo)
+    {
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->locatorInfo = newLocatorInfo;
+    return r;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeDefault() const
+{
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
+    r->locatorInfo = getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
+    return r;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeCompress(bool newCompress) const
+{
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeCompress(newCompress));
+    if(locatorInfo)
+    {
+	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_compress(newCompress));
+	r->locatorInfo = getInstance()->locatorManager()->get(newLocator);
+    }
+    return r;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeTimeout(int newTimeout) const
+{
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeTimeout(newTimeout));
+    LocatorInfoPtr newLocatorInfo;
+    if(locatorInfo)
+    {
+	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_timeout(newTimeout));
+	r->locatorInfo = getInstance()->locatorManager()->get(newLocator);
+    }
+    return r;
+}
+
+void
+IceInternal::IndirectReference::streamWrite(BasicStream* s) const
+{
+    RoutableReference::streamWrite(s);
+
+    s->writeSize(0);
+    s->write(adapterId);
+}
+
+string
+IceInternal::IndirectReference::toString() const
+{
+    string result = RoutableReference::toString();
+    if(adapterId.empty())
+    {
+        return result;
+    }
+
+    result.append(" @ ");
+    //
+    // If the encoded adapter id string contains characters which
+    // the reference parser uses as separators, then we enclose
+    // the adapter id string in quotes.
+    //
+    string a = IceUtil::escapeString(adapterId, "");
+    if(a.find_first_of(" \t\n\r") != string::npos)
+    {
+	result.append("\"");
+	result.append(a);
+	result.append("\"");
+    }
+    else
+    {
+	result.append(adapterId);
+    }
+    return result;
+}
+
+ConnectionIPtr
+IceInternal::IndirectReference::getConnection(bool& comp) const
+{
+    ConnectionIPtr connection;
+
+    while(true)
+    {
+	vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
+	bool cached;
+	if(endpts.empty() && locatorInfo)
+	{
+	    const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
+	    endpts = locatorInfo->getEndpoints(self, cached);
+	}
+	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
+	if(filteredEndpoints.empty())
+	{
+	    NoEndpointException ex(__FILE__, __LINE__);
+	    ex.proxy = toString();
+	    throw ex;
+	}
+
+	try
+	{
+	    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
+	    connection = factory->create(filteredEndpoints, comp);
+	    assert(connection);
+	}
+	catch(const LocalException& ex)
+	{
+	    if(!getRouterInfo())
+	    {
+	        assert(locatorInfo);
+		const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
+		locatorInfo->clearCache(self);
+
+		if(cached)
+		{
+		    TraceLevelsPtr traceLevels = getInstance()->traceLevels();
+		    LoggerPtr logger = getInstance()->logger();
+		    if(traceLevels->retry >=2)
+		    {
+		        Trace out(logger, traceLevels->retryCat);
+			out << "connection to cached endpoints failed\n"
+			    << "removing endpoints from cache and trying one more time\n" << ex;
+		    }
+		    continue;
+		}
+	    }
+
+	    throw;
+	}
+
+	break;
+    }
+
+    //
+    // If we have a router, set the object adapter for this router
+    // (if any) to the new connection, so that callbacks from the
+    // router can be received over this new connection.
+    //
+    if(getRouterInfo())
+    {
+        connection->setAdapter(getRouterInfo()->getAdapter());
+    }
+
+    assert(connection);
+    return connection;
+}
+
+bool
+IceInternal::IndirectReference::operator==(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return true;
+    }
+    const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
+    if(!rhs || !RoutableReference::operator==(r))
+    {
+        return false;
+    }
+    return adapterId == rhs->adapterId && locatorInfo == rhs->locatorInfo;
+}
+
+bool
+IceInternal::IndirectReference::operator!=(const Reference& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::IndirectReference::operator<(const Reference& r) const
+{
+    if(this == &r)
+    {
+        return false;
+    }
+    const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
+    if(!rhs || !RoutableReference::operator<(r))
+    {
+        return false;
+    }
+    return adapterId < rhs->adapterId && locatorInfo < rhs->locatorInfo;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::clone() const
+{
+    return new IndirectReference(*this);
+}
+
+IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
+    : RoutableReference(r)
+{
+    adapterId = r.adapterId;
+    locatorInfo = r.locatorInfo;
+}
+
+vector<EndpointPtr>
+IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference::Mode m, bool sec)
+{
+    vector<EndpointPtr> endpoints = allEndpoints;
+
+    //
+    // Filter out unknown endpoints.
+    //
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::unknown)),
+                    endpoints.end());
+
+    switch(m)
+    {
+	case Reference::ModeTwoway:
+	case Reference::ModeOneway:
+	case Reference::ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::datagram)),
+                            endpoints.end());
+	    break;
+	}
+	
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                      not1(Ice::constMemFun(&Endpoint::datagram))),
+                            endpoints.end());
+	    break;
+	}
+    }
+    
+    //
+    // Randomize the order of endpoints.
+    //
+    random_shuffle(endpoints.begin(), endpoints.end());
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // endpoints. Otherwise make non-secure endpoints preferred over
+    // secure endpoints by partitioning the endpoint vector, so that
+    // non-secure endpoints come first.
+    //
+    if(sec)
+    {
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure))),
+			endpoints.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized endpoints.
+	//
+	stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&Endpoint::secure)));
+    }
+    
+    return endpoints;
+}
+

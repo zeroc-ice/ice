@@ -61,7 +61,7 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 {
     if(proxy)
     {
-	proxy->__reference()->identity.__write(s);
+	proxy->__reference()->getIdentity().__write(s);
 	proxy->__reference()->streamWrite(s);
     }
     else

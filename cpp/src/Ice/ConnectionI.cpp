@@ -1092,11 +1092,10 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    vector<EndpointPtr> endpoints;
     vector<ConnectionIPtr> connections;
     connections.push_back(const_cast<ConnectionI*>(this));
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, connections, true);
+							     false, true, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 

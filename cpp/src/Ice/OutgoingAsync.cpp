@@ -204,9 +204,10 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 
     if(_reference)
     {
-	if(_reference->locatorInfo)
+	IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
+	if(ir && ir->getLocatorInfo())
 	{
-	    _reference->locatorInfo->clearObjectCache(_reference);
+	    ir->getLocatorInfo()->clearObjectCache(ir);
 	}
 	
 	bool doRetry = false;
@@ -224,7 +225,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	{
 	    try
 	    {
-		ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+		ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
 		if(proxyFactory)
 		{
 		    proxyFactory->checkRetryAfterException(exc, _cnt);
@@ -291,33 +292,34 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	_cnt = 0;
 	_mode = mode;
 	assert(!__is);
-	__is = new BasicStream(_reference->instance.get());
+	__is = new BasicStream(_reference->getInstance().get());
 	assert(!__os);
-	__os = new BasicStream(_reference->instance.get());
+	__os = new BasicStream(_reference->getInstance().get());
 	
 	//
 	// If we are using a router, then add the proxy to the router info object.
 	//
-	if(_reference->routerInfo)
+	RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
+	if(rr && rr->getRouterInfo())
 	{
-	    _reference->routerInfo->addProxy(prx);
+	    rr->getRouterInfo()->addProxy(prx);
 	}
 
 	_connection->prepareRequest(__os);
 
-	_reference->identity.__write(__os);
+	_reference->getIdentity().__write(__os);
 
 	//
 	// For compatibility with the old FacetPath.
 	//
-	if(_reference->facet.empty())
+	if(_reference->getFacet().empty())
 	{
 	    __os->write(vector<string>());
 	}
 	else
 	{
 	    vector<string> facetPath;
-	    facetPath.push_back(_reference->facet);
+	    facetPath.push_back(_reference->getFacet());
 	    __os->write(facetPath);
 	}
 
@@ -371,12 +373,13 @@ IceInternal::OutgoingAsync::__send()
 	    }
 	    catch(const LocalException& ex)
 	    {
-		if(_reference->locatorInfo)
+		IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
+		if(ir && ir->getLocatorInfo())
 		{
-		    _reference->locatorInfo->clearObjectCache(_reference);
+		    ir->getLocatorInfo()->clearObjectCache(ir);
 		}
 		
-		ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+		ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
 		if(proxyFactory)
 		{
 		    proxyFactory->checkRetryAfterException(ex, _cnt);
@@ -401,9 +404,9 @@ IceInternal::OutgoingAsync::warning(const Exception& ex) const
 {
     if(_reference) // Don't print anything if cleanup() was already called.
     {
-	if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(_reference->instance->logger());
+	    Warning out(_reference->getInstance()->logger());
 	    out << "Ice::Exception raised by AMI callback:\n" << ex;
 	}
     }
@@ -414,9 +417,9 @@ IceInternal::OutgoingAsync::warning(const std::exception& ex) const
 {
     if(_reference) // Don't print anything if cleanup() was already called.
     {
-	if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(_reference->instance->logger());
+	    Warning out(_reference->getInstance()->logger());
 	    out << "std::exception raised by AMI callback:\n" << ex.what();
 	}
     }
@@ -427,9 +430,9 @@ IceInternal::OutgoingAsync::warning() const
 {
     if(_reference) // Don't print anything if cleanup() was already called.
     {
-	if(_reference->instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	if(_reference->getInstance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	{
-	    Warning out(_reference->instance->logger());
+	    Warning out(_reference->getInstance()->logger());
 	    out << "unknown exception raised by AMI callback";
 	}
     }

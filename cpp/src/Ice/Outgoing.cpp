@@ -49,11 +49,11 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _is(ref->instance.get()),
-    _os(ref->instance.get()),
+    _is(ref->getInstance().get()),
+    _os(ref->getInstance().get()),
     _compress(compress)
 {
-    switch(_reference->mode)
+    switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
@@ -71,19 +71,19 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 	}
     }
 
-    _reference->identity.__write(&_os);
+    _reference->getIdentity().__write(&_os);
 
     //
     // For compatibility with the old FacetPath.
     //
-    if(_reference->facet.empty())
+    if(_reference->getFacet().empty())
     {
 	_os.write(vector<string>());
     }
     else
     {
 	vector<string> facetPath;
-	facetPath.push_back(_reference->facet);
+	facetPath.push_back(_reference->getFacet());
 	_os.write(facetPath);
     }
 
@@ -112,7 +112,7 @@ IceInternal::Outgoing::invoke()
 {
     _os.endWriteEncaps();
     
-    switch(_reference->mode)
+    switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
 	{
@@ -256,7 +256,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
 
@@ -422,7 +422,7 @@ IceInternal::Outgoing::finished(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    assert(_reference->mode == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
     

@@ -270,58 +270,58 @@ IceInternal::LocatorInfo::getLocatorRegistry()
 }
 
 vector<EndpointPtr>
-IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
+IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& cached)
 {
-    assert(ref->endpoints.empty());
-
     vector<EndpointPtr> endpoints;
     ObjectPrx object;
     cached = true;    
 
     try
     {
-	if(!ref->adapterId.empty())
+	if(!ref->getAdapterId().empty())
 	{
-	    if(!_table->getAdapterEndpoints(ref->adapterId, endpoints))
+	    if(!_table->getAdapterEndpoints(ref->getAdapterId(), endpoints))
 	    {
 		cached = false;
 	    
-		object = _locator->findAdapterById(ref->adapterId);
+		object = _locator->findAdapterById(ref->getAdapterId());
 		if(object)
 		{
-		    endpoints = object->__reference()->endpoints;
-		
-		    if(!endpoints.empty())
-		    {
-			_table->addAdapterEndpoints(ref->adapterId, endpoints);
-		    }
+		    endpoints = object->__reference()->getEndpoints();
+		    _table->addAdapterEndpoints(ref->getAdapterId(), endpoints);
 		}
 	    }
 	}
 	else
 	{
-	    if(!_table->getProxy(ref->identity, object))
+	    if(!_table->getProxy(ref->getIdentity(), object))
 	    {
 		cached = false;
 		
-		object = _locator->findObjectById(ref->identity);
+		object = _locator->findObjectById(ref->getIdentity());
 	    }
 
 	    if(object)
 	    {
-		if(!object->__reference()->endpoints.empty())
+		DirectReferencePtr odr = DirectReferencePtr::dynamicCast(object->__reference());
+		if(odr)
 		{
-		    endpoints = object->__reference()->endpoints;
+		    endpoints = odr->getEndpoints();
 		}
-		else if(!object->__reference()->adapterId.empty())
+		else
 		{
-		    endpoints = getEndpoints(object->__reference(), cached);
+		    IndirectReferencePtr oir = IndirectReferencePtr::dynamicCast(object->__reference());
+		    assert(oir);
+		    if(!oir->getAdapterId().empty())
+		    {
+			endpoints = getEndpoints(oir, cached);
+		    }
 		}
 	    }
 
 	    if(!cached && !endpoints.empty())
 	    {
-		_table->addProxy(ref->identity, object);
+		_table->addProxy(ref->getIdentity(), object);
 	    }
 	}
     }
@@ -329,14 +329,14 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object adapter";
-	ex.id = ref->adapterId;
+	ex.id = ref->getAdapterId();
 	throw ex;
     }
     catch(const ObjectNotFoundException&)
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object";
-	ex.id = identityToString(ref->identity);
+	ex.id = identityToString(ref->getIdentity());
 	throw ex;
     }
     catch(const NotRegisteredException&)
@@ -345,23 +345,24 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
     }
     catch(const LocalException& ex)
     {
-	if(ref->instance->traceLevels()->location >= 1)
+	if(ref->getInstance()->traceLevels()->location >= 1)
 	{
-	    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+	    Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
 	    out << "couldn't contact the locator to retrieve adapter endpoints\n";
-	    if(ref->adapterId.empty())
+	    if(!ref)
 	    {
-		out << "object = " << identityToString(ref->identity) << "\n";
+		out << "object = " << identityToString(ref->getIdentity()) << "\n";
 	    }
 	    else
 	    {
-		out << "adapter = " << ref->adapterId << "\n";
+		out << "adapter = " << ref->getAdapterId() << "\n";
 	    }
 	    out << "reason = " << ex;
 	}
+	throw;
     }
     
-    if(ref->instance->traceLevels()->location >= 1 && !endpoints.empty())
+    if(ref->getInstance()->traceLevels()->location >= 1 && !endpoints.empty())
     {
 	if(cached)
 	{
@@ -377,45 +378,57 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 }
 
 void
-IceInternal::LocatorInfo::clearObjectCache(const ReferencePtr& ref)
+IceInternal::LocatorInfo::clearObjectCache(const IndirectReferencePtr& ref)
 {
-    if(ref->adapterId.empty() && ref->endpoints.empty())
+    if(ref->getAdapterId().empty())
     {
-	ObjectPrx object = _table->removeProxy(ref->identity);
+	ObjectPrx object = _table->removeProxy(ref->getIdentity());
 
-	if(ref->instance->traceLevels()->location >= 2 && object && !object->__reference()->endpoints.empty())
+	if(ref->getInstance()->traceLevels()->location >= 2 && object)
 	{
-	    trace("removed endpoints from locator table", ref, object->__reference()->endpoints);
+	    vector<EndpointPtr> endpoints = object->__reference()->getEndpoints();
+	    if(!endpoints.empty())
+	    {
+		trace("removed endpoints from locator table", ref, endpoints);
+	    }
 	}
     }
 }
 
 void 
-IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
+IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 {
-    if(!ref->adapterId.empty())
+    if(!ref->getAdapterId().empty())
     {
-	vector<EndpointPtr> endpoints = _table->removeAdapterEndpoints(ref->adapterId);
+	vector<EndpointPtr> endpoints = _table->removeAdapterEndpoints(ref->getAdapterId());
 
-	if(!endpoints.empty() && ref->instance->traceLevels()->location >= 2)
+	if(!endpoints.empty() && ref->getInstance()->traceLevels()->location >= 2)
 	{
 	    trace("removed endpoints from locator table", ref, endpoints);
 	}
     }
-    else if(ref->endpoints.empty())
+    else
     {
-	ObjectPrx object = _table->removeProxy(ref->identity);
+	ObjectPrx object = _table->removeProxy(ref->getIdentity());
 	if(object)
 	{
-	    if(!object->__reference()->adapterId.empty())
+	    IndirectReferencePtr oir = IndirectReferencePtr::dynamicCast(object->__reference());
+	    if(oir)
 	    {
-		clearCache(object->__reference());
-	    }
-	    else if(!object->__reference()->endpoints.empty())
-	    {
-		if(ref->instance->traceLevels()->location >= 2)
+	        if(!oir->getAdapterId().empty())
 		{
-		    trace("removed endpoints from locator table", ref, object->__reference()->endpoints);
+		    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(object->__reference());
+		    if(ir)
+		    {
+			clearCache(ir);
+		    }
+		}
+	    }
+	    else
+	    {
+		if(ref->getInstance()->traceLevels()->location >= 2)
+		{
+		    trace("removed endpoints from locator table", ref, object->__reference()->getEndpoints());
 		}
 	    }
 	}
@@ -425,15 +438,16 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 void
 IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, const vector<EndpointPtr>& endpoints)
 {
-    Trace out(ref->instance->logger(), ref->instance->traceLevels()->locationCat);
+    Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
     out << msg << '\n';
-    if(ref->adapterId.empty())
+    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
+    if(!ir)
     {
-	out << "object = "  << identityToString(ref->identity) << '\n';
+	out << "object = "  << identityToString(ref->getIdentity()) << '\n';
     }
     else
     {
-	out << "adapter = "  << ref->adapterId << '\n';
+	out << "adapter = "  << ir->getAdapterId() << '\n';
     }
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
