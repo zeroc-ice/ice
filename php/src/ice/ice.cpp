@@ -67,10 +67,20 @@ PHP_INI_BEGIN()
   PHP_INI_ENTRY("ice.slice", "", PHP_INI_SYSTEM, NULL)
 PHP_INI_END()
 
+extern "C"
+static int initIceGlobals(zend_ice_globals* g)
+{
+    g->communicator = NULL;
+    g->marshalerMap = new MarshalerMap;
+    g->profile = 0;
+    g->properties = 0;
+    return SUCCESS;
+}
+
 ZEND_MINIT_FUNCTION(ice)
 {
     REGISTER_INI_ENTRIES();
-    ZEND_INIT_MODULE_GLOBALS(ice, NULL, NULL);
+    ZEND_INIT_MODULE_GLOBALS(ice, initIceGlobals, NULL);
 
     if(!profileInit(TSRMLS_C))
     {
@@ -106,11 +116,6 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
 ZEND_RINIT_FUNCTION(ice)
 {
-    ICE_G(communicator) = NULL;
-    ICE_G(marshalerMap) = new MarshalerMap;
-    ICE_G(profile) = 0;
-    ICE_G(properties) = 0;
-
     //
     // Create the global variable "ICE" to hold the communicator for this request. The
     // communicator won't actually be created until the script uses this global variable
