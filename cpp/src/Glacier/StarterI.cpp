@@ -80,15 +80,11 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	throw InvalidPasswordException();
     }
 
-    //
-    // Create a certificate for the client and the router.
-    //
-    RSAKeyPairPtr clientKeyPair = _certificateGenerator.generate(_certContext);
-    RSAKeyPairPtr routerKeyPair = _certificateGenerator.generate(_certContext);
+    bool sslConfigured = !_properties->getProperty("IceSSL.Server.Config").empty();
 
-    clientKeyPair->keyToByteSeq(privateKey);
-    clientKeyPair->certToByteSeq(publicKey);
-    routerKeyPair->certToByteSeq(routerCert);
+    std::cerr << std::endl;
+    std::cerr << "Starter SSL: " << sslConfigured << std::endl;
+    std::cerr << std::endl;
 
     //
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
@@ -110,10 +106,23 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     string routerPrivateKeyBase64;
     string routerCertificateBase64;
     string clientCertificateBase64;
+    
+    if (sslConfigured)
+    {
+        //
+        // Create a certificate for the client and the router.
+        //
+        RSAKeyPairPtr clientKeyPair = _certificateGenerator.generate(_certContext);
+        RSAKeyPairPtr routerKeyPair = _certificateGenerator.generate(_certContext);
 
-    routerKeyPair->keyToBase64(routerPrivateKeyBase64);
-    routerKeyPair->certToBase64(routerCertificateBase64);
-    clientKeyPair->certToBase64(clientCertificateBase64);
+        clientKeyPair->keyToByteSeq(privateKey);
+        clientKeyPair->certToByteSeq(publicKey);
+        routerKeyPair->certToByteSeq(routerCert);
+
+        routerKeyPair->keyToBase64(routerPrivateKeyBase64);
+        routerKeyPair->certToBase64(routerCertificateBase64);
+        clientKeyPair->certToBase64(clientCertificateBase64);
+    }
 
     //
     // Start a router.
@@ -173,11 +182,15 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// be seen with `ps'. Keys and certificate should rather be
 	// passed through a pipe? (ML will take care of this...)
 	//
-        args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
-        args.push_back("--IceSSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--IceSSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
-        args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
+        if (sslConfigured)
+        {
+            args.push_back("--IceSSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+            args.push_back("--IceSSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
+            args.push_back("--IceSSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+            args.push_back("--IceSSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
+            args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
+        }
+
 	args.push_back("--Glacier.Router.UserId=" + userId);
 	
 	if (!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
@@ -225,7 +238,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
         StringSeq::iterator seqElem = args.begin();
         while (seqElem != args.end())
         {
-            cout << *seqElem << endl;
+            cerr << *seqElem << endl;
             seqElem++;
         }
 */
