@@ -391,8 +391,7 @@ public:
 
 private:
 
-    void transformRecord(IceInternal::BasicStream&, IceInternal::BasicStream&, IceInternal::BasicStream&,
-                         IceInternal::BasicStream&);
+    void transformRecord(const Ice::ByteSeq&, const Ice::ByteSeq&, Ice::ByteSeq&, Ice::ByteSeq&);
 
     Slice::UnitPtr _old;
     Slice::UnitPtr _new;
@@ -1867,11 +1866,6 @@ void
 FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
 {
     //
-    // We need the Instance in order to use BasicStream.
-    //
-    IceInternal::InstancePtr instance = IceInternal::getInstance(_info->communicator);
-
-    //
     // Temporarily add an object factory.
     //
     _info->communicator->addObjectFactory(new FreezeScript::ObjectFactory(_info->factory, _info->oldUnit), "");
@@ -1886,25 +1880,19 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
         Dbt dbKey, dbValue;
         while(dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
         {
-            IceInternal::BasicStream inKey(instance.get());
-            inKey.b.resize(dbKey.get_size());
-            memcpy(&inKey.b[0], dbKey.get_data(), dbKey.get_size());
-            inKey.i = inKey.b.begin();
+            Ice::ByteSeq inKeyBytes;
+            inKeyBytes.resize(dbKey.get_size());
+            memcpy(&inKeyBytes[0], dbKey.get_data(), dbKey.get_size());
 
-            IceInternal::BasicStream inValue(instance.get());
-            inValue.b.resize(dbValue.get_size());
-            memcpy(&inValue.b[0], dbValue.get_data(), dbValue.get_size());
-            inValue.i = inValue.b.begin();
-            inValue.startReadEncaps();
+            Ice::ByteSeq inValueBytes;
+            inValueBytes.resize(dbValue.get_size());
+            memcpy(&inValueBytes[0], dbValue.get_data(), dbValue.get_size());
 
-            IceInternal::BasicStream outKey(instance.get());
-            IceInternal::BasicStream outValue(instance.get());
-            outValue.startWriteEncaps();
             try
             {
-                transformRecord(inKey, inValue, outKey, outValue);
-                outValue.endWriteEncaps();
-                Dbt dbNewKey(&outKey.b[0], outKey.b.size()), dbNewValue(&outValue.b[0], outValue.b.size());
+                Ice::ByteSeq outKeyBytes, outValueBytes;
+                transformRecord(inKeyBytes, inValueBytes, outKeyBytes, outValueBytes);
+                Dbt dbNewKey(&outKeyBytes[0], outKeyBytes.size()), dbNewValue(&outValueBytes[0], outValueBytes.size());
                 if(_info->newDb->put(_info->newDbTxn, &dbNewKey, &dbNewValue, DB_NOOVERWRITE) == DB_KEYEXIST)
                 {
                     _info->errorReporter->error("duplicate key encountered");
@@ -1947,9 +1935,19 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
 }
 
 void
-FreezeScript::RecordDescriptor::transformRecord(IceInternal::BasicStream& inKey, IceInternal::BasicStream& inValue,
-                                                IceInternal::BasicStream& outKey, IceInternal::BasicStream& outValue)
+FreezeScript::RecordDescriptor::transformRecord(const Ice::ByteSeq& inKeyBytes,
+                                                const Ice::ByteSeq& inValueBytes,
+                                                Ice::ByteSeq& outKeyBytes,
+                                                Ice::ByteSeq& outValueBytes)
 {
+    Ice::InputStreamPtr inKey = Ice::createInputStream(_info->communicator, inKeyBytes);
+    Ice::InputStreamPtr inValue = Ice::createInputStream(_info->communicator, inValueBytes);
+    inValue->startEncapsulation();
+
+    Ice::OutputStreamPtr outKey = Ice::createOutputStream(_info->communicator);
+    Ice::OutputStreamPtr outValue = Ice::createOutputStream(_info->communicator);
+    outValue->startEncapsulation();
+
     //
     // Create data representations of the old key and value types.
     //
@@ -1967,7 +1965,7 @@ FreezeScript::RecordDescriptor::transformRecord(IceInternal::BasicStream& inKey,
     _info->objectDataMap.clear();
     if(_info->oldValueType->usesClasses())
     {
-        inValue.readPendingObjects();
+        inValue->readPendingObjects();
         ObjectVisitor visitor(_info->objectDataMap);
         oldValueData->visit(visitor);
     }
@@ -2009,10 +2007,15 @@ FreezeScript::RecordDescriptor::transformRecord(IceInternal::BasicStream& inKey,
 
     newKeyData->marshal(outKey);
     newValueData->marshal(outValue);
+
+    outKey->finished(outKeyBytes);
+
     if(_info->newValueType->usesClasses())
     {
-        outValue.writePendingObjects();
+        outValue->writePendingObjects();
     }
+    outValue->endEncapsulation();
+    outValue->finished(outValueBytes);
 }
 
 //

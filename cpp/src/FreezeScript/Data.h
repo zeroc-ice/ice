@@ -82,8 +82,8 @@ public:
     virtual Slice::TypePtr getType() const = 0;
     virtual void destroy() = 0;
 
-    virtual void marshal(IceInternal::BasicStream&) const = 0;
-    virtual void unmarshal(IceInternal::BasicStream&) = 0;
+    virtual void marshal(const Ice::OutputStreamPtr&) const = 0;
+    virtual void unmarshal(const Ice::InputStreamPtr&) = 0;
 
     virtual bool booleanValue(bool = false) const = 0;
     virtual Ice::Long integerValue(bool = false) const = 0;
@@ -131,8 +131,8 @@ public:
 
     virtual Slice::TypePtr getType() const;
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -167,8 +167,8 @@ public:
 
     virtual Slice::TypePtr getType() const;
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -206,8 +206,8 @@ public:
 
     virtual Slice::TypePtr getType() const;
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -244,8 +244,8 @@ public:
 
     virtual Slice::TypePtr getType() const;
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -286,8 +286,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -327,8 +327,8 @@ public:
 
     virtual Slice::TypePtr getType() const;
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual void destroy();
 
@@ -369,8 +369,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -412,8 +412,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -454,8 +454,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -496,8 +496,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;
@@ -546,8 +546,8 @@ public:
     virtual Slice::TypePtr getType() const;
     virtual void destroy();
 
-    virtual void marshal(IceInternal::BasicStream&) const;
-    virtual void unmarshal(IceInternal::BasicStream&);
+    virtual void marshal(const Ice::OutputStreamPtr&) const;
+    virtual void unmarshal(const Ice::InputStreamPtr&);
 
     virtual bool booleanValue(bool = false) const;
     virtual Ice::Long integerValue(bool = false) const;

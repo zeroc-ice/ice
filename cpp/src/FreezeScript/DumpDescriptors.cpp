@@ -1247,11 +1247,6 @@ void
 FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* info)
 {
     //
-    // We need the Instance in order to use BasicStream.
-    //
-    IceInternal::InstancePtr instance = IceInternal::getInstance(info->communicator);
-
-    //
     // Temporarily add an object factory.
     //
     info->communicator->addObjectFactory(new FreezeScript::ObjectFactory(_factory, _unit), "");
@@ -1266,16 +1261,16 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
         Dbt dbKey, dbValue;
         while(dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
         {
-            IceInternal::BasicStream inKey(instance.get());
-            inKey.b.resize(dbKey.get_size());
-            memcpy(&inKey.b[0], dbKey.get_data(), dbKey.get_size());
-            inKey.i = inKey.b.begin();
+            Ice::ByteSeq keyBytes;
+            keyBytes.resize(dbKey.get_size());
+            memcpy(&keyBytes[0], dbKey.get_data(), dbKey.get_size());
+            Ice::InputStreamPtr inKey = Ice::createInputStream(info->communicator, keyBytes);
 
-            IceInternal::BasicStream inValue(instance.get());
-            inValue.b.resize(dbValue.get_size());
-            memcpy(&inValue.b[0], dbValue.get_data(), dbValue.get_size());
-            inValue.i = inValue.b.begin();
-            inValue.startReadEncaps();
+            Ice::ByteSeq valueBytes;
+            valueBytes.resize(dbValue.get_size());
+            memcpy(&valueBytes[0], dbValue.get_data(), dbValue.get_size());
+            Ice::InputStreamPtr inValue = Ice::createInputStream(info->communicator, valueBytes);
+            inValue->startEncapsulation();
 
             //
             // Create data representations of the key and value types.
@@ -1294,7 +1289,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
             valueData->unmarshal(inValue);
             if(info->valueType->usesClasses())
             {
-                inValue.readPendingObjects();
+                inValue->readPendingObjects();
             }
 
             //

@@ -21,14 +21,13 @@ namespace FreezeScript
 //
 // ObjectWriter
 //
-class ObjectWriter : public Ice::Object
+class ObjectWriter : public Ice::ObjectWriter
 {
 public:
 
     ObjectWriter(const ObjectDataPtr&);
 
-    virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*, bool = true);
+    virtual void write(const Ice::OutputStreamPtr&) const;
 
 private:
 
@@ -36,16 +35,31 @@ private:
 };
 
 //
+// ReadObjectCallback
+//
+class ReadObjectCallback : public Ice::ReadObjectCallback
+{
+public:
+
+    ReadObjectCallback(const ObjectRefPtr&);
+
+    virtual void invoke(const Ice::ObjectPtr&);
+
+private:
+
+    ObjectRefPtr _ref;
+};
+
+//
 // ObjectReader
 //
-class ObjectReader : public Ice::Object
+class ObjectReader : public Ice::ObjectReader
 {
 public:
 
     ObjectReader(const DataFactoryPtr&, const Slice::TypePtr&);
 
-    virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*, bool = true);
+    virtual void read(const Ice::InputStreamPtr&, bool);
 
     ObjectDataPtr getValue() const;
 
@@ -68,7 +82,7 @@ FreezeScript::ObjectWriter::ObjectWriter(const ObjectDataPtr& value) :
 }
 
 void
-FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os) const
+FreezeScript::ObjectWriter::write(const Ice::OutputStreamPtr& out) const
 {
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(_value->_type);
     Slice::ClassDefPtr type;
@@ -78,16 +92,16 @@ FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os) const
     }
     while(type)
     {
-        os->writeTypeId(type->scoped());
-        os->startWriteSlice();
+        out->writeTypeId(type->scoped());
+        out->startSlice();
         Slice::DataMemberList members = type->dataMembers();
         for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
         {
             DataMemberMap::const_iterator q = _value->_members.find((*p)->name());
             assert(q != _value->_members.end());
-            q->second->marshal(*os);
+            q->second->marshal(out);
         }
-        os->endWriteSlice();
+        out->endSlice();
 
         Slice::ClassList bases = type->bases();
         if(!bases.empty() && !bases.front()->isInterface())
@@ -103,16 +117,10 @@ FreezeScript::ObjectWriter::__write(IceInternal::BasicStream* os) const
     //
     // Ice::Object slice
     //
-    os->writeTypeId(Ice::Object::ice_staticId());
-    os->startWriteSlice();
-    os->writeSize(0); // For compatibility with the old AFM.
-    os->endWriteSlice();
-}
-
-void
-FreezeScript::ObjectWriter::__read(IceInternal::BasicStream*, bool)
-{
-    assert(false);
+    out->writeTypeId(Ice::Object::ice_staticId());
+    out->startSlice();
+    out->writeSize(0); // For compatibility with the old AFM.
+    out->endSlice();
 }
 
 //
@@ -124,13 +132,7 @@ FreezeScript::ObjectReader::ObjectReader(const DataFactoryPtr& factory, const Sl
 }
 
 void
-FreezeScript::ObjectReader::__write(IceInternal::BasicStream*) const
-{
-    assert(false);
-}
-
-void
-FreezeScript::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
+FreezeScript::ObjectReader::read(const Ice::InputStreamPtr& in, bool rid)
 {
     const_cast<ObjectDataPtr&>(_value) = new ObjectData(_factory, _type, true);
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(_type);
@@ -143,20 +145,19 @@ FreezeScript::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
     {
         if(rid)
         {
-            string id;
-            is->readTypeId(id);
+            string id = in->readTypeId();
             assert(id == type->scoped());
         }
 
-        is->startReadSlice();
+        in->startSlice();
         Slice::DataMemberList members = type->dataMembers();
         for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
         {
             DataMemberMap::iterator q = _value->_members.find((*p)->name());
             assert(q != _value->_members.end());
-            q->second->unmarshal(*is);
+            q->second->unmarshal(in);
         }
-        is->endReadSlice();
+        in->endSlice();
 
         Slice::ClassList bases = type->bases();
         if(!bases.empty() && !bases.front()->isInterface())
@@ -176,22 +177,20 @@ FreezeScript::ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
     //
     if(rid)
     {
-        string id;
-        is->readTypeId(id);
+        string id = in->readTypeId();
         if(id != Ice::Object::ice_staticId())
         {
             throw Ice::MarshalException(__FILE__, __LINE__);
         }
     }
-    is->startReadSlice();
+    in->startSlice();
     // For compatibility with the old AFM.
-    Ice::Int sz;
-    is->readSize(sz);
+    Ice::Int sz = in->readSize();
     if(sz != 0)
     {
         throw Ice::MarshalException(__FILE__, __LINE__);
     }
-    is->endReadSlice();
+    in->endSlice();
 }
 
 FreezeScript::ObjectDataPtr
@@ -520,15 +519,15 @@ FreezeScript::BooleanData::getType() const
 }
 
 void
-FreezeScript::BooleanData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::BooleanData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    os.write(_value);
+    out->writeBool(_value);
 }
 
 void
-FreezeScript::BooleanData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::BooleanData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    is.read(_value);
+    _value = in->readBool();
 }
 
 bool
@@ -648,7 +647,7 @@ FreezeScript::IntegerData::getType() const
 }
 
 void
-FreezeScript::IntegerData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::IntegerData::marshal(const Ice::OutputStreamPtr& out) const
 {
     rangeCheck(_value, true);
 
@@ -656,22 +655,22 @@ FreezeScript::IntegerData::marshal(IceInternal::BasicStream& os) const
     {
     case Slice::Builtin::KindByte:
     {
-        os.write(static_cast<Ice::Byte>(_value));
+        out->writeByte(static_cast<Ice::Byte>(_value));
         break;
     }
     case Slice::Builtin::KindShort:
     {
-        os.write(static_cast<Ice::Short>(_value));
+        out->writeShort(static_cast<Ice::Short>(_value));
         break;
     }
     case Slice::Builtin::KindInt:
     {
-        os.write(static_cast<Ice::Int>(_value));
+        out->writeInt(static_cast<Ice::Int>(_value));
         break;
     }
     case Slice::Builtin::KindLong:
     {
-        os.write(_value);
+        out->writeLong(_value);
         break;
     }
 
@@ -687,34 +686,29 @@ FreezeScript::IntegerData::marshal(IceInternal::BasicStream& os) const
 }
 
 void
-FreezeScript::IntegerData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::IntegerData::unmarshal(const Ice::InputStreamPtr& in)
 {
     switch(_type->kind())
     {
     case Slice::Builtin::KindByte:
     {
-        Ice::Byte val;
-        is.read(val);
+        Ice::Byte val = in->readByte();
         _value = val & 0xff;
         break;
     }
     case Slice::Builtin::KindShort:
     {
-        Ice::Short val;
-        is.read(val);
-        _value = val;
+        _value = in->readShort();
         break;
     }
     case Slice::Builtin::KindInt:
     {
-        Ice::Int val;
-        is.read(val);
-        _value = val;
+        _value = in->readInt();
         break;
     }
     case Slice::Builtin::KindLong:
     {
-        is.read(_value);
+        _value = in->readLong();
         break;
     }
 
@@ -931,18 +925,18 @@ FreezeScript::DoubleData::getType() const
 }
 
 void
-FreezeScript::DoubleData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::DoubleData::marshal(const Ice::OutputStreamPtr& out) const
 {
     switch(_type->kind())
     {
     case Slice::Builtin::KindFloat:
     {
-        os.write(static_cast<Ice::Float>(_value));
+        out->writeFloat(static_cast<Ice::Float>(_value));
         break;
     }
     case Slice::Builtin::KindDouble:
     {
-        os.write(_value);
+        out->writeDouble(_value);
         break;
     }
 
@@ -960,20 +954,18 @@ FreezeScript::DoubleData::marshal(IceInternal::BasicStream& os) const
 }
 
 void
-FreezeScript::DoubleData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::DoubleData::unmarshal(const Ice::InputStreamPtr& in)
 {
     switch(_type->kind())
     {
     case Slice::Builtin::KindFloat:
     {
-        Ice::Float val;
-        is.read(val);
-        _value = val;
+        _value = in->readFloat();
         break;
     }
     case Slice::Builtin::KindDouble:
     {
-        is.read(_value);
+        _value = in->readDouble();
         break;
     }
 
@@ -1131,17 +1123,15 @@ FreezeScript::StringData::getType() const
 }
 
 void
-FreezeScript::StringData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::StringData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    os.write(_value);
+    out->writeString(_value);
 }
 
 void
-FreezeScript::StringData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::StringData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    string s;
-    is.read(s);
-    setValue(s);
+    setValue(in->readString());
 }
 
 bool
@@ -1275,15 +1265,15 @@ FreezeScript::ProxyData::destroy()
 }
 
 void
-FreezeScript::ProxyData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::ProxyData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    os.write(_value);
+    out->writeProxy(_value);
 }
 
 void
-FreezeScript::ProxyData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::ProxyData::unmarshal(const Ice::InputStreamPtr& in)
 {
-    is.read(_value);
+    _value = in->readProxy();
 }
 
 bool
@@ -1487,26 +1477,26 @@ FreezeScript::StructData::destroy()
 }
 
 void
-FreezeScript::StructData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::StructData::marshal(const Ice::OutputStreamPtr& out) const
 {
     Slice::DataMemberList members = _type->dataMembers();
     for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
     {
         DataMemberMap::const_iterator q = _members.find((*p)->name());
         assert(q != _members.end());
-        q->second->marshal(os);
+        q->second->marshal(out);
     }
 }
 
 void
-FreezeScript::StructData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::StructData::unmarshal(const Ice::InputStreamPtr& in)
 {
     Slice::DataMemberList members = _type->dataMembers();
     for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
     {
         DataMemberMap::const_iterator q = _members.find((*p)->name());
         assert(q != _members.end());
-        q->second->unmarshal(is);
+        q->second->unmarshal(in);
     }
 }
 
@@ -1662,26 +1652,25 @@ FreezeScript::SequenceData::destroy()
 }
 
 void
-FreezeScript::SequenceData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::SequenceData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    os.writeSize(_elements.size());
+    out->writeSize(_elements.size());
     for(DataList::const_iterator p = _elements.begin(); p != _elements.end(); ++p)
     {
-        (*p)->marshal(os);
+        (*p)->marshal(out);
     }
 }
 
 void
-FreezeScript::SequenceData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::SequenceData::unmarshal(const Ice::InputStreamPtr& in)
 {
     Slice::TypePtr type = _type->type();
-    Ice::Int sz;
-    is.readSize(sz);
+    Ice::Int sz = in->readSize();
     _elements.reserve(sz);
     for(Ice::Int i = 0; i < sz; ++i)
     {
         DataPtr v = _factory->create(type, _readOnly);
-        v->unmarshal(is);
+        v->unmarshal(in);
         _elements.push_back(v);
     }
     _length->setValue(sz, false);
@@ -1812,40 +1801,38 @@ FreezeScript::EnumData::destroy()
 }
 
 void
-FreezeScript::EnumData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::EnumData::marshal(const Ice::OutputStreamPtr& out) const
 {
     if(_count <= 127)
     {
-        os.write(static_cast<Ice::Byte>(_value));
+        out->writeByte(static_cast<Ice::Byte>(_value));
     }
     else if(_count <= 32767)
     {
-        os.write(static_cast<Ice::Short>(_value));
+        out->writeShort(static_cast<Ice::Short>(_value));
     }
     else
     {
-        os.write(_value);
+        out->writeInt(_value);
     }
 }
 
 void
-FreezeScript::EnumData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::EnumData::unmarshal(const Ice::InputStreamPtr& in)
 {
     if(_count <= 127)
     {
-        Ice::Byte val;
-        is.read(val);
+        Ice::Byte val = in ->readByte();
         _value = val & 0xff;
     }
     else if(_count <= 32767)
     {
-        Ice::Short val;
-        is.read(val);
+        Ice::Short val = in->readShort();
         _value = val;
     }
     else
     {
-        is.read(_value);
+        _value = in->readInt();
     }
 }
 
@@ -2045,32 +2032,31 @@ FreezeScript::DictionaryData::destroy()
 }
 
 void
-FreezeScript::DictionaryData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::DictionaryData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    os.writeSize(_map.size());
+    out->writeSize(_map.size());
     for(DataMap::const_iterator p = _map.begin(); p != _map.end(); ++p)
     {
-        p->first->marshal(os);
-        p->second->marshal(os);
+        p->first->marshal(out);
+        p->second->marshal(out);
     }
 }
 
 void
-FreezeScript::DictionaryData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::DictionaryData::unmarshal(const Ice::InputStreamPtr& in)
 {
     Slice::TypePtr keyType = _type->keyType();
     Slice::TypePtr valueType = _type->valueType();
 
-    Ice::Int sz;
-    is.readSize(sz);
+    Ice::Int sz = in->readSize();
 
     for(Ice::Int i = 0; i < sz; ++i)
     {
         DataPtr key = _factory->create(keyType, _readOnly);
-        key->unmarshal(is);
+        key->unmarshal(in);
 
         DataPtr value = _factory->create(valueType, _readOnly);
-        value->unmarshal(is);
+        value->unmarshal(in);
 
         _map.insert(DataMap::value_type(key, value));
     }
@@ -2212,17 +2198,17 @@ FreezeScript::ObjectData::destroy()
 }
 
 void
-FreezeScript::ObjectData::marshal(IceInternal::BasicStream& os) const
+FreezeScript::ObjectData::marshal(const Ice::OutputStreamPtr& out) const
 {
     if(!_marshaler)
     {
         const_cast<Ice::ObjectPtr&>(_marshaler) = new ObjectWriter(const_cast<ObjectData*>(this));
     }
-    os.write(_marshaler);
+    out->writeObject(_marshaler);
 }
 
 void
-FreezeScript::ObjectData::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::ObjectData::unmarshal(const Ice::InputStreamPtr& in)
 {
     //
     // Unmarshaling is done by ObjectReader.
@@ -2392,36 +2378,38 @@ FreezeScript::ObjectRef::destroy()
 }
 
 void
-FreezeScript::ObjectRef::marshal(IceInternal::BasicStream& os) const
+FreezeScript::ObjectRef::marshal(const Ice::OutputStreamPtr& out) const
 {
     if(!_value)
     {
-        os.write(Ice::ObjectPtr());
+        out->writeObject(0);
         return;
     }
 
-    _value->marshal(os);
+    _value->marshal(out);
 }
 
-static void
-patchObject(void* addr, Ice::ObjectPtr& v)
+FreezeScript::ReadObjectCallback::ReadObjectCallback(const ObjectRefPtr& ref) :
+    _ref(ref)
 {
-    if(v)
-    {
-        FreezeScript::ObjectRef* ref = static_cast<FreezeScript::ObjectRef*>(addr);
-        assert(ref);
+}
 
-        FreezeScript::ObjectReaderPtr reader = FreezeScript::ObjectReaderPtr::dynamicCast(v);
+void
+FreezeScript::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
+{
+    if(p)
+    {
+        ObjectReaderPtr reader = ObjectReaderPtr::dynamicCast(p);
         assert(reader);
 
-        ref->setValue(reader->getValue());
+        _ref->setValue(reader->getValue());
     }
 }
 
 void
-FreezeScript::ObjectRef::unmarshal(IceInternal::BasicStream& is)
+FreezeScript::ObjectRef::unmarshal(const Ice::InputStreamPtr& in)
 {
-    is.read(patchObject, this);
+    in->readObject(new ReadObjectCallback(this));
 }
 
 bool
