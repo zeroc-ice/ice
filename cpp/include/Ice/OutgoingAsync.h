@@ -48,7 +48,6 @@ protected:
 
     void __prepare(const IceInternal::ReferencePtr&, const std::string&, Ice::OperationMode, const Ice::Context&);
     void __send();
-    void __cleanup();
 
     virtual void __response(bool) = 0;
 

@@ -62,7 +62,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
 	delete __is;
 	__is = new BasicStream(_reference->instance.get());
-
 	__is->swap(is);
 
 	Byte b;
@@ -128,8 +127,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	    
 	    default:
 	    {
-		UnknownReplyStatusException ex(__FILE__, __LINE__);
-		throw ex;
+		throw UnknownReplyStatusException(__FILE__, __LINE__);
 	    }
 	}
     }
