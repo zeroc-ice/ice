@@ -11,7 +11,7 @@
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
-// #include <Ice/Security.h>
+#include <Ice/Security.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConnectionOpenSSLServer.h>
 

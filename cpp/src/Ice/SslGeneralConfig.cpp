@@ -14,7 +14,6 @@
 #include <string>
 #include <algorithm>
 
-#include <openssl/ssl.h>
 #include <Ice/SslGeneralConfig.h>
 
 using namespace std;
