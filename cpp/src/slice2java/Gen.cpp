@@ -2269,9 +2269,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch (IceInternal.NonRepeatable __ex)";
         out << sb;
-	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-        if (nonmutating)
+        if (op->nonmutating())
         {
             out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
         }
@@ -3075,10 +3073,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << sb;
-	list<string> metaData = op->getMetaData();
-	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
-        out << nl << "IceInternal.Outgoing __out = new IceInternal.Outgoing(__connection, __reference, false, \""
-            << op->name() << "\", " << (nonmutating ? "true" : "false") << ", __context);";
+        out << nl << "IceInternal.Outgoing __out = new "
+            << "IceInternal.Outgoing(__connection, __reference, \""
+            << op->name() << "\", " << (op->nonmutating() ? "true" : "false")
+            << ", __context);";
         if (!inParams.empty())
         {
             out << nl << "IceInternal.BasicStream __os = __out.os();";
