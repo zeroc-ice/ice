@@ -187,7 +187,7 @@ Glacier::StarterService::stop()
     //
     // Destroy the starter.
     //
-    assert(_starterv);
+    assert(_starter);
     _starter->destroy();
 
     return true;

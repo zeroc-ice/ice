@@ -167,7 +167,7 @@ Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& 
 }
 
 void
-Glacier2::SessionRouterI::SessionThread::SessionThread::run()
+Glacier2::SessionRouterI::SessionThread::run()
 {
     _sessionRouter->run();
     _sessionRouter = 0; // Break cyclic dependencies.

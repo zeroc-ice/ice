@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public final class CallbackI extends Callback
+public final class CallbackI extends _CallbackDisp
 {
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
