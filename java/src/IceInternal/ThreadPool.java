@@ -12,9 +12,23 @@ package IceInternal;
 
 public final class ThreadPool
 {
+    private final static boolean DEBUG_REGISTRATION = false;
+    private final static boolean DEBUG_INTERRUPT = false;
+    private final static boolean DEBUG_SHUTDOWN = false;
+    private final static boolean DEBUG_SELECT = false;
+    private final static boolean DEBUG_EXCEPTION = false;
+    private final static boolean DEBUG_THREAD = false;
+    private final static boolean DEBUG_STACK_TRACE = false;
+
     public synchronized void
     _register(java.nio.channels.SelectableChannel fd, EventHandler handler)
     {
+        if (DEBUG_REGISTRATION)
+        {
+            System.err.println("ThreadPool - adding handler of type " + handler.getClass().getName() +
+                               " for channel " + fd + ", handler count = " + (_handlers + 1));
+        }
+
         ++_handlers;
         _changes.add(new FdHandlerPair(fd, handler));
         setInterrupt(0);
@@ -23,6 +37,11 @@ public final class ThreadPool
     public synchronized void
     unregister(java.nio.channels.SelectableChannel fd)
     {
+        if (DEBUG_REGISTRATION)
+        {
+            System.err.println("ThreadPool - removing handler for channel " + fd);
+        }
+
         _changes.add(new FdHandlerPair(fd, null));
         setInterrupt(0);
     }
@@ -39,14 +58,22 @@ public final class ThreadPool
     public void
     initiateShutdown()
     {
-//System.out.println("ThreadPool - initiate server shutdown");
+        if (DEBUG_SHUTDOWN)
+        {
+            System.err.println("ThreadPool - initiate server shutdown");
+        }
+
         setInterrupt(1);
     }
 
     public synchronized void
     waitUntilFinished()
     {
-//System.out.println("ThreadPool - waiting until finished...");
+        if (DEBUG_SHUTDOWN)
+        {
+            System.err.println("ThreadPool - waiting until finished...");
+        }
+
         while (_handlers != 0 && _threadNum != 0)
         {
             try
@@ -63,7 +90,15 @@ public final class ThreadPool
             _instance.logger().error("can't wait for graceful server termination in thread pool\n" +
                                      "since all threads have vanished");
         }
-//System.out.println("ThreadPool - finished.");
+        else
+        {
+            assert(_handlerMap.isEmpty());
+        }
+
+        if (DEBUG_SHUTDOWN)
+        {
+            System.err.println("ThreadPool - finished.");
+        }
     }
 
     public void
@@ -125,25 +160,15 @@ public final class ThreadPool
         //
         _keys = _selector.selectedKeys();
 
-        //
-        // On Win32 platforms, once a key has been selected, it will not
-        // be reported again until the channel associated with that key
-        // has been processed. This means that we must process all of
-        // the keys in the selected-key set before calling select again.
-        // If the iterator _keysIter is null, it indicates that select needs
-        // to be called. Otherwise, we need to remove the next active key
-        // (if any) from the iterator.
-        //
-        _keysIter = null;
-
         if (server)
         {
             _timeout = _instance.properties().getPropertyAsInt("Ice.ServerIdleTime");
+            _timeoutMillis = _timeout * 1000;
             _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ServerThreadPool.Size", 10);
         }
         else
         {
-            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ClientThreadPool.Size", 10);
+            _threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ClientThreadPool.Size", 1);
         }
 
 	if (_threadNum < 1)
@@ -217,7 +242,11 @@ public final class ThreadPool
     synchronized void
     destroy()
     {
-//System.out.println("ThreadPool - destroy");
+        if (DEBUG_SHUTDOWN)
+        {
+            System.err.println("ThreadPool - destroy");
+        }
+
         assert(!_destroyed);
         _destroyed = true;
         setInterrupt(0);
@@ -226,17 +255,22 @@ public final class ThreadPool
     private boolean
     clearInterrupt()
     {
-//System.out.println("clearInterrupt");
-/*
-try
-{
-    throw new RuntimeException();
-}
-catch (RuntimeException ex)
-{
-    ex.printStackTrace();
-}
-//*/
+        if (DEBUG_INTERRUPT)
+        {
+            System.err.println("ThreadPool - clearInterrupt");
+            if (DEBUG_STACK_TRACE)
+            {
+                try
+                {
+                    throw new RuntimeException();
+                }
+                catch (RuntimeException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
         byte b = 0;
 
         java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
@@ -250,7 +284,11 @@ catch (RuntimeException ex)
                     break;
                 }
 
-//System.out.println("  - got byte " + (int)buf.get(0));
+                if (DEBUG_INTERRUPT)
+                {
+                    System.err.println("  - got byte " + (int)buf.get(0));
+                }
+
                 b = buf.get(0);
                 break;
             }
@@ -268,17 +306,22 @@ catch (RuntimeException ex)
     private void
     setInterrupt(int b)
     {
-//System.out.println("setInterrupt");
-/*
-try
-{
-    throw new RuntimeException();
-}
-catch (RuntimeException ex)
-{
-    ex.printStackTrace();
-}
-//*/
+        if (DEBUG_INTERRUPT)
+        {
+            System.err.println("ThreadPool - setInterrupt(" + b + ")");
+            if (DEBUG_STACK_TRACE)
+            {
+                try
+                {
+                    throw new RuntimeException();
+                }
+                catch (RuntimeException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+
         java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
         buf.put(0, (byte)b);
         while (buf.hasRemaining())
@@ -304,24 +347,17 @@ catch (RuntimeException ex)
     run(BasicStream stream)
     {
         boolean shutdown = false;
-        final int timeoutMillis = _timeout * 1000;
-
-        //
-        // On Win32 platforms, select() occasionally returns 0 when it
-        // is supposed to block indefinitely. As a workaround, we only
-        // treat this occurrence as a timeout if we have a timeout value,
-        // and if the proper amount of time has elapsed. This can be a
-        // local variable because a timeout would not be split over
-        // multiple threads.
-        //
-        long nextTimeout = 0;
 
         while (true)
         {
             if (_multipleThreads)
             {
                 _threadMutex.lock();
-//System.out.println("ThreadPool - thread " + Thread.currentThread() + " has the lock");
+
+                if (DEBUG_THREAD)
+                {
+                    System.err.println("ThreadPool - thread " + Thread.currentThread() + " has the lock");
+                }
             }
 
         repeatSelect:
@@ -330,79 +366,75 @@ catch (RuntimeException ex)
             {
                 if (shutdown) // Shutdown has been initiated.
                 {
-//System.out.println("ThreadPool - shutdown");
+                    if (DEBUG_SHUTDOWN)
+                    {
+                        System.err.println("ThreadPool - shutdown detected");
+                    }
+
                     shutdown = false;
-		    ObjectAdapterFactory factory = _instance.objectAdapterFactory();
-		    if (factory != null)
-		    {
-			factory.shutdown();
-		    }
+                    ObjectAdapterFactory factory = _instance.objectAdapterFactory();
+                    if (factory != null)
+                    {
+                        factory.shutdown();
+                    }
                 }
 
-                if (_keysIter == null) // Need to select.
+                if (DEBUG_REGISTRATION)
                 {
-                    int ret = 0;
-                    try
+                    java.util.Set keys = _selector.keys();
+                    System.err.println("ThreadPool - selecting on " + keys.size() + " channels:");
+                    java.util.Iterator i = keys.iterator();
+                    while (i.hasNext())
                     {
-//System.out.println("ThreadPool - selecting on " + _selector.keys().size() + " keys, thread id = " + Thread.currentThread());
-                        if (timeoutMillis > 0 && nextTimeout == 0)
-                        {
-                            nextTimeout = System.currentTimeMillis() + timeoutMillis;
-                        }
-
-                        ret = _selector.select(timeoutMillis);
+                        java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)i.next();
+                        System.err.println("  " + key.channel());
                     }
-                    catch (java.io.InterruptedIOException ex)
-                    {
-                        continue repeatSelect;
-                    }
-                    catch (java.io.IOException ex)
-                    {
-                        //
-                        // Pressing Ctrl-C causes select() to raise an
-                        // IOException, which seems like a JDK bug. We trap
-                        // for that special case here and ignore it.
-                        // Hopefully we're not masking something important!
-                        //
-                        if (ex.getMessage().indexOf("Interrupted system call") != -1)
-                        {
-                            continue repeatSelect;
-                        }
-
-                        Ice.SocketException se = new Ice.SocketException();
-                        se.initCause(ex);
-                        throw se;
-                    }
-
-//System.out.println("ThreadPool - select() returned " + ret + ", _keys.size() = " + _keys.size());
-                    if (ret == 0) // Potential timeout.
-                    {
-                        if (_timeout > 0)
-                        {
-                            long now = System.currentTimeMillis();
-                            if (now >= nextTimeout) // Timeout.
-                            {
-//System.out.println("ThreadPool - timeout");
-                                _timeout = 0;
-                                shutdown = true;
-                                nextTimeout = 0;
-                            }
-                        }
-//System.out.println("ThreadPool - timeout workaround");
-                        continue repeatSelect;
-                    }
-
-                    nextTimeout = 0;
                 }
-//else
-//{
-//System.out.println("ThreadPool - still have keys");
-//}
 
-                if (_keysIter == null)
+                //
+                // The Selector implementation works differently on Unix and
+                // Windows. On Unix, calling select() always returns the
+                // current number of channels with pending events. However,
+                // on Windows, select() returns the number of channels
+                // that have *new* events pending since the last call to
+                // select(). Once a channel has been reported as ready, the
+                // Windows implementation will not report it again until the
+                // channel has been processed (i.e., accepted or read).
+                //
+                // A future version of the JDK may correct this discrepancy.
+                //
+                // Meanwhile, it is the set of selected keys that we are most
+                // interested in. We must process each of the channels in the
+                // set, because those keys will not be reported again (on
+                // Windows) until we've done that.
+                //
+                // First, we call selectNonBlocking(). This is necessary to
+                // ensure that the selected key set is updated (i.e., new
+                // channels added, closed channels removed, etc.). If no keys
+                // are present in the key set, then we'll call select() to
+                // block until a new event is ready.
+                //
+                selectNonBlocking();
+                if (_keys.size() == 0)
                 {
-//System.out.println("ThreadPool - initializing _keysIter");
-                    _keysIter = _keys.iterator();
+                    int ret = select();
+                    if (ret == 0) // Timeout.
+                    {
+                        if (DEBUG_SELECT)
+                        {
+                            System.err.println("ThreadPool - timeout");
+                        }
+
+                        _timeout = 0;
+                        shutdown = true;
+                    }
+                }
+                else
+                {
+                    if (DEBUG_SELECT)
+                    {
+                        System.err.println("ThreadPool - still have selected keys");
+                    }
                 }
 
                 EventHandler handler = null;
@@ -412,7 +444,11 @@ catch (RuntimeException ex)
                 {
                     if (_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
                     {
-//System.out.println("ThreadPool - detected interrupt");
+                        if (DEBUG_SELECT || DEBUG_INTERRUPT)
+                        {
+                            System.err.println("ThreadPool - detected interrupt");
+                        }
+
                         //
                         // There are three possibilities for an interrupt:
                         //
@@ -428,7 +464,11 @@ catch (RuntimeException ex)
                         //
                         if (_destroyed)
                         {
-//System.out.println("ThreadPool - destroyed, thread id = " + Thread.currentThread());
+                            if (DEBUG_SHUTDOWN)
+                            {
+                                System.err.println("ThreadPool - destroyed, thread id = " + Thread.currentThread());
+                            }
+
                             //
                             // Don't clear the interrupt fd if destroyed, so that
                             // the other threads exit as well.
@@ -436,16 +476,10 @@ catch (RuntimeException ex)
                             return;
                         }
 
+                        //
+                        // Remove the interrupt channel from the selected key set.
+                        //
                         _keys.remove(_fdIntrReadKey);
-
-                        if (!_keys.isEmpty())
-                        {
-                            _keysIter = _keys.iterator();
-                        }
-                        else
-                        {
-                            _keysIter = null;
-                        }
 
                         shutdown = clearInterrupt();
 
@@ -466,7 +500,6 @@ catch (RuntimeException ex)
 
                         if (change.handler != null) // Addition if handler is set.
                         {
-//System.err.println("ThreadPool - adding handler" + change.handler + ", stream = " + change.handler._stream);
                             int op;
                             if ((change.fd.validOps() & java.nio.channels.SelectionKey.OP_READ) > 0)
                             {
@@ -477,24 +510,39 @@ catch (RuntimeException ex)
                                 op = java.nio.channels.SelectionKey.OP_ACCEPT;
                             }
 
+                            java.nio.channels.SelectionKey key = null;
                             try
                             {
-                                change.fd.register(_selector, op, change.handler);
+                                key = change.fd.register(_selector, op, change.handler);
                             }
                             catch (java.nio.channels.ClosedChannelException ex)
                             {
                                 assert(false);
                             }
+                            _handlerMap.put(change.fd, new HandlerKeyPair(change.handler, key));
+
+                            if (DEBUG_REGISTRATION)
+                            {
+                                System.err.println("ThreadPool - added handler (" +
+                                                   change.handler.getClass().getName() + ") for fd " + change.fd);
+                            }
+
                             continue repeatSelect;
                         }
                         else // Removal if handler is not set.
                         {
-//System.out.println("ThreadPool - removing handler");
-                            java.nio.channels.SelectionKey key = change.fd.keyFor(_selector);
-                            assert(key != null);
-                            handler = (EventHandler)key.attachment();
+                            HandlerKeyPair pair = (HandlerKeyPair)_handlerMap.remove(change.fd);
+                            assert(pair != null);
+                            handler = pair.handler;
                             finished = true;
-                            key.cancel();
+                            pair.key.cancel();
+
+                            if (DEBUG_REGISTRATION)
+                            {
+                                System.err.println("ThreadPool - removed handler (" + handler.getClass().getName() +
+                                                   ") for fd " + change.fd);
+                            }
+
                             // Don't goto repeatSelect; we have to call
                             // finished() on the event handler below, outside
                             // the thread synchronization.
@@ -503,35 +551,37 @@ catch (RuntimeException ex)
                     else
                     {
                         java.nio.channels.SelectionKey key = null;
-                        while (_keysIter.hasNext())
+                        java.util.Iterator iter = _keys.iterator();
+                        while (iter.hasNext())
                         {
                             //
                             // Ignore selection keys that have been cancelled
                             //
-                            java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)_keysIter.next();
-                            _keysIter.remove();
+                            java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
+                            iter.remove();
                             if (k.isValid() && key != _fdIntrReadKey)
                             {
-//System.out.println("ThreadPool - found a key");
+                                if (DEBUG_SELECT)
+                                {
+                                    System.err.println("ThreadPool - found a key");
+                                }
+
                                 key = k;
                                 break;
                             }
                         }
 
-                        if (!_keysIter.hasNext())
-                        {
-                            _keysIter = null;
-//System.out.println("ThreadPool - reset iterator");
-                        }
-
                         if (key == null)
                         {
-//System.out.println("ThreadPool - didn't find a valid key");
+                            if (DEBUG_SELECT)
+                            {
+                                System.err.println("ThreadPool - didn't find a valid key");
+                            }
+
                             continue repeatSelect;
                         }
 
                         handler = (EventHandler)key.attachment();
-//System.err.println("Selected handler with stream " + handler._stream + " - key is " + (key.isValid() ? "" : "NOT ") + "valid");
                     }
                 }
 
@@ -571,7 +621,11 @@ catch (RuntimeException ex)
                             {
                                 if (!read(handler)) // No data available.
                                 {
-//System.out.println("ThreadPool - no input");
+                                    if (DEBUG_SELECT)
+                                    {
+                                        System.err.println("ThreadPool - no input");
+                                    }
+
                                     continue repeatSelect;
                                 }
                             }
@@ -581,7 +635,13 @@ catch (RuntimeException ex)
                             }
                             catch (Ice.LocalException ex)
                             {
-//System.out.println("ThreadPool - informing handler about exception " + ex);
+                                if (DEBUG_EXCEPTION)
+                                {
+                                    System.err.println("ThreadPool - informing handler (" +
+                                                       handler.getClass().getName() + ") about exception " + ex);
+                                    ex.printStackTrace();
+                                }
+
                                 handler.exception(ex);
                                 continue repeatSelect;
                             }
@@ -672,6 +732,131 @@ catch (RuntimeException ex)
         return true;
     }
 
+    private void
+    selectNonBlocking()
+    {
+        while (true)
+        {
+            try
+            {
+                if (DEBUG_SELECT)
+                {
+                    System.err.println("ThreadPool - non-blocking select on " + _selector.keys().size() +
+                                       " keys, thread id = " + Thread.currentThread());
+                }
+
+                _selector.selectNow();
+                break;
+            }
+            catch (java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch (java.io.IOException ex)
+            {
+                //
+                // Pressing Ctrl-C causes select() to raise an
+                // IOException, which seems like a JDK bug. We trap
+                // for that special case here and ignore it.
+                // Hopefully we're not masking something important!
+                //
+                if (ex.getMessage().indexOf("Interrupted system call") != -1)
+                {
+                    continue;
+                }
+
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
+    }
+
+    private int
+    select()
+    {
+        int ret = 0;
+
+        //
+        // On Win32 platforms, select() occasionally returns 0 when it
+        // is supposed to block indefinitely. As a workaround, we only
+        // treat this occurrence as a timeout if we have a timeout value,
+        // and if the proper amount of time has elapsed.
+        //
+        long nextTimeout = 0;
+
+        int timeoutMillis = _timeoutMillis;
+
+        while (true)
+        {
+            try
+            {
+                if (DEBUG_SELECT)
+                {
+                    System.err.println("ThreadPool - select on " + _selector.keys().size() +
+                                       " keys, thread id = " + Thread.currentThread());
+                }
+
+                if (_timeout > 0 && nextTimeout == 0)
+                {
+                    nextTimeout = System.currentTimeMillis() + _timeoutMillis;
+                }
+
+                ret = _selector.select(timeoutMillis);
+            }
+            catch (java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch (java.io.IOException ex)
+            {
+                //
+                // Pressing Ctrl-C causes select() to raise an
+                // IOException, which seems like a JDK bug. We trap
+                // for that special case here and ignore it.
+                // Hopefully we're not masking something important!
+                //
+                if (ex.getMessage().indexOf("Interrupted system call") != -1)
+                {
+                    continue;
+                }
+
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+
+            if (DEBUG_SELECT)
+            {
+                System.err.println("ThreadPool - select() returned " + ret + ", _keys.size() = " + _keys.size());
+            }
+
+            if (ret == 0) // Potential timeout.
+            {
+                if (_timeout > 0)
+                {
+                    long now = System.currentTimeMillis();
+                    if (now >= nextTimeout) // Timeout.
+                    {
+                        break;
+                    }
+                    timeoutMillis -= (nextTimeout - now);
+
+                    if (DEBUG_SELECT)
+                    {
+                        System.err.println("ThreadPool - timeout workaround");
+                    }
+                }
+
+                continue;
+            }
+
+            break;
+        }
+
+        return ret;
+    }
+
     private static final class FdHandlerPair
     {
         java.nio.channels.SelectableChannel fd;
@@ -684,6 +869,18 @@ catch (RuntimeException ex)
         }
     }
 
+    private static final class HandlerKeyPair
+    {
+        EventHandler handler;
+        java.nio.channels.SelectionKey key;
+
+        HandlerKeyPair(EventHandler handler, java.nio.channels.SelectionKey key)
+        {
+            this.handler = handler;
+            this.key = key;
+        }
+    }
+
     private Instance _instance;
     private boolean _destroyed;
     private java.nio.channels.ReadableByteChannel _fdIntrRead;
@@ -691,10 +888,11 @@ catch (RuntimeException ex)
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
     private java.nio.channels.Selector _selector;
     private java.util.Set _keys;
-    private java.util.Iterator _keysIter;
     private java.util.LinkedList _changes = new java.util.LinkedList();
+    private java.util.HashMap _handlerMap = new java.util.HashMap();
     private int _handlers;
     private int _timeout;
+    private int _timeoutMillis;
     private RecursiveMutex _threadMutex = new RecursiveMutex();
     private boolean _multipleThreads;
 
@@ -752,7 +950,11 @@ catch (RuntimeException ex)
                 }
             }
 
-//System.out.println("ThreadPool - run() terminated - promoting follower");
+            if (DEBUG_THREAD)
+            {
+                System.err.println("ThreadPool - run() terminated - promoting follower");
+            }
+
             _pool.promoteFollower();
             _pool = null; // Break cyclic dependency.
 
