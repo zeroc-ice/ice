@@ -327,7 +327,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindString:
     {
-        if(!PyString_Check(p))
+        if(p != Py_None && !PyString_Check(p))
         {
             return false;
         }
