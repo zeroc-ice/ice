@@ -14,6 +14,13 @@
 #include <Ice/EmitterF.h>
 #include <Ice/Stream.h>
 
+namespace Ice
+{
+
+class LocalException;
+
+}
+
 namespace __Ice
 {
 
@@ -26,6 +33,7 @@ public:
 
     void invoke();
     void finished(Stream&);
+    void finished(const ::Ice::LocalException&);
 
     Stream* is();
     Stream* os();
@@ -36,6 +44,7 @@ private:
     void operator=(const Outgoing&);
 
     Emitter emitter_;
+    std::auto_ptr< ::Ice::LocalException> exception_;
 
     enum
     {

@@ -20,6 +20,13 @@
 #include <Ice/EventHandler.h>
 #include <map>
 
+namespace Ice
+{
+
+class LocalException;
+
+}
+
 namespace __Ice
 {
 
@@ -50,12 +57,24 @@ private:
     virtual ~EmitterI();
     friend class EmitterFactoryI; // May create EmitterIs
 
+    enum State
+    {
+	StateActive,
+	StateHolding,
+	StateClosing,
+	StateClosed
+    };
+
+    void setState(State, const ::Ice::LocalException&);
+
     Instance instance_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
-    Ice::Int nextRequestId_;
-    std::map<Ice::Int, Outgoing*> requests_;
+    ::Ice::Int nextRequestId_;
+    std::map< ::Ice::Int, Outgoing*> requests_;
+    std::auto_ptr< ::Ice::LocalException> exception_;
+    State state_;
 };
 
 class ICE_API EmitterFactoryI : public Shared, public JTCMutex

@@ -72,14 +72,14 @@ private:
 
     void setState(State);
     void closeConnection();
-    void warning(const Ice::LocalException&) const;
+    void warning(const ::Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
-    State state_;
     int responseCount_;
+    State state_;
 };
 
 class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
@@ -116,7 +116,7 @@ private:
     };
 
     void setState(State);
-    void warning(const Ice::LocalException&) const;
+    void warning(const ::Ice::LocalException&) const;
 
     Instance instance_;
     ::Ice::ObjectAdapter adapter_;

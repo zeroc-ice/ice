@@ -26,6 +26,7 @@ public:
     LocalException& operator=(const LocalException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 
 protected:
 
@@ -39,6 +40,19 @@ private:
 
 ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
 
+class ICE_API CommunicatorDestroyedException : public LocalException
+{
+public:    
+
+    CommunicatorDestroyedException(const char*, int);
+    CommunicatorDestroyedException(const CommunicatorDestroyedException&);
+    CommunicatorDestroyedException& operator=(
+	const CommunicatorDestroyedException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    
@@ -48,6 +62,7 @@ public:
     SystemException& operator=(const SystemException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 
 protected:
 
@@ -63,6 +78,7 @@ public:
     SocketException& operator=(const SocketException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API ConnectFailedException : public SocketException
@@ -74,6 +90,7 @@ public:
     ConnectFailedException& operator=(const ConnectFailedException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API ConnectionLostException : public SocketException
@@ -85,6 +102,7 @@ public:
     ConnectionLostException& operator=(const ConnectionLostException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API DNSException : public SystemException
@@ -96,6 +114,7 @@ public:
     DNSException& operator=(const DNSException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API ProtocolException : public LocalException
@@ -117,6 +136,7 @@ public:
 	const UnmarshalOutOfBoundsException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API UnsupportedProtocolException : public ProtocolException
@@ -129,6 +149,7 @@ public:
 	const UnsupportedProtocolException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API UnsupportedEncodingException : public ProtocolException
@@ -141,6 +162,7 @@ public:
 	const UnsupportedEncodingException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API InvalidMessageException : public ProtocolException
@@ -152,6 +174,7 @@ public:
     InvalidMessageException& operator=(const InvalidMessageException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 class ICE_API UnknownMessageException : public ProtocolException
@@ -163,6 +186,19 @@ public:
     UnknownMessageException& operator=(const UnknownMessageException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API CloseConnectionException : public ProtocolException
+{
+public:    
+
+    CloseConnectionException(const char*, int);
+    CloseConnectionException(const CloseConnectionException&);
+    CloseConnectionException& operator=(const CloseConnectionException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
 };
 
 }
