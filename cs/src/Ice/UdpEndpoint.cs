@@ -323,19 +323,31 @@ namespace IceInternal
 	public override string ToString()
 	{
 	    string s = "udp";
-	    s += " -v " + (_protocolMajor < 0 ? (int)_protocolMajor + 255 : _protocolMajor);
-	    s += "." + (_protocolMinor < 0 ? (int)_protocolMinor + 255 : _protocolMinor);
-	    s += " -e " + (_encodingMajor < 0 ? (int)_encodingMajor + 255 : _encodingMajor);
-	    s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
+
+	    if((int)_protocolMajor != 1 || (int)_protocolMinor != 0)
+	    {
+	    	s += " -v " + (_protocolMajor < 0 ? (int)_protocolMajor + 255 : _protocolMajor);
+	    	s += "." + (_protocolMinor < 0 ? (int)_protocolMinor + 255 : _protocolMinor);
+	    }
+
+	    if((int)_encodingMajor != 1 || (int)_encodingMinor != 0)
+	    {
+		s += " -e " + (_encodingMajor < 0 ? (int)_encodingMajor + 255 : _encodingMajor);
+	    	s += "." + (_encodingMinor < 0 ? (int)_encodingMinor + 255 : _encodingMinor);
+	    }
+
 	    s += " -h " + _host + " -p " + _port;
+
 	    if(_connect)
 	    {
 		s += " -c";
 	    }
+
 	    if(_compress)
 	    {
 		s += " -z";
 	    }
+
 	    return s;
 	}
 	
