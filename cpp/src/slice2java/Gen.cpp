@@ -2885,8 +2885,17 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             else
             {
                 string s = typeToString(type, TypeModeIn, scope);
-                out << nl << s << ' ' << arg << ';';
-                writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false);
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+		{
+		    writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false, list<string>(),
+					      "__r, __key");
+		}
+		else
+		{
+		    out << nl << s << ' ' << arg << ';';
+		    writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false);
+		}
             }
         }
 	if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
