@@ -23,6 +23,7 @@ void
 CallbackReceiverI::callback(const Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(!_callback);
     _callback = true;
     notify();
 }
