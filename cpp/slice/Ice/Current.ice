@@ -35,11 +35,12 @@ local dictionary<string, string> Context;
  * reinvocable) operation.
  *
  **/
-
 //
-// Note: The order of definitions here *must* match
-//       the order of defininitions for
-//       ::Slice::Operation::Mode in Slice/Parser.h!
+// Note: The order of definitions here *must* match the order of
+// defininitions for ::Slice::Operation::Mode in include/Slice/Parser.h!
+//
+// TODO: ML: Coding conventions (placement of braces), and document the
+// individual elements of the enum.
 //
 enum OperationMode { Normal, \Nonmutating, \Idempotent };
 

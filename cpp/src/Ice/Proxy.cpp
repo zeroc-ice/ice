@@ -818,7 +818,7 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
-                                      ::Ice::OperationMode mode,
+                                      OperationMode mode,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& context)
@@ -1193,10 +1193,10 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
-				      ::Ice::OperationMode mode,
+				      OperationMode mode,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
-				      const ::Ice::Context& context)
+				      const Context& context)
 {
     Current current;
     __initCurrent(current, operation, mode, context);
@@ -1254,7 +1254,7 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 }
 
 void
-IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, ::Ice::OperationMode mode,
+IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, OperationMode mode,
 					 const Context& context)
 {
     current.id = __reference->identity;

@@ -319,7 +319,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     //
     if(_persistenceMode == SaveAfterMutatingOperation)
     {
-	if(current.mode != ::Ice::Nonmutating)
+	if(current.mode != Nonmutating)
 	{
 	    _dict.insert(make_pair(current.id, servant));
 	}

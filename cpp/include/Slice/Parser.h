@@ -457,11 +457,15 @@ class SLICE_API Operation : virtual public Contained, virtual public Container
 public:
     
     //
-    // Note: The order of definitions here *must* match
-    //       the order of definitions of ::Ice::OperationMode
-    //       in Ice/Current.ice!
+    // Note: The order of definitions here *must* match the order of
+    // definitions of ::Ice::OperationMode in slice/Ice/Current.ice!
     //
-    enum Mode { Normal, Nonmutating, Idempotent };
+    enum Mode
+    {
+	Normal,
+	Nonmutating,
+	Idempotent
+    };
 
     TypePtr returnType() const;
     Mode mode() const;
