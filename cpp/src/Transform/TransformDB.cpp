@@ -104,7 +104,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     string cppArgs;
     vector<string> includePaths;
     bool debug = false;
-    bool ice = false;
+    bool ice = true; // Needs to be true in order to create default definitions.
     bool caseSensitive = false;
     string outputFile;
     bool ignoreTypeChanges = false;
