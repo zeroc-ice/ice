@@ -35,7 +35,9 @@ private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
-    friend class ::_Ice::ObjectFactoryI; // May create Objects
+    friend class ::_Ice::ObjectFactoryI; // May create ObjectIs
+
+    ::_IceStub::Ice::Object _getStub();
 
     ::_Ice::Instance instance_;
 

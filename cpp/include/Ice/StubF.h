@@ -38,4 +38,18 @@ typedef _Ice::Handle< ::_IceIntf::Ice::ObjectI > Object;
 
 }
 
+namespace _IceStub { namespace Ice
+{
+
+typedef _Ice::Handle< ::_IceStub::Ice::ObjectI > Object;
+
+} }
+
+namespace _IceStubM { namespace Ice
+{
+
+typedef _Ice::Handle< ::_IceStubM::Ice::ObjectI > Object;
+
+} }
+
 #endif

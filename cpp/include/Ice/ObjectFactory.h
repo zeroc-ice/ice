@@ -34,7 +34,7 @@ private:
     ObjectFactoryI();
     virtual ~ObjectFactoryI();
     void destroy();
-    friend class InstanceI; // May create and destroy ObjectFactories
+    friend class InstanceI; // May create and destroy ObjectFactoryIs
 };
 
 }

@@ -33,7 +33,7 @@ private:
     InstanceI();
     virtual ~InstanceI();
     void destroy();
-    friend class ::Ice::CommunicatorI; // May create and destroy Instances
+    friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
     ObjectFactory objectFactory_;
 };

@@ -35,7 +35,7 @@ private:
 
     CommunicatorI();
     virtual ~CommunicatorI();
-    // May create Communicators
+    // May create CommunicatorIs
     friend ICE_API Communicator initialize(int&, char*[]);
 
     ::_Ice::Instance instance_;
