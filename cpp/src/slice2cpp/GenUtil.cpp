@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <GenUtil.h>
-#include <limits>
 
 using namespace std;
 using namespace Slice;

@@ -11,6 +11,17 @@
 #include <Ice/Functional.h>
 #include <Gen.h>
 #include <GenUtil.h>
+#include <limits>
+
+//
+// Stupid Visual C++ defines min and max as macros :-(
+//
+#ifdef min
+#   undef min
+#endif
+#ifdef max
+#   undef max
+#endif
 
 using namespace std;
 using namespace Slice;
