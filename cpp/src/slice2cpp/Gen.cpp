@@ -2587,39 +2587,19 @@ Slice::Gen::ImplVisitor::writeAssign(Output& out, const TypePtr& type, const str
     {
         switch (builtin->kind())
         {
-            case Builtin::KindByte:
-            {
-                out << nl << name << " = ::Ice::Byte(0);";
-                break;
-            }
             case Builtin::KindBool:
             {
                 out << nl << name << " = false;";
                 break;
             }
+            case Builtin::KindByte:
             case Builtin::KindShort:
-            {
-                out << nl << name << " = ::Ice::Short(0);";
-                break;
-            }
             case Builtin::KindInt:
-            {
-                out << nl << name << " = ::Ice::Int(0);";
-                break;
-            }
             case Builtin::KindLong:
-            {
-                out << nl << name << " = ::Ice::Long(0);";
-                break;
-            }
             case Builtin::KindFloat:
-            {
-                out << nl << name << " = ::Ice::Float(0);";
-                break;
-            }
             case Builtin::KindDouble:
             {
-                out << nl << name << " = ::Ice::Double(0);";
+                out << nl << name << " = 0;";
                 break;
             }
             case Builtin::KindString:
@@ -2745,14 +2725,10 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
-    H << sp << nl << name << "I(const Ice::CommunicatorPtr&);";
+    H << sp << nl << name << "I();";
     H << nl << "virtual ~" << name << "I();";
 
-    C << sp << nl << cls << "::" << name
-      << "I(const Ice::CommunicatorPtr& communicator)";
-    C.inc();
-    C << nl << "_communicator(communicator)";
-    C.dec();
+    C << sp << nl << cls << "::" << name << "I()";
     C << sb;
     C << eb;
 
@@ -2865,11 +2841,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << eb;
     }
 
-    H << sp;
-    H.dec();
-    H << nl << "private:";
-    H.inc();
-    H << sp << nl << "Ice::CommunicatorPtr _communicator;";
     H << eb << ';';
 
     return true;
