@@ -29,12 +29,7 @@ class Contact
     nonmutating string getPhone();
     void setPhone(string phone);
 
-    //
-    // Yes, destroy() is nonmutating. It doesn't change the state of
-    // the Contact. It removes the Contact completely, but doesn't
-    // touch state.
-    //
-    nonmutating void destroy() throws DatabaseException;
+    idempotent void destroy() throws DatabaseException;
 
     string name;
     string address;
@@ -49,7 +44,7 @@ interface PhoneBook
     Contact* createContact() throws DatabaseException;
     nonmutating Contacts findContacts(string name) throws DatabaseException;
     void setEvictorSize(int size) throws DatabaseException;
-    nonmutating void shutdown();
+    idempotent void shutdown();
 };
 
 #endif

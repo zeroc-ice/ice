@@ -189,11 +189,11 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, boolean isNonmutating, byte[] inParams, ByteSeqHolder outParams, java.util.Map context)
+    ice_invoke(String operation, boolean isIdempotent, byte[] inParams, ByteSeqHolder outParams, java.util.Map context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current current = new Current();
-        __initCurrent(current, operation, isNonmutating, context);
+        __initCurrent(current, operation, isIdempotent, context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, current);
@@ -264,12 +264,12 @@ public class _ObjectDelD implements _ObjectDel
     protected IceInternal.Reference __reference;
 
     protected final void
-    __initCurrent(Current current, String op, boolean isNonmutating, java.util.Map context)
+    __initCurrent(Current current, String op, boolean isIdempotent, java.util.Map context)
     {
         current.id = __reference.identity;
         current.facet = __reference.facet;
         current.operation = op;
-        current.isNonmutating = isNonmutating;
+        current.isIdempotent = isIdempotent;
         current.ctx = context;
     }
 

@@ -25,7 +25,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    nonmutatingAbort(Ice.Current current)
+    idempotentAbort(Ice.Current current)
     {
         System.exit(1);
     }

@@ -72,11 +72,11 @@ public class AllTests
             }
             else if(j == 2)
             {
-                System.out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
+                System.out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
                 System.out.flush();
                 try
                 {
-                    obj.nonmutatingAbort();
+                    obj.idempotentAbort();
                     test(false);
                 }
                 catch(Ice.SocketException ex)

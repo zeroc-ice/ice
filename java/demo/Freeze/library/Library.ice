@@ -91,7 +91,7 @@ class Book
      * database system.
      *
      **/
-    nonmutating void destroy()
+    idempotent void destroy()
 	throws DatabaseException;
 
     /**
@@ -219,7 +219,7 @@ interface Library
      * database.
      *
      **/
-    nonmutating void setEvictorSize(int size)
+    idempotent void setEvictorSize(int size)
 	throws DatabaseException;
 
     /**
@@ -227,7 +227,7 @@ interface Library
      * Shutdown the server.
      *
      **/
-    nonmutating void shutdown();
+    idempotent void shutdown();
 };
 
 #endif
