@@ -595,7 +595,7 @@ IcePHP::PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSR
     {
         Ice::Byte val;
         is.read(val);
-        ZVAL_LONG(zv, val);
+        ZVAL_LONG(zv, val & 0xff);
         break;
     }
     case Slice::Builtin::KindShort:
