@@ -16,8 +16,14 @@ class CallbackServer extends Ice.Application
     {
 	communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
-        CallbackPrx self = CallbackPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("callback")));
-        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
+	adapter.add(new CallbackI(),
+		    Ice.Util.stringToIdentity("c1/callback")); // The test allows "c1" as category.
+	adapter.add(new CallbackI(),
+		    Ice.Util.stringToIdentity("c2/callback")); // The test allows "c2" as category.
+	adapter.add(new CallbackI(),
+		    Ice.Util.stringToIdentity("c3/callback")); // The test rejects "c3" as category.
+	adapter.add(new CallbackI(),
+		    Ice.Util.stringToIdentity("_userid/callback")); // The test allows the prefixed userid.
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

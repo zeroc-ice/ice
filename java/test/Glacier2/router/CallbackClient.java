@@ -61,7 +61,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing stringToProxy for server object... ");
             System.out.flush();
-            base = communicator().stringToProxy("callback:tcp -p 12345 -t 10000");
+            base = communicator().stringToProxy("c1/callback:tcp -p 12345 -t 10000");
             System.out.println("ok");
         }
             
@@ -86,7 +86,7 @@ class CallbackClient extends Ice.Application
             System.out.flush();
             try
             {
-                session = router.createSession("dummy", "xxx");
+                session = router.createSession("userid", "xxx");
                 test(false);
             }
             catch(Glacier2.PermissionDeniedException ex)
@@ -118,7 +118,7 @@ class CallbackClient extends Ice.Application
             System.out.flush();
             try
             {
-                session = router.createSession("dummy", "abc123");
+                session = router.createSession("userid", "abc123");
             }
             catch(Glacier2.PermissionDeniedException ex)
             {
@@ -136,7 +136,7 @@ class CallbackClient extends Ice.Application
             System.out.flush();
             try
             {
-                router.createSession("dummy", "abc123");
+                router.createSession("userid", "abc123");
                 test(false);
             }
             catch(Glacier2.PermissionDeniedException ex)
@@ -261,6 +261,48 @@ class CallbackClient extends Ice.Application
             }
         }
 
+	{
+	    System.out.print("testing whether other allowed category is accepted... ");
+            System.out.flush();
+            java.util.Map context = new java.util.HashMap();
+            context.put("_fwd", "t");
+	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+		twoway.ice_newIdentity(Ice.Util.stringToIdentity("c2/callback")));
+	    otherCategoryTwoway.initiateCallback(twowayR, context);
+	    test(callbackReceiverImpl.callbackOK());
+	    System.out.println("ok");
+	}
+	
+	{
+	    System.out.print("testing whether disallowed category gets rejected... ");
+            System.out.flush();
+            java.util.Map context = new java.util.HashMap();
+            context.put("_fwd", "t");
+	    try
+	    {
+		CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+		    twoway.ice_newIdentity(Ice.Util.stringToIdentity("c3/callback")));
+		otherCategoryTwoway.initiateCallback(twowayR, context);
+		test(false);
+	    }
+	    catch(Ice.ObjectNotExistException ex)
+	    {
+		System.out.println("ok");
+	    }
+	}
+	
+	{
+	    System.out.print("testing whether user-id as category is accepted... ");
+            System.out.flush();
+            java.util.Map context = new java.util.HashMap();
+            context.put("_fwd", "t");
+	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+		twoway.ice_newIdentity(Ice.Util.stringToIdentity("_userid/callback")));
+	    otherCategoryTwoway.initiateCallback(twowayR, context);
+	    test(callbackReceiverImpl.callbackOK());
+	    System.out.println("ok");
+	}
+	
         {
             System.out.print("testing server shutdown... ");
             System.out.flush();
