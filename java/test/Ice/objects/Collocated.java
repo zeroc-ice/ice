@@ -17,11 +17,6 @@ public class Collocated
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
         Initial initial = new InitialI(adapter);
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));
-        // TODO: It should not be necessary to call activate(), but there
-        // is a JDK bug (4531740) which currently causes the test to hang
-        // without it. Remove this when the bug is fixed, or a workaround
-        // is added to ThreadPool.
-        adapter.activate();
         AllTests.allTests(communicator, true);
         // We must call shutdown even in the collocated case for cyclic dependency cleanup
         initial.shutdown(null);
