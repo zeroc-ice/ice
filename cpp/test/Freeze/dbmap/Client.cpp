@@ -16,6 +16,7 @@
 #include <Freeze/Freeze.h>
 #include <TestCommon.h>
 #include <ByteIntMap.h>
+#include <Freeze/TransactionHolder.h>
 
 #include <algorithm>
 
@@ -162,12 +163,14 @@ public:
 	    {
 		try
 		{
+		    TransactionHolder txHolder(_connection);
 		    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
 		    {
 			p.set(p->second + 1);
 			_map.erase(p);
 		    }
 		    break; // for(;;)
+		    txHolder.commit();
 		}
 		catch(const DeadlockException&)
 		{
