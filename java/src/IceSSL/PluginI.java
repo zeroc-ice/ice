@@ -12,28 +12,15 @@ package IceSSL;
 public class PluginI extends Ice.LocalObjectImpl implements Ice.Plugin
 {
     public
-    PluginI(Ice.Communicator communicator, String name, String[] args)
+    PluginI(Ice.Communicator communicator)
     {
-	javax.net.ssl.SSLContext ctx = null;
-	try
-	{
-	    ctx = javax.net.ssl.SSLContext.getInstance("SSL");
-	    ctx.init(null, null, null);
-	}
-	catch(java.security.GeneralSecurityException ex)
-	{
-	    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-	    e.reason = "unable to initialize SSLContext";
-	    e.initCause(ex);
-	    throw e;
-	}
-
-	IceInternal.Instance instance = Ice.Util.getInstance(communicator);
-	instance.endpointFactoryManager().add(new SslEndpointFactory(instance, ctx));
+	_instance = new Instance(communicator);
     }
 
     public void
     destroy()
     {
     }
+
+    private Instance _instance;
 }

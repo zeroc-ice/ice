@@ -14,10 +14,9 @@ final class SslEndpoint implements IceInternal.Endpoint
     final static short TYPE = 2;
 
     public
-    SslEndpoint(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx, String ho, int po, int ti, boolean co)
+    SslEndpoint(Instance instance, String ho, int po, int ti, boolean co)
     {
 	_instance = instance;
-	_ctx = ctx;
 	_host = ho;
 	_port = po;
 	_timeout = ti;
@@ -26,10 +25,9 @@ final class SslEndpoint implements IceInternal.Endpoint
     }
 
     public
-    SslEndpoint(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx, String str)
+    SslEndpoint(Instance instance, String str)
     {
 	_instance = instance;
-	_ctx = ctx;
 	_host = null;
 	_port = 0;
 	_timeout = -1;
@@ -145,17 +143,16 @@ final class SslEndpoint implements IceInternal.Endpoint
 
 	if(_host == null)
 	{
-	    _host = _instance.defaultsAndOverrides().defaultHost;
+	    _host = _instance.defaultHost();
 	}
 
 	calcHashValue();
     }
 
     public
-    SslEndpoint(IceInternal.BasicStream s, javax.net.ssl.SSLContext ctx)
+    SslEndpoint(Instance instance, IceInternal.BasicStream s)
     {
-	_instance = s.instance();
-	_ctx = ctx;
+	_instance = instance;
 	s.startReadEncaps();
 	_host = s.readString();
 	_port = s.readInt();
@@ -231,7 +228,7 @@ final class SslEndpoint implements IceInternal.Endpoint
 	}
 	else
 	{
-	    return new SslEndpoint(_instance, _ctx, _host, _port, timeout, _compress);
+	    return new SslEndpoint(_instance, _host, _port, timeout, _compress);
 	}
     }
 
@@ -259,7 +256,7 @@ final class SslEndpoint implements IceInternal.Endpoint
 	}
 	else
 	{
-	    return new SslEndpoint(_instance, _ctx, _host, _port, _timeout, compress);
+	    return new SslEndpoint(_instance, _host, _port, _timeout, compress);
 	}
     }
 
@@ -321,7 +318,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     public IceInternal.Connector
     connector()
     {
-	return new SslConnector(_instance, _ctx, _host, _port);
+	return new SslConnector(_instance, _host, _port);
     }
 
     //
@@ -334,8 +331,8 @@ final class SslEndpoint implements IceInternal.Endpoint
     public IceInternal.Acceptor
     acceptor(IceInternal.EndpointHolder endpoint)
     {
-	SslAcceptor p = new SslAcceptor(_instance, _ctx, _host, _port);
-	endpoint.value = new SslEndpoint(_instance, _ctx, _host, p.effectivePort(), _timeout, _compress);
+	SslAcceptor p = new SslAcceptor(_instance, _host, _port);
+	endpoint.value = new SslEndpoint(_instance, _host, p.effectivePort(), _timeout, _compress);
 	return p;
     }
 
@@ -487,8 +484,7 @@ final class SslEndpoint implements IceInternal.Endpoint
 	_hashCode = 5 * _hashCode + (_compress ? 1 : 0);
     }
 
-    private IceInternal.Instance _instance;
-    private javax.net.ssl.SSLContext _ctx;
+    private Instance _instance;
     private String _host;
     private int _port;
     private int _timeout;

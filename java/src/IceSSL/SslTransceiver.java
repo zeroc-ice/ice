@@ -20,10 +20,10 @@ final class SslTransceiver implements IceInternal.Transceiver
     public void
     close()
     {
-	if(_traceLevels.network >= 1)
+	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "closing ssl connection\n" + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
 	assert(_fd != null);
@@ -47,10 +47,10 @@ final class SslTransceiver implements IceInternal.Transceiver
 	/*
 	 * shutdownOutput is not supported by an SSL socket.
 	 *
-	if(_traceLevels.network >= 2)
+	if(_instance.networkTraceLevel() >= 2)
 	{
 	    String s = "shutting down ssl connection for writing\n" + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
 	assert(_fd != null);
@@ -74,10 +74,10 @@ final class SslTransceiver implements IceInternal.Transceiver
     public void
     shutdownReadWrite()
     {
-	if(_traceLevels.network >= 2)
+	if(_instance.networkTraceLevel() >= 2)
 	{
 	    String s = "shutting down ssl connection for reading and writing\n" + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
 	assert(_fd != null);
@@ -155,10 +155,10 @@ final class SslTransceiver implements IceInternal.Transceiver
 		_out.write(data, off + pos, rem);
 		buf.position(pos + rem);
 
-		if(_traceLevels.network >= 3)
+		if(_instance.networkTraceLevel() >= 3)
 		{
 		    String s = "sent " + rem + " of " + buf.limit() + " bytes via ssl\n" + toString();
-		    _logger.trace(_traceLevels.networkCat, s);
+		    _logger.trace(_instance.networkTraceCategory(), s);
 		}
 
 		if(_stats != null)
@@ -187,7 +187,7 @@ final class SslTransceiver implements IceInternal.Transceiver
 	java.nio.ByteBuffer buf = stream.prepareRead();
 
 	int remaining = 0;
-	if(_traceLevels.network >= 3)
+	if(_instance.networkTraceLevel() >= 3)
 	{
 	    remaining = buf.remaining();
 	}
@@ -226,10 +226,10 @@ final class SslTransceiver implements IceInternal.Transceiver
 
 		if(ret > 0)
 		{
-		    if(_traceLevels.network >= 3)
+		    if(_instance.networkTraceLevel() >= 3)
 		    {
 			String s = "received " + ret + " of " + remaining + " bytes via ssl\n" + toString();
-			_logger.trace(_traceLevels.networkCat, s);
+			_logger.trace(_instance.networkTraceCategory(), s);
 		    }
 
 		    if(_stats != null)
@@ -295,13 +295,19 @@ final class SslTransceiver implements IceInternal.Transceiver
     //
     // Only for use by SslConnector, SslAcceptor
     //
-    SslTransceiver(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx, javax.net.ssl.SSLSocket fd)
+    SslTransceiver(Instance instance, javax.net.ssl.SSLSocket fd)
     {
-	_ctx = ctx;
+	_instance = instance;
 	_fd = fd;
-	_traceLevels = instance.traceLevels();
-	_logger = instance.logger();
-	_stats = instance.stats();
+	_logger = instance.communicator().getLogger();
+	try
+	{
+	    _stats = instance.communicator().getStats();
+	}
+	catch(Ice.CommunicatorDestroyedException ex)
+	{
+	    // Ignore.
+	}
 	_desc = IceInternal.Network.fdToString(_fd);
 	try
 	{
@@ -334,9 +340,8 @@ final class SslTransceiver implements IceInternal.Transceiver
 	super.finalize();
     }
 
-    private javax.net.ssl.SSLContext _ctx;
+    private Instance _instance;
     private javax.net.ssl.SSLSocket _fd;
-    private IceInternal.TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private Ice.Stats _stats;
     private String _desc;

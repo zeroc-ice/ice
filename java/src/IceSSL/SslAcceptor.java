@@ -20,10 +20,10 @@ class SslAcceptor implements IceInternal.Acceptor
     public void
     close()
     {
-	if(_traceLevels.network >= 1)
+	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "stopping to accept ssl connections at " + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
 	javax.net.ssl.SSLServerSocket fd = _fd;
@@ -46,10 +46,10 @@ class SslAcceptor implements IceInternal.Acceptor
     {
 	// Nothing to do.
 
-	if(_traceLevels.network >= 1)
+	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "accepting ssl connections at " + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
     }
 
@@ -84,13 +84,13 @@ class SslAcceptor implements IceInternal.Acceptor
 	    throw e;
 	}
 
-	if(_traceLevels.network >= 1)
+	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "accepted ssl connection\n" + IceInternal.Network.fdToString(fd);
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	return new SslTransceiver(_instance, _ctx, fd);
+	return new SslTransceiver(_instance, fd);
     }
 
     public void
@@ -121,12 +121,11 @@ class SslAcceptor implements IceInternal.Acceptor
 	return _addr.getPort();
     }
 
-    SslAcceptor(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx, String host, int port)
+    SslAcceptor(Instance instance, String host, int port)
     {
 	_instance = instance;
-	_ctx = ctx;
-	_traceLevels = instance.traceLevels();
-	_logger = instance.logger();
+	_ctx = instance.serverContext();
+	_logger = instance.communicator().getLogger();
 	_backlog = 0;
 
 	if(_backlog <= 0)
@@ -136,18 +135,45 @@ class SslAcceptor implements IceInternal.Acceptor
 
 	try
 	{
-	    javax.net.ssl.SSLServerSocketFactory factory = _ctx.getServerSocketFactory();
+	    javax.net.ssl.SSLServerSocketFactory factory = _ctx.sslContext().getServerSocketFactory();
 	    _addr = new java.net.InetSocketAddress(host, port);
-	    if(_traceLevels.network >= 2)
+	    if(_instance.networkTraceLevel() >= 2)
 	    {
 		String s = "attempting to bind to ssl socket " + toString();
-		_logger.trace(_traceLevels.networkCat, s);
+		_logger.trace(_instance.networkTraceCategory(), s);
 	    }
 	    java.net.InetAddress iface = java.net.InetAddress.getByName(host);
 	    _fd = (javax.net.ssl.SSLServerSocket)factory.createServerSocket(port, _backlog, iface);
 	    _addr = (java.net.InetSocketAddress)_fd.getLocalSocketAddress();
-String[] suite = new String[]{ "SSL_DH_anon_WITH_DES_CBC_SHA" };
-_fd.setEnabledCipherSuites(suite);
+
+	    final int clientAuth = _instance.communicator().getProperties().getPropertyAsIntWithDefault(
+		"IceSSL.Server.ClientAuth", 0);
+	    if(clientAuth == 0)
+	    {
+		_fd.setWantClientAuth(false);
+		_fd.setNeedClientAuth(false);
+	    }
+	    else if(clientAuth == 1)
+	    {
+		_fd.setWantClientAuth(true);
+	    }
+	    else
+	    {
+		_fd.setNeedClientAuth(true);
+	    }
+
+	    String[] cipherSuites = _ctx.filterCiphers(_fd.getSupportedCipherSuites(), _fd.getEnabledCipherSuites());
+	    if(_instance.securityTraceLevel() > 0)
+	    {
+		StringBuffer s = new StringBuffer();
+		s.append("enabling ciphersuites for ssl server socket " + toString() + ":");
+		for(int i = 0; i < cipherSuites.length; ++i)
+		{
+		    s.append("\n  " + cipherSuites[i]);
+		}
+		_logger.trace(_instance.securityTraceCategory(), s.toString());
+	    }
+	    _fd.setEnabledCipherSuites(cipherSuites);
 	}
 	catch(java.io.IOException ex)
 	{
@@ -177,9 +203,8 @@ _fd.setEnabledCipherSuites(suite);
 	super.finalize();
     }
 
-    private IceInternal.Instance _instance;
-    private javax.net.ssl.SSLContext _ctx;
-    private IceInternal.TraceLevels _traceLevels;
+    private Instance _instance;
+    private Context _ctx;
     private Ice.Logger _logger;
     private javax.net.ssl.SSLServerSocket _fd;
     private int _backlog;

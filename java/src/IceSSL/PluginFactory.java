@@ -20,6 +20,6 @@ public class PluginFactory implements Ice.PluginFactory
 	    return null;
 	}
 
-	return new PluginI(communicator, name, args);
+	return new PluginI(communicator);
     }
 }

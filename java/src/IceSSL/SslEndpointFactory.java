@@ -11,42 +11,40 @@ package IceSSL;
 
 final class SslEndpointFactory implements IceInternal.EndpointFactory
 {
-    SslEndpointFactory(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx)
+    SslEndpointFactory(Instance instance)
     {
-        _instance = instance;
-	_ctx = ctx;
+	_instance = instance;
     }
 
     public short
     type()
     {
-        return SslEndpoint.TYPE;
+	return SslEndpoint.TYPE;
     }
 
     public String
     protocol()
     {
-        return "ssl";
+	return "ssl";
     }
 
     public IceInternal.Endpoint
     create(String str)
     {
-        return new SslEndpoint(_instance, _ctx, str);
+	return new SslEndpoint(_instance, str);
     }
 
     public IceInternal.Endpoint
     read(IceInternal.BasicStream s)
     {
-        return new SslEndpoint(s, _ctx);
+	return new SslEndpoint(_instance, s);
     }
 
     public void
     destroy()
     {
-        _instance = null;
+	_instance = null;
     }
 
-    private IceInternal.Instance _instance;
-    private javax.net.ssl.SSLContext _ctx;
+    private Instance _instance;
 }

@@ -169,10 +169,10 @@ final class SslConnector implements IceInternal.Connector
     public IceInternal.Transceiver
     connect(int timeout)
     {
-	if(_traceLevels.network >= 2)
+	if(_instance.networkTraceLevel() >= 2)
 	{
 	    String s = "trying to establish ssl connection to " + toString();
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
 	javax.net.ssl.SSLSocket fd = null;
@@ -183,7 +183,7 @@ final class SslConnector implements IceInternal.Connector
 	    //
 	    if(timeout >= 0)
 	    {
-		ConnectThread ct = new ConnectThread(_ctx, _addr);
+		ConnectThread ct = new ConnectThread(_ctx.sslContext(), _addr);
 		ct.start();
 		fd = ct.getFd(timeout == 0 ? 1 : timeout);
 		if(fd == null)
@@ -193,15 +193,24 @@ final class SslConnector implements IceInternal.Connector
 	    }
 	    else
 	    {
-		javax.net.SocketFactory factory = _ctx.getSocketFactory();
+		javax.net.SocketFactory factory = _ctx.sslContext().getSocketFactory();
 		fd = (javax.net.ssl.SSLSocket)factory.createSocket(_addr.getAddress(), _addr.getPort());
 	    }
 
 	    fd.setUseClientMode(true);
 
-	    // TODO: Temporary
-	    String[] suite = new String[]{ "SSL_DH_anon_WITH_DES_CBC_SHA" };
-	    fd.setEnabledCipherSuites(suite);
+	    String[] cipherSuites = _ctx.filterCiphers(fd.getSupportedCipherSuites(), fd.getEnabledCipherSuites());
+	    if(_instance.securityTraceLevel() > 0)
+	    {
+		StringBuffer s = new StringBuffer();
+		s.append("enabling ciphersuites for ssl socket\n" + IceInternal.Network.fdToString(fd) + ":");
+		for(int i = 0; i < cipherSuites.length; ++i)
+		{
+		    s.append("\n  " + cipherSuites[i]);
+		}
+		_logger.trace(_instance.securityTraceCategory(), s.toString());
+	    }
+	    fd.setEnabledCipherSuites(cipherSuites);
 
 	    //
 	    // If a connect timeout is specified, do the SSL handshake in a separate thread.
@@ -275,34 +284,13 @@ final class SslConnector implements IceInternal.Connector
 	    throw ex;
 	}
 
-	if(_traceLevels.network >= 1)
+	if(_instance.networkTraceLevel() >= 1)
 	{
 	    String s = "ssl connection established\n" + IceInternal.Network.fdToString(fd);
-	    _logger.trace(_traceLevels.networkCat, s);
+	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	/*
-String[] suites = fd.getSupportedCipherSuites();
-System.out.println("Supported cipher suites:");
-for(int i = 0; i < suites.length; ++i)
-{
-    System.out.println("  " + suites[i]);
-}
-suites = fd.getEnabledCipherSuites();
-System.out.println("Enabled cipher suites:");
-for(int i = 0; i < suites.length; ++i)
-{
-    System.out.println("  " + suites[i]);
-}
-String[] protocols = fd.getSupportedProtocols();
-System.out.println("Supported protocols:");
-for(int i = 0; i < protocols.length; ++i)
-{
-    System.out.println("  " + protocols[i]);
-}
-	*/
-
-	return new SslTransceiver(_instance, _ctx, fd);
+	return new SslTransceiver(_instance, fd);
     }
 
     public String
@@ -314,19 +302,17 @@ for(int i = 0; i < protocols.length; ++i)
     //
     // Only for use by SslEndpoint
     //
-    SslConnector(IceInternal.Instance instance, javax.net.ssl.SSLContext ctx, String host, int port)
+    SslConnector(Instance instance, String host, int port)
     {
 	_instance = instance;
-	_ctx = ctx;
-	_traceLevels = instance.traceLevels();
-	_logger = instance.logger();
+	_ctx = instance.clientContext();
+	_logger = instance.communicator().getLogger();
 
 	_addr = IceInternal.Network.getAddress(host, port);
     }
 
-    private IceInternal.Instance _instance;
-    javax.net.ssl.SSLContext _ctx;
-    private IceInternal.TraceLevels _traceLevels;
+    private Instance _instance;
+    private Context _ctx;
     private Ice.Logger _logger;
     private java.net.InetSocketAddress _addr;
 }
