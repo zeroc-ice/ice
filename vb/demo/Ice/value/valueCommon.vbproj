@@ -58,14 +58,14 @@
             </Settings>
             <References>
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
-                />
-                <Reference
                     Name = "Microsoft.VisualBasic"
                     AssemblyName = "Microsoft.VisualBasic"
                     HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\Microsoft.VisualBasic.dll"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
                 />
             </References>
             <Imports>

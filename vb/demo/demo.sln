@@ -1,18 +1,4 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCD", "Glacier\session\sessionCD.vbproj", "{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330} = {3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommonD", "Glacier\session\sessionCommonD.vbproj", "{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionSD", "Glacier\session\sessionSD.vbproj", "{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compileSlice", "compileSlice.vcproj", "{F47C2D68-B976-4D14-B4D5-E563001011D1}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -182,24 +168,43 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSSD", "book\simple_f
 		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCD", "Ice\bidir\bidirCD.vbproj", "{61ADC064-8C64-44F7-BF9C-6E669CE28122}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036} = {8B858A7E-448F-4269-8D9A-2FC41A98D036}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCommonD", "Ice\bidir\bidirCommonD.vbproj", "{8B858A7E-448F-4269-8D9A-2FC41A98D036}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirSD", "Ice\bidir\bidirSD.vbproj", "{B0B292F5-B5E4-4537-9C74-8525A4B0C484}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036} = {8B858A7E-448F-4269-8D9A-2FC41A98D036}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCD", "Glacier2\callback\glacier2callbackCD.vbproj", "{C64E4A20-7021-4DBF-9CE6-0D284965628B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCommonD", "Glacier2\callback\glacier2callbackCommonD.vbproj", "{32AC5916-F54A-4397-B609-BF71A2D55123}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSD", "Glacier2\callback\glacier2callbackSD.vbproj", "{C726E767-E1F0-47DE-B00C-F70318DF22DC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSSD", "Glacier2\callback\glacier2callbackSSD.vbproj", "{10F1F272-4F37-400F-A1CF-8D68CAC629CD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Debug.ActiveCfg = Debug|.NET
-		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Debug.Build.0 = Debug|.NET
-		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Release.ActiveCfg = Release|.NET
-		{36EAB45F-D8CC-4186-9CEB-0F178E0FAC25}.Release.Build.0 = Release|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.ActiveCfg = Debug|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.Build.0 = Debug|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.ActiveCfg = Release|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.Build.0 = Release|.NET
-		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Debug.ActiveCfg = Debug|.NET
-		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Debug.Build.0 = Debug|.NET
-		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Release.ActiveCfg = Release|.NET
-		{BACF2D60-2C16-4DA0-89C9-79FCC6CA748E}.Release.Build.0 = Release|.NET
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Debug.ActiveCfg = Debug|Win32
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Debug.Build.0 = Debug|Win32
 		{F47C2D68-B976-4D14-B4D5-E563001011D1}.Release.ActiveCfg = Release|Win32
@@ -336,6 +341,34 @@ Global
 		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Debug.Build.0 = Debug|.NET
 		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Release.ActiveCfg = Release|.NET
 		{357ADC23-03C4-4A8B-8017-07810895F3AF}.Release.Build.0 = Release|.NET
+		{61ADC064-8C64-44F7-BF9C-6E669CE28122}.Debug.ActiveCfg = Debug|.NET
+		{61ADC064-8C64-44F7-BF9C-6E669CE28122}.Debug.Build.0 = Debug|.NET
+		{61ADC064-8C64-44F7-BF9C-6E669CE28122}.Release.ActiveCfg = Release|.NET
+		{61ADC064-8C64-44F7-BF9C-6E669CE28122}.Release.Build.0 = Release|.NET
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036}.Debug.ActiveCfg = Debug|.NET
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036}.Debug.Build.0 = Debug|.NET
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036}.Release.ActiveCfg = Release|.NET
+		{8B858A7E-448F-4269-8D9A-2FC41A98D036}.Release.Build.0 = Release|.NET
+		{B0B292F5-B5E4-4537-9C74-8525A4B0C484}.Debug.ActiveCfg = Debug|.NET
+		{B0B292F5-B5E4-4537-9C74-8525A4B0C484}.Debug.Build.0 = Debug|.NET
+		{B0B292F5-B5E4-4537-9C74-8525A4B0C484}.Release.ActiveCfg = Release|.NET
+		{B0B292F5-B5E4-4537-9C74-8525A4B0C484}.Release.Build.0 = Release|.NET
+		{C64E4A20-7021-4DBF-9CE6-0D284965628B}.Debug.ActiveCfg = Debug|.NET
+		{C64E4A20-7021-4DBF-9CE6-0D284965628B}.Debug.Build.0 = Debug|.NET
+		{C64E4A20-7021-4DBF-9CE6-0D284965628B}.Release.ActiveCfg = Release|.NET
+		{C64E4A20-7021-4DBF-9CE6-0D284965628B}.Release.Build.0 = Release|.NET
+		{32AC5916-F54A-4397-B609-BF71A2D55123}.Debug.ActiveCfg = Debug|.NET
+		{32AC5916-F54A-4397-B609-BF71A2D55123}.Debug.Build.0 = Debug|.NET
+		{32AC5916-F54A-4397-B609-BF71A2D55123}.Release.ActiveCfg = Release|.NET
+		{32AC5916-F54A-4397-B609-BF71A2D55123}.Release.Build.0 = Release|.NET
+		{C726E767-E1F0-47DE-B00C-F70318DF22DC}.Debug.ActiveCfg = Debug|.NET
+		{C726E767-E1F0-47DE-B00C-F70318DF22DC}.Debug.Build.0 = Debug|.NET
+		{C726E767-E1F0-47DE-B00C-F70318DF22DC}.Release.ActiveCfg = Release|.NET
+		{C726E767-E1F0-47DE-B00C-F70318DF22DC}.Release.Build.0 = Release|.NET
+		{10F1F272-4F37-400F-A1CF-8D68CAC629CD}.Debug.ActiveCfg = Debug|.NET
+		{10F1F272-4F37-400F-A1CF-8D68CAC629CD}.Debug.Build.0 = Debug|.NET
+		{10F1F272-4F37-400F-A1CF-8D68CAC629CD}.Release.ActiveCfg = Release|.NET
+		{10F1F272-4F37-400F-A1CF-8D68CAC629CD}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -185,6 +185,23 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirS", "demo\Ice\bidir\bi
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackC", "demo\Glacier2\callback\glacier2callbackC.vbproj", "{E9409466-B6F5-4BF2-91EE-B56262B5D276}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackCommon", "demo\Glacier2\callback\glacier2callbackCommon.vbproj", "{75174677-2AB4-4C59-9DFC-D382C129BC73}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackS", "demo\Glacier2\callback\glacier2callbackS.vbproj", "{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSS", "demo\Glacier2\callback\glacier2callbackSS.vbproj", "{8042C825-DA24-4908-A54C-C3FF3C94A120}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -343,6 +360,22 @@ Global
 		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Debug.Build.0 = Debug|.NET
 		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Release.ActiveCfg = Release|.NET
 		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Release.Build.0 = Release|.NET
+		{E9409466-B6F5-4BF2-91EE-B56262B5D276}.Debug.ActiveCfg = Debug|.NET
+		{E9409466-B6F5-4BF2-91EE-B56262B5D276}.Debug.Build.0 = Debug|.NET
+		{E9409466-B6F5-4BF2-91EE-B56262B5D276}.Release.ActiveCfg = Release|.NET
+		{E9409466-B6F5-4BF2-91EE-B56262B5D276}.Release.Build.0 = Release|.NET
+		{75174677-2AB4-4C59-9DFC-D382C129BC73}.Debug.ActiveCfg = Debug|.NET
+		{75174677-2AB4-4C59-9DFC-D382C129BC73}.Debug.Build.0 = Debug|.NET
+		{75174677-2AB4-4C59-9DFC-D382C129BC73}.Release.ActiveCfg = Release|.NET
+		{75174677-2AB4-4C59-9DFC-D382C129BC73}.Release.Build.0 = Release|.NET
+		{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}.Debug.ActiveCfg = Debug|.NET
+		{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}.Debug.Build.0 = Debug|.NET
+		{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}.Release.ActiveCfg = Release|.NET
+		{7FB96A9D-FB86-4B13-90AF-D093DB7019DD}.Release.Build.0 = Release|.NET
+		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Debug.ActiveCfg = Debug|.NET
+		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Debug.Build.0 = Debug|.NET
+		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Release.ActiveCfg = Release|.NET
+		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

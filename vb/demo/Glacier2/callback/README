@@ -1,0 +1,20 @@
+This example demonstrates the use of a Glacier2 router and the
+implementation of a Glacier2 session server.
+
+To run the demo:
+
+Start the server:
+
+$ ./server
+
+In a separate window, start the session server:
+
+$ ./sessionserver
+
+In a separate window, start the Glacier2 router:
+
+$ glacier2router --Ice.Config=config.glacier2
+
+In a separate window, start the client:
+
+$ ./client

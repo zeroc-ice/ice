@@ -66,14 +66,14 @@
                     AssemblyName = "System.Data"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\bin\icecs.dll"
-                />
-                <Reference
                     Name = "callbackCommonD"
                     Project = "{2589CB66-F45D-4F17-A799-ADD9EA001A94}"
                     Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
                 />
             </References>
             <Imports>
