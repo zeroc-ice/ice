@@ -351,6 +351,27 @@ Package=<4>
 
 ###############################################################################
 
+Project: "IcePatchCalc"=.\src\IcePatch\IcePatchCalc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "IcePatchS"=.\src\IcePatch\IcePatchS.dsp - Package Owner=<4>
 
 Package=<5>
@@ -991,6 +1012,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name simpleIcePackSvc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchCalc
     End Project Dependency
 }}}
 
@@ -2179,6 +2203,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2java
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchCalc
     End Project Dependency
 }}}
 
