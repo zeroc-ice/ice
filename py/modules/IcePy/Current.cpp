@@ -23,7 +23,7 @@ struct CurrentObject
     PyObject_HEAD
     Ice::Current* current;
     PyObject* adapter;
-    PyObject* transport;
+    PyObject* con;
     PyObject* id;
     PyObject* facet;
     PyObject* operation;
@@ -58,7 +58,7 @@ currentNew(PyObject* /*arg*/)
 
     self->current = new Ice::Current;
     self->adapter = NULL;
-    self->transport = NULL;
+    self->con = NULL;
     self->id = NULL;
     self->facet = NULL;
     self->operation = NULL;
@@ -75,7 +75,7 @@ static void
 currentDealloc(CurrentObject* self)
 {
     Py_XDECREF(self->adapter);
-    Py_XDECREF(self->transport);
+    Py_XDECREF(self->con);
     Py_XDECREF(self->id);
     Py_XDECREF(self->facet);
     Py_XDECREF(self->operation);
@@ -197,7 +197,7 @@ currentGetter(CurrentObject* self, void* closure)
 static PyGetSetDef CurrentGetSetters[] =
 {
     {"adapter", (getter)currentGetter, NULL, "object adapter", (void*)CURRENT_ADAPTER},
-    {"transport", (getter)currentGetter, NULL, "transport info", (void*)CURRENT_TRANSPORT},
+    {"con", (getter)currentGetter, NULL, "connection info", (void*)CURRENT_TRANSPORT},
     {"id", (getter)currentGetter, NULL, "identity", (void*)CURRENT_ID},
     {"facet", (getter)currentGetter, NULL, "facet name", (void*)CURRENT_FACET},
     {"operation", (getter)currentGetter, NULL, "operation name", (void*)CURRENT_OPERATION},
