@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Slice/PythonUtil.h>
+#include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>
 
 using namespace std;
@@ -1361,27 +1362,57 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, list<
     }
 }
 
+static string
+changeInclude(const string& orig, const vector<string>& includePaths)
+{
+    string file = orig;
+    replace(file.begin(), file.end(), '\\', '/');
+
+    for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    {
+        string includePath = *p;
+        replace(includePath.begin(), includePath.end(), '\\', '/');
+
+        if(orig.compare(0, includePath.length(), *p) == 0)
+        {
+            string s = orig.substr(includePath.length());
+            if(s.size() < file.size())
+            {
+                file = s;
+            }
+        }
+    }
+
+    string::size_type pos = file.rfind('.');
+    if(pos != string::npos)
+    {
+        file.erase(pos);
+    }
+
+    return file;
+}
+
 void
-Slice::Python::generate(const UnitPtr& unit, bool all, Output& out)
+Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
     out << nl << "import Ice, IcePy";
 
     if(!all)
     {
-        StringList includes = unit->includeFiles();
-        for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+        vector<string> paths = includePaths;
+        for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
         {
-            string file = *p;
-            string::size_type pos = file.rfind('.');
-            if(pos != string::npos)
+            if(p->length() && (*p)[p->length() - 1] != '/')
             {
-                file.erase(pos, file.size() - pos);
+                *p += '/';
             }
-            pos = file.rfind('/');
-            if(pos != string::npos)
-            {
-                file.erase(0, pos + 1);
-            }
+        }
+
+        StringList includes = unit->includeFiles();
+        for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        {
+            string file = changeInclude(*q, paths);
+            replace(file.begin(), file.end(), '/', '_');
             out << nl << "import " << file << "_ice";
         }
     }
@@ -1391,6 +1422,27 @@ Slice::Python::generate(const UnitPtr& unit, bool all, Output& out)
 
     CodeVisitor codeVisitor(out);
     unit->visit(&codeVisitor, false);
+
+    if(checksum)
+    {
+        ChecksumMap checksums = createChecksums(unit);
+        if(!checksums.empty())
+        {
+            out << sp;
+            for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
+            {
+                out << nl << "Ice.sliceChecksums[\"" << p->first << "\"] = \"";
+                ostringstream str;
+                str.flags(ios_base::hex);
+                str.fill('0');
+                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                {
+                    str << (int)(*q);
+                }
+                out << str.str() << "\"";
+            }
+        }
+    }
 
     out << nl; // Trailing newline.
 }

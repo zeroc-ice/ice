@@ -281,6 +281,9 @@ usage(const char* n)
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--no-package         Do not create Python packages.\n"
+        "--no-package         Do not create Python packages.\n"
+        "--checksum           Generate checksums for Slice definitions.\n"
+        "--prefix PREFIX      Prepend filenames of Python modules with PREFIX.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -289,12 +292,15 @@ int
 main(int argc, char* argv[])
 {
     string cppArgs;
+    vector<string> includePaths;
     string output;
     bool debug = false;
     bool ice = false;
     bool caseSensitive = false;
     bool all = false;
     bool noPackage = false;
+    bool checksum = false;
+    string prefix;
 
     int idx = 1;
     while(idx < argc)
@@ -303,6 +309,12 @@ main(int argc, char* argv[])
         {
             cppArgs += ' ';
             cppArgs += argv[idx];
+
+            string path = argv[idx] + 2;
+            if(path.length())
+            {
+                includePaths.push_back(path);
+            }
 
             for(int i = idx ; i + 1 < argc ; ++i)
             {
@@ -330,6 +342,22 @@ main(int argc, char* argv[])
         {
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
+        }
+        else if(strcmp(argv[idx], "--output-dir") == 0)
+        {
+            if(idx + 1 >= argc)
+            {
+                cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+                usage(argv[0]);
+                return EXIT_FAILURE;
+            }
+
+            output = argv[idx + 1];
+            for(int i = idx ; i + 2 < argc ; ++i)
+            {
+                argv[i] = argv[i + 2];
+            }
+            argc -= 2;
         }
         else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
         {
@@ -376,7 +404,16 @@ main(int argc, char* argv[])
             }
             --argc;
         }
-        else if(strcmp(argv[idx], "--output-dir") == 0)
+        else if(strcmp(argv[idx], "--checksum") == 0)
+        {
+            checksum = true;
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "--prefix") == 0)
         {
             if(idx + 1 >= argc)
             {
@@ -384,8 +421,8 @@ main(int argc, char* argv[])
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
-            
-            output = argv[idx + 1];
+
+            prefix = argv[idx + 1];
             for(int i = idx ; i + 2 < argc ; ++i)
             {
                 argv[i] = argv[i + 2];
@@ -422,10 +459,10 @@ main(int argc, char* argv[])
         {
             return EXIT_FAILURE;
         }
-    
+
         UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
         int parseStatus = u->parse(cppHandle, debug);
-    
+
         if(!icecpp.close())
         {
             u->destroy();
@@ -451,7 +488,7 @@ main(int argc, char* argv[])
             // Slice module named "Test", then we couldn't create a Python package named
             // "Test" and also call the generated file "Test.py".
             //
-            string file = base + "_ice.py";
+            string file = prefix + base + "_ice.py";
             if(!output.empty())
             {
                 file = output + '/' + file;
@@ -473,14 +510,14 @@ main(int argc, char* argv[])
             //
             // Generate the Python mapping.
             //
-            generate(u, all, out);
+            generate(u, all, checksum, includePaths, out);
 
             //
             // Create or update the Python package hierarchy.
             //
             if(!noPackage)
             {
-                PackageVisitor visitor(argv[0], base + "_ice", output);
+                PackageVisitor visitor(argv[0], prefix + base + "_ice", output);
                 u->visit(&visitor, false);
             }
         }
