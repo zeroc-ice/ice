@@ -402,6 +402,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Trace.Slicing",
 	"UDP.RcvSize",
 	"UDP.SndSize",
+	"UseEventLog",
 	"UseSyslog",
 	"Warn.AMICallback",
 	"Warn.Connections",
@@ -412,13 +413,13 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     
     private static final String _iceBoxProps[] =
     {
-	"DBEnvName.*",
 	"LoadOrder",
 	"PrintServicesReady",
 	"Service.*",
 	"ServiceManager.AdapterId",
 	"ServiceManager.Endpoints",
 	"ServiceManager.Identity",
+	"ServiceManager.RegisterProcess",
 	"UseSharedCommunicator.*"
     };
 
@@ -491,9 +492,13 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     private static final String _iceStormProps[] =
     {
 	"Flush.Timeout",
+	"Publish.AdapterId",
 	"Publish.Endpoints",
+	"Publish.RegisterProcess",
+	"TopicManager.AdapterId",
 	"TopicManager.Endpoints",
 	"TopicManager.Proxy",
+	"TopicManager.RegisterProcess",
 	"Trace.Flush",
 	"Trace.Subscriber",
 	"Trace.Topic",

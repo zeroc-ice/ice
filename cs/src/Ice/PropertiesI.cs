@@ -408,6 +408,7 @@ namespace Ice
 	    "Trace.Location",
 	    "UDP.RcvSize",
 	    "UDP.SndSize",
+	    "UseEventLog",
 	    "UseSyslog",
 	    "Warn.AMICallback",
 	    "Warn.Connections",
@@ -418,13 +419,13 @@ namespace Ice
 	
 	private static readonly string[] _iceBoxProps = new string[]
 	{
-	    "DBEnvName.*",
 	    "LoadOrder",
 	    "PrintServicesReady",
 	    "Service.*",
 	    "ServiceManager.AdapterId",
 	    "ServiceManager.Endpoints",
 	    "ServiceManager.Identity",
+	    "ServiceManager.RegisterProcess",
 	    "UseSharedCommunicator.*"
 	};
 	
@@ -497,9 +498,13 @@ namespace Ice
 	private static readonly string[] _iceStormProps = new string[]
 	{
 	    "Flush.Timeout",
+	    "Publish.AdapterId",
 	    "Publish.Endpoints",
+	    "Publish.RegisterProcess",
+	    "TopicManager.AdapterId",
 	    "TopicManager.Endpoints",
 	    "TopicManager.Proxy",
+	    "TopicManager.RegisterProcess",
 	    "Trace.Flush",
 	    "Trace.Subscriber",
 	    "Trace.Topic",

@@ -146,7 +146,6 @@ static const string iceProps[] =
 
 static const string iceBoxProps[] =
 {
-    "DBEnvName.*",
     "LoadOrder",
     "PrintServicesReady",
     "Service.*",
@@ -226,9 +225,13 @@ static const string iceSSLProps[] =
 static const string iceStormProps[] =
 {
     "Flush.Timeout",
+    "Publish.AdapterId",
     "Publish.Endpoints",
+    "Publish.RegisterProcess",
+    "TopicManager.AdapterId",
     "TopicManager.Endpoints",
     "TopicManager.Proxy",
+    "TopicManager.RegisterProcess",
     "Trace.Flush",
     "Trace.Subscriber",
     "Trace.Topic",
