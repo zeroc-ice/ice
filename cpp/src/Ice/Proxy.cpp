@@ -54,6 +54,10 @@ void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 void
 IceInternal::checkedCast(const ObjectPrx& b, ObjectPrx& d)
 {
+    if(b)
+    {
+        b->__checkTwowayOnly("checkedCast");
+    }
     d = b;
 }
 
@@ -134,6 +138,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
     {
 	try
 	{
+	    __checkTwowayOnly("ice_isA");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
@@ -162,6 +167,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
     {
 	try
 	{
+	    __checkTwowayOnly("ice_ping");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->ice_ping(__context);
 	    return;
@@ -191,6 +197,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
     {
 	try
 	{
+	    __checkTwowayOnly("ice_ids");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
 	}
@@ -219,6 +226,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
     {
 	try
 	{
+	    __checkTwowayOnly("ice_id");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
@@ -247,6 +255,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
     {
 	try
 	{
+	    __checkTwowayOnly("ice_facets");
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_facets(__context);
 	}
@@ -756,6 +765,17 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
     }
 
     ex.ice_throw();
+}
+
+void
+IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
+{
+    if(!ice_isTwoway())
+    {
+        TwowayOnlyException ex(__FILE__, __LINE__);
+	ex.operation = name;
+	throw ex;
+    }
 }
 
 Handle< ::IceDelegate::Ice::Object>

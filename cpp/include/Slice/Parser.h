@@ -509,6 +509,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     bool sendsClasses() const;
     bool returnsClasses() const;
+    bool returnsData() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 

@@ -42,6 +42,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
+	        __checkTwowayOnly("ice_isA");
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_isA(__id, __context);
             }
@@ -70,6 +71,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
+	        __checkTwowayOnly("ice_ping");
                 _ObjectDel __del = __getDelegate();
                 __del.ice_ping(__context);
                 return;
@@ -99,6 +101,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
+	        __checkTwowayOnly("ice_ids");
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_ids(__context);
             }
@@ -127,6 +130,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
+	        __checkTwowayOnly("ice_id");
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_id(__context);
             }
@@ -155,6 +159,7 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
+	        __checkTwowayOnly("ice_facets");
                 _ObjectDel __del = __getDelegate();
                 return __del.ice_facets(__context);
             }
@@ -525,6 +530,17 @@ public class ObjectPrxHelper implements ObjectPrx
             proxy.setup(ref);
             return proxy;
         }
+    }
+
+    public final void
+    __checkTwowayOnly(String name)
+    {
+        if(!ice_isTwoway())
+	{
+	    TwowayOnlyException ex = new TwowayOnlyException();
+	    ex.operation = name;
+	    throw ex;
+	}
     }
 
     public final boolean

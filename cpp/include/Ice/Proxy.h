@@ -144,6 +144,7 @@ public:
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::Ice::LocalException&, int&);
     void __rethrowException(const ::Ice::LocalException&);
+    void __checkTwowayOnly(const char*) const;
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
 

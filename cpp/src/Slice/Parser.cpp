@@ -3739,6 +3739,29 @@ Slice::Operation::returnsClasses() const
     return false;
 }
 
+bool
+Slice::Operation::returnsData() const
+{
+    TypePtr t = returnType();
+    if(t)
+    {
+	return true;
+    }
+    ParamDeclList pdl = parameters();
+    for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
+    {
+	if((*i)->isOutParam())
+	{
+	    return true;
+	}
+    }
+    if(!throws().empty())
+    {
+        return true;
+    }
+    return false;
+}
+
 string
 Slice::Operation::kindOf() const
 {
