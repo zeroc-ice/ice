@@ -1570,18 +1570,36 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             //
             // We treat sequences differently because the native equals() method for
-            // a Java array not perform a deep comparison, therefore we use the helper
-            // method java.util.Arrays.equals() instead.
+            // a Java array does not perform a deep comparison. If the mapped type
+            // is not overridden via metadata, we use the helper method
+            // java.util.Arrays.equals() to compare native arrays.
             //
             // For all other types, we can use the native equals() method.
             //
             SequencePtr seq = SequencePtr::dynamicCast((*d)->type());
             if(seq)
             {
-                out << nl << "if(!java.util.Arrays.equals(" << memberName << ", _r." << memberName << "))";
-                out << sb;
-                out << nl << "return false;";
-                out << eb;
+                list<string> metaData = (*d)->getMetaData();
+                string listType = findMetaData(metaData);
+                if(listType.empty())
+                {
+                    list<string> l = seq->getMetaData();
+                    listType = findMetaData(l);
+                }
+                if(!listType.empty())
+                {
+                    out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                    out << sb;
+                    out << nl << "return false;";
+                    out << eb;
+                }
+                else
+                {
+                    out << nl << "if(!java.util.Arrays.equals(" << memberName << ", _r." << memberName << "))";
+                    out << sb;
+                    out << nl << "return false;";
+                    out << eb;
+                }
             }
             else
             {
@@ -3620,7 +3638,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            out << " implements " << name;
+            out << " extends Ice.LocalObjectImpl implements " << name;
         }
         else
         {
