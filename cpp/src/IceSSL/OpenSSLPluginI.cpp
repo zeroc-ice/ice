@@ -64,7 +64,7 @@ using namespace IceSSL;
 extern "C"
 {
 
-Ice::Plugin*
+ICE_SSL_API Ice::Plugin*
 create(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
     ProtocolPluginFacadePtr facade = getProtocolPluginFacade(communicator);
