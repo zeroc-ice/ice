@@ -81,6 +81,25 @@ public final class ServantManager extends Thread
         }
     }
 
+    public synchronized java.util.Map
+    removeAllFacets(Ice.Identity ident)
+    {
+	assert(_instance != null); // Must not be called after destruction.
+
+        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        if(m == null)
+	{
+	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
+	    ex.id = Ice.Util.identityToString(ident);
+	    ex.kindOfObject = "servant";
+	    throw ex;
+	}
+
+	_servantMap.remove(ident);
+
+        return m;
+    }
+
     public synchronized Ice.Object
     findServant(Ice.Identity ident, String facet)
     {

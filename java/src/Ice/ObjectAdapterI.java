@@ -345,6 +345,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_servantManager.removeServant(ident, facet);
     }
 
+    public synchronized java.util.Map
+    removeAllFacets(Identity ident)
+    {
+	checkForDeactivation();
+        checkIdentity(ident);
+
+	return _servantManager.removeAllFacets(ident);
+    }
+
     public Ice.Object
     find(Identity ident)
     {

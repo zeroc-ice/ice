@@ -54,6 +54,36 @@ public class AllTests
 	test(gotException);
         System.out.println("ok");
 
+        System.out.print("testing removeAllFacets... ");
+	Ice.Object obj1 = new EmptyI();
+	Ice.Object obj2 = new EmptyI();
+	adapter.addFacet(obj1, Ice.Util.stringToIdentity("id1"), "f1");
+	adapter.addFacet(obj2, Ice.Util.stringToIdentity("id1"), "f2");
+	Ice.Object obj3 = new EmptyI();
+	adapter.addFacet(obj1, Ice.Util.stringToIdentity("id2"), "f1");
+	adapter.addFacet(obj2, Ice.Util.stringToIdentity("id2"), "f2");
+	adapter.addFacet(obj3, Ice.Util.stringToIdentity("id2"), "");
+	java.util.Map fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+	test(fm.size() == 2);
+	test(fm.get("f1") == obj1);
+	test(fm.get("f2") == obj2);
+	gotException = false;
+	try
+	{
+            adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    gotException = true;
+	}
+	test(gotException);
+	fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id2"));
+	test(fm.size() == 3);
+	test(fm.get("f1") == obj1);
+	test(fm.get("f2") == obj2);
+	test(fm.get("") == obj3);
+        System.out.println("ok");
+
         adapter.deactivate();
 
         System.out.print("testing stringToProxy... ");

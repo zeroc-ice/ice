@@ -75,6 +75,7 @@
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
 		<include name="Locator.ice" />
+		<include name="FacetMap.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Glacier">
                 <include name="Router.ice" />
