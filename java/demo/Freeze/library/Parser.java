@@ -174,6 +174,10 @@ class Parser
 		System.out.println("no current book");
 	    }
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current book no longer exists");
+	}
 	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
