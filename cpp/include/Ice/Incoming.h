@@ -31,7 +31,11 @@ public:
 
 private:
 
-    ::Ice::ObjectAdapterPtr _adapter;
+    //
+    // Optimization. The adapter may not be deleted while a
+    // stack-allocated Incoming still holds it.
+    //
+    const ::Ice::ObjectAdapterPtr& _adapter;
 
     BasicStream _is;
     BasicStream _os;

@@ -109,7 +109,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
     //
     if (!_endpoint->oneway() && !oneway)
     {
-	_requests.insert(_requests.end(), make_pair(requestId, out));
+	_requestsHint = _requests.insert(_requests.end(), make_pair(requestId, out));
     }
 }
 
@@ -279,13 +279,29 @@ IceInternal::Emitter::message(BasicStream& stream)
 		traceReply("received reply", stream, _logger, _traceLevels);
 		Int requestId;
 		stream.read(requestId);
-		map<Int, Outgoing*>::iterator p = _requests.find(requestId);
+		
+		map<Int, Outgoing*>::iterator p = _requests.end();
+
+		if (_requestsHint != _requests.end())
+		{
+		    if (_requestsHint->first == requestId)
+		    {
+			p = _requestsHint;
+		    }
+		}
+
+		if (_requestsHint == _requests.end())
+		{
+		    p = _requests.find(requestId);
+		}
+
 		if (p == _requests.end())
 		{
 		    throw UnknownRequestIdException(__FILE__, __LINE__);
 		}
 		p->second->finished(stream);
 		_requests.erase(p);
+		_requestsHint = _requests.end();
 		break;
 	    }
 	    
@@ -360,6 +376,7 @@ IceInternal::Emitter::Emitter(const InstancePtr& instance,
     _transceiver(transceiver),
     _endpoint(endpoint),
     _nextRequestId(1),
+    _requestsHint(_requests.end()),
     _batchStream(instance),
     _state(StateActive)
 {
@@ -413,6 +430,7 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
 	p->second->finished(*_exception.get());
     }
     _requests.clear();
+    _requestsHint = _requests.end();
     
     _state = state;
 }

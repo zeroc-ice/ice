@@ -39,7 +39,7 @@ IceInternal::NonRepeatable::get() const
 }
 
 IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendProxy,
-				const char* operation, bool nonmutating, const Context& context) :
+				const string& operation, bool nonmutating, const Context& context) :
     _emitter(emitter),
     _reference(ref),
     _state(StateUnsent),

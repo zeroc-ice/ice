@@ -341,8 +341,12 @@ IceInternal::doBind(int fd, struct sockaddr_in& addr)
     }
 
     socklen_t len = sizeof(addr);
+#ifdef NDEBUG
+    getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len);
+#else
     int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len);
     assert(ret != SOCKET_ERROR);
+#endif
 }
 
 void

@@ -58,8 +58,10 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 {
     assert(_sender);
     assert(buf.i == buf.b.begin());
+#ifndef NDEBUG
     const int packetSize = 64 * 1024; // TODO: configurable
     assert(packetSize >= static_cast<int>(buf.b.size())); // TODO: exception
+#endif
 
 repeat:
     int ret = ::send(_fd, buf.b.begin(), buf.b.size(), 0);

@@ -20,7 +20,11 @@ class ICE_API Buffer : public ::IceUtil::noncopyable
 {
 public:
 
-    Buffer() : i(b.begin()) { }
+    Buffer()
+    {
+	b.reserve(1000);
+	i = b.begin();
+    }
 
     typedef std::vector<Ice::Byte> Container;
     Container b;

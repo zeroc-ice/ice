@@ -534,7 +534,7 @@ IceSecurity::Ssl::Parser::loadCertificateFile(DOM_Node rootNode, CertificateFile
     if (rootNode != 0)
     {
         string filename;
-        int encoding;
+        int encoding = 0; // Initialize, to keep the compiler from complaining.
 
         DOM_NamedNodeMap attributes = rootNode.getAttributes();
         int attrCount = attributes.getLength();

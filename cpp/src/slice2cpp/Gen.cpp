@@ -248,7 +248,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << _dllExport << "virtual ::std::string ice_name() const;";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
-    C << nl << "return \"" << scoped.substr(2) << "\";";
+    C << nl << "static const ::std::string name(\"" << scoped.substr(2) << "\");";
+    C << nl << "return name;";
     C << eb;
     
     if (p->isLocal())
@@ -280,9 +281,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	StringList::const_iterator q;
 	
 	H << sp;
-	H << nl << _dllExport << "static const char* __exceptionIds[" << exceptionIds.size() << "];";
-	H << nl << _dllExport << "virtual const char** __getExceptionIds() const;";
-	C << sp << nl << "const char*" << scoped.substr(2) << "::__exceptionIds[" << exceptionIds.size() << "] =";
+	H << nl << _dllExport << "static ::std::string __exceptionIds[" << exceptionIds.size() << "];";
+	H << nl << _dllExport << "virtual ::std::string* __getExceptionIds() const;";
+	C << sp << nl << "::std::string " << scoped.substr(2) << "::__exceptionIds[" << exceptionIds.size() << "] =";
 	C << sb;
 	q = exceptionIds.begin();
 	while (q != exceptionIds.end())
@@ -294,7 +295,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	    }
 	}
 	C << eb << ';';
-	C << sp << nl << "const char**" << nl << scoped.substr(2) << "::__getExceptionIds() const";
+	C << sp << nl << "::std::string*" << nl << scoped.substr(2) << "::__getExceptionIds() const";
 	C << sb;
 	C << nl << "return __exceptionIds;";
 	C << eb;
@@ -1152,7 +1153,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendProxy, \"" << name << "\", "
+    C << nl << "static const ::std::string __operation(\"" << name << "\");";
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, __sendProxy, __operation, "
       << (p->nonmutating() ? "true" : "false") << ", __context);";
     if (ret || !outParams.empty() || !throws.empty())
     {
@@ -1168,7 +1170,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     if (!throws.empty())
     {
 	ExceptionList::const_iterator r;
-	C << nl << "static const char* __throws[] =";
+	C << nl << "static ::std::string __throws[] =";
 	C << sb;
 	for (r = throws.begin(); r != throws.end(); ++r)
 	{
@@ -1578,12 +1580,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	StringList::const_iterator q;
 
 	H << sp;
-	H << nl << exp2 << "static const char* __ids[" << ids.size() << "];";
-	H << nl << exp2 << "static const char* __classIds[" << classIds.size() << "];";
+	H << nl << exp2 << "static ::std::string __ids[" << ids.size() << "];";
+	H << nl << exp2 << "static ::std::string __classIds[" << classIds.size() << "];";
 	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
-	H << nl << exp2 << "virtual const char** __getClassIds();";
+	H << nl << exp2 << "virtual ::std::string* __getClassIds();";
 	C << sp;
-	C << nl << "const char* " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
+	C << nl << "::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
 	C << sb;
 	q = ids.begin();
 	while (q != ids.end())
@@ -1596,7 +1598,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "const char* " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
+	C << nl << "::std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
 	C << sb;
 	q = classIds.begin();
 	while (q != classIds.end())
@@ -1611,12 +1613,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const ::Ice::Current&)";
 	C << sb;
-	C << nl << "const char** b = __ids;";
-	C << nl << "const char** e = __ids + " << ids.size() << ';';
+	C << nl << "::std::string* b = __ids;";
+	C << nl << "::std::string* e = __ids + " << ids.size() << ';';
 	C << nl << "return ::std::binary_search(b, e, s);";
 	C << eb;
 	C << sp;
-	C << nl << "const char**" << nl << scoped.substr(2) << "::__getClassIds()";
+	C << nl << "::std::string*" << nl << scoped.substr(2) << "::__getClassIds()";
 	C << sb;
 	C << nl << "return __classIds;";
 	C << eb;
@@ -1662,11 +1664,11 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList::const_iterator q;
 	    
 	    H << sp;
-	    H << nl << exp2 << "static const char* __all[" << allOpNames.size() << "];";
+	    H << nl << exp2 << "static ::std::string __all[" << allOpNames.size() << "];";
 	    H << nl << exp2
 	      << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 	    C << sp;
-	    C << nl << "const char* " << scoped.substr(2) << "::__all[] =";
+	    C << nl << "::std::string " << scoped.substr(2) << "::__all[] =";
 	    C << sb;
 	    q = allOpNames.begin();
 	    while (q != allOpNames.end())
@@ -1682,9 +1684,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
 	      << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
 	    C << sb;
-	    C << nl << "const char** b = __all;";
-	    C << nl << "const char** e = __all + " << allOpNames.size() << ';';
-	    C << nl << "::std::pair< const char**, const char**> r = ::std::equal_range(b, e, current.operation);";
+	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
+	      << "::std::equal_range(__all, __all + " << allOpNames.size() << ", current.operation);";
 	    C << nl << "if (r.first == r.second)";
 	    C << sb;
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
@@ -1917,7 +1918,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
 	C << name << args << ';';
 	writeMarshalCode(C, outParams, ret);
-	C << nl << "return ::IceInternal::DispatchOK;";
 	if (!throws.empty())
 	{
 	    C << eb;
@@ -1931,6 +1931,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 		C << eb;
 	    }
 	}
+	C << nl << "return ::IceInternal::DispatchOK;";
 	C << eb;
     }	
 }

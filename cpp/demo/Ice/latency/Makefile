@@ -31,11 +31,11 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) #/opt/vprof/lib/vmonauto.o /opt/vprof/lib/libvmon.a
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS) #/opt/vprof/lib/vmonauto.o /opt/vprof/lib/libvmon.a
 
 Latency.h Latency.cpp: Latency.ice $(SLICE2CPP)
 	rm -f Latency.h Latency.cpp

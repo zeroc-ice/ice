@@ -52,12 +52,12 @@ Ice::Object::ice_hash() const
     return reinterpret_cast<Int>(this);
 }
 
-const char* Ice::Object::__classIds[] =
+string Ice::Object::__classIds[] =
 {
     "::Ice::Object"
 };
 
-const char**
+string*
 Ice::Object::__getClassIds()
 {
     return __classIds;
@@ -94,7 +94,7 @@ Ice::Object::___ice_ping(Incoming&, const Current& __current)
     return DispatchOK;
 }
 
-const char* Ice::Object::__all[] =
+string Ice::Object::__all[] =
 {
     "ice_isA",
     "ice_ping"
@@ -103,12 +103,9 @@ const char* Ice::Object::__all[] =
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
-    const char** b = __all;
-    const char** e = __all + sizeof(__all) / sizeof(const char*);
-    pair<const char**, const char**> r = equal_range(b, e, current.operation);
+    pair<string*, string*> r = equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
     if (r.first == r.second)
     {
-	cout << "xxx" << endl;
 	return DispatchOperationNotExist;
     }					     
 

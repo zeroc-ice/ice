@@ -44,7 +44,7 @@ public:
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
-    virtual const char** __getExceptionIds() const = 0;
+    virtual const std::string* __getExceptionIds() const = 0;
     virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*) = 0;
 };

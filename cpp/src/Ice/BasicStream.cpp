@@ -24,21 +24,12 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
-    _instance(instance),
-    _encapsStack(1)
+    _instance(instance)
 {
+    _encapsStack.reserve(4);
     _encapsStack.resize(1);
     _encapsStack.back().encoding = 0;
     _encapsStack.back().start = 0;
-}
-
-IceInternal::BasicStream::~BasicStream()
-{
-    //
-    // No check for exactly one, because an error might have aborted
-    // marshalling/unmarshalling
-    //
-    assert(_encapsStack.size() > 0);
 }
 
 InstancePtr
@@ -682,12 +673,6 @@ IceInternal::BasicStream::write(const string& v)
 }
 
 void
-IceInternal::BasicStream::write(const char* v)
-{
-    write(string(v));
-}
-
-void
 IceInternal::BasicStream::write(const vector<string>& v)
 {
     write(Int(v.size()));
@@ -874,13 +859,14 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	}
 	else
 	{
-	    write("");
+	    static const string empty;
+	    write(empty);
 	}
     }
 }
 
 bool
-IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
+IceInternal::BasicStream::read(const string& signatureType, ObjectPtr& v)
 {
     Int pos;
     read(pos);
@@ -896,6 +882,7 @@ IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
     }
     else
     {
+	static const string iceObject("::Ice::Object");
 	string id;
 	read(id);
 
@@ -904,7 +891,7 @@ IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
 	    v = 0;
 	    return true;
 	}
-	else if (id == "::Ice::Object")
+	else if (id == iceObject)
 	{
 	    v = new ::Ice::Object;
 	    read(v);
@@ -950,7 +937,7 @@ IceInternal::BasicStream::write(const UserException& v)
 }
 
 Int
-IceInternal::BasicStream::throwException(const char** throwsBegin, const char** throwsEnd)
+IceInternal::BasicStream::throwException(const string* throwsBegin, const string* throwsEnd)
 {
     string id;
     read(id);
@@ -964,7 +951,8 @@ IceInternal::BasicStream::throwException(const char** throwsBegin, const char** 
 	}
 	catch (UserException& ex)
 	{
-	    for (const char** p = ex.__getExceptionIds(); strcmp(*p, "::Ice::UserException") != 0; ++p)
+	    static const string userException("::Ice::UserException");
+	    for (const string* p = ex.__getExceptionIds(); *p != userException != 0; ++p)
 	    {
 		if (binary_search(throwsBegin, throwsEnd, string(*p)))
 		{
@@ -977,7 +965,7 @@ IceInternal::BasicStream::throwException(const char** throwsBegin, const char** 
 	}
     }
 
-    pair<const char**, const char**> p = equal_range(throwsBegin, throwsEnd, id);
+    pair<const string*, const string*> p = equal_range(throwsBegin, throwsEnd, id);
     if (p.first != p.second)
     {
 	return p.first - throwsBegin;

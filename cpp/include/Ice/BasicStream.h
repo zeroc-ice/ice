@@ -31,7 +31,6 @@ class ICE_API BasicStream : public Buffer
 public:
 
     BasicStream(const InstancePtr&);
-    ~BasicStream();
 
     InstancePtr instance() const;
 
@@ -87,7 +86,6 @@ public:
     void read(std::vector<Ice::Double>&);
 
     void write(const std::string&);
-    void write(const char*);
     void write(const std::vector<std::string>&);
     void read(std::string&);
     void read(std::vector<std::string>&);
@@ -102,15 +100,19 @@ public:
     void read(Ice::ObjectPrx&);
 
     void write(const Ice::ObjectPtr&);
-    bool read(const char*, Ice::ObjectPtr&);
+    bool read(const std::string&, Ice::ObjectPtr&);
     void read(const Ice::ObjectPtr&);
 
     void write(const Ice::UserException&);
-    ::Ice::Int throwException(const char**, const char**);
+    ::Ice::Int throwException(const std::string*, const std::string*);
 
 private:
 
-    InstancePtr _instance;
+    //
+    // Optimization. The instance may not be deleted while a
+    // stack-allocated Incoming still holds it.
+    //
+    const InstancePtr& _instance;
 
     struct Encaps
     {

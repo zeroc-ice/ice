@@ -73,7 +73,6 @@ IceInternal::Incoming::invoke()
     try
     {
 	servant = _adapter->identityToServant(current.identity);
-	DispatchStatus status;
 
 	if (!servant && !current.identity.category.empty())
 	{
@@ -92,6 +91,8 @@ IceInternal::Incoming::invoke()
 		servant = locator->locate(_adapter, current, cookie);
 	    }
 	}
+
+	DispatchStatus status;
 
 	if (!servant)
 	{

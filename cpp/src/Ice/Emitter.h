@@ -81,6 +81,7 @@ private:
     ThreadPoolPtr _threadPool;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
+    std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
     std::auto_ptr< ::Ice::LocalException> _exception;
     BasicStream _batchStream;
     State _state;
