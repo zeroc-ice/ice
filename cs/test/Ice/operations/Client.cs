@@ -36,16 +36,16 @@ public class Client
 	return 0;
     }
     
-    public static void Main(String[] args)
+    public static void Main(string[] args)
     {
 	int status = 0;
 	Ice.Communicator communicator = null;
 	
 	try
 	{
-	    Ice.Properties properties = Ice.Util.getDefaultProperties();
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
 	    properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-	    
+
 	    communicator = Ice.Util.initialize(ref args);
 	    status = run(args, communicator);
 	}

@@ -120,7 +120,7 @@ namespace IceInternal
 	}
 	
 	//
-	// Marshal the reference
+	// Marshal the reference.
 	//
 	public void streamWrite(BasicStream s)
 	{
@@ -153,7 +153,7 @@ namespace IceInternal
 	}
 	
 	//
-	// Convert the reference to its string form
+	// Convert the reference to its string form.
 	//
 	public override string ToString()
 	{

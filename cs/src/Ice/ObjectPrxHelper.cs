@@ -713,10 +713,7 @@ namespace Ice
 	    return _reference.context;
 	}
 	
-	//
-	// Only for use by IceInternal.ProxyFactory
-	//
-	public void setup(IceInternal.Reference rf)
+	public void setup(IceInternal.Reference rf) // Only for use by IceInternal.ProxyFactory.
 	{
 	    //
 	    // No need to synchronize, as this operation is only called

@@ -1200,7 +1200,7 @@ namespace IceInternal
 	    Debug.Assert(_transceiver == null, "~Connection(): _tranceiver != null");
 	    Debug.Assert(_dispatchCount == 0, "~Connection(): _dispatchCount != 0");
 	    Debug.Assert(_proxyCount == 0, "~Connection(): _proxyCount != 0");
-	    //Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null"); // TODO: this assertion appears wrong -- _incoming cache is never null once an Incoming has been reclaimed.
+	    Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null");
 
 	    _batchStream.destroy();
 	}

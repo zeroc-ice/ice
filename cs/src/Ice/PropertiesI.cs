@@ -268,8 +268,7 @@ namespace Ice
 	    loadConfig();
 	    
 	    StringSeq argSeq = new StringSeq(args);
-	    parseIceCommandLineOptions(argSeq);
-	    args = argSeq.ToArray();    
+	    args = parseIceCommandLineOptions(argSeq).ToArray(); 
 	}
 	
 	private void parse(System.IO.StreamReader input)
