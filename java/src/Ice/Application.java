@@ -19,6 +19,7 @@ public abstract class Application
     public
     Application()
     {
+    	_interrupted = false;
     }
 
     //
@@ -188,6 +189,18 @@ public abstract class Application
 	}
     }
 
+    synchronized public static boolean
+    interrupted()
+    {
+    	return _interrupted;
+    }
+
+    synchronized private static void
+    setInterrupt()
+    {
+    	_interrupted = true;
+    }
+
     static class ShutdownHook extends Thread
     {
         ShutdownHook()
@@ -200,6 +213,7 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
+		setInterrupt();
                 communicator().signalShutdown();
                 while(!_done)
                 {
@@ -231,4 +245,5 @@ public abstract class Application
     private static String _appName;
     private static Communicator _communicator;
     private static ShutdownHook _shutdownHook;
+    private static boolean _interrupted;
 }
