@@ -2517,7 +2517,7 @@ Transform::EnumData::transform(const DataPtr& data, DataInterceptor& interceptor
 {
     if(interceptor.preTransform(this, data))
     {
-        transformI(data, interceptor);
+        transformI(data, interceptor, false);
     }
     interceptor.postTransform(this, data);
 }
@@ -2545,7 +2545,7 @@ Transform::EnumData::set(const DataPtr& value, DataInterceptor& interceptor, boo
     }
     else
     {
-        transformI(value, interceptor);
+        transformI(value, interceptor, true);
     }
 }
 
@@ -2701,7 +2701,7 @@ Transform::EnumData::printI(IceUtil::Output& out, ObjectDataHistory&) const
 }
 
 void
-Transform::EnumData::transformI(const DataPtr& data, DataInterceptor& interceptor)
+Transform::EnumData::transformI(const DataPtr& data, DataInterceptor& interceptor, bool checkTypes)
 {
     EnumDataPtr e = EnumDataPtr::dynamicCast(data);
     StringDataPtr s = StringDataPtr::dynamicCast(data);
@@ -2711,7 +2711,7 @@ Transform::EnumData::transformI(const DataPtr& data, DataInterceptor& intercepto
         // Get the enumerator's name and attempt to find it in our type.
         //
         string name = e->toString();
-        if(!setValueAsString(name))
+        if(!setValueAsString(name) && checkTypes)
         {
             _errorReporter->conversionError(name, _type);
         }
@@ -2719,12 +2719,12 @@ Transform::EnumData::transformI(const DataPtr& data, DataInterceptor& intercepto
     else if(s)
     {
         string v = s->stringValue();
-        if(!setValueAsString(v))
+        if(!setValueAsString(v) && checkTypes)
         {
             _errorReporter->conversionError(v, _type);
         }
     }
-    else
+    else if(checkTypes)
     {
         _errorReporter->typeMismatchError(_type, data->getType(), false);
     }

@@ -489,7 +489,7 @@ public:
 
 private:
 
-    void transformI(const DataPtr&, DataInterceptor&);
+    void transformI(const DataPtr&, DataInterceptor&, bool);
 
     Slice::EnumPtr _type;
     Ice::Int _value;
