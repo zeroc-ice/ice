@@ -14,7 +14,7 @@
 #
 
 protocol = ""
-protocol = "ssl"
+#protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
