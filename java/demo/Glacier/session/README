@@ -3,7 +3,7 @@ start the server:
 
 $ java Server
 
-In the second window, run the Glacier starter (see NOTE below):
+In the second window, run the Glacier starter:
 
 $ glacierstarter --Ice.Config=config
 
