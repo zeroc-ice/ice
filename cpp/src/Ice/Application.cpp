@@ -18,7 +18,6 @@ using namespace Ice;
 
 const char* Application::_appName = 0;
 CommunicatorPtr Application::_communicator;
-bool Application::_shutdown = false;
 
 Ice::Application::Application()
 {
@@ -105,8 +104,6 @@ Ice::Application::communicator()
 BOOL WINAPI
 Ice::interruptHandler(DWORD)
 {
-    Application::_shutdown = true;
-
     //
     // Don't use Application::communicator(), this is not signal-safe.
     //
@@ -141,8 +138,6 @@ Ice::Application::defaultInterrupt()
 void
 Ice::interruptHandler(int)
 {
-    Application::_shutdown = true;
-
     //
     // Don't use Application::communicator(), this is not signal-safe.
     //
@@ -190,9 +185,3 @@ Ice::Application::defaultInterrupt()
 }
 
 #endif
-
-bool
-Ice::Application::isShutdownFromInterrupt()
-{
-    return _shutdown;
-}

@@ -126,55 +126,44 @@ public abstract class Application
     synchronized public static void
     shutdownOnInterrupt()
     {
-	//
-	// As soon as the shutdown hook ends all the threads are
-	// terminated. So the shutdown hook will join the current
-	// thread before to end.
-	//
-	_shutdownHook = new ShutdownHook(Thread.currentThread());
-	Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	if(_shutdownHook == null)
+	{
+	    //
+	    // As soon as the shutdown hook ends all the threads are
+	    // terminated. So the shutdown hook will join the current
+	    // thread before to end.
+	    //
+	    _shutdownHook = new ShutdownHook(Thread.currentThread());
+	    Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	}
     }
     
     synchronized public static void
     ignoreInterrupt()
     {
-	try
-	{
-	    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-	}
-	catch(java.lang.IllegalStateException ex)
-	{
-	    //
-	    // Expected if we are in the process of shutting down.
-	    //
-	}
+	//
+	// We cannot ignore, only set back to default.
+	//
+	defaultInterrupt();
     }
 
     synchronized public static void
     defaultInterrupt()
     {
-	try
+	if(_shutdownHook != null)
 	{
-	    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-	}
-	catch(java.lang.IllegalStateException ex)
-	{
-	    //
-	    // Expected if we are in the process of shutting down.
-	    //
-	}
-    }
+	    try
+	    {
+		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		//
+		// Expected if we are in the process of shutting down.
+		//
+	    }
 
-    synchronized public static boolean
-    isShutdownFromInterrupt()
-    {
-	if(_shutdownHook == null)
-	{
-	    return false;
-	}
-	else
-	{
-	    return _shutdownHook.isShutdownFromInterrupt();
+	    _shutdownHook = null;
 	}
     }
 

@@ -27,7 +27,6 @@ exception BusyException
 
 class FileDesc
 {
-    Ice::ByteSeq md5;
 };
 
 sequence<FileDesc> FileDescSeq;
@@ -64,6 +63,7 @@ interface Regular extends File
 class RegularDesc extends FileDesc
 {
     Regular* regular;
+    Ice::ByteSeq md5;
 };
 
 };

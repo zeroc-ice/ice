@@ -15,7 +15,6 @@ public class ShutdownHook extends Thread
     ShutdownHook(Thread threadToJoin)
     {
 	_threadToJoin = threadToJoin;
-	_shutdown = false;
     }
 
     public void
@@ -23,7 +22,6 @@ public class ShutdownHook extends Thread
     {
         try
         {
-	    _shutdown = true;
 	    Ice.Application.communicator().shutdown();
 	    _threadToJoin.join();
         }
@@ -33,12 +31,5 @@ public class ShutdownHook extends Thread
         }
     }
 
-    public boolean
-    isShutdownFromInterrupt()
-    {
-	return _shutdown;
-    }
-
     private Thread _threadToJoin;
-    private boolean _shutdown;
 }

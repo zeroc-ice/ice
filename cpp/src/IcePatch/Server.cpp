@@ -134,9 +134,9 @@ IcePatch::Server::run(int argc, char* argv[])
 	properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60));
     if(updatePeriod != IceUtil::Time())
     {
-	if(updatePeriod < IceUtil::Time::seconds(10))
+	if(updatePeriod < IceUtil::Time::seconds(1))
 	{
-	    updatePeriod = IceUtil::Time::seconds(10);
+	    updatePeriod = IceUtil::Time::seconds(1);
 	}
 	updater = new Updater(adapter, updatePeriod);
 	updater->start();
@@ -198,18 +198,19 @@ IcePatch::Updater::run()
 	    // Just loop if we're busy.
 	    //
 	}
-	catch(const Exception& ex)
+	catch(const ConnectFailedException&)
 	{
 	    //
-	    // If we are interrupted due to a shutdown, don't print
-	    // any exceptions. Exceptions are normal in such case, for
-	    // example, ObjectAdapterDeactivatedException.
+	    // This exception can be raised if the adapter is shutdown
+	    // while this thread is still running. In such case, we
+	    // terminate this thread.
 	    //
-	    if(!Application::isShutdownFromInterrupt())
-	    {
-		Error out(_logger);
-		out << "exception during update:\n" << ex;
-	    }
+	    break;
+	}
+	catch(const Exception& ex)
+	{
+	    Error out(_logger);
+	    out << "exception during update:\n" << ex;
 	}
 
 	if(_destroy)
@@ -243,7 +244,7 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	if(directoryDesc)
 	{
 	    //
-	    // Force .md5 files to be created and orphaned files to be
+	    // Force MD5 files to be created and orphaned files to be
 	    // removed.
 	    //
 	    cleanup(directoryDesc->directory->getContents());
@@ -254,7 +255,7 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	    assert(regularDesc);
 
 	    //
-	    // Force .bz2 files to be created.
+	    // Force BZ2 files to be created.
 	    //
 	    regularDesc->regular->getBZ2Size();
 	}

@@ -165,7 +165,9 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
     }
     else
     {
-	result.type = FileTypeUnknown;
+	FileAccessException ex;
+	ex.reason = "file type of `" + path + "' is not supported";
+	throw ex;
     }
     
     return result;
@@ -182,7 +184,7 @@ IcePatch::removeRecursive(const string& path)
 	    removeRecursive(*p);
 	}
     }
-    
+
     if(::remove(path.c_str()) == -1)
     {
 	FileAccessException ex;
@@ -296,6 +298,7 @@ IcePatch::getMD5(const string& path)
 	ex.reason = "cannot open `" + pathMD5 + "' for reading: " + strerror(errno);
 	throw ex;
     }
+
     ByteSeq bytesMD5;
     bytesMD5.resize(16);
     fileMD5.read(&bytesMD5[0], 16);
@@ -311,12 +314,98 @@ IcePatch::getMD5(const string& path)
 	ex.reason = "could not read 16 bytes from `" + pathMD5 + "'";
 	throw ex;
     }
+
     fileMD5.close();
+
     return bytesMD5;
 }
 
+void
+IcePatch::createMD5(const string& path)
+{
+    FileInfo info = getFileInfo(path, true);
+    if(info.type == FileTypeDirectory)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot create MD5 file for `" + path + "' because this is a directory";
+	throw ex;
+    }
+
+    //
+    // Read the original file.
+    //
+    ifstream file(path.c_str(), ios::binary);
+    if(!file)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
+	throw ex;
+    }
+    
+    ByteSeq bytes;
+    bytes.resize(info.size);
+    file.read(&bytes[0], bytes.size());
+    if(!file)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot read `" + path + "': " + strerror(errno);
+	throw ex;
+    }
+    if(file.gcount() < static_cast<int>(bytes.size()))
+    {
+	FileAccessException ex;
+	ex.reason = "could not read all bytes from `" + path + "'";
+	throw ex;
+    }
+    
+    file.close();
+    
+    //
+    // Create the MD5 hash value.
+    //
+    ByteSeq bytesMD5;
+    bytesMD5.resize(16);
+    MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
+    
+    //
+    // Save the MD5 hash value to a temporary MD5 file.
+    //
+    string pathMD5Temp = path + ".md5temp";
+    ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
+    if(!fileMD5)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.write(&bytesMD5[0], 16);
+    if(!fileMD5)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.close();
+    
+    //
+    // Rename the temporary MD5 file to the final MD5 file. This is
+    // done so that there can be no partial MD5 files after an
+    // abortive application termination.
+    //
+    string pathMD5 = path + ".md5";
+    ::remove(pathMD5.c_str());
+    if(::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
+	throw ex;
+    }
+}
+
 ByteSeq
-IcePatch::getPartialMD5(const string& path, Int size)
+IcePatch::calcPartialMD5(const string& path, Int size)
 {
     if(size < 0)
     {
@@ -325,10 +414,17 @@ IcePatch::getPartialMD5(const string& path, Int size)
 	throw ex;
     }
     
+    FileInfo info = getFileInfo(path, true);
+    if(info.type == FileTypeDirectory)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot calculate partial MD5 for `" + path + "' because this is a directory";
+	throw ex;
+    }
+
     //
     // Read the original file partially.
     //
-    FileInfo info = getFileInfo(path, true);
     size = std::min(size, static_cast<Int>(info.size));
     ifstream file(path.c_str(), ios::binary);
     if(!file)
@@ -337,6 +433,7 @@ IcePatch::getPartialMD5(const string& path, Int size)
 	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	throw ex;
     }
+
     ByteSeq bytes;
     bytes.resize(size);
     file.read(&bytes[0], bytes.size());
@@ -352,6 +449,7 @@ IcePatch::getPartialMD5(const string& path, Int size)
 	ex.reason = "could not read all bytes from `" + path + "'";
 	throw ex;
     }
+
     file.close();
     
     //
@@ -362,122 +460,6 @@ IcePatch::getPartialMD5(const string& path, Int size)
     MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
 
     return bytesMD5;
-}
-
-void
-IcePatch::createMD5(const string& path)
-{
-    FileInfo info = getFileInfo(path, true);
-    if(info.type == FileTypeUnknown)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot create .md5 file for `" + path + "' because file type is unknown";
-	throw ex;
-    }
-
-    string pathMD5;
-    string pathMD5Temp;
-    ByteSeq bytes;
-    if(info.type == FileTypeDirectory)
-    {
-	pathMD5 = path + "/.md5";
-	pathMD5Temp = path + "/.md5temp";
-	
-	//
-	// Read all MD5 files in the directory.
-	//
-	StringSeq paths = readDirectory(path);
-	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
-	{
-	    if(!ignoreSuffix(*p))
-	    {
-		FileInfo subInfo = getFileInfo(*p, true);
-		
-		if(subInfo.type == FileTypeDirectory)
-		{
-		    ByteSeq subBytesMD5 = getMD5(*p + "/.md5");
-		    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
-		}
-		else if(subInfo.type == FileTypeRegular)
-		{
-		    ByteSeq subBytesMD5 = getMD5(removeSuffix(*p));
-		    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
-		}
-	    }
-	}
-    }
-    else
-    {
-	assert(info.type == FileTypeRegular);
-
-	pathMD5 = path + ".md5";
-	pathMD5Temp = path + ".md5temp";
-
-	//
-	// Read the original file.
-	//
-	ifstream file(path.c_str(), ios::binary);
-	if(!file)
-	{
-	    FileAccessException ex;
-	    ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
-	    throw ex;
-	}
-	bytes.resize(info.size);
-	file.read(&bytes[0], bytes.size());
-	if(!file)
-	{
-	    FileAccessException ex;
-	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
-	    throw ex;
-	}
-	if(file.gcount() < static_cast<int>(bytes.size()))
-	{
-	    FileAccessException ex;
-	    ex.reason = "could not read all bytes from `" + path + "'";
-	    throw ex;
-	}
-	file.close();
-    }
-    
-    //
-    // Create the MD5 hash value.
-    //
-    ByteSeq bytesMD5;
-    bytesMD5.resize(16);
-    MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
-    
-    //
-    // Save the MD5 hash value to a temporary MD5 file.
-    //
-    ofstream fileMD5(pathMD5Temp.c_str(), ios::binary);
-    if(!fileMD5)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot open `" + pathMD5Temp + "' for writing: " + strerror(errno);
-	throw ex;
-    }
-    fileMD5.write(&bytesMD5[0], 16);
-    if(!fileMD5)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot write `" + pathMD5Temp + "': " + strerror(errno);
-	throw ex;
-    }
-    fileMD5.close();
-    
-    //
-    // Rename the temporary MD5 file to the final MD5 file. This is
-    // done so that there can be no partial MD5 files after an
-    // abortive application termination.
-    //
-    ::remove(pathMD5.c_str());
-    if(::rename(pathMD5Temp.c_str(), pathMD5.c_str()) == -1)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot rename `" + pathMD5Temp + "' to  `" + pathMD5 + "': " + strerror(errno);
-	throw ex;
-    }
 }
 
 ByteSeq
@@ -512,6 +494,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
 	throw ex;
     }
+
     fileBZ2.seekg(pos);
     if(!fileBZ2)
     {
@@ -521,6 +504,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 	ex.reason = out.str();
 	throw ex;
     }
+
     ByteSeq bytesBZ2;
     bytesBZ2.resize(num);
     fileBZ2.read(&bytesBZ2[0], bytesBZ2.size());
@@ -530,8 +514,11 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 	ex.reason = "cannot read `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
     }
+
     bytesBZ2.resize(fileBZ2.gcount());
+
     fileBZ2.close();
+
     return bytesBZ2;
 }
 
@@ -539,16 +526,10 @@ void
 IcePatch::createBZ2(const string& path)
 {
     FileInfo info = getFileInfo(path, true);
-    if(info.type == FileTypeUnknown)
-    {
-	FileAccessException ex;
-	ex.reason = "cannot create .bz2 file for `" + path + "' because file type is unknown";
-	throw ex;
-    }
     if(info.type == FileTypeDirectory)
     {
 	FileAccessException ex;
-	ex.reason = "cannot create .bz2 file for `" + path + "' because this is a directory";
+	ex.reason = "cannot create BZ2 file for `" + path + "' because this is a directory";
 	throw ex;
     }
 
@@ -564,7 +545,6 @@ IcePatch::createBZ2(const string& path)
 	throw ex;
     }
 
-    string pathBZ2 = path + ".bz2";
     string pathBZ2Temp = path + ".bz2temp";
     FILE* stdioFileBZ2 = fopen(pathBZ2Temp.c_str(), "wb");
     if(!stdioFileBZ2)
@@ -642,6 +622,7 @@ IcePatch::createBZ2(const string& path)
     // done so that there can be no partial BZ2 files after an
     // abortive application termination.
     //
+    string pathBZ2 = path + ".bz2";
     ::remove(pathBZ2.c_str());
     if(::rename(pathBZ2Temp.c_str(), pathBZ2.c_str()) == -1)
     {
@@ -666,7 +647,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     if(infoBZ2.type == FileTypeRegular)
     {
 	ByteSeq remoteBZ2MD5 = regular->getBZ2MD5(infoBZ2.size);
-	ByteSeq localBZ2MD5 = getPartialMD5(pathBZ2, infoBZ2.size);
+	ByteSeq localBZ2MD5 = calcPartialMD5(pathBZ2, infoBZ2.size);
 
 	if(remoteBZ2MD5 == localBZ2MD5)
 	{

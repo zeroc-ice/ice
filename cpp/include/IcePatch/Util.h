@@ -28,8 +28,7 @@ enum FileType
 {
     FileTypeNotExist,
     FileTypeDirectory,
-    FileTypeRegular,
-    FileTypeUnknown
+    FileTypeRegular
 };
 
 struct FileInfo
@@ -47,8 +46,8 @@ ICE_PATCH_API Ice::StringSeq readDirectory(const std::string&);
 ICE_PATCH_API void createDirectory(const std::string&);
 
 ICE_PATCH_API Ice::ByteSeq getMD5(const std::string&);
-ICE_PATCH_API Ice::ByteSeq getPartialMD5(const std::string&, Ice::Int);
 ICE_PATCH_API void createMD5(const std::string&);
+ICE_PATCH_API Ice::ByteSeq calcPartialMD5(const std::string&, Ice::Int);
 
 ICE_PATCH_API Ice::ByteSeq getBZ2(const std::string&, Ice::Int, Ice::Int);
 ICE_PATCH_API void createBZ2(const std::string&);
