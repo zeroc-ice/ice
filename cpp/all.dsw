@@ -12,7 +12,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name cpp
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 
@@ -117,7 +117,7 @@ Package=<4>
     Project_Dep_Name pickleW
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name cpp
+    Project_Dep_Name slice2cpp
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name html
@@ -132,7 +132,7 @@ Package=<4>
     Project_Dep_Name operationsS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name parser
+    Project_Dep_Name Slice
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name inheritanceC
@@ -153,7 +153,7 @@ Package=<4>
     Project_Dep_Name exceptionsS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name docbook
+    Project_Dep_Name slice2docbook
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name faultToleranceC
@@ -189,7 +189,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "cpp"=.\src\slice\cpp\cpp.dsp - Package Owner=<4>
+Project: "slice2cpp"=.\src\slice2cpp\slice2cpp.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -198,13 +198,13 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name parser
+    Project_Dep_Name Slice
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "docbook"=.\src\slice\docbook\docbook.dsp - Package Owner=<4>
+Project: "slice2docbook"=.\src\slice2docbook\slice2docbook.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -213,7 +213,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name parser
+    Project_Dep_Name Slice
     End Project Dependency
 }}}
 
@@ -486,7 +486,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "parser"=.\src\slice\parser\parser.dsp - Package Owner=<4>
+Project: "Slice"=.\src\Slice\Slice.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
