@@ -73,4 +73,5 @@ for i in tests:
         execfile(os.path.join(dir, "run.py"))
     except SystemExit, (status,):
         if status:
+            print "test failed with exit status", status
             sys.exit(status)
