@@ -488,6 +488,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name certificateVerifier
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerificationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name certificateVerificationS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -550,6 +556,42 @@ Package=<4>
 ###############################################################################
 
 Project: "certificateAndKeyParsing"=.\test\IceSSL\certificateAndKeyParsing\certificateAndKeyParsing.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "certificateVerificationC"=.\test\IceSSL\certificateVerification\certificateVerificationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "certificateVerificationS"=.\test\IceSSL\certificateVerification\certificateVerificationS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
