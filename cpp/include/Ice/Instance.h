@@ -20,6 +20,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
 #include <Ice/ValueFactoryManagerF.h>
+#include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -38,6 +39,7 @@ public:
     ThreadPool_ptr threadPool();
     EmitterFactory_ptr emitterFactory();
     ValueFactoryManager_ptr valueFactoryManager();
+    ObjectAdapterFactory_ptr objectAdapterFactory();
     
 private:
 
@@ -54,6 +56,7 @@ private:
     ThreadPool_ptr threadPool_;
     EmitterFactory_ptr emitterFactory_;
     ValueFactoryManager_ptr valueFactoryManager_;
+    ObjectAdapterFactory_ptr objectAdapterFactory_;
 
     //
     // Global state management

@@ -41,7 +41,7 @@ all:: $(SRCS) $(TARGETS)
 depend:: $(SRCS)
 	if test -n "$(SRCS)" ; then \
 	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    perl $(top_srcdir)/config/makedepend.pl ; \
+	    python $(top_srcdir)/config/makedepend.py ; \
 	fi
 
 clean::

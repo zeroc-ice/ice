@@ -19,7 +19,6 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
-#include <map>
 
 namespace Ice
 {
@@ -52,10 +51,10 @@ private:
 
     // The following operations may create CommunicatorIs
     friend ICE_API Communicator_ptr initialize(int&, char*[]);
-    friend ICE_API Communicator_ptr initialize(int&, char*[], const Properties_ptr&);
+    friend ICE_API Communicator_ptr initialize(int&, char*[],
+					       const Properties_ptr&);
 
     ::__Ice::Instance_ptr instance_;
-    std::map<std::string, ObjectAdapter_ptr> adapters_;
 };
 
 ICE_API Communicator_ptr initialize(int&, char*[]);

@@ -13,6 +13,7 @@
 
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/CollectorF.h>
 #include <Ice/ProxyF.h>
@@ -49,9 +50,9 @@ public:
 private:
 
     ObjectAdapter(const ::__Ice::Instance_ptr&, const std::string&,
-		   const std::string&);
+		  const std::string&);
     virtual ~ObjectAdapter();
-    friend Communicator;
+    friend ::__Ice::ObjectAdapterFactory;
 
     ::__Ice::Instance_ptr instance_;
     std::string name_;
