@@ -272,8 +272,8 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         synchronized(_activeFacetMap)
         {
             final String facetsName = "ice:facets";
-            final String keyName = "key";
-            final String valueName = "value";
+            final String keyName = "ice:key";
+            final String valueName = "ice:value";
 
             int sz = __is.startReadDictionary(facetsName);
 
