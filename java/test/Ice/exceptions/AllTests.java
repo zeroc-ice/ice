@@ -180,10 +180,13 @@ public class AllTests
 
         System.out.println("ok");
 
-        if (!collocated) // If the server is collocated, exception factories
-        {                // are not needed.
-            System.out.print("catching derived types w/o exception " +
-                              "factories... ");
+        if (!collocated) // If the server is collocated, exception factories are not needed.
+        {
+            //
+            // NOTE: Factories will be dynamically installed in Java
+            //
+
+            System.out.print("catching derived types w/ dynamic exception factories... ");
             System.out.flush();
 
             try
@@ -193,10 +196,11 @@ public class AllTests
             }
             catch (Ice.NoUserExceptionFactoryException ex)
             {
-            }
-            catch (Exception ex)
-            {
                 test(false);
+            }
+            catch (A ex)
+            {
+                assert(ex instanceof B);
             }
 
             try
@@ -207,9 +211,9 @@ public class AllTests
             catch (Ice.NoUserExceptionFactoryException ex)
             {
             }
-            catch (Exception ex)
+            catch (A ex)
             {
-                test(false);
+                assert(ex instanceof C);
             }
 
             try
@@ -219,16 +223,16 @@ public class AllTests
             }
             catch (Ice.NoUserExceptionFactoryException ex)
             {
-            }
-            catch (Exception ex)
-            {
                 test(false);
+            }
+            catch (B ex)
+            {
+                assert(ex instanceof C);
             }
 
             System.out.println("ok");
 
-            System.out.print("catching derived types w/ exception " +
-                              "factories... ");
+            System.out.print("catching derived types w/ static exception factories... ");
             System.out.flush();
 
             Ice.UserExceptionFactory factory = new MyExceptionFactory();

@@ -910,6 +910,15 @@ public class BasicStream
 
                 if (v == null)
                 {
+                    userFactory = loadObjectFactory(id);
+                    if (userFactory != null)
+                    {
+                        v = userFactory.create(id);
+                    }
+                }
+
+                if (v == null)
+                {
                     throw new Ice.NoObjectFactoryException();
                 }
             }
@@ -936,8 +945,21 @@ public class BasicStream
         throws Ice.UserException
     {
         String id = readString();
-        Ice.UserExceptionFactory factory =
-            _instance.userExceptionFactoryManager().find(id);
+        Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
+
+        if (factory == null)
+        {
+            int pos = java.util.Arrays.binarySearch(ids, id);
+            if (pos >= 0)
+            {
+                return pos;
+            }
+        }
+
+        if (factory == null)
+        {
+            factory = loadUserExceptionFactory(id);
+        }
 
         if (factory != null)
         {
@@ -959,12 +981,6 @@ public class BasicStream
 
                 throw new Ice.UnknownUserException();
             }
-        }
-
-        int pos = java.util.Arrays.binarySearch(ids, id);
-        if (pos >= 0)
-        {
-            return pos;
         }
 
         throw new Ice.NoUserExceptionFactoryException();
@@ -1013,6 +1029,144 @@ public class BasicStream
                 _buf.position(pos);
             }
         }
+    }
+
+    private static final class DynamicObjectFactory implements Ice.ObjectFactory
+    {
+        DynamicObjectFactory(Class c)
+        {
+            _class = c;
+        }
+
+        public Ice.Object
+        create(String type)
+        {
+            try
+            {
+                return (Ice.Object)_class.newInstance();
+            }
+            catch (Exception ex)
+            {
+                Ice.SystemException e = new Ice.SystemException();
+                e.initCause(ex);
+                throw e;
+            }
+        }
+
+        public void
+        destroy()
+        {
+        }
+
+        private Class _class;
+    }
+
+    private Ice.ObjectFactory
+    loadObjectFactory(String id)
+    {
+        Ice.ObjectFactory factory = null;
+
+        try
+        {
+            Class c = Class.forName(typeToClass(id));
+            //
+            // Ensure the class is instantiable. The constants are
+            // defined in the JVM specification (0x200 = interface,
+            // 0x400 = abstract).
+            //
+            int modifiers = c.getModifiers();
+            if ((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            {
+                factory = new DynamicObjectFactory(c);
+                _instance.servantFactoryManager().add(factory, id);
+            }
+        }
+        catch (ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+        catch (Exception ex)
+        {
+            Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
+            e.initCause(ex);
+            throw e;
+        }
+
+        return factory;
+    }
+
+    private static final class DynamicUserExceptionFactory implements Ice.UserExceptionFactory
+    {
+        DynamicUserExceptionFactory(Class c)
+        {
+            _class = c;
+        }
+
+        public void
+        createAndThrow(String type)
+            throws Ice.UserException
+        {
+            try
+            {
+                throw (Ice.UserException)_class.newInstance();
+            }
+            catch (Ice.UserException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                Ice.SystemException e = new Ice.SystemException();
+                e.initCause(ex);
+                throw e;
+            }
+        }
+
+        public void
+        destroy()
+        {
+        }
+
+        private Class _class;
+    }
+
+    private Ice.UserExceptionFactory
+    loadUserExceptionFactory(String id)
+    {
+        Ice.UserExceptionFactory factory = null;
+
+        try
+        {
+            Class c = Class.forName(typeToClass(id));
+            //
+            // Ensure the class is instantiable. The constants are
+            // defined in the JVM specification (0x200 = interface,
+            // 0x400 = abstract).
+            //
+            int modifiers = c.getModifiers();
+            assert((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0);
+            factory = new DynamicUserExceptionFactory(c);
+            _instance.userExceptionFactoryManager().add(factory, id);
+        }
+        catch (ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+        catch (Exception ex)
+        {
+            Ice.NoUserExceptionFactoryException e = new Ice.NoUserExceptionFactoryException();
+            e.initCause(ex);
+            throw e;
+        }
+
+        return factory;
+    }
+
+    private String
+    typeToClass(String id)
+    {
+        assert(id.startsWith("::"));
+        return id.substring(2).replaceAll("::", ".");
     }
 
     private IceInternal.Instance _instance;
