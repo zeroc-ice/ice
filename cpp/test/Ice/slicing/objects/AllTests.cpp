@@ -403,8 +403,6 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_returnTest3I> AMI_Test_returnTest3IPtr;
 
-typedef IceUtil::Handle<AMI_Test_paramTest1I> AMI_Test_paramTest1IPtr;
-
 class AMI_Test_paramTest3I : public AMI_Test_paramTest3, public CallbackBase
 {
     virtual void
