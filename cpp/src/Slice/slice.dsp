@@ -110,6 +110,10 @@ SOURCE=.\CPlusPlusUtil.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CsUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
@@ -135,6 +139,10 @@ SOURCE=.\Scanner.cpp
 # Begin Source File
 
 SOURCE=..\..\incluce\Slice\CPlusPlusUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\incluce\Slice\CsUtil.h
 # End Source File
 # Begin Source File
 
