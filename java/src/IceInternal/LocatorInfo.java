@@ -209,7 +209,7 @@ public final class LocatorInfo
 	{
 	    Endpoint[] endpoints = _table.removeAdapterEndpoints(ref.adapterId);
 
-	    if(ref.instance.traceLevels().location >= 2)
+	    if(endpoints != null && ref.instance.traceLevels().location >= 2)
 	    {
 		trace("removed endpoints from locator table\n", ref, endpoints);
 	    }
