@@ -1456,6 +1456,84 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList::const_iterator d;
     int iter;
 
+    string typeS = typeToString(p, TypeModeIn, scope);
+
+    if (!members.empty())
+    {
+        //
+        // equals
+        //
+        out << sp << nl << "public boolean"
+            << nl << "equals(java.lang.Object rhs)";
+        out << sb;
+        out << nl << typeS << " _r = null;";
+        out << nl << "try";
+        out << sb;
+        out << nl << "_r = (" << typeS << ")rhs;";
+        out << eb;
+        out << nl << "catch (ClassCastException ex)";
+        out << sb;
+        out << eb;
+        out << sp << nl << "if (_r != null)";
+        out << sb;
+        for (d = members.begin(); d != members.end(); ++d)
+        {
+            string memberName = fixKwd((*d)->name());
+            BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
+            if (b)
+            {
+                switch (b->kind())
+                {
+                    case Builtin::KindByte:
+                    case Builtin::KindBool:
+                    case Builtin::KindShort:
+                    case Builtin::KindInt:
+                    case Builtin::KindLong:
+                    case Builtin::KindFloat:
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << "if (" << memberName << " != _r."
+                            << memberName << ")";
+                        out << sb;
+                        out << nl << "return false;";
+                        out << eb;
+                        break;
+                    }
+
+                    case Builtin::KindString:
+                    case Builtin::KindWString:
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        out << nl << "if (!" << memberName << ".equals(_r."
+                            << memberName << "))";
+                        out << sb;
+                        out << nl << "return false;";
+                        out << eb;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                out << nl << "if (!" << memberName << ".equals(_r."
+                    << memberName << "))";
+                out << sb;
+                out << nl << "return false;";
+                out << eb;
+            }
+        }
+        out << sp << nl << "return true;";
+        out << eb;
+        out << sp << nl << "return false;";
+        out << eb;
+
+        //
+        // TODO: hashCode?
+        //
+    }
+
     //
     // __write
     //
@@ -2216,7 +2294,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "for (int __i = 0; __i < __sz; __i++)";
         out << sb;
         iter = 0;
-        out << nl << "java.lang.Object __key, __value;";
         for (i = 0; i < 2; i++)
         {
             string arg;
@@ -2239,57 +2316,70 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 {
                     case Builtin::KindByte:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Byte " << arg
                             << " = new java.lang.Byte(__is.readByte());";
                         break;
                     }
                     case Builtin::KindBool:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Boolean " << arg
                             << " = new java.lang.Boolean(__is.readBool());";
                         break;
                     }
                     case Builtin::KindShort:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Short " << arg
                             << " = new java.lang.Short(__is.readShort());";
                         break;
                     }
                     case Builtin::KindInt:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Integer " << arg
                             << " = new java.lang.Integer(__is.readInt());";
                         break;
                     }
                     case Builtin::KindLong:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Long " << arg
                             << " = new java.lang.Long(__is.readLong());";
                         break;
                     }
                     case Builtin::KindFloat:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Float " << arg
                             << " = new java.lang.Float(__is.readFloat());";
                         break;
                     }
                     case Builtin::KindDouble:
                     {
-                        out << nl << arg
+                        out << nl << "java.lang.Double " << arg
                             << " = new java.lang.Double(__is.readDouble());";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << "java.lang.String " << arg
+                            << " = __is.readString();";
+                        break;
+                    }
+                    case Builtin::KindWString:
+                    {
+                        out << nl << "java.lang.String " << arg
+                            << " = __is.readWString();";
                         break;
                     }
                     case Builtin::KindObject:
                     {
-                        out << nl << "__is.readObject(\"\", __h);";
+                        out << nl << "Ice.Object " << arg << ';';
+                        out << nl << "__is.readObject("
+                            << "Ice.Object.__classIds[0], __h);";
                         out << nl << arg << " = __h.value;";
+                        break;
                     }
-                    case Builtin::KindString:
-                    case Builtin::KindWString:
                     case Builtin::KindObjectProxy:
                     {
-                        writeMarshalUnmarshalCode(out, scope, type, arg, false,
-                                                  iter, false);
+                        out << nl << "Ice.ObjectPrx " << arg
+                            << " = __is.readProxy();";
                         break;
                     }
                     case Builtin::KindLocalObject:
@@ -2301,11 +2391,32 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             }
             else
             {
+                string s = typeToString(type, TypeModeIn, scope);
+                out << nl << s << ' ' << arg << ';';
                 ClassDeclPtr c = ClassDeclPtr::dynamicCast(type);
                 if (c)
                 {
                     out << nl << "__is.readObject(\"\", __h);";
                     out << nl << arg << " = __h.value;";
+                    ClassDefPtr def = c->definition();
+                    if (def && !def->isAbstract())
+                    {
+                        out << nl << "if (__is.readObject(" << s
+                            << ".__classIds[0], __h))";
+                        out << sb;
+                        out << nl << arg << " = (" << s << ")__h.value;";
+                        out << eb;
+                        out << nl << "else";
+                        out << sb;
+                        out << nl << arg << " = new " << s << "();";
+                        out << nl << "__is.readObject(" << arg << ");";
+                        out << eb;
+                    }
+                    else
+                    {
+                        out << nl << "__is.readObject(\"\", __h);";
+                        out << nl << arg << " = (" << s << ")__h.value;";
+                    }
                 }
                 else
                 {
