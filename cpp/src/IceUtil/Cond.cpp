@@ -31,7 +31,7 @@ IceUtil::Semaphore::~Semaphore()
 }
 
 bool
-IceUtil::Semaphore::wait(long timeout)
+IceUtil::Semaphore::wait(long timeout) const
 {
     if (timeout < 0)
     {
@@ -46,7 +46,7 @@ IceUtil::Semaphore::wait(long timeout)
 }
 
 void
-IceUtil::Semaphore::post(int count)
+IceUtil::Semaphore::post(int count) const
 {
     int rc = ReleaseSemaphore(_sem, count, 0);
     if (rc == 0)
@@ -114,7 +114,7 @@ IceUtil::Cond::wake(bool broadcast)
 }
 
 void
-IceUtil::Cond::preWait()
+IceUtil::Cond::preWait() const
 {
     _gate.wait();
     _blocked++;
@@ -122,7 +122,7 @@ IceUtil::Cond::preWait()
 }
 
 void
-IceUtil::Cond::postWait(bool timedout)
+IceUtil::Cond::postWait(bool timedout) const
 {
     _internal.lock();
     _unblocked++;
@@ -153,7 +153,7 @@ IceUtil::Cond::postWait(bool timedout)
 }
 
 bool
-IceUtil::Cond::dowait(long timeout)
+IceUtil::Cond::dowait(long timeout) const
 {
     try
     {

@@ -87,7 +87,7 @@ private:
 #endif
 };
 
-class ICE_UTIL_API Thread : public IceUtil::Shared
+class ICE_UTIL_API Thread : public virtual IceUtil::Shared
 {
 public:
 

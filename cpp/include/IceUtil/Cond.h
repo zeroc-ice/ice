@@ -46,12 +46,12 @@ public:
     Semaphore(long = 0);
     ~Semaphore();
 
-    bool wait(long = -1);
-    void post(int = 1);
+    bool wait(long = -1) const;
+    void post(int = 1) const;
 
 private:
 
-    HANDLE _sem;
+    mutable HANDLE _sem;
 };
 #else
 
@@ -79,9 +79,9 @@ public:
     void signal();
 
     //
-    // pthread_cond_broadcast restarts all the threads that are
-    // waiting on the condition variable cond. Nothing happens if no
-    // threads are waiting on cond.
+    // broadcast restarts all the threads that are waiting on the
+    // condition variable cond. Nothing happens if no threads are
+    // waiting on cond.
     //
     void broadcast();
 
@@ -96,7 +96,7 @@ public:
     // the mutex is reaquired.
     //
     template <typename Lock> inline void
-    wait(Lock& lock)
+    wait(const Lock& lock) const
     {
 	waitImpl(lock._mutex);
     }
@@ -109,7 +109,7 @@ public:
     // timeout.
     //
     template <typename Lock> inline bool
-    timedwait(Lock& lock, long msec)
+    timedwait(const Lock& lock, long msec) const
     {
 	timedwaitImpl(lock._mutex, msec);
     }
@@ -131,7 +131,7 @@ private:
     //
 /*
     template <typename M> void
-    waitImpl(M& mutex)
+    waitImpl(const M& mutex) const
     {
         preWait();
 
@@ -152,7 +152,7 @@ private:
         }
     }
     template <typename M> bool
-    timedwaitImpl(M& mutex, long msec)
+    timedwaitImpl(const M& mutex, long msec) const
     {
         preWait();
 
@@ -176,7 +176,7 @@ private:
  */
 
     void
-    waitImpl(RecMutex& mutex)
+    waitImpl(const RecMutex& mutex) const
     {
 	preWait();
 
@@ -196,7 +196,7 @@ private:
     }
 
     void
-    waitImpl(Mutex& mutex)
+    waitImpl(const Mutex& mutex) const
     {
 	preWait();
 
@@ -216,7 +216,7 @@ private:
     }
     
     bool
-    timedwaitImpl(RecMutex& mutex, long msec)
+    timedwaitImpl(const RecMutex& mutex, long msec) const
     {
 	preWait();
 
@@ -237,7 +237,7 @@ private:
     }
 
     bool
-    timedwaitImpl(Mutex& mutex, long msec)
+    timedwaitImpl(const Mutex& mutex, long msec) const
     {
 	preWait();
 
@@ -259,32 +259,32 @@ private:
 
 #else
 
-    template <typename M> void waitImpl(M&);
-    template <typename M> bool timedwaitImpl(M&, long);
+    template <typename M> void waitImpl(const M&) const;
+    template <typename M> bool timedwaitImpl(const M&, long) const;
 
 #endif
 
 #ifdef WIN32
     void wake(bool);
-    void preWait();
-    void postWait(bool);
-    bool dowait(long);
+    void preWait() const;
+    void postWait(bool) const;
+    bool dowait(long) const;
 
     Mutex _internal;
     Semaphore _gate;
     Semaphore _queue;
-    long _blocked;
-    long _unblocked;
-    long _toUnblock;
+    mutable long _blocked;
+    mutable long _unblocked;
+    mutable long _toUnblock;
 #else
-    pthread_cond_t _cond;
+    mutable pthread_cond_t _cond;
 #endif
 
 };
 
 #ifndef WIN32
 template <typename M> inline void
-Cond::waitImpl(M& mutex)
+Cond::waitImpl(const M& mutex) const
 {
     typedef typename M::LockState LockState;
     
@@ -300,7 +300,7 @@ Cond::waitImpl(M& mutex)
 }
 
 template <typename M> inline bool
-Cond::timedwaitImpl(M& mutex, long msec)
+Cond::timedwaitImpl(const M& mutex, long msec) const
 {
     typedef typename M::LockState LockState;
     

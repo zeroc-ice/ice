@@ -22,7 +22,7 @@ class RLock
 {
 public:
 
-    RLock(T& mutex) :
+    RLock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.readLock();
@@ -35,28 +35,7 @@ public:
 
 private:
 
-    T& _mutex;
-};
-
-template <typename T>
-class ConstRLock
-{
-public:
-
-    ConstRLock(const T& mutex) :
-	_mutex(const_cast<T>(mutex))
-    {
-	_mutex.readLock();
-    }
-
-    ~ConstRLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
+    const T& _mutex;
 };
 
 template <typename T>
@@ -64,7 +43,7 @@ class TryRLock
 {
 public:
 
-    TryRLock(T& mutex) :
+    TryRLock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.tryReadLock();
@@ -77,28 +56,7 @@ public:
 
 private:
 
-    T& _mutex;
-};
-
-template <typename T>
-class ConstTryRLock
-{
-public:
-
-    ConstTryRLock(const T& mutex) :
-	_mutex(const_cast<T>(mutex))
-    {
-	_mutex.tryReadLock();
-    }
-
-    ~ConstTryRLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
+    const T& _mutex;
 };
 
 template <typename T>
@@ -106,7 +64,7 @@ class WLock
 {
 public:
 
-    WLock(T& mutex) :
+    WLock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.writeLock();
@@ -119,28 +77,7 @@ public:
 
 private:
 
-    T& _mutex;
-};
-
-template <typename T>
-class ConstWLock
-{
-public:
-
-    ConstWLock(const T& mutex) :
-	_mutex(const_cast<T>(mutex))
-    {
-	_mutex.writeLock();
-    }
-
-    ~ConstWLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
+    const T& _mutex;
 };
 
 template <typename T>
@@ -148,7 +85,7 @@ class TryWLock
 {
 public:
 
-    TryWLock(T& mutex) :
+    TryWLock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.tryWriteLock();
@@ -161,29 +98,7 @@ public:
 
 private:
 
-    T& _mutex;
-};
-
-
-template <typename T>
-class ConstTryWLock
-{
-public:
-
-    ConstTryWLock(const T& mutex) :
-	_mutex(const_cast<T>(mutex))
-    {
-	_mutex.tryWriteLock();
-    }
-
-    ~ConstTryWLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
+    const T& _mutex;
 };
 
 //
@@ -204,12 +119,6 @@ public:
     typedef WLock<RWRecMutex> WLock;
     typedef TryWLock<RWRecMutex> TryWLock;
 
-    typedef ConstRLock<RWRecMutex> ConstRLock;
-    typedef ConstTryRLock<RWRecMutex> ConstTryRLock;
-    typedef ConstWLock<RWRecMutex> ConstWLock;
-    typedef ConstTryWLock<RWRecMutex> ConstTryWLock;
-
-
     RWRecMutex();
     ~RWRecMutex();
 
@@ -221,27 +130,27 @@ public:
     //
     // Acquire a read lock.
     //
-    void readLock();
+    void readLock() const;
 
     //
     // Try to acquire a read lock.
     //
-    void tryReadLock();
+    void tryReadLock() const;
 
     //
     // Acquire a write lock.
     //
-    void writeLock();
+    void writeLock() const;
 
     //
     // Acquire a write lock.
     //
-    void tryWriteLock();
+    void tryWriteLock() const;
 
     //
     // Unlock the reader/writer lock.
     //
-    void unlock();
+    void unlock() const;
 
 private:
 
@@ -253,12 +162,12 @@ private:
     // Number of readers holding the lock. -1 means a writer has the
     // lock.
     //
-    int	_count;
+    mutable int _count;
 
     //
     // Number of waiting writers.
     //
-    unsigned int _waitingWriters;
+    mutable unsigned int _waitingWriters;
 
     //
     // Internal mutex.
@@ -268,8 +177,8 @@ private:
     //
     // Two condition variables for waiting readers & writers.
     //
-    Cond _readers;
-    Cond _writers;
+    mutable Cond _readers;
+    mutable Cond _writers;
 };
 
 } // End namespace IceUtil

@@ -40,7 +40,7 @@ include $(top_srcdir)/config/Make.rules
 manual/index.html: $(SGMLFILES)
 	rm -rf manual
 	db2html manual.sgml
-	(mkdir manual/stylesheet-images; \
+	(mkdir -p manual/stylesheet-images; \
 	 cd manual/stylesheet-images; \
 	 ln -s ../../images/*.gif .)
 

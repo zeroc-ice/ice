@@ -35,9 +35,6 @@ public:
     typedef Lock<RecMutex> Lock;
     typedef TryLock<RecMutex> TryLock;
 
-    typedef ConstLock<RecMutex> ConstLock;
-    typedef ConstTryLock<RecMutex> ConstTryLock;
-
     RecMutex();
     ~RecMutex();
 
@@ -56,7 +53,7 @@ public:
     //
     // Return true if the mutex has been locked for the first time.
     //
-    bool lock();
+    bool lock() const;
 
     //
     // Throw LockedException in the case that the lock call would
@@ -64,13 +61,13 @@ public:
     // thread). Returns true if the mutex has been locked for the
     // first time.
     //
-    bool trylock();
+    bool trylock() const;
 
     //
     // Returns true if the mutex has been unlocked for the last time
     // (false otherwise).
     //
-    bool unlock();
+    bool unlock() const;
 
 private:
 
@@ -95,18 +92,18 @@ private:
     };
 #endif
 
-    void unlock(LockState&);
-    void lock(LockState&);
+    void unlock(LockState&) const;
+    void lock(LockState&) const;
 
     friend class Cond;
 
 #ifdef WIN32
-    CRITICAL_SECTION _mutex;
+    mutable CRITICAL_SECTION _mutex;
 #else
-    pthread_mutex_t _mutex;
+    mutable pthread_mutex_t _mutex;
 #endif    
 
-    int _count;
+    mutable int _count;
 };
 
 } // End namespace IceUtil

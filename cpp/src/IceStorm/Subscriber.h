@@ -106,7 +106,7 @@ protected:
     // Immutable
     TraceLevelsPtr _traceLevels; 
 
-    mutable IceUtil::Mutex _stateMutex;
+    IceUtil::Mutex _stateMutex;
     State _state;
 
 private:

@@ -136,7 +136,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 void
 Ice::Object::__write(::IceInternal::BasicStream* __os) const
 {
-    IceUtil::Mutex::ConstLock sync(_activeFacetMapMutex);
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
     __os->write(Int(_activeFacetMap.size()));
     for (map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)

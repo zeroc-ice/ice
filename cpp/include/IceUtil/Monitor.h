@@ -31,9 +31,6 @@ public:
     typedef Lock<Monitor<T> > Lock;
     typedef TryLock<Monitor<T> > TryLock;
 
-    typedef ConstLock<Monitor<T> > ConstLock;
-    typedef ConstTryLock<Monitor<T> > ConstTryLock;
-
     Monitor();
     ~Monitor();
 
@@ -41,12 +38,12 @@ public:
     // Note that lock/trylock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
-    void lock();
-    void unlock();
-    void trylock();
+    void lock() const;
+    void unlock() const;
+    void trylock() const;
 
-    void wait();
-    bool timedwait(long);
+    void wait() const;
+    bool timedwait(long) const;
     void notify();
     void notifyAll();
 
@@ -56,11 +53,11 @@ private:
     Monitor(const Monitor&);
     void operator=(const Monitor&);
 
-    void notifyImpl(int);
+    void notifyImpl(int) const;
 
-    Cond _cond;
+    mutable Cond _cond;
     T _mutex;
-    int _nnotify;
+    mutable int _nnotify;
 };
 
 } // End namespace IceUtil
@@ -88,7 +85,7 @@ IceUtil::Monitor<T>::~Monitor()
 }
 
 template <class T> inline void
-IceUtil::Monitor<T>::lock()
+IceUtil::Monitor<T>::lock() const
 {
     if (_mutex.lock())
     {
@@ -101,7 +98,7 @@ IceUtil::Monitor<T>::lock()
 }
 
 template <class T> inline void
-IceUtil::Monitor<T>::unlock()
+IceUtil::Monitor<T>::unlock() const
 {
     int nnotify = _nnotify;
     if (_mutex.unlock())
@@ -114,7 +111,7 @@ IceUtil::Monitor<T>::unlock()
 }
 
 template <class T> inline void
-IceUtil::Monitor<T>::trylock()
+IceUtil::Monitor<T>::trylock() const
 {
     if (_mutex.trylock())
     {
@@ -127,7 +124,7 @@ IceUtil::Monitor<T>::trylock()
 }
 
 template <class T> inline void
-IceUtil::Monitor<T>::wait()
+IceUtil::Monitor<T>::wait() const
 {
     //
     // Perform any pending notifies
@@ -153,7 +150,7 @@ IceUtil::Monitor<T>::wait()
 }
 
 template <class T> inline bool
-IceUtil::Monitor<T>::timedwait(long msec)
+IceUtil::Monitor<T>::timedwait(long msec) const
 {
     //
     // Perform any pending notifies.
@@ -206,7 +203,7 @@ IceUtil::Monitor<T>::notifyAll()
 
 
 template <class T> inline void
-IceUtil::Monitor<T>::notifyImpl(int nnotify)
+IceUtil::Monitor<T>::notifyImpl(int nnotify) const
 {
     //
     // Zero indicates no notifies.

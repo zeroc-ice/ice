@@ -28,7 +28,7 @@ IceUtil::RecMutex::~RecMutex()
 }
 
 bool
-IceUtil::RecMutex::lock()
+IceUtil::RecMutex::lock() const
 {
     EnterCriticalSection(&_mutex);
     if (++_count > 1)
@@ -40,7 +40,7 @@ IceUtil::RecMutex::lock()
 }
 
 bool
-IceUtil::RecMutex::trylock()
+IceUtil::RecMutex::trylock() const
 {
     if (!TryEnterCriticalSection(&_mutex))
     {
@@ -55,7 +55,7 @@ IceUtil::RecMutex::trylock()
 }
 
 bool
-IceUtil::RecMutex::unlock()
+IceUtil::RecMutex::unlock() const
 {
     if (--_count == 0)
     {
@@ -66,7 +66,7 @@ IceUtil::RecMutex::unlock()
 }
 
 void
-IceUtil::RecMutex::unlock(LockState& state)
+IceUtil::RecMutex::unlock(LockState& state) const
 {
     state.count = _count;
     _count = 0;
@@ -74,7 +74,7 @@ IceUtil::RecMutex::unlock(LockState& state)
 }
 
 void
-IceUtil::RecMutex::lock(LockState& state)
+IceUtil::RecMutex::lock(LockState& state) const
 {
     EnterCriticalSection(&_mutex);
     _count = state.count;
@@ -101,7 +101,7 @@ IceUtil::RecMutex::~RecMutex()
 }
 
 bool
-IceUtil::RecMutex::lock()
+IceUtil::RecMutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
     if (rc != 0)
@@ -118,7 +118,7 @@ IceUtil::RecMutex::lock()
 }
 
 bool
-IceUtil::RecMutex::trylock()
+IceUtil::RecMutex::trylock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
     if (rc != 0)
@@ -139,7 +139,7 @@ IceUtil::RecMutex::trylock()
 }
 
 bool
-IceUtil::RecMutex::unlock()
+IceUtil::RecMutex::unlock() const
 {
     if (--_count == 0)
     {
@@ -152,7 +152,7 @@ IceUtil::RecMutex::unlock()
 }
 
 void
-IceUtil::RecMutex::unlock(LockState& state)
+IceUtil::RecMutex::unlock(LockState& state) const
 {
     state.mutex = &_mutex;
     state.count = _count;
@@ -160,7 +160,7 @@ IceUtil::RecMutex::unlock(LockState& state)
 }
 
 void
-IceUtil::RecMutex::lock(LockState& state)
+IceUtil::RecMutex::lock(LockState& state) const
 {
     _count = state.count;
 }

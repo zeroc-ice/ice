@@ -78,7 +78,7 @@ IceInternal::Connection::destroy(DestructionReason reason)
 bool
 IceInternal::Connection::destroyed() const
 {
-    IceUtil::RecMutex::ConstLock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _state >= StateClosing;
 }
 

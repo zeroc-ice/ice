@@ -239,7 +239,7 @@ private:
     //
     // Set of subscribers that encountered an error.
     //
-    mutable IceUtil::Mutex _errorMutex;
+    IceUtil::Mutex _errorMutex;
     mutable SubscriberList _error;
 };
 
@@ -513,7 +513,7 @@ TopicI::getLinkProxy(const Ice::Current&)
 bool
 TopicI::destroyed() const
 {
-    IceUtil::RecMutex::ConstLock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
     return _destroyed;
 }
 

@@ -43,9 +43,6 @@ public:
     typedef Lock<Mutex> Lock;
     typedef TryLock<Mutex> TryLock;
 
-    typedef ConstLock<Mutex> ConstLock;
-    typedef ConstTryLock<Mutex> ConstTryLock;
-
     Mutex();
     ~Mutex();
 
@@ -64,7 +61,7 @@ public:
     //
     // Return true if the mutex has been locked for the first time.
     //
-    bool lock();
+    bool lock() const;
 
     //
     // Throw LockedException in the case that the lock call would
@@ -72,13 +69,13 @@ public:
     // thread). Returns true if the mutex has been locked for the
     // first time.
     //
-    bool trylock();
+    bool trylock() const;
 
     //
     // Returns true if the mutex has been unlocked for the last time
     // (false otherwise).
     //
-    bool unlock();
+    bool unlock() const;
 
 private:
 
@@ -101,15 +98,15 @@ private:
     };
 #endif
 
-    void unlock(LockState&);
-    void lock(LockState&);
+    void unlock(LockState&) const;
+    void lock(LockState&) const;
 
     friend class Cond;
 
 #ifdef WIN32
-    CRITICAL_SECTION _mutex;
+    mutable CRITICAL_SECTION _mutex;
 #else
-    pthread_mutex_t _mutex;
+    mutable pthread_mutex_t _mutex;
 #endif
 };
 
@@ -127,7 +124,7 @@ Mutex::~Mutex()
 }
 
 inline bool
-Mutex::lock()
+Mutex::lock() const
 {
     EnterCriticalSection(&_mutex);
     //
@@ -139,7 +136,7 @@ Mutex::lock()
 }
 
 inline bool
-Mutex::trylock()
+Mutex::trylock() const
 {
     if (!TryEnterCriticalSection(&_mutex))
     {
@@ -154,7 +151,7 @@ Mutex::trylock()
 }
 
 inline bool
-Mutex::unlock()
+Mutex::unlock() const
 {
     assert(_mutex.RecursionCount == 1);
     LeaveCriticalSection(&_mutex);
@@ -162,13 +159,13 @@ Mutex::unlock()
 }
 
 inline void
-Mutex::unlock(LockState& state)
+Mutex::unlock(LockState& state) const
 {
     LeaveCriticalSection(&_mutex);
 }
 
 inline void
-Mutex::lock(LockState&)
+Mutex::lock(LockState&) const
 {
     EnterCriticalSection(&_mutex);
 }
@@ -194,7 +191,7 @@ Mutex::~Mutex()
 }
 
 inline bool
-Mutex::lock()
+Mutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
     if (rc != 0)
@@ -205,7 +202,7 @@ Mutex::lock()
 }
 
 inline bool
-Mutex::trylock()
+Mutex::trylock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
     if (rc != 0)
@@ -220,7 +217,7 @@ Mutex::trylock()
 }
 
 inline bool
-Mutex::unlock()
+Mutex::unlock() const
 {
     int rc = pthread_mutex_unlock(&_mutex);
     if (rc != 0)
@@ -231,13 +228,13 @@ Mutex::unlock()
 }
 
 inline void
-Mutex::unlock(LockState& state)
+Mutex::unlock(LockState& state) const
 {
     state.mutex = &_mutex;
 }
 
 inline void
-Mutex::lock(LockState&)
+Mutex::lock(LockState&) const
 {
 }
 #endif    

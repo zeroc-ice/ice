@@ -26,7 +26,7 @@ class Lock
 {
 public:
 
-    Lock(T& mutex) :
+    Lock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.lock();
@@ -39,7 +39,7 @@ public:
 
 private:
 
-    T& _mutex;
+    const T& _mutex;
 
     friend class Cond;
 };
@@ -49,7 +49,7 @@ class TryLock
 {
 public:
 
-    TryLock(T& mutex) :
+    TryLock(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.trylock();
@@ -62,57 +62,7 @@ public:
 
 private:
 
-    T& _mutex;
-
-    friend class Cond;
-};
-
-//
-// This is for use when a class derives from Mutex, Monitor or
-// RecMutex. Otherwise declare the concurrency primitive mutable.
-//
-template <typename T>
-class ConstLock
-{
-public:
-
-    ConstLock(const T& mutex) :
-	_mutex(const_cast<T&>(mutex))
-    {
-	_mutex.lock();
-    }
-
-    ~ConstLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
-
-    friend class Cond;
-};
-
-template <typename T>
-class ConstTryLock
-{
-public:
-
-    ConstTryLock(const T& mutex) :
-	_mutex(const_cast<T>(mutex))
-    {
-	_mutex.trylock();
-    }
-
-    ~ConstTryLock()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    T& _mutex;
+    const T& _mutex;
 
     friend class Cond;
 };
