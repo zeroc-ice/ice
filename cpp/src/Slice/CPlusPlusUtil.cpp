@@ -286,7 +286,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     }
     else
     {
-	obj = "obj;";
+	obj = "obj";
     }
 
     string func = marshal ? "write(" : "read(";
