@@ -81,11 +81,12 @@ Ice::CommunicatorI::destroy()
     {
 	RecMutex::Lock sync(*this);
 	
-	if(!_destroyed) // Don't destroy twice.
+	if(_destroyed) // Don't destroy twice.
 	{
-	    _destroyed = true;
-	    instance = _instance;
+	    return;
 	}
+	_destroyed = true;
+	instance = _instance;
     }
 
     {
@@ -96,12 +97,9 @@ Ice::CommunicatorI::destroy()
 	// to be destroyed.
 	//
 	bool last = (--communicatorCount == 0);
-	if(last && gcInterval > 0)
+	if(last && gcInterval > 0 && theCollector)
 	{
-	    if(theCollector)
-	    {
-		theCollector->stop();
-	    }
+	    theCollector->stop();
 	}
 
 	if(theCollector)
