@@ -35,7 +35,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _server.communicator().shutdown();
     }
 
-    protected int
+    public int
     run()
     {
         try
