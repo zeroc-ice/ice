@@ -1355,7 +1355,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		assert(facet.path != null);
 		elt.facets.put(new StringArray(esk.facet), facet);
 		
-		if(esk.facet.length != 0)
+		if(esk.facet.length == 0)
 		{
 		    identities.add(esk.identity);
 		    elt.mainObject = facet;
