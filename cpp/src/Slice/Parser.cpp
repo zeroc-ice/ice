@@ -4576,14 +4576,20 @@ Slice::Unit::nextLine()
 void
 Slice::Unit::scanPosition(const char* s)
 {
-    string line(s);
-    string::size_type idx;
+    assert(*s == '#');
 
-    idx = line.find("line");
-    if(idx != string::npos)
+    const char* p = s + 1; // Skip leading #
+    while(isspace(*p))
     {
-	line.erase(0, idx + 4);
+        ++p;
     }
+    if(strncmp(p, "line", 4) == 0)
+    {
+        p += 4;
+    }
+
+    string line(p);
+    string::size_type idx;
 
     idx = line.find_first_not_of(" \t\r#");
     if(idx != string::npos)
