@@ -11,7 +11,7 @@ All Rights Reserved
 <para>
 If not stated otherwise in the description of the individual
 properties, the default value for all properties is the empty
-string. If the property takes a numeric parameter as value, the empty
+string. If the property takes a numeric value, the empty
 string is interpreted as zero.
 </para>
 
@@ -46,7 +46,7 @@ The network tracing level:
 </row>
 <row>
 <entry>3</entry>
-<entry>Like 2, but trace also data transfer.</entry>
+<entry>Like 2, but also trace data transfer.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -106,7 +106,7 @@ The request retry tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also &Ice; endpoint usage.</entry>
+<entry>Also trace &Ice; endpoint usage.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -160,14 +160,14 @@ that are raised while an incoming request is dispatched.
 <entry>1</entry>
 <entry>Print warnings for unexpected
 <literal>Ice::LocalException</literal>, <literal>Ice::UserException</literal>,
-and C++ exceptions. (default)</entry>
+C++ exceptions, and Java runtime exceptions. (default)</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but in addition issue warnings for
+<entry>Like 1, but also issue warnings for
 <literal>Ice::ObjectNotExistException</literal>,
 <literal>Ice::FacetNotExistException</literal>, and
-<literal>Ice::OperationNotExistException</literal> exceptions.
+<literal>Ice::OperationNotExistException</literal>.
 </entry>
 </row>
 </tbody>
@@ -187,7 +187,7 @@ Ice.Warn.AMICallback=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-warnings are printed if an AMI callback raises an exceptiion. The
+warnings are printed if an AMI callback raises an exception. The
 default value is 1.
 </para>
 </section>
@@ -204,7 +204,7 @@ Ice.Warn.Leaks=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the <literal>Ice::Communicator</literal> destructor will print a
-warning if some other Ice related C++ objects are still in memory. The
+warning if some other Ice-related C++ objects are still in memory. The
 default value is 1. (C++ only.)
 </para>
 </section>
@@ -241,16 +241,16 @@ Sets the endpoints for the object adapter
 <section>
 <title>Description</title>
 <para>
-Specifies a router (as stringified proxy to the &Glacier; router
-control interface) for the object adapter with the name
-<replaceable>name</replaceable>. By doing so, the object adapter can
-receive callbacks from this router, using connections which are
-established from this process to the router, instead of the router
-having to establish a connection back to the named object adapter.
-<note><para> You can only specify a particular router for one single
-object adapter. Specifying the same router for more than one object
-adapter will result in undefined behavior. The default value is no
-router. </para></note>
+Specifies a router for the object adapter with the name
+<replaceable>name</replaceable>. The value is a stringified proxy
+to the &Glacier; router control interface. Defining a router
+allows the object adapter to receive callbacks from the router over
+outgoing connections from this process to the router, thereby avoiding
+the need for the router to establish a connection back to the object
+adapter.
+<note><para> A router can only be assigned to one object adapter.
+Specifying the same router for more than one object adapter will result
+in undefined behavior. The default value is no router. </para></note>
 </para>
 </section>
 </section>
@@ -264,9 +264,9 @@ router. </para></note>
 <section>
 <title>Description</title>
 <para>
-Specifies a locator (as stringified proxy to the &Ice; locator
-interface) for the object adapter with the name
-<replaceable>name</replaceable>.
+Specifies a locator for the object adapter with the name
+<replaceable>name</replaceable>. The value is a stringified proxy
+to the &Ice; locator interface.
 </para>
 </section>
 </section>
@@ -280,12 +280,13 @@ interface) for the object adapter with the name
 <section>
 <title>Description</title>
 <para>
-Specifies an identity for the object adapter with the name
-<replaceable>name</replaceable>. This identity needs to be 
-unique among object adapters using a same locator instance. If the
-default locator or the object adapter locator is set, the object
-adapter will set its endpoints with the locator registry when it's
-activated.
+Specifies an identifier for the object adapter with the name
+<replaceable>name</replaceable>. This identifier must be unique among
+all object adapters using the same locator instance. If a locator
+proxy is defined using
+<literal><replaceable>name</replaceable>.Locator</literal> or
+<literal>Ice.Default.Locator</literal>, this object adapter will set
+its endpoints with the locator registry upon activation.
 </para>
 </section>
 </section>
@@ -302,7 +303,7 @@ Ice.PrintAdapterReady=<replaceable>num</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 an object adapter prints "<replaceable>adapter_name</replaceable>
 ready" on standard output after initialization is complete. This is
-useful for scripts that wish to wait until an object adapter is ready
+useful for scripts that need to wait until an object adapter is ready
 to be used.
 </para>
 </section>
@@ -323,7 +324,7 @@ Ice.Plugin.<replaceable>name</replaceable>=<replaceable>entry_point [args]</repl
 <section>
 <title>Description</title>
 <para>
-Defines a plug-in to be installed during Communicator initialization.
+Defines a plug-in to be installed during communicator initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
@@ -367,7 +368,7 @@ is one thread for the client thread pool, and 10 threads for the
 server thread pool. The number of threads in each pool must be larger
 than zero. <note><para>Multiple threads for the client side thread
 pool are only required for nested AMI invocations. If AMI is not used, or
-AMI calls are not nested (i.e., AMI callbacks don't call any other
+AMI calls are not nested (i.e., AMI callbacks do not call any other
 methods on Ice objects), then there is no need to set the number of
 threads in the client thread pool to a value larger than
 one. </para></note>
@@ -391,8 +392,8 @@ Ice.Default.Protocol=<replaceable>protocol</replaceable>
 <title>Description</title>
 <para>
 Sets the protocol that is being used if an endpoint uses
-<literal>default</literal> as protocol specification. The default
-value is <literal>tcp</literal>.
+<literal>default</literal> as the protocol specification. The
+default value is <literal>tcp</literal>.
 </para>
 </section>
 </section>
@@ -408,7 +409,7 @@ Ice.Default.Host=<replaceable>host</replaceable>
 <para>
 If an endpoint is specified without a host name (i.e., without a
 <literal>-h <replaceable>host</replaceable></literal> option), the
-<replaceable>host</replaceable> value from this property is being used
+<replaceable>host</replaceable> value from this property is used
 instead. The default value is the local host name.
 </para>
 </section>
@@ -423,11 +424,11 @@ Ice.Default.Router=<replaceable>router</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default router (as stingified proxy to the &Glacier;
-router control interface) which is to be used for all proxies, unless
-the router is overwritten with a proxy's
-<literal>ice_router()</literal> operation. The default value is no
-router.
+Specifies the default router for all proxies. The value is a
+stringified proxy to the &Glacier; router control interface.
+The default router can be overridden on a proxy using the
+<literal>ice_router()</literal> operation. The default value
+is no router.
 </para>
 </section>
 </section>
@@ -441,19 +442,19 @@ Ice.Default.Locator=<replaceable>locator</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default locator (as stingified proxy to the &IcePack; locator
-interface) which is to be used for all proxies and object adapters unless
-the locator is overwritten with a proxy's
+Specifies a default locator for all proxies and object adapters.
+The value is a stringified proxy to the &IcePack; locator interface.
+The default locator can be overridden on a proxy using the
 <literal>ice_locator()</literal> operation. The default value is no
 locator.
 </para>
-<note><para>The &IcePack; locator object identity is
-<literal>IcePack/Locator</literal>. It's listening on the &IcePack;
+<note><para>The &IcePack; locator's object identity is
+<literal>IcePack/Locator</literal>. It is listening on the &IcePack;
 client endpoints. For example if
 <literal>IcePack.Registry.Client.Endpoints</literal> is set to
 <literal>tcp -p 12000 -h localhost</literal>, the stringified proxy
 for the &IcePack; locator will be <literal>IcePack/Locator:tcp -p
-12000 -h localhost</literal></para></note>
+12000 -h localhost</literal>.</para></note>
 </section>
 </section>
 
@@ -482,7 +483,7 @@ Ice.Override.Compression=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-If set, this property overrides compession settings in all
+If set, this property overrides compression settings in all
 proxies. If <replaceable>num</replaceable> is set to a value larger
 than zero, compression is enabled. If zero, compression is disabled.
 </para>
@@ -504,12 +505,12 @@ Ice.RetryIntervals=<replaceable>num [num ...]</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property defines the number of time an operation is re-tried and
+This property defines the number of times an operation is re-tried and
 the delay between each retry. For example, if the property is set to
 <replaceable>0 100 500</replaceable>, the operation will be re-tried 3
-times: immediatly re-tried upon the first failure, after waiting 100
+times: immediately re-tried upon the first failure, after waiting 100
 (ms) upon the second failure, after waiting 500 (ms) upon the third
-failure. The default value is to retry once immediatly (0). If set to
+failure. The default value is to retry once immediately (0). If set to
 -1, no retry will occur.
 </para>
 </section>
@@ -530,9 +531,9 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 the &Ice; process daeamonizes itself with the
 <literal>daemon</literal> system call. If
 <replaceable>no_close</replaceable> is set to a value larger than zero,
-standard input, output, and error output are not redirected to
+standard input, output, and error are not redirected to
 <literal>/dev/null</literal>. If <replaceable>no_chdir</replaceable> is
-set to a value larger than zero, &Ice; doesn't change its working
+set to a value larger than zero, &Ice; does not change its working
 directory to the root directory. (Unix only.)
 </para>
 </section>
@@ -567,8 +568,7 @@ Ice.ConnectionIdleTime=<replaceable>num</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 &Ice; connections that have been idle for
 <replaceable>num</replaceable> seconds are closed. The default value
-is zero, meaning that connections are not automatically closed if they
-have been idle for some time.
+is zero, meaning that idle connections are not automatically closed.
 </para>
 </section>
 </section>
@@ -583,7 +583,7 @@ Ice.MonitorConnections=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-&Ice; will start a thread that monitors connections. Such thread is
+&Ice; will start a thread that monitors connections. This thread is
 responsible for shutting down idle connections (see
 <literal>Ice.ConnectionIdleTime</literal>), as well as for enforcing
 AMI timeouts. The default value is the value of
@@ -618,7 +618,7 @@ Ice.ProgramName=<replaceable>name</replaceable>
 <para>
 <replaceable>name</replaceable> is the program name, which is set
 automatically from <literal>argv[0]</literal> during
-initialization. However, a different name can be used by overwriting
+initialization. However, a different name can be used by setting
 this property.
 </para>
 </section>
@@ -640,8 +640,8 @@ been idle for <replaceable>num</replaceable> seconds. This will shut
 down the Communicator's server side, and all threads waiting in
 <literal>Communicator::waitForShutdown</literal> will return. After
 that, a server will typically do some cleanup work, and then exit. The
-default value is zero, meaning that the server won't shut down after
-it has been idle for some time.
+default value is zero, meaning that the server will not shut down
+automatically.
 </para>
 </section>
 </section>
@@ -656,8 +656,8 @@ Ice.UseSyslog=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-a special logger is installed, which logs to the syslog facility
-instead of to standard error output. The identfier for syslog is the
+a special logger is installed which logs to the syslog facility
+instead of standard error. The identifier for syslog is the
 value of <literal>Ice.ProgramName</literal>. (Unix only.)
 </para>
 </section>
@@ -673,10 +673,9 @@ Ice.NullHandleAbort=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-calling operations using a null smart pointer (i.e., a handle) cause
-the program to abort instead of raising an
-<literal>IceUtil::NullHandleException</literal> exception to be
-raised.. (C++ only.)
+invoking an operation using a null smart pointer (i.e., a handle)
+causes the program to abort immediately instead of raising
+<literal>IceUtil::NullHandleException</literal>. (C++ only.)
 </para>
 </section>
 </section>
@@ -696,7 +695,7 @@ IceSSL.Trace.Security=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The Security extension tracing level:
+The SSL plug-in tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
@@ -710,8 +709,8 @@ The Security extension tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes warnings during
-configuration file parse step.
+<entry>Like 1, but more verbose, including warnings during
+configuration file parsing.
 </entry>
 </row>
 </tbody>
@@ -731,7 +730,7 @@ IceSSL.Server.CertPath=<replaceable>path</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the path (relative or absolute) where the SSL Extension can
+Defines the path (relative or absolute) where the SSL plug-in can
 find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
 parameter files.
 </para>
@@ -758,20 +757,20 @@ IceSSL.Server.Config=<replaceable>config_file</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the XML-based configuration file that the SSL Extension will
-use to load initialization information and certificates from. If one of these
-properties contains a relative path, the path will be interpreted in terms of
-the matching <literal>IceSSL.Client.CertPath</literal> or
-<literal>IceSSL.Server.CertPath</literal>.
+Defines the XML-based configuration file from which the SSL plug-in will
+load initialization information and certificates. If the property
+contains a relative path, the path will be interpreted relative to
+the certificate path defined by <literal>IceSSL.Client.CertPath</literal>
+or <literal>IceSSL.Server.CertPath</literal>.
 </para>
 <para>
-Xerces-c, the XML parser used to read this file, will look for the DTD file in
-the same directory that it finds the XML configuration file.
+Xerces-c, the XML parser used to read this file, will look for the DTD file
+in the same directory that it finds the XML configuration file.
 </para>
 <para>
 Depending on whether the application is running in client mode, server mode or
 both modes, a valid value for one or both of these parameters must be specified
-for the proper operation of the &IceSSL; extension.
+for the proper operation of the &IceSSL; plug-in.
 </para>
 </section>
 </section>
@@ -779,17 +778,17 @@ for the proper operation of the &IceSSL; extension.
 <section><title>IceSSL.Client.Handshake.Retries</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.Handshake.Retries=<replaceable>number</replaceable>
+IceSSL.Client.Handshake.Retries=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 IceSSL clients attempt to perform an entire SSL handshake in the connection
-phase, during the setup of the SslTransceiver.  When attempting this handshake,
-it is possible that the client will timeout waiting for a response from the
-server.  This property makes it possible to change the number of handshake
-retries the client attempts before throwing a ConnectionFailedException.
+phase. When attempting this handshake, it is possible that the client will
+timeout waiting for a response from the server. This property specifies
+the number of handshake retries the client attempts before throwing a
+<literal>Ice::ConnectionFailedException</literal>.
 </para>
 <para>
 If not specified, the default value for this property is 10 retries.
@@ -800,16 +799,18 @@ If not specified, the default value for this property is 10 retries.
 <section><title>IceSSL.Client.Passphrase.Retries, IceSSL.Server.Passphrase.Retries</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.Passphrase.Retries=<replaceable>number of retries</replaceable>
-IceSSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
+IceSSL.Client.Passphrase.Retries=<replaceable>num</replaceable>
+IceSSL.Server.Passphrase.Retries=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-When &IceSSL; is directed to use a private key in a PEM file that has been encrypted, a prompt
-is displayed "Enter PEM pass phrase:".  In the case that the passphrase is incorrectly entered,
-these properties define how many retries the user will get before &IceSSL; shuts down.
+When &IceSSL; is directed to use a private key in a PEM file that has
+been encrypted, a prompt is displayed <literal>Enter PEM pass
+phrase:</literal>. If the passphrase is entered incorrectly, these
+properties determine how many retries the user will be allowed before
+&IceSSL; shuts down.
 </para>
 <para>
 If not specified, the default value for these properties is 5 retries.
@@ -827,10 +828,10 @@ IceSSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</
 <section>
 <title>Description</title>
 <para>
-These properties provides a method by which the RSA private key and public key (certificate)
-used by the Server context may be overridden from those specified in the config file
-(specified in <literal>IceSSL.Server.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
+These properties override the RSA private key and public key (certificate)
+specified in the config file (<literal>IceSSL.Server.Config</literal>) for
+the Server context. The value must be the DER representation of the private
+and public keys, base64 encoded.
 </para>
 <para>
 There are no default values for these properties.
@@ -848,10 +849,10 @@ IceSSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</
 <section>
 <title>Description</title>
 <para>
-These properties provides a method by which the DSA private key and public key (certificate)
-used by the Server context may be overridden from those specified in the config file
-(specified in <literal>IceSSL.Server.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
+These properties override the DSA private key and public key (certificate)
+specified in the config file (<literal>IceSSL.Server.Config</literal>) for
+the Server context. The value must be the DER representation of the private
+and public keys, base64 encoded.
 </para>
 <para>
 There are no default values for these properties.
@@ -890,10 +891,10 @@ IceSSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</
 <section>
 <title>Description</title>
 <para>
-These properties provides a method by which the DSA private key and public key (certificate)
-used by the Client context may be overridden from those specified in the config file
-(specified in <literal>IceSSL.Client.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
+These properties override the RSA private key and public key (certificate)
+specified in the config file (<literal>IceSSL.Client.Config</literal>) for
+the Client context. The value must be the DER representation of the private
+and public keys, base64 encoded.
 </para>
 <para>
 There are no default values for these properties.
@@ -911,9 +912,9 @@ IceSSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</re
 <section>
 <title>Description</title>
 <para>
-These properties provide a method by which one may override any trusted Certificate
-Authority (CA) certificates specified in <literal>IceSSL.Server.Config</literal> or
-<literal>IceSSL.Client.Config</literal>.  The new certificate in question is represented
+These properties override any trusted Certificate Authority (CA) certificates
+specified in <literal>IceSSL.Server.Config</literal> or
+<literal>IceSSL.Client.Config</literal>. The new certificate is represented
 as the base64 encoding of the DER binary representation of the certificate.
 </para>
 <para>
@@ -969,7 +970,7 @@ IceBox.PrintServicesReady=<replaceable>token</replaceable>
 <title>Description</title>
 <para>
 The service manager will print "<replaceable>token</replaceable>
-ready" on standard output after initialization of all the service is
+ready" on standard output after initialization of all the services is
 done. This is useful for scripts that wish to wait until all services
 are ready to be used.
 </para>
@@ -985,7 +986,7 @@ IceBox.Service.<replaceable>name</replaceable>=<replaceable>entry_point [args]</
 <section>
 <title>Description</title>
 <para>
-Defines a service to be loaded during the &IceBox; initialization.
+Defines a service to be loaded during &IceBox; initialization.
 </para>
 <para>
 In C++, <replaceable>entry_point</replaceable> has the form
@@ -1027,7 +1028,7 @@ IceBox.UseSharedCommunicator.<replaceable>name</replaceable>=<replaceable>num</r
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the service manager will supply the service with the name
-<replaceable>name</replaceable> a communicator wich might be shared by
+<replaceable>name</replaceable> a communicator which might be shared by
 other services.
 </para>
 </section>
@@ -1050,7 +1051,7 @@ IcePack.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
 <para>
 Defines the endpoints of the &IcePack; client interface. The client
 endpoints must be accessible to &Ice; clients that are using &IcePack;
-to locate objects.
+to locate objects (see <literal>Ice.Default.Locator</literal>).
 </para>
 </section>
 </section>
@@ -1066,7 +1067,7 @@ IcePack.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
 <para>
 Defines the endpoints of the &IcePack; server interface. The server
 endpoints must be accessible to &Ice; servers that are using &IcePack;
-to register theirs object adapter endpoints.
+to register their object adapter endpoints.
 </para>
 </section>
 </section>
@@ -1082,12 +1083,12 @@ IcePack.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
 <para>
 Defines the optional administrative endpoints of the &IcePack; admin
 interface. The administrative endpoints must be accessible to clients
-which are using the &IcePack; administrative interface, the &IcePack;
-administrative tool for instance.
+which are using the &IcePack; administrative interface, such as the
+&IcePack; administrative tool.
 </para>
 <note><para>Allowing access to the &IcePack; admin interface is a
-security risk! If you don't specify the administrative endpoints the
-admin interface will be disabled.</para></note>
+security risk! If this property is not defined, the admin interface
+will be disabled.</para></note>
 </section>
 </section>
 
@@ -1132,7 +1133,7 @@ IcePack.Registry.DynamicRegistration=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the locator registry will allow &Ice; servers to set endpoints for
-adapters which haven't been registered.
+object adapters which have not been previously registered.
 </para>
 </section>
 </section>
@@ -1174,17 +1175,17 @@ IcePack.Registry.Trace.AdapterRegistry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The adapter registry tracing level:
+The object adapter registry tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No adapter registry tracing. (default)</entry>
+<entry>No object adapter registry tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace adapter registration, removal.</entry>
+<entry>Trace object adapter registration, removal.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1274,12 +1275,12 @@ IcePack.Node.Name=<replaceable>name</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the name of the &IcePack; node. Nodes need be uniquely
-identify. The node will refuse to start if there's a node with the
-same name already running.
+Defines the name of the &IcePack; node. All nodes using the same
+registry must have unique names. The node will refuse to start if
+there is a node with the same name already running.
 </para>
 <note><para>The default value is the hostname as returned by
-gethostname().</para></note>
+<literal>gethostname()</literal>.</para></note>
 </section>
 </section>
 
@@ -1293,9 +1294,10 @@ IcePack.Node.Data=<replaceable>path</replaceable>
 <title>Description</title>
 <para>
 Defines the path of the &IcePack; node data directory. The node will
-create a db and servers directory in this directory if they don't
-already exists. The db directory contains the node database. The
-servers directory will contain information such as configuration for
+create <literal>db</literal> and <literal>servers</literal>
+subirectories in this directory if they do not already exist. The
+<literal>db</literal> directory contains the node database. The
+<literal>servers</literal> directory contains configuration data for
 each deployed server.
 </para>
 </section>
@@ -1310,11 +1312,11 @@ IcePack.Node.PropertiesOverride=<replaceable>overrides</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines a list (separated by whitespace) of properties which are used
-in addition or which override the properties defined in server
-deployment descriptors. For example in some cases it's desirable to set
-the property <literal>Ice.Default.Host</literal> for servers, but not
-in server deployment descriptors.
+Defines a list of properties which override the properties defined in
+server deployment descriptors. For example, in some cases it is desirable
+to set the property <literal>Ice.Default.Host</literal> for servers, but
+not in server deployment descriptors. The property definitions should
+be separated by whitespace.
 </para>
 </section>
 </section>
@@ -1330,11 +1332,11 @@ IcePack.Node.WaitTime=<replaceable>num</replaceable>
 <para>
 Defines the interval in seconds that &IcePack; will wait for server
 activation and deactivation.</para>
-<para>If a server is automatically activated as a result of a client object
-adapter lookup and if the server doesn't register its object adapters
-during this time interval, &IcePack; will return empty endpoints to
-the client.</para>
-<para>If a server is being gracefully deactivated and &IcePack; doesn't
+<para>If a server is automatically activated and does not register its object
+adapter endpoints within this time interval, the node will assume there is a
+problem with the server and return an emtpy set of endpoints to the client.
+</para>
+<para>If a server is being gracefully deactivated and &IcePack; does not
 detect the server deactivation during this time interval, &IcePack;
 will kill the server.</para>
 <note><para>The default value is 60 seconds.</para></note>
@@ -1381,12 +1383,12 @@ The server tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes server activation and
+<entry>Like 1, but more verbose, including server activation and
 deactivation and more diagnostic messages.</entry>
 </row>
 <row>
 <entry>3</entry>
-<entry>Like 2, but more verbose, includes server transitional state
+<entry>Like 2, but more verbose, including server transitional state
 change (activating and deactivating).</entry>
 </row>
 </tbody>
@@ -1405,27 +1407,27 @@ IcePack.Node.Trace.Adapter=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The adapter tracing level:
+The object adapter tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No adapter tracing. (default)</entry>
+<entry>No object adapter tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace adapter addition, removal.</entry>
+<entry>Trace object adapter addition, removal.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes adapter activation and
+<entry>Like 1, but more verbose, including object adapter activation and
 deactivation and more diagnostic messages.</entry>
 </row>
 <row>
 <entry>3</entry>
-<entry>Like 2, but more verbose, includes adapter transitional state
-change (`waiting for activation' for example).</entry>
+<entry>Like 2, but more verbose, including object adapter transitional state
+change (e.g., `waiting for activation').</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1457,14 +1459,14 @@ The activator tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes process signaling and more
+<entry>Like 1, but more verbose, including process signaling and more
 diagnostic messages on process activation.</entry>
 </row>
 <row>
 <entry>3</entry>
-<entry>Like 2, but more verbose, includes more diagnostic messages on
-process activation (path, working directory and arguments of the
-activated process for instance).</entry>
+<entry>Like 2, but more verbose, including more diagnostic messages on
+process activation (e.g., path, working directory and arguments of the
+activated process).</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1488,7 +1490,7 @@ IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints that the &IceStorm; topic manager uses.
+Defines the endpoints for the &IceStorm; topic manager.
 </para>
 </section>
 </section>
@@ -1516,7 +1518,7 @@ The topic manager tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Like 1, but more verbose, includes QoS information, and other
+<entry>Like 1, but more verbose, including QoS information, and other
 diagnostic information.
 </entry>
 </row>
@@ -1715,7 +1717,7 @@ the server.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also detailed forward routing information from
+<entry>Also trace detailed forward routing information from
 the client to the server.
 </entry>
 </row>
@@ -1750,7 +1752,7 @@ to the client.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also detailed reverse routing information for
+<entry>Also trace detailed reverse routing information for
 callbacks from the server to the client.
 </entry>
 </row>
@@ -1850,7 +1852,7 @@ Glacier.Router.UserId=<replaceable>name</replaceable>
 <title>Description</title>
 <para>
 The authenticated user id. This is usually passed from the &Glacier;
-router starter. The user id is used as argument to
+router starter. The user id is used as an argument to
 <literal>Router::createSession()</literal>.
 </para>
 </section>
@@ -1865,7 +1867,7 @@ Glacier.Router.AllowCategories=<replaceable>list</replaceable>
 <section>
 <title>Description</title>
 <para>
-A whitespace seperated list of categories. If this property is set,
+A whitespace separated list of categories. If this property is set,
 then requests are only permitted to &Ice; objects with an identity
 that matches one of the categories from this list.
 </para>
@@ -1955,14 +1957,16 @@ Glacier.Starter.PropertiesOverride=<replaceable>overrides</replaceable>
 By default, the &Glacier; router starter starts new routers with the
 exact same property set as for the router
 starter. <replaceable>overrides</replaceable> can contain a list
-(separated by whitespace) of properties for the router, which are used
-in addition to the router starter's properties, or which override the
-router starter's properties. For example, in many cases it is
-desirable to set the property <literal>Ice.ServerIdleTime</literal>
-for the router, but not for the router starter. For an idle time of 60
-seconds, this can be done by setting
-<literal>Glacier.Starter.PropertiesOverride=Ice.SeverIdleTime=60</literal>. (Unix
-only.)
+of properties for the router, which are used in addition to the router
+starter's properties, or which override the router starter's properties.
+The property definitions should be separated by whitespace.
+</para>
+<para>
+For example, in many cases it is desirable to set the property
+<literal>Ice.ServerIdleTime</literal> for the router, but not for the
+router starter. For an idle time of 60 seconds, this can be done by setting
+<literal>Glacier.Starter.PropertiesOverride=Ice.ServerIdleTime=60</literal>.
+(Unix only.)
 </para>
 </section>
 </section>
@@ -2044,7 +2048,7 @@ The router starter tracing level: (Unix only.)
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also each successful router startup.
+<entry>Also trace each successful router startup.
 </entry>
 </row>
 </tbody>
@@ -2063,12 +2067,11 @@ Glacier.Starter.Certificate.Country=<replaceable>country code</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the country code
-portion of the Distinguished Name (DN) values that will be present in
-certificates generated by the Glacier Router Starter for client apps
-and the Glacier Router itself. Examples of valid values for this field
-are "US" for the United States and "CA" for Canada. The default value
-is "US".
+This property specifies the country code portion of the Distinguished Name
+(DN) values that will be present in certificates generated by the Glacier
+Router Starter for client applications and the Glacier Router itself.
+Examples of valid values for this field are "US" for the United States and
+"CA" for Canada. The default value is "US".
 </para>
 </section>
 </section>
@@ -2082,12 +2085,11 @@ Glacier.Starter.Certificate.StateProvince=<replaceable>state/province code</repl
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the state or
-province code portion of the Distinguished Name (DN) values that will
-be present in certificates generated by the Glacier Router Starter for
-client apps and the Glacier Router itself.  Examples of valid values
-for this field are "CA" for California and "British Columbia" for
-British Columbia, Canada. The default value is "DC".
+This property specifies the state or province code portion of the
+Distinguished Name (DN) values that will be present in certificates generated
+by the Glacier Router Starter for client applications and the Glacier Router
+itself. Examples of valid values for this field are "CA" for California and
+"British Columbia" for British Columbia, Canada. The default value is "DC".
 </para>
 </section>
 </section>
@@ -2101,11 +2103,10 @@ Glacier.Starter.Certificate.Locality=<replaceable>city or town name</replaceable
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the locality
-portion of the Distinguished Name (DN) values that will be present in
-certificates generated by the Glacier Router Starter for client apps
-and the Glacier Router itself. The locality is usually the name of the
-city or town. The default value is "Washington".
+This property specifies the locality portion of the Distinguished Name (DN)
+values that will be present in certificates generated by the Glacier Router
+Starter for client applications and the Glacier Router itself. The locality
+is usually the name of the city or town. The default value is "Washington".
 </para>
 </section>
 </section>
@@ -2119,12 +2120,11 @@ Glacier.Starter.Certificate.Organization=<replaceable>organization or company na
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the organization
-portion of the Distinguished Name (DN) values that will be present in
-certificates generated by the Glacier Router Starter for client apps
-and the Glacier Router itself. The organization is usually the name of
-the company or organization to which the certificate has been granted.
-The default value is "Some Company Inc.".
+This property specifies the organization portion of the Distinguished Name
+(DN) values that will be present in certificates generated by the Glacier
+Router Starter for client applications and the Glacier Router itself. The
+organization is usually the name of the company or organization to which
+the certificate has been granted. The default value is "Some Company Inc.".
 </para>
 </section>
 </section>
@@ -2138,11 +2138,10 @@ Glacier.Starter.Certificate.OrganizationalUnit=<replaceable>department</replacea
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the
-organizational unit portion of the Distinguished Name (DN) values that
-will be present in certificates generated by the Glacier Router
-Starter for client apps and the Glacier Router itself. The
-organization unit is usually the name of the department within the
+This property specifies the organizational unit portion of the Distinguished
+Name (DN) values that will be present in certificates generated by the
+Glacier Router Starter for client applications and the Glacier Router itself.
+The organization unit is usually the name of the department within the
 company or organization structure to which the certificate has been
 granted. The default value is "Sales".
 </para>
@@ -2158,13 +2157,12 @@ Glacier.Starter.Certificate.CommonName=<replaceable>contact name</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the common name
-portion of the Distinguished Name (DN) values that will be present in
-certificates generated by the Glacier Router Starter for client apps
-and the Glacier Router itself. The common name is usually the name of
-the contact (a person's name) within the company and department to
-which the certificate has been granted. The default value is "John
-Doe".
+This property specifies the common name portion of the Distinguished Name
+(DN) values that will be present in certificates generated by the Glacier
+Router Starter for client applications and the Glacier Router itself. The
+common name is usually the name of the contact (a person's name) within
+the company and department to which the certificate has been granted. The
+default value is "John Doe".
 </para>
 </section>
 </section>
@@ -2178,15 +2176,14 @@ Glacier.Starter.Certificate.BitStrength=<replaceable>number of bits</replaceable
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the bit strength
-which will be used in the generation of certificates by the Glacier Router
-Starter for client apps and the Glacier Router itself.  This value is the
-modulus size of the RSA key.
+This property specifies the bit strength which will be used in the generation
+of certificates by the Glacier Router Starter for client applications and the
+Glacier Router itself. This value is the modulus size of the RSA key.
 </para>
 <para>
 Although modulus size is determined by the needs of the particular application,
 care should be taken not to specify a size that is too large, as certificate
-generation is an expensive operation.  Sizes less than 512 bits are not
+generation is an expensive operation. Sizes less than 512 bits are not
 supported, and sizes that exceed 2048 bits should be chosen with generation
 times in mind. The default value is 1024 bits.
 </para>
@@ -2202,14 +2199,14 @@ Glacier.Starter.Certificate.SecondsValid=<replaceable>seconds</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property provides a method with which to specify the number of seconds
-that certificates generated by the Glacier Router Starter are valid before
-they will expire. The default value of 1 day (86,400 seconds).
+This property specifies the number of seconds that certificates generated
+by the Glacier Router Starter are valid before they will expire. The default
+value of 1 day (86,400 seconds).
 </para>
 </section>
 </section>
 
-<section><title>Glacier.Starter.Certificate.SecondsValid</title>
+<section><title>Glacier.Starter.Certificate.IssuedAdjust</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier.Starter.Certificate.IssuedAdjust=<replaceable>(+/-) seconds</replaceable>
@@ -2218,12 +2215,13 @@ Glacier.Starter.Certificate.IssuedAdjust=<replaceable>(+/-) seconds</replaceable
 <section>
 <title>Description</title>
 <para>
-This property provides a method to adjust the issued timestamp on dynamically
-generated certificates for the Glacier Router.  The default value is 0, which
-sets the issued time based on the system time when the certificate is actually
-created.  Positive adjustments will adjust the timestamp into the future, and
-negative adjustments will cause the timestamp to be in the past by the number
-of seconds indicated.  This adjustment is relative to server time.
+This property adjusts the issued timestamp on dynamically generated
+certificates for the Glacier Router. The default value is 0, which
+sets the issued time based on the system time when the certificate is
+actually created. Positive adjustments will adjust the timestamp into the
+future, and negative adjustments will cause the timestamp to be in the past
+by the number of seconds indicated. This adjustment is relative to server
+time.
 </para>
 </section>
 </section>
@@ -2257,7 +2255,7 @@ The &Freeze; database activity tracing level:
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also database transactions.</entry>
+<entry>Also trace database transactions.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -2290,7 +2288,7 @@ evictor deactivation.</entry>
 </row>
 <row>
 <entry>2</entry>
-<entry>Trace also evictor queue activity.</entry>
+<entry>Also trace evictor queue activity.</entry>
 </row>
 </tbody>
 </tgroup>
