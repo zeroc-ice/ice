@@ -61,6 +61,7 @@ install:: all
 	rm -f $(install_libdir)/$(SONAME)
 	ln -s $(LIBFILENAME) $(install_libdir)/$(SONAME)
 	rm -f $(install_libdir)/$(LIBNAME)
+	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
 	$(INSTALL_PROGRAM) $(TRANSFORM_DB) $(install_bindir)
 
 include .depend
