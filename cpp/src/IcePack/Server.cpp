@@ -197,7 +197,8 @@ int
     locatorRegistryAdapter->setLocator(0);
     LocatorRegistryPtr locatorRegistry = new LocatorRegistryI(adapterManagerProxy);
     LocatorRegistryPrx locatorRegistryProxy =
-	LocatorRegistryPrx::uncheckedCast(locatorRegistryAdapter->add(locatorRegistry, stringToIdentity(adminId)));
+	LocatorRegistryPrx::uncheckedCast(locatorRegistryAdapter->add(locatorRegistry, 
+								      stringToIdentity(locatorRegistryId)));
 
     //
     // Create the "IcePack.Locator" object adapter and register the
