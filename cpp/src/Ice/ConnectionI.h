@@ -72,7 +72,6 @@ public:
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
 
-    int timeout() const;
     IceInternal::EndpointPtr endpoint() const;
 
     void setAdapter(const ObjectAdapterPtr&);
@@ -89,6 +88,7 @@ public:
     virtual void finished(const IceInternal::ThreadPoolPtr&);
     virtual void exception(const LocalException&);
     virtual std::string type() const; // From Connection.
+    virtual Ice::Int timeout() const; // From Connection.
     virtual std::string toString() const;  // From Connection and EvantHandler.
 
     //

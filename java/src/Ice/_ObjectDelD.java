@@ -101,7 +101,7 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public Connection
-    ice_getConnection()
+    ice_connection()
     {
 	throw new CollocationOptimizationException();
     }

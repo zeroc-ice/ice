@@ -481,7 +481,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final Connection
-    ice_getConnection()
+    ice_connection()
     {
         int __cnt = 0;
         while(true)
@@ -489,7 +489,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_getConnection();
+                return __del.ice_connection();
             }
             catch(LocalException __ex)
             {

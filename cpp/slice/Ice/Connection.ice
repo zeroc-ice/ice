@@ -63,6 +63,15 @@ local interface Connection
 
     /**
      *
+     * Get the timeout for the connection.
+     *
+     * @return The connection's timeout.
+     *
+     **/
+    nonmutating int timeout();
+
+    /**
+     *
      * Return a description of the connection as human readable text,
      * suitable for logging or error messages.
      *

@@ -27,5 +27,5 @@ public interface _ObjectDel
                        java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    Connection ice_getConnection();
+    Connection ice_connection();
 }

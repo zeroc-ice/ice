@@ -59,15 +59,22 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_clientProxy == null)
-		// Lazy initialization.
+		if(_clientProxy == null) // Lazy initialization.
 		{
 		    _clientProxy = _router.getClientProxy();
 		    if(_clientProxy == null)
 		    {
 			throw new Ice.NoEndpointException();
 		    }
+
 		    _clientProxy = _clientProxy.ice_router(null); // The client proxy cannot be routed.
+		    
+		    //
+		    // In order to avoid creating a new connection to
+		    // the router, we must use the same timeout as the
+		    // already existing connection.
+		    //
+		    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
 		}
 		
 		return _clientProxy;
@@ -79,6 +86,13 @@ namespace IceInternal
 	    lock(this)
 	    {
 		_clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
+
+		//
+		// In order to avoid creating a new connection to the
+		// router, we must use the same timeout as the already
+		// existing connection.
+		//
+		_clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
 	    }
 	}
 
@@ -91,6 +105,7 @@ namespace IceInternal
 		{
 		    throw new Ice.NoEndpointException();
 		}
+
 		_serverProxy = _serverProxy.ice_router(null); // The server proxy cannot be routed.
 	    }
 	    

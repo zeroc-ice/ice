@@ -234,7 +234,7 @@ Glacier2::RequestQueue::run()
 
 		if(proxy->ice_batchOneway() || proxy->ice_batchDatagram())
 		{
-		    flushSet.insert(proxy->ice_getConnection());
+		    flushSet.insert(proxy->ice_connection());
 		}
 
 		if(_traceLevelRequest >= 1)

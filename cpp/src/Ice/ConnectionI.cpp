@@ -1013,12 +1013,6 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
-int
-Ice::ConnectionI::timeout() const
-{
-    return _endpoint->timeout(); // No mutex protection necessary, _endpoint is immutable.
-}
-
 EndpointPtr
 Ice::ConnectionI::endpoint() const
 {
@@ -1474,6 +1468,12 @@ string
 Ice::ConnectionI::type() const
 {
     return _type; // No mutex lock, _type is immutable.
+}
+
+Ice::Int
+Ice::ConnectionI::timeout() const
+{
+    return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
 }
 
 string

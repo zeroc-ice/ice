@@ -150,7 +150,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public Connection
-    ice_getConnection()
+    ice_connection()
     {
 	return __connection;
     }

@@ -11,6 +11,7 @@
 #include <Ice/Router.h>
 #include <Ice/RoutingTable.h>
 #include <Ice/LocalException.h>
+#include <Ice/Connection.h> // For ice_connection()->timeout().
 #include <Ice/Functional.h>
 
 using namespace std;
@@ -135,7 +136,15 @@ IceInternal::RouterInfo::getClientProxy()
 	{
 	    throw NoEndpointException(__FILE__, __LINE__);
 	}
+
 	_clientProxy = _clientProxy->ice_router(0); // The client proxy cannot be routed.
+
+	//
+	// In order to avoid creating a new connection to the router,
+	// we must use the same timeout as the already existing
+	// connection.
+	//
+	_clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
     }
 
     return _clientProxy;
@@ -145,7 +154,14 @@ void
 IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
 {
     IceUtil::Mutex::Lock sync(*this);
+
     _clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
+
+    //
+    // In order to avoid creating a new connection to the router, we
+    // must use the same timeout as the already existing connection.
+    //
+    _clientProxy = _clientProxy->ice_timeout(_router->ice_connection()->timeout());
 }
 
 ObjectPrx
@@ -160,6 +176,7 @@ IceInternal::RouterInfo::getServerProxy()
 	{
 	    throw NoEndpointException(__FILE__, __LINE__);
 	}
+
 	_serverProxy = _serverProxy->ice_router(0); // The server proxy cannot be routed.
     }
     
@@ -170,6 +187,7 @@ void
 IceInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
 {
     IceUtil::Mutex::Lock sync(*this);
+
     _serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 }
 

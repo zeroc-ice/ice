@@ -886,13 +886,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
     }
 
-    public int
-    timeout()
-    {
-        // No mutex protection necessary, _endpoint is immutable.
-        return _endpoint.timeout();
-    }
-
     public IceInternal.Endpoint
     endpoint()
     {
@@ -1372,7 +1365,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public String
     type()
     {
-        return _type;
+	return _type; // No mutex lock, _type is immutable.
+    }
+
+    public int
+    timeout()
+    {
+	return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
     }
 
     public String

@@ -934,12 +934,6 @@ namespace Ice
 	    }
 	}
 	
-	public int timeout()
-	{
-	    // No mutex protection necessary, _endpoint is immutable.
-	    return _endpoint.timeout();
-	}
-	
 	public IceInternal.Endpoint endpoint()
 	{
 	    // No mutex protection necessary, _endpoint is immutable.
@@ -1389,14 +1383,19 @@ namespace Ice
 	    return _type; // No mutex lock, _type is immutable.
 	}
 
+	public int timeout()
+	{
+	    return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
+	}
+	
 	public string _Ice_toString()
 	{
-	    return _desc; // No mutex lock, _desc is immutable.
+	    return ToString();
 	}
 
 	public override string ToString()
 	{
-	    return _Ice_toString();
+	    return _desc; // No mutex lock, _desc is immutable.
 	}
 	
 	static ConnectionI()

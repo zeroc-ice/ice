@@ -66,7 +66,7 @@ namespace Ice
         ObjectPrx ice_collocationOptimization(bool b);
         ObjectPrx ice_default();
 
-        Connection ice_getConnection();
+        Connection ice_connection();
     }
 
     public class ObjectPrxHelperBase : ObjectPrx
@@ -502,7 +502,7 @@ namespace Ice
             }
         }
 
-        public Connection ice_getConnection()
+        public Connection ice_connection()
         {
             int __cnt = 0;
             while(true)
@@ -510,7 +510,7 @@ namespace Ice
                 try
                 {
                     _ObjectDel __del = __getDelegate();
-                    return __del.ice_getConnection();
+                    return __del.ice_connection();
                 }
                 catch(LocalException __ex)
                 {
@@ -768,7 +768,7 @@ namespace Ice
 	string ice_id(Ice.Context context);
 	bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
 			Ice.Context context);
-        Connection ice_getConnection();
+        Connection ice_connection();
     }
 
     public class _ObjectDelD : _ObjectDel
@@ -852,7 +852,7 @@ namespace Ice
             throw new CollocationOptimizationException();
         }
 	
-        public virtual Connection ice_getConnection()
+        public virtual Connection ice_connection()
         {
             throw new CollocationOptimizationException();
         }
@@ -1038,7 +1038,7 @@ namespace Ice
             }
         }
 	
-        public virtual Connection ice_getConnection()
+        public virtual Connection ice_connection()
         {
             return __connection;
         }

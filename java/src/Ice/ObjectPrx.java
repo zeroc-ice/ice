@@ -62,7 +62,7 @@ public interface ObjectPrx
     ObjectPrx ice_collocationOptimization(boolean b);
     ObjectPrx ice_default();
 
-    Connection ice_getConnection();
+    Connection ice_connection();
 
     boolean equals(java.lang.Object r);
 }

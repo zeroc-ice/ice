@@ -63,7 +63,15 @@ public final class RouterInfo
             {
                 throw new Ice.NoEndpointException();
             }
-            _clientProxy = _clientProxy.ice_router(null); // The client proxy cannot be routed.
+
+	    _clientProxy = _clientProxy.ice_router(null); // The client proxy cannot be routed.
+	    
+	    //
+	    // In order to avoid creating a new connection to the
+	    // router, we must use the same timeout as the already
+	    // existing connection.
+	    //
+	    _clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
         }
 
         return _clientProxy;
@@ -73,6 +81,13 @@ public final class RouterInfo
     setClientProxy(Ice.ObjectPrx clientProxy)
     {
         _clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
+
+	//
+	// In order to avoid creating a new connection to the router,
+	// we must use the same timeout as the already existing
+	// connection.
+	//
+	_clientProxy = _clientProxy.ice_timeout(_router.ice_connection().timeout());
     }
 
     public Ice.ObjectPrx
@@ -85,6 +100,7 @@ public final class RouterInfo
             {
                 throw new Ice.NoEndpointException();
             }
+
             _serverProxy = _serverProxy.ice_router(null); // The server proxy cannot be routed.
         }
 
