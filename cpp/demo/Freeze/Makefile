@@ -12,7 +12,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= phonebook bench
+SUBDIRS		= phonebook bench library
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

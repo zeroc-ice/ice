@@ -21,7 +21,8 @@ exception DatabaseException
 class Contact
 {
     ["nonmutating"] string getName();
-    void setName(string name) throws DatabaseException;
+    void setName(string name)
+	throws DatabaseException;
 
     ["nonmutating"] string getAddress();
     void setAddress(string address);
@@ -34,7 +35,8 @@ class Contact
     // the Contact. It removes the Contact completely, but doesn't
     // touch state.
     //
-    ["nonmutating"] void destroy() throws DatabaseException;
+    ["nonmutating"] void destroy()
+	throws DatabaseException;
 
     string _name;
     string _address;
@@ -46,9 +48,13 @@ sequence<Ice::Identity> Identities; // Needed for slice2freeze
 
 interface PhoneBook
 {
-    Contact* createContact() throws DatabaseException;
-    ["nonmutating"] Contacts findContacts(string name) throws DatabaseException;
-    void setEvictorSize(int size) throws DatabaseException;
+    Contact* createContact()
+	throws DatabaseException;
+    ["nonmutating"] Contacts findContacts(string name)
+	throws DatabaseException;
+
+    void setEvictorSize(int size)
+	throws DatabaseException;
     ["nonmutating"] void shutdown();
 };
 
