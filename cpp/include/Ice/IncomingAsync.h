@@ -26,7 +26,11 @@ namespace IceInternal
 
 class Incoming;
 
-class ICE_API IncomingAsync : public ::IceUtil::Shared
+//
+// We need virtual inheritance from shared, because we use multiple
+// inheritance from IceUtil::Shared for generated AMD code.
+//
+class ICE_API IncomingAsync : virtual public ::IceUtil::Shared
 {
 public:
 
@@ -68,15 +72,33 @@ private:
 namespace Ice
 {
 
-class ICE_API AMD_Object_ice_invoke : public ::IceInternal::IncomingAsync
+class ICE_API AMD_Object_ice_invoke : virtual public ::IceUtil::Shared
 {
 public:
+    
+    virtual void ice_response(bool, const ::std::vector< ::Ice::Byte>&) = 0;
+    virtual void ice_exception(const ::IceUtil::Exception&) = 0;
+};
 
+}
+
+namespace IceAsync
+{
+
+namespace Ice
+{
+
+class ICE_API AMD_Object_ice_invoke : public ::Ice::AMD_Object_ice_invoke, public ::IceInternal::IncomingAsync
+{
+public:
+    
     AMD_Object_ice_invoke(::IceInternal::Incoming&);
     
-    void ice_response(bool, const ::std::vector< ::Ice::Byte>&);
-    void ice_exception(const ::IceUtil::Exception&);
+    virtual void ice_response(bool, const ::std::vector< ::Ice::Byte>&);
+    virtual void ice_exception(const ::IceUtil::Exception&);
 };
+
+}
 
 }
 

@@ -279,13 +279,13 @@ IceInternal::IncomingAsync::finishInvoke()
     _is.endReadEncaps();
 }
 
-Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
+IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
     IncomingAsync(in)
 {
 }
 
 void
-Ice::AMD_Object_ice_invoke::ice_response(bool ok, const ::std::vector< ::Ice::Byte>& outParams)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const ::std::vector< ::Ice::Byte>& outParams)
 {
     try
     {
@@ -301,7 +301,7 @@ Ice::AMD_Object_ice_invoke::ice_response(bool ok, const ::std::vector< ::Ice::By
 }
 
 void
-Ice::AMD_Object_ice_invoke::ice_exception(const Exception& ex)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const Exception& ex)
 {
     __exception(ex);
 }

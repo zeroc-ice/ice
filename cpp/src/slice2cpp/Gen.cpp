@@ -246,6 +246,9 @@ Slice::Gen::generate(const UnitPtr& unit)
     AsyncVisitor asyncVisitor(H, C, _dllExport);
     unit->visit(&asyncVisitor);
 
+    AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
+    unit->visit(&asyncImplVisitor);
+
     ProxyVisitor proxyVisitor(H, C, _dllExport);
     unit->visit(&proxyVisitor);
 
@@ -1240,12 +1243,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = "AMI_" + fixKwd(cl->name());
+    string classNameAMI = "AMI_" + fixKwd(cl->name());
     string classScope = fixKwd(cl->scope());
-    string classScoped = classScope + className;
+    string classScopedAMI = classScope + classNameAMI;
 
-    string paramsAMI = "(const " + classScoped + '_' + name + "Ptr&, ";
-    string paramsDeclAMI = "(const " + classScoped + '_' + name + "Ptr& __cb, "; // With declarators
+    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&, ";
+    string paramsDeclAMI = "(const " + classScopedAMI + '_' + name + "Ptr& __cb, "; // With declarators
     string argsAMI = "(__cb, ";
 
     ParamDeclList paramList = p->parameters();
@@ -1455,11 +1458,11 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = "AMI_" + fixKwd(cl->name());
+    string classNameAMI = "AMI_" + fixKwd(cl->name());
     string classScope = fixKwd(cl->scope());
-    string classScoped = classScope + className;
+    string classScopedAMI = classScope + classNameAMI;
 
-    string paramsAMI = "(const " + classScoped + '_' + name + "Ptr&, ";
+    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&, ";
 
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -1594,12 +1597,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = "AMI_" + fixKwd(cl->name());
+    string classNameAMI = "AMI_" + fixKwd(cl->name());
     string classScope = fixKwd(cl->scope());
-    string classScoped = classScope + className;
+    string classScopedAMI = classScope + classNameAMI;
 
-    string paramsAMI = "(const " + classScoped + '_' + name + "Ptr&, ";
-    string paramsDeclAMI = "(const " + classScoped + '_' + name + "Ptr& __cb, "; // With declarators
+    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&, ";
+    string paramsDeclAMI = "(const " + classScopedAMI + '_' + name + "Ptr& __cb, "; // With declarators
 
     TypeStringList inParams;
     TypeStringList outParams;
@@ -1834,11 +1837,11 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = "AMI_" + fixKwd(cl->name());
+    string classNameAMI = "AMI_" + fixKwd(cl->name());
     string classScope = fixKwd(cl->scope());
-    string classScoped = classScope + className;
+    string classScopedAMI = classScope + classNameAMI;
 
-    string paramsAMI = "(const " + classScoped + '_' + name + "Ptr&, ";
+    string paramsAMI = "(const " + classScopedAMI + '_' + name + "Ptr&, ";
 
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -2361,12 +2364,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string className = "AMD_" + fixKwd(cl->name());
+    string classNameAMD = "AMD_" + fixKwd(cl->name());
     string classScope = fixKwd(cl->scope());
-    string classScoped = classScope + className;
+    string classScopedAMD = classScope + classNameAMD;
 
-    string paramsAMD = "(const " + classScoped + '_' + name + "Ptr&, ";
-    string paramsDeclAMD = "(const " + classScoped + '_' + name + "Ptr& __cb, "; // With declarators
+    string paramsAMD = "(const " + classScopedAMD + '_' + name + "Ptr&, ";
+    string paramsDeclAMD = "(const " + classScopedAMD + '_' + name + "Ptr& __cb, "; // With declarators
     string argsAMD = "(__cb, ";
 
     TypeStringList inParams;
@@ -2523,7 +2526,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
-	    C << nl << classScoped << '_' << name << "Ptr __cb = new " << classScoped << '_' << name << "(__in);";
+	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new ::IceAsync" << classScopedAMD << '_' << name
+	      << "(__in);";
 	    C << nl << name << "_async" << argsAMD << ';';
 	    C << nl << "return ::IceInternal::DispatchAsync;";
 	}	    
@@ -3242,7 +3246,136 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
 	H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
-	  << " : public ::IceInternal::IncomingAsync";
+	  << " : virtual public ::IceUtil::Shared";
+	H << sb;
+	H.dec();
+	H << nl << "public:";
+	H.inc();
+	H << sp;
+	H << nl << "virtual void ice_response(" << params << ") = 0;";
+	H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
+	H << eb << ';';
+	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMD << '_' << name << "> "
+	  << classNameAMD << '_' << name  << "Ptr;";
+    }
+}
+
+Slice::Gen::AsyncImplVisitor::AsyncImplVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
+{
+}
+
+bool
+Slice::Gen::AsyncImplVisitor::visitUnitStart(const UnitPtr& p)
+{
+    if(!p->hasNonLocalClassDecls() || (/*!p->hasContentsWithMetaData("ami") &&*/ !p->hasContentsWithMetaData("amd")))
+    {
+	return false;
+    }
+
+    H << sp << nl << "namespace IceAsync" << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::AsyncImplVisitor::visitUnitEnd(const UnitPtr& p)
+{
+    H << sp << nl << '}';
+}
+    
+bool
+Slice::Gen::AsyncImplVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!p->hasNonLocalClassDecls() || (!p->hasContentsWithMetaData("ami") && !p->hasContentsWithMetaData("ami")))
+    {
+	return false;
+    }
+
+    string name = fixKwd(p->name());
+    
+    H << sp << nl << "namespace " << name << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::AsyncImplVisitor::visitModuleEnd(const ModulePtr& p)
+{
+    H << sp << nl << '}';
+}
+
+void
+Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
+{
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    
+    if(cl->isLocal() ||
+       (/*!cl->hasMetaData("ami") && !p->hasMetaData("ami") &&*/ !cl->hasMetaData("amd") && !p->hasMetaData("amd")))
+    {
+	return;
+    }
+
+    string name = fixKwd(p->name());
+    
+//    string classNameAMI = "AMI_" + fixKwd(cl->name());
+    string classNameAMD = "AMD_" + fixKwd(cl->name());
+    string classScope = fixKwd(cl->scope());
+//    string classScopedAMI = classScope + classNameAMI;
+    string classScopedAMD = classScope + classNameAMD;
+    
+    string params;
+    string paramsDecl; // With declarators
+    string args;
+    
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+    
+    TypePtr ret = p->returnType();
+    string retS = inputTypeToString(ret);
+    
+    if(ret)
+    {
+	params += retS;
+	paramsDecl += retS;
+	paramsDecl += ' ';
+	paramsDecl += "__ret";
+	args += "__ret";
+    }
+    
+    TypeStringList outParams;
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	if((*q)->isOutParam())
+	{
+	    string name = fixKwd((*q)->name());
+	    TypePtr type = (*q)->type();
+	    string typeString = inputTypeToString(type);
+	    
+	    if(ret || !outParams.empty())
+	    {
+		params += ", ";
+		paramsDecl += ", ";
+		args += ", ";
+	    }
+	    
+	    params += typeString;
+	    paramsDecl += typeString;
+	    paramsDecl += ' ';
+	    paramsDecl += name;
+	    args += name;
+	    
+	    outParams.push_back(make_pair(type, name));
+	}
+    }
+
+    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
+    {
+	H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
+	  << " : public " << classScopedAMD  << '_' << name << ", public ::IceInternal::IncomingAsync";
 	H << sb;
 	H.dec();
 	H << nl << "public:";
@@ -3253,10 +3386,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << nl << "virtual void ice_response(" << params << ");";
 	H << nl << "virtual void ice_exception(const ::Ice::Exception&);";
 	H << eb << ';';
-	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMD << '_' << name << "> "
-	  << classNameAMD << '_' << name  << "Ptr;";
 	
-	C << sp << nl << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
+	C << sp << nl << "::IceAsync" << classScopedAMD << '_' << name << "::" << classNameAMD << '_' << name
 	  << "(::IceInternal::Incoming& in) :";
 	C.inc();
 	C << nl << "IncomingAsync(in)";
@@ -3264,7 +3395,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << eb;
 
-	C << sp << nl << "void" << nl << classScopedAMD << '_' << name << "::ice_response(" << paramsDecl << ')';
+	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name << "::ice_response("
+	  << paramsDecl << ')';
 	C << sb;
 	if(ret || !outParams.empty())
 	{
@@ -3282,7 +3414,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__response(true);";
 	C << eb;
 
-	C << sp << nl << "void" << nl << classScopedAMD << '_' << name
+	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception(const ::Ice::Exception& ex)";
 	C << sb;
 	if(throws.empty())
