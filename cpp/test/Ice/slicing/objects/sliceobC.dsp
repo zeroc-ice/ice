@@ -99,11 +99,11 @@ SOURCE=.\ClientPrivate.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientTest.cpp
+SOURCE=.\Forward.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.cpp
+SOURCE=.\Test.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -115,11 +115,11 @@ SOURCE=.\ClientPrivate.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientTest.h
+SOURCE=.\Forward.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.h
+SOURCE=.\Test.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -166,45 +166,6 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientTest.ice
-
-!IF  "$(CFG)" == "sliceobC - Win32 Release"
-
-USERDEP__CLIENT="../../../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\ClientTest.ice
-
-BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
-
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "sliceobC - Win32 Debug"
-
-USERDEP__CLIENT="..\..\..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\ClientTest.ice
-
-BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
-
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\Forward.ice
 
 !IF  "$(CFG)" == "sliceobC - Win32 Release"
@@ -237,6 +198,31 @@ BuildCmds= \
 "Forward.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Test.ice
+
+!IF  "$(CFG)" == "sliceobC - Win32 Release"
+
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=.\Test.ice
+
+BuildCmds= \
+	..\..\..\..\bin\slice2cpp.exe Test.ice
+
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "sliceobC - Win32 Debug"
 
 !ENDIF 
 

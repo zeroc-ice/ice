@@ -95,7 +95,7 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientTest.cpp
+SOURCE=.\Test.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -103,7 +103,7 @@ SOURCE=.\ClientTest.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\ClientTest.h
+SOURCE=.\Test.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -111,39 +111,25 @@ SOURCE=.\ClientTest.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\ClientTest.ice
+SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "sliceexC - Win32 Release"
 
-USERDEP__CLIEN="../../../../bin/slice2cpp.exe"	
+USERDEP__TEST_="../../../../bin/slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\ClientTest.ice
+InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
+	..\..\..\..\bin\slice2cpp.exe Test.ice
 
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sliceexC - Win32 Debug"
-
-USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\ClientTest.ice
-
-BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
-
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
 
 !ENDIF 
 

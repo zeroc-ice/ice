@@ -87,19 +87,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\ClientTest.cpp
-
-!IF  "$(CFG)" == "sliceobS - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
-
-# ADD CPP /GR
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\Forward.cpp
 # End Source File
 # Begin Source File
@@ -117,16 +104,11 @@ SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerTest.cpp
+SOURCE=.\ServerPrivate.cpp
+# End Source File
+# Begin Source File
 
-!IF  "$(CFG)" == "sliceobS - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
-
-# ADD CPP /GR
-
-!ENDIF 
-
+SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
 
@@ -147,15 +129,15 @@ SOURCE=.\TestI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\ClientTest.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Forward.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerTest.h
+SOURCE=.\ServerPrivate.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Test.h
 # End Source File
 # Begin Source File
 
@@ -165,45 +147,6 @@ SOURCE=.\TestI.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\ClientTest.ice
-
-!IF  "$(CFG)" == "sliceobS - Win32 Release"
-
-USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\ClientTest.ice
-
-BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
-
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
-
-USERDEP__CLIEN="..\..\..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\ClientTest.ice
-
-BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe ClientTest.ice
-
-"ClientTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ClientTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
 # Begin Source File
 
 SOURCE=.\Forward.ice
@@ -244,39 +187,50 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerTest.ice
+SOURCE=.\ServerPrivate.ice
 
 !IF  "$(CFG)" == "sliceobS - Win32 Release"
 
 USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\ServerTest.ice
+InputPath=.\ServerPrivate.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe -I. ServerTest.ice
+	..\..\..\..\bin\slice2cpp.exe -I. ServerPrivate.ice
 
-"ServerTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ServerPrivate.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ServerTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ServerPrivate.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
-USERDEP__SERVE="..\..\..\..\bin\slice2cpp.exe"	"ClientTest.ice"	
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Test.ice
+
+!IF  "$(CFG)" == "sliceobS - Win32 Release"
+
+USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
-InputPath=.\ServerTest.ice
+InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe -I. ServerTest.ice
+	..\..\..\..\bin\slice2cpp.exe Test.ice
 
-"ServerTest.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ServerTest.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
+
+!ELSEIF  "$(CFG)" == "sliceobS - Win32 Debug"
 
 !ENDIF 
 
