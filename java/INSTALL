@@ -11,17 +11,17 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux and Windows 2000/XP, but due
-to the portability of Java, it is very likely that it will also work
-on other platforms for which a suitable Java implementation is
+Ice for Java has been tested under Linux, Solaris and Windows 2000/XP,
+but due to the portability of Java, it is very likely that it will also
+work on other platforms for which a suitable Java implementation is
 available.
 
 Note, however, that you will need the Slice to Java translator (see
-below), which is only available for Linux and Windows 2000/XP. For
-other platforms, you will have to either port Ice for C++ (which
+below), which is only available for Linux, Solaris and Windows 2000/XP.
+For other platforms, you will have to either port Ice for C++ (which
 contains the Slice to Java translator), or you will have to translate
-Slice to Java on a Linux or Windows XP/2000 machine, and copy the
-resulting Java files to your target platform.
+Slice to Java on a supported platform, and copy the resulting Java files
+to your target platform.
 
 
 Java version
@@ -44,24 +44,20 @@ You will need the Slice to Java translator and supporting executables
 and libraries. You can download a pre-compiled archive from our FTP
 server, or you can build Ice for C++ yourself.
 
-The pre-compiled archives are available for Linux and Windows 2000/XP:
-
-Linux:             ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.1-bin-linux.tar.gz
-Windows 2000/XP:   ftp://ftp.zeroc.com/pub/Ice/1.0/Ice-1.0.1-bin-win32.zip
-
-After downloading an archive, extract it into a directory of your
-choosing, and add the 'bin' subdirectory to your PATH.
+The pre-compiled archives are available for the supported platforms
+from http://www.zeroc.com/download.html.
 
 
 Other Ice utilities
 -------------------
 
 Some of the Ice for Java tests and demonstration programs require
-additional Ice for C++ utilities, such as IcePack and Glacier. For space
-reasons, the pre-compiled archives listed above contain only the
-Slice-to-Java translator (slice2java), the Slice-to-Freeze translator
-(slice2freezej), and the documentation generator (slice2docbook). Therefore,
-not all Ice for Java tests can be run without building Ice for C++ yourself.
+additional Ice for C++ utilities, such as IcePack and Glacier. For
+space reasons, the pre-compiled archives ZeroC supplies for Unix
+platforms contain only the Slice-to-Java translator (slice2java),
+the Slice-to-Freeze translator (slice2freezej), and the documentation
+generator (slice2docbook). Therefore, not all Ice for Java tests can
+be run without building Ice for C++ yourself.
 
 
 Berkeley DB
@@ -136,6 +132,9 @@ If you want to rebuild the source code, you will need the 'ant'
 utility, which is available here:
 
 http://ant.apache.org/
+
+You must also install ant's "optional tasks" (optional.jar) in the same
+directory as ant.jar.
 
 After installing ant, run the following commands to completely rebuild
 the Ice for Java source code:
