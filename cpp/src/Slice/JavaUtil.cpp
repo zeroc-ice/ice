@@ -455,13 +455,26 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
+        string dictType = findMetaData(metaData);
         if(mode == TypeModeOut)
         {
             return getAbsolute(dict, package, "", "Holder");
         }
         else
         {
-            return "java.util.Map";
+            if(dictType.empty())
+            {
+                StringList l = dict->getMetaData();
+                dictType = findMetaData(l);
+            }
+            if(!dictType.empty())
+            {
+                return dictType;
+            }
+            else
+            {
+		return "java.util.Map";
+	    }
         }
     }
 
@@ -2452,9 +2465,9 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& p, cons
 						const string& file, const string& line)
 {
     //
-    // Currently only sequence types can be affected by metadata.
+    // Currently only sequence and dictionary types can be affected by metadata.
     //
-    if(!metaData.empty() && !SequencePtr::dynamicCast(p))
+    if(!metaData.empty() && !SequencePtr::dynamicCast(p) && !DictionaryPtr::dynamicCast(p))
     {
 	string str;
 	ContainedPtr cont = ContainedPtr::dynamicCast(p);

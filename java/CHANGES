@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Metadata is now allowed for dictionary types.
+
 - Added support for SSL. The Java plug-in uses the SSL capabilities
   provided by Java 1.4.2. As such, the plug-in is not compatible with
   the Ice thread pool, therefore the property Ice.ThreadPerConnection=1

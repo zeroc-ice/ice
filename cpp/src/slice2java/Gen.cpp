@@ -3176,6 +3176,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         string package = getPackage(p);
         string keyS = typeToString(key, TypeModeIn, package);
         string valueS = typeToString(value, TypeModeIn, package);
+	StringList metaData = p->getMetaData();
+	string dictType = findMetaData(metaData);
         int iter;
         int i;
 
@@ -3365,10 +3367,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    out << eb;
 	}
 
-        out << sp << nl << "public static java.util.Map" << nl << "read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public static " << (dictType.empty() ? "java.util.Map" : dictType);
+        out << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readSize();";
-        out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
+        out << nl << (dictType.empty() ? "java.util.Map" : dictType) << " __r = new "
+	    << (dictType.empty() ? "java.util.HashMap(__sz)" : dictType + "()") << ';';
         out << nl << "for(int __i = 0; __i < __sz; __i++)";
         out << sb;
         iter = 0;
@@ -3569,10 +3573,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             out << eb;
             out << eb;
 
-            out << sp << nl << "public static java.util.Map" << nl << "read(Ice.InputStream __in)";
+	    out << sp << nl << "public static " << (dictType.empty() ? "java.util.Map" : dictType)
+                << nl << "read(Ice.InputStream __in)";
             out << sb;
             out << nl << "int __sz = __in.readSize();";
-            out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
+	    out << nl << (dictType.empty() ? "java.util.Map" : dictType) << " __r = new "
+		<< (dictType.empty() ? "java.util.HashMap(__sz)" : dictType + "()") << ';';
             out << nl << "for(int __i = 0; __i < __sz; __i++)";
             out << sb;
             iter = 0;
