@@ -22,17 +22,18 @@
 namespace Glacier
 {
 
-class Missive;
-typedef IceUtil::Handle<Missive> MissivePtr;
+class Request;
+typedef IceUtil::Handle<Request> RequestPtr;
 
-class Missive : virtual public IceUtil::Shared
+class Request : virtual public IceUtil::Shared
 {
 public:
 
-    Missive(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool);
+    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool, 
+	    const Ice::AMI_Object_ice_invokePtr& = 0);
     
     void invoke();
-    bool override(const MissivePtr&);
+    bool override(const RequestPtr&);
     const Ice::ObjectPrx& getProxy() const;
     const Ice::Current& getCurrent() const;
 
@@ -42,21 +43,23 @@ private:
     std::vector<Ice::Byte> _inParams;
     Ice::Current _current;
     bool _forwardContext;
+    Ice::AMI_Object_ice_invokePtr _amiCB;
     std::string _override;
 };
 
-class MissiveQueue;
-typedef IceUtil::Handle<MissiveQueue> MissiveQueuePtr;
+class RequestQueue;
+typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
 
-class MissiveQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class RequestQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    MissiveQueue(const Ice::CommunicatorPtr&, int, bool, const IceUtil::Time&);
-    virtual ~MissiveQueue();
+    RequestQueue(const Ice::CommunicatorPtr&, int, bool, const IceUtil::Time&);
+    virtual ~RequestQueue();
     
     void destroy();
-    void add(const MissivePtr&);
+    void addMissive(const RequestPtr&);
+    void addRequest(const RequestPtr&);
 
     virtual void run();
 
@@ -67,8 +70,10 @@ private:
     int _traceLevel;
     bool _reverse;
     IceUtil::Time _sleepTime;
+    IceUtil::Time _nextMissiveTime;
 
-    std::vector<MissivePtr> _missives;
+    std::vector<RequestPtr> _missives;
+    std::vector<RequestPtr> _requests;
     bool _destroy;
 };
 

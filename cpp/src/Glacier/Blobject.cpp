@@ -19,16 +19,24 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-Glacier::Blobject::Blobject(const CommunicatorPtr& communicator) :
+Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _communicator(communicator),
-    _logger(communicator->getLogger())
+    _logger(communicator->getLogger()),
+    _reverse(reverse)
 {
 }
 
 Glacier::Blobject::~Blobject()
 {
     assert(!_communicator);
-    assert(!_missiveQueue);
+    assert(!_requestQueue);
+}
+
+void
+Glacier::Blobject::init()
+{
+    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _batchSleepTime);
+    _requestQueueControl = _requestQueue->start();
 }
 
 void
@@ -41,15 +49,9 @@ Glacier::Blobject::destroy()
     _communicator = 0;
     _logger = 0;
 
-    {
-	IceUtil::Mutex::Lock lock(_missiveQueueMutex);
-	if(_missiveQueue)
-	{
-	    _missiveQueue->destroy();
-	    _missiveQueueControl.join();
-	    _missiveQueue = 0;
-	}
-    }
+    _requestQueue->destroy();
+    _requestQueueControl.join();
+    _requestQueue = 0;
 }
 
 class GlacierCB : public AMI_Object_ice_invoke
@@ -84,21 +86,21 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 {
     try
     {
-	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
+	bool missive = modifyProxy(proxy, current);
 
-	if(missiveQueue) // Batch routing?
+	if(missive) // Batch routing?
 	{
 	    vector<Byte> dummy;
 	    amdCB->ice_response(true, dummy);
 
-	    missiveQueue->add(new Missive(proxy, inParams, current, _forwardContext));
+	    _requestQueue->addMissive(new Request(proxy, inParams, current, _forwardContext));
 	}
 	else // Regular routing.
 	{
 	    if(_traceLevel >= 2)
 	    {
 		Trace out(_logger, "Glacier");
-		if(reverse())
+		if(_reverse)
 		{
 		    out << "reverse ";
 		}
@@ -108,33 +110,19 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 		    << "mode = " << current.mode;
 	    }
 
-	    if(proxy->ice_isOneway() || proxy->ice_isDatagram())
-	    {
-		vector<Byte> dummy;
-		amdCB->ice_response(true, dummy);
+	    AMI_Object_ice_invokePtr amiCB;
 
-		if(_forwardContext)
-		{
-		    proxy->ice_invoke(current.operation, current.mode, inParams, dummy, current.ctx);
-		}
-		else
-		{
-		    proxy->ice_invoke(current.operation, current.mode, inParams, dummy);
-		}
+	    if(proxy->ice_isTwoway())
+	    {
+		amiCB = new GlacierCB(amdCB);
 	    }
 	    else
 	    {
-		AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
-
-		if(_forwardContext)
-		{
-		    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
-		}
-		else
-		{
-		    proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
-		}
+		vector<Byte> dummy;
+		amdCB->ice_response(true, dummy);
 	    }
+
+	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amiCB));
 	}
     }
     catch(const Exception& ex)
@@ -142,7 +130,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 	if(_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier");
-	    if(reverse())
+	    if(_reverse)
 	    {
 		out << "reverse ";
 	    }
@@ -155,7 +143,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
     return;
 }
 
-MissiveQueuePtr
+bool
 Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 {
     if(!current.facet.empty())
@@ -163,7 +151,8 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 	proxy = proxy->ice_newFacet(current.facet);
     }
 
-    MissiveQueuePtr missiveQueue;
+    bool missive = false;
+
     Context::const_iterator p = current.ctx.find("_fwd");
     if(p != current.ctx.end())
     {
@@ -175,35 +164,35 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 		case 't':
 		{
 		    proxy = proxy->ice_twoway();
-		    missiveQueue = 0;
+		    missive = false;
 		    break;
 		}
 		
 		case 'o':
 		{
 		    proxy = proxy->ice_oneway();
-		    missiveQueue = 0;
+		    missive = false;
 		    break;
 		}
 		
 		case 'd':
 		{
 		    proxy = proxy->ice_datagram();
-		    missiveQueue = 0;
+		    missive = false;
 		    break;
 		}
 		
 		case 'O':
 		{
 		    proxy = proxy->ice_batchOneway();
-		    missiveQueue = getMissiveQueue();
+		    missive = true;
 		    break;
 		}
 		
 		case 'D':
 		{
 		    proxy = proxy->ice_batchDatagram();
-		    missiveQueue = getMissiveQueue();
+		    missive = true;
 		    break;
 		}
 		
@@ -229,20 +218,5 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 	}
     }
 
-    return missiveQueue;
-}
-
-MissiveQueuePtr
-Glacier::Blobject::getMissiveQueue()
-{
-    //
-    // Lazy missive queue initialization.
-    //
-    IceUtil::Mutex::Lock lock(_missiveQueueMutex);
-    if(!_missiveQueue)
-    {
-	_missiveQueue = new MissiveQueue(_communicator, _traceLevel, reverse(), _batchSleepTime);
-	_missiveQueueControl = _missiveQueue->start();
-    }
-    return _missiveQueue;
+    return missive;
 }

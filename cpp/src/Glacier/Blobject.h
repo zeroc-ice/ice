@@ -16,7 +16,7 @@
 #define BLOBJECT_H
 
 #include <Ice/Ice.h>
-#include <Glacier/Missive.h>
+#include <Glacier/Request.h>
 
 namespace Glacier
 {
@@ -25,20 +25,20 @@ class Blobject : public Ice::BlobjectAsync
 {
 public:
     
-    Blobject(const Ice::CommunicatorPtr&);
+    Blobject(const Ice::CommunicatorPtr&, bool);
     virtual ~Blobject();
 
-    virtual bool reverse() = 0;
-    
+    void init();
     void destroy();
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
-    MissiveQueuePtr modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
+    bool modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
 
 protected:
 
     Ice::CommunicatorPtr _communicator;
     Ice::LoggerPtr _logger;
+    bool _reverse;
 
     int _traceLevel;
     bool _forwardContext;
@@ -46,11 +46,8 @@ protected:
 
 private:
 
-    MissiveQueuePtr getMissiveQueue();
-
-    MissiveQueuePtr _missiveQueue;
-    IceUtil::ThreadControl _missiveQueueControl;
-    IceUtil::Mutex _missiveQueueMutex;
+    RequestQueuePtr _requestQueue;
+    IceUtil::ThreadControl _requestQueueControl;
 };
 
 }

@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003
@@ -24,7 +25,7 @@ using namespace Glacier;
 Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					const IceInternal::RoutingTablePtr& routingTable,
 					const string& allowCategories) :
-    Glacier::Blobject(communicator),
+    Glacier::Blobject(communicator, false),
     _routingTable(routingTable)
 {
     PropertiesPtr properties = _communicator->getProperties();
@@ -32,6 +33,8 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _forwardContext = properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0;
     _batchSleepTime = IceUtil::Time::milliSeconds(
 	properties->getPropertyAsIntWithDefault("Glacier.Router.Client.BatchSleepTime", 250));
+
+    init();
 
     const string ws = " \t";
     string::size_type current = allowCategories.find_first_not_of(ws, 0);
@@ -45,12 +48,6 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     }
     sort(_allowCategories.begin(), _allowCategories.end()); // Must be sorted.
     _allowCategories.erase(unique(_allowCategories.begin(), _allowCategories.end()), _allowCategories.end());
-}
-
-bool
-Glacier::ClientBlobject::reverse()
-{
-    return false;
 }
 
 void

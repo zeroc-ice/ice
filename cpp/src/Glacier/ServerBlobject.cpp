@@ -20,7 +20,7 @@ using namespace Ice;
 using namespace Glacier;
 
 Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
-    Glacier::Blobject(clientAdapter->getCommunicator()),
+    Glacier::Blobject(clientAdapter->getCommunicator(), true),
     _clientAdapter(clientAdapter)
 {
     PropertiesPtr properties = _communicator->getProperties();
@@ -28,12 +28,8 @@ Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
     _forwardContext = properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0;
     _batchSleepTime = IceUtil::Time::milliSeconds(
 	properties->getPropertyAsIntWithDefault("Glacier.Router.Server.BatchSleepTime", 250));
-}
 
-bool
-Glacier::ServerBlobject::reverse()
-{
-    return true;
+    init();
 }
 
 void

@@ -32,7 +32,7 @@ ROBJS		= GlacierRouter.o \
 		  Blobject.o \
 		  ClientBlobject.o \
 		  ServerBlobject.o \
-		  Missive.o
+		  Request.o
 
 SOBJS		= GlacierStarter.o \
 		  StarterI.o

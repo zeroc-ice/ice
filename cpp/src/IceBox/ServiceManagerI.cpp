@@ -357,7 +357,6 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.begin(); p != _services.end(); ++p)
     {
 	ServiceInfo& info = p->second;
-
 	try
 	{
 	    info.service->stop();
@@ -429,13 +428,28 @@ IceBox::ServiceManagerI::stopAll()
 	// leak detector doesn't report potential leaks, and the communicator must be destroyed before 
 	// the library is released since the library will destroy its global state.
 	//
-	info.service = 0;
+	try
+	{
+	    info.service = 0;
+	}
+	catch(const Exception& ex)
+	{
+	    Warning out(_logger);
+	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << ex;
+	}
+	catch(...)
+	{
+            Warning out(_logger);
+	    out << "ServiceManager: unknown exception in stop for service " << p->first;
+	}
 
 	if(info.communicator)
 	{
 	    try
 	    {
 		info.communicator->destroy();
+		info.communicator = 0;
 	    }
 	    catch(const Exception& ex)
 	    {
@@ -443,10 +457,23 @@ IceBox::ServiceManagerI::stopAll()
 		out << "ServiceManager: exception in stop for service " << p->first << ":\n";
 		out << ex;
 	    }
-	    info.communicator = 0;
 	}
 	
-	info.library = 0;
+	try
+	{
+	    info.library = 0;
+	}
+	catch(const Exception& ex)
+	{
+	    Warning out(_logger);
+	    out << "ServiceManager: exception in stop for service " << p->first << ":\n";
+	    out << ex;
+	}
+	catch(...)
+	{
+            Warning out(_logger);
+	    out << "ServiceManager: unknown exception in stop for service " << p->first;
+	}
     }
 
     _services.clear();
