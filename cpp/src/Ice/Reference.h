@@ -186,8 +186,8 @@ protected:
 private:
 
     // TODO: Add leading underscore for private members.
-    bool collocationOptimization;
     RouterInfoPtr routerInfo; // Null if no router is used.
+    bool collocationOptimization;
 };
 
 class DirectReference : public RoutableReference

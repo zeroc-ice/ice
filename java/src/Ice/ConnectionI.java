@@ -173,6 +173,19 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
     }
 
+    public synchronized void
+    close(boolean force)
+    {
+	if(force)
+	{
+	    setState(StateClosed, new ForcedCloseConnectionException());
+	}
+	else
+	{
+	    setState(StateClosing, new CloseConnectionException());
+	}
+    }
+
     public synchronized boolean
     isValidated()
     {

@@ -41,7 +41,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 	serverProxy = serverAdapter->createProxy(ident);
 	
 	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-	serverBlobject = new ServerBlobject(_communicator, connection);
+	serverBlobject = new ServerBlobject(_communicator, _connection);
     }
 }
 
@@ -59,6 +59,8 @@ Glacier2::RouterI::destroy()
 
     assert(!_destroy);
     _destroy = true;
+
+    _connection->close(true);
 
     _clientBlobject->destroy();
     
@@ -92,14 +94,11 @@ Glacier2::RouterI::getServerProxy(const Current&) const
 }
 
 void
-Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
+Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    if(_destroy)
-    {
-	throw ObjectNotExistException(__FILE__, __LINE__);
-    }
+    assert(!_destroy);
 
     if(_routingTableTraceLevel)
     {
@@ -130,10 +129,7 @@ Glacier2::RouterI::getClientBlobject() const
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    if(_destroy)
-    {
-	throw ObjectNotExistException(__FILE__, __LINE__);
-    }
+    assert(!_destroy);
 
     _timestamp = IceUtil::Time::now();
 
@@ -145,10 +141,7 @@ Glacier2::RouterI::getServerBlobject() const
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    if(_destroy)
-    {
-	throw ObjectNotExistException(__FILE__, __LINE__);
-    }
+    assert(!_destroy);
 
     //
     // We do not update the timestamp for callbacks from the

@@ -395,12 +395,6 @@ local exception ConnectionTimeoutException extends TimeoutException
  **/
 local exception ProtocolException
 {
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-//    string reason;
 };
 
 /**
@@ -609,6 +603,12 @@ local exception CompressionNotSupportedException extends ProtocolException
  **/
 local exception CompressionException extends ProtocolException
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 /**
@@ -630,6 +630,12 @@ local exception DatagramLimitException extends ProtocolException
  **/
 local exception MarshalException extends ProtocolException
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
 };
 
 /**

@@ -209,9 +209,14 @@ void
 Ice::ConnectionI::close(bool force)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    
-    
+    if(force)
+    {
+	setState(StateClosed, ForcedCloseConnectionException(__FILE__, __LINE__));
+    }
+    else
+    {
+	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
+    }
 }
 
 bool
@@ -1479,6 +1484,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
 		// Don't warn about certain expected exceptions.
 		//
 		if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+		     dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
 		     dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
 		     dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
 		     dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||

@@ -214,6 +214,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	
 	if(_destroy)
 	{
+	    current.con->close(true);
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
 
@@ -251,6 +252,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	    
 	    if(_destroy)
 	    {
+		current.con->close(true);
 		throw ObjectNotExistException(__FILE__, __LINE__);
 	    }
 
@@ -405,6 +407,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 		// Ignore all exceptions here.
 	    }
 	    
+	    current.con->close(true);
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
 	
@@ -440,6 +443,7 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 	
 	if(_destroy)
 	{
+	    current.con->close(true);
 	    throw ObjectNotExistException(__FILE__, __LINE__);
 	}
 	
@@ -506,6 +510,7 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
 
     if(_destroy)
     {
+	connection->close(true);
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
@@ -525,6 +530,7 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
     }
     else
     {
+	connection->close(true);
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
 }

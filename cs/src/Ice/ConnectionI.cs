@@ -183,6 +183,21 @@ namespace Ice
 	    }
 	}
 	
+	public void close(bool force)
+	{
+	    lock(this)
+	    {
+		if(force)
+		{
+		    setState(StateClosed, new ForcedCloseConnectionException());
+		}
+		else
+		{
+		    setState(StateClosing, new CloseConnectionException());
+		}
+	    }
+	}
+
 	public bool isValidated()
 	{
 	    lock(this)
