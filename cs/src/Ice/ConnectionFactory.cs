@@ -587,15 +587,9 @@ namespace IceInternal
 		    }
 
                     //
-                    // The Connection object does not take the compression flag of
-                    // endpoints into account, but instead gets the information
-                    // about whether messages should be compressed or not from
-                    // other sources. In order to allow connection sharing for
-                    // endpoints that differ in the value of the compression flag
-                    // only, we always set the compression flag to false here in
-                    // this connection factory.
-                    //
-                    endpoints[j] = endpoints[j].compress(false);
+		    // Do not clear the compression flag here -- we need it to set the `compress' out
+		    // parameter below.
+		    //
 		}
 		
 		//
@@ -729,7 +723,7 @@ namespace IceInternal
 			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
 			}
 			// It is not necessary to check for overrideTimeout,
-			// the endpoint has already been modified this this
+			// the endpoint has already been modified with this
 			// override, if set.
 			else
 			{
@@ -847,7 +841,7 @@ namespace IceInternal
 			    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 			}
 
-                        //
+			//
                         // The Connection object does not take the compression flag of
                         // endpoints into account, but instead gets the information
                         // about whether messages should be compressed or not from

@@ -465,13 +465,17 @@ namespace Ice
 			_routerEndpoints.Add(endpoints[i]);
 		    }
 		    _routerEndpoints.Sort(); // Must be sorted.
+
+		    //
+		    // Remove duplicate endpoints, so we have a list of unique endpoints.
+		    //
 		    for(int i = 0; i < _routerEndpoints.Count - 1; ++i)
 		    {
 			System.Object o1 = _routerEndpoints[i];
 			System.Object o2 = _routerEndpoints[i + 1];
 			if(o1.Equals(o2))
 			{
-			    _routerEndpoints.Remove(i);	// TODO: invalidates iterator?
+			    _routerEndpoints.Remove(i);
 			}
 		    }
 		    
