@@ -10,17 +10,141 @@
 
 #include <IceUtil/InputUtil.h>
 #include <stdlib.h>
+#include <errno.h>
 
 using namespace std;
 
 namespace IceUtil
 {
 
+//
+// strToInt64 emulates strtoll() for Windows
+//
+
 Int64
 strToInt64(const char* s, char** endptr, int base)
 {
 #if defined(_WIN32)
-    // TODO: WIN32 implementation is missing
+    //
+    // Assume nothing will be there to convert for now
+    //
+    if(endptr)
+    {
+	*endptr = const_cast<char *>(s);
+    }
+
+    //
+    // Skip leading whitespace
+    //
+    while(*s && isspace(*s))
+    {
+	++s;
+    }
+
+    //
+    // Check for sign
+    //
+    int sign = 1;
+    if (*s == '+')
+    {
+	++s;
+    } else if (*s == '-')
+    {
+	sign = -1;
+	++s;
+    }
+
+    //
+    // Check that base is valid
+    //
+    if(base == 0)
+    {
+	if(*s == '0')
+	{
+	    base = 8;
+	    if(*++s == 'x' || *s == 'X')
+	    {
+		base = 16;
+		++s;
+	    }
+	}
+	else
+	{
+	    base = 10;
+	}
+    }
+    else if(base < 2 || base > 36)
+    {
+	errno = EINVAL;
+	return 0;
+    }
+
+    //
+    // Check that we have something left to parse
+    //
+    if (*s == '/0')
+    {
+	return 0;
+    }
+
+    static const string allDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const string validDigits(allDigits.begin(), allDigits.begin() + base);
+
+    //
+    // Table to convert ASCII digits/letters into their value (100 for unused slots)
+    //
+static const char digitVal[] =
+    {
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9,			// '0' - '9'
+	100, 100, 100, 100, 100, 100, 100,		// punctuation
+	10, 11, 12, 13, 14, 15, 16, 17, 18, 19,	// 'A' - 'J'
+	20, 21, 22, 23, 24, 25, 26, 27, 28, 29,	// 'K' - 'T'
+	30, 31, 32, 33, 34, 35					// 'U' - 'Z'
+    };
+
+    Int64 result = 0;
+    bool overflow = false;
+const __int64 limit = INT64MAX;
+    while(*s && validDigits.find_first_of(toupper(*s)) != validDigits.npos)
+    {	
+	if(!overflow)
+	{
+	    int digit = digitVal[toupper(*s++) - '0'];
+	    assert(digit != 100);
+	    if(result < limit / base)
+	    {
+		result *= base;
+		result += digit;
+	    }
+	    else if((digit <= limit % base) || (sign == -1 && digit == limit % base + 1))
+	    {
+		result *= base;
+		result += digit;
+	    }
+	    else
+	    {
+		overflow = true;
+		result = sign == -1 ? INT64MIN : INT64MAX;
+	    }
+	}
+    }
+
+    if(overflow)
+    {
+	errno = ERANGE;
+    }
+    else
+    {
+	result *= sign;
+    }
+
+    if(endptr)
+    {
+	*endptr = const_cast<char *>(s);
+    }
+
+    return result;
+
 #else
     return strtoll(s, endptr, base);
 #endif
@@ -51,7 +175,7 @@ stringToInt64(const string& stringToParse, Int64& result, string::size_type& pos
     errno = 0;
     const char* startp = nonWhite.c_str();
     char* endp;
-    result = strtoll(startp, &endp, 0);
+    result = strToInt64(startp, &endp, 0);
     pos = *endp == '\0' ? string::npos : (i - stringToParse.begin()) + (endp - startp);
     return startp != endp && errno != ERANGE && errno != EINVAL;
 }

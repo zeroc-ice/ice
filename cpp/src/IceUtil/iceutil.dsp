@@ -116,6 +116,10 @@ SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\InputUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputUtil.cpp
 # End Source File
 # Begin Source File
@@ -173,6 +177,10 @@ SOURCE=..\..\include\IceUtil\Handle.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\IceUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\InputUtil.h
 # End Source File
 # Begin Source File
 

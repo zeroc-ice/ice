@@ -677,6 +677,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name locationS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name inpututil
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1313,6 +1316,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "inpututil"=.\test\IceUtil\inpututil\inpututil.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
