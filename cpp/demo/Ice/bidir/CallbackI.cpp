@@ -51,32 +51,29 @@ CallbackSenderI::run()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-    while(true)
+    while(!_destroy)
     {
 	timedWait(IceUtil::Time::seconds(2));
 
-	if(_destroy)
+	if(!_destroy && !_clients.empty())
 	{
-	    return;
-	}
-
-	++_num;
-	
-	set<CallbackReceiverPrx>::iterator p = _clients.begin();
-	while(p != _clients.end())
-	{
-	    try
+	    ++_num;
+	    
+	    set<CallbackReceiverPrx>::iterator p = _clients.begin();
+	    while(p != _clients.end())
 	    {
-		(*p)->callback(_num);
-		++p;
-	    }
-	    catch(const Exception& ex)
-	    {
-		cerr << "removing client `" << identityToString((*p)->ice_getIdentity()) << "':\n"
-		     << ex << endl;
-		_clients.erase(p++);
+		try
+		{
+		    (*p)->callback(_num);
+		    ++p;
+		}
+		catch(const Exception& ex)
+		{
+		    cerr << "removing client `" << identityToString((*p)->ice_getIdentity()) << "':\n"
+			 << ex << endl;
+		    _clients.erase(p++);
+		}
 	    }
 	}
     }
 }
-
