@@ -56,7 +56,10 @@ subscriber = os.path.join(testdir, "subscriber")
 # is used later to ensure that the subscriber actually goes away.
 #
 subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-os.remove(subscriberLockFile)
+try:
+    os.remove(subscriberLockFile)
+except:
+    pass # Ignore errors if the lock file is not present
 
 print "starting subscriber...",
 command = subscriber + updatedClientServerOptions + iceStormEndpoint + r' ' + subscriberLockFile
