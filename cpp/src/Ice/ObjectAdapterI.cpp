@@ -29,6 +29,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/ThreadPool.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -191,7 +192,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
     //
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
-    
+
     //
     // Now it's also time to clean up our servants and servant
     // locators.
@@ -199,6 +200,15 @@ Ice::ObjectAdapterI::waitForDeactivate()
     if(_servantManager)
     {
 	_servantManager->destroy();
+    }
+
+    //
+    // Destroy the thread pool.
+    //
+    if(_threadPool)
+    {
+	_threadPool->destroy();
+	_threadPool->joinWithAllThreads();
     }
 
     {
@@ -491,12 +501,23 @@ Ice::ObjectAdapterI::decDirectCount()
 ThreadPoolPtr
 Ice::ObjectAdapterI::getThreadPool() const
 {
-    // No mutex lock necessary, _threadPool is immutable after
-    // creation until it is removed in waitForDeactivate().
+    // No mutex lock necessary, _threadPool and _instance are
+    // immutable after creation until it is removed in
+    // waitForDeactivate().
 
     // Not check for deactivation here!
 
-    assert(_threadPool); // Must not be called after waitForDeactivate().
+    assert(_threadPool || _instance); // Must not be called after waitForDeactivate().
+
+    if(_threadPool)
+    {
+	return _threadPool;
+    }
+    else
+    {
+	return _instance->serverThreadPool();
+    }
+
     return _threadPool;
 }
 
@@ -513,38 +534,40 @@ Ice::ObjectAdapterI::getServantManager() const
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-				    const string& name, const string& endpts, const string& id) :
+				    const string& name) :
     _deactivated(false),
     _instance(instance),
+    _communicator(communicator),
+    _servantManager(new ServantManager(instance, name)),
     _printAdapterReadyDone(false),
     _name(name),
-    _id(id),
+    _id(instance->properties()->getProperty(name + ".AdapterId")),
     _directCount(0),
     _waitForDeactivate(false)
 {
-    string s(endpts);
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
-
     __setNoDelete(true);
     try
     {
+	string endpts = _instance->properties()->getProperty(name + ".Endpoints");
+	transform(endpts.begin(), endpts.end(), endpts.begin(), ::tolower);
+
 	string::size_type beg;
 	string::size_type end = 0;
 
-	while(end < s.length())
+	while(end < endpts.length())
 	{
 	    const string delim = " \t\n\r";
 	    
-	    beg = s.find_first_not_of(delim, end);
+	    beg = endpts.find_first_not_of(delim, end);
 	    if(beg == string::npos)
 	    {
 		break;
 	    }
 
-	    end = s.find(':', beg);
+	    end = endpts.find(':', beg);
 	    if(end == string::npos)
 	    {
-		end = s.length();
+		end = endpts.length();
 	    }
 	    
 	    if(end == beg)
@@ -552,17 +575,39 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 		break;
 	    }
 	    
-	    string es = s.substr(beg, end - beg);
+	    string s = endpts.substr(beg, end - beg);
 	   
 	    //
 	    // Don't store the endpoint in the adapter. The Collector
 	    // might change it, for example, to fill in the real port
 	    // number if a zero port number is given.
 	    //
-	    EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
+	    EndpointPtr endp = _instance->endpointFactoryManager()->create(s);
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
 
 	    ++end;
+	}
+
+	string router = _instance->properties()->getProperty(_name + ".Router");
+	if(!router.empty())
+	{
+	    addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
+	}
+	
+	string locator = _instance->properties()->getProperty(_name + ".Locator");
+	if(!locator.empty())
+	{
+	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(locator)));
+	}
+	else
+	{
+	    setLocator(_instance->referenceFactory()->getDefaultLocator());
+	}
+
+	int threadNum = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.Size");
+	if(threadNum > 0)
+	{
+	    _threadPool = new ThreadPool(_instance, threadNum, 0);
 	}
     }
     catch(...)
@@ -573,10 +618,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	throw;
     }
     __setNoDelete(false);  
-
-    _threadPool = _instance->serverThreadPool();
-    _servantManager = new ServantManager(_instance, _name);
-    _communicator = communicator;
 }
 
 Ice::ObjectAdapterI::~ObjectAdapterI()

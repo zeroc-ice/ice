@@ -95,7 +95,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpts, const string& id)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -110,7 +110,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 	return p->second;
     }
 
-    ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, _communicator, name, endpts, id);
+    ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, _communicator, name);
     _adapters.insert(make_pair(name, adapter));
     return adapter;
 }

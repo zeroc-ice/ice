@@ -216,6 +216,26 @@ default value is 1. (C++ only.)
 <section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
+<section><title><replaceable>name</replaceable>.AdapterId</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.AdapterId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies an identifier for the object adapter with the name
+<replaceable>name</replaceable>. This identifier must be unique among
+all object adapters using the same locator instance. If a locator
+proxy is defined using
+<literal><replaceable>name</replaceable>.Locator</literal> or
+<literal>Ice.Default.Locator</literal>, this object adapter will set
+its endpoints with the locator registry upon activation.
+</para>
+</section>
+</section>
+
 <section><title><replaceable>name</replaceable>.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -228,6 +248,22 @@ default value is 1. (C++ only.)
 Sets the endpoints for the object adapter
 <replaceable>name</replaceable> to
 <replaceable>endpoints</replaceable>.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.Locator</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.Locator=<replaceable>locator</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a locator for the object adapter with the name
+<replaceable>name</replaceable>. The value is a stringified proxy
+to the &Ice; locator interface.
 </para>
 </section>
 </section>
@@ -255,38 +291,21 @@ in undefined behavior. The default value is no router. </para></note>
 </section>
 </section>
 
-<section><title><replaceable>name</replaceable>.Locator</title>
+<section><title><replaceable>name</replaceable>.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.Locator=<replaceable>locator</replaceable>
+<replaceable>name</replaceable>.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Specifies a locator for the object adapter with the name
-<replaceable>name</replaceable>. The value is a stringified proxy
-to the &Ice; locator interface.
-</para>
-</section>
-</section>
-
-<section><title><replaceable>name</replaceable>.AdapterId</title>
-<section><title>Synopsis</title>
-<synopsis>
-<replaceable>name</replaceable>.AdapterId=<replaceable>id</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Specifies an identifier for the object adapter with the name
-<replaceable>name</replaceable>. This identifier must be unique among
-all object adapters using the same locator instance. If a locator
-proxy is defined using
-<literal><replaceable>name</replaceable>.Locator</literal> or
-<literal>Ice.Default.Locator</literal>, this object adapter will set
-its endpoints with the locator registry upon activation.
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the object adapter creates it's own, private thread pool with
+<replaceable>num</replaceable> threads for dispatching requests. This
+is useful to ensure that a minimum amount of threads is available for
+dispatching requests on certain &Ice; objects, in order to avoid
+deadlocks because of thread starvation.
 </para>
 </section>
 </section>

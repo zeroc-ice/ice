@@ -83,8 +83,7 @@ public:
 
 private:
 
-    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&,
-		   const std::string&);
+    ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&);
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;
     
@@ -95,9 +94,9 @@ private:
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
+    CommunicatorPtr _communicator;
     IceInternal::ThreadPoolPtr _threadPool;
     IceInternal::ServantManagerPtr _servantManager;
-    CommunicatorPtr _communicator;
     bool _printAdapterReadyDone;
     const std::string _name;
     const std::string _id;

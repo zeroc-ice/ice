@@ -193,7 +193,8 @@ IceInternal::Instance::clientThreadPool()
     {
 	if(!_clientThreadPool) // Lazy initialization.
 	{
-	    _clientThreadPool = new ThreadPool(this, false);
+	    int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
+	    _clientThreadPool = new ThreadPool(this, threadNum, 0);
 	}
     }
 
@@ -209,7 +210,9 @@ IceInternal::Instance::serverThreadPool()
     {
 	if(!_serverThreadPool) // Lazy initialization.
 	{
-	    _serverThreadPool = new ThreadPool(this, true);
+	    int threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+	    int timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
+	    _serverThreadPool = new ThreadPool(this, threadNum, timeout);
 	}
     }
 

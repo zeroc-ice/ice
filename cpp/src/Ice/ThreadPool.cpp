@@ -17,7 +17,6 @@
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
-#include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Functional.h>
 #include <Ice/Protocol.h>
@@ -30,63 +29,11 @@ using namespace IceInternal;
 void IceInternal::incRef(ThreadPool* p) { p->__incRef(); }
 void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
 
-void
-IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
-{
-    IceUtil::Mutex::Lock sync(*this);
-    assert(!_destroyed);
-    _changes.push_back(make_pair(fd, handler));
-    setInterrupt(0);
-}
-
-void
-IceInternal::ThreadPool::unregister(SOCKET fd)
-{
-    IceUtil::Mutex::Lock sync(*this);
-    assert(!_destroyed);
-    _changes.push_back(make_pair(fd, EventHandlerPtr(0)));
-    setInterrupt(0);
-}
-
-void
-IceInternal::ThreadPool::promoteFollower()
-{
-    if(_multipleThreads)
-    {
-	_threadMutex.unlock();
-    }
-}
-
-void
-IceInternal::ThreadPool::initiateShutdown()
-{
-    //
-    // This operation must be signal safe, so all we can do is to set
-    // an interrupt.
-    //
-    setInterrupt(1);
-}
-
-void
-IceInternal::ThreadPool::joinWithAllThreads()
-{
-    //
-    // _threads is immutable after the initial creation in the
-    // constructor, therefore no synchronization is
-    // needed. (Synchronization wouldn't be possible here anyway,
-    // because otherwise the other threads would never terminate.)
-    //
-    for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
-    {
-	p->join();
-    }
-}
-
-IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
+IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, int threadNum, int timeout) :
     _instance(instance),
     _destroyed(false),
     _lastFd(INVALID_SOCKET),
-    _timeout(0),
+    _timeout(timeout),
     _multipleThreads(false)
 {
     SOCKET fds[2];
@@ -99,17 +46,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
     FD_SET(_fdIntrRead, &_fdSet);
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
-
-    int threadNum;
-    if(server)
-    {
-	_timeout = _instance->properties()->getPropertyAsInt("Ice.ServerIdleTime");
-	threadNum = _instance->properties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
-    }
-    else
-    {
-	threadNum = _instance->properties()->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
-    }
 
     if(threadNum < 1)
     {
@@ -166,6 +102,58 @@ IceInternal::ThreadPool::destroy()
     assert(_handlerMap.empty());
     _destroyed = true;
     setInterrupt(0);
+}
+
+void
+IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    assert(!_destroyed);
+    _changes.push_back(make_pair(fd, handler));
+    setInterrupt(0);
+}
+
+void
+IceInternal::ThreadPool::unregister(SOCKET fd)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    assert(!_destroyed);
+    _changes.push_back(make_pair(fd, EventHandlerPtr(0)));
+    setInterrupt(0);
+}
+
+void
+IceInternal::ThreadPool::promoteFollower()
+{
+    if(_multipleThreads)
+    {
+	_threadMutex.unlock();
+    }
+}
+
+void
+IceInternal::ThreadPool::initiateShutdown()
+{
+    //
+    // This operation must be signal safe, so all we can do is to set
+    // an interrupt.
+    //
+    setInterrupt(1);
+}
+
+void
+IceInternal::ThreadPool::joinWithAllThreads()
+{
+    //
+    // _threads is immutable after the initial creation in the
+    // constructor, therefore no synchronization is
+    // needed. (Synchronization wouldn't be possible here anyway,
+    // because otherwise the other threads would never terminate.)
+    //
+    for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    {
+	p->join();
+    }
 }
 
 bool

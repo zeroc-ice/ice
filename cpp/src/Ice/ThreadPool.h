@@ -39,6 +39,11 @@ class ThreadPool : public ::IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
+    ThreadPool(const InstancePtr&, int, int);
+    virtual ~ThreadPool();
+
+    void destroy();
+
     void _register(SOCKET, const EventHandlerPtr&);
     void unregister(SOCKET);
     void promoteFollower();
@@ -46,11 +51,6 @@ public:
     void joinWithAllThreads();
     
 private:
-
-    ThreadPool(const InstancePtr&, bool);
-    virtual ~ThreadPool();
-    void destroy();
-    friend class Instance;
 
     bool clearInterrupt();
     void setInterrupt(char);
