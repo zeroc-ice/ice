@@ -228,6 +228,7 @@ public:
     std::string scope();
     std::string file();
     std::string comment();
+
     std::list<std::string> getMetaData();
     void setMetaData(const std::list<std::string>&);
 
