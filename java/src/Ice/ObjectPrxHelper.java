@@ -411,6 +411,22 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final ObjectPrx
+    ice_compress(boolean co)
+    {
+        IceInternal.Reference ref = _reference.changeCompress(co);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelper proxy = new ObjectPrxHelper();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final ObjectPrx
     ice_timeout(int t)
     {
         IceInternal.Reference ref = _reference.changeTimeout(t);

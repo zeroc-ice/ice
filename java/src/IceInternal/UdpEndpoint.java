@@ -19,12 +19,13 @@ final class UdpEndpoint implements Endpoint
     final static short TYPE = 3;
 
     public
-    UdpEndpoint(Instance instance, String ho, int po)
+    UdpEndpoint(Instance instance, String ho, int po, boolean co)
     {
         _instance = instance;
         _host = ho;
         _port = po;
         _connect = false;
+	_compress = co;
         calcHashValue();
     }
 
@@ -35,6 +36,7 @@ final class UdpEndpoint implements Endpoint
         _host = null;
         _port = 0;
         _connect = false;
+	_compress = false;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -112,6 +114,19 @@ final class UdpEndpoint implements Endpoint
                     break;
                 }
 
+                case 'z':
+                {
+                    if(argument != null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "udp " + str;
+			throw e;
+                    }
+
+                    _compress = true;
+                    break;
+                }
+
                 default:
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
@@ -139,6 +154,7 @@ final class UdpEndpoint implements Endpoint
         // Not transmitted.
         //_connect = s.readBool();
         _connect = false;
+	_compress = s.readBool();
         s.endReadEncaps();
         calcHashValue();
     }
@@ -155,6 +171,7 @@ final class UdpEndpoint implements Endpoint
         s.writeInt(_port);
         // Not transmitted.
         //s.writeBool(_connect);
+	s.writeBool(_compress);
         s.endWriteEncaps();
     }
 
@@ -169,6 +186,10 @@ final class UdpEndpoint implements Endpoint
         {
             s += " -c";
         }
+	if(_compress)
+	{
+	    s += " -z";
+	}
         return s;
     }
 
@@ -189,6 +210,34 @@ final class UdpEndpoint implements Endpoint
     timeout()
     {
         return -1;
+    }
+
+    //
+    // Return true if the endpoints support bzip2 compress, or false
+    // otherwise.
+    //
+    public boolean
+    compress()
+    {
+        return _compress;
+    }
+
+    //
+    // Return a new endpoint with a different compression value,
+    // provided that compression is supported by the
+    // endpoint. Otherwise the same endpoint is returned.
+    //
+    public Endpoint
+    compress(boolean compress)
+    {
+        if(compress == _compress)
+        {
+            return this;
+        }
+        else
+        {
+            return new UdpEndpoint(_instance, _host, _port, compress);
+        }
     }
 
     //
@@ -250,7 +299,7 @@ final class UdpEndpoint implements Endpoint
     serverTransceiver(EndpointHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort());
+        endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort(), _compress);
         return p;
     }
 
@@ -355,6 +404,15 @@ final class UdpEndpoint implements Endpoint
             return 1;
         }
 
+        if(!_compress && p._compress)
+        {
+            return -1;
+        }
+        else if(!p._compress && _compress)
+        {
+            return 1;
+        }
+
         if(!_host.equals(p._host))
         {
             //
@@ -389,11 +447,13 @@ final class UdpEndpoint implements Endpoint
         _hashCode = _host.hashCode();
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + (_connect ? 1 : 0);
+        _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
     }
 
     private Instance _instance;
     private String _host;
     private int _port;
     private boolean _connect;
+    private boolean _compress;
     private int _hashCode;
 }

@@ -220,54 +220,84 @@ public final class Util
     public static int
     proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-        Identity lhsIdentity = lhs.ice_getIdentity();
-        Identity rhsIdentity = rhs.ice_getIdentity();
-        int n;
-        if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-        {
-            return n;
-        }
-        return lhsIdentity.category.compareTo(rhsIdentity.category);
+	if(lhs == null && rhs == null)
+	{
+	    return 0;
+	}
+	else if(lhs == null && rhs != null)
+	{
+	    return -1;
+	}
+	else if(lhs != null && rhs == null)
+	{
+	    return 1;
+	}
+	else
+	{
+	    Identity lhsIdentity = lhs.ice_getIdentity();
+	    Identity rhsIdentity = rhs.ice_getIdentity();
+	    int n;
+	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+	    {
+		return n;
+	    }
+	    return lhsIdentity.category.compareTo(rhsIdentity.category);
+	}
     }
 
     public static int
     proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-        Identity lhsIdentity = lhs.ice_getIdentity();
-        Identity rhsIdentity = rhs.ice_getIdentity();
-        int n;
-        if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-        {
-            return n;
-        }
-        if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
-        {
-            return n;
-        }
-
-        String[] lhsFacet = lhs.ice_getFacet();
-        String[] rhsFacet = rhs.ice_getFacet();
-        int i;
-        for(i = 0; i < lhsFacet.length && i < rhsFacet.length; i++)
-        {
-            if((n = lhsFacet[i].compareTo(rhsFacet[i])) != 0)
-            {
-                return n;
-            }
-        }
-
-        if(lhsFacet.length == rhsFacet.length)
-        {
-            return 0;
-        }
-        else if(lhsFacet.length < rhsFacet.length)
-        {
-            return -1;
-        }
-        else
-        {
-            return 1;
-        }
+	if(lhs == null && rhs == null)
+	{
+	    return 0;
+	}
+	else if(lhs == null && rhs != null)
+	{
+	    return -1;
+	}
+	else if(lhs != null && rhs == null)
+	{
+	    return 1;
+	}
+	else
+	{
+	    Identity lhsIdentity = lhs.ice_getIdentity();
+	    Identity rhsIdentity = rhs.ice_getIdentity();
+	    int n;
+	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+	    {
+		return n;
+	    }
+	    if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
+	    {
+		return n;
+	    }
+	    
+	    String[] lhsFacet = lhs.ice_getFacet();
+	    String[] rhsFacet = rhs.ice_getFacet();
+	    int i;
+	    for(i = 0; i < lhsFacet.length && i < rhsFacet.length; i++)
+	    {
+		if((n = lhsFacet[i].compareTo(rhsFacet[i])) != 0)
+		{
+		    return n;
+		}
+	    }
+	    
+	    if(lhsFacet.length == rhsFacet.length)
+	    {
+		return 0;
+	    }
+	    else if(lhsFacet.length < rhsFacet.length)
+	    {
+		return -1;
+	    }
+	    else
+	    {
+		return 1;
+	    }
+	}
     }
 
     private static Properties _defaultProperties = null;

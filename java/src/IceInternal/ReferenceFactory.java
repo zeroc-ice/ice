@@ -21,7 +21,6 @@ public final class ReferenceFactory
            String[] facet,
            int mode,
            boolean secure,
-	   boolean compress,
 	   String adapterId,
            Endpoint[] endpoints,
            RouterInfo routerInfo,
@@ -42,7 +41,7 @@ public final class ReferenceFactory
         //
         // Create a new reference
         //
-        Reference ref = new Reference(_instance, ident, facet, mode, secure, compress, adapterId,
+        Reference ref = new Reference(_instance, ident, facet, mode, secure, adapterId,
 				      endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
 
         //
@@ -171,7 +170,6 @@ public final class ReferenceFactory
         java.util.ArrayList facet = new java.util.ArrayList();
         int mode = Reference.ModeTwoway;
         boolean secure = false;
-        boolean compress = false;
 	String adapter = "";
 
         while(true)
@@ -384,18 +382,6 @@ public final class ReferenceFactory
                     break;
                 }
 
-                case 'c':
-                {
-                    if(argument != null)
-                    {
-                        Ice.ProxyParseException e = new Ice.ProxyParseException();
-			e.str = s;
-			throw e;
-                    }
-                    compress = true;
-                    break;
-                }
-
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -476,7 +462,7 @@ public final class ReferenceFactory
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, fac, mode, secure, compress, adapter, endp, routerInfo, locatorInfo, null, true);
+        return create(ident, fac, mode, secure, adapter, endp, routerInfo, locatorInfo, null, true);
     }
 
     public Reference
@@ -502,8 +488,6 @@ public final class ReferenceFactory
 
         boolean secure = s.readBool();
 
-        boolean compress = s.readBool();
-
         Endpoint[] endpoints;
 	String adapterId = "";
 
@@ -524,7 +508,7 @@ public final class ReferenceFactory
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
-        return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, null, true);
+        return create(ident, facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo, null, true);
     }
 
     public synchronized void

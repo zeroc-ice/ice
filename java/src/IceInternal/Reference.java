@@ -69,11 +69,6 @@ public final class Reference
             return false;
         }
 
-        if(compress != r.compress)
-        {
-            return false;
-        }
-	
 	if(!adapterId.equals(r.adapterId))
 	{
 	    return false;
@@ -135,8 +130,6 @@ public final class Reference
         s.writeByte((byte)mode);
 
         s.writeBool(secure);
-
-        s.writeBool(compress);
 
 	s.writeSize(endpoints.length);
 
@@ -249,11 +242,6 @@ public final class Reference
             s.append(" -s");
         }
 
-        if(compress)
-        {
-            s.append(" -c");
-        }
-
 	if(endpoints.length > 0)
 	{
 	    assert(adapterId.equals(""));
@@ -296,7 +284,6 @@ public final class Reference
     final public String[] facet;
     final public int mode;
     final public boolean secure;
-    final public boolean compress;
     final public String adapterId;
     final public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
     final public RouterInfo routerInfo; // Null if no router is used.
@@ -318,7 +305,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(newIdentity, facet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(newIdentity, facet, mode, secure, adapterId,
  						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -333,14 +320,14 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, newFacet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, newFacet, mode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
     }
 
     public Reference
-    changeTimeout(int timeout)
+    changeTimeout(int newTimeout)
     {
         //
         // We change the timeout settings in all endpoints.
@@ -348,7 +335,7 @@ public final class Reference
         Endpoint[] newEndpoints = new Endpoint[endpoints.length];
         for(int i = 0; i < endpoints.length; i++)
         {
-            newEndpoints[i] = endpoints[i].timeout(timeout);
+            newEndpoints[i] = endpoints[i].timeout(newTimeout);
         }
 
         //
@@ -361,8 +348,8 @@ public final class Reference
             try
             {
                 Ice.RouterPrx newRouter =
-		    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(timeout));
-                Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(timeout);
+		    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
+                Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(newTimeout);
                 newRouterInfo = instance.routerManager().get(newRouter);
                 newRouterInfo.setClientProxy(newClientProxy);
             }
@@ -380,11 +367,11 @@ public final class Reference
 	if(locatorInfo != null)
 	{
 	    Ice.LocatorPrx newLocator = 
-		Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(timeout));
+		Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
 	    newLocatorInfo = instance.locatorManager().get(newLocator);
 	}
 
-        return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId, 
+        return instance.referenceFactory().create(identity, facet, mode, secure, adapterId, 
 						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
 						  collocationOptimization);
     }
@@ -398,7 +385,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, newMode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, newMode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -413,7 +400,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, newSecure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, mode, newSecure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -422,16 +409,51 @@ public final class Reference
     public Reference
     changeCompress(boolean newCompress)
     {
-        if(newCompress == compress)
+        //
+        // We change the compress settings in all endpoints.
+        //
+        Endpoint[] newEndpoints = new Endpoint[endpoints.length];
+        for(int i = 0; i < endpoints.length; i++)
         {
-            return this;
+            newEndpoints[i] = endpoints[i].compress(newCompress);
         }
-        else
+
+        //
+        // If we have a router, we also change the compress settings on the
+        // router and the router's client proxy.
+        //
+        RouterInfo newRouterInfo = null;
+        if(routerInfo != null)
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, newCompress, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
-						      collocationOptimization);
+            try
+            {
+                Ice.RouterPrx newRouter =
+		    Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
+                Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_compress(newCompress);
+                newRouterInfo = instance.routerManager().get(newRouter);
+                newRouterInfo.setClientProxy(newClientProxy);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+                // Ignore non-existing client proxies.
+            }
         }
+
+	//
+	// If we have a locator, we also change the compress settings
+	// on the locator.
+	//
+	LocatorInfo newLocatorInfo = null;
+	if(locatorInfo != null)
+	{
+	    Ice.LocatorPrx newLocator = 
+		Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_compress(newCompress));
+	    newLocatorInfo = instance.locatorManager().get(newLocator);
+	}
+
+        return instance.referenceFactory().create(identity, facet, mode, secure, adapterId, 
+						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
+						  collocationOptimization);
     }
 
     public Reference
@@ -443,7 +465,7 @@ public final class Reference
 	}
 	else
 	{
-	    return instance.referenceFactory().create(identity, facet, mode, secure, compress, newAdapterId,
+	    return instance.referenceFactory().create(identity, facet, mode, secure, newAdapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
 	}
@@ -458,7 +480,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
 						      newEndpoints, routerInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -476,7 +498,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
 						      endpoints, newRouterInfo, locatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -494,7 +516,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
 						      endpoints, routerInfo, newLocatorInfo, reverseAdapter,
 						      collocationOptimization);
         }
@@ -509,7 +531,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId,
+            return instance.referenceFactory().create(identity, facet, mode, secure, adapterId,
 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
 						      newCollocationOptimization);
         }
@@ -521,9 +543,8 @@ public final class Reference
         RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
         LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 
-        return instance.referenceFactory().create(identity, new String[0], ModeTwoway, false, false,
-						  adapterId, endpoints,
-                                                  routerInfo, locatorInfo, null, true);
+        return instance.referenceFactory().create(identity, new String[0], ModeTwoway, false, adapterId,
+						  endpoints, routerInfo, locatorInfo, null, true);
     }
 
     //
@@ -534,7 +555,6 @@ public final class Reference
               String[] fac,
               int md,
               boolean sec,
-              boolean com,
 	      String adptId,
               Endpoint[] endpts,
               RouterInfo rtrInfo,
@@ -552,7 +572,6 @@ public final class Reference
         facet = fac;
         mode = md;
         secure = sec;
-        compress = com;
 	adapterId = adptId;
         endpoints = endpts;
         routerInfo = rtrInfo;
@@ -586,8 +605,6 @@ public final class Reference
         h = 5 * h + mode;
 
         h = 5 * h + (secure ? 1 : 0);
-
-        h = 5 * h + (compress ? 1 : 0);
 
         //
         // TODO: Should we also take the endpoints into account for hash

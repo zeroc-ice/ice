@@ -955,7 +955,6 @@ public final class Connection extends EventHandler
         _adapter = adapter;
         _logger = instance.logger(); // Chached for better performance.
         _traceLevels = instance.traceLevels(); // Chached for better performance.
-	_defaultsAndOverrides = instance.defaultsAndOverrides(); // Chached for better performance.
 	_registeredWithPool = false;
 	_warn = false;
 	_acmTimeout = 0;
@@ -1307,7 +1306,6 @@ public final class Connection extends EventHandler
 
     private final Ice.Logger _logger;
     private final TraceLevels _traceLevels;
-    private final DefaultsAndOverrides _defaultsAndOverrides;
 
     private boolean _registeredWithPool;
 

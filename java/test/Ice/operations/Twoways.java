@@ -120,9 +120,9 @@ class Twoways
             Test.MyClassPrx r;
 
             r = p.opMyClass(p, c1, c2);
-            test(c1.value.equals(p));
-            test(c2.value != p);
-            //test(r.equals(p));
+            test(Ice.Util.proxyIdentityAndFacetCompare(c1.value, p) == 0);
+            test(Ice.Util.proxyIdentityAndFacetCompare(c2.value, p) != 0);
+            test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
             test(c1.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
             test(c2.value.ice_getIdentity().equals(Ice.Util.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().equals(Ice.Util.stringToIdentity("test")));
@@ -140,10 +140,9 @@ class Twoways
             r = p.opMyClass(null, c1, c2);
             test(c1.value == null);
             test(c2.value != null);
-            test(r.equals(p));
+            test(Ice.Util.proxyIdentityAndFacetCompare(r, p) == 0);
             r.opVoid();
         }
-
 
         {
             Test.Structure si1 = new Test.Structure();
