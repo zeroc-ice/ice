@@ -25,6 +25,7 @@ testdir = os.path.join(toplevel, "test", "IceStorm", "federation2")
 exedir = os.path.join(toplevel, "test", "IceStorm", "federation")
 
 iceBox = os.path.join(toplevel, "bin", "icebox")
+iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
@@ -32,8 +33,11 @@ updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
 iceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
+iceBoxReference=' --IceBox.ServiceManager="ServiceManager: default -p 12345"'
+
 iceStormService=" --IceBox.Service.IceStorm=IceStormService:create" + \
-                ' --IceStorm.TopicManager.Endpoints="default -p 12346"'
+                ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
+		" --IceBox.PrintServicesReady=IceStorm"
 iceStormReference=' --IceStorm.TopicManager="IceStorm.TopicManager: default -p 12346"'
 
 dbEnvName = os.path.join(testdir, "db")
@@ -44,7 +48,7 @@ print "starting icestorm service...",
 command = iceBox + updatedClientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
 iceBoxPipe = os.popen(command)
 TestUtil.getServerPid(iceBoxPipe)
-TestUtil.getAdapterReady(iceBoxPipe)
+TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topics...",
@@ -158,11 +162,11 @@ print "ok"
 #
 # Shutdown icestorm.
 #
-print "shutting down icestorm...",
-command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "shutdown"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
-if iceStormAdminStatus:
+print "shutting down icestorm service...",
+command = iceBoxAdmin + updatedClientOptions + iceBoxReference + r' shutdown'
+iceBoxAdminPipe = os.popen(command)
+iceBoxAdminStatus = iceBoxAdminPipe.close()
+if iceBoxAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 print "ok"

@@ -131,6 +131,19 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
+def waitServiceReady(pipe, token):
+
+    while 1:
+
+        output = pipe.readline().strip()
+
+        if not output:
+            print "failed!"
+            sys.exit(1)
+
+        if output == token + " ready":
+            break
+
 def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)

@@ -34,7 +34,8 @@ updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR",
 IceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
 IceBoxReference=' --IceBox.ServiceManager="ServiceManager:default -p 12345"'
 YellowService=" --IceBox.Service.Yellow=YellowService:create" + \
-		' --Yellow.Query.Endpoints="default -p 12346" --Yellow.Admin.Endpoints="default -p 12347"'
+	      ' --Yellow.Query.Endpoints="default -p 12346" --Yellow.Admin.Endpoints="default -p 12347"' + \
+	      ' --IceBox.PrintServicesReady=Yellow'
 
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
@@ -44,7 +45,7 @@ print "starting yellow service...",
 command = IceBox + updatedClientServerOptions + IceBoxEndpoints + YellowService + YellowDBEnv
 IceBoxPipe = os.popen(command)
 TestUtil.getServerPid(IceBoxPipe)
-TestUtil.getAdapterReady(IceBoxPipe)
+TestUtil.waitServiceReady(IceBoxPipe, "Yellow")
 print "ok"
 
 client = os.path.join(testdir, "client")
@@ -62,7 +63,7 @@ for output in clientPipe.xreadlines():
 #
 # Shutdown yellow.
 #
-print "shutting down yellow...",
+print "shutting down yellow service...",
 command = IceBoxAdmin + updatedClientOptions + IceBoxReference + r' shutdown'
 IceBoxAdminPipe = os.popen(command)
 IceBoxAdminStatus = IceBoxAdminPipe.close()
