@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Glacier/CertVerifier.h>
-#include <Ice/SslRSAPublicKey.h>
 #include <openssl/err.h>
 #include <algorithm>
 #include <iostream>
@@ -98,13 +97,8 @@ CertVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x509StoreContext, SSL* s
 ByteSeq
 CertVerifier::toByteSeq(X509* certificate)
 {
-    IceSecurity::Ssl::OpenSSL::RSAPublicKey publicKey(certificate);
-
     ByteSeq certByteSeq;
-    
-    publicKey.certToByteSeq(certByteSeq);
 
-/*
     // Convert the X509 to a unsigned char buffer.
     unsigned int certSize = i2d_X509(certificate, 0);
     unsigned char* certBuffer = new unsigned char[certSize];
@@ -114,7 +108,7 @@ CertVerifier::toByteSeq(X509* certificate)
     // Yet another conversion to a ByteSeq (easy comparison this way).
     copy(certBuffer, (certBuffer + certSize), back_inserter(certByteSeq));
     delete []certBuffer;
-*/
+
     return certByteSeq;
 }
 

@@ -58,6 +58,10 @@ IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::RSACertificateGenContext() 
 {
 }
 
+IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::~RSACertificateGenContext()
+{
+}
+
 void
 IceSecurity::Ssl::OpenSSL::RSACertificateGenContext::setCountry(const string& country)
 {
