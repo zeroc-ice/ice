@@ -154,6 +154,10 @@ L			[a-zA-Z_]
     return ICE_OBJECT;
 }
 
+"native" {
+    return ICE_NATIVE;
+}
+
 "vector" {
     return ICE_VECTOR;
 }

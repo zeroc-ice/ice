@@ -46,6 +46,7 @@ class ClassDef;
 class Proxy;
 class Operation;
 class DataMember;
+class Native;
 class Vector;
 class Parser;
 
@@ -86,6 +87,8 @@ void ICE_API incRef(::Slice::Operation*);
 void ICE_API decRef(::Slice::Operation*);
 void ICE_API incRef(::Slice::DataMember*);
 void ICE_API decRef(::Slice::DataMember*);
+void ICE_API incRef(::Slice::Native*);
+void ICE_API decRef(::Slice::Native*);
 void ICE_API incRef(::Slice::Vector*);
 void ICE_API decRef(::Slice::Vector*);
 void ICE_API incRef(::Slice::Parser*);
@@ -112,6 +115,7 @@ typedef ::__Ice::Handle<ClassDef> ClassDef_ptr;
 typedef ::__Ice::Handle<Proxy> Proxy_ptr;
 typedef ::__Ice::Handle<Operation> Operation_ptr;
 typedef ::__Ice::Handle<DataMember> DataMember_ptr;
+typedef ::__Ice::Handle<Native> Native_ptr;
 typedef ::__Ice::Handle<Vector> Vector_ptr;
 typedef ::__Ice::Handle<Parser> Parser_ptr;
 
@@ -143,6 +147,7 @@ public:
     virtual void visitOperation(const Operation_ptr&) { };
     virtual void visitDataMember(const DataMember_ptr&) { };
     virtual void visitVector(const Vector_ptr&) { };
+    virtual void visitNative(const Native_ptr&) { };
 };
 
 // ----------------------------------------------------------------------
@@ -296,6 +301,7 @@ public:
     ClassDef_ptr createClassDef(const std::string&, const ClassDef_ptr&, bool);
     ClassDecl_ptr createClassDecl(const std::string&, bool);
     Vector_ptr createVector(const std::string&, const Type_ptr&);
+    Native_ptr createNative(const std::string&);
     std::vector<Type_ptr> lookupType(const std::string&);
     int includeLevel();
     bool hasProxies();
@@ -468,6 +474,23 @@ protected:
     friend class ICE_API ClassDef;
 
     Type_ptr type_;
+};
+
+// ----------------------------------------------------------------------
+// Native
+// ----------------------------------------------------------------------
+
+class Native : virtual public Constructed
+{
+public:
+
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Native(const Container_ptr&,
+	   const std::string&);
+    friend class Container;
 };
 
 // ----------------------------------------------------------------------

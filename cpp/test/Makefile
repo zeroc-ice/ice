@@ -12,7 +12,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= interface
+SUBDIRS		= operations
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

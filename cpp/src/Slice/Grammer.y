@@ -40,6 +40,7 @@ yyerror(const char* s)
 %token ICE_STRING
 %token ICE_WSTRING
 %token ICE_OBJECT
+%token ICE_NATIVE
 %token ICE_VECTOR
 %token ICE_IDENTIFIER
 %token ICE_OP_IDENTIFIER
@@ -60,16 +61,16 @@ definitions
 : definition ';' definitions
 {
 }
+| error ';' definitions
+{
+    yyerrok;
+}
 | definition
 {
     yyerror("`;' missing after definition");
 }
 |
 {
-}
-| error ';'
-{
-    yyerrok;
 }
 ;
 
@@ -85,6 +86,9 @@ definition
 | class_decl
 {
 }
+| native
+{
+}
 | vector
 {
 }
@@ -96,16 +100,15 @@ exports
 : export ';' exports
 {
 }
+| error ';' exports
+{
+}
 | export
 {
     yyerror("`;' missing after definition");
 }
 |
 {
-}
-| error ';'
-{
-    yyerrok;
 }
 ;
 
@@ -409,6 +412,17 @@ return_type
 | type
 {
     $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+native
+// ----------------------------------------------------------------------
+: ICE_NATIVE ICE_IDENTIFIER
+{
+    String_ptr ident = String_ptr::dynamicCast($2);
+    Container_ptr cont = parser -> currentContainer();
+    cont -> createNative(ident -> v);
 }
 ;
 

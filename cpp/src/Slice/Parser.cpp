@@ -53,6 +53,8 @@ void __Ice::incRef(Proxy* p) { p -> __incRef(); }
 void __Ice::decRef(Proxy* p) { p -> __decRef(); }
 void __Ice::incRef(Operation* p) { p -> __incRef(); }
 void __Ice::decRef(Operation* p) { p -> __decRef(); }
+void __Ice::incRef(Native* p) { p -> __incRef(); }
+void __Ice::decRef(Native* p) { p -> __decRef(); }
 void __Ice::incRef(Vector* p) { p -> __incRef(); }
 void __Ice::decRef(Vector* p) { p -> __decRef(); }
 void __Ice::incRef(Parser* p) { p -> __incRef(); }
@@ -295,6 +297,18 @@ Slice::Container::createClassDecl(const string& name, bool local)
 	cl -> definition_ = def;
 
     return cl;
+}
+
+Native_ptr
+Slice::Container::createNative(const string& name)
+{
+    vector<Contained_ptr> matches =
+	parser_ -> findContents(thisScope() + name);
+    assert(matches.empty()); // TODO: Already exits
+
+    Native_ptr p = new Native(this, name);
+    contents_.push_back(p);
+    return p;
 }
 
 Vector_ptr
@@ -740,6 +754,25 @@ Slice::DataMember::DataMember(const Container_ptr& container,
     : Contained(container, name),
       SyntaxTreeBase(container -> parser()),
       type_(type)
+{
+}
+
+// ----------------------------------------------------------------------
+// Native
+// ----------------------------------------------------------------------
+
+void
+Slice::Native::visit(ParserVisitor* visitor)
+{
+    visitor -> visitNative(this);
+}
+
+Slice::Native::Native(const Container_ptr& container,
+		      const string& name)
+    : Constructed(container, name),
+      Type(container -> parser()),
+      Contained(container,  name),
+      SyntaxTreeBase(container -> parser())
 {
 }
 

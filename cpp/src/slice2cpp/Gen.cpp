@@ -99,10 +99,12 @@ Slice::Gen::generate(const Parser_ptr& parser)
 	C << include_ << '/';
     C << base_ << ".h>";
 
+    H << "\n#include <Ice/ProxyF.h>";
+    H << "\n#include <Ice/ObjectF.h>";
+    H << "\n#include <Ice/LocalObjectF.h>";
+    H << "\n#include <Ice/Native.h>";
     if(parser -> hasProxies())
     {
-//	H << "\n#include <Ice/ProxyF.h>";
-//	H << "\n#include <Ice/ObjectF.h>";
 	H << "\n#include <Ice/Proxy.h>";
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
@@ -111,7 +113,6 @@ Slice::Gen::generate(const Parser_ptr& parser)
     }
     else
     {
-//	H << "\n#include <Ice/LocalObjectF.h>";
 	H << "\n#include <Ice/LocalObject.h>";
 	C << "\n#include <Ice/Stream.h>";
     }
@@ -283,6 +284,15 @@ Slice::Gen::TypesVisitor::visitVector(const Vector_ptr& p)
 	C << eb;
 	C << eb;
     }
+}
+
+void
+Slice::Gen::TypesVisitor::visitNative(const Native_ptr& p)
+{
+    string name = p -> name();
+
+    H << sp;
+    H << nl << "typedef ::__IceNative::" << name << ' ' << name << ';';
 }
 
 Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c,

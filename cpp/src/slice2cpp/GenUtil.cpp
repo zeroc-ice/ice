@@ -91,6 +91,10 @@ Slice::inputTypeToString(const Type_ptr& type)
     if(proxy)
 	return "const " + proxy -> _class() -> scoped() + "_prx&";
 	    
+    Native_ptr native = Native_ptr::dynamicCast(type);
+    if(native)
+	return native -> scoped();
+	    
     Contained_ptr contained = Contained_ptr::dynamicCast(type);
     if(contained)
 	return "const " + contained -> scoped() + "&";
@@ -129,6 +133,10 @@ Slice::outputTypeToString(const Type_ptr& type)
     if(proxy)
 	return proxy -> _class() -> scoped() + "_prx&";
 	    
+    Native_ptr native = Native_ptr::dynamicCast(type);
+    if(native)
+	return native -> scoped();
+	    
     Contained_ptr contained = Contained_ptr::dynamicCast(type);
     if(contained)
 	return contained -> scoped() + "&";
@@ -155,6 +163,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	out << nl << stream << " -> " << func << param << ");";
 	return;
     }
+    
+    Native_ptr native = Native_ptr::dynamicCast(type);
+    assert(!native); // TODO
     
     ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
     if(cl)
