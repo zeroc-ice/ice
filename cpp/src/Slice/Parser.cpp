@@ -1277,7 +1277,10 @@ Slice::Container::visit(ParserVisitor* visitor)
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
-	(*p)->visit(visitor);
+	if((*p)->includeLevel() == 0)
+	{
+	    (*p)->visit(visitor);
+	}
     }
 }
 
@@ -3156,12 +3159,6 @@ ExceptionList
 Slice::Operation::throws() const
 {
     return _throws;
-}
-
-Operation::Mode
-Slice::Operation::mode() const
-{
-    return _mode;
 }
 
 bool

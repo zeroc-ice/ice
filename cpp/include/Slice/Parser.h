@@ -462,7 +462,6 @@ public:
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
     ParamDeclList parameters() const;
     ExceptionList throws() const;
-    Mode mode() const;
     bool nonmutating() const;
     bool idempotent() const;
     void setExceptionList(const ExceptionList&);

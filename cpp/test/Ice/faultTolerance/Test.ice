@@ -15,7 +15,7 @@ interface Test
 {
     void shutdown();
     void abort();
-    idempotent void idempotentAbort();
+    nonmutating void idempotentAbort();
     int pid();
 };
 
