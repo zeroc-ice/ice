@@ -491,7 +491,7 @@ MyApplication::run(int argc, char* argv[])
     {
 	if(interrupted())
 	{
-	    return EXIT_SUCCESS;
+	    break;
 	}
 	garbageThread->randomWait();
 	Ice::collectGarbage();
@@ -500,9 +500,15 @@ MyApplication::run(int argc, char* argv[])
     garbageThread->stop();
     Ice::collectGarbage();
     test(num == 0);
-    cout << "ok" << endl;
-
-    return EXIT_SUCCESS;
+    if(!interrupted())
+    {
+	cout << "ok" << endl;
+	return EXIT_SUCCESS;
+    }
+    else
+    {
+	return 130; // SIGINT + 128
+    }
 }
 
 int
