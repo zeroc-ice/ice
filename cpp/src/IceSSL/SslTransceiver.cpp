@@ -34,7 +34,7 @@ using namespace IceInternal;
 // Static Member Initialization
 //
 IceSSL::SslTransceiverMap IceSSL::SslTransceiver::_transceiverMap;
-IceUtil::Mutex IceSSL::SslTransceiver::_transceiverRepositoryMutex;
+IceUtil::StaticMutex IceSSL::SslTransceiver::_transceiverRepositoryMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 void IceInternal::incRef(IceSSL::SslTransceiver* p) { p->__incRef(); }
 void IceInternal::decRef(IceSSL::SslTransceiver* p) { p->__decRef(); }
@@ -377,7 +377,7 @@ IceSSL::SslTransceiver::setHandshakeRetries(int retries)
 IceSSL::SslTransceiverPtr
 IceSSL::SslTransceiver::getTransceiver(SSL* sslPtr)
 {
-    IceUtil::Mutex::Lock sync(_transceiverRepositoryMutex);
+    IceUtil::StaticMutex::Lock sync(_transceiverRepositoryMutex);
 
     assert(sslPtr);
 
@@ -833,7 +833,7 @@ IceSSL::SslTransceiver::addTransceiver(SSL* sslPtr, SslTransceiver* transceiver)
 {
     assert(sslPtr);
     assert(transceiver);
-    IceUtil::Mutex::Lock sync(_transceiverRepositoryMutex);
+    IceUtil::StaticMutex::Lock sync(_transceiverRepositoryMutex);
     _transceiverMap[sslPtr] = transceiver;
 }
 
@@ -841,7 +841,7 @@ void
 IceSSL::SslTransceiver::removeTransceiver(SSL* sslPtr)
 {
     assert(sslPtr);
-    IceUtil::Mutex::Lock sync(_transceiverRepositoryMutex);
+    IceUtil::StaticMutex::Lock sync(_transceiverRepositoryMutex);
     _transceiverMap.erase(sslPtr);
 }
 

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Mutex.h>
-
+#include <IceUtil/StaticMutex.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/OpenSSLUtils.h>
 
@@ -131,7 +130,7 @@ static unsigned char dh4096_p[] =
 static unsigned char dh4096_g[] = { 0x02, };
 
 // Ensures that the sslGetErrors() function is synchronized.
-static ::IceUtil::Mutex sslErrorsMutex;
+static IceUtil::StaticMutex sslErrorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 //
 // NOTE: The following (mon, getGeneralizedTime, getUTCTime and getASN1time)
@@ -358,7 +357,7 @@ IceSSL::getTempDH4096()
 string
 IceSSL::sslGetErrors()
 {
-    IceUtil::Mutex::Lock sync(sslErrorsMutex);
+    IceUtil::StaticMutex::Lock sync(sslErrorsMutex);
     
     string errorMessage;
     char buf[200];

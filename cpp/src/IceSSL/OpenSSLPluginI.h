@@ -10,6 +10,7 @@
 #ifndef ICE_SSL_OPENSSL_PLUGIN_I_H
 #define ICE_SSL_OPENSSL_PLUGIN_I_H
 
+#include <IceUtil/StaticMutex.h>
 #include <IceUtil/RecMutex.h>
 
 #include <Ice/LoggerF.h>
@@ -127,7 +128,7 @@ private:
     friend class SslClientTransceiver;
     friend class SslServerTransceiver;
 
-    static IceUtil::Mutex _threadIdCacheMutex;
+    static IceUtil::StaticMutex _threadIdCacheMutex;
     static std::vector<unsigned long> _threadIdCache;
 
     void registerThread();

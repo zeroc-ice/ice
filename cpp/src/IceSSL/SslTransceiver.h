@@ -10,11 +10,12 @@
 #ifndef ICE_SSL_TRANSCEIVER_H
 #define ICE_SSL_TRANSCEIVER_H
 
+#include <IceUtil/Mutex.h>
+#include <IceUtil/StaticMutex.h>
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Buffer.h>
-#include <IceUtil/Mutex.h>
 #include <IceSSL/SslTransceiverF.h>
 #include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/TraceLevelsF.h>
@@ -181,7 +182,7 @@ protected:
     void setLastError(int errorCode) { _lastError = errorCode; };
 
     static SslTransceiverMap _transceiverMap;
-    static IceUtil::Mutex _transceiverRepositoryMutex;
+    static IceUtil::StaticMutex _transceiverRepositoryMutex;
 
     // Pointer to the OpenSSL Connection structure.
     SSL* _sslConnection;

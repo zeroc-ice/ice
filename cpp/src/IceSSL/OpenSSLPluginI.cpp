@@ -178,7 +178,7 @@ IceSSL::SslLockKeeper::~SslLockKeeper()
 // PluginI implementation
 //
 
-IceUtil::Mutex IceSSL::OpenSSLPluginI::_threadIdCacheMutex;
+IceUtil::StaticMutex IceSSL::OpenSSLPluginI::_threadIdCacheMutex = ICE_STATIC_MUTEX_INITIALIZER;
 std::vector<unsigned long> IceSSL::OpenSSLPluginI::_threadIdCache;
 
 //
@@ -900,7 +900,7 @@ IceSSL::OpenSSLPluginI::registerThread()
 {
     unsigned long threadID = idFunction();
 
-    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
+    IceUtil::StaticMutex::Lock sync(_threadIdCacheMutex);
 
     if(find(_threadIdCache.begin(), _threadIdCache.end(), threadID) == _threadIdCache.end())
     {
@@ -911,7 +911,7 @@ IceSSL::OpenSSLPluginI::registerThread()
 void
 IceSSL::OpenSSLPluginI::unregisterThreads()
 {
-    IceUtil::Mutex::Lock sync(_threadIdCacheMutex);
+    IceUtil::StaticMutex::Lock sync(_threadIdCacheMutex);
 
     for_each(_threadIdCache.begin(), _threadIdCache.end(), ERR_remove_state);
 }

@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- The IceSSL plug-in was using regular mutexes in some places where
+  static mutexes are necessary. This has been fixed.
+
 - Fixed a bug in the garbage collector that caused a crash in rare
   circumstances.
 
