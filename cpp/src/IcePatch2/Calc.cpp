@@ -203,6 +203,7 @@ main(int argc, char* argv[])
 	    }
 	    
 	    p->erase(0, dataDirWithSlash.size());
+	    *p = "./" + *p;
 	}
     
 	FileInfoSeq infoSeq;
