@@ -176,8 +176,7 @@ IceInternal::createSocket(bool udp)
 	throw ex;
     }
 
-
-#ifdef _WIN32
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400)
     //
     // Temporary work-around!
     // Make this socket non-inheritable, so that IcePack-launched servers
@@ -610,8 +609,7 @@ repeatAccept:
     setTcpNoDelay(ret);
     setKeepAlive(ret);
 
-#ifdef _WIN32
-
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400)
     //
     // Temporary work-around!
     // Make this socket non-inheritable, so that IcePack-launched servers
@@ -623,7 +621,9 @@ repeatAccept:
 	ex.error = getSystemErrno();
 	throw ex;
     }
+#endif
 
+#ifdef _WIN32
     //
     // Set larger send buffer size to avoid performance problems on
     // WIN32.
