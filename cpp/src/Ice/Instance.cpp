@@ -499,121 +499,63 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 void
 IceInternal::Instance::destroy()
 {
-    ThreadPoolPtr clientThreadPool;
-    ThreadPoolPtr serverThreadPool;
+    assert(!_destroyed);
+
+    _objectAdapterFactory->shutdown();
+    _objectAdapterFactory->waitForShutdown();
+	
+    _outgoingConnectionFactory->destroy();
+    _outgoingConnectionFactory->waitUntilFinished();
 
     {
 	IceUtil::RecMutex::Lock sync(*this);
 
-	if(_destroyed)
+	_objectAdapterFactory = 0;
+	_outgoingConnectionFactory = 0;
+
+	if(_serverThreadPool)
 	{
-	    return; // Don't destroy twice.
+	    _serverThreadPool->destroy();
+	    _serverThreadPool->joinWithAllThreads();
+	    _serverThreadPool = 0;	
 	}
+	
+	if(_clientThreadPool)
+	{
+	    _clientThreadPool->destroy();
+	    _clientThreadPool->joinWithAllThreads();
+	    _clientThreadPool = 0;
+	}
+
+	_servantFactoryManager->destroy();
+	_servantFactoryManager = 0;
+	
+	_userExceptionFactoryManager->destroy();
+	_userExceptionFactoryManager = 0;
+	
+	_referenceFactory->destroy();
+	_referenceFactory = 0;
+	
+	// No destroy function defined.
+	// _proxyFactory->destroy();
+	_proxyFactory = 0;
+	
+	_routerManager->destroy();
+	_routerManager = 0;
+
+	_locatorManager->destroy();
+	_locatorManager = 0;
+
+	_endpointFactoryManager->destroy();
+	_endpointFactoryManager = 0;
+
+	_pluginManager->destroy();
+	_pluginManager = 0;
+
+	// No destroy function defined.
+	// _dynamicLibraryList->destroy();
+	_dynamicLibraryList = 0;
 
 	_destroyed = true;
-
-	if(_objectAdapterFactory)
-	{
-	    // Don't shut down the object adapters -- the communicator
-	    // must do this before it destroys this object.
-	    _objectAdapterFactory = 0;
-	}
-	
-	if(_outgoingConnectionFactory)
-	{
-	    _outgoingConnectionFactory->destroy();
-	    _outgoingConnectionFactory = 0;
-	}
-
-	//
-	// We destroy the thread pool outside the thread
-	// synchronization.
-	//
-	clientThreadPool = _clientThreadPool;
-        _clientThreadPool = 0;
-	serverThreadPool = _serverThreadPool;
-        _serverThreadPool = 0;
-    }
-
-    //
-    // We must destroy the outgoing connection factory before we
-    // destroy the client thread pool.
-    //
-    if(clientThreadPool)
-    {
-	clientThreadPool->waitUntilFinished();
-	clientThreadPool->destroy();
-	clientThreadPool->joinWithAllThreads();
-    }
-
-    //
-    // We must destroy the object adapter factory before we destroy
-    // the server thread pool.
-    //
-    if(serverThreadPool)
-    {
-	serverThreadPool->waitUntilFinished();
-	serverThreadPool->destroy();
-	serverThreadPool->joinWithAllThreads();
-    }
-
-    {
-	IceUtil::RecMutex::Lock sync(*this);
-
-	if(_servantFactoryManager)
-	{
-	    _servantFactoryManager->destroy();
-	    _servantFactoryManager = 0;
-	}
-	
-	if(_userExceptionFactoryManager)
-	{
-	    _userExceptionFactoryManager->destroy();
-	    _userExceptionFactoryManager = 0;
-	}
-	
-	if(_referenceFactory)
-	{
-	    _referenceFactory->destroy();
-	    _referenceFactory = 0;
-	}
-	
-	if(_proxyFactory)
-	{
-	    // No destroy function defined
-	    // _proxyFactory->destroy();
-	    _proxyFactory = 0;
-	}
-	
-	if(_routerManager)
-	{
-	    _routerManager->destroy();
-	    _routerManager = 0;
-	}
-
-	if(_locatorManager)
-	{
-	    _locatorManager->destroy();
-	    _locatorManager = 0;
-	}
-
-	if(_endpointFactoryManager)
-	{
-	    _endpointFactoryManager->destroy();
-	    _endpointFactoryManager = 0;
-	}
-
-	if(_pluginManager)
-	{
-	    _pluginManager->destroy();
-	    _pluginManager = 0;
-	}
-
-	if(_dynamicLibraryList)
-	{
-	    // No destroy function defined
-	    // _dynamicLibraryList->destroy();
-	    _dynamicLibraryList = 0;
-	}
     }
 }

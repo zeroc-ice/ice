@@ -29,9 +29,9 @@ class ICE_API Incoming : public ::IceUtil::noncopyable
 {
 public:
 
-    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, Connection*, bool);
+    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, ::IceInternal::Connection*, bool, bool);
 
-    bool invoke(); // Returns true, if the method invocation was asynchronous.
+    void invoke();
 
     BasicStream* is();
     BasicStream* os();
@@ -55,16 +55,12 @@ private:
     Ice::LocalObjectPtr _cookie;
 
     //
-    // If null, no response is expected. Other than determining
-    // whether a response is expected or not, _connection is only
-    // needed for IncomingAsync. For performance reasons, a plain
-    // pointer is used instead of a handle.
+    // Optimization. The connection may not be deleted while a
+    // stack-allocated Incoming still holds it.
     //
     Connection* _connection;
 
-    //
-    // Compression flag, only needed for IncomingAsync.
-    //
+    bool _response;
     bool _compress;
 
     BasicStream _is;

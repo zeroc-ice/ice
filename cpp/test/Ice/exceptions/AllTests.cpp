@@ -672,13 +672,14 @@ typedef ::IceUtil::Handle< ::AMI_WrongOperation_noSuchOperationI> AMI_WrongOpera
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
-    cout << "testing AlreadyRegisteredException and NotRegisteredException for servant... " << flush;
+    cout << "testing servant registration exceptions... " << flush;
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
 	Ice::ObjectPtr obj = new EmptyI;
 	adapter->add(obj, Ice::stringToIdentity("x"));
 	bool gotException = false;
-	try {
+	try
+	{
 	    adapter->add(obj, Ice::stringToIdentity("x"));
 	}
 	catch(const Ice::AlreadyRegisteredException&)
@@ -689,7 +690,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	gotException = false;
 	adapter->remove(Ice::stringToIdentity("x"));
-	try {
+	try
+	{
 	    adapter->remove(Ice::stringToIdentity("x"));
 	}
 	catch(const Ice::NotRegisteredException&)
@@ -702,13 +704,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    cout << "testing AlreadyRegisteredException and NotRegisteredException for servant locator... " << flush;
+    cout << "testing servant locator registrations exceptions... " << flush;
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
 	Ice::ServantLocatorPtr loc = new ServantLocatorI;
 	adapter->addServantLocator(loc, "x");
 	bool gotException = false;
-	try {
+	try
+	{
 	    adapter->addServantLocator(loc, "x");
 	}
 	catch(const Ice::AlreadyRegisteredException&)
@@ -719,7 +722,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	gotException = false;
 	adapter->removeServantLocator("x");
-	try {
+	try
+	{
 	    adapter->removeServantLocator("x");
 	}
 	catch(const Ice::NotRegisteredException&)
@@ -732,12 +736,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    cout << "testing AlreadyRegisteredException and NotRegisteredException for object factory... " << flush;
+    cout << "testing object factory registration exceptions... " << flush;
     {
 	Ice::ObjectFactoryPtr of = new ObjectFactoryI;
 	communicator->addObjectFactory(of, "x");
 	bool gotException = false;
-	try {
+	try
+	{
 	    communicator->addObjectFactory(of, "x");
 	}
 	catch(const Ice::AlreadyRegisteredException&)
@@ -748,7 +753,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	gotException = false;
 	communicator->removeObjectFactory("x");
-	try {
+	try
+	{
 	    communicator->removeObjectFactory("x");
 	}
 	catch(const Ice::NotRegisteredException&)
@@ -759,12 +765,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
-    cout << "testing AlreadyRegisteredException and NotRegisteredException for user exception factory... " << flush;
+    cout << "testing user exception factory registration exceptions... " << flush;
     {
 	Ice::UserExceptionFactoryPtr f = new MyExceptionFactory;
 	communicator->addUserExceptionFactory(f, "::x");
 	bool gotException = false;
-	try {
+	try
+	{
 	    communicator->addUserExceptionFactory(f, "::x");
 	}
 	catch(const Ice::AlreadyRegisteredException&)
@@ -775,7 +782,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	gotException = false;
 	communicator->removeUserExceptionFactory("::x");
-	try {
+	try
+	{
 	    communicator->removeUserExceptionFactory("::x");
 	}
 	catch(const Ice::NotRegisteredException&)

@@ -37,11 +37,8 @@ Ice::CommunicatorI::destroy()
     if(!_destroyed) // Don't destroy twice.
     {
 	_destroyed = true;
-
-	_instance->objectAdapterFactory()->shutdown();
-	_instance->destroy();
-
 	_serverThreadPool = 0;
+	_instance->destroy();
     }
 }
 
@@ -60,14 +57,23 @@ Ice::CommunicatorI::shutdown()
 void
 Ice::CommunicatorI::waitForShutdown()
 {
-    //
-    // No mutex locking here, otherwise the communicator is blocked
-    // while waiting for shutdown.
-    //
-    if(_serverThreadPool)
+    ObjectAdapterFactoryPtr objectAdapterFactory;
+
     {
-	_serverThreadPool->waitUntilFinished();
+	RecMutex::Lock sync(*this);
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+	objectAdapterFactory = _instance->objectAdapterFactory();
     }
+
+    //
+    // We must call waitForShutdown on the object adapter factory
+    // outside the synchronization, otherwise the communicator is
+    // blocked while we wait for shutdown.
+    //
+    objectAdapterFactory->waitForShutdown();
 }
 
 ObjectPrx
@@ -307,8 +313,9 @@ Ice::CommunicatorI::~CommunicatorI()
 	{
 	    Warning warn(_instance->logger());
 	    warn <<
-		"The communicator is not the last Ice object that is deleted.  (You can\n"
-		"disable this warning by setting the property `Ice.Warn.Leaks' to 0.)";
+		"The communicator is not the last Ice object that is\n"
+		"deleted. (You can disable this warning by setting the\n"
+		"property `Ice.Warn.Leaks' to 0.)";
 	}
     }
 }

@@ -17,6 +17,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
@@ -44,6 +45,7 @@ public:
 
     virtual void activate();
     virtual void hold();
+    virtual void waitForHold();
     virtual void deactivate();
     virtual void waitForDeactivate();
 
@@ -67,8 +69,8 @@ public:
     virtual void setLocator(const LocatorPrx&);
     
     std::list< ::IceInternal::ConnectionPtr> getIncomingConnections() const;
-    void incUsageCount();
-    void decUsageCount();
+    void incDirectCount();
+    void decDirectCount();
 
 private:
 
@@ -79,15 +81,16 @@ private:
     
     ObjectPrx newProxy(const Identity&) const;
     ObjectPrx newDirectProxy(const Identity&) const;
-    static void checkIdentity(const Identity&);
     bool isLocal(const ObjectPrx&) const;
+    void checkForDeactivation() const;
+    static void checkIdentity(const Identity&);
 
     ::IceInternal::InstancePtr _instance;
     CommunicatorPtr _communicator;
     bool _printAdapterReadyDone;
-    std::string _name;
-    std::string _id;
-    LoggerPtr _logger;
+    const std::string _name;
+    const std::string _id;
+    const LoggerPtr _logger;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;
@@ -96,8 +99,7 @@ private:
     std::vector< ::IceInternal::EndpointPtr> _routerEndpoints;
     IceUtil::Mutex _routerEndpointsMutex;
     ::IceInternal::LocatorInfoPtr _locatorInfo;
-    int _usageCount;
-    static const char * const _kindOfObject;
+    int _directCount; // The number of direct proxies dispatching on this object adapter.
 };
 
 }

@@ -14,6 +14,7 @@
 
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/ObjectAdapterI.h>
+#include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 
 using namespace std;
@@ -26,18 +27,60 @@ void IceInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
 void
 IceInternal::ObjectAdapterFactory::shutdown()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    //
+    // Ignore shutdown requests if the object adapter factory has
+    // already been shut down.
+    //
+    if(!_instance)
+    {
+	return;
+    }
+    
     for_each(_adapters.begin(), _adapters.end(),
 	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
+    
+    _instance = 0;
+    _communicator = 0;
 
+    notifyAll();
+}
+
+void
+IceInternal::ObjectAdapterFactory::waitForShutdown()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    
+    //
+    // First we wait for the shutdown of the factory itself.
+    //
+    while(_instance)
+    {
+	wait();
+    }
+    
+    //
+    // Now we wait for deactivation of each object adapter.
+    //
+    for_each(_adapters.begin(), _adapters.end(),
+	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::waitForDeactivate));
+    
+    //
+    // We're done, now we can throw away the object adapters.
+    //
     _adapters.clear();
 }
 
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpts, const string& id)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
     if(p != _adapters.end())
@@ -53,13 +96,25 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     for(map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
-	if(p->second->isLocal(proxy))
+	try
 	{
-	    return p->second;
+	    if(p->second->isLocal(proxy))
+	    {
+		return p->second;
+	    }
+	}
+	catch(const ObjectAdapterDeactivatedException&)
+	{
+	    // Ignore.
 	}
     }
 
@@ -71,4 +126,11 @@ IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& insta
     _instance(instance),
     _communicator(communicator)
 {
+}
+
+IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
+{
+    assert(!_instance);
+    assert(!_communicator);
+    assert(_adapters.empty());
 }

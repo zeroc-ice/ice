@@ -38,17 +38,5 @@ TestClient::run(int argc, char* argv[])
 {
     TestPrx allTests(const CommunicatorPtr&);
     TestPrx obj = allTests(communicator());
-
-    cout << "testing whether server is gone... " << flush;
-    try
-    {
-	obj->ice_ping();
-	test(false);
-    }
-    catch(const LocalException&)
-    {
-	cout << "ok" << endl;
-    }
-
     return EXIT_SUCCESS;
 }

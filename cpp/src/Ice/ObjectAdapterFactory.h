@@ -17,21 +17,25 @@
 
 #include <Ice/ObjectAdapterI.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
     void shutdown();
+    void waitForShutdown();
+
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&, const std::string&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
 
 private:
 
     ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
+    virtual ~ObjectAdapterFactory();
     friend class Instance;
 
     InstancePtr _instance;

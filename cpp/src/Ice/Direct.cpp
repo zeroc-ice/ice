@@ -13,7 +13,7 @@
 // **********************************************************************
 
 #include <Ice/Direct.h>
-#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decUsageCount().
+#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decDirectCount().
 #include <Ice/ServantLocator.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
@@ -26,10 +26,10 @@ using namespace IceInternal;
 IceInternal::Direct::Direct(const Current& current) :
     _current(current)
 {
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incDirectCount();
+
     try
     {
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
-
 	_servant = _current.adapter->identityToServant(_current.id);
 	
 	if(!_servant && !_current.id.category.empty())
@@ -82,12 +82,12 @@ IceInternal::Direct::Direct(const Current& current) :
 	    }
 	    catch(...)
 	    {
-		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
 		throw;
 	    }
 	}
 
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
 	throw;
     }
 }
@@ -102,12 +102,12 @@ IceInternal::Direct::~Direct()
 	}
 	catch(...)
 	{
-	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
 	    throw;
 	}
     }
 
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decDirectCount();
 }
 
 const ObjectPtr&

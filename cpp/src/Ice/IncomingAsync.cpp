@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <Ice/IncomingAsync.h>
-#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decUsageCount().
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
@@ -35,13 +34,14 @@ void IceInternal::incRef(AMD_Object_ice_invoke* p) { p->__incRef(); }
 void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
+    _instance(in._is.instance()),
     _current(in._current),
     _servant(in._servant),
     _locator(in._locator),
     _cookie(in._cookie),
     _connection(in._connection),
+    _response(in._response),
     _compress(in._compress),
-    _instance(in._is.instance()),
     _is(_instance),
     _os(_instance)
 {
@@ -52,9 +52,7 @@ IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
 void
 IceInternal::IncomingAsync::__response(bool ok)
 {
-    finishInvoke();
-
-    if(_connection) // Response expected?
+    if(_response)
     {
 	_os.endWriteEncaps();
 
@@ -66,9 +64,9 @@ IceInternal::IncomingAsync::__response(bool ok)
 	{
 	    *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchUserException); // Dispatch status position.
 	}
-
-	_connection->sendResponse(&_os, _compress);
     }
+
+    finishInvoke();
 }
 
 void
@@ -80,8 +78,6 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
     }
     catch(RequestFailedException& ex)
     {
-	finishInvoke();
-
 	if(ex.id.name.empty())
 	{
 	    ex.id = _current.id;
@@ -97,7 +93,7 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ex.operation = _current.operation;
 	}
 
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -120,15 +116,13 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ex.id.__write(&_os);
 	    _os.write(ex.facet);
 	    _os.write(ex.operation);
-
-	    _connection->sendResponse(&_os, _compress);
 	}
+
+	finishInvoke();
     }
     catch(const LocalException& ex)
     {
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -136,15 +130,13 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
-
-	    _connection->sendResponse(&_os, _compress);
 	}
+
+	finishInvoke();
     }
     catch(const UserException& ex)
     {
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -152,15 +144,13 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
-
-	    _connection->sendResponse(&_os, _compress);
 	}
+
+	finishInvoke();
     }
     catch(const Exception& ex)
     {
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -168,18 +158,16 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
-
-	    _connection->sendResponse(&_os, _compress);
 	}
+
+	finishInvoke();
     }
 }
 
 void
 IceInternal::IncomingAsync::__exception(const std::exception& ex)
 {
-    finishInvoke();
-
-    if(_connection) // Response expected?
+    if(_response)
     {
 	_os.endWriteEncaps();
 	_os.b.resize(headerSize + 4); // Dispatch status position.
@@ -187,33 +175,30 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 	ostringstream str;
 	str << "std::exception: " << ex.what();
 	_os.write(str.str());
-
-	_connection->sendResponse(&_os, _compress);
     }
+
+    finishInvoke();
 }
 
 void
 IceInternal::IncomingAsync::__exception()
 {
-    if(_connection) // Response expected?
+    if(_response)
     {
 	_os.endWriteEncaps();
 	_os.b.resize(headerSize + 4); // Dispatch status position.
 	_os.write(static_cast<Byte>(DispatchUnknownException));
 	string reason = "unknown c++ exception";
 	_os.write(reason);
-
-	_connection->sendResponse(&_os, _compress);
     }
+
+    finishInvoke();
 }
 
 void
 IceInternal::IncomingAsync::__fatal(const LocalException& ex)
 {
-    if(_connection)
-    {
-	_connection->exception(ex);
-    }
+    _connection->exception(ex);
 }
 
 BasicStream*
@@ -233,20 +218,24 @@ IceInternal::IncomingAsync::finishInvoke()
 {
     if(_locator && _servant)
     {
-	try
-	{
-	    _locator->finished(_current, _servant, _cookie);
-	}
-	catch(...)
-	{
-	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
-	    throw;
-	}
+	_locator->finished(_current, _servant, _cookie);
     }
-    
-    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
-    
+
     _is.endReadEncaps();
+
+    //
+    // Send a response if necessary. If we don't need to send a
+    // response, we still need to tell the connection that we're
+    // finished with dispatching.
+    //
+    if(_response)
+    {
+	_connection->sendResponse(&_os, _compress);
+    }
+    else
+    {
+	_connection->sendNoResponse();
+    }
 }
 
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :

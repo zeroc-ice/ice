@@ -768,7 +768,7 @@ IceDelegateM::Ice::Object::~Object()
 {
     if(__connection)
     {
-	__connection->decUsageCount();
+	__connection->decProxyCount();
     }
 }
 
@@ -901,12 +901,12 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 
     if(from->__connection)
     {
-	from->__connection->incUsageCount();
+	from->__connection->incProxyCount();
     }
 
     if(__connection)
     {
-	__connection->decUsageCount();
+	__connection->decProxyCount();
     }
 
     __connection = from->__connection;
@@ -954,7 +954,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	}
 	assert(p != connections.end());
 	__connection = *p;
-	__connection->incUsageCount();
+	__connection->incProxyCount();
     }
     else
     {	
@@ -994,7 +994,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 		OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
 		__connection = factory->create(filteredEndpoints);
 		assert(__connection);
-		__connection->incUsageCount();
+		__connection->incProxyCount();
 	    }
 	    catch(const LocalException& ex)
 	    {

@@ -64,11 +64,30 @@ local interface ObjectAdapter
      * Temporarily hold receiving and dispatching requests. The object
      * adapter can be reactivated with the [activate] operation.
      *
+     * <note><para> Holding is not immediate, i.e., after
+     * [hold] returns, the object adapter might still be active
+     * for some time. You can use [waitForHold] to wait until
+     * holding is complete. </para></note>
+     *
      * @see activate
      * @see deactivate
+     * @see waitForHold
      *
      **/
     void hold();
+
+    /**
+     *
+     * Wait until the object adapter holds requests. Calling [hold]
+     * initiates holding of requests, and [waitForHold] only returns
+     * when such holding of requests has been completed.
+     *
+     * @see hold
+     * @see waitForDeactivate
+     * @see Communicator::waitForShutdown
+     *
+     **/
+    void waitForHold();
 
     /**
      *
@@ -82,7 +101,7 @@ local interface ObjectAdapter
      * to [deactivate] on an already deactivated object adapter are
      * ignored.
      *
-     * <note><para> Deactivate is not immediate, i.e., after
+     * <note><para> Deactivation is not immediate, i.e., after
      * [deactivate] returns, the object adapter might still be active
      * for some time. You can use [waitForDeactivate] to wait until
      * deactivation is complete. </para></note>
@@ -103,6 +122,7 @@ local interface ObjectAdapter
      * been completed.
      *
      * @see deactivate
+     * @see waitForHold
      * @see Communicator::waitForShutdown
      *
      **/

@@ -79,14 +79,14 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 void
 IceInternal::OutgoingAsync::__invoke()
 {
-    _connection->incUsageCount();
+    _connection->incProxyCount();
     try
     {
 	_connection->sendAsyncRequest(this, _compress);
     }
     catch(...)
     {
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	throw;
     }
 }
@@ -190,23 +190,23 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     catch(const Exception& ex)
     {
 	warnException(ex);
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
     catch(const std::exception& ex)
     {
 	warnException(ex);
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
     catch(...)
     {
 	warnException();
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
 
-    _connection->decUsageCount();
+    _connection->decProxyCount();
 }
 
 void
@@ -219,23 +219,23 @@ IceInternal::OutgoingAsync::__finished(const LocalException& ex)
     catch(const Exception& ex)
     {
 	warnException(ex);
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
     catch(const std::exception& ex)
     {
 	warnException(ex);
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
     catch(...)
     {
 	warnException(ex);
-	_connection->decUsageCount();
+	_connection->decProxyCount();
 	return;
     }
 
-    _connection->decUsageCount();
+    _connection->decProxyCount();
 }
 
 BasicStream*

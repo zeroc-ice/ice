@@ -51,19 +51,21 @@ private:
 
     void finishInvoke();
 
+    //
+    // We need a separate InstancePtr, because _is and _os only hold a
+    // const InstancePtr& for optimization.
+    //
+    InstancePtr _instance;
+
     Ice::Current _current;
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
 
     ConnectionPtr _connection;
-    bool _compress;
 
-    //
-    // We need a separate InstancePtr, because _is and _os only hold a
-    // const InstancePtr& for optimization.
-    //
-    InstancePtr _instance;
+    bool _response;
+    bool _compress;
 
     BasicStream _is;
     BasicStream _os;

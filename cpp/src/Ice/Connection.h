@@ -16,7 +16,7 @@
 #define ICE_CONNECTION_H
 
 #include <IceUtil/RecMutex.h>
-
+#include <IceUtil/Monitor.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/InstanceF.h>
@@ -42,26 +42,45 @@ namespace IceInternal
 
 class Outgoing;
 
-class Connection : public EventHandler, public ::IceUtil::RecMutex
+class Connection : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::RecMutex>
 {
 public:
 
-    bool destroyed() const;
-    void validate();
-    void hold();
     void activate();
-    void incUsageCount();
-    void decUsageCount();
+    void hold();
+    enum DestructionReason
+    {
+	ObjectAdapterDeactivated,
+	CommunicatorDestroyed
+    };
+    void destroy(DestructionReason);
+
+    bool isDestroyed() const;
+    bool isFinished() const;
+
+    void waitUntilHolding() const;
+    void waitUntilFinished() const;
+
+    void validate();
+
+    void incProxyCount();
+    void decProxyCount();
+
     void prepareRequest(BasicStream*);
     void sendRequest(Outgoing*, bool, bool);
     void sendAsyncRequest(const OutgoingAsyncPtr&, bool);
+
     void prepareBatchRequest(BasicStream*);
     void finishBatchRequest(BasicStream*);
     void abortBatchRequest();
     void flushBatchRequest(bool);
+
     void sendResponse(BasicStream*, bool);
+    void sendNoResponse();
+
     int timeout() const;
     EndpointPtr endpoint() const;
+
     void setAdapter(const ::Ice::ObjectAdapterPtr&);
     ::Ice::ObjectAdapterPtr getAdapter() const;
 
@@ -79,12 +98,6 @@ private:
 
     Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~Connection();
-    enum DestructionReason
-    {
-	ObjectAdapterDeactivated,
-	CommunicatorDestroyed
-    };
-    void destroy(DestructionReason);
     friend class IncomingConnectionFactory;
     friend class OutgoingConnectionFactory;
 
@@ -98,34 +111,49 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
-    void closeConnection() const;
+
+    void initiateShutdown() const;
+
     void registerWithPool();
     void unregisterWithPool();
-    static void compress(BasicStream&, BasicStream&);
-    static void uncompress(BasicStream&, BasicStream&);
 
-    const TransceiverPtr _transceiver;
+    static void doCompress(BasicStream&, BasicStream&);
+    static void doUncompress(BasicStream&, BasicStream&);
+
+    TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
+
     ::Ice::ObjectAdapterPtr _adapter;
+
     const ::Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
     const DefaultsAndOverridesPtr _defaultsAndOverrides;
+
     const ThreadPoolPtr _clientThreadPool;
     const ThreadPoolPtr _serverThreadPool;
+    bool _registeredWithPool;
+
     const bool _warn;
+
     const std::vector< ::Ice::Byte> _requestHdr;
     const std::vector< ::Ice::Byte> _requestBatchHdr;
+    const std::vector< ::Ice::Byte> _replyHdr;
+
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
     std::map< ::Ice::Int, OutgoingAsyncPtr> _asyncRequests;
     std::map< ::Ice::Int, OutgoingAsyncPtr>::iterator _asyncRequestsHint;
+
     std::auto_ptr< ::Ice::LocalException> _exception;
+
     BasicStream _batchStream;
-    int _responseCount;
-    int _usageCount;
+    int _batchRequestNum;
+
+    int _dispatchCount; // The number of requests currently being dispatched.
+    int _proxyCount; // The number of proxies using this connection.
+
     State _state;
-    bool _registeredWithPool;
 };
 
 }

@@ -13,9 +13,10 @@
 // **********************************************************************
 
 #include <Ice/Incoming.h>
-#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decUsageCount().
+#include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
+#include <Ice/Connection.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
@@ -28,9 +29,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter,
-				Connection* connection, bool compress) :
+IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter, Connection* connection,
+				bool response, bool compress) :
     _connection(connection),
+    _response(response),
     _compress(compress),
     _is(instance),
     _os(instance)
@@ -38,7 +40,7 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
     _current.adapter = adapter;
 }
 
-bool
+void
 IceInternal::Incoming::invoke()
 {
     //
@@ -62,7 +64,7 @@ IceInternal::Incoming::invoke()
 
     _is.startReadEncaps();
 
-    if(_connection) // Response expected?
+    if(_response)
     {
 	assert(_os.b.size() == headerSize + 4); // Dispatch status position.
 	_os.write(static_cast<Byte>(0));
@@ -81,8 +83,6 @@ IceInternal::Incoming::invoke()
     {
 	if(_current.adapter)
 	{
-	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
-
 	    _servant = _current.adapter->identityToServant(_current.id);
 	    
 	    if(!_servant && !_current.id.category.empty())
@@ -135,21 +135,12 @@ IceInternal::Incoming::invoke()
 		// call is not finished yet.
 		//
 		assert(status == DispatchOK);
-		return true;
+		return;
 	    }
 	}
     }
     catch(RequestFailedException& ex)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: " << ex;
-	    ex.ice_throw();
-	}	
-
-	finishInvoke();
-
 	if(ex.id.name.empty())
 	{
 	    ex.id = _current.id;
@@ -165,7 +156,9 @@ IceInternal::Incoming::invoke()
 	    ex.operation = _current.operation;
 	}
 
-	if(_connection) // Response expected?
+	warning(ex);
+
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -190,21 +183,14 @@ IceInternal::Incoming::invoke()
 	    _os.write(ex.operation);
 	}
 
-	warning(ex);
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
     catch(const LocalException& ex)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: " << ex;
-	    ex.ice_throw();
-	}	
+	warning(ex);
 
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -214,21 +200,14 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	warning(ex);
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
     catch(const UserException& ex)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: " << ex;
-	    ex.ice_throw();
-	}	
+	warning(ex);
 
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -238,21 +217,14 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	warning(ex);
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
     catch(const Exception& ex)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: " << ex;
-	    ex.ice_throw();
-	}	
+	warning(ex);
 
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -262,21 +234,14 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	warning(ex);
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
     catch(const std::exception& ex)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: std::exception: " << ex.what();
-	    throw UnknownException(__FILE__, __LINE__);
-	}	
+	warning(string("std::exception: ") + ex.what());
 
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -286,21 +251,14 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	warning(string("std::exception: ") + ex.what());
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
     catch(...)
     {
-	if(_is.b.empty()) // Asynchronous dispatch?
-	{
-	    Error out(_os.instance()->logger());
-	    out << "dispatch exception in asynchronous method: unknown c++ exception";
-	    throw UnknownException(__FILE__, __LINE__);
-	}	
+	warning("unknown c++ exception");
 
-	finishInvoke();
-
-	if(_connection) // Response expected?
+	if(_response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -309,8 +267,8 @@ IceInternal::Incoming::invoke()
 	    _os.write(reason);
 	}
 
-	warning("unknown c++ exception");
-	return false; // Regular, non-asynchronous dispatch.
+	finishInvoke();
+	return;
     }
 
     //
@@ -319,9 +277,7 @@ IceInternal::Incoming::invoke()
     // the caller of this operation.
     //
 
-    finishInvoke();
-
-    if(_connection) // Response expected?
+    if(_response)
     {
 	_os.endWriteEncaps();
 	
@@ -344,7 +300,7 @@ IceInternal::Incoming::invoke()
 	}
     }
 
-    return false; // Regular, non-asynchronous dispatch.
+    finishInvoke();
 }
 
 BasicStream*
@@ -364,26 +320,24 @@ IceInternal::Incoming::finishInvoke()
 {
     if(_locator && _servant)
     {
-	try
-	{
-	    _locator->finished(_current, _servant, _cookie);
-	}
-	catch(...)
-	{
-	    if(_current.adapter)
-	    {
-		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
-	    }
-	    throw;
-	}
+	_locator->finished(_current, _servant, _cookie);
     }
-    
-    if(_current.adapter)
-    {
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
-    }
-    
+
     _is.endReadEncaps();
+
+    //
+    // Send a response if necessary. If we don't need to send a
+    // response, we still need to tell the connection that we're
+    // finished with dispatching.
+    //
+    if(_response)
+    {
+	_connection->sendResponse(&_os, _compress);
+    }
+    else
+    {
+	_connection->sendNoResponse();
+    }
 }
 
 void

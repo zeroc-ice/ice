@@ -15,7 +15,8 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
-#include <IceUtil/RecMutex.h>
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/InstanceF.h>
@@ -38,9 +39,13 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class OutgoingConnectionFactory : public ::IceUtil::Shared, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
+
+    void destroy();
+
+    void waitUntilFinished();
 
     ConnectionPtr create(const std::vector<EndpointPtr>&);
     void setRouter(const ::Ice::RouterPrx&);
@@ -50,19 +55,22 @@ private:
 
     OutgoingConnectionFactory(const InstancePtr&);
     virtual ~OutgoingConnectionFactory();
-    void destroy();
     friend class Instance;
 
     InstancePtr _instance;
     std::map<EndpointPtr, ConnectionPtr> _connections;
 };
 
-class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Mutex
+class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
-    void hold();
     void activate();
+    void hold();
+    void destroy();
+
+    void waitUntilHolding() const;
+    void waitUntilFinished();
 
     EndpointPtr endpoint() const;
     bool equivalent(const EndpointPtr&) const;
@@ -82,7 +90,6 @@ private:
 
     IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
-    void destroy();
     friend class ::Ice::ObjectAdapterI;
 
     enum State
@@ -96,15 +103,20 @@ private:
     void registerWithPool();
     void unregisterWithPool();
 
-    const EndpointPtr _endpoint;
-    ::Ice::ObjectAdapterPtr _adapter; // Cannot be const, because it must be set to zero to break cyclic dependency.
-    const AcceptorPtr _acceptor;
+    AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
+    const EndpointPtr _endpoint;
+
+    const ::Ice::ObjectAdapterPtr _adapter;
+
     const ThreadPoolPtr _serverThreadPool;
-    const bool _warn;
-    std::list<ConnectionPtr> _connections;
-    State _state;
     bool _registeredWithPool;
+
+    const bool _warn;
+
+    std::list<ConnectionPtr> _connections;
+
+    State _state;
 };
 
 }

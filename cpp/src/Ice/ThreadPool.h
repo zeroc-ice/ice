@@ -17,7 +17,6 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 
 #include <Ice/ThreadPoolF.h>
@@ -36,7 +35,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ThreadPool : public ::IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class ThreadPool : public ::IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -44,7 +43,6 @@ public:
     void unregister(SOCKET);
     void promoteFollower();
     void initiateShutdown(); // Signal-safe shutdown initiation.
-    void waitUntilFinished();
     void joinWithAllThreads();
     
 private:
@@ -70,7 +68,6 @@ private:
     fd_set _fdSet;
     std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
-    int _handlers;
     int _timeout;
     ::IceUtil::Mutex _threadMutex;
     bool _multipleThreads;
@@ -89,7 +86,6 @@ private:
     friend class EventHandlerThread;
 
     std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
-    int _threadNum; // Number of running threads.
 };
 
 }

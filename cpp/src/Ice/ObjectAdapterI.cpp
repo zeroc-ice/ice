@@ -46,12 +46,7 @@ Ice::ObjectAdapterI::getCommunicator()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     return _communicator;
 }
@@ -61,12 +56,7 @@ Ice::ObjectAdapterI::activate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
     
     if(!_printAdapterReadyDone)
     {
@@ -120,43 +110,46 @@ Ice::ObjectAdapterI::hold()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 	
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::hold));
 }
     
 void
+Ice::ObjectAdapterI::waitForHold()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	     Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
+}
+
+void
 Ice::ObjectAdapterI::deactivate()
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    
+    //
+    // Ignore deactivation requests if the object adapter has already
+    // been deactivated.
+    //
+    if(!_instance)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	if(!_instance)
-	{
-	    //
-	    // Ignore deactivation requests if the Object Adapter has
-	    // already been deactivated.
-	    //
-	    return;
-	}
-	
-	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		 Ice::voidMemFun(&IncomingConnectionFactory::destroy));
-	_incomingConnectionFactories.clear();
-	
-	_instance->outgoingConnectionFactory()->removeAdapter(this);
-
-	_instance = 0;
-	_communicator = 0;
+	return;
     }
+    
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
+    
+    _instance->outgoingConnectionFactory()->removeAdapter(this);
+    
+    _instance = 0;
+    _communicator = 0;
 
-    decUsageCount();
+    notifyAll();
 }
 
 void
@@ -164,14 +157,62 @@ Ice::ObjectAdapterI::waitForDeactivate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    assert(_usageCount >= 0);
-
-    while(_usageCount > 0)
+    //
+    // First we wait for deactivation of the adapter itself, and for
+    // the return of all direct method calls using this adapter.
+    //
+    while(_instance || _directCount > 0)
     {
 	wait();
     }
 
-    assert(_usageCount == 0);
+    //
+    // Now we wait for until all incoming connection factories are
+    // finished.
+    //
+    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+    
+    //
+    // We're done, now we can throw away all incoming connection
+    // factories.
+    //
+    _incomingConnectionFactories.clear();
+
+    //
+    // Now it's also time to clean up the active servant map.
+    //
+    _activeServantMap.clear();
+    _activeServantMapHint = _activeServantMap.end();
+    
+    //
+    // And the servant locators, too.
+    //
+    std::map<std::string, ServantLocatorPtr>::iterator p;
+    for(p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
+    {
+	try
+	{
+	    p->second->deactivate();
+	}
+	catch(const Exception& ex)
+	{
+	    Error out(_logger);
+	    out << "exception during locator deactivation:\n"
+		<< "object adapter: `" << _name << "'\n"
+		<< "locator prefix: `" << p->first << "'\n"
+		<< ex;
+	}
+	catch(...)
+	{
+	    Error out(_logger);
+	    out << "unknown exception during locator deactivation:\n"
+		<< "object adapter: `" << _name << "'\n"
+		<< "locator prefix: `" << p->first << "'";
+	}
+    }
+    _locatorMap.clear();
+    _locatorMapHint = _locatorMap.end();
 }
 
 ObjectPrx
@@ -179,16 +220,10 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-
+    checkForDeactivation();
     checkIdentity(ident);
 
-    if(   (_activeServantMapHint != _activeServantMap.end() && _activeServantMapHint->first == ident)
+    if((_activeServantMapHint != _activeServantMap.end() && _activeServantMapHint->first == ident)
        || _activeServantMap.find(ident) != _activeServantMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
@@ -207,12 +242,7 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     Identity ident;
     ident.name = IceUtil::generateUUID();
@@ -227,13 +257,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-
+    checkForDeactivation();
     checkIdentity(ident);
 
     ObjectDict::iterator p = _activeServantMap.find(ident);
@@ -254,14 +278,9 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
-    if(   (_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == prefix)
+    if((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == prefix)
        || _locatorMap.find(prefix) != _locatorMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
@@ -278,12 +297,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
@@ -326,20 +340,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    //
-    // Don't check whether deactivation has been initiated. This
-    // operation might be called (e.g., from Incoming or Direct)
-    // after deactivation has been initiated, but before
-    // deactivation has been completed.
-    //
-    /*
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-    */
+    checkForDeactivation();
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
     
@@ -372,25 +373,12 @@ Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    //
-    // Don't check whether deactivation has been initiated. This
-    // operation might be called (e.g., from Incoming or Direct)
-    // after deactivation has been initiated, but before
-    // deactivation has been completed.
-    //
-    /*
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-    */
+    checkForDeactivation();
     
     //
-    // Don't call checkIdentity. We simply want null to be
-    // returned (e.g., for Direct, Incoming) in case the identity
-    // is incorrect and therefore no servant can be found.
+    // Don't call checkIdentity. We simply want null to returned
+    // (e.g., for Direct, Incoming) in case the identity is incorrect
+    // and therefore no servant can be found.
     //
     /*
     checkIdentity(ident);
@@ -426,51 +414,33 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    checkForDeactivation();
     checkIdentity(ident);
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-    
     return newProxy(ident);
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 {
-    checkIdentity(ident);
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-    
+    checkForDeactivation();
+    checkIdentity(ident);
+
     return newDirectProxy(ident);
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
-    checkIdentity(ident);
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
-    
+    checkForDeactivation();
+    checkIdentity(ident);
+
     //
     // Create a reference and return a reverse proxy for this reference.
     //
@@ -485,12 +455,7 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
     if(routerInfo)
@@ -530,12 +495,7 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
@@ -545,12 +505,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(!_instance)
-    {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = _name;
-	throw ex;
-    }
+    checkForDeactivation();
 
     list<ConnectionPtr> connections;
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
@@ -563,72 +518,32 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 }
 
 void
-Ice::ObjectAdapterI::incUsageCount()
+Ice::ObjectAdapterI::incDirectCount()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
  
-    //
-    // Don't check whether deactivation has been initiated. This
-    // operation might be called (e.g., from Incoming or Direct)
-    // after deactivation has been initiated, but before
-    // deactivation has been completed.
-    //
-    /*
-    assert(_instance);
-    */
-    assert(_usageCount >= 0);
-    ++_usageCount;
+    checkForDeactivation();
+
+    assert(_directCount >= 0);
+    ++_directCount;
 }
 
 void
-Ice::ObjectAdapterI::decUsageCount()
+Ice::ObjectAdapterI::decDirectCount()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
-    // The object adapter may already be deactivated when the usage
-    // count is decremented, thus no check for prior deactivation,
-    // i.e., no assert(_instance).
+    // The object adapter may already have been deactivated when the
+    // direct count is decremented, thus there is no check for prior
+    // deactivation.
     //
 
-    assert(_usageCount > 0);
-    --_usageCount;
-    if(_usageCount == 0)
+    assert(_directCount > 0);
+    if(--_directCount == 0)
     {
-	_activeServantMap.clear();
-	_activeServantMapHint = _activeServantMap.end();
-
-        std::map<std::string, ServantLocatorPtr>::iterator p;
-        for(p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
-        {
-            try
-            {
-                p->second->deactivate();
-            }
-            catch(const Exception& ex)
-            {
-                Error out(_logger);
-                out << "exception during locator deactivation:\n"
-                    << "object adapter: `" << _name << "'\n"
-                    << "locator prefix: `" << p->first << "'\n"
-                    << ex;
-            }
-            catch(...)
-            {
-                Error out(_logger);
-                out << "unknown exception during locator deactivation:\n"
-                    << "object adapter: `" << _name << "'\n"
-                    << "locator prefix: `" << p->first << "'";
-            }
-        }
-//	for_each(_locatorMap.begin(), _locatorMap.end(),
-//		 Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
-	_locatorMap.clear();
-	_locatorMapHint = _locatorMap.end();
-        _logger = 0;
-
 	notifyAll();
-    }
+    }    
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
@@ -641,7 +556,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _logger(instance->logger()),
     _activeServantMapHint(_activeServantMap.end()),
     _locatorMapHint(_locatorMap.end()),
-    _usageCount(1)
+    _directCount(0)
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -683,7 +598,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
 
-	    end = end + 1;
+	    ++end;
 	}
     }
     catch(...)
@@ -697,18 +612,19 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    assert(_usageCount == 0);
-
-    if(_instance)
-    {
-	Warning out(_instance->logger());
-	out << "object adapter has not been deactivated";
-    }
+    assert(!_instance);
+    assert(!_communicator);
+    assert(_incomingConnectionFactories.empty());
+    assert(_activeServantMap.empty());
+    assert(_locatorMap.empty());
+    assert(_directCount == 0);
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 {
+    checkForDeactivation();
+
     if(_id.empty())
     {
 	return newDirectProxy(ident);
@@ -732,6 +648,8 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
 {
+    checkForDeactivation();
+
     vector<EndpointPtr> endpoints;
 
     // 
@@ -760,20 +678,11 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
 
 }
 
-void
-Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
-{
-    if(ident.name.size() == 0)
-    {
-        IllegalIdentityException e(__FILE__, __LINE__);
-        e.id = ident;
-        throw e;
-    }
-}
-
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
+    checkForDeactivation();
+
     ReferencePtr ref = proxy->__reference();
     vector<EndpointPtr>::const_iterator p;
 
@@ -821,4 +730,26 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     }
 	
     return false;
+}
+
+void
+Ice::ObjectAdapterI::checkForDeactivation() const
+{
+    if(!_instance)
+    {
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
+    }
+}
+
+void
+Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
+{
+    if(ident.name.size() == 0)
+    {
+        IllegalIdentityException e(__FILE__, __LINE__);
+        e.id = ident;
+        throw e;
+    }
 }
