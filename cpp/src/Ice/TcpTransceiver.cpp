@@ -321,14 +321,15 @@ IceInternal::TcpTransceiver::type() const
 string
 IceInternal::TcpTransceiver::toString() const
 {
-    return fdToString(_fd);
+    return _desc;
 }
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _stats(instance->stats()),
-    _fd(fd)
+    _fd(fd),
+    _desc(fdToString(fd))
 {
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);

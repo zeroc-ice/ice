@@ -574,7 +574,7 @@ namespace IceInternal
 			    }
 			    catch(Ice.LocalException ex)
 			    {
-			        string s = "exception in `" + _prefix + "' while calling finished():\n" + ex;
+			        string s = "exception in `" + _prefix + "' while calling message():\n" + ex;
 			    	_instance.logger().error(s);
 			    }
 

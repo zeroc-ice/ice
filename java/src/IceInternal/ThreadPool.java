@@ -698,7 +698,7 @@ public final class ThreadPool
 			    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			    ex.printStackTrace(pw);
 			    pw.flush();
-			    String s = "exception in `" + _prefix + "' while calling finished():\n" +
+			    String s = "exception in `" + _prefix + "' while calling message():\n" +
 				sw.toString() + "\n" + handler.toString();
 			    _instance.logger().error(s);
 			}

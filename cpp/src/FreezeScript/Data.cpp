@@ -1600,7 +1600,7 @@ FreezeScript::SequenceData::getElement(const DataPtr& element) const
     }
 
     Ice::Long iv = i->integerValue();
-    if(iv < 0 || iv >= _elements.size())
+    if(iv < 0 || iv >= static_cast<Ice::Long>(_elements.size()))
     {
         _errorReporter->error("sequence index " + i->toString() + " out of range");
     }
