@@ -25,7 +25,7 @@ using namespace IceInternal;
 namespace Ice
 {
 
-CollectorPtr theCollector = 0;
+extern IceUtil::Handle<IceUtil::GC> theCollector;
 
 void collectGarbage()
 {

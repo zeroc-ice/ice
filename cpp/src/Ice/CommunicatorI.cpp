@@ -29,12 +29,45 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-int Ice::CommunicatorI::_communicatorCount = 0;
-IceUtil::StaticMutex Ice::CommunicatorI::_gcMutex = ICE_STATIC_MUTEX_INITIALIZER;
-Ice::CommunicatorI::GarbageCollectorStats Ice::CommunicatorI::_gcStats;
-int Ice::CommunicatorI::_gcTraceLevel;
-string Ice::CommunicatorI::_gcTraceCat;
-LoggerPtr Ice::CommunicatorI::_gcLogger;
+IceUtil::Handle<IceUtil::GC> theCollector = 0;
+
+struct GarbageCollectorStats
+{
+    GarbageCollectorStats() :
+	runs(0), examined(0), collected(0), msec(0.0)
+    {
+    }
+    int runs;
+    int examined;
+    int collected;
+    double msec;
+};
+
+static int communicatorCount = 0;
+static IceUtil::StaticMutex gcMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static GarbageCollectorStats gcStats;
+static int gcTraceLevel;
+static string gcTraceCat;
+static LoggerPtr gcLogger;
+
+static void
+printGCStats(const ::IceUtil::GCStats& stats)
+{
+    IceUtil::StaticMutex::Lock l(gcMutex);
+
+    if(gcTraceLevel)
+    {
+	if(gcTraceLevel > 1)
+	{
+	    Trace out(gcLogger, gcTraceCat);
+	    out << stats.collected << "/" << stats.examined << ", " << stats.msec << "ms";
+	}
+	++gcStats.runs;
+	gcStats.examined += stats.examined;
+	gcStats.collected += stats.collected;
+	gcStats.msec += stats.msec;
+    }
+}
 
 void
 Ice::CommunicatorI::destroy()
@@ -53,8 +86,8 @@ Ice::CommunicatorI::destroy()
 
     bool last;
     {
-	IceUtil::RecMutex::Lock sync(*this);
-        last = (--_communicatorCount == 0);
+	IceUtil::RecMutex::Lock sync(*this); // TODO: This lock is per communicator, so it can't lock a global.
+        last = (--communicatorCount == 0);
     }
 
     if(last)
@@ -70,20 +103,20 @@ Ice::CommunicatorI::destroy()
 
     if(last)
     {
-	IceUtil::StaticMutex::Lock l(_gcMutex);
+	IceUtil::StaticMutex::Lock l(gcMutex);
 
-	if(_gcTraceLevel)
+	if(gcTraceLevel)
 	{
-	    Trace out(_gcLogger, _gcTraceCat);
-	    out << "totals: " << _gcStats.collected << "/" << _gcStats.examined << ", "
-		<< _gcStats.msec << "ms" << ", " << _gcStats.runs << " run";
-	    if(_gcStats.runs != 1)
+	    Trace out(gcLogger, gcTraceCat);
+	    out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
+		<< gcStats.msec << "ms" << ", " << gcStats.runs << " run";
+	    if(gcStats.runs != 1)
 	    {
 		out << "s";
 	    }
 	}
-	_gcTraceLevel = 0;
-	_gcLogger = 0;
+	gcTraceLevel = 0;
+	gcLogger = 0;
     }
 
     if(instance)
@@ -337,14 +370,14 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 	// collector can continue to log messages even if the first communicator that
 	// is created isn't the last communicator to be destroyed.
 	//
-	IceUtil::RecMutex::Lock sync(*this);
-	if(++_communicatorCount == 1)
+	IceUtil::RecMutex::Lock sync(*this); // TODO: This lock is per communicator, so it can't lock a global.
+	if(++communicatorCount == 1)
 	{
 	    {
-		IceUtil::StaticMutex::Lock l(_gcMutex);
-		_gcTraceLevel = _instance->traceLevels()->gc;
-		_gcTraceCat = _instance->traceLevels()->gcCat;
-		_gcLogger = _instance->logger();
+		IceUtil::StaticMutex::Lock l(gcMutex);
+		gcTraceLevel = _instance->traceLevels()->gc;
+		gcTraceCat = _instance->traceLevels()->gcCat;
+		gcLogger = _instance->logger();
 	    }
 	    theCollector = new IceUtil::GC(properties->getPropertyAsInt("Ice.GC.Interval"), printGCStats);
 	    theCollector->start();
@@ -378,23 +411,4 @@ void
 Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 {
     _instance->finishSetup(argc, argv);
-}
-
-void
-Ice::CommunicatorI::printGCStats(const ::IceUtil::GCStats& stats)
-{
-    IceUtil::StaticMutex::Lock l(_gcMutex);
-
-    if(_gcTraceLevel)
-    {
-	if(_gcTraceLevel > 1)
-	{
-	    Trace out(_gcLogger, _gcTraceCat);
-	    out << stats.collected << "/" << stats.examined << ", " << stats.msec << "ms";
-	}
-	++_gcStats.runs;
-	_gcStats.examined += stats.examined;
-	_gcStats.collected += stats.collected;
-	_gcStats.msec += stats.msec;
-    }
 }
