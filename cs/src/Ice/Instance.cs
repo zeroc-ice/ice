@@ -300,6 +300,39 @@ namespace IceInternal
 	        
 	    try
 	    {
+		lock(_staticLock)
+		{
+		    if(!_oneOffDone)
+		    {
+			string stdOut = _properties.getProperty("Ice.StdOut");
+			string stdErr = _properties.getProperty("Ice.StdErr");
+			
+			System.IO.StreamWriter outStream = null;
+			
+			if(stdOut.Length > 0)
+			{
+			    outStream = System.IO.File.AppendText(stdOut);
+			    outStream.AutoFlush = true;
+			    System.Console.SetOut(outStream);
+			}
+			if(stdErr.Length > 0)
+			{
+			    if(stdErr.Equals(stdOut))
+			    {
+				System.Console.SetError(outStream); 
+			    }
+			    else
+			    {
+				System.IO.StreamWriter errStream = System.IO.File.AppendText(stdErr);
+				errStream.AutoFlush = true;
+				System.Console.SetError(errStream);
+			    }
+			}
+
+			_oneOffDone = true;
+		    }
+		}
+		
 		if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
 		{
 		    _logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
@@ -584,6 +617,10 @@ namespace IceInternal
 	private Ice.PluginManager _pluginManager;
 	private volatile BufferManager _bufferManager; // Immutable, not reset by destroy().
 	private volatile static bool _printProcessIdDone = false;
+
+        private static bool _oneOffDone = false;
+        private static System.Object _staticLock = new System.Object();
+
     }
 
 }

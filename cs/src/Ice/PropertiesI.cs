@@ -395,6 +395,8 @@ namespace Ice
 	    "PrintProcessId",
 	    "ProgramName",
 	    "RetryIntervals",
+	    "StdErr",
+	    "StdOut",
 	    "ServerId",
 	    "ServerIdleTime",
 	    "ThreadPool.Client.Size",
