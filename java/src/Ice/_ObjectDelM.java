@@ -148,7 +148,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing(operation, OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __out = getOutgoing(operation, mode, __context);
         try
         {
             IceInternal.BasicStream __os = __out.os();
