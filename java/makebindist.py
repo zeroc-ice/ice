@@ -102,6 +102,8 @@ elif sys.platform.startswith("linux"):
     platform = "linux"
 elif sys.platform.startswith("sunos"):
     platform = "solaris"
+elif sys.platform.startswith("hp"):
+    platform = "hp"
 else:
     print "unknown platform (" + sys.platform + ")!"
     sys.exit(1)
@@ -137,8 +139,8 @@ else:
         "slice2docbook",\
     ]
     libraries = [ \
-        "libIceUtil.so",\
-        "libSlice.so",\
+        "libIceUtil",\
+        "libSlice",\
     ]
     symlinks = 1
     strip = 1
@@ -153,12 +155,18 @@ for x in executables:
 
 if symlinks:
     for so in libraries:
-        soVer = so + '.' + version
-        soInt = so + '.' + intVer
+        if platform == "hp":
+            soBase = so
+            soLib = so + ".sl"
+        else:
+            soBase = so + ".so"
+            soLib = soBase
+        soVer = soBase + '.' + version
+        soInt = soBase + '.' + intVer
         shutil.copyfile(icehome + "/lib/" + soVer, libdir + "/" + soVer)
         os.chdir(libdir)
         os.symlink(soVer, soInt)
-        os.symlink(soInt, so)
+        os.symlink(soInt, soLib)
         os.chdir(cwd)
 else:
     for x in libraries:
@@ -186,7 +194,11 @@ if strip:
         os.system("strip " + bindir + "/" + x)
         os.chmod(bindir + "/" + x, 0755)
     for x in libraries:
-        os.system("strip " + libdir + "/" + x)
+        if platform == "hp":
+            soLib = x + ".sl"
+        else:
+            soLib = x + ".so"
+        os.system("strip " + libdir + "/" + soLib)
 
 #
 # Create binary archives.
