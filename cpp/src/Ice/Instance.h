@@ -16,7 +16,7 @@
 #define ICE_INSTANCE_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
@@ -110,9 +110,17 @@ private:
     //
     // Global state management
     //
+
     friend class GlobalStateMutexDestroyer;
+
     static int _globalStateCounter;
-    static IceUtil::StaticMutex* _globalStateMutex;
+
+    //
+    // This is *not* a StaticMutex. Only the pointer is static, but not
+    // the mutex itself.
+    //
+    static IceUtil::Mutex* _globalStateMutex;
+
 #ifndef _WIN32
     static std::string _identForOpenlog;
 #endif
