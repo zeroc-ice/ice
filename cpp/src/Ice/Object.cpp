@@ -241,7 +241,7 @@ Ice::Object::__read(::IceInternal::BasicStream* __is, bool __rid)
 	__is->read(s);
 	pair<const string, ObjectPtr> v(s, ObjectPtr());
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
-	__is->read(::__patch__ObjectPtr, &_activeFacetMapHint->second);
+	__is->read(::Ice::__patch__ObjectPtr, &_activeFacetMapHint->second);
     }
 
     __is->endReadSlice();
