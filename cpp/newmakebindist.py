@@ -566,13 +566,22 @@ def makeInstall(buildDir, installDir, distro, clean):
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
 
-    if distro.startswith("Ice-"):
-	if getPlatform() <> "linux":
+    if getPlatform() <> "linux":
+	if distro.startswith("Ice-"):
 	    os.system("perl -pi -e 's/^#(BZIP2_HOME)/$1/' config/Make.rules")
 	    os.system("perl -pi -e 's/^#(DB_HOME)/$1/' config/Make.rules")
 	    os.system("perl -pi -e 's/^#(OPENSSL_HOME)/$1/' config/Make.rules")
 	    os.system("perl -pi -e 's/^#(EXPAT_HOME)/$1/' config/Make.rules")
 	    os.system("perl -pi -e 's/^#(READLINE_HOME)/$1/' config/Make.rules")
+	elif distro.startswith("IcePy"):
+	    os.system("perl -pi -e 's/^PYTHON_INCLUDE_DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/" + \
+		      "\$\(PYTHON_VERSION\)/' config/Make.rules")
+	    if getPlatform() == "hpux":
+		os.system("perl -pi -e 's/^PYTHON_LIB_DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib/" + \
+			  " config/Make.rules")
+	    else:
+		os.system("perl -pi -e 's/^PYTHON_LIB_DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/" + \
+			  "\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
     os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
