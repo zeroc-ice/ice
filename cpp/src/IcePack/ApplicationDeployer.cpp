@@ -97,6 +97,12 @@ IcePack::ApplicationDeployHandler::startElement(const XMLCh *const name, Attribu
     string str = toString(name);
     if(str == "server")
     {
+	string basedir = getAttributeValueWithDefault(attrs, "basedir", "");
+	if(!basedir.empty())
+	{
+	    _deployer.overrideBaseDir(basedir);
+	}
+
 	string name = getAttributeValue(attrs, "name");
 	string descriptor = getAttributeValue(attrs, "descriptor");
 	string binpath = getAttributeValueWithDefault(attrs, "binpath", "");
@@ -136,6 +142,8 @@ IcePack::ApplicationDeployer::addServer(const string& name,
 	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
     }
 
-    _tasks.push_back(new AddServer(_admin, name, descriptor, binpath, libpath, _targets));
+    string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
+
+    _tasks.push_back(new AddServer(_admin, name, xmlFile, binpath, libpath, _targets));
 }
 
