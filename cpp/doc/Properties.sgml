@@ -1158,11 +1158,10 @@ IcePack.Node.PropertiesOverride=<replaceable>overrides</replaceable>
 <title>Description</title>
 <para>
 Defines a list (separated by whitespace) of properties which are used
-in addition or which override the properties defined in the server
-deployment descriptor. For example in some cases it's desirable to set
+in addition or which override the properties defined in server
+deployment descriptors. For example in some cases it's desirable to set
 the property <literal>Ice.Default.Host</literal> for servers, but not
-in the server deployment descriptor since it's a system dependent
-property.
+in server deployment descriptors.
 </para>
 </section>
 </section>
