@@ -103,8 +103,7 @@ version = re.search("ICE_STRING_VERSION = \"(.*)\"", config.read()).group(1)
 # Create source archives.
 #
 icever = "IceJ-" + version
-os.mkdir(icever)
-os.rename("icej", os.path.join(icever, "icej"))
+os.rename("icej", icever)
 os.system("tar cvzf " + icever + ".tar.gz " + icever)
 os.system("zip -9 -r " + icever + ".zip " + icever)
 
@@ -117,7 +116,7 @@ os.system("zip -9 -r " + icever + ".zip " + icever)
 #
 if binary:
     cwd = os.getcwd()
-    os.chdir(os.path.join(icever, "icej"))
+    os.chdir(icever)
 
     #
     # Build classes.
@@ -179,8 +178,8 @@ if binary:
         ]
         symlinks = 1
 
-    bindir = os.path.join(icever, "icej", "bin")
-    libdir = os.path.join(icever, "icej", "lib")
+    bindir = os.path.join(icever, "bin")
+    libdir = os.path.join(icever, "lib")
     os.mkdir(bindir)
     icehome = os.environ["ICE_HOME"]
     for x in executables:
