@@ -787,8 +787,18 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
     //
 
     __reference = from->__reference;
+
+    if (from->__connection)
+    {
+	from->__connection->incProxyUsageCount();
+    }
+
+    if (__connection)
+    {
+	__connection->decProxyUsageCount();
+    }
+
     __connection = from->__connection;
-    __connection->incProxyUsageCount();
 }
 
 void
