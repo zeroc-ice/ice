@@ -39,8 +39,8 @@ print "testing default certificate verifier."
 TestUtil.clientServerTest(toplevel, name)
 
 print "testing single-certificate certificate verifier."
-TestUtil.clientProtocol += " --IceSSL.Client.CertificateVerifier=singleCert"
-TestUtil.serverProtocol += " --IceSSL.Server.CertificateVerifier=singleCert"
+TestUtil.clientOptions += " --IceSSL.Client.CertificateVerifier=singleCert"
+TestUtil.serverOptions += " --IceSSL.Server.CertificateVerifier=singleCert"
 TestUtil.clientServerTest(toplevel, name)
 
 sys.exit(0)
