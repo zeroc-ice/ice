@@ -1039,7 +1039,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	{
 	    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	    setState(StateClosed, ex);
-	    return;
 	}
     }
 }

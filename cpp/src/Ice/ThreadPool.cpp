@@ -445,11 +445,13 @@ IceInternal::ThreadPool::run()
 	    // Initiate server shutdown.
 	    //
 	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();
-	    if(factory)
+	    if(!factory)
 	    {
-		promoteFollower();
-		factory->shutdown();
+		goto repeatSelect;
 	    }
+
+	    promoteFollower();
+	    factory->shutdown();
 	}
 	else
 	{

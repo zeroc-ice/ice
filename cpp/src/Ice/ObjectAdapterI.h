@@ -41,6 +41,8 @@ class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Monitor< ::IceUti
 {
 public:
 
+    virtual std::string getName();
+
     virtual CommunicatorPtr getCommunicator();
 
     virtual void activate();

@@ -38,6 +38,15 @@ local interface ObjectAdapter
 {
     /**
      *
+     * Get the name of this object adapter.
+     *
+     * @return This object adapter's name.
+     *
+     **/
+    string getName();
+
+    /**
+     *
      * Get the communicator this object adapter belongs to.
      *
      * @return This object adapter's communicator.

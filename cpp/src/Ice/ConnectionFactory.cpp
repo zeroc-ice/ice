@@ -585,7 +585,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	
 	case StateHolding:
 	{
-	    if(_state != StateActive) // Can only switch from active to holding
+	    if(_state != StateActive) // Can only switch from active to holding.
 	    {
 		return;
 	    }

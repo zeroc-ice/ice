@@ -217,13 +217,13 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	s << heading;
 	printHeader(s, stream);
 
-	Int batchRequestNum;
+	int batchRequestNum;
 	stream.read(batchRequestNum);
 	s << "\nnumber of requests = " << batchRequestNum;
 
-	while(batchRequestNum)
+	for(int i = 0; i < batchRequestNum; ++i)
 	{
-	    s << "\nrequest #" << batchRequestNum-- << ':';
+	    s << "\nrequest #" << i << ':';
 	    printRequestHeader(s, stream);
 	    stream.skipEncaps();
 	}

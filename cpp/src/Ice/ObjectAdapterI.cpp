@@ -41,6 +41,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+string
+Ice::ObjectAdapterI::getName()
+{
+    //
+    // No mutex lock necessary, _name is immutable.
+    //
+    return _name;
+}
+
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
@@ -612,12 +621,19 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    assert(!_instance);
-    assert(!_communicator);
-    assert(_incomingConnectionFactories.empty());
-    assert(_activeServantMap.empty());
-    assert(_locatorMap.empty());
-    assert(_directCount == 0);
+    if(_instance)
+    {
+	Warning out(_instance->logger());
+	out << "object adapter `" << _name << "' has not been deactivated";
+    }
+    else
+    {
+	assert(!_communicator);
+	assert(_incomingConnectionFactories.empty());
+	assert(_activeServantMap.empty());
+	assert(_locatorMap.empty());
+	assert(_directCount == 0);
+    }
 }
 
 ObjectPrx
