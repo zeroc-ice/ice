@@ -52,6 +52,7 @@ public:
     void endWriteEncaps();
     void startReadEncaps();
     void endReadEncaps();
+    void skipReadEncaps(); 
     void checkReadEncaps();
     Ice::Int getReadEncapsSize();
     void skipEncaps();

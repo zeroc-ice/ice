@@ -93,7 +93,10 @@ public abstract class OutgoingAsync
     {
 	try
 	{
+	    _os.endWriteEncaps();
+
 	    _connection.sendAsyncRequest(this);
+
 	    if(_connection.timeout() >= 0)
 	    {
 		_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout() * 1000;

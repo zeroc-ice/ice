@@ -200,29 +200,6 @@ IceInternal::Outgoing::invoke()
     return true;
 }
 
-/*
-void
-IceInternal::Outgoing::invokeAsync(const IceAMI::Ice::ObjectPtr& asyncCB)
-{
-    _asyncCB = asyncCB;
-    _os.endWriteEncaps();
-    
-    //
-    // We cannot set _state to StateInProgress after sendRequest(),
-    // because there would be a race with finished().
-    //
-    _state = StateInProgress;
-
-    //
-    // For asynchronous invocations, we always use twoway, regardless
-    // of what the reference says. There is no point in asynchronous
-    // oneways or datagrams, because there is no reply from the
-    // server.
-    //
-    _connection->sendRequest(this, false, _reference->compress);
-}
-*/
-
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {

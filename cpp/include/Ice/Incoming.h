@@ -32,7 +32,7 @@ protected:
     IncomingBase(Instance*, Connection*, const Ice::ObjectAdapterPtr&, bool);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
-    void __finishInvoke();
+    void __finishInvoke(bool);
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 

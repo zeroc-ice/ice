@@ -56,14 +56,21 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 }
 
 void
-IceInternal::IncomingBase::__finishInvoke()
+IceInternal::IncomingBase::__finishInvoke(bool success)
 {
     if(_locator && _servant)
     {
 	_locator->finished(_current, _servant, _cookie);
     }
 
-    _is.endReadEncaps();
+    if(success)
+    {
+	_is.endReadEncaps();
+    }
+    else
+    {
+	_is.skipReadEncaps();
+    }
 
     //
     // Send a response if necessary. If we don't need to send a
@@ -265,7 +272,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(ex.operation);
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
     catch(const LocalException& ex)
@@ -282,7 +289,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
     catch(const UserException& ex)
@@ -299,7 +306,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
     catch(const Exception& ex)
@@ -316,7 +323,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
     catch(const std::exception& ex)
@@ -333,7 +340,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(str.str());
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
     catch(...)
@@ -349,7 +356,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(reason);
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
 	return;
     }
 
@@ -382,5 +389,5 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	}
     }
 
-    __finishInvoke();
+    __finishInvoke(status == DispatchOK || status == DispatchUserException);
 }

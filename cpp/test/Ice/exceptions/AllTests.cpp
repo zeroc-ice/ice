@@ -1125,7 +1125,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     try
     {
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
-	thrower2->ice_ping();
+	thrower2->throwAasA(1);
+//	thrower2->ice_ping();
 	test(false);
     }
     catch(const Ice::ObjectNotExistException& ex)

@@ -205,7 +205,7 @@ final public class Incoming extends IncomingBase
 		_os.writeString(ex.operation);
             }
 
-	    __finishInvoke();
+	    __finishInvoke(false);
 	    return;
         }
         catch(Ice.LocalException ex)
@@ -220,7 +220,7 @@ final public class Incoming extends IncomingBase
 		_os.writeString(ex.toString());
             }
 
-	    __finishInvoke();
+	    __finishInvoke(false);
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -241,7 +241,7 @@ final public class Incoming extends IncomingBase
 		_os.writeString(ex.toString());
             }
 	    
-	    __finishInvoke();
+	    __finishInvoke(false);
 	    return;
         }
 	
@@ -277,7 +277,7 @@ final public class Incoming extends IncomingBase
 	    }
 	}
 
-	__finishInvoke();
+	__finishInvoke(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
     }
 
     public BasicStream

@@ -58,7 +58,7 @@ public class IncomingAsync extends IncomingBase
 	    _os.pos(save);
 	}
 	
-	__finishInvoke();
+	__finishInvoke(true);
     }
 
     final protected void
@@ -149,7 +149,7 @@ public class IncomingAsync extends IncomingBase
             }
 	}
 
-	__finishInvoke();
+	__finishInvoke(false);
     }
 
     final protected BasicStream

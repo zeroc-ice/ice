@@ -63,14 +63,21 @@ public class IncomingBase
     }
 
     final protected void
-    __finishInvoke()
+    __finishInvoke(boolean success)
     {
 	if(_locator != null && _servant != null)
 	{
 	    _locator.finished(_current, _servant, _cookie.value);
 	}
 	
-	_is.endReadEncaps();
+	if(success)
+	{
+	    _is.endReadEncaps();
+	}
+	else
+	{
+	    _is.skipReadEncaps();
+	}
 	
 	//
 	// Send a response if necessary. If we don't need to send a

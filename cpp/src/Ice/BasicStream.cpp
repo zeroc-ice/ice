@@ -141,6 +141,21 @@ IceInternal::BasicStream::startReadEncaps()
 void
 IceInternal::BasicStream::endReadEncaps()
 {
+    checkReadEncaps();
+    _readEncapsStack.pop_back();
+    if(_readEncapsStack.empty())
+    {
+	_currentReadEncaps = 0;
+    }
+    else
+    {
+	_currentReadEncaps = &_readEncapsStack.back();
+    }
+}
+
+void
+IceInternal::BasicStream::skipReadEncaps()
+{
     assert(_currentReadEncaps);
     int start = _currentReadEncaps->start;
     _readEncapsStack.pop_back();

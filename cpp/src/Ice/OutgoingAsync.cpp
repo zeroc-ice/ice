@@ -79,7 +79,10 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 void
 IceInternal::OutgoingAsync::__invoke()
 {
+    _os->endWriteEncaps();
+
     _connection->sendAsyncRequest(this);
+
     if(_connection->timeout() >= 0)
     {
 	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());

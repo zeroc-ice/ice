@@ -244,6 +244,21 @@ public class BasicStream
     public void
     endReadEncaps()
     {
+	checkReadEncaps();
+        final ReadEncaps curr = _readEncapsStack;
+        assert(curr != null);
+        _readEncapsStack = curr.next;
+        curr.next = _readEncapsCache;
+        _readEncapsCache = curr;
+        if(_readEncapsCache.objectsRead != null)
+        {
+            _readEncapsCache.objectsRead.clear();
+        }
+    }
+
+    public void
+    skipReadEncaps()
+    {
         final ReadEncaps curr = _readEncapsStack;
         assert(curr != null);
         final int start = curr.start;
