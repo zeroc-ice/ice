@@ -14,8 +14,30 @@
 
 #include <IceUtil/GC.h>
 #include <IceUtil/Time.h>
-#include <IceUtil/StaticRecMutex.h>
+#include <IceUtil/ObjectBase.h>
 #include <map>
+
+
+namespace IceUtil
+{
+
+void
+recursivelyReachable(ObjectBase* p, ObjectSet& o)
+{
+    if(o.find(p) == o.end())
+    {
+	assert(p);
+	o.insert(p);
+	ObjectMultiSet tmp;
+	p->__gcReachable(tmp);
+	for(ObjectMultiSet::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
+	{
+	    recursivelyReachable(*i, o);
+	}
+    }
+}
+
+}
 
 using namespace std;
 
@@ -114,7 +136,7 @@ IceUtil::GC::collectGarbage()
 
     GCStats stats;
 
-    StaticRecMutex::Lock sync(gcMutex);
+    RecMutex::Lock sync(*gcRecMutex._m);
 
     if(_statsCallback)
     {
@@ -205,21 +227,5 @@ IceUtil::GC::collectGarbage()
 	Monitor<Mutex>::Lock sync(*this);
 
 	_collecting = false;
-    }
-}
-
-void
-IceUtil::GC::recursivelyReachable(ObjectBase* p, ObjectSet& o)
-{
-    if(o.find(p) == o.end())
-    {
-	assert(p);
-	o.insert(p);
-	ObjectMultiSet tmp;
-	p->__gcReachable(tmp);
-	for(ObjectMultiSet::const_iterator i = tmp.begin(); i != tmp.end(); ++i)
-	{
-	    recursivelyReachable(*i, o);
-	}
     }
 }

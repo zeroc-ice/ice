@@ -28,13 +28,13 @@ OBJS		= Exception.o \
 		  Thread.o \
 		  ThreadException.o \
                   StaticMutex.o \
-		  StaticRecMutex.o \
                   CtrlCHandler.o \
 		  Time.o \
 		  InputUtil.o \
 		  OutputUtil.o \
                   Base64.o \
 		  ObjectBase.o \
+		  GCRecMutex.o \
 		  GC.o
 
 SRCS		= $(OBJS:.o=.cpp)

@@ -19,7 +19,6 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/ObjectBase.h>
 #include <IceUtil/GCF.h>
 
 namespace IceUtil
@@ -45,8 +44,6 @@ public:
     void collectGarbage();
 
 private:
-
-    static void recursivelyReachable(::IceUtil::ObjectBase*, ::IceUtil::ObjectSet&);
 
     bool _running;
     bool _collecting;

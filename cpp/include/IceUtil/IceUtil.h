@@ -28,7 +28,6 @@
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/RWRecMutex.h>
 #include <IceUtil/StaticMutex.h>
-#include <IceUtil/StaticRecMutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Base64.h>

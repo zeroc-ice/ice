@@ -15,13 +15,11 @@
 #ifndef ICE_UTIL_OBJECTBASE_H
 #define ICE_UTIL_OBJECTBASE_H
 
-#include <IceUtil/StaticRecMutex.h>
+#include <IceUtil/GCRecMutex.h>
 #include <set>
 
 namespace IceUtil
 {
-
-extern ICE_UTIL_API StaticRecMutex gcMutex;
 
 class GC;
 class ObjectBase;
@@ -42,12 +40,12 @@ public:
     int __getRef() const;
     void __setNoDelete(bool);
     void __decRefUnsafe();
+    virtual void __gcReachable(ObjectMultiSet&) const = 0;
+    virtual void __gcClear() = 0;
 
 protected:
 
     static void __addObject(ObjectMultiSet&, ObjectBase*);
-    virtual void __gcReachable(ObjectMultiSet&) const = 0;
-    virtual void __gcClear() = 0;
 
 private:
 
@@ -61,26 +59,26 @@ private:
 inline
 ObjectBase::ObjectBase()
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     _ref = 0;
     _noDelete = false;
     _adopted = false;
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 inline
 ObjectBase::~ObjectBase()
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     ObjectSet::size_type num = objects.erase(this);
     assert(num == 1);
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 inline void
 ObjectBase::__incRef()
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     assert(_ref >= 0);
     if(!_adopted && _ref == 0)
     {
@@ -89,13 +87,13 @@ ObjectBase::__incRef()
 	assert(rc.second);
     }
     ++_ref;
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 inline void
 ObjectBase::__decRef()
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     bool doDelete = false;
     assert(_ref > 0);
     if(--_ref == 0)
@@ -107,24 +105,24 @@ ObjectBase::__decRef()
     {
 	delete this;
     }
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 inline int
 ObjectBase::__getRef() const
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     int ref = _ref;
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
     return ref;
 }
 
 inline void
 ObjectBase::__setNoDelete(bool b)
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     _noDelete = b;
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 inline void
@@ -136,12 +134,12 @@ ObjectBase::__decRefUnsafe()
 inline void
 ObjectBase::__addObject(ObjectMultiSet& c, ObjectBase* p)
 {
-    gcMutex.lock();
+    gcRecMutex._m->lock();
     if(p)
     {
 	c.insert(p);
     }
-    gcMutex.unlock();
+    gcRecMutex._m->unlock();
 }
 
 }

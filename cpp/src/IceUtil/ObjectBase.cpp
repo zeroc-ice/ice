@@ -14,5 +14,4 @@
 
 #include <IceUtil/ObjectBase.h>
 
-IceUtil::StaticRecMutex IceUtil::gcMutex = ICE_STATIC_RECMUTEX_INITIALIZER;
 IceUtil::ObjectSet IceUtil::objects;
