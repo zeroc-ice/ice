@@ -18,4 +18,4 @@ install::
 	python setup.py install --install-lib $(install_libdir)
 
 clean::
-	python setup.py clean
+	rm -rf build
