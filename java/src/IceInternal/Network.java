@@ -398,8 +398,20 @@ public final class Network
         catch(java.net.UnknownHostException ex)
         {
             //
-            // UnknownHostException may be raised on DHCP systems, so
-            // we iterate over the network interfaces and pick an IP
+            // May be raised on DHCP systems.
+            //
+        }
+        catch(NullPointerException ex)
+        {
+            //
+            // Workaround for bug in JDK.
+            //
+        }
+
+        if(addr == null)
+        {
+            //
+            // Iterate over the network interfaces and pick an IP
             // address (preferably not the loopback address).
             //
             java.net.InetAddress loopback = null;
@@ -427,7 +439,7 @@ public final class Network
             catch(java.net.SocketException e)
             {
                 Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
+                se.initCause(e);
                 throw se;
             }
 
@@ -437,6 +449,7 @@ public final class Network
             }
         }
 
+        assert(addr != null);
         return addr;
     }
 
