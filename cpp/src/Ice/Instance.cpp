@@ -18,8 +18,11 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
-#include <Ice/SysLoggerI.h>
 #include <Ice/PicklerI.h>
+
+#ifndef WIN32
+#   include <Ice/SysLoggerI.h>
+#endif
 
 #ifndef WIN32
 #   include <csignal>
@@ -242,6 +245,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     {
 	_communicator = communicator;
 	_properties = properties;
+#ifndef WIN32
 	string value = properties->getProperty("Ice.UseSyslog");
 	if (atoi(value.c_str()) >= 1)
 	{
@@ -251,6 +255,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	{
 	    _logger = new LoggerI;
 	}
+#else
+	_logger = new LoggerI;
+#endif
 	_traceLevels = new TraceLevels(_properties);
 	_proxyFactory = new ProxyFactory(this);
 	_threadPool = new ThreadPool(this);
