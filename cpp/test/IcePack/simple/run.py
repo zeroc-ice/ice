@@ -83,7 +83,7 @@ if sys.platform != "cygwin" and sys.platform != "win32":
     clientStatus = clientPipe.close()
 
     if clientStatus:
-	killServers()
+	TestUtil.killServers()
 	sys.exit(1)
     
 print "shutting down icepack...",
