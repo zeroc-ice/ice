@@ -28,7 +28,6 @@ public:
 	    const Ice::AMD_Object_ice_invokePtr&);
     
     void invoke();
-    void abort();
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const;
 

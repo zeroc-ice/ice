@@ -22,6 +22,17 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams,
     _forwardContext(forwardContext),
     _amdCB(amdCB)
 {
+    //
+    // If this is not a twoway call, we can finish the AMD call right
+    // away.
+    //
+    if(!_proxy->ice_isTwoway())
+    {
+	bool ok = true;
+	vector<Byte> outParams;
+	_amdCB->ice_response(ok, outParams);
+    }
+
     Context::const_iterator p = current.ctx.find("_ovrd");
     if(p != current.ctx.end())
     {
@@ -46,23 +57,18 @@ Glacier2::Request::invoke()
 	    ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	}
 	
-	_amdCB->ice_response(ok, outParams);
+	if(_proxy->ice_isTwoway())
+	{
+	    _amdCB->ice_response(ok, outParams);
+	}
     }
     catch(const LocalException& ex)
     {
-	_amdCB->ice_exception(ex);
+	if(_proxy->ice_isTwoway())
+	{
+	    _amdCB->ice_exception(ex);
+	}
     }
-}
-
-void
-Glacier2::Request::abort()
-{
-    //
-    // Abort the call with a dummy response.
-    //
-    bool ok = true;
-    vector<Byte> outParams;
-    _amdCB->ice_response(ok, outParams);
 }
 
 bool
@@ -157,7 +163,6 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 	//
         if(request->override(*p))
         {
-	    (*p)->abort();
             *p = request;
 	    return true;
         }
