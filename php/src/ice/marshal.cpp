@@ -44,23 +44,35 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // represents the top-level marshaler for a particular formal type (i.e., the declared
 // type of a data member or operation parameter). During marshaling, the ObjectMarshaler
 // validates the type of the object to ensure it is compatible with the formal type,
-// and then obtains or creates an ObjectWrapper instance for the object. Since each PHP
+// and then obtains or creates an ObjectWriter instance for the object. Since each PHP
 // object is represented by an unsigned integer handle, looking up the wrapper is simple.
 //
-// Once the wrapper is obtained, the marshaler gives it to the stream. Eventually, the
-// stream will invoke __write on the wrapper, at which point the data members are
+// Once the writer is obtained, the marshaler gives it to the stream. Eventually, the
+// stream will invoke __write on the writer, at which point the data members are
 // marshaled. For efficiency, each "slice" of the object's state is marshaled by an
 // ObjectSliceMarshaler, which is cached in the class entry for future reuse.
 //
-// Note that a graph of PHP objects does not result in an equivalent graph of wrappers.
+// Note that a graph of PHP objects does not result in an equivalent graph of writers.
 // Links between objects exist only in the PHP object representation. Furthermore, the
-// lifetime of the wrappers is bound to the operation, not to the PHP objects. Wrappers
+// lifetime of the writers is bound to the operation, not to the PHP objects. Writers
 // exist only as a bridge to the C++ marshaling facility.
 //
-// The table which associates a PHP object's handle to its wrapper is stored in a member
+// The table which associates a PHP object's handle to its writer is stored in a member
 // of our "module globals" (see php_ice.h), which are similar to thread-specific storage.
 // The object map is not created until it is first needed, and is destroyed after each
 // operation.
+//
+// Unmarshaling of Ice objects works in a similar fashion. Before each request, the
+// extension descends the Slice parse tree and installs an object factory for each
+// concrete class type. The same factory instance is registered for all relevant
+// types, including the type "::Ice::Object".
+//
+// When the factory is invoked, it uses the type map to look up the zend_class_entry
+// associated with the given type id, therefore it is capable of creating any object.
+// It returns an instance of ObjectReader, a subclass of Ice::Object that overrides
+// the __read method to unmarshal object state. The setValue method is eventually
+// called on the ObjectReader in order to transfer its object handle to a different
+// zval value.
 //
 
 //
@@ -218,10 +230,28 @@ private:
     vector<MarshalerPtr> _members;
 };
 
-class ObjectWrapper : public Ice::Object
+class ObjectWriter : public Ice::Object
 {
 public:
-    ObjectWrapper(zval*, zend_object* TSRMLS_DC);
+    ObjectWriter(zval*, zend_class_entry* TSRMLS_DC);
+    ~ObjectWriter();
+
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*, bool = true);
+
+private:
+    zval* _value;
+    zend_class_entry* _class;
+#ifdef ZTS
+    TSRMLS_D;
+#endif
+};
+
+class ObjectReader : public Ice::Object
+{
+public:
+    ObjectReader(zend_class_entry* TSRMLS_DC);
+    ~ObjectReader();
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
@@ -229,13 +259,13 @@ public:
     void setValue(zend_class_entry*, zval*);
 
 private:
+    zend_class_entry* _class;
     zval* _value;
-    zend_object* _obj;
 #ifdef ZTS
     TSRMLS_D;
 #endif
 };
-typedef IceUtil::Handle<ObjectWrapper> ObjectWrapperPtr;
+typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
 class ObjectMarshaler : public Marshaler
 {
@@ -304,7 +334,7 @@ typedef vector<PatchInfo*> PatchList;
 void
 Marshal_preOperation(TSRMLS_D)
 {
-    ICE_G(objectMap) = 0; // Lazy initialization - see ObjectWrapper::__write
+    ICE_G(objectMap) = 0; // Lazy initialization - see ObjectWriter::__write
     ICE_G(patchList) = 0; // Lazy initialization - see ObjectMarshaler::unmarshal
 }
 
@@ -898,6 +928,7 @@ MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
         zend_error(E_ERROR, "unable to set member `%s'", _name.c_str());
         return false;
     }
+    zval_ptr_dtor(&val); // add_property_zval increments the refcount
 
     return true;
 }
@@ -1125,7 +1156,7 @@ NativeDictionaryMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS
         }
         else
         {
-            ZVAL_STRINGL(&zkey, keyStr, keyLen, 1);
+            ZVAL_STRINGL(&zkey, keyStr, keyLen - 1, 1);
         }
 
         //
@@ -1203,12 +1234,12 @@ NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRM
 
     for(Ice::Int i = 0; i < sz; ++i)
     {
-        zval* key;
+        zval key;
         zval* val;
-        MAKE_STD_ZVAL(key);
+        INIT_ZVAL(key);
         MAKE_STD_ZVAL(val);
 
-        if(!_keyMarshaler->unmarshal(key, is TSRMLS_CC))
+        if(!_keyMarshaler->unmarshal(&key, is TSRMLS_CC))
         {
             return false;
         }
@@ -1217,21 +1248,22 @@ NativeDictionaryMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRM
             return false;
         }
 
-        switch(Z_TYPE_P(key))
+        switch(Z_TYPE(key))
         {
         case IS_LONG:
-            add_index_zval(zv, Z_LVAL_P(key), val);
+            add_index_zval(zv, Z_LVAL(key), val);
             break;
         case IS_BOOL:
-            add_index_zval(zv, Z_BVAL_P(key) ? 1 : 0, val);
+            add_index_zval(zv, Z_BVAL(key) ? 1 : 0, val);
             break;
         case IS_STRING:
-            add_assoc_zval_ex(zv, Z_STRVAL_P(key), Z_STRLEN_P(key) + 1, val);
+            add_assoc_zval_ex(zv, Z_STRVAL(key), Z_STRLEN(key) + 1, val);
             break;
         default:
             assert(false);
             return false;
         }
+        zval_dtor(&key);
     }
 
     return true;
@@ -1345,7 +1377,7 @@ IceObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
     //
-    // Do not read type id here - see ObjectWrapper::__read().
+    // Do not read type id here - see ObjectReader::__read().
     //
     //is.readTypeId()
 
@@ -1405,7 +1437,7 @@ ObjectSliceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC
     assert(Z_TYPE_P(zv) == IS_OBJECT);
 
     //
-    // Do not read type id here - see ObjectWrapper::__read().
+    // Do not read type id here - see ObjectReader::__read().
     //
     //is.readTypeId()
 
@@ -1440,10 +1472,10 @@ patchObject(void* addr, Ice::ObjectPtr& v)
 
     if(v)
     {
-        ObjectWrapperPtr wrapper = ObjectWrapperPtr::dynamicCast(v);
-        assert(wrapper);
+        ObjectReaderPtr reader = ObjectReaderPtr::dynamicCast(v);
+        assert(reader);
 
-        wrapper->setValue(info->ce, info->zv);
+        reader->setValue(info->ce, info->zv);
     }
     else
     {
@@ -1452,20 +1484,27 @@ patchObject(void* addr, Ice::ObjectPtr& v)
 }
 
 //
-// ObjectWrapper implementation.
+// ObjectWriter implementation.
 //
-ObjectWrapper::ObjectWrapper(zval* value, zend_object* obj TSRMLS_DC) :
-    _value(value), _obj(obj)
+ObjectWriter::ObjectWriter(zval* value, zend_class_entry* cls TSRMLS_DC) :
+    _value(value), _class(cls)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
+
+    Z_OBJ_HT_P(_value)->add_ref(_value TSRMLS_CC);
+}
+
+ObjectWriter::~ObjectWriter()
+{
+    Z_OBJ_HT_P(_value)->del_ref(_value TSRMLS_CC);
 }
 
 void
-ObjectWrapper::__write(IceInternal::BasicStream* os) const
+ObjectWriter::__write(IceInternal::BasicStream* os) const
 {
-    ice_class_entry* ce = (ice_class_entry*)_obj->ce;
+    ice_class_entry* ce = (ice_class_entry*)_class;
 
     while(ce)
     {
@@ -1504,9 +1543,48 @@ ObjectWrapper::__write(IceInternal::BasicStream* os) const
 }
 
 void
-ObjectWrapper::__read(IceInternal::BasicStream* is, bool rid)
+ObjectWriter::__read(IceInternal::BasicStream* is, bool rid)
 {
-    ice_class_entry* ce = (ice_class_entry*)_obj->ce;
+    zend_error(E_ERROR, "ObjectWriter::__read should never be called");
+}
+
+//
+// ObjectReader implementation.
+//
+ObjectReader::ObjectReader(zend_class_entry* cls TSRMLS_DC) :
+    _class(cls)
+{
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
+
+    //
+    // Create a zval to hold the new object.
+    //
+    MAKE_STD_ZVAL(_value);
+
+    //
+    // Instantiate the new object.
+    //
+    object_init_ex(_value, _class);
+}
+
+ObjectReader::~ObjectReader()
+{
+    Z_OBJ_HT_P(_value)->del_ref(_value TSRMLS_CC);
+    efree(_value);
+}
+
+void
+ObjectReader::__write(IceInternal::BasicStream* os) const
+{
+    zend_error(E_ERROR, "ObjectReader::__write should never be called");
+}
+
+void
+ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
+{
+    ice_class_entry* ce = (ice_class_entry*)_class;
 
     while(ce)
     {
@@ -1553,17 +1631,17 @@ ObjectWrapper::__read(IceInternal::BasicStream* is, bool rid)
 }
 
 void
-ObjectWrapper::setValue(zend_class_entry* ce, zval* zv)
+ObjectReader::setValue(zend_class_entry* ce, zval* zv)
 {
     //
     // Compare the class entries. The argument "ce" represents the formal type.
     //
-    if(_obj->ce != ce)
+    if(_class != ce)
     {
         //
         // Check for inheritance.
         //
-        zend_class_entry* c = _obj->ce->parent;
+        zend_class_entry* c = _class->parent;
         while(c && c != ce)
         {
             c = c->parent;
@@ -1571,7 +1649,7 @@ ObjectWrapper::setValue(zend_class_entry* ce, zval* zv)
 
         if(c == NULL)
         {
-            zend_error(E_ERROR, "expected object value of type %s but received %s", ce->name, _obj->ce->name);
+            zend_error(E_ERROR, "expected object value of type %s but received %s", ce->name, _class->name);
             return;
         }
     }
@@ -1658,12 +1736,12 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     }
 
     //
-    // We need a C++ wrapper for the PHP object to be marshaled. It's possible that this object
-    // has already been marshaled, therefore we first must check the object map to see if this
-    // object is present. If so, we use the existing wrapper, otherwise we create a new one.
-    // The key of the map is the object's handle.
+    // ObjectWriter is a subclass of Ice::Object that wraps a PHP object for marshaling. It is
+    // possible that this PHP object has already been marshaled, therefore we first must check
+    // the object map to see if this object is present. If so, we use the existing ObjectWriter,
+    // otherwise we create a new one. The key of the map is the object's handle.
     //
-    Ice::ObjectPtr wrapper;
+    Ice::ObjectPtr writer;
 
     //
     // Initialize the object map if necessary.
@@ -1673,27 +1751,27 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     {
         objectMap = new ObjectMap;
         ICE_G(objectMap) = objectMap;
-        wrapper = new ObjectWrapper(zv, obj TSRMLS_CC);
-        objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), wrapper));
+        writer = new ObjectWriter(zv, obj->ce TSRMLS_CC);
+        objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
     }
     else
     {
         ObjectMap::iterator p = objectMap->find(Z_OBJ_HANDLE_P(zv));
         if(p == objectMap->end())
         {
-            wrapper = new ObjectWrapper(zv, obj TSRMLS_CC);
-            objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), wrapper));
+            writer = new ObjectWriter(zv, obj->ce TSRMLS_CC);
+            objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
         }
         else
         {
-            wrapper = p->second;
+            writer = p->second;
         }
     }
 
     //
-    // Give the C++ wrapper object to the stream. The stream will eventually call __write on the wrapper.
+    // Give the writer to the stream. The stream will eventually call __write on it.
     //
-    os.write(wrapper);
+    os.write(writer);
 
     return true;
 }
@@ -1755,30 +1833,9 @@ PHPObjectFactory::create(const string& scoped)
     assert(p != _typeMap.end());
 
     //
-    // Create a zval to hold the new object.
+    // Return the object reader.
     //
-    zval* zv;
-    MAKE_STD_ZVAL(zv);
-
-    //
-    // Instantiate the new object.
-    //
-    if(object_init_ex(zv, p->second) != SUCCESS)
-    {
-        zend_error(E_ERROR, "unable to initialize object of type %s", p->second->name);
-        return 0;
-    }
-
-    //
-    // Retrieve the object from the object store.
-    //
-    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    assert(obj);
-
-    //
-    // Return the object wrapper.
-    //
-    return new ObjectWrapper(zv, obj TSRMLS_CC);
+    return new ObjectReader(p->second TSRMLS_CC);
 }
 
 void

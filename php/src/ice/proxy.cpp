@@ -61,6 +61,21 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 zend_class_entry* Ice_ObjectPrx_entry_ptr;
 
 //
+// Ice::ObjectPrx support.
+//
+static zend_object_handlers Ice_ObjectPrx_handlers;
+
+extern "C"
+{
+static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
+static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static zend_object_value handleClone(zval* TSRMLS_DC);
+static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
+static int handleCompare(zval*, zval* TSRMLS_DC);
+ZEND_FUNCTION(Ice_ObjectPrx_call);
+}
+
+//
 // Encapsulates an operation description.
 //
 class Operation : public IceUtil::SimpleShared
@@ -70,7 +85,7 @@ public:
               TSRMLS_DC);
     virtual ~Operation();
 
-    zend_uchar* getArgTypes() const;
+    zend_function* getZendFunction() const;
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
 
 private:
@@ -87,7 +102,7 @@ private:
     MarshalerPtr _result;
     vector<MarshalerPtr> _inParams;
     vector<MarshalerPtr> _outParams;
-    zend_uchar* _argTypes;
+    zend_internal_function* _zendFunction;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
@@ -116,21 +131,6 @@ private:
     Slice::OperationList _classOps;
     map<string, OperationPtr> _ops;
 };
-
-//
-// Ice::ObjectPrx support.
-//
-static zend_object_handlers Ice_ObjectPrx_handlers;
-
-extern "C"
-{
-static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
-static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
-static zend_object_value handleClone(zval* TSRMLS_DC);
-static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
-static int handleCompare(zval*, zval* TSRMLS_DC);
-ZEND_FUNCTION(Ice_ObjectPrx_call);
-}
 
 //
 // Predefined methods for Ice_ObjectPrx.
@@ -1063,7 +1063,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
 
 Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
                      const IceInternal::InstancePtr& instance TSRMLS_DC) :
-    _proxy(proxy), _name(name), _op(op), _instance(instance)
+    _proxy(proxy), _name(name), _op(op), _instance(instance), _zendFunction(0)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -1087,8 +1087,8 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slic
     // Create an array that indicates how arguments are passed to the operation.
     // The first element in the array determines how many follow it.
     //
-    _argTypes = new zend_uchar[params.size() + 1];
-    _argTypes[0] = static_cast<zend_uchar>(params.size());
+    zend_uchar* argTypes = new zend_uchar[params.size() + 1];
+    argTypes[0] = static_cast<zend_uchar>(params.size());
 
     int i;
     Slice::ParamDeclList::const_iterator p;
@@ -1102,26 +1102,39 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slic
         _paramNames.push_back((*p)->name());
         if((*p)->isOutParam())
         {
-            _argTypes[i] = BYREF_FORCE;
+            argTypes[i] = BYREF_FORCE;
             _outParams.push_back(m);
         }
         else
         {
-            _argTypes[i] = BYREF_NONE;
+            argTypes[i] = BYREF_NONE;
             _inParams.push_back(m);
         }
     }
+
+    _zendFunction = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
+    _zendFunction->type = ZEND_INTERNAL_FUNCTION;
+    _zendFunction->arg_types = argTypes;
+    _zendFunction->function_name = estrndup(const_cast<char*>(name.c_str()), name.length());
+    _zendFunction->scope = Ice_ObjectPrx_entry_ptr;
+    _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
+    _zendFunction->handler = ZEND_FN(Ice_ObjectPrx_call);
 }
 
 Operation::~Operation()
 {
-    delete []_argTypes;
+    if(_zendFunction)
+    {
+        delete []_zendFunction->arg_types;
+        efree(_zendFunction->function_name);
+        efree(_zendFunction);
+    }
 }
 
-zend_uchar*
-Operation::getArgTypes() const
+zend_function*
+Operation::getZendFunction() const
 {
-    return _argTypes;
+    return (zend_function*)_zendFunction;
 }
 
 void
@@ -1144,9 +1157,9 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     // Retrieve the arguments.
     //
     zval*** args = static_cast<zval***>(emalloc(ZEND_NUM_ARGS() * sizeof(zval**)));
+    AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
-        efree(args);
         zend_error(E_ERROR, "unable to get arguments");
         return;
     }
@@ -1158,7 +1171,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
-            efree(args);
             zend_error(E_ERROR, "argument for out parameter %s must be passed by reference", _paramNames[i].c_str());
             return;
         }
@@ -1177,7 +1189,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         {
             if(!(*p)->marshal(*args[i], os TSRMLS_CC))
             {
-                efree(args);
                 return;
             }
         }
@@ -1214,7 +1225,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                 zval_dtor(*args[i]);
                 if(!(*p)->unmarshal(*args[i], is TSRMLS_CC))
                 {
-                    efree(args);
                     return;
                 }
             }
@@ -1222,7 +1232,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             {
                 if(!_result->unmarshal(return_value, is TSRMLS_CC))
                 {
-                    efree(args);
                     return;
                 }
             }
@@ -1240,7 +1249,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         }
 
         Marshal_postOperation(TSRMLS_C);
-        efree(args);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1483,14 +1491,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
             return NULL;
         }
 
-        zend_internal_function* zif = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
-        zif->type = ZEND_INTERNAL_FUNCTION;
-        zif->arg_types = op->getArgTypes();
-        zif->function_name = estrndup(method, len);
-        zif->scope = Ice_ObjectPrx_entry_ptr;
-        zif->fn_flags = ZEND_ACC_PUBLIC;
-        zif->handler = ZEND_FN(Ice_ObjectPrx_call);
-        result = (zend_function*)zif;
+        result = op->getZendFunction();
     }
 
     return result;

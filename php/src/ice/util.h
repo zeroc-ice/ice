@@ -65,4 +65,17 @@ std::string ice_fixIdent(const std::string&);
 //
 std::string ice_zendTypeToString(int);
 
+//
+// Exception-safe efree.
+//
+class AutoEfree
+{
+public:
+    AutoEfree(void* p) : _p(p) {}
+    ~AutoEfree() { efree(_p); }
+
+private:
+    void* _p;
+};
+
 #endif
