@@ -834,13 +834,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		
 		if(enqueue)
 		{
-		    //
-		    // Need to copy current.id, as Ice caches and reuses it
-		    //
-		    Ice.Identity ident = new Ice.Identity();
-		    ident.name = current.id.name;
-		    ident.category = current.id.category;
-		    
 		    addToModifiedQueue(facet);
 		}
 		else
@@ -1246,6 +1239,20 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		{    
 		    Facet facet = (Facet) allObjects.get(i);
 		    facet.element.usageCount--;
+
+		    if(facet != facet.element.mainObject)
+		    {
+			//
+			// Remove if dead
+			//
+			synchronized(facet)
+			{
+			    if(facet.status == dead)
+			    {
+				facet.element.facets.remove(new StringArray(facet.path));
+			    }    
+			}
+		    }
 		}
 		allObjects.clear();
 		evict();
