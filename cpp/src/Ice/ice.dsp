@@ -140,7 +140,7 @@ SOURCE=.\Current.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DefaultsAndOverwrites.cpp
+SOURCE=.\DefaultsAndOverrides.cpp
 # End Source File
 # Begin Source File
 
@@ -424,11 +424,11 @@ SOURCE=..\..\include\Ice\Current.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DefaultsAndOverwrites.h
+SOURCE=.\DefaultsAndOverrides.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DefaultsAndOverwritesF.h
+SOURCE=.\DefaultsAndOverridesF.h
 # End Source File
 # Begin Source File
 
