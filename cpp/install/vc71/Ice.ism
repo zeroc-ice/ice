@@ -250,7 +250,6 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
-		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -338,6 +337,7 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
+		<row><td>DummyComponent</td><td>{0A8A414C-E74D-471F-AC64-DEEA8E5E4747}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icepackcs</td><td>{104E4B7B-4703-4688-8343-8F199BF881C4}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepackcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -981,6 +981,7 @@
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
 		<row><td>GlobalAssemblyCache</td><td>GAC_registry</td></row>
+		<row><td>INSTALLDIR</td><td>DummyComponent</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -991,10 +992,6 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
-		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1298,19 +1295,20 @@
 		<col def="S255">ISComments</col>
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
-		<row><td>ice_dev_cpp</td><td/><td>##ID_STRING3##</td><td/><td>24</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_dev_cpp</td><td>ice_runtime_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_csharp</td><td>ice_runtime_dotnet</td><td>##ID_STRING17##</td><td>##ID_STRING22##</td><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_java</td><td>ice_runtime_java</td><td>##ID_STRING12##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_php</td><td>ice_runtime_php</td><td>##ID_STRING10##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_python</td><td>ice_runtime_python</td><td>##ID_STRING13##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_vbasic</td><td>ice_runtime_dotnet</td><td>##ID_STRING19##</td><td>##ID_STRING22##</td><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_doc</td><td/><td>##ID_STRING21##</td><td/><td>26</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_dotnet</td><td/><td>##ID_STRING27##</td><td>##ID_STRING22##</td><td>12</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_java</td><td/><td>##ID_STRING6##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_php</td><td/><td>##ID_STRING28##</td><td/><td>22</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_runtime_python</td><td/><td>##ID_STRING29##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>packages</td><td>ice_runtime_cpp</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>ice_doc</td><td/><td>##ID_STRING21##</td><td/><td>28</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING34##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_dotnet</td><td/><td>##ID_STRING27##</td><td>##ID_STRING22##</td><td>22</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_java</td><td/><td>##ID_STRING6##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_php</td><td/><td>##ID_STRING28##</td><td/><td>26</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_python</td><td/><td>##ID_STRING29##</td><td/><td>24</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>packages</td><td>ice_runtime</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>packages_dev_cpp</td><td>ice_dev_cpp</td><td>##ID_STRING25##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>packages_java</td><td>ice_runtime_java</td><td>##ID_STRING26##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
@@ -1348,8 +1346,9 @@
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDemo</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDev</td></row>
 		<row><td>ice_doc</td><td>IceManual</td></row>
-		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
-		<row><td>ice_runtime_cpp</td><td>IceDoc</td></row>
+		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
+		<row><td>ice_runtime</td><td>IceDoc</td></row>
+		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icecs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icepackcs</td></row>
@@ -1531,6 +1530,7 @@
 		<col def="S0">FTPLocation</col>
 		<col def="S0">HTTPLocation</col>
 		<col def="S0">Miscellaneous</col>
+		<row><td>DummyComponent</td><td/><td/><td>_908B4938_DF02_4FFC_8680_DAC7E8FF46AC_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_glacier2cs</td><td/><td/><td>_6791A0B1_69E0_496B_BBBB_6DD59B697B46_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icecs</td><td/><td/><td>_600A5FAE_4674_435B_8700_897F353856EE_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icepackcs</td><td/><td/><td>_72EC117B_5915_4A1F_A08E_E956F2DC75FD_FILTER</td><td/><td/><td/><td/></row>
@@ -1913,7 +1913,7 @@
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
 		<row><td>##ID_STRING23##</td><td>1033</td><td>|</td><td>0</td><td/><td>1234782829</td></row>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>563691883</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC, Inc.</td><td>0</td><td/><td>1234820916</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>[ProductName] requires that your computer is running Windows NT 4.0 or Windows 2000 or Windows XP or Windows 2003 Server</td><td>0</td><td/><td>-1457925461</td></row>
@@ -2467,17 +2467,18 @@
 		<row><td>ID_STRING24</td><td>1033</td><td>Ice Language Mappings</td><td>0</td><td/><td>1100553802</td></row>
 		<row><td>ID_STRING25</td><td>1033</td><td>Third Party Packages for C++ Development</td><td>0</td><td/><td>1100601483</td></row>
 		<row><td>ID_STRING26</td><td>1033</td><td>Third Party Packages for Java</td><td>0</td><td/><td>1100550251</td></row>
-		<row><td>ID_STRING27</td><td>1033</td><td>Ice .NET Runtime</td><td>0</td><td/><td>1100576460</td></row>
-		<row><td>ID_STRING28</td><td>1033</td><td>Ice PHP Runtime</td><td>0</td><td/><td>1100547820</td></row>
-		<row><td>ID_STRING29</td><td>1033</td><td>Ice Python Runtime</td><td>0</td><td/><td>1100601036</td></row>
+		<row><td>ID_STRING27</td><td>1033</td><td>Ice for .NET</td><td>0</td><td/><td>1234779635</td></row>
+		<row><td>ID_STRING28</td><td>1033</td><td>Ice for PHP</td><td>0</td><td/><td>1234800115</td></row>
+		<row><td>ID_STRING29</td><td>1033</td><td>Ice for Python</td><td>0</td><td/><td>1234789875</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>1100564236</td></row>
-		<row><td>ID_STRING30</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 1.1 Framework installed in order to correctly install the Ice .NET Runtime.</td><td>0</td><td/><td>1100569678</td></row>
-		<row><td>ID_STRING31</td><td>1033</td><td>InstallShield has detected that you are not an Admin user. You will not be able to install the Ice .NET Runtime as a result.</td><td>0</td><td/><td>1234812651</td></row>
-		<row><td>ID_STRING32</td><td>1033</td><td>The Internet Communications Engine (ICE) runtimes, tools, files and libraries for developing ICE applications.</td><td>0</td><td/><td>1234777649</td></row>
+		<row><td>ID_STRING30</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 1.1 Framework installed in order to correctly install Ice for .NET.</td><td>0</td><td/><td>1234811028</td></row>
+		<row><td>ID_STRING31</td><td>1033</td><td>InstallShield has detected that you are not an Admin user. You will not be able to install Ice for .NET as a result.</td><td>0</td><td/><td>1234768052</td></row>
+		<row><td>ID_STRING32</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234812724</td></row>
 		<row><td>ID_STRING33</td><td>1033</td><td>Ice 2.1.0 for Visual Studio .NET 2003</td><td>0</td><td/><td>1234806065</td></row>
+		<row><td>ID_STRING34</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234802195</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
-		<row><td>ID_STRING6</td><td>1033</td><td>Ice Java Runtime</td><td>0</td><td/><td>1100576396</td></row>
+		<row><td>ID_STRING6</td><td>1033</td><td>Ice for Java</td><td>0</td><td/><td>1234824659</td></row>
 		<row><td>ID_STRING7</td><td>1033</td><td>Java Demos</td><td>0</td><td/><td>-1457945110</td></row>
 		<row><td>ID_STRING8</td><td>1033</td><td>Python Development</td><td>0</td><td/><td>1100547884</td></row>
 		<row><td>ID_STRING9</td><td>1033</td><td>Python Demos</td><td>0</td><td/><td>-1457918486</td></row>
@@ -2576,10 +2577,6 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
-		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
-		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
-		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
-		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>
