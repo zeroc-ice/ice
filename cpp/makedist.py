@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob
+import os, sys, shutil, fnmatch, re, glob, RPMTools
 
 #
 # Program usage.
@@ -224,6 +224,7 @@ filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
     os.path.join("ice", "newmakebindist.py"), \
+    os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
@@ -337,7 +338,11 @@ if not skipDocs:
 #
 config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
 version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
-
+config.seek(0)
+soVersion = re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)
+rpmSpecFile = open(os.path.join('ice', 'install', 'rpm', 'Ice-' + version + '-1.spec'), 'w')
+RPMTools.createFullSpecFile(rpmSpecFile, '', version, soVersion)
+rpmSpecFile.close()
 #
 # Create archives.
 #
