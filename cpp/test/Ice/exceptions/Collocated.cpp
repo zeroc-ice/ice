@@ -20,6 +20,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr object = new ThrowerI(adapter);
     adapter->add(object, "thrower");
+    adapter->activate();
 
     ThrowerPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

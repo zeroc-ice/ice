@@ -20,6 +20,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr object = new MyDerivedClassI(adapter, "test");
     adapter->add(object, "test");
+    adapter->activate();
 
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

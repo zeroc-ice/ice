@@ -10,8 +10,8 @@
 
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
-#include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Outgoing.h>
+#include <Ice/Direct.h>
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Instance.h>
@@ -35,6 +35,9 @@ void IceInternal::decRef(::IceDelegate::Ice::Object* p) { p->__decRef(); }
 
 void IceInternal::incRef(::IceDelegateM::Ice::Object* p) { p->__incRef(); }
 void IceInternal::decRef(::IceDelegateM::Ice::Object* p) { p->__decRef(); }
+
+void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
+void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 void
 IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy::Ice::Object*& d)
@@ -405,6 +408,7 @@ IceProxy::Ice::Object::__getDelegate()
     JTCSyncT<JTCMutex> sync(*this);
     if (!_delegate)
     {
+/*
 	ObjectPtr obj = _reference->instance->objectAdapterFactory()->proxyToServant(this);
 
 	if (obj)
@@ -413,6 +417,7 @@ IceProxy::Ice::Object::__getDelegate()
 	}
 	else
 	{
+*/
 	    _delegate = __createDelegateM();
 	    try
 	    {
@@ -423,7 +428,7 @@ IceProxy::Ice::Object::__getDelegate()
 		_delegate = 0;
 		throw;
 	    }
-	}
+//	}
     }
 
     return _delegate;
@@ -445,22 +450,11 @@ IceProxy::Ice::Object::setup(const ReferencePtr& reference)
     _reference = reference;
 }
 
-void
-IceDelegate::Ice::Object::_flush()
-{
-    // Do nothing
-}
-
 IceDelegate::Ice::Object::Object()
 {
 }
 
 IceDelegate::Ice::Object::~Object()
-{
-}
-
-void
-IceDelegate::Ice::Object::setup(const ReferencePtr&)
 {
 }
 
@@ -561,3 +555,42 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
     __emitter = factory->create(endpoints);
     assert(__emitter);
 }
+
+bool
+IceDelegateD::Ice::Object::_isA(const string& s)
+{
+    Direct __direct(__adapter, __reference, "_isA");
+    return __direct.servant()->_isA(s);
+}
+
+void
+IceDelegateD::Ice::Object::_ping()
+{
+    Direct __direct(__adapter, __reference, "_isA");
+    __direct.servant()->_ping();
+}
+
+void
+IceDelegateD::Ice::Object::_flush()
+{
+    // Nothing to do for direct delegates
+}
+
+IceDelegateD::Ice::Object::Object()
+{
+}
+
+IceDelegateD::Ice::Object::~Object()
+{
+}
+
+void
+IceDelegateD::Ice::Object::setup(const ReferencePtr& reference)
+{
+    //
+    // No need to synchronize, as this operation is only called
+    // upon initial initialization.
+    //
+    __reference = reference;
+}
+

@@ -13,7 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/ObjectF.h>
-#include <Ice/Proxy.h>
+#include <Ice/ProxyF.h>
 
 namespace IceInternal
 {
@@ -67,7 +67,7 @@ protected:
     ObjectPtr _ptr;
 };
 
-class ICE_API Object : virtual public ::IceDelegate::Ice::Object
+class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 

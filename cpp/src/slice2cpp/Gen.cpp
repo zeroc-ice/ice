@@ -21,7 +21,7 @@ struct ToIfdef
     char operator()(char c)
     {
 	if (!isalnum(c))
-	{
+        {
 	    return '_';
 	}
 	else
@@ -116,6 +116,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
+	H << "\n#include <Ice/Direct.h>";
 	H << "\n#include <Ice/LocalException.h>";
     }
     else
@@ -181,6 +182,9 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     DelegateMVisitor delegateMVisitor(H, C, _dllExport);
     unit->visit(&delegateMVisitor);
+
+    DelegateDVisitor delegateDVisitor(H, C, _dllExport);
+    unit->visit(&delegateDVisitor);
 
     ObjectVisitor objectVisitor(H, C, _dllExport);
     unit->visit(&objectVisitor);
@@ -905,19 +909,16 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     TypeStringList::const_iterator q;
 
     string params = "(";
-    string args = "(";
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
 	if (q != inParams.begin())
 	{
 	    params += ", ";
-	    args += ", ";
 	}
 
 	string typeString = inputTypeToString(q->first);
 	params += typeString;
-	args += q->second;
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
@@ -925,16 +926,13 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	if (q != outParams.begin() || !inParams.empty())
 	{
 	    params += ", ";
-	    args += ", ";
 	}
 
 	string typeString = outputTypeToString(q->first);
 	params += typeString;
-	args += q->second;
     }
 
     params += ')';
-    args += ')';
     
     TypeList throws = p->throws();
 
@@ -1043,7 +1041,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
     string scoped = p->scoped();
-//    string scope = p->scope();
 
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
@@ -1054,7 +1051,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 
     string params = "(";
     string paramsDecl = "("; // With declarators
-    string args = "(";
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
@@ -1062,7 +1058,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
-	    args += ", ";
 	}
 
 	string typeString = inputTypeToString(q->first);
@@ -1070,7 +1065,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
-	args += q->second;
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
@@ -1079,7 +1073,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
-	    args += ", ";
 	}
 
 	string typeString = outputTypeToString(q->first);
@@ -1087,12 +1080,10 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
-	args += q->second;
     }
 
     params += ')';
     paramsDecl += ')';
-    args += ')';
     
     TypeList throws = p->throws();
 
@@ -1151,6 +1142,182 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
 	C << nl << "return __ret;";
     }
+    C << eb;
+}
+
+Slice::Gen::DelegateDVisitor::DelegateDVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
+{
+}
+
+bool
+Slice::Gen::DelegateDVisitor::visitUnitStart(const UnitPtr& p)
+{
+    if (!p->hasProxies())
+    {
+	return false;
+    }
+
+    H << sp;
+    H << nl << "namespace IceDelegateD" << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr& p)
+{
+    H << sp;
+    H << nl << '}';
+}
+    
+bool
+Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (!p->hasProxies())
+    {
+	return false;
+    }
+
+    string name = p->name();
+    
+    H << sp;
+    H << nl << "namespace " << name << nl << '{';
+
+    return true;
+}
+
+void
+Slice::Gen::DelegateDVisitor::visitModuleEnd(const ModulePtr& p)
+{
+    H << sp;
+    H << nl << '}';
+}
+
+bool
+Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+	return false;
+    }
+
+    string name = p->name();
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+
+    H << sp;
+    H << nl << "class " << _dllExport << name << " : ";
+    H.useCurrentPosAsIndent();
+    H << "virtual public ::IceDelegate" << scoped << ',';
+    if (bases.empty())
+    {
+	H << nl << "virtual public ::IceDelegateD::Ice::Object";
+    }
+    else
+    {
+	ClassList::const_iterator q = bases.begin();
+	while (q != bases.end())
+	{
+	    H << nl << "virtual public ::IceDelegateD" << (*q)->scoped();
+	    if (++q != bases.end())
+	    {
+		H << ',';
+	    }
+	}
+    }
+    H.restoreIndent();
+    H << sb;
+    H.dec();
+    H << nl << "public: ";
+    H.inc();
+
+    return true;
+}
+
+void
+Slice::Gen::DelegateDVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    H << eb << ';';
+}
+
+void
+Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
+{
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    
+    string name = p->name();
+    string scoped = p->scoped();
+
+    TypePtr ret = p->returnType();
+    string retS = returnTypeToString(ret);
+
+    TypeStringList inParams = p->inputParameters();
+    TypeStringList outParams = p->outputParameters();
+    TypeStringList::const_iterator q;
+
+    string params = "(";
+    string paramsDecl = "("; // With declarators
+    string args = "(";
+
+    for (q = inParams.begin(); q != inParams.end(); ++q)
+    {
+	if (q != inParams.begin())
+	{
+	    params += ", ";
+	    paramsDecl += ", ";
+	    args += ", ";
+	}
+
+	string typeString = inputTypeToString(q->first);
+	params += typeString;
+	paramsDecl += typeString;
+	paramsDecl += ' ';
+	paramsDecl += q->second;
+	args += q->second;
+    }
+
+    for (q = outParams.begin(); q != outParams.end(); ++q)
+    {
+	if (q != outParams.begin() || !inParams.empty())
+	{
+	    params += ", ";
+	    paramsDecl += ", ";
+	    args += ", ";
+	}
+
+	string typeString = outputTypeToString(q->first);
+	params += typeString;
+	paramsDecl += typeString;
+	paramsDecl += ' ';
+	paramsDecl += q->second;
+	args += q->second;
+    }
+
+    params += ')';
+    paramsDecl += ')';
+    args += ')';
+    
+    TypeList throws = p->throws();
+
+    H << sp;
+    H << nl << "virtual " << retS << ' ' << name << params << ';';
+    C << sp;
+    C << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
+    C << sb;
+    C << nl << "::IceInternal::Direct __direct(__adapter, __reference, \"" << name << "\");";
+    C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.servant().get());";
+    C << nl << "if (!__servant)";
+    C << sb;
+    C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__);";
+    C << eb;
+    C << nl;
+    if (ret)
+    {
+	C << "return ";
+    }
+    C << "__servant->" << name << args << ';';
     C << eb;
 }
 
@@ -1372,10 +1539,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 		H << ',' << nl;
 	    }
 	}
-    }
-    if (!p->isLocal())
-    {
- 	H << ',' << nl << "virtual public ::IceDelegate" << scoped;
     }
     H.restoreIndent();
     H << sb;

@@ -46,6 +46,7 @@ OBJS		= Application.o \
 		  Proxy.o \
 		  Outgoing.o \
 		  Incoming.o \
+		  Direct.o \
 		  Emitter.o \
 		  Collector.o \
 		  Network.o \

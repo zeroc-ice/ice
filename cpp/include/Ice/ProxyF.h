@@ -16,6 +16,7 @@
 namespace IceProxy { namespace Ice { class Object; } }
 namespace IceDelegate { namespace Ice { class Object; } }
 namespace IceDelegateM { namespace Ice { class Object; } }
+namespace IceDelegateD { namespace Ice { class Object; } }
 
 namespace IceInternal
 {
@@ -28,6 +29,9 @@ void ICE_API decRef(::IceDelegate::Ice::Object*);
 
 void ICE_API incRef(::IceDelegateM::Ice::Object*);
 void ICE_API decRef(::IceDelegateM::Ice::Object*);
+
+void ICE_API incRef(::IceDelegateD::Ice::Object*);
+void ICE_API decRef(::IceDelegateD::Ice::Object*);
 
 void ICE_API checkedCast(::IceProxy::Ice::Object*,
 			 ::IceProxy::Ice::Object*&);

@@ -15,6 +15,8 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/EmitterF.h>
+#include <Ice/ObjectF.h>
+#include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 
 namespace Ice
@@ -102,7 +104,7 @@ public:
 
     virtual bool _isA(const std::string&) = 0;
     virtual void _ping() = 0;
-    virtual void _flush();
+    virtual void _flush() = 0;
 
 protected:
 
@@ -112,7 +114,7 @@ protected:
 
 private:
 
-    virtual void setup(const ::IceInternal::ReferencePtr&);
+    virtual void setup(const ::IceInternal::ReferencePtr&) = 0;
 };
 
 } }
@@ -134,10 +136,39 @@ protected:
     virtual ~Object();
     friend class ::IceProxy::Ice::Object;
 
-    virtual void setup(const ::IceInternal::ReferencePtr&);
-
     ::IceInternal::EmitterPtr __emitter;
     ::IceInternal::ReferencePtr __reference;
+
+private:
+
+    virtual void setup(const ::IceInternal::ReferencePtr&);
+};
+
+} }
+
+namespace IceDelegateD { namespace Ice
+{
+
+class ICE_API Object : virtual public ::IceDelegate::Ice::Object
+{
+public:
+
+    virtual bool _isA(const std::string&);
+    virtual void _ping();
+    virtual void _flush();
+
+protected:
+
+    Object();
+    virtual ~Object();
+    friend class ::IceProxy::Ice::Object;
+
+    ::Ice::ObjectAdapterPtr __adapter;
+    ::IceInternal::ReferencePtr __reference;
+
+private:
+
+    virtual void setup(const ::IceInternal::ReferencePtr&);
 };
 
 } }

@@ -156,6 +156,28 @@ private:
 	std::string _dllExport;
     };
 
+    class DelegateDVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+	DelegateDVisitor(Output&, Output&, const std::string&);
+
+	virtual bool visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+	Output& H;
+	Output& C;
+
+	std::string _dllExport;
+    };
+
     class ObjectDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
