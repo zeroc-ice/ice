@@ -64,9 +64,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		{
 		    System.out.println(_name + " ready");
 		}
-		
-		_printAdapterReadyDone = true;
 	    }
+
+	    _printAdapterReadyDone = true;
 	}
 
 	//

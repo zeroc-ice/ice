@@ -87,9 +87,9 @@ Ice::ObjectAdapterI::activate()
 	    {
 		cout << _name << " ready" << endl;
 	    }
-	    
-	    _printAdapterReadyDone = true;
 	}
+
+	_printAdapterReadyDone = true;
     }
 
     //

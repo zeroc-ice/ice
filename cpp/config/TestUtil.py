@@ -114,18 +114,18 @@ def killServers():
 
 def getServerPid(serverPipe):
 
-    output = serverPipe.readline()
+    output = serverPipe.readline().strip()
 
     if not output:
         print "failed!"
         killServers()
         sys.exit(1)
 
-    serverPids.append(int(output.strip()))
+    serverPids.append(int(output))
 
 def getAdapterReady(serverPipe):
 
-    output = serverPipe.readline()
+    output = serverPipe.readline().strip()
 
     if not output:
         print "failed!"
@@ -134,22 +134,23 @@ def getAdapterReady(serverPipe):
 
 def waitServiceReady(pipe, token):
 
-    while 1:
+    while True:
 
-        output = pipe.readline()
+        output = pipe.readline().strip()
 
         if not output:
             print "failed!"
             sys.exit(1)
 
-        if output.strip() == token + " ready":
+        if output == token + " ready":
             break
 
 def printOutputFromPipe(pipe):
 
-    while 1:
+    while True:
 
         line = pipe.readline()
+
         if not line:
             break
 
