@@ -14,8 +14,10 @@ module Demo
 {
 
 sequence<byte> ByteSeq;
+const int ByteSeqSize = 500000;
 
 sequence<string> StringSeq;
+const int StringSeqSize = 50000;
 
 struct StringDouble
 {
@@ -23,6 +25,7 @@ struct StringDouble
     double d;
 };
 sequence<StringDouble> StringDoubleSeq;
+const int StringDoubleSeqSize = 50000;
 
 interface Throughput
 {

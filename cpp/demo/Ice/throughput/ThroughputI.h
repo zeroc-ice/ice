@@ -18,11 +18,11 @@ class ThroughputI : public Demo::Throughput
 public:
 
     ThroughputI() :
-	_byteSeq(500000, 0),
-	_stringSeq(50000, "hello"),
-	_structSeq(50000)
+	_byteSeq(Demo::ByteSeqSize, 0),
+	_stringSeq(Demo::StringSeqSize, "hello"),
+	_structSeq(Demo::StringDoubleSeqSize)
     {
-        for(int i = 0; i < 50000; ++i)
+        for(int i = 0; i < Demo::StringDoubleSeqSize; ++i)
 	{
 	    _structSeq[i].s = "hello";
 	    _structSeq[i].d = 3.14;

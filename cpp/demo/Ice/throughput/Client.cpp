@@ -57,16 +57,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
-    int byteSeqSize = 500000;
-    int stringSeqSize = 50000;
-    int structSeqSize = 50000;
+    ByteSeq byteSeq(ByteSeqSize, 0);
 
-    ByteSeq byteSeq(byteSeqSize, 0);
+    StringSeq stringSeq(StringSeqSize, "hello");
 
-    StringSeq stringSeq(stringSeqSize, "hello");
-
-    StringDoubleSeq structSeq(structSeqSize);
-    for(int i = 0; i < structSeqSize; ++i)
+    StringDoubleSeq structSeq(StringDoubleSeqSize);
+    for(int i = 0; i < StringDoubleSeqSize; ++i)
     {
         structSeq[i].s = "hello";
 	structSeq[i].d = 3.14;
@@ -80,7 +76,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // By default use byte sequence.
     //
     char currentType = '1';
-    int seqSize = byteSeqSize;
+    int seqSize = ByteSeqSize;
 
     char c;
     do
@@ -101,21 +97,21 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    case '1':
 		    {
 		        cout << "using byte sequences" << endl;
-			seqSize = byteSeqSize;
+			seqSize = ByteSeqSize;
 			break;
 		    }
 
 		    case '2':
 		    {
 		        cout << "using string sequences" << endl;
-			seqSize = stringSeqSize;
+			seqSize = StringSeqSize;
 			break;
 		    }
 
 		    case '3':
 		    {
 		        cout << "using struct sequences" << endl;
-			seqSize = structSeqSize;
+			seqSize = StringDoubleSeqSize;
 			break;
 		    }
 		}
@@ -277,18 +273,32 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		tm = IceUtil::Time::now() - tm;
 		cout << "time for " << repetitions << " sequences: " << tm * 1000 << "ms" << endl;
 		cout << "time per sequence: " << tm * 1000 / repetitions << "ms" << endl;
-		if(currentType == '1')
+		int wireSize = 0;
+		switch(currentType)
 		{
-		    //
-		    // TODO: Calculate rate for strings and structs.
-		    //
-		    double mbit = repetitions * seqSize * 8.0 / tm.toMicroSeconds();
-		    if(c == 'e')
+		    case '1':
 		    {
-		        mbit *= 2;
+		    	wireSize = 1;
+		    	break;
 		    }
-		    cout << "throughput: " << mbit << " MBit/s" << endl;
+		    case '2':
+		    {
+		        wireSize = stringSeq[0].size();
+		    	break;
+		    }
+		    case '3':
+		    {
+		    	wireSize = structSeq[0].s.size();
+			wireSize += 8; // Size of double on the wire.
+		    	break;
+		    }
 		}
+		double mbit = repetitions * seqSize * wireSize * 8.0 / tm.toMicroSeconds();
+		if(c == 'e')
+		{
+		    mbit *= 2;
+		}
+		cout << "throughput: " << mbit << " MBit/s" << endl;
 	    }
 	    else if(c == 's')
 	    {
