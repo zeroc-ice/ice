@@ -1,19 +1,21 @@
 Changes since version 1.0.1
 ---------------------------
 
-- Update to the library versioning: 
+- Update to the library versioning scheme:
+
   On Windows, only the major and minor version are now used, for 
   example: ice11d.dll (11d means 1.1 debug). In 1.0.x, the patch level 
   was included in the version string, for example ice101d.dll.
-  On Unix, the internal name (soname) is now 
+
+  On Unix, the internal name (soname) is now constructed as
   lib<name>.so.<major version><minor version>, for example
-  libIce.so.11 (for Ice 1.1.x). The corresponding file is a symbolic
-  link to lib<name>.so.<full version>, for example:
+  libIce.so.11 (for Ice 1.1.x). This internal name identifies a
+  symbolic link to lib<name>.so.<full version>, for example:
   libIce.so.11 -> libIce.so.1.1.0. In 1.0.x, the internal name 
   was set to the actual shared library file name, 
   lib<name>.so.<full version>.
 
-- Ice now implements slicing for exceptions and classes: if process
+- Ice now implements slicing for exceptions and classes: if a process
   receives an exception or class that is of a more derived type than
   the receiver understands, the exception or class is automatically
   sliced. (Previously, this situation resulted in an exception.)
@@ -23,21 +25,20 @@ Changes since version 1.0.1
   classes, the necessary factories are automatically installed by
   the Ice run time. If you have existing code that implements
   factories for non-abstract classes, you can simply delete that code.
-  (Note that for abstract classes (that is, classes with operations),
+  Note that for abstract classes (that is, classes with operations),
   it is necessary to install a factory for each abstract class, exactly
-  as in version 1.0.1.
+  as in version 1.0.x.
 
-- User exception factories and user exception factory
-  managers no longer exist. The factories for user exceptions
-  are now automatically installed by the Ice run time.
-  If you have existing code that implements user exception factories,
-  you can simply delete it.
+- Factories for user exceptions no longer need to be installed by
+  applications, since they are now automatically installed by the Ice
+  run time. If you have existing code that implements user exception
+  factories, you can simply delete it.
 
-- If a client receives a derived exception for which it does
-  not have a user exception factory installed, the client
-  receives the exception sliced to its base instead of
-  getting NoUserExceptionFactoryException.
-  (NoUserExceptionFactoryException no longer exists.)
+- If a client receives a derived exception for which it does not have
+  a user exception factory installed, the client receives the
+  exception sliced to a known base exception. In 1.0.x, the client
+  would have received NoUserExceptionFactoryException, an exception
+  that no longer exists in 1.1.x.
 
 - Fixed a bug with connections being closed even though they have
   outstanding batch requests.
@@ -154,7 +155,8 @@ Changes since version 1.0.1
   timestamps by setting the `Ice.Logger.Timestamp' property to a value
   larger than zero. By default timestamps are disabled.
 
-- Added IceUtil::Time::toString() to convert a time to a string.
+- Added several conversion functions to IceUtil::Time: toString,
+  toSeconds, toMilliSeconds, toMicroSeconds.
 
 - Fixed a bug in Freeze::DBEnvironment which caused the sync method to
   hang.
