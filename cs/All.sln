@@ -572,14 +572,6 @@ Global
 		{693C9AE5-2011-4F0B-9CB7-04B3FE7C8EBC}.Debug.Build.0 = Debug|.NET
 		{693C9AE5-2011-4F0B-9CB7-04B3FE7C8EBC}.Release.ActiveCfg = Release|.NET
 		{693C9AE5-2011-4F0B-9CB7-04B3FE7C8EBC}.Release.Build.0 = Release|.NET
-		{09767289-E658-49F2-ADD6-2EB467328E6F}.Debug.ActiveCfg = Debug|.NET
-		{09767289-E658-49F2-ADD6-2EB467328E6F}.Debug.Build.0 = Debug|.NET
-		{09767289-E658-49F2-ADD6-2EB467328E6F}.Release.ActiveCfg = Release|.NET
-		{09767289-E658-49F2-ADD6-2EB467328E6F}.Release.Build.0 = Release|.NET
-		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Debug.ActiveCfg = Debug|.NET
-		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Debug.Build.0 = Debug|.NET
-		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Release.ActiveCfg = Release|.NET
-		{0E78B6EA-2CDF-401A-BC2D-364E44A46636}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
