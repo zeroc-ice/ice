@@ -2593,10 +2593,27 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "End If";
     _out.dec();
     _out << nl << "Next";
-    _out << nl << "Dim __vlhs() As " << vs << " = New " << vs << "(Count - 1) {}";
+    SequencePtr seq = SequencePtr::dynamicCast(p->valueType());
+    bool valueIsArray = seq && !seq->hasMetaData("cs:collection");
+    if(valueIsArray)
+    {
+	_out << nl << "Dim __vlhs As " << vs << "() = New " << toArrayAlloc(vs + "()", "Count - 1") << " {}";
+    }
+    else
+    {
+	_out << nl << "Dim __vlhs As " << vs << " = New " << toArrayAlloc(vs, "Count - 1") << " {}";
+    }
     _out << nl << "Values.CopyTo(__vlhs, 0)";
     _out << nl << "_System.Array.Sort(__vlhs)";
-    _out << nl << "Dim __vrhs() As " << vs << " = New " << vs << "(CType(other, " << name << ").Count - 1) {}";
+    string vrhsCount = "Ctype(other, " + name + ").Count - 1";
+    if(valueIsArray)
+    {
+	_out << nl << "Dim __vrhs As " << vs << "() = New " << toArrayAlloc(vs + "()", vrhsCount) << " {}";
+    }
+    else
+    {
+	_out << nl << "Dim __vrhs As " << vs << " = New " << toArrayAlloc(vs, vrhsCount) << " {}";
+    }
     _out << nl << "CType(other, " << name << ").Values.CopyTo(__vrhs, 0)";
     _out << nl << "_System.Array.Sort(__vrhs)";
     _out << nl << "For i As Integer = 0 To Count - 1";
