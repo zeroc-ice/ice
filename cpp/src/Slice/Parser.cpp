@@ -1434,7 +1434,14 @@ Slice::Container::sortContents()
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
 	if(container)
 	{
-	    container->sort();
+	    //
+	    // Don't sort operation definitions, otherwise parameters are shown in the
+	    // wrong order in the synopsis.
+	    //
+	    if(!OperationPtr::dynamicCast(container))
+	    {
+		container->sort();
+	    }
 	    container->sortContents();
 	}
     }
