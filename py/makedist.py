@@ -107,9 +107,11 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icepy", "makedist.py"), \
     os.path.join("icepy", "makebindist.py"), \
+    os.path.join("icepy", "certs", "makecerts"), \
     ]
 for x in filesToRemove:
     os.remove(x)
+shutil.rmtree(os.path.join("icepy", "certs", "openssl"))
 
 #
 # Translate Slice files.
