@@ -800,7 +800,7 @@ connections are automatically closed after they have been idle for
 <replaceable>num</replaceable> seconds. This is transparent to user
 code, i.e., closed connections are automatically reestablished in case
 they are needed again. The default value is 60, meaning that idle
-connections are not automatically closed after one minute.
+connections are automatically closed after one minute.
 </para>
 </section>
 </section>
