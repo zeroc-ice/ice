@@ -603,14 +603,6 @@ def Identity__str__(self):
 Identity.__str__ = Identity__str__
 del Identity__str__
 
-def Identity__hash__(self):
-    #
-    # Return 32-bit integer.
-    #
-    return (5 * hash(self.category) + hash(self.name)) % 0x7fffffff
-Identity.__hash__ = Identity__hash__
-del Identity__hash__
-
 def Identity__lt__(self, other):
     if self.category < other.category:
         return True
@@ -624,11 +616,6 @@ def Identity__le__(self, other):
     return self.__lt__(other) or self.__eq__(other)
 Identity.__le__ = Identity__le__
 del Identity__le__
-
-def Identity__eq__(self, other):
-    return self.category == other.category and self.name == other.name
-Identity.__eq__ = Identity__eq__
-del Identity__eq__
 
 def Identity__ne__(self, other):
     return not self.__eq__(other)
