@@ -191,40 +191,57 @@ interface_export
 // ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: ICE_EXCEPTION ICE_IDENTIFIER
+: local ICE_EXCEPTION ICE_IDENTIFIER
 {
-    unit->error("exceptions can not be forward declared");
+    unit->error("exceptions cannot be forward declared");
 }
-| ICE_EXCEPTION keyword
+| local ICE_EXCEPTION keyword
 {
-    unit->error("keyword can not be used as exception name");
+    unit->error("keyword cannot be used as exception name");
 }
 ;
 
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: ICE_EXCEPTION ICE_IDENTIFIER
+: local ICE_EXCEPTION ICE_IDENTIFIER exception_extends
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    ExceptionPtr base = ExceptionPtr::dynamicCast($4);
     ContainerPtr cont = unit->currentContainer();
-    ExceptionPtr st = cont->createException(ident->v);
-    if (!st)
+    ExceptionPtr ex = cont->createException(ident->v, local->v, base);
+    if (!ex)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    unit->pushContainer(st);
+    unit->pushContainer(ex);
 }
 '{' exception_exports '}'
 {
     unit->popContainer();
 }
-| ICE_EXCEPTION keyword
+| local ICE_EXCEPTION keyword exception_extends
 {
-    unit->error("keyword can not be used as exception name");
+    unit->error("keyword cannot be used as exception name");
 }
 '{' exception_exports '}'
 {
+}
+;
+
+// ----------------------------------------------------------------------
+exception_extends
+// ----------------------------------------------------------------------
+: ICE_EXTENDS scoped_name
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    $$ = cont->lookupException(scoped->v);
+}
+|
+{
+    $$ = 0;
 }
 ;
 
@@ -259,11 +276,11 @@ struct_decl
 // ----------------------------------------------------------------------
 : ICE_STRUCT ICE_IDENTIFIER
 {
-    unit->error("structs can not be forward declared");
+    unit->error("structs cannot be forward declared");
 }
 | ICE_STRUCT keyword
 {
-    unit->error("keyword can not be used as struct name");
+    unit->error("keyword cannot be used as struct name");
 }
 ;
 
@@ -287,7 +304,7 @@ struct_def
 }
 | ICE_STRUCT keyword
 {
-    unit->error("keyword can not be used as struct name");
+    unit->error("keyword cannot be used as struct name");
 }
 '{' struct_exports '}'
 {
@@ -369,7 +386,7 @@ class_decl
 }
 | local ICE_CLASS keyword
 {
-    unit->error("keyword can not be used as class name");
+    unit->error("keyword cannot be used as class name");
 }
 ;
 
@@ -400,7 +417,7 @@ class_def
 }
 | local ICE_CLASS keyword class_extends implements
 {
-    unit->error("keyword can not be used as class name");
+    unit->error("keyword cannot be used as class name");
 }
 '{' class_exports '}'
 {
@@ -474,7 +491,7 @@ interface_decl
 }
 | local ICE_INTERFACE keyword
 {
-    unit->error("keyword can not be used as interface name");
+    unit->error("keyword cannot be used as interface name");
 }
 ;
 
@@ -500,7 +517,7 @@ interface_def
 }
 | local ICE_INTERFACE keyword interface_extends
 {
-    unit->error("keyword can not be used as interface name");
+    unit->error("keyword cannot be used as interface name");
 }
 '{' interface_exports '}'
 {
@@ -624,11 +641,11 @@ operation
 }
 | return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
 {
-    unit->error("keyword can not be used as operation name");
+    unit->error("keyword cannot be used as operation name");
 }
 | ICE_NONMUTATING return_type ICE_OP_KEYWORD parameters output_parameters ')' throws
 {
-    unit->error("keyword can not be used as operation name");
+    unit->error("keyword cannot be used as operation name");
 }
 ;
  
@@ -663,12 +680,12 @@ parameters
 }
 | type keyword ',' parameters
 {
-    unit->error("keyword can not be used as declarator");
+    unit->error("keyword cannot be used as declarator");
     $$ = $4
 }
 | type keyword
 {
-    unit->error("keyword can not be used as declarator");
+    unit->error("keyword cannot be used as declarator");
     $$ = new TypeStringListTok;
 }
 |
@@ -727,7 +744,7 @@ data_member
 }
 | type keyword
 {
-    unit->error("keyword can not be used as data member name");
+    unit->error("keyword cannot be used as data member name");
 }
 ;
 
@@ -849,16 +866,6 @@ exception_list
     exceptionList->v.push_front(exception);
     $$ = exceptionList;
 }
-| type ',' exception_list
-{
-    unit->error("not an exception");
-    $$ = $3;
-}
-| type
-{
-    unit->error("not an exception");
-    $$ = new ExceptionListTok;
-}
 ;
 
 // ----------------------------------------------------------------------
@@ -890,7 +897,7 @@ sequence_def
 }
 | ICE_SEQUENCE '<' type '>' keyword
 {
-    unit->error("keyword can not be used as sequence name");
+    unit->error("keyword cannot be used as sequence name");
 }
 ;
 
@@ -907,7 +914,7 @@ dictionary_def
 }
 | ICE_DICTIONARY '<' type ',' type '>' keyword
 {
-    unit->error("keyword can not be used as dictionary name");
+    unit->error("keyword cannot be used as dictionary name");
 }
 ;
 
@@ -932,7 +939,7 @@ enum_def
 }
 | ICE_ENUM keyword
 {
-    unit->error("keyword can not be used as enum name");
+    unit->error("keyword cannot be used as enum name");
 }
 '{' enumerator_list '}'
 {
@@ -971,7 +978,7 @@ enumerator
 }
 | keyword
 {
-    unit->error("keyword can not be used as enumerator");
+    unit->error("keyword cannot be used as enumerator");
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens;
 }

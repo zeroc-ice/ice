@@ -1,25 +1,25 @@
-IllegalUseOfKeyword.ice:11: keyword can not be used as exception name
-IllegalUseOfKeyword.ice:13: keyword can not be used as exception name
-IllegalUseOfKeyword.ice:17: keyword can not be used as struct name
-IllegalUseOfKeyword.ice:19: keyword can not be used as struct name
-IllegalUseOfKeyword.ice:23: keyword can not be used as class name
-IllegalUseOfKeyword.ice:25: keyword can not be used as class name
-IllegalUseOfKeyword.ice:30: keyword can not be used as interface name
-IllegalUseOfKeyword.ice:32: keyword can not be used as interface name
-IllegalUseOfKeyword.ice:38: keyword can not be used as operation name
-IllegalUseOfKeyword.ice:40: keyword can not be used as declarator
-IllegalUseOfKeyword.ice:40: keyword can not be used as declarator
-IllegalUseOfKeyword.ice:42: keyword can not be used as declarator
-IllegalUseOfKeyword.ice:42: keyword can not be used as declarator
-IllegalUseOfKeyword.ice:47: keyword can not be used as data member name
-IllegalUseOfKeyword.ice:48: keyword can not be used as data member name
-IllegalUseOfKeyword.ice:49: keyword can not be used as data member name
-IllegalUseOfKeyword.ice:50: keyword can not be used as data member name
-IllegalUseOfKeyword.ice:51: keyword can not be used as data member name
-IllegalUseOfKeyword.ice:54: keyword can not be used as sequence name
-IllegalUseOfKeyword.ice:56: keyword can not be used as dictionary name
-IllegalUseOfKeyword.ice:58: keyword can not be used as enum name
-IllegalUseOfKeyword.ice:65: keyword can not be used as enumerator
-IllegalUseOfKeyword.ice:66: keyword can not be used as enumerator
-IllegalUseOfKeyword.ice:67: keyword can not be used as enumerator
-IllegalUseOfKeyword.ice:68: keyword can not be used as enumerator
+IllegalUseOfKeyword.ice:11: keyword cannot be used as exception name
+IllegalUseOfKeyword.ice:13: keyword cannot be used as exception name
+IllegalUseOfKeyword.ice:17: keyword cannot be used as struct name
+IllegalUseOfKeyword.ice:19: keyword cannot be used as struct name
+IllegalUseOfKeyword.ice:23: keyword cannot be used as class name
+IllegalUseOfKeyword.ice:25: keyword cannot be used as class name
+IllegalUseOfKeyword.ice:30: keyword cannot be used as interface name
+IllegalUseOfKeyword.ice:32: keyword cannot be used as interface name
+IllegalUseOfKeyword.ice:38: keyword cannot be used as operation name
+IllegalUseOfKeyword.ice:40: keyword cannot be used as declarator
+IllegalUseOfKeyword.ice:40: keyword cannot be used as declarator
+IllegalUseOfKeyword.ice:42: keyword cannot be used as declarator
+IllegalUseOfKeyword.ice:42: keyword cannot be used as declarator
+IllegalUseOfKeyword.ice:47: keyword cannot be used as data member name
+IllegalUseOfKeyword.ice:48: keyword cannot be used as data member name
+IllegalUseOfKeyword.ice:49: keyword cannot be used as data member name
+IllegalUseOfKeyword.ice:50: keyword cannot be used as data member name
+IllegalUseOfKeyword.ice:51: keyword cannot be used as data member name
+IllegalUseOfKeyword.ice:54: keyword cannot be used as sequence name
+IllegalUseOfKeyword.ice:56: keyword cannot be used as dictionary name
+IllegalUseOfKeyword.ice:58: keyword cannot be used as enum name
+IllegalUseOfKeyword.ice:65: keyword cannot be used as enumerator
+IllegalUseOfKeyword.ice:66: keyword cannot be used as enumerator
+IllegalUseOfKeyword.ice:67: keyword cannot be used as enumerator
+IllegalUseOfKeyword.ice:68: keyword cannot be used as enumerator

@@ -98,10 +98,6 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Exceptions.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File

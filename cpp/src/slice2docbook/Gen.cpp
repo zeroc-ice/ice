@@ -537,7 +537,21 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     start("section", "Overview");
     O.zeroIndent();
     O << nl << "<synopsis>";
-    O << "exception <structname>" << p->name() << "</structname>";
+    if (p->isLocal())
+    {
+	O << "local ";
+    }
+    O << "exception <exceptionname>" << p->name() << "</exceptionname>";
+    ExceptionPtr base = p->base();
+    if (base)
+    {
+	O.inc();
+	O << nl << "extends ";
+	O.inc();
+	O << nl << toString(base, p);
+	O.dec();
+	O.dec();
+    }
     O << "</synopsis>";
     O.restoreIndent();
 
@@ -1173,7 +1187,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     {
 	linkend = containedToId(ex);
 	s = getScopedMinimized(ex, container);
-	tag = "structname";
+	tag = "exceptionname";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);

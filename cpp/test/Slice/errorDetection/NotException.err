@@ -1,4 +1,4 @@
-NotException.ice:20: not an exception
-NotException.ice:20: not an exception
-NotException.ice:20: not an exception
-NotException.ice:20: not an exception
+NotException.ice:20: `C' is not an exception
+NotException.ice:21: `S' is not an exception
+NotException.ice:22: `D' is not an exception
+NotException.ice:23: parse error

@@ -151,43 +151,6 @@ class MyClass
 
     MyClassStringD opMyClassStringD(MyClassStringD p1, MyClassStringD p2;
 				    MyClassStringD p3);
-
-    void opEx(int p) throws
-        byte,
-	bool,
-	short,
-	int,
-	long,
-	float,
-	double,
-	string,
-	wstring,
-	Struct,
-	ByteS,
-	BoolS,
-	ShortS,
-	IntS,
-	LongS,
-	FloatS,
-	DoubleS,
-	StringS,
-	WStringS,
-	ByteSS,
-	BoolSS,
-	ShortSS,
-	IntSS,
-	LongSS,
-	FloatSS,
-	DoubleSS,
-	StringSS,
-	WStringSS,
-	ByteBoolD,
-	ShortIntD,
-	LongFloatD,
-	DoubleStringD,
-	WStringMyEnumD,
-	MyClassStringD,
-	MyClass*;
 };
 
 class MyDerivedClass extends MyClass

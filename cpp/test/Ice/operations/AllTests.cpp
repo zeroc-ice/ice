@@ -40,10 +40,5 @@ allTests(const Ice::CommunicatorPtr& communicator)
     derived->opDerived();
     cout << "ok" << endl;
 
-    cout << "testing exceptions... " << flush;
-    void exceptions(const Test::MyClassPrx&);
-    exceptions(cl);
-    cout << "ok" << endl;
-
     return cl;
 }

@@ -134,8 +134,6 @@ public:
     virtual Test::MyClassStringD opMyClassStringD(const Test::MyClassStringD&, const Test::MyClassStringD&,
 						  Test::MyClassStringD&);
 
-    virtual void opEx(Ice::Int);
-
     virtual void opDerived();
 
 private:

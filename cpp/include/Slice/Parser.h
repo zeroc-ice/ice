@@ -274,7 +274,7 @@ public:
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, bool, const ClassList&);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
-    ExceptionPtr createException(const std::string&);
+    ExceptionPtr createException(const std::string&, bool, const ExceptionPtr&);
     StructPtr createStruct(const std::string&);
     SequencePtr createSequence(const std::string&, const TypePtr&);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&);
@@ -435,16 +435,22 @@ class SLICE_API Exception : virtual public Container, virtual public Contained
 {
 public:
 
+    virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers();
+    ExceptionPtr base();
+    bool isLocal();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
 
-    Exception(const ContainerPtr&, const std::string&);
+    Exception(const ContainerPtr&, const std::string&, bool, const ExceptionPtr&);
     friend class SLICE_API Container;
+
+    bool _local;
+    ExceptionPtr _base;
 };
 
 // ----------------------------------------------------------------------

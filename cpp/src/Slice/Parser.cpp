@@ -354,7 +354,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name)
+Slice::Container::createException(const string& name, bool local, const ExceptionPtr& base)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -381,7 +381,7 @@ Slice::Container::createException(const string& name)
 	return 0;
     }
 
-    ExceptionPtr p = new Exception(this, name);
+    ExceptionPtr p = new Exception(this, name, local, base);
     _contents.push_back(p);
     return p;
 }
@@ -1510,6 +1510,13 @@ Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
 // Exception
 // ----------------------------------------------------------------------
 
+void
+Slice::Exception::destroy()
+{
+    _base = 0;
+    Container::destroy();
+}
+
 DataMemberPtr
 Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 {
@@ -1567,6 +1574,18 @@ Slice::Exception::dataMembers()
     return result;
 }
 
+ExceptionPtr
+Slice::Exception::base()
+{
+    return _base;
+}
+
+bool
+Slice::Exception::isLocal()
+{
+    return _local;
+}
+
 bool
 Slice::Exception::uses(const ConstructedPtr&)
 {
@@ -1594,10 +1613,12 @@ Slice::Exception::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name) :
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, bool local, const ExceptionPtr& base) :
     Container(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit())
+    SyntaxTreeBase(container->unit()),
+    _local(local),
+    _base(base)
 {
 }
 
