@@ -25,7 +25,8 @@ if ! [ -f $CA_HOME/cakey.pem ]; then
     # Generate our CA certificate and key if they do not already exist.
     #
     echo "You will be prompted for a passphrase - this is the passphrase that protects the CA signing authority key."
-    openssl req -config $ICE_HOME/config/ice_ca.cnf -x509 -days 1825 -newkey rsa -out $CA_HOME/cacert.pem -outform PEM
+    openssl req -config $ICE_HOME/config/ice_ca.cnf -x509 -days 1825 -newkey rsa -out $CA_HOME/cacert.pem \
+	-outform PEM $PASSPHRASE
     cp $CA_HOME/cacert.pem $ICE_HOME/certs
 
     #
