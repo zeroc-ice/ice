@@ -121,7 +121,7 @@ class CommunicatorI extends LocalObjectImpl implements Communicator
     public synchronized ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	getProperties()->setProperty(name + ".Endpoints", endpoints);
+	getProperties().setProperty(name + ".Endpoints", endpoints);
 	return createObjectAdapter(name);
     }
 

@@ -136,6 +136,13 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
     return adapter;
 }
 
+ObjectAdapterPtr
+Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
+{
+    getProperties()->setProperty(name + ".Endpoints", endpoints);
+    return createObjectAdapter(name);
+}
+
 void
 Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
 {

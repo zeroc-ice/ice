@@ -138,11 +138,33 @@ local interface Communicator
      *
      * @return The new object adapter.
      *
+     * @see createObjectAdapterWithEndpoints
      * @see ObjectAdapter
      * @see Properties
      *
      **/
     ObjectAdapter createObjectAdapter(string name);
+
+    /**
+     *
+     * Create a new object adapter with endpoints. This method sets
+     * the property
+     * <literal><replaceable>name</replaceable>.Endpoints</literal>,
+     * and then calls [createObjectAdapter]. It is provided as a
+     * convenience function.
+     * 
+     * @param name The object adapter name.
+     *
+     * @param endpoints The endpoints for the object adapter.
+     *
+     * @return The new object adapter.
+     *
+     * @see createObjectAdapter
+     * @see ObjectAdapter
+     * @see Properties
+     *
+     **/
+    ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
      *
