@@ -200,7 +200,6 @@ Slice::Gen::generate(const UnitPtr& p)
 	}
 	H << "\n#include <Ice/Direct.h>";
 	C << "\n#include <Ice/LocalException.h>";
-	C << "\n#include <Ice/ObjectFactory.h>";
     }
 
     if(p->hasNonLocalExceptions())
@@ -1798,10 +1797,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
 	writeMarshalCode(C, inParams, 0);
-	if(p->sendsClasses())
-	{
-	    C << nl << "__os->writePendingObjects();";
-	}
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
@@ -1818,10 +1813,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     writeAllocateCode(C, TypeStringList(), ret);
     writeUnmarshalCode(C, outParams, ret);
-    if(p->returnsClasses())
-    {
-	C << nl << "__is->readPendingObjects();";
-    }
     if(ret)
     {
 	C << nl << "return __ret;";
@@ -2807,10 +2798,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
-	    if(p->sendsClasses())
-	    {
-		C << nl << "__is->readPendingObjects();";
-	    }
 	    writeAllocateCode(C, outParams, 0);
 	    if(!throws.empty())
 	    {
@@ -2824,10 +2811,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    C << fixKwd(name) << args << ';';
 	    writeMarshalCode(C, outParams, ret);
-	    if(p->returnsClasses())
-	    {
-		C << nl << "__os->writePendingObjects();";
-	    }
 	    if(!throws.empty())
 	    {
 		C << eb;
@@ -2851,10 +2834,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
-	    if(p->sendsClasses())
-	    {
-		C << nl << "__is->readPendingObjects();";
-	    }
 	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
 	      << "(__in);";
 	    C << nl << "try";
@@ -3359,20 +3338,6 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    C << eb;
 
 	    C << sp;
-	    C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
-              << "(const ::Ice::OutputStreamPtr& __out, const " << scope << name << "Ptr& v)";
-	    C << sb;
-	    C << nl << "__out->writeObject(v);";
-	    C << eb;
-
-            C << sp;
-            C << nl << "void" << nl << scope.substr(2) << "ice_read" << name << "(const ::Ice::InputStreamPtr& __in, "
-              << scoped << "Ptr& __v)";
-            C << sb;
-            C << nl << "::Ice::ReadObjectCallbackPtr __cb = new ::Ice::ReadObjectCallbackI(" << scope << "__patch__"
-              << name << "Ptr, &__v);";
-            C << nl << "__in->readObject(__cb);";
-            C << eb;
 	}
     }
 
@@ -3415,12 +3380,15 @@ Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePt
                 break;
             }
             case Builtin::KindString:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
                 break;
             }
+	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
+	    {
+		assert("Slice classes not support in IceE" = 0);
+	    }
         }
     }
 
@@ -3466,13 +3434,17 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
                 out << nl << "return ::std::string();";
                 break;
             }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
             {
                 out << nl << "return 0;";
                 break;
             }
+	    case Builtin::KindObject: // XXX we should do something about this not being permitted here.
+	    {
+		assert("Slice classes not support in IceE" = 0);
+	    }
+
         }
     }
     else
@@ -3905,10 +3877,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "static const ::std::string __operation(\"" << name << "\");";
 	C << nl << "__prepare(__prx, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
 	writeMarshalCode(C, inParams, 0);
+	/* remove.
 	if(p->sendsClasses())
 	{
 	    C << nl << "__os->writePendingObjects();";
 	}
+	*/
 	C << nl << "__os->endWriteEncaps();";
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -3929,10 +3903,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__is->throwException();";
 	C << eb;
 	writeUnmarshalCode(C, outParams, ret);
-	if(p->returnsClasses())
-	{
-	    C << nl << "__is->readPendingObjects();";
-	}
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
@@ -4144,10 +4114,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = this->__os();";
 	writeMarshalCode(C, outParams, ret);
-	if(p->returnsClasses())
-	{
-	    C << nl << "__os->writePendingObjects();";
-	}
 	C << eb;
 	C << nl << "catch(const ::Ice::Exception& __ex)";
 	C << sb;
@@ -4177,10 +4143,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
 	    C << sb;
 	    C << nl << "__os()->write(__ex);";
-	    if((*r)->usesClasses())
-	    {
-		C << nl << "__os()->writePendingObjects();";
-	    }
 	    C << nl << "__response(false);";
 	    C << eb;
 	}
