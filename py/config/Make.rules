@@ -66,8 +66,8 @@ ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 1.6.0
-SOVERSION		= 16
+VERSION			= 2.0.0
+SOVERSION		= 20
 libdir			= $(top_srcdir)/lib
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
