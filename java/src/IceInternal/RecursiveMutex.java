@@ -35,7 +35,7 @@ public class RecursiveMutex
             {
                 wait();
             }
-            catch(InterruptedException ex)
+            catch (InterruptedException ex)
             {
             }
         }

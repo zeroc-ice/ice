@@ -204,7 +204,7 @@ public class Collector extends EventHandler
                     }
                 }
             }
-            catch (ConnectionLostException ex)
+            catch (Ice.ConnectionLostException ex)
             {
                 setState(StateClosed); // Connection drop from client is ok
                 return;
@@ -292,7 +292,7 @@ public class Collector extends EventHandler
                         closeConnection();
                     }
                 }
-                catch (ConnectionLostException ex)
+                catch (Ice.ConnectionLostException ex)
                 {
                     setState(StateClosed); // Connection drop from client is ok
                     return;
@@ -402,7 +402,7 @@ public class Collector extends EventHandler
                 "Ice.WarnAboutServerExceptions");
             _warnAboutExceptions = Integer.parseInt(value) > 0 ? true : false;
         }
-        catch(NumberFormatException ex)
+        catch (NumberFormatException ex)
         {
             _warnAboutExceptions = false;
         }
@@ -472,12 +472,12 @@ public class Collector extends EventHandler
                     {
                         closeConnection();
                     }
-                    catch(ConnectionLostException ex)
+                    catch (Ice.ConnectionLostException ex)
                     {
                         state = StateClosed;
                         setState(state); // Connection drop from client is ok
                     }
-                    catch(LocalException ex)
+                    catch (Ice.LocalException ex)
                     {
                         warning(ex);
                         state = StateClosed;

@@ -10,9 +10,8 @@
 
 package IceInternal;
 
-final class TraceLevels
+public final class TraceLevels
 {
-    public
     TraceLevels(Ice.Properties properties)
     {
         network = 0;
@@ -76,12 +75,12 @@ final class TraceLevels
         }
     }
 
-    int network;
-    String networkCat;
-    int protocol;
-    String protocolCat;
-    int retry;
-    String retryCat;
-    int security;
-    String securityCat;
+    public int network;
+    public String networkCat;
+    public int protocol;
+    public String protocolCat;
+    public int retry;
+    public String retryCat;
+    public int security;
+    public String securityCat;
 }

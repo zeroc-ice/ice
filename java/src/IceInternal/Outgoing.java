@@ -89,7 +89,7 @@ public final class Outgoing
                                 wait();
                             }
                         }
-                        catch(InterruptedException ex)
+                        catch (InterruptedException ex)
                         {
                         }
                     }

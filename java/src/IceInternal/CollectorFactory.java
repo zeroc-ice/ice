@@ -174,7 +174,7 @@ public class CollectorFactory extends EventHandler
                 "Ice.WarnAboutServerExceptions");
             _warnAboutExceptions = Integer.parseInt(value) > 0 ? true : false;
         }
-        catch(NumberFormatException ex)
+        catch (NumberFormatException ex)
         {
             _warnAboutExceptions = false;
         }
