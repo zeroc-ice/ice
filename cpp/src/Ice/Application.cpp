@@ -286,7 +286,7 @@ Ice::Application::releaseInterrupt()
     sigdelset(&sigset, SIGHUP);
     sigdelset(&sigset, SIGINT);
     sigdelset(&sigset, SIGTERM);
-    sigprocmask(SIG_SETMASK, &sigset, 0);
+    sigprocmask(SIG_BLOCK, &sigset, 0);
 }
 
 #endif
