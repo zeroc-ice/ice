@@ -1121,7 +1121,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     catch(const Ice::Exception& ex)
     {
         // TODO: Enable delete when we figure out why it can cause a crash.
-        delete[] args;
+        // delete[] args;
         ostringstream ostr;
         ostr << ex;
         error(ostr.str());
@@ -1187,7 +1187,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     }
 
     // TODO: Enable delete when we figure out why it can cause a crash.
-    delete[] args;
+    // delete[] args;
 
     try
     {
