@@ -121,11 +121,6 @@ public abstract class OutgoingAsync
             {
 		case DispatchStatus._DispatchOK:
 		{
-		    //
-		    // Input and output parameters are always sent in an
-		    // encapsulation, which makes it possible to forward
-		    // oneway requests as blobs.
-		    //
 		    _is.startReadEncaps();
 		    __response(true);
 		    break;
@@ -133,11 +128,6 @@ public abstract class OutgoingAsync
 		
 		case DispatchStatus._DispatchUserException:
 		{
-		    //
-		    // Input and output parameters are always sent in an
-		    // encapsulation, which makes it possible to forward
-		    // oneway requests as blobs.
-		    //
 		    _is.startReadEncaps();
 		    __response(false);
 		    break;
