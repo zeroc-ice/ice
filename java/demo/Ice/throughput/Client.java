@@ -14,6 +14,19 @@
 
 public class Client
 {
+    private static void
+    menu()
+    {
+        System.out.println(
+            "usage:\n" +
+	    "s: send byte sequence\n" +
+	    "o: send byte sequence as oneway\n" +
+	    "r: receive byte sequence\n" +
+	    "e: echo (send and receive) byte sequence\n" +
+	    "x: exit\n" +
+            "?: help\n");
+    }
+
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
@@ -33,26 +46,132 @@ public class Client
             System.err.println("invalid proxy");
             return 1;
         }
+	ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
 
-        // Initial ping to setup the connection.
-        throughput.ice_ping();
-
-        long tmsec = System.currentTimeMillis();
-
-        final int repetitions = 100;
-
-        System.out.println("sending and receiving " + repetitions + " sequences of size " + seqSize.value +
-                           " (this may take a while)");
         byte[] seq = new byte[seqSize.value];
-        for(int i = 0; i < repetitions; i++)
+
+	menu();
+
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+
+        String line = null;
+        do
         {
-            throughput.echoByteSeq(seq);
+            try
+            {
+                System.out.print("==> ");
+                System.out.flush();
+                line = in.readLine();
+                if(line == null)
+                {
+                    break;
+                }
+
+		// Initial ping to setup the connection.
+		throughput.ice_ping();
+		
+		long tmsec = System.currentTimeMillis();
+		final int repetitions = 100;
+
+                if(line.equals("s") || line.equals("o") || line.equals("r") || line.equals("e"))
+                {
+		    char c = line.charAt(0);
+
+		    switch(c)
+		    {
+			case 's':
+			case 'o':
+			{
+			    System.out.print("sending");
+			    break;
+			}
+			
+			case 'r':
+			{
+			    System.out.print("receiving");
+			    break;
+			}
+			
+			case 'e':
+			{
+			    System.out.print("sending and receiving");
+			    break;
+			}
+		    }
+		    
+		    System.out.print(" " + repetitions + " sequences of size " + seqSize.value);
+		    
+		    if(c == 'o')
+		    {
+			System.out.print(" as oneway");
+		    }
+		    
+		    System.out.println("...");
+		    
+		    for(int i = 0; i < repetitions; ++i)
+		    {
+			switch(c)
+			{
+			    case 's':
+			    {
+				throughput.sendByteSeq(seq);
+				break;
+			    }
+			    
+			    case 'o':
+			    {
+				throughputOneway.sendByteSeq(seq);
+				break;
+			    }
+			    
+			    case 'r':
+			    {
+				throughput.recvByteSeq();
+				break;
+			    }
+			    
+			    case 'e':
+			    {
+				throughput.echoByteSeq(seq);
+				break;
+			    }
+			}
+		    }
+
+		    double dmsec = System.currentTimeMillis() - tmsec;
+		    System.out.println("time for " + repetitions + " sequences: " + dmsec  + "ms");
+		    System.out.println("time per sequence: " + dmsec / repetitions + "ms");
+		    double mbit = repetitions * seqSize.value * 8.0 / dmsec / 1000.0;
+		    if(c == 'e')
+		    {
+			mbit *= 2;
+		    }
+		    System.out.println("throughput: " + mbit + " MBit/s");
+		}
+		else if(line.equals("x"))
+                {
+                    // Nothing to do
+                }
+                else if(line.equals("?"))
+                {
+                    menu();
+                }
+                else
+                {
+                    System.out.println("unknown command `" + line + "'");
+                    menu();
+                }
+            }
+            catch(java.io.IOException ex)
+            {
+                ex.printStackTrace();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
         }
-
-        double dmsec = System.currentTimeMillis() - tmsec;
-
-        System.out.println("time for " + repetitions + " sequences: " + dmsec + "ms");
-        System.out.println("time per sequence: " + (dmsec / repetitions) + "ms");
+        while(!line.equals("x"));
 
         return 0;
     }

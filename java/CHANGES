@@ -1,24 +1,27 @@
 Changes since version 1.1.0
 ---------------------------
 
-- Major Freeze update
-  See corresponding entry in the Ice CHANGES file.
+- Added menu with several options to throughput demo.
 
-- Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These properties
-  control the size of the UDP receive and send buffers as well as controlling
-  the maximum size of a datagram invocation. If a datagram exceeds the
-  configured size, the Ice run time throws a DatagramLimitException. (Note that,
-  on the receiving size, detection of this condition is dependent on the
-  local UDP implementation -- some UDP implementations silently drop datagrams
-  that are too large to fit into the receive buffer instead of reporting
-  the error or delivering a truncated datagram.)
+- Major Freeze update. See corresponding entry in the Ice for C++
+  CHANGES file.
+
+- Added Ice.UDP.RcvSize and Ice.UDP.SndSize properties. These
+  properties control the size of the UDP receive and send buffers as
+  well as controlling the maximum size of a datagram invocation. If a
+  datagram exceeds the configured size, the Ice run time throws a
+  DatagramLimitException. (Note that, on the receiving size, detection
+  of this condition is dependent on the local UDP implementation --
+  some UDP implementations silently drop datagrams that are too large
+  to fit into the receive buffer instead of reporting the error or
+  delivering a truncated datagram.)
 
 - Added Ice.Warn.Datagrams. This property prints a warning on the server
   side if a DatagramLimitException is thrown.
 
-- Added Ice.MessageSizeMax property. This property controls the maximum
-  message size accepted by the Ice protocol in kiloBytes. The default value
-  is 1024 (1 MB).
+- Added Ice.MessageSizeMax property. This property controls the
+  maximum message size accepted by the Ice protocol in kiloBytes. The
+  default value is 1024 (1 MB).
 
 - Fixed a number of incorrect property settings in the config files
   for the demos.
@@ -29,8 +32,8 @@ Changes since version 1.1.0
 - Fixed a bug where the operation mode argument wasn't used in the
   implementation of the Ice.ObjectPrx ice_invoke method.
 
-- Fixed a bug in the generated code for custom sequences so that
-  it now checks whether the sequence value is null.
+- Fixed a bug in the generated code for custom sequences so that it
+  now checks whether the sequence value is null.
 
 - Added new property: Ice.Trace.Slicing. When set to a value > 0,
   unknown exception and class types that are sliced emit a warning.
@@ -40,33 +43,33 @@ Changes since version 1.1.0
   shutdownOnInterrupt() only shuts down the server side of an
   application, and therefore doesn't work with pure clients.
 
-- ObjectAdapter::removeServantLocator() no longer exists.
-  The life cycle of servant locators that are registered
-  with an object adapter ends when the adapter is destroyed.
+- ObjectAdapter::removeServantLocator() no longer exists.  The life
+  cycle of servant locators that are registered with an object adapter
+  ends when the adapter is destroyed.
 
-- Changed Ice::ServantLocator::deactivate to be passed the category for
-  which a servant locator is being deactivated.
+- Changed Ice::ServantLocator::deactivate to be passed the category
+  for which a servant locator is being deactivated.
 
 - Added missing declaration for ice_invoke_async to Ice.ObjectPrx.
 
 - Added saveObject() operation on Evictor, and savedObject() operation
   on PersistenceStrategy.
 
-  saveObject() saves a persistent object immediately. Once an operation
-  has called saveObject(), the object is considered "clean": other
-  updates by the same operation can only be reliably saved by another
-  call to saveObject().
+  saveObject() saves a persistent object immediately. Once an
+  operation has called saveObject(), the object is considered "clean":
+  other updates by the same operation can only be reliably saved by
+  another call to saveObject().
 
 - Added a test to the property parsing code to print a warning on
-  System.err if a property is not recognized. This prevents silly typos,
-  such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from
-  slipping through undetected.
+  System.err if a property is not recognized. This prevents silly
+  typos, such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile")
+  from slipping through undetected.
 
-- Added DB_PRIVATE flag to DBEnv->open(), to be able to use the 
+- Added DB_PRIVATE flag to DBEnv->open(), to be able to use the
   Berkeley DB that ships with RedHat 9.
 
-- Changed the python code for printing output from test clients, so that
-  you get each line as it comes.
+- Changed the python code for printing output from test clients, so
+  that you get each line as it comes.
 
 - Fixed server side bug with batch oneways or batch datagrams.
 
