@@ -369,7 +369,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // encode/decode
     //
-    for(int i = 0; i < 2; i++)
+    for(i = 0; i < 2; i++)
     {
         string keyValue;
         TypePtr type;
