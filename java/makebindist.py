@@ -13,7 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re
+import os, sys, shutil, fnmatch, re, string
 
 #
 # Show usage information.
@@ -101,21 +101,17 @@ icehome = os.environ["ICE_HOME"]
 executables = [ ]
 libraries = [ ]
 symlinks = 0
+debug = ""
 strip = 0
 if platform == "win32":
     winver = version.replace(".", "")
-    debug = ""
-    if not os.path.exists(icehome + "/bin/glacier" + winver + ".dll"):
+    if not os.path.exists(icehome + "/bin/iceutil" + winver + ".dll"):
         debug = "d"
     executables = [ \
-        "glacierrouter.exe",\
         "icecpp.exe",\
         "slice2freezej.exe",\
         "slice2java.exe",\
-        "slice2xsd.exe",\
-        "glacier" + winver + debug + ".dll",\
-        "icessl" + winver + debug + ".dll",\
-        "ice" + winver + debug + ".dll",\
+        "slice2docbook.exe",\
         "iceutil" + winver + debug + ".dll",\
         "slice" + winver + debug + ".dll",\
     ]
@@ -123,17 +119,12 @@ if platform == "win32":
     ]
 else:
     executables = [ \
-        "glacierrouter",\
-        "glacierstarter",\
         "icecpp",\
         "slice2freezej",\
         "slice2java",\
-        "slice2xsd",\
+        "slice2docbook",\
     ]
     libraries = [ \
-        "libGlacier.so",\
-        "libIceSSL.so",\
-        "libIce.so",\
         "libIceUtil.so",\
         "libSlice.so",\
     ]
@@ -159,12 +150,29 @@ else:
     for x in libraries:
         shutil.copyfile(icehome + "/lib/" + x, libdir + "/" + x)
 
+if platform == "win32":
+    if not os.environ["WINDIR"]:
+        print "WINDIR environment variable not set"
+        sys.exit(1)
+
+    dlls = [ \
+        "msvcp70" + debug + ".dll",\
+        "msvcr70" + debug + ".dll",\
+    ]
+    for dll in dlls:
+        dllpath = os.environ["WINDIR"] + "/system32/" + dll
+        if not os.path.exists(dllpath):
+            print "VC++.NET runtime DLL " + dllpath + " not found"
+            sys.exit(1)
+
+        shutil.copyfile(dllpath, bindir + "/" + dll)
+
 if strip:
     for x in executables:
         os.system("strip " + bindir + "/" + x)
+        os.chmod(bindir + "/" + x, 0755)
     for x in libraries:
         os.system("strip " + libdir + "/" + x)
-
 
 #
 # Create binary archives.
