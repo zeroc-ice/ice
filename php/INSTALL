@@ -87,25 +87,13 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-There is an issue in the PHP sources that causes a link error when
-building with a C++ compiler. A patch is provided in the IcePHP source
-distribution to correct this problem:
+There are issues in the PHP 5.0.0RC2 sources that must be fixed by
+applying a patch provided in the IcePHP source distribution:
 
 $ cd <phpdir>
 $ patch -p0 < <icephpdir>/patch.txt
 
 Solaris users should run 'gpatch' instead of 'patch'.
-
-If you don't have the patch utility or prefer to make the changes
-manually, then you must edit the file Zend/zend_exceptions.h and
-scroll down to the line shown below:
-
-ZEND_API void (*zend_throw_exception_hook)(zval *ex TSRMLS_DC);
-
-Insert "extern" at the beginning of this line, so that it looks
-as follows:
-
-extern ZEND_API void (*zend_throw_exception_hook)(zval *ex TSRMLS_DC);
 
 Platform-specific Issues
 ------------------------
