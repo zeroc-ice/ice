@@ -44,7 +44,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if(strcmp(argv[i], "--nowarn") == 0)
+	else if (strcmp(argv[i], "--nowarn") == 0)
 	{
 	    nowarn = true;
 	}
@@ -59,13 +59,13 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     PropertiesPtr properties = communicator->getProperties();
 
     string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
-    if(adminEndpoints.length() != 0 && !nowarn)
+    if (adminEndpoints.length() != 0 && !nowarn)
     {
 	cerr << argv[0] << ": warning: administrative endpoints `Ice.Adapter.Admin.Endpoints' enabled" << endl;
     }
 
     string forwardEndpoints = properties->getProperty("Ice.Adapter.Forward.Endpoints");
-    if(forwardEndpoints.length() == 0)
+    if (forwardEndpoints.length() == 0)
     {
 	cerr << argv[0] << ": `Ice.Adapter.Forward.Endpoints' property is not set" << endl;
 	return EXIT_FAILURE;

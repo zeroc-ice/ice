@@ -12,6 +12,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -119,6 +120,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	}
     }
 
+    bool orig = true;
     while (end < s.length() && s[end] == ':')
     {
 	beg = end + 1;
@@ -128,18 +130,40 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	{
 	    end = s.length();
 	}
+
+	if (beg == end) // "::"
+	{
+	    if (!orig)
+	    {
+		throw ReferenceParseException(__FILE__, __LINE__);
+	    }
+
+	    orig = false;
+	    continue;
+	}
 	
 	string es = s.substr(beg, end - beg);
 	EndpointPtr endp = Endpoint::endpointFromString(es);
-	const_cast<vector<EndpointPtr>&>(origEndpoints).push_back(endp);
+
+	if(orig)
+	{
+	    const_cast<vector<EndpointPtr>&>(origEndpoints).push_back(endp);
+	}
+	else
+	{
+	    const_cast<vector<EndpointPtr>&>(endpoints).push_back(endp);
+	}
     }
 
-    if (!origEndpoints.size())
+    if (orig)
+    {
+	const_cast<vector<EndpointPtr>&>(endpoints) = origEndpoints;
+    }
+
+    if (!origEndpoints.size() || !endpoints.size())
     {
 	throw ReferenceParseException(__FILE__, __LINE__);
     }
-
-    const_cast<vector<EndpointPtr>&>(endpoints) = origEndpoints;
 }
 
 IceInternal::Reference::Reference(Stream* s) :
@@ -180,8 +204,9 @@ IceInternal::Reference::streamWrite(Stream* s) const
 {
     s->write(identity);
 
-    s->write(Ice::Int(origEndpoints.size()));
     vector<EndpointPtr>::const_iterator p;
+
+    s->write(Ice::Int(origEndpoints.size()));
     for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
     {
 	(*p)->streamWrite(s);
@@ -194,12 +219,36 @@ IceInternal::Reference::streamWrite(Stream* s) const
     else
     {
 	s->write(Ice::Int(endpoints.size()));
-	vector<EndpointPtr>::const_iterator p;
 	for (p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    (*p)->streamWrite(s);
 	}
     }
+}
+
+string
+IceInternal::Reference::toString() const
+{
+    ostringstream s;
+    s << identity;
+
+    vector<EndpointPtr>::const_iterator p;
+
+    for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
+    {
+	s << ':' << (*p)->toString();
+    }
+    
+    if(endpoints != origEndpoints)
+    {
+	s << ':';
+	for (p = endpoints.begin(); p != endpoints.end(); ++p)
+	{
+	    s << ':' << (*p)->toString();
+	}
+    }
+
+    return s.str();
 }
 
 ReferencePtr

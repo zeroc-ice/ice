@@ -32,7 +32,7 @@ IceInternal::ProxyFactory::stringToProxy(const string& s)
 string
 IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy)
 {
-    return "blahblah"; // TODO
+    return proxy->__reference()->toString();
 }
 
 ObjectPrx

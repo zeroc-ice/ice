@@ -50,6 +50,11 @@ public:
     virtual void streamWrite(Stream*) const = 0;
 
     //
+    // Convert the endpoint to its string form
+    //
+    virtual std::string toString() const = 0;
+
+    //
     // Return the endpoint type
     //
     virtual ::Ice::Short type() const = 0;
@@ -124,6 +129,7 @@ public:
     UnknownEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
+    virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
@@ -158,6 +164,7 @@ public:
     TcpEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
+    virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
@@ -194,6 +201,7 @@ public:
     SslEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
+    virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;
@@ -230,6 +238,7 @@ public:
     UdpEndpoint(Stream*);
 
     virtual void streamWrite(Stream*) const;
+    virtual std::string toString() const;
     virtual ::Ice::Short type() const;
     virtual bool oneway() const;
     virtual ::Ice::Int timeout() const;

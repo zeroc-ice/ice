@@ -24,6 +24,23 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
 #ifndef WIN32
     _activator = new Activator(_communicator);
     _activator->start();
+
+    PropertiesPtr properties = communicator->getProperties();
+    string value;
+
+    value = properties->getProperty("IcePack.Activator.WaitTime");
+    if (value.length())
+    {
+	_waitTime = atoi(value);
+	if (_waitTime < 0)
+	{
+	    _waitTime = 0;
+	}
+    }
+    else
+    {
+	_waitTime = 10;
+    }
 #endif
 }
 
@@ -83,7 +100,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 		    
 		    if (doSleep)
 		    {
-			sleep(1); // TODO: Make sleep time configurable
+			sleep(1);
 		    }
 		    
 		    //
@@ -117,10 +134,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 		    // to give the server more time before we try
 		    // again.
 		    //
-		    // TODO: Make number of retries configurable,
-		    // ideally in Ice itself.
-		    //
-		    if (++count >= 10)
+		    if (++count >= _waitTime)
 		    {
 			throw;
 		    }

@@ -30,7 +30,15 @@ public:
     Reference(const InstancePtr&, const std::string&);
     Reference(Stream*);
 
+    //
+    // Marshal the reference
+    //
     void streamWrite(Stream*) const;
+
+    //
+    // Convert the reference to its string form
+    //
+    std::string toString() const;
 
     //
     // All  members are const, because References are immutable.

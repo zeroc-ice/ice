@@ -124,7 +124,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     PropertiesPtr properties = communicator->getProperties();
 
     string adminEndpoints = properties->getProperty("Ice.Adapter.Admin.Endpoints");
-    if(adminEndpoints.length() == 0)
+    if (adminEndpoints.length() == 0)
     {
 	cerr << argv[0] << ": `Ice.Adapter.Admin.Endpoints' property is not set" << endl;
 	return EXIT_FAILURE;

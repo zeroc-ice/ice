@@ -37,6 +37,7 @@ private:
     AdminPtr _admin;
 #ifndef WIN32
     ActivatorHandle _activator;
+    int _waitTime;
 #endif
 };
 

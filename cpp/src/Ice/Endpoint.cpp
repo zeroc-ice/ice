@@ -19,6 +19,7 @@
 #include <Ice/UdpTransceiver.h>
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -115,6 +116,12 @@ IceInternal::UnknownEndpoint::streamWrite(Stream* s) const
 {
     s->write(UnknownEndpointType);
     s->write(_rawBytes);
+}
+
+string
+IceInternal::UnknownEndpoint::toString() const
+{
+    return string();
 }
 
 Short
@@ -251,7 +258,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const string& ho, Int po, Int ti) :
 }
 
 IceInternal::TcpEndpoint::TcpEndpoint(const string& str) :
-    _port(10000),
+    _port(0),
     _timeout(-1)
 {
     const string delim = " \t\n\r";
@@ -350,6 +357,26 @@ IceInternal::TcpEndpoint::streamWrite(Stream* s) const
     s->write(_port);
     s->write(_timeout);
     s->endWriteEncaps();
+}
+
+string
+IceInternal::TcpEndpoint::toString() const
+{
+    ostringstream s;
+    s << "tcp";
+    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
+    {
+	s << " -h " << _host;
+    }
+    if (_port != 0)
+    {
+	s << " -p " << _port;
+    }
+    if (_timeout != -1)
+    {
+	s << " -t " << _timeout;
+    }
+    return s.str();
 }
 
 Short
@@ -551,7 +578,7 @@ IceInternal::SslEndpoint::SslEndpoint(const string& ho, Int po, Int ti) :
 }
 
 IceInternal::SslEndpoint::SslEndpoint(const string& str) :
-    _port(10000),
+    _port(0),
     _timeout(-1)
 {
     const string delim = " \t\n\r";
@@ -650,6 +677,26 @@ IceInternal::SslEndpoint::streamWrite(Stream* s) const
     s->write(_port);
     s->write(_timeout);
     s->endWriteEncaps();
+}
+
+string
+IceInternal::SslEndpoint::toString() const
+{
+    ostringstream s;
+    s << "tcp";
+    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
+    {
+	s << " -h " << _host;
+    }
+    if (_port != 0)
+    {
+	s << " -p " << _port;
+    }
+    if (_timeout != -1)
+    {
+	s << " -t " << _timeout;
+    }
+    return s.str();
 }
 
 Short
@@ -850,7 +897,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const string& ho, Int po) :
 }
 
 IceInternal::UdpEndpoint::UdpEndpoint(const string& str) :
-    _port(10000)
+    _port(0)
 {
     const string delim = " \t\n\r";
 
@@ -939,6 +986,22 @@ IceInternal::UdpEndpoint::streamWrite(Stream* s) const
     s->write(_host);
     s->write(_port);
     s->endWriteEncaps();
+}
+
+string
+IceInternal::UdpEndpoint::toString() const
+{
+    ostringstream s;
+    s << "tcp";
+    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
+    {
+	s << " -h " << _host;
+    }
+    if (_port != 0)
+    {
+	s << " -p " << _port;
+    }
+    return s.str();
 }
 
 Short

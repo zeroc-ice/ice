@@ -163,6 +163,10 @@ IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 
 	if (execvp(argv[0], argv) == -1)
 	{
+	    //
+	    // Send any errors to the parent process, using the write
+	    // end of the pipe.
+	    //
 	    SystemException ex(__FILE__, __LINE__);
 	    ostringstream s;
 	    s << "can't execute `" << path << "':\n" << ex;
@@ -262,7 +266,7 @@ IcePack::Activator::terminationListener()
 		    {
 			//
 			// If the pipe was closed, the process has
-			// terminated
+			// terminated.
 			//
 			map<string, Process>::iterator q = p;
 			++p;
