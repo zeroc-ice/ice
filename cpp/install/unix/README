@@ -21,5 +21,9 @@ Ice-<version>-demos.tar.gz package from
 http://www.zeroc.com/download.html and see the README.DEMOS file
 included in that package.
 
+Each distribution comes with a platform specific README file that
+should be consulted for platform specific requirements and
+instructions on setting up Ice under this platform.
+
 See doc/README.html for information on the documentation included with
 this distribution.
