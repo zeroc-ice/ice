@@ -37,13 +37,11 @@ Slice::typeToString(const TypePtr& type)
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
-	result = "<type>" + string(builtinTable[builtin -> kind()])
-	    + "</type>";
+	result = "<type>" + string(builtinTable[builtin -> kind()]) + "</type>";
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
-	result = "<classname>" + proxy -> _class() -> scoped().substr(2) +
-	    "*</classname>";
+	result = "<classname>" + proxy -> _class() -> scoped().substr(2) + "*</classname>";
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
@@ -55,8 +53,7 @@ Slice::typeToString(const TypePtr& type)
 	if(result.empty())
 	    result = "<type>" + contained -> scoped().substr(2) + "</type>";
 
-	result = "<link linkend=" + scopedToId(contained -> scoped()) + ">"
-	    + result + "</link>";
+	result = "<link linkend=" + scopedToId(contained -> scoped()) + ">" + result + "</link>";
     }
 
     if(result.empty())
@@ -80,8 +77,7 @@ Slice::addLink(const string& s, const ContainerPtr& container)
 
 	ContainedPtr p = ContainedPtr::dynamicCast(types.front());
 	if(p)
-	    result = "<link linkend=" + scopedToId(p -> scoped()) + ">"
-		+ result + "</link>";
+	    result = "<link linkend=" + scopedToId(p -> scoped()) + ">" + result + "</link>";
 
 	return result;
     }
@@ -89,8 +85,7 @@ Slice::addLink(const string& s, const ContainerPtr& container)
     ContainedList contList = container -> lookupContained(s, false);
     if(!contList.empty())
     {
-	string result = "<link linkend=" +
-	    scopedToId(contList.front() -> scoped()) + ">";
+	string result = "<link linkend=" + scopedToId(contList.front() -> scoped()) + ">";
 
 	if(ModulePtr::dynamicCast(contList.front()))
 	    result += "<classname>" + s + "</classname>";

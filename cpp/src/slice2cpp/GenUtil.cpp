@@ -195,8 +195,7 @@ Slice::exceptionTypeToString(const TypePtr& type)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
-				 const string& param, bool marshal)
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
 {
     const char* func = marshal ? "write(" : "read(";
     const char* stream = marshal ? "__os" : "__is";
@@ -219,8 +218,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
 	else
 	{
 	    out << nl << "::Ice::ObjectPtr __obj;";
-	    out << nl << stream << " -> read(__obj, " << cl -> scoped()
-		<< "::__classIds[0]);";
+	    out << nl << stream << " -> read(__obj, " << cl -> scoped() << "::__classIds[0]);";
 	    out << nl << "if(!__obj)";
 	    ClassDefPtr def = cl -> definition();
 	    if(def && !def -> isAbstract())
@@ -233,16 +231,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
 	    else
 	    {
 		out.inc();
-		out << nl
-		    << "throw ::Ice::NoFactoryException(__FILE__, __LINE__);";
+		out << nl << "throw ::Ice::NoFactoryException(__FILE__, __LINE__);";
 		out.dec();
 	    }
-	    out << nl << param << " = " << cl -> scoped()
-		<< "Ptr::dynamicCast(__obj);";
+	    out << nl << param << " = " << cl -> scoped() << "Ptr::dynamicCast(__obj);";
 	    out << nl << "if(!" << param << ')';
 	    out.inc();
-	    out << nl
-		<< "throw ::Ice::ValueUnmarshalException(__FILE__, __LINE__);";
+	    out << nl << "throw ::Ice::ValueUnmarshalException(__FILE__, __LINE__);";
 	    out.dec();
 	}
 	out << eb;
@@ -256,8 +251,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
 	if(BuiltinPtr::dynamicCast(vec -> type()))
 	    out << nl << stream << " -> " << func << param << ");";
 	else
-	    out << nl << vec -> scope() << "::__" << func << stream\
-		<< ", "	<< param << ", " << vec -> scope()
+	    out << nl << vec -> scope() << "::__" << func << stream << ", " << param << ", " << vec -> scope()
 		<< "::__U__" << vec -> name() << "());";
 	return;
     }
@@ -273,14 +267,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
 	constructed = proxy -> _class();
     }
 
-    out << nl << constructed -> scope() << "::__" << func << stream << ", "
-	<< param << ");";
+    out << nl << constructed -> scope() << "::__" << func << stream << ", " << param << ");";
 }
 
 void
-Slice::writeMarshalCode(Output& out,
-			const list<pair<TypePtr, string> >& params,
-			const TypePtr& ret)
+Slice::writeMarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> >::const_iterator p;
     for(p = params.begin(); p != params.end(); ++p)
@@ -290,9 +281,7 @@ Slice::writeMarshalCode(Output& out,
 }
 
 void
-Slice::writeUnmarshalCode(Output& out,
-			    const list<pair<TypePtr, string> >& params,
-			    const TypePtr& ret)
+Slice::writeUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> >::const_iterator p;
     for(p = params.begin(); p != params.end(); ++p)
@@ -302,9 +291,7 @@ Slice::writeUnmarshalCode(Output& out,
 }
 
 void
-Slice::writeAllocateCode(Output& out,
-			 const list<pair<TypePtr, string> >& params,
-			 const TypePtr& ret)
+Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> > ps = params;
     if(ret)

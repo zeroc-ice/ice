@@ -23,22 +23,10 @@ std::string inputTypeToString(const TypePtr&);
 std::string outputTypeToString(const TypePtr&);
 std::string exceptionTypeToString(const TypePtr&);
 
-void writeMarshalUnmarshalCode(Output&,
-			       const TypePtr&,
-			       const std::string&,
-			       bool);
-
-void writeMarshalCode(Output&,
-		      const std::list<std::pair<TypePtr, std::string> >&,
-		      const TypePtr&);
-
-void writeUnmarshalCode(Output&,
-			const std::list<std::pair<TypePtr, std::string> >&,
-			const TypePtr&);
-
-void writeAllocateCode(Output&,
-			const std::list<std::pair<TypePtr, std::string> >&,
-			const TypePtr&);
+void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool);
+void writeMarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+void writeUnmarshalCode(Output&, const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
+void writeAllocateCode(Output&,	const std::list<std::pair<TypePtr, std::string> >&, const TypePtr&);
 
 }
 

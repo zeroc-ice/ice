@@ -15,17 +15,15 @@
 using namespace std;
 using namespace Slice;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone,
-		bool noGlobals)
-    : _standAlone(standAlone),
-      _noGlobals(noGlobals),
-      _chapter("section") // Could also be "chapter"
+Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals) :
+    _standAlone(standAlone),
+    _noGlobals(noGlobals),
+    _chapter("section") // Could also be "chapter"
 {
     O.open(file.c_str());
     if(!O)
     {
-	cerr << name << ": can't open `" << file << "' for writing: "
-	     << strerror(errno) << endl;
+	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
 	return;
     }
 }
@@ -77,12 +75,10 @@ Slice::Gen::visitUnitEnd(const UnitPtr& p)
 void
 Slice::Gen::visitModuleStart(const ModulePtr& p)
 {
-    start(_chapter + " id=" + scopedToId(p -> scoped()),
-	  p -> scoped().substr(2));
+    start(_chapter + " id=" + scopedToId(p -> scoped()), p -> scoped().substr(2));
     start("section", "Overview");
     O.zeroIndent();
-    O << nl << "<synopsis>module <classname>" << p -> name()
-      << "</classname></synopsis>";
+    O << nl << "<synopsis>module <classname>" << p -> name() << "</classname></synopsis>";
     O.restoreIndent();
     printComment(p);
     visitContainer(p);
@@ -118,9 +114,8 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 
     ClassList classes = p -> classes();
     ClassList interfaces;
-    interfaces.splice(interfaces.end(), classes,
-		      remove_if(classes.begin(), classes.end(),
-				::Ice::memFun(&ClassDef::isInterface)),
+    interfaces.splice(interfaces.end(),
+		      classes, remove_if(classes.begin(), classes.end(), ::Ice::memFun(&ClassDef::isInterface)),
 		      classes.end());
 
     classes.sort();
@@ -257,8 +252,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
 	O.zeroIndent();
-	O << nl << "<synopsis>vector&lt; "
-	  << typeToString(type) << " &gt; <type>" << (*q) -> name()
+	O << nl << "<synopsis>vector&lt; " << typeToString(type) << " &gt; <type>" << (*q) -> name()
 	  << "</type>;</synopsis>";
 	O.restoreIndent();
 	
@@ -299,8 +293,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
 	O.zeroIndent();
-	O << nl << "<synopsis>native <type>" << (*q) -> name()
-	  << "</type>;</synopsis>";
+	O << nl << "<synopsis>native <type>" << (*q) -> name() << "</type>;</synopsis>";
 	O.restoreIndent();
 	
 	printComment(*q);
@@ -314,8 +307,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 void
 Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
-    start(_chapter + " id=" + scopedToId(p -> scoped()),
-	  p -> scoped().substr(2));
+    start(_chapter + " id=" + scopedToId(p -> scoped()), p -> scoped().substr(2));
 
     start("section", "Overview");
     O.zeroIndent();
@@ -333,8 +325,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	O.inc();
 	O << nl << "extends ";
 	O.inc();
-	O << "<classname>" << bases.front() -> scoped().substr(2)
-	  << "</classname>";
+	O << "<classname>" << bases.front() -> scoped().substr(2) << "</classname>";
 	bases.pop_front();
 	O.dec();
 	O.dec();
@@ -350,8 +341,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	ClassList::iterator q = bases.begin();
 	while(q != bases.end())
 	{
-	    O << nl << "<classname>" << (*q) -> scoped().substr(2)
-	      << "</classname>";
+	    O << nl << "<classname>" << (*q) -> scoped().substr(2) << "</classname>";
 	    if(++q != bases.end())
 		O << ",";
 	}
@@ -427,15 +417,13 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
 	O.zeroIndent();
-	O << nl << "<synopsis>"
-	  << (returnType ? typeToString(returnType) : "<type>void</type>")
+	O << nl << "<synopsis>" << (returnType ? typeToString(returnType) : "<type>void</type>")
 	  << " <function>" << (*q) -> name() << "</function>(";
 	O.inc();
 	TypeStringList::iterator r = inputParams.begin();
 	while(r != inputParams.end())
 	{
-	    O << nl << typeToString(r -> first) << " <parameter>"
-	      << r -> second << "</parameter>";
+	    O << nl << typeToString(r -> first) << " <parameter>" << r -> second << "</parameter>";
 	    if(++r != inputParams.end())
 		O << ',';
 	}
@@ -445,8 +433,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    r = outputParams.begin();
 	    while(r != outputParams.end())
 	    {
-		O << nl << typeToString(r -> first) << " <parameter>"
-		  << r -> second << "</parameter>";
+		O << nl << typeToString(r -> first) << " <parameter>" << r -> second << "</parameter>";
 		if(++r != outputParams.end())
 		    O << ',';
 	    }
@@ -485,8 +472,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
 	O.zeroIndent();
-	O << nl << "<synopsis>"
-	  << typeToString(type) << " <structfield>" << (*q) -> name()
+	O << nl << "<synopsis>" << typeToString(type) << " <structfield>" << (*q) -> name()
 	  << "</structfield>;</synopsis>";
 	O.restoreIndent();
 	
@@ -531,8 +517,7 @@ Slice::Gen::getTagged(const string& tag, string& comment)
 	if(begin == string::npos)
 	    return result;
 	
-	string::size_type pos1 =
-	    comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
+	string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
 	if(pos1 == string::npos)
 	{
 	    comment.erase(begin);
