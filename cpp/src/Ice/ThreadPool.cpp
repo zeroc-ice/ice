@@ -34,12 +34,13 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _instance(instance),
     _destroyed(false),
     _prefix(prefix),
+    _lastFd(INVALID_SOCKET),
+    _timeout(timeout),
     _size(0),
     _sizeMax(0),
     _sizeWarn(0),
     _inUse(0),
-    _lastFd(INVALID_SOCKET),
-    _timeout(timeout)
+    _load(0)
 {
     SOCKET fds[2];
     createPipe(fds);
@@ -56,9 +57,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     if(size < 1)
     {
 	size = 1;
-	ostringstream str;
-	str << size;
-	_instance->properties()->setProperty(_prefix + ".Size", str.str());
     }
     const_cast<int&>(_size) = size;
     
@@ -66,9 +64,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     if(sizeMax < _size)
     {
 	sizeMax = _size;
-	ostringstream str;
-	str << sizeMax;
-	_instance->properties()->setProperty(_prefix + ".SizeMax", str.str());
     }
     const_cast<int&>(_sizeMax) = sizeMax;
 
@@ -147,12 +142,15 @@ IceInternal::ThreadPool::promoteFollower()
 {
     if(_sizeMax > 1)
     {
-	_threadMutex.unlock();
+	_promoteMutex.unlock();
 
 	{
-	    IceUtil::Mutex::Lock sync(_inUseMutex);
+	    IceUtil::Mutex::Lock sync(*this);
+
 	    assert(_inUse >= 0);
 	    ++_inUse;
+//	    _load = std::max(_load * 0.95 + _inUse * 0.05, static_cast<double>(_inUse)); // TODO: Configurable?
+//	    cout << "_load = " << _load << endl;
 	    
 	    if(_inUse == _sizeWarn)
 	    {
@@ -280,7 +278,7 @@ IceInternal::ThreadPool::run()
 
     if(_sizeMax > 1)
     {
-	_threadMutex.lock();	
+	_promoteMutex.lock();	
     }
 
     while(true)
@@ -551,12 +549,13 @@ IceInternal::ThreadPool::run()
 	if(_sizeMax > 1)
 	{
 	    {
-		IceUtil::Mutex::Lock sync(_inUseMutex);
+		IceUtil::Mutex::Lock sync(*this);
+
 		assert(_inUse > 0);
 		--_inUse;
 	    }
 
-	    _threadMutex.lock();	
+	    _promoteMutex.lock();	
 	}
     }
 }
@@ -671,7 +670,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     //
     if(_pool->_sizeMax > 1)
     {
-	_pool->_threadMutex.unlock();
+	_pool->_promoteMutex.unlock();
     }
 
     _pool = 0; // Break cyclic dependency.

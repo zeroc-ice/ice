@@ -17,6 +17,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 
 #include <Ice/ThreadPoolF.h>
@@ -62,12 +63,6 @@ private:
     bool _destroyed;
     const std::string _prefix;
 
-    const int _size; // Number of threads that are pre-created.
-    const int _sizeMax; // Maximum number of threads.
-    const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-    int _inUse; // Number of threads that are currently in use.
-    IceUtil::Mutex _inUseMutex;
-
     SOCKET _maxFd;
     SOCKET _minFd;
     SOCKET _lastFd;
@@ -80,8 +75,6 @@ private:
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
 
     int _timeout;
-
-    IceUtil::Mutex _threadMutex;
 
     class EventHandlerThread : public IceUtil::Thread
     {
@@ -97,6 +90,13 @@ private:
     friend class EventHandlerThread;
 
     std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
+    const int _size; // Number of threads that are pre-created.
+    const int _sizeMax; // Maximum number of threads.
+    const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    int _inUse; // Number of threads that are currently in use.
+    double _load; // Current load in number of threads.
+
+    IceUtil::Mutex _promoteMutex;
 };
 
 }

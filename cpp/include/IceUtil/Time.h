@@ -35,23 +35,67 @@ public:
     static Time milliSeconds(Int64);
     static Time microSeconds(Int64);
     
-    Time operator-() const;
-    Time operator-(const Time&) const;
-    Time operator+(const Time&) const;
-    Time& operator+=(const Time&);
-    Time& operator-=(const Time&);
-
-    bool operator<(const Time&) const;
-    bool operator<=(const Time&) const;
-    bool operator>(const Time&) const;
-    bool operator>=(const Time&) const;
-    bool operator==(const Time&) const;
-    bool operator!=(const Time&) const;
-
     operator timeval() const;
     operator double() const;
 
     std::string toString() const;
+
+    Time operator-() const // Inlined for performance reasons.
+    {
+	return Time(-_usec);
+    }
+
+    Time operator-(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return Time(_usec - rhs._usec);
+    }
+
+    Time operator+(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return Time(_usec + rhs._usec);
+    }
+
+    Time& operator+=(const Time& rhs) // Inlined for performance reasons.
+    {
+	_usec += rhs._usec;
+	return *this;
+    }
+
+    Time& operator-=(const Time& rhs) // Inlined for performance reasons.
+    {
+	_usec -= rhs._usec;
+	return *this;
+    }
+
+    bool operator<(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec < rhs._usec;
+    }
+
+    bool operator<=(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec <= rhs._usec;
+    }
+
+    bool operator>(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec > rhs._usec;
+    }
+
+    bool operator>=(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec >= rhs._usec;
+    }
+
+    bool operator==(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec == rhs._usec;
+    }
+
+    bool operator!=(const Time& rhs) const // Inlined for performance reasons.
+    {
+	return _usec != rhs._usec;
+    }
 
 private:
 

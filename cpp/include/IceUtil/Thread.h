@@ -85,17 +85,18 @@ public:
     // At most one thread can wait for the termination of a given
     // thread. Calling join on a thread on which another thread is
     // already waiting for termination results in undefined behaviour,
-    // as does joining with a thread after having joined with it previously,
-    // or joining with a detached thread.
+    // as does joining with a thread after having joined with it
+    // previously, or joining with a detached thread.
     //
     void join();
 
     //
-    // Detach a thread. Once a thread is detached, it cannot be detached
-    // again, nor can it be joined with. Every thread that was created using
-    // the IceUtil::Thread class must either be joined with or detached
-    // exactly once. Detaching a thread a second time, or detaching a
-    // thread that was previously joined with results in undefined behavior.
+    // Detach a thread. Once a thread is detached, it cannot be
+    // detached again, nor can it be joined with. Every thread that
+    // was created using the IceUtil::Thread class must either be
+    // joined with or detached exactly once. Detaching a thread a
+    // second time, or detaching a thread that was previously joined
+    // with results in undefined behavior.
     //
     void detach();
 

@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Inlined most operators in IceUtil::Time for performance rasons.
+
 - Added IceUtil::ThreadControl::isAlive(). This function is useful for
   implementing a non-blocking join().
 
@@ -10,9 +12,10 @@ Changes since version 1.0.1
   IceUtil::ThreadId. This is the type returned by both Thread::id() and
   ThreadControl::id().
 
-- Joining with a thread more than once, joining with a detached thread,
-  or detaching a detached thread now have undefined behavior. (Previously,
-  doing any of these things raised an exception.)
+- Joining with a thread more than once, joining with a detached
+  thread, or detaching a detached thread now have undefined
+  behavior. (Previously, doing any of these things raised an
+  exception.)
 
 - Added timestamps to the default Ice logger. You can enable
   timestamps by setting the `Ice.Logger.Timestamp' property to a value

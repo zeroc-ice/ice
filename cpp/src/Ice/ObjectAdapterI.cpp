@@ -609,8 +609,9 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	    setLocator(_instance->referenceFactory()->getDefaultLocator());
 	}
 
-	int threadNum = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.Size");
-	if(threadNum > 0)
+	int size = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.Size");
+	int sizeMax = _instance->properties()->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+	if(size > 0 || sizeMax > 0)
 	{
 	    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
 	}

@@ -60,74 +60,6 @@ IceUtil::Time::microSeconds(Int64 t)
     return Time(t);
 }
 
-Time
-IceUtil::Time::operator-() const
-{
-    return Time(-_usec);
-}
-
-Time
-IceUtil::Time::operator-(const Time& rhs) const
-{
-    return Time(_usec - rhs._usec);
-}
-
-Time
-IceUtil::Time::operator+(const Time& rhs) const
-{
-    return Time(_usec + rhs._usec);
-}
-
-Time&
-IceUtil::Time::operator+=(const Time& rhs)
-{
-    _usec += rhs._usec;
-    return *this;
-}
-
-Time&
-IceUtil::Time::operator-=(const Time& rhs)
-{
-    _usec -= rhs._usec;
-    return *this;
-}
-
-bool
-IceUtil::Time::operator<(const Time& rhs) const
-{
-    return _usec < rhs._usec;
-}
-
-bool
-IceUtil::Time::operator<=(const Time& rhs) const
-{
-    return _usec <= rhs._usec;
-}
-
-bool
-IceUtil::Time::operator>(const Time& rhs) const
-{
-    return _usec > rhs._usec;
-}
-
-bool
-IceUtil::Time::operator>=(const Time& rhs) const
-{
-    return _usec >= rhs._usec;
-}
-
-bool
-IceUtil::Time::operator==(const Time& rhs) const
-{
-    return _usec == rhs._usec;
-}
-
-bool
-IceUtil::Time::operator!=(const Time& rhs) const
-{
-    return _usec != rhs._usec;
-}
-
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
@@ -156,7 +88,7 @@ IceUtil::Time::toString() const
 #endif
 
     char buf[32];
-    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
+    strftime(buf, sizeof(buf), "%Y %H:%M:%S", t);
 
     std::ostringstream os;
     os << buf << ":";
