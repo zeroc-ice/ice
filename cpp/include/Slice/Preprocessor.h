@@ -13,10 +13,20 @@
 
 #include <IceUtil/Config.h>
 
+#ifdef _WIN32
+#   ifdef SLICE_API_EXPORTS
+#       define SLICE_API __declspec(dllexport)
+#   else
+#       define SLICE_API __declspec(dllimport)
+#   endif
+#else
+#   define SLICE_API /**/
+#endif
+
 namespace Slice
 {
 
-class Preprocessor
+class SLICE_API Preprocessor
 {
 public:
 

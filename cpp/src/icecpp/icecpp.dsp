@@ -77,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icecpp.exe" /pdbtype:sept /libpath:"../../lib"
+# ADD LINK32 setargv.obj advapi32.lib /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icecpp.exe" /pdbtype:sept /libpath:"../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
@@ -91,11 +91,24 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Gen.cpp
+SOURCE=.\cccp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Main.cpp
+SOURCE=.\cexp.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\prefix.c
+
+!IF  "$(CFG)" == "icecpp - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "icecpp - Win32 Debug"
+
+# ADD CPP /D "__STDC__"
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -103,12 +116,39 @@ SOURCE=.\Main.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Gen.h
+SOURCE=.\config.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gansidecl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pcp.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\cexp.y
+
+!IF  "$(CFG)" == "icecpp - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "icecpp - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project

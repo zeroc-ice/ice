@@ -171,18 +171,26 @@ Slice::Preprocessor::checkInputFile()
 string
 Slice::Preprocessor::searchIceCpp()
 {
+#ifndef WIN32
     const char* icecpp = "icecpp";
+#else
+    const char* icecpp = "icecpp.exe";
+#endif
 
     string::size_type pos = _path.find_last_of("/\\");
     if(pos != string::npos)
     {
 	string path = _path.substr(0, pos + 1);
 	path += icecpp;
-	
+
 	struct stat st;
 	if(stat(path.c_str(), &st) == 0)
 	{
+#ifndef WIN32
 	    if(st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+#else
+	    if(st.st_mode & (S_IEXEC))
+#endif
 	    {
 		return path;
 	    }
