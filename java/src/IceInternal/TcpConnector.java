@@ -21,10 +21,7 @@ final class TcpConnector implements Connector
         }
 
         java.nio.channels.SocketChannel fd = Network.createTcpSocket();
-	if(!_instance.threadPerConnection())
-	{
-	    Network.setBlock(fd, false);
-	}
+	Network.setBlock(fd, false);
         Network.doConnect(fd, _addr, timeout);
 
         if(_traceLevels.network >= 1)
