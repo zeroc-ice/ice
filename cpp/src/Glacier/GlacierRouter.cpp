@@ -295,8 +295,15 @@ main(int argc, char* argv[])
     //
     // Make sure that this process doesn't use a router.
     //
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    defaultProperties->setProperty("Ice.Default.Router", "");
+    try {
+	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+	defaultProperties->setProperty("Ice.Default.Router", "");
+    }
+    catch(const Ice::Exception& e)
+    {
+	cerr << e << endl;
+	exit(EXIT_FAILURE);
+    }
 
     Glacier::RouterApp app;
     return app.main(argc, argv);

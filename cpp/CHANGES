@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- The glacierrouter and glacierstarter processes used to abort if
+  given a non-existent config file.
+
 - Changed Ice::Exception::ice_name() to return const std::string&
   instead of returning a string by value.
 
