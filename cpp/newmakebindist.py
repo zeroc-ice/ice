@@ -16,20 +16,6 @@ import RPMTools
 #  * Tidying and tracing.
 #
 
-#
-# If a platform needs a third party library packaged in the binary, list it here alongside Berkeley DB.
-#
-# db = Berkeley DB
-# expat = expat library
-# bzip2 = bzip library
-# ssl = openssl 
-# 
-thirdPartyLibraries = { 'aix':['db'],
- 			'hpux':['db'],
-			'solaris':['db'],
-			'linux':[],
-			'darwin':['db'] }
-
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
     config = open(file, "r")
@@ -111,7 +97,7 @@ def getuname():
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
     pipe_stdout.close()
-    return lines[0]
+    return lines[0].strip()
 
 def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     """The location for the source distributions was not supplied so
@@ -232,17 +218,19 @@ endif
         # script doesn't seem to work properly for the slice files.
         os.chdir("..")
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
-        
+	fileinput.nextfile()
+	fileinput.close()
         os.chdir(tcwd)
     elif demoDir == "j":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	for line in fileinput.input('common.xml', True, ".bak"):
 	    print line.rstrip('\n').replace('ICE_VERSION', version)
+	fileinput.nextfile()
 	fileinput.close()
+	os.system
         os.chdir(tcwd)
         
-    fileinput.close()
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
     os.chdir(cwd)
 
@@ -260,7 +248,6 @@ def archiveDemoTree(buildDir, version, installFiles):
     os.remove('Ice-' + version + '-demos/config/makedepend.py')
     os.remove('Ice-' + version + '-demos/config/PropertyNames.def')
     os.system('Ice-' + version + '-demos/config/*.bak')
-    shutil.copy(installFiles + '/unix/README.DEMOS', 'README.DEMOS') 
 
     # 
     # Remove compiled Java.
@@ -357,7 +344,7 @@ def getPlatformLibExtension():
     else:
 	return '.so'
 
-def getDBFiles(dbLocation):
+def getDBfiles(dbLocation):
     cwd = os.getcwd()
     os.chdir(dbLocation)
     pipe_stdin, pipe_stdout = os.popen2('find bin -name "*" -type f')
@@ -624,6 +611,7 @@ def main():
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
 	    if getPlatform() == "linux":
 		extractDemos(sources, buildDir, version, tarball, demoDir)
+		shutil.copy(installFiles + '/unix/README.DEMOS', buildDir + '/Ice-' + version + '-demos/README.DEMOS') 
             makeInstall(sources, buildDir, installDir + "/Ice-" + version, tarball, clean)
 
         #
@@ -691,6 +679,7 @@ def main():
 	cf = installFiles + '/unix/' + psf + '.' + uname
 	if os.path.exists(cf):
 	    shutil.copy(cf, 'Ice-' + version + '/' + psf) 
+
     os.system('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     os.system('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
@@ -699,7 +688,7 @@ def main():
     # If we are running on Linux, we need to create RPMs.  This will probably blow up unless the user
     # that is running the script has massaged the permissions on /usr/src/redhat/.
     #
-    if getPlatform() == "linux" and not cvsMode:
+    if getPlatform() == 'linux' and not cvsMode:
 	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
 	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
