@@ -85,7 +85,7 @@ if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icicle")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icecs")
 
 #
 # Export C++ sources.
@@ -106,9 +106,9 @@ slicedirs = [\
     "IcePatch",\
     "IceStorm",\
 ]
-os.mkdir(os.path.join("icicle", "slice"))
+os.mkdir(os.path.join("icecs", "slice"))
 for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icicle", "slice", x), 1)
+    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icecs", "slice", x), 1)
 #
 # Generate HTML documentation. We need to build icecpp
 # and slice2docbook first.
@@ -131,8 +131,8 @@ if not skipDocs:
     os.chdir(os.path.join("ice", "doc"))
     os.system("gmake")
     os.chdir(cwd)
-    os.mkdir(os.path.join("icicle", "doc"))
-    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icicle", "doc", "manual"))
+    os.mkdir(os.path.join("icecs", "doc"))
+    os.rename(os.path.join("ice", "doc", "manual"), os.path.join("icecs", "doc", "manual"))
 shutil.rmtree("ice")
 
 #
@@ -140,24 +140,24 @@ shutil.rmtree("ice")
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
-    os.path.join("icicle", "makedist.py"), \
+    os.path.join("icecs", "makedist.py"), \
     ]
-filesToRemove.extend(find("icicle", ".dummy"))
+filesToRemove.extend(find("icecs", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
 #
 # Get Ice version.
 #
-config = open(os.path.join("icicle", "src", "Ice", "Version.cs"), "r")
+config = open(os.path.join("icecs", "src", "Ice", "Version.cs"), "r")
 version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
 
 #
 # Create source archives.
 #
 print "Creating distribution..."
-icever = "Icicle-" + version
-os.rename("icicle", icever)
+icever = "IceCS-" + version
+os.rename("icecs", icever)
 if verbose:
     quiet = "v"
 else:
@@ -172,7 +172,7 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "Icicle-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icever, "CHANGES"), "IceCS-" + version + "-CHANGES")
 
 #
 # Done.
