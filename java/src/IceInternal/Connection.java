@@ -75,7 +75,7 @@ public final class Connection extends EventHandler
 	_mutex.lock();
         try
         {
-	    assert(_proxyUsageCount >= 0);
+            assert(_proxyUsageCount > 0);
 	    --_proxyUsageCount;
 	    if (_proxyUsageCount == 0 && _adapter == null)
 	    {
@@ -699,6 +699,12 @@ public final class Connection extends EventHandler
     {
         assert(_state == StateClosed);
 
+        //
+        // Destroy the EventHandler's stream, so that its buffer
+        // can be reclaimed.
+        //
+        super._stream.destroy();
+
         super.finalize();
     }
 
@@ -847,13 +853,11 @@ public final class Connection extends EventHandler
                     registerWithPool();
                 }
                 unregisterWithPool();
-                super._stream.destroy();
                 break;
             }
         }
 
         _state = state;
-
 
         if (_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
         {
