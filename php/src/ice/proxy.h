@@ -44,8 +44,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_id);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ids);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_facets);
-//ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
-//ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet);
@@ -77,6 +77,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
     ZEND_FE(Ice_ObjectPrx_ice_id,                NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_ids,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_facets,            NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getIdentity,       NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_newIdentity,       NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getFacet,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_newFacet,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_appendFacet,       NULL) \

@@ -18,6 +18,7 @@
 
 #include "proxy.h"
 #include "communicator.h"
+#include "identity.h"
 #include "exception.h"
 #include "marshal.h"
 #include "slice.h"
@@ -98,6 +99,8 @@ static function_entry Ice_ObjectPrx_methods[] =
     {"ice_id",              PHP_FN(Ice_ObjectPrx_ice_id),              NULL},
     {"ice_ids",             PHP_FN(Ice_ObjectPrx_ice_ids),             NULL},
     {"ice_facets",          PHP_FN(Ice_ObjectPrx_ice_facets),          NULL},
+    {"ice_getIdentity",     PHP_FN(Ice_ObjectPrx_ice_getIdentity),     NULL},
+    {"ice_newIdentity",     PHP_FN(Ice_ObjectPrx_ice_newIdentity),     NULL},
     {"ice_getFacet",        PHP_FN(Ice_ObjectPrx_ice_getFacet),        NULL},
     {"ice_newFacet",        PHP_FN(Ice_ObjectPrx_ice_newFacet),        NULL},
     {"ice_appendFacet",     PHP_FN(Ice_ObjectPrx_ice_appendFacet),     NULL},
@@ -215,7 +218,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
         WRONG_PARAM_COUNT;
     }
 
-    char *id;
+    char* id;
     int len;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
@@ -347,6 +350,57 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
     }
 }
 
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    Ice_Identity_create(return_value, _this->getProxy()->ice_getIdentity() TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zval *zid;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, Ice_Identity_entry_ptr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::Identity id;
+    if(Ice_Identity_extract(zid, id TSRMLS_CC))
+    {
+        try
+        {
+            Ice::ObjectPrx prx = _this->getProxy()->ice_newIdentity(id);
+            if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
+            {
+                RETURN_NULL();
+            }
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            ice_throw_exception(ex TSRMLS_CC);
+            RETURN_NULL();
+        }
+    }
+}
+
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -411,7 +465,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
 
     try
     {
-
         Ice::ObjectPrx prx = _this->getProxy()->ice_newFacet(facet);
         if(!Ice_ObjectPrx_create(return_value, prx TSRMLS_CC))
         {
@@ -432,7 +485,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
         WRONG_PARAM_COUNT;
     }
 
-    char *name;
+    char* name;
     int len;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &len) == FAILURE)
@@ -860,9 +913,9 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         WRONG_PARAM_COUNT;
     }
 
-    char *id;
+    char* id;
     int idLen;
-    char *facet = NULL;
+    char* facet = NULL;
     int facetLen;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &id, &idLen, &facet, &facetLen) == FAILURE)

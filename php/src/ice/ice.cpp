@@ -17,6 +17,7 @@
 #endif
 
 #include "communicator.h"
+#include "identity.h"
 #include "proxy.h"
 #include "exception.h"
 #include "slice.h"
@@ -33,6 +34,7 @@ ZEND_DECLARE_MODULE_GLOBALS(ice)
 function_entry ice_functions[] =
 {
     ICE_PHP_COMMUNICATOR_FUNCTIONS
+    ICE_PHP_IDENTITY_FUNCTIONS
     ICE_PHP_OBJECT_PRX_FUNCTIONS
     ICE_PHP_LOCAL_EXCEPTION_FUNCTIONS
     {NULL, NULL, NULL}
@@ -69,6 +71,11 @@ ZEND_MINIT_FUNCTION(ice)
     REGISTER_INI_ENTRIES();
 
     if(!Ice_Communicator_init(TSRMLS_CC))
+    {
+        return FAILURE;
+    }
+
+    if(!Ice_Identity_init(TSRMLS_CC))
     {
         return FAILURE;
     }
