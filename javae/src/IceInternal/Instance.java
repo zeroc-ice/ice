@@ -119,17 +119,6 @@ public class Instance
         return _connectionMonitor;
     }
 
-    public synchronized ObjectFactoryManager
-    servantFactoryManager()
-    {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
-        return _servantFactoryManager;
-    }
-
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
@@ -350,8 +339,6 @@ public class Instance
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
-            _servantFactoryManager = new ObjectFactoryManager();
-
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
             _bufferManager = new BufferManager();
@@ -372,7 +359,6 @@ public class Instance
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
 	assert(_connectionMonitor == null);
-        assert(_servantFactoryManager == null);
         assert(_objectAdapterFactory == null);
         assert(_routerManager == null);
         assert(_locatorManager == null);
@@ -449,12 +435,6 @@ public class Instance
 		_connectionMonitor = null;
 	    }
 
-            if(_servantFactoryManager != null)
-            {
-                _servantFactoryManager.destroy();
-                _servantFactoryManager = null;
-            }
-
             if(_referenceFactory != null)
             {
                 _referenceFactory.destroy();
@@ -528,7 +508,6 @@ public class Instance
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ConnectionMonitor _connectionMonitor;
-    private ObjectFactoryManager _servantFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
