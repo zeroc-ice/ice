@@ -848,6 +848,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name adapterDeactivationS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsAMDS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsAMDS
+    End Project Dependency
 }}}
 
 ###############################################################################
