@@ -56,7 +56,7 @@ lookupKwd(const string& name)
 	"IndexOf", "Insert", "IsFixedSize", "IsReadOnly", "IsSynchronized", "MemberWiseClone",
 	"Microsoft", "OnClear", "OnClearComplete", "OnGet", "OnInsert", "OnInsertComplete",
 	"OnRemove", "OnRemoveComplete", "OnSet", "OnSetComplete", "OnValidate", "ReferenceEquals",
-	"Remove", "RemoveAt", "SyncRoot", "System", "ToString"
+	"Remove", "RemoveAt", "SyncRoot", "System", "ToString", "checkedCast", "uncheckedCast"
     };
     found = binary_search(&memberList[0],
                            &memberList[sizeof(memberList) / sizeof(*memberList)],

@@ -149,19 +149,21 @@ static string
 lookupKwd(const string& name)
 {
     //
-    // Keyword list. *Must* be kept in alphabetical order.
+    // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
+    // are not Java keywords, but are in this list to prevent illegal code being generated if
+    // someone defines Slice operations with that name.
     //
     static const string keywordList[] = 
     {       
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
-        "char", "class", "clone", "const", "continue", "default", "do",
+        "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
         "double", "else", "equals", "extends", "false", "final", "finalize",
 	"finally", "float", "for", "getClass", "goto", "hashCode", "if",
 	"implements", "import", "instanceof", "int", "interface", "long",
 	"native", "new", "notify", "notifyAll", "null", "package", "private",
 	"protected", "public", "return", "short", "static", "strictfp", "super", "switch",
         "synchronized", "this", "throw", "throws", "toString", "transient",
-        "true", "try", "void", "volatile", "wait", "while"
+        "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
     };
     bool found =  binary_search(&keywordList[0],
 	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],

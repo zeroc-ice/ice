@@ -578,7 +578,16 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 			    string base = fixId(cl->scoped());
 			    if(cl->isInterface())
 			    {
-				base = base + "_Disp";
+			        string::size_type pos = base.rfind('.');
+				if(pos != string::npos)
+				{
+				    base = base.insert(pos + 1, "_");
+				}
+				else
+				{
+				    base = "_" + base;
+				}
+				base += "Disp";
 			    }
 			    _out << nl << "return " << base << ".___" << opName << "(this, __in, __current);";
 			}
@@ -933,7 +942,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "Ice.Object";
 	}
-	_out << ", " << name << "_Operations, " << name << "_OperationsNC";
+	_out << ", _" << name << "Operations, _" << name << "OperationsNC";
 	if(!bases.empty())
 	{
 	    ClassList::const_iterator q = bases.begin();
@@ -971,7 +980,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	if(p->isAbstract())
 	{
-	    _out << ", " << name << "_Operations, " << name << "_OperationsNC";
+	    _out << ", _" << name << "Operations, _" << name << "OperationsNC";
 	}
 	for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
 	{
@@ -2439,7 +2448,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     ClassList bases = p->bases();
 
 
-    _out << sp << nl << "public interface " << name << "_Operations";
+    _out << sp << nl << "public interface _" << name << "Operations";
     if(noCurrent)
     {
         _out << "NC";
@@ -2461,7 +2470,17 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 		{
 		    first = false;
 		}
-		_out << fixId((*q)->scoped()) << "_Operations";
+		string s = fixId((*q)->scoped());
+		string::size_type pos = s.rfind('.');
+		if(pos != string::npos)
+		{
+		    s.insert(pos + 1, "_");
+		}
+		else
+		{
+		    s = "_" + s;
+		}
+		_out << s << "Operations";
 		if(noCurrent)
 		{
 		    _out << "NC";
@@ -2588,8 +2607,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-	_out << nl << "Ice.Object_Del __delBase = __getDelegate();";
-	_out << nl << name << "_Del __del = (" << name << "_Del)__delBase;";
+	_out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
+	_out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
 	_out << nl;
 	if(ret)
 	{
@@ -2732,14 +2751,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp << nl << "#region Marshaling support";
 
-    _out << sp << nl << "protected override Ice.Object_DelM __createDelegateM()";
+    _out << sp << nl << "protected override Ice._ObjectDelM __createDelegateM()";
     _out << sb;
-    _out << nl << "return new " << name << "_DelM();";
+    _out << nl << "return new _" << name << "DelM();";
     _out << eb;
 
-    _out << sp << nl << "protected override Ice.Object_DelD __createDelegateD()";
+    _out << sp << nl << "protected override Ice._ObjectDelD __createDelegateD()";
     _out << sb;
-    _out << nl << "return new " << name << "_DelD();";
+    _out << nl << "return new _" << name << "DelD();";
     _out << eb;
 
     _out << sp << nl << "public static void __write(IceInternal.BasicStream __os, " << name << "Prx __v)";
@@ -2914,49 +2933,60 @@ Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-   if(p->isLocal())
-   {
-       return false;
-   }
+    if(p->isLocal())
+    {
+	return false;
+    }
 
-   string name = fixId(p->name());
-   ClassList bases = p->bases();
+    string name = fixId(p->name());
+    ClassList bases = p->bases();
 
-   _out << sp << nl << "public interface " << name << "_Del : ";
-   if(bases.empty())
-   {
-       _out << "Ice.Object_Del";
-   }
-   else
-   {
-       ClassList::const_iterator q = bases.begin();
-       while(q != bases.end())
-       {
-           _out << fixId((*q)->scoped()) << "_Del";
-	   if(++q != bases.end())
-	   {
-	       _out << ", ";
-	   }
-       }
-   }
+    _out << sp << nl << "public interface _" << name << "Del : ";
+    if(bases.empty())
+    {
+	_out << "Ice._ObjectDel";
+    }
+    else
+    {
+	ClassList::const_iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    string s = fixId((*q)->scoped());
+	    string::size_type pos = s.rfind('.');
+	    if(pos != string::npos)
+	    {
+	        s = s.insert(pos + 1, "_");
+	    }
+	    else
+	    {
+	        s = "_" + s;
+	    }
+	    s += "Del";
+	    _out << s;
+	    if(++q != bases.end())
+	    {
+		_out << ", ";
+	    }
+	}
+    }
 
-   _out << sb;
+    _out << sb;
 
-   OperationList ops = p->operations();
+    OperationList ops = p->operations();
 
-   OperationList::const_iterator r;
-   for(r = ops.begin(); r != ops.end(); ++r)
-   {
-       OperationPtr op = *r;
-       string opName = fixId(op->name());
-       TypePtr ret = op->returnType();
-       string retS = typeToString(ret);
-       vector<string> params = getParams(op);
+    OperationList::const_iterator r;
+    for(r = ops.begin(); r != ops.end(); ++r)
+    {
+	OperationPtr op = *r;
+	string opName = fixId(op->name());
+	TypePtr ret = op->returnType();
+	string retS = typeToString(ret);
+	vector<string> params = getParams(op);
 
-       _out << sp << nl << retS << ' ' << opName << spar << params << "Ice.Context __context" << epar << ';';
-   }
+	_out << sp << nl << retS << ' ' << opName << spar << params << "Ice.Context __context" << epar << ';';
+    }
 
-   return true;
+    return true;
 }
 
 void
@@ -2995,7 +3025,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     ClassList bases = p->bases();
 
-    _out << sp << nl << "public sealed class " << name << "_DelM : Ice.Object_DelM, " << name << "_Del";
+    _out << sp << nl << "public sealed class _" << name << "DelM : Ice._ObjectDelM, _" << name << "Del";
     _out << sb;
 
     OperationList ops = p->allOperations();
@@ -3213,7 +3243,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     ClassList bases = p->bases();
 
-    _out << sp << nl << "public sealed class " << name << "_DelD : Ice.Object_DelD, " << name << "_Del";
+    _out << sp << nl << "public sealed class _" << name << "DelD : Ice._ObjectDelD, _" << name << "Del";
     _out << sb;
 
     OperationList ops = p->allOperations();
@@ -3326,7 +3356,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string name = fixId(p->name());
 
-    _out << sp << nl << "public abstract class " << name << "_Disp : Ice.ObjectImpl, " << name;
+    _out << sp << nl << "public abstract class _" << name << "Disp : Ice.ObjectImpl, " << name;
     _out << sb;
 
     OperationList ops = p->operations();
@@ -3742,36 +3772,41 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     
     string name = fixId(p->name());
 
-    _out << sp << nl << "public class " << name << "_Tie : ";
+    _out << sp << nl << "public class _" << name << "Tie : ";
     if(p->isInterface())
     {
 	if(p->isLocal())
 	{
-	    _out << name;
+	    _out << name << ", Ice.TieBase";
 	}
 	else
 	{
-	    _out << name << "_Disp";
+	    _out << '_' << name << "Disp, Ice.TieBase";
 	}
     }
     else
     {
-        _out << name;
+        _out << name << ", Ice.TieBase";
     }
     _out << sb;
 
-    _out << sp << nl << "public " << name << "_Tie()";
+    _out << sp << nl << "public _" << name << "Tie()";
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "public " << name << "_Tie(" << name << "_Operations del)";
+    _out << sp << nl << "public _" << name << "Tie(_" << name << "Operations del)";
     _out << sb;
     _out << nl << "_ice_delegate = del;";
     _out << eb;
 
-    _out << sp << nl << "public " << name << "_Operations ice_delegate()";
+    _out << sp << nl << "public object ice_delegate()";
     _out << sb;
     _out << nl << "return _ice_delegate;";
+    _out << eb;
+
+    _out << sp << nl << "public void ice_delegate(object del)";
+    _out << sb;
+    _out << nl << "_ice_delegate = (_" << name << "Operations)del;";
     _out << eb;
 
     _out << sp << nl << "public ";
@@ -3796,15 +3831,15 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return true;";
     _out << eb;
-    _out << nl << "if(!(rhs is " << name << "_Tie))";
+    _out << nl << "if(!(rhs is _" << name << "Tie))";
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
     _out << nl << "if(_ice_delegate == null)";
     _out << sb;
-    _out << nl << "return ((" << name << "_Tie)rhs)._ice_delegate == null;";
+    _out << nl << "return ((_" << name << "Tie)rhs)._ice_delegate == null;";
     _out << eb;
-    _out << nl << "return _ice_delegate.Equals(((" << name << "_Tie)rhs)._ice_delegate);";
+    _out << nl << "return _ice_delegate.Equals(((_" << name << "Tie)rhs)._ice_delegate);";
     _out << eb;
 
     OperationList ops = p->operations();
@@ -3867,7 +3902,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeInheritedOperations(*i, opNames);
     }
 
-    _out << sp << nl << "private " << name << "_Operations _ice_delegate;";
+    _out << sp << nl << "private _" << name << "Operations _ice_delegate;";
 
     return true;
 }
@@ -4160,7 +4195,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	else
 	{
-	    _out << " : " << name << "_Disp";
+	    _out << " : _" << name << "Disp";
 	}
     }
     else
@@ -4234,7 +4269,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << fixId(bases.front()->name()) << "I, ";
     }
-    _out << name << "_Operations";
+    _out << '_' << name << "Operations";
     _out << sb;
 
     _out << nl << "public " << name << "I()";
