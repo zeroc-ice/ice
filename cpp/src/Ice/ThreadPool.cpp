@@ -492,7 +492,7 @@ IceInternal::ThreadPool::run()
 	    catch(const LocalException& ex)
 	    {
 		Error out(_instance->logger());
-		out << "exception while calling finished():\n" << handler->toString() << '\n' << ex;
+		out << "exception while calling finished():\n" << ex << '\n' << handler->toString();
 	    }
 
 	    {

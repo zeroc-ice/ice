@@ -597,7 +597,7 @@ public final class ThreadPool
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			ex.printStackTrace(pw);
 			pw.flush();
-			String s = "exception while calling finished():\n" + handler.toString() + "\n" + sw.toString();
+			String s = "exception while calling finished():\n" + sw.toString() + "\n" + handler.toString();
 			_instance.logger().error(s);
 		    }
 

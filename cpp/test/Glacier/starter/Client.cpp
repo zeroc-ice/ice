@@ -203,7 +203,7 @@ CallbackClient::run(int argc, char* argv[])
 	router->ice_ping();
 	test(false);
     }
-    catch(const Ice.LocalExcepton&)
+    catch(const LocalException&)
     {
 	cout << "ok" << endl;
     }
