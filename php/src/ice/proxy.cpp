@@ -57,7 +57,10 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 //
 // Class entries represent the PHP class implementations we have registered.
 //
-zend_class_entry* IcePHP::proxyClassEntry = 0;
+namespace IcePHP
+{
+zend_class_entry* proxyClassEntry = 0;
+}
 
 //
 // Ice::ObjectPrx support.
@@ -1519,7 +1522,7 @@ handleClone(zval* zv TSRMLS_DC)
 
     zval* clone;
     MAKE_STD_ZVAL(clone);
-    if(object_init_ex(clone, proxyClassEntry) != SUCCESS)
+    if(object_init_ex(clone, IcePHP::proxyClassEntry) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to initialize proxy");
         return result;
