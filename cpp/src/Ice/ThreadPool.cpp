@@ -756,6 +756,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     {
 	Error out(_pool->_instance->logger());
 	out << "std::exception in `" << _pool->_prefix << "':\n" << ex.what();
+	promote = true;
     }
     catch(...)
     {
