@@ -355,7 +355,8 @@ main(int argc, char* argv[])
     //
     // Make sure that this process doesn't use a router.
     //
-    try {
+    try
+    {
 	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
 	defaultProperties->setProperty("Ice.Default.Router", "");
     }

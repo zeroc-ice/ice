@@ -13,6 +13,7 @@
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
+#include <Ice/TransportInfo.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
@@ -1157,7 +1158,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    if(_endpoint->datagram() && _warn)
 		    {
 			Warning out(_logger);
-			out << "ignoring close connection message for datagram connection:\n" << _desc;
+			out << "ignoring close connection message for datagram connection:\n" << _info->toString();
 		    }
 		    else
 		    {
@@ -1288,7 +1289,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    if(_warn)
 		    {
 			Warning out(_logger);
-			out << "ignoring unexpected validate connection message:\n" << _desc;
+			out << "ignoring unexpected validate connection message:\n" << _info->toString();
 		    }
 		    break;
 		}
@@ -1332,7 +1333,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    // Prepare the invocation.
 	    //
 	    bool response = !_endpoint->datagram() && requestId != 0;
-	    Incoming in(_instance.get(), this, _adapter, response, compress);
+	    Incoming in(_instance.get(), this, _adapter, _info, response, compress);
 	    BasicStream* is = in.is();
 	    stream.swap(*is);
 	    BasicStream* os = in.os();
@@ -1458,7 +1459,7 @@ IceInternal::Connection::exception(const LocalException& ex)
 string
 IceInternal::Connection::toString() const
 {
-    return _desc; // No mutex lock, _desc is immutable.
+    return _info->toString(); // No mutex lock, _info is immutable.
 }
 
 bool
@@ -1485,7 +1486,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 				    const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _transceiver(transceiver),
-    _desc(transceiver->toString()),
+    _info(transceiver->info()),
     _endpoint(endpoint),
     _adapter(adapter),
     _logger(_instance->logger()), // Cached for better performance.
@@ -1602,7 +1603,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 		     (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
 		{
 		    Warning out(_logger);
-		    out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
+		    out << "connection exception:\n" << *_exception.get() << '\n' << _info->toString();
 		}
 	    }
 	}

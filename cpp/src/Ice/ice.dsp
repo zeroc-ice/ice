@@ -370,6 +370,10 @@ SOURCE=.\Stats.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\TransportInfo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TcpAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -855,6 +859,14 @@ SOURCE=..\..\include\Ice\Stats.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\StatsF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\TransportInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\TransportInfoF.h
 # End Source File
 # Begin Source File
 
@@ -2056,6 +2068,82 @@ InputPath=..\..\slice\Ice\StatsF.ice
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/StatsF.ice 
 	move StatsF.h ..\..\include\Ice 
 	del StatsF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\TransportInfo.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__COMMU="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\TransportInfo.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfo.ice \
+	move TransportInfo.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\TransportInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"TransportInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__COMMU="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\TransportInfo.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfo.ice \
+	move TransportInfo.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\TransportInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"TransportInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\TransportInfoF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__COMMUN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\TransportInfoF.ice
+
+"..\..\include\Ice\TransportInfoF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfoF.ice 
+	move TransportInfoF.h ..\..\include\Ice 
+	del TransportInfoF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__COMMUN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\TransportInfoF.ice
+
+"..\..\include\Ice\TransportInfoF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/TransportInfoF.ice 
+	move TransportInfoF.h ..\..\include\Ice 
+	del TransportInfoF.cpp 
 	
 # End Custom Build
 

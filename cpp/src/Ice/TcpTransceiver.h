@@ -15,6 +15,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <Ice/TransportInfo.h>
 
 namespace IceInternal
 {
@@ -31,7 +32,7 @@ public:
     virtual void shutdown();
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
-    virtual std::string toString() const;
+    virtual Ice::TransportInfoPtr info() const;
 
 private:
 
@@ -43,12 +44,32 @@ private:
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
-    const std::string _name;
-    const std::string _desc;
+    const Ice::TransportInfoPtr _info;
     
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
+};
+
+}
+
+namespace Ice
+{
+
+class TcpTransportInfoI : public TransportInfo
+{
+public:
+
+    virtual std::string type() const;
+    virtual std::string toString() const;
+
+private:
+
+    TcpTransportInfoI(SOCKET);
+    friend class IceInternal::TcpTransceiver;
+
+    static const std::string _type;
+    const std::string _desc;
 };
 
 }

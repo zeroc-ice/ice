@@ -15,6 +15,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <Ice/TransportInfo.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -36,7 +37,7 @@ public:
     virtual void shutdown();
     virtual void write(Buffer&, int);
     virtual void read(Buffer&, int);
-    virtual std::string toString() const;
+    virtual Ice::TransportInfoPtr info() const;
 
     bool equivalent(const std::string&, int) const;
     int effectivePort() const;
@@ -54,7 +55,7 @@ private:
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     const Ice::StatsPtr _stats;
-    const std::string _name;
+    const Ice::TransportInfoPtr _info;
     const bool _incoming;
 
     SOCKET _fd;
@@ -67,6 +68,27 @@ private:
     const bool _warn;
     static const int _udpOverhead;
     static const int _maxPacketSize;
+};
+
+}
+
+namespace Ice
+{
+
+class UdpTransportInfoI : public TransportInfo
+{
+public:
+
+    virtual std::string type() const;
+    virtual std::string toString() const;
+
+private:
+
+    UdpTransportInfoI(SOCKET);
+    friend class IceInternal::UdpTransceiver;
+
+    static const std::string _type;
+    const std::string _desc;
 };
 
 }

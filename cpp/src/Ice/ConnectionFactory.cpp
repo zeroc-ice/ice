@@ -15,6 +15,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
 #include <Ice/Transceiver.h>
+#include <Ice/TransportInfo.h>
 #include <Ice/Connector.h>
 #include <Ice/Acceptor.h>
 #include <Ice/ThreadPool.h>
@@ -766,7 +767,7 @@ IceInternal::IncomingConnectionFactory::toString() const
 
     if(_transceiver)
     {
-	return _transceiver->toString();
+	return _transceiver->info()->toString();
     }
     
     assert(_acceptor);

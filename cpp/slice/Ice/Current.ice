@@ -11,6 +11,7 @@
 #define ICE_CURRENT_ICE
 
 #include <Ice/ObjectAdapterF.ice>
+#include <Ice/TransportInfoF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -90,6 +91,15 @@ local struct Current
      *
      **/
     ObjectAdapter adapter;
+    
+    /**
+     *
+     * Information about the transport over which the current method
+     * invocation was received. If the invocation is direct due to
+     * collocation optimization, this value is set to null.
+     *
+     **/
+    TransportInfo transport;
 
     /**
      *

@@ -17,6 +17,7 @@
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
+#include <Ice/TransportInfoF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/EndpointF.h>
@@ -123,7 +124,7 @@ private:
     static void doUncompress(BasicStream&, BasicStream&);
 
     TransceiverPtr _transceiver;
-    const std::string _desc;
+    const Ice::TransportInfoPtr _info;
     const EndpointPtr _endpoint;
 
     Ice::ObjectAdapterPtr _adapter;

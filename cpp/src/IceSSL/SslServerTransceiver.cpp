@@ -85,7 +85,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
 
 		if(_stats)
 		{
-		    _stats->bytesSent(_name, bytesWritten);
+		    _stats->bytesSent(_info->type(), bytesWritten);
 		}
 
                 totalBytesWritten += bytesWritten;

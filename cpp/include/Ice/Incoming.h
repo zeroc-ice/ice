@@ -24,7 +24,7 @@ class ICE_API IncomingBase : public IceUtil::noncopyable
 {
 protected:
 
-    IncomingBase(Instance*, Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte);
+    IncomingBase(Instance*, Connection*, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr&, bool, Ice::Byte);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
     void __finishInvoke();
@@ -58,7 +58,7 @@ class ICE_API Incoming : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte);
+    Incoming(Instance*, Connection*, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr&, bool, Ice::Byte);
 
     void invoke(const ServantManagerPtr&);
 
