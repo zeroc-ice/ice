@@ -58,10 +58,9 @@ private:
     virtual ~CommunicatorI();
 
     //
-    // Certain initialization tasks need to be completed after the
-    // constructor.
+    // Load plug-ins after the constructor has completed.
     //
-    void finishSetup(int&, char*[]);
+    void loadPlugins(int&, char*[]);
 
     friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
     friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);

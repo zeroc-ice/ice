@@ -270,7 +270,7 @@ Ice::CommunicatorI::~CommunicatorI()
 }
 
 void
-Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
+Ice::CommunicatorI::loadPlugins(int& argc, char* argv[])
 {
-    _instance->finishSetup(argc, argv);
+    _instance->loadPlugins(argc, argv);
 }
