@@ -57,7 +57,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    void allTests(const Ice::CommunicatorPtr, int, int&);
+    void allTests(const Ice::CommunicatorPtr&, int, int);
     allTests(communicator, port, lastPort);
     return EXIT_SUCCESS;
 }

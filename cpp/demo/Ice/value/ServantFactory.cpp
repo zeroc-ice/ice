@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Factory.h>
+#include <ServantFactory.h>
 #include <ValueI.h>
 
 using namespace std;

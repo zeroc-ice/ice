@@ -10,7 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <Value.h>
-#include <Factory.h>
+#include <ServantFactory.h>
 
 using namespace std;
 

@@ -24,7 +24,7 @@ ICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/Pickler.ice \
 		  ../slice/Ice/Properties.ice \
-		  ../slice/Ice/ValueFactory.ice
+		  ../slice/Ice/ServantFactory.ice
 
 ICEPACKFILES	= ../slice/IcePack/Admin.ice
 

@@ -43,7 +43,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    void allTests(const Ice::CommunicatorPtr, const vector<int>&&);
+    void allTests(const Ice::CommunicatorPtr&, const vector<int>&);
     allTests(communicator, ports);
     return EXIT_SUCCESS;
 }
