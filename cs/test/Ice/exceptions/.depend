@@ -1,1 +1,2 @@
 generated/Test.cs: ./Test.ice
+generated/TestAMD.cs: ./TestAMD.ice

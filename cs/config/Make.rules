@@ -103,6 +103,8 @@ SLICE2CS		= slice2cs
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
 SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
+GEN_AMD_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_AMD_SRCS))))
+SAMD_GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SAMD_SRCS))))
 
 EVERYTHING		= all depend clean install
 
@@ -117,7 +119,7 @@ $(GDIR)/%.cs: $(SDIR)/%.ice
 
 all:: $(TARGETS)
 
-depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS)
+depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
 	echo "slicedir: $(slicedir)"
 	-rm -f .depend
 	if test -n "$(SLICE_SRCS)" ; then \
@@ -130,6 +132,14 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS)
 	fi
 	if test -n "$(SLICE_S_SRCS)" ; then \
 	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+	if test -n "$(SLICE_AMD_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_AMD_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+	if test -n "$(SLICE_SAMD_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SAMD_SRCS) | \
 	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 
@@ -147,6 +157,14 @@ endif
 ifneq ($(SLICE_S_SRCS),)
 clean::
 	-rm -f $(SGEN_SRCS)
+endif
+ifneq ($(SLICE_AMD_SRCS),)
+clean::
+	-rm -f $(GEN_AMD_SRCS)
+endif
+ifneq ($(SLICE_SAMD_SRCS),)
+clean::
+	-rm -f $(SAMD_GEN_SRCS)
 endif
 
 install::

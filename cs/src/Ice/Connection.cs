@@ -1617,26 +1617,14 @@ namespace IceInternal
 		_dispatchCount == 0;
 	}
 	
-#if __MonoCS__
-	private /* volatile */ Transceiver _transceiver; // Mono Beta 1 bug: mcs can't handle volatile interfaces.
-#else
 	private volatile Transceiver _transceiver;
-#endif
 	private volatile string _desc;
-#if __MonoCS__
-	private /* volatile */ Endpoint _endpoint; // Mono Beta 1 bug: mcs can't handle volatile interfaces.
-#else
 	private volatile Endpoint _endpoint;
-#endif
 	
 	private Ice.ObjectAdapter _adapter;
 	private ServantManager _servantManager;
 	
-#if __MonoCS__
-	private /* volatile */ Ice.Logger _logger; // Mono Beta 1 bug: mcs can't handle volatile interfaces.
-#else
 	private volatile Ice.Logger _logger;
-#endif
 	private volatile TraceLevels _traceLevels;
 	
 	private bool _registeredWithPool;

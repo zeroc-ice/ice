@@ -1,2 +1,4 @@
 generated/Test.cs: ./Test.ice
-generated/ServerPrivate.cs: ServerPrivate.ice Test.ice
+generated/ServerPrivate.cs: ./ServerPrivate.ice Test.ice
+generated/TestAMD.cs: ./TestAMD.ice
+generated/ServerPrivateAMD.cs: ./ServerPrivateAMD.ice TestAMD.ice

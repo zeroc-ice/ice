@@ -1,1 +1,2 @@
 generated/Test.cs: ./Test.ice ../../../../ice/slice/Ice/Current.ice ../../../../ice/slice/Ice/ObjectAdapterF.ice ../../../../ice/slice/Ice/Identity.ice
+generated/TestAMD.cs: ./TestAMD.ice ../../../../ice/slice/Ice/Current.ice ../../../../ice/slice/Ice/ObjectAdapterF.ice ../../../../ice/slice/Ice/Identity.ice

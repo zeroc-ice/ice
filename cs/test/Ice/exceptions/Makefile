@@ -9,14 +9,15 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= client.exe server.exe collocated.exe
+TARGETS		= client.exe server.exe collocated.exe serveramd.exe
 
 C_SRCS		= AllTests.cs Client.cs EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs
 S_SRCS		= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerI.cs
 COL_SRCS	= AllTests.cs Collocated.cs EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs ThrowerI.cs
+SAMD_SRCS	= EmptyI.cs ObjectFactoryI.cs ServantLocatorI.cs Server.cs ThrowerAMDI.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice \
-		  $(SDIR)/TestAMD.ice
+SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_AMD_SRCS  = $(SDIR)/TestAMD.ice
 
 SDIR		= .
 
@@ -35,6 +36,9 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
+
+serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
 
 install:: all

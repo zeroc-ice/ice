@@ -9,14 +9,17 @@
 
 top_srcdir	= ../../../..
 
-TARGETS		= client.exe server.exe
+TARGETS		= client.exe server.exe serveramd.exe
 
 C_SRCS		= AllTests.cs Client.cs
 S_SRCS		= Server.cs TestI.cs
+SAMD_SRCS	= Server.cs TestAMDI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice $(SDIR)/Forward.ice
-SLICE_C_SRCS	= ClientPrivate.ice
-SLICE_S_SRCS	= ServerPrivate.ice
+SLICE_C_SRCS	= $(SDIR)/ClientPrivate.ice
+SLICE_S_SRCS	= $(SDIR)/ServerPrivate.ice
+SLICE_AMD_SRCS	= $(SDIR)/TestAMD.ice $(SDIR)/Forward.ice
+SLICE_SAMD_SRCS	= $(SDIR)/ServerPrivateAMD.ice
 
 SDIR		= .
 
@@ -32,6 +35,9 @@ client.exe: $(C_SRCS) $(GEN_SRCS) $(CGEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
+
+serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBS) $^
 
 install:: all

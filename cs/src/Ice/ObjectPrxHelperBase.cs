@@ -141,9 +141,6 @@ namespace Ice
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 	                       Context context)
         {
-#if __MonoCS__
-	    outParams = null;	// MCS COMPILERBUG
-#endif
             int __cnt = 0;
             while(true)
             {
