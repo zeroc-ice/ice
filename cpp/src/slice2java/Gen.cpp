@@ -607,6 +607,9 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& unit)
 {
+    OpsVisitor opsVisitor(_dir, _package);
+    unit->visit(&opsVisitor);
+
     TypesVisitor typesVisitor(_dir, _package);
     unit->visit(&typesVisitor);
 
@@ -633,10 +636,262 @@ Slice::Gen::generate(const UnitPtr& unit)
 }
 
 void
+Slice::Gen::generateTie(const UnitPtr& unit)
+{
+    TieVisitor tieVisitor(_dir, _package);
+    unit->visit(&tieVisitor);
+}
+
+void
 Slice::Gen::generateImpl(const UnitPtr& unit)
 {
     ImplVisitor implVisitor(_dir, _package);
     unit->visit(&implVisitor);
+}
+
+void
+Slice::Gen::generateImplTie(const UnitPtr& unit)
+{
+    ImplTieVisitor implTieVisitor(_dir, _package);
+    unit->visit(&implTieVisitor);
+}
+
+Slice::Gen::OpsVisitor::OpsVisitor(const string& dir,
+                                   const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped);
+
+    //
+    // Don't generate an Operations interface for non-abstract classes
+    //
+    if (!p->isAbstract())
+    {
+        return false;
+    }
+
+    if (!open(absolute + "Operations"))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    //
+    // Generate the operations interface
+    //
+    out << sp << nl << "public interface " << name << "Operations";
+    if (!bases.empty())
+    {
+        out << " extends ";
+        out.useCurrentPosAsIndent();
+        ClassList::const_iterator q = bases.begin();
+        while (q != bases.end())
+        {
+            out << getAbsolute((*q)->scoped(), scope, "", "Operations");
+            if (++q != bases.end())
+            {
+                out << ',' << nl;
+            }
+        }
+        out.restoreIndent();
+    }
+
+    out << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::OpsVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    Output& out = output();
+    out << eb;
+    close();
+}
+
+void
+Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
+{
+    string name = fixKwd(p->name());
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    string scope = cl->scope();
+
+    TypePtr ret = p->returnType();
+    string retS = typeToString(ret, TypeModeReturn, scope);
+
+    string params = getParams(p, scope);
+
+    Output& out = output();
+
+    out << sp;
+    out << nl;
+    out << retS << ' ' << name << '(' << params;
+    if (!cl->isLocal())
+    {
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "Ice.Current current";
+    }
+    out << ')';
+
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+    writeThrowsClause(scope, throws);
+    out << ';';
+}
+
+Slice::Gen::TieVisitor::TieVisitor(const string& dir,
+                                   const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped);
+
+    //
+    // Don't generate a TIE class for a non-abstract class
+    //
+    if (!p->isAbstract())
+    {
+        return false;
+    }
+
+    if (!open(absolute + "Tie"))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    //
+    // Generate the TIE class
+    //
+    out << sp << nl << "public class " << name << "Tie";
+    if (p->isInterface())
+    {
+        if (p->isLocal())
+        {
+            out << " implements " << name;
+        }
+        else
+        {
+            out << " extends " << '_' << name << "Disp";
+        }
+    }
+    else
+    {
+        out << " extends " << name;
+    }
+
+    out << sb;
+
+    out << sp << nl << "public" << nl << name << "Tie(" << name << "Operations delegate)";
+    out << sb;
+    out << nl << "_ice_delegate = delegate;";
+    out << eb;
+
+    out << sp << nl << "public " << name << "Operations" << nl << "ice_delegate()";
+    out << sb;
+    out << nl << "return _ice_delegate;";
+    out << eb;
+
+    out << sp << nl << "public void" << nl << "ice_delegate(" << name << "Operations delegate)";
+    out << sb;
+    out << nl << "_ice_delegate = delegate;";
+    out << eb;
+
+    out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
+    out << sb;
+    out << nl << "if (this == rhs)";
+    out << sb;
+    out << nl << "return true;";
+    out << eb;
+    out << nl << "if (!(rhs instanceof " << name << "Tie))";
+    out << sb;
+    out << nl << "return false;";
+    out << eb;
+    out << sp << nl << "return _ice_delegate.equals(((" << name << "Tie)rhs)._ice_delegate);";
+    out << eb;
+
+    out << sp << nl << "public int" << nl << "hashCode()";
+    out << sb;
+    out << nl << "return _ice_delegate.hashCode();";
+    out << eb;
+
+    OperationList ops = p->allOperations();
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        string opName = fixKwd((*r)->name());
+
+        TypePtr ret = (*r)->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+
+        string params = getParams((*r), scope);
+        string args = getArgs((*r), scope);
+
+        out << sp;
+        out << nl;
+        out << "public " << retS << nl << opName << '(' << params;
+        if (!p->isLocal())
+        {
+            if (!params.empty())
+            {
+                out << ", ";
+            }
+            out << "Ice.Current current";
+        }
+        out << ')';
+
+        ExceptionList throws = (*r)->throws();
+        throws.sort();
+        throws.unique();
+        writeThrowsClause(scope, throws);
+        out << sb;
+        out << nl;
+        if (ret)
+        {
+            out << "return ";
+        }
+        out << "_ice_delegate." << opName << '(' << args;
+        if (!p->isLocal())
+        {
+            if (!args.empty())
+            {
+                out << ", ";
+            }
+            out << "current";
+        }
+        out << ");";
+        out << eb;
+    }
+
+    out << sp << nl << "private " << name << "Operations _ice_delegate;";
+    out << eb;
+    close();
+
+    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
@@ -666,22 +921,19 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if (p->isInterface())
     {
-        out << sp << nl << "public interface " << name;
+        out << sp << nl << "public interface " << name << " extends ";
+        out.useCurrentPosAsIndent();
+        out << name << "Operations";
         if (!bases.empty())
         {
-            out << " extends ";
-            out.useCurrentPosAsIndent();
             ClassList::const_iterator q = bases.begin();
             while (q != bases.end())
             {
-                out << getAbsolute((*q)->scoped(), scope);
-                if (++q != bases.end())
-                {
-                    out << ',' << nl;
-                }
+                out << ',' << nl << getAbsolute((*q)->scoped(), scope);
+                q++;
             }
-            out.restoreIndent();
         }
+        out.restoreIndent();
     }
     else
     {
@@ -711,24 +963,27 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             bases.pop_front();
         }
 
-        //
-        // Implement interfaces
-        //
-        if (!bases.empty())
+        if (p->isAbstract() || !bases.empty())
         {
             out << nl << " implements ";
             out.useCurrentPosAsIndent();
-            ClassList::const_iterator q = bases.begin();
-            while (q != bases.end())
+            out << name << "Operations";
+
+            //
+            // Implement interfaces
+            //
+            if (!bases.empty())
             {
-                out << getAbsolute((*q)->scoped(), scope);
-                if (++q != bases.end())
+                ClassList::const_iterator q = bases.begin();
+                while (q != bases.end())
                 {
-                    out << ',' << nl;
+                    out << ',' << nl << getAbsolute((*q)->scoped(), scope);
+                    q++;
                 }
             }
             out.restoreIndent();
         }
+
         out.restoreIndent();
     }
 
@@ -893,45 +1148,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     Output& out = output();
     out << eb;
     close();
-}
-
-void
-Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
-{
-    string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string scope = cl->scope();
-
-    TypePtr ret = p->returnType();
-    string retS = typeToString(ret, TypeModeReturn, scope);
-
-    string params = getParams(p, scope);
-
-    Output& out = output();
-
-    out << sp;
-    out << nl;
-    if (!cl->isInterface())
-    {
-        out << "public abstract ";
-    }
-    out << retS << ' ' << name << '(' << params;
-    if (!cl->isLocal())
-    {
-        if (!params.empty())
-        {
-            out << ", ";
-        }
-        out << "Ice.Current current";
-    }
-    out << ')';
-
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-    writeThrowsClause(scope, throws);
-    out << ';';
 }
 
 bool
@@ -2973,16 +3189,16 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(const string& dir,
-                                     const string& package) :
+Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir,
+                                             const string& package) :
     JavaVisitor(dir, package)
 {
 }
 
 void
-Slice::Gen::ImplVisitor::writeAssign(Output& out, const string& scope,
-                                     const TypePtr& type, const string& name,
-                                     int& iter)
+Slice::Gen::BaseImplVisitor::writeAssign(Output& out, const string& scope,
+                                         const TypePtr& type, const string& name,
+                                         int& iter)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if (builtin)
@@ -3126,6 +3342,65 @@ Slice::Gen::ImplVisitor::writeAssign(Output& out, const string& scope,
     out << nl << name << " = new java.util.HashMap();";
 }
 
+void
+Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, const OperationPtr& op, bool local)
+{
+    string opName = fixKwd(op->name());
+
+    TypePtr ret = op->returnType();
+    string retS = typeToString(ret, TypeModeReturn, scope);
+    string params = getParams(op, scope);
+
+    out << sp << nl << "public " << retS << nl << opName << "(" << params;
+    if (!local)
+    {
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "Ice.Current current";
+    }
+    out << ')';
+
+    ExceptionList throws = op->throws();
+    throws.sort();
+    throws.unique();
+    writeThrowsClause(scope, throws);
+
+    out << sb;
+
+    TypeStringList outParams = op->outputParameters();
+    TypeStringList::const_iterator q;
+    int iter = 0;
+
+    //
+    // Assign values to 'out' params
+    //
+    for (q = outParams.begin(); q != outParams.end(); ++q)
+    {
+        string param = fixKwd(q->second) + ".value";
+        writeAssign(out, scope, q->first, param, iter);
+    }
+
+    //
+    // Return value
+    //
+    if (ret)
+    {
+        out << sp << nl << retS << " __r;";
+        writeAssign(out, scope, ret, "__r", iter);
+        out << nl << "return __r;";
+    }
+
+    out << eb;
+}
+
+Slice::Gen::ImplVisitor::ImplVisitor(const string& dir,
+                                     const string& package) :
+    BaseImplVisitor(dir, package)
+{
+}
+
 bool
 Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
@@ -3174,56 +3449,90 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for (r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
-        string opName = fixKwd(op->name());
+        writeOperation(out, scope, *r, p->isLocal());
+    }
 
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, scope);
-        string params = getParams(op, scope);
+    out << eb;
+    close();
 
-        out << sp << nl << "public " << retS
-            << nl << opName << "(" << params;
-        if (!p->isLocal())
+    return false;
+}
+
+Slice::Gen::ImplTieVisitor::ImplTieVisitor(const string& dir,
+                                           const string& package) :
+    BaseImplVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (!p->isAbstract())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "", "I");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    //
+    // Use implementation inheritance in the following situations:
+    //
+    // * if a class extends another class
+    // * if a class implements a single interface
+    // * if an interface extends only one interface
+    //
+    bool inheritImpl = (!p->isInterface() && !bases.empty() && !bases.front()->isInterface()) || (bases.size() == 1);
+
+    out << sp << nl << "public class " << name << 'I';
+    if (inheritImpl)
+    {
+        out << " extends " << fixKwd(bases.front()->name()) << 'I';
+    }
+    out << " implements " << name << "Operations";
+    out << sb;
+
+    out << nl << "public" << nl << name << "I()";
+    out << sb;
+    out << eb;
+
+    OperationList ops = p->allOperations();
+    ops.sort();
+
+    OperationList baseOps;
+    if (inheritImpl)
+    {
+        baseOps = bases.front()->allOperations();
+        baseOps.sort();
+    }
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        if (inheritImpl && binary_search(baseOps.begin(), baseOps.end(), *r))
         {
-            if (!params.empty())
-            {
-                out << ", ";
-            }
-            out << "Ice.Current current";
+            out << sp;
+            out << nl << "/*";
+            out << nl << " * Implemented by " << fixKwd(bases.front()->name()) << 'I';
+            out << nl << " *";
+            writeOperation(out, scope, *r, p->isLocal());
+            out << sp;
+            out << nl << "*/";
         }
-        out << ')';
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        writeThrowsClause(scope, throws);
-
-        out << sb;
-
-        TypeStringList outParams = op->outputParameters();
-        TypeStringList::const_iterator q;
-        int iter = 0;
-
-        //
-        // Assign values to 'out' params
-        //
-        for (q = outParams.begin(); q != outParams.end(); ++q)
+        else
         {
-            string param = fixKwd(q->second) + ".value";
-            writeAssign(out, scope, q->first, param, iter);
+            writeOperation(out, scope, *r, p->isLocal());
         }
-
-        //
-        // Return value
-        //
-        if (ret)
-        {
-            out << sp << nl << retS << " __r;";
-            writeAssign(out, scope, ret, "__r", iter);
-            out << nl << "return __r;";
-        }
-
-        out << eb;
     }
 
     out << eb;

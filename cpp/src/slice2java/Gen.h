@@ -72,7 +72,9 @@ public:
     bool operator!() const; // Returns true if there was a constructor error
 
     void generate(const UnitPtr&);
+    void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
+    void generateImplTie(const UnitPtr&);
 
 private:
 
@@ -80,6 +82,26 @@ private:
     std::vector<std::string> _includePaths;
     std::string _package;
     std::string _dir;
+
+    class OpsVisitor : public JavaVisitor
+    {
+    public:
+
+        OpsVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+    };
+
+    class TieVisitor : public JavaVisitor
+    {
+    public:
+
+        TieVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
 
     class TypesVisitor : public JavaVisitor
     {
@@ -89,7 +111,6 @@ private:
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -173,17 +194,39 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
-    class ImplVisitor : public JavaVisitor
+    class BaseImplVisitor : public JavaVisitor
     {
+    protected:
+
         //
         // Generate code to assign a value
         //
-        void writeAssign(::IceUtil::Output&, const std::string&, const TypePtr&,
-                         const std::string&, int&);
+        void writeAssign(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&, int&);
+
+        //
+        // Generate an operation
+        //
+        void writeOperation(::IceUtil::Output&, const std::string&, const OperationPtr&, bool);
 
     public:
 
+        BaseImplVisitor(const std::string&, const std::string&);
+    };
+
+    class ImplVisitor : public BaseImplVisitor
+    {
+    public:
+
         ImplVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class ImplTieVisitor : public BaseImplVisitor
+    {
+    public:
+
+        ImplTieVisitor(const std::string&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };

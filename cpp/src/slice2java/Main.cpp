@@ -28,7 +28,9 @@ usage(const char* n)
         "-IDIR                   Put DIR in the include file search path.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--package PKG           Generate everything in package PKG.\n"
+        "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
+        "--impl-tie              Generate sample TIE implementations.\n"
         "-d, --debug             Print debug messages.\n"
         ;
 }
@@ -40,7 +42,9 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     string output;
     string package;
+    bool tie = false;
     bool impl = false;
+    bool implTie = false;
     bool debug = false;
 
     int idx = 1;
@@ -131,9 +135,27 @@ main(int argc, char* argv[])
             }
             argc -= 2;
         }
+        else if (strcmp(argv[idx], "--tie") == 0)
+        {
+            tie = true;
+            for (int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
         else if (strcmp(argv[idx], "--impl") == 0)
         {
             impl = true;
+            for (int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if (strcmp(argv[idx], "--impl-tie") == 0)
+        {
+            implTie = true;
             for (int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
@@ -156,6 +178,13 @@ main(int argc, char* argv[])
     if (argc < 2)
     {
         cerr << argv[0] << ": no input file" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if (impl && implTie)
+    {
+        cerr << argv[0] << ": cannot specify both --impl and --impl-tie" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -223,9 +252,17 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
             gen.generate(unit);
+            if (tie)
+            {
+                gen.generateTie(unit);
+            }
             if (impl)
             {
                 gen.generateImpl(unit);
+            }
+            if (implTie)
+            {
+                gen.generateImplTie(unit);
             }
         }
 

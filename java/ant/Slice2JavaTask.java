@@ -70,6 +70,7 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         _outputDir = null;
         _package = null;
         _includePath = null;
+        _tie = false;
     }
 
     public void
@@ -123,6 +124,12 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         {
             _includePath.append(includePath);
         }
+    }
+
+    public void
+    setTie(boolean tie)
+    {
+        _tie = tie;
     }
 
     public FileSet
@@ -212,6 +219,14 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             }
 
             //
+            // Add --tie
+            //
+            if (_tie)
+            {
+                cmd.append(" --tie");
+            }
+
+            //
             // Add files to be translated
             //
             for (int i = 0; i < buildList.size(); i++)
@@ -256,5 +271,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     private File _outputDir;
     private String _package;
     private Path _includePath;
+    private boolean _tie;
     private java.util.List _fileSets = new java.util.LinkedList();
 }
