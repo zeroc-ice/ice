@@ -38,13 +38,13 @@ def startIcePackRegistry(port, testdir):
 
     print "starting icepack registry...",
     command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
-          r' --IcePack.Registry.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
-          r' --IcePack.Registry.LocatorRegistry.Endpoints=default' + \
-          r' --IcePack.Registry.Internal.Endpoints=default' + \
-          r' --IcePack.Registry.Admin.Endpoints=default' + \
-          r' --IcePack.Registry.Data=' + dataDir + \
-          r' --IcePack.Registry.DynamicRegistration' + \
-          r' --Ice.ProgramName=icepackregistry'
+              r' --IcePack.Registry.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
+              r' --IcePack.Registry.LocatorRegistry.Endpoints=default' + \
+              r' --IcePack.Registry.Internal.Endpoints=default' + \
+              r' --IcePack.Registry.Admin.Endpoints=default' + \
+              r' --IcePack.Registry.Data=' + dataDir + \
+              r' --IcePack.Registry.DynamicRegistration' + \
+              r' --Ice.ProgramName=icepackregistry'
 
     icePackPipe = os.popen(command)
     TestUtil.getServerPid(icePackPipe)

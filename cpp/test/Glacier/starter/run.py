@@ -28,11 +28,7 @@ import TestUtil
 starter = os.path.join(toplevel, "bin", "glacierstarter")
 router = os.path.join(toplevel, "bin", "glacierrouter")
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-
-command = starter + updatedClientServerOptions + \
+command = starter + TestUtil.clientServerOptions + \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=10' \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
@@ -48,11 +44,11 @@ TestUtil.getAdapterReady(starterPipe)
 print "ok"
 
 name = os.path.join("Glacier", "starter")
-TestUtil.mixedClientServerTest(toplevel, name)
+TestUtil.mixedClientServerTest(name)
 
 # We run the test again, to check whether the glacier router starter
 # can start up multiple routers.
-TestUtil.mixedClientServerTest(toplevel, name)
+TestUtil.mixedClientServerTest(name)
 
 print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown.

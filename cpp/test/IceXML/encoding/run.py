@@ -29,10 +29,10 @@ name = os.path.join("IceXML", "encoding")
 
 testdir = os.path.join(toplevel, "test", name)
 
-client = os.path.join(testdir, "client" + ' ' + testdir)
+client = os.path.join(testdir, "client")
 
 print "starting client...",
-clientPipe = os.popen(client)
+clientPipe = os.popen(client + " " + testdir)
 print "ok"
 
 for output in clientPipe.xreadlines():

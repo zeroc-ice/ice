@@ -32,23 +32,19 @@ iceBox = os.path.join(toplevel, "bin", "icebox")
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12345"'
 
-iceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
-
-iceStormService=" --IceBox.Service.IceStorm=IceStormService:create" + \
-                ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
-		" --IceBox.PrintServicesReady=IceStorm"
-iceStormReference=' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12346"'
+iceStormService = " --IceBox.Service.IceStorm=IceStormService:create" + \
+                  ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
+                  " --IceBox.PrintServicesReady=IceStorm"
+iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12346"'
 
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
 iceStormDBEnv=" --IceBox.DBEnvName.IceStorm=" + dbEnvName
 
 print "starting icestorm service...",
-command = iceBox + updatedClientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
 iceBoxPipe = os.popen(command)
 TestUtil.getServerPid(iceBoxPipe)
 #TestUtil.getAdapterReady(iceBoxPipe)
@@ -56,7 +52,7 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topic...",
-command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "create single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -78,7 +74,7 @@ except:
     pass # Ignore errors if the lockfile is not present
 
 print "starting subscriber...",
-command = subscriber + updatedClientServerOptions + iceStormReference + r' ' + subscriberLockFile
+command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile
 subscriberPipe = os.popen(command)
 TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
@@ -96,7 +92,7 @@ print "ok"
 # causes subscriber to terminate.
 #
 print "starting publisher...",
-command = publisher + updatedClientOptions + iceStormReference
+command = publisher + TestUtil.clientOptions + iceStormReference
 publisherPipe = os.popen(command)
 print "ok"
 
@@ -121,7 +117,7 @@ print "ok"
 # Destroy the topic.
 #
 print "destroying topic...",
-command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "destroy single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -133,7 +129,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + updatedClientOptions + iceBoxEndpoints + r' shutdown'
+command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
 iceBoxAdminPipe = os.popen(command)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:
