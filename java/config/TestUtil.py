@@ -180,15 +180,15 @@ if protocol == "ssl":
                            " --IceSSL.Server.Password=password"
     cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
+                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
                               " --IceSSL.Client.Config=client_sslconfig.xml"
     cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
+                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
                               " --IceSSL.Server.Config=server_sslconfig.xml"
     cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
                            " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs", "cpp") + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
                            " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
