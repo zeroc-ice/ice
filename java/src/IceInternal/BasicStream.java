@@ -317,27 +317,6 @@ public class BasicStream
 	{
 	    throw new Ice.NegativeSizeException();
 	}
-	
-	//
-	// TODO: Benoit: Why are we doing this check again here? I
-	// believe this method is called after startReadEncaps to get
-	// the encapsulation size. The protocol version check has
-	// already be done. In any case, this method shouldn't move
-	// the buffer position, I don't think calling readByte here is
-	// correct.
-	//
-/*      byte eMajor = readByte();
-        byte eMinor = readByte();
-	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
-	{
-	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-	    e.major = Protocol.encodingMajor;
-	    e.minor = Protocol.encodingMinor;
-	    throw e;
-	}
-*/
 	return sz - 6;	// - 4 bytes for size, - 2 bytes for version
     }
 
