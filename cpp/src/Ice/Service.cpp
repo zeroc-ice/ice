@@ -181,7 +181,7 @@ Ice::Service::main(int argc, char* argv[])
         //
         // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
         //
-        _nohup = _communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0;
+        _nohup = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.Nohup", 1) > 0;
 
         //
         // Start the service.
@@ -1003,7 +1003,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     //
     // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
     //
-    _nohup = _communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0;
+    _nohup = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.Nohup", 1) > 0;
 
     DWORD status = EXIT_FAILURE;
     try
