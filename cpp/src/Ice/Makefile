@@ -91,7 +91,8 @@ OBJS		= Initialize.o \
 		  LocatorInfo.o \
 		  StringUtil.o \
 		  FactoryTableDef.o \
-		  FactoryTable.o
+		  FactoryTable.o \
+		  Service.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
