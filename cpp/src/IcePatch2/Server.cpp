@@ -173,7 +173,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     const char* idProperty = "IcePatch2.Identity";
     Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
-    adapter->add(new FileServerI(dataDir, infoSeq), id);
+    adapter->add(new FileServerI(communicator(), dataDir, infoSeq), id);
 
     if(adminAdapter)
     {

@@ -22,33 +22,53 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
-IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
+IcePatch2::FileServerI::FileServerI(const CommunicatorPtr& communicator,
+				    const std::string& dataDir,
+				    const FileInfoSeq& infoSeq) :
     _dataDir(normalize(dataDir)),
     _dataDirWithSlash(_dataDir + "/")
 {
+    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    _maxReadSize = communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.MaxReadSize", 256);
+    if(_maxReadSize < 1)
+    {
+        _maxReadSize = 1;
+    }
+    else if(_maxReadSize > sizeMax)
+    {
+        _maxReadSize = sizeMax;
+    }
+    if(_maxReadSize == sizeMax)
+    {
+       _maxReadSize = _maxReadSize * 1024 - 512; // Leave some headroom for protocol header.
+    }
+    else
+    {
+	_maxReadSize *= 1024;
+    }
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(Int node, const Current&) const
+IcePatch2::FileServerI::getFileInfoSeq(Int partition, const Current&) const
 {
-    if(node < 0 || node > 255)
+    if(partition < 0 || partition > 255)
     {
-	throw NodeOutOfRangeException();
+	throw PartitionOutOfRangeException();
     }
 
-    return _tree0.nodes[node].files;
+    return _tree0.nodes[partition].files;
 }
 
 ByteSeqSeq
 IcePatch2::FileServerI::getChecksumSeq(const Current&) const
 {
-    ByteSeqSeq checksums(256);
+    ByteSeqSeq checksums(NumPartitions);
 
-    for(int node = 0; node < 256; ++node)
+    for(int part = 0; part < NumPartitions; ++part)
     {
-	checksums[node] = _tree0.nodes[node].checksum;
+	checksums[part] = _tree0.nodes[part].checksum;
     }
 
     return checksums;
@@ -76,9 +96,9 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
 	return ByteSeq();
     }
 
-    if(num > 256 * 1024)
+    if(num > _maxReadSize)
     {
-	num = 256 * 1024;
+	num = _maxReadSize;
     }
 
 #ifdef _WIN32

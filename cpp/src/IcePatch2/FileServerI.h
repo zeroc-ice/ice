@@ -20,7 +20,7 @@ class FileServerI : public FileServer
 {
 public:
 
-    FileServerI(const std::string&, const FileInfoSeq&);
+    FileServerI(const Ice::CommunicatorPtr& communicator, const std::string&, const FileInfoSeq&);
 
     FileInfoSeq getFileInfoSeq(Ice::Int, const Ice::Current&) const;
 
@@ -35,6 +35,8 @@ private:
     const std::string _dataDir;
     const std::string _dataDirWithSlash;
     const FileTree0 _tree0;
+
+    int _maxReadSize; // Max number of bytes returned per RPC.
 };
 
 }

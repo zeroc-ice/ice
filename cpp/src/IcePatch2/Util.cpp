@@ -959,18 +959,16 @@ getFileInfoSeqInt(const string& path, int compress, GetFileInfoSeqCB* cb, FileIn
     return true;
 }
 
-bool
+void
 IcePatch2::getFileInfoSeq(const string& path, int compress, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
 {
     if(!getFileInfoSeqInt(path, compress, cb, infoSeq))
     {
-	return false;
+	return;
     }
 
     sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
-
-    return true;
 }
 
 void

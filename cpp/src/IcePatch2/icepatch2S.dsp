@@ -13,7 +13,7 @@ CFG=icepatch2S - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icepatch2S.mak" CFG="IcePatch2S - Win32 Debug"
+!MESSAGE NMAKE /f "icepatch2S.mak" CFG="icepatch2S - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -116,6 +116,10 @@ SOURCE=.\Server.cpp
 # Begin Source File
 
 SOURCE=.\FileServerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\icepatch2\Util.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

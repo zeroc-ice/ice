@@ -211,10 +211,7 @@ main(int argc, char* argv[])
 	if(fileSeq.empty())
 	{
 	    CalcCB calcCB;
-	    if(!getFileInfoSeq(".", compress, verbose ? &calcCB : 0, infoSeq))
-	    {
-		return EXIT_FAILURE;
-	    }
+	    getFileInfoSeq(".", compress, verbose ? &calcCB : 0, infoSeq);
 	}
 	else
 	{
@@ -225,10 +222,7 @@ main(int argc, char* argv[])
 		FileInfoSeq partialInfoSeq;
 
 		CalcCB calcCB;
-		if(!getFileInfoSeq(*p, compress, verbose ? &calcCB : 0, partialInfoSeq))
-		{
-		    return EXIT_FAILURE;
-		}
+		getFileInfoSeq(*p, compress, verbose ? &calcCB : 0, partialInfoSeq);
 
 		FileInfoSeq newInfoSeq;
 		newInfoSeq.reserve(infoSeq.size());

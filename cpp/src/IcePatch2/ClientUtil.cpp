@@ -305,10 +305,7 @@ IcePatch2::Patcher::prepare()
 	}
 
 	PatcherGetFileInfoSeqCB cb(_feedback);
-	if(!getFileInfoSeq(".", 0, &cb, _localFiles))
-	{
-	    return false;
-	}
+	getFileInfoSeq(".", 0, &cb, _localFiles);
 
 	if(!_feedback->checksumEnd())
 	{
@@ -329,7 +326,7 @@ IcePatch2::Patcher::prepare()
 	}
 	
 	ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
-	if(checksumSeq.size() != 256)
+	if(checksumSeq.size() != NumPartitions)
 	{
 	    throw string("server returned illegal value");
 	}
@@ -337,7 +334,7 @@ IcePatch2::Patcher::prepare()
 	AMIGetFileInfoSeqPtr curCB;
 	AMIGetFileInfoSeqPtr nxtCB;
 
-	for(int node0 = 0; node0 < 256; ++node0)
+	for(int node0 = 0; node0 < NumPartitions; ++node0)
 	{
 	    if(tree0.nodes[node0].checksum != checksumSeq[node0])
 	    {
@@ -360,9 +357,9 @@ IcePatch2::Patcher::prepare()
 		{
 		    ++node0Nxt;
 		}
-		while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
+		while(node0Nxt < NumPartitions && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
 
-		if(node0Nxt < 256)
+		if(node0Nxt < NumPartitions)
 		{
 		    _serverNoCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
 		}
@@ -387,7 +384,7 @@ IcePatch2::Patcher::prepare()
 			       FileInfoLess());
 	    }
 
-	    if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
+	    if(!_feedback->fileListProgress((node0 + 1) * 100 / NumPartitions))
 	    {
 		return false;
 	    }
