@@ -207,17 +207,17 @@ Slice::Builtin::typeId() const
 	}
 	case KindObject:
 	{
-	    return "Object";
+	    return "::Ice::Object";
 	    break;
 	}
 	case KindObjectProxy:
 	{
-	    return "Object*";
+	    return "::Ice::Object*";
 	    break;
 	}
 	case KindLocalObject:
 	{
-	    return "LocalObject";
+	    return "::Ice::LocalObject";
 	    break;
 	}
     }
