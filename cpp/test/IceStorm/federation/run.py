@@ -24,38 +24,43 @@ import TestUtil
 name = os.path.join("IceStorm", "federation")
 testdir = os.path.join(toplevel, "test", name)
 
-iceStorm = os.path.join(toplevel, "bin", "icestorm")
+iceBox = os.path.join(toplevel, "bin", "icebox")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
-iceStormEndpoint=' --IceStorm.TopicManager.Endpoints="default -p 12345"'
+iceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
+iceStormService=" --IceBox.Service.IceStorm=IceStormService:create" + \
+                ' --IceStorm.TopicManager.Endpoints="default -p 12346"'
+iceStormReference=' --IceStorm.TopicManager="IceStorm.TopicManager: default -p 12346"'
 
-print "starting icestorm...",
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
-command = iceStorm + updatedClientServerOptions + iceStormEndpoint + " --IceStorm.DBEnvName=" + dbEnvName
-iceStormPipe = os.popen(command)
-TestUtil.getServerPid(iceStormPipe)
-TestUtil.getAdapterReady(iceStormPipe)
+iceStormDBEnv=" --IceBox.DBEnvName.IceStorm=" + dbEnvName
+
+print "starting icestorm service...",
+command = iceBox + updatedClientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+iceBoxPipe = os.popen(command)
+TestUtil.getServerPid(iceBoxPipe)
+TestUtil.getAdapterReady(iceBoxPipe)
 print "ok"
 
 print "creating topics...",
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed1"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "create fed1"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed2"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "create fed2"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "create fed3"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "create fed3"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -64,13 +69,13 @@ if iceStormAdminStatus:
 print "ok"
 
 print "linking topics...",
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed1 fed2 10"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "link fed1 fed2 10"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed2 fed3 5"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "link fed2 fed3 5"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -92,7 +97,7 @@ except:
     pass # Ignore errors if the lockfile is not present
 
 print "starting subscriber...",
-command = subscriber + updatedClientServerOptions + iceStormEndpoint + r' ' + subscriberLockFile
+command = subscriber + updatedClientServerOptions + iceStormReference + r' ' + subscriberLockFile
 subscriberPipe = os.popen(command)
 TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
@@ -110,7 +115,7 @@ print "ok"
 # causes subscriber to terminate.
 #
 print "starting publisher...",
-command = publisher + updatedClientOptions + iceStormEndpoint
+command = publisher + updatedClientOptions + iceStormReference
 publisherPipe = os.popen(command)
 print "ok"
 
@@ -135,19 +140,19 @@ print "ok"
 # Destroy the topic.
 #
 print "destroying topics...",
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed1"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "destroy fed1"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed2"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "destroy fed2"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "destroy fed3"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "destroy fed3"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -159,7 +164,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm...",
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "shutdown"'
+command = iceStormAdmin + updatedClientOptions + iceStormReference + r' -e "shutdown"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -167,7 +172,7 @@ if iceStormAdminStatus:
     sys.exit(1)
 print "ok"
 
-iceStormStatus = iceStormPipe.close()
+iceStormStatus = iceBoxPipe.close()
 subscriberStatus = subscriberPipe.close()
 publisherStatus = publisherPipe.close()
 

@@ -79,19 +79,19 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     createLock(lockfile);
 
-    const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
-    string managerEndpoints = properties->getProperty(managerEndpointsProperty);
-    if(managerEndpoints.empty())
+    const char* managerReferenceProperty = "IceStorm.TopicManager";
+    string managerReference = properties->getProperty(managerReferenceProperty);
+    if(managerReference.empty())
     {
-	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
+	cerr << argv[0] << ": property `" << managerReferenceProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy("TopicManager:" + managerEndpoints);
+    ObjectPrx base = communicator->stringToProxy(managerReference);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << argv[0] << ": `" << managerEndpoints << "' is not running" << endl;
+	cerr << argv[0] << ": `" << managerReference << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 
