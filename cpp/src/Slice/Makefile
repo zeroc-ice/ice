@@ -28,7 +28,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DYYDEBUG=1
+CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
