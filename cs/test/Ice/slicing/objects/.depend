@@ -1,7 +1,7 @@
-generated/Test.cs: ./Test.ice
-generated/Forward.cs: ./Forward.ice
-generated/ClientPrivate.cs: ./ClientPrivate.ice Test.ice
-generated/ServerPrivate.cs: ./ServerPrivate.ice Test.ice
-generated/TestAMD.cs: ./TestAMD.ice
-generated/Forward.cs: ./Forward.ice
-generated/ServerPrivateAMD.cs: ./ServerPrivateAMD.ice TestAMD.ice
+Test.cs: ./Test.ice
+Forward.cs: ./Forward.ice
+ClientPrivate.cs: ./ClientPrivate.ice Test.ice
+ServerPrivate.cs: ./ServerPrivate.ice Test.ice
+TestAMD.cs: ./TestAMD.ice
+Forward.cs: ./Forward.ice
+ServerPrivateAMD.cs: ./ServerPrivateAMD.ice TestAMD.ice

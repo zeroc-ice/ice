@@ -1,1 +1,1 @@
-generated/Throughput.cs: ./Throughput.ice
+Throughput.cs: ./Throughput.ice

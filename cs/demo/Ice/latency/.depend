@@ -1,1 +1,1 @@
-generated/Latency.cs: ./Latency.ice
+Latency.cs: ./Latency.ice
