@@ -11,7 +11,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceSSL/OpenSSLUtils.h>
 #include <IceSSL/OpenSSLPluginI.h>
-#include <IceSSL/SslConnectionOpenSSL.h>
 #include <openssl/err.h>
 
 using namespace std;
@@ -517,11 +516,11 @@ verifyCallback(int ok, X509_STORE_CTX* ctx)
     SSL* sslConnection = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
     assert(sslConnection != 0);
 
-    IceSSL::OpenSSL::ConnectionPtr connection = IceSSL::OpenSSL::Connection::getConnection(sslConnection);
-    assert(connection != 0);
+    IceSSL::SslTransceiverPtr transceiver = IceSSL::SslTransceiver::getTransceiver(sslConnection);
+    assert(transceiver != 0);
 
     // Call the connection, get it to perform the verification.
-    return connection->verifyCertificate(ok, ctx);
+    return transceiver->verifyCertificate(ok, ctx);
 }
 
 }

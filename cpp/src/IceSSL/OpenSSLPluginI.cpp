@@ -22,7 +22,7 @@
 #include <IceSSL/ConfigParser.h>
 #include <IceSSL/OpenSSLJanitors.h>
 #include <IceSSL/OpenSSLUtils.h>
-#include <IceSSL/SslConnectionOpenSSL.h>
+#include <IceSSL/SslTransceiver.h>
 #include <IceSSL/DefaultCertificateVerifier.h>
 #include <IceSSL/SingleCertificateVerifier.h>
 #include <IceSSL/SslEndpoint.h>
@@ -152,8 +152,8 @@ IceSSL::SslLockKeeper::~SslLockKeeper()
 //
 // PluginI implementation
 //
-IceSSL::ConnectionPtr
-IceSSL::OpenSSL::PluginI::createConnection(ContextType connectionType, int socket)
+IceSSL::SslTransceiverPtr
+IceSSL::OpenSSL::PluginI::createTransceiver(ContextType connectionType, int socket)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
@@ -172,18 +172,18 @@ IceSSL::OpenSSL::PluginI::createConnection(ContextType connectionType, int socke
         configure(connectionType);
     }
 
-    IceSSL::ConnectionPtr connection;
+    IceSSL::SslTransceiverPtr transceiver;
 
     if(connectionType == Client)
     {
-        connection = _clientContext.createConnection(socket, this);
+        transceiver = _clientContext.createTransceiver(socket, this);
     }
     else if(connectionType == Server)
     {
-        connection = _serverContext.createConnection(socket, this);
+        transceiver = _serverContext.createTransceiver(socket, this);
     }
 
-    return connection;
+    return transceiver;
 }
 
 bool

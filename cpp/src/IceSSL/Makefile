@@ -27,15 +27,13 @@ OBJS		= Plugin.o \
                   SslConnector.o \
                   SslAcceptor.o \
 		  SslTransceiver.o \
+		  SslClientTransceiver.o \
+		  SslServerTransceiver.o \
                   BaseCerts.o \
                   CertificateAuthority.o \
                   CertificateDesc.o \
                   ConfigParser.o \
                   ConfigParserErrorReporter.o \
-                  SslConnection.o \
-                  SslConnectionOpenSSLClient.o \
-                  SslConnectionOpenSSL.o \
-                  SslConnectionOpenSSLServer.o \
                   ContextOpenSSL.o \
                   ContextOpenSSLClient.o \
                   ContextOpenSSLServer.o \

@@ -16,21 +16,16 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class Context;
 typedef IceInternal::Handle<Context> ContextPtr;
-
-}
 
 }
 
 namespace IceInternal
 {
 
-void incRef(::IceSSL::OpenSSL::Context*);
-void decRef(::IceSSL::OpenSSL::Context*);
+void incRef(::IceSSL::Context*);
+void decRef(::IceSSL::Context*);
 
 }
 

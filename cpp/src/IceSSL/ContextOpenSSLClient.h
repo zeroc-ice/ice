@@ -8,36 +8,31 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONTEXT_OPENSSL_CLIENT_H
-#define ICE_SSL_CONTEXT_OPENSSL_CLIENT_H
+#ifndef ICESSL_CLIENT_CONTEXT_H
+#define ICESSL_CLIENT_CONTEXT_H
 
 #include <IceSSL/ContextOpenSSL.h>
 
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
-
 class ClientContext : public Context
 {
 public:
 
-    virtual void configure(const IceSSL::GeneralConfig&,
-                           const IceSSL::CertificateAuthority&,
-                           const IceSSL::BaseCertificates&);
+    virtual void configure(const GeneralConfig&,
+                           const CertificateAuthority&,
+                           const BaseCertificates&);
 
     // Takes a socket fd as the first parameter.
-    virtual IceSSL::ConnectionPtr createConnection(int, const IceSSL::PluginBaseIPtr&);
+    virtual SslTransceiverPtr createTransceiver(int, const PluginBaseIPtr&);
 
 protected:
 
-    ClientContext(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
+    ClientContext(const TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
 
-    friend class IceSSL::OpenSSL::PluginI;
+    friend class OpenSSL::PluginI;
 };
-
-}
 
 }
 

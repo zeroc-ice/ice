@@ -8,15 +8,19 @@
 //
 // **********************************************************************
 
-#include <Ice/Network.h>
 #include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
+#include <Ice/Buffer.h>
+#include <Ice/Network.h>
+#include <IceSSL/OpenSSL.h>
+#include <IceSSL/PluginBaseI.h>
+#include <IceSSL/TraceLevels.h>
+
 #include <Ice/LocalException.h>
 #include <IceSSL/OpenSSLUtils.h>
-#include <IceSSL/OpenSSL.h>
 #include <IceSSL/Exception.h>
 #include <IceSSL/OpenSSLJanitors.h>
-#include <IceSSL/SslConnectionOpenSSLServer.h>
-#include <IceSSL/TraceLevels.h>
+#include <IceSSL/SslServerTransceiver.h>
 
 #include <sstream>
 
@@ -24,194 +28,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-//////////////////////////////////////
-////////// ServerConnection //////////
-//////////////////////////////////////
-
 //
 // Public Methods
 //
 
-// Note: I would use a using directive of the form:
-//       using IceSSL::CertificateVerifierPtr;
-//       but unfortunately, it appears that this is not properly picked up.
-//
-
-IceSSL::OpenSSL::ServerConnection::ServerConnection(const IceSSL::CertificateVerifierPtr& certificateVerifier,
-                                                    SSL* connection,
-                                                    const PluginBaseIPtr& plugin) :
-    Connection(certificateVerifier, connection, plugin)
+void
+IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
 {
-    assert(_sslConnection != 0);
+    assert(_fd != INVALID_SOCKET);
 
-    // Set the Accept Connection state for this connection.
-    SSL_set_accept_state(_sslConnection);
-}
-
-IceSSL::OpenSSL::ServerConnection::~ServerConnection()
-{
-}
-
-int
-IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
-{
-    assert(_sslConnection != 0);
-
-    int retCode = SSL_is_init_finished(_sslConnection);
-    
-    while(!retCode)
-    {
-        _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
-
-        if(_initWantWrite)
-        {
-            int i = writeSelect(timeout);
-
-            if(i == 0)
-            {
-                cerr << "-" << flush;
-                return 0;
-            }
-
-            _initWantWrite = 0;
-        }
-        else
-        {
-            int i = readSelect(_readTimeout);
-
-            if(i == 0)
-            {
-                cerr << "-" << flush;
-                return 0;
-            }
-        }
-
-        int result = accept();
-
-        // We're doing an Accept and we don't get a retry on the socket.
-        if((result <= 0) && (BIO_sock_should_retry(result) == 0))
-        {
-            // Socket can't retry - bad scene, find out why.
-            long verifyError = SSL_get_verify_result(_sslConnection);
-
-            if(verifyError != X509_V_OK)
-            {
-                // Flag the connection for shutdown, let the
-                // usual initialization take care of it.
-
-                _phase = Shutdown;
-
-                return 0;
-            }
-            else
-            {
-                ProtocolException protocolEx(__FILE__, __LINE__);
-
-                protocolEx.message = "encountered an ssl protocol violation during handshake\n";
-                protocolEx.message += sslGetErrors();
-
-                throw protocolEx;
-            }
-        }
-
-        // Find out what the error was (if any).
-        switch(getLastError())
-        {
-            case SSL_ERROR_WANT_WRITE:
-            {
-                _initWantWrite = 1;
-                break;
-            }
-
-            case SSL_ERROR_WANT_READ:
-            case SSL_ERROR_NONE:
-            case SSL_ERROR_WANT_X509_LOOKUP:
-            {
-                // Do nothing, life is good!
-                break;
-            }
-
-            case SSL_ERROR_SYSCALL:
-            {
-                // This is a SOCKET_ERROR, but we don't use
-                // this define here as OpenSSL doesn't refer
-                // to it as a SOCKET_ERROR (but that's what it is
-                // if you look at their code).
-                if(result == -1)
-                {
-                    if(interrupted())
-                    {
-                        break;
-                    }
-
-                    if(wouldBlock())
-                    {
-                        readSelect(_readTimeout);
-                        break;
-                    }
-
-                    if(connectionLost())
-                    {
-                        ConnectionLostException ex(__FILE__, __LINE__);
-                        ex.error = getSocketErrno();
-                        throw ex;
-                    }
-
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
-                }
-                else
-                {
-                    //
-                    // NOTE: Should this be ConnectFailedException like in the Client?
-                    //
-
-                    ProtocolException protocolEx(__FILE__, __LINE__);
-
-                    // Protocol Error: Unexpected EOF
-                    protocolEx.message = "encountered an eof during handshake that violates the ssl protocol\n";
-                    protocolEx.message += sslGetErrors();
-
-                    throw protocolEx;
-                }
-            }
-
-            case SSL_ERROR_SSL:
-            {
-                ProtocolException protocolEx(__FILE__, __LINE__);
-
-                protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
-                protocolEx.message += sslGetErrors();
-
-                throw protocolEx;
-            }
-
-            case SSL_ERROR_ZERO_RETURN:
-            {
-		ConnectionLostException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
-            }
-        }
-
-        retCode = SSL_is_init_finished(_sslConnection);
-
-        if(retCode > 0)
-        {
-            _phase = Connected;
-
-            // Init finished, look at the connection information.
-            showConnectionInfo();
-        }
-    }
-
-    return retCode;
-}
-
-int
-IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
-{
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 
@@ -311,7 +136,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 
                     // Protocol Error: Unexpected EOF.
                     protocolEx.message = "encountered an EOF that violates the ssl protocol\n";
-                    protocolEx.message += sslGetErrors();
+                    protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
 
                     throw protocolEx;
                 }
@@ -322,7 +147,7 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                 ProtocolException protocolEx(__FILE__, __LINE__);
 
                 protocolEx.message = "encountered a violation of the ssl protocol\n";
-                protocolEx.message += sslGetErrors();
+                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
 
                 throw protocolEx;
             }
@@ -335,8 +160,163 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
             }
         }
     }
+}
 
-    return totalBytesWritten;
+int
+IceSSL::SslServerTransceiver::handshake(int timeout)
+{
+    assert(_sslConnection != 0);
+
+    int retCode = SSL_is_init_finished(_sslConnection);
+    
+    while(!retCode)
+    {
+        _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
+
+        if(_initWantWrite)
+        {
+            int i = writeSelect(timeout);
+
+            if(i == 0)
+            {
+                cerr << "-" << flush;
+                return 0;
+            }
+
+            _initWantWrite = 0;
+        }
+        else
+        {
+            int i = readSelect(_readTimeout);
+
+            if(i == 0)
+            {
+                cerr << "-" << flush;
+                return 0;
+            }
+        }
+
+        int result = accept();
+
+        // We're doing an Accept and we don't get a retry on the socket.
+        if((result <= 0) && (BIO_sock_should_retry(result) == 0))
+        {
+            // Socket can't retry - bad scene, find out why.
+            long verifyError = SSL_get_verify_result(_sslConnection);
+
+            if(verifyError != X509_V_OK)
+            {
+                // Flag the connection for shutdown, let the
+                // usual initialization take care of it.
+
+                _phase = Shutdown;
+
+                return 0;
+            }
+            else
+            {
+                ProtocolException protocolEx(__FILE__, __LINE__);
+
+                protocolEx.message = "encountered an ssl protocol violation during handshake\n";
+                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+
+                throw protocolEx;
+            }
+        }
+
+        // Find out what the error was (if any).
+        switch(getLastError())
+        {
+            case SSL_ERROR_WANT_WRITE:
+            {
+                _initWantWrite = 1;
+                break;
+            }
+
+            case SSL_ERROR_WANT_READ:
+            case SSL_ERROR_NONE:
+            case SSL_ERROR_WANT_X509_LOOKUP:
+            {
+                // Do nothing, life is good!
+                break;
+            }
+
+            case SSL_ERROR_SYSCALL:
+            {
+                // This is a SOCKET_ERROR, but we don't use
+                // this define here as OpenSSL doesn't refer
+                // to it as a SOCKET_ERROR (but that's what it is
+                // if you look at their code).
+                if(result == -1)
+                {
+                    if(interrupted())
+                    {
+                        break;
+                    }
+
+                    if(wouldBlock())
+                    {
+                        readSelect(_readTimeout);
+                        break;
+                    }
+
+                    if(connectionLost())
+                    {
+                        ConnectionLostException ex(__FILE__, __LINE__);
+                        ex.error = getSocketErrno();
+                        throw ex;
+                    }
+
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
+                }
+                else
+                {
+                    //
+                    // NOTE: Should this be ConnectFailedException like in the Client?
+                    //
+
+                    ProtocolException protocolEx(__FILE__, __LINE__);
+
+                    // Protocol Error: Unexpected EOF
+                    protocolEx.message = "encountered an eof during handshake that violates the ssl protocol\n";
+                    protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+
+                    throw protocolEx;
+                }
+            }
+
+            case SSL_ERROR_SSL:
+            {
+                ProtocolException protocolEx(__FILE__, __LINE__);
+
+                protocolEx.message = "encountered a violation of the ssl protocol during handshake\n";
+                protocolEx.message += IceSSL::OpenSSL::sslGetErrors();
+
+                throw protocolEx;
+            }
+
+            case SSL_ERROR_ZERO_RETURN:
+            {
+		ConnectionLostException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
+            }
+        }
+
+        retCode = SSL_is_init_finished(_sslConnection);
+
+        if(retCode > 0)
+        {
+            _phase = Connected;
+
+            // Init finished, look at the connection information.
+            showConnectionInfo();
+        }
+    }
+
+    return retCode;
 }
 
 //
@@ -344,12 +324,12 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
 //
 
 void
-IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
+IceSSL::SslServerTransceiver::showConnectionInfo()
 {
     // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
     if((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
     {
-        BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
+        IceSSL::OpenSSL::BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();
 
         showCertificateChain(bio);
@@ -365,3 +345,20 @@ IceSSL::OpenSSL::ServerConnection::showConnectionInfo()
         showSessionInfo(bio);
     }
 }
+
+// Note: I would use a using directive of the form:
+//       using IceSSL::CertificateVerifierPtr;
+//       but unfortunately, it appears that this is not properly picked up.
+//
+
+IceSSL::SslServerTransceiver::SslServerTransceiver(const PluginBaseIPtr& plugin,
+                                                   SOCKET fd,
+                                                   const IceSSL::OpenSSL::CertificateVerifierPtr& certVerifier,
+                                                   SSL* sslConnection) :
+    SslTransceiver(plugin, fd, certVerifier, sslConnection)
+{
+    // Set the Accept Connection state for this connection.
+    SSL_set_accept_state(sslConnection);
+}
+
+

@@ -8,24 +8,24 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONNECTION_F_H
-#define ICE_SSL_CONNECTION_F_H
+#ifndef ICE_SSL_TRANSEIVER_OPENSSL_F_H
+#define ICE_SSL_TRANSEIVER_OPENSSL_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceSSL
 {
 
-class Connection;
-typedef IceInternal::Handle<Connection> ConnectionPtr;
+class SslTransceiver;
+typedef IceInternal::Handle<SslTransceiver> SslTransceiverPtr;
 
 }
 
 namespace IceInternal
 {
 
-void incRef(::IceSSL::Connection*);
-void decRef(::IceSSL::Connection*);
+void incRef(::IceSSL::SslTransceiver*);
+void decRef(::IceSSL::SslTransceiver*);
 
 }
 

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONTEXT_OPENSSL_H
-#define ICE_SSL_CONTEXT_OPENSSL_H
+#ifndef ICESSL_CONTEXT_H
+#define ICESSL_CONTEXT_H
 
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
@@ -21,8 +21,7 @@
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-#include <IceSSL/SslConnectionF.h>
-#include <IceSSL/SslConnectionOpenSSLF.h>
+#include <IceSSL/SslTransceiver.h>
 #include <IceSSL/ContextOpenSSLF.h>
 #include <IceSSL/RSAPublicKey.h>
 #include <IceSSL/RSAKeyPairF.h>
@@ -35,6 +34,8 @@ namespace OpenSSL
 
 class PluginI;
 
+}
+
 class Context : public IceUtil::Shared
 {
 public:
@@ -43,7 +44,7 @@ public:
 
     bool isConfigured();
 
-    virtual void setCertificateVerifier(const CertificateVerifierPtr&);
+    virtual void setCertificateVerifier(const OpenSSL::CertificateVerifierPtr&);
 
     virtual void addTrustedCertificateBase64(const std::string&);
 
@@ -53,31 +54,31 @@ public:
 
     virtual void setRSAKeys(const Ice::ByteSeq&, const Ice::ByteSeq&);
 
-    virtual void configure(const IceSSL::GeneralConfig&,
-                           const IceSSL::CertificateAuthority&,
-                           const IceSSL::BaseCertificates&);
+    virtual void configure(const GeneralConfig&,
+                           const CertificateAuthority&,
+                           const BaseCertificates&);
 
     // Takes a socket fd as the first parameter.
-    virtual ::IceSSL::ConnectionPtr createConnection(int, const IceSSL::PluginBaseIPtr&) = 0;
+    virtual SslTransceiverPtr createTransceiver(int, const PluginBaseIPtr&) = 0;
 
 protected:
 
-    Context(const IceSSL::TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
+    Context(const TraceLevelsPtr&, const Ice::LoggerPtr&, const Ice::PropertiesPtr&);
 
     SSL_METHOD* getSslMethod(SslProtocol);
     void createContext(SslProtocol);
 
     virtual void loadCertificateAuthority(const CertificateAuthority&);
 
-    void setKeyCert(const IceSSL::CertificateDesc&, const std::string&, const std::string&);
+    void setKeyCert(const CertificateDesc&, const std::string&, const std::string&);
 
     void checkKeyCert();
 
-    void addTrustedCertificate(const IceSSL::OpenSSL::RSAPublicKey&);
+    void addTrustedCertificate(const OpenSSL::RSAPublicKey&);
 
-    void addKeyCert(const IceSSL::CertificateFile&, const IceSSL::CertificateFile&);
+    void addKeyCert(const CertificateFile&, const CertificateFile&);
 
-    void addKeyCert(const RSAKeyPair&);
+    void addKeyCert(const OpenSSL::RSAKeyPair&);
 
     void addKeyCert(const Ice::ByteSeq&, const Ice::ByteSeq&);
 
@@ -85,13 +86,13 @@ protected:
 
     SSL* createSSLConnection(int);
 
-    void connectionSetup(const IceSSL::OpenSSL::ConnectionPtr& connection);
+    void transceiverSetup(const SslTransceiverPtr&);
 
     void setCipherList(const std::string&);
 
-    void setDHParams(const IceSSL::BaseCertificates&);
+    void setDHParams(const BaseCertificates&);
 
-    IceSSL::TraceLevelsPtr _traceLevels;
+    TraceLevelsPtr _traceLevels;
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
 
@@ -104,16 +105,12 @@ protected:
     std::string _passphraseRetriesProperty;
     std::string _maxPassphraseRetriesDefault;
 
-    IceSSL::CertificateVerifierPtr _certificateVerifier;
+    OpenSSL::CertificateVerifierPtr _certificateVerifier;
 
     SSL_CTX* _sslContext;
 
     int _maxPassphraseTries;
-
-    friend class IceSSL::OpenSSL::PluginI;
 };
-
-}
 
 }
 

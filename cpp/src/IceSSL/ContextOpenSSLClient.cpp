@@ -11,26 +11,23 @@
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
-#include <IceSSL/SslConnectionOpenSSL.h>
 #include <IceSSL/ContextOpenSSLClient.h>
-#include <IceSSL/SslConnectionOpenSSLClient.h>
+#include <IceSSL/SslClientTransceiver.h>
 #include <IceSSL/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
 
-using IceSSL::ConnectionPtr;
-
 void
-IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
-                                          const CertificateAuthority& certificateAuthority,
-                                          const BaseCertificates& baseCertificates)
+IceSSL::ClientContext::configure(const GeneralConfig& generalConfig,
+                                 const CertificateAuthority& certificateAuthority,
+                                 const BaseCertificates& baseCertificates)
 {
     Context::configure(generalConfig, certificateAuthority, baseCertificates);
 
     loadCertificateAuthority(certificateAuthority);
 
-    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+    if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
         ostringstream s;
 
@@ -52,25 +49,26 @@ IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
     }
 }
 
-IceSSL::ConnectionPtr
-IceSSL::OpenSSL::ClientContext::createConnection(int socket, const PluginBaseIPtr& plugin)
+IceSSL::SslTransceiverPtr
+IceSSL::ClientContext::createTransceiver(int socket, const PluginBaseIPtr& plugin)
 {
     if(_sslContext == 0)
     {
-        IceSSL::OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
+        OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
         throw contextEx;
     }
 
-    ConnectionPtr connection = new ClientConnection(_certificateVerifier, createSSLConnection(socket), plugin);
+    SSL* ssl = createSSLConnection(socket);
+    SslTransceiverPtr transceiver = new SslClientTransceiver(plugin, socket, _certificateVerifier, ssl);
 
-    connectionSetup(connection);
+    transceiverSetup(transceiver);
 
-    return connection;
+    return transceiver;
 }
 
-IceSSL::OpenSSL::ClientContext::ClientContext(const IceSSL::TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
-                                              const PropertiesPtr& properties) :
+IceSSL::ClientContext::ClientContext(const TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
+                                     const PropertiesPtr& properties) :
     Context(traceLevels, logger, properties)
 {
     _rsaPrivateKeyProperty = "IceSSL.Client.Overrides.RSA.PrivateKey";

@@ -16,18 +16,18 @@
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/PluginBaseIF.h>
-#include <IceSSL/SslConnectionF.h>
 #include <IceSSL/CertificateVerifierF.h>
 #include <IceSSL/TraceLevelsF.h>
+#include <IceSSL/SslTransceiverF.h>
 
 namespace IceSSL
 {
 
-class PluginBaseI : public IceSSL::Plugin
+class PluginBaseI : public Plugin
 {
 public:
 
-    virtual ConnectionPtr createConnection(ContextType, int) = 0;
+    virtual SslTransceiverPtr createTransceiver(ContextType, int) = 0;
 
     virtual bool isConfigured(ContextType) = 0;
 

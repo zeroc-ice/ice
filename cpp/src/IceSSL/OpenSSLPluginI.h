@@ -42,7 +42,7 @@ public:
     PluginI(const IceInternal::ProtocolPluginFacadePtr&);
     ~PluginI();
     
-    virtual IceSSL::ConnectionPtr createConnection(ContextType, int);
+    virtual IceSSL::SslTransceiverPtr createTransceiver(ContextType, int);
 
     virtual bool isConfigured(ContextType);
     virtual void configure();
@@ -78,8 +78,8 @@ public:
 
 private:
 
-    ServerContext _serverContext;
-    ClientContext _clientContext;
+    IceSSL::ServerContext _serverContext;
+    IceSSL::ClientContext _clientContext;
     
     // Mutex to ensure synchronization of calls to configure
     // the contexts and calls to create connections.

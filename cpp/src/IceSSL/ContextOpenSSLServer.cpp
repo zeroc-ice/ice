@@ -11,9 +11,8 @@
 #include <Ice/Logger.h>
 
 #include <IceSSL/Exception.h>
-#include <IceSSL/SslConnectionOpenSSL.h>
 #include <IceSSL/ContextOpenSSLServer.h>
-#include <IceSSL/SslConnectionOpenSSLServer.h>
+#include <IceSSL/SslServerTransceiver.h>
 #include <IceSSL/OpenSSLUtils.h>
 #include <IceSSL/TraceLevels.h>
 
@@ -21,9 +20,9 @@ using namespace std;
 using namespace Ice;
 
 void
-IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
-                                          const CertificateAuthority& certificateAuthority,
-                                          const BaseCertificates& baseCertificates)
+IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
+                                 const CertificateAuthority& certificateAuthority,
+                                 const BaseCertificates& baseCertificates)
 {
     Context::configure(generalConfig, certificateAuthority, baseCertificates);
 
@@ -51,7 +50,7 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
                                    reinterpret_cast<const unsigned char *>(connectionContext.c_str()),
                                    connectionContext.size());
 
-    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+    if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
         ostringstream s;
 
@@ -71,29 +70,30 @@ IceSSL::OpenSSL::ServerContext::configure(const GeneralConfig& generalConfig,
     }
 }
 
-IceSSL::ConnectionPtr 
-IceSSL::OpenSSL::ServerContext::createConnection(int socket, const PluginBaseIPtr& plugin)
+IceSSL::SslTransceiverPtr 
+IceSSL::ServerContext::createTransceiver(int socket, const PluginBaseIPtr& plugin)
 {
     if(_sslContext == 0)
     {
-        ContextNotConfiguredException contextEx(__FILE__, __LINE__);
+        OpenSSL::ContextNotConfiguredException contextEx(__FILE__, __LINE__);
 
         throw contextEx;
     }
 
-    ConnectionPtr connection = new ServerConnection(_certificateVerifier, createSSLConnection(socket), plugin);
+    SSL* ssl = createSSLConnection(socket);
+    SslTransceiverPtr transceiver = new SslServerTransceiver(plugin, socket, _certificateVerifier, ssl);
 
-    connectionSetup(connection);
+    transceiverSetup(transceiver);
 
-    return connection;
+    return transceiver;
 }
 
 //
 // Protected
 //
 
-IceSSL::OpenSSL::ServerContext::ServerContext(const IceSSL::TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
-                                              const PropertiesPtr& properties) :
+IceSSL::ServerContext::ServerContext(const TraceLevelsPtr& traceLevels, const LoggerPtr& logger,
+                                     const PropertiesPtr& properties) :
     Context(traceLevels, logger, properties)
 {
     _rsaPrivateKeyProperty = "IceSSL.Server.Overrides.RSA.PrivateKey";
@@ -106,7 +106,7 @@ IceSSL::OpenSSL::ServerContext::ServerContext(const IceSSL::TraceLevelsPtr& trac
 }
 
 void
-IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& certAuth)
+IceSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& certAuth)
 {
     assert(_sslContext != 0);
 
@@ -123,10 +123,10 @@ IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthor
 
     if(certNames == 0)
     {
-        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        if(_traceLevels->security >= SECURITY_WARNINGS)
         {
             string errorString = "unable to load certificate authorities certificate names from " + caFile + "\n";
-            errorString += sslGetErrors();
+            errorString += OpenSSL::sslGetErrors();
             _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
         }
     }
