@@ -296,7 +296,7 @@ if not skipDocs:
 # Get Ice version.
 #
 config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION \"(.*)\"", config.read()).group(1)
+version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 #
 # Create archives.
