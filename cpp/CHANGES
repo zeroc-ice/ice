@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added FreezeScript, which consists of the tools dumpdb and
+  transformdb for inspecting and migrating Freeze databases,
+  respectively.
+
 - The IceStorm server now uses a single database for all topics,
   which makes topic creation much faster.
 
