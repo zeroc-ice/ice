@@ -37,13 +37,14 @@ public:
 
     void add(const Object_ptr&, const std::string&);
     void remove(const std::string&);
-    std::string identity(const Object_ptr&);
-    Object_ptr object(const std::string&);
-    Object_ptr object(const Object_prx&);
-    Object_prx proxy(const std::string&);
+    Object_ptr find(const std::string&);
+
+    std::string objectToIdentity(const Object_ptr&);
+    Object_ptr proxyToObject(const Object_prx&);
+
+    Object_prx createProxy(const std::string&);
 
     ::__Ice::Instance_ptr __instance() const;
-    Object_ptr __findServant(const std::string&) const;
 
 private:
 
