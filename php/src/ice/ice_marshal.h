@@ -15,6 +15,11 @@
 namespace IcePHP
 {
 
+//
+// The object map associates a Zend object handle to an Ice object.
+//
+typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
+
 class Marshaler;
 typedef IceUtil::Handle<Marshaler> MarshalerPtr;
 
@@ -27,8 +32,8 @@ public:
     static MarshalerPtr createMemberMarshaler(const std::string&, const Slice::TypePtr& TSRMLS_DC);
     static MarshalerPtr createExceptionMarshaler(const Slice::ExceptionPtr& TSRMLS_DC);
 
-    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
-    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
+    virtual bool marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap& TSRMLS_DC) = 0;
+    virtual bool unmarshal(zval*, const Ice::InputStreamPtr& TSRMLS_DC) = 0;
 
     virtual void destroy() = 0;
 
@@ -45,34 +50,6 @@ typedef std::map<std::string, MarshalerPtr> MarshalerMap;
 // Associates a scoped type id to its factory.
 //
 typedef std::map<std::string, zval*> ObjectFactoryMap;
-
-//
-// We must subclass BasicStream in order to associate some information with it.
-//
-class PHPStream : public IceInternal::BasicStream
-{
-public:
-    PHPStream(IceInternal::Instance*);
-    ~PHPStream();
-
-    //
-    // The object map associates a Zend object handle to an Ice object.
-    //
-    typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
-
-    //
-    // Types for the patch list.
-    //
-    struct PatchInfo
-    {
-        zend_class_entry* ce; // The formal type
-        zval* zv;             // The destination zval
-    };
-    typedef std::vector<PatchInfo*> PatchInfoList;
-
-    ObjectMap* objectMap;
-    PatchInfoList* patchList;
-};
 
 //
 // This class is raised as an exception when object marshaling needs to be aborted.

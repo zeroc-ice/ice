@@ -81,7 +81,7 @@ namespace IcePHP
 class Operation : public IceUtil::SimpleShared
 {
 public:
-    Operation(const Ice::ObjectPrx&, const string&, const Slice::OperationPtr&, const IceInternal::InstancePtr&
+    Operation(const Ice::ObjectPrx&, const string&, const Slice::OperationPtr&, const Ice::CommunicatorPtr&
               TSRMLS_DC);
     virtual ~Operation();
 
@@ -89,12 +89,12 @@ public:
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
 
 private:
-    void throwUserException(IceInternal::BasicStream& TSRMLS_DC);
+    void throwUserException(Ice::InputStreamPtr& TSRMLS_DC);
 
     Ice::ObjectPrx _proxy;
     string _name; // Local name, not the on-the-wire name
     Slice::OperationPtr _op;
-    IceInternal::InstancePtr _instance;
+    Ice::CommunicatorPtr _communicator;
 #ifdef ZTS
     TSRMLS_D;
 #endif
@@ -126,8 +126,8 @@ private:
 #ifdef ZTS
     TSRMLS_D;
 #endif
-    zval _communicator;
-    IceInternal::InstancePtr _instance;
+    zval _communicatorZval;
+    Ice::CommunicatorPtr _communicator;
     Slice::OperationList _classOps;
     map<string, OperationPtr> _ops;
 };
@@ -1098,8 +1098,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
 }
 
 IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
-                             const IceInternal::InstancePtr& instance TSRMLS_DC) :
-    _proxy(proxy), _name(name), _op(op), _instance(instance), _zendFunction(0)
+                             const Ice::CommunicatorPtr& communicator TSRMLS_DC) :
+    _proxy(proxy), _name(name), _op(op), _communicator(communicator), _zendFunction(0)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -1223,20 +1223,19 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         //
         // Marshal the arguments.
         //
-        PHPStream os(_instance.get());
+        Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
+        ObjectMap objectMap;
         vector<MarshalerPtr>::iterator p;
         for(i = 0, p = _inParams.begin(); p != _inParams.end(); ++i, ++p)
         {
-            if(!(*p)->marshal(*args[i], os TSRMLS_CC))
+            if(!(*p)->marshal(*args[i], os, objectMap TSRMLS_CC))
             {
                 return;
             }
         }
 
-        if(_op->sendsClasses())
-        {
-            os.writePendingObjects();
-        }
+        Ice::ByteSeq params;
+        os->finished(params);
 
         //
         // Populate the context (if necessary).
@@ -1258,15 +1257,15 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         //
         // Invoke the operation. Don't use _name here.
         //
-        PHPStream is(_instance.get());
+        Ice::ByteSeq result;
         bool status;
         if(haveContext)
         {
-            status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b, ctx);
+            status = _proxy->ice_invoke(_op->name(), mode, params, result, ctx);
         }
         else
         {
-            status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b);
+            status = _proxy->ice_invoke(_op->name(), mode, params, result);
         }
 
         //
@@ -1274,10 +1273,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         //
         if(_proxy->ice_isTwoway())
         {
-            //
-            // Reset the input stream's iterator.
-            //
-            is.i = is.b.begin();
+            Ice::InputStreamPtr is = Ice::createInputStream(_communicator, result);
 
             if(status)
             {
@@ -1305,10 +1301,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                         return;
                     }
                 }
-                if(_op->returnsClasses())
-                {
-                    is.readPendingObjects();
-                }
+                is->finished();
             }
             else
             {
@@ -1326,15 +1319,13 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 }
 
 void
-IcePHP::Operation::throwUserException(IceInternal::BasicStream& is TSRMLS_DC)
+IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
 {
     Slice::UnitPtr unit = _op->unit();
 
-    bool usesClasses;
-    is.read(usesClasses);
+    bool usesClasses = is->readBool();
 
-    string id;
-    is.read(id);
+    string id = is->readString();
     while(!id.empty())
     {
         //
@@ -1357,10 +1348,7 @@ IcePHP::Operation::throwUserException(IceInternal::BasicStream& is TSRMLS_DC)
             MAKE_STD_ZVAL(zex);
             if(m->unmarshal(zex, is TSRMLS_CC))
             {
-                if(usesClasses)
-                {
-                    is.readPendingObjects();
-                }
+                is->finished();
                 zend_throw_exception_object(zex TSRMLS_CC);
             }
             else
@@ -1372,8 +1360,8 @@ IcePHP::Operation::throwUserException(IceInternal::BasicStream& is TSRMLS_DC)
         }
         else
         {
-            is.skipSlice();
-            is.read(id);
+            is->skipSlice();
+            id = is->readString();
         }
     }
     //
@@ -1400,11 +1388,10 @@ IcePHP::Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls 
     // symbol table lookup when it needs to decrement the reference count.
     //
     zval* zc = getCommunicatorZval(TSRMLS_C);
-    _communicator = *zc; // This is legal - it simply copies the object's handle
-    Z_OBJ_HT(_communicator)->add_ref(&_communicator TSRMLS_CC);
+    _communicatorZval = *zc; // This is legal - it simply copies the object's handle
+    Z_OBJ_HT(_communicatorZval)->add_ref(&_communicatorZval TSRMLS_CC);
 
-    Ice::CommunicatorPtr communicator = getCommunicator(TSRMLS_C);
-    _instance = IceInternal::getInstance(communicator);
+    _communicator = getCommunicator(TSRMLS_C);
 
     if(cls)
     {
@@ -1420,10 +1407,10 @@ IcePHP::Proxy::~Proxy()
     // be done prior to invoking del_ref(), because the C++ communicator object may
     // be destroyed during this call.
     // 
-    _instance = 0;
+    _communicator = 0;
     _ops.clear();
     _proxy = 0;
-    Z_OBJ_HT(_communicator)->del_ref(&_communicator TSRMLS_CC);
+    Z_OBJ_HT(_communicatorZval)->del_ref(&_communicatorZval TSRMLS_CC);
 }
 
 const Ice::ObjectPrx&
@@ -1452,7 +1439,7 @@ IcePHP::Proxy::getOperation(const string& name)
             string opName = lowerCase(fixIdent((*q)->name()));
             if(n == opName)
             {
-                result = new Operation(_proxy, opName, *q, _instance TSRMLS_CC);
+                result = new Operation(_proxy, opName, *q, _communicator TSRMLS_CC);
                 _ops[opName] = result;
                 break;
             }
