@@ -1016,8 +1016,6 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
 
 IceSSL::SslTransceiver::~SslTransceiver()
 {
-    assert(_fd == INVALID_SOCKET);
-
     if(_sslConnection != 0)
     {
         removeTransceiver(_sslConnection);

@@ -24,7 +24,7 @@ Ice.ConnectionWarnings=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-#Ice.Trace.Network=3
+Ice.Trace.Network=0
 
 #
 # Protocol Tracing
@@ -32,7 +32,7 @@ Ice.ConnectionWarnings=1
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-#Ice.Trace.Protocol=1
+Ice.Trace.Protocol=0
 
 #
 # Security Tracing
@@ -41,7 +41,7 @@ Ice.ConnectionWarnings=1
 # 1 = trace warning messages
 # 2 = config file parsing warnings
 #
-#Ice.Trace.Security=2
+IceSSL.Trace.Security=0
 
 #
 # SSL Configuration File
