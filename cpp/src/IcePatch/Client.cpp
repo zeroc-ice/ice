@@ -336,15 +336,6 @@ IcePatch::Client::run(int argc, char* argv[])
             //
             checkDirectory(dir, _dynamic);
             ByteSeq md5 = getMD5(dir);
-            FileInfo infoMD5 = getFileInfo(dir + ".md5", false);
-            if(infoMD5.type == FileTypeRegular)
-            {
-                md5 = getMD5(dir);
-            }
-            else
-            {
-                md5 = calcMD5(dir, _dynamic);
-            }
 
             if(!_thorough && md5 == topDesc->md5)
             {
@@ -363,7 +354,9 @@ IcePatch::Client::run(int argc, char* argv[])
                 Long total = topDesc->dir->getTotal(md5);
 
                 //
-                // Remove the existing MD5 file.
+                // Remove the existing MD5 file prior to patching. If this patch
+                // session is interrupted, checkDirectory will create a new MD5
+                // file upon restart.
                 //
                 removeRecursive(dir + ".md5");
 
@@ -495,7 +488,6 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
                         Long patchTotal) const
 {
     OrphanedSet orphaned;
-
     if(_remove)
     {
 	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->dir->ice_getIdentity()));
@@ -506,7 +498,6 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
     }
     
     FileDescSeq fileDescSeq = dirDesc->dir->getContents();
-
     for(unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;
