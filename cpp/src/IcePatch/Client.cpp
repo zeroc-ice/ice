@@ -158,9 +158,9 @@ public:
 	cout << "\b\b\b\b\b" << setw(3) << percent << "% " << flush;
     }
 
-    virtual void finishedDownload(Int total)
+    virtual void finishedDownload(Int)
     {
-	cout << "\b\b\b\b\b" << "100% " << flush;
+	cout << "\b\b\b\b\b" << setw(3) << 100 << "% " << flush;
     }
 
     virtual void startUncompress(Int)

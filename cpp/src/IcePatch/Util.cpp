@@ -598,7 +598,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     Byte bytes[num];
     
     progressCB.startUncompress(totalBZ2);
-    int countBZ2 = 0;
     
     while (bzError != BZ_STREAM_END)
     {
@@ -618,8 +617,17 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	
 	if (sz > 0)
 	{
-	    countBZ2 += sz;
-	    progressCB.updateUncompress(totalBZ2, countBZ2);
+	    long pos = ftell(stdioFileBZ2);
+	    if (pos == -1)
+	    {
+		FileAccessException ex;
+		ex.reason = "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
+		BZ2_bzReadClose(&bzError, bzFile);
+		fclose(stdioFileBZ2);
+		throw ex;
+	    }
+
+	    progressCB.updateUncompress(totalBZ2, pos);
 	    
 	    file.write(bytes, sz);
 	    if (!file)
