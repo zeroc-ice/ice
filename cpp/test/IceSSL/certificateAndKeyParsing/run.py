@@ -30,7 +30,8 @@ testOptions = " --Ice.SSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
 testdir = os.path.join(toplevel,"test", "IceSSL", "certificateAndKeyParsing")
 client = os.path.join(testdir, "certificateAndKeyParsing")
 
-updatedOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
+updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting certificateAndKeyParsing...",
 clientPipe = os.popen(client + updatedOptions + testOptions)

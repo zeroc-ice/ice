@@ -30,7 +30,8 @@ testOptions = " --Ice.SSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
 testdir = os.path.join(toplevel,"test", "IceSSL", "loadPEM")
 client = os.path.join(testdir, "loadPEM")
 
-updatedOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+loaclClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
+updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting loadPEM...",
 clientPipe = os.popen(client + updatedOptions + testOptions)

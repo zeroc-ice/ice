@@ -47,19 +47,19 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
     {
         case IceSSL::Client:
         {
-            contextString = "Client";
+            contextString = "client";
             break;
         }
 
         case IceSSL::Server:
         {
-            contextString = "Server";
+            contextString = "server";
             break;
         }
 
         case IceSSL::ClientServer:
         {
-            contextString = "ClientServer";
+            contextString = "client/server";
             break;
         }
     }

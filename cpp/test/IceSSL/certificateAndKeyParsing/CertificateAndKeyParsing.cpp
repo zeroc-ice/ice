@@ -644,88 +644,88 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     badKey = IceUtil::Base64::decode(badKeyb64);
     badCert = IceUtil::Base64::decode(badCertb64);
 
-    std::cout << "Testing certificate and key parsing failures." << std::endl;
+    std::cout << "testing certificate and key parsing failures." << std::endl;
 
-    std::cout << "Bad private key and certificate (Base64)... " << std::flush;
+    std::cout << "bad private key and certificate (Base64)... " << std::flush;
     testExpectCertificateAndPrivateKeyParseException(system, badKeyb64, badCertb64);
 
-    std::cout << "Bad private key and certificate... " << std::flush;
+    std::cout << "bad private key and certificate... " << std::flush;
     testExpectCertificateAndPrivateKeyParseException(system, badKey, badCert);
 
-    std::cout << "Bad private key and good certificate (Base64)... " << std::flush;
+    std::cout << "bad private key and good certificate (Base64)... " << std::flush;
     testExpectPrivateKeyParseException(system, badKeyb64, gcert1b64);
 
-    std::cout << "Bad private key and good certificate... " << std::flush;
+    std::cout << "bad private key and good certificate... " << std::flush;
     testExpectPrivateKeyParseException(system, badKey, gcert1);
 
-    std::cout << "Good private key and bad certificate (Base64)... " << std::flush;
+    std::cout << "good private key and bad certificate (Base64)... " << std::flush;
     testExpectCertificateParseException(system, gkey1b64, badCertb64);
 
-    std::cout << "Good private key and bad certificate... " << std::flush;
+    std::cout << "good private key and bad certificate... " << std::flush;
     testExpectCertificateParseException(system, gkey1, badCert);
 
-    std::cout << "Bad certificate as a trusted certificate... " << std::flush;
+    std::cout << "bad certificate as a trusted certificate... " << std::flush;
     testExpectCertificateParseException(system, badCert);
     
-    std::cout << "Bad certificate as a trusted certificate (Base64)... " << std::flush;
+    std::cout << "bad certificate as a trusted certificate (Base64)... " << std::flush;
     testExpectCertificateParseException(system, badCertb64);
     
-    std::cout << "Testing setting good certificates and keys on a unconfigured context." << std::endl;
+    std::cout << "testing setting good certificates and keys on a unconfigured context." << std::endl;
 
-    std::cout << "Good private key and certificate... " << std::flush;
+    std::cout << "good private key and certificate... " << std::flush;
     testExpectContextNotConfiguredException(system, gkey1, gcert1);
     
-    std::cout << "Good private key and certificate (Base64)... " << std::flush;
+    std::cout << "good private key and certificate (Base64)... " << std::flush;
     testExpectContextNotConfiguredException(system, gkey1b64, gcert1b64);
 
-    std::cout << "Good private key and certificate (again)... " << std::flush;
+    std::cout << "good private key and certificate (again)... " << std::flush;
     testExpectContextNotConfiguredException(system, gkey2, gcert2);
     
-    std::cout << "Good private key and certificate (Base64) (again)... " << std::flush;
+    std::cout << "good private key and certificate (Base64) (again)... " << std::flush;
     testExpectContextNotConfiguredException(system, gkey2b64, gcert2b64);
 
-    std::cout << "Good certificate as a trusted certificate... " << std::flush;
+    std::cout << "good certificate as a trusted certificate... " << std::flush;
     testExpectContextNotConfiguredException(system, gcert1);
     
-    std::cout << "Good certificate as a trusted certificate (Base64)... " << std::flush;
+    std::cout << "good certificate as a trusted certificate (Base64)... " << std::flush;
     testExpectContextNotConfiguredException(system, gcert1b64);
 
     properties->setProperty("Ice.SSL.Client.CertPath", clientTestCertPath);
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
     system->configure(IceSSL::Client);
 
-    std::cout << "Testing mismatched certificates and keys failures on a configured context." << std::endl;
+    std::cout << "testing mismatched certificates and keys failures on a configured context." << std::endl;
 
-    std::cout << "Good private key and certificate, mismatched... " << std::flush;
+    std::cout << "good private key and certificate, mismatched... " << std::flush;
     testExpectCertificateKeyMatchException(system, gkey1, gcert2);
     
-    std::cout << "Good private key and certificate, mismatched (Base64)... " << std::flush;
+    std::cout << "good private key and certificate, mismatched (Base64)... " << std::flush;
     testExpectCertificateKeyMatchException(system, gkey1b64, gcert2b64);
 
-    std::cout << "Good private key and certificate, mismatched (again)... " << std::flush;
+    std::cout << "good private key and certificate, mismatched (again)... " << std::flush;
     testExpectCertificateKeyMatchException(system, gkey2, gcert1);
     
-    std::cout << "Good private key and certificate, mismatched (Base64) (again)... " << std::flush;
+    std::cout << "good private key and certificate, mismatched (Base64) (again)... " << std::flush;
     testExpectCertificateKeyMatchException(system, gkey2b64, gcert1b64);
 
-    std::cout << "Testing setting good certificates and keys on a configured context." << std::endl;
+    std::cout << "testing setting good certificates and keys on a configured context." << std::endl;
 
-    std::cout << "Good private key and certificate... " << std::flush;
+    std::cout << "good private key and certificate... " << std::flush;
     testNoException(system, gkey1, gcert1);
     
-    std::cout << "Good private key and certificate (Base64)... " << std::flush;
+    std::cout << "good private key and certificate (Base64)... " << std::flush;
     testNoException(system, gkey1b64, gcert1b64);
 
-    std::cout << "Good private key and certificate (again)... " << std::flush;
+    std::cout << "good private key and certificate (again)... " << std::flush;
     testNoException(system, gkey2, gcert2);
     
-    std::cout << "Good private key and certificate (Base64) (again)... " << std::flush;
+    std::cout << "good private key and certificate (Base64) (again)... " << std::flush;
     testNoException(system, gkey2b64, gcert2b64);
 
-    std::cout << "Good certificate as trusted certificate... " << std::flush;
+    std::cout << "good certificate as trusted certificate... " << std::flush;
     testNoException(system, gcert1);
     
-    std::cout << "Good certificate as trusted certificate (Base64)... " << std::flush;
+    std::cout << "good certificate as trusted certificate (Base64)... " << std::flush;
     testNoException(system, gcert2b64);
 
     return EXIT_SUCCESS;

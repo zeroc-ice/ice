@@ -28,7 +28,8 @@ if TestUtil.protocol != "ssl":
 testdir = os.path.join(toplevel,"test", "IceSSL", "certificateVerifier")
 client = os.path.join(testdir, "certificateVerifier")
 
-updatedOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
+localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
+updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 print "starting certificateVerifier...",
 clientPipe = os.popen(client + updatedOptions)
 output = clientPipe.read().strip()

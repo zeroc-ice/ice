@@ -115,36 +115,36 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Testing IceSSL::Client context type.
     //
 
-    std::cout << "Setting Certificate Verifiers on Client context." << std::endl;
+    std::cout << "setting Certificate Verifiers on Client context." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... " << std::flush;
+    std::cout << "setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::Client, badVerifier);
 
-    std::cout << "Setting verifier of correct type... " << std::flush;
+    std::cout << "setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::Client, goodVerifier);
 
     //
     // Testing IceSSL::Server context type.
     //
 
-    std::cout << "Setting Certificate Verifiers on Server context." << std::endl;
+    std::cout << "setting Certificate Verifiers on Server context." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... " << std::flush;
+    std::cout << "setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::Server, badVerifier);
 
-    std::cout << "Setting verifier of correct type... " << std::flush;
+    std::cout << "setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::Server, goodVerifier);
 
     //
     // Testing IceSSL::ClientServer context type.
     //
 
-    std::cout << "Setting Certificate Verifiers on Client and Server contexts." << std::endl;
+    std::cout << "setting Certificate Verifiers on Client and Server contexts." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... " << std::flush;
+    std::cout << "setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::ClientServer, badVerifier);
 
-    std::cout << "Setting verifier of correct type... " << std::flush;
+    std::cout << "setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::ClientServer, goodVerifier);
 
     return EXIT_SUCCESS;
