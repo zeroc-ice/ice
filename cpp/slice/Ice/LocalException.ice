@@ -695,6 +695,24 @@ local exception NotRegisteredException
     string id;
 };
 
+/**
+ *
+ * This exception is raised if an attempt is made to invoke an
+ * operation with [ice_oneway], [ice_batchOneway], [ice_datagram],
+ * or [ice_batchDatagram] and the operation has a return value,
+ * out parameters, or an exception specification.
+ *
+ **/
+local exception TwowayOnlyException
+{
+    /**
+     *
+     * The name of the operation that was invoked.
+     *
+     **/
+    string operation;
+};
+
 };
 
 #endif

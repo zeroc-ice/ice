@@ -424,3 +424,10 @@ Ice::NotRegisteredException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\n no " << kindOfObject << " registered under ID `" << id << "'";
 }
+
+void
+Ice::TwowayOnlyException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n operation `" << operation << "' can only be invoked as a twoway request";
+}
