@@ -22,10 +22,18 @@
 #include <vector>
 #include <map>
 
+#ifndef ICE_XML_API
+#   ifdef ICE_XML_API_EXPORTS
+#       define ICE_XML_API ICE_DECLSPEC_EXPORT
+#    else
+#       define ICE_XML_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
+
 namespace IceXML
 {
 
-class ParserException : public IceUtil::Exception
+class ICE_XML_API ParserException : public IceUtil::Exception
 {
 public:
     ParserException(const std::string&);
@@ -33,7 +41,7 @@ public:
 
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -56,7 +64,7 @@ typedef IceUtil::Handle< Document > DocumentPtr;
 
 typedef std::map<std::string, std::string> Attributes;
 
-class Node : public IceUtil::Shared
+class ICE_XML_API Node : public IceUtil::Shared
 {
 public:
     virtual ~Node();
@@ -78,7 +86,7 @@ protected:
     std::string _value;
 };
 
-class Element : public Node
+class ICE_XML_API Element : public Node
 {
 public:
     Element(const NodePtr&, const std::string&, const Attributes&);
@@ -95,14 +103,14 @@ private:
     Attributes _attributes;
 };
 
-class Text : public Node
+class ICE_XML_API Text : public Node
 {
 public:
     Text(const NodePtr&, const std::string&);
     virtual ~Text();
 };
 
-class Document : public Node
+class ICE_XML_API Document : public Node
 {
 public:
     Document();
@@ -116,7 +124,7 @@ private:
     NodeList _children;
 };
 
-class Handler
+class ICE_XML_API Handler
 {
 public:
     virtual ~Handler();
@@ -127,7 +135,7 @@ public:
     virtual void error(const std::string&, int, int);
 };
 
-class Parser
+class ICE_XML_API Parser
 {
 public:
     static DocumentPtr parse(const std::string&);
