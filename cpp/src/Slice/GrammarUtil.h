@@ -114,7 +114,7 @@ class SLICE_API FloatingTok : public GrammarBase
 public:
 
     FloatingTok() { }
-    Double v;
+    double v;
 };
 
 // ----------------------------------------------------------------------

@@ -17,7 +17,7 @@
 // configure script from the gcc-2.8.1 distribution.
 //
 
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 #   define HAVE_INTTYPES_H 1
 #   define TIME_WITH_SYS_TIME 1
 #   define HAVE_BCMP 1
@@ -51,7 +51,7 @@
 #define LONG_TYPE_SIZE 4
 #if defined(_WIN32)
 #   define WCHAR_TYPE_SIZE 2
-#elif defined(__linux__) && defined(i386)
+#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386)
 #   define WCHAR_TYPE_SIZE 4
 #else
 #   error "unsupported operating system or platform"

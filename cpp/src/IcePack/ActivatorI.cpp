@@ -541,10 +541,17 @@ IcePack::ActivatorI::terminationListener()
 	
 	if(ret == -1)
 	{
+#ifdef EPROTO
 	    if(errno == EINTR || errno == EPROTO)
 	    {
 		goto repeatSelect;
 	    }
+#else
+	    if(errno == EINTR)
+	    {
+		goto repeatSelect;
+	    }
+#endif
 	    
 	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();

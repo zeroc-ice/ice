@@ -75,7 +75,7 @@ inline int getSystemErrno() { return GetLastError(); }
 inline int getSocketErrno() { return WSAGetLastError(); }
 inline int getDNSErrno() { return WSAGetLastError(); }
 
-#elif defined(__linux__) && defined(i386)
+#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386)
 
 #   include <sys/types.h>
 #   include <unistd.h>

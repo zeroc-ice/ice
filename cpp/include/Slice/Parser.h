@@ -39,15 +39,24 @@ namespace Slice
 {
 
 #if defined(_WIN32)
-    typedef double Double;
-    const IceUtil::Int64 Int32Max =  0x7fffffffi64;
-    const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
-#elif(__linux__) && defined(i386)
-    typedef double Double;
-    const IceUtil::Int64 Int32Max =  0x7fffffffLL;
-    const IceUtil::Int64 Int32Min = -Int32Max - 1LL;
+ 
+const IceUtil::Int64 Int32Max =  0x7fffffffi64;
+const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
+
 #else
-#   error "Unsupported operating system or platform!"
+
+#   if defined(INT32_MIN) && defined(INT32_MAX)
+
+const IceUtil::Int64 Int32Max =  INT32_MAX;
+const IceUtil::Int64 Int32Min =  INT32_MIN;
+
+#   else
+
+const IceUtil::Int64 Int32Max =  0x7fffffffLL;
+const IceUtil::Int64 Int32Min = -Int32Max - 1LL;
+
+#   endif
+
 #endif
 
 const IceUtil::Int64 Int16Max =  0x7fff;

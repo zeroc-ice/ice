@@ -62,7 +62,7 @@
 
 #   define SIZEOF_WCHAR_T 2
 
-#elif defined(__linux__) && defined(i386)
+#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386)
 
 #   define ICE_UTIL_API /**/
 #   define HAVE_READLINE
