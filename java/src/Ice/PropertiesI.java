@@ -393,6 +393,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Default.Locator",
 	"Default.Protocol",
 	"Default.Router",
+	"GC.Interval",			// Not used by Java but left here to suppress warnings.
 	"Logger.Timestamp",
 	"MessageSizeMax",
 	"MonitorConnections",
@@ -412,6 +413,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"ThreadPool.Server.Size",
 	"ThreadPool.Server.SizeMax",
 	"ThreadPool.Server.SizeWarn",
+	"Trace.GC",			// Not used by Java but left here to suppress warnings.
 	"Trace.Network",
 	"Trace.Protocol",
 	"Trace.Retry",

@@ -55,7 +55,7 @@ public class AllTests
 	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 	
-	System.out.print("test server registration...");
+	System.out.print("test server registration... ");
 	System.out.flush();
 	String[] serverNames = admin.getAllServerNames();
 	test(find(serverNames, "Server1"));
