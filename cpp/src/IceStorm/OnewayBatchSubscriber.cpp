@@ -45,8 +45,10 @@ OnewayBatchSubscriber::activate()
 void
 OnewayBatchSubscriber::unsubscribe()
 {
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateUnsubscribed;
+    {
+	IceUtil::Mutex::Lock sync(_stateMutex);
+	_state = StateUnsubscribed;
+    }
 
     if(_traceLevels->subscriber > 0)
     {
@@ -64,8 +66,10 @@ OnewayBatchSubscriber::unsubscribe()
 void
 OnewayBatchSubscriber::replace()
 {
-    IceUtil::Mutex::Lock sync(_stateMutex);
-    _state = StateReplaced;
+    {
+	IceUtil::Mutex::Lock sync(_stateMutex);
+	_state = StateReplaced;
+    }
 
     if(_traceLevels->subscriber > 0)
     {
