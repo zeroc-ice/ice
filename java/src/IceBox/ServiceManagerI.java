@@ -59,7 +59,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             adapter.add(this, Ice.Util.stringToIdentity(identity));
 
             //
-            // Load and initialize the services defined in the property set
+            // Load and start the services defined in the property set
             // with the prefix "IceBox.Service.". These properties should
             // have the following format:
             //
@@ -99,33 +99,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                     args = value.substring(pos).trim().split("[ \t\n]+", pos);
                 }
 
-                init(name, className, args);
-            }
-
-            //
-            // Invoke start() on the services.
-            //
-            java.util.Iterator r = _services.entrySet().iterator();
-            while(r.hasNext())
-            {
-                java.util.Map.Entry entry = (java.util.Map.Entry)r.next();
-                String name = (String)entry.getKey();
-                ServiceInfo info = (ServiceInfo)entry.getValue();
-                try
-                {
-                    info.service.start();
-                }
-                catch(FailureException ex)
-                {
-                    throw ex;
-                }
-                catch(Exception ex)
-                {
-                    FailureException e = new FailureException();
-                    e.reason = "ServiceManager: exception in start for service " + name + ": " + ex;
-                    e.initCause(ex);
-                    throw e;
-                }
+                start(name, className, args);
             }
 
             //
@@ -194,11 +168,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     }
 
     private void
-    init(String service, String className, String[] args)
+    start(String service, String className, String[] args)
         throws FailureException
     {
         //
-        // We need to create a property set to pass to init().
+        // We need to create a property set to pass to start()
         // The property set is populated from a number of sources.
         // The precedence order (from lowest to highest) is:
         //
@@ -281,7 +255,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         }
 
         //
-        // Invoke Service::init().
+        // Invoke Service::start().
         //
         try
         {
@@ -292,7 +266,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		//
 	        Service s = (Service)info.service;
 	        info.dbEnvName = null;
-                s.init(service, _communicator, serviceProperties, serviceArgs.value);
+                s.start(service, _communicator, serviceProperties, serviceArgs.value);
 	    }
 	    catch(ClassCastException e)
 	    {
@@ -321,14 +295,14 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		}
 		_dbEnvs.put(info.dbEnvName, dbInfo);
 		
-                fs.init(service, _communicator, serviceProperties, serviceArgs.value, dbInfo.dbEnv);
+                fs.start(service, _communicator, serviceProperties, serviceArgs.value, dbInfo.dbEnv);
 	    }
             _services.put(service, info);
         }
 	catch(Freeze.DBException ex)
 	{
             FailureException e = new FailureException();
-            e.reason = "ServiceManager: database exception while initializing service " + service + ": " + ex;
+            e.reason = "ServiceManager: database exception while starting service " + service + ": " + ex;
             e.initCause(ex);
             throw e;
 	}
@@ -339,7 +313,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         catch(Exception ex)
         {
             FailureException e = new FailureException();
-            e.reason = "ServiceManager: exception while initializing service " + service + ": " + ex;
+            e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
             e.initCause(ex);
             throw e;
         }

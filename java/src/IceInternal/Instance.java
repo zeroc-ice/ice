@@ -162,7 +162,7 @@ public class Instance
 
         try
         {
-            _logger = new Ice.LoggerI();
+            _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"));
 
             _traceLevels = new TraceLevels(_properties);
 
