@@ -30,7 +30,7 @@ Changes since version 1.1.0
 
 - Added Linux/SPARC port from Ferris McCormick.
 
-- Fixed a bug where daemonized Ice::Application wouldn't shutdown
+- Fixed a bug where a daemonized Ice::Application wouldn't shutdown
   properly.
 
 - Major Freeze update:
@@ -267,8 +267,8 @@ Changes since version 1.1.0
 - src/IceUtil/CtrlCHandler.cpp now handles (ignores) EINTR returned by
   sigwait.
 
-- Added DB_PRIVATE flag to DBEnv->open() on Linux, to be able to use
-  the Berkeley DB that ships with RedHat 9.
+- Added DB_PRIVATE flag to DBEnv->open() on Linux, allowing Ice to use
+  the Berkeley DB library included with RedHat 9.
 
 - Changed the python code for printing output from test clients, so
   that you get each line as it comes.
@@ -276,10 +276,10 @@ Changes since version 1.1.0
 - Fixed a bug where daemonized Ice::Application wouldn't shutdown
   properly.
 
-- Added support for user defined variables in IcePack service and
+- Added support for user-defined variables in IcePack service and
   server descriptors.
 
-- Fixed server side bug with batch oneways or batch datagrams.
+- Fixed server-side bug with batch oneways or batch datagrams.
 
 Changes since version 1.0.1
 ---------------------------
