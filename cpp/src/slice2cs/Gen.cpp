@@ -351,7 +351,6 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     {
 	StringList allOpNames;
 	transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
-	allOpNames.push_back("ice_facets");
 	allOpNames.push_back("ice_id");
 	allOpNames.push_back("ice_ids");
 	allOpNames.push_back("ice_isA");
@@ -402,11 +401,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
 	    _out << nl << "case " << i++ << ':';
 	    _out << sb;
-	    if(opName == "ice_facets")
-	    {
-		_out << nl << "return ___ice_facets(this, __in, __current);";
-	    }
-	    else if(opName == "ice_id")
+	    if(opName == "ice_id")
 	    {
 		_out << nl << "return ___ice_id(this, __in, __current);";
 	    }
@@ -774,7 +769,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	_out << sp << nl << "#region Marshaling support";
 
-	_out << sp << nl << "public override void __write(IceInternal.BasicStream __os, bool __marshalFacets)";
+	_out << sp << nl << "public override void __write(IceInternal.BasicStream __os)";
 	_out << sb;
 	_out << nl << "__os.writeTypeId(ice_staticId());";
 	_out << nl << "__os.startWriteSlice();";
@@ -784,7 +779,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name()), true, false);
 	}
 	_out << nl << "__os.endWriteSlice();";
-	_out << nl << "base.__write(__os, __marshalFacets);";
+	_out << nl << "base.__write(__os);";
 	_out << eb;
 
 	DataMemberList allClassMembers = p->allClassDataMembers();
@@ -2343,7 +2338,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixId(p->name());
     ClassList bases = p->bases();
 
-    _out << sp << nl << "public class " << name << "PrxHelper : Ice.ObjectPrxHelper, " << name << "Prx";
+    _out << sp << nl << "public class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
     _out << sb;
 
     OperationList ops = p->allOperations();
@@ -2540,7 +2535,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return null;";
     _out << eb;
-    _out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    _out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
     _out << nl << "try";
     _out << sb;
     _out << nl << "if(bb.ice_isA(\"" << p->scoped() << "\"))";
@@ -2573,7 +2568,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return null;";
     _out << eb;
-    _out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+    _out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.__copyFrom(bb);";
     _out << nl << "return h;";
@@ -3093,7 +3088,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "while(true)";
 	    _out << sb;
 	    _out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
-	    _out << nl << "object __servant = __direct.facetServant();";
+	    _out << nl << "object __servant = __direct.servant();";
 	    _out << nl << "if(__servant is " << name << ")";
 	    _out << sb;
 	    _out << nl << "try";
