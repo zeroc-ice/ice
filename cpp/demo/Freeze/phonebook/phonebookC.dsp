@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /Ze /W3 /GR /GX /O2 /I "." /I "../../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "." /I "../../../include" /I "dummyinclude" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /Ze /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "dummyinclude" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -93,12 +93,32 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Grammer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Parser.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PhoneBook.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Scanner.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Grammer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Parser.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\PhoneBook.h
@@ -109,11 +129,54 @@ SOURCE=.\PhoneBook.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=.\Grammer.y
+
+!IF  "$(CFG)" == "phonebookC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Grammer.y
+
+BuildCmds= \
+	bison -dvt Grammer.y \
+	move Grammer.tab.c Grammer.cpp \
+	move Grammer.tab.h Grammer.h \
+	
+
+"Grammer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "phonebookC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Grammer.y
+
+BuildCmds= \
+	bison -dvt Grammer.y \
+	move Grammer.tab.c Grammer.cpp \
+	move Grammer.tab.h Grammer.h \
+	
+
+"Grammer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\PhoneBook.ice
 
 !IF  "$(CFG)" == "phonebookC - Win32 Release"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__PHONE="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 
@@ -131,7 +194,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "phonebookC - Win32 Debug"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__PHONE="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 
@@ -145,6 +208,35 @@ BuildCmds= \
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Scanner.l
+
+!IF  "$(CFG)" == "phonebookC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "phonebookC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
 # End Custom Build
 
 !ENDIF 
