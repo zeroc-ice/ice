@@ -21,6 +21,7 @@ SUBDIRS		= IceUtil \
 		  Freeze \
 		  IceStorm \
 		  IceBox \
+		  IcePack \
 		  Glacier
 
 $(EVERYTHING)::

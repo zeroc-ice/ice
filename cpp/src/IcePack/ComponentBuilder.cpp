@@ -14,6 +14,7 @@
 
 #include <Ice/Ice.h>
 #include <IcePack/ComponentBuilder.h>
+#include <IcePack/Internal.h>
 #include <Yellow/Yellow.h>
 
 #include <xercesc/parsers/SAXParser.hpp>
@@ -23,7 +24,6 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#include <stack>
 #include <iterator>
 #include <fstream>
 
@@ -273,6 +273,83 @@ private:
     Ice::ObjectPrx _proxy;
 };
 
+//
+// Register an identity.
+//
+class RegisterObject : public Task
+{
+public:
+
+    RegisterObject(const ObjectRegistryPrx& registry, const ObjectDescription& desc) :
+	_registry(registry),
+	_desc(desc)
+    {
+    }
+
+    virtual void
+    execute()
+    {
+	try
+	{
+	    _registry->add(_desc);
+	}
+	catch(const ObjectExistsException& lex)
+	{
+	    ostringstream os;
+	    os << "couldn't add the object:\n" << lex << ends;
+
+	    ObjectDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.proxy = _desc.proxy;
+	    throw ex;
+	}
+	catch(const Ice::LocalException& lex)
+	{
+	    ostringstream os;
+	    os << "couldn't contact the object registry:\n" << lex << ends;
+
+	    ObjectDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.proxy = _desc.proxy;
+	    throw ex;
+	}
+    }
+
+    virtual void
+    undo()
+    {
+	try
+	{
+	    _registry->remove(_desc.proxy);
+	}
+	catch(const ObjectNotExistException& ex)
+	{
+	    ostringstream os;
+	    os << "couldn't remove the object:\n" << ex << ends;
+
+	    ObjectDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.proxy = _desc.proxy;
+	    throw ex;
+	}	
+	catch(const Ice::LocalException& lex)
+	{
+	    ostringstream os;
+	    os << "couldn't contact the object registry:\n" << lex << ends;
+	    
+	    ObjectDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.proxy = _desc.proxy;
+	    throw ex;
+	}
+    }
+
+private:
+
+    ObjectRegistryPrx _registry;
+    ObjectDescription _desc;
+};
+
 }
 
 IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg, const Locator*const locator)
@@ -378,8 +455,14 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, AttributeList &
     else if(str == "offer")
     {
 	_builder.addOffer(getAttributeValue(attrs, "interface"),
-			  _currentAdapterId, 
+			  _currentAdapterId,
 			  getAttributeValue(attrs, "identity"));
+    }
+    else if(str == "object")
+    {
+	_builder.addObject(getAttributeValue(attrs, "identity"), 
+			   _currentAdapterId,
+			   getAttributeValue(attrs, "type"));
     }
     else if(str == "target")
     {
@@ -731,6 +814,19 @@ IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapterId
     assert(object);
     
     _tasks.push_back(new RegisterOffer(_yellowAdmin, offer, object));
+}
+
+void
+IcePack::ComponentBuilder::addObject(const string& id, const string& adapterId, const string& type)
+{
+    assert(!adapterId.empty());
+
+    ObjectDescription desc;
+    desc.proxy = _communicator->stringToProxy(id + "@" + adapterId);
+    desc.type = type;
+    desc.adapterId = adapterId;
+    
+    _tasks.push_back(new RegisterObject(_objectRegistry, desc));
 }
 
 void

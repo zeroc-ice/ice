@@ -24,6 +24,8 @@ REGISTRY_SERVER	= $(top_srcdir)/bin/icepackregistry
 TARGETS		= $(NAME) $(VERSIONED_NAME) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
+		  Query.o \
+	 	  Exception.o \
 		  ExceptionFactory.o
 
 ADMIN_OBJS	= Grammar.o \
@@ -33,7 +35,6 @@ ADMIN_OBJS	= Grammar.o \
 
 COMMON_OBJS	= Internal.o \
 		  TraceLevels.o \
-		  StringObjectProxyDict.o \
 		  ComponentBuilder.o
 
 NODE_OBJS	= NodeInfo.o \
@@ -48,15 +49,20 @@ NODE_OBJS	= NodeInfo.o \
 		  ActivatorI.o
 
 REGISTRY_OBJS   = Registry.o \
+	 	  ObjectRegistryI.o \
 		  AdapterRegistryI.o \
 		  ServerRegistryI.o \
 		  NodeRegistryI.o \
+		  StringObjectProxyDict.o \
+		  StringObjectProxySeqDict.o \
+		  IdentityObjectDescDict.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  ApplicationBuilder.o \
 		  AdapterFactory.o \
 		  AdapterI.o \
-		  AdminI.o
+		  AdminI.o \
+		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
 		  $(NODE_OBJS) \
@@ -83,6 +89,7 @@ SLICE_SRCS	= $(SDIR)/Admin.ice \
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
+LOCAL_SDIR	= ../IcePack
 
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack $(ICECPPFLAGS)
 
@@ -121,6 +128,22 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 
 clean::
 	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
+
+$(LOCAL_HDIR)/IdentityObjectDescDict.h IdentityObjectDescDict.cpp: $(SLICE2FREEZE)
+	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
+	$(SLICE2FREEZECMD) --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription \
+	IdentityObjectDescDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
+
+clean::
+	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
+
+$(LOCAL_HDIR)/StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
+	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
+	$(SLICE2FREEZECMD) --dict IcePack::StringObjectProxySeqDict,string,Ice::ObjectProxySeq \
+	StringObjectProxySeqDict $(slicedir)/Ice/BuiltinSequences.ice
+
+clean::
+	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 
 # Needed for make -jn to work.
 ../IcePack/Grammar.y: Grammar.h

@@ -39,6 +39,7 @@ public:
     NodePtr getNode() const;
     
     AdapterRegistryPrx getAdapterRegistry() const;
+    ObjectRegistryPrx getObjectRegistry() const;
     ServerRegistryPrx getServerRegistry() const;
 
     Yellow::QueryPrx getYellowQuery() const;

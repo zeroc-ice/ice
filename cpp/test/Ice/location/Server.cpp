@@ -40,6 +40,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // 'servers' created with the server manager interface.
     //
     ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
+    registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
+    registry->addObject(communicator->stringToProxy("test@TestAdapter"));
+
     Ice::LocatorRegistryPrx registryPrx = 
 	Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, Ice::stringToIdentity("registry")));
 

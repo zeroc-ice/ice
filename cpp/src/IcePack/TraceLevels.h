@@ -44,6 +44,9 @@ public:
     const int adapterRegistry;
     const char* adapterRegistryCat;
 
+    const int objectRegistry;
+    const char* objectRegistryCat;
+
     const int nodeRegistry;
     const char* nodeRegistryCat;
 

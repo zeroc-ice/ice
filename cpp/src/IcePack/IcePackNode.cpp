@@ -256,7 +256,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
 	AdminPrx admin;
 	try
 	{
-	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	    admin = AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
 	}
 	catch(const Ice::LocalException& ex)
 	{
@@ -393,7 +393,7 @@ main(int argc, char* argv[])
 	if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
 	{
 	    registry = auto_ptr<Registry>(new Registry(communicator));
-	    if(!registry->start(nowarn))
+	    if(!registry->start(nowarn, true))
 	    {
 		return EXIT_FAILURE;
 	    }
@@ -403,7 +403,7 @@ main(int argc, char* argv[])
 	    // collocated locator (this property is passed by the
 	    // activator to each activated server).
 	    //
-	    string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Locator.Endpoints");
+	    string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Client.Endpoints");
 	    properties->setProperty("Ice.Default.Locator", locatorPrx);
 	}
 	else if(properties->getProperty("Ice.Default.Locator").empty())

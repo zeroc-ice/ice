@@ -25,15 +25,11 @@ public:
     Registry(const Ice::CommunicatorPtr&);
     ~Registry();
 
-    bool start(bool);
+    bool start(bool, bool);
 
 private:
 
     Ice::CommunicatorPtr _communicator;
-
-    Ice::CommunicatorPtr _locatorComm;
-    Ice::CommunicatorPtr _locatorRegistryComm;
-    Ice::CommunicatorPtr _adminComm;
 
     Freeze::DBEnvironmentPtr _dbEnv;
 };

@@ -17,50 +17,41 @@
 
 using namespace std;
 
+class Server : public Ice::Application
+{
+public:
+
+    virtual int run(int argc, char* argv[]);
+
+};
+
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+::Server::run(int argc, char* argv[])
 {
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = communicator->getProperties()->parseCommandLineOptions("TestAdapter", args);
+    args = communicator()->getProperties()->parseCommandLineOptions("TestAdapter", args);
     Ice::stringSeqToArgs(args, argc, argv);
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new TestI(adapter);
     adapter->add(object, Ice::stringToIdentity("test"));
-    adapter->activate();
-    communicator->waitForShutdown();
+    shutdownOnInterrupt();
+    try
+    {
+	adapter->activate();
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+    }
+    communicator()->waitForShutdown();
+    ignoreInterrupt();
     return EXIT_SUCCESS;
 }
 
 int
 main(int argc, char* argv[])
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+    Server app;
+    int rc = app.main(argc, argv);
+    return rc;
 }

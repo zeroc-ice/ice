@@ -17,6 +17,7 @@
 
 #include <IceUtil/Handle.h>
 #include <IcePack/Admin.h>
+#include <IcePack/Query.h>
 #include <list>
 
 #ifdef _WIN32
@@ -67,7 +68,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&, const IcePack::QueryPrx&);
 
     void usage();
 
@@ -91,6 +92,10 @@ public:
     void endpointsAdapter(const std::list<std::string>&);
     void listAllAdapters();
 
+    void addObject(const std::list<std::string>&);
+    void removeObject(const std::list<std::string>&);
+    void findObject(const std::list<std::string>&);
+
     void shutdown();
 
     void getInput(char*, int&, int);
@@ -110,11 +115,12 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&);
+    Parser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&, const IcePack::QueryPrx&);
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;
     IcePack::AdminPrx _admin;
+    IcePack::QueryPrx _query;
     bool _continue;
     int _errors;
     int _currentLine;

@@ -1,0 +1,9 @@
+<server kind="cpp-icebox" endpoints="default">
+
+  <!-- =========================================================== -->
+  <!-- Deploys one service named 'Service1' and defined in the     -->
+  <!-- service.xml file                                            -->
+  <!-- =========================================================== -->
+  <service name="Service1" descriptor="service.xml"/>
+
+</server>

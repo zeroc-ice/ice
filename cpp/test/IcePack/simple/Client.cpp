@@ -21,8 +21,29 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    TestPrx allTests(const Ice::CommunicatorPtr&);
-    TestPrx obj = allTests(communicator);
+    bool withDeploy = false;
+    
+    for(int i = 1; i < argc; ++i)
+    {
+	if(strcmp(argv[i], "--with-deploy") == 0)
+	{
+	    withDeploy = true;
+	    break;
+	}
+    }
+
+    TestPrx obj;
+
+    if(!withDeploy)
+    {
+	TestPrx allTests(const Ice::CommunicatorPtr&);
+	obj = allTests(communicator);
+    }
+    else
+    {
+	TestPrx allTestsWithDeploy(const Ice::CommunicatorPtr&);
+	obj = allTestsWithDeploy(communicator);
+    }
 
     cout << "shutting down server... " << flush;
     obj->shutdown();

@@ -117,13 +117,24 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&) const
 //
 // The arguments cannot be const & (for some reason)
 //
-static TopicDict::value_type
-transformToTopicDict(TopicIMap::value_type p, Ice::ObjectAdapterPtr adapter)
+struct TransformToTopicDict : public std::unary_function<TopicIMap::value_type, TopicDict::value_type>
 {
+
+  TransformToTopicDict(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter)
+  {
+  }
+
+  TopicDict::value_type
+  operator()(TopicIMap::value_type p)
+  {
     Ice::Identity id;
     id.name = p.first;
-    return TopicDict::value_type(p.first, TopicPrx::uncheckedCast(adapter->createProxy(id)));
-}
+    return TopicDict::value_type(p.first, TopicPrx::uncheckedCast(_adapter->createProxy(id)));
+  }
+
+  Ice::ObjectAdapterPtr _adapter;
+};
 
 TopicDict
 TopicManagerI::retrieveAll(const Ice::Current&) const
@@ -135,7 +146,7 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
 
     TopicDict all;
     transform(_topicIMap.begin(), _topicIMap.end(), inserter(all, all.begin()),
-		   bind2nd(ptr_fun(transformToTopicDict), _adapter));
+	      TransformToTopicDict(_adapter));
 
     return all;
 }

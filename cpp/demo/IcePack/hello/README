@@ -1,0 +1,19 @@
+To run the demo:
+
+export ICE_CONFIG=config
+
+or use --Ice.Config=config for all subsequent commands.
+
+Start the IcePack service:
+
+../../../bin/icepacknode --Ice.Config=config --warn
+
+In a seperate window:
+
+../../../bin/icepackadmin -e 'application add "application.xml"'
+./client
+
+This will deploy the servers described in the "application.xml"
+descriptor and start the client.
+
+Messages should be displayed in the IcePack service window.

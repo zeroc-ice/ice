@@ -1,7 +1,9 @@
 <server kind="cpp">
 
   <adapters>
-    <adapter name="TestAdapter" endpoints="default" id="TestAdapter"/>
+    <adapter name="TestAdapter" endpoints="default" id="TestAdapter">
+      <object identity="test" type="Test"/>
+    </adapter>
   </adapters>
 
   <target name="debug">

@@ -13,7 +13,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/BuiltinSequences.h>
 #include <ServerLocator.h>
+
+using namespace std;
 
 ServerLocatorRegistry::ServerLocatorRegistry()
 {
@@ -26,15 +29,33 @@ ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const
     _adapters[adapter] = object;
 }
 
-
 Ice::ObjectPrx
-ServerLocatorRegistry::getAdapter(const ::std::string& adapter)
+ServerLocatorRegistry::getAdapter(const ::std::string& adapter) const
 {
+    ::std::map< string, ::Ice::ObjectPrx>::const_iterator p = _adapters.find(adapter);
     if(_adapters.find(adapter) == _adapters.end())
     {
-	throw Ice::AdapterNotRegisteredException();
+	throw Ice::AdapterNotFoundException();
     }
-    return _adapters[adapter];
+    return p->second;
+}
+
+Ice::ObjectPrx
+ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
+{
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx>::const_iterator p = _objects.find(id);
+    if(p == _objects.end())
+    {
+	throw Ice::ObjectNotFoundException();
+    }
+
+    return p->second;
+}
+
+void
+ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object)
+{
+    _objects[object->ice_getIdentity()] = object;
 }
 
 ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrx& registryPrx) :
@@ -47,6 +68,12 @@ Ice::ObjectPrx
 ServerLocator::findAdapterById(const ::std::string& adapter, const ::Ice::Current&) const
 {
     return _registry->getAdapter(adapter);
+}
+
+Ice::ObjectPrx
+ServerLocator::findObjectById(const Ice::Identity& identity, const ::Ice::Current&) const
+{
+    return _registry->getObject(identity);
 }
 
 Ice::LocatorRegistryPrx

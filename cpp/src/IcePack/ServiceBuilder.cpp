@@ -102,6 +102,7 @@ IcePack::ServiceBuilder::ServiceBuilder(const NodeInfoPtr& nodeInfo,
     // Required for the component builder.
     //
     _yellowAdmin = nodeInfo->getYellowAdmin();
+    _objectRegistry = _nodeInfo->getObjectRegistry();
 }
 
 void

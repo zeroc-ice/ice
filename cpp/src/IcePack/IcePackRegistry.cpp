@@ -100,7 +100,7 @@ RegistryServer::run(int argc, char* argv[])
     }
     
     Registry registry(communicator());
-    if(!registry.start(nowarn))
+    if(!registry.start(nowarn, false))
     {
 	return EXIT_FAILURE;
     }

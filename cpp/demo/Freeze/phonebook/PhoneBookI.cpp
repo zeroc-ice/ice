@@ -319,11 +319,11 @@ PhoneBookI::getNewIdentity()
 	{
 	    ids = p->second;
 	    assert(ids.size() == 1);
-#ifdef _WIN32
-	    n = _atoi64(ids.front().name.c_str()) + 1;
-#else
-	    n = atoll(ids.front().name.c_str()) + 1;
-#endif
+
+	    string::size_type p;
+	    bool rc = IceUtil::stringToInt64(ids.front().name, n, p);
+	    assert(rc);
+	    n += 1;
 	}
 
 	char s[20];

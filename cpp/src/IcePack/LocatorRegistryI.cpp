@@ -19,8 +19,9 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& registry, const Ice::ObjectAdapterPtr& adapter) :
-    _registry(registry),
+IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& adapterRegistry, 
+					    const Ice::ObjectAdapterPtr& adapter) :
+    _adapterRegistry(adapterRegistry),
     _adapter(adapter)
 {
 }
@@ -35,7 +36,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	    //
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
-	    _registry->findById(id)->setDirectProxy(proxy);
+	    _adapterRegistry->findById(id)->setDirectProxy(proxy);
 	    return;
 	}
 	catch(const AdapterNotExistException&)
@@ -87,7 +88,7 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	    AdapterPrx adapter = AdapterPrx::uncheckedCast(_adapter->addWithUUID(new StandaloneAdapterI()));
 	    try
 	    {
-		_registry->add(id, adapter);
+		_adapterRegistry->add(id, adapter);
 	    }
 	    catch(const AdapterExistsException&)
 	    {
@@ -96,7 +97,8 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
 	}
 	else
 	{
-	    throw Ice::AdapterNotRegisteredException();
+	    throw Ice::AdapterNotFoundException();
 	}
     }
 }
+

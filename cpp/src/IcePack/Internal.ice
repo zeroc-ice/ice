@@ -15,11 +15,73 @@
 #ifndef ICE_PACK_INTERNAL_ICE
 #define ICE_PACK_INTERNAL_ICE
 
+#include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <IcePack/Admin.ice>
 
 module IcePack
 {
+
+struct ObjectDescription
+{
+    Object* proxy;
+    string type;
+    string adapterId;
+};
+
+/**
+ *
+ * The object registry interface.
+ *
+ **/
+interface ObjectRegistry
+{
+    /**
+     *
+     * Add an object to the registry.
+     *
+     **/
+    void add(ObjectDescription desc)
+	throws ObjectExistsException;
+
+    /**
+     *
+     * Remove an object from the registry.
+     *
+     **/
+    void remove(Object* obj)
+	throws ObjectNotExistException;
+
+    /**
+     *
+     * Find an object by identity and returns its description.
+     *
+     **/
+    nonmutating ObjectDescription getObjectDescription(Ice::Identity id)
+	throws ObjectNotExistException;
+
+    /**
+     *
+     * Find an object by identity and return its proxy.
+     *
+     **/
+    nonmutating Object* findById(Ice::Identity id)
+	throws ObjectNotExistException;
+
+    /**
+     *
+     * Find an object by type and return its proxy.
+     *
+     **/
+    nonmutating Object* findByType(string type);
+
+    /**
+     *
+     * Find all the objects with the given type.
+     *
+     **/
+    nonmutating Ice::ObjectProxySeq findAllWithType(string type);
+};
 
 /**
  *

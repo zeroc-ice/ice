@@ -56,6 +56,8 @@ yyerror(const char* s)
 %token ICE_PACK_PID
 %token ICE_PACK_ENDPOINTS
 %token ICE_PACK_ACTIVATION
+%token ICE_PACK_OBJECT
+%token ICE_PACK_FIND
 
 %%
 
@@ -155,6 +157,18 @@ command
 | ICE_PACK_ADAPTER ICE_PACK_LIST ';'
 {
     parser->listAllAdapters();
+}
+| ICE_PACK_OBJECT ICE_PACK_ADD strings ';'
+{
+    parser->addObject($3);
+}
+| ICE_PACK_OBJECT ICE_PACK_REMOVE strings ';'
+{
+    parser->removeObject($3);
+}
+| ICE_PACK_OBJECT ICE_PACK_FIND strings ';'
+{
+    parser->findObject($3);
 }
 | ICE_PACK_SHUTDOWN ';'
 {

@@ -21,11 +21,13 @@ using namespace Ice;
 using namespace IcePack;
 
 IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const NodeRegistryPtr& nodeRegistry,
-			const ServerRegistryPtr& serverRegistry, const AdapterRegistryPtr& adapterRegistry) :
+			const ServerRegistryPtr& serverRegistry, const AdapterRegistryPtr& adapterRegistry,
+			const ObjectRegistryPtr& objectRegistry) :
     _communicator(communicator),
     _nodeRegistry(nodeRegistry),
     _serverRegistry(serverRegistry),
-    _adapterRegistry(adapterRegistry)
+    _adapterRegistry(adapterRegistry),
+    _objectRegistry(objectRegistry)
 {
 }
 
@@ -230,6 +232,40 @@ StringSeq
 IcePack::AdminI::getAllAdapterIds(const Current&) const
 {
     return _adapterRegistry->getAll();
+}
+
+void 
+IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current) const
+{
+    ObjectDescription desc;
+    desc.proxy = proxy;
+    
+    try
+    {
+	addObjectWithType(proxy, proxy->ice_id(), current);
+    }
+    catch(const Ice::LocalException&)
+    {
+	ObjectDeploymentException ex;
+	ex.reason = "Couldn't invoke on the object to get its interface.";
+	ex.proxy = proxy;
+	throw ex;
+    }
+}
+
+void 
+IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&) const
+{
+    ObjectDescription desc;
+    desc.proxy = proxy;
+    desc.type = type;
+    _objectRegistry->add(desc);
+}
+
+void 
+IcePack::AdminI::removeObject(const Ice::ObjectPrx& proxy, const Ice::Current&) const
+{
+    _objectRegistry->remove(proxy);
 }
 
 bool

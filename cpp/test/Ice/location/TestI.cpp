@@ -54,6 +54,7 @@ ServerManagerI::shutdown(const Ice::Current&)
     _adapter->getCommunicator()->shutdown();
 }
 
+
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {

@@ -16,7 +16,7 @@
 #define ICE_PACK_COMPONENT_BUILDER_H
 
 #include <IceUtil/Shared.h>
-#include <IcePack/Admin.h>
+#include <IcePack/Internal.h>
 #include <Yellow/Yellow.h>
 
 #include <xercesc/sax/HandlerBase.hpp>
@@ -151,14 +151,13 @@ public:
     void parse(const std::string&, ComponentHandler&);
     void setDocumentLocator(const Locator*const locator);
 
-    void setYellowAdmin(const Yellow::AdminPrx&);
-
     bool isTargetDeployable(const std::string&) const;
 
     void createDirectory(const std::string&, bool = false);
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
     void addOffer(const std::string&, const std::string&, const std::string&);
+    void addObject(const std::string&, const std::string&, const std::string&);
     void overrideBaseDir(const std::string&);
 
     virtual std::string getDefaultAdapterId(const std::string&);
@@ -171,6 +170,7 @@ protected:
     
     Ice::CommunicatorPtr _communicator;
     Yellow::AdminPrx _yellowAdmin;
+    ObjectRegistryPrx _objectRegistry;
 
     Ice::PropertiesPtr _properties;
     std::map<std::string, std::string> _variables;

@@ -15,6 +15,7 @@
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/IdentityUtil.h>
+#include <IcePack/Query.h>
 #include <IcePack/Admin.h>
 #include <Yellow/Yellow.h>
 #include <TestCommon.h>
@@ -37,8 +38,7 @@ public:
 void
 allCommonTests(const Ice::CommunicatorPtr& communicator)
 {
-    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
-	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
     test(admin);
 
     cout << "test server registration..." << flush;
@@ -59,18 +59,33 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     cout << "ok" << endl;
 
-    Yellow::QueryPrx yellow = Yellow::QueryPrx::checkedCast(
-	communicator->stringToProxy("Yellow/Query@Yellow.Query"));
-    test(yellow);
+    IcePack::QueryPrx query = IcePack::QueryPrx::checkedCast(communicator->stringToProxy("IcePack/Query"));
+    test(query);
 
-    cout << "testing offer registration... " << flush;
-    Ice::ObjectProxySeq offers = yellow->lookupAll("::Test");
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"Server1")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"Server2")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service1")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service2")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service1")) != offers.end());
-    test(find_if(offers.begin(), offers.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service2")) != offers.end());
+    cout << "testing object registration... " << flush;
+    Ice::ObjectProxySeq objects = query->findAllObjectsWithType("::Test");
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"Server1")) != objects.end());
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"Server2")) != objects.end());
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service1")) != objects.end());
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"IceBox1-Service2")) != objects.end());
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service1")) != objects.end());
+    test(find_if(objects.begin(), objects.end(), bind2nd(ProxyIdentityEqual(),"IceBox2-Service2")) != objects.end());
+
+    {
+	Ice::ObjectPrx obj = query->findObjectByType("::Test");
+	string id = Ice::identityToString(obj->ice_getIdentity());
+	test(id == "Server1" || id == "Server2" || 
+	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
+	     id == "IceBox2-Service1" || id == "IceBox2-Service2");
+    }
+
+    try
+    {
+	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
+    }
+    catch(const IcePack::ObjectNotExistException&)
+    {
+    }
 
     cout << "ok" << endl;
 }
@@ -126,8 +141,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("Service2.DebugProperty") == "");
     test(obj->getProperty("Service1.DebugProperty") == "");
     
-    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
-	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
     test(admin);
 
     //
@@ -154,7 +168,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     allCommonTests(communicator);
 
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(
-	communicator->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	communicator->stringToProxy("IcePack/Admin"));
     test(admin);
 
     cout << "pinging server objects... " << flush;

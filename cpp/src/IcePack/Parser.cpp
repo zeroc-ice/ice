@@ -36,9 +36,9 @@ Parser* parser;
 }
 
 ParserPtr
-IcePack::Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin)
+IcePack::Parser::createParser(const CommunicatorPtr& communicator, const AdminPrx& admin, const QueryPrx& query)
 {
-    return new Parser(communicator, admin);
+    return new Parser(communicator, admin, query);
 }
 
 void
@@ -47,31 +47,42 @@ IcePack::Parser::usage()
     cout <<
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
+	"\n"
 	"application add DESC [TARGET1 [TARGET2 ...]]\n"
 	"                            Add servers described in application descriptor\n"
         "                            DESC. If specified the optional targets TARGET will\n"
         "                            be deployed.\n"
 	"application remove DESC     Remove servers described in application descriptor\n"
 	"                            DESC.\n"
+	"\n"
 	"node list                   List all registered nodes.\n"
 	"node ping NAME              Ping node NAME.\n"
-	"node shutdown NAME          Shudown node NAME.\n"
+	"node shutdown NAME          Shutdown node NAME.\n"
+	"\n"
+        "server list                 List all registered servers.\n"
         "server add NODE NAME DESC [PATH [LIBPATH [TARGET1 [TARGET2 ...]]]]\n"
         "                            Add server NAME to node NODE with deployment\n"
         "                            descriptor DESC, optional PATH and LIBPATH. If\n"
         "                            specified the optional targets TARGET will be\n"
 	"                            deployed.\n"
+        "server remove NAME          Remove server NAME.\n"
 	"server describe NAME        Get server NAME description.\n"
 	"server state NAME           Get server NAME state.\n"
 	"server pid NAME             Get server NAME pid.\n"
-	"server activation NAME [on-demand | manual] Set the server activation mode to\n"
-	"                            on-demand or manual activation"
-	"server start NAME           Starts server NAME.\n"
+	"server start NAME           Start server NAME.\n"
 	"server stop NAME            Stop server NAME.\n"
-        "server remove NAME          Remove server NAME.\n"
-        "server list                 List all registered servers.\n"
+	"server activation NAME [on-demand | manual] \n"
+	"                            Set the server activation mode to on-demand or\n"
+	"                            manual activation"
+	"\n"
         "adapter list                List all registered adapters.\n"
 	"adapter endpoints NAME      Get adapter NAME endpoints.\n"
+	"\n"
+	"object add PROXY [TYPE]     Add an object to the object registry,\n"
+	"                            optionally specifies its  type.\n"
+	"object remove IDENTITY      Remove an object from the object registry.\n"
+	"object find TYPE            Find all objects with the type TYPE.\n"
+	"\n"
         "shutdown                    Shut the IcePack registry down.\n";
 }
 
@@ -101,13 +112,13 @@ IcePack::Parser::addApplication(const list<string>& args)
     catch(const ServerDeploymentException& ex)
     {
 	ostringstream s;
-	s << ex << ": " << ex.server << ": " << ex.reason;
+	s << ex << ": " << ex.server << ":\n" << ex.reason;
 	error(s.str());	
     }
     catch(const DeploymentException& ex)
     {
 	ostringstream s;
-	s << ex << ": " << ex.component << ": " << ex.reason;
+	s << ex << ": " << ex.component << ":\n" << ex.reason;
 	error(s.str());	
     }
     catch(const Exception& ex)
@@ -138,7 +149,7 @@ IcePack::Parser::removeApplication(const list<string>& args)
     catch(const DeploymentException& ex)
     {
 	ostringstream s;
-	s << ex << ": " << ex.component << ": " << ex.reason;
+	s << ex << ": " << ex.component << ":\n" << ex.reason;
 	error(s.str());	
     }
     catch(const Exception& ex)
@@ -249,10 +260,16 @@ IcePack::Parser::addServer(const list<string>& args)
 
 	_admin->addServer(node, name, path, ldpath, descriptor, targets);
     }
+    catch(const ServerDeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.server << ":\n" << ex.reason;
+	error(s.str());	
+    }
     catch(const DeploymentException& ex)
     {
 	ostringstream s;
-	s << ex << ": " << ex.component << ": " << ex.reason;
+	s << ex << ": " << ex.component << ":\n" << ex.reason;
 	error(s.str());	
     }
     catch(const Exception& ex)
@@ -515,6 +532,97 @@ IcePack::Parser::listAllAdapters()
     {
 	Ice::StringSeq names = _admin->getAllAdapterIds();
 	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::addObject(const list<string>& args)
+{
+    if(args.size() < 1)
+    {
+	error("`object add' requires at least one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+
+	string proxy = *p++;
+
+	if(p != args.end())
+	{
+	    string type = *p++;
+	    _admin->addObjectWithType(_communicator->stringToProxy(proxy), type);
+	}
+	else
+	{
+	    _admin->addObject(_communicator->stringToProxy(proxy));
+	}
+    }
+    catch(const ObjectDeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << _communicator->proxyToString(ex.proxy) << ":\n" << ex.reason;
+	error(s.str());	
+    }
+    catch(const DeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.component << ":\n" << ex.reason;
+	error(s.str());	
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::removeObject(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`object remove' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->removeObject(_communicator->stringToProxy((*(args.begin()))));
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+IcePack::Parser::findObject(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`object find' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	Ice::ObjectProxySeq objects = _query->findAllObjectsWithType(*(args.begin()));
+	for (Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	{
+	    cout << _communicator->proxyToString(*p) << endl;
+	}	
     }
     catch(const Exception& ex)
     {
@@ -814,8 +922,9 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-IcePack::Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin) :
+IcePack::Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin, const QueryPrx& query) :
     _communicator(communicator),
-    _admin(admin)
+    _admin(admin),
+    _query(query)
 {
 }

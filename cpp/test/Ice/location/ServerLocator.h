@@ -29,11 +29,14 @@ public:
     //
     // Internal method
     //
-    ::Ice::ObjectPrx getAdapter(const ::std::string&);
+    ::Ice::ObjectPrx getAdapter(const ::std::string&) const;
+    ::Ice::ObjectPrx getObject(const ::Ice::Identity&) const;
+    void addObject(const ::Ice::ObjectPrx&);
 
 private:
     
     ::std::map< ::std::string, ::Ice::ObjectPrx> _adapters;
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx> _objects;
 };
 
 typedef ::IceInternal::Handle< ServerLocatorRegistry> ServerLocatorRegistryPtr;
@@ -43,6 +46,8 @@ class ServerLocator : public ::Ice::Locator
 public:
 
     ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
+
+    virtual ::Ice::ObjectPrx findObjectById(const Ice::Identity&, const ::Ice::Current&) const;
 
     virtual ::Ice::ObjectPrx findAdapterById(const std::string&, const ::Ice::Current&) const;
 

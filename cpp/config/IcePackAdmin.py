@@ -38,8 +38,8 @@ def startIcePackRegistry(port, testdir):
 
     print "starting icepack registry...",
     command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
-              r' --IcePack.Registry.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
-              r' --IcePack.Registry.LocatorRegistry.Endpoints=default' + \
+              r' --IcePack.Registry.Client.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
+              r' --IcePack.Registry.Server.Endpoints=default' + \
               r' --IcePack.Registry.Internal.Endpoints=default' + \
               r' --IcePack.Registry.Admin.Endpoints=default' + \
               r' --IcePack.Registry.Data=' + dataDir + \

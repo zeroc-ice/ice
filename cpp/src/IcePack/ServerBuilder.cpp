@@ -333,6 +333,7 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     // Required for the component builder.
     //
     _yellowAdmin = _nodeInfo->getYellowAdmin();
+    _objectRegistry = _nodeInfo->getObjectRegistry();
 
     //
     // Begin to populate the server description.

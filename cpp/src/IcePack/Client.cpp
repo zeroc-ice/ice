@@ -147,10 +147,17 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin"));
     if(!admin)
     {
-	cerr << appName() << ": no valid administrative endpoints" << endl;
+	cerr << appName() << ": no valid administrative interface" << endl;
+	return EXIT_FAILURE;
+    }
+
+    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy("IcePack/Query"));
+    if(!query)
+    {
+	cerr << appName() << ": no valid query interface" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -159,7 +166,7 @@ Client::run(int argc, char* argv[])
     //
     Ice::UserExceptionFactoryPtr(new ExceptionFactory(communicator()));
 
-    ParserPtr parser = Parser::createParser(communicator(), admin);
+    ParserPtr parser = Parser::createParser(communicator(), admin, query);
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given

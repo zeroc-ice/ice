@@ -24,6 +24,7 @@ IcePack::ExceptionFactory::ExceptionFactory(const Ice::CommunicatorPtr& communic
     communicator->addUserExceptionFactory(this, "::IcePack::ParserDeploymentException");
     communicator->addUserExceptionFactory(this, "::IcePack::AdapterDeploymentException");
     communicator->addUserExceptionFactory(this, "::IcePack::ServerDeploymentException");
+    communicator->addUserExceptionFactory(this, "::IcePack::ObjectDeploymentException");
     communicator->addUserExceptionFactory(this, "::IcePack::OfferDeploymentException");
 }
 
@@ -45,6 +46,10 @@ IcePack::ExceptionFactory::createAndThrow(const string& type)
     else if(type == "::IcePack::OfferDeploymentException")
     {
 	throw OfferDeploymentException();
+    }
+    else if(type == "::IcePack::ObjectDeploymentException")
+    {
+	throw ObjectDeploymentException();
     }
     else if(type == "::IcePack::ServerDeploymentException")
     {

@@ -441,13 +441,19 @@ Ice.Default.Locator=<replaceable>locator</replaceable>
 <section>
 <title>Description</title>
 <para>
-Specifies a default locator (as stingified proxy to the &Ice; locator
+Specifies a default locator (as stingified proxy to the &IcePack; locator
 interface) which is to be used for all proxies and object adapters unless
 the locator is overwritten with a proxy's
-<literal>ice_locator()</literal> operation or with an object adapter
-<literal>Ice.Adapter.<replaceable>name</replaceable>.Locator</literal>
-property. The default value is no locator.
+<literal>ice_locator()</literal> operation. The default value is no
+locator.
 </para>
+<note><para>The &IcePack; locator object identity is
+<literal>IcePack/Locator</literal>. It's listening on the &IcePack;
+client endpoints. For example if
+<literal>IcePack.Registry.Client.Endpoints</literal> is set to
+<literal>tcp -p 12000 -h localhost</literal>, the stringified proxy
+for the &IcePack; locator will be <literal>IcePack/Locator:tcp -p
+12000 -h localhost</literal></para></note>
 </section>
 </section>
 
@@ -994,34 +1000,34 @@ other services.
 <section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Registry.Locator.Endpoints</title>
+<section><title>IcePack.Registry.Client.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Locator.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; locator interface. The locator
+Defines the endpoints of the &IcePack; client interface. The client
 endpoints must be accessible to &Ice; clients that are using &IcePack;
 to locate objects.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.LocatorRegistry.Endpoints</title>
+<section><title>IcePack.Registry.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.LocatorRegistry.Endpoints=<replaceable>endpoints</replaceable>
+IcePack.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; locator registry interface. The
-locator registry endpoints must be accessible to &Ice; servers that
-are using &IcePack; to register theirs object adapter endpoints.
+Defines the endpoints of the &IcePack; server interface. The server
+endpoints must be accessible to &Ice; servers that are using &IcePack;
+to register theirs object adapter endpoints.
 </para>
 </section>
 </section>
@@ -1168,6 +1174,34 @@ The node registry tracing level:
 <row>
 <entry>1</entry>
 <entry>Trace node registration, removal.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Trace.ObjectRegistry</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Trace.ObjectRegistry=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The object registry tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No object registry tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace object registration, removal.</entry>
 </row>
 </tbody>
 </tgroup>

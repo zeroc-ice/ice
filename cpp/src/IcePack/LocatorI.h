@@ -25,7 +25,9 @@ class LocatorI : public ::Ice::Locator
 {
 public:
 
-    LocatorI(const AdapterRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
+    LocatorI(const AdapterRegistryPtr&, const ObjectRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
+
+    virtual ::Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
 
     virtual ::Ice::ObjectPrx findAdapterById(const std::string&, const ::Ice::Current&) const;
 
@@ -34,6 +36,7 @@ public:
 private:
     
     AdapterRegistryPtr _adapterRegistry;
+    ObjectRegistryPtr _objectRegistry;
     Ice::LocatorRegistryPrx _locatorRegistry;
 };
 

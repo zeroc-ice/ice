@@ -164,6 +164,14 @@ NL	[\n]
     return ICE_PACK_ACTIVATION;
 }
 
+"object" {
+    return ICE_PACK_OBJECT;
+
+}
+"find" {
+    return ICE_PACK_FIND;
+}
+
 {WS}*(\\{WS}*{NL})? {
     int len = strlen(yytext);
     for(int i = 0; i < len; ++i)

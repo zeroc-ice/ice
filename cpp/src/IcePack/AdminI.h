@@ -24,7 +24,8 @@ class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ServerRegistryPtr&, const AdapterRegistryPtr&);
+    AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ServerRegistryPtr&, const AdapterRegistryPtr&,
+	   const ObjectRegistryPtr&);
     virtual ~AdminI();
 
     virtual void addApplication(const std::string&, const ServerTargets&, const Ice::Current& = Ice::Current());
@@ -46,6 +47,10 @@ public:
     virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
     virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 
+    virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&) const;
+    virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&) const;
+    virtual void removeObject(const ::Ice::ObjectPrx&, const ::Ice::Current&) const;
+
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
@@ -58,6 +63,7 @@ private:
     NodeRegistryPtr _nodeRegistry;
     ServerRegistryPtr _serverRegistry;
     AdapterRegistryPtr _adapterRegistry;
+    ObjectRegistryPtr _objectRegistry;
 };
 
 }

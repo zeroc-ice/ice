@@ -69,6 +69,20 @@ IcePack::NodeInfo::getAdapterRegistry() const
     }
 }
 
+ObjectRegistryPrx
+IcePack::NodeInfo::getObjectRegistry() const
+{
+    try
+    {
+	return ObjectRegistryPrx::checkedCast(
+	    _communicator->stringToProxy("IcePack/ObjectRegistry@IcePack.Registry.Internal"));
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	return 0;
+    }
+}
+
 ServerRegistryPrx
 IcePack::NodeInfo::getServerRegistry() const
 {

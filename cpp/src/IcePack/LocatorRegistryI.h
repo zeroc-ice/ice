@@ -32,7 +32,7 @@ public:
 
 private:
     
-    AdapterRegistryPtr _registry;
+    AdapterRegistryPtr _adapterRegistry;
     Ice::ObjectAdapterPtr _adapter;
 };
 

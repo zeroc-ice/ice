@@ -15,144 +15,13 @@
 #ifndef ICE_PACK_ADMIN_ICE
 #define ICE_PACK_ADMIN_ICE
 
+#include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <IceBox/IceBox.ice>
+#include <IcePack/Exception.ice>
 
-/**
- *
- * The &Ice; module for object location and activation.
- *
- **/
 module IcePack
 {
-
-/**
- *
- * This exception is raised if an adapter doesn't exist.
- *
- **/
-exception AdapterNotExistException
-{
-};
-
-/**
- *
- * This exception is raised if a server doesn't exist.
- *
- **/
-exception ServerNotExistException
-{
-};
-
-/**
- *
- * This exception is raised if a node doesn't exist.
- *
- **/
-exception NodeNotExistException
-{
-};
-
-/**
- *
- * A generic exception base for all kind of deployment error
- * exception.
- *
- **/
-exception DeploymentException
-{
-    /**
-     *
-     * The path of the component which cause the deployment to
-     * fail. The path is a dot separated list of component names. It
-     * always starts with the node name is followed by the server name
-     * and eventually the service name.
-     *
-     **/
-    string component;
-    
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
-};
-
-/**
- *
- * This exception is raised when an error occured while parsing the
- * XML descriptor of a component.
- *
- **/
-exception ParserDeploymentException extends DeploymentException
-{
-};
-
-/**
- *
- * This exception is raised when an error occured during the adapter
- * regsitration.
- *
- **/
-exception AdapterDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The id of the adapter which couldn't be registered.
-     *
-     **/
-    string id;
-};
-
-/**
- * 
- * This exception is raised when an error occured during the
- * registration of a Yellow offer.
- *
- **/
-exception OfferDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The Yellow interface which couldn't be registered with the
-     * Yellow service.
-     *
-     **/
-    string intf;
-    
-    /**
-     *
-     * The proxy which couldn't be registered with the Yellow service.
-     *
-     **/
-    Object* proxy;
-};
-
-/**
- * 
- * This exception is raised if an error occured when deploying a
- * server.
- *
- **/
-exception ServerDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The name of the server which couldn't be deployed.
-     *
-     **/
-    string server;
-};
-
-/**
- *
- * This exception is raised if a node couldn't be reach.
- *
- **/
-exception NodeUnreachableException
-{
-};
 
 /**
  *
@@ -317,7 +186,7 @@ struct ServerDescription
  * documentation for further information.</para></warning>
  *
  **/
-class Admin
+interface Admin
 {
     /**
      *
@@ -593,6 +462,55 @@ class Admin
      *
      **/
     nonmutating Ice::StringSeq getAllAdapterIds();
+
+    /**
+     *
+     * Add an object to the object registry. &IcePack; will get the
+     * object type by calling [ice_id] on the given proxy. The object
+     * must be reachable.
+     *
+     * @param obj The object to be added to the registry.
+     *
+     * @throws ObjectDeploymentException Raised if an error occured
+     * while trying to register this object. This can occur if the
+     * type of the object can't be determine because the object is not
+     * reachable.
+     *
+     * @throws ObjectExistsException Raised if the object is already
+     * registered.
+     *
+     **/
+    nonmutating void addObject(Object* obj)
+	throws ObjectExistsException, ObjectDeploymentException;
+
+    /**
+     *
+     * Add an object to the object registry and explicitly specifies
+     * its type.
+     *
+     * @param obj The object to be added to the registry.
+     *
+     * @param type The obect type.
+     *
+     * @throws ObjectExistsException Raised if the object is already
+     * registered.
+     *
+     **/
+    nonmutating void addObjectWithType(Object* obj, string type)
+	throws ObjectExistsException;
+
+    /**
+     *
+     * Remove an object from the object registry.
+     *
+     * @param obj The object to be removed from the registry.
+     *
+     * @throws ObjectNotExistException Raised if the object can't be
+     * found.
+     *
+     **/
+    nonmutating void removeObject(Object* obj) 
+	throws ObjectNotExistException;
 
     /**
      *

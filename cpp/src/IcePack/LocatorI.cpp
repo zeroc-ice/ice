@@ -19,12 +19,58 @@ using namespace std;
 using namespace IcePack;
 
 IcePack::LocatorI::LocatorI(const AdapterRegistryPtr& adapterRegistry, 
+			    const ObjectRegistryPtr& objectRegistry, 
 			    const Ice::LocatorRegistryPrx& locatorRegistry) :
     _adapterRegistry(adapterRegistry),
+    _objectRegistry(objectRegistry),
     _locatorRegistry(locatorRegistry)
 {
 }
 
+//
+// Find an object by identity. The object is searched in the object
+// registry. If found and if the object was registered with an
+// adapter, we get the adapter direct proxy and return a proxy created
+// from the adapter direct proxy and the object identity. We could
+// just return the registered proxy but this would be less efficient
+// since the client would have to make a second call to find out the
+// adapter direct proxy.
+//
+Ice::ObjectPrx 
+IcePack::LocatorI::findObjectById(const Ice::Identity& id, const Ice::Current& current) const
+{
+    ObjectDescription obj;
+
+    try
+    {
+	obj = _objectRegistry->getObjectDescription(id);
+    }
+    catch(const ObjectNotExistException&)
+    {
+	throw Ice::ObjectNotFoundException();
+    }
+
+    if(!obj.adapterId.empty())
+    {
+	try
+	{
+	    Ice::ObjectPrx directProxy = findAdapterById(obj.adapterId, current);
+	    if(directProxy)
+	    {
+		return directProxy->ice_newIdentity(id);
+	    }
+	}
+	catch(Ice::AdapterNotFoundException&)
+	{
+	    //
+	    // Ignore.
+	    //
+	}
+    }
+
+    return obj.proxy;
+}
+    
 Ice::ObjectPrx 
 IcePack::LocatorI::findAdapterById(const string& id, const Ice::Current&) const
 {
@@ -44,14 +90,14 @@ IcePack::LocatorI::findAdapterById(const string& id, const Ice::Current&) const
     }
     catch(const AdapterNotExistException&)
     {
-	throw Ice::AdapterNotRegisteredException();
+	throw Ice::AdapterNotFoundException();
     }
     catch(const Ice::ObjectNotExistException&)
     {
 	//
 	// Expected if the adapter is destroyed.
 	//
-	throw Ice::AdapterNotRegisteredException();
+	throw Ice::AdapterNotFoundException();
     }
     catch(const Ice::NoEndpointException&)
     {

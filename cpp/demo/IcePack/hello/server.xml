@@ -1,0 +1,28 @@
+<server kind="cpp">
+
+  <!-- ============================================================= -->
+  <!-- Register the server adapter named Hello and the HelloFactory  -->
+  <!-- object hosted by this server.                                 -->
+  <!-- ============================================================= -->
+  <adapters>
+    <adapter name="Hello" endpoints="default">
+      <object identity="${name}" type="::HelloFactory"/>
+    </adapter>
+  </adapters>
+
+  <!-- ============================================================= -->
+  <!-- The HelloFactory object identity is obtained from the         -->
+  <!-- Identity property defined here. We defined the identity of    -->
+  <!-- the HelloFactory object as the name of the server.            -->
+  <!-- ============================================================= -->
+  <properties>
+    <property name="Identity" value="${name}"/>
+  </properties>
+
+  <target name="debug">
+    <properties>
+      <property name="Ice.Trace.Location" value="1"/>
+    </properties>
+  </target>
+
+</server>

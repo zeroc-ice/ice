@@ -7,7 +7,7 @@
 
   <adapters>
     <adapter name="Server" endpoints="default">
-      <offer interface="::Test" identity="${name}"/>
+      <object identity="${name}" type="::Test"/>
     </adapter>
   </adapters>
 
