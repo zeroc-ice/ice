@@ -606,7 +606,12 @@ DescriptorHandler::getAttributeValue(const IceXML::Attributes& attrs, const stri
     {
 	error("missing attribute '" + name + "'");
     }
-    return substitute(p->second);
+    string v = substitute(p->second);
+    if(v.empty())
+    {
+	error("attribute '" + name + "' is empty");
+    }
+    return v;
 }
 
 string
