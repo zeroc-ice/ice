@@ -1,0 +1,9 @@
+<server kind="java">
+
+  <classname>Server</classname>
+
+  <adapters>
+    <adapter name="TestAdapter"/>
+  </adapters>
+
+</server>
