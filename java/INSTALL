@@ -43,6 +43,11 @@ link below for more information:
 
 http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
 
+With the Ice for Java SSL plugin, you may experience occasional hangs.
+The most common reason is that  your system's entropy pool is empty. The 
+work-around is to edit <java.home>/lib/security/java.security to use 
+/dev/urandom instead of /dev/random.  
+
 
 Slice to Java translator
 ------------------------
