@@ -3,7 +3,7 @@ Requirements
 =========================================================================
 
 - PHP5 (http://www.php.net/downloads.php)
-- Ice 1.1.x TODO
+- Ice 1.1.1
 
 =========================================================================
 Building PHP with Ice (Linux/Solaris)
@@ -198,27 +198,3 @@ SetEnv LD_ASSUME_KERNEL 2.4.1
 
 For an Apache module, you must ensure the httpd server executable is
 started with this environment variable defined correctly.
-
-=========================================================================
-Configuring Ice for PHP
-=========================================================================
-
-The Ice extension currently supports two configuration directives:
-
-- ice.config=<file>
-
-  Specifies the name of an Ice configuration file that should be loaded
-  when creating the Ice communicator instance shared by PHP scripts.
-  This directive is optional.
-
-- ice.parse=<options> [file ...]
-
-  Specifies the preprocessor options and Slice files to be parsed. This
-  directive is optional; however, if no Slice files are parsed, then
-  PHP scripts will have very few capabilities. For example, scripts
-  will be able to invoke basic proxy operations, but will not be able
-  to use any user-defined types.
-
-It is important to note that access to configuration and Slice files
-may be restricted, depending on PHP's execution context, such as
-when running as an Apache module in a process that has been chroot()ed.
