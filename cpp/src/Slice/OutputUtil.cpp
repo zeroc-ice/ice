@@ -31,14 +31,22 @@ Separator sp;
 Slice::Output::Output()
     : pos_(0),
       indent_(0),
-      separator_(true)
+      separator_(true),
+      _blockStart("{"),
+      _blockEnd("}"),
+      _useTab(true),
+      _indentSize(4)
 {
 }
 
 Slice::Output::Output(const char* s)
     : pos_(0),
       indent_(0),
-      separator_(true)
+      separator_(true),
+      _blockStart("{"),
+      _blockEnd("}"),
+      _useTab(true),
+      _indentSize(4)
 {
     open(s);
 }
@@ -54,10 +62,10 @@ Slice::Output::print(const char* s)
 {
     for(unsigned int i = 0; i < strlen(s); ++i)
     {
-	if(s[i] == '\n')
-	    pos_ = 0;
-	else
-	    ++pos_;
+    if(s[i] == '\n')
+        pos_ = 0;
+    else
+        ++pos_;
     }
 
     out_ << s;
@@ -66,15 +74,15 @@ Slice::Output::print(const char* s)
 void
 Slice::Output::inc()
 {
-    indent_ += 4;
+    indent_ += _indentSize;
     separator_ = true;
 }
 
 void
 Slice::Output::dec()
 {
-    assert(indent_ >= 4);
-    indent_ -= 4;
+    assert(indent_ >= _indentSize);
+    indent_ -= _indentSize;
     separator_ = true;
 }
 
@@ -100,6 +108,30 @@ Slice::Output::restoreIndent()
     indentSave_.pop();
 }
 
+void 
+Slice::Output::setBeginBlock(const char *bb)
+{
+    _blockStart = bb;
+}
+
+void 
+Slice::Output::setEndBlock(const char *eb)
+{
+    _blockEnd = eb;
+}
+
+void 
+Slice::Output::setIndent(int indentSize)
+{
+    _indentSize = indentSize; 
+}
+
+void 
+Slice::Output::setUseTab(bool useTab)
+{
+    _useTab = useTab;
+}
+
 void
 Slice::Output::nl()
 {
@@ -109,18 +141,30 @@ Slice::Output::nl()
 
     int indent = indent_;
 
-    while(indent >= 8)
+    if (_useTab)
     {
-	indent -= 8;
-	out_ << "\t";
-	pos_ += 8;
+        while(indent >= 8)
+        {
+            indent -= 8;
+            out_ << '\t';
+            pos_ += 8;
+        }
+    }
+    else
+    {
+        while(indent >= _indentSize)
+        {
+            indent -= indentSize;
+            out_ << "    ";
+            pos_ += _indentSize;
+        }
     }
 
     while(indent > 0)
     {
-	--indent;
-	out_ << ' ';
-	++pos_;
+        --indent;
+        out_ << ' ';
+        ++pos_;
     }
 
     out_.flush();
@@ -130,7 +174,7 @@ void
 Slice::Output::sb()
 {
     nl();
-    out_ << '{';
+    out_ << _blockStart;
     ++pos_;
     inc();
     separator_ = false;
@@ -141,7 +185,7 @@ Slice::Output::eb()
 {
     dec();
     nl();
-    out_ << '}';
+    out_ << _blockEnd;
     --pos_;
 }
 
@@ -149,7 +193,7 @@ void
 Slice::Output::sp()
 {
     if(separator_)
-	out_ << '\n';
+        out_ << '\n';
 }
 
 bool

@@ -39,6 +39,11 @@ public:
     Output();
     Output(const char*);
 
+    void setBeginBlock(const char *); // what do we use at block starts?
+    void setEndBlock(const char *);   // what do we use the block end?
+    void setIndent(int);              // what is the indent level?
+    void setUseTab(bool);             // should we output tabs?
+
     void open(const char*); // Open output stream
 
     void print(const char*); // Print a string
@@ -64,6 +69,11 @@ private:
     int indent_;
     std::stack<int> indentSave_;
     bool separator_;
+
+    std::string _blockStart;
+    std::string _blockEnd;
+    bool _useTab;
+    int  _indentSize;
 };
 
 template<typename T>
