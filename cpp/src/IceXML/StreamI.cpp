@@ -1261,14 +1261,28 @@ IceXML::StreamI::startRead(const ::std::string& element)
     }
     
     string nodeName = toString(_input->current.getNodeName());
-    //
-    // TODO: Work around for bug in xerces
-    //
-    static const string facets = "facets";
-    static const string facetsNS = "ice:facets";
-    if((element != facetsNS || nodeName != facets) && element != nodeName)
+    if(element != nodeName)
     {
-	throw ::Ice::MarshalException(__FILE__, __LINE__);
+        //
+        // TODO: Work around for bug in xerces. Specifically, when schema
+        // validation is enabled, the namespace prefix is always empty.
+        // In this case, we compare only the local names, but only if the
+        // prefix is empty.
+        //
+        string::size_type pos = element.find(':');
+        if(pos != string::npos)
+        {
+            string localName = toString(_input->current.getLocalName());
+            string prefix = toString(_input->current.getPrefix());
+            if(!prefix.empty() || pos + 1 == element.size() || localName != element.substr(pos + 1))
+            {
+                throw ::Ice::MarshalException(__FILE__, __LINE__);
+            }
+        }
+        else
+        {
+            throw ::Ice::MarshalException(__FILE__, __LINE__);
+        }
     }
 
     _input->nodeStack.push_back(_input->current);
