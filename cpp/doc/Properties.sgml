@@ -614,7 +614,7 @@ Ice.NullHandleAbort=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 IceUtil smart pointers will cause the program to abort instead of
-raising an <literal>IceUtil::NullHandleException</literal> exception
+raising a <literal>IceUtil::NullHandleException</literal> exception
 if a null smart pointer is accessed. (C++ only.)
 </para>
 </section>
