@@ -436,12 +436,12 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     }
     catch(const LocalException& ex)
     {
+	// Warn about other Ice local exceptions.
 	if(_warn)
 	{
 	    Warning out(_instance->logger());
 	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	}
-        setState(StateClosed);
 	threadPool->promoteFollower();
 	return;
     }
@@ -452,8 +452,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     }
 
     //
-    // We must promote a follower after we accepted the new
-    // connection.
+    // We must promote a follower after we accepted a new connection.
     //
     threadPool->promoteFollower();
 
@@ -534,26 +533,18 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	const_cast<EndpointPtr&>(_endpoint) = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
     }
 
-    try
+    const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));
+    if(_transceiver)
     {
-	const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));
-	if(_transceiver)
-	{
-	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
-	    connection->validate();
-	    _connections.push_back(connection);
-	}
-	else
-	{
-	    _acceptor = _endpoint->acceptor(const_cast<EndpointPtr&>(_endpoint));
-	    assert(_acceptor);
-	    _acceptor->listen();
-	}
+	ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+	connection->validate();
+	_connections.push_back(connection);
     }
-    catch(...)
+    else
     {
-	setState(StateClosed);
-	throw;
+	_acceptor = _endpoint->acceptor(const_cast<EndpointPtr&>(_endpoint));
+	assert(_acceptor);
+	_acceptor->listen();
     }
 }
 

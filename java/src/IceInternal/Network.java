@@ -270,8 +270,7 @@ public final class Network
                 result = fd.accept();
                 if(result == null)
                 {
-                    java.nio.channels.Selector selector =
-                        java.nio.channels.Selector.open();
+                    java.nio.channels.Selector selector = java.nio.channels.Selector.open();
 
                     try
                     {
@@ -308,8 +307,7 @@ public final class Network
                             }
                             catch(java.io.IOException ex)
                             {
-                                Ice.SocketException se =
-                                    new Ice.SocketException();
+                                Ice.SocketException se = new Ice.SocketException();
                                 se.initCause(ex);
                                 throw se;
                             }
@@ -334,14 +332,6 @@ public final class Network
             }
             catch(java.io.IOException ex)
             {
-                try
-                {
-                    fd.close();
-                }
-                catch(java.io.IOException e)
-                {
-                    // Ignore
-                }
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
                 throw se;

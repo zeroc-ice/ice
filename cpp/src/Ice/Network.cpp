@@ -555,7 +555,6 @@ repeatAccept:
 	    goto repeatAccept;
 	}
 	
-	closeSocket(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;

@@ -188,30 +188,25 @@ public class IncomingConnectionFactory extends EventHandler
         catch(Ice.TimeoutException ex)
         {
             // Ignore timeouts.
-	    threadPool.promoteFollower();
 	    return;
         }
         catch(Ice.LocalException ex)
         {
+	    // Warn about other Ice local exceptions.
             if(_warn)
             {
                 warning(ex);
             }
-            setState(StateClosed);
-	    threadPool.promoteFollower();
 	    return;
         }
-	catch(RuntimeException ex)
+	finally
 	{
+	    //
+	    // We must promote a follower after we accepted a new
+	    // connection, or after an exception.
+	    //
 	    threadPool.promoteFollower();
-	    throw ex;
 	}
-
-	//
-	// We must promote a follower after we accepted the new
-	// connection.
-	//
-        threadPool.promoteFollower();
 
 	//
 	// Create and activate a connection object for the connection.
@@ -309,7 +304,8 @@ public class IncomingConnectionFactory extends EventHandler
         }
         catch(RuntimeException ex)
         {
-            setState(StateClosed);
+	    _state = StateClosed;
+	    _acceptor = null;
             throw ex;
         }
     }
