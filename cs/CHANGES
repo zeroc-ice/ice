@@ -1,6 +1,11 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Overloaded the checkedCast member function of the generated PrxHelper
+  classes to allow a trailing argument of type ::Ice::Context. This makes
+  it possible to do stateful things that require a context in a
+  servant locator's activate() method.
+
 - Fixed a bug in slice2cs: incorrect code was generated if an
   interface was derived from a base interface in a different module
   and the base interface contained an AMD operation.

@@ -154,6 +154,11 @@ dictionary<string, MyEnum> StringMyEnumD;
     void opDerived();
 };
 
+["ami", "amd"] interface TestCheckedCast
+{
+    Ice::Context getContext();
+};
+
 };
 
 #endif

@@ -742,6 +742,11 @@ namespace Ice
             return b;
         }
 
+        public static ObjectPrx checkedCast(Ice.ObjectPrx b, Ice.Context ctx)
+        {
+            return b;
+        }
+
         public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f)
         {
             ObjectPrx d = null;
@@ -751,6 +756,27 @@ namespace Ice
                 {
                     Ice.ObjectPrx bb = b.ice_newFacet(f);
                     bool ok = bb.ice_isA("::Object");
+                    Debug.Assert(ok);
+                    ObjectPrxHelper h = new ObjectPrxHelper();
+                    h.__copyFrom(bb);
+                    d = h;
+                }
+                catch(Ice.FacetNotExistException)
+                {
+                }
+            }
+            return d;
+        }
+
+        public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f, Ice.Context ctx)
+        {
+            ObjectPrx d = null;
+            if(b != null)
+            {
+                try
+                {
+                    Ice.ObjectPrx bb = b.ice_newFacet(f);
+                    bool ok = bb.ice_isA("::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
                     h.__copyFrom(bb);

@@ -79,12 +79,22 @@
         <Files>
             <Include>
                 <File
+                    RelPath = "CheckedCastLocator.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "MyDerivedClassI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
                     RelPath = "Server.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "TestCheckedCastI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

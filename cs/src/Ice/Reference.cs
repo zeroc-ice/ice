@@ -914,7 +914,7 @@ namespace IceInternal
 	    base.streamWrite(s);
 
 	    s.writeSize(_endpoints.Length);
-	    if(_endpoints.length > 0)
+	    if(_endpoints.Length > 0)
 	    {
 		for(int i = 0; i < _endpoints.Length; i++)
 		{

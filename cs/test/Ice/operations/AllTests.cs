@@ -23,7 +23,7 @@ public class AllTests
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
-	String rf = "test:default -p 12345 -t 2000";
+	string rf = "test:default -p 12345 -t 2000";
 	Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
 	test(baseProxy != null);
 	Console.Out.WriteLine("ok");
@@ -37,6 +37,24 @@ public class AllTests
 	test(cl.Equals(baseProxy));
 	test(derivedProxy.Equals(baseProxy));
 	test(cl.Equals(derivedProxy));
+	Console.Out.WriteLine("ok");
+
+	Console.Out.Write("testing checked cast with context... ");
+	Console.Out.Flush();
+	string cref = "test:default -p 12346 -t 2000";
+	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
+	test(cbase != null);
+
+	Test.TestCheckedCastPrx tccp = Test.TestCheckedCastPrxHelper.checkedCast(cbase);
+	Ice.Context c = tccp.getContext();
+	test(c == null || c.Count == 0);
+
+	c = new Ice.Context();
+	c["one"] = "hello";
+	c["two"] = "world";
+	tccp = Test.TestCheckedCastPrxHelper.checkedCast(cbase, c);
+	Ice.Context c2 = tccp.getContext();
+	test(c.Equals(c2));
 	Console.Out.WriteLine("ok");
 	
 	Console.Out.Write("testing twoway operations... ");
