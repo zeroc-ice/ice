@@ -13,8 +13,6 @@
 #
 # **********************************************************************
 
-import sys, os
-
 #
 # Set protocol to "ssl" in case you want to run the tests with the SSL
 # protocol. Otherwise TCP is used.
@@ -45,37 +43,7 @@ host = "localhost"
 # Don't change anything below this line!
 #
 
-if protocol == "ssl":
-    plugin = " --Ice.Plugin.IceSSL=IceSSL:create"
-    clientProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
-    serverProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
-    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
-    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
-else:
-    clientProtocol = ""
-    serverProtocol = ""
-    clientServerProtocol = ""
-
-if compress:
-    clientProtocol += " --Ice.Override.Compress"
-    serverProtocol += " --Ice.Override.Compress"
-    clientServerProtocol += " --Ice.Override.Compress"
-
-if host != "":
-    defaultHost = " --Ice.Default.Host=" + host
-else:
-    defaultHost = ""
-
-commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
-                      " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
-
-clientOptions = clientProtocol + defaultHost
-serverOptions = serverProtocol + defaultHost + commonServerOptions
-clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
-collocatedOptions = clientServerProtocol + defaultHost
+import sys, os
 
 def isCygwin():
 
@@ -150,23 +118,66 @@ def waitServiceReady(pipe, token):
         if output == token + " ready":
             break
 
-def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
+if not isWin32():
+    os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.environ["LD_LIBRARY_PATH"]
+
+if protocol == "ssl":
+    plugin = " --Ice.Plugin.IceSSL=IceSSL:create"
+    clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Config=client_sslconfig.xml"
+    serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Config=server_sslconfig.xml"
+    clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Config=sslconfig.xml" + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Config=sslconfig.xml"
+else:
+    clientProtocol = ""
+    serverProtocol = ""
+    clientServerProtocol = ""
+
+if compress:
+    clientProtocol += " --Ice.Override.Compress"
+    serverProtocol += " --Ice.Override.Compress"
+    clientServerProtocol += " --Ice.Override.Compress"
+
+if host != "":
+    defaultHost = " --Ice.Default.Host=" + host
+else:
+    defaultHost = ""
+
+commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
+                      " --Ice.ConnectionWarnings --Ice.ServerIdleTime=30"
+
+clientOptions = clientProtocol + defaultHost
+serverOptions = serverProtocol + defaultHost + commonServerOptions
+clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
+collocatedOptions = clientServerProtocol + defaultHost
+
+def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
-    updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
-
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -179,28 +190,24 @@ def clientServerTestWithOptions(toplevel, name, additionalServerOptions, additio
 	killServers()
 	sys.exit(1)
 
-def clientServerTest(toplevel, name):
+def clientServerTest(name):
 
-    clientServerTestWithOptions(toplevel, name, "", "")
+    clientServerTestWithOptions(name, "", "")
 
-
-def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalClientOptions):
+def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
-    updatedClientOptions = updatedServerOptions
-
     print "starting server...",
-    serverPipe = os.popen(server + updatedServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
@@ -215,19 +222,17 @@ def mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, ad
 	killServers()
 	sys.exit(1)
 
-def mixedClientServerTest(toplevel, name):
+def mixedClientServerTest(name):
 
-    mixedClientServerTestWithOptions(toplevel, name, "", "")
+    mixedClientServerTestWithOptions(name, "", "")
 
-def collocatedTestWithOptions(toplevel, name, additionalOptions):
+def collocatedTestWithOptions(name, additionalOptions):
 
     testdir = os.path.join(toplevel, "test", name)
     collocated = os.path.join(testdir, "collocated")
 
-    updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
-
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + updatedCollocatedOptions + additionalOptions)
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
     print "ok"
 
     for output in collocatedPipe.xreadlines():
@@ -239,9 +244,9 @@ def collocatedTestWithOptions(toplevel, name, additionalOptions):
 	killServers()
 	sys.exit(1)
 
-def collocatedTest(toplevel, name):
+def collocatedTest(name):
 
-    collocatedTestWithOptions(toplevel, name, "")
+    collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
 

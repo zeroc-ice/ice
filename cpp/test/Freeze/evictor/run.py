@@ -32,5 +32,5 @@ testdir = os.path.join(toplevel, "test", name)
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-TestUtil.clientServerTestWithOptions(toplevel, name, " " + testdir, "")
+TestUtil.clientServerTestWithOptions(name, " " + testdir, "")
 sys.exit(0)

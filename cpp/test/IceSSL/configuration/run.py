@@ -33,9 +33,8 @@ testdir = os.path.join(toplevel,"test", "IceSSL", "configuration")
 client = os.path.join(testdir, "configuration")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
-updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 print "starting configuration...",
-clientPipe = os.popen(client + updatedOptions)
+clientPipe = os.popen(client + localClientOptions)
 print "ok"
 
 for output in clientPipe.xreadlines():

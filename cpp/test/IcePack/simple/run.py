@@ -35,32 +35,31 @@ testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IcePack registry
 # 
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
 
 #
 # Test client/server without on demand activation.
 #
 additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
-TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalServerOptions, additionalOptions)
+TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
 #
-IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start the registry and a node.
 #
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
-icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
 
 #
 # Test client/server with on demand activation.
@@ -69,7 +68,7 @@ server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
 print "registering server with icepack...",
-IcePackAdmin.addServer(toplevel, "server", os.path.join(testdir, "simple_server.xml"), server, "", "");
+IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), server, "", "");
 print "ok"
   
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
@@ -87,10 +86,10 @@ if clientStatus:
     sys.exit(1)
     
 print "unregister server with icepack...",
-IcePackAdmin.removeServer(toplevel, "server");
+IcePackAdmin.removeServer("server");
 print "ok"
 
-IcePackAdmin.shutdownIcePackNode(toplevel, icePackNodePipe)
-IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackNode(icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 
 sys.exit(0)

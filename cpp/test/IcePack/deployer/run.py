@@ -28,19 +28,20 @@ import IcePackAdmin
 
 testdir = os.path.join(toplevel, "test", "IcePack", "deployer")
 
-os.environ['LD_LIBRARY_PATH'] = testdir + ":" + os.environ['LD_LIBRARY_PATH']
+if not TestUtil.isWin32():
+    os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.environ["LD_LIBRARY_PATH"]
 
 #
 # Start the client.
 #
 def startClient(options):
 
-    updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + \
-                           " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\" " + \
-                           options
+    fullClientOptions = TestUtil.clientOptions + \
+                        " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\" " + \
+                        options
 
     print "starting client...",
-    clientPipe = os.popen(os.path.join(testdir, "client") + updatedClientOptions)
+    clientPipe = os.popen(os.path.join(testdir, "client") + fullClientOptions)
     print "ok"
 
     for output in clientPipe.xreadlines():
@@ -54,21 +55,20 @@ def startClient(options):
 # Start IcePack.
 #
 IcePackAdmin.cleanDbDir(os.path.join(testdir, "db"))
-
-icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(toplevel, "12346", testdir)
-icePackNodePipe = IcePackAdmin.startIcePackNode(toplevel, testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(testdir)
 
 #
 # Deploy the application, run the client and remove the application.
 #
 print "deploying application...",
-IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), "");
+IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), "");
 print "ok"
 
 startClient("")
 
 print "removing application...",
-IcePackAdmin.removeApplication(toplevel, os.path.join(testdir, "application.xml"));
+IcePackAdmin.removeApplication(os.path.join(testdir, "application.xml"));
 print "ok"
 
 #
@@ -76,19 +76,19 @@ print "ok"
 # client to test targets (-t options) and remove the application.
 #
 print "deploying application with target...",
-IcePackAdmin.addApplication(toplevel, os.path.join(testdir, "application.xml"), "debug localnode.Server1.manual")
+IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), "debug localnode.Server1.manual")
 print "ok"
 
 startClient("-t")
 
 print "removing application...",
-IcePackAdmin.removeApplication(toplevel, os.path.join(testdir, "application.xml"));
+IcePackAdmin.removeApplication(os.path.join(testdir, "application.xml"));
 print "ok"
 
 #
 # Shutdown IcePack.
 #
-IcePackAdmin.shutdownIcePackNode(toplevel, icePackNodePipe)
-IcePackAdmin.shutdownIcePackRegistry(toplevel, icePackRegistryPipe)
+IcePackAdmin.shutdownIcePackNode(icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(icePackRegistryPipe)
 
 sys.exit(0)

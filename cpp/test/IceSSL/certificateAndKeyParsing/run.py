@@ -29,20 +29,18 @@ if TestUtil.protocol != "ssl" :
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-testOptions = " --IceSSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
-              " --IceSSL.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
-              " --IceSSL.Server.Config= " + \
-              " --IceSSL.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
-              " --IceSSL.Client.Config= "
+testOptions = " --IceSSL.Test.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+              " --IceSSL.Client.Config= " + \
+              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+              " --IceSSL.Server.Config= "
 
 testdir = os.path.join(toplevel,"test", "IceSSL", "certificateAndKeyParsing")
 client = os.path.join(testdir, "certificateAndKeyParsing")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
-updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
-testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting certificateAndKeyParsing...",
-clientPipe = os.popen(client + updatedOptions + testOptions)
+clientPipe = os.popen(client + localClientOptions + testOptions)
 print "ok"
 
 for output in clientPipe.xreadlines():

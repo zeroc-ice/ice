@@ -32,13 +32,10 @@ client = os.path.join(testdir, "client")
 num = 6
 base = 12340
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
 serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    serverPipes[i] = os.popen(server + updatedServerOptions + " %d" % (base + i))
+    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i))
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
@@ -47,7 +44,7 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-clientPipe = os.popen(client + updatedClientOptions + " " + ports)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports)
 print "ok"
 
 for output in clientPipe.xreadlines():

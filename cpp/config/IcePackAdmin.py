@@ -15,13 +15,18 @@
 
 import sys, os, TestUtil
 
+for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+    toplevel = os.path.normpath(toplevel)
+    if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
+        break
+else:
+    raise "can't find toplevel directory!"
+
 icePackPort = "0";
 
-def startIcePackRegistry(toplevel, port, testdir):
+def startIcePackRegistry(port, testdir):
 
     global icePackPort
-
-    options = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
     icePackPort = port
     
@@ -32,7 +37,7 @@ def startIcePackRegistry(toplevel, port, testdir):
         os.mkdir(dataDir)
 
     print "starting icepack registry...",
-    command = icePack + options + ' --nowarn ' + \
+    command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
           r' --IcePack.Registry.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
           r' --IcePack.Registry.LocatorRegistry.Endpoints=default' + \
           r' --IcePack.Registry.Internal.Endpoints=default' + \
@@ -51,20 +56,18 @@ def startIcePackRegistry(toplevel, port, testdir):
 
     return icePackPipe
 
-def startIcePackNode(toplevel, testdir):
+def startIcePackNode(testdir):
 
-    options = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-    
     icePack = os.path.join(toplevel, "bin", "icepacknode")
 
     dataDir = os.path.join(testdir, "db", "node")
     if not os.path.exists(dataDir):
         os.mkdir(dataDir)
 
-    overrideOptions = '"' + options.replace("--", "") + '"'
+    overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + '"'
 
     print "starting icepack node...",
-    command = icePack + options + ' --nowarn ' + \
+    command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' --IcePack.Node.Endpoints=default' + \
               r' --IcePack.Node.Data=' + dataDir + \
@@ -81,15 +84,13 @@ def startIcePackNode(toplevel, testdir):
     print "ok"
     return icePackPipe
 
-def shutdownIcePackRegistry(toplevel, icePackPipe):
+def shutdownIcePackRegistry(icePackPipe):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
     print "shutting down icepack registry...",
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "shutdown" '
 
@@ -102,15 +103,13 @@ def shutdownIcePackRegistry(toplevel, icePackPipe):
         TestUtil.killServers()
         sys.exit(1)
         
-def shutdownIcePackNode(toplevel, icePackPipe):
+def shutdownIcePackNode(icePackPipe):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
     print "shutting down icepack node...",
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "node shutdown localnode" '
 
@@ -123,14 +122,12 @@ def shutdownIcePackNode(toplevel, icePackPipe):
         TestUtil.killServers()
         sys.exit(1)
         
-def addApplication(toplevel, descriptor, targets):
+def addApplication(descriptor, targets):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-    
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"'
 
@@ -140,14 +137,12 @@ def addApplication(toplevel, descriptor, targets):
         TestUtil.killServers()
         sys.exit(1)
 
-def removeApplication(toplevel, descriptor):
+def removeApplication(descriptor):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-    
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "application remove \"' + descriptor + '\\" \"'
 
@@ -157,14 +152,12 @@ def removeApplication(toplevel, descriptor):
         TestUtil.killServers()
         sys.exit(1)
 
-def addServer(toplevel, name, serverDescriptor, server, libpath, targets):
+def addServer(name, serverDescriptor, server, libpath, targets):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-    
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server add localnode \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
               r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"'
@@ -175,14 +168,12 @@ def addServer(toplevel, name, serverDescriptor, server, libpath, targets):
         TestUtil.killServers()
         sys.exit(1)
 
-def removeServer(toplevel, name):
+def removeServer(name):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-    
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server remove \"' + name + '\\" \"'
 
@@ -192,13 +183,11 @@ def removeServer(toplevel, name):
         TestUtil.killServers()
         sys.exit(1)
 
-def startServer(toplevel, name):
+def startServer(name):
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server start \"' + name + '\\""'
 
@@ -208,13 +197,11 @@ def startServer(toplevel, name):
         TestUtil.killServers()
         sys.exit(1)
 
-def listAdapters(toplevel):
+def listAdapters():
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
-    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
-    command = icePackAdmin + options + \
+    command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "adapter list"'
 

@@ -32,9 +32,6 @@ client = os.path.join(testdir, "client")
 num = 5
 base = 12340
 
-updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
-updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
-
 serverPipes = { }
 for i in range(0, num):
     if i + 1 < num:
@@ -42,7 +39,7 @@ for i in range(0, num):
     else:
         s = " %d" % (base + i)
     print "starting server #%d..." % (i + 1),
-    command = server + updatedServerOptions + s;
+    command = server + TestUtil.serverOptions + s;
     serverPipes[i] = os.popen(command)
     TestUtil.getServerPid(serverPipes[i])
     TestUtil.getAdapterReady(serverPipes[i])
@@ -50,7 +47,7 @@ for i in range(0, num):
 
 print "starting client...",
 s = " %d %d" % (base, (base + num - 1))
-command = client + updatedClientOptions + s
+command = client + TestUtil.clientOptions + s
 clientPipe = os.popen(command)
 print "ok"
 

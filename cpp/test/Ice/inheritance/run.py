@@ -27,6 +27,6 @@ import TestUtil
 
 name = os.path.join("Ice", "inheritance")
 
-TestUtil.clientServerTest(toplevel, name)
-TestUtil.collocatedTest(toplevel, name)
+TestUtil.clientServerTest(name)
+TestUtil.collocatedTest(name)
 sys.exit(0)

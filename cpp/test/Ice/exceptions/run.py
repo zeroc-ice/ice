@@ -27,6 +27,6 @@ import TestUtil
 
 name = os.path.join("Ice", "exceptions")
 
-TestUtil.clientServerTest(toplevel, name)
-TestUtil.collocatedTest(toplevel, name)
+TestUtil.clientServerTest(name)
+TestUtil.collocatedTest(name)
 sys.exit(0)

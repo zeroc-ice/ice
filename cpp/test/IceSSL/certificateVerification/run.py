@@ -29,22 +29,28 @@ if TestUtil.protocol != "ssl":
     print "This test may only be run with SSL enabled."
     sys.exit(0)
 
-TestUtil.clientOptions += \
-    " --IceSSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs"
-TestUtil.serverOptions += \
-    " --IceSSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
-TestUtil.clientServerOptions += \
-    " --IceSSL.Test.Client.CertPath=TOPLEVELDIR/test/IceSSL/certs" + \
-    " --IceSSL.Test.Server.CertPath=TOPLEVELDIR/test/IceSSL/certs"
+testOptions = " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+              " --IceSSL.Client.Config= " + \
+              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
+              " --IceSSL.Server.Config= "
+
+TestUtil.clientOptions += " --IceSSL.Test.Client.CertPath=" + \
+                          os.path.join(toplevel, "test", "IceSSL", "certs")
+TestUtil.serverOptions += " --IceSSL.Test.Server.CertPath=" + \
+                          os.path.join(toplevel, "test", "IceSSL", "certs")
+TestUtil.clientServerOptions += " --IceSSL.Test.Client.CertPath=" + \
+                                os.path.join(toplevel, "test", "IceSSL", "certs") + \
+                                " --IceSSL.Test.Server.CertPath=" + \
+                                os.path.join(toplevel, "test", "IceSSL", "certs")
 
 name = os.path.join("IceSSL", "certificateVerification")
 
 print "testing default certificate verifier."
-TestUtil.clientServerTest(toplevel, name)
+TestUtil.clientServerTest(name)
 
 print "testing single-certificate certificate verifier."
 TestUtil.clientOptions += " --IceSSL.Client.CertificateVerifier=singleCert"
 TestUtil.serverOptions += " --IceSSL.Server.CertificateVerifier=singleCert"
-TestUtil.clientServerTest(toplevel, name)
+TestUtil.clientServerTest(name)
 
 sys.exit(0)
