@@ -40,9 +40,22 @@ public:
 	{
 	    AdapterPrx adapter = _manager->create(_desc);    
 	}
-	catch(const AdapterExistsException&)
+	catch(const AdapterExistsException& ex)
 	{
-	    throw DeploymentException();
+	    AdapterDeploymentException ex;
+	    ex.adapter = _desc.name;
+	    ex.reason = "Adapter already exist";
+	    throw ex;
+	}
+	catch(const Ice::LocalException& lex)
+	{
+	    ostringstream os;
+	    os << "Couldn't contact the adpater manager: " << lex << endl;
+
+	    AdapterDeploymentException ex;
+	    ex.adapter = _desc.name;
+	    ex.reason = os.str();
+	    throw ex;
 	}
     }
 
@@ -233,7 +246,17 @@ IcePack::ServerDeployer::deploy()
 {
     ComponentDeployer::deploy();
 
-    _serverManager->create(_description);
+    try
+    {
+	_serverManager->create(_description);
+    }
+    catch(const ServerExistsException& ex)
+    {
+	ServerDeploymentException ex1;
+	ex1.server = _variables["name"];
+	ex1.reason = "Server already exists";
+	throw ex1;
+    }
 }
 
 void
@@ -249,16 +272,12 @@ IcePack::ServerDeployer::setClassName(const string& name)
 {
     if(_kind != ServerKindJavaServer)
     {
-	cerr << "Class name element only allowed for Java servers." << endl;
-	_error++;
-	return;	
+	throw DeploySAXParseException("classname element only allowed for Java servers", _locator);
     }
 
     if(name.empty())
     {
-	cerr << "Empty path." << endl;
-	_error++;
-	return;
+	throw DeploySAXParseException("Empty classname element value", _locator);
     }
 
     _className = name;
@@ -269,9 +288,7 @@ IcePack::ServerDeployer::setWorkingDirectory(const string& pwd)
 {
     if(pwd.empty())
     {
-	cerr << "Empty working directory." << endl;
-	_error++;
-	return;
+	throw DeploySAXParseException("Empty working directory", _locator);
     }
 
     _description.pwd = pwd;
@@ -282,21 +299,18 @@ IcePack::ServerDeployer::addAdapter(const string& name, const string& endpoints)
 {
     if(!_adapterManager)
     {
-	cerr << "Adapter manager not set, can't register the adapter '" << name << "'" << endl;
-	_error++;
-	return;	
+	throw DeploySAXParseException("IcePack is not configured to deploy adapters", _locator);
+    }
+
+    if(name.empty())
+    {
+	throw DeploySAXParseException("Empty adapter name", _locator);
     }
 
     AdapterDescription desc;
     desc.name = name;
     desc.server = ServerPrx::uncheckedCast(
 	_communicator->stringToProxy("server/" + _description.name + "@IcePack.Internal"));
-    if(desc.name == "")
-    {
-	cerr << "Empty adapter name." << endl;
-	_error++;
-	return;
-    }
 
     _tasks.push_back(new AddAdapterTask(_adapterManager, desc));
 
@@ -313,16 +327,16 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
 {
     if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
-	cerr << "Service elements are only allowed for Java or C++ IceBox servers." << endl;
-	_error++;
-	return;
+	throw DeploySAXParseException("Service are only allows in IceBox servers", _locator);
     }
 
-    if(name.empty() || descriptor.empty())
+    if(name.empty())
     {
-	cerr << "Name or descriptor attribute value is empty in service element." << endl;
-	_error++;
-	return;
+	throw DeploySAXParseException("Name attribute value is empty", _locator);
+    }
+    if(descriptor.empty())
+    {
+	throw DeploySAXParseException("Descriptor attribute value is empty", _locator);
     }
 
     //
@@ -337,12 +351,15 @@ IcePack::ServerDeployer::addService(const string& name, const string& descriptor
 	string xmlFile = descriptor[0] != '/' ? _variables["basedir"] + "/" + descriptor : descriptor;
 	task->parse(xmlFile);
     }
-    catch(const DeploymentException&)
+    catch(const ParserDeploymentException& ex)
     {
-	cerr << "Failed to parse the service '" << name << "' descriptor" << endl;
-	delete task;
-	_error++;
-	return;
+	//
+	// Add component and wrap the exception in a
+	// ParserDeploymentWrapperException.
+	//
+	ParserDeploymentException ex1(ex);
+	ex1.component = _variables["name"] + ":" + ex.component;
+	throw ParserDeploymentWrapperException(ex1);
     }
     
     _tasks.push_back(task);
@@ -368,9 +385,7 @@ IcePack::ServerDeployer::setKind(ServerDeployer::ServerKind kind)
     case ServerKindCppServer:
 	if(_description.path.empty())
 	{
-	    cerr << "C++ server path is not specified" << endl;
-	    _error++;
-	    break;
+	    throw DeploySAXParseException("C++ server path is not specified", _locator);
 	}
 	
     case ServerKindJavaServer:	

@@ -12,6 +12,7 @@
 #define ICE_PACK_COMPONENT_DEPLOYER_H
 
 #include <IceUtil/Shared.h>
+#include <IcePack/Admin.h>
 #include <Yellow/Yellow.h>
 #include <sax/HandlerBase.hpp>
 
@@ -36,6 +37,29 @@ void incRef(::IcePack::Task*);
 void decRef(::IcePack::Task*);
 
 class ComponentDeployer;
+
+class DeploySAXParseException : public SAXParseException
+{
+public:
+
+    DeploySAXParseException(const std::string&, const Locator*const locator);
+
+};
+
+//
+// A wrapper for ParserDeploymentException.
+//
+class ParserDeploymentWrapperException : public SAXException
+{
+public:
+
+    ParserDeploymentWrapperException(const ParserDeploymentException&);
+    void throwParserDeploymentException() const;
+
+private:
+
+    ParserDeploymentException _exception;
+};
 
 class ComponentErrorHandler : public ErrorHandler
 {
@@ -66,7 +90,7 @@ public:
     virtual void ignorableWhitespace(const XMLCh *const, const unsigned int) { }
     virtual void processingInstruction(const XMLCh *const, const XMLCh *const) { }
     virtual void resetDocument() { }
-    virtual void setDocumentLocator(const Locator *const) { }
+    virtual void setDocumentLocator(const Locator *const);
     virtual void startDocument() { }
     virtual void endDocument() { }
 
@@ -83,6 +107,7 @@ private:
     std::stack<std::string> _elements;
     std::string _adapter;
 
+    const Locator* _locator;
     ComponentDeployer& _deployer;
 };
 
@@ -96,6 +121,7 @@ public:
     virtual void undeploy();
 
     void parse(const std::string&, ComponentDeployHandler&);
+    void setDocumentLocator(const Locator*const locator);
     std::string substitute(const std::string&) const;
 
     void createDirectory(const std::string&, bool = false);
@@ -109,12 +135,14 @@ protected:
     void undeployFrom(std::vector<TaskPtr>::iterator);
 
     Ice::CommunicatorPtr _communicator;
+    Yellow::AdminPrx _yellowAdmin;
 
     Ice::PropertiesPtr _properties;
     std::map<std::string, std::string> _variables;
     std::vector<TaskPtr> _tasks;
     std::string _configFile;
-    int _error;
+
+    const Locator* _locator;
 };
 
 }

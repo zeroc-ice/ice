@@ -48,6 +48,39 @@ Client::usage()
 	;
 }
 
+class AdminExceptionFactory : public Ice::UserExceptionFactory
+{
+public:
+    
+    virtual void createAndThrow(const string& type)
+    {
+	if(type == "::IcePack::DeploymentException")
+	{
+	    throw DeploymentException();
+	}
+	else if(type == "::IcePack::ParserDeploymentException")
+	{
+	    throw ParserDeploymentException();
+	}
+	else if(type == "::IcePack::AdapterDeploymentException")
+	{
+	    throw AdapterDeploymentException();
+	}
+	else if(type == "::IcePack::OfferDeploymentException")
+	{
+	    throw OfferDeploymentException();
+	}
+	else if(type == "::IcePack::ServerDeploymentException")
+	{
+	    throw ServerDeploymentException();
+	}
+    }
+
+    virtual void destroy()
+    {
+    }
+};
+
 int
 Client::run(int argc, char* argv[])
 {
@@ -150,6 +183,13 @@ Client::run(int argc, char* argv[])
 	cerr << appName() << ": `" <<  "' are no valid administrative endpoints" << endl;
 	return EXIT_FAILURE;
     }
+
+    Ice::UserExceptionFactoryPtr factory = new AdminExceptionFactory;
+    communicator()->addUserExceptionFactory(factory, "::IcePack::DeploymentException");
+    communicator()->addUserExceptionFactory(factory, "::IcePack::ParserDeploymentException");
+    communicator()->addUserExceptionFactory(factory, "::IcePack::AdapterDeploymentException");
+    communicator()->addUserExceptionFactory(factory, "::IcePack::ServerDeploymentException");
+    communicator()->addUserExceptionFactory(factory, "::IcePack::OfferDeploymentException");
 
     ParserPtr parser = Parser::createParser(communicator(), admin);
     int status = EXIT_SUCCESS;

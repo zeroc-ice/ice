@@ -68,10 +68,8 @@ public:
     {
 	if(mkdir(_name.c_str(), 0755) != 0)
 	{
-	    cerr << "Can't create directory: " << _name << endl;
-
-	    Ice::SystemException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
+	    DeploymentException ex;
+	    ex.reason = "Couldn't create directory " + _name + ": " + strerror(getSystemErrno());
 	    throw ex;
 	}
     }
@@ -89,55 +87,56 @@ public:
 	    //
 	    struct dirent **namelist;
 	    int n = ::scandir(_name.c_str(), &namelist, 0, alphasort);
-	    if(n < 0)
+	    if(n > 0)
 	    {
-		Ice::SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-
-	    Ice::StringSeq entries;
-	    entries.reserve(n);
-	    for(int i = 0; i < n; ++i)
-	    {
-		string name = namelist[i]->d_name;
-		free(namelist[i]);
-		entries.push_back(_name + "/" + name);
-	    }
-	    free(namelist);
-	    
-	    for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
-	    {
-		struct stat buf;
-
-		if(::stat(p->c_str(), &buf) != 0)
+		Ice::StringSeq entries;
+		entries.reserve(n);
+		for(int i = 0; i < n; ++i)
 		{
-		    if(errno != ENOENT)
+		    string name = namelist[i]->d_name;
+		    free(namelist[i]);
+		    entries.push_back(_name + "/" + name);
+		}
+		free(namelist);
+		
+		for(Ice::StringSeq::iterator p = entries.begin(); p != entries.end(); ++p)
+		{
+		    struct stat buf;
+		    
+		    if(::stat(p->c_str(), &buf) != 0)
 		    {
-			Ice::SystemException ex(__FILE__, __LINE__);
-			ex.error = getSystemErrno();
-			throw ex;
+			if(errno != ENOENT)
+			{
+			    //
+			    // TODO: log error
+			    //
+			}
+		    }
+		    else if(S_ISREG(buf.st_mode))
+		    {
+			if(unlink(p->c_str()) != 0)
+			{
+			    //
+			    // TODO: log error
+			    //
+			}
 		    }
 		}
-		else if(S_ISREG(buf.st_mode))
-		{
-		    if(unlink(p->c_str()) != 0)
-		    {
-			Ice::SystemException ex(__FILE__, __LINE__);
-			ex.error = getSystemErrno();
-			throw ex;
-		    }
-		}
+	    }
+	    else if(n < 0)
+	    {
+		//
+		// TODO: something seems to be wrong if we can't scan
+		// the directory. Print a warning.
+		//
 	    }
 	}
 
 	if(rmdir(_name.c_str()) != 0)
 	{
-	    cerr << "Can't remove directory: " << _name << endl;
-
-	    Ice::SystemException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
+	    //
+	    // TODO: print a warning.
+	    //
 	}
     }
     
@@ -159,7 +158,7 @@ class GenerateConfiguration : public Task
 	string 
 	operator()(const Ice::PropertyDict::value_type& p) const
 	{
-		return p.first + "=" + p.second;
+	    return p.first + "=" + p.second;
 	}
     };
 
@@ -178,8 +177,8 @@ public:
 	configfile.open(_file.c_str(), ios::out);
 	if(!configfile)
 	{
-	    cerr << "Can't create configuration file: " << _file << endl;
-	    Ice::SystemException ex(__FILE__, __LINE__);
+	    DeploymentException ex;
+	    ex.reason = "Couldn't create configuration file: " + _file;
 	    throw ex;
 	}
 	
@@ -193,11 +192,9 @@ public:
     {
 	if(unlink(_file.c_str()) != 0)
 	{
-	    cerr << "Can't remove configuration file: " << _file << endl;
-
-	    Ice::SystemException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;	    
+	    //
+	    // TOTO: print a warning.
+	    //
 	}
     }
 
@@ -224,12 +221,27 @@ public:
     virtual void
     deploy()
     {
-	_admin->add(_offer, _proxy);
+	try
+	{
+	    _admin->add(_offer, _proxy);
+	}
+	catch(const Ice::LocalException& lex)
+	{
+	    ostringstream os;
+	    os << "Couldn't contact the yellow service: " << lex << endl;
+
+	    OfferDeploymentException ex;
+	    ex.reason = os.str();
+	    ex.intf = _offer;
+	    ex.proxy = _proxy;
+	    throw ex;
+	}
     }
 
     virtual void
     undeploy()
     {
+	assert(_admin);
 	try
 	{
 	    _admin->remove(_offer, _proxy);
@@ -251,6 +263,22 @@ private:
     Ice::ObjectPrx _proxy;
 };
 
+}
+
+IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg, const Locator*const locator)
+    : SAXParseException(XMLString::transcode(msg.c_str()), *locator)
+{
+}
+
+IcePack::ParserDeploymentWrapperException::ParserDeploymentWrapperException(const ParserDeploymentException& ex)
+    : _exception(ex)
+{
+}
+
+void
+IcePack::ParserDeploymentWrapperException::throwParserDeploymentException() const
+{
+    throw _exception;
 }
 
 IcePack::ComponentErrorHandler::ComponentErrorHandler(ComponentDeployer& deployer) :
@@ -338,6 +366,14 @@ IcePack::ComponentDeployHandler::endElement(const XMLCh *const name)
     }
 }
 
+void 
+IcePack::ComponentDeployHandler::setDocumentLocator(const Locator *const locator)
+{
+    _deployer.setDocumentLocator(locator);
+
+    _locator = locator;
+}
+
 string
 IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, const string& name) const
 {
@@ -347,8 +383,7 @@ IcePack::ComponentDeployHandler::getAttributeValue(const AttributeList& attrs, c
     
     if(value == 0)
     {
-	cerr << "Missing attribute '" << name << "'" << endl;
-	return "";
+	throw DeploySAXParseException("Missing attribute '" + name + "'", _locator);
     }
 
     return _deployer.substitute(toString(value));
@@ -391,13 +426,26 @@ IcePack::ComponentDeployer::ComponentDeployer(const Ice::CommunicatorPtr& commun
     string serversPath = _communicator->getProperties()->getProperty("IcePack.Data");
     assert(!serversPath.empty());
     _variables["datadir"] = serversPath + (serversPath[serversPath.length() - 1] == '/' ? "" : "/") + "servers";
+
+    //
+    // TODO: Find a better way to bootstrap the yellow service. We
+    // need to set the locator on the proxy here, because the
+    // communicator doesn't have a default locator since it's the
+    // locator communicator...
+    //
+    Ice::ObjectPrx object =
+	_communicator->stringToProxy(_communicator->getProperties()->getProperty("IcePack.Yellow.Admin"));
+    if(object)
+    {
+	Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(
+	    _communicator->stringToProxy(_communicator->getProperties()->getProperty("Ice.Default.Locator")));
+	_yellowAdmin = Yellow::AdminPrx::uncheckedCast(object->ice_locator(locator));
+    }
 }
 
 void 
 IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler& handler)
 {
-    _error = 0;
-
     //
     // Setup the base directory for this deploment descriptor to the
     // location of the desciptor file.
@@ -414,27 +462,86 @@ IcePack::ComponentDeployer::parse(const string& xmlFile, ComponentDeployHandler&
     }
     
     SAXParser* parser = new SAXParser;
-    parser->setValidationScheme(SAXParser::Val_Never);
-
     try
     {
+	parser->setValidationScheme(SAXParser::Val_Never);
 	ComponentErrorHandler err(*this);
 	parser->setDocumentHandler(&handler);
 	parser->setErrorHandler(&err);
 	parser->parse(xmlFile.c_str());
     }
+    catch(const ParserDeploymentWrapperException& ex)
+    {
+	//
+	// Throw the exception wrapped in ex.
+	//
+	ex.throwParserDeploymentException();
+    }
+    catch(const SAXParseException& e)
+    {
+	delete parser;
+
+	ostringstream os;
+	os << xmlFile << ":" << e.getLineNumber() << ": " << toString(e.getMessage());
+
+	ParserDeploymentException ex;
+	ex.component = _variables["name"];
+	ex.reason = os.str();
+	throw ex;
+    }
+    catch(const SAXException& e)
+    {
+	delete parser;
+
+	ostringstream os;
+	os << xmlFile << ": SAXException: " << toString(e.getMessage());
+
+	ParserDeploymentException ex;
+	ex.component = _variables["name"];
+	ex.reason = os.str();
+	throw ex;
+    }
     catch(const XMLException& e)
     {
-	cerr << "XMLException: " << toString(e.getMessage()) << endl;
-	_error++;
+	delete parser;
+
+	ostringstream os;
+	os << xmlFile << ": XMLException: " << toString(e.getMessage());
+
+	ParserDeploymentException ex;
+	ex.component = _variables["name"];
+	ex.reason = os.str();
+	throw ex;
     }
+    catch(...)
+    {
+	delete parser;
+
+	ostringstream os;
+	os << xmlFile << ": UnknownException while parsing file.";
+
+	ParserDeploymentException ex;
+	ex.component = _variables["name"];
+	ex.reason = os.str();
+	throw ex;
+    }
+
     int rc = parser->getErrorCount();
     delete parser;
 
-    if(_error > 0 || rc > 0)
+    if(rc > 0)
     {
-	throw DeploymentException();
+	ParserDeploymentException ex;
+	ex.component = _variables["name"];
+	ex.reason = xmlFile + ": Parser returned non null error count";
+	throw ex;
     }    
+}
+
+void
+IcePack::ComponentDeployer::setDocumentLocator(const Locator*const locator)
+{
+    _locator = locator;
 }
 
 void
@@ -447,17 +554,11 @@ IcePack::ComponentDeployer::deploy()
 	{
 	    (*p)->deploy();
 	}
-	catch(const DeploymentException& ex)
+	catch(DeploymentException& ex)
 	{
-	    cerr << "Deploy: " << ex << endl;
+	    ex.component = _variables["name"];
 	    undeployFrom(p);
 	    throw;
-	}
-	catch(const Ice::SystemException& ex)
-	{
-	    cerr << "Deploy: " << ex << endl;
-	    undeployFrom(p);
-	    throw DeploymentException();;
 	}
     }
 }
@@ -474,15 +575,8 @@ IcePack::ComponentDeployer::undeploy()
 	catch(const DeploymentException& ex)
 	{
 	    //
-	    // TODO: we probably need to log the failure to execute
-	    // this task so that the use can take necessary steps to
-	    // ensure it's correctly undeployed.
+	    // TODO: Undeploy shouldn't raise exceptions.
 	    //
-	    cerr << "Undeploy: " << ex << endl;
-	}
-	catch(const Ice::SystemException& ex)
-	{
-	    cerr << "Undeploy: " << ex << endl;
 	}
     }
 }
@@ -513,41 +607,16 @@ IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter,
 {
     assert(!adapter.empty());
 
-    Yellow::AdminPrx yellowAdmin;    
-    try
-    {
-	//
-	// TODO: Find a better way to bootstrap the yellow service. We
-	// need to set the locator on the proxy here, because the
-	// communicator doesn't have a default locator since it's the
-	// locator communicator...
-	//
-	Ice::ObjectPrx object = _communicator->stringToProxy(
-	    _communicator->getProperties()->getProperty("IcePack.Yellow.Admin"));
-
-	if(!object)
-	{	
-	    cerr << "IcePack.Yellow.Admin is not set, can't register the offer '" << offer << "'" << endl;
-	    _error++;
-	    return;	
-	}
-
-	Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(
-	    _communicator->stringToProxy(_communicator->getProperties()->getProperty("Ice.Default.Locator")));
-
-	yellowAdmin = Yellow::AdminPrx::checkedCast(object->ice_locator(locator));
-    }
-    catch(Ice::LocalException& ex)
-    {
-	cerr << "Couldn't contact the yellow service to register the offer '" << offer << "':\n" << ex << endl;
-	_error++;
-	return;	
+    if(!_yellowAdmin)
+    {	
+	string msg = "IcePack is not configured to deploy offers (IcePack.Yellow.Admin property is missing)";
+	throw DeploySAXParseException (msg, _locator);
     }
 
     Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapter);
     assert(object);
     
-    _tasks.push_back(new RegisterOffer(yellowAdmin, offer, object));
+    _tasks.push_back(new RegisterOffer(_yellowAdmin, offer, object));
 }
 
 void
@@ -562,7 +631,6 @@ IcePack::ComponentDeployer::overrideBaseDir(const string& basedir)
 	_variables["basedir"] += "/" + basedir;
     }
 }
-
 
 //
 // Substitute variables with their values.
@@ -580,8 +648,7 @@ IcePack::ComponentDeployer::substitute(const string& v) const
 	
 	if(end == string::npos)
 	{
-	    cerr << "Malformed variable name in : " << value << endl;
-	    break; // Throw instead?
+	    throw DeploySAXParseException("Malformed variable name in the '" + value + "' value", _locator);
 	}
 
 	
@@ -589,8 +656,7 @@ IcePack::ComponentDeployer::substitute(const string& v) const
 	map<string, string>::const_iterator p = _variables.find(name);
 	if(p == _variables.end())
 	{
-	    cerr << "Unknown variable: " << name << endl;
-	    break; // Throw instead?
+	    throw DeploySAXParseException("Unknown variable name in the '" + value + "' value", _locator);
 	}
 
 	value.replace(beg, end - beg + 1, p->second);
@@ -612,11 +678,9 @@ IcePack::ComponentDeployer::undeployFrom(vector<TaskPtr>::iterator p)
 	    }
 	    catch(DeploymentException& ex)
 	    {
-		cerr << "Undeploy: " << ex << endl;
-	    }
-	    catch(Ice::SystemException& ex)
-	    {
-		cerr << "Undeploy: " << ex << endl;
+		//
+		// TODO: log error message this really shouldn't throw.
+		//
 	    }
 	}
     }

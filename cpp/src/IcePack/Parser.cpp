@@ -61,9 +61,9 @@ void
 IcePack::Parser::addServer(const list<string>& args, const std::list<std::string>& adapters, 
 			   const std::list<std::string>& options)
 {
-    if(args.size() < 2)
+    if(args.size() != 4)
     {
-	error("`server add' requires at least two arguments (type `help' for more info)");
+	error("`server add' requires four arguments (type `help' for more info)");
 	return;
     }
 
@@ -77,7 +77,18 @@ IcePack::Parser::addServer(const list<string>& args, const std::list<std::string
 	string descriptor = *p++;
 
 	_admin->addServer(name, path, ldpath, descriptor);
-
+    }
+    catch(const ParserDeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.component << ": " << ex.reason;
+	error(s.str());	
+    }
+    catch(const DeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ": " << ex.component << ": " << ex.reason;
+	error(s.str());	
     }
     catch(const Exception& ex)
     {

@@ -74,12 +74,33 @@ exception ServerNotInactiveException
 
 /**
  *
- * This exception is raised the deployment of the server failed.
+ * These exceptions are raised when the deployment of the server failed.
  *
  **/
 exception DeploymentException
 {
-    string message;
+    string component;
+    string reason;
+};
+
+exception ParserDeploymentException extends DeploymentException
+{
+};
+
+exception AdapterDeploymentException extends DeploymentException
+{
+    string adapter;
+};
+
+exception OfferDeploymentException extends DeploymentException
+{
+    string intf;
+    Object* proxy;
+};
+
+exception ServerDeploymentException extends DeploymentException
+{
+    string server;
 };
 
 /**

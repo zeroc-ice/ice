@@ -131,9 +131,7 @@ IcePack::ServiceDeployer::setDBEnv(const string& dir)
 {
     if(_kind != ServiceKindFreeze)
     {
-	cerr << "Database environment is only allowed for Freeze services." << endl;
-	_error++;
-	return;
+	throw DeploySAXParseException("Database environment is only allowed for Freeze services", _locator);
     }
 
     string path;
