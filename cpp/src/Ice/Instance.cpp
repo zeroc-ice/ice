@@ -630,34 +630,8 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 	    LocatorPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultLocator)));
     }
 
-#if !defined(_WIN32) && !defined(__sun) && !defined(__hpux)
     //
-    // daemon() must be called after any plug-ins have been
-    // installed. For example, an SSL plug-in might want to
-    // read a passphrase from standard input.
-    //
-    // TODO: This is a problem for plug-ins that open files, create
-    // threads, etc. Perhaps we need a two-stage plug-in
-    // initialization?
-    //
-    if(_properties->getPropertyAsInt("Ice.Daemon") > 0)
-    {
-        int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
-        int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
-        
-        if(daemon(nochdir, noclose) == -1)
-        {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
-        }
-    }
-#endif
-
-    //
-    // Must be done after daemon() is called, since daemon()
-    // forks. Does not work together with Ice.Daemon if
-    // Ice.DaemonNoClose is not set.
+    // Show process id if requested.
     //
     if(_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
@@ -669,8 +643,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Connection monitor initializations must be done after daemon()
-    // is called, since daemon() forks.
+    // Start connection monitor if necessary.
     //
     int acmTimeout = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
     int interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
@@ -678,11 +651,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     {
 	_connectionMonitor = new ConnectionMonitor(this, interval);
     }
-
-    //
-    // Thread pool initializations must be done after daemon() is
-    // called, since daemon() forks.
-    //
 
     //
     // Thread pool initialization is now lazy initialization in

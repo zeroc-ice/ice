@@ -1,9 +1,13 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Removed the Ice.Daemon, Ice.DaemonNoChdir and Ice.DaemonNoClose
+  properties. Support for Unix daemons and Win32 services has been
+  integrated into the Ice::Service class.
+
 - The default thread pool size is now just one thread. This is the
   fastest possible setting, still allows one level of nesting, and
-  doesn't require to make the servants thread safe. (Please see the
+  doesn't require that servants be thread safe. (Please see the
   description of the thread pool properties in the manual for
   information on how to increase the number of threads.)
 

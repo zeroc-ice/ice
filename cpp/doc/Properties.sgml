@@ -768,29 +768,6 @@ is, if <literal>Ice.UDP.RcvSize</literal> or <literal>Ice.UDP.SndSize</literal> 
 </section>
 </section>
 
-<section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.Daemon=<replaceable>num</replaceable>
-Ice.DaemonNoClose=<replaceable>no_close</replaceable>
-Ice.DaemonNoChdir=<replaceable>no_chdir</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Ice; process daeamonizes itself with the
-<literal>daemon</literal> system call. If
-<replaceable>no_close</replaceable> is set to a value larger than zero,
-standard input, output, and error are not redirected to
-<literal>/dev/null</literal>. If <replaceable>no_chdir</replaceable> is
-set to a value larger than zero, &Ice; does not change its working
-directory to the root directory. (Unix only.)
-</para>
-</section>
-</section>
-
 <section><title>Ice.ChangeUser</title>
 <section><title>Synopsis</title>
 <synopsis>
