@@ -10,7 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-interface Test
+["ami"] interface Test
 {
     void shutdown();
     void abort();

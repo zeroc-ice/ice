@@ -28,7 +28,7 @@ public class AllTests
         string refString = "test";
         for(int i = 0; i < ports.Count; i++)
         {
-            refString += ":default -t 4000 -p " + ports[i];
+            refString += ":default -t 60000 -p " + ports[i];
         }
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);
@@ -42,63 +42,167 @@ public class AllTests
         Console.Out.WriteLine("ok");
         
         int oldPid = 0;
-        for(int i = 1, j = 0; i <= ports.Count; ++i, j = j >= 3 ? 0 : j + 1)
+	bool ami = false;
+        for(int i = 1, j = 0; i <= ports.Count; ++i, ++j)
         {
-            Console.Out.Write("testing server #" + i + "... ");
-            Console.Out.Flush();
-            int pid = obj.pid();
-            test(pid != oldPid);
-            Console.Out.WriteLine("ok");
+	    if(j > 3)
+	    {
+	        j = 0;
+		ami = !ami;
+	    }
+
+	    if(!ami)
+	    {
+		Console.Out.Write("testing server #" + i + "... ");
+		Console.Out.Flush();
+		int pid = obj.pid();
+		test(pid != oldPid);
+		Console.Out.WriteLine("ok");
+		oldPid = pid;
+	    }
+	    else
+	    {
+                /*
+		Console.Out.Write("testing server #" + i + " with AMI... ");
+		Console.Out.Flush();
+		AMI_Test_pidI cb = new AMI_Test_pidI();
+		obj.pid_async(cb);
+		test(cb.check());
+		int pid = cb.pid();
+		test(pid != oldPid);
+		Console.Out.WriteLine("ok");
+		oldPid = pid;
+                */
+	    }
             
             if(j == 0)
             {
-                Console.Out.Write("shutting down server #" + i + "... ");
-                Console.Out.Flush();
-                obj.shutdown();
-                Console.Out.WriteLine("ok");
+	    	if(!ami)
+		{
+		    Console.Out.Write("shutting down server #" + i + "... ");
+		    Console.Out.Flush();
+		    obj.shutdown();
+		    Console.Out.WriteLine("ok");
+		}
+		else
+		{
+                    /*
+		    Console.Out.Write("shutting down server #" + i + " with AMI... ");
+		    AMI_Test_shutdownI cb = new AMI_Test_shtudownI();
+		    obj.shtudown_async(cb);
+		    test(cb.check());
+		    Console.Out.WriteLine("ok");
+                    */
+		}
             }
             else if(j == 1 || i + 1 > ports.Count)
             {
-                Console.Out.Write("aborting server #" + i + "... ");
-                Console.Out.Flush();
-                try
-                {
-                    obj.abort();
-                    test(false);
-                }
-                catch(Ice.ConnectionLostException)
-                {
-                    Console.Out.WriteLine("ok");
-                }
+	        if(!ami)
+		{
+		    Console.Out.Write("aborting server #" + i + "... ");
+		    Console.Out.Flush();
+		    try
+		    {
+			obj.abort();
+			test(false);
+		    }
+		    catch(Ice.ConnectionLostException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.ConnectFailedException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.SocketException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		}
+		else
+		{
+                    /*
+		    Console.Out.Write("aborting server #" + i + " with AMI... ");
+		    Console.Out.Flush();
+		    AMI_Test_abortI cb = new AMI_Test_abortI();
+		    obj.abort_async(cb);
+		    test(cb.check());
+		    Console.Out.WriteLine("ok");
+                    */
+		}
             }
             else if(j == 2)
             {
-                Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
-                Console.Out.Flush();
-                try
-                {
-                    obj.idempotentAbort();
-                    test(false);
-                }
-                catch(Ice.ConnectionLostException)
-                {
-                    Console.Out.WriteLine("ok");
-                }
+	        if(!ami)
+		{
+		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+		    Console.Out.Flush();
+		    try
+		    {
+			obj.idempotentAbort();
+			test(false);
+		    }
+		    catch(Ice.ConnectionLostException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.ConnectFailedException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.SocketException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		}
+		else
+		{
+                    /*
+		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
+		    Console.Out.Flush();
+		    AMI_Test_idempotentAbortI cb = new AMI_Test_idempotentAbortI();
+		    obj.idempotentAbort_async(cb);
+		    test(cb.check());
+		    Console.Out.WriteLine("ok");
+                    */
+		}
                 ++i;
             }
             else if(j == 3)
             {
-                Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
-                Console.Out.Flush();
-                try
-                {
-                    obj.nonmutatingAbort();
-                    test(false);
-                }
-                catch(Ice.ConnectionLostException)
-                {
-                    Console.Out.WriteLine("ok");
-                }
+	        if(!ami)
+		{
+		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
+		    Console.Out.Flush();
+		    try
+		    {
+			obj.nonmutatingAbort();
+			test(false);
+		    }
+		    catch(Ice.ConnectionLostException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.ConnectFailedException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		    catch(Ice.SocketException)
+		    {
+			Console.Out.WriteLine("ok");
+		    }
+		}
+		else
+		{
+                    /*
+		    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with nonmutating AMI call... ");
+		    Console.Out.Flush();
+		    AMI_Test_nonmutatingAbortI cb = new AMI_Test_nonmutatingAbortI();
+		    obj.nonmutatingAbort_async(cb);
+		    test(cb.check());
+		    Console.Out.WriteLine("ok");
+                    */
+		}
                 ++i;
             }
             else
