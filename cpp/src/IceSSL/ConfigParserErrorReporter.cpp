@@ -17,11 +17,13 @@
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/TraceLevels.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/sax/SAXParseException.hpp>
 
 #include <sstream>
 
 using namespace std;
+ICE_XERCES_NS_USE
 
 //
 // Utility to make the usage of xerces easier.

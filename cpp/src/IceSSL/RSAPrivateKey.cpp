@@ -108,7 +108,11 @@ IceSSL::RSAPrivateKey::byteSeqToKey(const ByteSeq& keySeq)
     unsigned char** privKeyBuffpp = &privKeyBuff;
     RSA** rsapp = &_privateKey;
 
+#if OPENSSL_VERSION_NUMBER < 0x0090700fL
     _privateKey = d2i_RSAPrivateKey(rsapp, privKeyBuffpp, (long)keySeq.size());
+#else
+    _privateKey = d2i_RSAPrivateKey(rsapp, (const unsigned char **)privKeyBuffpp, (long)keySeq.size());
+#endif
 
     delete [] privateKeyBuffer;
 

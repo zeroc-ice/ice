@@ -14,12 +14,14 @@
 
 #include <IceUtil/Config.h>
 #include <XMLTransform/ErrorReporter.h>
+#include <Ice/Xerces.h>
 
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 using namespace XMLTransform;
+ICE_XERCES_NS_USE
 
 DOMTreeErrorReporter::DOMTreeErrorReporter()
 {

@@ -56,7 +56,7 @@ prefix			= /opt/Ice-$(VERSION)
 # directory.
 #
 
-#OPENSSL_HOME		?= /opt/openssl
+OPENSSL_HOME		?= /opt/openssl
 
 #
 # If Xerces-C++ is not installed in a standard location where the

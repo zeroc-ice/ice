@@ -25,22 +25,21 @@
 //
 // For input streaming
 //
+#include <Ice/Xerces.h>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
-
 #include <xercesc/dom/DOMException.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
-
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 
 using namespace std;
 using namespace IceXML;
 using namespace IceUtil;
+ICE_XERCES_NS_USE
 
 //
 // Utility to make the usage of xerces easier.

@@ -13,14 +13,18 @@
 // **********************************************************************
 
 #include <IceStorm/WeightedGraph.h>
+
+#include <Ice/Xerces.h>
 #include <xercesc/parsers/SAXParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
+
 #include <map>
 #include <list>
 #include <iostream>
 
 using namespace std;
 using namespace IceStorm;
+ICE_XERCES_NS_USE
 
 static string
 toString(const XMLCh* ch)

@@ -17,6 +17,7 @@
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/Exception.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/framework/LocalFileInputSource.hpp>
@@ -26,6 +27,7 @@
 
 using namespace std;
 using namespace IceSSL;
+ICE_XERCES_NS_USE
 
 #ifdef WINDOWS
     #define CURRENTDIR ".\\"

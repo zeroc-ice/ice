@@ -17,10 +17,12 @@
 #include <Ice/Application.h>
 #include <IcePack/Registry.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 
 using namespace std;
 using namespace IcePack;
+ICE_XERCES_NS_USE
 
 class RegistryServer : public Ice::Application
 {

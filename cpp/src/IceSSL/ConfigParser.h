@@ -23,6 +23,7 @@
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/TraceLevelsF.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/dom/DOM.hpp>
 
 namespace IceSSL
@@ -47,7 +48,7 @@ public:
 
 private:
 
-    DOMNode* _root;
+    ICE_XERCES_NS DOMNode* _root;
     std::string _configFile;
     std::string _configPath;
 
@@ -56,25 +57,25 @@ private:
 
     // Parse tree walking utility methods.
     void popRoot(std::string&, std::string&, std::string&);
-    DOMNode* find(std::string&);
-    DOMNode* find(DOMNode*, std::string&);
+    ICE_XERCES_NS DOMNode* find(std::string&);
+    ICE_XERCES_NS DOMNode* find(ICE_XERCES_NS DOMNode*, std::string&);
 
     // Loading of the base elements of the file.
-    void getGeneral(DOMNode*, GeneralConfig&);
-    void getCertAuth(DOMNode*, CertificateAuthority&);
-    void getBaseCerts(DOMNode*, BaseCertificates&);
-    void getTempCerts(DOMNode*, TempCertificates&);
+    void getGeneral(ICE_XERCES_NS DOMNode*, GeneralConfig&);
+    void getCertAuth(ICE_XERCES_NS DOMNode*, CertificateAuthority&);
+    void getBaseCerts(ICE_XERCES_NS DOMNode*, BaseCertificates&);
+    void getTempCerts(ICE_XERCES_NS DOMNode*, TempCertificates&);
 
     // Loading of temporary certificates/params (Ephemeral Keys).
-    void loadDHParams(DOMNode*, TempCertificates&);
-    void loadRSACert(DOMNode*, TempCertificates&);
+    void loadDHParams(ICE_XERCES_NS DOMNode*, TempCertificates&);
+    void loadRSACert(ICE_XERCES_NS DOMNode*, TempCertificates&);
 
     // Populate with information from the indicated node in the parse tree.
-    void getCert(DOMNode*, CertificateDesc&);
-    void getDHParams(DOMNode*, DiffieHellmanParamsFile&);
+    void getCert(ICE_XERCES_NS DOMNode*, CertificateDesc&);
+    void getDHParams(ICE_XERCES_NS DOMNode*, DiffieHellmanParamsFile&);
 
     // Populate a certificate file object, basis of all certificates.
-    void loadCertificateFile(DOMNode*, CertificateFile&);
+    void loadCertificateFile(ICE_XERCES_NS DOMNode*, CertificateFile&);
 
     // Detemines if the string represents an absolute pathname.
     bool isAbsolutePath(std::string&);

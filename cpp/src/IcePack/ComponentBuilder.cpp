@@ -16,6 +16,7 @@
 #include <IcePack/ComponentBuilder.h>
 #include <IcePack/Internal.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/parsers/SAXParser.hpp>
 
 #include <sys/stat.h>
@@ -28,6 +29,7 @@
 
 using namespace std;
 using namespace IcePack;
+ICE_XERCES_NS_USE
 
 namespace IcePack
 {

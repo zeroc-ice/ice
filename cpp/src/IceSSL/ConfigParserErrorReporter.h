@@ -18,13 +18,13 @@
 #include <Ice/LoggerF.h>
 #include <IceSSL/TraceLevelsF.h>
 
-//#include <xercesc/util/XercesDefs.hpp>
+#include <Ice/Xerces.h>
 #include <xercesc/sax/ErrorHandler.hpp>
 
 namespace IceSSL
 {
 
-class ConfigParserErrorReporter : public ErrorHandler
+class ConfigParserErrorReporter : public ICE_XERCES_NS ErrorHandler
 {
 public:
 
@@ -32,9 +32,9 @@ public:
     ~ConfigParserErrorReporter();
 
     //  Implementation of the error handler interface.
-    void warning(const SAXParseException& toCatch);
-    void error(const SAXParseException& toCatch);
-    void fatalError(const SAXParseException& toCatch);
+    void warning(const ICE_XERCES_NS SAXParseException& toCatch);
+    void error(const ICE_XERCES_NS SAXParseException& toCatch);
+    void fatalError(const ICE_XERCES_NS SAXParseException& toCatch);
     void resetErrors();
 
     bool getSawErrors() const;

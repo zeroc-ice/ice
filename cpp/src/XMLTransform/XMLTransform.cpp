@@ -18,6 +18,7 @@
 #include <XMLTransform/ErrorReporter.h>
 #include <Freeze/DB.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/Janitor.hpp>
@@ -44,6 +45,7 @@
 using namespace std;
 using namespace Freeze;
 using namespace XMLTransform;
+ICE_XERCES_NS_USE
 
 //
 // Implementation of exception types.

@@ -24,6 +24,8 @@
 #include <IcePack/NodeInfo.h>
 #include <IcePack/TraceLevels.h>
 #include <IcePack/Registry.h>
+
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 
 #include <csignal>
@@ -35,6 +37,7 @@
 
 using namespace std;
 using namespace IcePack;
+ICE_XERCES_NS_USE
 
 //
 // The activator needs to be global since it's used by the interupt

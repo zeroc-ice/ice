@@ -18,9 +18,11 @@
 #include <IcePack/ServiceBuilder.h>
 #include <IcePack/AdapterFactory.h>
 #include <IcePack/ServerFactory.h>
+#include <Ice/Xerces.h>
 
 using namespace std;
 using namespace IcePack;
+ICE_XERCES_NS_USE
 
 namespace IcePack
 {

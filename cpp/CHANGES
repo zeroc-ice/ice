@@ -1,0 +1,12 @@
+Changes since version 1.0.0
+---------------------------
+
+- Added support for operator[] to the Freeze Map.
+
+- Added the macro ICE_INT64 as a portable wrapper for long long constants.
+
+- Added support for Xerces 2.2.0.
+
+- Added support for OpenSSL 0.97a.
+
+- Added OPENSSL_FLAGS to several Makefiles that were missing it.

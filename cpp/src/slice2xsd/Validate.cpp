@@ -14,18 +14,18 @@
 
 #include <IceUtil/Config.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
-
 #include <xercesc/dom/DOMException.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 
 #include <iostream>
 
 using namespace std;
+ICE_XERCES_NS_USE
 
 //
 // Utility to make the usage of xerces easier.

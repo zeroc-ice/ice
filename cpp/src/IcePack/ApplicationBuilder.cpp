@@ -13,9 +13,11 @@
 // **********************************************************************
 
 #include <IcePack/ApplicationBuilder.h>
+#include <Ice/Xerces.h>
 
 using namespace std;
 using namespace IcePack;
+ICE_XERCES_NS_USE
 
 namespace IcePack
 {

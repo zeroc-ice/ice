@@ -18,6 +18,7 @@
 #include <Freeze/DB.h>
 #include <IceUtil/OutputUtil.h>
 
+#include <Ice/Xerces.h>
 #include <xercesc/dom/DOM.hpp>
 
 #include <map>
@@ -150,16 +151,16 @@ class XML_TRANSFORM_API DocumentInfo : public ::IceUtil::Shared
 {
 public:
 
-    DocumentInfo(DOMDocument*, bool, DOMNode*, const ::std::string& = "");
+    DocumentInfo(ICE_XERCES_NS DOMDocument*, bool, ICE_XERCES_NS DOMNode*, const ::std::string& = "");
     ~DocumentInfo();
 
-    DOMDocument* getDocument() const;
+    ICE_XERCES_NS DOMDocument* getDocument() const;
     ::std::string findURI(const ::std::string& prefix) const;
     ::std::string getTargetNamespace() const;
 
 private:
 
-    DOMDocument* _document;
+    ICE_XERCES_NS DOMDocument* _document;
     bool _releaseDocument;
     PrefixURIMap _nsMap;
     ::std::string _targetNamespace;
@@ -179,10 +180,10 @@ public:
 
     typedef ::std::map< ::std::string, ::std::string > MissingTypeMap;
 
-    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&, DOMNode*,
-                           const MissingTypeMap&) = 0;
-    virtual void checkMissingTypes(const DocumentInfoPtr&, DOMNode*, const MissingTypeMap&) { }
-    virtual void collectMissingTypes(const DocumentInfoPtr&, DOMNode*, MissingTypeMap&) { }
+    virtual void transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const ::std::string&,
+                           ICE_XERCES_NS DOMNode*, const MissingTypeMap&) = 0;
+    virtual void checkMissingTypes(const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*, const MissingTypeMap&) { }
+    virtual void collectMissingTypes(const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*, MissingTypeMap&) { }
     virtual ::std::ostream& print(::std::ostream&) = 0;
 };
 
@@ -202,10 +203,10 @@ class XML_TRANSFORM_API Transformer
 public:
 
     Transformer(const Ice::StringSeq&, const Ice::StringSeq&, const Ice::StringSeq&, const Ice::StringSeq&,
-                DOMDocument*, DOMDocument*);
+                ICE_XERCES_NS DOMDocument*, ICE_XERCES_NS DOMDocument*);
     ~Transformer();
 
-    void transform(::IceUtil::XMLOutput&, DOMDocument*, const std::string&, bool, bool = true);
+    void transform(::IceUtil::XMLOutput&, ICE_XERCES_NS DOMDocument*, const std::string&, bool, bool = true);
 
 private:
 
@@ -245,7 +246,7 @@ public:
 
 private:
 
-    void transform(DOMDocument*, DOMDocument*);
+    void transform(ICE_XERCES_NS DOMDocument*, ICE_XERCES_NS DOMDocument*);
 
     Freeze::DBEnvironmentPtr _dbEnv;
     Freeze::DBPtr _db;

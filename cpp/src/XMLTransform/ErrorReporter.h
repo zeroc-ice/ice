@@ -15,6 +15,7 @@
 #ifndef ERROR_REPORTER_H
 #define ERROR_REPORTER_H
 
+#include <Ice/Xerces.h>
 #include <xercesc/sax/ErrorHandler.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 
@@ -23,17 +24,17 @@
 namespace XMLTransform
 {
 
-class DOMTreeErrorReporter : public ErrorHandler
+class DOMTreeErrorReporter : public ICE_XERCES_NS ErrorHandler
 {
 public:
 
     DOMTreeErrorReporter();
 
-    void warning(const SAXParseException&);
+    void warning(const ICE_XERCES_NS SAXParseException&);
 
-    void error(const SAXParseException&);
+    void error(const ICE_XERCES_NS SAXParseException&);
 
-    void fatalError(const SAXParseException&);
+    void fatalError(const ICE_XERCES_NS SAXParseException&);
 
     void resetErrors();
 

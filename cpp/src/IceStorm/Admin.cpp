@@ -14,12 +14,16 @@
 
 #include <Ice/Application.h>
 #include <IceStorm/Parser.h>
+
+#include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
+
 #include <fstream>
 
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
+ICE_XERCES_NS_USE
 
 class Client : public Application
 {
