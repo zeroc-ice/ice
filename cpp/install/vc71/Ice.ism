@@ -225,6 +225,7 @@
 	<table name="AppSearch">
 		<col key="yes" def="s72">Property</col>
 		<col key="yes" def="s72">Signature_</col>
+		<row><td>CMD_EXE</td><td>NewSignature1</td></row>
 	</table>
 
 	<table name="BBControl">
@@ -992,6 +993,7 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
+		<row><td>CopyAssemblyPDBs</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs) DO copy [INSTALLDIR]bin\%f.pdb [WindowsFolder]assembly\GAC\%f\2.1.0.0__1f998c50fec78381</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1053,6 +1055,7 @@
 		<col def="I4">ISAttributes</col>
 		<col def="S255">ISFolderName</col>
 		<row><td>ALLUSERSPROFILE</td><td>TARGETDIR</td><td>.:ALLUSE~1|All Users</td><td/><td>0</td><td/></row>
+		<row><td>ASSEMBLY</td><td>WindowsFolder</td><td>assembly</td><td/><td>0</td><td/></row>
 		<row><td>AdminToolsFolder</td><td>TARGETDIR</td><td>.:Admint~1|AdminTools</td><td/><td>0</td><td/></row>
 		<row><td>AppDataFolder</td><td>TARGETDIR</td><td>.:APPLIC~1|Application Data</td><td/><td>0</td><td/></row>
 		<row><td>CommonAppDataFolder</td><td>TARGETDIR</td><td>.:Common~1|CommonAppData</td><td/><td>0</td><td/></row>
@@ -1061,8 +1064,7 @@
 		<row><td>DesktopFolder</td><td>TARGETDIR</td><td>.:Desktop</td><td/><td>3</td><td/></row>
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
-		<row><td>GAC_GLACIER2CS_PATH</td><td>TARGETDIR</td><td>GAC_GLACIER2CS_PATH</td><td/><td>0</td><td/></row>
-		<row><td>GAC_ICECS_PATH</td><td>TARGETDIR</td><td>GAC_ICECS_PATH</td><td/><td>0</td><td/></row>
+		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
@@ -1097,6 +1099,7 @@
 		<col key="yes" def="S72">Parent</col>
 		<col key="yes" def="S255">Path</col>
 		<col def="I2">Depth</col>
+		<row><td>NewSignature1</td><td></td><td>[SystemFolder]</td><td>0</td></row>
 	</table>
 
 	<table name="DuplicateFile">
@@ -1584,7 +1587,7 @@
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
 		<row><td>IceCSharpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\demo</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\dev</td><td>4</td><td/><td>*.pdb</td><td>2</td></row>
+		<row><td>IceCSharpDev</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCSharpRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-csharp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
@@ -1639,8 +1642,8 @@
 		<col key="yes" def="s72">ISLinkerLibrary</col>
 		<col def="s255">Library</col>
 		<col def="i4">Order</col>
-		<row><td>_IsrtObl</td><td>&lt;ISProductFolder&gt;\Script\ISRT\Lib\isrt.obl</td><td>2</td></row>
-		<row><td>_IswiObl</td><td>&lt;ISProductFolder&gt;\Script\ISWi\Lib\iswi.obl</td><td>1</td></row>
+		<row><td>NewLinkerLibrary1</td><td>&lt;ISProductFolder&gt;\Script\ISWi\Lib\iswi.obl</td><td>1</td></row>
+		<row><td>NewLinkerLibrary2</td><td>&lt;ISProductFolder&gt;\Script\ISRT\Lib\isrt.obl</td><td>2</td></row>
 	</table>
 
 	<table name="ISLocalControl">
@@ -1789,6 +1792,8 @@
 		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
+		<row><td>IceAssemblyPublicKey</td><td>1f998c50fec78381</td><td/><td>2</td></row>
+		<row><td>IceAssemblyVersion</td><td>2.1.0.0</td><td/><td>2</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
 		<row><td>WindowsFolder</td><td/><td/><td>1</td></row>
@@ -2569,6 +2574,7 @@
 		<row><td>AppSearch</td><td/><td>400</td><td>AppSearch</td><td/></row>
 		<row><td>BindImage</td><td/><td>4300</td><td>BindImage</td><td/></row>
 		<row><td>CCPSearch</td><td>CCP_TEST</td><td>500</td><td>CCPSearch</td><td/></row>
+		<row><td>CopyAssemblyPDBs</td><td>(&amp;ice_dev_csharp=3) Or (&amp;ice_dev_vbasic=3)</td><td>6275</td><td/><td/></row>
 		<row><td>CostFinalize</td><td/><td>1000</td><td>CostFinalize</td><td/></row>
 		<row><td>CostInitialize</td><td/><td>800</td><td>CostInitialize</td><td/></row>
 		<row><td>CreateFolders</td><td/><td>3700</td><td>CreateFolders</td><td/></row>
@@ -2613,7 +2619,7 @@
 		<row><td>RemoveODBC</td><td/><td>2400</td><td>RemoveODBC</td><td/></row>
 		<row><td>RemoveRegistryValues</td><td/><td>2600</td><td>RemoveRegistryValues</td><td/></row>
 		<row><td>RemoveShortcuts</td><td/><td>3200</td><td>RemoveShortcuts</td><td/></row>
-		<row><td>ScheduleReboot</td><td>ISSCHEDULEREBOOT</td><td>6410</td><td>ScheduleReboot</td><td/></row>
+		<row><td>ScheduleReboot</td><td>ISSCHEDULEREBOOT</td><td>6500</td><td>ScheduleReboot</td><td/></row>
 		<row><td>SelfRegModules</td><td/><td>5600</td><td>SelfRegModules</td><td/></row>
 		<row><td>SelfUnregModules</td><td/><td>2200</td><td>SelfUnregModules</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>Not Installed</td><td>1010</td><td>SetARPINSTALLLOCATION</td><td/></row>
@@ -2654,8 +2660,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ISCompilerOption_WarningsAsErrors</td><td>1</td></row>
 		<row><td>ISDialogLangID</td><td/></row>
 		<row><td>IsProjectFileText</td><td>1</td></row>
-		<row><td>MsiExecCmdLineOptions</td><td/></row>
-		<row><td>MsiLogFile</td><td/></row>
+		<row><td>MsiExecCmdLineOptions</td><td>/Lrwieapcu!v C:\installer.log</td></row>
+		<row><td>MsiLogFile</td><td>C:\installer.log</td></row>
 		<row><td>OnUpgrade</td><td>1</td></row>
 		<row><td>Owner</td><td/></row>
 		<row><td>SccEnabled</td><td>0</td></row>
@@ -2881,6 +2887,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>NewProperty1</td><td>0</td><td/></row>
+		<row><td>NewProperty2</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
 		<row><td>ProductCode</td><td>{E0B538FA-2700-4DDC-BEFD-4B5C39DA6E9E}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
@@ -3049,6 +3056,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="I4">MinDate</col>
 		<col def="I4">MaxDate</col>
 		<col def="S255">Languages</col>
+		<row><td>NewSignature1</td><td>cmd.exe</td><td/><td/><td/><td/><td/><td/><td/></row>
 	</table>
 
 	<table name="TextStyle">
