@@ -323,6 +323,12 @@ struct_def
 }
 '{' struct_exports '}'
 {
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    if (st->dataMembers().empty())
+    {
+    	unit->error("struct must have at least one member");
+    }
     unit->popContainer();
     $$ = $3;
 }
@@ -973,6 +979,10 @@ data_member
 | type keyword
 {
     unit->error("keyword cannot be used as data member name");
+}
+| type
+{
+    unit->error("missing data member name");
 }
 ;
 

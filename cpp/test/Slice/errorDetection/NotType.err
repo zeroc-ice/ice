@@ -10,5 +10,6 @@ NotType.ice:22: `Module3' is not a type
 NotType.ice:22: `Module2' is not a type
 NotType.ice:22: `Module1' is not a type
 NotType.ice:30: `E' is an exception, which cannot be used as a type
+NotType.ice:31: struct must have at least one member
 NotType.ice:35: `E' is an exception, which cannot be used as a type
 NotType.ice:35: `E' is an exception, which cannot be used as a type
