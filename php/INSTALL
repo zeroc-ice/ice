@@ -198,6 +198,29 @@ To build the Ice extension in a static configuration:
 
 
 =========================================================================
+Additional Requirements for MacOS X
+=========================================================================
+
+Edit the file <phpdir>/libtool, search for the line beginning with
+"archive_cmds=", and change \$LD to \$CXX.
+
+If you are building the Ice extension in a static configuration, edit
+the file <phpdir>/Makefile and make the following changes:
+
+- If the command-line interpreter is being built, search for the
+  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+
+- If the CGI interpreter is being built, search for the definition of
+  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+- If a Web server module is being built, search for the line beginning
+  with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
+  well as in the rule for "libs/libphp5.bundle" below.
+
+
+
+
+=========================================================================
 Building PHP with the Ice extension (Windows)
 =========================================================================
 
