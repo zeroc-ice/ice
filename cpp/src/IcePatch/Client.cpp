@@ -299,31 +299,83 @@ IcePatch::Client::run(int argc, char* argv[])
                 dir = cwd;
             }
 
-            ByteSeq md5;
-            try
+            //
+            // Check the local directory before patching. This recursively
+            // updates the MD5 files, including the creation (if necessary)
+            // of an MD5 file for the top-level local directory. We need this
+            // top-level MD5 for two purposes:
+            //
+            // 1. We can compare it with the MD5 of the server's directory, and
+            //    skip the patch altogether if they match.
+            //
+            // 2. We may be able to obtain a download total by passing the MD5
+            //    to the getTotal operation.
+            //
+            // If the top-level MD5 file did not exist, there are two likely
+            // scenarios:
+            //
+            // 1. The local directory is new, in which case the entire server
+            //    tree must be downloaded.
+            //
+            // 2. A previous patch was interrupted (note that we remove a
+            //    directory's MD5 prior to patching it).
+            //
+            // In either case, we calculate a new MD5 for the directory, which
+            // gives us the desired behavior:
+            //
+            // * If the local directory is empty, the MD5 will consist of all zeros,
+            //   for which getTotal returns the download total for the server's
+            //   current tree.
+            //
+            // * If the local directory is not empty, we get an accurate signature
+            //   that will result in getTotal returning either a valid download total,
+            //   or a value of -1 indicating some intermediate state (e.g., the patch
+            //   was interrupted and is being resumed). In the case of a resumed
+            //   patch, we can't accurately provide progress feedback, so a return
+            //   value of -1 correctly causes the feedback to be suppressed.
+            //
+            checkDirectory(dir, _dynamic);
+            ByteSeq md5 = getMD5(dir);
+            FileInfo infoMD5 = getFileInfo(dir + ".md5", false);
+            if(infoMD5.type == FileTypeRegular)
             {
                 md5 = getMD5(dir);
             }
-            catch(const FileAccessException&)
+            else
             {
+                md5 = calcMD5(dir, _dynamic);
             }
 
             if(!_thorough && md5 == topDesc->md5)
             {
                 //
-                // Skip the top-level directory if the MD5s match.
+                // Skip the directory if the MD5s match.
                 //
                 cout << ": ok" << endl;
             }
             else
             {
+                cout << endl;
+
+                //
+                // Get the download total.
+                //
+                Long total = topDesc->dir->getTotal(md5);
+
+                //
+                // Remove the existing MD5 file.
+                //
+                removeRecursive(dir + ".md5");
+
                 //
                 // Patch the directory.
                 //
-                cout << endl;
-                Long total = topDesc->dir->getTotal(md5);
                 Long runningTotal = 0;
                 patch(topDesc, "", runningTotal, total);
+
+                //
+                // Create a new MD5 file for the directory.
+                //
                 createMD5(dir, _dynamic);
             }
 	}
@@ -537,6 +589,19 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		newIndent = indent + "| ";
 	    }
 
+            //
+            // Remove any existing MD5 file prior to patching the subdirectory.
+            // If we are interrupted before this subdirectory is complete patched,
+            // a new MD5 is calculated upon resumption.
+            //
+            try
+            {
+                removeRecursive(path + ".md5");
+            }
+            catch(const FileAccessException&)
+            {
+            }
+
 	    patch(subDirDesc, newIndent, runningTotal, patchTotal);
 
 	    if(!subDirDesc->md5.empty())
@@ -611,10 +676,10 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 	    }
 
             //
-            // If we're calculating MD5s dynamically, we need to remove
-            // any existing MD5 file to be safe.
+            // We need to remove the existing MD5 file if we are calculating
+            // MD5s dynamically, or if we are about to update the file.
             //
-            if(_dynamic && infoMD5.type != FileTypeNotExist)
+            if(infoMD5.type != FileTypeNotExist && (_dynamic || update))
             {
                 removeRecursive(pathMD5);
             }
