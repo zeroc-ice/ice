@@ -498,6 +498,7 @@ IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 ReferencePtr
 IceInternal::FixedReference::changeDefault() const
 {
+    // TODO: Broken: Does not reset context, mode, and facet.
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
@@ -510,6 +511,10 @@ IceInternal::FixedReference::changeCollocationOptimization(bool) const
 ReferencePtr
 IceInternal::FixedReference::changeCompress(bool) const
 {
+    // TODO: FixedReferences should probably have a _compress flag,
+    // that gets its default from the fixed connection this reference
+    // refers to. This should be changable with changeCompress(), and
+    // reset in changeDefault().
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
@@ -614,6 +619,7 @@ IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
 ReferencePtr
 IceInternal::RoutableReference::changeDefault() const
 {
+    // TODO: Broken: Does not reset context, mode, facet, secure, and collocationOptimization.
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
     return r;
@@ -735,12 +741,16 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx&) const
 {
+    // TODO: Broken: Does not return an IndirectReference if a non-null locator is passed.
     return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
 ReferencePtr
 IceInternal::DirectReference::changeDefault() const
 {
+    // TODO: Broken: Does not return an IndirectReference if a default
+    // locator is set. Does not call
+    // RoutableReference::changeDefault() to change other defaults.
     return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
@@ -922,6 +932,8 @@ IceInternal::IndirectReference::getEndpoints() const
 ReferencePtr
 IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
+    // TODO: Broken: Does not return a DirectReference (with empty
+    // endpoints) if a null locator is passed.
     LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
     if(newLocatorInfo == _locatorInfo)
     {
@@ -935,6 +947,9 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
 ReferencePtr
 IceInternal::IndirectReference::changeDefault() const
 {
+    // TODO: Broken: Does not return an DirectReference if no default
+    // locator is set (with empty endpoints). Does not call
+    // RoutableReference::changeDefault() to change other defaults.
     IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
     r->_locatorInfo = getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
     return r;

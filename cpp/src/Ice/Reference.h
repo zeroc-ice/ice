@@ -110,7 +110,7 @@ private:
     bool _hasContext;
     Ice::Context _context;
     std::string _facet;
-    bool _secure;
+    bool _secure; // TODO: Must be moved into RoutableReference, has no meaning for FixedReference.
 
     IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
     mutable Ice::Int _hashValue;
@@ -124,6 +124,7 @@ public:
     FixedReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
 	           const std::vector<Ice::ConnectionIPtr>&);
 
+    // TODO: Get rid of inline function.
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const { return _fixedConnections; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
