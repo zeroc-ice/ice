@@ -164,41 +164,53 @@ Ice::ObjectAdapterI::deactivate()
 void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    map<string, ServantLocatorPtr> locatorMap;
 
-    //
-    // First we wait for deactivation of the adapter itself, and for
-    // the return of all direct method calls using this adapter.
-    //
-    while(_instance || _directCount > 0)
     {
-	wait();
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	//
+	// First we wait for deactivation of the adapter itself, and for
+	// the return of all direct method calls using this adapter.
+	//
+	while(_instance || _directCount > 0)
+	{
+	    wait();
+	}
+
+	//
+	// Now we wait for until all incoming connection factories are
+	// finished.
+	//
+	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+		 Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+    
+	//
+	// We're done, now we can throw away all incoming connection
+	// factories.
+	//
+	_incomingConnectionFactories.clear();
+
+	//
+	// Now it's also time to clean up the active servant map.
+	//
+	_activeServantMap.clear();
+	_activeServantMapHint = _activeServantMap.end();
+
+	//
+	// And the servant locators, too (first we make a copy of the
+	// map in order to invoke servant locator deactivate method
+	// outside the synchronization block).
+	//
+	locatorMap = _locatorMap;
+	_locatorMap.clear();
+	_locatorMapHint = _locatorMap.end();
     }
 
     //
-    // Now we wait for until all incoming connection factories are
-    // finished.
+    // Deactivate servant locators.
     //
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
-    
-    //
-    // We're done, now we can throw away all incoming connection
-    // factories.
-    //
-    _incomingConnectionFactories.clear();
-
-    //
-    // Now it's also time to clean up the active servant map.
-    //
-    _activeServantMap.clear();
-    _activeServantMapHint = _activeServantMap.end();
-    
-    //
-    // And the servant locators, too.
-    //
-    std::map<std::string, ServantLocatorPtr>::iterator p;
-    for(p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
+    for(map<string, ServantLocatorPtr>::iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
     {
 	try
 	{
@@ -220,8 +232,6 @@ Ice::ObjectAdapterI::waitForDeactivate()
 		<< "locator prefix: `" << p->first << "'";
 	}
     }
-    _locatorMap.clear();
-    _locatorMapHint = _locatorMap.end();
 }
 
 ObjectPrx
@@ -304,44 +314,50 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 void
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    ServantLocatorPtr locator;
 
-    checkForDeactivation();
-
-    map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
-    
-    if(_locatorMapHint != _locatorMap.end())
     {
-	if(_locatorMapHint->first == prefix)
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	checkForDeactivation();
+
+	map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
+    
+	if(_locatorMapHint != _locatorMap.end())
 	{
-	    p = _locatorMapHint;
+	    if(_locatorMapHint->first == prefix)
+	    {
+		p = _locatorMapHint;
+	    }
+	}
+    
+	if(p == _locatorMap.end())
+	{
+	    p = _locatorMap.find(prefix);
+	    if (p == _locatorMap.end())
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "servant locator";
+		ex.id = prefix;
+		throw ex;
+	    }
+	}
+	assert(p != _locatorMap.end());
+    
+	locator = p->second;
+
+	if(p == _locatorMapHint)
+	{
+	    _locatorMap.erase(p++);
+	    _locatorMapHint = p;
+	}
+	else
+	{
+	    _locatorMap.erase(p);
 	}
     }
-    
-    if(p == _locatorMap.end())
-    {
-	p = _locatorMap.find(prefix);
-	if (p == _locatorMap.end())
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "servant locator";
-	    ex.id = prefix;
-	    throw ex;
-	}
-    }
-    assert(p != _locatorMap.end());
-    
-    p->second->deactivate();
 
-    if(p == _locatorMapHint)
-    {
-	_locatorMap.erase(p++);
-	_locatorMapHint = p;
-    }
-    else
-    {
-	_locatorMap.erase(p);
-    }
+    locator->deactivate();
 }
 
 ServantLocatorPtr
