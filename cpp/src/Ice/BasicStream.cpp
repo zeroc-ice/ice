@@ -606,6 +606,16 @@ IceInternal::BasicStream::read(vector<Double>& v)
 void
 IceInternal::BasicStream::write(const string& v)
 {
+    //
+    // TODO: Revise reading/writing of strings and wstrings. Strings
+    // shouldn't be null-terminated on the wire. Instead, the string
+    // size should be transmitted first, and strings should be allowed
+    // to have 0 bytes. Only one initial Int parameter is sufficient,
+    // with negative values indicating redirection, and positive
+    // values for string lengths. Strings with length 0 should never
+    // be redirected.
+    //
+
     map<string, Int>::const_iterator p = _encapsStack.back().stringsWritten.find(v);
     if (p != _encapsStack.back().stringsWritten.end())
     {
@@ -643,6 +653,7 @@ IceInternal::BasicStream::write(const vector<string>& v)
 void
 IceInternal::BasicStream::read(string& v)
 {
+    // TODO: Needs to be revised. See comments in write(const string&).
     Int idx;
     read(idx);
 
@@ -695,6 +706,7 @@ IceInternal::BasicStream::read(vector<string>& v)
 void
 IceInternal::BasicStream::write(const wstring& v)
 {
+    // TODO: Needs to be revised. See comments in write(const string&).
     map<wstring, Int>::const_iterator p = _encapsStack.back().wstringsWritten.find(v);
     if (p != _encapsStack.back().wstringsWritten.end())
     {
@@ -728,6 +740,7 @@ IceInternal::BasicStream::write(const vector<wstring>& v)
 void
 IceInternal::BasicStream::read(wstring& v)
 {
+    // TODO: Needs to be revised. See comments in write(const string&).
     Int idx;
     read(idx);
 

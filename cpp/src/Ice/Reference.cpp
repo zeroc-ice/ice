@@ -20,15 +20,17 @@ using namespace IceInternal;
 void IceInternal::incRef(Reference* p) { p->__incRef(); }
 void IceInternal::decRef(Reference* p) { p->__decRef(); }
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, Mode md, bool sec,
+IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, const string& fac, Mode md, bool sec,
 				  const vector<EndpointPtr>& origEndpts, const vector<EndpointPtr>& endpts) :
     instance(inst),
     identity(ident),
+    facet(facet),
     mode(md),
     secure(sec),
     origEndpoints(origEndpts),
     endpoints(endpts)
 {
+    calcHashValue();
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
@@ -61,8 +63,6 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 
     const_cast<string&>(identity) = s.substr(beg, end - beg);    
 
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
     while (true)
     {
 	beg = s.find_first_not_of(delim, end);
@@ -87,47 +87,106 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	{
 	    throw ReferenceParseException(__FILE__, __LINE__);
 	}
+	
+	string argument;
+	string::size_type argumentBeg = str.find_first_not_of(delim, end);
+	if (argumentBeg != string::npos && str[argumentBeg] != '-')
+	{
+	    beg = argumentBeg;
+	    end = str.find_first_of(delim, beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    argument = str.substr(beg, end - beg);
+	}
 
 	switch (option[1])
 	{
+	    case 'f':
+	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
+		const_cast<std::string&>(facet) = argument;
+		break;
+	    }
+
 	    case 't':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Mode&>(mode) = ModeTwoway;
 		break;
 	    }
 
 	    case 'o':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Mode&>(mode) = ModeOneway;
 		break;
 	    }
 
 	    case 'O':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Mode&>(mode) = ModeBatchOneway;
 		break;
 	    }
 
 	    case 'd':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Mode&>(mode) = ModeDatagram;
 		break;
 	    }
 
 	    case 'D':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Mode&>(mode) = ModeBatchDatagram;
 		break;
 	    }
 
 	    case 's':
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<bool&>(secure) = true;
 		break;
 	    }
 
 	    default:
 	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		throw ReferenceParseException(__FILE__, __LINE__);
 	    }
 	}
@@ -177,6 +236,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     {
 	throw ReferenceParseException(__FILE__, __LINE__);
     }
+
+    calcHashValue();
 }
 
 IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
@@ -189,6 +250,8 @@ IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
     // Don't read the identity here. Operations calling this
     // constructor read the identity, and pass it as a parameter.
     //
+
+    s->read(const_cast<string&>(facet));
 
     vector<EndpointPtr>::const_iterator p;
     Ice::Int sz;
@@ -215,6 +278,8 @@ IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
 	    Endpoint::streamRead(s, const_cast<EndpointPtr&>(*p));
 	}
     }
+
+    calcHashValue();
 }
 
 void
@@ -224,6 +289,8 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     // Don't write the identity here. Operations calling streamWrite
     // write the identity.
     //
+
+    s->write(facet);
 
     vector<EndpointPtr>::const_iterator p;
 
@@ -281,7 +348,20 @@ IceInternal::Reference::changeIdentity(const string& newIdentity) const
     }
     else
     {
-	return new Reference(instance, newIdentity, mode, secure, origEndpoints, endpoints);
+	return new Reference(instance, newIdentity, facet, mode, secure, origEndpoints, endpoints);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeFacet(const string& newFacet) const
+{
+    if (newFacet == facet)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return new Reference(instance, identity, newFacet, mode, secure, origEndpoints, endpoints);
     }
 }
 
@@ -302,7 +382,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
 	newEndpoints.push_back((*p)->timeout(timeout));
     }
     
-    ReferencePtr ref(new Reference(instance, identity, mode, secure, newOrigEndpoints, newEndpoints));
+    ReferencePtr ref(new Reference(instance, identity, facet, mode, secure, newOrigEndpoints, newEndpoints));
     
     if (*ref.get() == *this)
     {
@@ -321,7 +401,7 @@ IceInternal::Reference::changeMode(Mode newMode) const
     }
     else
     {
-	return new Reference(instance, identity, newMode, secure, origEndpoints, endpoints);
+	return new Reference(instance, identity, facet, newMode, secure, origEndpoints, endpoints);
     }
 }
 
@@ -334,7 +414,7 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     }
     else
     {
-	return new Reference(instance, identity, mode, newSecure, origEndpoints, endpoints);
+	return new Reference(instance, identity, facet, mode, newSecure, origEndpoints, endpoints);
     }
 }
 
@@ -347,7 +427,7 @@ IceInternal::Reference::changeEndpoints(const std::vector<EndpointPtr>& newEndpo
     }
     else
     {
-	return new Reference(instance, identity, mode, secure, origEndpoints, newEndpoints);
+	return new Reference(instance, identity, facet, mode, secure, origEndpoints, newEndpoints);
     }
 }
 
@@ -360,6 +440,11 @@ IceInternal::Reference::operator==(const Reference& r) const
     }
     
     if (identity != r.identity)
+    {
+	return false;
+    }
+
+    if (facet != r.facet)
     {
 	return false;
     }
@@ -404,6 +489,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
 
+    if (facet < r.facet)
+    {
+	return true;
+    }
+    else if (facet != r.facet)
+    {
+	return false;
+    }
+
     if (mode < r.mode)
     {
 	return true;
@@ -441,4 +535,34 @@ IceInternal::Reference::operator<(const Reference& r) const
     }
     
     return false;
+}
+
+void
+IceInternal::Reference::calcHashValue()
+{
+    Int h = 0;
+
+    string::const_iterator p;
+
+    for (p = identity.begin(); p != identity.end(); ++p)
+    {
+	h = 5 * h + *p;
+    }
+
+    for (p = facet.begin(); p != facet.end(); ++p)
+    {
+	h = 5 * h + *p;
+    }
+
+    h = 5 * h + static_cast<Int>(mode);
+
+    h = 5 * h + static_cast<Int>(secure);
+
+    //
+    // TODO: Should we also take the endpoints into account for hash
+    // calculation? Perhaps not, the code above should be good enough
+    // for a good hash value.
+    //
+
+    const_cast<Int&>(hashValue) = h;
 }

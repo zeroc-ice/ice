@@ -34,7 +34,7 @@ public:
 	ModeBatchDatagram
     };
 
-    Reference(const InstancePtr&, const std::string&, Mode, bool,
+    Reference(const InstancePtr&, const std::string&, const std::string&, Mode, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&);
     Reference(const InstancePtr&, const std::string&);
     Reference(const std::string&, BasicStream*);
@@ -54,16 +54,19 @@ public:
     //
     const InstancePtr instance;
     const std::string identity;
+    const std::string facet;
     const Mode mode;
     const bool secure;
     const std::vector<EndpointPtr> origEndpoints; // Original endpoints
     const std::vector<EndpointPtr> endpoints; // Actual endpoints (set by a location forward)
+    const Ice::Int hashValue;
 
     //
     // Get a new reference, based on the existing one, overwriting
     // certain values.
     //
     ReferencePtr changeIdentity(const std::string&) const;
+    ReferencePtr changeFacet(const std::string&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
@@ -71,6 +74,10 @@ public:
  
     bool operator==(const Reference&) const;
     bool operator<(const Reference&) const;
+
+private:
+
+    void calcHashValue();
 };
 
 }

@@ -32,34 +32,31 @@ IceInternal::Endpoint::endpointFromString(const string& str)
 {
     const string delim = " \t\n\r";
 
-    string s(str);
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
-    string::size_type beg = s.find_first_not_of(delim);
+    string::size_type beg = str.find_first_not_of(delim);
     if (beg == string::npos)
     {
 	throw EndpointParseException(__FILE__, __LINE__);
     }
 
-    string::size_type end = s.find_first_of(delim, beg);
+    string::size_type end = str.find_first_of(delim, beg);
     if (end == string::npos)
     {
-	end = s.length();
+	end = str.length();
     }
 
-    if (s.compare(beg, end - beg, "tcp") == 0)
+    if (str.compare(beg, end - beg, "tcp") == 0)
     {
-	return new TcpEndpoint(s.substr(end));
+	return new TcpEndpoint(str.substr(end));
     }
 
-    if (s.compare(beg, end - beg, "ssl") == 0)
+    if (str.compare(beg, end - beg, "ssl") == 0)
     {
-	return new SslEndpoint(s.substr(end));
+	return new SslEndpoint(str.substr(end));
     }
 
-    if (s.compare(beg, end - beg, "udp") == 0)
+    if (str.compare(beg, end - beg, "udp") == 0)
     {
-	return new UdpEndpoint(s.substr(end));
+	return new UdpEndpoint(str.substr(end));
     }
 
     throw EndpointParseException(__FILE__, __LINE__);
@@ -252,62 +249,73 @@ IceInternal::TcpEndpoint::TcpEndpoint(const string& str) :
 {
     const string delim = " \t\n\r";
 
-    string s(str);
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
     string::size_type beg;
     string::size_type end = 0;
 
     while (true)
     {
-	beg = s.find_first_not_of(delim, end);
+	beg = str.find_first_not_of(delim, end);
 	if (beg == string::npos)
 	{
 	    break;
 	}
 	
-	end = s.find_first_of(delim, beg);
+	end = str.find_first_of(delim, beg);
 	if (end == string::npos)
 	{
-	    end = s.length();
+	    end = str.length();
 	}
 
-	string option = s.substr(beg, end - beg);
+	string option = str.substr(beg, end - beg);
 	if (option.length() != 2 || option[0] != '-')
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = s.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	string argument;
+	string::size_type argumentBeg = str.find_first_not_of(delim, end);
+	if (argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    beg = argumentBeg;
+	    end = str.find_first_of(delim, beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    argument = str.substr(beg, end - beg);
 	}
-	
-	end = s.find_first_of(delim, beg);
-	if (end == string::npos)
-	{
-	    end = s.length();
-	}
-	
-	string argument = s.substr(beg, end - beg);
 
 	switch (option[1])
 	{
 	    case 'h':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<string&>(_host) = argument;
 		break;
 	    }
 
 	    case 'p':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
 
 	    case 't':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+
 		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
 	    }
@@ -567,45 +575,42 @@ IceInternal::SslEndpoint::SslEndpoint(const string& str) :
 {
     const string delim = " \t\n\r";
 
-    string s(str);
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
     string::size_type beg;
     string::size_type end = 0;
 
     while (true)
     {
-	beg = s.find_first_not_of(delim, end);
+	beg = str.find_first_not_of(delim, end);
 	if (beg == string::npos)
 	{
 	    break;
 	}
 	
-	end = s.find_first_of(delim, beg);
+	end = str.find_first_of(delim, beg);
 	if (end == string::npos)
 	{
-	    end = s.length();
+	    end = str.length();
 	}
 
-	string option = s.substr(beg, end - beg);
+	string option = str.substr(beg, end - beg);
 	if (option.length() != 2 || option[0] != '-')
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = s.find_first_not_of(delim, end);
+	beg = str.find_first_not_of(delim, end);
 	if (beg == string::npos)
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 	
-	end = s.find_first_of(delim, beg);
+	end = str.find_first_of(delim, beg);
 	if (end == string::npos)
 	{
-	    end = s.length();
+	    end = str.length();
 	}
 	
-	string argument = s.substr(beg, end - beg);
+	string argument = str.substr(beg, end - beg);
 
 	switch (option[1])
 	{
@@ -880,45 +885,42 @@ IceInternal::UdpEndpoint::UdpEndpoint(const string& str) :
 {
     const string delim = " \t\n\r";
 
-    string s(str);
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
     string::size_type beg;
     string::size_type end = 0;
 
     while (true)
     {
-	beg = s.find_first_not_of(delim, end);
+	beg = str.find_first_not_of(delim, end);
 	if (beg == string::npos)
 	{
 	    break;
 	}
 	
-	end = s.find_first_of(delim, beg);
+	end = str.find_first_of(delim, beg);
 	if (end == string::npos)
 	{
-	    end = s.length();
+	    end = str.length();
 	}
 
-	string option = s.substr(beg, end - beg);
+	string option = str.substr(beg, end - beg);
 	if (option.length() != 2 || option[0] != '-')
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = s.find_first_not_of(delim, end);
+	beg = str.find_first_not_of(delim, end);
 	if (beg == string::npos)
 	{
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 	
-	end = s.find_first_of(delim, beg);
+	end = str.find_first_of(delim, beg);
 	if (end == string::npos)
 	{
-	    end = s.length();
+	    end = str.length();
 	}
 	
-	string argument = s.substr(beg, end - beg);
+	string argument = str.substr(beg, end - beg);
 
 	switch (option[1])
 	{

@@ -114,13 +114,19 @@ IceProxy::Ice::Object::_flush()
 bool
 IceProxy::Ice::Object::operator==(const Object& r) const
 {
-    return _reference->identity == r._reference->identity;
+    return _reference == r._reference;
 }
 
 bool
 IceProxy::Ice::Object::operator<(const Object& r) const
 {
-    return _reference->identity < r._reference->identity;
+    return _reference < r._reference;
+}
+
+Int
+IceProxy::Ice::Object::_hash() const
+{
+    return _reference->hashValue;
 }
 
 std::string
@@ -140,6 +146,27 @@ IceProxy::Ice::Object::_newIdentity(const std::string& newIdentity) const
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeIdentity(newIdentity));
+	return proxy;
+    }
+}
+
+std::string
+IceProxy::Ice::Object::_getFacet() const
+{
+    return _reference->facet;
+}
+
+::Ice::ObjectPrx
+IceProxy::Ice::Object::_newFacet(const std::string& newFacet) const
+{
+    if (newFacet == _reference->facet)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
 }

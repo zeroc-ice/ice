@@ -39,9 +39,13 @@ public:
 
     bool operator==(const Object&) const;
     bool operator<(const Object&) const;
+    ::Ice::Int _hash() const;
 
     std::string _getIdentity() const;
     ::Ice::ObjectPrx _newIdentity(const std::string&) const;
+
+    std::string _getFacet() const;
+    ::Ice::ObjectPrx _newFacet(const std::string&) const;
 
     ::Ice::ObjectPrx _twoway() const;
     ::Ice::ObjectPrx _oneway() const;
