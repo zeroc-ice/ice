@@ -17,6 +17,11 @@
 #include <Ice/PropertiesF.ice>
 #include <Ice/ValueFactoryF.ice>
 
+/**
+ *
+ * The basic Ice module, containing all the Ice core functionality.
+ *
+ **/
 module Ice
 {
     

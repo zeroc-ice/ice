@@ -16,6 +16,7 @@ SUBDIRS		= Slice \
 		  slice2cpp \
 		  slice2docbook \
 		  Ice \
+		  Freeze \
 		  IcePack
 
 $(EVERYTHING)::

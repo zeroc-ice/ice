@@ -13,7 +13,7 @@
 
 /**
  *
- * The Ice object locator and activator.
+ * The Ice module for object location and activation.
  *
  **/
 module IcePack
