@@ -418,20 +418,19 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     EventHandler(instance),
     _endpoint(endpoint),
     _adapter(adapter),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0),
     _state(StateHolding),
     _registeredWithPool(false)    
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     if(defaultsAndOverrides->overrideTimeout)
     {
-	_endpoint = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+	const_cast<EndpointPtr&>(_endpoint) = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
     }
-
-    _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
 
     try
     {
-	_transceiver = _endpoint->serverTransceiver(_endpoint);
+	const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));
 	if(_transceiver)
 	{
 	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
@@ -447,7 +446,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	}
 	else
 	{
-	    _acceptor = _endpoint->acceptor(_endpoint);
+	    const_cast<AcceptorPtr&>(_acceptor) = _endpoint->acceptor(const_cast<EndpointPtr&>(_endpoint));
 	    assert(_acceptor);
 	    _acceptor->listen();
 	}
@@ -473,7 +472,7 @@ IceInternal::IncomingConnectionFactory::destroy()
 }
 
 void
-IceInternal::IncomingConnectionFactory::waitUntilFinished()
+IceInternal::IncomingConnectionFactory::waitUntilFinished() const
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
@@ -551,9 +550,9 @@ IceInternal::IncomingConnectionFactory::registerWithPool()
     {
 	if(!_registeredWithPool)
 	{
-	    if(!_serverThreadPool)
+	    if(!_serverThreadPool) // Lazy initialization.
 	    {
-		_serverThreadPool = _instance->serverThreadPool();
+		const_cast<ThreadPoolPtr&>(_serverThreadPool) = _instance->serverThreadPool();
 		assert(_serverThreadPool);
 	    }
 	    _serverThreadPool->_register(_acceptor->fd(), this);

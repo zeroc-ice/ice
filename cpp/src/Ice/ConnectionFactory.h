@@ -78,7 +78,7 @@ private:
     IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
     void destroy();
-    void waitUntilFinished();
+    void waitUntilFinished() const;
     friend class ::Ice::ObjectAdapterI;
 
     enum State
@@ -92,14 +92,14 @@ private:
     void registerWithPool();
     void unregisterWithPool();
 
-    EndpointPtr _endpoint;
-    ::Ice::ObjectAdapterPtr _adapter;
-    AcceptorPtr _acceptor;
-    TransceiverPtr _transceiver;
-    ThreadPoolPtr _serverThreadPool;
+    const EndpointPtr _endpoint;
+    ::Ice::ObjectAdapterPtr _adapter; // Cannot be const, because it must be set to zero to break cyclic dependency.
+    const AcceptorPtr _acceptor;
+    const TransceiverPtr _transceiver;
+    const ThreadPoolPtr _serverThreadPool;
+    const bool _warn;
     std::list<ConnectionPtr> _connections;
     State _state;
-    bool _warn;
     bool _registeredWithPool;
 };
 

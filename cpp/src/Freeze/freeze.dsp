@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Release\freeze001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\freeze001.* ..\..\lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Debug\freeze001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\freeze001d.* ..\..\lib
 # End Special Build Tool
 
 !ENDIF 

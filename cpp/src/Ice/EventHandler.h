@@ -64,7 +64,7 @@ protected:
     EventHandler(const InstancePtr&);
     virtual ~EventHandler();
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
 
 private:
 

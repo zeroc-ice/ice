@@ -807,6 +807,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _logger(_instance->logger()),
     _traceLevels(_instance->traceLevels()),
     _defaultsAndOverrides(_instance->defaultsAndOverrides()),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _batchStream(_instance),
@@ -815,8 +816,6 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _state(StateHolding),
     _registeredWithPool(false)
 {
-    _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
-
     if(_endpoint->datagram())
     {
 	//
@@ -1034,7 +1033,7 @@ IceInternal::Connection::setState(State state)
 }
 
 void
-IceInternal::Connection::validateConnection()
+IceInternal::Connection::validateConnection() const
 {
     BasicStream os(_instance);
     os.write(protocolVersion);
@@ -1047,7 +1046,7 @@ IceInternal::Connection::validateConnection()
 }
 
 void
-IceInternal::Connection::closeConnection()
+IceInternal::Connection::closeConnection() const
 {
     BasicStream os(_instance);
     os.write(protocolVersion);
@@ -1071,18 +1070,18 @@ IceInternal::Connection::registerWithPool()
     {
 	if(_adapter)
 	{
-	    if(!_serverThreadPool)
+	    if(!_serverThreadPool) // Lazy initialization.
 	    {
-		_serverThreadPool = _instance->serverThreadPool();
+		const_cast<ThreadPoolPtr&>(_serverThreadPool) = _instance->serverThreadPool();
 		assert(_serverThreadPool);
 	    }
 	    _serverThreadPool->_register(_transceiver->fd(), this);
 	}
 	else
 	{
-	    if(!_clientThreadPool)
+	    if(!_clientThreadPool) // Lazy initialization.
 	    {
-		_clientThreadPool = _instance->clientThreadPool();
+		const_cast<ThreadPoolPtr&>(_clientThreadPool) = _instance->clientThreadPool();
 		assert(_clientThreadPool);
 	    }
 	    _clientThreadPool->_register(_transceiver->fd(), this);

@@ -23,6 +23,7 @@ using namespace IceInternal;
 SOCKET
 IceInternal::TcpTransceiver::fd()
 {
+    assert(_fd != INVALID_SOCKET);
     return _fd;
 }
 
@@ -35,10 +36,9 @@ IceInternal::TcpTransceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
-    SOCKET fd = _fd;
+    assert(_fd != INVALID_SOCKET);
+    closeSocket(_fd);
     _fd = INVALID_SOCKET;
-    ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
-    closeSocket(fd);
 }
 
 void
@@ -50,6 +50,7 @@ IceInternal::TcpTransceiver::shutdown()
 	out << "shutting down tcp connection\n" << toString();
     }
 
+    assert(_fd != INVALID_SOCKET);
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 }
 
@@ -70,6 +71,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
     while(buf.i != buf.b.end())
     {
+	assert(_fd != INVALID_SOCKET);
 	int ret = ::send(_fd, &*buf.i, packetSize, 0);
 
 	if(ret == 0)
@@ -94,40 +96,39 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	    if(wouldBlock())
 	    {
-		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-		if(fd != INVALID_SOCKET)
+	    repeatSelect:
+
+		int ret;
+		assert(_fd != INVALID_SOCKET);
+		FD_SET(_fd, &_wFdSet);
+
+		if(timeout >= 0)
 		{
-		repeatSelect:
-		    int ret;
-		    FD_SET(fd, &_wFdSet);
-		    if(timeout >= 0)
+		    struct timeval tv;
+		    tv.tv_sec = timeout / 1000;
+		    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
+		    ret = ::select(_fd + 1, 0, &_wFdSet, 0, &tv);
+		}
+		else
+		{
+		    ret = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
+		}
+		
+		if(ret == SOCKET_ERROR)
+		{
+		    if(interrupted())
 		    {
-			struct timeval tv;
-			tv.tv_sec = timeout / 1000;
-			tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-			ret = ::select(fd + 1, 0, &_wFdSet, 0, &tv);
-		    }
-		    else
-		    {
-			ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
-		    }
-		    
-		    if(ret == SOCKET_ERROR)
-		    {
-			if(interrupted())
-			{
-			    goto repeatSelect;
-			}
-			
-			SocketException ex(__FILE__, __LINE__);
-			ex.error = getSocketErrno();
-			throw ex;
+			goto repeatSelect;
 		    }
 		    
-		    if(ret == 0)
-		    {
-			throw TimeoutException(__FILE__, __LINE__);
-		    }
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+		
+		if(ret == 0)
+		{
+		    throw TimeoutException(__FILE__, __LINE__);
 		}
 		
 		continue;
@@ -169,6 +170,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
     
     while(buf.i != buf.b.end())
     {
+	assert(_fd != INVALID_SOCKET);
 	int ret = ::recv(_fd, &*buf.i, packetSize, 0);
 
 	if(ret == 0)
@@ -193,42 +195,41 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	    if(wouldBlock())
 	    {
-		SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-		if(fd != INVALID_SOCKET)
+	    repeatSelect:
+
+		int ret;
+		assert(_fd != INVALID_SOCKET);
+		FD_SET(_fd, &_rFdSet);
+
+		if(timeout >= 0)
 		{
-		repeatSelect:
-		    int ret;
-		    FD_SET(fd, &_rFdSet);
-		    if(timeout >= 0)
-		    {
-			struct timeval tv;
-			tv.tv_sec = timeout / 1000;
-			tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-			ret = ::select(fd + 1, &_rFdSet, 0, 0, &tv);
-		    }
-		    else
-		    {
-			ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
-		    }
-		    
-		    if(ret == SOCKET_ERROR)
-		    {
-			if(interrupted())
-			{
-			    goto repeatSelect;
-			}
-			
-			SocketException ex(__FILE__, __LINE__);
-			ex.error = getSocketErrno();
-			throw ex;
-		    }
-		    
-		    if(ret == 0)
-		    {
-			throw TimeoutException(__FILE__, __LINE__);
-		    }
+		    struct timeval tv;
+		    tv.tv_sec = timeout / 1000;
+		    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
+		    ret = ::select(_fd + 1, &_rFdSet, 0, 0, &tv);
 		}
-	    
+		else
+		{
+		    ret = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
+		}
+		
+		if(ret == SOCKET_ERROR)
+		{
+		    if(interrupted())
+		    {
+			goto repeatSelect;
+		    }
+		    
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+		
+		if(ret == 0)
+		{
+		    throw TimeoutException(__FILE__, __LINE__);
+		}
+		
 		continue;
 	    }
 	    

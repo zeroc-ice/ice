@@ -25,6 +25,7 @@ using IceSSL::ConnectionPtr;
 SOCKET
 IceSSL::SslTransceiver::fd()
 {
+    assert(_fd != INVALID_SOCKET);
     return _fd;
 }
 
@@ -38,9 +39,6 @@ IceSSL::SslTransceiver::close()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    SOCKET fd = _fd;
-    _fd = INVALID_SOCKET;
-
     int shutdown = 0;
     int numRetries = 100;
     int retries = -numRetries;
@@ -51,8 +49,9 @@ IceSSL::SslTransceiver::close()
     }
     while((shutdown == 0) && (retries < 0));
 
-    ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
-    closeSocket(fd);
+    assert(_fd != INVALID_SOCKET);
+    closeSocket(_fd);
+    _fd = INVALID_SOCKET;
 }
 
 void
@@ -75,18 +74,21 @@ IceSSL::SslTransceiver::shutdown()
     }
     while((shutdown == 0) && (retries < 0));
 
+    assert(_fd != INVALID_SOCKET);
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 }
 
 void
 IceSSL::SslTransceiver::write(Buffer& buf, int timeout)
 {
+    assert(_fd != INVALID_SOCKET);
     _sslConnection->write(buf, timeout);
 }
 
 void
 IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 {
+    assert(_fd != INVALID_SOCKET);
     if(!_sslConnection->read(buf, timeout))
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)

@@ -90,21 +90,22 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
-    void validateConnection();
-    void closeConnection();
+    void validateConnection() const;
+    void closeConnection() const;
     void registerWithPool();
     void unregisterWithPool();
-    void compress(BasicStream&, BasicStream&);
-    void uncompress(BasicStream&, BasicStream&);
+    static void compress(BasicStream&, BasicStream&);
+    static void uncompress(BasicStream&, BasicStream&);
 
-    TransceiverPtr _transceiver;
-    EndpointPtr _endpoint;
+    const TransceiverPtr _transceiver;
+    const EndpointPtr _endpoint;
     ::Ice::ObjectAdapterPtr _adapter;
-    ::Ice::LoggerPtr _logger;
-    TraceLevelsPtr _traceLevels;
-    DefaultsAndOverridesPtr _defaultsAndOverrides;
-    ThreadPoolPtr _clientThreadPool;
-    ThreadPoolPtr _serverThreadPool;
+    const ::Ice::LoggerPtr _logger;
+    const TraceLevelsPtr _traceLevels;
+    const DefaultsAndOverridesPtr _defaultsAndOverrides;
+    const ThreadPoolPtr _clientThreadPool;
+    const ThreadPoolPtr _serverThreadPool;
+    const bool _warn;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::map< ::Ice::Int, Outgoing*>::iterator _requestsHint;
@@ -113,7 +114,6 @@ private:
     int _responseCount;
     int _proxyUsageCount;
     State _state;
-    bool _warn;
     bool _registeredWithPool;
     bool _connectionValidated;
 };

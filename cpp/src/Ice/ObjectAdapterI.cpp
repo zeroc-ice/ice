@@ -157,7 +157,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
     // would be a deadlock with upcalls.)
     //
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+	     Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 }
 
 ObjectPrx

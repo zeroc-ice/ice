@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Release\iceutil001.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\iceutil001.* ..\..\lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IceUtil - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Debug\iceutil001d.* ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\iceutil001d.* ..\..\lib
 # End Special Build Tool
 
 !ENDIF 

@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Release\helloservice001.* .
+PostBuild_Cmds=copy $(OutDir)\helloservice001.* .
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "helloIceBoxS - Win32 Debug"
@@ -90,7 +90,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy Debug\helloservice001d.* .
+PostBuild_Cmds=copy $(OutDir)\helloservice001d.* .
 # End Special Build Tool
 
 !ENDIF 

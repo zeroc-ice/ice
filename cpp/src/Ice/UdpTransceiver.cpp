@@ -23,6 +23,7 @@ using namespace IceInternal;
 SOCKET
 IceInternal::UdpTransceiver::fd()
 {
+    assert(_fd != INVALID_SOCKET);
     return _fd;
 }
 
@@ -35,9 +36,9 @@ IceInternal::UdpTransceiver::close()
 	out << "closing " << _protocolName << " connection\n" << toString();
     }
 
-    SOCKET fd = _fd;
+    assert(_fd != INVALID_SOCKET);
+    closeSocket(_fd);
     _fd = INVALID_SOCKET;
-    closeSocket(fd);
 }
 
 void
@@ -55,6 +56,8 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 #endif
 
 repeat:
+
+    assert(_fd != INVALID_SOCKET);
     int ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
     
     if(ret == SOCKET_ERROR)
@@ -66,30 +69,27 @@ repeat:
 
 	if(wouldBlock())
 	{
-	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-	    if(fd != INVALID_SOCKET)
-	    {
-	    repeatSelect:
+	repeatSelect:
 
-		FD_SET(fd, &_wFdSet);
-		int ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
-		
-		if(ret == SOCKET_ERROR)
+	    assert(_fd != INVALID_SOCKET);
+	    FD_SET(_fd, &_wFdSet);
+	    int ret = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
+	    
+	    if(ret == SOCKET_ERROR)
+	    {
+		if(interrupted())
 		{
-		    if(interrupted())
-		    {
-			goto repeatSelect;
-		    }
-		    
-		    SocketException ex(__FILE__, __LINE__);
-		    ex.error = getSocketErrno();
-		    throw ex;
+		    goto repeatSelect;
 		}
+		
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    
 	    goto repeat;
 	}
-
+	
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -115,6 +115,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
     buf.i = buf.b.begin();
 
 repeat:
+
     int ret;
     if(_connect)
     {
@@ -125,11 +126,12 @@ repeat:
 	struct sockaddr_in peerAddr;
 	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
 	socklen_t len = sizeof(peerAddr);
+	assert(_fd != INVALID_SOCKET);
 	ret = recvfrom(_fd, &buf.b[0], packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
 	if(ret != SOCKET_ERROR)
 	{
 	    doConnect(_fd, peerAddr, -1);
-	    _connect = false; // We're connected now
+	    _connect = false; // We are connected now.
 
 	    if(_traceLevels->network >= 1)
 	    {
@@ -140,6 +142,7 @@ repeat:
     }
     else
     {
+	assert(_fd != INVALID_SOCKET);
 	ret = ::recv(_fd, &buf.b[0], packetSize, 0);
     }
     
@@ -152,25 +155,22 @@ repeat:
 	
 	if(wouldBlock())
 	{
-	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
-	    if(fd != INVALID_SOCKET)
+	repeatSelect:
+	    
+	    assert(_fd != INVALID_SOCKET);
+	    FD_SET(_fd, &_rFdSet);
+	    int ret = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
+	    
+	    if(ret == SOCKET_ERROR)
 	    {
-	    repeatSelect:
-
-		FD_SET(fd, &_rFdSet);
-		int ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
-		
-		if(ret == SOCKET_ERROR)
+		if(interrupted())
 		{
-		    if(interrupted())
-		    {
-			goto repeatSelect;
-		    }
-		    
-		    SocketException ex(__FILE__, __LINE__);
-		    ex.error = getSocketErrno();
-		    throw ex;
+		    goto repeatSelect;
 		}
+		
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    
 	    goto repeat;
