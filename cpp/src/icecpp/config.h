@@ -45,7 +45,13 @@
 #define CHAR_TYPE_SIZE 1
 #define INT_TYPE_SIZE 4
 #define LONG_TYPE_SIZE 4
-#define WCHAR_TYPE_SIZE 4
+#if defined(_WIN32)
+#   define WCHAR_TYPE_SIZE 2
+#elif defined(__linux__) && defined(i386)
+#   define WCHAR_TYPE_SIZE 4
+#else
+#   error "unsupported operating system or platform"
+#endif
 
 #define TARGET_BELL 007
 #define TARGET_BS 010
