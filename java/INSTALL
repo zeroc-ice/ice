@@ -84,7 +84,7 @@ you must build Berkeley DB manually.
 
 You can download Berkeley DB from:
 
-http://www.sleepycat.com/download.html
+http://www.sleepycat.com/download
 
 When you build Berkeley DB, make sure to configure Berkeley DB with
 Java support. For Linux, this is done by specifying --enable-java with
