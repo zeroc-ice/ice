@@ -77,6 +77,7 @@ private:
     void removeI(const Ice::Identity&, const std::string&);
 
     Freeze::EvictorPtr _evictor;
+    Freeze::ConnectionPtr _connection;
     NameIdentitiesDict _nameIdentitiesDict;
 };
 

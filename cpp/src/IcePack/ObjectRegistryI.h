@@ -18,6 +18,7 @@
 #include <IcePack/Internal.h>
 #include <IcePack/IdentityObjectDescDict.h>
 #include <IcePack/StringObjectProxySeqDict.h>
+#include <Freeze/ConnectionF.h>
 
 namespace IcePack
 {
@@ -46,6 +47,7 @@ public:
 
 private:
 
+    Freeze::ConnectionPtr _connection;
     IdentityObjectDescDict _objects;
     StringObjectProxySeqDict _types;
     TraceLevelsPtr _traceLevels;

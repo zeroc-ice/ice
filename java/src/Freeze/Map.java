@@ -17,27 +17,14 @@ package Freeze;
 public abstract class Map extends java.util.AbstractMap
 {
     public
-    Map(Ice.Communicator communicator, String envName, String dbName, boolean createDb)
+    Map(Connection connection, String dbName, boolean createDb)
     {
-	_communicator = communicator;
-	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
-	_dbEnv = _dbEnvHolder;
-	_dbName = dbName;
-	_errorPrefix = "Freeze DB DbEnv(\"" + envName + "\") Db(\"" + dbName + "\") :";
-
-	openDb(createDb);
-    }
-
-    public
-    Map(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
-    {
-	_communicator = communicator;
-	_dbEnvHolder = null;
-	_dbEnv = dbEnv;
-	_dbName = dbName;
-	_errorPrefix = "Freeze DB DbEnv(\"External\") Db(\"" + dbName + "\") :";
-
-	openDb(createDb);
+	_connection = (ConnectionI) connection;
+	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\") :";
+	_trace = _connection.trace();
+	_db = SharedDb.get(_connection, dbName, createDb);
+	
+	_connection.registerMap(this);
     }
 
     public void
@@ -45,32 +32,14 @@ public abstract class Map extends java.util.AbstractMap
     {
 	if(_db != null)
 	{
+	    closeAllIterators();
 	    try
 	    {
-		_db.close(0);
-	    }
-	    catch(com.sleepycat.db.DbException e)
-	    {
-		DBException ex = new DBException();
-		ex.initCause(e);
-		ex.message = _errorPrefix + "Db.stat: " + e.getMessage();
-		throw ex;
+		_db.close();
 	    }
 	    finally
 	    {
 		_db = null;
-	    }
-	}
-
-	if(_dbEnvHolder != null)
-	{
-	    try
-	    {
-		_dbEnvHolder.close();
-	    }
-	    finally
-	    {
-		_dbEnvHolder = null;
 	    }
 	}
     }
@@ -91,7 +60,7 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
 
@@ -157,11 +126,18 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		return false;
 	    }
-	    catch(DBDeadlockException ex)
+	    catch(DBDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(_connection.dbTxn() != null)
+		{
+		    throw e;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    finally
 	    {
@@ -179,11 +155,11 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
 
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 
@@ -192,14 +168,15 @@ public abstract class Map extends java.util.AbstractMap
 
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("DB", "checking key in database \"" + _dbName + "\"");
+	    _connection.communicator().getLogger().trace
+		("DB", "checking key in database \"" + _db.dbName() + "\"");
 	}
 
 	for(;;)
 	{
 	    try
 	    {
-		int rc = _db.get(null, dbKey, dbValue, 0);
+		int rc = _db.get(_connection.dbTxn(), dbKey, dbValue, 0);
 		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 		{
 		    return false;
@@ -212,9 +189,19 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(_connection.dbTxn() != null)
+		{
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+		    throw ex;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    catch(com.sleepycat.db.DbException e)
 	    {
@@ -229,7 +216,7 @@ public abstract class Map extends java.util.AbstractMap
     public Object
     get(Object key)
     {
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 	byte[] v = getImpl(dbKey);
 	if(v == null)
@@ -238,20 +225,20 @@ public abstract class Map extends java.util.AbstractMap
 	}
 	else
 	{
-	    return decodeValue(v, _communicator);
+	    return decodeValue(v, _connection.communicator());
 	}
     }
 
     public Object
     put(Object key, Object value)
     {
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 	byte[] v = getImpl(dbKey);
 	Object o = null;
 	if(v != null)
 	{
-	    o = decodeValue(v, _communicator);
+	    o = decodeValue(v, _connection.communicator());
 	}
 	putImpl(dbKey, value);
 	return o;
@@ -260,13 +247,13 @@ public abstract class Map extends java.util.AbstractMap
     public Object
     remove(Object key)
     {
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 	byte[] v = getImpl(dbKey);
 	
 	if(v != null && removeImpl(dbKey))
 	{
-	    return decodeValue(v, _communicator);
+	    return decodeValue(v, _connection.communicator());
 	}
 	else
 	{
@@ -284,7 +271,7 @@ public abstract class Map extends java.util.AbstractMap
     public void
     fastPut(Object key, Object value)
     {
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 	putImpl(dbKey, value);
     }
@@ -295,7 +282,7 @@ public abstract class Map extends java.util.AbstractMap
     public boolean
     fastRemove(Object key)
     {
-	byte[] k = encodeKey(key, _communicator);
+	byte[] k = encodeKey(key, _connection.communicator());
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(k);
 	return removeImpl(dbKey);
     }
@@ -306,22 +293,34 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
+
+	com.sleepycat.db.DbTxn txn = _connection.dbTxn();
 
 	for(;;)
 	{
 	    try
 	    {
-		_db.truncate(null, com.sleepycat.db.Db.DB_AUTO_COMMIT);
+		_db.truncate(txn, txn != null ? 0 : com.sleepycat.db.Db.DB_AUTO_COMMIT);
 		break;
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(txn != null)
+		{
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.truncate: " + e.getMessage();
+		    throw ex;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    catch(com.sleepycat.db.DbException e)
 	    {
@@ -357,7 +356,7 @@ public abstract class Map extends java.util.AbstractMap
 		    Object value = entry.getValue();
 		    
 		    byte[] v = getImpl(entry.getDbKey());
-		    return v != null && valEquals(decodeValue(v, _communicator), value);
+		    return v != null && valEquals(decodeValue(v, _connection.communicator()), value);
 		}
 		
 		public boolean
@@ -371,7 +370,7 @@ public abstract class Map extends java.util.AbstractMap
 		    Object value = entry.getValue();
 
 		    byte[] v = getImpl(entry.getDbKey());
-		    if(v != null && valEquals(decodeValue(v, _communicator), value))
+		    if(v != null && valEquals(decodeValue(v, _connection.communicator()), value))
 		    {
 			return removeImpl(entry.getDbKey());
 		    }
@@ -395,6 +394,30 @@ public abstract class Map extends java.util.AbstractMap
         return _entrySet;
     }
 
+    public void
+    closeAllIterators()
+    {
+	closeAllIteratorsExcept(null);
+    }
+    
+    void
+    closeAllIteratorsExcept(Object except)
+    {
+	java.util.Iterator p = _iteratorList.iterator();
+	while(p.hasNext())
+	{
+	    Object o = ((java.lang.ref.WeakReference) p.next()).get();
+	    if(o != except && o != null)
+	    {
+		((EntryIterator) o).close();
+	    }
+	    if(o == null || o != except)
+	    {
+		p.remove();
+	    }
+	}
+    }
+
     protected void
     finalize()
     {
@@ -413,7 +436,7 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
 
@@ -421,14 +444,15 @@ public abstract class Map extends java.util.AbstractMap
 
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("DB", "reading value from database \"" + _dbName + "\"");
+	    _connection.communicator().getLogger().trace
+		("DB", "reading value from database \"" + _db.dbName() + "\"");
 	}
 
 	for(;;)
 	{
 	    try
 	    {
-		int rc = _db.get(null, dbKey, dbValue, 0);
+		int rc = _db.get(_connection.dbTxn(), dbKey, dbValue, 0);
 		if(rc == com.sleepycat.db.Db.DB_NOTFOUND)
 		{
 		    return null;
@@ -440,9 +464,19 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(_connection.dbTxn() != null)
+		{
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+		    throw ex;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    catch(com.sleepycat.db.DbException e)
 	    {
@@ -460,30 +494,47 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
 
-	byte[] v = encodeValue(value, _communicator);	
+	byte[] v = encodeValue(value, _connection.communicator());	
 	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(v);
 	
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("DB", "writing value in database \"" + _dbName + "\"");
+	    _connection.communicator().getLogger().trace
+		("DB", "writing value in database \"" + _db.dbName() + "\"");
+	}
+
+	com.sleepycat.db.DbTxn txn = _connection.dbTxn();
+	if(txn == null)
+	{
+	    closeAllIterators();
 	}
 
 	for(;;)
 	{
 	    try
 	    {
-		_db.put(null, dbKey, dbValue, com.sleepycat.db.Db.DB_AUTO_COMMIT);
+		_db.put(txn, dbKey, dbValue, txn != null ? 0 : com.sleepycat.db.Db.DB_AUTO_COMMIT);
 		break;
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(txn != null)
+		{
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.put: " + e.getMessage();
+		    throw ex;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    catch(com.sleepycat.db.DbException e)
 	    {
@@ -501,27 +552,44 @@ public abstract class Map extends java.util.AbstractMap
 	if(_db == null)
 	{
 	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _dbName + "\" has been closed";
+	    ex.message = _errorPrefix + "\"" + _db.dbName() + "\" has been closed";
 	    throw ex;
 	}
 
 	if(_trace >= 1)
 	{
-	    _communicator.getLogger().trace("DB", "deleting value from database \"" + _dbName + "\"");
+	    _connection.communicator().getLogger().trace
+		("DB", "deleting value from database \"" + _db.dbName() + "\"");
+	}
+
+	com.sleepycat.db.DbTxn txn = _connection.dbTxn();
+	if(txn == null)
+	{
+	    closeAllIterators();
 	}
 
 	for(;;)
 	{
 	    try
 	    {
-		int rc = _db.del(null, dbKey, com.sleepycat.db.Db.DB_AUTO_COMMIT);
+		int rc = _db.del(txn, dbKey, txn != null ? 0 : com.sleepycat.db.Db.DB_AUTO_COMMIT);
 		return (rc == 0);
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException e)
 	    {
-		//
-		// Try again
-		//
+		if(txn != null)
+		{
+		    DBDeadlockException ex = new DBDeadlockException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.del: " + e.getMessage();
+		    throw ex;
+		}
+		else
+		{
+		    //
+		    // Try again
+		    //
+		}
 	    }
 	    catch(com.sleepycat.db.DbException e)
 	    {
@@ -532,45 +600,6 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	}
     }
-
-    private void
-    openDb(boolean createDb)
-    {
-	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
-
-	try
-	{
-	    int flags = com.sleepycat.db.Db.DB_AUTO_COMMIT;
-	    
-	    if(createDb)
-	    {
-		flags |= com.sleepycat.db.Db.DB_CREATE;
-	    }
-	    
-	    _db = new com.sleepycat.db.Db(_dbEnv, 0);
-	    _db.open(null, _dbName, null, com.sleepycat.db.Db.DB_BTREE, 
-		     flags, 0);
-
-	    //
-	    // TODO: FREEZE_DB_MODE
-	    //
-	}
-	catch(java.io.FileNotFoundException dx)
-	{
-	    DBNotFoundException ex = new DBNotFoundException();
-	    ex.initCause(dx);
-	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
-	    throw ex;
-	}
-	catch(com.sleepycat.db.DbException dx)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(dx);
-	    ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
-	    throw ex;
-	}
-    }
-
 
     /**
      *
@@ -585,21 +614,26 @@ public abstract class Map extends java.util.AbstractMap
         {
 	    if(_trace >= 3)
 	    {
-		_communicator.getLogger().trace("DB", "starting transaction for cursor on database \"" + _dbName +
-                                                "\"");
+		_connection.communicator().getLogger().trace
+		    ("DB", "starting transaction for cursor on database \"" + _db.dbName() + "\"");
 	    }
 
 	    try
 	    {
-		//
-		// Start transaction
-		//
-		_tx = _dbEnv.txn_begin(null, 0);
+		com.sleepycat.db.DbTxn txn = _connection.dbTxn();
+		if(txn == null)
+		{
+		    //
+		    // Start transaction
+		    //
+		    txn = _connection.dbEnv().txn_begin(null, 0);
+		    _txn = txn;
+		}
 		
 		//
 		// Open cursor with this transaction
 		//
-		_cursor = _db.cursor(_tx, 0);
+		_cursor = _db.cursor(txn, 0);
 	    }
 	    catch(com.sleepycat.db.DbDeadlockException dx)
 	    {
@@ -616,6 +650,8 @@ public abstract class Map extends java.util.AbstractMap
 		ex.message = _errorPrefix + "EntryIterator constructor: " + dx.getMessage();
 		throw ex;
 	    }
+
+	    _iteratorList.add(new java.lang.ref.WeakReference(this));
         }
 
         public boolean
@@ -634,12 +670,12 @@ public abstract class Map extends java.util.AbstractMap
 		{
 		    if(_cursor.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT) == 0)
 		    {
-			_current = new Entry(this, Map.this, _communicator, dbKey, dbValue.get_data());
+			_current = new Entry(this, Map.this, _connection.communicator(), 
+					     dbKey, dbValue.get_data());
 			return true;
 		    }
 		    else
 		    {
-			close();
 			return false;
 		    }
 		}
@@ -682,6 +718,11 @@ public abstract class Map extends java.util.AbstractMap
         public void
         remove()
         {
+	    if(_txn != null)
+	    {
+		closeAllIteratorsExcept(this);
+	    }
+
 	    //
 	    // Removes the last object returned by next()
 	    //
@@ -771,7 +812,7 @@ public abstract class Map extends java.util.AbstractMap
         }
 
         //
-        // Extra operation.
+        // Extra operations.
         //
         public void
         close()
@@ -783,17 +824,17 @@ public abstract class Map extends java.util.AbstractMap
 		closeCursor(cursor);
 	    }
 	    
-	    if(_tx != null)
+	    if(_txn != null)
 	    {
 		if(_trace >= 3)
 		{
-		    _communicator.getLogger().trace("DB", "committing transaction for cursor on database \"" +
-                                                    _dbName + "\"");
+		    _connection.communicator().getLogger().trace
+			("DB", "committing transaction for cursor on database \"" + _db.dbName() + "\"");
 		}
 
 		try
 		{
-		    _tx.commit(0);
+		    _txn.commit(0);
 		}
 		catch(com.sleepycat.db.DbDeadlockException e)
 		{
@@ -811,11 +852,11 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		finally
 		{
-		    _tx = null;
+		    _txn = null;
 		}
-	    }
-	    
+	    }   
 	}
+	
 
 	protected void
         finalize()
@@ -826,6 +867,11 @@ public abstract class Map extends java.util.AbstractMap
 	void
 	setValue(Map.Entry entry, Object value)
 	{
+	    if(_txn != null)
+	    {
+		closeAllIteratorsExcept(this);
+	    }
+
 	    //
 	    // Are we trying to update the current value?
 	    //
@@ -834,7 +880,7 @@ public abstract class Map extends java.util.AbstractMap
 		//
 		// Yes, update it directly
 		//
-		byte[] v = encodeValue(value, _communicator);
+		byte[] v = encodeValue(value, _connection.communicator());
 		com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(v);
 		
 		try
@@ -885,7 +931,7 @@ public abstract class Map extends java.util.AbstractMap
 			throw ex;
 		    }
 		   
-		    byte[] v = encodeValue(value, _communicator);
+		    byte[] v = encodeValue(value, _connection.communicator());
 		    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(v);
 		    clone.put(entry.getDbKey(), dbValue, com.sleepycat.db.Db.DB_CURRENT);
 		}
@@ -948,17 +994,18 @@ public abstract class Map extends java.util.AbstractMap
 		closeCursor(cursor);
 	    }
 
-	    if(_tx != null)
+	    if(_txn != null)
 	    {
 		if(_trace >= 3)
 		{
-		    _communicator.getLogger().trace("DB", "rolling back transaction for cursor on database \"" +
-                                                    _dbName + "\"");
+		    _connection.communicator().getLogger().trace
+			("DB", "rolling back transaction for cursor on database \"" 
+			 + _db.dbName() + "\"");
 		}
 
 		try
 		{
-		    _tx.abort();
+		    _txn.abort();
 		}
 		catch(com.sleepycat.db.DbDeadlockException e)
 		{
@@ -976,22 +1023,22 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		finally
 		{
-		    _tx = null;
+		    _txn = null;
 		}
 	    }
 	}
 
-	private com.sleepycat.db.DbTxn _tx = null;
-        private com.sleepycat.db.Dbc _cursor = null;
-        private Entry _current = null;
-        private Entry _lastReturned = null;
+	private com.sleepycat.db.DbTxn _txn;
+        private com.sleepycat.db.Dbc _cursor;
+        private Entry _current;
+        private Entry _lastReturned;
     }
 
     static class Entry implements java.util.Map.Entry 
     {
         public
-        Entry(Map.EntryIterator iterator, Map map, Ice.Communicator communicator, com.sleepycat.db.Dbt dbKey,
-              byte[] valueBytes)
+        Entry(Map.EntryIterator iterator, Map map, Ice.Communicator communicator, 
+	      com.sleepycat.db.Dbt dbKey, byte[] valueBytes)
         {
             _iterator = iterator;
 	    _map = map;
@@ -1074,14 +1121,14 @@ public abstract class Map extends java.util.AbstractMap
 	    return (o1 == null ? o2 == null : o1.equals(o2));
 	}
 
-	private Map.EntryIterator _iterator = null;
-	private Map _map = null;
-	private Ice.Communicator _communicator = null;
-	private com.sleepycat.db.Dbt _dbKey = null;
-	private byte[] _valueBytes = null;
-	private Object _key = null;
+	private Map.EntryIterator _iterator;
+	private Map _map;
+	private Ice.Communicator _communicator;
+	private com.sleepycat.db.Dbt _dbKey;
+	private byte[] _valueBytes;
+	private Object _key;
         private boolean _haveKey = false;
-	private Object _value = null;
+	private Object _value;
         private boolean _haveValue = false;
     }
 
@@ -1114,13 +1161,11 @@ public abstract class Map extends java.util.AbstractMap
         public String type;
         public Ice.Object value;
     }
-
-    private java.util.Set _entrySet = null;
-    private SharedDbEnv _dbEnvHolder = null;
-    private com.sleepycat.db.DbEnv _dbEnv = null;
-    private com.sleepycat.db.Db _db = null;
-    private String _dbName = null;
-    private Ice.Communicator _communicator = null;
-    private String _errorPrefix = null;
-    private int _trace = 0;
+    
+    private ConnectionI _connection;
+    private java.util.Set _entrySet;
+    private java.util.List _iteratorList = new java.util.LinkedList();
+    private SharedDb _db;
+    private String _errorPrefix;
+    private int _trace;
 }

@@ -17,6 +17,7 @@
 
 #include <Ice/Ice.h>
 #include <Freeze/EvictorF.h>
+#include <Freeze/ConnectionF.h>
 
 //
 // Berkeley DB's DbEnv
@@ -35,6 +36,13 @@ FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
 				    DbEnv& dbEnv, 
 				    const std::string& dbName, 
 				    bool createDb = true);
+
+
+FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
+					  const std::string& envName);
+
+FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
+					  DbEnv& dbEnv);
 
 }
 

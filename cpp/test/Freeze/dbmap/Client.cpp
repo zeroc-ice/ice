@@ -54,14 +54,36 @@ FindFirstOfTest(const pair<const Byte, const Int>& p, Byte q)
     return p.first == q;
 }
 
+
 void
-populateDB(ByteIntMap& m)
+populateDB(const ConnectionPtr& connection, ByteIntMap& m)
 {
     alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
-
-    for(vector<Byte>::const_iterator j = alphabet.begin(); j != alphabet.end(); ++j)
+    size_t length = alphabet.size();
+    
+    for(;;)
     {
-	m.put(ByteIntMap::value_type(*j, static_cast<Int>(j - alphabet.begin())));
+	try
+	{
+	    TransactionHolder txHolder(connection);
+	    for(size_t j = 0; j < length; ++j)
+	    {
+		m.put(ByteIntMap::value_type(alphabet[j], static_cast<Int>(j)));
+	    }
+	    txHolder.commit();
+	    break;
+	}
+	catch(const DBDeadlockException&)
+	{
+#ifdef SHOW_EXCEPTIONS
+	    cerr << "t" << flush;
+#endif
+
+	    length = length / 2;
+	    //
+	    // Try again
+	    //
+	}
     }
 }
 
@@ -69,8 +91,9 @@ class ReadThread : public IceUtil::Thread
 {
 public:
 
-    ReadThread(ByteIntMap& m) :
-	_map(m)
+    ReadThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
+	_connection(createConnection(communicator, envName)),
+	_map(_connection, dbName)
     {
     }
 
@@ -112,15 +135,18 @@ public:
 
 private:
 
-    ByteIntMap& _map;
+    ConnectionPtr _connection;
+    ByteIntMap  _map;
 };
+
 
 class WriteThread : public IceUtil::Thread
 {
 public:
 
-    WriteThread(ByteIntMap& m) :
-	_map(m)
+    WriteThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
+	_connection(createConnection(communicator, envName)),
+	_map(_connection, dbName)
     {
     }
 
@@ -160,22 +186,27 @@ public:
 		    break;
 		}
 	    }
-	    populateDB(_map);
+	    populateDB(_connection, _map);
 	}
     }
 
 private:
 
-    ByteIntMap& _map;
+    ConnectionPtr _connection;
+    ByteIntMap  _map;
 };
 
+
 int
-run(int argc, char* argv[], ByteIntMap& m)
+run(const CommunicatorPtr& communicator, const string& envName, const string&dbName)
 {
+    ConnectionPtr connection = createConnection(communicator, envName);
+    ByteIntMap m(connection, dbName);
+    
     //
     // Populate the database with the alphabet
     //
-    populateDB(m);
+    populateDB(connection, m);
 
     vector<Byte>::const_iterator j;
     ByteIntMap::iterator p;
@@ -200,9 +231,7 @@ run(int argc, char* argv[], ByteIntMap& m)
 	test(cp != m.end());
 	test(cp->first == *j && cp->second == j - alphabet.begin());
     }
-    p = m.end();
-    cp = m.end();
-
+   
     test(!m.empty());
     test(m.size() == alphabet.size());
     cout << "ok" << endl;
@@ -213,11 +242,6 @@ run(int argc, char* argv[], ByteIntMap& m)
     cp = m.find(*j);
     test(cp != m.end());
     test(cp->first == 'n' && cp->second == j - alphabet.begin());
-
-    //
-    // Close the iterator to release locks
-    //
-    cp = m.end();
     cout << "ok" << endl;
 
     cout << "  testing erase... ";
@@ -237,12 +261,12 @@ run(int argc, char* argv[], ByteIntMap& m)
 	p = m.find(*j);
 	test(p != m.end());
 	m.erase(p);
+	
 	//
-	// Need to release the iterator to commit the transaction
-	// and release the locks
+	// Release locks to avoid self deadlock
 	//
 	p = m.end();
-
+	
 	p = m.find(*j);
 	test(p == m.end());
 	vector<Byte>::iterator r = find(alphabet.begin(), alphabet.end(), *j);
@@ -321,7 +345,6 @@ run(int argc, char* argv[], ByteIntMap& m)
     p2 = p++;
     test(c == p2->first); // p2 should still be the same
     test(p2->first != p->first && (++p2)->first == p->first);
-    p2 = m.end();
     
     cout << "ok" << endl;
 
@@ -332,37 +355,35 @@ run(int argc, char* argv[], ByteIntMap& m)
 
     p = m.find('d');
     test(p != m.end() && p->second == 3);
-    p = m.end();
 
     test(m.find('a') == m.end());
     ByteIntMap::value_type i1('a', 1);
+
     m.put(i1);
     //
     // Note: VC++ won't accept this
     //
-    //m.put(typename MAP::value_type('a', 1));
+    //m.put(ByteIntMap::value_type('a', 1));
 
     p = m.find('a');
     test(p != m.end() && p->second == 1);
-    p = m.end();
 
     ByteIntMap::value_type i2('a', 0);
     m.put(i2);
     //
     // Note: VC++ won't accept this
     //
-    //m.put(typename MAP::value_type('a', 0));
+    //m.put(ByteIntMap::value_type('a', 0));
     
     p = m.find('a');
     test(p != m.end() && p->second == 0);
-    p = m.end();
     //
     // Test inserts
     // 
     
     ByteIntMap::value_type i3('a', 7);
-
     pair<ByteIntMap::iterator, bool> insertResult = m.insert(i3);
+
     test(insertResult.first == m.find('a'));
     test(insertResult.first->second == 0);
     test(insertResult.second == false);
@@ -371,7 +392,6 @@ run(int argc, char* argv[], ByteIntMap& m)
     p = m.insert(m.end(), i3);
     test(p == m.find('a'));
     test(p->second == 0);
-    p = m.end();
 
     ByteIntMap::value_type i4('b', 7);
     
@@ -386,22 +406,26 @@ run(int argc, char* argv[], ByteIntMap& m)
     p = m.insert(m.end(), i5);
     test(p == m.find('c'));
     test(p->second == 8);
-    p = m.end();
 
     p = m.find('a');
     test(p != m.end() && p->second == 0);
     p.set(1);
     test(p != m.end() && p->second == 1);
+
+    //
+    // This is necessary to release the locks held
+    // by p and avoid a self-deadlock
+    //
     p = m.end();
+    
     p = m.find('a');
     test(p != m.end() && p->second == 1);
-    p = m.end();
     cout << "ok" << endl;
     
     //
     // Re-populate
     //
-    populateDB(m);
+    populateDB(connection, m);
 
     cout << "  testing algorithms... ";
 
@@ -463,18 +487,16 @@ run(int argc, char* argv[], ByteIntMap& m)
     }
     cout << "ok" << endl;
 
-    p = m.end();
-
     cout << "  testing concurrent access... " << flush;
     m.clear();
-    populateDB(m);
+    populateDB(connection, m);
 
     vector<IceUtil::ThreadControl> controls;
     for(int i = 0; i < 5; ++i)
     {
-	IceUtil::ThreadPtr rt = new ReadThread(m);
+	IceUtil::ThreadPtr rt = new ReadThread(communicator, envName, dbName);
 	controls.push_back(rt->start());
-	IceUtil::ThreadPtr wt = new WriteThread(m);
+	IceUtil::ThreadPtr wt = new WriteThread(communicator, envName, dbName);
 	controls.push_back(wt->start());
     }
     for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)
@@ -503,10 +525,9 @@ main(int argc, char* argv[])
 	    envName += "/";
 	    envName += "db";
 	}
-	
-        ByteIntMap binary(communicator, envName, "binary");
-        cout << "testing encoding..." << endl;
-        status = run(argc, argv, binary);
+       
+	cout << "testing encoding..." << endl;
+	status = run(communicator, envName, "binary");
     }
     catch(const Ice::Exception& ex)
     {

@@ -21,18 +21,29 @@ LIBNAME		= $(call mklibname,Freeze)
 TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
 
-OBJS		= DBException.o \
+OBJS		= DB.o \
+                  DBException.o \
 		  Evictor.o \
 		  EvictorF.o \
 		  EvictorStorage.o \
+                  Connection.o \
+                  ConnectionF.o \
+                  ConnectionI.o \
+                  Transaction.o \
+                  TransactionI.o \
+                  SharedDb.o \
 	  	  MapI.o \
 		  EvictorI.o \
-                  SharedDbEnv.o
+                  SharedDbEnv.o \
+                  TransactionHolder.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/DB.ice \
                   $(SDIR)/DBException.ice \
+                  $(SDIR)/Connection.ice \
+                  $(SDIR)/ConnectionF.ice \
+                  $(SDIR)/Transaction.ice \
 		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/EvictorF.ice \
 		  $(SDIR)/EvictorStorage.ice

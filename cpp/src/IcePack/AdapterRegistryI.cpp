@@ -14,6 +14,7 @@
 
 #include <IcePack/AdapterRegistryI.h>
 #include <IcePack/TraceLevels.h>
+#include <Freeze/Initialize.h>
 
 using namespace std;
 using namespace IcePack;
@@ -21,16 +22,23 @@ using namespace IcePack;
 IcePack::AdapterRegistryI::AdapterRegistryI(const Ice::CommunicatorPtr& communicator,
 					    const string& envName, const string& dbName,
 					    const TraceLevelsPtr& traceLevels) :
-    _dict(communicator, envName, dbName),
-    _traceLevels(traceLevels)
+    _connectionCache(Freeze::createConnection(communicator, envName)),
+    _dictCache(_connectionCache, dbName),
+    _traceLevels(traceLevels),
+    _envName(envName),
+    _communicator(communicator),
+    _dbName(dbName)
 {
 }
 
 void
 IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(id);
-    if(p != _dict.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxyDict dict(connection, _dbName); 
+
+    StringObjectProxyDict::iterator p = dict.find(id);
+    if(p != dict.end())
     {
 	try
 	{
@@ -53,7 +61,7 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 	}
 	throw AdapterExistsException();
     }
-    _dict.put(pair<const string, const Ice::ObjectPrx>(id, adapter));
+    dict.put(pair<const string, const Ice::ObjectPrx>(id, adapter));
 
     if(_traceLevels->adapterRegistry > 0)
     {
@@ -65,13 +73,16 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
 void
 IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(id);
-    if(p == _dict.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxyDict dict(connection, _dbName); 
+
+    StringObjectProxyDict::iterator p = dict.find(id);
+    if(p == dict.end())
     {
 	throw AdapterNotExistException();
     }
     
-    _dict.erase(p);
+    dict.erase(p);
 
     if(_traceLevels->adapterRegistry > 0)
     {
@@ -83,8 +94,11 @@ IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
 AdapterPrx
 IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
 {
-    StringObjectProxyDict::iterator p = _dict.find(id);
-    if(p != _dict.end())
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxyDict dict(connection, _dbName); 
+
+    StringObjectProxyDict::iterator p = dict.find(id);
+    if(p != dict.end())
     {
 	try
 	{
@@ -92,7 +106,7 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    _dict.erase(p);
+	    dict.erase(p);
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -105,10 +119,13 @@ IcePack::AdapterRegistryI::findById(const string& id, const Ice::Current&)
 Ice::StringSeq
 IcePack::AdapterRegistryI::getAll(const Ice::Current&) const
 {
-    Ice::StringSeq ids;
-    ids.reserve(_dict.size());
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringObjectProxyDict dict(connection, _dbName); 
 
-    for(StringObjectProxyDict::const_iterator p = _dict.begin(); p != _dict.end(); ++p)
+    Ice::StringSeq ids;
+    ids.reserve(dict.size());
+
+    for(StringObjectProxyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
     {
 	ids.push_back(p->first);
     }

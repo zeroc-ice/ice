@@ -19,6 +19,7 @@
 #include <iterator>
 #include <Freeze/DB.h>
 #include <Freeze/DBException.h>
+#include <Freeze/Connection.h>
 
 //
 // Berkeley DB's DbEnv
@@ -35,14 +36,7 @@ class FREEZE_API DBMapHelper
 public:
     
     static DBMapHelper*
-    create(const Ice::CommunicatorPtr& communicator, 
-	   const std::string& envName, 
-	   const std::string& dbName, 
-	   bool createDb);
-
-    static DBMapHelper*
-    create(const Ice::CommunicatorPtr& communicator, 
-	   DbEnv& dbEnv, 
+    create(const Freeze::ConnectionPtr& connection, 
 	   const std::string& dbName, 
 	   bool createDb);
 
@@ -69,17 +63,9 @@ public:
     virtual size_t
     size() const = 0;
 
-    const Ice::CommunicatorPtr&
-    getCommunicator() const
-    {
-	return _communicator;
-    }
+    virtual void
+    closeAllIterators() = 0;
 
-protected:
-
-    DBMapHelper(const Ice::CommunicatorPtr&);
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 
@@ -110,9 +96,6 @@ public:
 
     virtual bool
     equals(const DBIteratorHelper&) const = 0;
-    
-    virtual const Ice::CommunicatorPtr&
-    getCommunicator() const = 0;
 }; 
 
 
@@ -157,14 +140,16 @@ public:
 
     typedef value_type& reference;
 
-    DBIterator(DBMapHelper& mapHelper) :
-	_helper(DBIteratorHelper::create(mapHelper, false)), 
+    DBIterator(DBMapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
+	_helper(DBIteratorHelper::create(mapHelper, false)),
+	_communicator(communicator),
 	_refValid(false)
     {
     }
 
-    DBIterator(DBIteratorHelper* helper) :
-	_helper(helper), 
+    DBIterator(DBIteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
+	_helper(helper),
+	_communicator(communicator),
 	_refValid(false)
     {
     }
@@ -175,6 +160,7 @@ public:
     }
 
     DBIterator(const DBIterator& rhs) :
+	_communicator(rhs._communicator),
         _refValid(false)
     {
 	if(rhs._helper.get() != 0)
@@ -195,7 +181,7 @@ public:
 	    {
 		_helper.reset();
 	    }
-	    
+	    _communicator = rhs._communicator;
 	    _refValid = false;
 	}
 
@@ -274,7 +260,7 @@ public:
 	assert(_helper.get());
 
 	Value v;
-	ValueCodec::write(value, v, _helper->getCommunicator());
+	ValueCodec::write(value, v, _communicator);
 	_helper->set(v);
         _refValid = false;
     }
@@ -305,16 +291,15 @@ private:
 	assert(k != 0);
 	assert(v != 0);
 
-	const Ice::CommunicatorPtr& communicator = _helper->getCommunicator();
-	KeyCodec::read(key, *k, communicator);
-	ValueCodec::read(value, *v, communicator);
+	KeyCodec::read(key, *k, _communicator);
+	ValueCodec::read(value, *v, _communicator);
     }
 
     friend class ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
     friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
 
     std::auto_ptr<DBIteratorHelper> _helper;
-
+    Ice::CommunicatorPtr _communicator;
     //
     // Cached last return value. This is so that operator->() can
     // actually return a pointer. The cached value is reused across
@@ -346,14 +331,16 @@ public:
 
     typedef value_type& reference;
 
-    ConstDBIterator(DBMapHelper& mapHelper) :
+    ConstDBIterator(DBMapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
 	_helper(DBIteratorHelper::create(mapHelper, true)), 
+	_communicator(_communicator),
 	_refValid(false)
     {
     }
 
-    ConstDBIterator(DBIteratorHelper* helper) :
-	_helper(helper), 
+    ConstDBIterator(DBIteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
+	_helper(helper),
+	_communicator(communicator),
 	_refValid(false)
     {
     }
@@ -364,6 +351,7 @@ public:
     }
 
     ConstDBIterator(const ConstDBIterator& rhs) :
+	_communicator(rhs._communicator),
         _refValid(false)
     {
 	if(rhs._helper.get() != 0)
@@ -383,6 +371,7 @@ public:
 	{
 	    _helper.reset(rhs._helper->clone());
 	}
+	_communicator = rhs._communicator;
     }
 
     ConstDBIterator& operator=(const ConstDBIterator& rhs)
@@ -397,7 +386,7 @@ public:
 	    {
 		_helper.reset();
 	    }
-	    
+	    _communicator = rhs._communicator;
 	    _refValid = false;
 	}
 
@@ -417,7 +406,7 @@ public:
 	{
 	    _helper.reset();
 	}
-
+	_communicator = rhs._communicator;
         _refValid = false;
 
 	return *this;
@@ -513,14 +502,14 @@ private:
 	assert(k != 0);
 	assert(v != 0);
 
-	const Ice::CommunicatorPtr& communicator = _helper->getCommunicator();
-	KeyCodec::read(key, *k, communicator);
-	ValueCodec::read(value, *v, communicator);
+	KeyCodec::read(key, *k, _communicator);
+	ValueCodec::read(value, *v, _communicator);
     }
 
     friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
 
     std::auto_ptr<DBIteratorHelper> _helper;
+    Ice::CommunicatorPtr _communicator;
 
     //
     // Cached last return value. This is so that operator->() can
@@ -580,44 +569,21 @@ public:
     //
     // Constructors
     //
-    DBMap(const Ice::CommunicatorPtr& communicator, 
-	  const std::string& envName, 
+    DBMap(const Freeze::ConnectionPtr& connection, 
 	  const std::string& dbName, 
 	  bool createDb = true) :
-	_helper(DBMapHelper::create(communicator, envName, dbName, createDb))
-    {
-    }
-
-    DBMap(const Ice::CommunicatorPtr& communicator, 
-	  DbEnv& dbEnv, 
-	  const std::string& dbName, 
-	  bool createDb = true) :
-	_helper(DBMapHelper::create(communicator, dbEnv, dbName, createDb))
+	_helper(DBMapHelper::create(connection, dbName, createDb)),
+	_communicator(connection->getCommunicator())
     {
     }
 
     template <class _InputDBIterator>
-    DBMap(const Ice::CommunicatorPtr& communicator, 
-	  const std::string& envName, 
+    DBMap(const Freeze::ConnectionPtr& connection, 
 	  const std::string& dbName, 
 	  bool createDb,
 	  _InputDBIterator first, _InputDBIterator last) :
-	_helper(new DBMapHelper(communicator, envName, dbName, createDb))
-    {
-	while(first != last)
-	{
-	    put(*first);
-	    ++first;
-	}
-    }
-
-    template <class _InputDBIterator>
-    DBMap(const Ice::CommunicatorPtr& communicator, 
-	  DbEnv& dbEnv, 
-	  const std::string& dbName, 
-	  bool createDb,
-	  _InputDBIterator first, _InputDBIterator last) :
-	_helper(new DBMapHelper(communicator, dbEnv, dbName, createDb))
+	_helper(new DBMapHelper(connection, dbName, createDb)),
+	_communicator(connection->getCommunicator())
     {
 	while(first != last)
 	{
@@ -675,13 +641,17 @@ public:
 	DBMapHelper* tmp = _helper.release();
 	_helper.reset(rhs._helper.release());
 	rhs._helper.reset(tmp);
+	
+	Ice::CommunicatorPtr tmpCom = _communicator;
+	_communicator = rhs._communicator;
+	rhs._communicator = tmpCom;
     }
 
     iterator begin()
     {
 	try
 	{
-	    return iterator(DBIteratorHelper::create(*_helper.get(), false));
+	    return iterator(DBIteratorHelper::create(*_helper.get(), false), _communicator);
 	}
 	catch(const DBNotFoundException&)
 	{
@@ -692,7 +662,7 @@ public:
     {
 	try
 	{
-	    return const_iterator(DBIteratorHelper::create(*_helper.get(), true));
+	    return const_iterator(DBIteratorHelper::create(*_helper.get(), true), _communicator);
 	}
 	catch(const DBNotFoundException&)
 	{
@@ -750,20 +720,18 @@ public:
 	//
 	// position is ignored.
 	//
-	const Ice::CommunicatorPtr& communicator = _helper->getCommunicator();
-
 	Key k;
-	KeyCodec::write(key.first, k, communicator);
+	KeyCodec::write(key.first, k, _communicator);
 	
-	iterator r = iterator(_helper->find(k, false));
+	iterator r = iterator(_helper->find(k, false), _communicator);
 
 	if(r == end())
 	{
 	    Value v;
-	    ValueCodec::write(key.second, v, communicator);
+	    ValueCodec::write(key.second, v, _communicator);
 	    
 	    _helper->put(k, v);
-	    r = iterator(_helper->find(k, false));
+	    r = iterator(_helper->find(k, false), _communicator);
 	}
 
 	return r;
@@ -771,22 +739,20 @@ public:
 
     std::pair<iterator, bool> insert(const value_type& key)
     {
-	const Ice::CommunicatorPtr& communicator = _helper->getCommunicator();
-
 	Key k;
-	KeyCodec::write(key.first, k, communicator);
+	KeyCodec::write(key.first, k, _communicator);
 
-	iterator r = iterator(_helper->find(k, false));
+	iterator r = iterator(_helper->find(k, false), _communicator);
 	bool inserted = false;
 
 	if(r == end())
 	{
 	    Value v;
-	    ValueCodec::write(key.second, v, communicator);
+	    ValueCodec::write(key.second, v, _communicator);
 	    
 	    _helper->put(k, v);
 	    inserted = true;
-	    r = iterator(_helper->find(k, false));
+	    r = iterator(_helper->find(k, false), _communicator);
 	}
 
 	return std::pair<iterator, bool>(r, inserted);
@@ -807,12 +773,10 @@ public:
 	//
 	// insert or replace
 	//
-	const Ice::CommunicatorPtr& communicator = _helper->getCommunicator();
-
 	Key k;
 	Value v;
-	KeyCodec::write(key.first, k, communicator);
-	ValueCodec::write(key.second, v, communicator);
+	KeyCodec::write(key.first, k, _communicator);
+	ValueCodec::write(key.second, v, _communicator);
 
 	_helper->put(k, v);
     }
@@ -836,7 +800,7 @@ public:
     size_type erase(const key_type& key)
     {
 	Key k;
-	KeyCodec::write(key, k, _helper->getCommunicator());
+	KeyCodec::write(key, k, _communicator);
 
 	return _helper->erase(k);
     }
@@ -867,23 +831,23 @@ public:
     iterator find(const key_type& key)
     {
 	Key k;
-	KeyCodec::write(key, k, _helper->getCommunicator());
+	KeyCodec::write(key, k, _communicator);
 
-	return iterator(_helper->find(k, false));
+	return iterator(_helper->find(k, false), _communicator);
     }
 
     const_iterator find(const key_type& key) const
     {
 	Key k;
-	KeyCodec::write(key, k, _helper->getCommunicator());
+	KeyCodec::write(key, k, _communicator);
 
-	return const_iterator(_helper->find(k, true));
+	return const_iterator(_helper->find(k, true), _communicator);
     }
 
     size_type count(const key_type& key) const
     {
 	Key k;
-	KeyCodec::write(key, k, _helper->getCommunicator());
+	KeyCodec::write(key, k, _communicator);
 	
 	return _helper->count(k);
 
@@ -901,9 +865,17 @@ public:
 	return std::pair<const_iterator,const_iterator>(p,p);
     }
 
+    const Ice::CommunicatorPtr&
+    communicator() const
+    {
+	return _communicator();
+    }
+
+
 private:
 
     std::auto_ptr<DBMapHelper> _helper;
+    const Ice::CommunicatorPtr _communicator;
 };
 
 }

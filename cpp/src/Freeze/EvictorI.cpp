@@ -205,7 +205,7 @@ Freeze::EvictorI::EvictorI(const Ice::CommunicatorPtr communicator,
     _noSyncAllowed(false),
     _generation(0)
 {
-    init("Extern", dbName, createDb);
+    init("External", dbName, createDb);
 }
 
 void

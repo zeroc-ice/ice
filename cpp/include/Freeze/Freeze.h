@@ -18,5 +18,6 @@
 #include <Freeze/Initialize.h>
 #include <Freeze/Evictor.h>
 #include <Freeze/Map.h>
+#include <Freeze/TransactionHolder.h>
 
 #endif

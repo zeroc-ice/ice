@@ -17,6 +17,7 @@
 #include <IceStorm/TopicI.h>
 #include <IceStorm/Flusher.h>
 #include <IceStorm/TraceLevels.h>
+#include <Freeze/Initialize.h>
 
 #include <functional>
 #include <ctype.h>
@@ -32,7 +33,8 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     _publishAdapter(publishAdapter),
     _traceLevels(traceLevels),
     _envName(envName),
-    _topics(_communicator, envName, dbName)
+    _connection(Freeze::createConnection(_communicator, envName)),
+    _topics(_connection, dbName)
 {
     _flusher = new Flusher(_communicator, _traceLevels);
     _factory = new SubscriberFactory(_communicator, _traceLevels, _flusher);
@@ -192,6 +194,13 @@ TopicManagerI::reap()
             ++i;
         }
     }
+}
+
+void
+TopicManagerI::shutdown()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    reap(); 
 }
 
 void

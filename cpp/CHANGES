@@ -126,16 +126,23 @@ Changes since version 1.1.1
 
     Freeze Maps are now opened/created directly using their constructor:
 
-    C++: DBMap(const Ice::CommunicatorPtr& communicator, 
-               const std::string& envName, 
+    C++: DBMap(const Freeze::ConnectionPtr& connection, 
                const std::string& dbName, 
                bool createDb = true);
 
     Java: public
-          Map(Ice.Communicator communicator, 
-              String envName, 
+          Map(Connection connection, 
               String dbName, 
               boolean createDb);
+
+    Connection is a new local interface similar to the DBEnvironment
+    local interface (which was removed). However, Connection is not
+    thread-safe: access to a given Connection object must be serialized.
+    A connection can be used to create a Transaction (similar to the
+    old DBTransaction); likewise, a Transaction is not thread-safe. 
+
+    To access concurrently the "same" map, you should create multiple
+    connections and associated maps.
 
     In Java, it is necessary to call close() on the Map if you want to
     close the underlying Berkeley DB database (and indirectly the
@@ -150,34 +157,25 @@ Changes since version 1.1.1
       have an associated transaction that is committed when the
       iterator is closed.
 
-    Freeze Maps support concurrent access: several threads can use
-    (read and write) the same Map concurrently without any application
-    level locking: the locking is handled by Berkeley DB. However
-    iterators are not thread safe: concurrent access to a given
-    iterator (which is very unusual) needs to be synchronized by the
-    application. Concurrent reads and writes to the same Map can
+    Concurrent reads and writes to the same underlyding Map can
     generate deadlocks, even with a single writer. Berkeley DB detects
     such deadlocks and "kills" one locker (iterator or transaction) to
     resolve it. For non-iterator access, Freeze handles this situation
     and retries transparently. When using iterators, a
     DBDeadlockException is raised to the application, which is
-    responsible for closing the affected iterator(s) and retrying.
+    responsible for closing the affected iterator(s) or transaction,
+    and retrying.
     Serialized access or concurrent reads never produce deadlocks.
-
-    In Java, iterators are no longer closed as a side effect of other
-    write operations. Doing so would require adding synchronization to
-    all Java iterator methods.
-
-    Currently, Java Freeze Map iterators are closed either through the
-    proprietary close() method, or when hasNext() returns false (or
-    next() throws NoSuchElementException, which is equivalent). This
-    latter behavior may be removed soon.
 
     In C++, the copy constructor and assignment operator of Freeze Map
     iterators duplicate the source iterator. When the source iterator
     is non-const, the duplicate iterator will use the same
     transaction. This transaction is committed only when its last
     associated iterator is closed (i.e., destroyed or assigned end()).
+
+    In both C++ and Java, write operations that not within a user-
+    controlled transaction automatically close all open iterators
+    in the target Map. This reduces the likelyhood of self-deadlocks.
   
  - Freeze Evictor update:
 

@@ -28,5 +28,18 @@ public class Util
     {
 	return new EvictorI(communicator, dbEnv, dbName, createDb);
     } 
+
+    public static Connection
+    createConnection(Ice.Communicator communicator, String envName)
+    {
+	return new ConnectionI(communicator, envName);
+    } 
+
+    public static Connection
+    createConnection(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv)
+    {
+	return new ConnectionI(communicator, dbEnv);
+    } 
+
 }
 

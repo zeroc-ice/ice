@@ -16,7 +16,7 @@
 #define FREEZE_MAP_I_H
 
 #include <Freeze/Map.h>
-#include <Freeze/SharedDbEnv.h>
+#include <Freeze/SharedDb.h>
 
 namespace Freeze
 {
@@ -62,9 +62,8 @@ public:
     virtual bool
     equals(const DBIteratorHelper&) const;
 
-    virtual const Ice::CommunicatorPtr&
-    getCommunicator() const;
-
+    void
+    close();
 
     class Tx : public IceUtil::SimpleShared
     {
@@ -88,7 +87,14 @@ public:
 
     typedef IceUtil::Handle<Tx> TxPtr;
 
+    const TxPtr&
+    tx() const;
+
 private:
+
+    void
+    cleanup();
+
 
     const DBMapHelperI& _map;
     Dbc* _dbc;
@@ -99,17 +105,11 @@ private:
 }; 
 
 
-
 class DBMapHelperI : public DBMapHelper
 {
 public:
    
-    DBMapHelperI(const Ice::CommunicatorPtr& communicator,
-		 const std::string& envName,  const std::string& dbName, 
-		 bool createDb);
-
-    DBMapHelperI(const Ice::CommunicatorPtr& communicator,
-		 DbEnv& dbEnv, const std::string& dbName, 
+    DBMapHelperI(const ConnectionIPtr& connection, const std::string& dbName, 
 		 bool createDb);
 
     virtual ~DBMapHelperI();
@@ -135,22 +135,33 @@ public:
     virtual size_t
     size() const;
 
+    virtual void
+    closeAllIterators();
+ 
+    void
+    close();
+
 private:
 
-    void 
-    openDb(bool);
+    virtual void
+    closeAllIteratorsExcept(const DBIteratorHelperI::TxPtr&) const;
+
 
     friend class DBIteratorHelperI;
     friend class DBIteratorHelperI::Tx;
 
-    int _trace;
-    DbEnv* _dbEnv;
-    SharedDbEnvPtr _dbEnvHolder;
-    std::auto_ptr<Db> _db;
+    const ConnectionIPtr _connection;
+    mutable std::list<DBIteratorHelperI*> _iteratorList;
+    SharedDbPtr _db;
     const std::string _dbName;
+    int _trace;    
 };
 
-
+inline const DBIteratorHelperI::TxPtr&
+DBIteratorHelperI::tx() const
+{
+    return _tx;
+}
 
 }
 

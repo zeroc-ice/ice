@@ -58,6 +58,8 @@ public:
 
     void reap();
 
+    void shutdown();
+
 private:
 
     void installTopic(const std::string&, const std::string&, bool);
@@ -71,6 +73,7 @@ private:
     FlusherPtr _flusher;
     SubscriberFactoryPtr _factory;
     std::string _envName;
+    Freeze::ConnectionPtr _connection;
     StringBoolDict _topics;
 };
 

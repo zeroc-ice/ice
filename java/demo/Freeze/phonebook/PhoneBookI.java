@@ -238,18 +238,20 @@ class PhoneBookI extends _PhoneBookDisp
     PhoneBookI(Ice.Communicator communicator, String envName, String dbName, Freeze.Evictor evictor)
     {
 	_evictor = evictor;
-	_nameIdentitiesDict = new NameIdentitiesDict(communicator, envName, dbName, true);
+	_connection = Freeze.Util.createConnection(communicator, envName);
+	_nameIdentitiesDict = new NameIdentitiesDict(_connection, dbName, true);
     }
 
     void
     close()
     {
 	_nameIdentitiesDict.close();
+	_connection.close();
     }
     
     //
     // It's not strictly necessary in the Java implementation to have
-    // a private removeI implememnation since there is no problem with
+    // a private removeI implementation since there is no problem with
     // self-deadlocks (as with the C++ implementation caused by the
     // use of read-write mutexes). However, to keep the C++/Java
     // implementations as close-as-possible the method is retained.
@@ -305,5 +307,6 @@ class PhoneBookI extends _PhoneBookDisp
     }
 
     private Freeze.Evictor _evictor;
+    private Freeze.Connection _connection;
     private NameIdentitiesDict _nameIdentitiesDict;
 }

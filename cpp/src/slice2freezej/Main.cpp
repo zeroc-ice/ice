@@ -100,16 +100,11 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     out << sb;
 
     //
-    // Constructors
+    // Constructor
     //
-    out << sp << nl << "public" << nl << name << "(Ice.Communicator communicator, String envName, String dbName, boolean createDb)";
+    out << sp << nl << "public" << nl << name << "(Freeze.Connection connection, String dbName, boolean createDb)";
     out << sb;
-    out << nl << "super(communicator, envName, dbName, createDb);";
-    out << eb;
-
-    out << sp << nl << "public" << nl << name << "(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)";
-    out << sb;
-    out << nl << "super(communicator, dbEnv, dbName, createDb);";
+    out << nl << "super(connection, dbName, createDb);";
     out << eb;
 
     //

@@ -42,10 +42,14 @@ public:
 
 private:
 
-    StringObjectProxyDict _dict;
+    Freeze::ConnectionPtr _connectionCache;
+    StringObjectProxyDict _dictCache;
     AdapterRegistryPtr _adapterRegistry;
     AdapterFactoryPtr _adapterFactory;
     TraceLevelsPtr _traceLevels;
+    const std::string _envName;
+    const Ice::CommunicatorPtr _communicator;
+    const std::string _dbName;
 };
 
 }

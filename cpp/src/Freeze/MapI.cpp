@@ -14,19 +14,12 @@
 
 #include <Freeze/MapI.h>
 #include <Freeze/DBException.h>
-#include <sys/stat.h>
+#include <Freeze/SharedDb.h>
 #include <stdlib.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
-
-#ifdef _WIN32
-#   define FREEZE_DB_MODE 0
-#else
-#   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
-#endif
-
 
 namespace
 {
@@ -62,27 +55,12 @@ initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
 //
 
 Freeze::DBMapHelper*
-Freeze::DBMapHelper::create(const CommunicatorPtr& communicator, 
-			    const string& envName, 
+Freeze::DBMapHelper::create(const Freeze::ConnectionPtr& connection, 
 			    const string& dbName, 
 			    bool createDb)
 {
-    return new DBMapHelperI(communicator, envName, dbName, createDb);
-}
-
-Freeze::DBMapHelper*
-Freeze::DBMapHelper::create(const CommunicatorPtr& communicator, 
-			    DbEnv& dbEnv, 
-			    const string& dbName, 
-			    bool createDb)
-{
-    return new DBMapHelperI(communicator, dbEnv, dbName, createDb);
-}
-
-
-Freeze::DBMapHelper::DBMapHelper(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator)
-{
+    Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection);
+    return new DBMapHelperI(connectionI, dbName, createDb);
 }
 
 Freeze::DBMapHelper::~DBMapHelper()
@@ -127,16 +105,15 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBMapHelperI& m, bool readOnl
     _dbc(0),
     _tx(0)
 {
-
     if(_map._trace >= 3)
     {
-	Trace out(_map._communicator->getLogger(), "DB");
-	out << "opening iterator on database \"" << _map._dbName.c_str() << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "DB");
+	out << "opening iterator on database \"" << _map._dbName << "\"";
     }
 
-    DbTxn* txn = 0;
+    DbTxn* txn = _map._connection->dbTxn();
     
-    if(!readOnly)
+    if(txn == 0 && !readOnly)
     {
 	//
 	// Need to start a transaction
@@ -147,7 +124,7 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBMapHelperI& m, bool readOnl
 
     try
     {
-	m._db.get()->cursor(txn, &_dbc, 0);
+	_map._db->cursor(txn, &_dbc, 0);
     }
     catch(const ::DbException& dx)
     {
@@ -155,6 +132,7 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBMapHelperI& m, bool readOnl
 	ex.message = dx.what();
 	throw ex;
     }
+    _map._iteratorList.push_back(this);
 }
 
 Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
@@ -164,8 +142,8 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
 {
     if(_map._trace >= 3)
     {
-	Trace out(_map._communicator->getLogger(), "DB");
-	out << "duplicating iterator on database \"" << _map._dbName.c_str() << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "DB");
+	out << "duplicating iterator on database \"" << _map._dbName << "\"";
     }
 
     try
@@ -180,33 +158,12 @@ Freeze::DBIteratorHelperI::DBIteratorHelperI(const DBIteratorHelperI& it) :
     }
    
     _tx = it._tx;
+    _map._iteratorList.push_back(this);
 }
 
 Freeze::DBIteratorHelperI::~DBIteratorHelperI()
 {
-    if(_map._trace >= 3)
-    {
-	Trace out(_map._communicator->getLogger(), "DB");
-	out << "closing iterator on database \"" << _map._dbName.c_str() << "\"";
-    }
-
-    try
-    {
-	_dbc->close();
-    }
-    catch(const ::DbDeadlockException&)
-    {
-	// Ignored
-    }
-    catch(const ::DbException& dx)
-    {
-	DBException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
-    _dbc = 0;
-
-    _tx = 0;
+    close();
 }
 
 bool 
@@ -461,6 +418,11 @@ Freeze::DBIteratorHelperI::set(const Value& value)
     Dbt dbValue;
     initializeInDbt(value, dbValue);
 
+    if(_tx != 0)
+    {
+	_map.closeAllIteratorsExcept(_tx);
+    }
+
     try
     {
 	int err = _dbc->put(&dbKey, &dbValue, DB_CURRENT);
@@ -488,6 +450,11 @@ Freeze::DBIteratorHelperI::set(const Value& value)
 void
 Freeze::DBIteratorHelperI::erase()
 {
+    if(_tx != 0)
+    {
+	_map.closeAllIteratorsExcept(_tx);
+    }
+
     try
     {
 	int err = _dbc->del(0);
@@ -581,16 +548,55 @@ Freeze::DBIteratorHelperI::equals(const DBIteratorHelper& rhs) const
     }
 }
 
-const Ice::CommunicatorPtr&
-Freeze::DBIteratorHelperI::getCommunicator() const
+void
+Freeze::DBIteratorHelperI::close()
 {
-    return _map._communicator;
+    if(_dbc != 0)
+    {
+	if(_map._trace >= 3)
+	{
+	    Trace out(_map._connection->communicator()->getLogger(), "DB");
+	    out << "closing iterator on database \"" << _map._dbName << "\"";
+	}
+	
+	try
+	{
+	    _dbc->close();
+	}
+	catch(const ::DbDeadlockException& dx)
+	{
+	    bool raiseException = (_tx == 0);
+	    cleanup();
+	    if(raiseException)
+	    {
+		DBDeadlockException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	}
+	catch(const ::DbException& dx)
+	{
+	    cleanup();
+	    DBException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+	cleanup();
+    }
 }
+
+void
+Freeze::DBIteratorHelperI::cleanup()
+{
+    _dbc = 0;
+    _map._iteratorList.remove(this);
+    _tx = 0;
+}
+
 
 //
 // DBIteratorHelperI::Tx
 //
-
 
 Freeze::DBIteratorHelperI::Tx::Tx(const DBMapHelperI& m) :
     _map(m),
@@ -599,13 +605,13 @@ Freeze::DBIteratorHelperI::Tx::Tx(const DBMapHelperI& m) :
 {
     if(_map._trace >= 3)
     {
-	Trace out(_map._communicator->getLogger(), "DB");
-	out << "starting transaction for database \"" << _map._dbName.c_str() << "\"";
+	Trace out(_map._connection->communicator()->getLogger(), "DB");
+	out << "starting transaction for database \"" << _map._dbName << "\"";
     }
 
     try
     {
-	_map._dbEnv->txn_begin(0, &_txn, 0);
+	_map._connection->dbEnv()->txn_begin(0, &_txn, 0);
     }
     catch(const ::DbException& dx)
     {
@@ -622,8 +628,8 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
     {
 	if(_map._trace >= 3)
 	{
-	    Trace out(_map._communicator->getLogger(), "DB");
-	    out << "aborting transaction for database \"" << _map._dbName.c_str() << "\"";
+	    Trace out(_map._connection->communicator()->getLogger(), "DB");
+	    out << "aborting transaction for database \"" << _map._dbName << "\"";
 	}
 
 	try
@@ -641,7 +647,7 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
     {
 	if(_map._trace >= 3)
 	{
-	    Trace out(_map._communicator->getLogger(), "DB");
+	    Trace out(_map._connection->communicator()->getLogger(), "DB");
 	    out << "committing transaction for database \"" << _map._dbName.c_str() << "\"";
 	}
 
@@ -667,11 +673,6 @@ Freeze::DBIteratorHelperI::Tx::~Tx()
 void
 Freeze::DBIteratorHelperI::Tx::dead()
 {
-    //
-    // No need for synchronization since DBIteratorHelperI is not 
-    // thread-safe (see Berkeley DB doc)
-    //
-
     _dead = true;
 }
 
@@ -682,87 +683,20 @@ Freeze::DBIteratorHelperI::Tx::dead()
 //
 
 
-Freeze::DBMapHelperI::DBMapHelperI(const CommunicatorPtr& communicator,
-				   const string& envName,  
-				   const string& dbName, 
+Freeze::DBMapHelperI::DBMapHelperI(const ConnectionIPtr& connection, 
+				   const std::string& dbName, 
 				   bool createDb) :
-    DBMapHelper(communicator),
-    _trace(0),
-    _dbEnv(0),
-    _dbEnvHolder(SharedDbEnv::get(communicator, envName)),
-    _dbName(dbName)
-{
-    _dbEnv = _dbEnvHolder.get();
-    openDb(createDb);
+    _connection(connection),
+    _db(SharedDb::get(connection, dbName, createDb)),
+    _dbName(dbName),
+    _trace(connection->trace())
+{ 
+    _connection->registerMap(this);
 }
-
-Freeze::DBMapHelperI::DBMapHelperI(const CommunicatorPtr& communicator,
-				   DbEnv& dbEnv,  
-				   const string& dbName, 
-				   bool createDb) :
-     DBMapHelper(communicator),
-     _trace(0),
-    _dbEnv(&dbEnv),
-    _dbName(dbName)
-{
-    openDb(createDb);
-}
-
-void
-Freeze::DBMapHelperI::openDb(bool createDb)
-{
-    _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
-    
-    try
-    {
-	_db.reset(new Db(_dbEnv, 0));
-	u_int32_t flags = DB_AUTO_COMMIT | DB_THREAD;
-
-	if(createDb)
-	{
-	    flags |= DB_CREATE;
-	}
-
-	if(_trace >= 2)
-	{
-	    Trace out(_communicator->getLogger(), "DB");
-	    out << "opening database \"" << _dbName.c_str() << "\"";
-	}
-
-	_db->open(0, _dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
-    }
-    catch(const ::DbException& dx)
-    {
-	DBException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
-}
-
 
 Freeze::DBMapHelperI::~DBMapHelperI()
 {
-    if(_db.get() != 0)
-    {
-	try
-	{
-	    if(_trace >= 2)
-	    {
-		Trace out(_communicator->getLogger(), "DB");
-		out << "closing database \"" << _dbName.c_str() << "\"";
-	    }
-
-	    _db->close(0);
-	}
-	catch(const ::DbException& dx)
-	{
-	    DBException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-	_db.reset();
-    }
-    _dbEnvHolder = 0;
+    close();
 }
 
 Freeze::DBIteratorHelper*
@@ -784,9 +718,16 @@ Freeze::DBMapHelperI::find(const Key& k, bool readOnly) const
 	}
 	catch(const DBDeadlockException&)
 	{
-	    //
-	    // Ignored, try again
-	    //
+	    if(_connection->dbTxn() != 0)
+	    {
+		throw;
+	    }
+	    else
+	    {
+		//
+		// Ignored, try again
+		//
+	    }
 	}
     }
 }
@@ -799,11 +740,18 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
     initializeInDbt(key, dbKey);
     initializeInDbt(value, dbValue);
  
+    DbTxn* txn = _connection->dbTxn();
+    if(txn == 0)
+    {
+	closeAllIterators();
+    }
+
     for(;;)
     {
 	try
 	{
-	    int err = _db->put(0, &dbKey, &dbValue, DB_AUTO_COMMIT);
+	    int err = _db->put(txn, &dbKey, &dbValue, 
+			       txn != 0 ? 0 : DB_AUTO_COMMIT);
 	    
 	    if(err == 0)
 	    {
@@ -817,11 +765,20 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
 		throw DBException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const ::DbDeadlockException& dx)
 	{
-	    //
-	    // Ignored, try again
-	    //
+	    if(txn != 0)
+	    {
+		DBDeadlockException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	    else
+	    {
+		//
+		// Ignored, try again
+		//
+	    }
 	}
 	catch(const ::DbException& dx)
 	{
@@ -838,11 +795,17 @@ Freeze::DBMapHelperI::erase(const Key& key)
     Dbt dbKey;
     initializeInDbt(key, dbKey);
 
+    DbTxn* txn = _connection->dbTxn();
+    if(txn == 0)
+    {
+	closeAllIterators();
+    }
+
     for(;;)
     {
 	try
 	{
-	    int err = _db->del(0, &dbKey, DB_AUTO_COMMIT);
+	    int err = _db->del(txn, &dbKey, txn != 0 ? 0 : DB_AUTO_COMMIT);
 
 	    if(err == 0)
 	    {
@@ -858,11 +821,20 @@ Freeze::DBMapHelperI::erase(const Key& key)
 		throw DBException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const ::DbDeadlockException& dx)
 	{
-	    //
-	    // Ignored, try again
-	    //
+	    if(txn != 0)
+	    {
+		DBDeadlockException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	    else
+	    {
+		//
+		// Ignored, try again
+		//
+	    }
 	}
 	catch(const ::DbException& dx)
 	{
@@ -889,7 +861,7 @@ Freeze::DBMapHelperI::count(const Key& key) const
     {
 	try
 	{
-	    int err = _db->get(0, &dbKey, &dbValue, 0);
+	    int err = _db->get(_connection->dbTxn(), &dbKey, &dbValue, 0);
 	    
 	    if(err == 0)
 	    {
@@ -905,11 +877,20 @@ Freeze::DBMapHelperI::count(const Key& key) const
 		throw DBException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const ::DbDeadlockException& dx)
 	{
-	    //
-	    // Ignored, try again
-	    //
+	    if(_connection->dbTxn() != 0)
+	    {
+		DBDeadlockException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	    else
+	    {
+		//
+		// Ignored, try again
+		//
+	    }
 	}
 	catch(const ::DbException& dx)
 	{
@@ -923,20 +904,35 @@ Freeze::DBMapHelperI::count(const Key& key) const
 void
 Freeze::DBMapHelperI::clear()
 {
+    DbTxn* txn = _connection->dbTxn();
+    if(txn == 0)
+    {
+	closeAllIterators();
+    }
+
     for(;;)
     {
 	try
 	{
 	    u_int32_t count;
-	    int err = _db->truncate(0, &count, DB_AUTO_COMMIT);
+	    int err = _db->truncate(txn, &count, txn != 0 ? 0 : DB_AUTO_COMMIT);
 	    assert(err == 0);
 	    break;
 	}
-	catch(const ::DbDeadlockException&)
+	catch(const ::DbDeadlockException& dx)
 	{
-	    //
-	    // Ignored, try again
-	    //
+	    if(txn != 0)
+	    {
+		DBDeadlockException ex(__FILE__, __LINE__);
+		ex.message = dx.what();
+		throw ex;
+	    }
+	    else
+	    {
+		//
+		// Ignored, try again
+		//
+	    }
 	}
 	catch(const ::DbException& dx)
 	{
@@ -950,13 +946,16 @@ Freeze::DBMapHelperI::clear()
 void
 Freeze::DBMapHelperI::destroy()
 {
+    DbTxn* txn = _connection->dbTxn();
+    if(txn == 0)
+    {
+	closeAllIterators();
+    }
+
     try
     {
-	_db->close(0);
-	_db.reset();
-
-	Db db(_dbEnv, 0);
-	db.remove(_dbName.c_str(), 0, 0); 
+	close();
+	_connection->dbEnv()->dbremove(txn, _dbName.c_str(), 0, txn != 0 ? 0 : DB_AUTO_COMMIT);
     }
     catch(const ::DbException& dx)
     {
@@ -965,7 +964,6 @@ Freeze::DBMapHelperI::destroy()
 	throw ex;
     }
 }
-
 
 
 size_t
@@ -983,6 +981,45 @@ Freeze::DBMapHelperI::size() const
 }
 
 
+void
+Freeze::DBMapHelperI::closeAllIterators()
+{
+    while(!_iteratorList.empty())
+    {
+	(*_iteratorList.begin())->close();
+    }
+}
+
+void
+Freeze::DBMapHelperI::close()
+{
+    if(_db != 0)
+    {
+	_connection->unregisterMap(this);
+    }
+    _db = 0;
+}
+
+void
+Freeze::DBMapHelperI::closeAllIteratorsExcept(const DBIteratorHelperI::TxPtr& tx) const
+{
+    assert(tx != 0);
+
+    list<DBIteratorHelperI*>::iterator q = _iteratorList.begin();
+
+    while(q != _iteratorList.end())
+    {
+	if((*q)->tx().get() == tx.get())
+	{
+	    ++q;
+	}
+	else
+	{
+	    (*q)->close();
+	    q = _iteratorList.begin();
+	}
+    }
+}
 
 //
 // Print for the various exception types.

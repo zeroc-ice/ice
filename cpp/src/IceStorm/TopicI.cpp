@@ -18,7 +18,9 @@
 #include <IceStorm/SubscriberFactory.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
+#include <Freeze/Initialize.h>
 #include <algorithm>
+
 
 using namespace IceStorm;
 using namespace std;
@@ -301,7 +303,8 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     _name(name),
     _factory(factory),
     _destroyed(false),
-    _links(adapter->getCommunicator(), envName, dbName, createDb)
+    _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
+    _links(_connection, dbName, createDb)
 {
     _subscribers = new TopicSubscribers(_traceLevels);
 

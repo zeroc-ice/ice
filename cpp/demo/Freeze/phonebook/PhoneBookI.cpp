@@ -152,7 +152,8 @@ PhoneBookI::PhoneBookI(const Ice::CommunicatorPtr& communicator,
 		       const std::string& envName, const std::string& dbName,
 		       const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
-    _nameIdentitiesDict(communicator, envName, dbName)
+    _connection(createConnection(communicator, envName)),
+    _nameIdentitiesDict(_connection, dbName)
 {
 }
 

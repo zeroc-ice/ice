@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_DB_ENV_MAP_H
-#define FREEZE_DB_ENV_MAP_H
+#ifndef FREEZE_SHARED_DB_ENV_H
+#define FREEZE_SHARED_DB_ENV_H
 
 #include <Ice/Config.h>
 #include <Ice/Ice.h>

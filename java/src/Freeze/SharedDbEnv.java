@@ -101,7 +101,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		}
 
 		//
-		// Keep lock to prevent somebody else to re-open this DbEnv
+		// Keep lock to prevent somebody else from re-opening this DbEnv
 		// before it's closed.
 		//
 		try
@@ -208,7 +208,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
     public void 
     errcall(String errorPrefix, String message)
     {
-	_key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\" :" + message);
+	_key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
     }
 
     protected void 

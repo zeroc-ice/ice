@@ -20,7 +20,7 @@ public class Client
     {
         public void
         run()
-        {
+        { 
             try
             {
 		for(int i = 0; i < 10; ++i)
@@ -64,13 +64,20 @@ public class Client
 		ex.printStackTrace();
 		System.err.println(ex);
 	    }
+	    finally
+	    {
+		((Freeze.Map) _map).close();
+		_connection.close();
+	    }
 	}
 	
-	ReadThread(java.util.Map m)
+	ReadThread(Ice.Communicator communicator, String envName, String dbName)
         {
-	    _map = m;
+	    _connection = Freeze.Util.createConnection(communicator, envName);
+	    _map = new ByteIntMap(_connection, dbName, true);
 	}
 
+	private Freeze.Connection _connection;
 	private java.util.Map _map;
     }
 
@@ -100,6 +107,7 @@ public class Client
 				e.setValue(new Integer(v));
 				p.remove();
 			    }
+			    
 			    break;
 			}
 			catch(DBDeadlockException ex)
@@ -117,7 +125,7 @@ public class Client
 			    }
 			}
 		    }
-		    populateDB(_map);
+		    populateDB(_connection, _map);
 		}
 	    }
 	    catch(Exception ex)
@@ -125,13 +133,20 @@ public class Client
 		ex.printStackTrace();
 		System.err.println(ex);
 	    }
+	    finally
+	    {
+		((Freeze.Map)_map).close();
+		_connection.close();
+	    }
 	}
 	
-	WriteThread(java.util.Map m)
+	WriteThread(Ice.Communicator communicator, String envName, String dbName)
         {
-	    _map = m;
+	    _connection = Freeze.Util.createConnection(communicator, envName);
+	    _map = new ByteIntMap(_connection, dbName, true);
 	}
 
+	private Freeze.Connection _connection;
 	private java.util.Map _map;
     }
 
@@ -148,23 +163,54 @@ public class Client
     }
 
     private static void
-    populateDB(java.util.Map m)
+    populateDB(Freeze.Connection connection, java.util.Map m)
 	throws DBException
     {
-	for(int j = 0; j < alphabet.length(); ++j)
+	int length = alphabet.length();
+
+	for(;;)
 	{
-            m.put(new Byte((byte)alphabet.charAt(j)), new Integer(j));
+	   
+	    try
+	    {
+		Transaction tx = connection.beginTransaction();
+		for(int j = 0; j < length; ++j)
+		{
+		    m.put(new Byte((byte)alphabet.charAt(j)), new Integer(j));
+		}
+		tx.commit();
+		break; // for(;;)
+	    }
+	    catch(Freeze.DBDeadlockException dx)
+	    {
+		length = length / 2;
+		// System.err.print("t");
+		//
+		// Try again
+		//
+	    }
+	    finally
+	    {
+		if(connection.currentTransaction() != null)
+		{
+		    connection.currentTransaction().rollback();
+		}
+	    }
 	}
     }
 
     private static int
-    run(String[] args, java.util.Map m)
+    run(String[] args, Ice.Communicator communicator, String envName, String dbName)
 	throws DBException
     {
+	Freeze.Connection connection = Freeze.Util.createConnection(communicator, envName);
+
+	java.util.Map m = new ByteIntMap(connection, dbName, true);
+
 	//
 	// Populate the database with the alphabet.
 	//
-	populateDB(m);
+	populateDB(connection, m);
 
 	int j;
 
@@ -208,7 +254,7 @@ public class Client
 	//
 	// Re-populate.
 	//
-	populateDB(m);
+	populateDB(connection, m);
 
 	{
 	    System.out.print("  testing keySet... ");
@@ -274,8 +320,11 @@ public class Client
 	    test(m.get(new Byte((byte)'n')) != null);
 	    test(m.get(new Byte((byte)'z')) != null);
 
+	    ((Freeze.Map) m).closeAllIterators();
+
 	    java.util.Set entrySet = m.entrySet();
 	    java.util.Iterator p = entrySet.iterator();
+	   
 	    while(p.hasNext())
 	    {
 		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
@@ -284,26 +333,28 @@ public class Client
 		if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
 		{
 		    p.remove();
-                    try
-                    {
-                        p.remove();
-                    }
-                    catch(IllegalStateException ex)
-                    {
-                        // Expected.
-                    }
+		    try
+		    {
+			p.remove();
+		    }
+		    catch(IllegalStateException ex)
+		    {
+			// Expected.
+		    }
 		}
 	    }
+	    ((Freeze.Map) m).closeAllIterators();
 
 	    test(m.size() == 23);
 	    test(m.get(new Byte((byte)'b')) == null);
 	    test(m.get(new Byte((byte)'n')) == null);
 	    test(m.get(new Byte((byte)'z')) == null);
 
+	    System.out.print("  repopulate... ");
 	    //
 	    // Re-populate.
 	    //
-	    populateDB(m);
+	    populateDB(connection, m);
 	    
 	    test(m.size() == 26);
 
@@ -318,6 +369,7 @@ public class Client
 		    p.remove();
 		}
 	    }
+	    ((Freeze.Map) m).closeAllIterators();
 
 	    test(m.size() == 23);
 	    test(m.get(new Byte((byte)'a')) == null);
@@ -333,7 +385,7 @@ public class Client
             //
             // Re-populate.
             //
-            populateDB(m);
+            populateDB(connection, m);
 
             java.util.Set entrySet = m.entrySet();
             java.util.Iterator p = entrySet.iterator();
@@ -346,7 +398,7 @@ public class Client
                     e.setValue(new Integer(v + 100));
                 }
             }
-
+	    ((Freeze.Map) m).closeAllIterators();
             test(m.size() == 26);
             test(m.get(new Byte((byte)'b')) != null);
             test(m.get(new Byte((byte)'n')) != null);
@@ -366,16 +418,17 @@ public class Client
                     test(e.getValue().equals(new Integer(v - (byte)'a')));
                 }
             }
-
             System.out.println("ok");
         }
+
+	((Freeze.Map) m).closeAllIterators();
 
 	{
 	    System.out.print("  testing concurrent access... ");
 	    System.out.flush();
 	
 	    m.clear();
-	    populateDB(m);
+	    populateDB(connection, m);
 	    
 
 	    java.util.List l = new java.util.ArrayList();
@@ -385,8 +438,8 @@ public class Client
 	    //
 	    for(int i = 0; i < 5; ++i)
 	    {
-		l.add(new ReadThread(m));
-		l.add(new WriteThread(m));
+		l.add(new ReadThread(communicator, envName, dbName));
+		l.add(new WriteThread(communicator, envName, dbName));
 	    }
 
 	    //
@@ -421,6 +474,7 @@ public class Client
 	    System.out.println("ok");
 	}
 
+	connection.close();
 	return 0;
     }
 
@@ -445,10 +499,8 @@ public class Client
 		envName += "db";
 	    }
 	    
-            ByteIntMap binary = new ByteIntMap(communicator, envName, "binary", true);
-            System.out.println("testing encoding...");
-            status = run(args, binary);
-            binary.close();
+	    System.out.println("testing encoding...");
+	    status = run(args, communicator, envName, "binary");
 	}
 	catch(DBException ex)
 	{

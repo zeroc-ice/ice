@@ -166,7 +166,8 @@ main(int argc, char* argv[])
 	}
 
 	communicator = Ice::initialize(argc, argv);
-	Complex::ComplexDict m(communicator, envName, "test");
+	ConnectionPtr connection = createConnection(communicator, envName);
+	Complex::ComplexDict m(connection, "test");
 	status = run(argc, argv, communicator, m);
     }
     catch(const Ice::Exception& ex)

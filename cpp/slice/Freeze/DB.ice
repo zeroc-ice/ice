@@ -41,7 +41,6 @@ sequence<byte> Key;
  **/
 sequence<byte> Value;
 
-
 };
 
 #endif

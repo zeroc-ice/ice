@@ -114,6 +114,18 @@ SOURCE=.\DBException.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Connection.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectionF.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Transaction.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Evictor.cpp
 # End Source File
 # Begin Source File
@@ -123,6 +135,22 @@ SOURCE=.\EvictorI.cpp
 # Begin Source File
 
 SOURCE=.\MapI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransactionHolder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransactionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SharedDb.cpp
 # End Source File
 # Begin Source File
 
@@ -150,11 +178,31 @@ SOURCE=..\..\include\Freeze\DBException.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\DBF.h
+SOURCE=..\..\include\Freeze\Connection.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\DBI.h
+SOURCE=..\..\include\Freeze\ConnectionF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\Transaction.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Freeze\TransactionHolder.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\TransactionI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnectionI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MapI.h
 # End Source File
 # Begin Source File
 
@@ -280,6 +328,135 @@ BuildCmds= \
    $(BuildCmds)
 
 "DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Freeze\Connection.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Connection.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Connection.ice \
+	move Connection.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Connection.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Connection.ice \
+	move Connection.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Freeze\ConnectionF.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\ConnectionF.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/ConnectionF.ice \
+	move ConnectionF.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ConnectionF.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\ConnectionF.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/ConnectionF.ice \
+	move ConnectionF.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ConnectionF.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Freeze\Transaction.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Transaction.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Transaction.ice \
+	move Transaction.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Transaction.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Transaction.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\Transaction.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Transaction.ice \
+	move Transaction.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\Transaction.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Transaction.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -14,6 +14,7 @@
 
 #include <IcePack/ObjectRegistryI.h>
 #include <IcePack/TraceLevels.h>
+#include <Freeze/Initialize.h>
 
 using namespace std;
 using namespace IcePack;
@@ -23,8 +24,9 @@ IcePack::ObjectRegistryI::ObjectRegistryI(const Ice::CommunicatorPtr& communicat
 					  const string& objectsDbName,
 					  const string& typesDbName,
 					  const TraceLevelsPtr& traceLevels) :
-    _objects(communicator, envName, objectsDbName, true),
-    _types(communicator, envName, typesDbName, true),
+    _connection(Freeze::createConnection(communicator, envName)),
+    _objects(_connection, objectsDbName, true),
+    _types(_connection, typesDbName, true),
     _traceLevels(traceLevels)
 {
 }

@@ -13,10 +13,14 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Freeze/Freeze.h>
 #include <BenchTypes.h>
 #include <cstdlib>
 
+using namespace Freeze;
+using namespace Ice;
 using namespace std;
+
 
 static void
 testFailed(const char* expr, const char* file, unsigned int line)
@@ -158,6 +162,7 @@ private:
     void IntIntMapReadTest();
 
     const string _envName;
+    ConnectionPtr _connection;
     StopWatch _watch;
     int _repetitions;
 };
@@ -171,16 +176,20 @@ TestApp::TestApp(const string& envName) :
 void
 TestApp::IntIntMapTest()
 {
-    IntIntMap m(communicator(), _envName, "IntIntMap");
+    IntIntMap m(_connection, "IntIntMap");
 
     //
     // Populate the database.
     //
     int i;
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	m.put(IntIntMap::value_type(i, i));
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    m.put(IntIntMap::value_type(i, i));
+	}
+	txHolder.commit();
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -208,9 +217,13 @@ TestApp::IntIntMapTest()
     // Remove each record.
     //
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	m.erase(i);
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    m.erase(i);
+	}
+	txHolder.commit();
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -241,16 +254,20 @@ TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
 void
 TestApp::IntIntMapReadTest()
 {
-    IntIntMap m(communicator(), _envName, "IntIntMap");
+    IntIntMap m(_connection, "IntIntMap");
 
     //
     // Populate the database.
     //
     int i;
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	m.put(IntIntMap::value_type(i, i));
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    m.put(IntIntMap::value_type(i, i));
+	}
+	txHolder.commit();
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -295,7 +312,7 @@ TestApp::IntIntMapReadTest()
 void
 TestApp::Struct1Struct2MapTest()
 {
-    Struct1Struct2Map m(communicator(), _envName, "Struct1Struct2");
+    Struct1Struct2Map m(_connection, "Struct1Struct2");
 
     //
     // Populate the database.
@@ -304,13 +321,17 @@ TestApp::Struct1Struct2MapTest()
     Struct2 s2;
     int i;
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	s1.l = i;
-	ostringstream os;
-	os << i;
-	s2.s = os.str();
-	m.put(Struct1Struct2Map::value_type(s1, s2));
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    s1.l = i;
+	    ostringstream os;
+	    os << i;
+	    s2.s = os.str();
+	    m.put(Struct1Struct2Map::value_type(s1, s2));
+	}
+	txHolder.commit();
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -341,10 +362,14 @@ TestApp::Struct1Struct2MapTest()
     // Remove each record.
     //
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	s1.l = i;
-	m.erase(s1);
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    s1.l = i;
+	    m.erase(s1);
+	}
+	txHolder.commit();
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -355,7 +380,7 @@ TestApp::Struct1Struct2MapTest()
 void
 TestApp::Struct1Class1MapTest()
 {
-    Struct1Class1Map m(communicator(), _envName, "Struct1Class1");
+    Struct1Class1Map m(_connection, "Struct1Class1");
 
     //
     // Populate the database.
@@ -364,14 +389,18 @@ TestApp::Struct1Class1MapTest()
     Class1Ptr c1 = new Class1();
     int i;
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
-    {
-	s1.l = i;
-	ostringstream os;
-	os << i;
-	c1->s = os.str();
-	m.put(Struct1Class1Map::value_type(s1, c1));
-    }
+     {
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    s1.l = i;
+	    ostringstream os;
+	    os << i;
+	    c1->s = os.str();
+	    m.put(Struct1Class1Map::value_type(s1, c1));
+	}
+	txHolder.commit();
+     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
 
@@ -401,10 +430,14 @@ TestApp::Struct1Class1MapTest()
     // Remove each record.
     //
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	s1.l = i;
-	m.erase(s1);
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    s1.l = i;
+	    m.erase(s1);
+	}
+	txHolder.commit();
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -416,7 +449,7 @@ TestApp::Struct1Class1MapTest()
 void
 TestApp::Struct1ObjectMapTest()
 {
-    Struct1ObjectMap m(communicator(), _envName, "Struct1Object");
+    Struct1ObjectMap m(_connection, "Struct1Object");
 
     //
     // Populate the database.
@@ -428,22 +461,26 @@ TestApp::Struct1ObjectMapTest()
     c2->obj = c1;
     int i;
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	s1.l = i;
-	Ice::ObjectPtr o;
-	if((i % 2) == 0)
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
 	{
-	    o = c2;
+	    s1.l = i;
+	    Ice::ObjectPtr o;
+	    if((i % 2) == 0)
+	    {
+		o = c2;
+	    }
+	    else
+	    {
+		o = c1;
+	    }
+	    ostringstream os;
+	    os << i;
+	    c1->s = os.str();
+	    m.put(Struct1ObjectMap::value_type(s1, o));
 	}
-	else
-	{
-	    o = c1;
-	}
-	ostringstream os;
-	os << i;
-	c1->s = os.str();
-	m.put(Struct1ObjectMap::value_type(s1, o));
+	txHolder.commit();
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -488,10 +525,14 @@ TestApp::Struct1ObjectMapTest()
     // Remove each record.
     //
     _watch.start();
-    for(i = 0; i < _repetitions; ++i)
     {
-	s1.l = i;
-	m.erase(s1);
+	TransactionHolder txHolder(_connection);
+	for(i = 0; i < _repetitions; ++i)
+	{
+	    s1.l = i;
+	    m.erase(s1);
+	}
+	txHolder.commit();
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -536,6 +577,8 @@ typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 int
 TestApp::run(int argc, char* argv[])
 {
+    _connection = createConnection(communicator(), _envName);
+
     cout <<"IntIntMap" << endl;
     IntIntMapTest();
     
@@ -553,6 +596,8 @@ TestApp::run(int argc, char* argv[])
     
     cout <<"IntIntMap (read test)" << endl;
     IntIntMapReadTest();
+
+    _connection->close();
     
     return EXIT_SUCCESS;
 }

@@ -161,7 +161,8 @@ LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator,
 		   const string& envName, const string& dbName,
 		   const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
-    _authors(communicator, envName, dbName)
+    _connection(Freeze::createConnection(communicator, envName)),
+    _authors(_connection, dbName)
 {
 }
 

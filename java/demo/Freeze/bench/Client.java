@@ -26,17 +26,18 @@ class TestApp extends Ice.Application
 
 	if(fast)
 	{
-	    m = new IntIntMap(communicator(), _envName, "IntIntMap.fast", true);
+	    m = new IntIntMap(_connection, "IntIntMap.fast", true);
 	}
 	else
 	{
-	    m = new IntIntMap(communicator(), _envName, "IntIntMap", true);
+	    m = new IntIntMap(_connection, "IntIntMap", true);
 	}
 
 	//
 	// Populate the database.
 	//
 	_watch.start();
+	Freeze.Transaction tx = _connection.beginTransaction();
 	if(fast)
 	{
 	    for(int i = 0; i < _repetitions; ++i)
@@ -51,6 +52,7 @@ class TestApp extends Ice.Application
 		m.put(new Integer(i), new Integer(i));
 	    }
 	}
+	tx.commit();
 
 	double total = _watch.stop();
         double perRecord = total / _repetitions;
@@ -77,6 +79,7 @@ class TestApp extends Ice.Application
 	// Remove each record.
 	//
 	_watch.start();
+	tx = _connection.beginTransaction();
 	if(fast)
 	{
 	    for(int i = 0; i < _repetitions; ++i)
@@ -92,6 +95,7 @@ class TestApp extends Ice.Application
 		test(n.intValue() == i);
 	    }
 	}
+	tx.commit();
 	total = _watch.stop();
         perRecord = total / _repetitions;
 
@@ -184,17 +188,18 @@ class TestApp extends Ice.Application
     void
     IntIntMapReadTest()
     {
-	IntIntMap m = new IntIntMap(communicator(), _envName, "IntIntMap", true);
+	IntIntMap m = new IntIntMap(_connection, "IntIntMap", true);
 
 	//
 	// Populate the database.
 	//
 	_watch.start();
+	Freeze.Transaction tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    m.fastPut(new Integer(i), new Integer(i));
 	}
-
+	tx.commit();
 	double total = _watch.stop();
         double perRecord = total / _repetitions;
 
@@ -239,7 +244,7 @@ class TestApp extends Ice.Application
     void
     Struct1Struct2MapTest()
     {
-	Struct1Struct2Map m = new Struct1Struct2Map(communicator(), _envName, "Struct1Struct2", true);
+	Struct1Struct2Map m = new Struct1Struct2Map(_connection, "Struct1Struct2", true);
 
 	//
 	// Populate the database.
@@ -247,13 +252,14 @@ class TestApp extends Ice.Application
 	Struct1 s1 = new Struct1();
 	Struct2 s2 = new Struct2();
 	_watch.start();
+	Freeze.Transaction tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    s2.s = new Integer(i).toString();
 	    m.fastPut(s1, s2);
 	}
-
+	tx.commit();
 	double total = _watch.stop();
         double perRecord = total / _repetitions;
 
@@ -280,11 +286,13 @@ class TestApp extends Ice.Application
 	// Remove each record.
 	//
 	_watch.start();
+	tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
 	}
+	tx.commit();
 	total = _watch.stop();
         perRecord = total / _repetitions;
 
@@ -297,7 +305,7 @@ class TestApp extends Ice.Application
     void
     Struct1Class1MapTest()
     {
-	Struct1Class1Map m = new Struct1Class1Map(communicator(), _envName, "Struct1Class1", true);
+	Struct1Class1Map m = new Struct1Class1Map(_connection, "Struct1Class1", true);
 
 	//
 	// Populate the database.
@@ -305,13 +313,14 @@ class TestApp extends Ice.Application
 	Struct1 s1 = new Struct1();
 	Class1 c1 = new Class1();
 	_watch.start();
+	Freeze.Transaction tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    c1.s = new Integer(i).toString();
 	    m.fastPut(s1, c1);
 	}
-
+	tx.commit();
 	double total = _watch.stop();
         double perRecord = total / _repetitions;
 
@@ -338,11 +347,13 @@ class TestApp extends Ice.Application
 	// Remove each record.
 	//
 	_watch.start();
+	tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
 	}
+	tx.commit();
 	total = _watch.stop();
         perRecord = total / _repetitions;
 
@@ -355,7 +366,7 @@ class TestApp extends Ice.Application
     void
     Struct1ObjectMapTest()
     {
-	Struct1ObjectMap m = new Struct1ObjectMap(communicator(), _envName, "Struct1Object", true);
+	Struct1ObjectMap m = new Struct1ObjectMap(_connection, "Struct1Object", true);
 
 	//
 	// Populate the database.
@@ -366,6 +377,7 @@ class TestApp extends Ice.Application
 	c2.rec = c2;
 	c2.obj = c1;
 	_watch.start();
+	Freeze.Transaction tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
@@ -382,6 +394,7 @@ class TestApp extends Ice.Application
 
 	    m.fastPut(s1, o);
 	}
+	tx.commit();
 
 	double total = _watch.stop();
         double perRecord = total / _repetitions;
@@ -423,11 +436,13 @@ class TestApp extends Ice.Application
 	// Remove each record.
 	//
 	_watch.start();
+	tx = _connection.beginTransaction();
 	for(int i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
 	    test(m.fastRemove(s1));
 	}
+	tx.commit();
 	total = _watch.stop();
         perRecord = total / _repetitions;
 
@@ -440,6 +455,8 @@ class TestApp extends Ice.Application
     public int
     run(String[] args)
     {
+	_connection = Freeze.Util.createConnection(communicator(), _envName);
+
 	System.out.println("IntIntMap (Collections API)");
 	IntIntMapTest(false);
 
@@ -460,6 +477,8 @@ class TestApp extends Ice.Application
 
 	System.out.println("IntIntMap (read test)");
 	IntIntMapReadTest();
+
+	_connection.close();
 
 	return 0;
     }
@@ -502,6 +521,7 @@ class TestApp extends Ice.Application
 	}
     }
 
+    private Freeze.Connection _connection;
     private int _repetitions = 10000;
     private StopWatch _watch = new StopWatch();
     private String _envName;

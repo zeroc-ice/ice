@@ -22,10 +22,9 @@ module Freeze
  *
  * A Freeze database exception.
  *
- * @see DBEnvironment
- * @see DBTransaction
  * @see DB
  * @see Evictor
+ * @see Connection
  *
  **/
 local exception DBException
@@ -64,7 +63,7 @@ local exception DBDeadlockException extends DBException
  * this position has been erased.
  *
  **/
-local exception DBInvalidPositionException extends DBException
+local exception DBInvalidPositionException
 {
 };
 

@@ -31,7 +31,7 @@ public class Client
     validate(String dbName)
 	throws DBException
     {
-	Complex.ComplexDict m = new Complex.ComplexDict(_communicator, _envName, dbName, true);
+	Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
 
 	try
 	{
@@ -82,7 +82,7 @@ public class Client
 	    "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
 	};
 	
-	Complex.ComplexDict m = new Complex.ComplexDict(_communicator, _envName, dbName, true);
+	Complex.ComplexDict m = new Complex.ComplexDict(_connection, dbName, true);
 
 	try
 	{
@@ -139,15 +139,22 @@ public class Client
 	    return validate(dbName);
 	}
 	usage(progName);
-
+	
         return 0;
     }
+    
+    private void
+    close()
+    {
+	_connection.close();
+    }
+
 
     private
     Client(Ice.Communicator communicator, String envName)
     {
 	_communicator = communicator;
-	_envName = envName;
+	_connection = Freeze.Util.createConnection(communicator, envName);
     }
 
 
@@ -200,7 +207,14 @@ public class Client
 	    communicator = Ice.Util.initialize(holder);
 	    args = holder.value;
 	    Client client = new Client(communicator, envName);
-	    status = client.run(args, "test");
+	    try
+	    {
+		status = client.run(args, "test");
+	    }
+	    finally
+	    {
+		client.close();
+	    }
 	}
 	catch(Exception ex)
 	{
@@ -226,6 +240,6 @@ public class Client
     }
 
     private Ice.Communicator _communicator;
-    private String _envName;
+    private Freeze.Connection _connection;
 
 }

@@ -99,5 +99,5 @@ IceStorm::ServiceI::stop()
     //
     // It's necessary to reap all destroyed topics on shutdown.
     //
-    _manager->reap();
+    _manager->shutdown();
 }

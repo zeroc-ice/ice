@@ -42,6 +42,7 @@ private:
 
     Freeze::EvictorPtr _evictor;
 
+    Freeze::ConnectionPtr _connection;
     //
     // This is a dictionary of authors to a sequence of isbn numbers
     // for efficient lookup of books by authors.

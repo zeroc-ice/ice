@@ -117,6 +117,7 @@ private:
 
     TopicSubscribersPtr _subscribers; // Set of Subscribers
 
+    Freeze::ConnectionPtr _connection;
     IdentityLinkDict _links; // The database of Topic links
 };
 
