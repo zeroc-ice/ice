@@ -14,14 +14,15 @@
 using namespace std;
 using namespace Ice;
 
-EntryI::EntryI(const string& identity, const PhoneBookIPtr& phoneBook) :
-    _identity(identity),
+EntryI::EntryI(const PhoneBookIPtr& phoneBook) :
     _phoneBook(phoneBook)
 {
 }
 
-EntryI::~EntryI()
+void
+EntryI::setIdentity(const string& identity)
 {
+    _identity = identity;
 }
 
 string
@@ -76,10 +77,6 @@ EntryI::destroy()
 
 PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter)
-{
-}
-
-PhoneBookI::~PhoneBookI()
 {
 }
 

@@ -8,23 +8,21 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <ServantFactory.h>
-#include <ValueI.h>
 
 using namespace std;
+
+ServantFactory::ServantFactory(const PhoneBookIPtr& phoneBook) :
+    _phoneBook(phoneBook)
+{
+}
 
 Ice::ObjectPtr
 ServantFactory::create(const string& type)
 {
-    if (type == "::Printer")
+    if (type == "::Entry")
     {
-	return new PrinterI;
-    }
-
-    if (type == "::DerivedPrinter")
-    {
-	return new DerivedPrinterI;
+	return new EntryI(_phoneBook);
     }
 
     assert(false);

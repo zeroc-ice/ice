@@ -23,6 +23,7 @@ COBJS		= Grammer.o \
 		  Client.o \
 
 SOBJS		= PhoneBookI.o \
+		  ServantFactory.o \
 		  Evictor.o \
 		  Server.o
 

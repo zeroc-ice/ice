@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Evictor.h>
+#include <ServantFactory.h>
 
 using namespace Ice;
 using namespace Freeze;
@@ -18,10 +19,17 @@ int
 run(int argc, char* argv[], const CommunicatorPtr& communicator, const DBEnvPtr& dbenv)
 {
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
+
     PhoneBookIPtr phoneBook = new PhoneBookI(adapter);
     adapter->add(phoneBook, "phonebook");
-    ServantLocatorPtr evictor = new Evictor(phoneBook);
+
+    ServantFactoryPtr factory = new ::ServantFactory(phoneBook);
+    communicator->installServantFactory(factory, "::Entry");
+
+    DBPtr db = dbenv->open("entries");
+    ServantLocatorPtr evictor = new Evictor(db, 3); // TODO: Evictor size must be configurable
     adapter->setServantLocator(evictor);
+
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

@@ -23,8 +23,9 @@ class EntryI : public Entry, public JTCMutex
 {
 public:
 
-    EntryI(const std::string& identity, const PhoneBookIPtr&);
-    ~EntryI();
+    EntryI(const PhoneBookIPtr&);
+
+    void setIdentity(const std::string&);
 
     virtual std::string getName();
     virtual void setName(const std::string&);
@@ -48,7 +49,6 @@ class PhoneBookI : public PhoneBook, public JTCRecursiveMutex
 public: 
 
     PhoneBookI(const Ice::ObjectAdapterPtr&);
-    ~PhoneBookI();
 
     virtual EntryPrx createEntry();
     virtual Entries findEntries(const std::string&);

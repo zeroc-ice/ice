@@ -15,9 +15,9 @@
 using namespace std;
 
 Ice::ObjectPtr
-ServantFactory::create(const string& id)
+ServantFactory::create(const string& type)
 {
-    if (id == "::Persistent")
+    if (type == "::Persistent")
     {
 	return new Persistent;
     }
