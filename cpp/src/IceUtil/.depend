@@ -3,4 +3,4 @@ Unicode.o: Unicode.cpp ../../include/IceUtil/Unicode.h ../../include/IceUtil/Con
 RecMutex.o: RecMutex.cpp ../../include/IceUtil/RecMutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/Exception.h
 RWRecMutex.o: RWRecMutex.cpp ../../include/IceUtil/RWRecMutex.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Lock.h ../../include/IceUtil/Cond.h
 Cond.o: Cond.cpp ../../include/IceUtil/Cond.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h
-Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Lock.h ../../include/IceUtil/Handle.h
+Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h
