@@ -1,9 +1,9 @@
-*** Zend/zend_interfaces.h	Mon Jan 26 17:33:52 2004
---- Zend/zend_interfaces.h	Tue Feb 24 15:10:51 2004
+*** Zend/zend_interfaces.h	2004-02-18 14:44:40.000000000 -0800
+--- Zend/zend_interfaces.h	2004-03-18 12:10:48.000000000 -0800
 ***************
-*** 24,33 ****
-  #include "zend.h"
-  #include "zend_API.h"
+*** 26,35 ****
+  
+  BEGIN_EXTERN_C()
   
 ! ZEND_API zend_class_entry *zend_ce_traversable;
 ! ZEND_API zend_class_entry *zend_ce_aggregate;
@@ -12,9 +12,9 @@
   
   typedef struct _zend_user_iterator {
   	zend_object_iterator     it;
---- 24,33 ----
-  #include "zend.h"
-  #include "zend_API.h"
+--- 26,35 ----
+  
+  BEGIN_EXTERN_C()
   
 ! extern zend_class_entry *zend_ce_traversable;
 ! extern zend_class_entry *zend_ce_aggregate;
@@ -23,22 +23,3 @@
   
   typedef struct _zend_user_iterator {
   	zend_object_iterator     it;
-*** main/network.c	Thu Jan  8 03:17:53 2004
---- main/network.c	Tue Feb 24 12:19:44 2004
-***************
-*** 826,832 ****
-  				}
-  			}
-  #else
-! 			if (err == PHP_TIMEOUT_ERROR_VALUE) {
-  				/* Don't even bother trying to connect to the next alternative;
-  				 * we have no way to determine how long we have already taken
-  				 * and it is quite likely that the next attempt will fail too. */
---- 826,832 ----
-  				}
-  			}
-  #else
-! 			if (error_code == PHP_TIMEOUT_ERROR_VALUE) {
-  				/* Don't even bother trying to connect to the next alternative;
-  				 * we have no way to determine how long we have already taken
-  				 * and it is quite likely that the next attempt will fail too. */

@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- PHP5.0.0b4 (http://www.php.net/downloads.php)
+- PHP5.0.0RC1 (http://www.php.net/downloads.php)
 - Ice 1.3.0
 
 
@@ -87,9 +87,8 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-There are a couple of issues in the PHP sources that cause problems
-for C++ compilers. A patch is provided in the IcePHP source distribution
-to correct these problems:
+A patch is provided in the IcePHP source distribution to correct
+a link error:
 
 $ cd <phpdir>
 $ patch -p0 < <icephpdir>/patch.txt
@@ -97,12 +96,8 @@ $ patch -p0 < <icephpdir>/patch.txt
 Solaris users should run 'gpatch' instead of 'patch'.
 
 If you don't have the patch utility or prefer to make the changes
-manually, then you must edit two files:
-
- * Zend/zend_interfaces.h
- * main/network.c
-
-Edit Zend/zend_interfaces.h and scroll down to the lines shown below:
+manually, then you must edit the file Zend/zend_interfaces.h and
+scroll down to the lines shown below:
 
 ZEND_API zend_class_entry *zend_ce_traversable;
 ZEND_API zend_class_entry *zend_ce_aggregate;
@@ -110,11 +105,6 @@ ZEND_API zend_class_entry *zend_ce_iterator;
 ZEND_API zend_class_entry *zend_ce_arrayaccess;
 
 Change each occurrence of "ZEND_API" to "extern" in these four lines.
-
-Edit main/network.c and change line and change line 829 to the
-following:
-
-if (error_code == PHP_TIMEOUT_ERROR_VALUE) {
 
 Platform-specific Issues
 ------------------------

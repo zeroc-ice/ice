@@ -1924,7 +1924,7 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     {
         cls = findClassScoped(scoped TSRMLS_CC);
     }
-    if(cls && (cls->ce_flags & ZEND_CE_ABSTRACT) == 0)
+    if(cls && (cls->ce_flags & ZEND_ACC_ABSTRACT) == 0)
     {
         Profile::ClassMap::iterator p = profile->classes.find(cls->name);
         if(p != profile->classes.end())
@@ -1950,7 +1950,6 @@ IcePHP::PHPObjectFactory::destroy()
     for(map<string, zval*>::iterator p = _factories.begin(); p != _factories.end(); ++p)
     {
         zend_call_method_with_0_params(&p->second, NULL, NULL, "destroy", NULL);
-        Z_OBJ_HT_P(p->second)->del_ref(p->second TSRMLS_CC);
         zval_ptr_dtor(&p->second);
     }
 
@@ -2001,11 +2000,6 @@ IcePHP::PHPObjectFactory::removeObjectFactory(const string& id TSRMLS_DC)
         throwException(ex TSRMLS_CC);
         return;
     }
-
-    //
-    // Decrement the factory's reference count.
-    //
-    Z_OBJ_HT_P(p->second)->del_ref(p->second TSRMLS_CC);
 
     //
     // Destroy the zval.
