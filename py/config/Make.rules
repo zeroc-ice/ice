@@ -59,7 +59,12 @@ ifneq ($(PYTHON_HOME),)
 	PYTHON_LIB_DIR	= $(PYTHON_HOME)/lib/$(PYTHON_VERSION)/config
     endif
 else
-    PYTHON_VERSION	= $(word 1,$(notdir $(wildcard /usr/include/python2.[34]*)))
+    #
+    # If multiple versions of Python are installed and you want a specific
+    # version used for building the Ice extension, then set PYTHON_VERSION
+    # to "python2.3" or "python2.4".
+    #
+    PYTHON_VERSION	?= $(word 1,$(notdir $(wildcard /usr/include/python2.[34]*)))
     PYTHON_INCLUDE_DIR	= /usr/include/$(PYTHON_VERSION)
     PYTHON_LIB_DIR	= /usr/lib/$(PYTHON_VERSION)/config
 endif
