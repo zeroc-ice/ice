@@ -133,7 +133,7 @@ public final class Reference
         //
         // For compatibility with the old FacetPath.
         //
-        if(facet == null)
+        if(facet == null || facet.length() == 0)
         {
             s.writeStringSeq(null);
         }

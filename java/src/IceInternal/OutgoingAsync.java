@@ -56,11 +56,15 @@ public abstract class OutgoingAsync
                         // For compatibility with the old FacetPath.
                         //
                         String[] facetPath = __is.readStringSeq();
-                        String facet = null;
+                        String facet;
                         if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
                         {
                             facet = facetPath[0];
                         }
+			else
+			{
+			    facet = "";
+			}
 
 			String operation = __is.readString();
 

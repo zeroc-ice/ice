@@ -305,6 +305,10 @@ public final class Outgoing
                 {
                     ex.facet = facetPath[0];
                 }
+		else
+		{
+		    ex.facet = "";
+		}
 
 		ex.operation = _is.readString();
 		_exception = ex;

@@ -76,6 +76,10 @@ final public class Incoming extends IncomingBase
         {
             _current.facet = facetPath[0];
         }
+	else
+	{
+            _current.facet = "";
+	}
 
         _current.operation = _is.readString();
         _current.mode = Ice.OperationMode.convert(_is.readByte());
