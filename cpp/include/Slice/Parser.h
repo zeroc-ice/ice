@@ -306,8 +306,7 @@ public:
     SequenceList sequences();
     DictionaryList dictionaries();
     EnumList enums();
-    bool hasProxies();
-    bool hasNonLocals();
+    bool hasNonLocalClassDecls();
     bool hasClassDecls();
     bool hasClassDefs();
     bool hasOtherConstructedOrExceptions(); // Exceptions or constructed types other than classes.
@@ -674,6 +673,9 @@ public:
     ClassList findDerivedClasses(const ClassDefPtr&);
     ExceptionList findDerivedExceptions(const ExceptionPtr&);
     ContainedList findUsedBy(const ContainedPtr&);
+
+    bool usesProxies();
+    bool usesNonLocals();
 
     StringList includeFiles();
 

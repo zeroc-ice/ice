@@ -170,7 +170,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
 
-    if (unit->hasProxies())
+    if (unit->usesProxies())
     {
 	H << "\n#include <Ice/Exception.h>";
 	H << "\n#include <Ice/LocalObject.h>";
@@ -185,7 +185,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <Ice/Stream.h>";
     }
-    else if(unit->hasNonLocals())
+    else if(unit->usesNonLocals())
     {
 	H << "\n#include <Ice/Exception.h>";
 	H << "\n#include <Ice/LocalObject.h>";
@@ -971,7 +971,7 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const strin
 bool
 Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -990,7 +990,7 @@ Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1032,7 +1032,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllEx
 bool
 Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1051,7 +1051,7 @@ Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1258,7 +1258,7 @@ Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string&
 bool
 Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1277,7 +1277,7 @@ Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1380,7 +1380,7 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c, const strin
 bool
 Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1399,7 +1399,7 @@ Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1578,7 +1578,7 @@ Slice::Gen::DelegateDVisitor::DelegateDVisitor(Output& h, Output& c, const strin
 bool
 Slice::Gen::DelegateDVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }
@@ -1597,7 +1597,7 @@ Slice::Gen::DelegateDVisitor::visitUnitEnd(const UnitPtr& p)
 bool
 Slice::Gen::DelegateDVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if (!p->hasProxies())
+    if (!p->hasNonLocalClassDecls())
     {
 	return false;
     }

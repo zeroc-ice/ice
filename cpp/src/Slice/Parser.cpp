@@ -914,7 +914,7 @@ Slice::Container::enums()
 }
 
 bool
-Slice::Container::hasProxies()
+Slice::Container::hasNonLocalClassDecls()
 {
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -925,34 +925,7 @@ Slice::Container::hasProxies()
 	}
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container->hasProxies())
-	{
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-bool
-Slice::Container::hasNonLocals()
-{
-    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-	ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
-	if (constructed && !constructed->isLocal())
-	{
-	    return true;
-	}
-
-	ExceptionPtr exception = ExceptionPtr::dynamicCast(*p);
-	if (exception && !exception->isLocal())
-	{
-	    return true;
-	}
-
-	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container->hasNonLocals())
+	if (container && container->hasNonLocalClassDecls())
 	{
 	    return true;
 	}
@@ -1592,6 +1565,8 @@ Slice::ClassDef::containedType()
 bool
 Slice::ClassDef::uses(const ContainedPtr&)
 {
+    // No uses() implementation here. DataMember and Operation have
+    // their own uses().
     return false;
 }
 
@@ -1750,6 +1725,7 @@ Slice::Exception::containedType()
 bool
 Slice::Exception::uses(const ContainedPtr&)
 {
+    // No uses() implementation here. DataMember has its own uses().
     return false;
 }
 
@@ -2545,6 +2521,63 @@ Slice::Unit::findUsedBy(const ContainedPtr& contained)
     usedBy.sort();
     usedBy.unique();
     return usedBy;
+}
+
+bool
+Slice::Unit::usesProxies()
+{
+    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    {
+	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+	{
+	    ClassDeclPtr decl = ClassDeclPtr::dynamicCast(*q);
+	    if (decl && !decl->isLocal())
+	    {
+		return true;
+	    }
+	}
+    }
+
+    if (_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
+    {
+	return true;
+    }
+
+    return false;
+}
+
+bool
+Slice::Unit::usesNonLocals()
+{
+    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    {
+	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+	{
+	    ConstructedPtr constr = ConstructedPtr::dynamicCast(*q);
+	    if (constr && !constr->isLocal())
+	    {
+		return true;
+	    }
+
+	    ExceptionPtr exc = ExceptionPtr::dynamicCast(*q);
+	    if (exc && !exc->isLocal())
+	    {
+		return true;
+	    }
+	}
+    }
+
+    if (_builtins.find(Builtin::KindObject) != _builtins.end())
+    {
+	return true;
+    }
+
+    if (_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
+    {
+	return true;
+    }
+
+    return false;
 }
 
 StringList

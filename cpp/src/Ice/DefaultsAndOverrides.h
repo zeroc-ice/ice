@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ICE_DEFAULTS_AND_OVERRIDES_F_H
-#define ICE_ICE_DEFAULTS_AND_OVERRIDES_F_H
+#ifndef ICE_DEFAULTS_AND_OVERRIDES_H
+#define ICE_DEFAULTS_AND_OVERRIDES_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/DefaultsAndOverridesF.h>
