@@ -1,12 +1,13 @@
 Changes since version 2.1.0
 ---------------------------
 
-- Reverted a change included in 2.1.0 where oneway and batch oneway
-  invocations were not retried anymore. As in previous versions, if
-  the connection associated to a oneway or batch oneway proxy is
-  closed for some reasons, an invocation on this proxy will
-  transparently reestablish the connection again. Please see the Ice
-  manual for more information on oneway and batch oneway reliability.
+- Reverted a change introduced in 2.1.0 in which retries were not
+  attempted for oneway and batch oneway requests. Ice now behaves
+  as it did in prior releases: if the connection associated with a
+  oneway or batch oneway proxy is closed, an invocation on the proxy
+  will transparently reestablish the connection. Please see the Ice
+  manual for more information on the reliability of oneway and batch
+  oneway reliability.
 
 - A race condition with Glacier2 detaching the request handler thread
   has been fixed.
@@ -14,11 +15,11 @@ Changes since version 2.1.0
 - Added -E option to the various Slice compilers to print proprocessor
   output on stdout.
 
-- Ice::ObjectNotExistException are now retried for invocations made on
-  indirect proxies. This allows to transparently migrate objects or
-  objects adapters.
+- Ice::ObjectNotExistException is now retried for invocations made on
+  indirect proxies. This allows the transparent migration of objects
+  or objects adapters.
 
-- As announced with version 1.6, slice2cpp and slice2freeze now
+- As announced with version 1.5, slice2cpp and slice2freeze now
   require all Slice definitions to be nested inside a module;
   definitions at global scope (other than module definitions) now
   cause a hard error (whereas, previously, they only caused a
