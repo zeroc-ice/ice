@@ -399,7 +399,7 @@ namespace IceInternal
 		    // Legacy: If Ice.ConnectionIdleTime is set, we use it as
 		    // default value for both the client- and server-side ACM.
 		    //
-		    if(_properties.getProperty("Ice.ConnectionIdleTime").length() > 0)
+		    if(_properties.getProperty("Ice.ConnectionIdleTime").Length > 0)
 		    {
 			int num = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
 			clientACMDefault = num;
@@ -407,11 +407,8 @@ namespace IceInternal
 		    }
 		    
 		    _clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", clientACMDefault);
-		    _serverACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Server",serverACMDefault);
+		    _serverACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Server", serverACMDefault);
 		}
-		
-		_clientConnectionIdleTime = clientConnectionIdleTime;
-		_serverConnectionIdleTime = serverConnectionIdleTime;
 		
 		_routerManager = new RouterManager();
 		
