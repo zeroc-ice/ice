@@ -1401,11 +1401,11 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     {
 	if(_adapter)
 	{
-	    acmTimeout = _instance->serverConnectionIdleTime();
+	    acmTimeout = _instance->serverACM();
 	}
 	else
 	{
-	    acmTimeout = _instance->clientConnectionIdleTime();
+	    acmTimeout = _instance->clientACM();
 	}
     }
 

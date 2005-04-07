@@ -103,6 +103,8 @@
 #
 
 Ice:
+    ACM.Client
+    ACM.Server
     ChangeUser
     Config
     ConnectionIdleTime

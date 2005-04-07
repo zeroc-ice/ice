@@ -1515,11 +1515,11 @@ namespace Ice
 	    {
 		if(_adapter != null)
 		{
-		    _acmTimeout = _instance.serverConnectionIdleTime();
+		    _acmTimeout = _instance.serverACM();
 		}
 		else
 		{
-		    _acmTimeout = _instance.clientConnectionIdleTime();
+		    _acmTimeout = _instance.clientACM();
 		}
 	    }
 

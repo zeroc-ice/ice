@@ -31,15 +31,19 @@ string is interpreted as zero.
 <section>
 <title>Description</title>
 <para>
-This property must be set from the command line with the <literal>--Ice.Config</literal>,
-<literal>--Ice.Config=1</literal>, or <literal>--Ice.Config=</literal><replaceable>config_file</replaceable> option.
+This property must be set from the command line with the
+<literal>--Ice.Config</literal>, <literal>--Ice.Config=1</literal>, or
+<literal>--Ice.Config=</literal><replaceable>config_file</replaceable>
+option.
 </para>
 <para>
-If the <literal>Ice.Config</literal> property is empty or set to <literal>1</literal>,
-the Ice run time examines the contents of the <literal>ICE_CONFIG</literal> environment
-variable to retrieve the pathname of a configuration file. Otherwise, <literal>Ice.Config</literal>
-must be set to the pathname of a configuration file. (Pathnames can be relative or absolute.)
-Further property values are read from the configuration file thus specified.
+If the <literal>Ice.Config</literal> property is empty or set to
+<literal>1</literal>, the Ice run time examines the contents of the
+<literal>ICE_CONFIG</literal> environment variable to retrieve the
+pathname of a configuration file. Otherwise,
+<literal>Ice.Config</literal> must be set to the pathname of a
+configuration file. (Pathnames can be relative or absolute.)  Further
+property values are read from the configuration file thus specified.
 </para>
 
 <section><title>Configuration File Syntax</title>
@@ -879,6 +883,45 @@ application is executed by the super-user. (Unix only.)
 </section>
 </section>
 
+<section><title>Ice.ACM.Client</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ACM.Client=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+client-side ACM (Active Connection Management) is enabled. This means
+that connections are automatically closed by the client after they have
+been idle for <replaceable>num</replaceable> seconds. This is
+transparent to user code, i.e., closed connections are automatically
+reestablished in case they are needed again. The default value is 60,
+meaning that idle connections are automatically closed after one
+minute.
+</para>
+</section>
+</section>
+
+<section><title>Ice.ACM.Server</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ACM.Server=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Just like <literal>Ice.ACM.Client</literal>, this
+property enables ACM, but for the server side. Connections are
+automatically closed by the server after they have been idle for
+<replaceable>num</replaceable> seconds. The default value is 0,
+meaning that server-side ACM is disabled by default.
+</para>
+</section>
+</section>
+
 <section><title>Ice.ConnectionIdleTime</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -888,13 +931,12 @@ Ice.ConnectionIdleTime=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-ACM (Active Connection Management) is enabled. This means that
-connections are automatically closed after they have been idle for
-<replaceable>num</replaceable> seconds. This is transparent to user
-code, i.e., closed connections are automatically reestablished in case
-they are needed again. The default value is 60, meaning that idle
-connections are automatically closed after one minute.
+This property is deprecated, and available for backwards-compatibility
+only. If the property is defined (i.e., set to a non-empty string), it
+sets both client- and server-side ACM timeouts. The properties
+<literal>Ice.ACM.Client</literal> and
+<literal>Ice.ACM.Server</literal> override this value for the client-
+and server-side ACM timeouts, respectively.
 </para>
 </section>
 </section>
@@ -913,7 +955,9 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 responsible for shutting down idle connections (see
 <literal>Ice.ConnectionIdleTime</literal>), as well as for enforcing
 AMI timeouts. The default value is the value of
-<literal>Ice.ConnectionIdleTime</literal>.
+<literal>Ice.ACM.Client</literal> or
+<literal>Ice.ACM.Server</literal>, whichever value of the two is
+smaller and non-null.
 </para>
 </section>
 </section>
@@ -945,8 +989,9 @@ Ice.ProgramName=<replaceable>name</replaceable>
 <replaceable>name</replaceable> is the program name, which is set
 automatically from <literal>argv[0]</literal> (C++) and from
 <literal>AppDomain.CurrentDomain.FriendlyName</literal> (C#) during
-initialization. (For Java, <literal>Ice.ProgramName</literal> is initialized to the empty string.)
-For all languages, the default name can be overridden by setting this property.
+initialization. (For Java, <literal>Ice.ProgramName</literal> is
+initialized to the empty string.)  For all languages, the default name
+can be overridden by setting this property.
 </para>
 </section>
 </section>
@@ -962,8 +1007,8 @@ Ice.ServerId=<replaceable>id</replaceable>
 <para>
 The value <replaceable>id</replaceable> is used as the server id when
 an object adapter registers the server with the locator registry.
-Refer to the description of the object adapter property
-<link linkend="adapter.RegisterProcess"><replaceable>adapter</replaceable>.RegisterProcess</link>
+Refer to the description of the object adapter property <link
+linkend="adapter.RegisterProcess"><replaceable>adapter</replaceable>.RegisterProcess</link>
 for more information.
 </para>
 </section>
@@ -1124,33 +1169,41 @@ Ice.UDP.SndSize=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-These properties set the UDP receive and send buffer sizes to the specified value
-in bytes. Ice messages larger than <literal><replaceable>num</replaceable> - 28</literal> bytes
-cause a <literal>DatagramLimitException</literal>. The default value depends on the configuration
-of the local UDP stack. (Common default values are <literal>65535</literal> and <literal>8192</literal> bytes.)
+These properties set the UDP receive and send buffer sizes to the
+specified value in bytes. Ice messages larger than
+<literal><replaceable>num</replaceable> - 28</literal> bytes cause a
+<literal>DatagramLimitException</literal>. The default value depends
+on the configuration of the local UDP stack. (Common default values
+are <literal>65535</literal> and <literal>8192</literal> bytes.)
 </para>
 <para>
-The OS may impose lower and upper limits on the receive and send buffer sizes or otherwise adjust the buffer sizes.
-If a limit is requested that is lower than the OS-imposed minimum, the value is silently adjusted to the
-OS-imposed minimum. If a limit is requested that is larger than the OS-imposed maximum, the value is adjusted
-to the OS-imposed maximum; in addition, &Ice; logs a warning showing the requested size and the adjusted size.
+The OS may impose lower and upper limits on the receive and send
+buffer sizes or otherwise adjust the buffer sizes.  If a limit is
+requested that is lower than the OS-imposed minimum, the value is
+silently adjusted to the OS-imposed minimum. If a limit is requested
+that is larger than the OS-imposed maximum, the value is adjusted to
+the OS-imposed maximum; in addition, &Ice; logs a warning showing the
+requested size and the adjusted size.
 </para>
 <para>
 Settings of these properties less than <literal>28</literal> are ignored.
 </para>
 <para>
-Note that, on many operating systems, it is possible to set buffer sizes greater than <literal>65535</literal>.
-Such settings do not change the hard limit of <literal>65507</literal> bytes for the payload of a UDP packet,
-but merely affect how much data can be buffered by the kernel.
+Note that, on many operating systems, it is possible to set buffer
+sizes greater than <literal>65535</literal>.  Such settings do not
+change the hard limit of <literal>65507</literal> bytes for the
+payload of a UDP packet, but merely affect how much data can be
+buffered by the kernel.
 </para>
 <para>
-Settings less than <literal>65535</literal> limit the size of &Ice; datagrams as well as adjust the kernel
-buffer sizes.
+Settings less than <literal>65535</literal> limit the size of &Ice;
+datagrams as well as adjust the kernel buffer sizes.
 </para>
 <para>
-If <literal>Ice.MessageSizeMax</literal> is set and <literal>Ice.MessageSizeMax * 1024 + 28</literal>
-is smaller than the UDP receive or send buffer size, the corresponding UDP buffer size is reduced to
-<literal>Ice.MessageSizeMax * 1024 + 28</literal>.
+If <literal>Ice.MessageSizeMax</literal> is set and
+<literal>Ice.MessageSizeMax * 1024 + 28</literal> is smaller than the
+UDP receive or send buffer size, the corresponding UDP buffer size is
+reduced to <literal>Ice.MessageSizeMax * 1024 + 28</literal>.
 </para>
 </section>
 </section>
@@ -1164,12 +1217,12 @@ Ice.Package.<replaceable>module</replaceable>=<replaceable>package</replaceable>
 <section>
 <title>Description</title>
 <para>
-Associates a top-level Slice module with a Java package. If global metadata
-is used to enclose generated Java classes in a user-defined package, the
-Ice run time must be configured in order to successfully unmarshal exceptions
-and concrete class types. If all top-level modules are generated into the
-same user-defined package, it is easier to use <literal>Ice.Default.Package</literal>
-instead.
+Associates a top-level Slice module with a Java package. If global
+metadata is used to enclose generated Java classes in a user-defined
+package, the Ice run time must be configured in order to successfully
+unmarshal exceptions and concrete class types. If all top-level
+modules are generated into the same user-defined package, it is easier
+to use <literal>Ice.Default.Package</literal> instead.
 </para>
 </section>
 </section>

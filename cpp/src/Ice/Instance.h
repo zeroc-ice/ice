@@ -71,8 +71,8 @@ public:
     DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const;
-    Ice::Int clientConnectionIdleTime() const;
-    Ice::Int serverConnectionIdleTime() const;
+    Ice::Int clientACM() const;
+    Ice::Int serverACM() const;
     void flushBatchRequests();
     void setDefaultContext(const ::Ice::Context&);
     const ::Ice::Context& getDefaultContext() const;
@@ -92,8 +92,8 @@ private:
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
-    const Ice::Int _clientConnectionIdleTime; // Immutable, not reset by destroy().
-    const Ice::Int _serverConnectionIdleTime; // Immutable, not reset by destroy().
+    const Ice::Int _clientACM; // Immutable, not reset by destroy().
+    const Ice::Int _serverACM; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;

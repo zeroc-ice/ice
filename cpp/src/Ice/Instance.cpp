@@ -342,17 +342,17 @@ IceInternal::Instance::messageSizeMax() const
 }
 
 int
-IceInternal::Instance::clientConnectionIdleTime() const
+IceInternal::Instance::clientACM() const
 {
     // No mutex lock, immutable.
-    return _clientConnectionIdleTime;
+    return _clientACM;
 }
 
 int
-IceInternal::Instance::serverConnectionIdleTime() const
+IceInternal::Instance::serverACM() const
 {
     // No mutex lock, immutable.
-    return _serverConnectionIdleTime;
+    return _serverACM;
 }
 
 void
@@ -394,8 +394,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),
-    _clientConnectionIdleTime(0),
-    _serverConnectionIdleTime(0),
     _threadPerConnection(false),
     _threadPerConnectionStackSize(0)
 {
@@ -558,28 +556,24 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	{
-	    Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
-	    if(num > 0)
+	    Int clientACMDefault = 60; // Client ACM enabled by default.
+	    Int serverACMDefault = 0; // Server ACM disabled by default.
+	    
+	    //
+	    // Legacy: If Ice.ConnectionIdleTime is set, we use it as
+	    // default value for both the client- and server-side ACM.
+	    //
+	    if(!_properties->getProperty("Ice.ConnectionIdleTime").empty())
 	    {
-		const_cast<Int&>(_clientConnectionIdleTime) = num;
-		const_cast<Int&>(_serverConnectionIdleTime) = num;
+		Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
+		clientACMDefault = num;
+		serverACMDefault = num;
 	    }
-	}
-
-	{
-	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime.Client", 60);
-	    if(num > 0)
-	    {
-		const_cast<Int&>(_clientConnectionIdleTime) = num;
-	    }
-	}
-
-	{
-	    Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime.Server");
-	    if(num > 0)
-	    {
-		const_cast<Int&>(_serverConnectionIdleTime) = num;
-	    }
+	    
+	    const_cast<Int&>(_clientACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Client",
+										    clientACMDefault);
+	    const_cast<Int&>(_serverACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Server",
+										    serverACMDefault);
 	}
 
 	const_cast<bool&>(_threadPerConnection) = _properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
@@ -729,17 +723,17 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // Start connection monitor if necessary.
     //
     Int interval = 0;
-    if(_clientConnectionIdleTime > 0 && _serverConnectionIdleTime > 0)
+    if(_clientACM > 0 && _serverACM > 0)
     {
-	interval = min(_clientConnectionIdleTime, _serverConnectionIdleTime);
+	interval = std::min(_clientACM, _serverACM);
     }
-    else if(_clientConnectionIdleTime > 0)
+    else if(_clientACM > 0)
     {
-	interval = _clientConnectionIdleTime;
+	interval = _clientACM;
     }
-    else if(_serverConnectionIdleTime > 0)
+    else if(_serverACM > 0)
     {
-	interval = _serverConnectionIdleTime;
+	interval = _serverACM;
     }
     interval = _properties->getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
     if(interval > 0)
