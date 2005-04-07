@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class Instance
+public final class Instance
 {
     public Ice.Properties
     properties()
