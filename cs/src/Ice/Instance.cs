@@ -12,15 +12,15 @@ namespace IceInternal
 
     using System.Diagnostics;
 
-    public class Instance
+    public sealed class Instance
     {
-	public virtual Ice.Properties properties()
+	public Ice.Properties properties()
 	{
 	    // No mutex lock, immutable.
 	    return _properties;
 	}
 	
-	public virtual Ice.Logger logger()
+	public Ice.Logger logger()
 	{
 	    lock(this)
 	    {
@@ -32,7 +32,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void logger(Ice.Logger logger)
+	public void logger(Ice.Logger logger)
 	{
 	    lock(this)
 	    {
@@ -45,7 +45,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Ice.Stats stats()
+	public Ice.Stats stats()
 	{
 	    lock(this)
 	    {
@@ -58,7 +58,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void stats(Ice.Stats stats)
+	public void stats(Ice.Stats stats)
 	{
 	    lock(this)
 	    {
@@ -71,19 +71,19 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual TraceLevels traceLevels()
+	public TraceLevels traceLevels()
 	{
 	    // No mutex lock, immutable.
 	    return _traceLevels;
 	}
 	
-	public virtual DefaultsAndOverrides defaultsAndOverrides()
+	public DefaultsAndOverrides defaultsAndOverrides()
 	{
 	    // No mutex lock, immutable.
 	    return _defaultsAndOverrides;
 	}
 	
-	public virtual RouterManager routerManager()
+	public RouterManager routerManager()
 	{
 	    lock(this)
 	    {
@@ -96,7 +96,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual LocatorManager locatorManager()
+	public LocatorManager locatorManager()
 	{
 	    lock(this)
 	    {
@@ -109,7 +109,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ReferenceFactory referenceFactory()
+	public ReferenceFactory referenceFactory()
 	{
 	    lock(this)
 	    {
@@ -122,7 +122,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ProxyFactory proxyFactory()
+	public ProxyFactory proxyFactory()
 	{
 	    lock(this)
 	    {
@@ -135,7 +135,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual OutgoingConnectionFactory outgoingConnectionFactory()
+	public OutgoingConnectionFactory outgoingConnectionFactory()
 	{
 	    lock(this)
 	    {
@@ -148,7 +148,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ConnectionMonitor connectionMonitor()
+	public ConnectionMonitor connectionMonitor()
 	{
 	    lock(this)
 	    {
@@ -161,7 +161,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ObjectFactoryManager servantFactoryManager()
+	public ObjectFactoryManager servantFactoryManager()
 	{
 	    lock(this)
 	    {
@@ -174,7 +174,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ObjectAdapterFactory objectAdapterFactory()
+	public ObjectAdapterFactory objectAdapterFactory()
 	{
 	    lock(this)
 	    {
@@ -187,7 +187,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ThreadPool clientThreadPool()
+	public ThreadPool clientThreadPool()
 	{
 	    lock(this)
 	    {
@@ -205,7 +205,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual ThreadPool serverThreadPool()
+	public ThreadPool serverThreadPool()
 	{
 	    lock(this)
 	    {
@@ -225,7 +225,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual EndpointFactoryManager endpointFactoryManager()
+	public EndpointFactoryManager endpointFactoryManager()
 	{
 	    lock(this)
 	    {
@@ -238,7 +238,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Ice.PluginManager pluginManager()
+	public Ice.PluginManager pluginManager()
 	{
 	    lock(this)
 	    {
@@ -251,29 +251,25 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual int
-	messageSizeMax()
+	public int messageSizeMax()
 	{
 	    // No mutex lock, immutable.
 	    return _messageSizeMax;
 	}
 	
-	public int
-	clientConnectionIdleTime()
+	public int clientConnectionIdleTime()
 	{
 	    // No mutex lock, immutable.
 	    return _clientConnectionIdleTime;
 	}
 	
-	public int
-	serverConnectionIdleTime()
+	public int serverConnectionIdleTime()
 	{
 	    // No mutex lock, immutable.
 	    return _serverConnectionIdleTime;
 	}
 
-        public void
-	setDefaultContext(Ice.Context ctx)
+        public void setDefaultContext(Ice.Context ctx)
 	{
 	    if(ctx == null || ctx.Count == 0)
 	    {
@@ -285,13 +281,12 @@ namespace IceInternal
 	    }
 	}
 
-	public Ice.Context
-	getDefaultContext()
+	public Ice.Context getDefaultContext()
 	{
 	    return (Ice.Context)_defaultContext.Clone();
 	}
 
-	public virtual void flushBatchRequests()
+	public void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
 	    ObjectAdapterFactory adapterFactory;
@@ -311,7 +306,7 @@ namespace IceInternal
 	    adapterFactory.flushBatchRequests();
 	}
 	
-	public virtual BufferManager bufferManager()
+	public BufferManager bufferManager()
 	{
 	    // No mutex lock, immutable.
 	    return _bufferManager;
@@ -475,7 +470,7 @@ namespace IceInternal
 	    Debug.Assert(_pluginManager == null);
 	}
 	
-	public virtual void finishSetup(ref string[] args)
+	public void finishSetup(ref string[] args)
 	{
 	    //
 	    // Load plug-ins.
@@ -553,7 +548,7 @@ namespace IceInternal
 	//
 	// Only for use by Ice.CommunicatorI
 	//
-	public virtual void destroy()
+	public void destroy()
 	{
 	    Debug.Assert(!_destroyed);
 	    
