@@ -1378,6 +1378,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
+    _acmTimeout(0),
     _requestHdr(headerSize + sizeof(Int), 0),
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _replyHdr(headerSize, 0),

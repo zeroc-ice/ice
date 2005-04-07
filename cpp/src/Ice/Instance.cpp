@@ -394,6 +394,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),
+    _clientACM(0),
+    _serverACM(0),
     _threadPerConnection(false),
     _threadPerConnectionStackSize(0)
 {
@@ -725,7 +727,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     Int interval = 0;
     if(_clientACM > 0 && _serverACM > 0)
     {
-	interval = std::min(_clientACM, _serverACM);
+	interval = min(_clientACM, _serverACM);
     }
     else if(_clientACM > 0)
     {
