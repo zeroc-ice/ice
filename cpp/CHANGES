@@ -1,6 +1,13 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added two new properties for controlling Active Connection
+  Management (ACM). In prior releases ACM was governed by the property
+  Ice.ConnectionIdleTime, which affected client- and server-side
+  behavior. The new properties, Ice.ACM.Client and Ice.ACM.Server,
+  now allow independent timeouts to be specified for client- and
+  server-side ACM. Ice.ConnectionIdleTime is now deprecated.
+
 - Reverted a change introduced in 2.1.0 in which retries were not
   attempted for oneway and batch oneway requests. Ice now behaves
   as it did in prior releases: if the connection associated with a
