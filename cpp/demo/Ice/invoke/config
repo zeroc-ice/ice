@@ -17,11 +17,6 @@ Printer.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 Ice.Warn.Connections=1
 
 #
-# We want a faster ACM for this demo.
-#
-Ice.ConnectionIdleTime=10
-
-#
 # Network Tracing
 #
 # 0 = no network tracing

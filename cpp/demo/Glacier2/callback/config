@@ -28,13 +28,14 @@ Callback.Proxy=callback:tcp -h 127.0.0.1 -p 10000
 # No active connection management is permitted with Glacier2.
 # Connections must remain established.
 #
-Ice.ConnectionIdleTime=0
+Ice.ACM.Client=0
+Ice.ACM.Server=0
 
 #
-# Ice.MonitorConnections defaults to Ice.ConnectionIdleTime, which we
-# set to 0 above. However we still want the connection monitor thread
-# for AMI timeouts (for completeness, even if this demo doesn't use
-# AMI).
+# Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client or
+# Ice.ACM.Server, which we set to 0 above. However we still want the
+# connection monitor thread for AMI timeouts (for completeness, even
+# if this demo doesn't use AMI).
 #
 Ice.MonitorConnections=60
 

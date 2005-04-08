@@ -7,5 +7,5 @@ IceSSL.Client.Config=./sslconfig.xml
 IceSSL.Server.CertPath=../../../certs
 IceSSL.Server.Config=./sslconfig.xml
 
-Ice.MonitorConnections=0
-Ice.ConnectionIdleTime=0
+Ice.ACM.Client=0
+Ice.ACM.Server=0

@@ -19,7 +19,8 @@ Ice.Warn.Connections=1
 #
 # We want a faster ACM for this demo.
 #
-Ice.ConnectionIdleTime=10
+Ice.ACM.Client=10
+Ice.ACM.Server=10
 
 #
 # Network Tracing

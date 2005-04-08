@@ -277,12 +277,13 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[])
     // No active connection management is permitted with
     // Glacier2. Connections must remain established.
     //
-    defaultProperties->setProperty("Ice.ConnectionIdleTime", "0");
+    defaultProperties->setProperty("Ice.ACM.Client", "0");
+    defaultProperties->setProperty("Ice.ACM.Server", "0");
     
     //
-    // Ice.MonitorConnections defaults to Ice.ConnectionIdleTime,
-    // which we set to 0 above. However, we still want the
-    // connection monitor thread for AMI timeouts. We only set
+    // Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client
+    // or Ice.ACM.Server, which we set to 0 above. However, we still want
+    // the connection monitor thread for AMI timeouts. We only set
     // this value if it hasn't been set explicitly already.
     //
     if(defaultProperties->getProperty("Ice.MonitorConnections").empty())
