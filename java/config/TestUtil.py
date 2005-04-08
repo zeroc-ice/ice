@@ -29,8 +29,8 @@ compress = 0
 # thread per connection mode, or if you are using SSL.
 #
 
-#threadPerConnection = 0
-threadPerConnection = 1
+threadPerConnection = 0
+#threadPerConnection = 1
 
 if protocol == "ssl":
     threadPerConnection = 1
