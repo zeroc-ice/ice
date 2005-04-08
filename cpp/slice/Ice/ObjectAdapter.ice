@@ -11,7 +11,9 @@
 #define ICE_OBJECT_ADAPTER_ICE
 
 #include <Ice/CommunicatorF.ice>
-#include <Ice/ServantLocatorF.ice>
+#ifndef ICEE
+# include <Ice/ServantLocatorF.ice>
+#endif
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
@@ -372,6 +374,7 @@ local interface ObjectAdapter
      **/
     nonmutating Object findByProxy(Object* proxy);
 
+#ifndef ICEE
     /**
      *
      * Add a Servant Locator to this object adapter. Adding a servant
@@ -439,6 +442,7 @@ local interface ObjectAdapter
      *
      **/
     nonmutating ServantLocator findServantLocator(string category);
+#endif
 
     /**
      *

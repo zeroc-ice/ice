@@ -39,6 +39,7 @@ public class AllTests
         test(cl.equals(derived));
         System.out.println("ok");
 
+/*
 	System.out.print("testing checked cast with context... ");
 	System.out.flush();
 	String cref = "test:default -p 12346 -t 10000";
@@ -56,6 +57,7 @@ public class AllTests
 	java.util.Map c2 = tccp.getContext();
 	test(c.equals(c2));
 	System.out.println("ok");
+*/
 
         System.out.print("testing twoway operations... ");
         System.out.flush();

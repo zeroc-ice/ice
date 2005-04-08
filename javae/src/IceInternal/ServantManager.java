@@ -146,31 +146,6 @@ public final class ServantManager
         }
     }
 
-    public synchronized void
-    addServantLocator(Ice.ServantLocator locator, String category)
-    {
-	assert(_instance != null); // Must not be called after destruction.
-
-	Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap.get(category);
-	if(l != null)
-	{
-	    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-	    ex.id = IceUtil.StringUtil.escapeString(category, "");
-	    ex.kindOfObject = "servant locator";
-	    throw ex;
-	}
-
-        _locatorMap.put(category, locator);
-    }
-
-    public synchronized Ice.ServantLocator
-    findServantLocator(String category)
-    {
-	assert(_instance != null); // Must not be called after destruction.
-
-        return (Ice.ServantLocator)_locatorMap.get(category);
-    }
-
     //
     // Only for use by Ice.ObjectAdatperI.
     //
@@ -204,35 +179,10 @@ public final class ServantManager
 	assert(_instance != null); // Must not be called after destruction.
 
 	_servantMapMap.clear();
-	
-	java.util.Iterator p = _locatorMap.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-	    Ice.ServantLocator locator = (Ice.ServantLocator)e.getValue();
-	    try
-	    {
-		locator.deactivate((String)e.getKey());
-	    }
-	    catch(java.lang.Exception ex)
-	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
-		    "locator category: `" + e.getKey() + "'\n" + sw.toString();
-		_instance.logger().error(s);
-	    }
-	}
-
-	_locatorMap.clear();
-
 	_instance = null;
     }
 
     private Instance _instance;
     final private String _adapterName;
     private java.util.HashMap _servantMapMap = new java.util.HashMap();
-    private java.util.HashMap _locatorMap = new java.util.HashMap();
 }

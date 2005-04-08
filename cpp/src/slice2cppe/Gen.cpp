@@ -187,7 +187,6 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
-	H << "\n#include <Ice/Direct.h>";
 	C << "\n#include <Ice/LocalException.h>";
     }
 

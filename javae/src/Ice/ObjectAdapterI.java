@@ -379,22 +379,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
-    public synchronized void
-    addServantLocator(ServantLocator locator, String prefix)
-    {
-	checkForDeactivation();
-
-	_servantManager.addServantLocator(locator, prefix);
-    }
-
-    public synchronized ServantLocator
-    findServantLocator(String prefix)
-    {
-	checkForDeactivation();
-
-	return _servantManager.findServantLocator(prefix);
-    }
-
     public synchronized ObjectPrx
     createProxy(Identity ident)
     {

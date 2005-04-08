@@ -16,9 +16,6 @@ public class Server
         {
             communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            Ice.ServantLocator locator = new ServantLocatorI();
-
-            adapter.addServantLocator(locator, "");
             adapter.activate();
             adapter.waitForDeactivate();
             return 0;

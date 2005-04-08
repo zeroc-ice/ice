@@ -114,53 +114,25 @@ final public class Incoming extends IncomingBase
 
         try
         {
-	    try
+	    if(servantManager != null)
 	    {
-		if(servantManager != null)
-		{
-		    _servant = servantManager.findServant(_current.id, _current.facet);
-		    
-		    if(_servant == null && _current.id.category.length() > 0)
-		    {
-			_locator = servantManager.findServantLocator(_current.id.category);
-			if(_locator != null)
-			{
-			    _servant = _locator.locate(_current, _cookie);
-			}
-		    }
-		    
-		    if(_servant == null)
-		    {
-			_locator = servantManager.findServantLocator("");
-			if(_locator != null)
-			{
-			    _servant = _locator.locate(_current, _cookie);
-			}
-		    }
-		}
-		
-		if(_servant == null)
-		{
-		    if(servantManager != null && servantManager.hasServant(_current.id))
-		    {
-			status = DispatchStatus.DispatchFacetNotExist;
-		    }
-		    else
-		    {
-			status = DispatchStatus.DispatchObjectNotExist;
-		    }
-		}
-		else
-		{
-		    status = _servant.__dispatch(this, _current);
-		}
+	        _servant = servantManager.findServant(_current.id, _current.facet);
 	    }
-	    finally
+	    
+	    if(_servant == null)
 	    {
-		if(_locator != null && _servant != null)
-		{
-		    _locator.finished(_current, _servant, _cookie.value);
-		}
+	        if(servantManager != null && servantManager.hasServant(_current.id))
+	        {
+	    	status = DispatchStatus.DispatchFacetNotExist;
+	        }
+	        else
+	        {
+	    	status = DispatchStatus.DispatchObjectNotExist;
+	        }
+	    }
+	    else
+	    {
+	        status = _servant.__dispatch(this, _current);
 	    }
 	}
 	catch(Ice.RequestFailedException ex)

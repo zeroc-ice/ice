@@ -96,26 +96,6 @@ public class AllTests
 	    System.out.println("ok");
 	}
 
-	{
-	    System.out.print("testing servant locator registration exceptions... ");
-	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
-	    Ice.ServantLocator loc = new ServantLocatorI();
-	    adapter.addServantLocator(loc, "x");
-	    boolean gotException = false;
-	    try
-            {
-		adapter.addServantLocator(loc, "x");
-	    }
-	    catch(Ice.AlreadyRegisteredException ex)
-	    {
-		gotException = true;
-	    }
-	    test(gotException);
-
-	    adapter.deactivate();
-	    System.out.println("ok");
-	}
-
         System.out.print("testing stringToProxy... ");
         System.out.flush();
         String ref = "thrower:default -p 12345 -t 10000";

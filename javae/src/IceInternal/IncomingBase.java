@@ -36,9 +36,6 @@ public class IncomingBase
 	_servant = in._servant;
 	in._servant = null;
 
-	_locator = in._locator;
-	in._locator = null;
-
 	_cookie = in._cookie;
 	in._cookie = null;
 
@@ -82,8 +79,6 @@ public class IncomingBase
         _current.con = connection;
 
 	_servant = null;
-
-	_locator = null;
 
 	if(_cookie == null)
 	{
@@ -129,7 +124,6 @@ public class IncomingBase
 
     protected Ice.Current _current;
     protected Ice.Object _servant;
-    protected Ice.ServantLocator _locator;
     protected Ice.LocalObjectHolder _cookie;
 
     protected boolean _response;

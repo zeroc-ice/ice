@@ -24,8 +24,6 @@ public class Collocated
 	//
 	communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
 	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
-	Ice.ServantLocator checkedCastLocator = new CheckedCastLocator();
-	adapter.addServantLocator(checkedCastLocator, "");
 	adapter.activate();
 
         AllTests.allTests(communicator);

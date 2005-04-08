@@ -60,7 +60,7 @@ tests = [
     "Ice/facets", 
     "Ice/faultTolerance", 
     "Ice/location", 
-    "Ice/adapterDeactivation", 
+    #"Ice/adapterDeactivation", 
     "Ice/slicing/exceptions", 
     ]
 

@@ -64,7 +64,6 @@
                 <include name="Process.ice" />
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
-                <include name="ServantLocator.ice" />
                 <include name="Connection.ice" />
             </fileset>
         </slice2javae>
