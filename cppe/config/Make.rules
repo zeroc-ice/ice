@@ -22,6 +22,13 @@ prefix			= /opt/IceE-$(VERSION)
 #OPTIMIZE		= yes
 
 #
+# Define STATICLIBS as yes if you want to build with static
+# libraries. Otherwise Ice is build with dynamic libraries.
+#
+
+#STATICLIBS		= yes
+
+#
 # Define LP64 as yes if you want to build in 64 bit mode on a platform
 # that supports both 32 and 64 bit.
 #
@@ -75,15 +82,6 @@ endif
 #
 
 #STLPORT_HOME		?= /opt/STLport
-
-#
-# If expat is not installed in a standard location where the
-# compiler can find it, set EXPAT_HOME to the expat
-# installation directory.
-#
-
-#EXPAT_HOME		?= /opt/expat
-
 
 #
 # If readline is not installed in a standard location where the
@@ -150,15 +148,6 @@ else
     STLPORT_LIBS	=
 endif
 
-ifneq ($(EXPAT_HOME),)
-    EXPAT_FLAGS		= -I$(EXPAT_HOME)/include
-    EXPAT_LIBS		= -L$(EXPAT_HOME)/$(libsubdir) -lexpat
-else
-    EXPAT_FLAGS		=
-    EXPAT_LIBS		= -lexpat
-endif
-
-
 #
 # The GPL_BUILD flag is used only where readline may be
 # used.
@@ -212,21 +201,37 @@ ifeq ($(mksoname),)
 endif
 
 ifeq ($(mklibname),)
-    mklibname		= lib$(1).so
+    ifeq ($(STATICLIBS),yes)
+        mklibname	= lib$(1).a
+    else
+        mklibname	= lib$(1).so
+    endif
 endif
 
 ifndef mklibtargets
-    mklibtargets	= $(1) $(2) $(3)
+    ifeq ($(STATICLIBS),yes)
+        mklibtargets	= $(3)
+    else
+        mklibtargets	= $(1) $(2) $(3)
+    endif
 endif
 
 ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
 
+ifeq ($(mklib),)
+    $(error You need to define mklib in Make.rules.$(UNAME)) 
+endif
+
 ifeq ($(installlib),)
-    installlib		= $(INSTALL) $(2)/$(3) $(1); \
+    ifeq ($(STATICLIBS),yes)
+	installlib	= $(INSTALL) $(2)/$(5) $(1);
+    else
+        installlib	= $(INSTALL) $(2)/$(3) $(1); \
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
 			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
+    endif
 endif
 
 SLICEPARSERLIB		= $(ICE_HOME)/lib/$(call mklibfilename,Slice)

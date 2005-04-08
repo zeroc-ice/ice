@@ -52,18 +52,6 @@ CXXLIBS			= -lCsup_v2 -lstd_v2
 
 LIBPATH                 =
 
-ifneq ($(BZIP2_HOME),)
-   LIBPATH              += -L$(BZIP2_HOME)/$(libsubdir)
-endif
-
-ifneq ($(DB_HOME),)
-   LIBPATH              += -L$(DB_HOME)/$(libsubdir)
-endif
-
-ifneq ($(EXPAT_HOME),)
-   LIBPATH              += -L$(EXPAT_HOME)/$(libsubdir)
-endif
-
 LDPLATFORMFLAGS         =  -Wl,+s -Wl,+b$(prefix)/$(libsubdir) $(LIBPATH)
 
 mklibfilename           = $(if $(2),lib$(1).$(2),lib$(1).sl)

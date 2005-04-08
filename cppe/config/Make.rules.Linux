@@ -54,7 +54,11 @@ ifeq ($(CXX),c++)
       lp64suffix          := 64
    endif
 
-   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+
+   ifeq ($(STATICLIBS),)
+      CXXFLAGS		:= -fPIC
+   endif
 
    ifeq ($(OPTIMIZE),yes)
       CXXFLAGS		:= -O3 -DNDEBUG $(CXXFLAGS)
@@ -63,10 +67,17 @@ ifeq ($(CXX),c++)
    endif
 
    ifeq ($(USE_SPARC_ASM),yes)
-      CFLAGS                  := -O3 -mcpu=ultrasparc -pipe -DNDEBUG -fPIC -DUSE_SPARC_ASM
+      CFLAGS		:= -O3 -mcpu=ultrasparc -pipe -DNDEBUG -DUSE_SPARC_ASM
+      ifeq ($(STATICLIBS),)
+         CFLAGS		:= -fPIC
+      endif
    endif
+
    ifeq ($(USE_SPARC_ASM),no)
-      CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
+      CFLAGS		:= -O3 -mcpu=v8 -pipe -DNDEBUG -DICE_USE_MUTEX_SHARED
+      ifeq ($(STATICLIBS),)
+         CFLAGS		:= -fPIC
+      endif
    endif
 
    #
@@ -74,7 +85,9 @@ ifeq ($(CXX),c++)
    #
    CXXLIBS		=
 
-   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+   mkshlib              = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+   mklib		= ar cr $(1) $(2)
 
 endif
 
@@ -93,7 +106,9 @@ ifeq ($(CXX),icpc)
    #
    CXXLIBS		=
 
-   mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+   mkshlib              = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+   mklib		= ar cr $(1) $(2)
 
 endif
 
