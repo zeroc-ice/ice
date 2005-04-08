@@ -1,8 +1,8 @@
 Changes since version 2.1.0
 ---------------------------
 
-- Added -E option to the various Slice compilers to print
-  proprocessor output on stdout.
+- Added -E option to the various Slice compilers to print preprocessor
+  output on stdout.
 
 - A crash occurred if the global variable $ICE was used before a
   profile was loaded. This now causes an error message.

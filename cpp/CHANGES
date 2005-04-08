@@ -19,7 +19,7 @@ Changes since version 2.1.0
 - A race condition with Glacier2 detaching the request handler thread
   has been fixed.
 
-- Added -E option to the various Slice compilers to print proprocessor
+- Added -E option to the various Slice compilers to print preprocessor
   output on stdout.
 
 - Ice::ObjectNotExistException is now retried for invocations made on
@@ -31,7 +31,7 @@ Changes since version 2.1.0
   definitions at global scope (other than module definitions) now
   cause a hard error (whereas, previously, they only caused a
   warning).
-  
+
 - Fixed a bug in the option parsing for Ice tools such as slice2cpp,
   slice2java, slice2cs, etc. The option parser used to incorrectly
   complain about repeated options when in fact no option was

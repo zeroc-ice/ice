@@ -16,7 +16,7 @@ Changes since version 2.1.0
   manual for more information on the reliability of oneway and batch
   oneway reliability.
 
-- Added -E option to the various Slice compilers to print proprocessor
+- Added -E option to the various Slice compilers to print preprocessor
   output on stdout.
 
 - Fixed a bug in the option parsing for Ice tools such as slice2cpp,

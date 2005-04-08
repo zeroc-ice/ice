@@ -36,7 +36,7 @@ Changes since version 2.1.0
 
   are now equivalent.
 
-- Added -E option to the various Slice compilers to print proprocessor
+- Added -E option to the various Slice compilers to print preprocessor
   output on stdout.
 
 - As announced with version 1.5, slice2java and slice2freezej now
