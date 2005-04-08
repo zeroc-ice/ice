@@ -49,7 +49,7 @@ namespace Ice
 // a servant class from both Ice::Object and IceUtil::Thread. However,
 // we never derive from IceUtil::GCShared more than once.
 //
-class ICE_API Object : virtual public IceUtil::GCShared
+class ICE_API Object : public IceUtil::GCShared
 {
 public:
 
