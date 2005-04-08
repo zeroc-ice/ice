@@ -493,6 +493,89 @@ in undefined behavior. The default value is no router. </para></note>
 </section>
 </section>
 
+<section id="adapterThreadpool.Size"><title><replaceable>name</replaceable>.ThreadPool.Size</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.ThreadPool.Size=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+A communicator creates a default server thread pool that dispatches requests
+to its object adapters. An object adapter can also be configured with its
+own thread pool. This is useful in avoiding deadlocks due to thread starvation
+by ensuring that a minimum number of threads is available for dispatching requests
+to certain &Ice; objects.
+</para>
+<para>
+<replaceable>num</replaceable> is the initial and also minimum number
+of threads in the thread pool. The default value is zero, meaning that
+an object adapter by default uses the communicator's server thread pool.
+See <link linkend="threadpool.Size">Ice.ThreadPool.Server.Size</link>
+for more information.
+</para>
+</section>
+</section>
+
+<section id="adapterThreadpool.SizeMax"><title><replaceable>name</replaceable>.ThreadPool.SizeMax</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.ThreadPool.SizeMax=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the maximum number of threads for
+the thread pool. Thread pools in Ice can grow and shrink dynamically,
+based on an average load factor. This thread pool will not grow larger
+than <replaceable>num</replaceable>, and does not shrink to a number
+of threads smaller than the value specified by
+<link linkend="adapterThreadpool.Size">
+<replaceable>name</replaceable>.ThreadPool.Size</link>.
+</para>
+<para>
+The default value is the value of
+<literal><replaceable>name</replaceable>.ThreadPool.Size</literal>, meaning
+that by default, this thread pool does not grow dynamically.
+</para>
+</section>
+</section>
+
+<section id="adapterThreadpool.SizeWarn"><title><replaceable>name</replaceable>.ThreadPool.SizeWarn</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Whenever <replaceable>num</replaceable> threads are active in a thread
+pool, a "low on threads" warning is printed. The default value for
+is 80% of the value specified by
+<literal><replaceable>name</replaceable>.ThreadPool.SizeMax</literal>.
+</para>
+</section>
+</section>
+
+<section id="adapterThreadpool.StackSize"><title><replaceable>name</replaceable>.ThreadPool.StackSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.ThreadPool.StackSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the stack size (in bytes) of threads in
+the thread pool. The default value is zero, meaning the operating system's
+default is used.
+</para>
+</section>
+</section>
+
 <section><title>Ice.PrintAdapterReady</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -555,59 +638,56 @@ In Java, <replaceable>entry_point</replaceable> is the name of a class.
 <section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
-<section id="threadpool.Size"><title><replaceable>name</replaceable>.Size</title>
+<section id="threadpool.Size"><title>Ice.ThreadPool.Client.Size, Ice.ThreadPool.Server.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.Size=<replaceable>num</replaceable>
+Ice.ThreadPool.Client.Size=<replaceable>num</replaceable>
+Ice.ThreadPool.Server.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-<replaceable>name</replaceable> is the name of the thread pool. The
-name of the client-side thread pool is
-<literal>Ice.ThreadPool.Client</literal>, the name of the default
-server-side thread pool is
-<literal>Ice.ThreadPool.Server</literal>. In addition, individual
-object adapters can have separate thread pools. In this case, the name
-of the thread pool is
-<replaceable>adapter_name</replaceable><literal>.ThreadPool</literal>.
-Having a separate thread pool for an object adapter is useful to
-ensure that a minimum number of threads is available for dispatching
-requests on certain &Ice; objects, in order to avoid deadlocks because
-of thread starvation.
+A communicator creates two thread pools: the client thread pool
+dispatches AMI callbacks and incoming requests on bidirectional
+connections, and the server thread pool dispatches requests to
+object adapters. <replaceable>num</replaceable> is the initial
+and also minimum number of threads in the thread pool. The
+default value is one for both properties.
 </para>
 <para>
-<replaceable>num</replaceable> is the initial and also minimum number
-of threads in the thread pool. The default is one for
-<literal>Ice.ThreadPool.Client</literal> and
-<literal>Ice.ThreadPool.Server</literal>, and zero for object adapter
-thread pools, meaning that by default, object adapters use the default
-server-side thread pool.  <note><para>Multiple threads for the client
-side thread pool are only required for nested AMI invocations. If AMI
-is not used, or AMI calls are not nested (i.e., AMI callbacks do not
-call any other methods on Ice objects), then there is no need to set
-the number of threads in the client thread pool to a value larger than
-one. </para></note>
+An object adapter can also be configured with its own thread pool.
+See the <link linkend="adapterThreadpool.Size">object adapter
+properties</link> for more information.
 </para>
+<note>
+<para>
+Multiple threads for the client thread pool are only required for nested
+AMI invocations. If AMI is not used, or AMI calls are not nested (i.e.,
+AMI callbacks do not invoke any other operations on Ice objects), then
+there is no need to set the number of threads in the client thread pool
+to a value larger than one.
+</para>
+</note>
 </section>
 </section>
 
-<section id="threadpool.SizeMax"><title><replaceable>name</replaceable>.SizeMax</title>
+<section id="threadpool.SizeMax"><title>Ice.ThreadPool.Client.SizeMax, Ice.ThreadPool.Server.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.SizeMax=<replaceable>num</replaceable>
+Ice.ThreadPool.Client.SizeMax=<replaceable>num</replaceable>
+Ice.ThreadPool.Server.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 <replaceable>num</replaceable> is the maximum number of threads for
-the thread pool <replaceable>name</replaceable>. Thread pools in Ice
-can grow and shrink dynamically, based on an average load
-factor. Thread pools do not grow larger than the parameter specified
-by <literal>SizeMax</literal>, and they do not shrink to a number of
-threads smaller than the value specified by <literal>Size</literal>.
+the thread pool. Thread pools in Ice can grow and shrink dynamically,
+based on an average load factor. Thread pools do not grow larger than
+the number specified by <literal>SizeMax</literal>, and they do not
+shrink to a number of threads smaller than the value specified by
+<literal>Size</literal>.
 </para>
 <para>
 The default value for <literal>SizeMax</literal> is the value of
@@ -617,10 +697,11 @@ grow dynamically.
 </section>
 </section>
 
-<section id="threadpool.SizeWarn"><title><replaceable>name</replaceable>.SizeWarn</title>
+<section id="threadpool.SizeWarn"><title>Ice.ThreadPool.Client.SizeWarn, Ice.ThreadPool.Server.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.SizeWarn=<replaceable>num</replaceable>
+Ice.ThreadPool.Client.SizeWarn=<replaceable>num</replaceable>
+Ice.ThreadPool.Server.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -634,19 +715,19 @@ pool, a "low on threads" warning is printed. The default value for
 </section>
 </section>
 
-<section id="threadpool.StackSize"><title><replaceable>name</replaceable>.StackSize</title>
+<section id="threadpool.StackSize"><title>Ice.ThreadPool.Client.StackSize, Ice.ThreadPool.Server.StackSize</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.StackSize=<replaceable>num</replaceable>
+Ice.ThreadPool.Client.StackSize=<replaceable>num</replaceable>
+Ice.ThreadPool.Server.StackSize=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 <replaceable>num</replaceable> is the stack size (in bytes) of threads in
-the thread pool <replaceable>name</replaceable>. When
-<replaceable>num</replaceable> is 0, the operating system's default is used.
-The default value for <replaceable>num</replaceable> is 0.
+the thread pool. The default value is zero meaning the operating system's
+default is used.
 </para>
 </section>
 </section>
@@ -883,7 +964,7 @@ application is executed by the super-user. (Unix only.)
 </section>
 </section>
 
-<section><title>Ice.ACM.Client</title>
+<section id="acm.client"><title>Ice.ACM.Client</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.ACM.Client=<replaceable>num</replaceable>
@@ -893,18 +974,18 @@ Ice.ACM.Client=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-client-side ACM (Active Connection Management) is enabled. This means
+client-side Active Connection Management (ACM) is enabled. This means
 that connections are automatically closed by the client after they have
 been idle for <replaceable>num</replaceable> seconds. This is
-transparent to user code, i.e., closed connections are automatically
-reestablished in case they are needed again. The default value is 60,
-meaning that idle connections are automatically closed after one
+transparent to applications because connections closed by ACM are
+automatically reestablished if they are needed again. The default value
+is 60, meaning that idle connections are automatically closed after one
 minute.
 </para>
 </section>
 </section>
 
-<section><title>Ice.ACM.Server</title>
+<section id="acm.server"><title>Ice.ACM.Server</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.ACM.Server=<replaceable>num</replaceable>
@@ -913,12 +994,21 @@ Ice.ACM.Server=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-Just like <literal>Ice.ACM.Client</literal>, this
-property enables ACM, but for the server side. Connections are
-automatically closed by the server after they have been idle for
-<replaceable>num</replaceable> seconds. The default value is 0,
-meaning that server-side ACM is disabled by default.
+This property is the server-side equivalent of
+<link linkend="acm.client">Ice.ACM.Client</link>.
+If <replaceable>num</replaceable> is set to a value larger than zero,
+server-side Active Connection Management (ACM) is enabled, in which
+the server automatically closes an incoming connection after it has
+been idle for <replaceable>num</replaceable> seconds. The
+default value is 0, meaning that server-side ACM is disabled
+by default.
 </para>
+<note>
+<para>
+Server-side ACM can cause incoming oneway requests to be
+silently discarded. See the Ice manual for more information.
+</para>
+</note>
 </section>
 </section>
 
@@ -934,9 +1024,9 @@ Ice.ConnectionIdleTime=<replaceable>num</replaceable>
 This property is deprecated, and available for backwards-compatibility
 only. If the property is defined (i.e., set to a non-empty string), it
 sets both client- and server-side ACM timeouts. The properties
-<literal>Ice.ACM.Client</literal> and
-<literal>Ice.ACM.Server</literal> override this value for the client-
-and server-side ACM timeouts, respectively.
+<link linkend="acm.client">Ice.ACM.Client</link> and
+<link linkend="acm.server">Ice.ACM.Server</link> override this value
+for the client- and server-side ACM timeouts, respectively.
 </para>
 </section>
 </section>
@@ -952,12 +1042,11 @@ Ice.MonitorConnections=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 &Ice; starts a thread that monitors connections. This thread is
-responsible for shutting down idle connections (see
-<literal>Ice.ConnectionIdleTime</literal>), as well as for enforcing
-AMI timeouts. The default value is the value of
-<literal>Ice.ACM.Client</literal> or
-<literal>Ice.ACM.Server</literal>, whichever value of the two is
-smaller and non-null.
+responsible for shutting down idle connections and enforcing
+AMI timeouts. The default value is the smaller of
+<literal>Ice.ACM.Client</literal> or <literal>Ice.ACM.Server</literal>.
+If neither property is specified or has a non-zero value, the monitoring
+thread is disabled.
 </para>
 </section>
 </section>
@@ -1808,7 +1897,7 @@ IceBox.ServiceManager.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IceBox.ServiceManager</literal>.
 </para>
 </section>
@@ -1824,7 +1913,7 @@ IceBox.ServiceManager.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IceBox.ServiceManager</literal>.
 </para>
 </section>
@@ -1840,7 +1929,7 @@ IceBox.ServiceManager.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IceBox.ServiceManager</literal>.
 </para>
 </section>
@@ -1976,7 +2065,7 @@ IcePack.Registry.Client.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IcePack.Registry.Client</literal>.
 </para>
 </section>
@@ -1992,7 +2081,7 @@ IcePack.Registry.Client.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IcePack.Registry.Client</literal>.
 </para>
 </section>
@@ -2008,7 +2097,7 @@ IcePack.Registry.Client.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Client</literal>.
 </para>
 </section>
@@ -2059,7 +2148,7 @@ IcePack.Registry.Server.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IcePack.Registry.Server</literal>.
 </para>
 </section>
@@ -2075,7 +2164,7 @@ IcePack.Registry.Server.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IcePack.Registry.Server</literal>.
 </para>
 </section>
@@ -2091,7 +2180,7 @@ IcePack.Registry.Server.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Server</literal>.
 </para>
 </section>
@@ -2149,7 +2238,7 @@ IcePack.Registry.Admin.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IcePack.Registry.Admin</literal>.
 </para>
 </section>
@@ -2165,7 +2254,7 @@ IcePack.Registry.Admin.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IcePack.Registry.Admin</literal>.
 </para>
 </section>
@@ -2181,7 +2270,7 @@ IcePack.Registry.Admin.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Admin</literal>.
 </para>
 </section>
@@ -2232,7 +2321,7 @@ IcePack.Registry.Internal.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IcePack.Registry.Internal</literal>.
 </para>
 </section>
@@ -2248,7 +2337,7 @@ IcePack.Registry.Internal.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IcePack.Registry.Internal</literal>.
 </para>
 </section>
@@ -2264,7 +2353,7 @@ IcePack.Registry.Internal.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Registry.Internal</literal>.
 </para>
 </section>
@@ -2601,7 +2690,7 @@ IcePack.Node.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IcePack.Node</literal>.
 </para>
 </section>
@@ -2617,7 +2706,7 @@ IcePack.Node.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IcePack.Node</literal>.
 </para>
 </section>
@@ -2633,7 +2722,7 @@ IcePack.Node.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IcePack.Node</literal>.
 </para>
 </section>
@@ -2833,7 +2922,7 @@ IceStorm.TopicManager.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IceStorm.TopicManager</literal>.
 </para>
 </section>
@@ -2849,7 +2938,7 @@ IceStorm.TopicManager.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IceStorm.TopicManager</literal>.
 </para>
 </section>
@@ -2865,7 +2954,7 @@ IceStorm.TopicManager.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IceStorm.TopicManager</literal>.
 </para>
 </section>
@@ -2944,7 +3033,7 @@ IceStorm.Publish.ThreadPool.Size=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
+<link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
 for the object adapter named <literal>IceStorm.Publish</literal>.
 </para>
 </section>
@@ -2960,7 +3049,7 @@ IceStorm.Publish.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
+<link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
 for the object adapter named <literal>IceStorm.Publish</literal>.
 </para>
 </section>
@@ -2976,7 +3065,7 @@ IceStorm.Publish.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 Defines the value of the property
-<link linkend="threadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
+<link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
 for the object adapter named <literal>IceStorm.Publish</literal>.
 </para>
 </section>
