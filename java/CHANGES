@@ -1,23 +1,32 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added two new properties for controlling Active Connection
+  Management (ACM). In prior releases ACM was governed by the property
+  Ice.ConnectionIdleTime, which affected client- and server-side
+  behavior. The new properties, Ice.ACM.Client and Ice.ACM.Server,
+  now allow independent timeouts to be specified for client- and
+  server-side ACM. Ice.ConnectionIdleTime is now deprecated.
+
+- Reverted a change introduced in 2.1.0 in which retries were not
+  attempted for oneway and batch oneway requests. Ice now behaves
+  as it did in prior releases: if the connection associated with a
+  oneway or batch oneway proxy is closed, an invocation on the proxy
+  will transparently reestablish the connection. Please see the Ice
+  manual for more information on the reliability of oneway and batch
+  oneway reliability.
+
+- Ice::ObjectNotExistException is now retried for invocations made on
+  indirect proxies. This allows the transparent migration of objects
+  or objects adapters.
+
 - Changed the IceBox.ServiceManagerI class to be inheritable and its
   run() method to be public.
 
-- Added -E option to the various Slice compilers to print
-  proprocessor output on stdout.
-
-- As announced with version 1.6, slice2java and slice2freezej
-  now require all Slice definitions to be nested inside a
-  module; definitions at global scope (other than module
-  definitions) now cause a hard error (whereas, previously,
-  they only caused a warning).
-
-- Fixed a bug in the option parsing for Ice tools such as
-  slice2cpp, slice2java, slice2cs, etc. The option parser
-  used to incorrectly complain about repeated options when
-  in fact no option was repeated. Also changed the parser
-  to permit options to follow an argument, so
+- Fixed a bug in the option parsing for Ice tools such as slice2cpp,
+  slice2java, slice2cs, etc. The option parser used to incorrectly
+  complain about repeated options when in fact no option was repeated.
+  Also changed the parser to permit options to follow an argument, so
 
       slice2cpp -I. x.ice
 
@@ -26,6 +35,15 @@ Changes since version 2.1.0
       slice2cpp x.ice -I.
 
   are now equivalent.
+
+- Added -E option to the various Slice compilers to print proprocessor
+  output on stdout.
+
+- As announced with version 1.5, slice2java and slice2freezej now
+  require all Slice definitions to be nested inside a module;
+  definitions at global scope (other than module definitions) now
+  cause a hard error (whereas, previously, they only caused a
+  warning).
 
 Changes since version 2.0.0
 ---------------------------
