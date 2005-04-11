@@ -135,23 +135,20 @@ namespace IceInternal
 	//
 	private static void loadAssemblies()
 	{
-	    if(!_assembliesLoaded) // Lazy initialization
+	    lock(_mutex) // MONO BUG: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
 	    {
-		lock(_mutex) // MONO BUG: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+		if(!_assembliesLoaded)
 		{
-		    if(!_assembliesLoaded) // Double-checked locking
+		    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+		    foreach(Assembly a in assemblies)
 		    {
-			Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-			foreach(Assembly a in assemblies)
-			{
-			    _loadedAssemblies[a.FullName] = a;
-			}
-			foreach(Assembly a in assemblies)
-			{
-			    loadReferencedAssemblies(a);
-			}
-			_assembliesLoaded = true;
+			_loadedAssemblies[a.FullName] = a;
 		    }
+		    foreach(Assembly a in assemblies)
+		    {
+			loadReferencedAssemblies(a);
+		    }
+		    _assembliesLoaded = true;
 		}
 	    }
 	}
@@ -170,7 +167,7 @@ namespace IceInternal
 	    }
 	}
 
-	private static volatile bool _assembliesLoaded = false;
+	private static bool _assembliesLoaded = false;
 	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
 	private static Mutex _mutex = new Mutex();

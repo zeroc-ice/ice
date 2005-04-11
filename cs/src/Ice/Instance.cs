@@ -486,15 +486,12 @@ namespace IceInternal
 	    //
 	    // Show process id if requested (but only once).
 	    //
-	    if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+	    lock(this)
 	    {
-		lock(this)
+		if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
 		{
-		    if(!_printProcessIdDone)	// Double-checked locking
-		    {
 			System.Console.WriteLine(Process.GetCurrentProcess().Id);
 			_printProcessIdDone = true;
-		    }
 		}
 	    }
 
