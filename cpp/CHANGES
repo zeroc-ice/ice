@@ -1,6 +1,8 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added RTLD_GLOBAL when calling dlopen on Unix platforms.
+
 - Fixed a bug that could cause an assert if connections could not be
   established in thread-per-connection mode.
 

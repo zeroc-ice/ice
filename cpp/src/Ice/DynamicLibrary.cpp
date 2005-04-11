@@ -134,7 +134,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
     _hnd = LoadLibrary(lib.c_str());
 #else
 
-    int flags = RTLD_NOW;
+    int flags = RTLD_NOW | RTLD_GLOBAL;
 #ifdef _AIX
     flags |= RTLD_MEMBER;
 #endif
