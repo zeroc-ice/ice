@@ -173,15 +173,25 @@
 		<include name="iceutil21d.*"/>
 		<include name="icexml21d.*"/>
 		<include name="slice21d.*"/>
-		<include name="slice2cpp/Release/slice2cpp.exe"/>
-		<include name="slice2freeze/Release/slice2freeze.exe"/>
+	    </fileset>
+	</copy>
+
+	<copy todir="${stage.dir}/ice-cpp/dev/bin" flatten="true">
+	    <fileset dir="${ice.dir}/src/slice2cpp/Release">
+		<include name="slice2cpp.exe"/>
+	    </fileset>
+	</copy>
+
+	<copy todir="${stage.dir}/ice-cpp/dev/bin" flatten="true">
+	    <fileset dir="${ice.dir}/src/slice2freeze/Release">
+		<include name="slice2freeze.exe"/>
 	    </fileset>
 	</copy>
 
 	<mkdir dir="${stage.dir}/ice-cpp/dev/bin/debug"/>
 	<copy todir="${stage.dir}/ice-cpp/dev/bin/debug" flatten="true">
-	    <fileset dir="${ice.dir}/src">
-		<include name="IceBox/Debug/icebox.exe"/>
+	    <fileset dir="${ice.dir}/src/IceBox/Debug">
+		<include name="icebox.exe"/>
 	    </fileset>
 	</copy>
 
