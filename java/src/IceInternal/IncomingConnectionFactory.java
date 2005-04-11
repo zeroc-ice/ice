@@ -103,15 +103,18 @@ public final class IncomingConnectionFactory extends EventHandler
 	    _connections = new java.util.LinkedList();
 	}
 
-	if(threadPerIncomingConnectionFactory != null &&
-	   threadPerIncomingConnectionFactory != Thread.currentThread())
+	if(threadPerIncomingConnectionFactory != null)
 	{
-	    try
+	    while(true)
 	    {
-		threadPerIncomingConnectionFactory.join();
-	    }
-	    catch(InterruptedException ex)
-	    {
+		try
+		{
+		    threadPerIncomingConnectionFactory.join();
+		    break;
+		}
+		catch(InterruptedException ex)
+		{
+		}
 	    }
 	}
 
@@ -268,12 +271,6 @@ public final class IncomingConnectionFactory extends EventHandler
 		}
 		catch(Ice.LocalException ex)
 		{
-		    //
-		    // Ignore all exceptions while constructing the
-		    // connection. Warning or error messages for such
-		    // exceptions are printed directly by the
-		    // connection object constructor.
-		    //
 		    return;
 		}
 
@@ -302,12 +299,12 @@ public final class IncomingConnectionFactory extends EventHandler
 	}
         catch(Ice.LocalException ex)
 	{
-	    //
-	    // Ignore all exceptions while validating the
-	    // connection. Warning or error messages for such
-	    // exceptions are printed directly by the validation code.
-	    //
-	    return;
+	    synchronized(this)
+	    {
+		connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		_connections.remove(connection);
+		return;
+	    }
 	}
 
 	connection.activate();
@@ -378,7 +375,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	{
 	    _endpoint = h.value;
 	    
-	    Ice.ConnectionI connection;
+	    Ice.ConnectionI connection = null;
 	    
 	    try
 	    {
@@ -388,12 +385,14 @@ public final class IncomingConnectionFactory extends EventHandler
 	    catch(Ice.LocalException ex)
 	    {
 		//
-		// Ignore all exceptions while constructing or
-		// validating the connection. Warning or error
-		// messages for such exceptions are printed directly
-		// by the connection object constructor and validation
-		// code.
+		// If a connection object was constructed, then
+		// validate() must have raised the exception.
 		//
+		if(connection != null)
+		{
+		    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		}
+		
 		return;
 	    }
 	    
@@ -432,10 +431,6 @@ public final class IncomingConnectionFactory extends EventHandler
 			// Here we ignore any exceptions in close().			
 		    }
 
-		    _state = StateClosed;
-		    _acceptor = null;
-		    _threadPerIncomingConnectionFactory = null;
-		    
 		    Ice.SyscallException e = new Ice.SyscallException();
 		    e.initCause(ex);
 		    throw e;
@@ -707,11 +702,6 @@ public final class IncomingConnectionFactory extends EventHandler
 		    }
 		    catch(Ice.LocalException ex)
 		    {
-			//
-			// We don't print any errors here, the
-			// connection constructor is responsible for
-			// printing the error.
-			//
 			return;
 		    }
 

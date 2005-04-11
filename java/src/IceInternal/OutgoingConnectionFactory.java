@@ -320,7 +320,16 @@ public final class OutgoingConnectionFactory
 	    catch(Ice.LocalException ex)
 	    {
 		exception = ex;
-		connection = null; // Necessary for the case where validate() fails.
+
+		//
+		// If a connection object was constructed, then validate()
+		// must have raised the exception.
+		//
+		if(connection != null)
+		{
+		    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		    connection = null;
+		}
 	    }
 	    
 	    TraceLevels traceLevels = _instance.traceLevels();

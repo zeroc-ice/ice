@@ -1541,7 +1541,6 @@ namespace Ice
 		string s = "cannot create thread pool for connection:\n" + ex;
 		_instance.logger().error(s);
 
-		_state = StateClosed;
 		try
 		{
 		    _transceiver.close();
@@ -1550,7 +1549,6 @@ namespace Ice
 		{
 		    // Here we ignore any exceptions in close().
 		}
-		_transceiver = null;
 
 		throw new Ice.SyscallException(ex);
 	    }

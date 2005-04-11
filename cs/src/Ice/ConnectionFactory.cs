@@ -288,7 +288,16 @@ namespace IceInternal
 		catch(Ice.LocalException ex)
 		{
 		    exception = ex;
-		    newConnection = null; // Necessary for the case where validate() fails.
+
+		    //
+		    // If a connection object was constructed, then validate()
+		    // must have raised the exception.
+		    //
+		    if(newConnection != null)
+		    {
+			newConnection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+			newConnection = null;
+		    }
 		}
 		
 		TraceLevels traceLevels = _instance.traceLevels();
@@ -727,12 +736,6 @@ namespace IceInternal
 		    }
 		    catch(Ice.LocalException)
 		    {
-			//
-			// Ignore all exceptions while constructing the
-			// connection. Warning or error messages for such
-			// exceptions are printed directly by the
-			// connection object constructor.
-			//
 			return;
 		    }
 		    
@@ -761,13 +764,20 @@ namespace IceInternal
 	    }
 	    catch(Ice.LocalException)
 	    {
-		//
-		// Ignore all exceptions while validating the
-		// connection.  Warning or error messages for such
-		// exceptions are printed directly by the validation
-		// code.
-		//
-		return;
+		lock(this)
+		{
+		    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		    LinkedList.Enumerator p = (LinkedList.Enumerator)_connections.GetEnumerator();
+		    while(p.MoveNext())
+		    {
+			if((Ice.ConnectionI)p.Current == connection)
+			{
+			    p.Remove();
+			    break;
+			}
+		    }
+		    return;
+		}
 	    }
 	    
 	    connection.activate();
@@ -830,49 +840,42 @@ namespace IceInternal
 	        _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	    }
 	    
-	    try
+	    Endpoint h = _endpoint;
+	    _transceiver = _endpoint.serverTransceiver(ref h);
+	    if(_transceiver != null)
 	    {
-		Endpoint h = _endpoint;
-		_transceiver = _endpoint.serverTransceiver(ref h);
-		if(_transceiver != null)
+		_endpoint = h;
+		
+		Ice.ConnectionI connection = null;
+		
+		try
 		{
-		    _endpoint = h;
-
-		    Ice.ConnectionI connection;
-		    
-		    try
+		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection.validate();
+		}
+		catch(Ice.LocalException)
+		{
+		    //
+		    // If a connection object was constructed, then
+		    // validate() must have raised the exception.
+		    //
+		    if(connection != null)
 		    {
-			connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
-			connection.validate();
-		    }
-		    catch(Ice.LocalException)
-		    {
-			//
-			// Ignore all exceptions while constructing or
-			// validating the connection. Warning or error
-			// messages for such exceptions are printed
-			// directly by the connection object constructor
-			// and validation code.
-			//
-			return;
+			connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
 		    }
 		    
-		    _connections.Add(connection);
+		    return;
 		}
-		else
-		{
-		    h = _endpoint;
-		    _acceptor = _endpoint.acceptor(ref h);
-		    _endpoint = h;
-		    Debug.Assert(_acceptor != null);
-		    _acceptor.listen();
-		}
+		
+		_connections.Add(connection);
 	    }
-	    catch(System.Exception ex)
+	    else
 	    {
-		_state = StateClosed;
-		_acceptor = null;
-		throw ex;
+		h = _endpoint;
+		_acceptor = _endpoint.acceptor(ref h);
+		_endpoint = h;
+		Debug.Assert(_acceptor != null);
+		_acceptor.listen();
 	    }
 	}
 	

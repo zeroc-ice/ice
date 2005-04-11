@@ -300,7 +300,16 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	catch(const LocalException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	    connection = 0; // Necessary for the case where validate() fails.
+
+	    //
+	    // If a connection object was constructed, then validate()
+	    // must have raised the exception.
+	    //
+	    if(connection)
+	    {
+		connection->waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		connection = 0;
+	    }
 	}
 	
 	TraceLevelsPtr traceLevels = _instance->traceLevels();
@@ -575,8 +584,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	connections.swap(_connections);
     }
 
-    if(threadPerIncomingConnectionFactory &&
-       threadPerIncomingConnectionFactory->getThreadControl() != IceUtil::ThreadControl())
+    if(threadPerIncomingConnectionFactory)
     {
 	threadPerIncomingConnectionFactory->getThreadControl().join();
     }
@@ -747,12 +755,6 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	}
 	catch(const LocalException&)
 	{
-	    //
-	    // Ignore all exceptions while constructing the
-	    // connection. Warning or error messages for such
-	    // exceptions are printed directly by the connection
-	    // object constructor.
-	    //
 	    return;
 	}
 
@@ -771,11 +773,9 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     }
     catch(const LocalException&)
     {
-	//
-	// Ignore all exceptions while validating the
-	// connection. Warning or error messages for such exceptions
-	// are printed directly by the validation code.
-	//
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	connection->waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+	_connections.remove(connection);
 	return;
     }
 
@@ -858,11 +858,14 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	catch(const LocalException&)
 	{
 	    //
-	    // Ignore all exceptions while constructing or validating
-	    // the connection. Warning or error messages for such
-	    // exceptions are printed directly by the connection
-	    // object constructor and validation code.
+	    // If a connection object was constructed, then validate()
+	    // must have raised the exception.
 	    //
+	    if(connection)
+	    {
+		connection->waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+	    }
+
 	    return;
 	}
 
@@ -903,10 +906,6 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 		    // Here we ignore any exceptions in close().
 		}
 
-		_state = StateClosed;
-		_acceptor = 0;
-		_threadPerIncomingConnectionFactory = 0;
-		
 		__setNoDelete(false);
 		ex.ice_throw();
 	    }
@@ -1123,11 +1122,6 @@ IceInternal::IncomingConnectionFactory::run()
 		}
 		catch(const LocalException&)
 		{
-		    //
-		    // We don't print any errors here, the connection
-		    // constructor is responsible for printing the
-		    // error.
-		    //
 		    return;
 		}
 

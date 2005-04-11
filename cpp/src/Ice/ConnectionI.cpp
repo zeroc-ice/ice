@@ -285,9 +285,7 @@ Ice::ConnectionI::isFinished() const
 	}
 
 	if(_transceiver != 0 || _dispatchCount != 0 ||
-	   (_threadPerConnection &&
-	    _threadPerConnection->getThreadControl() != IceUtil::ThreadControl() &&
-	    _threadPerConnection->getThreadControl().isAlive()))
+	   (_threadPerConnection && _threadPerConnection->getThreadControl().isAlive()))
 	{
 	    return false;
 	}
@@ -298,7 +296,7 @@ Ice::ConnectionI::isFinished() const
 	_threadPerConnection = 0;
     }
 
-    if(threadPerConnection && threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+    if(threadPerConnection)
     {
 	threadPerConnection->getThreadControl().join();
     }
@@ -385,7 +383,7 @@ Ice::ConnectionI::waitUntilFinished()
 	_threadPerConnection = 0;
     }
 
-    if(threadPerConnection && threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+    if(threadPerConnection)
     {
 	threadPerConnection->getThreadControl().join();
     }
@@ -1496,8 +1494,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    }
 	}
 	
-	_state = StateClosed;
-	
 	try
 	{
 	    _transceiver->close();
@@ -1506,8 +1502,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	{
 	    // Here we ignore any exceptions in close().
 	}
-	_transceiver = 0;
-	_threadPerConnection = 0;
 	
 	__setNoDelete(false);
 	ex.ice_throw();

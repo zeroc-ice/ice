@@ -1,6 +1,9 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Fixed a bug that could cause an assert if connections could not be
+  established in thread-per-connection mode.
+
 - Added two new properties for controlling Active Connection
   Management (ACM). In prior releases ACM was governed by the property
   Ice.ConnectionIdleTime, which affected client- and server-side
