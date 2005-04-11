@@ -251,22 +251,19 @@ namespace IceInternal
 	    }
 	}
 	
-	public int
-	messageSizeMax()
+	public int messageSizeMax()
 	{
 	    // No mutex lock, immutable.
 	    return _messageSizeMax;
 	}
 	
-	public int
-	clientACM()
+	public int clientACM()
 	{
 	    // No mutex lock, immutable.
 	    return _clientACM;
 	}
 	
-	public int
-	serverACM()
+	public int serverConnectionIdleTime()
 	{
 	    // No mutex lock, immutable.
 	    return _serverACM;
