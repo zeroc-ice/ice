@@ -23,14 +23,7 @@ public final class Outgoing
         _os = new BasicStream(ref.getInstance());
         _compress = compress;
 
-	try
-	{
-	    writeHeader(operation, mode, context);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    abort(ex);
-	}
+	writeHeader(operation, mode, context);
     }
 
     //
@@ -56,6 +49,7 @@ public final class Outgoing
     //
     public void
     reset(String operation, Ice.OperationMode mode, java.util.Map context)
+	throws NonRepeatable
     {
         _state = StateUnsent;
         _exception = null;
@@ -434,6 +428,7 @@ public final class Outgoing
 
     private void
     writeHeader(String operation, Ice.OperationMode mode, java.util.Map context)
+	throws NonRepeatable
     {
         switch(_reference.getMode())
         {
@@ -453,52 +448,59 @@ public final class Outgoing
             }
         }
 
-        _reference.getIdentity().__write(_os);
+	try
+	{
+	    _reference.getIdentity().__write(_os);
 
-        //
-        // For compatibility with the old FacetPath.
-        //
-	String facet = _reference.getFacet();
-        if(facet == null || facet.length() == 0)
-        {
-            _os.writeStringSeq(null);
-        }
-        else
-        {
-            String[] facetPath = { facet };
-            _os.writeStringSeq(facetPath);
-        }
+	    //
+	    // For compatibility with the old FacetPath.
+	    //
+	    String facet = _reference.getFacet();
+	    if(facet == null || facet.length() == 0)
+	    {
+		_os.writeStringSeq(null);
+	    }
+	    else
+	    {
+		String[] facetPath = { facet };
+		_os.writeStringSeq(facetPath);
+	    }
 
-        _os.writeString(operation);
+	    _os.writeString(operation);
 
-        _os.writeByte((byte)mode.value());
+	    _os.writeByte((byte)mode.value());
 
-        if(context == null)
-        {
-            _os.writeSize(0);
-        }
-        else
-        {
-            final int sz = context.size();
-            _os.writeSize(sz);
-            if(sz > 0)
-            {
-                java.util.Iterator i = context.entrySet().iterator();
-                while(i.hasNext())
-                {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-                    _os.writeString((String)entry.getKey());
-                    _os.writeString((String)entry.getValue());
-                }
-            }
-        }
+	    if(context == null)
+	    {
+		_os.writeSize(0);
+	    }
+	    else
+	    {
+		final int sz = context.size();
+		_os.writeSize(sz);
+		if(sz > 0)
+		{
+		    java.util.Iterator i = context.entrySet().iterator();
+		    while(i.hasNext())
+		    {
+			java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
+			_os.writeString((String)entry.getKey());
+			_os.writeString((String)entry.getValue());
+		    }
+		}
+	    }
 
-        //
-        // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward requests as
-        // blobs.
-        //
-        _os.startWriteEncaps();
+	    //
+	    // Input and output parameters are always sent in an
+	    // encapsulation, which makes it possible to forward requests as
+	    // blobs.
+	    //
+	    _os.startWriteEncaps();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    abort(ex);
+	}
     }
 
     private Ice.ConnectionI _connection;
