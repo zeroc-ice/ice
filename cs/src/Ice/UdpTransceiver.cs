@@ -402,7 +402,7 @@ namespace IceInternal
 		    {
 			int newSize = System.Math.Min(messageSizeMax, _maxPacketSize) + _udpOverhead;
 			_logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested +
-					" adjusted to " + newSize + " (Ice.MessageSizeMax takes precendence)");
+					" adjusted to " + newSize + " (Ice.MessageSizeMax takes precedence)");
 			sizeRequested = newSize;
 		    }
 		    

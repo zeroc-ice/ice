@@ -418,7 +418,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	    Warning out(_logger);
 	    out << "UDP " << direction << " buffer size: requested size of " << sizeRequested << " adjusted to ";
 	    sizeRequested = min(static_cast<int>(messageSizeMax), _maxPacketSize) + _udpOverhead;
-	    out << sizeRequested << " (Ice.MessageSizeMax takes precendence)";
+	    out << sizeRequested << " (Ice.MessageSizeMax takes precedence)";
 	}
 	    
 	if(sizeRequested != dfltSize)
