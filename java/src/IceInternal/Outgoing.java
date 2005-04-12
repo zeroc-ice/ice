@@ -14,6 +14,7 @@ public final class Outgoing
     public
     Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
 	     java.util.Map context, boolean compress)
+	throws NonRepeatable
     {
         _connection = connection;
         _reference = ref;
@@ -22,7 +23,14 @@ public final class Outgoing
         _os = new BasicStream(ref.getInstance());
         _compress = compress;
 
-        writeHeader(operation, mode, context);
+	try
+	{
+	    writeHeader(operation, mode, context);
+	}
+	catch(Ice.LocalException ex)
+	{
+	    abort(ex);
+	}
     }
 
     //

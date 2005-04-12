@@ -62,40 +62,47 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 	}
     }
 
-    _reference->getIdentity().__write(&_os);
-
-    //
-    // For compatibility with the old FacetPath.
-    //
-    if(_reference->getFacet().empty())
+    try
     {
-	_os.write(vector<string>());
+	_reference->getIdentity().__write(&_os);
+
+	//
+	// For compatibility with the old FacetPath.
+	//
+	if(_reference->getFacet().empty())
+	{
+	    _os.write(vector<string>());
+	}
+	else
+	{
+	    vector<string> facetPath;
+	    facetPath.push_back(_reference->getFacet());
+	    _os.write(facetPath);
+	}
+
+	_os.write(operation);
+
+	_os.write(static_cast<Byte>(mode));
+
+	_os.writeSize(Int(context.size()));
+	Context::const_iterator p;
+	for(p = context.begin(); p != context.end(); ++p)
+	{
+	    _os.write(p->first);
+	    _os.write(p->second);
+	}
+	
+	//
+	// Input and output parameters are always sent in an
+	// encapsulation, which makes it possible to forward requests as
+	// blobs.
+	//
+	_os.startWriteEncaps();
     }
-    else
+    catch(const LocalException& ex)
     {
-	vector<string> facetPath;
-	facetPath.push_back(_reference->getFacet());
-	_os.write(facetPath);
+	abort(ex);
     }
-
-    _os.write(operation);
-
-    _os.write(static_cast<Byte>(mode));
-
-    _os.writeSize(Int(context.size()));
-    Context::const_iterator p;
-    for(p = context.begin(); p != context.end(); ++p)
-    {
-	_os.write(p->first);
-	_os.write(p->second);
-    }
-    
-    //
-    // Input and output parameters are always sent in an
-    // encapsulation, which makes it possible to forward requests as
-    // blobs.
-    //
-    _os.startWriteEncaps();
 }
 
 bool

@@ -202,6 +202,7 @@ public class _ObjectDelM implements _ObjectDel
     
     protected IceInternal.Outgoing
     getOutgoing(String operation, OperationMode mode, java.util.Map context)
+	throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing out;
 
