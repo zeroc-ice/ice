@@ -263,7 +263,7 @@ namespace IceInternal
 	    return _clientACM;
 	}
 	
-	public int serverConnectionIdleTime()
+	public int serverACM()
 	{
 	    // No mutex lock, immutable.
 	    return _serverACM;
