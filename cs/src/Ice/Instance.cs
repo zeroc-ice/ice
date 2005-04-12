@@ -490,8 +490,8 @@ namespace IceInternal
 	    {
 		if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
 		{
-			System.Console.WriteLine(Process.GetCurrentProcess().Id);
-			_printProcessIdDone = true;
+		    System.Console.WriteLine(Process.GetCurrentProcess().Id);
+		    _printProcessIdDone = true;
 		}
 	    }
 

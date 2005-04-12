@@ -27,7 +27,7 @@ namespace IceInternal
             //
             // Simple trick to find out whether libbz2.dll is
             // installed: Call the BZ2_bzlibVersion() function in the
-            // library. If we get a DllImportException, the library is
+            // library. If we get a DllNotFoundException, the library is
             // not available.
             //
             _bzlibInstalled = true;
