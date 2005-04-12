@@ -2002,7 +2002,7 @@ namespace IceInternal
 
 	private static Hashtable _exceptionFactories = new Hashtable(); // <type name, factory> pairs.
 
-        private static volatile bool _bzlibInstalled;
+        private static bool _bzlibInstalled;
 
         const int BZ_SEQUENCE_ERROR = -1;
         const int BZ_PARAM_ERROR = -2;

@@ -319,7 +319,7 @@ namespace Ice
 	private static Callback _callback; // Current callback
 	private static Callback _previousCallback; // Remembers prev. callback when signals are held
 
-	private static volatile string _appName = AppDomain.CurrentDomain.FriendlyName;
+	private static string _appName = AppDomain.CurrentDomain.FriendlyName;
 	private static Communicator _communicator;
     }
 }

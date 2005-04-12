@@ -1876,16 +1876,16 @@ namespace Ice
 		_dispatchCount == 0;
 	}
 	
-	private volatile IceInternal.Transceiver _transceiver;
-	private volatile string _desc;
-	private volatile string _type;
-	private volatile IceInternal.Endpoint _endpoint;
+	private IceInternal.Transceiver _transceiver;
+	private string _desc;
+	private string _type;
+	private IceInternal.Endpoint _endpoint;
 	
 	private ObjectAdapter _adapter;
 	private IceInternal.ServantManager _servantManager;
 	
-	private volatile Logger _logger;
-	private volatile IceInternal.TraceLevels _traceLevels;
+	private Logger _logger;
+	private IceInternal.TraceLevels _traceLevels;
 	
 	private bool _registeredWithPool;
 	private IceInternal.ThreadPool _threadPool;
@@ -1906,9 +1906,9 @@ namespace Ice
 	private int _batchRequestNum;
 	private bool _batchRequestCompress;
 	
-	private volatile int _dispatchCount;
+	private int _dispatchCount;
 	
-	private volatile int _state; // The current state.
+	private int _state; // The current state.
 	private long _stateTime; // The last time when the state was changed.
 	
 	//
@@ -1920,7 +1920,7 @@ namespace Ice
 	private IceInternal.Incoming _incomingCache;
 	private object _incomingCacheMutex = new object();
 
-	private static volatile bool _compressionSupported;
+	private static bool _compressionSupported;
 
 	private bool _overrideCompress;
 	private bool _overrideCompressValue;

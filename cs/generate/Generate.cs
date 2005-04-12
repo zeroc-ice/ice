@@ -162,7 +162,7 @@ namespace Generate
 	    }
 	}
 
-	static volatile Process p;
+	static Process p;
 
 	private static void RedirectStandardOutput()
 	{

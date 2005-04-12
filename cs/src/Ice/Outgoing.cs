@@ -489,7 +489,7 @@ namespace IceInternal
 	private BasicStream _is;
 	private BasicStream _os;
 
-	private volatile bool _compress; // Immutable after construction
+	private bool _compress; // Immutable after construction
 	
 	public Outgoing next; // For use by Ice._ObjectDelM
     }

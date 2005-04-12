@@ -644,14 +644,14 @@ namespace IceInternal
 	}
 	
 	private bool _destroyed;
-	private volatile Ice.Properties _properties; // Immutable, not reset by destroy().
+	private Ice.Properties _properties; // Immutable, not reset by destroy().
 	private Ice.Logger _logger; // Not reset by destroy().
 	private Ice.Stats _stats; // Not reset by destroy().
-	private volatile TraceLevels _traceLevels; // Immutable, not reset by destroy().
-	private volatile DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
-	private volatile int _messageSizeMax; // Immutable, not reset by destroy().
-	private volatile int _clientACM; // Immutable, not reset by destroy().
-	private volatile int _serverACM; // Immutable, not reset by destroy().
+	private TraceLevels _traceLevels; // Immutable, not reset by destroy().
+	private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+	private int _messageSizeMax; // Immutable, not reset by destroy().
+	private int _clientACM; // Immutable, not reset by destroy().
+	private int _serverACM; // Immutable, not reset by destroy().
 	private RouterManager _routerManager;
 	private LocatorManager _locatorManager;
 	private ReferenceFactory _referenceFactory;
@@ -666,8 +666,8 @@ namespace IceInternal
 	private Ice.PluginManager _pluginManager;
 	private Ice.Context _defaultContext;
 	private static Ice.Context _emptyContext = new Ice.Context();
-	private volatile BufferManager _bufferManager; // Immutable, not reset by destroy().
-	private volatile static bool _printProcessIdDone = false;
+	private BufferManager _bufferManager; // Immutable, not reset by destroy().
+	private static bool _printProcessIdDone = false;
 
         private static bool _oneOffDone = false;
         private static System.Object _staticLock = new System.Object();

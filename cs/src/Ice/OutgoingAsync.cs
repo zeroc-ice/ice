@@ -441,11 +441,6 @@ namespace IceInternal
         private Ice.OperationMode _mode;
         private bool _compress;
 
-        //
-        // Must be volatile, because we don't want to lock the monitor
-        // below in __timedOut(), to avoid deadlocks.
-        // This is true for Java -- for C#, we sadly can't have volatile longs :-(
-        //
         private long _absoluteTimeoutMillis;
         Mutex _timeoutMutex = new Mutex();
 
