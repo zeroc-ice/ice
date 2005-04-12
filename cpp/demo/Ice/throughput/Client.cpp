@@ -23,6 +23,7 @@ menu()
 	"1: sequence of bytes (default)\n"
 	"2: sequence of strings (\"hello\")\n"
 	"3: sequence of structs with a string (\"hello\") and a double\n"
+	"4: sequence of structs with two ints and a double\n"
 	"\n"
 	"select test to run:\n"
 	"t: Send sequence as twoway\n"
@@ -62,10 +63,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     StringSeq stringSeq(StringSeqSize, "hello");
 
     StringDoubleSeq structSeq(StringDoubleSeqSize);
-    for(int i = 0; i < StringDoubleSeqSize; ++i)
+    int i;
+    for(i = 0; i < StringDoubleSeqSize; ++i)
     {
         structSeq[i].s = "hello";
 	structSeq[i].d = 3.14;
+    }
+
+    FixedSeq fixedSeq(FixedSeqSize);
+    for(i = 0; i < FixedSeqSize; ++i)
+    {
+        fixedSeq[i].i = 0;
+        fixedSeq[i].j = 0;
+        fixedSeq[i].d = 0;
     }
 
     menu();
@@ -89,7 +99,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    IceUtil::Time tm = IceUtil::Time::now();
 	    const int repetitions = 1000;
 
-	    if(c == '1' || c == '2' || c == '3')
+	    if(c == '1' || c == '2' || c == '3' || c == '4')
 	    {
 		currentType = c;
 	        switch(c)
@@ -110,8 +120,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
 		    case '3':
 		    {
-		        cout << "using struct sequences" << endl;
+		        cout << "using variable-length struct sequences" << endl;
 			seqSize = StringDoubleSeqSize;
+			break;
+		    }
+
+		    case '4':
+		    {
+		        cout << "using fixed-length struct sequences" << endl;
+			seqSize = FixedSeqSize;
 			break;
 		    }
 		}
@@ -157,7 +174,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
 		    case '3':
 		    {
-		        cout << " struct";
+		        cout << " variable-length struct";
+			break;
+		    }
+
+		    case '4':
+		    {
+		        cout << " fixed-length struct";
 			break;
 		    }
 		}
@@ -267,6 +290,37 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 			    }
 			    break;
 			}
+
+		        case '4':
+			{
+		            switch(c)
+		            {
+			        case 't':
+			        {
+			            throughput->sendFixedSeq(fixedSeq);
+			            break;
+			        }
+			
+			        case 'o':
+			        {
+			            throughputOneway->sendFixedSeq(fixedSeq);
+			            break;
+			        }
+			
+			        case 'r':
+			        {
+			            throughput->recvFixedSeq();
+			            break;
+			        }
+			
+			        case 'e':
+			        {
+			            throughput->echoFixedSeq(fixedSeq);
+			            break;
+			        }
+			    }
+			    break;
+			}
 		    }
 		}
 
@@ -290,6 +344,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    {
 		    	wireSize = static_cast<int>(structSeq[0].s.size());
 			wireSize += 8; // Size of double on the wire.
+		    	break;
+		    }
+		    case '4':
+		    {
+			wireSize = 16; // Size of two ints and a double on the wire.
 		    	break;
 		    }
 		}

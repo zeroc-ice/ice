@@ -20,12 +20,20 @@ public:
     ThroughputI() :
 	_byteSeq(Demo::ByteSeqSize, 0),
 	_stringSeq(Demo::StringSeqSize, "hello"),
-	_structSeq(Demo::StringDoubleSeqSize)
+	_structSeq(Demo::StringDoubleSeqSize),
+	_fixedSeq(Demo::FixedSeqSize)
     {
-        for(int i = 0; i < Demo::StringDoubleSeqSize; ++i)
+	int i;
+        for(i = 0; i < Demo::StringDoubleSeqSize; ++i)
 	{
 	    _structSeq[i].s = "hello";
 	    _structSeq[i].d = 3.14;
+	}
+        for(i = 0; i < Demo::FixedSeqSize; ++i)
+	{
+	    _fixedSeq[i].i = 0;
+	    _fixedSeq[i].j = 0;
+	    _fixedSeq[i].d = 0;
 	}
     }
 
@@ -81,6 +89,23 @@ public:
     }
 
     virtual void
+    sendFixedSeq(const Demo::FixedSeq&, const Ice::Current&)
+    {
+    }
+
+    virtual Demo::FixedSeq
+    recvFixedSeq(const Ice::Current&)
+    {
+	return _fixedSeq;
+    }
+
+    virtual Demo::FixedSeq
+    echoFixedSeq(const Demo::FixedSeq& seq, const Ice::Current&)
+    {
+	return seq;
+    }
+
+    virtual void
     shutdown(const Ice::Current& c)
     {
 	c.adapter->getCommunicator()->shutdown();
@@ -91,6 +116,7 @@ private:
     Demo::ByteSeq _byteSeq;
     Demo::StringSeq _stringSeq;
     Demo::StringDoubleSeq _structSeq;
+    Demo::FixedSeq _fixedSeq;
 };
 
 #endif
