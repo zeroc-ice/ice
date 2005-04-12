@@ -428,51 +428,58 @@ namespace IceInternal
 		    break;
 		}
 	    }
-	    
-	    _reference.getIdentity().__write(_os);
 
-            //
-            // For compatibility with the old FacetPath.
-            //
-            string facet = _reference.getFacet();
-            if(facet == null || facet.Length == 0)
-            {
-                _os.writeStringSeq(null);
-            }
-            else
-            {
-                string[] facetPath = { facet };
-                _os.writeStringSeq(facetPath);
-            }
-
-	    _os.writeString(operation);
-
-	    _os.writeByte((byte)mode);
-
-	    if(context == null)
+	    try
 	    {
-		_os.writeSize(0);
-	    }
-	    else
-	    {
-		int sz = context.Count;
-		_os.writeSize(sz);
-		if(sz > 0)
+		_reference.getIdentity().__write(_os);
+
+		//
+		// For compatibility with the old FacetPath.
+		//
+		string facet = _reference.getFacet();
+		if(facet == null || facet.Length == 0)
 		{
-		    foreach(DictionaryEntry e in context)
+		    _os.writeStringSeq(null);
+		}
+		else
+		{
+		    string[] facetPath = { facet };
+		    _os.writeStringSeq(facetPath);
+		}
+
+		_os.writeString(operation);
+
+		_os.writeByte((byte)mode);
+
+		if(context == null)
+		{
+		    _os.writeSize(0);
+		}
+		else
+		{
+		    int sz = context.Count;
+		    _os.writeSize(sz);
+		    if(sz > 0)
 		    {
-			_os.writeString((string)e.Key);
-			_os.writeString((string)e.Value);
+			foreach(DictionaryEntry e in context)
+			{
+			    _os.writeString((string)e.Key);
+			    _os.writeString((string)e.Value);
+			}
 		    }
 		}
+		
+		//
+		// Input and output parameters are always sent in an
+		// encapsulation, which makes it possible to forward requests as
+		// blobs.
+		//
+		_os.startWriteEncaps();
 	    }
-	    
-	    //
-	    // Input and output parameters are always sent in an
-	    // encapsulation, which makes it possible to forward requests as
-	    // blobs.
-	    //
-	    _os.startWriteEncaps();
+	    catch(Ice.LocalException ex)
+	    {
+		abort(ex);
+	    }
 	}
 	
 	private Ice.ConnectionI _connection;
