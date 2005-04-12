@@ -103,14 +103,18 @@ public final class IncomingConnectionFactory
 	    _connections = new java.util.LinkedList();
 	}
 
-	if(threadPerIncomingConnectionFactory != Thread.currentThread())
+	if(threadPerIncomingConnectionFactory != null)
 	{
-	    try
+	    while(true)
 	    {
-		threadPerIncomingConnectionFactory.join();
-	    }
-	    catch(InterruptedException ex)
-	    {
+	        try
+	        {
+		    threadPerIncomingConnectionFactory.join();
+		    break;
+	        }
+	        catch(InterruptedException ex)
+	        {
+	        }
 	    }
 	}
 
@@ -215,7 +219,7 @@ public final class IncomingConnectionFactory
 	{
 	    _endpoint = h.value;
 	    
-	    Ice.ConnectionI connection;
+	    Ice.ConnectionI connection = null;
 	    
 	    try
 	    {
@@ -224,13 +228,15 @@ public final class IncomingConnectionFactory
 	    }
 	    catch(Ice.LocalException ex)
 	    {
+	        //
+		// If a connection object was constructed, then
+		// validate() must have raised the exception.
 		//
-		// Ignore all exceptions while constructing or
-		// validating the connection. Warning or error
-		// messages for such exceptions are printed directly
-		// by the connection object constructor and validation
-		// code.
-		//
+		if(connection != null)
+		{
+		    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		}
+
 		return;
 	    }
 	    
@@ -264,13 +270,9 @@ public final class IncomingConnectionFactory
 	        }
 	        catch(Ice.LocalException e)
 	        {
-	    	// Here we ignore any exceptions in close().			
+	    	    // Here we ignore any exceptions in close().			
 	        }
     
-	        _state = StateClosed;
-	        _acceptor = null;
-	        _threadPerIncomingConnectionFactory = null;
-	        
 	        Ice.SyscallException e = new Ice.SyscallException();
 	        e.initCause(ex);
 	        throw e;
@@ -486,11 +488,6 @@ public final class IncomingConnectionFactory
 		    }
 		    catch(Ice.LocalException ex)
 		    {
-			//
-			// We don't print any errors here, the
-			// connection constructor is responsible for
-			// printing the error.
-			//
 			return;
 		    }
 

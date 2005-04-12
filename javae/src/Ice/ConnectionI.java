@@ -245,8 +245,7 @@ public final class ConnectionI implements Connection
 	synchronized(this)
 	{
 	    if(_transceiver != null || _dispatchCount != 0 ||
-	       (_threadPerConnection != Thread.currentThread() &&
-		_threadPerConnection.isAlive()))
+	       (_threadPerConnection != null && _threadPerConnection.isAlive()))
 	    {
 		return false;
 	    }
@@ -270,14 +269,18 @@ public final class ConnectionI implements Connection
 	    }
 	}
 
-	if(threadPerConnection != Thread.currentThread())
+	if(threadPerConnection != null)
 	{
-	    try
+	    while(true)
 	    {
-		threadPerConnection.join();
-	    }
-	    catch(InterruptedException ex)
-	    {
+	        try
+	        {
+		    threadPerConnection.join();
+		    break;
+	        }
+	        catch(InterruptedException ex)
+	        {
+	        }
 	    }
 	}
 
@@ -392,14 +395,18 @@ public final class ConnectionI implements Connection
 	    }
 	}
 
-	if(threadPerConnection != Thread.currentThread())
+	if(threadPerConnection != null)
 	{
-	    try
+	    while(true)
 	    {
-		threadPerConnection.join();
-	    }
-	    catch(InterruptedException ex)
-	    {
+	        try
+	        {
+		    threadPerConnection.join();
+		    break;
+	        }
+	        catch(InterruptedException ex)
+	        {
+	        }
 	    }
 	}
     }
@@ -982,7 +989,6 @@ public final class ConnectionI implements Connection
 	    s += sw.toString();
 	    _instance.logger().error(s);
 	    
-	    _state = StateClosed;
 	    try
 	    {
 		_transceiver.close();
@@ -991,8 +997,6 @@ public final class ConnectionI implements Connection
 	    {
 		// Here we ignore any exceptions in close().
 	    }
-	    _transceiver = null;
-	    _threadPerConnection = null;
 	    
 	    Ice.SyscallException e = new Ice.SyscallException();
 	    e.initCause(ex);
