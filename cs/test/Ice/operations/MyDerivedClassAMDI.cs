@@ -21,8 +21,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         
 	public void Start()
 	{
-	    _thread = new Thread(new ThreadStart(Run));
-            _thread.Start();
+	    lock(this)
+	    {
+		_thread = new Thread(new ThreadStart(Run));
+		_thread.Start();
+	    }
 	}
 
         public void Run()
@@ -32,7 +35,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
 	public void Join()
 	{
-	    _thread.Join();
+	    lock(this)
+	    {
+		_thread.Join();
+	    }
 	}
         
         private Test.AMD_MyClass_opVoid _cb;
