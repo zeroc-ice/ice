@@ -20,6 +20,7 @@ OBJS		= Session.o \
 COBJS		= Client.o
 
 SOBJS		= HelloSessionManagerI.o \
+		  HelloSessionI.o \
 		  SessionManagerI.o \
 		  Server.o
 
