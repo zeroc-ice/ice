@@ -1,0 +1,33 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: sessionC - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\matthew\LOCALS~1\Temp\RSP2315.tmp" with contents
+[
+/nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../../include/stlport" /D "_DEBUG" /D "_CONSOLE" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\src\ice\demo\Ice\session\Client.cpp"
+"C:\src\ice\demo\Ice\session\Session.cpp"
+"C:\src\ice\demo\Ice\session\HelloSession.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\matthew\LOCALS~1\Temp\RSP2315.tmp" 
+Creating command line "link.exe Iced.lib IceUtild.lib /nologo /subsystem:console /incremental:yes /pdb:"Debug/client.pdb" /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"  .\Debug\Client.obj .\Debug\Session.obj .\Debug\HelloSession.obj "
+<h3>Output Window</h3>
+Compiling...
+Client.cpp
+Generating Code...
+Skipping... (no relevant changes detected)
+Session.cpp
+HelloSession.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+client.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

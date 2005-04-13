@@ -1,0 +1,17 @@
+#
+# The client reads this property to create the reference to the
+# "SessionManager" object in the server.
+#
+SessionManager.Proxy=SessionManager:tcp -p 10000:udp -p 10000:ssl -p 10001
+
+#
+# The server creates one single object adapter with the name
+# "SessionManager". The following line sets the endpoints for this
+# adapter.
+#
+SessionManager.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
