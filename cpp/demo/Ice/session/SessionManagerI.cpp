@@ -90,8 +90,10 @@ SessionManagerI::destroy()
 	{
 	    p->second.second->destroyed();
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::Exception& ex)
 	{
+	    Ice::Warning warn(_logger);
+	    warn << "Session::destroyed failed: " << ex;
 	}
     }
     _sessions.clear();
@@ -122,8 +124,10 @@ SessionManagerI::remove(const Ice::Identity& id)
 	{
 	    p->second.second->destroyed();
 	}
-	catch(const Ice::Exception&)
+	catch(const Ice::Exception& ex)
 	{
+	    Ice::Warning warn(_logger);
+	    warn << "Session::destroyed failed: " << ex;
 	}
 	_sessions.erase(p);
     }
@@ -167,8 +171,10 @@ SessionManagerI::reap()
 	    {
 		p->second.second->destroyed();
 	    }
-	    catch(const Ice::Exception&)
+	    catch(const Ice::Exception& ex)
 	    {
+		Ice::Warning warn(_logger);
+		warn << "Session::destroyed failed: " << ex;
 	    }
 	    map<Ice::Identity, pair< IceUtil::Time, SessionPrx> >::iterator tmp = p;
 	    ++p;
