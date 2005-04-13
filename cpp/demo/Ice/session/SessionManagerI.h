@@ -50,6 +50,7 @@ public:
     virtual Demo::SessionPrx create(const Ice::Current&) = 0;
     virtual void shutdown(const Ice::Current&);
 
+// XXX Why are these not protected? XXX Get rid off add(), see comment above. XXX Get rid of remove(), too! This is evil, session are not supposed to remove themselves, this only leads to deadlocks. They must get reaped. XXX Get rid of refresh() - why is this needed? XXX
     void destroy();
     void add(const Demo::SessionPrx&);
     void remove(const Ice::Identity&);

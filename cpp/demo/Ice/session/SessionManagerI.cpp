@@ -13,6 +13,8 @@
 using namespace std;
 using namespace Demo;
 
+// XXX Cyclic dependency between ReapThread and SessionManagerI.cpp!! Set to 0 in both destroy() functions. XXX
+
 ReapThread::ReapThread(const SessionManagerIPtr& manager, const IceUtil::Time& timeout) :
     _destroy(false),
     _timeout(timeout),
