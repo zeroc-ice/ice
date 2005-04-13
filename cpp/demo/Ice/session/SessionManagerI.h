@@ -43,7 +43,7 @@ class SessionManagerI : public ::Demo::SessionManager, public IceUtil::Mutex
 {
 public:
 
-    SessionManagerI();
+    SessionManagerI(const Ice::CommunicatorPtr&);
     ~SessionManagerI();
 
     virtual ::Demo::SessionPrx create(const ::Ice::Current&) = 0;

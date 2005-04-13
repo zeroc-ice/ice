@@ -14,6 +14,11 @@
 using namespace std;
 using namespace Demo;
 
+HelloSessionManagerI::HelloSessionManagerI(const Ice::CommunicatorPtr& communicator) :
+    SessionManagerI(communicator)
+{
+}
+
 SessionPrx
 HelloSessionManagerI::create(const Ice::Current& c)
 {

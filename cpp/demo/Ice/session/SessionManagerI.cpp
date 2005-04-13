@@ -10,8 +10,6 @@
 #include <Ice/Ice.h>
 #include <HelloSessionManagerI.h>
 
-#include <HelloSession.h>
-
 using namespace std;
 using namespace Demo;
 
@@ -49,9 +47,10 @@ ReapThread::destroy()
     notify();
 }
 
-SessionManagerI::SessionManagerI() :
+SessionManagerI::SessionManagerI(const Ice::CommunicatorPtr& communicator) :
     _timeout(IceUtil::Time::seconds(10)),
     _reapThread(new ReapThread(this, _timeout)),
+    _logger(communicator->getLogger()),
     _destroy(false)
 {
     _reapThread->start();
@@ -60,6 +59,7 @@ SessionManagerI::SessionManagerI() :
 SessionManagerI::~SessionManagerI()
 {
     assert(_sessions.size() == 0);
+    assert(_destroy);
 }
 
 void
@@ -102,6 +102,9 @@ SessionManagerI::add(const SessionPrx& session)
 {
     Lock sync(*this);
 
+    Ice::Trace trace(_logger, "SessionManagerI");
+    trace << "add: " << Ice::identityToString(session->ice_getIdentity());
+
     assert(!_destroy);
     _sessions.insert(make_pair(session->ice_getIdentity(), make_pair(IceUtil::Time::now(), session)));
 }
@@ -115,9 +118,18 @@ SessionManagerI::remove(const Ice::Identity& id)
     map<Ice::Identity, pair< IceUtil::Time, SessionPrx> >::iterator p = _sessions.find(id);
     if(p != _sessions.end())
     {
-	p->second.second->destroyed();
+	try
+	{
+	    p->second.second->destroyed();
+	}
+	catch(const Ice::Exception&)
+	{
+	}
 	_sessions.erase(p);
     }
+
+    Ice::Trace trace(_logger, "SessionManagerI");
+    trace << "SessionManagerI::remove: " << Ice::identityToString(id);
 }
 
 void
@@ -148,6 +160,9 @@ SessionManagerI::reap()
     {
 	if((now - p->second.first) > _timeout)
 	{
+	    Ice::Trace trace(_logger, "SessionManagerI");
+	    trace << "SessionManagerI::reaping: " << Ice::identityToString(p->first);
+
 	    try
 	    {
 		p->second.second->destroyed();
@@ -165,4 +180,3 @@ SessionManagerI::reap()
 	}
     }
 }
-

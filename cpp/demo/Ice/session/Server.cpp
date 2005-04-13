@@ -17,9 +17,8 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionManager");
-    SessionManagerIPtr manager = new HelloSessionManagerI;
-    Ice::ObjectPtr object = new HelloSessionManagerI;
-    adapter->add(object, Ice::stringToIdentity("SessionManager"));
+    SessionManagerIPtr manager = new HelloSessionManagerI(communicator);
+    adapter->add(manager, Ice::stringToIdentity("SessionManager"));
     adapter->activate();
     communicator->waitForShutdown();
     manager->destroy();

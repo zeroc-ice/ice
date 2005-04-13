@@ -15,6 +15,9 @@
 class HelloSessionManagerI : public SessionManagerI
 {
 public:
+
+    HelloSessionManagerI(const Ice::CommunicatorPtr&);
+
     virtual ::Demo::SessionPrx create(const ::Ice::Current&);
 };
 
