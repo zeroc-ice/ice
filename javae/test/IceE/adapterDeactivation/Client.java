@@ -9,21 +9,43 @@
 
 public class Client
 {
-    static class TestClient extends Ice.Application
+    private static int
+    run(String[] args, Ice.Communicator communicator)
     {
-        public int
-        run(String[] args)
-        {
-            AllTests.allTests(communicator());
-            return 0;
-        }
+        AllTests.allTests(communicator);
+        return 0;
     }
 
     public static void
     main(String[] args)
     {
-        TestClient app = new TestClient();
-        int result = app.main("Client", args);
-        System.exit(result);
+        int status = 0;
+        Ice.Communicator communicator = null;
+
+        try
+        {
+            communicator = Ice.Util.initialize(args);
+            status = run(args, communicator);
+        }
+        catch(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            status = 1;
+        }
+
+        if(communicator != null)
+        {
+            try
+            {
+                communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+                status = 1;
+            }
+        }
+
+        System.exit(status);
     }
 }

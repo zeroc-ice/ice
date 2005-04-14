@@ -27,8 +27,6 @@ public class BasicStream
         _readEncapsCache = null;
         _writeEncapsCache = null;
 	
-	_traceSlicing = -1;
-
         _sliceObjects = true;
 
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
@@ -1228,19 +1226,6 @@ public class BasicStream
 	    }
 	    else
 	    {
-		//
-		// Performance sensitive, so we use lazy
-		// initialization for tracing.
-		//
-		if(_traceSlicing == -1)
-		{
-		    _traceSlicing = _instance.traceLevels().slicing;
-		    _slicingCat = _instance.traceLevels().slicingCat;
-		}
-		if(_traceSlicing > 0)
-		{
-		    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
-		}
 	        skipSlice(); // Slice off what we don't understand.
 		id = readString(); // Read type id for next slice.
 	    }
@@ -1638,9 +1623,6 @@ public class BasicStream
 
     private int _readSlice;
     private int _writeSlice;
-
-    private int _traceSlicing;
-    private String _slicingCat;
 
     private boolean _sliceObjects;
 

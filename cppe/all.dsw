@@ -582,21 +582,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ctrlchandler"=.\test\iceutil\ctrlchandler\ctrlchandler.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "exceptionsC"=.\test\ice\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>

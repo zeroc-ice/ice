@@ -112,7 +112,6 @@ Ice:
     Default.Router
     Logger.Timestamp
     MessageSizeMax
-    Nohup
     NullHandleAbort
     Override.ConnectTimeout
     Override.Timeout

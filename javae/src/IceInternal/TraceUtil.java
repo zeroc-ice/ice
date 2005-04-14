@@ -198,17 +198,6 @@ public final class TraceUtil
 
     private static java.util.Set slicingIds = new java.util.HashSet();
 
-    synchronized static void
-    traceSlicing(String kind, String typeId, String slicingCat, Ice.Logger logger)
-    {
-	if(slicingIds.add(typeId))
-	{
-	    java.io.StringWriter s = new java.io.StringWriter();
-	    s.write("unknown " + kind + " type `" + typeId + "'");
-	    logger.trace(slicingCat, s.toString());
-	}
-    }
-
     public static void
     dumpStream(BasicStream stream)
     {
