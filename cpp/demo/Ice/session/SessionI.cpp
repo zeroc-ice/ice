@@ -61,17 +61,17 @@ SessionI::createHello(const Ice::Current&)
 }
 
 void
-SessionI::destroy(const Ice::Current& c)
-{
-    Lock sync(*this);
-    _destroy = true;
-}
-
-void
 SessionI::refresh(const Ice::Current& c)
 {
     Lock sync(*this);
     _refreshTime = IceUtil::Time::now();
+}
+
+void
+SessionI::destroy(const Ice::Current& c)
+{
+    Lock sync(*this);
+    _destroy = true;
 }
 
 bool

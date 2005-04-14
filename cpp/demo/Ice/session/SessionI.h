@@ -21,10 +21,14 @@ public:
     virtual ~SessionI();
 
     virtual ::Demo::HelloPrx createHello(const Ice::Current&);
-    virtual void destroy(const Ice::Current&);
     virtual void refresh(const Ice::Current&);
+    virtual void destroy(const Ice::Current&);
 
+    // Return true if the session is destroyed, false otherwise.
     bool destroyed() const;
+
+    // Called when the session is destroyed. This should release any
+    // per-client allocated resources.
     void destroyCallback();
 
 private:
