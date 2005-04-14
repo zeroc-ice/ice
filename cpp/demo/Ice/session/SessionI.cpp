@@ -55,6 +55,7 @@ SessionI::~SessionI()
 HelloPrx
 SessionI::createHello(const Ice::Current&)
 {
+    Lock sync(*this);
     HelloPrx hello = HelloPrx::uncheckedCast(_adapter->addWithUUID(new HelloI(_nextId++)));
     _objs.push_back(hello);
     return hello;
@@ -85,7 +86,7 @@ void
 SessionI::destroyCallback()
 {
     Lock sync(*this);
-    cout << "destroying session: _destroy=" << _destroy << " timeout="
+    cout << "SessionI::destroyCallback: _destroy=" << _destroy << " timeout="
 	 << ((IceUtil::Time::now()-_refreshTime) > _timeout) << endl;
     for(list<HelloPrx>::const_iterator p = _objs.begin(); p != _objs.end(); ++p)
     {
