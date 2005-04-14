@@ -51,8 +51,8 @@ public:
 
 private:
 
-    const IceUtil::Time _timeout;
     const Ice::ObjectAdapterPtr _adapter;
+    const IceUtil::Time _timeout;
     ReapThreadPtr _reapThread;
     std::list<std::pair<SessionIPtr, ::Ice::Identity> > _sessions;
 };

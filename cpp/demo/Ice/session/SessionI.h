@@ -34,7 +34,7 @@ private:
     int _nextId;
     bool _destroy;
     IceUtil::Time _refreshTime;
-    std::list<::Demo::HelloPrx> _objs;
+    std::list< ::Demo::HelloPrx> _objs;
 };
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
