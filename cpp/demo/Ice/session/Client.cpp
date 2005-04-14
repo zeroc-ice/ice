@@ -73,7 +73,7 @@ menu()
     cout <<
 	"usage:\n"
 	"c:     create new hello\n"
-	"0-9:   greeting identified hello object\n"
+	"0-9:   greet hello object\n"
 	"s:     shutdown server\n"
 	"x:     exit\n"
 	"?:     help\n";
@@ -131,7 +131,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		}
 		else
 		{
-		    cout << "index is too high. " << hellos.size() << " exist so far." << endl;
+		    cout << "index is too high. " << hellos.size() << " exist so far. "
+			 << "Use 'c' to create a new hello object." << endl;
 		}
 	    }
 	    else if(c == 'c')
