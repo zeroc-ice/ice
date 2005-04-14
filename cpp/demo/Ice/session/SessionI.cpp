@@ -90,7 +90,15 @@ SessionI::destroyCallback()
 	 << ((IceUtil::Time::now()-_refreshTime) > _timeout) << endl;
     for(list<HelloPrx>::const_iterator p = _objs.begin(); p != _objs.end(); ++p)
     {
-	_adapter->remove((*p)->ice_getIdentity());
+	try
+	{
+	    _adapter->remove((*p)->ice_getIdentity());
+	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	    // This method is called on shutdown of the server, in
+	    // which case this exception is expected.
+	}
     }
     _objs.clear();
 }

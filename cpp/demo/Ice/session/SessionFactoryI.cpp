@@ -111,30 +111,15 @@ SessionFactoryI::destroy()
     _reapThread->getThreadControl().join();
     _reapThread = 0;
 
-    //
-    // XXX: There is an issue. This is called post after the
-    // communicator->waitForShutdown() has been called. Then it
-    // attempts to unregister each of the objects from the OA. This
-    // causes an ObjectAdapterDeactivatedException. I think you should
-    // be permitted to unregister objects even if the OA has been
-    // deactivated. Note the documentation in the slice doesn't say
-    // that you cannot call remove after the OA has been deactivated.
-    //
-    // Either Ice must be fixed, or destroy() should be called from
-    // shutdown() (which isn't nice since it means I need a _destroy
-    // flag, plus other things since other calls could be in
-    // progress), or I must catch ObjectAdapaterDeactivateException,
-    // or destroy() shouldn't call destroyCallback() on the sessions
-    // (which I also don't think is very nice).
-    //
-/*
     for(list<pair<SessionIPtr, Ice::Identity> >::const_iterator p = _sessions.begin();
 	p != _sessions.end();
 	++p)
     {
 	p->first->destroyCallback();
-	_adapter->remove(p->second);
+
+    	// When the session factory is destroyed the OA is deactivated
+    	// and all servants have been // removed so calling remove on
+    	// the OA is not necessary.
     }
     _sessions.clear();
-*/
 }
