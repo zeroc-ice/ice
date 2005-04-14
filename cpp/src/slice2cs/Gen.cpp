@@ -1320,7 +1320,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << sb;
 	_out << nl << "if(__rid)";
 	_out << sb;
-	_out << nl << "string myId = __is.readTypeId();";
+	_out << nl << "/* string myId = */ __is.readTypeId();";
 	_out << eb;
 	_out << nl << "__is.startReadSlice();";
 	DataMemberList classMembers = p->classDataMembers();
@@ -1370,7 +1370,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << sb;
 	    _out << nl << "if(__rid)";
 	    _out << sb;
-	    _out << nl << "string myId = __in.readTypeId();";
+	    _out << nl << "/* string myId = */ __in.readTypeId();";
 	    _out << eb;
 	    _out << nl << "__in.startSlice();";
 	    for(d = members.begin(); d != members.end(); ++d)
@@ -1958,7 +1958,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
 	_out << nl << "if(__rid)";
 	_out << sb;
-	_out << nl << "string myId = __is.readString();";
+	_out << nl << "/* string myId = */ __is.readString();";
 	_out << eb;
 	_out << nl << "__is.startReadSlice();";
 	DataMemberList classMembers = p->classDataMembers();
@@ -2009,7 +2009,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    _out << sb;
 	    _out << nl << "if(__rid)";
 	    _out << sb;
-	    _out << nl << "string myId = __in.readString();";
+	    _out << nl << "/* string myId = */ __in.readString();";
 	    _out << eb;
 	    _out << nl << "__in.startSlice();";
 	    classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
