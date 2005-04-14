@@ -19,6 +19,7 @@ Module throughputC
 	Console.Out.WriteLine("1: sequence of bytes (default)")
         Console.Out.WriteLine("2: sequence of strings(""hello"")")
         Console.Out.WriteLine("3: sequence of structs with a string (""hello"") and a double")
+        Console.Out.WriteLine("4: sequence of structs with two ints and a double")
 	Console.Out.WriteLine()
         Console.Out.WriteLine("select test to run:")
 	Console.Out.WriteLine("t: Send sequence as twoway")
@@ -62,6 +63,13 @@ Module throughputC
             structSeq(i).d = 3.14
         Next
 
+        Dim fixedSeq() As Fixed = New Fixed(FixedSeqSize.value - 1) {}
+        For i As Integer = 0 To FixedSeqSize.value - 1
+            fixedSeq(i).i = 0
+            fixedSeq(i).j = 0
+            fixedSeq(i).d = 0
+        Next
+
         menu()
 
         throughput.ice_ping() ' Initial ping to setup the connection.
@@ -86,7 +94,7 @@ Module throughputC
 
                 Dim repetitions As Integer = 100
 
-                If line.Equals("1") Or line.Equals("2") Or line.Equals("3") Then
+                If line.Equals("1") Or line.Equals("2") Or line.Equals("3") Or line.Equals("4") Then
                     currentType = line.Chars(0)
                     Select Case currentType
                         Case "1"
@@ -96,8 +104,11 @@ Module throughputC
                             Console.WriteLine("using string sequences")
                             seqSize = StringSeqSize.value
                         Case "3"
-                            Console.WriteLine("using struct sequences")
+                            Console.WriteLine("using variable-length struct sequences")
                             seqSize = StringDoubleSeqSize.value
+                        Case "4"
+                            Console.WriteLine("using fixed-length struct sequences")
+                            seqSize = FixedSeqSize.value
                     End Select
                 ElseIf line.Equals("t") Or line.Equals("o") Or line.Equals("r") Or line.Equals("e") Then
                     Dim c As Char = line.Chars(0)
@@ -120,7 +131,9 @@ Module throughputC
                         Case "2"
                             Console.Write(" string")
                         Case "3"
-                            Console.Write(" struct")
+                            Console.Write(" variable-length struct")
+                        Case "4"
+                            Console.Write(" fixed-length struct")
                     End Select
                     Console.Write(" sequences of size " & seqSize)
 
@@ -167,6 +180,17 @@ Module throughputC
                                     Case "e"
                                         throughput.echoStructSeq(structSeq)
                                 End Select
+                            Case "4"
+                                Select Case c
+                                    Case "t"
+                                        throughput.sendFixedSeq(fixedSeq)
+                                    Case "o"
+                                        throughputOneway.sendFixedSeq(fixedSeq)
+                                    Case "r"
+                                        throughput.recvFixedSeq()
+                                    Case "e"
+                                        throughput.echoFixedSeq(fixedSeq)
+                                End Select
                         End Select
                     Next
 
@@ -182,6 +206,8 @@ Module throughputC
                         Case "3"
                             wireSize = structSeq(0).s.Length
                             wireSize += 8 ' Size of double on the wire.
+                        Case "4"
+                            wireSize = 16 ' Size of two ints and a double on the wire.
                     End Select
                     Dim mbit As Double = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0
                     If c = "e" Then

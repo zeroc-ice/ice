@@ -27,6 +27,15 @@ struct StringDouble
 sequence<StringDouble> StringDoubleSeq;
 const int StringDoubleSeqSize = 50000;
 
+struct Fixed
+{
+    int i;
+    int j;
+    double d;
+};
+sequence<Fixed> FixedSeq;
+const int FixedSeqSize = 50000;
+
 interface Throughput
 {
     void sendByteSeq(ByteSeq seq);
@@ -40,6 +49,10 @@ interface Throughput
     void sendStructSeq(StringDoubleSeq seq);
     StringDoubleSeq recvStructSeq();
     StringDoubleSeq echoStructSeq(StringDoubleSeq seq);
+
+    void sendFixedSeq(FixedSeq seq);
+    FixedSeq recvFixedSeq();
+    FixedSeq echoFixedSeq(FixedSeq seq);
 
     idempotent void shutdown();
 };

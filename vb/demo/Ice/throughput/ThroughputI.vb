@@ -23,6 +23,12 @@ Public NotInheritable Class ThroughputI
             _structSeq(i).s = "hello"
             _structSeq(i).d = 3.14
         Next
+        _fixedSeq = New Fixed(FixedSeqSize.value) {}
+        For i As Integer = 0 To FixedSeqSize.value - 1
+            _fixedSeq(i).i = 0
+            _fixedSeq(i).j = 0
+            _fixedSeq(i).d = 0
+        Next
     End Sub
 
     Public Overloads Overrides Sub sendByteSeq(ByVal seq() As Byte, ByVal current As Ice.Current)
@@ -58,6 +64,17 @@ Public NotInheritable Class ThroughputI
         Return seq
     End Function
 
+    Public Overloads Overrides Sub sendFixedSeq(ByVal seq() As Fixed, ByVal current As Ice.Current)
+    End Sub
+
+    Public Overloads Overrides Function recvFixedSeq(ByVal current As Ice.Current) As Fixed()
+        Return _fixedSeq
+    End Function
+
+    Public Overloads Overrides Function echoFixedSeq(ByVal seq As Fixed(), ByVal current As Ice.Current) As Fixed()
+        Return seq
+    End Function
+
     Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
         current.adapter.getCommunicator().shutdown()
     End Sub
@@ -65,5 +82,6 @@ Public NotInheritable Class ThroughputI
     Private _byteSeq() As Byte
     Private _stringSeq() As String
     Private _structSeq() As StringDouble
+    Private _fixedSeq() As Fixed
 
 End Class
