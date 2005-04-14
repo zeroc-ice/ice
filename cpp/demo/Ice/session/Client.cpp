@@ -9,24 +9,20 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
-#include <HelloSession.h>
+#include <Session.h>
 
 using namespace std;
 using namespace Demo;
 
-//
-// This thread pings the session object with the given timeout frequency.
-//
 class SessionRefreshThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SessionRefreshThread(const Ice::LoggerPtr& logger, const SessionPrx& session,
-			 const IceUtil::Time& timeout) :
+    SessionRefreshThread(const Ice::LoggerPtr& logger, const SessionPrx& session) :
 	_logger(logger),
 	_session(session),
 	_destroy(false),
-	_timeout(timeout)
+	_timeout(IceUtil::Time::seconds(5))
     {
     }
 
@@ -41,9 +37,6 @@ public:
 	    {
 		break;
 	    }
-    	    //
-	    // If the refresh fails we're done.
-	    //
 	    try
 	    {
 		_session->refresh();
@@ -68,7 +61,7 @@ public:
 private:
 
     const Ice::LoggerPtr _logger;
-    const SessionPrx _session;
+    SessionPrx _session;
     bool _destroy;
     const IceUtil::Time _timeout;
 };
@@ -79,17 +72,18 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"h: send greeting\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+	"c:     create new hello\n"
+	"0-9:   greeting identified hello object\n"
+	"s:     shutdown server\n"
+	"x:     exit\n"
+	"?:     help\n";
 }
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "SessionManager.Proxy";
+    const char* proxyProperty = "SessionFactory.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
@@ -97,30 +91,25 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    //
-    // Get the session manager object, and create a session.
-    //
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    SessionManagerPrx manager = SessionManagerPrx::checkedCast(base);
-    if(!manager)
+    SessionFactoryPrx factory = SessionFactoryPrx::checkedCast(base);
+    if(!factory)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    HelloSessionPrx hello = HelloSessionPrx::uncheckedCast(manager->create());
-    if(!hello)
+    SessionPrx session = factory->create();
+    if(!session)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    //
-    // Create a thread to ping the object at regular intervals.
-    //
-    SessionRefreshThreadPtr refresh = new SessionRefreshThread(
-	communicator->getLogger(), hello, IceUtil::Time::seconds(5));
+    SessionRefreshThreadPtr refresh = new SessionRefreshThread(communicator->getLogger(), session);
     refresh->start();
+
+    vector<HelloPrx> hellos;
 
     menu();
 
@@ -131,13 +120,28 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    cout << "==> ";
 	    char c;
 	    cin >> c;
-	    if(c == 'h')
+	    if(isdigit(c))
 	    {
-		hello->sayHello();
+		string s;
+		s += c;
+		vector<HelloPrx>::size_type index = atoi(s.c_str());
+		if(index < hellos.size())
+		{
+		    hellos[index]->sayHello();
+		}
+		else
+		{
+		    cout << "index is too high. " << hellos.size() << " exist so far." << endl;
+		}
+	    }
+	    else if(c == 'c')
+	    {
+		hellos.push_back(session->createHello());
+		cout << "created hello object " << hellos.size()-1 << endl;
 	    }
 	    else if(c == 's')
 	    {
-		manager->shutdown();
+		factory->shutdown();
 	    }
 	    else if(c == 'x')
 	    {
@@ -154,21 +158,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	}
 	while(cin.good());
-
-    	//
-	// Destroy the session before we finish.
-	//
-	hello->destroy();
+	session->destroy();
     }
     catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
     }
 
-    //
-    // Destroy the ping thread, and join with it to ensure that it
-    // actually completes.
-    //
     refresh->destroy();
     refresh->getThreadControl().join();
 

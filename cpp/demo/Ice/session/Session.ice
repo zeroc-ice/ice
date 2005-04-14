@@ -13,49 +13,44 @@
 module Demo
 {
 
-/** XXX Comment missing XXX **/
+/** Hello object. */
+interface Hello
+{
+    /** Send a greeting. */
+    nonmutating void sayHello();
+};
 
+/**
+ * The session object. This is used to create per-session objects on
+ * behalf of the client. If it is not refreshed on a periodic basis it
+ * will be automatically reclaimed by the session factory.
+ */
 interface Session
 {
     /**
-     *
-     * Refresh this session. If a session is not refreshed on a
-     * regular basis by the client it will be automatically destroyed.
-     *
+     * Create a new per-session hello object. The created object will
+     * be automatically destroyed when the session is destroyed.
+     */
+    Hello* createHello();
+
+    /**
+     * Refresh a session. If a session is not refreshed on a regular
+     * basis by the client it will be automatically destroyed.
      **/
     void refresh();
 
-    /**
-     *
-     * Callback that the session has been destroyed. XXX I don't understand this method. Who calls this? Isn't this server-side only? If so, it doesn't belong into the contract. XXX
-     *
-     **/
-    void destroyed();
-
-    /**
-     *
-     * Destroy this session.
-     *
-     **/
+    /** Mark the session as destroyed. */
     void destroy();
 };
 
-/** XXX Comment missing. Why "SessionManager"? From the contract perspective, this is a SessionFactory. XXX **/
-interface SessionManager
+/** The SessionFactory. */
+interface SessionFactory
 {
-    /**
-     *
-     * Create a new session.
-     *
-     **/
+    /** Create a new session. */
     Session* create();
 
-    /**
-     *
-     * Shutdown the server.
-     *
-     **/
-    void shutdown();
+    /** Shutdown the server. */
+    idempotent void shutdown();
 };
 
 };

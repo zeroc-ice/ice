@@ -91,18 +91,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\HelloSession.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloSessionI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloSessionManagerI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
@@ -111,7 +99,11 @@ SOURCE=.\Session.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SessionManagerI.cpp
+SOURCE=.\SessionFactoryI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SessionI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -119,65 +111,20 @@ SOURCE=.\SessionManagerI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\HelloSession.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloSessionI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloSessionManagerI.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Session.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SessionManagerI.h
+SOURCE=.\SessionFactoryI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SessionI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\HelloSession.ice
-
-!IF  "$(CFG)" == "sessionS - Win32 Release"
-
-# Begin Custom Build
-InputPath=.\HelloSession.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. HelloSession.ice
-
-"HelloSession.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"HelloSession.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "sessionS - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\HelloSession.ice
-
-BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I. HelloSession.ice
-
-"HelloSession.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"HelloSession.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
 # Begin Source File
 
 SOURCE=.\Session.ice

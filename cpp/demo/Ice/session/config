@@ -1,15 +1,15 @@
 #
 # The client reads this property to create the reference to the
-# "SessionManager" object in the server.
+# "hello" object in the server.
 #
-SessionManager.Proxy=SessionManager:default -p 10000
+SessionFactory.Proxy=SessionFactory:default -p 10000
 
 #
 # The server creates one single object adapter with the name
-# "SessionManager". The following line sets the endpoints for this
+# "Hello". The following line sets the endpoints for this
 # adapter.
 #
-SessionManager.Endpoints=default -p 10000
+SessionFactory.Endpoints=default -p 10000
 
 #
 # Warn about connection exceptions

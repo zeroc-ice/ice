@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <HelloSessionManagerI.h>
+#include <SessionFactoryI.h>
 
 using namespace std;
 using namespace Demo;
@@ -16,12 +16,12 @@ using namespace Demo;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionManager");
-    SessionManagerIPtr manager = new HelloSessionManagerI(communicator);
-    adapter->add(manager, Ice::stringToIdentity("SessionManager"));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionFactory");
+    SessionFactoryIPtr factory = new SessionFactoryI(adapter);
+    adapter->add(factory, Ice::stringToIdentity("SessionFactory"));
     adapter->activate();
     communicator->waitForShutdown();
-    manager->destroy();
+    factory->destroy();
     return EXIT_SUCCESS;
 }
 
