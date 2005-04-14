@@ -18,7 +18,7 @@ class SessionI : public ::Demo::Session, public IceUtil::Mutex
 public:
 
     SessionI(const Ice::ObjectAdapterPtr&, const IceUtil::Time&);
-    ~SessionI();
+    virtual ~SessionI();
 
     virtual ::Demo::HelloPrx createHello(const Ice::Current&);
     virtual void destroy(const Ice::Current&);

@@ -23,7 +23,7 @@ class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mute
 public:
 
     ReapThread(const SessionFactoryIPtr&, const IceUtil::Time&);
-    ~ReapThread();
+    virtual ~ReapThread();
 
     virtual void run();
     void destroy();
@@ -41,7 +41,7 @@ class SessionFactoryI : public ::Demo::SessionFactory, public IceUtil::Mutex
 public:
 
     SessionFactoryI(const Ice::ObjectAdapterPtr&);
-    ~SessionFactoryI();
+    virtual ~SessionFactoryI();
 
     virtual ::Demo::SessionPrx create(const ::Ice::Current&);
     virtual void shutdown(const Ice::Current&);
