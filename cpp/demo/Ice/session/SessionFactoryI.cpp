@@ -77,8 +77,6 @@ SessionFactoryI::create(const Ice::Current& c)
 void
 SessionFactoryI::shutdown(const ::Ice::Current& c)
 {
-    Lock sync(*this);
-
     cout << "Shutting down..." << endl;
     c.adapter->getCommunicator()->shutdown();
 }
