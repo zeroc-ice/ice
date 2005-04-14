@@ -159,7 +159,6 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		string prefix = pfx;
 		if(pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
 		{
 		    pfx += '.';

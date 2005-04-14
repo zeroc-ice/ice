@@ -30,8 +30,6 @@ public class Client
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Ice.Properties properties = communicator.getProperties();
-
 	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Query"));
 
 	Ice.ObjectPrx @base = null;

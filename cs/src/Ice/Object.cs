@@ -215,7 +215,7 @@ namespace Ice
 
             if(__rid)
             {
-                string myId = __is.readTypeId();
+                /* string myId = */ __is.readTypeId();
             }
 	    
             __is.startReadSlice();
@@ -242,7 +242,7 @@ namespace Ice
 	{
 	    if(__rid)
 	    {
-		string myId = __in.readTypeId();
+		/* string myId = */ __in.readTypeId();
 	    }
 
 	    __in.startSlice();

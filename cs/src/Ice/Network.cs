@@ -292,7 +292,7 @@ namespace IceInternal
 		catch(SocketException)
 		{
 		}
-		Ice.SocketException se = new Ice.SocketException("Cannot read receive buffer size", ex);
+		throw new Ice.SocketException("Cannot read receive buffer size", ex);
 	    }
 	    return sz;
 	}

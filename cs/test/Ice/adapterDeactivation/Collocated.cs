@@ -20,7 +20,7 @@ public class Collocated
 	    Ice.ServantLocator locator = new ServantLocatorI();
 	    adapter.addServantLocator(locator, "");
 
-            TestIntfPrx obj = AllTests.allTests(communicator());
+            AllTests.allTests(communicator());
             
 	    adapter.waitForDeactivate();
             return 0;

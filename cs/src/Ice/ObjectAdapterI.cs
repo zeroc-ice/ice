@@ -460,7 +460,6 @@ namespace Ice
 		// Create a reference and return a reverse proxy for this
 		// reference.
 		//
-		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		ConnectionI[] arr = new ConnectionI[connections.Count];
 		if(arr.Length != 0)
 		{
@@ -620,7 +619,7 @@ namespace Ice
 		f = new ArrayList(_incomingConnectionFactories);
 	    }
 
-	    foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+	    foreach(IceInternal.IncomingConnectionFactory factory in f)
 	    {
 		factory.flushBatchRequests();
 	    }
@@ -791,8 +790,6 @@ namespace Ice
 		// Create a reference with the adapter id and return a
 		// proxy for the reference.
 		//
-		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-		ConnectionI[] connections = new ConnectionI[0];
 		IceInternal.Reference reference =
 		    _instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.Mode.ModeTwoway,
 							false, _id, null, _locatorInfo, true);
@@ -842,7 +839,6 @@ namespace Ice
 	    //
 	    // Create a reference and return a proxy for this reference.
 	    //
-	    ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.Mode.ModeTwoway,
                                                     false, endpoints, null, true);

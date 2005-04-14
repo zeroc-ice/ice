@@ -137,7 +137,7 @@ namespace Ice
 			{
 			    throw new ConnectionNotValidatedException();
 			}
-			byte compress = ins.readByte(); // Ignore compression status for validate connection.
+			ins.readByte(); // Ignore compression status for validate connection.
 			int size = ins.readInt();
 			if(size != IceInternal.Protocol.headerSize)
 			{
@@ -161,7 +161,7 @@ namespace Ice
 	    {
 		if(_acmTimeout > 0)
 		{
-		    long _acmAbsolutetimoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		}
 		
 		//
@@ -904,7 +904,6 @@ namespace Ice
 		// Create a reference and return a reverse proxy for this
 		// reference.
 		//
-		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 		ConnectionI[] connections = new ConnectionI[1];
 		connections[0] = this;
 		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",

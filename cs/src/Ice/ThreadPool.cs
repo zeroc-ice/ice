@@ -719,8 +719,8 @@ namespace IceInternal
 		throw e;
 	    }
 	    
-	    byte messageType = stream.readByte();
-	    byte compress = stream.readByte();
+	    stream.readByte(); // Message type.
+	    stream.readByte(); // Compression status.
 	    int size = stream.readInt();
 	    if(size < Protocol.headerSize)
 	    {

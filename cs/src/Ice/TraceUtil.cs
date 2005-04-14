@@ -362,18 +362,17 @@ namespace IceInternal
 	{
 	    try
 	    {
-		byte magic;
-		magic = stream.readByte(); // Don't bother printing the magic number
-		magic = stream.readByte();
-		magic = stream.readByte();
-		magic = stream.readByte();
+		stream.readByte(); // Don't bother printing the magic number
+		stream.readByte();
+		stream.readByte();
+		stream.readByte();
 		
-		byte pMajor = stream.readByte();
-		byte pMinor = stream.readByte();
+		/* byte pMajor = */ stream.readByte();
+		/* byte pMinor = */ stream.readByte();
 		//o.Write("\nprotocol version = " + (int)pMajor + "." + (int)pMinor);
 		
-		byte eMajor = stream.readByte();
-		byte eMinor = stream.readByte();
+		/* byte eMajor = */ stream.readByte();
+		/* byte eMinor = */ stream.readByte();
 		//o.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 		
 		byte type = stream.readByte();

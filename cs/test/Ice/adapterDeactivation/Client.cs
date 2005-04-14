@@ -15,7 +15,7 @@ public class Client
     {
         public override int run(string[] args)
         {
-            TestIntfPrx obj = AllTests.allTests(communicator());
+            AllTests.allTests(communicator());
             return 0;
         }
     }
