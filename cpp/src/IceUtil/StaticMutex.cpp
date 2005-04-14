@@ -48,7 +48,6 @@ static Init _init;
 Init::Init()
 {
     InitializeCriticalSection(&_criticalSection);
-
     _mutexList = new MutexList;
 }
 
@@ -70,35 +69,43 @@ Init::~Init()
 }
 }
 
-//
-// For full thread-safety, we assume that _mutexInitialized cannot be seen as true
-// before CRITICAL_SECTION has been updated. This is true on x86. Does IA64 
-// provide the same memory ordering guarantees?
-//
-
 void IceUtil::StaticMutex::initialize() const
 {
+    //
+    // Yes, a double-check locking. It should be safe since we use memory barriers
+    // (through InterlockedCompareExchangePointer) in both reader and writer threads
+    //
     EnterCriticalSection(&_criticalSection);
-    if(!_mutexInitialized)
+
+    //
+    // The second check
+    //
+    if(_mutex == 0)
     {
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
-	_mutex = new CRITICAL_SECTION;
-	InitializeCriticalSection(_mutex);
-	_mutexList->push_back(_mutex);
+	CRITICAL_SECTION* newMutex = new CRITICAL_SECTION;
+	InitializeCriticalSection(newMutex);
 #   else
 	_recursionCount = 0;
-	_mutex = CreateMutex(0, false, 0);
-	if(_mutex == 0)
+	
+	HANDLE newMutex = CreateMutex(0, false, 0);
+	if(newMutex == 0)
 	{
+	    LeaveCriticalSection(&_criticalSection);
 	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
 	}
-	_mutexList->push_back(_mutex);
 #   endif
-	_mutexInitialized = true;
+
+	//
+	// _mutex is written after the new initialized CRITICAL_SECTION/Mutex
+	//
+	void* oldVal = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&_mutex), newMutex, 0);
+	assert(oldVal == 0);
+	_mutexList->push_back(_mutex);
+
     }
     LeaveCriticalSection(&_criticalSection);
 }
-
 #endif
 
 IceUtil::StaticMutex IceUtil::globalMutex = ICE_STATIC_MUTEX_INITIALIZER;

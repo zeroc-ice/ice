@@ -14,6 +14,16 @@
 #include <IceUtil/Lock.h>
 #include <IceUtil/ThreadException.h>
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// Old versions of the Platform SDK don't have InterlockedCompareExchangePointer
+//
+#   ifndef InterlockedCompareExchangePointer
+#      define InterlockedCompareExchangePointer(Destination, ExChange, Comperand) \
+          InterlockedCompareExchange(Destination, ExChange, Comperand)
+#   endif
+#endif
+
 namespace IceUtil
 {
 
@@ -55,7 +65,6 @@ public:
 
 
 #ifdef _WIN32
-    mutable bool             _mutexInitialized;
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     mutable CRITICAL_SECTION* _mutex;
 #   else
@@ -94,6 +103,7 @@ private:
     void lock(LockState&) const;
 
 #ifdef _WIN32
+    inline bool initialized() const;
     ICE_UTIL_API void initialize() const;
 #endif
 
@@ -104,7 +114,7 @@ private:
 };
 
 #ifdef _WIN32
-#   define ICE_STATIC_MUTEX_INITIALIZER { false }
+#   define ICE_STATIC_MUTEX_INITIALIZER { 0 }
 #else
 #   define ICE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
 #endif
@@ -121,12 +131,23 @@ extern ICE_UTIL_API StaticMutex globalMutex;
 
 #ifdef _WIN32
 
+inline bool 
+StaticMutex::initialized() const
+{
+    //
+    // Read mutex and then inserts a memory barrier to ensure we can't 
+    // see tmp != 0 before we see the initialized object
+    //
+    void* tmp = _mutex;
+    return InterlockedCompareExchangePointer(reinterpret_cast<void**>(&tmp), 0, 0) != 0;
+}
+
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
 
 inline void
 StaticMutex::lock() const
 {
-    if (!_mutexInitialized)
+    if(!initialized())
     {
 	initialize();
     }
@@ -137,7 +158,7 @@ StaticMutex::lock() const
 inline bool
 StaticMutex::tryLock() const
 {
-    if (!_mutexInitialized)
+    if(!initialized())
     {
 	initialize();
     }
@@ -156,7 +177,7 @@ StaticMutex::tryLock() const
 inline void
 StaticMutex::unlock() const
 {
-    assert(_mutexInitialized);
+    assert(_mutex != 0);
     assert(_mutex->RecursionCount == 1);
     LeaveCriticalSection(_mutex);
 }
@@ -164,14 +185,15 @@ StaticMutex::unlock() const
 inline void
 StaticMutex::unlock(LockState&) const
 {
-    assert(_mutexInitialized);
+    assert(_mutex != 0);
+    assert(_mutex->RecursionCount == 1);
     LeaveCriticalSection(_mutex);
 }
 
 inline void
 StaticMutex::lock(LockState&) const
 {
-    if (!_mutexInitialized)
+    if(!initialized())
     {
 	initialize();
     }
@@ -183,7 +205,7 @@ StaticMutex::lock(LockState&) const
 inline void
 StaticMutex::lock() const
 {
-    if (!_mutexInitialized)
+    if(!initialized())
     {
 	initialize();
     }
@@ -207,7 +229,7 @@ StaticMutex::lock() const
 inline bool
 StaticMutex::tryLock() const
 {
-    if (!_mutexInitialized)
+    if(!initialized())
     {
 	initialize();
     }
