@@ -21,6 +21,7 @@ public class Client
         "1: sequence of bytes (default)\n" +
         "2: sequence of strings (\"hello\")\n" +
         "3: sequence of structs with a string (\"hello\") and a double\n" +
+        "4: sequence of structs with two ints and a double\n" +
         "\n" +
         "select test to run:\n" +
         "t: Send sequence as twoway\n" +
@@ -71,6 +72,15 @@ public class Client
 	    structSeq[i].d = 3.14;
 	}
 
+	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value];
+	for(int i = 0; i < FixedSeqSize.value; ++i)
+	{
+	    fixedSeq[i] = new Fixed();
+	    fixedSeq[i].i = 0;
+	    fixedSeq[i].j = 0;
+	    fixedSeq[i].d = 0;
+	}
+
 	menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
@@ -97,7 +107,7 @@ public class Client
 		long tmsec = System.currentTimeMillis();
 		final int repetitions = 100;
 
-		if(line.equals("1") || line.equals("2") || line.equals("3"))
+		if(line.equals("1") || line.equals("2") || line.equals("3") || line.equals("4"))
 		{
 		    currentType = line.charAt(0);
 
@@ -119,8 +129,15 @@ public class Client
 
 			case '3':
 			{
-			    System.out.println("using struct sequences");
+			    System.out.println("using variable-length struct sequences");
 			    seqSize = StringDoubleSeqSize.value;
+			    break;
+			}
+
+			case '4':
+			{
+			    System.out.println("using fixed-length struct sequences");
+			    seqSize = FixedSeqSize.value;
 			    break;
 			}
 		    }
@@ -168,7 +185,13 @@ public class Client
 
 		        case '3':
 			{
-			    System.out.print(" struct");
+			    System.out.print(" variable-length struct");
+			    break;
+			}
+
+		        case '4':
+			{
+			    System.out.print(" fixed-length struct");
 			    break;
 			}
 		    }
@@ -278,6 +301,37 @@ public class Client
 			        }
 				break;
 			    }
+
+			    case '4':
+			    {
+			        switch(c)
+			        {
+			            case 't':
+			            {
+				        throughput.sendFixedSeq(fixedSeq);
+				        break;
+			            }
+			    
+			            case 'o':
+			            {
+				        throughputOneway.sendFixedSeq(fixedSeq);
+				        break;
+			            }
+			    
+			            case 'r':
+			            {
+				        throughput.recvFixedSeq();
+				        break;
+			            }
+			    
+			            case 'e':
+			            {
+				        throughput.echoFixedSeq(fixedSeq);
+				        break;
+			            }
+			        }
+				break;
+			    }
 			}
 		    }
 
@@ -303,6 +357,12 @@ public class Client
 			{
 			    wireSize = structSeq[0].s.length();
 			    wireSize += 8; // Size of double on the wire.
+			    break;
+			}
+
+			case '4':
+			{
+			    wireSize = 16; // Size of two ints and a double on the wire.
 			    break;
 			}
 		    }
