@@ -43,19 +43,19 @@ public class Server
 	    communicator = Ice.Util.initialize(ref args);
 	    status = run(args, communicator);
 	}
-	catch (Ice.LocalException ex)
+	catch(Ice.LocalException ex)
 	{
 	    Console.Error.WriteLine(ex);
 	    status = 1;
 	}
 	
-	if (communicator != null)
+	if(communicator != null)
 	{
 	    try
 	    {
 		communicator.destroy();
 	    }
-	    catch (Ice.LocalException ex)
+	    catch(Ice.LocalException ex)
 	    {
 		Console.Error.WriteLine(ex);
 		status = 1;
