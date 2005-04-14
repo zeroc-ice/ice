@@ -223,19 +223,13 @@ final class UdpTransceiver implements Transceiver
     public String
     type()
     {
-        return _info.type();
+        return "udp";
     }
 
     public String
     toString()
     {
-        return _info.toString();
-    }
-
-    public Ice.TransportInfo
-    transportInfo()
-    {
-	return _info;
+        return Network.fdToString(_fd);
     }
 
     public final boolean
@@ -274,8 +268,6 @@ final class UdpTransceiver implements Transceiver
             _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
-
-	    _info = new Ice.UdpTransportInfoI(_fd);
 
             if(_traceLevels.network >= 1)
             {
@@ -317,8 +309,6 @@ final class UdpTransceiver implements Transceiver
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
             _addr = Network.doBind(_fd, _addr);
-
-	    _info = new Ice.UdpTransportInfoI(_fd);
 
             if(_traceLevels.network >= 1)
             {
@@ -431,7 +421,6 @@ final class UdpTransceiver implements Transceiver
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
-    private Ice.TransportInfo _info;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
