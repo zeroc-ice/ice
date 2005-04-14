@@ -19,7 +19,8 @@ public class Client
                            + "toggle type of data to send:\n"
                            + "1: sequence of bytes (default)\n"
                            + "2: sequence of strings (\"hello\")\n"
-                           + "3: sequence structs with a string (\"hello\") and a double\n"
+                           + "3: sequence of structs with a string (\"hello\") and a double\n"
+                           + "4: sequence of structs with two ints and a double\n"
                            + "\n"
                            + "select test to run:\n"
                            + "t: Send sequence as twoway\n"
@@ -67,6 +68,14 @@ public class Client
             structSeq[i].s = "hello";
             structSeq[i].d = 3.14;
         }
+
+	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value];
+	for(int i = 0; i < FixedSeqSize.value; ++i)
+	{
+	    fixedSeq[i].i = 0;
+	    fixedSeq[i].j = 0;
+	    fixedSeq[i].d = 0;
+	}
         
         menu();
         
@@ -94,7 +103,7 @@ public class Client
                 long tmsec = System.DateTime.Now.Ticks / 10000;
                 const int repetitions = 100;
 
-                if(line.Equals("1") || line.Equals("2") || line.Equals("3"))
+                if(line.Equals("1") || line.Equals("2") || line.Equals("3") || line.Equals("4"))
                 {
                     currentType = line[0];
                     switch(currentType)
@@ -113,8 +122,14 @@ public class Client
                         }
                         case '3':
                         {
-                            Console.WriteLine("using struct sequences");
+                            Console.WriteLine("using variable-length struct sequences");
                             seqSize = StringDoubleSeqSize.value;
+                            break;
+                        }
+                        case '4':
+                        {
+                            Console.WriteLine("using fixed-length struct sequences");
+                            seqSize = FixedSeqSize.value;
                             break;
                         }
                     } 
@@ -161,7 +176,12 @@ public class Client
                         }
                         case '3':
                         {
-                            Console.Write(" struct");
+                            Console.Write(" variable-length struct");
+                            break;
+                        }
+                        case '4':
+                        {
+                            Console.Write(" fixed-length struct");
                             break;
                         }
                     }
@@ -270,6 +290,37 @@ public class Client
                                 }
                                 break;
                             }
+
+                            case '4':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendFixedSeq(fixedSeq);
+                                        break;
+                                    }
+
+                                    case 'o': 
+                                    {
+                                        throughputOneway.sendFixedSeq(fixedSeq);
+                                        break;
+                                    }
+
+                                    case 'r': 
+                                    {
+                                        throughput.recvFixedSeq();
+                                        break;
+                                    }                            
+                        
+                                    case 'e': 
+                                    {
+                                        throughput.echoFixedSeq(fixedSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
                         }
                     }
         
@@ -293,6 +344,11 @@ public class Client
                         {
                             wireSize = structSeq[0].s.Length;
                             wireSize += 8; // Size of double on the wire.
+                            break;
+                        }
+                        case '4':
+                        {
+                            wireSize = 16; // Sizes of two ints and a double on the wire.
                             break;
                         }
                     }

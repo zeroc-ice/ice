@@ -25,6 +25,13 @@ public sealed class ThroughputI : _ThroughputDisp
             _structSeq[i].s = "hello";
             _structSeq[i].d = 3.14;
         }
+        _fixedSeq = new Fixed[FixedSeqSize.value];
+        for(int i = 0; i < FixedSeqSize.value; ++i)
+        {
+            _fixedSeq[i].i = 0;
+            _fixedSeq[i].j = 0;
+            _fixedSeq[i].d = 0;
+        }
     }
 
     public override void sendByteSeq(byte[] seq, Ice.Current current)
@@ -54,6 +61,7 @@ public sealed class ThroughputI : _ThroughputDisp
     {
         return seq;
     }
+
     public override void sendStructSeq(StringDouble[] seq, Ice.Current current)
     {
     }
@@ -68,6 +76,20 @@ public sealed class ThroughputI : _ThroughputDisp
         return seq;
     }
 
+    public override void sendFixedSeq(Fixed[] seq, Ice.Current current)
+    {
+    }
+
+    public override Fixed[] recvFixedSeq(Ice.Current current)
+    {
+        return _fixedSeq;
+    }
+
+    public override Fixed[] echoFixedSeq(Fixed[] seq, Ice.Current current)
+    {
+        return seq;
+    }
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
@@ -76,4 +98,5 @@ public sealed class ThroughputI : _ThroughputDisp
     private byte[] _byteSeq;
     private string[] _stringSeq;
     private StringDouble[] _structSeq;
+    private Fixed[] _fixedSeq;
 }
