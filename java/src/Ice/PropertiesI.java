@@ -162,7 +162,6 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized String[]
     parseCommandLineOptions(String pfx, String[] options)
     {
-	String prefix = pfx;
 	if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
 	{
 	    pfx += '.';
