@@ -41,9 +41,9 @@ private:
 SessionI::SessionI(const Ice::ObjectAdapterPtr& adapter, const IceUtil::Time& timeout) :
     _adapter(adapter),
     _timeout(timeout),
-    _nextId(0),
     _destroy(false),
-    _refreshTime(IceUtil::Time::now())
+    _refreshTime(IceUtil::Time::now()),
+    _nextId(0)
 {
 }
 

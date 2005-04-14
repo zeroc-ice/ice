@@ -22,6 +22,7 @@ ReapThread::ReapThread(const SessionFactoryIPtr& Factory, const IceUtil::Time& t
 
 ReapThread::~ReapThread()
 {
+    cout << "~ReapThread" << endl;
 }
 
 void
@@ -59,6 +60,7 @@ SessionFactoryI::SessionFactoryI(const Ice::ObjectAdapterPtr& adapter) :
 
 SessionFactoryI::~SessionFactoryI()
 {
+    cout << "~SessionFactoryI" << endl;
 }
 
 SessionPrx
@@ -105,6 +107,12 @@ SessionFactoryI::reap()
 void
 SessionFactoryI::destroy()
 {
+    Lock sync(*this);
+
+    _reapThread->destroy();
+    _reapThread->getThreadControl().join();
+    _reapThread = 0;
+
     //
     // XXX: There is an issue. This is called post after the
     // communicator->waitForShutdown() has been called. Then it
@@ -114,12 +122,14 @@ SessionFactoryI::destroy()
     // deactivated. Note the documentation in the slice doesn't say
     // that you cannot call remove after the OA has been deactivated.
     //
-    Lock sync(*this);
-
-    _reapThread->destroy();
-    _reapThread->getThreadControl().join();
-    _reapThread = 0;
-
+    // Either Ice must be fixed, or destroy() should be called from
+    // shutdown() (which isn't nice since it means I need a _destroy
+    // flag, plus other things since other calls could be in
+    // progress), or I must catch ObjectAdapaterDeactivateException,
+    // or destroy() shouldn't call destroyCallback() on the sessions
+    // (which I also don't think is very nice).
+    //
+/*
     for(list<pair<SessionIPtr, Ice::Identity> >::const_iterator p = _sessions.begin();
 	p != _sessions.end();
 	++p)
@@ -128,4 +138,5 @@ SessionFactoryI::destroy()
 	_adapter->remove(p->second);
     }
     _sessions.clear();
+*/
 }

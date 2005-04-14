@@ -34,11 +34,12 @@ public:
 private:
 
     const Ice::ObjectAdapterPtr _adapter;
-    const IceUtil::Time _timeout;
-    int _nextId;
-    bool _destroy;
-    IceUtil::Time _refreshTime;
-    std::list< ::Demo::HelloPrx> _objs;
+    const IceUtil::Time _timeout; // How long until the session times out.
+    bool _destroy; // true if destroy() was called, false otherwise.
+    IceUtil::Time _refreshTime; // The last time the session was refreshed.
+    
+    int _nextId; // The id of the next hello object. This is used for tracing purposes.
+    std::list< ::Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
 };
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
