@@ -14,28 +14,24 @@ SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Session.o \
-		  HelloSession.o
+OBJS		= Session.o
 
 COBJS		= Client.o
 
-SOBJS		= HelloSessionManagerI.o \
-		  HelloSessionI.o \
-		  SessionManagerI.o \
+SOBJS		= SessionFactoryI.o \
+		  SessionI.o \
 		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Session.ice \
-		  HelloSession.ice
+SLICE_SRCS	= Session.ice
 
 include $(top_srcdir)/config/Make.rules
 
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-SLICE2CPPFLAGS	:= -I. $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
