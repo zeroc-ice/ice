@@ -21,6 +21,7 @@ toggle type of data to send:
 1: sequence of bytes (default)
 2: sequence of strings (\"hello\")
 3: sequence of structs with a string (\"hello\") and a double
+4: sequence of structs with two ints and a double
 
 select test to run:
 t: Send sequence as twoway
@@ -64,6 +65,14 @@ def run(args, communicator):
         structSeq[i].s = "hello"
 	structSeq[i].d = 3.14
 
+    fixedSeq = []
+    fixedSeq[0:Demo.FixedSeqSize] = range(0, Demo.FixedSeqSize)
+    for i in range(0, Demo.FixedSeqSize):
+	fixedSeq[i] = Demo.Fixed()
+    	fixedSeq[i].i = 0
+    	fixedSeq[i].j = 0
+    	fixedSeq[i].d = 0.0
+
     menu()
 
     throughput.ice_ping() # Initial ping to setup the connection.
@@ -78,7 +87,7 @@ def run(args, communicator):
 
             repetitions = 100
 
-	    if c == '1' or c == '2' or c == '3':
+	    if c == '1' or c == '2' or c == '3' or c == '4':
 	        currentType = c
 		if c == '1':
 		    print "using byte sequences"
@@ -87,8 +96,11 @@ def run(args, communicator):
 		    print "using string sequences"
 		    seqSize = Demo.StringSeqSize
 		elif c == '3':
-		    print "using struct sequences"
+		    print "using variable-length struct sequences"
 		    seqSize = Demo.StringDoubleSeqSize
+		elif c == '4':
+		    print "using fixed-length struct sequences"
+		    seqSize = Demo.FixedSeqSize
             elif c == 't' or c == 'o' or c == 'r' or c == 'e':
                 if c == 't' or c == 'o':
                     print "sending",
@@ -103,7 +115,10 @@ def run(args, communicator):
 		elif currentType == '2':
 		    print "string",
 		elif currentType == '3':
-		    print "double",
+		    print "variable-length struct",
+		elif currentType == '4':
+		    print "fixed-length struct",
+		
 		
                 if c == 'o':
                     print "sequences of size %d as oneway..." % seqSize
@@ -140,6 +155,15 @@ def run(args, communicator):
                             throughput.recvStructSeq()
                         elif c == 'e':
                             throughput.echoStructSeq(structSeq)
+		    elif currentType == '4':
+                        if c == 't':
+                            throughput.sendFixedSeq(fixedSeq)
+                        elif c == 'o':
+                            throughputOneway.sendFixedSeq(fixedSeq)
+                        elif c == 'r':
+                            throughput.recvFixedSeq()
+                        elif c == 'e':
+                            throughput.echoFixedSeq(fixedSeq)
 
                 tsec = time.time() - tsec
                 tmsec = tsec * 1000.0
@@ -153,6 +177,8 @@ def run(args, communicator):
 		elif currentType == '3':
 		    wireSize = len(structSeq[0].s)
 		    wireSize += 8
+		elif currentType == '4':
+		    wireSize = 16
                 mbit = repetitions * seqSize * wireSize * 8.0 / tsec / 1000000.0
                 if c == 'e':
                     mbit = mbit * 2

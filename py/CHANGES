@@ -1,6 +1,8 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added sequences of fixed-length elements to throughput demo.
+
 - Added -E option to the various Slice compilers to print
   proprocessor output on stdout.
 

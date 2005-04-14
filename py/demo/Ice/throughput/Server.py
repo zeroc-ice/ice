@@ -30,6 +30,14 @@ class ThroughputI(Demo.Throughput):
 	    self.structSeq[i].s = "hello"
 	    self.structSeq[i].d = 3.14
 
+        self.fixedSeq = []
+        self.fixedSeq[0:Demo.FixedSeqSize] = range(0, Demo.FixedSeqSize)
+	for i in range(0, Demo.FixedSeqSize):
+	    self.fixedSeq[i] = Demo.Fixed()
+	    self.fixedSeq[i].i = 0
+	    self.fixedSeq[i].j = 0
+	    self.fixedSeq[i].d = 0.0
+
     def sendByteSeq(self, seq, current=None):
         pass
 
@@ -55,6 +63,15 @@ class ThroughputI(Demo.Throughput):
         return self.structSeq
 
     def echoStructSeq(self, seq, current=None):
+        return seq
+
+    def sendFixedSeq(self, seq, current=None):
+        pass
+
+    def recvFixedSeq(self, current=None):
+        return self.fixedSeq
+
+    def echoFixedSeq(self, seq, current=None):
         return seq
 
     def shutdown(self, current=None):
