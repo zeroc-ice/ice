@@ -3,14 +3,14 @@ Changes since version 2.1.0
 
 - Added sequences of fixed-length elements to throughput demo.
 
-- Added -E option to the various Slice compilers to print
-  proprocessor output on stdout.
+- Added -E option to the various Slice compilers to print preprocessor
+  output on stdout.
 
-- Fixed a bug in the option parsing for Ice tools such as
-  slice2cpp, slice2java, slice2cs, etc. The option parser
-  used to incorrectly complain about repeated options when
-  in fact no option was repeated. Also changed the parser
-  to permit options to follow an argument, so
+- Fixed a bug in the option parsing for Ice tools such as slice2cpp,
+  slice2java, slice2cs, etc. The option parser used to incorrectly
+  complain about repeated options when in fact no option was
+  repeated. Also changed the parser to permit options to follow an
+  argument, so
 
       slice2cpp -I. x.ice
 
