@@ -14,7 +14,9 @@ CLIENT		= client
 TARGETS		= $(CLIENT)
 
 OBJS		= Client.o \
-                  ByteIntMap.o
+                  ByteIntMap.o \
+                  IntIdentityMap.o \
+                  IntIdentityMapWithIndex.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -30,10 +32,19 @@ ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	rm -f ByteIntMap.h ByteIntMap.cpp
 	$(SLICE2FREEZE) --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
 
-clean::
-	rm -f ByteIntMap.h ByteIntMap.cpp
+IntIdentityMap.h IntIdentityMap.cpp: $(SLICE2FREEZE)
+	rm -f IntIdentityMap.h IntIdentityMap.cpp
+	$(SLICE2FREEZE) --ice $(SLICE2CPPFLAGS)  --dict Test::IntIdentityMap,int,Ice::Identity IntIdentityMap $(slicedir)/Ice/Identity.ice
+
+IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp: $(SLICE2FREEZE)
+	rm -f IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
+	$(SLICE2FREEZE) --ice $(SLICE2CPPFLAGS) --dict Test::IntIdentityMapWithIndex,int,Ice::Identity --dict-index Test::IntIdentityMapWithIndex,category IntIdentityMapWithIndex $(slicedir)/Ice/Identity.ice
+
 
 clean::
-	rm -f db/binary db/log.*
+	rm -f ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
+
+clean::
+	rm -f db/binary db/binary.* db/intIdentity db/intIdentity.* db/__catalog db/log.*
 
 include .depend

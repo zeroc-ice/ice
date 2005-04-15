@@ -275,6 +275,8 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 	{
 	    const MapIndexBasePtr& indexBase = *p; 
 	    assert(indexBase->_impl == 0);
+	    assert(indexBase->_communicator == 0);
+	    indexBase->_communicator = connection->communicator();
 
 	    auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
 	    
@@ -387,6 +389,7 @@ Freeze::SharedDb::connectIndices(const vector<MapIndexBasePtr>& indices) const
 	IndexMap::const_iterator q = _indices.find(indexBase->name());
 	assert(q != _indices.end());
 	indexBase->_impl = q->second;
+	indexBase->_communicator = _mapKey.communicator;
     }
 }
 

@@ -25,7 +25,7 @@ CFG=dbmap - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "dbmap - Win32 Release"
@@ -49,7 +49,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
@@ -75,7 +75,7 @@ LINK32=link.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /incremental:no /nodefaultlib
@@ -97,6 +97,14 @@ SOURCE=.\ByteIntMap.cpp
 
 SOURCE=.\Client.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\IntIdentityMap.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntIdentityMapWithIndex.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -104,6 +112,14 @@ SOURCE=.\Client.cpp
 # Begin Source File
 
 SOURCE=.\ByteIntMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntIdentityMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IntIdentityMapWithIndex.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -120,12 +136,27 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
+	..\..\..\bin\slice2freeze.exe  --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap \
+	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMap,int,Ice::Identity IntIdentityMap ../../../slice/Ice/Identity.ice \
+	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMapWithIndex,int,Ice::Identity IntIdentityMapWithIndex --dict-index Test::IntIdentityMapWithIndex,category ../../../slice/Ice/Identity.ice \
+	
 
 "ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "ByteIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMapWithIndex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMapWithIndex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -136,12 +167,27 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe  --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
+	..\..\..\bin\slice2freeze.exe  --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap \
+	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMap,int,Ice::Identity IntIdentityMap ../../../slice/Ice/Identity.ice \
+	..\..\..\bin\slice2freeze.exe  --ice -I../../../slice --dict Test::IntIdentityMapWithIndex,int,Ice::Identity IntIdentityMapWithIndex --dict-index Test::IntIdentityMapWithIndex,category ../../../slice/Ice/Identity.ice \
+	
 
 "ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "ByteIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMapWithIndex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IntIdentityMapWithIndex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

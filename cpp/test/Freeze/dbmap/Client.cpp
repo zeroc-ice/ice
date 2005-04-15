@@ -11,6 +11,8 @@
 #include <Freeze/Freeze.h>
 #include <TestCommon.h>
 #include <ByteIntMap.h>
+#include <IntIdentityMap.h>
+#include <IntIdentityMapWithIndex.h>
 #include <Freeze/TransactionHolder.h>
 
 #include <algorithm>
@@ -197,7 +199,7 @@ private:
 
 
 int
-run(const CommunicatorPtr& communicator, const string& envName, const string&dbName)
+run(const CommunicatorPtr& communicator, const string& envName, const string& dbName)
 {
     Freeze::ConnectionPtr connection = createConnection(communicator, envName);
     ByteIntMap m(connection, dbName);
@@ -555,6 +557,67 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
     {
 	q->join();
     }
+    cout << "ok" << endl;
+
+    cout << "testing index creation... " << flush;
+    
+    {
+	IntIdentityMap iim(connection, "intIdentity");
+	
+	Ice::Identity odd;
+	odd.name = "foo";
+	odd.category = "odd";
+	
+	Ice::Identity even;
+	even.name = "bar";
+	even.category = "even";
+	    
+	TransactionHolder txHolder(connection);
+	for(int i = 0; i < 1000; i++)
+	{
+	    if(i % 2 == 0)
+	    {
+		iim.put(IntIdentityMap::value_type(i, even));
+	    }
+	    else
+	    {
+		iim.put(IntIdentityMap::value_type(i, odd));
+	    }
+	}
+	txHolder.commit();
+    }
+    
+    { 
+	IntIdentityMapWithIndex iim(connection, "intIdentity");
+	test(iim.categoryCount("even") == 500);
+	test(iim.categoryCount("odd") == 500);
+
+	{
+	    int count = 0;
+	    IntIdentityMapWithIndex::iterator p = iim.findByCategory("even");
+	    while(p != iim.end())
+	    {
+		test(p->first % 2 == 0);
+		++p;
+		++count;
+	    }
+	    test(count == 500);
+	}
+	 
+	{   
+	    int count = 0;
+	    IntIdentityMapWithIndex::iterator p = iim.findByCategory("odd");
+	    while(p != iim.end())
+	    {
+		test(p->first % 2 == 1);
+		++p;
+		++count;
+	    }
+	    test(count == 500);
+	}
+	iim.clear();
+    }
+
     cout << "ok" << endl;
 
     return EXIT_SUCCESS;
