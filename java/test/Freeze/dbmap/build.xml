@@ -9,13 +9,16 @@
  **********************************************************************
 -->
 
-<project name="test_Freeze_cursor" default="all" basedir=".">
+<project name="test_Freeze_dbmap" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
+
+    <!-- get access to env variables globally -->
+    <property environment="env" />
 
     <!-- set common build properties for this build -->
     <property file="${top.dir}/config/build.properties"/>
@@ -26,6 +29,21 @@
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
+
+        <!-- Define the slice.dir property -->
+        <condition property="slice.dir" value="slice">
+            <available file="slice" type="dir"/>
+        </condition>
+        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
+            <and>
+                <available type="dir" file="${env.ICE_HOME}/slice"/>
+                <not>
+                    <available file="slice" type="dir"/>
+                </not>
+            </and>
+        </condition>
+        <fail message="Slice source directory not found" unless="slice.dir"/>
+
     </target>
 
     <target name="generate" depends="init">
@@ -34,6 +52,21 @@
         <slice2freezej outputdir="${generated.dir}">
             <dict name="ByteIntMap" key="byte" value="int"/>
             <dictindex name="ByteIntMap"/>
+        </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.dir}">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+            <dict name="IntIdentityMap" key="int" value="Ice::Identity"/>
+        </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.dir}">
+           <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+           <dict name="IntIdentityMapWithIndex" key="int" value="Ice::Identity"/>
+           <dictindex name="IntIdentityMapWithIndex" member="category"/>  
         </slice2freezej>
     </target>
 
@@ -52,7 +85,9 @@
         <delete dir="${generated.dir}"/>
          <delete>
 	    <fileset dir="db" includes="log.*"/>
-            <fileset dir="db" includes="binary"/>
+            <fileset dir="db" includes="__catalog"/>
+            <fileset dir="db" includes="binary,binary.index"/>
+            <fileset dir="db" includes="intIdentity,intIdentity.category"/>
         </delete>
     </target>
 
