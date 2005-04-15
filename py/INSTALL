@@ -3,7 +3,7 @@ Requirements
 =========================================================================
 
 - Python 2.3 or 2.4
-- Ice 2.1.0
+- Ice @ver@
 
 If you don't have Python 2.3 or Python 2.4 on your system, you can
 download a source distribution from http://www.python.org.
@@ -92,10 +92,10 @@ Unix:
 
    Modify your PYTHONPATH environment variable to include the Ice for
    Python extension. Assuming you installed the extension in the
-   default directory (/opt/IcePy-2.1.0), you would modify your
+   default directory (/opt/IcePy-@ver@), you would modify your
    environment as shown below:
 
-   export ICEPY_HOME=/opt/IcePy-2.1.0
+   export ICEPY_HOME=/opt/IcePy-@ver@
    export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
 
 Windows:
@@ -106,10 +106,10 @@ Windows:
    subdirectory. This is normally accomplished by setting the
    PYTHONPATH environment variable to contain the necessary
    subdirectories. For example, if the Ice for Python extension is
-   installed in C:\IcePy-2.1.0, you could configure your environment
+   installed in C:\IcePy-@ver@, you could configure your environment
    as follows:
 
-   set ICEPY_HOME=C:\IcePy-2.1.0
+   set ICEPY_HOME=C:\IcePy-@ver@
    set PYTHONPATH=%ICEPY_HOME%\bin;%ICEPY_HOME%\python
 
 
