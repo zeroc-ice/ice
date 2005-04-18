@@ -13,6 +13,7 @@
 using namespace std;
 using namespace Demo;
 
+// XXX Why does the reaper thread have to know the factory?
 ReapThread::ReapThread(const SessionFactoryIPtr& factory, const IceUtil::Time& timeout) :
     _terminated(false),
     _timeout(timeout),

@@ -13,10 +13,14 @@
 #include <Session.h>
 #include <list>
 
+// XXX Get rid of leading ::, i.e., use Demo::, not ::Demo::
+// (everywhere).
+
 class SessionI : public ::Demo::Session, public IceUtil::Mutex
 {
 public:
 
+    // XXX Should be private, with SessionFactoryI being a friend.
     SessionI(const Ice::ObjectAdapterPtr&, const IceUtil::Time&);
     virtual ~SessionI();
 
@@ -24,10 +28,13 @@ public:
     virtual void refresh(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
+    // XXX Should be private, with SessionFactoryI being a friend.
     // Return true if the session is destroyed, false otherwise.
     bool destroyed() const;
 
-    // Called when the session is destroyed. This should release any
+    // XXX Should be private, with SessionFactoryI being a friend.
+    // XXX The name is wrong. It's not a callback, it's a call.
+    // XXX Why have this function at all? Why not do whatever this function does directly in destroy()?
     // per-client allocated resources.
     void destroyCallback();
 
