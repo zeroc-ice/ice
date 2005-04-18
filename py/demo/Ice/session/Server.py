@@ -73,7 +73,7 @@ class SessionI(Demo.Session):
             for h in self._objs:
                 try:
                     self._adapter.remove(h.ice_getIdentity())
-                except:
+                except Ice.ObjectAdapterDeactivatedException, ex:
                     # This method is called on shutdown of the server, in
                     # which case this exception is expected.
                     pass
