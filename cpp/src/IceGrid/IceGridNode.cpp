@@ -12,10 +12,7 @@
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/WaitQueue.h>
-#include <IceGrid/Registry.h>
-#include <IceGrid/ServerFactory.h>
-#include <IceGrid/AdapterFactory.h>
-#include <IceGrid/AdapterI.h>
+#include <IceGrid/RegistryI.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
@@ -46,8 +43,7 @@ class RegistrationThread : public IceUtil::Thread, public IceUtil::Monitor<IceUt
 {
 public:
 
-    RegistrationThread(const NodeRegistryPrx& registry, const string& name, const NodePrx& node, 
-		       const LoggerPtr& logger) :
+    RegistrationThread(const RegistryPrx& registry, const string& name, const NodePrx& node, const LoggerPtr& logger) :
 	_registry(registry), _name(name), _node(node), _logger(logger), _shutdown(false)
     {
     }
@@ -60,7 +56,7 @@ public:
 	{
 	    try
 	    {
-		_registry->add(_name, _node);
+		_registry->registerNode(_name, _node);
 		break;
 	    }
 	    catch(const NodeActiveException& ex)
@@ -90,7 +86,7 @@ public:
 
 private:
 
-    const NodeRegistryPrx _registry;
+    const RegistryPrx _registry;
     const string _name;
     const NodePrx _node;
     const Ice::LoggerPtr _logger;
@@ -119,11 +115,11 @@ private:
 
     ActivatorPtr _activator;
     WaitQueuePtr _waitQueue;
-    RegistryPtr _registry;
+    RegistryIPtr _registry;
     RegistrationThreadPtr _registrationThread;
 };
 
-class CollocatedRegistry : public Registry
+class CollocatedRegistry : public RegistryI
 {
 public:
 
@@ -167,7 +163,7 @@ childHandler(int)
 #endif
 
 CollocatedRegistry::CollocatedRegistry(const Ice::CommunicatorPtr& communicator, const ActivatorPtr& activator) :
-    Registry(communicator), 
+    RegistryI(communicator), 
     _activator(activator)
 {
 }
@@ -355,35 +351,17 @@ NodeService::start(int argc, char* argv[])
             dataPath += "/"; 
         }
 
-	dbPath = dataPath + "db";
         string serversPath = dataPath + "servers";
-	string tmpPath = dataPath + "tmp";
 
 #ifdef _WIN32
-        if(::_stat(dbPath.c_str(), &filestat) != 0)
-        {
-            _mkdir(dbPath.c_str());
-        }
         if(::_stat(serversPath.c_str(), &filestat) != 0)
         {
             _mkdir(serversPath.c_str());
         }
-        if(::_stat(tmpPath.c_str(), &filestat) != 0)
-        {
-            _mkdir(tmpPath.c_str());
-        }
 #else
-        if(::stat(dbPath.c_str(), &filestat) != 0)
-        {
-            mkdir(dbPath.c_str(), 0755);
-        }
         if(::stat(serversPath.c_str(), &filestat) != 0)
         {
             mkdir(serversPath.c_str(), 0755);
-        }
-        if(::stat(tmpPath.c_str(), &filestat) != 0)
-        {
-            mkdir(tmpPath.c_str(), 0755);
         }
 #endif
     }
@@ -420,7 +398,7 @@ NodeService::start(int argc, char* argv[])
     properties->setProperty("Freeze.DbEnv." + name + ".DbHome", dbPath);
 
     //
-    // Set the adapter id for this node and create the node object adapter.
+    // Create the node object adapter.
     //
     properties->setProperty("IceGrid.Node.AdapterId", "IceGrid.Node." + name);
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceGrid.Node");
@@ -436,8 +414,7 @@ NodeService::start(int argc, char* argv[])
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, name, _activator, _waitQueue);
-    NodePtr node = new NodeI(_activator, name, serverFactory, communicator(), properties);
+    NodeIPtr node = new NodeI(communicator(), _activator, _waitQueue, traceLevels, name);
     Identity id = stringToIdentity(IceUtil::generateUUID());
     adapter->add(node, id);
     NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createDirectProxy(id));
@@ -445,35 +422,26 @@ NodeService::start(int argc, char* argv[])
     //
     // Register this node with the node registry.
     //
-    NodeRegistryPrx nodeRegistry = NodeRegistryPrx::uncheckedCast(
-	communicator()->stringToProxy("IceGrid/NodeRegistry@IceGrid.Registry.Internal"));
+    RegistryPrx registry = 
+	RegistryPrx::uncheckedCast(communicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal"));
     try
     {
-	nodeRegistry->add(name, nodeProxy);
-
-	//
-	// Check the consistency of the databases, only do it if we
-	// could register the node.
-	//
-	if(checkdb)
-	{
-	    serverFactory->checkConsistency();
-	}
+	node->checkConsistency(registry->registerNode(name, nodeProxy));
     }
     catch(const NodeActiveException&)
     {
         error("a node with the same name is already registered and active");
         return false;
     }
-    catch(const LocalException&)
+    catch(const LocalException& ex)
     {
-	if(properties->getPropertyAsInt("IceGrid.Node.BackgroundRegistration") > 0)
-	{
-	    _registrationThread = new RegistrationThread(nodeRegistry, name, nodeProxy, communicator()->getLogger());
-	    _registrationThread->start();
-	}
-	else
-	{
+ 	if(properties->getPropertyAsInt("IceGrid.Node.BackgroundRegistration") > 0)
+ 	{
+ 	    _registrationThread = new RegistrationThread(registry, name, nodeProxy, communicator()->getLogger());
+ 	    _registrationThread->start();
+ 	}
+ 	else
+ 	{
 	    error("couldn't contact the IceGrid registry");
 	    return false;
 	}

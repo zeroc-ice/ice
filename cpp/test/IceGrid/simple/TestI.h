@@ -7,20 +7,22 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_PERF_H
-#define ICE_GRID_PERF_H
+#ifndef TEST_I_H
+#define TEST_I_H
 
-#include <IceGrid/PerfTypes.h>
-#include <Ice/Ice.h>
+#include <Test.h>
 
-namespace IcePerf
+class TestI : public ::Test::TestIntf
 {
+public:
 
-//
-// Obtain performance data for the local system/processes
-//
-ICE_GRID_API PerfDataSeq getPerfData(const Ice::StringSeq&);
+    TestI(const Ice::ObjectAdapterPtr&);
 
-}
+    virtual void shutdown(const Ice::Current&);
+
+private:
+
+    Ice::ObjectAdapterPtr _adapter;
+};
 
 #endif

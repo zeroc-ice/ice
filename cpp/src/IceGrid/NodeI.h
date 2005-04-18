@@ -15,37 +15,50 @@
 namespace IceGrid
 {
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class Activator;
 typedef IceUtil::Handle<Activator> ActivatorPtr;
 
-class ServerFactory;
-typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
+class WaitQueue;
+typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
-class NodeI : public Node
+class NodeI : public Node, public IceUtil::Mutex
 {
 public:
 
-    NodeI(const ActivatorPtr&, const std::string&, const ServerFactoryPtr&, 
-	  const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
+    NodeI(const Ice::CommunicatorPtr&, const ActivatorPtr&, const WaitQueuePtr&, const TraceLevelsPtr&, 
+	  const std::string&);
 
-    virtual ServerPrx createServer(const std::string&, const ServerDescriptorPtr&, const Ice::Current&) const;
-    virtual ServerAdapterPrx createServerAdapter(const ServerPrx&, const std::string&, const Ice::Current&) const;
-
-    virtual std::string createTmpDir(const Ice::Current&) const;
-    virtual void destroyTmpDir(const std::string&, const Ice::Current&) const;
-
+    virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
+    virtual void destroyServer(const ServerDescriptorPtr&, const Ice::Current&);
+    
     virtual std::string getName(const Ice::Current&) const;
     virtual std::string getHostname(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&) const;
 
+    WaitQueuePtr getWaitQueue() const;
+    Ice::CommunicatorPtr getCommunicator() const;
+    ActivatorPtr getActivator() const;
+    TraceLevelsPtr getTraceLevels() const;
+
+    void checkConsistency(const Ice::StringSeq&);
+    bool canRemoveServerDirectory(const std::string&);
+    void removeServerDirectory(const std::string&, const std::string&);
+
 private:
 
+    const Ice::CommunicatorPtr _communicator;
     const ActivatorPtr _activator;
+    const WaitQueuePtr _waitQueue;
+    const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const std::string _hostname;
-    const ServerFactoryPtr _factory;
+    std::string _serversDir;
     std::string _tmpDir;
 };
+typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 }
 

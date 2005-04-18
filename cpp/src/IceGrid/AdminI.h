@@ -15,16 +15,14 @@
 namespace IceGrid
 {
 
-class Registry;
-typedef IceUtil::Handle<Registry> RegistryPtr;
+class Database;
+typedef IceUtil::Handle<Database> DatabasePtr;
 
 class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ApplicationRegistryPtr&, 
-	   const ServerRegistryPtr&, const AdapterRegistryPtr&, const ObjectRegistryPtr&, 
-	   const RegistryPtr&);
+    AdminI(const Ice::CommunicatorPtr&, const DatabasePtr&, const RegistryPtr&);
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
@@ -71,11 +69,7 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-    NodeRegistryPtr _nodeRegistry;
-    ApplicationRegistryPtr _applicationRegistry;
-    ServerRegistryPtr _serverRegistry;
-    AdapterRegistryPtr _adapterRegistry;
-    ObjectRegistryPtr _objectRegistry;
+    DatabasePtr _database;
     RegistryPtr _registry;
 };
 

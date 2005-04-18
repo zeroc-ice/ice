@@ -7,16 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef ICEPACK_DESCRIPTOR_UTIL_H
-#define ICEPACK_DESCRIPTOR_UTIL_H
+#include <Ice/Ice.h>
+#include <TestI.h>
 
-#include <IceGrid/Admin.h>
+using namespace Test;
 
-namespace IceGrid
+TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
+    _adapter(adapter)
 {
-
-bool equal(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
-
 }
 
-#endif
+void
+TestI::shutdown(const Ice::Current&)
+{
+    _adapter->getCommunicator()->shutdown();
+}

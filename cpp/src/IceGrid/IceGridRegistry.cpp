@@ -10,7 +10,7 @@
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <Ice/Service.h>
-#include <IceGrid/Registry.h>
+#include <IceGrid/RegistryI.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,7 +34,7 @@ private:
 
     void usage(const std::string&);
 
-    RegistryPtr _registry;
+    RegistryIPtr _registry;
 };
 
 } // End of namespace IceGrid
@@ -83,7 +83,7 @@ RegistryService::start(int argc, char* argv[])
 	return false;
     }
 
-    _registry = new Registry(communicator());
+    _registry = new RegistryI(communicator());
     if(!_registry->start(nowarn))
     {
 	return false;

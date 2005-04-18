@@ -9,9 +9,9 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/ServerFactory.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/WaitQueue.h>
+#include <IceGrid/NodeI.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -23,11 +23,13 @@ class WaitForAdapterActivation : public WaitItem
 {
 public:
  
-    WaitForAdapterActivation(const ServerAdapterPtr& adapter, 
+    WaitForAdapterActivation(const AdapterPtr& adapter, 
+			     const string& id,
 			     const TraceLevelsPtr traceLevels,
 			     const AMD_Adapter_activatePtr& cb) : 
 	WaitItem(adapter),
 	_adapter(adapter),
+	_id(id),
 	_traceLevels(traceLevels),
 	_cb(cb)
     {
@@ -54,24 +56,28 @@ public:
 	if(_traceLevels->adapter > 1)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "server adapter `" << _adapter->id << "' activation timed out";
+	    out << "server adapter `" << _id << "' activation timed out";
 	}
 	_cb->ice_response(0);
     }
 
 private:
     
-    const ServerAdapterPtr _adapter;
+    const AdapterPtr _adapter;
+    const string& _id;
     const TraceLevelsPtr _traceLevels;
     const AMD_Adapter_activatePtr _cb;
 };
 
 }
 
-ServerAdapterI::ServerAdapterI(const ServerFactoryPtr& factory, const TraceLevelsPtr& traceLevels, 
-					Ice::Int waitTime) :
-    _factory(factory),
-    _traceLevels(traceLevels),
+ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
+			       const ServerPrx& server, 
+			       const string& id,
+			       Ice::Int waitTime) :
+    _node(node),
+    _id(id),
+    _server(server),
     _waitTime(IceUtil::Time::seconds(waitTime))
 {
 }
@@ -83,7 +89,7 @@ ServerAdapterI::~ServerAdapterI()
 string
 ServerAdapterI::getId(const Ice::Current&)
 {
-    return id;
+    return _id;
 }
 
 void
@@ -100,13 +106,13 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	    return;
 	}
 
-	if(_traceLevels->adapter > 2)
+	if(_node->getTraceLevels()->adapter > 2)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "waiting for activation of server adapter `" << id << "'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+	    out << "waiting for activation of server adapter `" << _id << "'";
 	}
 
-	_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
+	_node->getWaitQueue()->add(new WaitForAdapterActivation(this, _id, _node->getTraceLevels(), cb), _waitTime);
     }
 
     //
@@ -116,7 +122,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     //
     try
     {
-	if(svr->start(OnDemand))
+	if(_server->start(OnDemand))
 	{
 	    return;
 	}
@@ -134,13 +140,13 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     //
     // The server couldn't be activated, trace and return the current adapter proxy.
     //
-    if(_traceLevels->adapter > 1)
+    if(_node->getTraceLevels()->adapter > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	out << "server adapter `" << id << "' activation failed, couldn't start the server";
+	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+	out << "server adapter `" << _id << "' activation failed, couldn't start the server";
     }
     
-    _factory->getWaitQueue()->notifyAllWaitingOn(this);
+    _node->getWaitQueue()->notifyAllWaitingOn(this);
 }
 
 Ice::ObjectPrx
@@ -159,8 +165,8 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     else
     {
 	AdapterNotActiveException ex;
-	ServerState state = svr->getState();
-	ex.activatable = svr->getActivationMode() == OnDemand || state == Activating || state == Active;
+	ServerState state = _server->getState();
+	ex.activatable = _server->getActivationMode() == OnDemand || state == Activating || state == Active;
 	ex.timeout = static_cast<int>(_waitTime.toMilliSeconds());
 	throw ex;
     }
@@ -177,37 +183,25 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
     //
     if(prx && _proxy)
     {
-	if(svr->getState() == Active)
+	if(_server->getState() == Active)
 	{
 	    throw AdapterActiveException();
 	}
     }
 
-    //
-    // Prevent eviction of an active adapter object.
-    //
-    if(prx && !_proxy)
-    {
-	_factory->getServerAdapterEvictor()->keep(current.id);
-    }
-    else if(!prx && _proxy)
-    {
-	_factory->getServerAdapterEvictor()->release(current.id);
-    }
-
     _proxy = prx;
 
-    if(_traceLevels->adapter > 1)
+    if(_node->getTraceLevels()->adapter > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	out << "server adapter `" << id << "' " << (_proxy ? "activated" : "deactivated");
+	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
+	out << "server adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
     }
     
-    _factory->getWaitQueue()->notifyAllWaitingOn(this);
+    _node->getWaitQueue()->notifyAllWaitingOn(this);
 }
 
 void
 ServerAdapterI::destroy(const Ice::Current& current)
 {
-    _factory->destroy(this, current.id);
+    current.adapter->remove(current.id);
 }

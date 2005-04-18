@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorRegistryI.h>
-#include <IceGrid/AdapterFactory.h>
+#include <IceGrid/Database.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -95,13 +95,8 @@ private:
     Ice::AMD_LocatorRegistry_setServerProcessProxyPtr _cb;
 };
 
-LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& adapterRegistry, 
-				   const ServerRegistryPtr& serverRegistry,
-				   const AdapterFactoryPtr& adapterFactory,
-				   bool dynamicRegistration) :
-    _adapterRegistry(adapterRegistry),
-    _serverRegistry(serverRegistry),
-    _adapterFactory(adapterFactory),
+LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database, bool dynamicRegistration) :
+    _database(database),
     _dynamicRegistration(dynamicRegistration)
 {
 }
@@ -120,11 +115,18 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
-	    _adapterRegistry->findById(id)->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(id)->setDirectProxy_async(amiCB, proxy);
 	    return;
 	}
 	catch(const AdapterNotExistException&)
 	{
+	    if(_dynamicRegistration)
+	    {
+		_database->setAdapterDirectProxy(id, proxy);
+		cb->ice_response();
+		return;
+	    }
+	    throw Ice::AdapterNotFoundException();
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -132,26 +134,6 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    return;
 	}
 
-	if(_dynamicRegistration)
-	{
-	    //
-	    // Create a new standalone adapter. The adapter will be persistent. It's the responsability of 
-	    // the user to cleanup adapter entries which were dynamically added from the registry.
-	    //
-	    AdapterPrx adapter = _adapterFactory->createStandaloneAdapter(id);
-	    try
-	    {
-		_adapterRegistry->add(id, adapter);
-	    }
-	    catch(const AdapterExistsException&)
-	    {
-		adapter->destroy();
-	    }
-	}
-	else
-	{
-	    throw Ice::AdapterNotFoundException();
-	}
     }
 }
 
@@ -167,7 +149,7 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
         // Get the server from the registry and set its process proxy.
         //
 	AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb);
-        _serverRegistry->findByName(name)->setProcess_async(amiCB, proxy);
+        _database->getServer(name)->setProcess_async(amiCB, proxy);
         return;
     }
     catch(const ServerNotExistException&)

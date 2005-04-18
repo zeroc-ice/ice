@@ -17,17 +17,14 @@
 namespace IceGrid
 {
 
-class TraceLevels;
-typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+class NodeI;
+typedef IceUtil::Handle<NodeI> NodeIPtr;
 
-class ServerFactory;
-typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
-
-class ServerAdapterI : public ServerAdapter, public IceUtil::AbstractMutexI<IceUtil::Mutex>
+class ServerAdapterI : public Adapter, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 public:
 
-    ServerAdapterI(const ServerFactoryPtr&, const TraceLevelsPtr&, Ice::Int waitTime);
+    ServerAdapterI(const NodeIPtr&, const ServerPrx&, const std::string&, Ice::Int);
     virtual ~ServerAdapterI();
 
     virtual std::string getId(const Ice::Current&);
@@ -39,9 +36,10 @@ public:
 
 private:
 
-    ServerFactoryPtr _factory;
-    TraceLevelsPtr _traceLevels;
-    IceUtil::Time _waitTime;
+    const NodeIPtr _node;
+    const std::string _id;
+    const ServerPrx _server;
+    const IceUtil::Time _waitTime;
 
     Ice::ObjectPrx _proxy;
 };

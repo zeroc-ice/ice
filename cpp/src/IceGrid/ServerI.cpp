@@ -11,12 +11,15 @@
 #define _POSIX_PTHREAD_SEMANTICS
 #endif
 
-#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <IceGrid/ServerI.h>
-#include <IceGrid/ServerFactory.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
+#include <IceGrid/NodeI.h>
+#include <IceGrid/Util.h>
+#include <IceGrid/ServerAdapterI.h>
+
+#include <IcePatch2/Util.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,24 +35,184 @@
 
 using namespace std;
 using namespace IceGrid;
+using namespace IcePatch2;
 
-ServerI::ServerI(const ServerFactoryPtr& factory, 
-		 const TraceLevelsPtr& traceLevels, 
-		 const ActivatorPtr& activator,
-		 Ice::Int waitTime,
-		 const string& serversDir) :
-    _factory(factory),
-    _traceLevels(traceLevels),
-    _activator(activator),
-    _waitTime(waitTime),
+ServerI::ServerI(const NodeIPtr& node, const string& serversDir, const string& name) :
+    _node(node),
+    _name(name),
+    _waitTime(_node->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60)),
     _serversDir(serversDir),
     _state(Inactive)
 {
-    assert(_activator);
+    assert(_node->getActivator());
 }
 
 ServerI::~ServerI()
 {
+}
+
+void
+ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const ServerPrx& self,
+	      const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_state == Destroying || _state == Destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__,__LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    //
+    // Set this server descriptor and directory.
+    //
+    _desc = descriptor;
+    _serverDir = _serversDir + "/" + descriptor->name;
+    _activation = descriptor->activation;
+
+    //
+    // Make sure the server directories exists.
+    //
+    try
+    {
+	Ice::StringSeq contents = readDirectory(_serverDir);
+	if(find(contents.begin(), contents.end(), "config") == contents.end())
+	{
+	    throw "can't find `config' directory in `" + _serverDir + "'";
+	}
+	if(find(contents.begin(), contents.end(), "dbs") == contents.end())
+	{
+	    throw "can't find `dbs' directory in `" + _serverDir + "'";
+	}
+    }
+    catch(const string& message)
+    {
+	//
+	// TODO: log message.
+	//
+	try
+	{
+	    createDirectory(_serverDir);
+	    createDirectory(_serverDir + "/config");
+	    createDirectory(_serverDir + "/dbs");
+	}
+	catch(const string& message)
+	{
+	    DeploymentException ex;
+	    ex.reason = message;
+	    throw ex;
+	}
+    }
+    
+    //
+    // Update the configuration file(s) of the server if necessary.
+    //
+    Ice::StringSeq knownFiles;
+    updateConfigFile(_serverDir, descriptor);
+    knownFiles.push_back("config");
+    ServiceDescriptorSeq services = getServices(descriptor);
+    for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+    {
+	updateConfigFile(_serverDir, *p);
+	knownFiles.push_back("config_" + (*p)->name);
+    }
+
+    //
+    // Remove old configuration files.
+    //
+    Ice::StringSeq configFiles = readDirectory(_serverDir + "/config");
+    Ice::StringSeq toDel;
+    set_difference(configFiles.begin(), configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
+    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    {
+	if(p->find("config_") == 0)
+	{
+	    try
+	    {
+		remove(_serverDir + "/config/" + *p);
+	    }
+	    catch(const string& message)
+	    {
+		//
+		// TODO: warning
+		//
+	    }
+	}
+    }
+
+    //
+    // Update the database environments if necessary.
+    //
+    Ice::StringSeq knownDbEnvs;
+    for(DbEnvDescriptorSeq::const_iterator p = descriptor->dbEnvs.begin(); p != descriptor->dbEnvs.end(); ++p)
+    {
+	updateDbEnv(_serverDir, *p);
+	knownDbEnvs.push_back(p->name);
+    }
+
+    //
+    // Remove old database environments.
+    //
+    Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
+    toDel.clear();
+    set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
+    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    {
+	try
+	{
+	    removeRecursive(_serverDir + "/dbs/" + *p);
+	}
+	catch(const string&)
+	{
+	    //
+	    // TODO: warning
+	    //
+	}
+    }
+
+    //
+    // Create the object adapter objects if necessary.
+    //
+    _processRegistered = false;
+    StringAdapterPrxDict oldAdapters;
+    oldAdapters.swap(_adapters);
+    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    {
+	addAdapter(*p, self, current);
+	oldAdapters.erase(p->id);
+    }
+    for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+    {
+	for(AdapterDescriptorSeq::const_iterator q = (*p)->adapters.begin(); q != (*p)->adapters.end(); ++q)
+	{
+	    addAdapter(*q, self, current);
+	    oldAdapters.erase(q->id);
+	}
+    }
+    for(StringAdapterPrxDict::const_iterator p = oldAdapters.begin(); p != oldAdapters.end(); ++p)
+    {
+	try
+	{
+	    p->second->destroy();
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+    adapters = _adapters;
+}
+
+void
+ServerI::addAdapter(const AdapterDescriptor& descriptor, const ServerPrx& self, const Ice::Current& current)
+{
+    Ice::Identity id;
+    id.category = "IceGridServerAdapter";
+    id.name = _desc->name + "-" + descriptor.id;
+    if(!current.adapter->find(id))
+    {
+	current.adapter->add(new ServerAdapterI(_node, self, descriptor.id, _waitTime), id);
+    }
+    _adapters[descriptor.id] = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
 }
 
 bool
@@ -60,6 +223,7 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
     Ice::StringSeq opts;
     Ice::StringSeq evs;
 
+    ServerDescriptorPtr desc;
     while(true)
     {
 	Lock sync(*this);
@@ -67,18 +231,12 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
 	{
 	case Inactive:
 	{
-	    if(act < activation)
+	    if(act < _activation)
 	    {
 	        return false;
 	    }
 
 	    _state = Activating;
-
-	    //
-	    // Prevent eviction of the server object once it's not anymore in the inactive state.
-	    //
-	    _factory->getServerEvictor()->keep(current.id);
-
 	    break;
 	}
 	case Activating:
@@ -100,31 +258,42 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
 	}
 	}
 
-	if(_traceLevels->server > 2)
+	if(_node->getTraceLevels()->server > 2)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `Activating'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `Activating'";
 	}
 	assert(_state == Activating);
 
-	exe = exePath;
-	wd = pwd;
-	opts = options;
-	evs = envs;
+	desc = _desc;
 	break;
     }
+
+    //
+    // Compute the server command line options.
+    //
+    Ice::StringSeq options;
+    JavaServerDescriptorPtr javaDesc = JavaServerDescriptorPtr::dynamicCast(desc);
+    if(javaDesc)
+    {
+	copy(javaDesc->jvmOptions.begin(), javaDesc->jvmOptions.end(), back_inserter(options));
+	options.push_back("-ea");
+	options.push_back(javaDesc->className);
+    }
+    copy(desc->options.begin(), desc->options.end(), back_inserter(options));
+    options.push_back("--Ice.Config=" + _serverDir + "/config/config");
 
     try
     {
 	ServerPrx self = ServerPrx::uncheckedCast(current.adapter->createProxy(current.id));
-	bool active  = _activator->activate(name, exe, wd, opts, evs, self);
+	bool active  = _node->getActivator()->activate(desc->name, desc->exe, desc->pwd, options, desc->envs, self);
 	setState(active ? Active : Inactive, current);
 	return active;
     }
     catch(const Ice::SyscallException& ex)
     {
-	Ice::Warning out(_traceLevels->logger);
-	out << "activation failed for server `" << name << "':\n";
+	Ice::Warning out(_node->getTraceLevels()->logger);
+	out << "activation failed for server `" << _name << "':\n";
 	out << ex;
 
 	setState(Inactive, current);
@@ -164,22 +333,22 @@ ServerI::stop(const Ice::Current& current)
 	}
 	}
 
-	if(_traceLevels->server > 2)
+	if(_node->getTraceLevels()->server > 2)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `Deactivating'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `Deactivating'";
 	}
 	assert(_state == Deactivating);
 	break;
     }
 
-    stopInternal(current);
+    stopInternal(false, current);
 }
 
 void
 ServerI::sendSignal(const string& signal, const Ice::Current& current)
 {
-    _activator->sendSignal(name, signal);
+    _node->getActivator()->sendSignal(_name, signal);
 }
 
 void
@@ -236,10 +405,10 @@ ServerI::destroy(const Ice::Current& current)
 
 	assert(_state == Destroyed || _state == Destroying);
 
-	if(_traceLevels->server > 2)
+	if(_node->getTraceLevels()->server > 2)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `";
 	    out << (_state == Destroyed ? "Destroyed" : "Destroying") << "'";
 	}
 	break;
@@ -247,18 +416,39 @@ ServerI::destroy(const Ice::Current& current)
 
     if(stop)
     {
-	stopInternal(current);
+	stopInternal(true, current);
     }
 
+    //
+    // Destroy the object adapters.
+    //
+    for(StringAdapterPrxDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    {
+	try
+	{
+	    p->second->destroy();
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+
+    //
+    // Delete the server directory from the disk.
+    //
+    removeRecursive(_serverDir);
     
-    _factory->destroy(this, current.id);
+    //
+    // Unregister from the object adapter.
+    //
+    current.adapter->remove(current.id);
 }
 
 void
 ServerI::terminated(const Ice::Current& current)
 {
     ServerState newState = Inactive; // Initialize to keep the compiler happy.
-    ServerAdapterPrxDict adpts;
+    StringAdapterPrxDict adpts;
     while(true)
     {
 	Lock sync(*this);
@@ -276,10 +466,10 @@ ServerI::terminated(const Ice::Current& current)
 	case Active:
 	{
 	    _state = Deactivating;
-	    if(_traceLevels->server > 2)
+	    if(_node->getTraceLevels()->server > 2)
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << name << "' state to `Deactivating'";
+		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+		out << "changed server `" << _name << "' state to `Deactivating'";
 	    }
 	    newState = Inactive;
 	    break;
@@ -307,7 +497,7 @@ ServerI::terminated(const Ice::Current& current)
 	}
 
 	assert(_state == Deactivating || _state == Destroying);
-	adpts = adapters;
+	adpts = _adapters;
 
 	//
 	// Clear the process proxy.
@@ -323,7 +513,7 @@ ServerI::terminated(const Ice::Current& current)
 	// null to cause the server re-activation if one of its adapter
 	// direct proxy is requested.
 	//
-	for(ServerAdapterPrxDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
+	for(StringAdapterPrxDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
 	{
 	    try
 	    {
@@ -348,305 +538,28 @@ ServerI::getState(const Ice::Current&)
 Ice::Int
 ServerI::getPid(const Ice::Current& current)
 {
-    return _activator->getServerPid(name);
+    return _node->getActivator()->getServerPid(_name);
 }
 
 void 
 ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
 {
     Lock sync(*this);
-    activation = mode;
+    _activation = mode;
 }
 
 ServerActivation 
 ServerI::getActivationMode(const ::Ice::Current&)
 {
     Lock sync(*this);
-    return activation;
+    return _activation;
 }
 
 ServerDescriptorPtr
 ServerI::getDescriptor(const Ice::Current&)
 {
     Lock sync(*this);
-    return descriptor;
-}
-
-void 
-ServerI::setExePath(const string& path, const ::Ice::Current&)
-{
-    Lock sync(*this);
-    exePath = path;
-}
-
-void 
-ServerI::setPwd(const string& path,const ::Ice::Current&)
-{
-    Lock sync(*this);
-    pwd = path;
-}
-
-void 
-ServerI::setEnvs(const Ice::StringSeq& s, const ::Ice::Current&)
-{
-    Lock sync(*this);
-    envs = s;
-}
-
-void 
-ServerI::setOptions(const Ice::StringSeq& opts, const ::Ice::Current&)
-{
-    Lock sync(*this);
-    options = opts;
-}
-
-void 
-ServerI::addAdapter(const ServerAdapterPrx& adapter, bool registerProcess, const ::Ice::Current&)
-{
-    Lock sync(*this);
-    ServerAdapterPrxDict::const_iterator p = adapters.find(adapter->ice_getIdentity());
-    if(p != adapters.end())
-    {
-	DeploymentException ex;
-	ex.reason = "failed to add adapter because it already exists";
-	throw ex;
-    }
-    adapters[adapter->ice_getIdentity()] = adapter;
-    processRegistered |= registerProcess;
-}
-
-void
-ServerI::removeAdapter(const ServerAdapterPrx& adapter, const ::Ice::Current&)
-{
-    Lock sync(*this);
-    adapters.erase(adapter->ice_getIdentity());
-}
-
-string
-ServerI::addConfigFile(const string& n, const PropertyDescriptorSeq& properties, const ::Ice::Current&)
-{
-    string file = _serversDir + name + "/config/" + n;
-
-    ofstream configfile;
-    configfile.open(file.c_str(), ios::out);
-    if(!configfile)
-    {
-	DeploymentException ex;
-	ex.reason = "couldn't create configuration file: " + file;
-	throw ex;
-    }
-
-    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
-    {
-	configfile << p->name;
-	if(!p->value.empty())
-	{
-	    configfile << "=" << p->value;
-	}
-	configfile << endl;
-    }
-    configfile.close();
-    
-    return file;
-}
-
-void 
-ServerI::removeConfigFile(const string& n, const ::Ice::Current&)
-{
-    string file = _serversDir + name + "/config/" + n;
-    if(unlink(file.c_str()) != 0)
-    {
-	Ice::Warning out(_traceLevels->logger);
-	out << "couldn't remove configuration file: " + file + ": " + strerror(getSystemErrno());
-    }
-}
-
-string
-ServerI::addDbEnv(const DbEnvDescriptor& dbEnv, const string& path, const ::Ice::Current&)
-{
-    string dir;
-    if(dbEnv.dbHome.empty())
-    {
-	dir = _serversDir + name + "/dbs/" + dbEnv.name;
-    }
-    else
-    {
-	dir = dbEnv.dbHome;
-    }
-
-    //
-    // If no db home directory is specified for this db env, we provide one.
-    //
-    if(dbEnv.dbHome.empty())
-    {
-	//
-	// First, we try to move the given backup if specified, if not successful, we just
-	// create the database environment directory.
-	//
-	if(path.empty() || rename((path + "/" + dbEnv.name).c_str(), dir.c_str()) != 0)
-	{
-	    //
-	    // Create the database environment directory.
-	    //
-#ifdef _WIN32
-	    if(_mkdir(dir.c_str()) != 0)
-#else
-	    if(mkdir(dir.c_str(), 0755) != 0)
-#endif
-	    {
-		DeploymentException ex;
-		ex.reason = "couldn't create directory " + dir + ": " + strerror(getSystemErrno());
-		throw ex;
-	    }
-	}
-    }
-
-    string file = dir + "/DB_CONFIG";
-    ofstream configfile;
-    configfile.open(file.c_str(), ios::out);
-    if(!configfile)
-    {
-	rmdir(dir.c_str());
-
-	DeploymentException ex;
-	ex.reason = "couldn't create configuration file: " + file;
-	throw ex;
-    }
-
-    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
-    {
-	if(!p->name.empty())
-	{
-	    configfile << p->name;
-	    if(!p->value.empty())
-	    {
-		configfile << " " << p->value;
-	    }
-	    configfile << endl;
-	}
-    }
-    configfile.close();
-
-    return dir;
-}
-
-void 
-ServerI::removeDbEnv(const DbEnvDescriptor& dbEnv, const string& moveTo, const ::Ice::Current&)
-{
-    string path;
-    if(dbEnv.dbHome.empty())
-    {
-	path = _serversDir + name + "/dbs/" + dbEnv.name;
-    }
-    else
-    {
-	path = dbEnv.dbHome;
-    }
-
-    if(unlink((path + "/DB_CONFIG").c_str()) != 0)
-    {
-	Ice::Warning out(_traceLevels->logger);
-	out << "couldn't remove file: " + path + "/DB_CONFIG: " + strerror(getSystemErrno());
-    }
-
-    //
-    // If no db home directory was specified for this db env, we provided one. We need to cleanup
-    // this directory now.
-    //
-    if(dbEnv.dbHome.empty())
-    {
-	if(!moveTo.empty())
-	{
-	    //
-	    // Move the database environment directory to the given directory.
-	    //
-	    if(rename(path.c_str(), (moveTo + "/" + dbEnv.name).c_str()) != 0)
-	    {
-		Ice::Warning out(_traceLevels->logger);
-		out << "couldn't rename directory " + path + " to " + moveTo + "/" + dbEnv.name + ": " + 
-		    strerror(getSystemErrno());
-	    }
-	}
-	else
-	{
-	    //
-	    // Delete the database environment directory.
-	    //
-	    Ice::StringSeq files;
-	    
-#ifdef _WIN32
-	    string pattern = path + "/*";
-	    WIN32_FIND_DATA data;
-	    HANDLE hnd = FindFirstFile(pattern.c_str(), &data);
-	    if(hnd == INVALID_HANDLE_VALUE)
-	    {
-		// TODO: log a warning, throw an exception?
-		return;
-	    }
-	    
-	    do
-	    {
-		if((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-		{
-		    files.push_back(path + "/" + data.cFileName);
-		}
-	    } 
-	    while(FindNextFile(hnd, &data));
-	    
-	    FindClose(hnd);
-#else
-	    
-	    DIR* dir = opendir(path.c_str());
-	    if(dir == 0)
-	    {
-		// TODO: log a warning, throw an exception?
-		return;
-	    }
-	    
-	    // TODO: make the allocation/deallocation exception-safe
-	    struct dirent* entry = static_cast<struct dirent*>(malloc(pathconf(path.c_str(), _PC_NAME_MAX) + 1));
-	    
-	    while(readdir_r(dir, entry, &entry) == 0 && entry != 0)
-	    {
-		string name = path + "/" + entry->d_name;
-		struct stat buf;
-		
-		if(::stat(name.c_str(), &buf) != 0)
-		{
-		    if(errno != ENOENT)
-		    {
-			//
-			// TODO: log error
-			//
-		    }
-		}
-		else if(S_ISREG(buf.st_mode))
-		{
-		    files.push_back(name);
-		}
-	    }
-	    
-	    free(entry);
-	    closedir(dir);
-#endif
-	    
-	    for(Ice::StringSeq::iterator p = files.begin(); p != files.end(); ++p)
-	    {
-		if(unlink(p->c_str()) != 0)
-		{
-		    //
-		    // TODO: log error
-		    //
-		}
-	    }
-	    
-	    if(rmdir(path.c_str()) != 0)
-	    {
-		Ice::Warning out(_traceLevels->logger);
-		out << "couldn't remove directory: " + path + ": " + strerror(getSystemErrno());
-	    }
-	}
-    }
+    return _desc;
 }
 
 void
@@ -658,12 +571,13 @@ ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
 }
 
 void
-ServerI::stopInternal(const Ice::Current& current)
+ServerI::stopInternal(bool kill, const Ice::Current& current)
 {
     Ice::ProcessPrx process;
+    if(!kill)
     {
 	IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-	if(!_process && processRegistered)
+	if(!_process && _processRegistered)
 	{
 	    while(!_process)
 	    {
@@ -690,7 +604,14 @@ ServerI::stopInternal(const Ice::Current& current)
 	//
 	// Deactivate the server.
 	//
-	_activator->deactivate(name, process);
+	if(kill)
+	{
+	    _node->getActivator()->kill(_name);
+	}
+	else
+	{
+	    _node->getActivator()->deactivate(_name, process);
+	}
 
 	//
 	// Wait for the server to be inactive (the activator monitors
@@ -725,16 +646,16 @@ ServerI::stopInternal(const Ice::Current& current)
 	    }
 	}
 
-	if(_traceLevels->server > 1)
+	if(_node->getTraceLevels()->server > 1)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "graceful server shutdown timed out, killing server `" << name << "'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "graceful server shutdown timed out, killing server `" << _name << "'";
 	}
     }
     catch(const Ice::Exception& ex)
     {
-	Ice::Warning out(_traceLevels->logger);
-	out << "graceful server shutdown failed, killing server `" << name << "':\n";
+	Ice::Warning out(_node->getTraceLevels()->logger);
+	out << "graceful server shutdown failed, killing server `" << _name << "':\n";
 	out << ex;
     }
 
@@ -744,12 +665,12 @@ ServerI::stopInternal(const Ice::Current& current)
     //
     try
     {
-	_activator->kill(name);
+	_node->getActivator()->kill(_name);
     }
     catch(const Ice::SyscallException& ex)
     {
-	Ice::Warning out(_traceLevels->logger);
-	out << "deactivation failed for server `" << name << "':\n";
+	Ice::Warning out(_node->getTraceLevels()->logger);
+	out << "deactivation failed for server `" << _name << "':\n";
 	out << ex;
 	
 	setState(Active, current);
@@ -761,47 +682,201 @@ ServerI::setState(ServerState st, const Ice::Current& current)
 {
     Lock sync(*this);
 
-    //
-    // Allow eviction of an inactive server object.
-    //
-    if(_state != Inactive && st == Inactive)
-    {
-	_factory->getServerEvictor()->release(current.id);
-    }
-
     _state = st;
 
-    if(_traceLevels->server > 1)
+    if(_node->getTraceLevels()->server > 1)
     {
 	if(_state == Active)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `Active'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `Active'";
 	}
 	else if(_state == Inactive)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `Inactive'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `Inactive'";
 	}
 	else if(_state == Destroyed)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << name << "' state to `Destroyed'";
+	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+	    out << "changed server `" << _name << "' state to `Destroyed'";
 	}
-	else if(_traceLevels->server > 2)
+	else if(_node->getTraceLevels()->server > 2)
 	{
 	    if(_state == Activating)
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << name << "' state to `Activating'";
+		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+		out << "changed server `" << _name << "' state to `Activating'";
 	    }
 	    else if(_state == Deactivating)
 	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << name << "' state to `Deactivating'";
+		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+		out << "changed server `" << _name << "' state to `Deactivating'";
 	    }
 	}
     }
 
     notifyAll();
 }
+
+PropertyDescriptor
+ServerI::createProperty(const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    return prop;
+}
+
+void
+ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr& descriptor)
+{
+    string configFilePath;
+
+    PropertyDescriptorSeq props;
+    if(ServerDescriptorPtr::dynamicCast(descriptor))
+    {
+	configFilePath = serverDir + "/config/config";
+
+	//
+	// Add server properties.
+	//
+	props.push_back(createProperty("# Server configuration"));
+	props.push_back(createProperty("Ice.ProgramName", descriptor->name));
+	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
+
+	//
+	// Add service properties.
+	//
+	string servicesStr;
+	ServiceDescriptorSeq services = getServices(descriptor);
+	for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+	{
+	    const string path = serverDir + "/config/config_" + (*p)->name;
+	    props.push_back(createProperty("IceBox.Service." + (*p)->name, (*p)->entry + " --Ice.Config=" + path));
+	    servicesStr += (*p)->name + " ";
+	}
+	props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
+    }
+    else
+    {
+	assert(ServiceDescriptorPtr::dynamicCast(descriptor));
+	configFilePath = serverDir + "/config/config_" + descriptor->name;
+	props.push_back(createProperty("# Service configuration"));
+	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
+    }
+
+    //
+    // Add database environment properties.
+    //
+    for(DbEnvDescriptorSeq::const_iterator p = descriptor->dbEnvs.begin(); p != descriptor->dbEnvs.end(); ++p)
+    {
+	const string path = serverDir + "/dbs/" + p->name;
+	props.push_back(createProperty("# Database environment " + p->name));
+	props.push_back(createProperty("Freeze.DbEnv." + p->name + ".DbHome", path));
+    }
+
+    //
+    // Add object adapter properties.
+    //
+    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    {
+	props.push_back(createProperty("# Object adapter " + p->name));
+	props.push_back(createProperty(p->name + ".Endpoints", p->endpoints));
+	props.push_back(createProperty(p->name + ".AdapterId", p->id));
+	if(p->registerProcess)
+	{
+	    props.push_back(createProperty(p->name + ".RegisterProcess", "1"));
+	}
+    }
+
+    //
+    // Load the previous configuration properties.
+    //
+    PropertyDescriptorSeq orig;
+    try
+    {
+	Ice::PropertiesPtr origProps = Ice::createProperties();
+	origProps->load(configFilePath);
+	Ice::PropertyDict all = origProps->getPropertiesForPrefix("");
+	for(Ice::PropertyDict::const_iterator p = all.begin(); p != all.end(); ++p)
+	{
+	    orig.push_back(createProperty(p->first, p->second));
+	}
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+
+    // 
+    // Only update the properties on the disk if they are different.
+    //
+    if(set<PropertyDescriptor>(orig.begin(), orig.end()) != set<PropertyDescriptor>(props.begin(), props.end()))
+    {
+	ofstream configfile;
+	configfile.open(configFilePath.c_str(), ios::out);
+	if(!configfile)
+	{
+	    DeploymentException ex;
+	    ex.reason = "couldn't create configuration file: " + configFilePath;
+	    throw ex;
+	}
+	
+	for(PropertyDescriptorSeq::const_iterator p = props.begin(); p != props.end(); ++p)
+	{
+	    configfile << p->name;
+	    if(!p->value.empty())
+	    {
+		configfile << "=" << p->value;
+	    }
+	    configfile << endl;
+	}
+	configfile.close();
+    }
+}
+
+void
+ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
+{
+    string dbEnvHome = dbEnv.dbHome;
+    if(dbEnvHome.empty())
+    {
+	dbEnvHome = serverDir + "/dbs/" + dbEnv.name;
+	try
+	{
+	    IcePatch2::createDirectory(dbEnvHome);
+	}
+	catch(const string& message)
+	{
+	}
+    }
+
+    //
+    // TODO: only write the configuration file if necessary.
+    //
+
+    string file = dbEnvHome + "/DB_CONFIG";
+    ofstream configfile;
+    configfile.open(file.c_str(), ios::out);
+    if(!configfile)
+    {
+	DeploymentException ex;
+	ex.reason = "couldn't create configuration file: " + file;
+	throw ex;
+    }
+
+    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
+    {
+	if(!p->name.empty())
+	{
+	    configfile << p->name;
+	    if(!p->value.empty())
+	    {
+		configfile << " " << p->value;
+	    }
+	    configfile << endl;
+	}
+    }
+    configfile.close();
+}
+

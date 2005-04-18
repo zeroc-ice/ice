@@ -35,40 +35,30 @@ PERFLIB_OBJS	= PerfTypes.o \
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
-                  DescriptorVisitor.o \
                   DescriptorParser.o \
-                  DescriptorUtil.o \
+		  Util.o \
+		  Internal.o \
 		  Client.o
 
 COMMON_OBJS	= Internal.o \
 		  TraceLevels.o
 
 NODE_OBJS	= NodeI.o \
-	          ServerFactory.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
 		  WaitQueue.o \
                   DescriptorParser.o
 
-REGISTRY_OBJS   = Registry.o \
-	 	  ObjectRegistryI.o \
-		  AdapterRegistryI.o \
-		  ServerRegistryI.o \
-		  NodeRegistryI.o \
-	          ApplicationRegistryI.o \
+REGISTRY_OBJS   = RegistryI.o \
 		  StringObjectProxyDict.o \
-		  StringObjectProxySeqDict.o \
-		  StringServerDescriptorDict.o \
-                  StringStringSeqDict.o \
+		  StringApplicationDescriptorDict.o \
 		  IdentityObjectDescDict.o \
+		  Database.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
-		  AdapterFactory.o \
-		  AdapterI.o \
 		  AdminI.o \
-		  DescriptorVisitor.o \
-                  DescriptorUtil.o \
+		  Util.o \
 		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
@@ -136,15 +126,15 @@ $(libdir)/$(PERFLIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePatch2 -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) $(EXPAT_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIcePatch2 -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIcePatch2 -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
@@ -174,9 +164,18 @@ $(LOCAL_HDIR)/StringServerDescriptorDict.h StringServerDescriptorDict.cpp: $(SLI
 clean::
 	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
 
+$(LOCAL_HDIR)/StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp: $(SLICE2FREEZE)
+	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor \
+	StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
+
+clean::
+	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
+
 $(LOCAL_HDIR)/IdentityObjectDescDict.h IdentityObjectDescDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectDescDict,Ice::Identity,IceGrid::ObjectDescriptor \
+	--dict-index IceGrid::IdentityObjectDescDict,type \
 	IdentityObjectDescDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
 
 clean::

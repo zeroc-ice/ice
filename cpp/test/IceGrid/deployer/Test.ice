@@ -7,29 +7,19 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_REGISTRY_H
-#define ICE_GRID_REGISTRY_H
+#ifndef TEST_ICE
+#define TEST_ICE
 
-namespace IceGrid
+module Test
 {
 
-class Registry : public IceUtil::Shared
+interface TestIntf
 {
-public:
-
-    Registry(const Ice::CommunicatorPtr&);
-    ~Registry();
-
-    bool start(bool);
-
-    virtual void shutdown();
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
+    void shutdown();
+    
+    string getProperty(string name);
 };
-typedef IceUtil::Handle<Registry> RegistryPtr;
 
-}
+};
 
 #endif

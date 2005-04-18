@@ -1,0 +1,28 @@
+<icegrid>
+
+  <service name="${name}" entry="TestService:create">
+
+    <adapters>
+      <adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
+        <object identity="${server}-${name}" type="::Test"/>
+      </adapter>
+    </adapters>
+ 
+    <properties>
+      <property name="${name}.Identity" value="${server}-${name}"/>
+      <property name="${name}.Type" value="freeze"/>
+      <property name="${name}.ServiceName" value="${name}"/>
+
+    </properties>
+
+    <dbenv name="${name}">
+      <dbproperty name="set_cachesize" value="0 52428800 1"/>
+    </dbenv>
+
+    <target name="manual">
+      <property name="Mode" value="manual"/>
+    </target>
+
+  </service>
+
+</icegrid>

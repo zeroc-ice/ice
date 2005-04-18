@@ -7,15 +7,40 @@
 //
 // **********************************************************************
 
-#include <IceGrid/DescriptorUtil.h>
+#include <Ice/Ice.h>
+#include <IcePatch2/Util.h>
+#include <IceGrid/Util.h>
+#include <IceGrid/Admin.h>
+
+#include <fstream>
 
 using namespace std;
+using namespace Ice;
+using namespace IceGrid;
 
 namespace IceGrid
 {
 
 bool equal(const ServiceDescriptorPtr&, const ServiceDescriptorPtr&);
 
+}
+
+ServiceDescriptorSeq
+IceGrid::getServices(const ComponentDescriptorPtr& descriptor)
+{
+    CppIceBoxDescriptorPtr cppIceBox = CppIceBoxDescriptorPtr::dynamicCast(descriptor);
+    if(cppIceBox)
+    {
+	return cppIceBox->services;
+    }
+    
+    JavaIceBoxDescriptorPtr javaIceBox = JavaIceBoxDescriptorPtr::dynamicCast(descriptor);
+    if(javaIceBox)
+    {
+	return javaIceBox->services;
+    }
+
+    return ServiceDescriptorSeq();
 }
 
 bool

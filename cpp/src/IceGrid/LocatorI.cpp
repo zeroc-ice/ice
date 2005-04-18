@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/LocatorI.h>
+#include <IceGrid/Database.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -150,11 +151,8 @@ private:
 
 }
 
-LocatorI::LocatorI(const AdapterRegistryPtr& adapterRegistry, 
-		   const ObjectRegistryPtr& objectRegistry, 
-		   const Ice::LocatorRegistryPrx& locatorRegistry) :
-    _adapterRegistry(adapterRegistry),
-    _objectRegistry(objectRegistry),
+LocatorI::LocatorI(const DatabasePtr& database, const Ice::LocatorRegistryPrx& locatorRegistry) :
+    _database(database),
     _locatorRegistry(locatorRegistry)
 {
 }
@@ -171,7 +169,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     ObjectDescriptor obj;
     try
     {
-	obj = _objectRegistry->getObjectDescriptor(id);
+	obj = _database->getObjectDescriptor(id);
     }
     catch(const ObjectNotExistException&)
     {
@@ -206,7 +204,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     AdapterPrx adapter;
     try
     {
-	adapter = AdapterPrx::uncheckedCast(_adapterRegistry->findById(id)->ice_collocationOptimization(false));
+	adapter = _database->getAdapter(id);
     }
     catch(const AdapterNotExistException&)
     {
@@ -238,7 +236,7 @@ bool
 LocatorI::getDirectProxyRequest(const Ice::AMD_Locator_findAdapterByIdPtr& cb, const AdapterPrx& adapter)
 {
     Lock sync(*this);
-    
+
     //
     // Check if there's already pending requests for this adapter. If that's the case,
     // we just add this one to the queue. If not, we add it to the queue and initiate
@@ -291,23 +289,12 @@ LocatorI::getDirectProxyException(const AdapterPrx& adapter, const string& id, c
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	//
-	// Expected if the adapter is destroyed, if that's the case, we remove it from the adapter registry.
-	//
-	try
-	{
-	    _adapterRegistry->remove(id, adapter);
-	}
-	catch(const AdapterNotExistException&)
-	{
-	}
-
 	for(PendingRequests::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
 	{
 	    (*q)->ice_exception(Ice::AdapterNotFoundException());
 	}
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
 	for(PendingRequests::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
 	{

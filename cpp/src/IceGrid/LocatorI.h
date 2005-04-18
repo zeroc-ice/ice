@@ -16,11 +16,14 @@
 namespace IceGrid
 {
 
+class Database;
+typedef IceUtil::Handle<Database> DatabasePtr;
+    
 class LocatorI : public Ice::Locator, public IceUtil::Mutex
 {
 public:
 
-    LocatorI(const AdapterRegistryPtr&, const ObjectRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
+    LocatorI(const DatabasePtr&, const ::Ice::LocatorRegistryPrx&);
 
     virtual void findObjectById_async(const ::Ice::AMD_Locator_findObjectByIdPtr&, const ::Ice::Identity&, 
 				      const ::Ice::Current&) const;
@@ -36,8 +39,7 @@ public:
     
 protected:
 
-    const AdapterRegistryPtr _adapterRegistry;
-    const ObjectRegistryPtr _objectRegistry;
+    const DatabasePtr _database;
     const Ice::LocatorRegistryPrx _locatorRegistry;
 
     typedef std::vector<Ice::AMD_Locator_findAdapterByIdPtr> PendingRequests;

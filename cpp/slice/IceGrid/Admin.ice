@@ -248,6 +248,14 @@ class ServerDescriptor extends ComponentDescriptor
 {
     /**
      *
+     * A UUID to uniquely identify the server. This id is assigned by
+     * the IceGrid deployment mechanism when the server is deployed.
+     *
+     **/ 
+    string uuid;
+
+    /**
+     *
      * The path of the server executable.
      *
      **/
@@ -273,7 +281,7 @@ class ServerDescriptor extends ComponentDescriptor
      *
      **/
     string application;
-
+    
     /**
      *
      * The command line options to pass to the server executable.
@@ -493,7 +501,7 @@ interface Admin
      *
      **/
     void addApplication(ApplicationDescriptor descriptor)
-	throws DeploymentException;    
+	throws DeploymentException, ApplicationExistsException;
 
     /**
      *
@@ -507,7 +515,7 @@ interface Admin
      *
      **/
     void updateApplication(ApplicationDescriptor descriptor)
-	throws DeploymentException;    
+	throws DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -557,7 +565,7 @@ interface Admin
      *
      **/
     void addServer(ServerDescriptor server)
-	throws DeploymentException;
+	throws DeploymentException, ServerExistsException;
 
     /**
      *
@@ -574,7 +582,7 @@ interface Admin
      *
      **/
     void updateServer(ServerDescriptor server)
-	throws ServerNotExistException, DeploymentException;
+	throws DeploymentException, ServerNotExistException;
 
     /**
      *
@@ -589,7 +597,7 @@ interface Admin
      *
      **/
     void removeServer(string name)
-	throws ServerNotExistException, DeploymentException;
+	throws ServerNotExistException;
 
     /**
      *

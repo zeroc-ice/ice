@@ -16,11 +16,14 @@
 namespace IceGrid
 {
 
+class Database;
+typedef IceUtil::Handle<Database> DatabasePtr;
+
 class QueryI : public Query, public IceUtil::Mutex
 {
 public:
 
-    QueryI(const Ice::CommunicatorPtr&, const ObjectRegistryPtr&);
+    QueryI(const Ice::CommunicatorPtr&, const DatabasePtr&);
     virtual ~QueryI();
 
     virtual ::Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
@@ -30,7 +33,7 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
-    ObjectRegistryPtr _objectRegistry;
+    DatabasePtr _database;
 };
 
 }

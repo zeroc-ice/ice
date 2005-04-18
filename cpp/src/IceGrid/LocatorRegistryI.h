@@ -17,14 +17,14 @@
 namespace IceGrid
 {
 
-class AdapterFactory;
-typedef IceUtil::Handle<AdapterFactory> AdapterFactoryPtr;
+class Database;
+typedef IceUtil::Handle<Database> DatabasePtr;
 
 class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
 
-    LocatorRegistryI(const AdapterRegistryPtr&, const ServerRegistryPtr&, const AdapterFactoryPtr&, bool);
+    LocatorRegistryI(const DatabasePtr&, bool);
     
     virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
 					     const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
@@ -33,9 +33,7 @@ public:
 
 private:
     
-    const AdapterRegistryPtr _adapterRegistry;
-    const ServerRegistryPtr _serverRegistry;
-    const AdapterFactoryPtr _adapterFactory;
+    const DatabasePtr _database;
     const bool _dynamicRegistration;
 };
 

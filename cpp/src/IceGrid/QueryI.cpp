@@ -9,14 +9,15 @@
 
 #include <IceGrid/Internal.h>
 #include <IceGrid/QueryI.h>
+#include <IceGrid/Database.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-QueryI::QueryI(const CommunicatorPtr& communicator, const ObjectRegistryPtr& objectRegistry) :
+QueryI::QueryI(const CommunicatorPtr& communicator, const DatabasePtr& database) :
     _communicator(communicator),
-    _objectRegistry(objectRegistry)
+    _database(database)
 {
 }
 
@@ -27,19 +28,19 @@ QueryI::~QueryI()
 Ice::ObjectPrx
 QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 {
-    return _objectRegistry->findById(id);
+    return _database->getObjectDescriptor(id).proxy;
 }
 
 Ice::ObjectPrx 
 QueryI::findObjectByType(const string& type, const Ice::Current&) const
 {
-    return _objectRegistry->findByType(type);
+    return _database->getObjectByType(type);
 }
 
 Ice::ObjectProxySeq 
 QueryI::findAllObjectsWithType(const string& type, const Ice::Current&) const
 {
-    return _objectRegistry->findAllWithType(type);
+    return _database->getObjectsWithType(type);
 }
 
 

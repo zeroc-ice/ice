@@ -10,25 +10,20 @@
 #ifndef ICE_GRID_EXCEPTION_ICE
 #define ICE_GRID_EXCEPTION_ICE
 
+#include <Ice/Identity.ice>
+
 module IceGrid
 {
 
 /**
  *
- * This exception is raised if an adapter does not exist.
+ * This exception is raised if a server with the same name already
+ * exists.
  *
  **/
-exception AdapterNotExistException
+exception ApplicationExistsException
 {
-};
-
-/**
- *
- * This exception is raised if a server does not exist.
- *
- **/
-exception ServerNotExistException
-{
+    string name;
 };
 
 /**
@@ -38,6 +33,38 @@ exception ServerNotExistException
  **/
 exception ApplicationNotExistException
 {
+    string name;
+};
+
+/**
+ *
+ * This exception is raised if a server with the same name already
+ * exists.
+ *
+ **/
+exception ServerExistsException
+{
+    string name;
+};
+
+/**
+ *
+ * This exception is raised if a server does not exist.
+ *
+ **/
+exception ServerNotExistException
+{
+    string name;
+};
+
+/**
+ *
+ * This exception is raised if an adapter does not exist.
+ *
+ **/
+exception AdapterNotExistException
+{
+    string id;
 };
 
 /**
@@ -47,6 +74,7 @@ exception ApplicationNotExistException
  **/
 exception ObjectExistsException
 {
+    Ice::Identity id;
 };
 
 /**
@@ -56,6 +84,7 @@ exception ObjectExistsException
  **/
 exception ObjectNotExistException
 {
+    Ice::Identity id;
 };
 
 /**
@@ -65,12 +94,12 @@ exception ObjectNotExistException
  **/
 exception NodeNotExistException
 {
+    string name;
 };
 
 /**
  *
- * A generic exception base for all kinds of deployment error
- * exception.
+ * An exception for deployment failure errors.
  *
  **/
 exception DeploymentException
@@ -90,6 +119,7 @@ exception DeploymentException
  **/
 exception NodeUnreachableException
 {
+    string name;
 };
 
 /**

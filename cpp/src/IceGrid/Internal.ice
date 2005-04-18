@@ -20,75 +20,6 @@ module IceGrid
 
 /**
  *
- * The object registry interface.
- *
- **/
-interface ObjectRegistry
-{
-    /**
-     *
-     * Add an object to the registry.
-     *
-     **/
-    void add(ObjectDescriptor desc)
-	throws ObjectExistsException;
-
-    /**
-     *
-     * Update an object in the registry.
-     *
-     **/
-    void update(Object* obj)
-	throws ObjectNotExistException;
-
-    /**
-     *
-     * Remove an object from the registry.
-     *
-     **/
-    void remove(Ice::Identity id)
-	throws ObjectNotExistException;
-
-    /**
-     *
-     * Find an object by identity and returns its description.
-     *
-     **/
-    nonmutating ObjectDescriptor getObjectDescriptor(Ice::Identity id)
-	throws ObjectNotExistException;
-
-    /**
-     *
-     * Find an object by identity and return its proxy.
-     *
-     **/
-    nonmutating Object* findById(Ice::Identity id)
-	throws ObjectNotExistException;
-
-    /**
-     *
-     * Find an object by type and return its proxy.
-     *
-     **/
-    nonmutating Object* findByType(string type);
-
-    /**
-     *
-     * Find all the objects with the given type.
-     *
-     **/
-    nonmutating Ice::ObjectProxySeq findAllWithType(string type);
-
-    /**
-     *
-     * Find all the objects matching the given expression.
-     *
-     **/
-    nonmutating ObjectDescriptorSeq findAll(string expression);
-};
-
-/**
- *
  * This exception is raised if an adapter is active.
  *
  **/
@@ -154,6 +85,7 @@ interface Adapter
      **/
     void destroy();
 };
+dictionary<string, Adapter*> StringAdapterPrxDict;
 
 /**
  *
@@ -163,105 +95,10 @@ interface Adapter
  **/
 exception AdapterExistsException
 {
-};
-
-/**
- *
- * The adapter registry interface.
- *
- **/
-interface AdapterRegistry
-{
-    /**
-     *
-     * Add an adapter to the registry.
-     *
-     **/
-    void add(string id, Adapter* adpt)
-	throws AdapterExistsException;
-
-    /**
-     *
-     * Remove an adapter from the registry. If the given adapter proxy is not null, the adapter will
-     * be removed from the registry only if the proxy matches.
-     *
-     **/
-    Adapter* remove(string id, Adapter* adpt)
-	throws AdapterNotExistException;
-    
-    /**
-     *
-     * Find an adapter and return its proxy.
-     *
-     **/
-    Adapter* findById(string id)
-	throws AdapterNotExistException;
-
-    /**
-     *
-     * Get all adapter ids.
-     *
-     **/
-    nonmutating Ice::StringSeq getAll();
-};
-
-/**
- *
- * A standalone adapter doesn't provide on demand activation. It just
- * store the adapter endpoints in the proxy attribute.
- *
- **/
-class StandaloneAdapter implements Adapter
-{
-    /**
-     *
-     * The adapter direct proxy.
-     *
-     **/
-    Object* proxy;    
-};
-
-class Server;
-
-/**
- *
- * This class implements the [Adapter] interface and provides on
- * demand server activation when the adapter endpoints are requested
- * through the [getDirectProxy] method.
- *
- **/
-class ServerAdapter implements Adapter
-{
-    /**
-     *
-     * Returns the adaper id.
-     *
-     **/
-    string getId();
-
-    /**
-     *
-     * The adapter server.
-     *
-     **/
-    Server* svr;
-
-    /**
-     *
-     * The adapter id.
-     *
-     **/
     string id;
 };
 
-/**
- *
- * A sequence of server adapter proxies.
- *
- **/
-dictionary<Ice::Identity, ServerAdapter*> ServerAdapterPrxDict;
-
-class Server
+interface Server
 {
     /**
      *
@@ -367,269 +204,26 @@ class Server
      *
      **/
     ["ami"] void setProcess(Ice::Process* proc);
-
-    /**
-     *
-     * Set the server executable path.
-     *
-     **/
-    void setExePath(string name);
-    
-    /**
-     *
-     * Set the path of the server working directory.
-     *
-     **/ 
-    void setPwd(string path);
-    
-    /**
-     *
-     * Set the server environment variables.
-     *
-     **/
-    void setEnvs(Ice::StringSeq envs);
-
-    /**
-     *
-     * Set the server command line options.
-     *
-     **/
-    void setOptions(Ice::StringSeq options);
-    
-    /**
-     *
-     * Add an adapter to this server.
-     *
-     **/
-    void addAdapter(ServerAdapter* adapter, bool registerProcess)
-	throws DeploymentException;
-
-    /**
-     *
-     * Remove an adapter from this server.
-     *
-     **/
-    void removeAdapter(ServerAdapter* adapter);
-
-    /**
-     *
-     * Add a configuration file.
-     *
-     **/
-    string addConfigFile(string name, PropertyDescriptorSeq properties)
-	throws DeploymentException;
-
-    /**
-     *
-     * Remove a configuration file.
-     *
-     **/
-    void removeConfigFile(string name);
-
-    /**
-     *
-     * Add a database environment.
-     *
-     **/
-    string addDbEnv(DbEnvDescriptor dbEnv, string path)
-	throws DeploymentException;
-
-    /**
-     *
-     * Remove a database environment.
-     *
-     **/
-    void removeDbEnv(DbEnvDescriptor dbEnv, string path);
-    
-    /** The server name. */
-    string name;
-
-    /** The path of the server executable. */
-    string exePath;
-
-    /** The server environment variables. */
-    Ice::StringSeq envs;
-
-    /** The server command line options. */
-    Ice::StringSeq options;
-
-    /** The path to the server working directory. */
-    string pwd;
-
-    /** The server adapter proxies. */
-    ServerAdapterPrxDict adapters;
-
-    /** The server activation mode. */
-    ServerActivation activation;
-
-    /** True if an adapter is configured to register a process object. */
-    bool processRegistered;
-
-    /** The descriptor used to deploy this server. */
-    ServerDescriptor descriptor;
-};
-
-/**
- *
- * This exception is raised if a server with the same name already
- * exists.
- *
- **/
-exception ServerExistsException
-{
-};
-
-interface ServerRegistry
-{
-    /**
-     *
-     * Add a server to the registry.
-     *
-     **/
-    void add(string name, Server* svr, ServerDescriptor descriptor)
-	throws ServerExistsException;
-
-    /**
-     *
-     * Remove a server from the registry.
-     *
-     **/
-    Server* remove(string name)
-	throws ServerNotExistException;
-    
-    /**
-     *
-     * Find a server.
-     *
-     * @param name Name of the server.
-     *
-     * @return Server proxy.
-     *
-     **/
-    Server* findByName(string name)
-	throws ServerNotExistException;
-
-    /**
-     *
-     * Get a server descriptor.
-     *
-     **/
-    ServerDescriptor getDescriptor(string name)
-        throws ServerNotExistException;
-
-    /**
-     *
-     * Get all the server names.
-     *
-     **/
-    nonmutating Ice::StringSeq getAll();
-
-    /**
-     *
-     * Get all the server descriptors for servers deployed on the given node.
-     *
-     **/
-    nonmutating ServerDescriptorSeq getAllDescriptorsOnNode(string node);
-};
-
-/**
- *
- * This exception is raised if a server with the same name already
- * exists.
- *
- **/
-exception ApplicationExistsException
-{
-};
-
-interface ApplicationRegistry
-{
-    /**
-     *
-     * Add an application to the registry.
-     *
-     **/
-    void add(string name)
-	throws ApplicationExistsException;
-
-    /**
-     *
-     * Remove an application from the registry.
-     *
-     **/
-    void remove(string name)
-	throws ApplicationNotExistException;
-
-    /**
-     *
-     * Register a server with the given application.
-     *
-     **/
-    void registerServer(string application, string name)
-	throws ApplicationNotExistException;
-
-    /**
-     *
-     * Unregister a server from the given application.
-     *
-     **/
-    void unregisterServer(string application, string name)
-	throws ApplicationNotExistException;
-
-    /**
-     *
-     * Get an application descriptor.
-     *
-     **/
-    ApplicationDescriptor getDescriptor(string name)
-        throws ApplicationNotExistException;
-
-    /**
-     *
-     * Get all the application names.
-     *
-     **/
-    nonmutating Ice::StringSeq getAll();
 };
 
 interface Node
 {
     /**
      *
-     * Create a new server on this node.
-     *
-     * @param The name of the server.
-     *
-     * @param The descriptor of the server.
+     * Load the given server. If the server resources weren't already
+     * created (database environment directories, property files, etc),
+     * they will be created.
      *
      **/
-    nonmutating Server* createServer(string name, ServerDescriptor desc)
+    idempotent Server* loadServer(ServerDescriptor desc, out StringAdapterPrxDict adapters)
 	throws DeploymentException;
 
     /**
      *
-     * Create a new adapter of a given server on this node.
-     *
-     * @param server The server associted to the adapter.
-     *
-     * @param id The id of the adapter.
+     * Destroy the given server.
      *
      **/
-    nonmutating ServerAdapter* createServerAdapter(Server* srv, string id);
-
-    /**
-     *
-     * Create a temporary directory.
-     *
-     **/
-    nonmutating string createTmpDir();
-
-    /**
-     *
-     * Destroy a temporary directory.
-     *
-     **/
-    nonmutating void destroyTmpDir(string path);
+    idempotent void destroyServer(ServerDescriptor desc);
 
     /**
      *
@@ -663,47 +257,41 @@ exception NodeActiveException
 {
 };
 
-interface NodeRegistry
+interface Registry
 {
     /**
      *
-     * Add a node to the registry. If a node with the same name is
-     * already registered, [add] will overide the previous node only
-     * if it's not active.
+     * Register a node with the registry. If a node with the same name
+     * is already registered, [registerNode] will overide the previous
+     * node only if it's not active.
      *
+     * @param name The name of the node to register.
+     *
+     * @param nd The proxy of the node.
+     *
+     * @return The name of the servers currently deployed on the node.
+     * 
      * @throws NodeActiveException Raised if the node is already
      * registered and currently active.
      *
      **/
-    void add(string name, Node* nd)
+    Ice::StringSeq registerNode(string name, Node* nd)
 	throws NodeActiveException;
 
     /**
      *
-     * Remove a node from the registry.
+     * Unregister a node from the registry.
      *
      **/
-    void remove(string name)
-	throws NodeNotExistException;
-    
-    /**
-     *
-     * Find a node.
-     *
-     * @param name Name of the node.
-     *
-     * @return Node proxy or a null proxy if the node is not found.
-     *
-     **/
-    Node* findByName(string name)
+    void unregisterNode(string name)
 	throws NodeNotExistException;
 
     /**
      *
-     * Get all the node names.
+     * Shutdown the registry.
      *
      **/
-    nonmutating Ice::StringSeq getAll();
+    void shutdown();
 };
 
 };
