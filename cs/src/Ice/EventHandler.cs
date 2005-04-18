@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 namespace IceInternal
 {
 
@@ -63,6 +65,7 @@ namespace IceInternal
 	
 	~EventHandler()
 	{
+	    Debug.Assert(_stream != null);
 	    _stream.destroy();
 	}
 	

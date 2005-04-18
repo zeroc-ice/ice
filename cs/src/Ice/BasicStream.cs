@@ -73,6 +73,7 @@ namespace IceInternal
 	//
 	public virtual void destroy()
 	{
+	    Debug.Assert(_bufferManager.reclaim != null);
 	    _bufferManager.reclaim(_buf);
 	    _buf = null;
 	}

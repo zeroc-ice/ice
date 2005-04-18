@@ -78,6 +78,7 @@ namespace IceInternal
 	~ConnectionMonitor()
 	{
 	    Debug.Assert(_instance == null);
+	    Debug.Assert(_connections != null);
 	    Debug.Assert(_connections.Count == 0);
 	}
 	
