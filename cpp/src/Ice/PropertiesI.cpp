@@ -207,6 +207,7 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
     args = parseCommandLineOptions("IcePatch", args);
     args = parseCommandLineOptions("IcePatch2", args);
     args = parseCommandLineOptions("IceStorm", args);
+    args = parseCommandLineOptions("IceGrid", args);
     return args;
 
     //
