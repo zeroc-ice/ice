@@ -1,8 +1,11 @@
 Changes since version 2.1.0
 ---------------------------
 
-- Fixed a bug in Freeze Maps: you can now add an index to an 
-  existing Freeze Map.
+- Fixed a thread pool bug on Win32 in which the file descriptors for
+  the pipe were not closed.
+
+- Fixed a bug in Freeze Maps: you can now add an index to an existing
+  Freeze Map.
 
 - Added sequences of fixed-length elements to throughput demo.
 
