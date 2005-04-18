@@ -32,18 +32,17 @@ public class Client
 		catch(InterruptedException e)
 		{
 		}
-		if(_terminated)
+		if(!_terminated)
 		{
-		    break;
-		}
-		try
-		{
-		    _session.refresh();
-		}
-		catch(Ice.LocalException ex)
-		{
-		    _logger.warning("SessionRefreshThread: " + ex);
-		    break;
+		    try
+		    {
+			_session.refresh();
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			_logger.warning("SessionRefreshThread: " + ex);
+    	    	    	_terminated = true;
+		    }
 		}
 	    }
 	}

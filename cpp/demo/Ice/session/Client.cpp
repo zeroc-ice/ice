@@ -33,19 +33,18 @@ public:
 	while(!_terminated)
 	{
 	    timedWait(_timeout);
-	    if(_terminated)
+	    if(!_terminated)
 	    {
-		break;
-	    }
-	    try
-	    {
-		_session->refresh();
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-		Ice::Warning warn(_logger);
-		warn << "SessionRefreshThread: " << ex;
-		break;
+		try
+		{
+		    _session->refresh();
+		}
+		catch(const Ice::Exception& ex)
+		{
+		    Ice::Warning warn(_logger);
+		    warn << "SessionRefreshThread: " << ex;
+    	    	    _terminated = true;
+		}
 	    }
 	}
     }

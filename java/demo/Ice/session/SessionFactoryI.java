@@ -33,7 +33,6 @@ class SessionFactoryI extends _SessionFactoryDisp
 		}
 		if(!_terminated)
 		{
-		    assert _factory != null;
 		    _factory.reap();
 		}
 	    }
@@ -55,7 +54,6 @@ class SessionFactoryI extends _SessionFactoryDisp
     SessionFactoryI(Ice.ObjectAdapter adapter)
     {
 	_adapter = adapter;
-	_reapThread = new ReapThread(this, _timeout);
 	_reapThread = new ReapThread(this, _timeout);
 	_reapThread.start();
     }
