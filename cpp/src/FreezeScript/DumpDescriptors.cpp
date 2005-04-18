@@ -1571,9 +1571,8 @@ FreezeScript::SymbolTableI::getConstantValue(const string& name) const
             case Slice::Builtin::KindInt:
             case Slice::Builtin::KindLong:
             {
-                string::size_type end;
                 Ice::Long n;
-                if(!IceUtil::stringToInt64(value, n, end))
+                if(!IceUtil::stringToInt64(value, n))
                 {
                     assert(false);
                 }

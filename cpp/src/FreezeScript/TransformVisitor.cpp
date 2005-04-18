@@ -75,9 +75,8 @@ FreezeScript::TransformVisitor::visitInteger(const IntegerDataPtr& dest)
             if(s)
             {
                 string str = s->getValue();
-                string::size_type pos;
                 Ice::Long value;
-                if(IceUtil::stringToInt64(str, value, pos))
+                if(IceUtil::stringToInt64(str, value))
                 {
                     dest->setValue(value, false);
                 }

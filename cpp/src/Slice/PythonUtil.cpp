@@ -1235,8 +1235,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
         case Slice::Builtin::KindLong:
         {
             IceUtil::Int64 l;
-            string::size_type pos;
-            IceUtil::stringToInt64(value, l, pos);
+            IceUtil::stringToInt64(value, l);
             //
             // The platform's 'long' type may not be 64 bits, so we store 64-bit
             // values as a string.

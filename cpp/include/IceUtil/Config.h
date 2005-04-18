@@ -121,19 +121,6 @@
 #   pragma warning( disable : 4275 )
 //  ...: decorated name length exceeded, name was truncated
 #   pragma warning( disable : 4503 )  
-
-#elif (defined(__sun) && defined(__sparc)) || (defined(__hpux))
-#   include <inttypes.h>
-#else
-//
-// The ISO C99 standard specifies that in C++ implementations the
-// macros for minimum/maximum integer values should only be defined if
-// explicitly requested with __STDC_LIMIT_MACROS.
-//
-#   ifndef  __STDC_LIMIT_MACROS
-#      define __STDC_LIMIT_MACROS
-#   endif
-#   include <stdint.h>
 #endif
 
 //
@@ -181,45 +168,23 @@ private:
 };
 
 //
-// Some definitions for 64-bit integers.
+// Int64 typedef
 //
 #if defined(_MSC_VER)
-
 typedef __int64 Int64;
-const Int64 Int64Min = -9223372036854775808i64;
-const Int64 Int64Max =  9223372036854775807i64;
-
-#elif defined(__SUNPRO_CC)
-
+#else
 #   if defined(ICE_64)
 typedef long Int64;
-const Int64 Int64Min = -0x7fffffffffffffffL-1L;
-const Int64 Int64Max = 0x7fffffffffffffffL;
 #   else
 typedef long long Int64;
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
-const Int64 Int64Max = 0x7fffffffffffffffLL;
 #   endif
-
-#else
-
-//
-// Assumes ISO C99 types
-//
-typedef int64_t Int64;
-#   ifdef INT64_MIN
-const Int64 Int64Min = INT64_MIN;
-#   else
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
-#   endif
-#   ifdef INT64_MAX
-const Int64 Int64Max = INT64_MAX;
-#   else
-const Int64 Int64Max = 0x7fffffffffffffffLL;
-#   endif
-
 #endif
 
+}
+
+//
+// ICE_INT64: macro for Int64 litteral values
+//
 #if defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
 #elif defined(__HP_aCC)
@@ -230,7 +195,6 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 #   define ICE_INT64(n) n##LL
 #endif
 
-}
 
 //
 // The Ice version.

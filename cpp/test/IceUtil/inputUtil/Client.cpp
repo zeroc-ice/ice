@@ -16,6 +16,19 @@ using namespace std;
 
 #define WS " \f\n\r\t\v"
 
+#if defined(_MSC_VER)
+const Int64 Int64Min = -9223372036854775808i64;
+const Int64 Int64Max =  9223372036854775807i64;
+#else
+#   if defined(ICE_64)
+const Int64 Int64Min = -0x7fffffffffffffffL-1L;
+const Int64 Int64Max = 0x7fffffffffffffffL;
+#   else
+const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
+const Int64 Int64Max = 0x7fffffffffffffffLL;
+#   endif
+#endif
+
 int
 main(int, char**)
 {
@@ -23,78 +36,77 @@ main(int, char**)
 
     bool b;
     Int64 result;
-    string::size_type pos;
 
-    b = stringToInt64("", result, pos);
-    test(!b && result == 0 && pos == string::npos);
-    b = stringToInt64(WS, result, pos);
-    test(!b && result == 0 && pos == string::npos);
+    b = stringToInt64("", result);
+    test(!b && result == 0);
+    b = stringToInt64(WS, result);
+    test(!b && result == 0);
 
-    b = stringToInt64("123", result, pos);
-    test(b && result == 123 && pos == string::npos);
-    b = stringToInt64("+123", result, pos);
-    test(b && result == 123 && pos == string::npos);
-    b = stringToInt64("-123", result, pos);
-    test(b && result == -123 && pos == string::npos);
+    b = stringToInt64("123", result);
+    test(b && result == 123);
+    b = stringToInt64("+123", result);
+    test(b && result == 123);
+    b = stringToInt64("-123", result);
+    test(b && result == -123);
 
-    b = stringToInt64("0123", result, pos);
-    test(b && result == 83 && pos == string::npos);
-    b = stringToInt64("+0123", result, pos);
-    test(b && result == 83 && pos == string::npos);
-    b = stringToInt64("-0123", result, pos);
-    test(b && result == -83 && pos == string::npos);
+    b = stringToInt64("0123", result);
+    test(b && result == 83);
+    b = stringToInt64("+0123", result);
+    test(b && result == 83);
+    b = stringToInt64("-0123", result);
+    test(b && result == -83);
 
-    b = stringToInt64("0x123", result, pos);
-    test(b && result == 291 && pos == string::npos);
-    b = stringToInt64("+0x123", result, pos);
-    test(b && result == 291 && pos == string::npos);
-    b = stringToInt64("-0x123", result, pos);
-    test(b && result == -291 && pos == string::npos);
+    b = stringToInt64("0x123", result);
+    test(b && result == 291);
+    b = stringToInt64("+0x123", result);
+    test(b && result == 291);
+    b = stringToInt64("-0x123", result);
+    test(b && result == -291);
 
-    b = stringToInt64(WS "123", result, pos);
-    test(b && result == 123 && pos == string::npos);
-    b = stringToInt64("123" WS, result, pos);
-    test(b && result == 123 && pos == string::npos);
-    b = stringToInt64(WS "123" WS, result, pos);
-    test(b && result == 123 && pos == string::npos);
+    b = stringToInt64(WS "123", result);
+    test(b && result == 123);
+    b = stringToInt64("123" WS, result);
+    test(b && result == 123);
+    b = stringToInt64(WS "123" WS, result);
+    test(b && result == 123);
 
-    b = stringToInt64("123Q", result, pos);
-    test(b && result == 123 && pos == 3);
-    b = stringToInt64(" 123Q", result, pos);
-    test(b && result == 123 && pos == 4);
-    b = stringToInt64(" 123Q ", result, pos);
-    test(b && result == 123 && pos == 4);
-    b = stringToInt64(" 123 Q", result, pos);
-    test(b && result == 123 && pos == 4);
+    b = stringToInt64("123Q", result);
+    test(b && result == 123);
+    b = stringToInt64(" 123Q", result);
+    test(b && result == 123);
+    b = stringToInt64(" 123Q ", result);
+    test(b && result == 123);
+    b = stringToInt64(" 123 Q", result);
+    test(b && result == 123);
 
-    b = stringToInt64("Q", result, pos);
-    test(!b && result == 0 && pos == 0);
-    b = stringToInt64(" Q", result, pos);
-    test(!b && result == 0 && pos == 1);
+    b = stringToInt64("Q", result);
+    test(!b && result == 0);
+    b = stringToInt64(" Q", result);
+    test(!b && result == 0);
 
-    b = stringToInt64("-9223372036854775807", result, pos);
-    test(b && result == ICE_INT64(-9223372036854775807) && pos == string::npos);
-    b = stringToInt64("-9223372036854775808", result, pos);
-    test(b && result == Int64Min && pos == string::npos);
-    b = stringToInt64("-9223372036854775809", result, pos);
-    test(!b && result == Int64Min && pos == string::npos);
+    b = stringToInt64("-9223372036854775807", result);
+    test(b && result == ICE_INT64(-9223372036854775807));
+    b = stringToInt64("-9223372036854775808", result);
+    test(b && result == Int64Min);
+    b = stringToInt64("-9223372036854775809", result);
+    test(!b && result < 0);
 
-    b = stringToInt64("9223372036854775806", result, pos);
-    test(b && result == ICE_INT64(9223372036854775806) && pos == string::npos);
-    b = stringToInt64("9223372036854775807", result, pos);
-    test(b && result == Int64Max && pos == string::npos);
-    b = stringToInt64("9223372036854775808", result, pos);
-    test(!b && result == Int64Max && pos == string::npos);
+    b = stringToInt64("9223372036854775806", result);
+    test(b && result == ICE_INT64(9223372036854775806));
+    b = stringToInt64("9223372036854775807", result);
+    test(b && result == Int64Max);
+    b = stringToInt64("9223372036854775808", result);
+    test(!b && result > 0);
 
-    b = stringToInt64("-9223372036854775807Q", result, pos);
-    test(b && result == ICE_INT64(-9223372036854775807) && pos == 20);
-    b = stringToInt64("-9223372036854775808Q", result, pos);
-    test(b && result == Int64Min && pos == 20);
-    b = stringToInt64("-9223372036854775809Q", result, pos);
-    test(!b && result == Int64Min && pos == 20);
+    b = stringToInt64("-9223372036854775807Q", result);
+    test(b && result == ICE_INT64(-9223372036854775807));
+    b = stringToInt64("-9223372036854775808Q", result);
+    test(b && result == Int64Min);
+    b = stringToInt64("-9223372036854775809Q", result);
+    test(!b && result < 0);
 
-    b = stringToInt64("-9223372036854775809999Q", result, pos);
-    test(!b && result == Int64Min && pos == 23);
+    b = stringToInt64("-9223372036854775809999Q", result);
+    test(!b && result < 0);
 
     cout << "ok" << endl;
 
