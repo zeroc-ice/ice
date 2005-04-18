@@ -276,10 +276,13 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     finalize()
         throws Throwable
     {
-        if(!_destroyed)
-        {
-            _instance.logger().warning("Ice::Communicator::destroy() has not been called");
-        }
+	synchronized(this)
+	{
+	    if(!_destroyed)
+	    {
+		_instance.logger().warning("Ice::Communicator::destroy() has not been called");
+	    }
+	}
 
         super.finalize();
     }
@@ -299,7 +302,10 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	{
 	    _instance.destroy();
 	    _instance = null;
-	    _destroyed = true;
+	    synchronized(this)
+	    {
+		_destroyed = true;
+	    }
 	    throw ex;
 	}
     }

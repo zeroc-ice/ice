@@ -160,7 +160,6 @@ namespace Ice
 	    //
 	    return _instance.properties();
 	}
-
 	
 	public Logger getLogger()
 	{
@@ -295,9 +294,12 @@ namespace Ice
 	
 	~CommunicatorI()
 	{
-	    if(!_destroyed)
+	    lock(this)
 	    {
-		_instance.logger().warning("Ice::Communicator::destroy() has not been called");
+		if(!_destroyed)
+		{
+		    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
+		}
 	    }
 	}
 
@@ -307,17 +309,20 @@ namespace Ice
 	//
 	internal void finishSetup(ref string[] args)
 	{
-            try
-            {
-                _instance.finishSetup(ref args);
-            }
-            catch(System.Exception)
-            {
-                _instance.destroy();
-                _instance = null;
-                _destroyed = true;
-                throw;
-            }
+	    try
+	    {
+		_instance.finishSetup(ref args);
+	    }
+	    catch(System.Exception)
+	    {
+		_instance.destroy();
+		_instance = null;
+		lock(this)
+		{
+		    _destroyed = true;
+		}
+		throw;
+	    }
 	}
 	
 	//
