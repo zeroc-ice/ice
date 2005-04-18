@@ -13,10 +13,10 @@
 using namespace std;
 using namespace Demo;
 
-ReapThread::ReapThread(const SessionFactoryIPtr& Factory, const IceUtil::Time& timeout) :
-    _destroy(false),
+ReapThread::ReapThread(const SessionFactoryIPtr& factory, const IceUtil::Time& timeout) :
+    _terminated(false),
     _timeout(timeout),
-    _factory(Factory)
+    _factory(factory)
 {
 }
 
@@ -29,10 +29,10 @@ void
 ReapThread::run()
 {
     Lock sync(*this);
-    while(!_destroy)
+    while(!_terminated)
     {
 	timedWait(_timeout);
-	if(!_destroy)
+	if(!_terminated)
 	{
 	    assert(_factory);
 	    _factory->reap();
@@ -41,10 +41,10 @@ ReapThread::run()
 }
 
 void
-ReapThread::destroy()
+ReapThread::terminate()
 {
     Lock sync(*this);
-    _destroy = true;
+    _terminated = true;
     notify();
     // Drop the cyclic reference count.
     _factory = 0;
@@ -70,7 +70,7 @@ SessionFactoryI::create(const Ice::Current& c)
 
     SessionIPtr session = new SessionI(_adapter, _timeout);
     SessionPrx proxy = SessionPrx::uncheckedCast(_adapter->addWithUUID(session));
-    _sessions.push_back(make_pair(session, proxy->ice_getIdentity()));
+    _sessions.push_back(SessionId(session, proxy->ice_getIdentity()));
     return proxy;
 }
 
@@ -86,13 +86,13 @@ SessionFactoryI::reap()
 {
     Lock sync(*this);
 
-    list<pair<SessionIPtr, Ice::Identity> >::iterator p = _sessions.begin();
+    list<SessionId>::iterator p = _sessions.begin();
     while(p != _sessions.end())
     {
-	if(p->first->destroyed())
+	if(p->session->destroyed())
 	{
-	    p->first->destroyCallback();
-    	    _adapter->remove(p->second);
+	    p->session->destroyCallback();
+    	    _adapter->remove(p->id);
     	    p = _sessions.erase(p);
 	}
 	else
@@ -107,19 +107,17 @@ SessionFactoryI::destroy()
 {
     Lock sync(*this);
 
-    _reapThread->destroy();
+    _reapThread->terminate();
     _reapThread->getThreadControl().join();
     _reapThread = 0;
 
-    for(list<pair<SessionIPtr, Ice::Identity> >::const_iterator p = _sessions.begin();
-	p != _sessions.end();
-	++p)
+    for(list<SessionId>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
-	p->first->destroyCallback();
+	p->session->destroyCallback();
 
     	// When the session factory is destroyed the OA is deactivated
-    	// and all servants have been // removed so calling remove on
-    	// the OA is not necessary.
+    	// and all servants have been removed so calling remove on the
+    	// OA is not necessary.
     }
     _sessions.clear();
 }

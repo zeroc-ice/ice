@@ -18,11 +18,11 @@ class SessionRefreshThread : public IceUtil::Thread, public IceUtil::Monitor<Ice
 {
 public:
 
-    SessionRefreshThread(const Ice::LoggerPtr& logger, const SessionPrx& session) :
+    SessionRefreshThread(const Ice::LoggerPtr& logger, const IceUtil::Time& timeout, const SessionPrx& session) :
 	_logger(logger),
 	_session(session),
-	_destroy(false),
-	_timeout(IceUtil::Time::seconds(5))
+	_timeout(timeout),
+	_terminated(false)
     {
     }
 
@@ -30,10 +30,10 @@ public:
     run()
     {
 	Lock sync(*this);
-	while(!_destroy)
+	while(!_terminated)
 	{
 	    timedWait(_timeout);
-	    if(_destroy)
+	    if(_terminated)
 	    {
 		break;
 	    }
@@ -51,19 +51,19 @@ public:
     }
 
     void
-    destroy()
+    terminate()
     {
 	Lock sync(*this);
-	_destroy = true;
+	_terminated = true;
 	notify();
     }
 
 private:
 
     const Ice::LoggerPtr _logger;
-    SessionPrx _session;
-    bool _destroy;
+    const SessionPrx _session;
     const IceUtil::Time _timeout;
+    bool _terminated;
 };
 typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
 
@@ -76,6 +76,7 @@ menu()
 	"0-9:   greet hello object\n"
 	"s:     shutdown server\n"
 	"x:     exit\n"
+	"t:     exit without destroying the session\n"
 	"?:     help\n";
 }
 
@@ -100,13 +101,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     SessionPrx session = factory->create();
-    if(!session)
-    {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
-    }
 
-    SessionRefreshThreadPtr refresh = new SessionRefreshThread(communicator->getLogger(), session);
+    SessionRefreshThreadPtr refresh = new SessionRefreshThread(
+	communicator->getLogger(), IceUtil::Time::seconds(5), session);
     refresh->start();
 
     vector<HelloPrx> hellos;
@@ -115,11 +112,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     try
     {
-	do
+    	bool destroy = true;
+	while(true)
 	{
 	    cout << "==> ";
 	    char c;
 	    cin >> c;
+    	    if(!cin.good())
+	    {
+		break;
+	    }
 	    if(isdigit(c))
 	    {
 		string s;
@@ -148,6 +150,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		break;
 	    }
+	    else if(c == 't')
+	    {
+		destroy = false;
+		break;
+	    }
 	    else if(c == '?')
 	    {
 		menu();
@@ -158,15 +165,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		menu();
 	    }
 	}
-	while(cin.good());
-	session->destroy();
+
+	if(destroy)
+	{
+	    session->destroy();
+	}
     }
     catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
     }
 
-    refresh->destroy();
+    refresh->terminate();
     refresh->getThreadControl().join();
 
     return EXIT_SUCCESS;

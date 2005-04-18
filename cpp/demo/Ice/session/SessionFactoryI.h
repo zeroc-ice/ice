@@ -26,11 +26,11 @@ public:
     virtual ~ReapThread();
 
     virtual void run();
-    void destroy();
+    void terminate();
 
 private:
 
-    bool _destroy;
+    bool _terminated;
     const IceUtil::Time _timeout;
     SessionFactoryIPtr _factory;
 };
@@ -54,7 +54,13 @@ private:
     const Ice::ObjectAdapterPtr _adapter;
     const IceUtil::Time _timeout;
     ReapThreadPtr _reapThread;
-    std::list<std::pair<SessionIPtr, ::Ice::Identity> > _sessions;
+    struct SessionId
+    {
+    	SessionId(const SessionIPtr& s, const ::Ice::Identity& i) : session(s), id(i) { }
+	const SessionIPtr session;
+	const ::Ice::Identity id;
+    };
+    std::list<SessionId> _sessions;
 };
 
 #endif
