@@ -10,6 +10,13 @@
 #ifndef SESSION_ICE
 #define SESSION_ICE
 
+// XXX Regarding the /** comments: Either do it correctly, or get rid
+// of them (use normal comments, use //). If you want to use /**
+// properly, then add parameter and return value descriptions. I do
+// not think that this is necessary, so I recommend to only use normal
+// comments. Then you can also get rid of trivial comments, like
+// "Hello object".
+
 module Demo
 {
 
@@ -38,6 +45,10 @@ interface Session
      * basis by the client it will be automatically destroyed.
      **/
     idempotent void refresh();
+
+    // XXX "Mark" as destroyed? This should read "Destroy the
+    // session". Whether or not it's marked internally is irrelevant
+    // for the description of the interface.
 
     /** Mark the session as destroyed. */
     void destroy();

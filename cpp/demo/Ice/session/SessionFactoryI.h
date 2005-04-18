@@ -26,6 +26,8 @@ public:
     virtual ~ReapThread();
 
     virtual void run();
+
+    // XXX Rename to destroy().
     void terminate();
 
 private:
@@ -51,15 +53,26 @@ public:
 
 private:
 
-    const Ice::ObjectAdapterPtr _adapter;
-    const IceUtil::Time _timeout;
+    const Ice::ObjectAdapterPtr _adapter; // XXX Get rid of this, not needed.
+    const IceUtil::Time _timeout; // XXX Get rid of this, see other comments.
+
+    // XXX Why does the factory have to know the reaper thread? The
+    // sessions should know, they can register themselves directly
+    // with the reaper thread.
+
     ReapThreadPtr _reapThread;
+
+    // XXX Get rid of this. Use a map<Ice::Identity, SessionIPtr>.
     struct SessionId
     {
     	SessionId(const SessionIPtr& s, const ::Ice::Identity& i) : session(s), id(i) { }
 	const SessionIPtr session;
 	const ::Ice::Identity id;
     };
+
+    // XXX Why does SessionFactoryI keep a list of sessions? Clearly,
+    // only the reaper must know it, which currently simply delegates
+    // work to the SessionFactoryI, instead of doing it directly.
     std::list<SessionId> _sessions;
 };
 

@@ -117,6 +117,7 @@ SessionFactoryI::destroy()
 {
     Lock sync(*this);
 
+    // XXX When _reapThread is out of this class, simply place this code after the waitForShutdown().
     _reapThread->terminate();
     _reapThread->getThreadControl().join();
     _reapThread = 0;
