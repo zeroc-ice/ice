@@ -9,41 +9,24 @@
  **********************************************************************
 -->
 
-<project name="test_Ice_operations" default="all" basedir=".">
+<!DOCTYPE project [
+<!ENTITY common SYSTEM "file:../../../config/common.xml">
+]>
 
-    <!-- get access to env variables globally -->
-    <property environment="env" />
+<project name="test_Ice_operations" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
-    <property name="lib.dir" value="${top.dir}/lib"/>
+
+    <!-- Include common definitions -->
+    &common;
+
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant"
-        classname="Slice2JavaTask" />
-
-    <target name="init">
+    <target name="init" depends="config-init">
         <!-- Create the time stamp -->
         <tstamp/>
-
-        <!-- Define the slice.dir property -->
-        <condition property="slice.dir" value="slice">
-            <available file="slice" type="dir"/>
-        </condition>
-        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
-            <and>
-                <available type="dir" file="${env.ICE_HOME}/slice"/>
-                <not>
-                    <available file="slice" type="dir"/>
-                </not>
-            </and>
-        </condition>
-        <fail message="Slice source directory not found" unless="slice.dir"/>
     </target>
 
     <target name="generate" depends="init">
