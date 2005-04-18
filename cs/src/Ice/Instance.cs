@@ -448,7 +448,6 @@ namespace IceInternal
 	    Debug.Assert(_outgoingConnectionFactory == null);
 	    Debug.Assert(_connectionMonitor == null);
 	    Debug.Assert(_servantFactoryManager == null);
-	    // Debug.Assert(_userExceptionFactoryManager == null);
 	    Debug.Assert(_objectAdapterFactory == null);
 	    Debug.Assert(_clientThreadPool == null);
 	    Debug.Assert(_serverThreadPool == null);
