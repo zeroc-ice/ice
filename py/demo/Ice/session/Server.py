@@ -157,7 +157,13 @@ class SessionFactoryI(Demo.SessionFactory):
             for s in self._sessions:
                 if s.session.destroyed():
                     s.session.destroyCallback()
-                    self._adapter.remove(s.id)
+                    try:
+                        self._adapter.remove(s.id)
+                    except Ice.ObjectAdapterDeactivatedException, ex:
+                        # This method can be called while the server
+                        # is shutting down, in which case this
+                        # exception is expected.
+                        pass
                     self._sessions.remove(s)
         finally:
             self._lock.release()
