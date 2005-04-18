@@ -122,17 +122,18 @@ IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
 
-//
-// For some unknown reason, closing sockets below fails under WIN32,
-// with an exception that indicates that WSACleanup() would have been
-// called (error code WSANOTINITIALISED). However, traces show that
-// this is not the case, i.e., at least Ice doesn't call WSACleanup()
-// before the code below.
-//
-#ifndef _WIN32
     try
     {
 	closeSocket(_fdIntrWrite);
+    }
+    catch(const LocalException& ex)
+    {
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
+    }
+
+    try
+    {
 	closeSocket(_fdIntrRead);
     }
     catch(const LocalException& ex)
@@ -140,7 +141,6 @@ IceInternal::ThreadPool::~ThreadPool()
 	Error out(_instance->logger());
 	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
-#endif
 }
 
 void
