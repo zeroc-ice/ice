@@ -1,6 +1,10 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Fixed a race condition in the Ice run time that could cause a
+  NullPointerException during process shutdown on machines with
+  more than one CPU.
+
 - Added sequences of fixed-length elements to throughput demo.
 
 - Fixed a bug that could cause an assert if connections could not be
