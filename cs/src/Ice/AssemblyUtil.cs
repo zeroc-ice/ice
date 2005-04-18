@@ -55,7 +55,7 @@ namespace IceInternal
 	{
 	    loadAssemblies(); // Lazy initialization
 
-	    lock(_mutex) // MONO BUG: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+	    lock(_mutex)
 	    {
 		Type t = (Type)_typeTable[csharpId];
 		if(t != null)
@@ -80,7 +80,7 @@ namespace IceInternal
 
 	    loadAssemblies(); // Lazy initialization
 
-	    lock(_mutex) // MONO BUG: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+	    lock(_mutex)
 	    {
 		foreach(Assembly a in _loadedAssemblies.Values)
 		{
@@ -135,7 +135,7 @@ namespace IceInternal
 	//
 	private static void loadAssemblies()
 	{
-	    lock(_mutex) // MONO BUG: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
+	    lock(_mutex)
 	    {
 		if(!_assembliesLoaded)
 		{
