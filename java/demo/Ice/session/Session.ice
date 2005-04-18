@@ -37,7 +37,7 @@ interface Session
      * Refresh a session. If a session is not refreshed on a regular
      * basis by the client it will be automatically destroyed.
      **/
-    void refresh();
+    idempotent void refresh();
 
     /** Mark the session as destroyed. */
     void destroy();

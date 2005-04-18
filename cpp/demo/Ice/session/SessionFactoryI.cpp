@@ -92,7 +92,16 @@ SessionFactoryI::reap()
 	if(p->session->destroyed())
 	{
 	    p->session->destroyCallback();
-    	    _adapter->remove(p->id);
+	    try
+	    {
+		_adapter->remove(p->id);
+	    }
+	    catch(const Ice::ObjectAdapterDeactivatedException&)
+	    {
+		// This method can be called while the server is
+		// shutting down, in which case this exception is
+		// expected.
+	    }
     	    p = _sessions.erase(p);
 	}
 	else

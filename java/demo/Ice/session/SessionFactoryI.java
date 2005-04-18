@@ -109,7 +109,16 @@ class SessionFactoryI extends _SessionFactoryDisp
     	    if(s.session.destroyed())
 	    {
 		s.session.destroyCallback();
-		_adapter.remove(s.id);
+		try
+		{
+		    _adapter.remove(s.id);
+		}
+		catch(Ice.ObjectAdapterDeactivatedException e)
+		{
+		    // This method can be called while the server is
+		    // shutting down, in which case this exception is
+		    // expected.
+		}
     	    	p.remove();
 	    }
 	}
