@@ -20,6 +20,7 @@
         <ant dir="nested"/>
         <ant dir="throughput"/>
         <ant dir="value"/>
+        <ant dir="session"/>
     </target>
 
     <target name="clean">
@@ -31,6 +32,7 @@
         <ant dir="nested" target="clean"/>
         <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>
+        <ant dir="session" target="clean"/>
     </target>
 
 </project>
