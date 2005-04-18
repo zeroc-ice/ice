@@ -761,6 +761,8 @@ namespace Ice
 	{
 	    if(!_deactivated)
 	    {
+	        Debug.Assert(_instance != null);
+	        Debug.Assert(_instance.logger() != null);
 		_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
 	    }
 	    else if(_instance != null)
@@ -772,6 +774,7 @@ namespace Ice
 		Debug.Assert(_threadPool == null);
 		Debug.Assert(_servantManager == null);
 		Debug.Assert(_communicator == null);
+		Debug.Assert(_incomingConnectionFactories != null);
 		Debug.Assert(_incomingConnectionFactories.Count == 0);
 		Debug.Assert(_directCount == 0);
 		Debug.Assert(!_waitForDeactivate);
