@@ -1,0 +1,17 @@
+#
+# The client reads this property to create the reference to the
+# "SessionFactory" object in the server.
+#
+SessionFactory.Proxy=SessionFactory:default -p 10000
+
+#
+# The server creates one single object adapter with the name
+# "SessionFactory". The following line sets the endpoints for this
+# adapter.
+#
+SessionFactory.Endpoints=default -p 10000
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
