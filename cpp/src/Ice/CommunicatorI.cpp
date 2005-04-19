@@ -433,6 +433,7 @@ Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties) :
 
 Ice::CommunicatorI::~CommunicatorI()
 {
+    RecMutex::Lock sync(*this);
     if(!_destroyed)
     {
 	Warning out(_instance->logger());
