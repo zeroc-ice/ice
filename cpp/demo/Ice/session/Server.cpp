@@ -18,8 +18,8 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionFactory");
-    ReapThreadPtr reaper = new ReapThread(IceUtil::Time::seconds(10));
-    adapter->add(new SessionFactoryI(reaper), Ice::stringToIdentity("SessionFactory"));
+    ReapThreadPtr reaper = ReapThread::instance();
+    adapter->add(new SessionFactoryI, Ice::stringToIdentity("SessionFactory"));
     adapter->activate();
     reaper->start();
     communicator->waitForShutdown();

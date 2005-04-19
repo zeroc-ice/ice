@@ -13,16 +13,11 @@
 #include <Session.h>
 #include <list>
 
-// XXX Get rid of leading ::, i.e., use Demo::, not ::Demo::
-// (everywhere).
-// Style: The other demos all use ::Demo::
-// XXX All other demos should be changed then. We don't use leading :: if they are not necessary.
-
-class SessionI : public ::Demo::Session, public IceUtil::Mutex
+class SessionI : public Demo::Session, public IceUtil::Mutex
 {
 public:
 
-    virtual ::Demo::HelloPrx createHello(const Ice::Current&);
+    virtual Demo::HelloPrx createHello(const Ice::Current&);
     virtual void refresh(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
@@ -39,7 +34,7 @@ private:
     IceUtil::Time _timestamp; // The last time the session was refreshed.
     
     int _nextId; // The id of the next hello object. This is used for tracing purposes.
-    std::list< ::Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
+    std::list< Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
     bool _destroy;
 };
 

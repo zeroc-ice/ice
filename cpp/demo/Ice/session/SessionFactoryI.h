@@ -11,34 +11,16 @@
 #define SESSION_FACTORY_I_H
 
 #include <Session.h>
-#include <ReapThread.h> // XXX Not checked in.
 
-class SessionFactoryI : public ::Demo::SessionFactory, public IceUtil::Mutex
+class SessionFactoryI : public Demo::SessionFactory, public IceUtil::Mutex
 {
 public:
 
-    SessionFactoryI(const ReapThreadPtr&);
+    SessionFactoryI();
     virtual ~SessionFactoryI();
 
-    virtual ::Demo::SessionPrx create(const ::Ice::Current&);
+    virtual Demo::SessionPrx create(const ::Ice::Current&);
     virtual void shutdown(const Ice::Current&);
-
-private:
-
-    // XXX Why does the factory have to know the reaper thread? The
-    // sessions should know, they can register themselves directly
-    // with the reaper thread.
-    //
-    // If I do this it means that either the reap thread must be a
-    // singleton, or I need to pass the reap thread to session and
-    // tell the session its proxy which it currently does not
-    // know. Since the session factory knows both, this seems like a
-    // better solution.
-    //
-    // XXX Make it a singleton, because it is a singleton. It doesn't
-    // belong here.
-    //
-    const ReapThreadPtr _reapThread;
 };
 
 #endif

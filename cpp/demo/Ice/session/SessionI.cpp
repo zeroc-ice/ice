@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <SessionFactoryI.h>
+#include <SessionI.h>
 
 using namespace std;
 using namespace Demo;
@@ -42,7 +43,11 @@ HelloPrx
 SessionI::createHello(const Ice::Current& c)
 {
     Lock sync(*this);
-    // XXX Check for destruction missing.
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     HelloPrx hello = HelloPrx::uncheckedCast(c.adapter->addWithUUID(new HelloI(_nextId++)));
     _objs.push_back(hello);
     return hello;
@@ -52,7 +57,11 @@ void
 SessionI::refresh(const Ice::Current& c)
 {
     Lock sync(*this);
-    // XXX Check for destruction missing.
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     _timestamp = IceUtil::Time::now();
 }
 
@@ -60,7 +69,11 @@ void
 SessionI::destroy(const Ice::Current& c)
 {
     Lock sync(*this);
-    // XXX Check for destruction missing.
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
     _destroy = true;
 
     cout << "The session #" << Ice::identityToString(c.id) << " is now destroyed." << endl;

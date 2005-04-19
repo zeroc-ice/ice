@@ -9,12 +9,12 @@
 
 #include <Ice/Ice.h>
 #include <SessionFactoryI.h>
+#include <ReapThread.h>
 
 using namespace std;
 using namespace Demo;
 
-SessionFactoryI::SessionFactoryI(const ReapThreadPtr& reapThread) :
-    _reapThread(reapThread)
+SessionFactoryI::SessionFactoryI()
 {
 }
 
@@ -29,7 +29,7 @@ SessionFactoryI::create(const Ice::Current& c)
 
     SessionIPtr session = new SessionI;
     SessionPrx proxy = SessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
-    _reapThread->add(proxy, session);
+    ReapThread::instance()->add(proxy, session);
     return proxy;
 }
 
