@@ -670,7 +670,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = instance.properties().getProperty(name + ".AdapterId");
-        _logger = instance.logger();
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
@@ -942,7 +941,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _printAdapterReadyDone;
     final private String _name;
     final private String _id;
-    private Logger _logger;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private java.util.ArrayList _publishedEndpoints;
