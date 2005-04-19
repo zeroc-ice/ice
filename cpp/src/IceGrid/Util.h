@@ -10,6 +10,7 @@
 #ifndef ICE_GRID_UTIL_H
 #define ICE_GRID_UTIL_H
 
+#include <IceUtil/StringUtil.h>
 #include <IceGrid/Internal.h>
 
 namespace IceGrid
