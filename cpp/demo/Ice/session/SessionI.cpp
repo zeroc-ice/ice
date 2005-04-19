@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
-#include <SessionFactoryI.h>
+#include <Ice/Ice.h> // XXX Remove, see comment in SessionFactoryI.cpp
+#include <SessionFactoryI.h> // XXX Remove, not needed anywhere.
 #include <SessionI.h>
 
 using namespace std;
@@ -76,6 +76,7 @@ SessionI::destroy(const Ice::Current& c)
 
     _destroy = true;
 
+    // XXX Why "#"? Use "The session with the identity `...' is now destroyed."
     cout << "The session #" << Ice::identityToString(c.id) << " is now destroyed." << endl;
     try
     {

@@ -10,6 +10,11 @@
 #ifndef SESSION_I_H
 #define SESSION_I_H
 
+// XXX Missing #includes. The #includes for the header must be
+// self-contained, i.e. there must be no problem if you just do
+// #include<SessionFactoryI.h> from an empty .cpp file. (I know that
+// some other demos don't follow this rule, but they need to be
+// fixed. We shouldn't propagate such mistakes into new demos.)
 #include <Session.h>
 #include <list>
 
@@ -32,7 +37,8 @@ private:
     SessionI();
 
     IceUtil::Time _timestamp; // The last time the session was refreshed.
-    
+
+    // XXX This needs to be a static, otherwise hello objects from different client have the same ID.
     int _nextId; // The id of the next hello object. This is used for tracing purposes.
     std::list< Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
     bool _destroy;

@@ -20,6 +20,7 @@ ReapThreadPtr&
 ReapThread::instance()
 {
     IceUtil::StaticMutex::Lock sync(_instanceMutex);
+
     if(!_instance)
     {
 	_instance = new ReapThread;
@@ -36,11 +37,16 @@ void
 ReapThread::run()
 {
     Lock sync(*this);
+
     while(!_terminated)
     {
 	timedWait(_timeout);
+
 	if(!_terminated)
 	{
+	    // XXX Session destruction may take time in a real-world
+	    // example. Therefore now should be computed in the loop
+	    // for each iteration.
 	    IceUtil::Time now = IceUtil::Time::now();
 	    map<SessionPrx, SessionIPtr>::iterator p = _sessions.begin();
 	    while(p != _sessions.end())
@@ -52,6 +58,7 @@ ReapThread::run()
 			cout << "The session #" << Ice::identityToString(p->first->ice_getIdentity())
 			     << " has timed out." << endl;
 			p->first->destroy();
+			// XXX This can be simplified to _sessions.erase(p++);
 			map<SessionPrx, SessionIPtr>::iterator tmp = p;
 			++p;
 			_sessions.erase(tmp);
@@ -63,6 +70,7 @@ ReapThread::run()
     	    	}
 		catch(const Ice::ObjectNotExistException&)
 		{
+		    // XXX This can be simplified to _sessions.erase(p++);
 		    map<SessionPrx, SessionIPtr>::iterator tmp = p;
 		    ++p;
 		    _sessions.erase(tmp);
@@ -76,12 +84,11 @@ void
 ReapThread::terminate()
 {
     Lock sync(*this);
+
     _terminated = true;
     notify();
 
-    for(map<SessionPrx, SessionIPtr>::const_iterator p = _sessions.begin();
-	p != _sessions.end();
-	++p)
+    for(map<SessionPrx, SessionIPtr>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
 	{
@@ -89,9 +96,10 @@ ReapThread::terminate()
 	}
 	catch(const Ice::Exception&)
 	{
-	    // Ignore the exception
+	    // Ignore.
 	}
     }
+
     _sessions.clear();
 }
 
@@ -99,6 +107,9 @@ void
 ReapThread::add(const SessionPrx& proxy, const SessionIPtr& session)
 {
     Lock sync(*this);
+    // XXX Don't use make_pair, it's not portable. We had to remove it
+    // from most of our code, because the Sun compiler and others had
+    // problems with it.y
     _sessions.insert(make_pair(proxy, session));
 }
 

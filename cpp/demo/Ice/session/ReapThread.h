@@ -22,27 +22,13 @@ public:
 
     static ReapThreadPtr& instance();
 
-    virtual ~ReapThread();
+    virtual ~ReapThread(); // XXX Destructor does nothing, get rid of it.
 
     virtual void run();
 
-    // XXX Rename to destroy().
-    //
-    // I named it terminate because destroy() methods in Java result
-    // in a deprecation warning. If you want to use destroy() in Java
-    // then I would have to use a runnable which means the demo isn't
-    // the same code. Given the difference is a method name, I didn't
-    // think it was worth the cost of different code.
-    //
     void terminate();
 
-    // XXX: The alternative here is to make timestamp() a slice
-    // method. However, this means that we're adding methods to the
-    // slice interface which is only required for the reaping thread,
-    // and it obviously couldn't return an IceUtil::Time but instead
-    // some other representation...
-    //
-    void add(const ::Demo::SessionPrx&, const SessionIPtr&);
+    void add(const Demo::SessionPrx&, const SessionIPtr&);
 
 private:
 
@@ -50,7 +36,10 @@ private:
 
     const IceUtil::Time _timeout;
     bool _terminated;
-    std::map< ::Demo::SessionPrx, SessionIPtr> _sessions;
+    // XXX Why is this a map and not simply a list of
+    // pair<Demo::SessionPrx, SessionIPtr> (or a list of structs with
+    // these elements)? The sorting of a map is needed nowhere.
+    std::map< Demo::SessionPrx, SessionIPtr> _sessions;
 
     static ReapThreadPtr _instance;
     static IceUtil::StaticMutex _instanceMutex;

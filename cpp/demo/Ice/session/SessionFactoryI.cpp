@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Ice.h> // XXX Get rid of this, SessionFactoryI.cpp must include this.
 #include <SessionFactoryI.h>
 #include <ReapThread.h>
 
@@ -25,7 +25,7 @@ SessionFactoryI::~SessionFactoryI()
 SessionPrx
 SessionFactoryI::create(const Ice::Current& c)
 {
-    Lock sync(*this);
+    Lock sync(*this); // XXX What is the mutex lock needed for?
 
     SessionIPtr session = new SessionI;
     SessionPrx proxy = SessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
@@ -34,7 +34,7 @@ SessionFactoryI::create(const Ice::Current& c)
 }
 
 void
-SessionFactoryI::shutdown(const ::Ice::Current& c)
+SessionFactoryI::shutdown(const Ice::Current& c)
 {
     cout << "Shutting down..." << endl;
     c.adapter->getCommunicator()->shutdown();

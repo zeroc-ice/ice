@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Ice.h> // XXX Get rid of this, see other comments.
 #include <SessionFactoryI.h>
 #include <ReapThread.h>
 
@@ -18,10 +18,12 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionFactory");
+
     ReapThreadPtr reaper = ReapThread::instance();
+    reaper->start();
+
     adapter->add(new SessionFactoryI, Ice::stringToIdentity("SessionFactory"));
     adapter->activate();
-    reaper->start();
     communicator->waitForShutdown();
 
     reaper->terminate();

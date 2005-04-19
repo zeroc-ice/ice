@@ -64,6 +64,7 @@ private:
     const IceUtil::Time _timeout;
     bool _terminated;
 };
+
 typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
 
 void
@@ -71,9 +72,9 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"c:     create new hello\n"
-	"0-9:   greet hello object\n"
-	"s:     shutdown server\n"
+	"c:     create a new per-client hello object\n"
+	"0-9:   send a greeting to a hello object\n"
+	"s:     shutdown the server\n"
 	"x:     exit\n"
 	"t:     exit without destroying the session\n"
 	"?:     help\n";
@@ -132,14 +133,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		}
 		else
 		{
-		    cout << "index is too high. " << hellos.size() << " exist so far. "
-			 << "Use 'c' to create a new hello object." << endl;
+		    cout << "Index is too high. " << hellos.size() << " hello objects exist so far.\n"
+			 << "Use `c' to create a new hello object." << endl;
 		}
 	    }
 	    else if(c == 'c')
 	    {
 		hellos.push_back(session->createHello());
-		cout << "created hello object " << hellos.size()-1 << endl;
+		cout << "Created hello object #" << hellos.size() - 1 << endl;
 	    }
 	    else if(c == 's')
 	    {
@@ -160,7 +161,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else
 	    {
-		cout << "unknown command `" << c << "'" << endl;
+		cout << "Unknown command `" << c << "'." << endl;
 		menu();
 	    }
 	}
@@ -180,6 +181,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     return EXIT_SUCCESS;
 }
+
+// XXX Rewrite to use Application. See ../callback for an example.
 
 int
 main(int argc, char* argv[])
