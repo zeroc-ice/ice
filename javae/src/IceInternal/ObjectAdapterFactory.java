@@ -179,7 +179,6 @@ public final class ObjectAdapterFactory
     {
 	assert(_instance == null);
 	assert(_communicator == null);
-	assert(_adapters.size() == 0);
 	assert(!_waitForShutdown);
 
         super.finalize();
