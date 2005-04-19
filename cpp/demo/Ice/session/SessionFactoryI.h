@@ -10,70 +10,32 @@
 #ifndef SESSION_FACTORY_I_H
 #define SESSION_FACTORY_I_H
 
-#include <IceUtil/Thread.h>
-#include <SessionI.h>
-
-#include <list>
-
-class SessionFactoryI;
-typedef IceUtil::Handle<SessionFactoryI> SessionFactoryIPtr;
-
-class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    ReapThread(const SessionFactoryIPtr&, const IceUtil::Time&);
-    virtual ~ReapThread();
-
-    virtual void run();
-
-    // XXX Rename to destroy().
-    void terminate();
-
-private:
-
-    bool _terminated;
-    const IceUtil::Time _timeout;
-    SessionFactoryIPtr _factory;
-};
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
+#include <Session.h>
+#include <ReapThread.h>
 
 class SessionFactoryI : public ::Demo::SessionFactory, public IceUtil::Mutex
 {
 public:
 
-    SessionFactoryI(const Ice::ObjectAdapterPtr&);
+    SessionFactoryI(const ReapThreadPtr&);
     virtual ~SessionFactoryI();
 
     virtual ::Demo::SessionPrx create(const ::Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
-    void reap();
-    void destroy();
-
 private:
-
-    const Ice::ObjectAdapterPtr _adapter; // XXX Get rid of this, not needed.
-    const IceUtil::Time _timeout; // XXX Get rid of this, see other comments.
 
     // XXX Why does the factory have to know the reaper thread? The
     // sessions should know, they can register themselves directly
     // with the reaper thread.
-
-    ReapThreadPtr _reapThread;
-
-    // XXX Get rid of this. Use a map<Ice::Identity, SessionIPtr>.
-    struct SessionId
-    {
-    	SessionId(const SessionIPtr& s, const ::Ice::Identity& i) : session(s), id(i) { }
-	const SessionIPtr session;
-	const ::Ice::Identity id;
-    };
-
-    // XXX Why does SessionFactoryI keep a list of sessions? Clearly,
-    // only the reaper must know it, which currently simply delegates
-    // work to the SessionFactoryI, instead of doing it directly.
-    std::list<SessionId> _sessions;
+    //
+    // If I do this it means that either the reap thread must be a
+    // singleton, or I need to pass the reap thread to session and
+    // tell the session its proxy which it currently does not
+    // know. Since the session factory knows both, this seems like a
+    // better solution.
+    //
+    const ReapThreadPtr _reapThread;
 };
 
 #endif

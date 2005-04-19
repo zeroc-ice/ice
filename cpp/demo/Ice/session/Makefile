@@ -18,7 +18,8 @@ OBJS		= Session.o
 
 COBJS		= Client.o
 
-SOBJS		= SessionFactoryI.o \
+SOBJS		= ReapThread.o \
+		  SessionFactoryI.o \
 		  SessionI.o \
 		  Server.o
 

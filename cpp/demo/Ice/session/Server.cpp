@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <SessionFactoryI.h>
+#include <ReapThread.h>
 
 using namespace std;
 using namespace Demo;
@@ -17,11 +18,15 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionFactory");
-    SessionFactoryIPtr factory = new SessionFactoryI(adapter);
-    adapter->add(factory, Ice::stringToIdentity("SessionFactory"));
+    ReapThreadPtr reaper = new ReapThread(IceUtil::Time::seconds(10));
+    adapter->add(new SessionFactoryI(reaper), Ice::stringToIdentity("SessionFactory"));
     adapter->activate();
+    reaper->start();
     communicator->waitForShutdown();
-    factory->destroy();
+
+    reaper->terminate();
+    reaper->getThreadControl().join();
+
     return EXIT_SUCCESS;
 }
 
