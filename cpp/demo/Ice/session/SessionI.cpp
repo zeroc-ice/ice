@@ -13,9 +13,6 @@
 using namespace std;
 using namespace Demo;
 
-// XXX Add using namespace Ice.
-// Style: the other demos do not use namespace Ice.
-
 class HelloI : public Hello
 {
 public:
@@ -25,7 +22,7 @@ public:
     {
     }
 
-    ~HelloI()
+    virtual ~HelloI()
     {
 	cout << "Hello object #" << _id << " destroyed" << endl;
     }
@@ -45,6 +42,7 @@ HelloPrx
 SessionI::createHello(const Ice::Current& c)
 {
     Lock sync(*this);
+    // XXX Check for destruction missing.
     HelloPrx hello = HelloPrx::uncheckedCast(c.adapter->addWithUUID(new HelloI(_nextId++)));
     _objs.push_back(hello);
     return hello;
@@ -54,6 +52,7 @@ void
 SessionI::refresh(const Ice::Current& c)
 {
     Lock sync(*this);
+    // XXX Check for destruction missing.
     _timestamp = IceUtil::Time::now();
 }
 
@@ -61,6 +60,7 @@ void
 SessionI::destroy(const Ice::Current& c)
 {
     Lock sync(*this);
+    // XXX Check for destruction missing.
     _destroy = true;
 
     cout << "The session #" << Ice::identityToString(c.id) << " is now destroyed." << endl;

@@ -16,6 +16,7 @@
 // XXX Get rid of leading ::, i.e., use Demo::, not ::Demo::
 // (everywhere).
 // Style: The other demos all use ::Demo::
+// XXX All other demos should be changed then. We don't use leading :: if they are not necessary.
 
 class SessionI : public ::Demo::Session, public IceUtil::Mutex
 {
@@ -41,6 +42,7 @@ private:
     std::list< ::Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
     bool _destroy;
 };
+
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
 #endif

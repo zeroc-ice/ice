@@ -11,7 +11,7 @@
 #define SESSION_FACTORY_I_H
 
 #include <Session.h>
-#include <ReapThread.h>
+#include <ReapThread.h> // XXX Not checked in.
 
 class SessionFactoryI : public ::Demo::SessionFactory, public IceUtil::Mutex
 {
@@ -34,6 +34,9 @@ private:
     // tell the session its proxy which it currently does not
     // know. Since the session factory knows both, this seems like a
     // better solution.
+    //
+    // XXX Make it a singleton, because it is a singleton. It doesn't
+    // belong here.
     //
     const ReapThreadPtr _reapThread;
 };
