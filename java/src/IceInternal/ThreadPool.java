@@ -900,6 +900,9 @@ public final class ThreadPool
         }
     }
 
+/*
+ *  Commented out because it is unused.
+ *
     private void
     selectNonBlocking()
     {
@@ -961,6 +964,7 @@ public final class ThreadPool
             }
         }
     }
+*/
 
     private void
     select()
