@@ -10,6 +10,12 @@
 #ifndef ICE_ROUTER_ICE
 #define ICE_ROUTER_ICE
 
+#ifdef ICEE
+#include <Ice/IceEConfig.ice>
+#endif
+
+#ifndef ICE_NO_ROUTER
+
 module Ice
 {
 
@@ -58,5 +64,7 @@ interface Router
 };
 
 };
+
+#endif
 
 #endif

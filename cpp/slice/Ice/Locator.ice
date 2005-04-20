@@ -10,6 +10,12 @@
 #ifndef ICE_LOCATOR_ICE
 #define ICE_LOCATOR_ICE
 
+#ifdef ICEE
+#include <Ice/IceEConfig.ice>
+#endif
+
+#ifndef ICE_NO_LOCATOR
+
 #include <Ice/Identity.ice>
 #include <Ice/ProcessF.ice>
 
@@ -162,5 +168,7 @@ interface LocatorRegistry
 };
 
 };
+
+#endif
 
 #endif

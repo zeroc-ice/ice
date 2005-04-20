@@ -7,23 +7,22 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCATOR_F_ICE
-#define ICE_LOCATOR_F_ICE
+#ifndef ICE_USER_CONFIG
+#define ICE_USER_CONFIG
 
-#ifdef ICEE
-#include <Ice/IceEConfig.ice>
-#endif
+//
+// Uncomment the following define if you want to build Ice-E
+// without Router support.
+//
 
-#ifndef ICE_NO_LOCATOR
+//#define ICE_NO_ROUTER
 
-module Ice
-{
+//
+//
+// Uncomment the following define if you want to build Ice-E
+// without Locator support.
+//
 
-interface Locator;
-interface LocatorRegistry;
-
-};
-
-#endif
+//#define ICE_NO_LOCATOR 
 
 #endif
