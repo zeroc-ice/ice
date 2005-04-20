@@ -101,12 +101,11 @@ local interface ObjectAdapter
      * Deactivate all endpoints that belong to this object
      * adapter. After deactivation, the object adapter stops receiving
      * requests through its endpoints. Object adapters that have been
-     * deactivated must not be reactivated again, i.e., the
-     * deactivation is permanent and [activate] or [hold] must not be
-     * called after calling [deactivate]; attempting to do so results
-     * in an [ObjectAdapterDeactivatedException] being thrown. Calls
-     * to [deactivate] on an already deactivated object adapter are
-     * ignored.
+     * deactivated must not be reactivated again, and cannot be used
+     * otherwise. Attempts to use a deactivated object adapter raise
+     * [ObjectAdapterDeactivatedException]; however, attempts to
+     * [deactivate] an already deactivated object adapter are ignored
+     * and do nothing.
      *
      * <note><para> After [deactivate] returns, no new requests are
      * processed by the object adapter. However, requests that have
