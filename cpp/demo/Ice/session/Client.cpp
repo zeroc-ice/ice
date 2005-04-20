@@ -98,6 +98,7 @@ SessionClient::run(int argc, char* argv[])
 	{
 	    return EXIT_FAILURE;
 	}
+	// XXX Remove. cin>>name already trims whitespace.
 	name = trim(name);
     }
     while(name.size() == 0);
@@ -185,16 +186,24 @@ SessionClient::run(int argc, char* argv[])
 	    }
 	}
 
+	// XXX Wrong order. The refresher thread must be terminated
+	// before destroy is called, otherwise it might get
+	// ObjectNotExistException.
 	if(destroy)
 	{
 	    session->destroy();
 	}
     }
+    // XXX Remove. The caller already prints excpetion. (Only the
+    // equivalent of a finally bock is needed here for cleanup.
     catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
+	// XXX Would have to return EXIT_FAILURE, but this point is
+	// moot, see comment above.
     }
 
+    // XXX Wrong destruction order, see comment above.
     refresh->terminate();
     refresh->getThreadControl().join();
 
@@ -214,6 +223,7 @@ SessionClient::menu()
 	"?:     help\n";
 }
 
+// XXX Remove.
 string
 SessionClient::trim(const string& s)
 {

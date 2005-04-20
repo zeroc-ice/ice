@@ -13,6 +13,8 @@
 using namespace std;
 using namespace Demo;
 
+// XXX Change to use Ice::Application.
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {

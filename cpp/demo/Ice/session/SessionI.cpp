@@ -24,13 +24,14 @@ public:
 
     virtual ~HelloI()
     {
-	cout << "Hello object " << _id << " for session " << _name << " destroyed" << endl;
+	cout << "Hello object #" << _id << " for session `" << _name << "' destroyed" << endl;
     }
 
     void
     sayHello(const Ice::Current&) const
     {
-	cout << "Hello object " << _id << " says 'Hello " << _name << "!'" << endl;
+	cout << "Hello object #" << _id << " for session `" << _name << "' says:\n"
+	     << "Hello " << _name << "!" << endl;
     }
 
 private:
@@ -43,6 +44,7 @@ HelloPrx
 SessionI::createHello(const Ice::Current& c)
 {
     Lock sync(*this);
+
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -57,6 +59,7 @@ void
 SessionI::refresh(const Ice::Current& c)
 {
     Lock sync(*this);
+
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -69,6 +72,7 @@ string
 SessionI::getName(const Ice::Current&) const
 {
     Lock sync(*this);
+
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
