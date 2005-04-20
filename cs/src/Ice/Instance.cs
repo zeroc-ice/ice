@@ -442,19 +442,24 @@ namespace IceInternal
 	
 	~Instance()
 	{
-	    Debug.Assert(_destroyed);
-	    Debug.Assert(_referenceFactory == null);
-	    Debug.Assert(_proxyFactory == null);
-	    Debug.Assert(_outgoingConnectionFactory == null);
-	    Debug.Assert(_connectionMonitor == null);
-	    Debug.Assert(_servantFactoryManager == null);
-	    Debug.Assert(_objectAdapterFactory == null);
-	    Debug.Assert(_clientThreadPool == null);
-	    Debug.Assert(_serverThreadPool == null);
-	    Debug.Assert(_routerManager == null);
-	    Debug.Assert(_locatorManager == null);
-	    Debug.Assert(_endpointFactoryManager == null);
-	    Debug.Assert(_pluginManager == null);
+#if DEBUG
+            lock(this)
+	    {
+		Debug.Assert(_destroyed);
+		Debug.Assert(_referenceFactory == null);
+		Debug.Assert(_proxyFactory == null);
+		Debug.Assert(_outgoingConnectionFactory == null);
+		Debug.Assert(_connectionMonitor == null);
+		Debug.Assert(_servantFactoryManager == null);
+		Debug.Assert(_objectAdapterFactory == null);
+		Debug.Assert(_clientThreadPool == null);
+		Debug.Assert(_serverThreadPool == null);
+		Debug.Assert(_routerManager == null);
+		Debug.Assert(_locatorManager == null);
+		Debug.Assert(_endpointFactoryManager == null);
+		Debug.Assert(_pluginManager == null);
+	    }
+#endif DEBUG
 	}
 	
 	public void finishSetup(ref string[] args)

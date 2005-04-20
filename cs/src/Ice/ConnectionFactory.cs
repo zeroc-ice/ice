@@ -499,8 +499,12 @@ namespace IceInternal
 	
 	~OutgoingConnectionFactory()
 	{
-	    Debug.Assert(_destroyed);
-	    Debug.Assert(_connections.Count == 0);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_destroyed);
+	    }
+#endif DEBUG
 	}
 	
 	private readonly Instance _instance;
@@ -881,9 +885,13 @@ namespace IceInternal
 	
 	~IncomingConnectionFactory()
 	{
-	    Debug.Assert(_state == StateClosed);
-	    Debug.Assert(_acceptor == null);
-	    Debug.Assert(_connections.Count == 0);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_state == StateClosed);
+		Debug.Assert(_acceptor == null);
+	    }
+#endif DEBUG
 	}
 	
 	private const int StateActive = 0;

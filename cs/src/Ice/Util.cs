@@ -166,7 +166,6 @@ namespace Ice
 	private const int RPC_S_OK = 0;
 	private const int RPC_S_OUT_OF_MEMORY = 14;
 	private const int RPC_S_UUID_LOCAL_ONLY = 1824;
-	private const int RPC_S_UUID_NO_ADDRESS = 1739;
 
 	public static string generateUUID()
 	{

@@ -1158,13 +1158,16 @@ namespace Ice
 	
         ~_ObjectDelM()
         {
-            while(__outgoingCache != null)
-            {
-                IceInternal.Outgoing next = __outgoingCache.next;
-                __outgoingCache.destroy();
-                __outgoingCache.next = null;
-                __outgoingCache = next;
-            }
+	    lock(this)
+	    {
+		while(__outgoingCache != null)
+		{
+		    IceInternal.Outgoing next = __outgoingCache.next;
+		    __outgoingCache.destroy();
+		    __outgoingCache.next = null;
+		    __outgoingCache = next;
+		}
+	    }
         }
 	
         private IceInternal.Outgoing __outgoingCache;

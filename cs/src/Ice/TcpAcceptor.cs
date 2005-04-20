@@ -120,7 +120,12 @@ namespace IceInternal
 	
 	~TcpAcceptor()
 	{
-	    Debug.Assert(_fd == null);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_fd == null);
+	    }
+#endif DEBUG
 	}
 	
 	private Instance _instance;

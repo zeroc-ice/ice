@@ -278,12 +278,16 @@ namespace IceInternal
 	    _logger = instance.logger();
 	    _stats = instance.stats();
 	    _desc = Network.fdToString(_fd);
-	    _bytes = new byte[Protocol.headerSize];
 	}
 	
 	~TcpTransceiver()
 	{
-	    Debug.Assert(_fd == null);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_fd == null);
+	    }
+#endif DEBUG
 	}
 	
 	private Socket _fd;
@@ -291,7 +295,6 @@ namespace IceInternal
 	private Ice.Logger _logger;
 	private Ice.Stats _stats;
 	private string _desc;
-	private byte[] _bytes;
     }
 
 }

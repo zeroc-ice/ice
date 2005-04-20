@@ -167,10 +167,15 @@ namespace IceInternal
 	
 	~ObjectAdapterFactory()
 	{
-	    Debug.Assert(_instance == null);
-	    Debug.Assert(_communicator == null);
-	    Debug.Assert(_adapters.Count == 0);
-	    Debug.Assert(!_waitForShutdown);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_instance == null);
+		Debug.Assert(_communicator == null);
+		Debug.Assert(_adapters != null);
+		Debug.Assert(!_waitForShutdown);
+	    }
+#endif DEBUG
 	}
 	
 	private Instance _instance;

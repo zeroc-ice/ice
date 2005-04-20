@@ -292,17 +292,6 @@ namespace Ice
 	    _instance = new IceInternal.Instance(this, properties);
 	}
 	
-	~CommunicatorI()
-	{
-	    lock(this)
-	    {
-		if(!_destroyed)
-		{
-		    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
-		}
-	    }
-	}
-
 	//
 	// Certain initialization tasks need to be completed after the
 	// constructor.

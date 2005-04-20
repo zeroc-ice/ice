@@ -207,7 +207,10 @@ public sealed class ServantManager
 	// not been called if the associated object adapter was not
 	// properly deactivated.
 	//
-	//Debug.Assert(_instance == null);
+	//lock(this)
+	//{
+	    //Debug.Assert(_instance == null);
+	//}
     }
     
     //

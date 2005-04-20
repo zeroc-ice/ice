@@ -14,7 +14,6 @@ namespace IceInternal
     {
 	public UnknownEndpoint(short type, BasicStream s)
 	{
-	    _instance = s.instance();
 	    _type = type;
 	    s.startReadEncaps();
 	    int sz = s.getReadEncapsSize();
@@ -243,7 +242,6 @@ namespace IceInternal
 	    }
 	}
 	
-	private Instance _instance;
 	private short _type;
 	private byte[] _rawBytes;
 	private int _hashCode;

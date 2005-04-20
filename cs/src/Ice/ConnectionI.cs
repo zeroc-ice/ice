@@ -1559,9 +1559,14 @@ namespace Ice
 	
 	~ConnectionI()
 	{
-	    Debug.Assert(_state == StateClosed);
-	    Debug.Assert(_transceiver == null);
-	    Debug.Assert(_dispatchCount == 0);
+#if DEBUG
+            lock(this)
+	    {
+		Debug.Assert(_state == StateClosed);
+		Debug.Assert(_transceiver == null);
+		Debug.Assert(_dispatchCount == 0);
+	    }
+#endif DEBUG
 
 	    _batchStream.destroy();
 	}
@@ -1863,16 +1868,6 @@ namespace Ice
 		inc.next = _incomingCache;
 		_incomingCache = inc;
 	    }
-	}
-	
-	private bool closingOK()
-	{
-	    return
-		_requests.Count == 0 &&
-		_asyncRequests.Count == 0 &&
-		!_batchStreamInUse &&
-		_batchStream.isEmpty() &&
-		_dispatchCount == 0;
 	}
 	
 	private IceInternal.Transceiver _transceiver;

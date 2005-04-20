@@ -698,7 +698,6 @@ namespace Ice
 	    _printAdapterReadyDone = false;
 	    _name = name;
 	    _id = instance.properties().getProperty(name + ".AdapterId");
-	    _logger = instance.logger();
 	    _incomingConnectionFactories = new ArrayList();
 	    _routerEndpoints = new ArrayList();
 	    _directCount = 0;
@@ -759,23 +758,12 @@ namespace Ice
 	
 	~ObjectAdapterI()
 	{
-	    if(!_deactivated)
-	    {
-	        Debug.Assert(_instance != null);
-	        Debug.Assert(_instance.logger() != null);
-		_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
-	    }
-	    else if(_instance != null)
-	    {
-		_instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
-	    }
-	    else
+	    lock(this)
 	    {
 		Debug.Assert(_threadPool == null);
 		Debug.Assert(_servantManager == null);
 		Debug.Assert(_communicator == null);
 		Debug.Assert(_incomingConnectionFactories != null);
-		Debug.Assert(_incomingConnectionFactories.Count == 0);
 		Debug.Assert(_directCount == 0);
 		Debug.Assert(!_waitForDeactivate);
 	    }
@@ -954,7 +942,6 @@ namespace Ice
 	private bool _printAdapterReadyDone;
 	private readonly string _name;
 	private readonly string _id;
-	private Logger _logger;
 	private ArrayList _incomingConnectionFactories;
 	private ArrayList _routerEndpoints;
 	private ArrayList _publishedEndpoints;

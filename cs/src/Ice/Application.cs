@@ -213,7 +213,7 @@ namespace Ice
 	    return rc;
 	}
 
-
+/*
 	//
 	// First-level handler
 	//
@@ -235,6 +235,8 @@ namespace Ice
 	    }
 	    return true;
 	}
+*/
+
 	//
 	// The callbacks to be invoked from the handler.
 	//
@@ -308,8 +310,8 @@ namespace Ice
 	private static bool _nohup;
 
 	private delegate Boolean EventHandler(int sig);
-	private static readonly Application.EventHandler _handler
-	    = new Application.EventHandler(HandlerRoutine); // First-level handler
+	//private static readonly Application.EventHandler _handler
+	    //= new Application.EventHandler(HandlerRoutine); // First-level handler
 
 	private delegate void Callback(int sig);
 	private static readonly Callback _destroyCallback = new Callback(destroyOnInterruptCallback);

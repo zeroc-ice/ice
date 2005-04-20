@@ -110,7 +110,12 @@ namespace IceInternal
 	
 	~ThreadPool()
 	{
-	    Debug.Assert(_destroyed);
+#if DEBUG
+	    lock(this)
+	    {
+		Debug.Assert(_destroyed);
+	    }
+#endif DEBUG
 
 	    try
 	    {
@@ -757,6 +762,9 @@ namespace IceInternal
 	    }
 	}
 	
+/*
+ * Commented out because it is unused.
+ *
 	private void selectNonBlocking()
 	{
 	    while(true)
@@ -785,11 +793,16 @@ namespace IceInternal
 		break;
 	    }
 	}
+*/
 	
+/*
+ * Commented out because it is unused.
+ *
 	private void trace(string msg)
 	{
 	    System.Console.Error.WriteLine(_prefix + "(" + System.Threading.Thread.CurrentThread.Name + "): " + msg);
 	}
+ */
 	
 	private sealed class FdHandlerPair
 	{
