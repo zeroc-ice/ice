@@ -67,23 +67,42 @@ private:
 
 typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
 
-void
-menu()
+class SessionClient : public Ice::Application
 {
-    cout <<
-	"usage:\n"
-	"c:     create a new per-client hello object\n"
-	"0-9:   send a greeting to a hello object\n"
-	"s:     shutdown the server\n"
-	"x:     exit\n"
-	"t:     exit without destroying the session\n"
-	"?:     help\n";
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+    string trim(const string&);
+};
+
+int
+main(int argc, char* argv[])
+{
+    SessionClient app;
+    return app.main(argc, argv, "config");
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+SessionClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    string name;
+    do
+    {
+	cout << "Please enter your name ==> ";
+	cin >> name;
+	if(!cin.good())
+	{
+	    return EXIT_FAILURE;
+	}
+	name = trim(name);
+    }
+    while(name.size() == 0);
+
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "SessionFactory.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -92,7 +111,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     SessionFactoryPrx factory = SessionFactoryPrx::checkedCast(base);
     if(!factory)
     {
@@ -100,10 +119,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    SessionPrx session = factory->create();
+    SessionPrx session = factory->create(name);
 
     SessionRefreshThreadPtr refresh = new SessionRefreshThread(
-	communicator->getLogger(), IceUtil::Time::seconds(5), session);
+	communicator()->getLogger(), IceUtil::Time::seconds(5), session);
     refresh->start();
 
     vector<HelloPrx> hellos;
@@ -140,7 +159,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    else if(c == 'c')
 	    {
 		hellos.push_back(session->createHello());
-		cout << "Created hello object #" << hellos.size() - 1 << endl;
+		cout << "Created hello object " << hellos.size() - 1 << endl;
 	    }
 	    else if(c == 's')
 	    {
@@ -182,39 +201,27 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-// XXX Rewrite to use Application. See ../callback for an example.
-
-int
-main(int argc, char* argv[])
+void
+SessionClient::menu()
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
+    cout <<
+	"usage:\n"
+	"c:     create a new per-client hello object\n"
+	"0-9:   send a greeting to a hello object\n"
+	"s:     shutdown the server\n"
+	"x:     exit\n"
+	"t:     exit without destroying the session\n"
+	"?:     help\n";
+}
 
-    try
+string
+SessionClient::trim(const string& s)
+{
+    static const string delims = "\t\r\n ";
+    string::size_type last = s.find_last_not_of(delims);
+    if(last != string::npos)
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
+	return s.substr(s.find_first_not_of(delims), last+1);
     }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+    return s;
 }

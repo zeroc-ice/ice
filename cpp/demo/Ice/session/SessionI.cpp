@@ -7,8 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h> // XXX Remove, see comment in SessionFactoryI.cpp
-#include <SessionFactoryI.h> // XXX Remove, not needed anywhere.
 #include <SessionI.h>
 
 using namespace std;
@@ -18,24 +16,26 @@ class HelloI : public Hello
 {
 public:
 
-    HelloI(int id) :
+    HelloI(const string& name, int id) :
+	_name(name),
 	_id(id)
     {
     }
 
     virtual ~HelloI()
     {
-	cout << "Hello object #" << _id << " destroyed" << endl;
+	cout << "Hello object " << _id << " for session " << _name << " destroyed" << endl;
     }
 
     void
     sayHello(const Ice::Current&) const
     {
-	cout << "Hello object #" << _id << " says 'Hello World!'" << endl;
+	cout << "Hello object " << _id << " says 'Hello " << _name << "!'" << endl;
     }
 
 private:
 
+    const string _name;
     const int _id;
 };
 
@@ -48,7 +48,7 @@ SessionI::createHello(const Ice::Current& c)
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    HelloPrx hello = HelloPrx::uncheckedCast(c.adapter->addWithUUID(new HelloI(_nextId++)));
+    HelloPrx hello = HelloPrx::uncheckedCast(c.adapter->addWithUUID(new HelloI(_name, _nextId++)));
     _objs.push_back(hello);
     return hello;
 }
@@ -65,6 +65,18 @@ SessionI::refresh(const Ice::Current& c)
     _timestamp = IceUtil::Time::now();
 }
 
+string
+SessionI::getName(const Ice::Current&) const
+{
+    Lock sync(*this);
+    if(_destroy)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
+    return _name;
+}
+
 void
 SessionI::destroy(const Ice::Current& c)
 {
@@ -76,8 +88,7 @@ SessionI::destroy(const Ice::Current& c)
 
     _destroy = true;
 
-    // XXX Why "#"? Use "The session with the identity `...' is now destroyed."
-    cout << "The session #" << Ice::identityToString(c.id) << " is now destroyed." << endl;
+    cout << "The session " << _name << " is now destroyed." << endl;
     try
     {
 	c.adapter->remove(c.id);
@@ -106,9 +117,11 @@ SessionI::timestamp() const
     return _timestamp;
 }
 
-SessionI::SessionI() :
+SessionI::SessionI(const string& name) :
+    _name(name),
     _timestamp(IceUtil::Time::now()),
     _nextId(0),
     _destroy(false)
 {
+    cout << "The session " << _name << " is now created." << endl;
 }

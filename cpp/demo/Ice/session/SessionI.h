@@ -10,11 +10,8 @@
 #ifndef SESSION_I_H
 #define SESSION_I_H
 
-// XXX Missing #includes. The #includes for the header must be
-// self-contained, i.e. there must be no problem if you just do
-// #include<SessionFactoryI.h> from an empty .cpp file. (I know that
-// some other demos don't follow this rule, but they need to be
-// fixed. We shouldn't propagate such mistakes into new demos.)
+#include <Ice/Ice.h>
+#include <IceUtil/StaticMutex.h>
 #include <Session.h>
 #include <list>
 
@@ -25,6 +22,7 @@ public:
     virtual Demo::HelloPrx createHello(const Ice::Current&);
     virtual void refresh(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
+    virtual std::string getName(const Ice::Current&) const;
 
 private:
 
@@ -34,12 +32,25 @@ private:
 
     // Only the session factory can create sessions.
     friend class SessionFactoryI;
-    SessionI();
+    SessionI(const std::string&);
 
+    const std::string _name;
     IceUtil::Time _timestamp; // The last time the session was refreshed.
 
-    // XXX This needs to be a static, otherwise hello objects from different client have the same ID.
-    int _nextId; // The id of the next hello object. This is used for tracing purposes.
+    //
+    // XXX This needs to be a static, otherwise hello objects from
+    // different client have the same ID.
+    //
+    // The reason I didn't make the _nextId static in the first place
+    // was because the client also displays the index of the hello
+    // object. I think displaying a different id on the client &
+    // server will be confusing, and I didn't think it was worth
+    // making the client keep a real id->hello object client map
+    // because a) it would make the client more complicated and b) it
+    // would require the user to type bigger and bigger numbers all
+    // the time which is a pain in the ass.
+    //
+    int _nextId; // The per-session id of the next hello object. This is used for tracing purposes.
     std::list< Demo::HelloPrx> _objs; // List of per-client allocated Hello objects.
     bool _destroy;
 };

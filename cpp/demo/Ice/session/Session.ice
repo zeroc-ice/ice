@@ -20,15 +20,8 @@ interface Hello
 
 //
 // The session object. This is used to create per-session objects on
-// behalf of the client. If it is not refreshed on a periodic basis, it
-// will be automatically reclaimed by the session factory.
-//
-// XXX Comment is wrong. First, sessions are not reclaimed - they are
-// destroyed. Second, the factory doesn't do this. Third, it is
-// irrelevant for the interface description to explain what
-// programming language construct exactly destroys expired
-// sessions. So this should simply read: "If it is not refreshed on a
-// periodic basis, it will be automatically destroyed."
+// behalf of the client. If the session is not refreshed on a periodic
+// basis, it will be automatically destroyed.
 //
 interface Session
 {
@@ -44,6 +37,8 @@ interface Session
     //
     idempotent void refresh();
 
+    nonmutating string getName();
+
     //
     // Destroy the session explicitly.
     //
@@ -52,11 +47,7 @@ interface Session
 
 interface SessionFactory
 {
-    // XXX I think you should pass a user name parameter in here. The
-    // client could then first ask "What is your name"? Then the
-    // server could print messages like "Hello object #XXX says `Hello
-    // Foo!'"
-    Session* create();
+    Session* create(string name);
 
     idempotent void shutdown();
 };

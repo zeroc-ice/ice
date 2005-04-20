@@ -14,15 +14,16 @@
 #include <IceUtil/StaticMutex.h>
 #include <SessionI.h>
 
+#include <list>
+
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
+
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
     static ReapThreadPtr& instance();
-
-    virtual ~ReapThread(); // XXX Destructor does nothing, get rid of it.
 
     virtual void run();
 
@@ -36,10 +37,14 @@ private:
 
     const IceUtil::Time _timeout;
     bool _terminated;
-    // XXX Why is this a map and not simply a list of
-    // pair<Demo::SessionPrx, SessionIPtr> (or a list of structs with
-    // these elements)? The sorting of a map is needed nowhere.
-    std::map< Demo::SessionPrx, SessionIPtr> _sessions;
+    struct SessionProxyPair
+    {
+	SessionProxyPair(const Demo::SessionPrx& p, const SessionIPtr& s) :
+	    proxy(p), session(s) { }
+	const Demo::SessionPrx proxy;
+	const SessionIPtr session;
+    };
+    std::list<SessionProxyPair> _sessions;
 
     static ReapThreadPtr _instance;
     static IceUtil::StaticMutex _instanceMutex;

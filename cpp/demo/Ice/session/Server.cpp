@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h> // XXX Get rid of this, see other comments.
 #include <SessionFactoryI.h>
 #include <ReapThread.h>
 

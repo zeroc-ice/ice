@@ -29,10 +29,6 @@ ReapThread::instance()
     return _instance;
 }
 
-ReapThread::~ReapThread()
-{
-}
-
 void
 ReapThread::run()
 {
@@ -44,24 +40,21 @@ ReapThread::run()
 
 	if(!_terminated)
 	{
-	    // XXX Session destruction may take time in a real-world
-	    // example. Therefore now should be computed in the loop
-	    // for each iteration.
-	    IceUtil::Time now = IceUtil::Time::now();
-	    map<SessionPrx, SessionIPtr>::iterator p = _sessions.begin();
+	    list<SessionProxyPair>::iterator p = _sessions.begin();
 	    while(p != _sessions.end())
 	    {
 		try
 		{
-		    if((now - p->second->timestamp()) > _timeout)
+		    //
+		    // Session destruction may take time in a
+		    // real-world example. Therefore the current time
+		    // is computed for each iteration.
+		    //
+		    if((IceUtil::Time::now() - p->session->timestamp()) > _timeout)
 		    {
-			cout << "The session #" << Ice::identityToString(p->first->ice_getIdentity())
-			     << " has timed out." << endl;
-			p->first->destroy();
-			// XXX This can be simplified to _sessions.erase(p++);
-			map<SessionPrx, SessionIPtr>::iterator tmp = p;
-			++p;
-			_sessions.erase(tmp);
+			cout << "The session " << p->proxy->getName() << " has timed out." << endl;
+			p->proxy->destroy();
+    	    	    	p = _sessions.erase(p);
 		    }
 		    else
 		    {
@@ -70,10 +63,7 @@ ReapThread::run()
     	    	}
 		catch(const Ice::ObjectNotExistException&)
 		{
-		    // XXX This can be simplified to _sessions.erase(p++);
-		    map<SessionPrx, SessionIPtr>::iterator tmp = p;
-		    ++p;
-		    _sessions.erase(tmp);
+		    p = _sessions.erase(p);
 		}
 	    }
 	}
@@ -88,11 +78,11 @@ ReapThread::terminate()
     _terminated = true;
     notify();
 
-    for(map<SessionPrx, SessionIPtr>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(list<SessionProxyPair>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
 	{
-	    p->first->destroy();
+	    p->proxy->destroy();
 	}
 	catch(const Ice::Exception&)
 	{
@@ -107,10 +97,7 @@ void
 ReapThread::add(const SessionPrx& proxy, const SessionIPtr& session)
 {
     Lock sync(*this);
-    // XXX Don't use make_pair, it's not portable. We had to remove it
-    // from most of our code, because the Sun compiler and others had
-    // problems with it.y
-    _sessions.insert(make_pair(proxy, session));
+    _sessions.push_back(SessionProxyPair(proxy, session));
 }
 
 ReapThread::ReapThread() :

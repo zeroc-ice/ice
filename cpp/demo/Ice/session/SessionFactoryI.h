@@ -10,18 +10,14 @@
 #ifndef SESSION_FACTORY_I_H
 #define SESSION_FACTORY_I_H
 
-// XXX Missing #includes, see comment in SessionI.h.
+#include <Ice/Ice.h>
 #include <Session.h>
 
-class SessionFactoryI : public Demo::SessionFactory, public IceUtil::Mutex // XXX What is the mutex needed for?
+class SessionFactoryI : public Demo::SessionFactory
 {
 public:
 
-    // XXX Constructor and destructor do nothing, get rid of them.
-    SessionFactoryI();
-    virtual ~SessionFactoryI();
-
-    virtual Demo::SessionPrx create(const Ice::Current&);
+    virtual Demo::SessionPrx create(const std::string&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 
