@@ -138,4 +138,4 @@
     <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
     </target>
 
-    <property file="${common.basedir}/build.properties"/>
+    <property file="${top.dir}/config/build.properties"/>
