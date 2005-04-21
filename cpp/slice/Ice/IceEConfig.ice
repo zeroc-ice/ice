@@ -15,7 +15,7 @@
 // without Router support.
 //
 
-#define ICE_NO_ROUTER
+//#define ICE_NO_ROUTER
 
 //
 //
@@ -23,6 +23,6 @@
 // without Locator support.
 //
 
-#define ICE_NO_LOCATOR 
+//#define ICE_NO_LOCATOR 
 
 #endif
