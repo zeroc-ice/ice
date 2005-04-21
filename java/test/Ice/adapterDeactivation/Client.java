@@ -24,6 +24,7 @@ public class Client
     {
         TestClient app = new TestClient();
         int result = app.main("Client", args);
+        System.gc();
         System.exit(result);
     }
 }

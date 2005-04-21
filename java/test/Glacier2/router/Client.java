@@ -24,6 +24,7 @@ public class Client
 
         CallbackClient app = new CallbackClient();
         int status = app.main("Client", argsH.value);
+        System.gc();
         System.exit(status);
     }
 }

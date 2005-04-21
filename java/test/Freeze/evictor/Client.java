@@ -834,6 +834,7 @@ public class Client
             }
         }
 
+        System.gc();
         System.exit(status);
     }
 }

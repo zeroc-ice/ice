@@ -75,6 +75,7 @@ public class Server
             }
         }
 
+        System.gc();
         System.exit(status);
     }
 }

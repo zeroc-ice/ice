@@ -14,6 +14,7 @@ public class Server
     {
         CallbackServer app = new CallbackServer();
         int status = app.main("Server", args);
+        System.gc();
         System.exit(status);
     }
 }

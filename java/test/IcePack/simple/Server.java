@@ -35,6 +35,8 @@ public class Server extends Ice.Application
     main(String[] args)
     {
 	Server server = new Server();
-	server.main("test.IcePack.simple.Server", args);
+	int status = server.main("test.IcePack.simple.Server", args);
+	System.gc();
+	System.exit(status);
     }
 }
