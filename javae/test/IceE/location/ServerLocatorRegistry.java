@@ -15,11 +15,6 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 	_adapters.put(adapter, object);
     }
 
-    public void
-    setServerProcessProxy(String id, Ice.ProcessPrx proxy, Ice.Current current)
-    {
-    }
-
     public Ice.ObjectPrx
     getAdapter(String adapter)
 	throws Ice.AdapterNotFoundException

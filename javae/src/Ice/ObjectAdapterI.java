@@ -32,9 +32,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     activate()
     {
 	Ice.LocatorRegistryPrx locatorRegistry = null;
-        boolean registerProcess = false;
-        String serverId = "";
-        Communicator communicator = null;
 	boolean printAdapterReady = false;
 
 	synchronized(this)
@@ -48,24 +45,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		    locatorRegistry = _locatorInfo.getLocatorRegistry();
 		}
 
-                registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
-                serverId = _instance.properties().getProperty("Ice.ServerId");
 		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-
-                if(registerProcess && locatorRegistry == null)
-                {
-                    _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
-                                               "without a locator registry");
-                    registerProcess = false;
-                }
-                else if(registerProcess && serverId.length() == 0)
-                {
-                    _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
-                                               "without a value for Ice.ServerId");
-                    registerProcess = false;
-                }
-
-                communicator = _communicator;
 		_printAdapterReadyDone = true;
 	    }
 	    
@@ -114,27 +94,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		ex1.id = _id;
 		throw ex1;
 	    }
-
-            if(registerProcess)
-            {
-                try
-                {
-		    Process servant = new ProcessI(communicator);
-		    ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
-                    locatorRegistry.setServerProcessProxy(serverId, proxy);
-                }
-		catch(ObjectAdapterDeactivatedException ex)
-		{
-		    // IGNORE: The object adapter is already inactive.
-		}
-                catch(ServerNotFoundException ex)
-                {
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.id = serverId;
-                    ex1.kindOfObject = "server";
-                    throw ex1;
-                }
-            }
 	}
 
 	if(printAdapterReady)
@@ -839,40 +798,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
 
 	return endpoints;
-    }
-
-    private static class ProcessI extends _ProcessDisp
-    {
-        ProcessI(Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        public void
-        shutdown(Ice.Current current)
-        {
-            _communicator.shutdown();
-        }
-
-	public void
-	writeMessage(String message, int fd, Ice.Current current)
-	{
-	    switch(fd)
-	    {
-		case 1:
-		{
-		    System.out.println(message);
-		    break;
-		}
-		case 2:
-		{
-		    System.err.println(message);
-		    break;
-		}
-	    }
-	}
-
-        private Communicator _communicator;
     }
 
     private boolean _deactivated;
