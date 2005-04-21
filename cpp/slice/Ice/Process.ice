@@ -10,6 +10,12 @@
 #ifndef ICE_PROCESS_ICE
 #define ICE_PROCESS_ICE
 
+#ifdef ICEE
+#include <Ice/IceEConfig.ice>
+#endif
+
+#ifndef ICE_NO_LOCATOR
+
 module Ice
 {
 
@@ -51,5 +57,7 @@ interface Process
 };
 
 };
+
+#endif
 
 #endif
