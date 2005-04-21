@@ -76,7 +76,6 @@ public:
 private:
 
     void menu();
-    string trim(const string&);
 };
 
 int
@@ -90,18 +89,12 @@ int
 SessionClient::run(int argc, char* argv[])
 {
     string name;
-    do
+    cout << "Please enter your name ==> ";
+    cin >> name;
+    if(!cin.good())
     {
-	cout << "Please enter your name ==> ";
-	cin >> name;
-	if(!cin.good())
-	{
-	    return EXIT_FAILURE;
-	}
-	// XXX Remove. cin>>name already trims whitespace.
-	name = trim(name);
+	return EXIT_FAILURE;
     }
-    while(name.size() == 0);
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "SessionFactory.Proxy";
@@ -186,26 +179,28 @@ SessionClient::run(int argc, char* argv[])
 	    }
 	}
 
-	// XXX Wrong order. The refresher thread must be terminated
-	// before destroy is called, otherwise it might get
-	// ObjectNotExistException.
+	//
+	// The refresher thread must be terminated before destroy is
+	// called, otherwise it might get ObjectNotExistException.
+	//
+	refresh->terminate();
+	refresh->getThreadControl().join();
+
 	if(destroy)
 	{
 	    session->destroy();
 	}
     }
-    // XXX Remove. The caller already prints excpetion. (Only the
-    // equivalent of a finally bock is needed here for cleanup.
-    catch(const Ice::Exception& ex)
+    catch(...)
     {
-	cerr << ex << endl;
-	// XXX Would have to return EXIT_FAILURE, but this point is
-	// moot, see comment above.
+	//
+	// The refresher thread must be terminated in the event of a
+	// failure.
+	//
+	refresh->terminate();
+	refresh->getThreadControl().join();
+	throw;
     }
-
-    // XXX Wrong destruction order, see comment above.
-    refresh->terminate();
-    refresh->getThreadControl().join();
 
     return EXIT_SUCCESS;
 }
@@ -221,17 +216,4 @@ SessionClient::menu()
 	"x:     exit\n"
 	"t:     exit without destroying the session\n"
 	"?:     help\n";
-}
-
-// XXX Remove.
-string
-SessionClient::trim(const string& s)
-{
-    static const string delims = "\t\r\n ";
-    string::size_type last = s.find_last_not_of(delims);
-    if(last != string::npos)
-    {
-	return s.substr(s.find_first_not_of(delims), last+1);
-    }
-    return s;
 }

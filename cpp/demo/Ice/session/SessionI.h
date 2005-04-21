@@ -38,7 +38,7 @@ private:
     IceUtil::Time _timestamp; // The last time the session was refreshed.
 
     int _nextId; // The per-session id of the next hello object. This is used for tracing purposes.
-    std::list< Demo::HelloPrx> _objs; // List of per-session allocated hello objects.
+    std::list<Demo::HelloPrx> _objs; // List of per-session allocated hello objects.
     bool _destroy;
 };
 
