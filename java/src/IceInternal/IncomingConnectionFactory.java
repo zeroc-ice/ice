@@ -99,8 +99,12 @@ public final class IncomingConnectionFactory extends EventHandler
 	    // We want to wait until all connections are finished outside the
 	    // thread synchronization.
 	    //
+	    // For consistency with C#, we set _connections to null rather than to a
+	    // new empty list so that our finalizer does not try to invoke any
+	    // methods on member objects.
+	    //
 	    connections = _connections;
-	    _connections = new java.util.LinkedList();
+	    _connections = null;
 	}
 
 	if(threadPerIncomingConnectionFactory != null)
@@ -124,6 +128,16 @@ public final class IncomingConnectionFactory extends EventHandler
 	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
 	    connection.waitUntilFinished();
 	}
+
+	//
+	// At this point we know that this factory is no longer used, so it is
+	// safe to invoke destroy() on the EventHandler base class to reclaim
+	// resources.
+	//
+	// We call this here instead of in the finalizer because a C# finalizer
+	// cannot invoke methods on other types of objects.
+	//
+	super.destroy();
     }
 
     public Endpoint
@@ -445,14 +459,8 @@ public final class IncomingConnectionFactory extends EventHandler
     {
 	assert(_state == StateClosed);
 	assert(_acceptor == null);
-	assert(_connections.size() == 0);
+	assert(_connections == null);
 	assert(_threadPerIncomingConnectionFactory == null);
-
-        //
-        // Destroy the EventHandler's stream, so that its buffer
-        // can be reclaimed.
-        //
-        super._stream.destroy();
 
         super.finalize();
     }

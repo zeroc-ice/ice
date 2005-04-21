@@ -55,6 +55,13 @@ public abstract class EventHandler
         return _instance;
     }
 
+    public void
+    destroy()
+    {
+	_stream.destroy();
+	_stream = null;
+    }
+
     protected
     EventHandler(Instance instance)
     {
@@ -66,7 +73,7 @@ public abstract class EventHandler
     finalize()
         throws Throwable
     {
-	_stream.destroy();
+	assert(_stream == null);
     }
 
     protected Instance _instance;
