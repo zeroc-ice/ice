@@ -99,8 +99,12 @@ public final class IncomingConnectionFactory
 	    // We want to wait until all connections are finished outside the
 	    // thread synchronization.
 	    //
+	    // For consistency with C#, we set _connections to null rather than to a
+	    // new empty list so that our finalizer does not try to invoke any
+	    // methods on member objects.
+	    //
 	    connections = _connections;
-	    _connections = new java.util.LinkedList();
+	    _connections = null;
 	}
 
 	if(threadPerIncomingConnectionFactory != null)
@@ -286,7 +290,7 @@ public final class IncomingConnectionFactory
     {
 	assert(_state == StateClosed);
 	assert(_acceptor == null);
-	assert(_connections.size() == 0);
+	assert(_connections == null);
 	assert(_threadPerIncomingConnectionFactory == null);
     }
 
