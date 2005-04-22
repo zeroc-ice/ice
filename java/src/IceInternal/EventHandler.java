@@ -69,11 +69,11 @@ public abstract class EventHandler
         _stream = new BasicStream(instance);
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
-	assert(_stream == null);
+	assert(IceUtil.Assert.Assert(_stream == null));
     }
 
     protected Instance _instance;

@@ -445,6 +445,15 @@ public final class IncomingConnectionFactory extends EventHandler
 			// Here we ignore any exceptions in close().			
 		    }
 
+		    //
+		    // Clean up for finalizer.
+		    //
+		    _state = StateClosed;
+		    _acceptor = null;
+		    _connections = null;
+		    _threadPerIncomingConnectionFactory = null;
+		    super.destroy();
+
 		    Ice.SyscallException e = new Ice.SyscallException();
 		    e.initCause(ex);
 		    throw e;
@@ -457,10 +466,10 @@ public final class IncomingConnectionFactory extends EventHandler
     finalize()
         throws Throwable
     {
-	assert(_state == StateClosed);
-	assert(_acceptor == null);
-	assert(_connections == null);
-	assert(_threadPerIncomingConnectionFactory == null);
+	assert(IceUtil.Assert.Assert(_state == StateClosed));
+	assert(IceUtil.Assert.Assert(_acceptor == null));
+	assert(IceUtil.Assert.Assert(_connections == null));
+	assert(IceUtil.Assert.Assert(_threadPerIncomingConnectionFactory == null));
 
         super.finalize();
     }
@@ -601,7 +610,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 	ex.printStackTrace(pw);
 	pw.flush();
-	String s = msg + ":\n" + toString() + sw.toString();
+	String s = msg + ":\n" + toString() + "\n" + sw.toString();
 	_instance.logger().error(s);
     }
 

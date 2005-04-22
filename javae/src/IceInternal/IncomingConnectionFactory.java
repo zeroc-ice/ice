@@ -276,6 +276,14 @@ public final class IncomingConnectionFactory
 	        {
 	    	    // Here we ignore any exceptions in close().			
 	        }
+
+		//
+		// Clean up for finalizer.
+		//
+		_state = StateClosed;
+		_acceptor = null;
+		_connections = null;
+		_threadPerIncomingConnectionFactory = null;
     
 	        Ice.SyscallException e = new Ice.SyscallException();
 	        e.initCause(ex);
@@ -284,14 +292,14 @@ public final class IncomingConnectionFactory
         }
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
-	assert(_state == StateClosed);
-	assert(_acceptor == null);
-	assert(_connections == null);
-	assert(_threadPerIncomingConnectionFactory == null);
+	assert(IceUtil.Assert.Assert(_state == StateClosed));
+	assert(IceUtil.Assert.Assert(_acceptor == null));
+	assert(IceUtil.Assert.Assert(_connections == null));
+	assert(IceUtil.Assert.Assert(_threadPerIncomingConnectionFactory == null));
     }
 
     private static final int StateActive = 0;
