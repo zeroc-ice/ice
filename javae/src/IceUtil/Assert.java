@@ -11,21 +11,13 @@ package IceUtil;
 
 public final class Assert
 {
-    public static boolean
-    Assert(boolean b)
+    //
+    // The JVM ignores exceptions raised in finalizers, therefore finalizers
+    // that use assertions should call this method.
+    //
+    public static void
+    FinalizerAssert(boolean b)
     {
-	//
-	// The JVM ignores exceptions raised in finalizers, therefore finalizers
-	// that use assertions should call this method. For example:
-	//
-	// protected void finalize() throws Throwable
-	// {
-	//     assert(IceUtil.Assert.Assert(condition));
-	// }
-	//
-	// Notice that this method is called from within an assert statement,
-	// which avoids the cost of the call if assertions are disabled.
-	//
 	if(!b)
 	{
 	    //
@@ -35,6 +27,5 @@ public final class Assert
 	    System.err.println("Assertion failure:");
 	    t.printStackTrace(System.err);
 	}
-	return true;
     }
 }

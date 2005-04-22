@@ -1012,13 +1012,11 @@ public final class ConnectionI implements Connection
     finalize()
         throws Throwable
     {
-	assert(IceUtil.Assert.Assert(_state == StateClosed));
-	assert(IceUtil.Assert.Assert(_transceiver == null));
-	assert(IceUtil.Assert.Assert(_dispatchCount == 0));
-	assert(IceUtil.Assert.Assert(_threadPerConnection == null));
-	assert(IceUtil.Assert.Assert(_incomingCache == null));
-
-        super.finalize();
+	IceUtil.Assert.FinalizerAssert(_state == StateClosed);
+	IceUtil.Assert.FinalizerAssert(_transceiver == null);
+	IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
+	IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
+	IceUtil.Assert.FinalizerAssert(_incomingCache == null);
     }
 
     private static final int StateNotValidated = 0;

@@ -73,7 +73,7 @@ public abstract class EventHandler
     finalize()
         throws Throwable
     {
-	assert(IceUtil.Assert.Assert(_stream == null));
+	IceUtil.Assert.FinalizerAssert(_stream == null);
     }
 
     protected Instance _instance;
