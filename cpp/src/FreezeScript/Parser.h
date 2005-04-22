@@ -39,7 +39,7 @@ class EvaluateException : public IceUtil::Exception
 public:
     
     EvaluateException(const char*, int, const std::string&);
-    virtual const std::string& ice_name() const;
+    virtual const char* ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -49,7 +49,7 @@ public:
 private:
 
     std::string _reason;
-    static std::string _name;
+    static const char* _name;
 };
 
 //

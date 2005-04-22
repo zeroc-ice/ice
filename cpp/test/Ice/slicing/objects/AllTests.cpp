@@ -514,7 +514,7 @@ class AMI_Test_throwBaseAsBaseI : public AMI_TestIntf_throwBaseAsBase, public Ca
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "Test::BaseException");
+	test(string(ex.ice_name()) == "Test::BaseException");
 	const BaseException& e = dynamic_cast<const BaseException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -537,7 +537,7 @@ class AMI_Test_throwDerivedAsBaseI : public AMI_TestIntf_throwDerivedAsBase, pub
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "Test::DerivedException");
+	test(string(ex.ice_name()) == "Test::DerivedException");
 	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -566,7 +566,7 @@ class AMI_Test_throwDerivedAsDerivedI : public AMI_TestIntf_throwDerivedAsDerive
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "Test::DerivedException");
+	test(string(ex.ice_name()) == "Test::DerivedException");
 	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -595,7 +595,7 @@ class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_TestIntf_throwUnknownDeri
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "Test::BaseException");
+	test(string(ex.ice_name()) == "Test::BaseException");
 	const BaseException& e = dynamic_cast<const BaseException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -1755,7 +1755,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const BaseException& e)
 	{
-	    test(e.ice_name() == "Test::BaseException");
+	    test(string(e.ice_name()) == "Test::BaseException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb");
@@ -1785,7 +1785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const DerivedException& e)
 	{
-	    test(e.ice_name() == "Test::DerivedException");
+	    test(string(e.ice_name()) == "Test::DerivedException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb1");
@@ -1821,7 +1821,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const DerivedException& e)
 	{
-	    test(e.ice_name() == "Test::DerivedException");
+	    test(string(e.ice_name()) == "Test::DerivedException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb1");
@@ -1857,7 +1857,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const BaseException& e)
 	{
-	    test(e.ice_name() == "Test::BaseException");
+	    test(string(e.ice_name()) == "Test::BaseException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb d2");

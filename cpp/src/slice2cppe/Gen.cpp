@@ -349,12 +349,12 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	C << eb;
     }
 
-    H << nl << "virtual const ::std::string& ice_name() const;";
+    H << nl << "virtual const char* ice_name() const;";
 
     string flatName = p->flattenedScope() + p->name() + "_name";
 
-    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->scoped().substr(2) << "\";";
-    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_name() const";
+    C << sp << nl << "static const char* " << flatName << " = \"" << p->scoped().substr(2) << "\";";
+    C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
     C << nl << "return " << flatName << ';';
     C << eb;

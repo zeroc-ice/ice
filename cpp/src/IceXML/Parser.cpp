@@ -28,9 +28,9 @@ IceXML::ParserException::ParserException(const char* file, int line, const strin
 {
 }
 
-string IceXML::ParserException::_name = "IceXML::ParserException";
+const char* IceXML::ParserException::_name = "IceXML::ParserException";
 
-const string&
+const char*
 IceXML::ParserException::ice_name() const
 {
     return _name;

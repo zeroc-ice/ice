@@ -74,7 +74,7 @@ class AMI_Test_baseAsBaseI : public AMI_TestIntf_baseAsBase, public CallbackBase
 	catch(const Base& b)
 	{
 	    test(b.b == "Base.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	}
 	catch(...)
 	{
@@ -104,7 +104,7 @@ class AMI_Test_unknownDerivedAsBaseI : public AMI_TestIntf_unknownDerivedAsBase,
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownDerived.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	}
 	catch(...)
 	{
@@ -135,7 +135,7 @@ class AMI_Test_knownDerivedAsBaseI : public AMI_TestIntf_knownDerivedAsBase, pub
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
+	    test(string(k.ice_name()) =="Test::KnownDerived");
 	}
 	catch(...)
 	{
@@ -166,7 +166,7 @@ class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_TestIntf_knownDerivedAsK
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
+	    test(string(k.ice_name()) =="Test::KnownDerived");
 	}
 	catch(...)
 	{
@@ -196,7 +196,7 @@ class AMI_Test_unknownIntermediateAsBaseI : public AMI_TestIntf_unknownIntermedi
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownIntermediate.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	}
 	catch(...)
 	{
@@ -227,7 +227,7 @@ class AMI_Test_knownIntermediateAsBaseI : public AMI_TestIntf_knownIntermediateA
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -260,7 +260,7 @@ class AMI_Test_knownMostDerivedAsBaseI : public AMI_TestIntf_knownMostDerivedAsB
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -292,7 +292,7 @@ class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_TestIntf_known
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -325,7 +325,7 @@ class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_TestIntf_knownMo
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -358,7 +358,7 @@ class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_TestIntf_knownM
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -390,7 +390,7 @@ class AMI_Test_unknownMostDerived1AsBaseI : public AMI_TestIntf_unknownMostDeriv
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -422,7 +422,7 @@ class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_TestIntf_unk
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -454,7 +454,7 @@ class AMI_Test_unknownMostDerived2AsBaseI : public AMI_TestIntf_unknownMostDeriv
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownMostDerived2.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	}
 	catch(...)
 	{
@@ -482,7 +482,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "Base.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -511,7 +511,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownDerived.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -541,7 +541,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
+	    test(string(k.ice_name()) =="Test::KnownDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -571,7 +571,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() =="Test::KnownDerived");
+	    test(string(k.ice_name()) =="Test::KnownDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -600,7 +600,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownIntermediate.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -630,7 +630,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -661,7 +661,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -691,7 +691,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -722,7 +722,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -753,7 +753,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() =="Test::KnownMostDerived");
+	    test(string(kmd.ice_name()) =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -783,7 +783,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -813,7 +813,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() =="Test::KnownIntermediate");
+	    test(string(ki.ice_name()) =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -842,7 +842,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownMostDerived2.b");
-	    test(b.ice_name() =="Test::Base");
+	    test(string(b.ice_name()) =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)

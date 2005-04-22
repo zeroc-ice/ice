@@ -55,7 +55,7 @@ IceUtil::UUIDGenerationException::UUIDGenerationException(const char* file, int 
 {
 }
 
-string IceUtil::UUIDGenerationException::_name = "IceUtil::UUIDGenerationException";
+const char* IceUtil::UUIDGenerationException::_name = "IceUtil::UUIDGenerationException";
 
 #ifndef _WIN32
 //
@@ -99,7 +99,7 @@ static UUIDCleanup uuidCleanup;
 
 #endif
 
-const string&
+const char*
 IceUtil::UUIDGenerationException::ice_name() const
 {
     return _name;
