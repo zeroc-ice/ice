@@ -16,6 +16,7 @@
 module Ice
 {
 
+#ifndef ICEE
 /**
  *
  * This exception is raised when a failure occurs during initialization.
@@ -30,6 +31,7 @@ local exception InitializationException
      **/
     string reason;
 };
+#endif
 
 /**
  *
@@ -577,6 +579,7 @@ local exception ForcedCloseConnectionException extends ProtocolException
 {
 };
 
+#ifndef ICEE
 /**
  *
  * This exception is a specialization of [ProtocolException],
@@ -586,6 +589,7 @@ local exception ForcedCloseConnectionException extends ProtocolException
 local exception AbortBatchRequestException extends ProtocolException
 {
 };
+#endif
 
 /**
  *
@@ -700,6 +704,7 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 {
 };
 
+#ifndef ICEE
 /**
  *
  * This exception is a specialization of [MarshalException],
@@ -709,6 +714,7 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 local exception IllegalIndirectionException extends MarshalException
 {
 };
+#endif
 
 /**
  *
