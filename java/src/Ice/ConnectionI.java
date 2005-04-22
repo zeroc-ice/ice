@@ -275,6 +275,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    _incomingCache = _incomingCache.next;
 		}
 	    }
+
+	    cleanup();
 	}
 
 	if(threadPerConnection != null)
@@ -401,6 +403,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    _incomingCache = _incomingCache.next;
 		}
 	    }
+
+	    cleanup();
 	}
 
 	if(threadPerConnection != null)
@@ -1426,17 +1430,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	_overrideCompressValue = _instance.defaultsAndOverrides().overrideCompressValue;
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
-        assert(_state == StateClosed);
-	assert(_transceiver == null);
-	assert(_dispatchCount == 0);
-	assert(_threadPerConnection == null);
-        assert(_incomingCache == null);
-
-        _batchStream.destroy();
+	assert(IceUtil.Assert.Assert(_state == StateClosed));
+	assert(IceUtil.Assert.Assert(_transceiver == null));
+	assert(IceUtil.Assert.Assert(_dispatchCount == 0));
+	assert(IceUtil.Assert.Assert(_threadPerConnection == null));
+	assert(IceUtil.Assert.Assert(_incomingCache == null));
 
         super.finalize();
     }
@@ -2387,6 +2389,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             in.next = _incomingCache;
             _incomingCache = in;
         }
+    }
+
+    private void
+    cleanup()
+    {
+	//
+	// This should be called when we know that this object is no longer used,
+	// so it is safe to reclaim resources.
+	//
+	// We do this here instead of in a finalizer because a C# finalizer
+	// cannot invoke methods on other types of objects.
+	//
+	_batchStream.destroy();
+	_batchStream = null;
+
+	super.destroy();
     }
 
     private class ThreadPerConnection extends Thread
