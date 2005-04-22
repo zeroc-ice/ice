@@ -12,16 +12,18 @@ import Demo.*;
 public class HelloI extends _HelloDisp
 {
     public
-    HelloI(int id)
+    HelloI(String name, int id)
     {
+	_name = name;
 	_id = id;
     }
 
     public void
     sayHello(Ice.Current current)
     {
-        System.out.println(_id + ": Hello World!");
+        System.out.println("Hello object #" + _id + " for session `" + _name + "' says: Hello " + _name + "!");
     }
 
+    final private String _name;
     final private int _id;
 }

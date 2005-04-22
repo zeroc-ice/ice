@@ -13,43 +13,47 @@
 module Demo
 {
 
-/** Hello object. */
 interface Hello
 {
-    /** Send a greeting. */
     nonmutating void sayHello();
 };
 
-/**
- * The session object. This is used to create per-session objects on
- * behalf of the client. If it is not refreshed on a periodic basis it
- * will be automatically reclaimed by the session factory.
- */
+//
+// The session object. This is used to create per-session objects on
+// behalf of the client. If the session is not refreshed on a periodic
+// basis, it will be automatically destroyed.
+//
 interface Session
 {
-    /**
-     * Create a new per-session hello object. The created object will
-     * be automatically destroyed when the session is destroyed.
-     */
+    //
+    // Create a new per-session hello object. The created object will
+    // be automatically destroyed when the session is destroyed.
+    //
     Hello* createHello();
 
-    /**
-     * Refresh a session. If a session is not refreshed on a regular
-     * basis by the client it will be automatically destroyed.
-     **/
+    //
+    // Refresh a session. If a session is not refreshed on a regular
+    // basis by the client, it will be automatically destroyed.
+    //
     idempotent void refresh();
 
-    /** Mark the session as destroyed. */
+    nonmutating string getName();
+
+    //
+    // Destroy the session explicitly.
+    //
     void destroy();
 };
 
-/** The SessionFactory. */
 interface SessionFactory
 {
-    /** Create a new session. */
-    Session* create();
+    //
+    // Create a session with the given name. Note that the name is
+    // only used for diagnostic purposes. It is not used as unique
+    // session id.
+    //
+    Session* create(string name);
 
-    /** Shutdown the server. */
     idempotent void shutdown();
 };
 

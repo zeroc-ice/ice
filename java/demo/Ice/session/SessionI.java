@@ -11,18 +11,14 @@ import Demo.*;
 
 class SessionI extends _SessionDisp
 {
-    public
-    SessionI(Ice.ObjectAdapter adapter, long timeout)
-    {
-	_adapter = adapter;
-	_timeout = timeout;
-	_refreshTime = System.currentTimeMillis();
-    }
-
     synchronized public HelloPrx
     createHello(Ice.Current c)
     {
-	HelloPrx hello = HelloPrxHelper.uncheckedCast(_adapter.addWithUUID(new HelloI(_nextId++)));
+	if(_destroy)
+	{
+	    throw new Ice.ObjectNotExistException();
+	}
+	HelloPrx hello = HelloPrxHelper.uncheckedCast(c.adapter.addWithUUID(new HelloI(_name, _nextId++)));
 	_objs.add(hello);
 	return hello;
     }
@@ -30,51 +26,73 @@ class SessionI extends _SessionDisp
     synchronized public void
     refresh(Ice.Current c)
     {
-	_refreshTime = System.currentTimeMillis();
+	if(_destroy)
+	{
+	    throw new Ice.ObjectNotExistException();
+	}
+	_timestamp = System.currentTimeMillis();
+    }
+
+    synchronized public String
+    getName(Ice.Current c)
+    {
+	if(_destroy)
+	{
+	    throw new Ice.ObjectNotExistException();
+	}
+	return _name;
     }
     
     synchronized public void
     destroy(Ice.Current c)
     {
-	_destroy = true;
-    }
-    
-    // Return true if the session is destroyed, false otherwise.
-    synchronized protected boolean
-    destroyed()
-    {
-	return _destroy || (System.currentTimeMillis() - _refreshTime) > _timeout;
-    }
-
-    // Called when the session is destroyed. This should release any
-    // per-client allocated resources.
-    synchronized protected void
-    destroyCallback()
-    {
-	System.out.println("SessionI.destroyCallback: _destroy=" + _destroy + " timeout=" +
-			   ((System.currentTimeMillis()-_refreshTime) > _timeout));
-	java.util.Iterator p = _objs.iterator();
-	while(p.hasNext())
+	if(_destroy)
 	{
-	    HelloPrx h = (HelloPrx)p.next();
-	    try
+	    throw new Ice.ObjectNotExistException();
+	}
+
+	_destroy = true;
+	System.out.println("The session " + _name + " is now destroyed.");
+	try
+	{
+	    c.adapter.remove(c.id);
+	    java.util.Iterator p = _objs.iterator();
+	    while(p.hasNext())
 	    {
-		_adapter.remove(h.ice_getIdentity());
+		c.adapter.remove(((HelloPrx)p.next()).ice_getIdentity());
 	    }
-	    catch(Ice.ObjectAdapterDeactivatedException e)
-	    {
-		// This method is called on shutdown of the server, in
-		// which case this exception is expected.
-	    }
+	}
+	catch(Ice.ObjectAdapterDeactivatedException e)
+	{
+	    // This method is called on shutdown of the server, in
+	    // which case this exception is expected.
 	}
 	_objs.clear();
     }
 
-    final Ice.ObjectAdapter _adapter;
-    final long _timeout; // How long until the session times out.
+    // Only the ReapThread is interested in the timestamp.
+    synchronized protected long
+    timestamp()
+    {
+	if(_destroy)
+	{
+	    throw new Ice.ObjectNotExistException();
+	}
+	return _timestamp;
+    }
 
+    // Only the session factory can create sessions.
+    protected
+    SessionI(String name)
+    {
+	_name = name;
+	_timestamp = System.currentTimeMillis();
+	System.out.println("The session " + _name + " is now created.");
+    }
+
+    private String _name;
     private boolean _destroy = false; // true if destroy() was called, false otherwise.
-    private long _refreshTime; // The last time the session was refreshed.
+    private long _timestamp; // The last time the session was refreshed.
     private int _nextId = 0; // The id of the next hello object. This is used for tracing purposes.
     private java.util.List _objs = new java.util.LinkedList(); // List of per-client allocated Hello objects.
 }
