@@ -11,7 +11,6 @@
 #define SESSION_I_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/StaticMutex.h>
 #include <Session.h>
 #include <list>
 
