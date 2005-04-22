@@ -462,7 +462,7 @@ public final class IncomingConnectionFactory extends EventHandler
         }
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
