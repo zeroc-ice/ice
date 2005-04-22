@@ -47,6 +47,11 @@ interface Session
 
 interface SessionFactory
 {
+    //
+    // Create a session with the given name. Note that the name is
+    // only used for diagnostic purposes. It is not used as unique
+    // session id.
+    //
     Session* create(string name);
 
     idempotent void shutdown();

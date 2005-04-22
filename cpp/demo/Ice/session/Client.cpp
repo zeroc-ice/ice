@@ -181,10 +181,13 @@ SessionClient::run(int argc, char* argv[])
 
 	//
 	// The refresher thread must be terminated before destroy is
-	// called, otherwise it might get ObjectNotExistException.
+	// called, otherwise it might get ObjectNotExistException. refresh
+	// is set to 0 so that if session->destroy() raises an exception
+	// the thread will not be re-terminated and re-joined.
 	//
 	refresh->terminate();
 	refresh->getThreadControl().join();
+	refresh = 0;
 
 	if(destroy)
 	{
@@ -197,8 +200,11 @@ SessionClient::run(int argc, char* argv[])
 	// The refresher thread must be terminated in the event of a
 	// failure.
 	//
-	refresh->terminate();
-	refresh->getThreadControl().join();
+	if(refresh)
+	{
+	    refresh->terminate();
+	    refresh->getThreadControl().join();
+	}
 	throw;
     }
 

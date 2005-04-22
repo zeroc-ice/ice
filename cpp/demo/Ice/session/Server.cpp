@@ -18,11 +18,6 @@ class SessionServer : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
-
-private:
-
-    void menu();
-    string trim(const string&);
 };
 
 int
