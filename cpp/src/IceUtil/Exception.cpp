@@ -36,7 +36,7 @@ IceUtil::Exception::~Exception()
 
 const char* IceUtil::Exception::_name = "IceUtil::Exception";
 
-const char*
+const string
 IceUtil::Exception::ice_name() const
 {
     return _name;
@@ -94,7 +94,7 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
 
 const char* IceUtil::NullHandleException::_name = "IceUtil::NullHandleException";
 
-const char*
+const string
 IceUtil::NullHandleException::ice_name() const
 {
     return _name;

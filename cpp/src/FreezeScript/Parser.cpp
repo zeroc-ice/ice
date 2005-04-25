@@ -128,7 +128,7 @@ FreezeScript::EvaluateException::EvaluateException(const char* file, int line, c
 
 const char* FreezeScript::EvaluateException::_name = "FreezeScript::EvaluateException";
 
-const char*
+const string
 FreezeScript::EvaluateException::ice_name() const
 {
     return _name;

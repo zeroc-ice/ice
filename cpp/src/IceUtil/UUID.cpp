@@ -99,7 +99,7 @@ static UUIDCleanup uuidCleanup;
 
 #endif
 
-const char*
+const string
 IceUtil::UUIDGenerationException::ice_name() const
 {
     return _name;

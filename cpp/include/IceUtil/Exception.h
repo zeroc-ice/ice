@@ -22,7 +22,7 @@ public:
     Exception();
     Exception(const char*, int);
     virtual ~Exception();
-    virtual const char* ice_name() const;
+    virtual const std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
@@ -43,7 +43,7 @@ class ICE_UTIL_API NullHandleException : public Exception
 public:
     
     NullHandleException(const char*, int);
-    virtual const char* ice_name() const;
+    virtual const std::string ice_name() const;
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
 

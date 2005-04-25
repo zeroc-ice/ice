@@ -21,7 +21,7 @@ FreezeScript::FailureException::FailureException(const char* file, int line, con
 
 const char* FreezeScript::FailureException::_name = "FreezeScript::FailureException";
 
-const char*
+const string
 FreezeScript::FailureException::ice_name() const
 {
     return _name;
