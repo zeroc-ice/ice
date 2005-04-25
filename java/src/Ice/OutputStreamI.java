@@ -18,13 +18,6 @@ public class OutputStreamI implements OutputStream
         _os = new IceInternal.BasicOutputStream(Util.getInstance(communicator), this);
     }
 
-    protected void
-    finalize()
-        throws Throwable
-    {
-        destroy();
-    }
-
     public Communicator
     communicator()
     {
