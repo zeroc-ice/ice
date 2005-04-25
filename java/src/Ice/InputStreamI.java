@@ -24,13 +24,6 @@ public class InputStreamI implements InputStream
         buf.position(0);
     }
 
-    protected void
-    finalize()
-        throws Throwable
-    {
-        destroy();
-    }
-
     public Communicator
     communicator()
     {
