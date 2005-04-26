@@ -122,7 +122,7 @@ public final class ThreadPool
         }
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
@@ -274,7 +274,6 @@ public final class ThreadPool
 	// wouldn't be possible here anyway, because otherwise the
 	// other threads would never terminate.)
 	//
-	assert(_destroyed);
 	java.util.Iterator i = _threads.iterator();
 	while(i.hasNext())
 	{

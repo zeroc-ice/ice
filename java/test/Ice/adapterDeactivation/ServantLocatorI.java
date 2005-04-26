@@ -17,7 +17,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
         _deactivated = false;
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {
@@ -55,7 +55,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
         test(co.message().equals("blahblah"));
     }
 
-    public void
+    public synchronized void
     deactivate(String category)
     {
         test(!_deactivated);

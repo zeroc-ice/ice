@@ -237,13 +237,16 @@ public class _ObjectDelM implements _ObjectDel
     finalize()
         throws Throwable
     {
-        while(__outgoingCache != null)
-        {
-            IceInternal.Outgoing next = __outgoingCache.next;
-            __outgoingCache.destroy();
-            __outgoingCache.next = null;
-            __outgoingCache = next;
-        }
+	synchronized(__outgoingMutex)
+	{
+	    while(__outgoingCache != null)
+	    {
+		IceInternal.Outgoing next = __outgoingCache.next;
+		__outgoingCache.destroy();
+		__outgoingCache.next = null;
+		__outgoingCache = next;
+	    }
+	}
     }
 
     private IceInternal.Outgoing __outgoingCache;

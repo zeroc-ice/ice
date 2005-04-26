@@ -26,10 +26,14 @@ class TcpAcceptor implements Acceptor
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        java.nio.channels.ServerSocketChannel fd = _fd;
+        java.nio.channels.ServerSocketChannel fd;
+	synchronized(this)
+        {
+	    fd = _fd;
+            _fd = null;
+	}
         if(fd != null)
         {
-            _fd = null;
             try
             {
                 fd.close();
@@ -126,7 +130,7 @@ class TcpAcceptor implements Acceptor
         }
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

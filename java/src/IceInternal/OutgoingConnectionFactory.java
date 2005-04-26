@@ -538,7 +538,7 @@ public final class OutgoingConnectionFactory
 	_destroyed = false;
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

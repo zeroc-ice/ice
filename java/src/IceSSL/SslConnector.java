@@ -19,7 +19,7 @@ final class SslConnector implements IceInternal.Connector
 	    _addr = addr;
 	}
 
-	protected void
+	protected synchronized void
 	finalize()
 	    throws Throwable
 	{

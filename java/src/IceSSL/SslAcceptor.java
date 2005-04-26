@@ -26,10 +26,14 @@ class SslAcceptor implements IceInternal.Acceptor
 	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	javax.net.ssl.SSLServerSocket fd = _fd;
+	javax.net.ssl.SSLServerSocket fd;
+	synchronized(this)
+	{
+	    fd = _fd;
+	    _fd = null;
+	}
 	if(fd != null)
 	{
-	    _fd = null;
 	    try
 	    {
 		fd.close();

@@ -48,7 +48,7 @@ public class Client
             }
         }
 
-        System.gc();
+	System.gc();
         System.exit(status);
     }
 }

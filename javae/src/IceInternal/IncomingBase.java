@@ -54,7 +54,7 @@ public class IncomingBase
     // penalty! We must make sure that __destroy() is called instead,
     // to reclaim resources.
     //
-    public void
+    public synchronized void
     __destroy()
     {
 	if(_os != null)

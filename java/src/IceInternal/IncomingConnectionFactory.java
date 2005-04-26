@@ -448,11 +448,14 @@ public final class IncomingConnectionFactory extends EventHandler
 		    //
 		    // Clean up for finalizer.
 		    //
-		    _state = StateClosed;
-		    _acceptor = null;
-		    _connections = null;
-		    _threadPerIncomingConnectionFactory = null;
-		    super.destroy();
+		    synchronized(this)
+		    {
+			_state = StateClosed;
+			_acceptor = null;
+			_connections = null;
+			_threadPerIncomingConnectionFactory = null;
+			super.destroy();
+		    }
 
 		    Ice.SyscallException e = new Ice.SyscallException();
 		    e.initCause(ex);

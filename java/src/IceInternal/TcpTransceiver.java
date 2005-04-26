@@ -27,19 +27,24 @@ final class TcpTransceiver implements Transceiver
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        assert(_fd != null);
-        try
-        {
-            _fd.close();
-	    _fd = null;
-        }
-        catch(java.io.IOException ex)
-        {
-	    _fd = null;
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-        }
+	synchronized(this)
+	{
+	    assert(_fd != null);
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
+	    finally
+	    {
+	        _fd = null;
+	    }
+	}
     }
 
     public void
@@ -345,7 +350,7 @@ final class TcpTransceiver implements Transceiver
         _desc = Network.fdToString(_fd);
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

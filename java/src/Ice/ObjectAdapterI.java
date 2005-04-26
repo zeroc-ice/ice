@@ -729,7 +729,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

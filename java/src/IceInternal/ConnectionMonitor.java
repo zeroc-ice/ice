@@ -75,7 +75,7 @@ public final class ConnectionMonitor extends Thread
 	start();
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

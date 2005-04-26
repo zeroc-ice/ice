@@ -18,7 +18,7 @@ final class UdpTransceiver implements Transceiver
         return _fd;
     }
 
-    public void
+    public synchronized void
     close()
     {
         if(_traceLevels.network >= 1)
@@ -403,7 +403,7 @@ final class UdpTransceiver implements Transceiver
 	}
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

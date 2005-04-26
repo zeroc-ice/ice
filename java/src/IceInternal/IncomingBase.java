@@ -62,7 +62,7 @@ public class IncomingBase
     // penalty! We must make sure that __destroy() is called instead,
     // to reclaim resources.
     //
-    public void
+    public synchronized void
     __destroy()
     {
 	if(_os != null)
@@ -103,13 +103,16 @@ public class IncomingBase
 
         _compress = compress;
 
-	if(_os == null)
+	synchronized(this)
 	{
-	    _os = new BasicStream(instance);
-	}
-	else
-	{
-	    _os.reset();
+	    if(_os == null)
+	    {
+		_os = new BasicStream(instance);
+	    }
+	    else
+	    {
+		_os.reset();
+	    }
 	}
 
 	_connection = connection;

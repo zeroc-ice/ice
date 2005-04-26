@@ -26,18 +26,23 @@ final class SslTransceiver implements IceInternal.Transceiver
 	    _logger.trace(_instance.networkTraceCategory(), s);
 	}
 
-	assert(_fd != null);
-	try
+	synchronized(this)
 	{
-	    _fd.close();
-	    _fd = null;
-	}
-	catch(java.io.IOException ex)
-	{
-	    _fd = null;
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
+	    assert(_fd != null);
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
+	    finally
+	    {
+		_fd = null;
+	    }
 	}
     }
 
@@ -331,7 +336,7 @@ final class SslTransceiver implements IceInternal.Transceiver
 	_shutdown = false;
     }
 
-    protected void
+    protected synchronized void
     finalize()
 	throws Throwable
     {

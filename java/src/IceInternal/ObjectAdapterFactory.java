@@ -173,7 +173,7 @@ public final class ObjectAdapterFactory
 	_waitForShutdown = false;
     }
 
-    protected void
+    protected synchronized void
     finalize()
         throws Throwable
     {

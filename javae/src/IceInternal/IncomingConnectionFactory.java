@@ -280,10 +280,13 @@ public final class IncomingConnectionFactory
 		//
 		// Clean up for finalizer.
 		//
-		_state = StateClosed;
-		_acceptor = null;
-		_connections = null;
-		_threadPerIncomingConnectionFactory = null;
+		synchronized(this)
+		{
+		    _state = StateClosed;
+		    _acceptor = null;
+		    _connections = null;
+		    _threadPerIncomingConnectionFactory = null;
+		}
     
 	        Ice.SyscallException e = new Ice.SyscallException();
 	        e.initCause(ex);
