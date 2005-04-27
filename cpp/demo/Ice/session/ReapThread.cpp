@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <ReapThread.h>
 
 using namespace std;

@@ -12,7 +12,6 @@
 
 #include <IceUtil/Thread.h>
 #include <SessionI.h>
-
 #include <list>
 
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
