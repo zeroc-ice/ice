@@ -1,6 +1,8 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Fixed Slice compilers to allow file names containing whitespace.
+
 - Fixed a thread pool bug on Win32 in which the file descriptors for
   the pipe were not closed.
 

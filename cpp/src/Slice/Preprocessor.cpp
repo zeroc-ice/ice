@@ -71,7 +71,7 @@ Slice::Preprocessor::preprocess(bool keepComments)
 	cmd += " -C";
     }
     
-    cmd += " " + _args + " " + _fileName;
+    cmd += " " + _args + " \"" + _fileName + "\"";
 
     //
     // Open a pipe for reading to redirect icecpp output to _cppHandle.
@@ -99,7 +99,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 	return;
     }
     
-    cmd += " -M " + _args + " " + _fileName;
+    cmd += " -M " + _args + " \"" + _fileName + "\"";
 
 #ifdef _WIN32
     FILE* cppHandle = _popen(cmd.c_str(), "r");
