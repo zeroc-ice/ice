@@ -11,7 +11,6 @@
 #include <Ice/Ice.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Parser.h>
-//#include <IceGrid/DescriptorVisitor.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/DescriptorParser.h>
 
@@ -39,231 +38,6 @@ namespace IceGrid
 {
 
 Parser* parser;
-
-
-
-// class ServerDescribe : public DescriptorVisitor
-// {
-// public:
-
-//     ServerDescribe(IceUtil::Output&, const Ice::CommunicatorPtr&, AdminPrx&);
-
-//     void describe(const ServerDescriptorPtr&);
-
-// private:
-
-//     virtual bool visitServerStart(const ServerWrapper&, const ServerDescriptorPtr&);
-//     virtual void visitServerEnd(const ServerWrapper&, const ServerDescriptorPtr&);
-//     virtual bool visitServiceStart(const ServiceWrapper&, const ServiceDescriptorPtr&);
-//     virtual void visitServiceEnd(const ServiceWrapper&, const ServiceDescriptorPtr&);
-//     virtual void visitDbEnv(const DbEnvWrapper&, const DbEnvDescriptor&);
-//     virtual bool visitAdapterStart(const AdapterWrapper&, const AdapterDescriptor&);
-//     virtual void visitAdapterEnd(const AdapterWrapper&, const AdapterDescriptor&);
-//     virtual void visitObject(const ObjectWrapper&, const ObjectDescriptor&);
-
-//     IceUtil::Output& _out;
-//     Ice::CommunicatorPtr _communicator;
-//     AdminPrx _admin;
-// };
-
-// }
-
-// ServerDescribe::ServerDescribe(IceUtil::Output& out, const Ice::CommunicatorPtr& communicator, AdminPrx& admin) : 
-//     _out(out),
-//     _communicator(communicator),
-//     _admin(admin)
-// {
-// }
-
-// void
-// ServerDescribe::describe(const ServerDescriptorPtr& desc)
-// {
-//     ServerWrapper(desc).visit(*this);
-// }
-
-// bool
-// ServerDescribe::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr& server)
-// {
-//     _out << "server '" << server->name << "' ";
-//     if(JavaServerDescriptorPtr::dynamicCast(server))
-//     {
-// 	if(JavaIceBoxDescriptorPtr::dynamicCast(server))
-// 	{
-// 	    _out << " (Java IceBox)";
-// 	}
-// 	else
-// 	{
-// 	    _out << " (Java)";
-// 	}
-//     }
-//     else if(CppIceBoxDescriptorPtr::dynamicCast(server))
-//     {
-// 	_out << " (IceBox)";
-//     }
-
-//     _out << sb;
-//     _out << nl << "node = '" << server->node << "'";
-//     _out << nl << "application = '" << server->application << "'";
-//     _out << nl << "exe = '" << server->exe << "'";
-//     if(!server->pwd.empty())
-//     {
-// 	_out << nl << "pwd = '" << server->pwd << "'";
-//     }
-//     _out << nl << "activation = '" << (_admin->getServerActivation(server->name) == OnDemand ? "on-demand" : "manual")
-// 	 << "'";
-//     if(JavaServerDescriptorPtr::dynamicCast(server))
-//     {
-// 	JavaServerDescriptorPtr s = JavaServerDescriptorPtr::dynamicCast(server);
-// 	_out << nl << "className = '" << s->className << "'";
-// 	if(!s->jvmOptions.empty())
-// 	{
-// 	    _out << nl << "jvmOptions = '";
-// 	    for(Ice::StringSeq::const_iterator p = s->jvmOptions.begin(); p != s->jvmOptions.end();)
-// 	    {
-// 		_out << *p << ((++p != s->jvmOptions.end()) ? " " : "'");
-// 	    }
-// 	}
-//     }
-//     if(JavaIceBoxDescriptorPtr::dynamicCast(server))
-//     {
-// 	JavaIceBoxDescriptorPtr s = JavaIceBoxDescriptorPtr::dynamicCast(server);
-// 	_out << nl << "service manager endpoints = '" << s->endpoints << "'";
-//     }
-//     if(CppIceBoxDescriptorPtr::dynamicCast(server))
-//     {
-// 	CppIceBoxDescriptorPtr s = CppIceBoxDescriptorPtr::dynamicCast(server);
-// 	_out << nl << "service manager endpoints = '" << s->endpoints << "'";
-//     }
-//     if(!server->comment.empty())
-//     {
-// 	_out << nl << "comment";
-// 	_out << sb;
-// 	_out << nl << server->comment;
-// 	_out << eb;
-//     }
-//     if(!server->options.empty())
-//     {
-// 	_out << nl << "options = '";
-// 	for(Ice::StringSeq::const_iterator p = server->options.begin(); p != server->options.end();)
-// 	{
-// 	    _out << *p << ((++p != server->options.end()) ? " " : "'");
-// 	}
-//     }
-//     if(!server->envs.empty())
-//     {
-// 	_out << nl << "envs = '";
-// 	for(Ice::StringSeq::const_iterator p = server->envs.begin(); p != server->envs.end(); ++p)
-// 	{
-// 	    _out << *p << " ";
-// 	}
-//     }
-//     if(!server->properties.empty())
-//     {
-// 	_out << nl << "properties";
-// 	_out << sb;
-// 	for(PropertyDescriptorSeq::const_iterator p = server->properties.begin(); p != server->properties.end(); ++p)
-// 	{
-// 	    _out << nl << p->name << "=" << p->value;
-// 	}
-// 	_out << eb;
-//     }
-
-//     return true;
-// }
-
-// void
-// ServerDescribe::visitServerEnd(const ServerWrapper&, const ServerDescriptorPtr& server)
-// {
-//     _out << eb;
-//     _out << nl;
-// }
-
-// bool
-// ServerDescribe::visitServiceStart(const ServiceWrapper&, const ServiceDescriptorPtr& service)
-// {
-//     _out << nl << "service '" << service->name << "'";
-//     _out << sb;
-//     _out << nl << "entry = '" << service->entry << "'";
-//     if(!service->comment.empty())
-//     {
-// 	_out << nl << "comment";
-// 	_out << sb;
-// 	_out << nl << service->comment;
-// 	_out << eb;
-//     }
-//     if(!service->properties.empty())
-//     {
-// 	_out << nl << "properties";
-// 	_out << sb;
-// 	for(PropertyDescriptorSeq::const_iterator p = service->properties.begin(); p != service->properties.end(); ++p)
-// 	{
-// 	    _out << nl << p->name << "=" << p->value;
-// 	}
-// 	_out << eb;
-//     }
-//     return true;
-// }
-
-// void
-// ServerDescribe::visitServiceEnd(const ServiceWrapper&, const ServiceDescriptorPtr& service)
-// {
-//     _out << eb;
-// }
-
-// void 
-// ServerDescribe::visitDbEnv(const DbEnvWrapper&, const DbEnvDescriptor& dbEnv)
-// {
-//     _out << nl << "database environment '" << dbEnv.name << "'";
-//     if(!dbEnv.dbHome.empty() || !dbEnv.properties.empty())
-//     {
-// 	_out << sb;
-// 	if(!dbEnv.dbHome.empty())
-// 	{
-// 	    _out << nl << "home = '" << dbEnv.dbHome << "'";
-// 	}
-// 	if(!dbEnv.properties.empty())
-// 	{
-// 	    _out << nl << "properties";
-// 	    _out << sb;
-// 	    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
-// 	    {
-// 	    _out << nl << p->name << "=" << p->value;
-// 	    }
-// 	    _out << eb;
-// 	}
-// 	_out << eb;
-//     }
-// }
-
-// bool 
-// ServerDescribe::visitAdapterStart(const AdapterWrapper&, const AdapterDescriptor& adapter)
-// {
-//     _out << nl << "adapter '" << adapter.name << "'";
-//     _out << sb;
-//     _out << nl << "id = '" << adapter.id << "'";
-//     _out << nl << "endpoints = '" << adapter.endpoints << "'";
-//     _out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
-//     return true;
-// }
-
-// void
-// ServerDescribe::visitAdapterEnd(const AdapterWrapper&, const AdapterDescriptor& adapter)
-// {
-//     _out << eb;
-// }
-
-// void 
-// ServerDescribe::visitObject(const ObjectWrapper&, const ObjectDescriptor& object)
-// {
-//     _out << nl << "object";
-//     if(!object.type.empty())
-//     {
-// 	_out << sb;
-// 	_out << nl << "proxy = '" << _communicator->proxyToString(object.proxy) << "' ";
-// 	_out << nl << "type = '" << object.type << "'";
-// 	_out << eb;
-//     }
-// }
 
 void 
 describeDbEnv(IceUtil::Output& out, const DbEnvDescriptor& dbEnv)
@@ -356,9 +130,7 @@ describeComponent(IceUtil::Output& out, const Ice::CommunicatorPtr& communicator
 }
 
 void
-describe(IceUtil::Output& out, 
-	 const Ice::CommunicatorPtr& communicator, 
-	 const ServerDescriptorPtr& server)
+describe(IceUtil::Output& out, const Ice::CommunicatorPtr& communicator, const ServerDescriptorPtr& server)
 {
     out << "server '" << server->name << "' ";
     if(JavaServerDescriptorPtr::dynamicCast(server))
@@ -385,7 +157,7 @@ describe(IceUtil::Output& out,
     {
 	out << nl << "pwd = '" << server->pwd << "'";
     }
-    out << nl << "activation = '" << (server->activation == OnDemand ? "on-demand" : "manual") << "'";
+    out << nl << "activation = '" << server->activation << "'";
 
     if(JavaServerDescriptorPtr::dynamicCast(server))
     {

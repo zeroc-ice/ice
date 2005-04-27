@@ -22,8 +22,25 @@ namespace IceGrid
 {
 
 bool equal(const ServiceDescriptorPtr&, const ServiceDescriptorPtr&);
+void instantiateComponentTemplate(const ComponentDescriptorPtr&, const vector<map<string, string> >&, vector<string>&);
 
 }
+
+struct Substitute : std::unary_function<string&, void>
+{
+    Substitute(const vector<map<string, string> >& variables, vector<string>& missing) : 
+	_variables(variables), _missing(missing)
+    {
+    } 
+
+    void operator()(string& v)
+    {
+	v.assign(substitute(v, _variables, true, _missing));
+    }
+
+    const vector<map<string, string> >& _variables;
+    vector<string>& _missing;
+};
 
 ServiceDescriptorSeq
 IceGrid::getServices(const ComponentDescriptorPtr& descriptor)
@@ -238,4 +255,161 @@ IceGrid::equal(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
     }
 
     return true;
+}
+
+string
+IceGrid::getVariable(const vector<map<string, string> >& variables, const string& name)
+{
+    static const string empty;
+    vector<map<string, string> >::const_reverse_iterator p = variables.rbegin();
+    while(p != variables.rend())
+    {
+	map<string, string>::const_iterator q = p->find(name);
+	if(q != p->end())
+	{
+	    return q->second;
+	}
+	++p;
+    }
+    return empty;
+}
+
+bool
+IceGrid::hasVariable(const vector<map<string, string> >& variables, const string& name)
+{
+    vector<map<string, string> >::const_reverse_iterator p = variables.rbegin();
+    while(p != variables.rend())
+    {
+	map<string, string>::const_iterator q = p->find(name);
+	if(q != p->end())
+	{
+	    return true;
+	}
+	++p;
+    }
+    return false;
+}
+
+string
+IceGrid::substitute(const string& v, const vector<map<string, string> >& vars, bool ignore, vector<string>& missing)
+{
+    string value(v);
+    string::size_type beg = 0;
+    string::size_type end = 0;
+
+    while((beg = value.find("${", beg)) != string::npos)
+    {
+	if(beg > 0 && value[beg - 1] == '$')
+	{
+	    string::size_type escape = beg - 1;
+	    while(escape > 0 && value[escape - 1] == '$')
+	    {
+		--escape;
+	    }
+
+	    value.replace(escape, beg - escape, (beg - escape) / 2, '$');
+	    if((beg - escape) % 2)
+	    {
+		++beg;
+		continue;
+	    }
+	    else
+	    {
+		beg -= (beg - escape) / 2;
+	    }
+	}
+
+	end = value.find("}", beg);
+	
+	if(end == string::npos)
+	{
+	    throw "malformed variable name in the '" + value + "' value";
+	}
+	
+	string name = value.substr(beg + 2, end - beg - 2);
+	if(!hasVariable(vars, name))
+	{
+	    if(!ignore)
+	    {
+		throw "unknown variable `" + name + "'";
+	    }
+	    else
+	    {
+		missing.push_back(name);
+		++beg;
+		continue;
+	    }
+	}
+	else
+	{
+	    value.replace(beg, end - beg + 1, getVariable(vars, name));
+	}
+    }
+
+    return value;
+}
+
+void
+IceGrid::instantiateComponentTemplate(const ComponentDescriptorPtr& desc, const vector<map<string, string> >& vars, 
+				      vector<string>& missing)
+{
+    Substitute substitute(vars, missing);
+    substitute(desc->name);
+    substitute(desc->comment);
+    for(AdapterDescriptorSeq::iterator p = desc->adapters.begin(); p != desc->adapters.end(); ++p)
+    {
+	substitute(p->name);
+	substitute(p->id);
+	substitute(p->endpoints);
+	for(ObjectDescriptorSeq::iterator q = p->objects.begin(); q != p->objects.end(); ++q)
+	{
+	    //q->proxy = ; TODO!
+	    substitute(q->type);
+	    substitute(q->adapterId);
+	}
+    }
+    for(PropertyDescriptorSeq::iterator p = desc->properties.begin(); p != desc->properties.end(); ++p)
+    {
+	substitute(p->name);
+	substitute(p->value);	
+    }
+    for(DbEnvDescriptorSeq::iterator p = desc->dbEnvs.begin(); p != desc->dbEnvs.end(); ++p)
+    {
+	substitute(p->name);
+	substitute(p->dbHome);	
+	for(PropertyDescriptorSeq::iterator q = p->properties.begin(); q != p->properties.end(); ++q)
+	{
+	    substitute(q->name);
+	    substitute(q->value);	
+	}
+    }
+}
+
+ServerDescriptorPtr
+IceGrid::instantiateTemplate(const ServerDescriptorPtr& descriptor,
+			     const map<string, string>& vars, 
+			     vector<string>& missing)
+{
+    ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(descriptor->ice_clone());
+    vector<map<string, string> > variables;
+    variables.push_back(vars);
+    instantiateComponentTemplate(desc, variables, missing);
+    Substitute substitute(variables, missing);
+    substitute(desc->exe);
+    substitute(desc->pwd);
+    for_each(desc->options.begin(), desc->options.end(), substitute);
+    for_each(desc->envs.begin(), desc->envs.end(), substitute);
+//     if(JavaServerDescriptorPtr::dynamicCast(desc))
+//     {
+// 	desc->className = substitute(desc->className, variables, true, missing);
+// 	for_each(desc->jvmOptions.begin(), desc->jvmOptions.end(), Substitute(variables, missing));
+//     }
+    return desc;
+}
+
+ServiceDescriptorPtr
+IceGrid::instantiateTemplate(const ServiceDescriptorPtr& descriptor, const map<string, string>& vars, 
+			     vector<string>& missing)
+{
+    return descriptor;
 }

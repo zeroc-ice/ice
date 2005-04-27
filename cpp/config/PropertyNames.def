@@ -278,10 +278,11 @@ IceGrid:
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
-    Registry.Trace.AdapterRegistry
-    Registry.Trace.NodeRegistry
-    Registry.Trace.ObjectRegistry
-    Registry.Trace.ServerRegistry
+    Registry.Trace.Application
+    Registry.Trace.Adapter
+    Registry.Trace.Node
+    Registry.Trace.Object
+    Registry.Trace.Server
 
 IcePatch:
     BusyTimeout

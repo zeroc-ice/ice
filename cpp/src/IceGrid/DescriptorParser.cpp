@@ -11,6 +11,8 @@
 #include <IceXML/Parser.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/DescriptorParser.h>
+#include <IceGrid/DescriptorHelper.h>
+#include <IceGrid/Util.h>
 
 #include <stack>
 #include <fstream>
@@ -45,47 +47,51 @@ private:
     std::string getAttributeValue(const IceXML::Attributes&, const std::string&) const;
     std::string getAttributeValueWithDefault(const IceXML::Attributes&, const std::string&, const std::string&) const;
     bool isCurrentTargetDeployable() const;
-    std::string substitute(const std::string&) const;
     std::string elementValue() const;
     std::vector<std::string> getTargets(const std::string&) const;
     void error(const string&) const;
-
-    const std::string& getVariable(const std::string&) const;
-    bool hasVariable(const std::string&) const;
     bool isTargetDeployable(const std::string&) const;
 
     Ice::CommunicatorPtr _communicator;
     string _filename;
     std::vector<std::string> _targets;    
-    std::vector< std::map<std::string, std::string> > _variables;
+    DescriptorVariablesPtr _variables;
     std::stack<std::string> _elements;
+    std::map<std::string, ServerDescriptorPtr> _serverTemplates;
+    std::map<std::string, ServiceDescriptorPtr> _serviceTemplates;
+    std::map<std::string, ComponentDescriptorPtr> _templates;
     int _targetCounter;
     bool _isCurrentTargetDeployable;
     int _line;
     int _column;
 
-    ApplicationDescriptorPtr _currentApplication;
-    ServerDescriptorPtr _currentServer;
-    ServiceDescriptorPtr _currentService;
-    ComponentDescriptorPtr _currentComponent;
-    AdapterDescriptor _currentAdapter;
-    DbEnvDescriptor _currentDbEnv;
+    auto_ptr<ApplicationDescriptorHelper> _currentApplication;
+    auto_ptr<ServerDescriptorHelper> _currentServer;
+    std::string _currentServerTemplate;
+    auto_ptr<ServiceDescriptorHelper> _currentService;
+    std::string _currentServiceTemplate;
+    ComponentDescriptorHelper* _currentComponent;
 
     bool _isTopLevel;
     bool _inProperties;
     bool _inAdapters;
+    bool _inAdapter;
+    bool _inDbEnv;
 };
 
 }
 
 DescriptorHandler::DescriptorHandler(const string& filename) : 
     _filename(filename),
+    _variables(new DescriptorVariables()),
     _isCurrentTargetDeployable(true),
     _isTopLevel(true),
     _inProperties(false),
-    _inAdapters(false)
+    _inAdapters(false),
+    _inAdapter(false),
+    _inDbEnv(false)
 {
-    _variables.push_back(map<string, string>());
+    _variables->push();
 }
 
 void
@@ -97,8 +103,7 @@ DescriptorHandler::setCommunicator(const Ice::CommunicatorPtr& communicator)
 void
 DescriptorHandler::setVariables(const std::map<std::string, std::string>& variables)
 {
-    _variables.clear();
-    _variables.push_back(variables);
+    _variables->reset(variables);
 }
 
 void
@@ -112,306 +117,230 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 {
     _line = line;
     _column = column;
-    
-    if(name == "icegrid")
-    {
-	if(!_isTopLevel)
-	{
-	    error("element <icegrid> is a top level element");
-	}
-	_isTopLevel = false;
-    }
-    else if(_isTopLevel)
-    {
-	error("only the <icegrid> element is allowed at the top-level");
-    }
-    else if(name == "target")
-    {
-	if(!_isCurrentTargetDeployable)
-	{
-	    ++_targetCounter;
-	}
-	else
-	{
-	    _isCurrentTargetDeployable = isTargetDeployable(getAttributeValue(attrs, "name"));
-	    _targetCounter = 1;
-	    return;
-	}
-    }
-    else if(!isCurrentTargetDeployable())
-    {
-	//
-	// We don't bother to parse the elements if the elements are enclosed in a target element 
-	// which won't be deployed.
-	//
-	return;
-    }
-    else if(name == "include")
-    {
-	_variables.push_back(map<string, string>());
+    XmlAttributesHelper attributes(_variables, attrs);
 
-	string file;
-	string targets;
-
-	for(IceXML::Attributes::const_iterator p = attrs.begin(); p != attrs.end(); ++p)
+    try
+    {
+	if(name == "icegrid")
 	{
-	    if(p->first == "descriptor")
+	    if(!_isTopLevel)
 	    {
-		file = substitute(p->second);
+		error("element <icegrid> is a top level element");
 	    }
-	    else if(p->first == "targets")
+	    _isTopLevel = false;
+	}
+	else if(_isTopLevel)
+	{
+	    error("only the <icegrid> element is allowed at the top-level");
+	}
+	else if(name == "target")
+	{
+	    if(!_isCurrentTargetDeployable)
 	    {
-		targets = substitute(p->second);
+		++_targetCounter;
 	    }
 	    else
 	    {
-		string v = substitute(p->second);
-		_variables.back()[p->first] = v;
+		_isCurrentTargetDeployable = isTargetDeployable(getAttributeValue(attrs, "name"));
+		_targetCounter = 1;
+		return;
 	    }
 	}
-
-	if(file.empty())
+	else if(!isCurrentTargetDeployable())
 	{
-	    error("attribute `descriptor' is mandatory in element <include>");
+	    //
+	    // We don't bother to parse the elements if the elements are enclosed in a target element 
+	    // which won't be deployed.
+	    //
+	    return;
 	}
-
-	if(file[0] != '/')
+	else if(name == "include")
 	{
-	    string::size_type end = _filename.find_last_of('/');
-	    if(end != string::npos)
+	    _variables->push();
+	    
+	    string file;
+	    string targets;
+	    
+	    for(IceXML::Attributes::const_iterator p = attrs.begin(); p != attrs.end(); ++p)
 	    {
-		file = _filename.substr(0, end) + "/" + file;
+		if(p->first == "descriptor")
+		{
+		    file = _variables->substitute(p->second);
+		}
+		else if(p->first == "targets")
+		{
+		    targets = _variables->substitute(p->second);
+		}
+		else
+		{
+		    string v = _variables->substitute(p->second);
+		    (*_variables)[p->first] = v;
+		}
 	    }
+	    
+	    if(file.empty())
+	    {
+		error("attribute `descriptor' is mandatory in element <include>");
+	    }
+	    
+	    if(file[0] != '/')
+	    {
+		string::size_type end = _filename.find_last_of('/');
+		if(end != string::npos)
+		{
+		    file = _filename.substr(0, end) + "/" + file;
+		}
+	    }
+	    
+	    string oldFileName = _filename;
+	    vector<string> oldTargets = _targets;
+	    _isTopLevel = true;
+	    _filename = file;
+	    _targets = getTargets(targets);
+	    
+	    IceXML::Parser::parse(file, *this);
+	    
+	    _variables->pop();
+	    _filename = oldFileName;
+	    _targets = oldTargets;
 	}
+	else if(name == "application")
+	{
+	    if(_currentApplication.get())
+	    {
+		error("only one <application> element is allowed");
+	    }
 
-	string oldFileName = _filename;
-	vector<string> oldTargets = _targets;
-	_isTopLevel = true;
-	_filename = file;
-	_targets = getTargets(targets);
+	    _currentApplication.reset(new ApplicationDescriptorHelper(_communicator, _variables, attrs));
+	    (*_variables)["application"] = _currentApplication->getDescriptor()->name;
+	}
+	else if(name == "node")
+	{
+	    (*_variables)["node"] = attributes("name");
+	}
+	else if(name == "server")
+	{
+	    if(_currentServer.get())
+	    {
+		error("element <server> inside a server definition");
+	    }
+	    if(!_variables->hasVariable("node"))
+	    {
+		error("the <server> element can only be a child of a <node> element");
+	    }
 
-	IceXML::Parser::parse(file, *this);
-
-	_variables.pop_back();
-	_filename = oldFileName;
-	_targets = oldTargets;
+	    if(!_currentApplication.get())
+	    {
+		_currentServer.reset(new ServerDescriptorHelper(_communicator, _variables, attrs));
+	    }
+	    else
+	    {
+		_currentServer.reset(_currentApplication->addServer(attrs));
+	    }
+	    _currentComponent = _currentServer.get();
+	    (*_variables)["server"] = _currentServer->getDescriptor()->name;
+	}
+	else if(name == "server-template")
+	{
+	    if(_currentServer.get())
+	    {
+		error("element <server-template> inside a server definition");
+	    }
+	    _variables->ignoreMissing(true);
+	    _currentServer.reset(_currentApplication->addServerTemplate(attrs));
+	    _currentComponent = _currentServer.get();
+	    (*_variables)["server"] = _currentServer->getDescriptor()->name;
+	}
+	else if(name == "service")
+	{
+	    if(_currentService.get())
+	    {
+		error("element <service> inside a service definition");
+	    }
+	    
+	    _currentService.reset(_currentServer->addService(attrs));
+	    _currentComponent = _currentService.get();
+	    (*_variables)["service"] = _currentService->getDescriptor()->name;
+	}
+	else if(name == "service-template")
+	{
+	    if(_currentService.get())
+	    {
+		error("element <service-template> inside a service definition");
+	    }
+	    _variables->ignoreMissing(true);
+	    _currentService.reset(_currentApplication->addServiceTemplate(attrs));
+	    _currentComponent = _currentService.get();
+	    (*_variables)["server"] = "${server}";
+	    (*_variables)["service"] = _currentService->getDescriptor()->name;
+	}
+	else if(name == "variable")
+	{
+	    (*_variables)[attributes("name")] = attributes("value", "");
+	}
+	else if(name == "properties")
+	{
+	    if(!_currentComponent)
+	    {
+		error("the <properties> element can only be a child of a <server> or <service> element");
+	    }
+	    _inProperties = true;
+	}
+	else if(name == "property")
+	{
+	    if(!_inProperties)
+	    {
+		error("the <property> element can only be a child of a <properties> element");
+	    }	    
+	    _currentComponent->addProperty(attrs);
+	}
+	else if(name == "adapters")
+	{
+	    if(!_currentComponent)
+	    {
+		error("the <adapters> element can only be a child of a <server> or <service> element");
+	    }
+	    _inAdapters = true;
+	}
+	else if(name == "adapter")
+	{
+	    if(!_inAdapters)
+	    {
+		error("the <adapter> element can only be a child of an <adapters> element");
+	    }
+	    _currentComponent->addAdapter(attrs);
+	}
+	else if(name == "object")
+	{
+	    if(_inAdapter)
+	    {
+		error("the <object> element can only be a child of an <adapter> element");
+	    }
+	    _currentComponent->addObject(attrs);
+	}
+	else if(name == "dbenv")
+	{
+	    if(!_currentComponent)
+	    {
+		error("the <dbenv> element can only be a child of a <server> or <service> element");
+	    }
+	    _currentComponent->addDbEnv(attrs);
+	    _inDbEnv = true;
+	}
+	else if(name == "dbproperty")
+	{
+	    if(!_inDbEnv)
+	    {
+		error("the <dbproperty> element can only be a child of a <dbenv> element");
+	    }
+	    _currentComponent->addDbEnvProperty(attrs);
+	}
     }
-    else if(name == "application")
+    catch(const string& reason)
     {
-	if(_currentApplication)
-	{
-	    error("only one <application> element is allowed");
-	}
-	_currentApplication = new ApplicationDescriptor();
-	_currentApplication->name = getAttributeValue(attrs, "name");
-	_variables.back()["application"] = _currentApplication->name;
+	error(reason);
     }
-    else if(name == "node")
-    {
-	_variables.back()["node"] = getAttributeValue(attrs, "name");
-    }
-    else if(name == "server")
-    {
-	if(!hasVariable("node"))
-	{
-	    error("the <server> element can only be a child of a <node> element");
-	}
-
-	string kind = getAttributeValue(attrs, "kind");
-	if(kind == "cpp" || kind == "cs")
-	{
-	    _currentServer = new ServerDescriptor();
-	    _currentServer->exe = getAttributeValue(attrs, "exe");
-	}
-	else if(kind == "java")
-	{
-	    JavaServerDescriptorPtr descriptor = new JavaServerDescriptor();
-	    _currentServer = descriptor;
-	    _currentServer->exe = getAttributeValueWithDefault(attrs, "exe", "java");
-	    descriptor->className = getAttributeValue(attrs, "classname");
-	}
-	else if(kind == "cpp-icebox")
-	{
-	    _currentServer = new CppIceBoxDescriptor();
-	    _currentServer->exe = getAttributeValueWithDefault(attrs, "exe", "icebox");
-	}
-	else if(kind == "java-icebox")
-	{
-	    JavaIceBoxDescriptorPtr descriptor = new JavaIceBoxDescriptor();
-	    _currentServer = descriptor;
-	    _currentServer->exe = getAttributeValueWithDefault(attrs, "exe", "java");
-	    descriptor->className = getAttributeValueWithDefault(attrs, "classname", "IceBox.Server");
-	}
-
-	_currentServer->name = getAttributeValue(attrs, "name");
-	_currentServer->node = getVariable("node");
-	_currentServer->pwd = getAttributeValueWithDefault(attrs, "pwd", "");
-	_currentServer->activation = 
-	    getAttributeValueWithDefault(attrs, "activation", "manual") == "on-demand" ? OnDemand : Manual;
-
-	if(_currentApplication)
-	{
-	    _currentServer->application = _currentApplication->name;
-	}	
 	
-	if(kind == "cpp-icebox" || kind == "java-icebox")
-	{
-	    CppIceBoxDescriptorPtr cppIceBox = CppIceBoxDescriptorPtr::dynamicCast(_currentServer);
-	    if(cppIceBox)
-	    {
-		cppIceBox->endpoints = getAttributeValue(attrs, "endpoints");
-	    }
-	    JavaIceBoxDescriptorPtr javaIceBox = JavaIceBoxDescriptorPtr::dynamicCast(_currentServer);
-	    if(javaIceBox)
-	    {
-		javaIceBox->endpoints = getAttributeValue(attrs, "endpoints");
-	    }
-
-	    PropertyDescriptor prop;
-	    prop.name = "IceBox.ServiceManager.Identity";
-	    prop.value = _currentServer->name + "/ServiceManager";
-	    _currentServer->properties.push_back(prop);
-
-	    AdapterDescriptor adapter;
-	    adapter.name = "IceBox.ServiceManager";
-	    adapter.endpoints = getAttributeValue(attrs, "endpoints");
-	    adapter.id = _currentServer->name + "." + adapter.name;
-	    adapter.registerProcess = true;
-	    _currentServer->adapters.push_back(adapter);
-	}
-
-	_currentComponent = _currentServer;
-	_variables.back()["server"] = _currentServer->name;
-    }
-    else if(name == "service")
-    {
-	if(!CppIceBoxDescriptorPtr::dynamicCast(_currentServer) && 
-	   !JavaIceBoxDescriptorPtr::dynamicCast(_currentServer))
-	{
-	    error("element <service> can only be a child of an IceBox <server> element");
-	}
-
-	_currentService = new ServiceDescriptor();
-	_currentService->name = getAttributeValue(attrs, "name");
-	_currentService->entry = getAttributeValue(attrs, "entry");
-
-	_currentComponent = _currentService;
-	_variables.back()["service"] = _currentService->name;
-    }
-    else if(name == "variable")
-    {
-	_variables.back()[getAttributeValue(attrs, "name")] = getAttributeValueWithDefault(attrs, "value", "");
-    }
-    else if(name == "properties")
-    {
-	if(!_currentComponent)
-	{
-	    error("the <properties> element can only be a child of a <server> or <service> element");
-	}
-
-	_inProperties = true;
-    }
-    else if(name == "property")
-    {
-	if(!_inProperties)
-	{
-	    error("the <property> element can only be a child of a <properties> element");
-	}
-
-	PropertyDescriptor prop;
-	prop.name = getAttributeValue(attrs, "name");
-	prop.value = getAttributeValueWithDefault(attrs, "value", "");
-	_currentComponent->properties.push_back(prop);
-    }
-    else if(name == "adapters")
-    {
-	if(!_currentComponent)
-	{
-	    error("the <adapters> element can only be a child of a <server> or <service> element");
-	}
-
-	_inAdapters = true;
-    }
-    else if(name == "adapter")
-    {
-	if(!_inAdapters)
-	{
-	    error("the <adapter> element can only be a child of an <adapters> element");
-	}
-
-	_currentAdapter.name = getAttributeValue(attrs, "name");
-	_currentAdapter.id = getAttributeValueWithDefault(attrs, "id", "");
-	if(_currentAdapter.id.empty())
-	{
-	    string service = getVariable("service");
-	    const string fqn = getVariable("server") + (service.empty() ? "" : ".") + service;
-	    _currentAdapter.id = fqn + "." + _currentAdapter.name;
-	}
-	_currentAdapter.endpoints = getAttributeValue(attrs, "endpoints");
-	_currentAdapter.registerProcess = getAttributeValueWithDefault(attrs, "register", "false") == "true";
-    }
-    else if(name == "object")
-    {
-	if(_currentAdapter.name.empty())
-	{
-	    error("the <object> element can only be a child of an <adapter> element");
-	}
-
-	ObjectDescriptor object;
-	object.type = getAttributeValueWithDefault(attrs, "type", "");
-	object.proxy = _communicator->stringToProxy(getAttributeValue(attrs, "identity") + "@" + _currentAdapter.id);
-	object.adapterId = _currentAdapter.id;
-	_currentAdapter.objects.push_back(object);
-    }
-    else if(name == "dbenv")
-    {
-	if(!_currentComponent)
-	{
-	    error("the <dbenv> element can only be a child of a <server> or <service> element");
-	}
-
-	_currentDbEnv.name = getAttributeValue(attrs, "name");
-
-	DbEnvDescriptorSeq::iterator p;
-	for(p = _currentComponent->dbEnvs.begin(); p != _currentComponent->dbEnvs.end(); ++p)
-	{
-	    //
-	    // We are re-opening the dbenv element to define more properties.
-	    //
-	    if(p->name == _currentDbEnv.name)
-	    {	
-		break;
-	    }
-	}
-
-	if(p != _currentComponent->dbEnvs.end())
-	{
-	    //
-	    // Remove the previously defined dbenv, we'll add it back again when 
-	    // the dbenv element end tag is reached.
-	    //
-	    _currentDbEnv = *p;
-	    _currentComponent->dbEnvs.erase(p);
-	}	
-
-	if(_currentDbEnv.dbHome.empty())
-	{
-	    _currentDbEnv.dbHome = getAttributeValueWithDefault(attrs, "home", "");
-	}
-    }
-    else if(name == "dbproperty")
-    {
-	if(_currentDbEnv.name.empty())
-	{
-	    error("the <dbproperty> element can only be a child of a <dbenv> element");
-	}
-
-	PropertyDescriptor prop;
-	prop.name = getAttributeValue(attrs, "name");
-	prop.value = getAttributeValueWithDefault(attrs, "value", "");
-	_currentDbEnv.properties.push_back(prop);
-    }
-
     _elements.push("");
 }
 
@@ -420,7 +349,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 {
     _line = line;
     _column = column;
-
+    
     if(name == "target")
     {
 	if(!_isCurrentTargetDeployable && --_targetCounter == 0)
@@ -440,73 +369,64 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "application")
     {
-	_variables.back()["application"] = "";
+	_variables->remove("application");
     }
     else if(name == "node")
     {
-	_variables.back()["node"] = "";
+	_variables->remove("node");
     }
-    else if(name == "server")
+    else if(name == "server" || name == "server-template")
     {
-	if(_currentApplication)
+	if(_currentApplication.get())
 	{
-	    _currentApplication->servers.push_back(_currentServer);
-	    _currentServer = 0;
+	    _currentServer.reset(0);
 	}
 	_currentComponent = 0;
-	_variables.back()["server"] = "";
+	_variables->ignoreMissing(false);
+	_variables->remove("server");
     }
-    else if(name == "service")
+    else if(name == "service" || name == "service-template")
     {
-	CppIceBoxDescriptorPtr cppIceBox = CppIceBoxDescriptorPtr::dynamicCast(_currentServer);
-	if(cppIceBox)
-	{
-	    cppIceBox->services.push_back(_currentService);
-	}
-	JavaIceBoxDescriptorPtr javaIceBox = JavaIceBoxDescriptorPtr::dynamicCast(_currentServer);
-	if(javaIceBox)
-	{
-	    javaIceBox->services.push_back(_currentService);
-	}
-	_currentService = 0;
-	_currentComponent = _currentServer;
-	_variables.back()["service"] = "";
+	_currentService.reset(0);
+	_currentComponent = _currentServer.get();
+	_variables->ignoreMissing(false);
+	_variables->remove("service");
+	_variables->remove("server");
     }
     else if(name == "comment")
     {
 	if(_currentComponent)
 	{
-	    _currentComponent->comment = elementValue();
+	    _currentComponent->setComment(elementValue());
 	}
-	else if(_currentApplication)
+	else if(_currentApplication.get())
 	{
-	    _currentApplication->comment = elementValue();
+	    _currentApplication->setComment(elementValue());
 	}
     }
     else if(name == "option")
     {
-	if(!_currentServer)
+	if(!_currentServer.get())
 	{
 	    error("element <option> can only be the child of a <server> element");
 	}
-	_currentServer->options.push_back(elementValue());
+	_currentServer->addOption(elementValue());
     }
     else if(name == "env")
     {
-	if(!_currentServer)
+	if(!_currentServer.get())
 	{
 	    error("element <env> can only be the child of a <server> element");
 	}
-	_currentServer->envs.push_back(elementValue());
+	_currentServer->addEnv(elementValue());
     }
     else if(name == "jvm-option")
     {
-	JavaServerDescriptorPtr descriptor = JavaServerDescriptorPtr::dynamicCast(_currentServer);
-	if(!descriptor)
+	if(!_currentServer.get())
 	{
-	    error("element <jvm-option> can only be the child of a Java <server> element");
+	    error("element <env> can only be the child of a <server> element");
 	}
-	descriptor->jvmOptions.push_back(elementValue());
+	_currentServer->addJvmOption(elementValue());
     }
     else if(name == "properties")
     {
@@ -518,13 +438,11 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "adapter")
     {
-	_currentComponent->adapters.push_back(_currentAdapter);
-	_currentAdapter = AdapterDescriptor();
-    }
+	_inAdapter = false;
+    } 
     else if(name == "dbenv")
     {
-	_currentComponent->dbEnvs.push_back(_currentDbEnv);
-	_currentDbEnv = DbEnvDescriptor();
+	_inDbEnv = false;
     }
 
     _elements.pop();
@@ -547,21 +465,21 @@ DescriptorHandler::error(const string& msg, int line, int column)
 const ApplicationDescriptorPtr&
 DescriptorHandler::getApplicationDescriptor() const
 {
-    if(!_currentApplication)
+    if(!_currentApplication.get())
     {
 	error("no application descriptor defined in this file");
     }
-    return _currentApplication;
+    return _currentApplication->getDescriptor();
 }
 
 const ServerDescriptorPtr&
 DescriptorHandler::getServerDescriptor() const
 {
-    if(!_currentServer)
+    if(!_currentServer.get())
     {
 	error("no server descriptor defined in this file");
     }
-    return _currentServer;
+    return _currentServer->getDescriptor();
 }
 
 string
@@ -572,7 +490,7 @@ DescriptorHandler::getAttributeValue(const IceXML::Attributes& attrs, const stri
     {
 	error("missing attribute '" + name + "'");
     }
-    string v = substitute(p->second);
+    string v = _variables->substitute(p->second);
     if(v.empty())
     {
 	error("attribute '" + name + "' is empty");
@@ -588,11 +506,11 @@ DescriptorHandler::getAttributeValueWithDefault(const IceXML::Attributes& attrs,
     IceXML::Attributes::const_iterator p = attrs.find(name);
     if(p == attrs.end())
     {
-        return substitute(def);
+        return _variables->substitute(def);
     }
     else
     {
-        return substitute(p->second);
+        return _variables->substitute(p->second);
     }
 }
 
@@ -640,103 +558,19 @@ DescriptorHandler::error(const string& msg) const
     throw IceXML::ParserException(__FILE__, __LINE__, os.str());
 }
 
-const string&
-DescriptorHandler::getVariable(const string& name) const
-{
-    static const string empty;
-
-    vector< map< string, string> >::const_reverse_iterator p = _variables.rbegin();
-    while(p != _variables.rend())
-    {
-	map<string, string>::const_iterator q = p->find(name);
-	if(q != p->end())
-	{
-	    return q->second;
-	}
-	++p;
-    }
-    return empty;
-}
-
-string
-DescriptorHandler::substitute(const string& v) const
-{
-    string value(v);
-    string::size_type beg = 0;
-    string::size_type end = 0;
-
-    while((beg = value.find("${", beg)) != string::npos)
-    {
-	if(beg > 0 && value[beg - 1] == '$')
-	{
-	    string::size_type escape = beg - 1;
-	    while(escape > 0 && value[escape - 1] == '$')
-	    {
-		--escape;
-	    }
-
-	    value.replace(escape, beg - escape, (beg - escape) / 2, '$');
-	    if((beg - escape) % 2)
-	    {
-		++beg;
-		continue;
-	    }
-	    else
-	    {
-		beg -= (beg - escape) / 2;
-	    }
-	}
-
-	end = value.find("}", beg);
-	
-	if(end == string::npos)
-	{
-	    error("malformed variable name in the '" + value + "' value");
-	}
-	
-	string name = value.substr(beg + 2, end - beg - 2);
-	if(!hasVariable(name))
-	{
-	    error("unknown variable `" + name + "'");
-	}
-	else
-	{
-	    value.replace(beg, end - beg + 1, getVariable(name));
-	}
-    }
-
-    return value;
-}
-
 string
 DescriptorHandler::elementValue() const
 {
-    return substitute(_elements.top());
-}
-
-bool
-DescriptorHandler::hasVariable(const string& name) const
-{
-    vector< map< string, string> >::const_reverse_iterator p = _variables.rbegin();
-    while(p != _variables.rend())
-    {
-	map<string, string>::const_iterator q = p->find(name);
-	if(q != p->end())
-	{
-	    return true;
-	}
-	++p;
-    }
-    return false;
+    return _variables->substitute(_elements.top());
 }
 
 bool
 DescriptorHandler::isTargetDeployable(const string& target) const
 {
-    string application = getVariable("application");
-    string node = getVariable("node");
-    string server = getVariable("server");
-    string service = getVariable("service");
+    string application = _variables->getVariable("application");
+    string node = _variables->getVariable("node");
+    string server = _variables->getVariable("server");
+    string service = _variables->getVariable("service");
 
     //
     // Compute the current fully qualified name of the component.

@@ -19,6 +19,15 @@ namespace IceGrid
 ServiceDescriptorSeq getServices(const ComponentDescriptorPtr&);
 PropertyDescriptor createProperty(const std::string&, const std::string&);
 bool equal(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
+std::string getVariable(const std::vector<std::map<std::string, std::string> >&, const std::string&);
+bool hasVariable(const std::vector<std::map<std::string, std::string> >&, const std::string&);
+std::string substitute(const std::string&, const std::vector<std::map<std::string, std::string> >&, bool,
+		       std::vector<std::string>&);
+
+ServerDescriptorPtr instantiateTemplate(const ServerDescriptorPtr&, const std::map<std::string, std::string>&, 
+					std::vector<std::string>&);
+ServiceDescriptorPtr instantiateTemplate(const ServiceDescriptorPtr&, const std::map<std::string, std::string>&, 
+					 std::vector<std::string>&);
 
 template<typename T> std::insert_iterator<T>
 inline set_inserter(T& container) 

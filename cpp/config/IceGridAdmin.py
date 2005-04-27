@@ -63,10 +63,10 @@ def startIceGridRegistry(port, testdir):
               r' --IceGrid.Registry.Admin.Endpoints=default' + \
               r' --IceGrid.Registry.Data=' + dataDir + \
               r' --IceGrid.Registry.DynamicRegistration' + \
-	      r' --IceGrid.Registry.Trace.ServerRegistry=0' + \
-              r' --IceGrid.Registry.Trace.AdapterRegistry=0' + \
-              r' --IceGrid.Registry.Trace.ObjectRegistry=0' + \
-              r' --IceGrid.Registry.Trace.NodeRegistry=0' + \
+	      r' --IceGrid.Registry.Trace.Server=0' + \
+              r' --IceGrid.Registry.Trace.Adapter=0' + \
+              r' --IceGrid.Registry.Trace.Object=0' + \
+              r' --IceGrid.Registry.Trace.Node=0' + \
               r' --Ice.ProgramName=icegridregistry'
 
     (stdin, iceGridPipe) = os.popen4(command)

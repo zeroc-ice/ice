@@ -199,7 +199,7 @@ RegistryI::start(bool nowarn)
     properties->setProperty("IceGrid.Registry.Internal.ThreadPool.SizeWarn", 
 			    intToString(clientSizeWarn + serverSizeWarn));
 
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger());
+    TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger(), false);
 
     _communicator->setDefaultLocator(0);
 

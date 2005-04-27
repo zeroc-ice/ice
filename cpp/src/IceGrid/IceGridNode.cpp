@@ -263,7 +263,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the activator.
     //
-    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
+    TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger(), true);
     _activator = new Activator(traceLevels, properties);
 
     //

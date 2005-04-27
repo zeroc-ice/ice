@@ -309,6 +309,12 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
 	_descriptors.put(make_pair(descriptor->name, descriptor));
     }
 
+    if(_traceLevels->application > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	out << "added application `" << descriptor->name << "'";
+    }
+
     //
     // Synchronize the servers on the nodes.
     //
@@ -413,6 +419,12 @@ Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	_descriptors.put(make_pair(newDesc->name, newDesc));
     }    
 
+    if(_traceLevels->application > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	out << "updated application `" << newDesc->name << "'";
+    }
+
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&Database::ServerEntry::sync));
 }
 
@@ -436,6 +448,12 @@ Database::removeApplicationDescriptor(const std::string& name)
 	set<string> servers;
 	for_each(descriptor->servers.begin(), descriptor->servers.end(), AddServerName(servers));
 	removeServers(descriptor->servers, servers, entries);
+    }
+
+    if(_traceLevels->application > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	out << "removed application `" << name << "'";
     }
 
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&Database::ServerEntry::sync));
@@ -503,21 +521,21 @@ Database::addNode(const string& name, const NodePrx& node)
 
 	    p.set(node);
 	    
-// 	    if(_traceLevels->nodeRegistry > 0)
-// 	    {
-// 		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
-// 		out << "updated node `" << name << "' proxy";
-// 	    }
+	    if(_traceLevels->node > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+		out << "updated node `" << name << "' proxy";
+	    }
 	}
 	else
 	{
 	    dict.put(make_pair(name, node));
 	    
-// 	    if(_traceLevels->nodeRegistry > 0)
-// 	    {
-// 		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
-// 		out << "added node `" << name << "'";
-// 	    }
+ 	    if(_traceLevels->node > 0)
+ 	    {
+ 		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+ 		out << "added node `" << name << "'";
+ 	    }
 	}
 
 	setAdapterDirectProxy("IceGrid.Node." + name, node);
@@ -568,12 +586,12 @@ Database::removeNode(const string& name)
     dict.erase(p);
 
     setAdapterDirectProxy("IceGrid.Node." + name, 0);
-
-//     if(_traceLevels->nodeRegistry > 0)
-//     {
-// 	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeRegistryCat);
-// 	out << "removed node `" << name << "'";
-//     }
+    
+    if(_traceLevels->node > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+ 	out << "removed node `" << name << "'";
+    }
 }
 
 Ice::StringSeq 
@@ -649,7 +667,27 @@ Database::setAdapterDirectProxy(const string& id, const Ice::ObjectPrx& proxy)
     StringObjectProxyDict adapters(connection, _adapterDbName); 
     if(proxy)
     {
-	adapters.put(make_pair(id, proxy));
+	StringObjectProxyDict::iterator p = adapters.find(id);
+	if(p != adapters.end())
+	{
+	    p.set(proxy);
+
+	    if(_traceLevels->adapter > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "added adapter `" << id << "'";
+	    }
+	}
+	else
+	{
+	    adapters.put(make_pair(id, proxy));
+
+	    if(_traceLevels->adapter > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "updated adapter `" << id << "'";
+	    }
+	}
     }
     else
     {
@@ -742,6 +780,12 @@ Database::addObjectDescriptor(const ObjectDescriptor& object)
 	throw ex;
     }
     objects.put(make_pair(id, object));
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "added object `" << Ice::identityToString(id) << "'";
+    }
 }
 
 void
@@ -756,6 +800,12 @@ Database::removeObjectDescriptor(const Ice::Identity& id)
 	throw ex;
     }
     objects.erase(id);
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "removed object `" << Ice::identityToString(id) << "'";
+    }
 }
 
 void
@@ -774,6 +824,12 @@ Database::updateObjectDescriptor(const Ice::ObjectPrx& proxy)
     ObjectDescriptor desc = p->second;
     desc.proxy = proxy;
     p.set(desc);
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "updated object `" << Ice::identityToString(id) << "'";
+    }
 }
 
 ObjectDescriptor
@@ -954,7 +1010,7 @@ Database::updateServer(const ServerDescriptorPtr& descriptor)
     }
 
     //
-    // If the node changed, more the server from the old node to the
+    // If the node changed, move the server from the old node to the
     // new one.
     //
     if(old->node != descriptor->node)

@@ -68,7 +68,7 @@ ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapt
     //
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->name;
-    _activation = descriptor->activation;
+    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
 
     //
     // Make sure the server directories exists.

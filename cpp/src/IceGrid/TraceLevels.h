@@ -21,8 +21,14 @@ class TraceLevels : public ::IceUtil::Shared
 {
 public:
 
-    TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+    TraceLevels(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&, bool);
     virtual ~TraceLevels();
+
+    const int application;
+    const char* applicationCat;
+
+    const int node;
+    const char* nodeCat;
 
     const int server;
     const char* serverCat;
@@ -30,23 +36,11 @@ public:
     const int adapter;
     const char* adapterCat;
 
+    const int object;
+    const char* objectCat;
+
     const int activator;
     const char* activatorCat;
-
-    const int applicationRegistry;
-    const char* applicationRegistryCat;
-
-    const int serverRegistry;
-    const char* serverRegistryCat;
-
-    const int adapterRegistry;
-    const char* adapterRegistryCat;
-
-    const int objectRegistry;
-    const char* objectRegistryCat;
-
-    const int nodeRegistry;
-    const char* nodeRegistryCat;
 
     const Ice::LoggerPtr logger;
 };

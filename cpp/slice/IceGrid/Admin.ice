@@ -20,31 +20,6 @@ module IceGrid
 
 /**
  *
- * The server activation mode.
- *
- **/
-enum ServerActivation
-{
-    /**
-     *
-     * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already
-     * running.
-     *
-     **/
-    OnDemand,
-
-    /**
-     *
-     * The server is activated manually through the administrative
-     * interface.
-     *
-     **/
-    Manual
-};
-
-/**
- *
  * An &Ice; object descriptor.
  * 
  **/
@@ -248,14 +223,6 @@ class ServerDescriptor extends ComponentDescriptor
 {
     /**
      *
-     * A UUID to uniquely identify the server. This id is assigned by
-     * the IceGrid deployment mechanism when the server is deployed.
-     *
-     **/ 
-    string uuid;
-
-    /**
-     *
      * The path of the server executable.
      *
      **/
@@ -301,7 +268,7 @@ class ServerDescriptor extends ComponentDescriptor
      * The server initial activation mode.
      *
      **/
-    ServerActivation activation;
+    string activation;
 };
 
 /**
@@ -310,6 +277,13 @@ class ServerDescriptor extends ComponentDescriptor
  *
  **/
 sequence<ServerDescriptor> ServerDescriptorSeq;
+
+/**
+ *
+ * A dictionary of server descriptors.
+ *
+ **/
+dictionary<string, ServerDescriptor> ServerDescriptorDict;
 
 /**
  *
@@ -422,10 +396,42 @@ class ApplicationDescriptor
     
     /**
      *
+     * The application server templates.
+     *
+     **/
+    ServerDescriptorDict templates;
+    
+    /**
+     *
      * Some comments on the application.
      *
      **/ 
     string comment;
+};
+
+/**
+ *
+ * The server activation mode.
+ *
+ **/
+enum ServerActivation
+{
+    /**
+     *
+     * The server is activated on demand if a client requests one of
+     * the server's adapter endpoints and the server is not already
+     * running.
+     *
+     **/
+    OnDemand,
+
+    /**
+     *
+     * The server is activated manually through the administrative
+     * interface.
+     *
+     **/
+    Manual
 };
 
 /**
