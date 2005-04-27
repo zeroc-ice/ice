@@ -11,12 +11,17 @@ import Demo.*;
 
 class SessionFactoryI extends _SessionFactoryDisp
 {
+    SessionFactoryI(ReapThread reaper)
+    {
+	_reaper = reaper;
+    }
+
     public synchronized SessionPrx
     create(String name, Ice.Current c)
     {
 	SessionI session = new SessionI(name);
 	SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(session));
-	ReapThread.instance().add(proxy, session);
+	_reaper.add(proxy, session);
 	return proxy;
     }
 
@@ -26,4 +31,6 @@ class SessionFactoryI extends _SessionFactoryDisp
 	System.out.println("Shutting down...");
 	c.adapter.getCommunicator().shutdown();
     }
+
+    private ReapThread _reaper;
 }

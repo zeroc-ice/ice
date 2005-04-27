@@ -11,6 +11,14 @@ import Demo.*;
 
 class SessionI extends _SessionDisp
 {
+    public
+    SessionI(String name)
+    {
+	_name = name;
+	_timestamp = System.currentTimeMillis();
+	System.out.println("The session " + _name + " is now created.");
+    }
+
     synchronized public HelloPrx
     createHello(Ice.Current c)
     {
@@ -70,8 +78,7 @@ class SessionI extends _SessionDisp
 	_objs.clear();
     }
 
-    // Only the ReapThread is interested in the timestamp.
-    synchronized protected long
+    synchronized public long
     timestamp()
     {
 	if(_destroy)
@@ -79,15 +86,6 @@ class SessionI extends _SessionDisp
 	    throw new Ice.ObjectNotExistException();
 	}
 	return _timestamp;
-    }
-
-    // Only the session factory can create sessions.
-    protected
-    SessionI(String name)
-    {
-	_name = name;
-	_timestamp = System.currentTimeMillis();
-	System.out.println("The session " + _name + " is now created.");
     }
 
     private String _name;

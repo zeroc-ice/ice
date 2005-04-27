@@ -15,10 +15,10 @@ class SessionServer extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
-	ReapThread reaper = ReapThread.instance();
+	ReapThread reaper = new ReapThread();
 	reaper.start();
 
-        adapter.add(new SessionFactoryI(), Ice.Util.stringToIdentity("SessionFactory"));
+        adapter.add(new SessionFactoryI(reaper), Ice.Util.stringToIdentity("SessionFactory"));
         adapter.activate();
         communicator().waitForShutdown();
 
