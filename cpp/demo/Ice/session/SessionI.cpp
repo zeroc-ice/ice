@@ -40,11 +40,19 @@ private:
     const int _id;
 };
 
+SessionI::SessionI(const string& name) :
+    _name(name),
+    _timestamp(IceUtil::Time::now()),
+    _nextId(0),
+    _destroy(false)
+{
+    cout << "The session " << _name << " is now created." << endl;
+}
+
 HelloPrx
 SessionI::createHello(const Ice::Current& c)
 {
     Lock sync(*this);
-
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -59,7 +67,6 @@ void
 SessionI::refresh(const Ice::Current& c)
 {
     Lock sync(*this);
-
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -72,7 +79,6 @@ string
 SessionI::getName(const Ice::Current&) const
 {
     Lock sync(*this);
-
     if(_destroy)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
@@ -119,13 +125,4 @@ SessionI::timestamp() const
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     return _timestamp;
-}
-
-SessionI::SessionI(const string& name) :
-    _name(name),
-    _timestamp(IceUtil::Time::now()),
-    _nextId(0),
-    _destroy(false)
-{
-    cout << "The session " << _name << " is now created." << endl;
 }

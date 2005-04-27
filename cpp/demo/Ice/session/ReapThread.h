@@ -11,29 +11,21 @@
 #define REAP_THREAD_H
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/StaticMutex.h>
 #include <SessionI.h>
 
 #include <list>
-
-class ReapThread;
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
 class ReapThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    static ReapThreadPtr& instance();
+    ReapThread();
 
     virtual void run();
-
     void terminate();
-
     void add(const Demo::SessionPrx&, const SessionIPtr&);
 
 private:
-
-    ReapThread();
 
     const IceUtil::Time _timeout;
     bool _terminated;
@@ -45,9 +37,7 @@ private:
 	const SessionIPtr session;
     };
     std::list<SessionProxyPair> _sessions;
-
-    static ReapThreadPtr _instance;
-    static IceUtil::StaticMutex _instanceMutex;
 };
+typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
 #endif

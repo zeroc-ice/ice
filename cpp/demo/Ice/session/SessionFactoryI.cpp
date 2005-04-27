@@ -8,17 +8,21 @@
 // **********************************************************************
 
 #include <SessionFactoryI.h>
-#include <ReapThread.h>
 
 using namespace std;
 using namespace Demo;
+
+SessionFactoryI::SessionFactoryI(const ReapThreadPtr& reapThread) :
+    _reaper(reapThread)
+{
+}
 
 SessionPrx
 SessionFactoryI::create(const string& name, const Ice::Current& c)
 {
     SessionIPtr session = new SessionI(name);
     SessionPrx proxy = SessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
-    ReapThread::instance()->add(proxy, session);
+    _reaper->add(proxy, session);
     return proxy;
 }
 

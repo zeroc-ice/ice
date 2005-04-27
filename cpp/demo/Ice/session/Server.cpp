@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <SessionFactoryI.h>
-#include <ReapThread.h>
 
 using namespace std;
 using namespace Demo;
@@ -32,10 +31,10 @@ SessionServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionFactory");
 
-    ReapThreadPtr reaper = ReapThread::instance();
+    ReapThreadPtr reaper = new ReapThread();
     reaper->start();
 
-    adapter->add(new SessionFactoryI, Ice::stringToIdentity("SessionFactory"));
+    adapter->add(new SessionFactoryI(reaper), Ice::stringToIdentity("SessionFactory"));
     adapter->activate();
     communicator()->waitForShutdown();
 

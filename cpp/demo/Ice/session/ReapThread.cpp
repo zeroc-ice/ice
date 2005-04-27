@@ -13,20 +13,10 @@
 using namespace std;
 using namespace Demo;
 
-ReapThreadPtr ReapThread::_instance;
-IceUtil::StaticMutex ReapThread::_instanceMutex = ICE_STATIC_MUTEX_INITIALIZER;
-
-ReapThreadPtr&
-ReapThread::instance()
+ReapThread::ReapThread() :
+    _timeout(IceUtil::Time::seconds(10)),
+    _terminated(false)
 {
-    IceUtil::StaticMutex::Lock sync(_instanceMutex);
-
-    if(!_instance)
-    {
-	_instance = new ReapThread;
-    }
-
-    return _instance;
 }
 
 void
@@ -98,10 +88,4 @@ ReapThread::add(const SessionPrx& proxy, const SessionIPtr& session)
 {
     Lock sync(*this);
     _sessions.push_back(SessionProxyPair(proxy, session));
-}
-
-ReapThread::ReapThread() :
-    _timeout(IceUtil::Time::seconds(10)),
-    _terminated(false)
-{
 }
