@@ -16,6 +16,7 @@ SRCS		= Acceptor.cs \
 		  Application.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
+		  Assert.cs \
 		  BasicInputStream.cs \
 		  BasicOutputStream.cs \
 		  BasicStream.cs \
