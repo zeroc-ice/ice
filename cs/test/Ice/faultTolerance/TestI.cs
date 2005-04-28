@@ -7,44 +7,62 @@
 //
 // **********************************************************************
 
+using System;
+using System.Diagnostics;
+using System.Threading;
+using IceInternal;
 using Test;
 
 public sealed class TestI : _TestIntfDisp
 {
     public TestI(Ice.ObjectAdapter adapter)
     {
-        _adapter = adapter;
-	_pid = 0;
+	lock(this)
+	{
+	    _adapter = adapter;
+	    _p = Process.GetCurrentProcess();
+	    _pid = _p.Id;
+	}
     }
     
+    private void commitSuicide()
+    {
+	if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows
+	   && AssemblyUtil._runtime == AssemblyUtil.Runtime.Mono)
+	{
+	    ProcessStartInfo info = new ProcessStartInfo("/usr/bin/kill");
+	    info.CreateNoWindow = true;
+	    info.Arguments = "-s 9 " + _pid;
+	    Process.Start(info);
+	}
+	else
+	{
+	    _p.Kill();
+	}
+	Thread.Sleep(5000); // Give other threads time to die.
+    }
+
     public override void abort(Ice.Current current)
     {
-        System.Diagnostics.Process.GetCurrentProcess().Kill();
-	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
+	commitSuicide();
     }
     
     public override void idempotentAbort(Ice.Current current)
     {
-        System.Diagnostics.Process.GetCurrentProcess().Kill();
-	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
+	commitSuicide();
     }
     
     public override void nonmutatingAbort(Ice.Current current)
     {
-        System.Diagnostics.Process.GetCurrentProcess().Kill();
-	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
+	commitSuicide();
     }
     
     public override int pid(Ice.Current current)
     {
 	lock(this)
 	{
-	    if(_pid == 0)
-	    {
-		_pid = System.Diagnostics.Process.GetCurrentProcess().Id; // Very slow call, so we cache it
-	    }
+	    return _pid;
 	}
-	return _pid;
     }
     
     public override void shutdown(Ice.Current current)
@@ -53,5 +71,6 @@ public sealed class TestI : _TestIntfDisp
     }
     
     private Ice.ObjectAdapter _adapter;
+    private Process _p;
     private int _pid;
 }
