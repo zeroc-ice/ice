@@ -108,14 +108,13 @@ namespace IceInternal
 	    }
 	}
 	
+#if DEBUG
 	~ThreadPool()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_destroyed);
+		IceUtil.Assert.FinalizerAssert(_destroyed);
 	    }
-#endif DEBUG
 
 	    try
 	    {
@@ -126,6 +125,7 @@ namespace IceInternal
 	    {
 	    }
 	}
+#endif
 	
 	public void destroy()
 	{

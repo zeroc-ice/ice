@@ -60,8 +60,12 @@ namespace IceInternal
 		// We want to wait until all connections are finished
 		// outside the thread synchronization.
 		//
+		// We set _connections to null rather than to a
+		// new empty list so that our finalizer does not try to invoke any
+		// methods on member objects.
+		//
 		connections = _connections;
-		_connections = new Hashtable();
+		_connections = null;
 	    }
 	    
 	    //
@@ -497,15 +501,15 @@ namespace IceInternal
 	    _pending = new Set();
 	}
 	
+#if DEBUG
 	~OutgoingConnectionFactory()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_destroyed);
+		IceUtil.Assert.FinalizerAssert(_destroyed);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	private readonly Instance _instance;
 	private bool _destroyed;
@@ -531,7 +535,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public void destroy()
+	public override void destroy() // TODO: should up-call here?
 	{
 	    lock(this)
 	    {
@@ -600,6 +604,16 @@ namespace IceInternal
 	    {
 		connection.waitUntilFinished();
 	    }
+
+	    //
+	    // At this point we know that this factory is no longer used, so it is
+	    // safe to invoke destroy() on the EventHandler base class to reclaim
+	    // resources.
+	    //
+	    // We call this here instead of in the finalizer because a C# finalizer
+	    // cannot invoke methods on other types of objects.
+	    //
+	    base.destroy();
 	}
 	
 	public Endpoint endpoint()
@@ -888,10 +902,11 @@ namespace IceInternal
 #if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_state == StateClosed);
-		Debug.Assert(_acceptor == null);
+		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
+		IceUtil.Assert.FinalizerAssert(_acceptor == null);
+		IceUtil.Assert.FinalizerAssert(_connections != null);
 	    }
-#endif DEBUG
+#endif
 	}
 	
 	private const int StateActive = 0;

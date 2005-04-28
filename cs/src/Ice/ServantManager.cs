@@ -209,7 +209,7 @@ public sealed class ServantManager
 	//
 	//lock(this)
 	//{
-	    //Debug.Assert(_instance == null);
+	    //IceUtil.Assert.FinalizerAssert(_instance == null);
 	//}
     }
     

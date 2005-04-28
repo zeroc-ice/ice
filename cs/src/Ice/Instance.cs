@@ -440,27 +440,27 @@ namespace IceInternal
 	    }
 	}
 	
+#if DEBUG
 	~Instance()
 	{
-#if DEBUG
             lock(this)
 	    {
-		Debug.Assert(_destroyed);
-		Debug.Assert(_referenceFactory == null);
-		Debug.Assert(_proxyFactory == null);
-		Debug.Assert(_outgoingConnectionFactory == null);
-		Debug.Assert(_connectionMonitor == null);
-		Debug.Assert(_servantFactoryManager == null);
-		Debug.Assert(_objectAdapterFactory == null);
-		Debug.Assert(_clientThreadPool == null);
-		Debug.Assert(_serverThreadPool == null);
-		Debug.Assert(_routerManager == null);
-		Debug.Assert(_locatorManager == null);
-		Debug.Assert(_endpointFactoryManager == null);
-		Debug.Assert(_pluginManager == null);
+		IceUtil.Assert.FinalizerAssert(_destroyed);
+		IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
+		IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
+		IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+		IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
+		IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
+		IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
+		IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
+		IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
+		IceUtil.Assert.FinalizerAssert(_routerManager == null);
+		IceUtil.Assert.FinalizerAssert(_locatorManager == null);
+		IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
+		IceUtil.Assert.FinalizerAssert(_pluginManager == null);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	public void finishSetup(ref string[] args)
 	{

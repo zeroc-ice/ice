@@ -280,15 +280,15 @@ namespace IceInternal
 	    _desc = Network.fdToString(_fd);
 	}
 	
+#if DEBUG
 	~TcpTransceiver()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_fd == null);
+		IceUtil.Assert.FinalizerAssert(_fd == null);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	private Socket _fd;
 	private TraceLevels _traceLevels;

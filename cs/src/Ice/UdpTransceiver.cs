@@ -440,15 +440,15 @@ namespace IceInternal
 	    }
 	}
 
+#if DEBUG
 	~UdpTransceiver()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_fd == null);
+		IceUtil.Assert.FinalizerAssert(_fd == null);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	private TraceLevels _traceLevels;
 	private Ice.Logger _logger;

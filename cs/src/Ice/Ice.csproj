@@ -94,6 +94,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Assert.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "BasicInputStream.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

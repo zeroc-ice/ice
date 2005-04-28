@@ -262,6 +262,8 @@ namespace Ice
 			}
 		    }
 
+		    cleanup();
+
 		    return true;
 		}
 		else
@@ -356,6 +358,8 @@ namespace Ice
 		    _incomingCache = _incomingCache.next;
 		}
 	    }
+
+	    cleanup();
 	}
 	
 	public void monitor()
@@ -465,7 +469,26 @@ namespace Ice
 
 	    return uncompressed;
 	}
-	
+
+	/*
+	private class MessageInfo
+	{
+	    MessageInfo(IceInternal.BasicStream stream)
+	    {
+	        this.stream = stream;
+	    }
+
+	    IceInternal.BasicStream stream;
+	    bool destroyStream;
+	    int invokeNum;
+	    int requestId;
+	    byte compress;
+	    IceInternal.ServantManager servantManager;
+	    ObjectAdapter adapter;
+	    IceInternal.OutgoingAsync outAsync;
+	}
+        */
+
 	public void sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing og, bool compress)
 	{
 	    int requestId = 0;
@@ -576,7 +599,7 @@ namespace Ice
 	    }
 	    finally
 	    {
-	        if(!Object.ReferenceEquals(os, stream))
+	        if(stream != null && !Object.ReferenceEquals(os, stream))
 		{
 		    stream.destroy();
 		}
@@ -1557,19 +1580,18 @@ namespace Ice
 
 	}
 	
+#if DEBUG
 	~ConnectionI()
 	{
-#if DEBUG
             lock(this)
 	    {
-		Debug.Assert(_state == StateClosed);
-		Debug.Assert(_transceiver == null);
-		Debug.Assert(_dispatchCount == 0);
+		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
+		IceUtil.Assert.FinalizerAssert(_transceiver == null);
+		IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
+		IceUtil.Assert.FinalizerAssert(_incomingCache == null);
 	    }
-#endif DEBUG
-
-	    _batchStream.destroy();
 	}
+#endif
 	
 	private const int StateNotValidated = 0;
 	private const int StateActive = 1;
@@ -1868,6 +1890,21 @@ namespace Ice
 		inc.next = _incomingCache;
 		_incomingCache = inc;
 	    }
+	}
+
+	private void cleanup()
+	{
+	    //
+	    // This should be called when we know that this object is no longer used,
+	    // so it is safe to reclaim resources.
+	    //
+	    // We do this here instead of in a finalizer because a C# finalizer
+	    // cannot invoke methods on other types of objects.
+	    //
+	    _batchStream.destroy();
+	    _batchStream = null;
+
+	    base.destroy();
 	}
 	
 	private IceInternal.Transceiver _transceiver;

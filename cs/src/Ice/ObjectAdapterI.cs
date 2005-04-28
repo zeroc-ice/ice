@@ -760,12 +760,12 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_threadPool == null);
-		Debug.Assert(_servantManager == null);
-		Debug.Assert(_communicator == null);
-		Debug.Assert(_incomingConnectionFactories != null);
-		Debug.Assert(_directCount == 0);
-		Debug.Assert(!_waitForDeactivate);
+		IceUtil.Assert.FinalizerAssert(_threadPool == null);
+		IceUtil.Assert.FinalizerAssert(_servantManager == null);
+		IceUtil.Assert.FinalizerAssert(_communicator == null);
+		IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories != null);
+		IceUtil.Assert.FinalizerAssert(_directCount == 0);
+		IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 	    }
 	}
 	

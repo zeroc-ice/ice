@@ -75,16 +75,16 @@ namespace IceInternal
 	    _thread.Start();
 	}
 	
+#if DEBUG
 	~ConnectionMonitor()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_instance == null);
-		Debug.Assert(_connections != null);
+		IceUtil.Assert.FinalizerAssert(_instance == null);
+		IceUtil.Assert.FinalizerAssert(_connections != null);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	public void Run()
 	{

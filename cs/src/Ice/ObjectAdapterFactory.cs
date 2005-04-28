@@ -165,18 +165,18 @@ namespace IceInternal
 	    _waitForShutdown = false;
 	}
 	
+#if DEBUG
 	~ObjectAdapterFactory()
 	{
-#if DEBUG
 	    lock(this)
 	    {
-		Debug.Assert(_instance == null);
-		Debug.Assert(_communicator == null);
-		Debug.Assert(_adapters != null);
-		Debug.Assert(!_waitForShutdown);
+		IceUtil.Assert.FinalizerAssert(_instance == null);
+		IceUtil.Assert.FinalizerAssert(_communicator == null);
+		IceUtil.Assert.FinalizerAssert(_adapters != null);
+		IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
 	    }
-#endif DEBUG
 	}
+#endif
 	
 	private Instance _instance;
 	private Ice.Communicator _communicator;

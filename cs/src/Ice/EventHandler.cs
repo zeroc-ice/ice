@@ -57,6 +57,15 @@ namespace IceInternal
             return _instance;
         }
 
+	public virtual void destroy()
+	{
+	    lock(this)
+	    {
+	        _stream.destroy();
+		_stream = null;
+	    }
+	}
+
 	protected internal EventHandler(Instance instance)
 	{
 	    _instance = instance;
@@ -65,8 +74,10 @@ namespace IceInternal
 	
 	~EventHandler()
 	{
-	    Debug.Assert(_stream != null);
-	    _stream.destroy();
+	    lock(this)
+	    {
+		IceUtil.Assert.FinalizerAssert(_stream != null);
+	    }
 	}
 	
 	protected internal Instance _instance;
