@@ -210,6 +210,11 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     {
 	throw Ice::AdapterNotFoundException();
     }
+    catch(const NodeUnreachableException&)
+    {
+	cb->ice_response(0);
+	return;
+    }
 
     LocatorIPtr self = const_cast<LocatorI*>(this);
     if(self->getDirectProxyRequest(cb, adapter))

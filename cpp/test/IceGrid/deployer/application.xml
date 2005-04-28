@@ -10,6 +10,7 @@
       <include name="Server2" descriptor="server.xml" targets="target1 target2"/>
 
     </node>
+
   </application>
 
 </icegrid>

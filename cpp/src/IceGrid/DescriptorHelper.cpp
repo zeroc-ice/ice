@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/DescriptorHelper.h>
+#include <IceGrid/Util.h>
 
 #include <iterator>
 
@@ -20,7 +21,7 @@ namespace IceGrid
 
 struct Substitute : unary_function<string&, void>
 {
-    Substitute(const DescriptorVariablesPtr& variables, vector<string>& missing) : 
+    Substitute(const DescriptorVariablesPtr& variables, set<string>& missing) : 
 	_variables(variables), _missing(missing)
     {
     } 
@@ -31,18 +32,20 @@ struct Substitute : unary_function<string&, void>
     }
 
     const DescriptorVariablesPtr& _variables;
-    vector<string>& _missing;
+    set<string>& _missing;
 };
 
 }
 
 DescriptorVariables::DescriptorVariables() :
-    _ignoreMissing(false)
+    _ignoreMissing(false),
+    _escape(true)
 {
 }
 
 DescriptorVariables::DescriptorVariables(const map<string, string>& variables) :
-    _ignoreMissing(false)
+    _ignoreMissing(false),
+    _escape(true)
 {
     reset(variables);
 }
@@ -50,12 +53,12 @@ DescriptorVariables::DescriptorVariables(const map<string, string>& variables) :
 string 
 DescriptorVariables::substitute(const string& v) const
 {
-    vector<string> missing;
+    set<string> missing;
     return substituteImpl(v, _ignoreMissing, missing);
 }
 
 string
-DescriptorVariables::substituteWithMissing(const string& v, vector<string>& missing) const
+DescriptorVariables::substituteWithMissing(const string& v, set<string>& missing) const
 {
     return substituteImpl(v, true, missing);
 }
@@ -144,6 +147,12 @@ DescriptorVariables::ignoreMissing(bool ignoreMissing)
     _ignoreMissing = ignoreMissing;
 }
 
+void
+DescriptorVariables::escape(bool escape)
+{
+    _escape = escape;
+}
+
 string&
 DescriptorVariables::operator[](const string& name)
 {
@@ -151,7 +160,7 @@ DescriptorVariables::operator[](const string& name)
 }
 
 string
-DescriptorVariables::substituteImpl(const string& v, bool ignoreMissing, vector<string>& missing) const
+DescriptorVariables::substituteImpl(const string& v, bool ignoreMissing, set<string>& missing) const
 {
     string value(v);
     string::size_type beg = 0;
@@ -159,23 +168,26 @@ DescriptorVariables::substituteImpl(const string& v, bool ignoreMissing, vector<
 
     while((beg = value.find("${", beg)) != string::npos)
     {
-	if(beg > 0 && value[beg - 1] == '$')
+	if(_escape)
 	{
-	    string::size_type escape = beg - 1;
-	    while(escape > 0 && value[escape - 1] == '$')
+	    if(beg > 0 && value[beg - 1] == '$')
 	    {
-		--escape;
-	    }
-
-	    value.replace(escape, beg - escape, (beg - escape) / 2, '$');
-	    if((beg - escape) % 2)
-	    {
-		++beg;
-		continue;
-	    }
-	    else
-	    {
-		beg -= (beg - escape) / 2;
+		string::size_type escape = beg - 1;
+		while(escape > 0 && value[escape - 1] == '$')
+		{
+		    --escape;
+		}
+		
+		value.replace(escape, beg - escape, (beg - escape) / 2, '$');
+		if((beg - escape) % 2)
+		{
+		    ++beg;
+		    continue;
+		}
+		else
+		{
+		    beg -= (beg - escape) / 2;
+		}
 	    }
 	}
 
@@ -195,7 +207,7 @@ DescriptorVariables::substituteImpl(const string& v, bool ignoreMissing, vector<
 	    }
 	    else
 	    {
-		missing.push_back(name);
+		missing.insert(name);
 		++beg;
 		continue;
 	    }
@@ -203,15 +215,8 @@ DescriptorVariables::substituteImpl(const string& v, bool ignoreMissing, vector<
 	else
 	{
 	    string val = getVariable(name);
-	    if(val != value.substr(beg, end - beg + 1))
-	    {
-		value.replace(beg, end - beg + 1, val);
-	    }
-	    else
-	    {
-		++beg;
-		continue;
-	    }
+	    value.replace(beg, end - beg + 1, val);
+	    beg += val.length();
 	}
     }
 
@@ -236,7 +241,7 @@ DescriptorTemplates::instantiateServer(const DescriptorHelper& helper, const str
 	throw "unknown template `" + name + "'";
     }
 
-    vector<string> missing;
+    set<string> missing;
     Substitute substitute(helper.getVariables(), missing);
     map<string, string> attributes = attrs;
     for(map<string, string>::iterator p = attributes.begin(); p != attributes.end(); ++p)
@@ -269,7 +274,7 @@ DescriptorTemplates::instantiateService(const DescriptorHelper& helper, const st
 	throw "unknown template `" + name + "'";
     }
     
-    vector<string> missing;
+    set<string> missing;
     Substitute substitute(helper.getVariables(), missing);
     map<string, string> attributes = attrs;
     for(map<string, string>::iterator p = attributes.begin(); p != attributes.end(); ++p)
@@ -615,7 +620,7 @@ ComponentDescriptorHelper::addDbEnvProperty(const IceXML::Attributes& attrs)
 }
 
 void
-ComponentDescriptorHelper::instantiateImpl(const ComponentDescriptorPtr& desc, vector<string>& missing) const
+ComponentDescriptorHelper::instantiateImpl(const ComponentDescriptorPtr& desc, set<string>& missing) const
 {
     Substitute substitute(_variables, missing);
     substitute(desc->name);
@@ -929,7 +934,7 @@ ServerDescriptorHelper::addJvmOption(const string& option)
 }
 
 ServerDescriptorPtr
-ServerDescriptorHelper::instantiate(vector<string>& missing) const
+ServerDescriptorHelper::instantiate(set<string>& missing) const
 {
     ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(_descriptor->ice_clone());
     instantiateImpl(desc, missing);
@@ -937,11 +942,12 @@ ServerDescriptorHelper::instantiate(vector<string>& missing) const
 }
 
 void
-ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, vector<string>& missing) const
+ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<string>& missing) const
 {
     ComponentDescriptorHelper::instantiateImpl(desc, missing);
 
     Substitute substitute(_variables, missing);
+    substitute(desc->node);
     substitute(desc->exe);
     substitute(desc->pwd);
     for_each(desc->options.begin(), desc->options.end(), substitute);
@@ -952,6 +958,26 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, vector<
  	substitute(javaDesc->className);
  	for_each(javaDesc->jvmOptions.begin(), javaDesc->jvmOptions.end(), substitute);
     }
+
+    ServiceDescriptorSeq services = IceGrid::getServices(desc);
+    if(!services.empty())
+    {
+	ServiceDescriptorSeq newServices;
+	for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+	{
+	    newServices.push_back(ServiceDescriptorHelper(*this, *p).instantiate(missing));
+	}
+	CppIceBoxDescriptorPtr cppIceBox = CppIceBoxDescriptorPtr::dynamicCast(desc);
+	if(cppIceBox)
+	{
+	    cppIceBox->services.swap(newServices);
+	}
+	JavaIceBoxDescriptorPtr javaIceBox = JavaIceBoxDescriptorPtr::dynamicCast(desc);
+	if(javaIceBox)
+	{
+	    javaIceBox->services.swap(newServices);
+	}
+    }	
 }
 
 ServiceDescriptorHelper::ServiceDescriptorHelper(const DescriptorHelper& helper, const ServiceDescriptorPtr& desc) :
@@ -988,7 +1014,7 @@ ServiceDescriptorHelper::operator==(const ServiceDescriptorHelper& helper) const
 }
 
 ServiceDescriptorPtr
-ServiceDescriptorHelper::instantiate(vector<string>& missing) const
+ServiceDescriptorHelper::instantiate(set<string>& missing) const
 {
     ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(_descriptor->ice_clone());
     instantiateImpl(desc, missing);
@@ -1002,7 +1028,7 @@ ServiceDescriptorHelper::getDescriptor() const
 }
 
 void
-ServiceDescriptorHelper::instantiateImpl(const ServiceDescriptorPtr& desc, vector<string>& missing) const
+ServiceDescriptorHelper::instantiateImpl(const ServiceDescriptorPtr& desc, set<string>& missing) const
 {
     ComponentDescriptorHelper::instantiateImpl(desc, missing);
 

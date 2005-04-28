@@ -229,6 +229,8 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("the <server> element can only be a child of a <node> element");
 	    }
 
+	    _variables->push();
+
 	    if(!_currentApplication.get())
 	    {
 		_currentServer.reset(new ServerDescriptorHelper(_communicator, _variables, attrs));
@@ -246,7 +248,12 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("element <server-template> inside a server definition");
 	    }
+
+	    _variables->push();
 	    _variables->ignoreMissing(true);
+	    _variables->escape(false);
+	    (*_variables)["node"] = "${node}";
+
 	    _currentServer.reset(_currentApplication->addServerTemplate(attrs));
 	    _currentComponent = _currentServer.get();
 	    (*_variables)["server"] = _currentServer->getDescriptor()->name;
@@ -257,6 +264,8 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("element <service> inside a service definition");
 	    }
+
+	    _variables->push();
 	    
 	    _currentService.reset(_currentServer->addService(attrs));
 	    _currentComponent = _currentService.get();
@@ -268,10 +277,16 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("element <service-template> inside a service definition");
 	    }
+
+	    _variables->push();
 	    _variables->ignoreMissing(true);
+	    _variables->escape(false);
+
+	    (*_variables)["node"] = "${node}";
+	    (*_variables)["server"] = "${server}";
+
 	    _currentService.reset(_currentApplication->addServiceTemplate(attrs));
 	    _currentComponent = _currentService.get();
-	    (*_variables)["server"] = "${server}";
 	    (*_variables)["service"] = _currentService->getDescriptor()->name;
 	}
 	else if(name == "variable")
@@ -382,16 +397,23 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	    _currentServer.reset(0);
 	}
 	_currentComponent = 0;
-	_variables->ignoreMissing(false);
-	_variables->remove("server");
+	if(name == "server-template")
+	{
+	    _variables->ignoreMissing(false);
+	    _variables->escape(true);
+	}
+	_variables->pop();
     }
     else if(name == "service" || name == "service-template")
     {
 	_currentService.reset(0);
 	_currentComponent = _currentServer.get();
-	_variables->ignoreMissing(false);
-	_variables->remove("service");
-	_variables->remove("server");
+	if(name == "service-template")
+	{
+	    _variables->ignoreMissing(false);
+	    _variables->escape(true);
+	}
+	_variables->pop();
     }
     else if(name == "comment")
     {
@@ -578,28 +600,19 @@ DescriptorHandler::isTargetDeployable(const string& target) const
     string fqn;
     if(!application.empty())
     {
-	fqn = application;
-	if(!node.empty())
-	{
-	    fqn += "." + node;
-	}
+	fqn += (fqn.empty() ? "" : ".") + application;
     }
-    else
+    if(!node.empty())
     {
-	if(!node.empty())
-	{
-	    fqn = node;
-	}
+	fqn += (fqn.empty() ? "" : ".") + node;
     }
     if(!server.empty())
     {
-	assert(!node.empty());
-	fqn += "." + server;
+	fqn += (fqn.empty() ? "" : ".") + server;
     }
     if(!service.empty())
     {
-	assert(!server.empty());
-	fqn += "." + service;
+	fqn += (fqn.empty() ? "" : ".") + service;
     }
 
     //

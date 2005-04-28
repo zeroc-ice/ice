@@ -24,7 +24,7 @@ public:
     DescriptorVariables(const std::map<std::string, std::string>&);
 
     std::string substitute(const std::string&) const;
-    std::string substituteWithMissing(const std::string&, std::vector<std::string>&) const;
+    std::string substituteWithMissing(const std::string&, std::set<std::string>&) const;
     std::string getVariable(const std::string&) const;
     bool hasVariable(const std::string&) const;
     void remove(const std::string&);
@@ -37,13 +37,15 @@ public:
     std::string& operator[](const std::string&);
 
     void ignoreMissing(bool);
+    void escape(bool);
 
 private:
 
-    std::string substituteImpl(const std::string&, bool, std::vector<std::string>&) const;
+    std::string substituteImpl(const std::string&, bool, std::set<std::string>&) const;
 
     std::vector<std::map<std::string, std::string> > _variables;
     bool _ignoreMissing;
+    bool _escape;
 };
 typedef IceUtil::Handle<DescriptorVariables> DescriptorVariablesPtr;
 
@@ -145,7 +147,7 @@ public:
 protected:
     
     void init(const ComponentDescriptorPtr&, const IceXML::Attributes& = IceXML::Attributes());
-    virtual void instantiateImpl(const ComponentDescriptorPtr&, std::vector<std::string>&) const;
+    virtual void instantiateImpl(const ComponentDescriptorPtr&, std::set<std::string>&) const;
 
 private:
 
@@ -161,7 +163,7 @@ public:
     ServerDescriptorHelper(const Ice::CommunicatorPtr&, const DescriptorVariablesPtr&, const IceXML::Attributes&);
 
     bool operator==(const ServerDescriptorHelper&) const;
-    virtual ServerDescriptorPtr instantiate(std::vector<std::string>&) const;
+    virtual ServerDescriptorPtr instantiate(std::set<std::string>&) const;
     const ServerDescriptorPtr& getDescriptor() const;
 
     ServiceDescriptorHelper* addService(const IceXML::Attributes&);
@@ -172,7 +174,7 @@ public:
 private:
 
     void initFromXml(const IceXML::Attributes&);
-    virtual void instantiateImpl(const ServerDescriptorPtr&, std::vector<std::string>&) const;
+    virtual void instantiateImpl(const ServerDescriptorPtr&, std::set<std::string>&) const;
 
     ServerDescriptorPtr _descriptor;
 };
@@ -185,12 +187,12 @@ public:
     ServiceDescriptorHelper(const DescriptorHelper&, const IceXML::Attributes&);
 
     bool operator==(const ServiceDescriptorHelper&) const;
-    virtual ServiceDescriptorPtr instantiate(std::vector<std::string>&) const;
+    virtual ServiceDescriptorPtr instantiate(std::set<std::string>&) const;
     const ServiceDescriptorPtr& getDescriptor() const;
 
 private:
 
-    virtual void instantiateImpl(const ServiceDescriptorPtr&, std::vector<std::string>&) const;
+    virtual void instantiateImpl(const ServiceDescriptorPtr&, std::set<std::string>&) const;
 
     ServiceDescriptorPtr _descriptor;
 };

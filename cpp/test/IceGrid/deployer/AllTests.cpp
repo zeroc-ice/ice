@@ -86,7 +86,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
 }
 
 void 
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 {
     allCommonTests(communicator);
 
@@ -128,12 +128,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("ManyEscape") == "$$$${name}");
 
     obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
-    test(obj->getProperty("Target1") == "1");
-    test(obj->getProperty("Target2") == "1");
+    if(!withTemplates)
+    {
+	test(obj->getProperty("Target1") == "1");
+	test(obj->getProperty("Target2") == "1");
+    }
     test(obj->getProperty("Variable") == "val0prop");
-    test(obj->getProperty("Variable1") == "val0target1");
-    test(obj->getProperty("Variable2") == "val0target2");
-
+    if(!withTemplates)
+    {
+	test(obj->getProperty("Variable1") == "val0target1");
+	test(obj->getProperty("Variable2") == "val0target2");
+    }
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
