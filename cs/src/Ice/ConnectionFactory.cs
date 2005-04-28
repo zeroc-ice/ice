@@ -897,17 +897,17 @@ namespace IceInternal
 	    }
 	}
 	
+#if DEBUG
 	~IncomingConnectionFactory()
 	{
-#if DEBUG
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_acceptor == null);
 		IceUtil.Assert.FinalizerAssert(_connections != null);
 	    }
-#endif
 	}
+#endif
 	
 	private const int StateActive = 0;
 	private const int StateHolding = 1;

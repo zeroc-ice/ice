@@ -756,6 +756,7 @@ namespace Ice
 	    }
 	}
 	
+#if DEBUG
 	~ObjectAdapterI()
 	{
 	    lock(this)
@@ -768,6 +769,7 @@ namespace Ice
 		IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 	    }
 	}
+#endif
 	
 	private ObjectPrx newProxy(Identity ident, string facet)
 	{
