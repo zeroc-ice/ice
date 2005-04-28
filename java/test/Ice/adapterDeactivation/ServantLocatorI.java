@@ -36,7 +36,10 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
-        test(!_deactivated);
+        synchronized(this)
+	{
+	    test(!_deactivated);
+	}
 
         test(current.id.category.length() == 0);
         test(current.id.name.equals("test"));
@@ -49,7 +52,10 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public void
     finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
     {
-        test(!_deactivated);
+	synchronized(this)
+	{
+	    test(!_deactivated);
+	}
 
         Cookie co = (Cookie)cookie;
         test(co.message().equals("blahblah"));
@@ -58,9 +64,12 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public synchronized void
     deactivate(String category)
     {
-        test(!_deactivated);
+	synchronized(this)
+	{
+	    test(!_deactivated);
 
-        _deactivated = true;
+	    _deactivated = true;
+	}
     }
 
     private boolean _deactivated;
