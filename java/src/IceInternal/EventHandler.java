@@ -55,28 +55,11 @@ public abstract class EventHandler
         return _instance;
     }
 
-    public void
-    destroy()
-    {
-	synchronized(this)
-	{
-	    _stream.destroy();
-	    _stream = null;
-	}
-    }
-
     protected
     EventHandler(Instance instance)
     {
         _instance = instance;
         _stream = new BasicStream(instance);
-    }
-
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-	IceUtil.Assert.FinalizerAssert(_stream == null);
     }
 
     protected Instance _instance;

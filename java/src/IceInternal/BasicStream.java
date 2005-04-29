@@ -15,9 +15,7 @@ public class BasicStream
     BasicStream(IceInternal.Instance instance)
     {
         _instance = instance;
-        _bufferManager = instance.bufferManager();
-        _buf = _bufferManager.allocate(1500);
-        assert(_buf != null);
+	allocate(1500);
         _capacity = _buf.capacity();
         _limit = 0;
         assert(_buf.limit() == _capacity);
@@ -35,18 +33,6 @@ public class BasicStream
 
 	_seqDataStack = null;
         _objectList = null;
-    }
-
-    //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that destroy() is called instead, to
-    // reclaim resources.
-    //
-    public void
-    destroy()
-    {
-        _bufferManager.reclaim(_buf);
-        _buf = null;
     }
 
     //
@@ -142,9 +128,7 @@ public class BasicStream
             final int cap2 = _capacity << 1;
             int newCapacity = cap2 > total ? cap2 : total;
             _buf.limit(_limit);
-            _buf.position(0);
-            _buf = _bufferManager.reallocate(_buf, newCapacity);
-            assert(_buf != null);
+            reallocate(newCapacity);
             _capacity = _buf.capacity();
         }
         //
@@ -1928,9 +1912,7 @@ public class BasicStream
                 int newCapacity = cap2 > _limit ? cap2 : _limit;
                 _buf.limit(oldLimit);
                 int pos = _buf.position();
-                _buf.position(0);
-                _buf = _bufferManager.reallocate(_buf, newCapacity);
-                assert(_buf != null);
+                reallocate(newCapacity);
                 _capacity = _buf.capacity();
                 _buf.limit(_capacity);
                 _buf.position(pos);
@@ -2222,13 +2204,45 @@ public class BasicStream
         return buf.toString();
     }
 
+    private void
+    allocate(int size)
+    {
+	java.nio.ByteBuffer buf = null;
+	try
+	{
+	    //buf = java.nio.ByteBuffer.allocateDirect(size);
+	    buf = java.nio.ByteBuffer.allocate(size);
+	}
+	catch(OutOfMemoryError ex)
+	{
+	    Ice.MarshalException e = new Ice.MarshalException();
+	    e.reason = "OutOfMemoryError occurred while allocating a ByteBuffer";
+	    e.initCause(ex);
+	    throw e;
+	}
+	buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+	_buf = buf;
+    }
+
+    private void
+    reallocate(int size)
+    {
+	java.nio.ByteBuffer old = _buf;
+	assert(old != null);
+
+	allocate(size);
+	assert(_buf != null);
+
+	old.position(0);
+	_buf.put(old);
+    }
+
     private IceInternal.Instance _instance;
-    private BufferManager _bufferManager;
     private java.nio.ByteBuffer _buf;
-    private int _capacity; // Cache capacity to avoid excessive method calls
-    private int _limit; // Cache limit to avoid excessive method calls
-    private byte[] _stringBytes; // Reusable array for reading strings
-    private char[] _stringChars; // Reusable array for reading strings
+    private int _capacity; // Cache capacity to avoid excessive method calls.
+    private int _limit; // Cache limit to avoid excessive method calls.
+    private byte[] _stringBytes; // Reusable array for reading strings.
+    private char[] _stringChars; // Reusable array for reading strings.
 
     private static final class ReadEncaps
     {

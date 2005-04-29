@@ -204,7 +204,7 @@ public class _ObjectDelM implements _ObjectDel
     getOutgoing(String operation, OperationMode mode, java.util.Map context)
 	throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing out;
+        IceInternal.Outgoing out = null;
 
         synchronized(__outgoingMutex)
         {
@@ -216,8 +216,9 @@ public class _ObjectDelM implements _ObjectDel
             {
                 out = __outgoingCache;
                 __outgoingCache = __outgoingCache.next;
-                out.reset(operation, mode, context);
-            }
+		out.reset(operation, mode, context);
+		out.next = null;
+	    }
         }
 
         return out;
@@ -226,26 +227,10 @@ public class _ObjectDelM implements _ObjectDel
     protected void
     reclaimOutgoing(IceInternal.Outgoing out)
     {
-        synchronized(__outgoingMutex)
-        {
-            out.next = __outgoingCache;
-            __outgoingCache = out;
-        }
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
 	synchronized(__outgoingMutex)
 	{
-	    while(__outgoingCache != null)
-	    {
-		IceInternal.Outgoing next = __outgoingCache.next;
-		__outgoingCache.destroy();
-		__outgoingCache.next = null;
-		__outgoingCache = next;
-	    }
+	    out.next = __outgoingCache;
+	    __outgoingCache = out;
 	}
     }
 

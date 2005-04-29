@@ -128,6 +128,10 @@ public final class ThreadPool
     {
         assert(_destroyed);
 
+	/**
+	  * For compatibility with C#, we do not invoke methods on other objects
+	  * in a finalizer.
+	  *
 	try
 	{
 	    if(_selector != null)
@@ -154,6 +158,7 @@ public final class ThreadPool
 	    String s = "exception in `" + _prefix + "' while calling close():\n" + sw.toString();
 	    _instance.logger().error(s);
 	}
+	  */
 
         super.finalize();
     }
@@ -1149,8 +1154,6 @@ public final class ThreadPool
 		    ThreadPool.this.notify();
 		}
 	    }
-
-            stream.destroy();
 
             if(TRACE_THREAD)
             {

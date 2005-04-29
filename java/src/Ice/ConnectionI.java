@@ -263,20 +263,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
 
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
-	    synchronized(_incomingCacheMutex)
-	    {
-		while(_incomingCache != null)
-		{
-		    _incomingCache.__destroy();
-		    _incomingCache = _incomingCache.next;
-		}
-	    }
-
-	    cleanup();
+	    _incomingCache = null;
 	}
 
 	if(threadPerConnection != null)
@@ -391,20 +378,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
 
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
-	    synchronized(_incomingCacheMutex)
-	    {
-		while(_incomingCache != null)
-		{
-		    _incomingCache.__destroy();
-		    _incomingCache = _incomingCache.next;
-		}
-	    }
-
-	    cleanup();
+	    _incomingCache = null;
 	}
 
 	if(threadPerConnection != null)
@@ -595,13 +569,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		}
 	    }
 	}
-	finally
-	{
-	    if(stream != null && stream != os)
-	    {
-		stream.destroy();
-	    }
-	}
     }
 
     public void
@@ -698,13 +665,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		}
 	    }
 	}
-	finally
-	{
-	    if(stream != null && stream != os)
-	    {
-		stream.destroy();
-	    }
-	}
     }
 
     private final static byte[] _requestBatchHdr =
@@ -799,10 +759,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
 	//
 	// Destroy and reset the batch stream and batch count. We
-	// cannot safe old requests in the batch stream, as they might
+	// cannot save old requests in the batch stream, as they might
 	// be corrupted due to incomplete marshaling.
 	//
-	_batchStream.destroy();
 	_batchStream = new IceInternal.BasicStream(_instance);
 	_batchRequestNum = 0;
 	_batchRequestCompress = false;
@@ -902,20 +861,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		throw _exception;
 	    }
 	}
-	finally
-	{
-	    if(stream != null && stream != _batchStream)
-	    {
-		stream.destroy();
-	    }
-	}
 
 	synchronized(this)
 	{
 	    //
 	    // Reset the batch stream, and notify that flushing is over.
 	    //
-	    _batchStream.destroy();
 	    _batchStream = new IceInternal.BasicStream(_instance);
 	    _batchRequestNum = 0;
 	    _batchRequestCompress = false;
@@ -952,13 +903,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
-	    }
-	}
-	finally
-	{
-	    if(stream != os)
-	    {
-		stream.destroy();
 	    }
 	}
 
@@ -1173,31 +1117,21 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
         }
 
-	try
+	//
+	// Asynchronous replies must be handled outside the thread
+	// synchronization, so that nested calls are possible.
+	//
+	if(info.outAsync != null)
 	{
-	    //
-	    // Asynchronous replies must be handled outside the thread
-	    // synchronization, so that nested calls are possible.
-	    //
-	    if(info.outAsync != null)
-	    {
-		info.outAsync.__finished(info.stream);
-	    }
+	    info.outAsync.__finished(info.stream);
+	}
 
-	    //
-	    // Method invocation (or multiple invocations for batch messages)
-	    // must be done outside the thread synchronization, so that nested
-	    // calls are possible.
-	    //
-	    invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, info.adapter);
-	}
-	finally
-	{
-	    if(info.destroyStream)
-	    {
-		info.stream.destroy();
-	    }
-	}
+	//
+	// Method invocation (or multiple invocations for batch messages)
+	// must be done outside the thread synchronization, so that nested
+	// calls are possible.
+	//
+	invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, info.adapter);
     }
 
     public void
@@ -1211,7 +1145,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	IceInternal.IntMap requests = null;
 	IceInternal.IntMap asyncRequests = null;
-        IceInternal.Incoming in = null;
 
 	synchronized(this)
 	{
@@ -1250,12 +1183,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		_asyncRequests = new IceInternal.IntMap();
 	    }
 	}
-
-        while(in != null)
-	{
-            in.__destroy();
-            in = in.next;
-        }
 
 	if(requests != null)
 	{
@@ -1795,7 +1722,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 
 	IceInternal.BasicStream stream;
-	boolean destroyStream;
 	int invokeNum;
 	int requestId;
 	byte compress;
@@ -1832,7 +1758,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    IceInternal.BasicStream ustream = info.stream.uncompress(IceInternal.Protocol.headerSize);
 		    if(ustream != info.stream)
 		    {
-			info.destroyStream = true;
 			info.stream = ustream;
 		    }
 		}
@@ -1947,12 +1872,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	catch(LocalException ex)
 	{
 	    setState(StateClosed, ex);
-
-	    if(info.destroyStream)
-	    {
-		info.stream.destroy();
-		info.destroyStream = false;
-	    }
 	}
     }
 
@@ -2218,121 +2137,111 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    IceInternal.IntMap requests = null;
 	    IceInternal.IntMap asyncRequests = null;
 
-	    try
+	    synchronized(this)
 	    {
-		synchronized(this)
+		while(_state == StateHolding)
 		{
-		    while(_state == StateHolding)
+		    try
+		    {
+			wait();
+		    }
+		    catch(InterruptedException ex)
+		    {
+		    }
+		}
+		
+		if(_state != StateClosed)
+		{
+		    parseMessage(info);
+		}
+
+		//
+		// parseMessage() can close the connection, so we must
+		// check for closed state again.
+		//
+		if(_state == StateClosed)
+		{
+		    //
+		    // We must make sure that nobody is sending when we close
+		    // the transceiver.
+		    //
+		    synchronized(_sendMutex)
 		    {
 			try
 			{
-			    wait();
+			    _transceiver.close();
 			}
-			catch(InterruptedException ex)
+			catch(LocalException ex)
 			{
+			    exception = ex;
 			}
-		    }
-		    
-		    if(_state != StateClosed)
-		    {
-			parseMessage(info);
+			
+			_transceiver = null;
+			notifyAll();
 		    }
 
 		    //
-		    // parseMessage() can close the connection, so we must
-		    // check for closed state again.
+		    // We cannot simply return here. We have to make sure
+		    // that all requests (regular and async) are notified
+		    // about the closed connection below.
 		    //
-		    if(_state == StateClosed)
-		    {
-			//
-			// We must make sure that nobody is sending when we close
-			// the transceiver.
-			//
-			synchronized(_sendMutex)
-			{
-			    try
-			    {
-				_transceiver.close();
-			    }
-			    catch(LocalException ex)
-			    {
-				exception = ex;
-			    }
-			    
-			    _transceiver = null;
-			    notifyAll();
-			}
-
-			//
-			// We cannot simply return here. We have to make sure
-			// that all requests (regular and async) are notified
-			// about the closed connection below.
-			//
-			closed = true;
-		    }
-
-		    if(_state == StateClosed || _state == StateClosing)
-		    {
-			requests = _requests;
-			_requests = new IceInternal.IntMap();
-
-			asyncRequests = _asyncRequests;
-			_asyncRequests = new IceInternal.IntMap();
-		    }
+		    closed = true;
 		}
 
-		//
-		// Asynchronous replies must be handled outside the thread
-		// synchronization, so that nested calls are possible.
-		//
-		if(info.outAsync != null)
+		if(_state == StateClosed || _state == StateClosing)
 		{
-		    info.outAsync.__finished(info.stream);
-		}
-		
-		//
-		// Method invocation (or multiple invocations for batch messages)
-		// must be done outside the thread synchronization, so that nested
-		// calls are possible.
-		//
-		invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
-			  info.adapter);
+		    requests = _requests;
+		    _requests = new IceInternal.IntMap();
 
-		if(requests != null)
-		{
-		    java.util.Iterator i = requests.entryIterator();
-		    while(i.hasNext())
-		    {
-			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-			IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
-			out.finished(_exception); // The exception is immutable at this point.
-		    }
+		    asyncRequests = _asyncRequests;
+		    _asyncRequests = new IceInternal.IntMap();
 		}
-
-		if(asyncRequests != null)
-		{
-		    java.util.Iterator i = asyncRequests.entryIterator();
-		    while(i.hasNext())
-		    {
-			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-			IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
-			out.__finished(_exception); // The exception is immutable at this point.
-		    }
-		}
-
-		if(exception != null)
-		{
-		    assert(closed);
-		    throw exception;
-		}    
 	    }
-	    finally
+
+	    //
+	    // Asynchronous replies must be handled outside the thread
+	    // synchronization, so that nested calls are possible.
+	    //
+	    if(info.outAsync != null)
 	    {
-		if(info.destroyStream)
+		info.outAsync.__finished(info.stream);
+	    }
+	    
+	    //
+	    // Method invocation (or multiple invocations for batch messages)
+	    // must be done outside the thread synchronization, so that nested
+	    // calls are possible.
+	    //
+	    invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
+		      info.adapter);
+
+	    if(requests != null)
+	    {
+		java.util.Iterator i = requests.entryIterator();
+		while(i.hasNext())
 		{
-		    info.stream.destroy();
+		    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+		    IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+		    out.finished(_exception); // The exception is immutable at this point.
 		}
 	    }
+
+	    if(asyncRequests != null)
+	    {
+		java.util.Iterator i = asyncRequests.entryIterator();
+		while(i.hasNext())
+		{
+		    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+		    IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
+		    out.__finished(_exception); // The exception is immutable at this point.
+		}
+	    }
+
+	    if(exception != null)
+	    {
+		assert(closed);
+		throw exception;
+	    }    
 	}
     }
 
@@ -2373,8 +2282,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
-                in.next = null;
                 in.reset(_instance, this, adapter, response, compress);
+                in.next = null;
             }
         }
 
@@ -2386,25 +2295,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
         synchronized(_incomingCacheMutex)
         {
-            in.next = _incomingCache;
-            _incomingCache = in;
+	    in.next = _incomingCache;
+	    _incomingCache = in;
         }
-    }
-
-    private void
-    cleanup()
-    {
-	//
-	// This should be called when we know that this object is no longer used,
-	// so it is safe to reclaim resources.
-	//
-	// We do this here instead of in a finalizer because a C# finalizer
-	// cannot invoke methods on other types of objects.
-	//
-	_batchStream.destroy();
-	_batchStream = null;
-
-	super.destroy();
     }
 
     private class ThreadPerConnection extends Thread

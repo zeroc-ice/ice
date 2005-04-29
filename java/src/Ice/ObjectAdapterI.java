@@ -241,12 +241,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	// Now we wait for until all incoming connection factories are
 	// finished.
 	//
-	final int sz = _incomingConnectionFactories.size();
-	for(int i = 0; i < sz; ++i)
+	if(_incomingConnectionFactories != null)
 	{
-	    IceInternal.IncomingConnectionFactory factory =
-		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-	    factory.waitUntilFinished();
+	    final int sz = _incomingConnectionFactories.size();
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		factory.waitUntilFinished();
+	    }
 	}
 	
 	//
@@ -279,7 +282,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // We're done, now we can throw away all incoming connection
 	    // factories.
 	    //
-	    _incomingConnectionFactories.clear();
+	    // For compatibility with C#, we set _incomingConnectionFactories
+	    // to null so that the finalizer does not invoke methods on objects.
+	    //
+	    _incomingConnectionFactories = null;
 	    
 	    //
 	    // Remove object references (some of them cyclic).
@@ -735,18 +741,26 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
         if(!_deactivated)
         {
-            _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+	    //
+	    // For compatibility with C#, we do not invoke methods on other objects
+	    // in a finalizer.
+	    //
+            //_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
         }
         else if(_instance != null)
         {
-            _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+	    //
+	    // For compatibility with C#, we do not invoke methods on other objects
+	    // in a finalizer.
+	    //
+            //_instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
         }
 	else
 	{
 	    assert(_threadPool == null);
 	    assert(_servantManager == null);
 	    assert(_communicator == null);
-	    assert(_incomingConnectionFactories.isEmpty());
+	    assert(_incomingConnectionFactories == null);
 	    assert(_directCount == 0);
 	    assert(!_waitForDeactivate);
 	}

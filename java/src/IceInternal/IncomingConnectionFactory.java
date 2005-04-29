@@ -128,16 +128,6 @@ public final class IncomingConnectionFactory extends EventHandler
 	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
 	    connection.waitUntilFinished();
 	}
-
-	//
-	// At this point we know that this factory is no longer used, so it is
-	// safe to invoke destroy() on the EventHandler base class to reclaim
-	// resources.
-	//
-	// We call this here instead of in the finalizer because a C# finalizer
-	// cannot invoke methods on other types of objects.
-	//
-	super.destroy();
     }
 
     public Endpoint
@@ -454,7 +444,6 @@ public final class IncomingConnectionFactory extends EventHandler
 			_acceptor = null;
 			_connections = null;
 			_threadPerIncomingConnectionFactory = null;
-			super.destroy();
 		    }
 
 		    Ice.SyscallException e = new Ice.SyscallException();

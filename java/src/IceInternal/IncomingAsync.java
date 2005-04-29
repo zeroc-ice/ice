@@ -17,20 +17,6 @@ public class IncomingAsync extends IncomingBase
 	super(in);
     }
 
-    protected void
-    finalize()
-    {
-	//
-	// I must call __destroy() in the finalizer and not in
-	// __response() or __exception(), because an exception may be
-	// raised after the creation of an IncomingAsync but before
-	// calling __response() or __exception(). This can happen if
-	// an AMD operation raises an exception instead of calling
-	// ice_response() or ice_exception().
-	//
-	__destroy();
-    }
-
     final protected void
     __response(boolean ok)
     {

@@ -27,23 +27,6 @@ public final class Outgoing
     }
 
     //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that destroy() is called instead, to
-    // reclaim resources.
-    //
-    public void
-    destroy()
-    {
-	assert(_is != null);
-        _is.destroy();
-	_is = null;
-
-	assert(_os != null);
-        _os.destroy();
-	_os = null;
-    }
-
-    //
     // This function allows this object to be reused, rather than
     // reallocated.
     //

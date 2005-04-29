@@ -195,7 +195,6 @@ public class OutputStreamI implements OutputStream
     {
         if(_os != null)
         {
-            _os.destroy();
             _os = null;
         }
     }

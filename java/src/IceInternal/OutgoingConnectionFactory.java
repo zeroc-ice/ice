@@ -61,11 +61,15 @@ public final class OutgoingConnectionFactory
 	    }
 
 	    //
-	    // We want to wait until all connections are finished
-	    // outside the thread synchronization.
+	    // We want to wait until all connections are finished outside the
+	    // thread synchronization.
+	    //
+	    // For consistency with C#, we set _connections to null rather than to a
+	    // new empty list so that our finalizer does not try to invoke any
+	    // methods on member objects.
 	    //
 	    connections = _connections;
-	    _connections = new java.util.HashMap();
+	    _connections = null;
 	}
 	
 	//
@@ -543,7 +547,7 @@ public final class OutgoingConnectionFactory
         throws Throwable
     {
         assert(_destroyed);
-	assert(_connections.isEmpty());
+	assert(_connections == null);
 
         super.finalize();
     }

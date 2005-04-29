@@ -58,21 +58,6 @@ public class IncomingBase
     }
 
     //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that __destroy() is called instead,
-    // to reclaim resources.
-    //
-    public synchronized void
-    __destroy()
-    {
-	if(_os != null)
-	{
-	    _os.destroy();
-	    _os = null;
-	}
-    }
-
-    //
     // This function allows this object to be reused, rather than reallocated.
     //
     public void

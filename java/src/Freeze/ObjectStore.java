@@ -245,60 +245,39 @@ class ObjectStore implements IceUtil.Store
     marshalKey(Ice.Identity v, Ice.Communicator communicator)
     {
         IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            v.__write(os);
-            java.nio.ByteBuffer buf = os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
-            return r;
-        }
-        finally
-        {
-            os.destroy();
-        }
+	v.__write(os);
+	java.nio.ByteBuffer buf = os.prepareWrite();
+	byte[] r = new byte[buf.limit()];
+	buf.get(r);
+	return r;
     }
 
     static Ice.Identity
     unmarshalKey(byte[] b, Ice.Communicator communicator)
     {
         IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            is.resize(b.length, true);
-            java.nio.ByteBuffer buf = is.prepareRead();
-            buf.position(0);
-            buf.put(b);
-            buf.position(0);
-            Ice.Identity key = new Ice.Identity();
-            key.__read(is);
-            return key;
-        }
-        finally
-        {
-            is.destroy();
-        }
+	is.resize(b.length, true);
+	java.nio.ByteBuffer buf = is.prepareRead();
+	buf.position(0);
+	buf.put(b);
+	buf.position(0);
+	Ice.Identity key = new Ice.Identity();
+	key.__read(is);
+	return key;
     }
 
     static byte[]
     marshalValue(ObjectRecord v, Ice.Communicator communicator)
     {
         IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-        try
-        {
-            os.startWriteEncaps();
-            v.__write(os);
-            os.writePendingObjects();
-            os.endWriteEncaps();
-            java.nio.ByteBuffer buf = os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
-            return r;
-        }
-        finally
-        {
-            os.destroy();
-        }
+	os.startWriteEncaps();
+	v.__write(os);
+	os.writePendingObjects();
+	os.endWriteEncaps();
+	java.nio.ByteBuffer buf = os.prepareWrite();
+	byte[] r = new byte[buf.limit()];
+	buf.get(r);
+	return r;
     }
 
     static ObjectRecord
@@ -306,24 +285,17 @@ class ObjectStore implements IceUtil.Store
     {
         IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         is.sliceObjects(false);
-        try
-        {
-            is.resize(b.length, true);
-            java.nio.ByteBuffer buf = is.prepareRead();
-            buf.position(0);
-            buf.put(b);
-            buf.position(0);
-            ObjectRecord rec= new ObjectRecord();
-            is.startReadEncaps();
-            rec.__read(is);
-            is.readPendingObjects();
-            is.endReadEncaps();
-            return rec;
-        }
-        finally
-        {
-            is.destroy();
-        }
+	is.resize(b.length, true);
+	java.nio.ByteBuffer buf = is.prepareRead();
+	buf.position(0);
+	buf.put(b);
+	buf.position(0);
+	ObjectRecord rec= new ObjectRecord();
+	is.startReadEncaps();
+	rec.__read(is);
+	is.readPendingObjects();
+	is.endReadEncaps();
+	return rec;
     }
 
 

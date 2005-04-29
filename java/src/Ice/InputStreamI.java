@@ -226,7 +226,6 @@ public class InputStreamI implements InputStream
     {
         if(_is != null)
         {
-            _is.destroy();
             _is = null;
         }
     }

@@ -292,13 +292,6 @@ public final class Instance
 	adapterFactory.flushBatchRequests();
     }
 
-    public BufferManager
-    bufferManager()
-    {
-	// No mutex lock, immutable.
-        return _bufferManager;
-    }
-
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -447,8 +440,6 @@ public final class Instance
             _servantFactoryManager = new ObjectFactoryManager();
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-
-            _bufferManager = new BufferManager(); // Must be created before the ThreadPool
         }
         catch(Ice.LocalException ex)
         {
@@ -706,7 +697,6 @@ public final class Instance
     private Ice.PluginManager _pluginManager;
     private java.util.Map _defaultContext;
     private static java.util.Map _emptyContext = new java.util.HashMap();
-    private final BufferManager _bufferManager; // Immutable, not reset by destroy().
 
     private static boolean _oneOffDone = false;
 }
