@@ -546,8 +546,8 @@ public final class OutgoingConnectionFactory
     finalize()
         throws Throwable
     {
-	IceUtil.Assert.FinalizeAssert(_destroyed);
-	IceUtil.Assert.FinalizeAssert(_connections == null);
+	IceUtil.Assert.FinalizerAssert(_destroyed);
+	IceUtil.Assert.FinalizerAssert(_connections == null);
 
         super.finalize();
     }
