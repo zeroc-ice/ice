@@ -126,7 +126,7 @@ public final class ThreadPool
     finalize()
         throws Throwable
     {
-        assert(_destroyed);
+        IceUtil.Assert.FinalizerAssert(_destroyed);
 
 	/**
 	  * For compatibility with C#, we do not invoke methods on other objects

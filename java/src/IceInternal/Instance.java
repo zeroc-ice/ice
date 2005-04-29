@@ -452,19 +452,19 @@ public final class Instance
     finalize()
         throws Throwable
     {
-        assert(_destroyed);
-        assert(_referenceFactory == null);
-        assert(_proxyFactory == null);
-        assert(_outgoingConnectionFactory == null);
-	assert(_connectionMonitor == null);
-        assert(_servantFactoryManager == null);
-        assert(_objectAdapterFactory == null);
-        assert(_clientThreadPool == null);
-        assert(_serverThreadPool == null);
-        assert(_routerManager == null);
-        assert(_locatorManager == null);
-        assert(_endpointFactoryManager == null);
-        assert(_pluginManager == null);
+	IceUtil.Assert.FinalizerAssert(_destroyed);
+	IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
+	IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
+	IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+	IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
+	IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
+	IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
+	IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
+	IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
+	IceUtil.Assert.FinalizerAssert(_routerManager == null);
+	IceUtil.Assert.FinalizerAssert(_locatorManager == null);
+	IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
+	IceUtil.Assert.FinalizerAssert(_pluginManager == null);
 
         super.finalize();
     }

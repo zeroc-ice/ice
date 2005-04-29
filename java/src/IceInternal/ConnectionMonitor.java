@@ -23,7 +23,7 @@ public final class ConnectionMonitor extends Thread
 	    assert(_instance != null);
 	    
 	    _instance = null;
-	    _connections.clear();
+	    _connections = null;
 	
 	    notify();
 	}
@@ -79,8 +79,8 @@ public final class ConnectionMonitor extends Thread
     finalize()
         throws Throwable
     {
-	assert(_instance == null);
-	assert(_connections.isEmpty());
+	IceUtil.Assert.FinalizerAssert(_instance == null);
+	IceUtil.Assert.FinalizerAssert(_connections == null);
 	
         super.finalize();
     }

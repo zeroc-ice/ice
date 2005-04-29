@@ -757,12 +757,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
 	else
 	{
-	    assert(_threadPool == null);
-	    assert(_servantManager == null);
-	    assert(_communicator == null);
-	    assert(_incomingConnectionFactories == null);
-	    assert(_directCount == 0);
-	    assert(!_waitForDeactivate);
+	    IceUtil.Assert.FinalizerAssert(_threadPool == null);
+	    IceUtil.Assert.FinalizerAssert(_servantManager == null);
+	    IceUtil.Assert.FinalizerAssert(_communicator == null);
+	    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
+	    IceUtil.Assert.FinalizerAssert(_directCount == 0);
+	    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 	}
 
         super.finalize();
