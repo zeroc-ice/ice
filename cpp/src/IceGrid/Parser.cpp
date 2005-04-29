@@ -13,6 +13,7 @@
 #include <IceGrid/Parser.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/DescriptorParser.h>
+#include <IceGrid/DescriptorHelper.h>
 
 #ifdef GPL_BUILD
 #   include <IceGrid/GPL.h>
@@ -243,7 +244,10 @@ Parser::usage()
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
+	"application instantiate NAME TEMPLATE [NAME=VALUE ...]\n"
+	"                            Instantiate a server template and add the server\n"
 	"application list            List all deployed applications.\n"
+	"                            to the application."
         "\n"
 	"node list                   List all registered nodes.\n"
 	"node ping NAME              Ping node NAME.\n"
@@ -353,9 +357,9 @@ Parser::addApplication(const list<string>& args)
 void
 Parser::removeApplication(const list<string>& args)
 {
-    if(args.size() < 1)
+    if(args.size() != 1)
     {
-	error("`application remove' requires at exactly one argument\n(`help' for more info)");
+	error("`application remove' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -386,7 +390,7 @@ Parser::describeApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application describe' requires at exactly one argument\n(`help' for more info)");
+	error("`application describe' requires at least one argument\n(`help' for more info)");
 	return;
     }
 
@@ -456,7 +460,7 @@ Parser::diffApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application diff' requires at exactly one argument\n(`help' for more info)");
+	error("`application diff' requires at least one argument\n(`help' for more info)");
 	return;
     }
 
@@ -559,7 +563,7 @@ Parser::updateApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application diff' requires at exactly one argument\n(`help' for more info)");
+	error("`application diff' requires at least one argument\n(`help' for more info)");
 	return;
     }
 
@@ -586,6 +590,54 @@ Parser::updateApplication(const list<string>& args)
 
 	_admin->updateApplication(
 	    DescriptorParser::parseApplicationDescriptor(descriptor, targets, vars, _communicator));
+    }
+    catch(const IceXML::ParserException& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+    catch(const DeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ":\n" << ex.reason;
+	error(s.str());	
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::instantiateApplication(const list<string>& args)
+{
+    if(args.size() < 2)
+    {
+	error("`application instantiate' requires at least two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	map<string, string> vars;
+
+	list<string>::const_iterator p = args.begin();
+	string application = *p++;
+	string templ = *p++;
+
+	for(; p != args.end(); ++p)
+	{
+	    string::size_type pos = p->find('=');
+	    if(pos != string::npos)
+	    {
+		vars[p->substr(0, pos)] = p->substr(pos + 1);
+	    }
+	}
+
+	_admin->instantiateApplicationServer(application, templ, vars);
     }
     catch(const IceXML::ParserException& ex)
     {
@@ -712,9 +764,9 @@ Parser::listAllNodes()
 void
 Parser::addServer(const list<string>& args)
 {
-    if(args.size() < 3)
+    if(args.size() < 2)
     {
-	error("`server add' requires at least three arguments\n(`help' for more info)");
+	error("`server add' requires at least two arguments\n(`help' for more info)");
 	return;
     }
 
@@ -759,9 +811,9 @@ Parser::addServer(const list<string>& args)
 void
 Parser::updateServer(const list<string>& args)
 {
-    if(args.size() < 3)
+    if(args.size() < 2)
     {
-	error("`server add' requires at least three arguments\n(`help' for more info)");
+	error("`server update' requires at least two arguments\n(`help' for more info)");
 	return;
     }
 

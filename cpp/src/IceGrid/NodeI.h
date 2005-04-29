@@ -45,7 +45,6 @@ public:
 
     void checkConsistency(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
-    void removeServerDirectory(const std::string&, const std::string&);
 
 private:
 

@@ -486,6 +486,8 @@ enum ServerState
     Destroyed
 };
 
+dictionary<string, string> StringStringDict;
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing
@@ -522,6 +524,22 @@ interface Admin
      **/
     void updateApplication(ApplicationDescriptor descriptor)
 	throws DeploymentException, ApplicationNotExistException;
+
+    /**
+     *
+     * Instantiate as server template from the given application.
+     *
+     * @param application The application where the template is defined.
+     *
+     * @param template The identifier of the template.
+     * 
+     * @param variables The variables used to instantiate the template.
+     *
+     * @throws DeploymentException Raised if the deployment failed.
+     *
+     **/
+    void instantiateApplicationServer(string application, string template, StringStringDict variables)
+	throws ApplicationNotExistException, DeploymentException;
 
     /**
      *

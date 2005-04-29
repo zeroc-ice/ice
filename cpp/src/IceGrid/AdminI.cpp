@@ -11,6 +11,7 @@
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/DescriptorHelper.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/SliceChecksums.h>
@@ -56,6 +57,17 @@ AdminI::getApplicationDescriptor(const string& name, const Current&) const
     return _database->getApplicationDescriptor(name);
 }
 
+void
+AdminI::instantiateApplicationServer(const string& name, const string& tmpl, const StringStringDict& variables,
+				     const Current&)
+{
+    StringStringDict vars = variables;
+    vars.insert(make_pair("template", tmpl));
+    ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
+    auto_ptr<ServerDescriptorHelper> server(helper.addServer(vars));
+    _database->updateApplicationDescriptor(helper.getDescriptor());
+}
+
 Ice::StringSeq
 AdminI::getAllApplicationNames(const Current&) const
 {
@@ -65,53 +77,95 @@ AdminI::getAllApplicationNames(const Current&) const
 void
 AdminI::addServer(const ServerDescriptorPtr& server, const Current&)
 {
-    if(!server->application.empty())
+    if(server->application.empty())
     {
-	DeploymentException ex;
-	ex.reason = "You need to update the descriptor of the application `" + server->application + "'" +
-	    "to add this server.";
-	throw ex;
+	ApplicationDescriptorPtr application = new ApplicationDescriptor();
+	application->name = '_' + server->name;
+	application->servers.push_back(server);
+	try
+	{
+	    _database->addApplicationDescriptor(application);
+	}
+	catch(const ApplicationExistsException&)
+	{
+	    ServerExistsException ex;
+	    ex.name = server->name;
+	    throw ex;
+	}
     }
-    
-    ApplicationDescriptorPtr application = new ApplicationDescriptor();
-    application->name = '_' + server->name;
-    application->servers.push_back(server);
-    try
+    else
     {
-	_database->addApplicationDescriptor(application);
-    }
-    catch(const ApplicationExistsException&)
-    {
-	ServerExistsException ex;
-	ex.name = server->name;
-	throw ex;
+	try
+	{
+	    ApplicationDescriptorPtr application = _database->getApplicationDescriptor(server->application);
+	    application->servers.push_back(server);
+	    _database->updateApplicationDescriptor(application);
+	}
+	catch(const ApplicationNotExistException&)
+	{
+	    DeploymentException ex;
+	    ex.reason = "application `" + server->application + "' doesn't exist";
+	    throw ex;
+	}
     }
 }
 
 void
-AdminI::updateServer(const ServerDescriptorPtr& server, const Current&)
+AdminI::updateServer(const ServerDescriptorPtr& newServer, const Current&)
 {
-    ApplicationDescriptorPtr application = new ApplicationDescriptor();
-    application->name = '_' + server->name;
-    application->servers.push_back(server);
+    ServerDescriptorPtr server = _database->getServerDescriptor(newServer->name);
     try
     {
-	_database->updateApplicationDescriptor(application);
+	if(server->application.empty())
+	{
+	    ApplicationDescriptorPtr application = new ApplicationDescriptor();
+	    application->name = '_' + newServer->name;
+	    application->servers.push_back(newServer);
+	    _database->updateApplicationDescriptor(application);
+	}
+	else
+	{
+	    ApplicationDescriptorPtr application = _database->getApplicationDescriptor(server->application);
+	    for(ServerDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
+	    {
+		application->servers.erase(p);
+		application->servers.push_back(newServer);
+	    }
+	    _database->updateApplicationDescriptor(application);
+	}
     }
     catch(const ApplicationNotExistException&)
     {
 	ServerNotExistException ex;
-	ex.name = server->name;
+	ex.name = newServer->name;
 	throw ex;
     }
+
 }
 
 void
 AdminI::removeServer(const string& name, const Current&)
 {
+    ServerDescriptorPtr server = _database->getServerDescriptor(name);
     try
     {
-	_database->removeApplicationDescriptor('_' + name);
+	if(server->application.empty())
+	{
+	    _database->removeApplicationDescriptor('_' + name);
+	}
+	else
+	{
+	    ApplicationDescriptorPtr application = _database->getApplicationDescriptor(server->application);
+	    for(ServerDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
+	    {
+		if((*p)->name == name)
+		{
+		    application->servers.erase(p);
+		    break;
+		}
+	    }
+	    _database->updateApplicationDescriptor(application);
+	}
     }
     catch(const ApplicationNotExistException&)
     {

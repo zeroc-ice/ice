@@ -1076,7 +1076,14 @@ void
 Database::clearServer(const std::string& name)
 {
     Lock sync(*this);
-    _servers.erase(name);
+    map<string, ServerEntryPtr>::iterator p = _servers.find(name);
+    if(p != _servers.end())
+    {
+	if(p->second->canRemove())
+	{
+	    _servers.erase(p);
+	}
+    }
 }
 
 void
@@ -1244,48 +1251,77 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
     {
 	if(destroy)
 	{
-	    _database.getNode(destroy->node)->destroyServer(destroy);
+	    try
+	    {
+		_database.getNode(destroy->node)->destroyServer(destroy);
+	    }
+	    catch(const NodeNotExistException& ex)
+	    {
+		if(!load)
+		{
+		    throw NodeUnreachableException();
+		}
+	    }
+	    catch(Ice::LocalException& ex)
+	    {
+		if(!load)
+		{
+		    throw NodeUnreachableException();
+		}
+	    }
 	}
+
 	if(load)
 	{
-	    proxy = _database.getNode(load->node)->loadServer(load, adapters);
+	    try
+	    {
+		proxy = _database.getNode(load->node)->loadServer(load, adapters);
+	    }
+	    catch(const NodeNotExistException& ex)
+	    {
+		throw NodeUnreachableException();
+	    }
+	    catch(Ice::LocalException& ex)
+	    {
+		throw NodeUnreachableException();
+	    }
 	}
     }
-    catch(const NodeNotExistException& ex)
+    catch(const NodeUnreachableException& ex)
     {
+	{
+	    Lock sync(*this);
+	    _synchronizing = false;
+	    _destroy = 0;
+	    notifyAll();
+	}
 	if(!load && destroy)
 	{
 	    _database.clearServer(destroy->name);
 	}
-	Lock sync(*this);
-	_synchronizing = false;
-	notifyAll();
-	throw NodeUnreachableException();
+	throw;
     }
-    catch(Ice::LocalException& ex)
+
     {
-	if(!load && destroy)
-	{
-	    _database.clearServer(destroy->name);
-	}
 	Lock sync(*this);
 	_synchronizing = false;
+	_loaded = _load;
+	_load = 0;
+	_destroy = 0;
+	_proxy = proxy;
+	_adapters = adapters;
 	notifyAll();
-	throw NodeUnreachableException();
     }
-    
     if(!load && destroy)
     {
 	_database.clearServer(destroy->name);
     }
-    Lock sync(*this);
-    _synchronizing = false;
-    _loaded = _load;
-    _load = 0;
-    _destroy = 0;
-    _proxy = proxy;
-    _adapters = adapters;
-    notifyAll();
     return proxy;
 }
 
+bool
+Database::ServerEntry::canRemove()
+{
+     Lock sync(*this);
+     return !_loaded && !_load && !_destroy;
+}

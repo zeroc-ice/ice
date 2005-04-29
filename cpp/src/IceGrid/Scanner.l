@@ -205,6 +205,10 @@ NL	[\n]
     return ICE_GRID_UPDATE;
 }
 
+"instantiate" {
+    return ICE_GRID_INSTANTIATE;
+}
+
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)

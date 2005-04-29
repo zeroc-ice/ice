@@ -63,6 +63,7 @@ yyerror(const char* s)
 %token ICE_GRID_WARRANTY
 %token ICE_GRID_DIFF
 %token ICE_GRID_UPDATE
+%token ICE_GRID_INSTANTIATE
 
 %%
 
@@ -118,6 +119,10 @@ command
 | ICE_GRID_APPLICATION ICE_GRID_DESCRIBE strings ';'
 {
     parser->describeApplication($3);
+}
+| ICE_GRID_APPLICATION ICE_GRID_INSTANTIATE strings ';'
+{
+    parser->instantiateApplication($3);
 }
 | ICE_GRID_APPLICATION ICE_GRID_LIST ';'
 {

@@ -72,6 +72,7 @@ public:
     void describeApplication(const std::list<std::string>&);
     void diffApplication(const std::list<std::string>&);
     void updateApplication(const std::list<std::string>&);
+    void instantiateApplication(const std::list<std::string>&);
     void listAllApplications();
 
     void pingNode(const std::list<std::string>&);

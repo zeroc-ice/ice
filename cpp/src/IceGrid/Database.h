@@ -76,6 +76,7 @@ private:
 	ServerDescriptorPtr getDescriptor();
 	ServerPrx getProxy();
 	AdapterPrx getAdapter(const std::string&);
+	bool canRemove();
 
     private:
 

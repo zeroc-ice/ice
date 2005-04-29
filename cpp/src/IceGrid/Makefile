@@ -49,8 +49,7 @@ NODE_OBJS	= NodeI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
 		  WaitQueue.o \
-                  DescriptorParser.o \
-                  DescriptorHelper.o
+                  DescriptorParser.o
 
 REGISTRY_OBJS   = RegistryI.o \
 		  StringObjectProxyDict.o \
@@ -61,6 +60,7 @@ REGISTRY_OBJS   = RegistryI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
 		  Util.o \
+		  DescriptorHelper.o \
 		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \

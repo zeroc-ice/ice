@@ -188,11 +188,6 @@ NodeI::checkConsistency(const Ice::StringSeq& servers)
     }
 }
 
-void 
-NodeI::removeServerDirectory(const string& backupDir, const string& name)
-{    
-}
-
 bool
 NodeI::canRemoveServerDirectory(const string& name)
 {
