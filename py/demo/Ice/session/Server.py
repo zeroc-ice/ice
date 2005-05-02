@@ -14,80 +14,96 @@ Ice.loadSlice('Session.ice')
 import Demo
 
 class HelloI(Demo.Hello):
-    def __init__(self, id):
+    def __init__(self, name, id):
+        self._name = name
         self._id = id
 
-    def sayHello(self, current=None):
-        print str(self._id) + ": Hello World!"
+    def sayHello(self, c):
+	print "Hello object #" + str(self._id) + " for session `" + self._name + "' says:\n" + \
+              "Hello " + self._name + "!"
 
 class SessionI(Demo.Session):
-    def __init__(self, adapter, timeout):
-	self._adapter = adapter
-	self._timeout = timeout
-	self._refreshTime = time.clock()
+    def __init__(self, name):
+	self._timestamp = time.clock()
+	self._name = name
         self._lock = threading.Lock()
         self._destroy = False # true if destroy() was called, false otherwise.
-        self._refreshTime = 0 # The last time the session was refreshed.
         self._nextId = 0 # The id of the next hello object. This is used for tracing purposes.
         self._objs = [] # List of per-client allocated Hello objects.
+
+        print  "The session " + self._name + " is now created."
     
-    def createHello(self, current=None):
+    def createHello(self, c):
         self._lock.acquire()
         try:
-            hello = Demo.HelloPrx.uncheckedCast(self._adapter.addWithUUID(HelloI(self._nextId)))
+            if self._destroy:
+                raise Ice.ObjectNotExistException()
+
+            hello = Demo.HelloPrx.uncheckedCast(c.adapter.addWithUUID(HelloI(self._name, self._nextId)))
             self._nextId = self._nextId + 1
             self._objs.append(hello)
             return hello
         finally:
 	    self._lock.release()
 
-    def refresh(self, current=None):
+    def refresh(self, c):
         self._lock.acquire()
         try:
-            self._refreshTime = time.clock()
-        finally:
-	    self._lock.release()
-    
-    def destroy(self, current=None):
-        self._lock.acquire()
-        try:
-            self._destroy = True
-        finally:
-	    self._lock.release()
-    
-    # Return true if the session is destroyed, false otherwise.
-    def destroyed(self):
-        self._lock.acquire()
-        try:
-            return self._destroy or (time.clock() - self._refreshTime) > self._timeout
+            if self._destroy:
+                raise Ice.ObjectNotExistException()
+            self._timestamp = time.clock()
         finally:
 	    self._lock.release()
 
-    # Called when the session is destroyed. This should release any
-    # per-client allocated resources.
-    def destroyCallback(self):
+    def getName(self, c):
         self._lock.acquire()
         try:
-            print "SessionI.destroyCallback: _destroy=" + str(self._destroy) + " timeout=" + \
-                               str((time.clock() - self._refreshTime) > self._timeout)
-            for h in self._objs:
-                try:
-                    self._adapter.remove(h.ice_getIdentity())
-                except Ice.ObjectAdapterDeactivatedException, ex:
-                    # This method is called on shutdown of the server, in
-                    # which case this exception is expected.
-                    pass
+            if self._destroy:
+                raise Ice.ObjectNotExistException()
+            return self._name
+        finally:
+	    self._lock.release()
+    
+    def destroy(self, c):
+        self._lock.acquire()
+        try:
+            if self._destroy:
+                raise Ice.ObjectNotExistException()
+            self._destroy = True
+            print "The session " + self._name + " is now destroyed."
+            try:
+                c.adapter.remove(c.id)
+                for p in self._objs:
+                    c.adapter.remove(p.ice_getIdentity())
+            except Ice.ObjectAdapterDeactivatedException, ex:
+                # This method is called on shutdown of the server, in
+                # which case this exception is expected.
+                pass
             self._objs = []
         finally:
 	    self._lock.release()
 
+    def timestamp(self):
+        self._lock.acquire()
+        try:
+            if self._destroy:
+                raise Ice.ObjectNotExistException()
+            return self._timestamp
+        finally:
+	    self._lock.release()
+        
+class SessionProxyPair:
+    def __init__(self, p, s):
+        self.proxy = p
+        self.session = s
+
 class ReapThread(threading.Thread):
-    def __init__(self, factory, timeout):
+    def __init__(self):
         threading.Thread.__init__(self)
-        self._timeout = timeout
-        self._factory = factory
+        self._timeout = 10
         self._terminated = False
         self._cond = threading.Condition()
+        self._sessions = []
 
     def run(self):
         self._cond.acquire()
@@ -95,7 +111,20 @@ class ReapThread(threading.Thread):
             while not self._terminated:
                 self._cond.wait(self._timeout)
                 if not self._terminated:
-                    self._factory.reap()
+                    for p in self._sessions:
+                        try:
+                            #
+                            # Session destruction may take time in a
+                            # real-world example. Therefore the current time
+                            # is computed for each iteration.
+                            #
+                            if (time.clock() - p.session.timestamp()) > self._timeout:
+                                name = p.proxy.getName()
+                                p.proxy.destroy()
+                                print "The session " + name + " has timed out."
+                                self._sessions.remove(p)
+                        except Ice.ObjectNotExistException:
+                            self._sessions.remove(p)
         finally:
 	    self._cond.release()
 
@@ -104,98 +133,56 @@ class ReapThread(threading.Thread):
 	try:
             self._terminated = True
 	    self._cond.notify()
-	finally:
+
+            for p in self._sessions:
+                try:
+                    p.proxy.destroy()
+                except Ice.Exception:
+                    # Ignore.
+                    pass
+            self._sessions = []
+        finally:
 	    self._cond.release()
 
-class SessionId:
-    def __init__(self, s, i):
-        self.session = s
-        self.id = i
+    def add(self, proxy, session):
+	self._cond.acquire()
+	try:
+            self._sessions.append(SessionProxyPair(proxy, session))
+        finally:
+	    self._cond.release()
 
 class SessionFactoryI(Demo.SessionFactory):
-    def __init__(self, adapter):
-	self._adapter = adapter
-        self._timeout = 10 # 10 seconds
-        self._sessions = []
+    def __init__(self, reaper):
+	self._reaper = reaper
         self._lock = threading.Lock()
-	self._reapThread = ReapThread(self, self._timeout)
-	self._reapThread.start()
 
-    def create(self, current=None):
+    def create(self, name, c):
         self._lock.acquire()
         try:
-            session = SessionI(self._adapter, self._timeout)
-            proxy = Demo.SessionPrx.uncheckedCast(self._adapter.addWithUUID(session))
-            self._sessions.append(SessionId(session, proxy.ice_getIdentity()))
+            session = SessionI(name)
+            proxy = Demo.SessionPrx.uncheckedCast(c.adapter.addWithUUID(session))
+            self._reaper.add(proxy, session)
             return proxy
         finally:
             self._lock.release()
 
-    def shutdown(self, current=None):
+    def shutdown(self, c):
 	print "Shutting down..."
-	current.adapter.getCommunicator().shutdown()
+	c.adapter.getCommunicator().shutdown()
 
-    def destroy(self):
-        self._lock.acquire()
+class SessionServer(Ice.Application):
+    def run(self, args):
+        adapter = self.communicator().createObjectAdapter("SessionFactory")
+        reaper = ReapThread()
+        reaper.start()
         try:
-            self._reapThread.terminate()
-            self._reapThread.join()
-
-            for s in self._sessions:
-                s.session.destroyCallback()
-
-                # When the session factory is destroyed the OA is
-                # deactivated and all servants have been removed so
-                # calling remove on the OA is not necessary.
-            self._sessions = []
+            adapter.add(SessionFactoryI(reaper), Ice.stringToIdentity("SessionFactory"))
+            adapter.activate()
+            self.communicator().waitForShutdown()
         finally:
-            self._lock.release()
+            reaper.terminate()
+            reaper.join()
+        return True
 
-    def reap(self):
-        self._lock.acquire()
-        try:
-            for s in self._sessions:
-                if s.session.destroyed():
-                    s.session.destroyCallback()
-                    try:
-                        self._adapter.remove(s.id)
-                    except Ice.ObjectAdapterDeactivatedException, ex:
-                        # This method can be called while the server
-                        # is shutting down, in which case this
-                        # exception is expected.
-                        pass
-                    self._sessions.remove(s)
-        finally:
-            self._lock.release()
-
-def run(argv, communicator):
-    adapter = communicator.createObjectAdapter("SessionFactory")
-    factory = SessionFactoryI(adapter)
-    try:
-        adapter.add(factory, Ice.stringToIdentity("SessionFactory"))
-        adapter.activate()
-        communicator.waitForShutdown()
-    finally:
-        factory.destroy()
-    return True
-
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
-
-if status:
-    sys.exit(0)
-else:
-    sys.exit(1)
+app = SessionServer()
+sys.exit(app.main(sys.argv, "config"))

@@ -29,7 +29,6 @@ class SessionRefreshThread(threading.Thread):
                 self._cond.wait(self._timeout)
 		if not self._terminated:
                     try:
-                        print "refresh!"
                         self._session.refresh()
                     except:
                         _logger.warning("SessionRefreshThread: " + traceback.format_exc())
@@ -45,94 +44,99 @@ class SessionRefreshThread(threading.Thread):
 	finally:
 	    self._cond.release()
 
-def menu():
-    print """
+class SessionClient(Ice.Application):
+    def run(self, args):
+        while True:
+            name = raw_input("Please enter your name ==> ").strip()
+            if len(name) != 0:
+                break
+
+        properties = self.communicator().getProperties()
+        proxyProperty = 'SessionFactory.Proxy'
+        proxy = properties.getProperty(proxyProperty)
+        if len(proxy) == 0:
+            print args[0] + ": property `" + proxyProperty + "' not set"
+            return False
+
+        base = self.communicator().stringToProxy(proxy)
+        factory = Demo.SessionFactoryPrx.checkedCast(base)
+        if not factory:
+            print args[0] + ": invalid proxy"
+            return False
+
+        session = factory.create(name)
+        try:
+            refresh = SessionRefreshThread(self.communicator().getLogger(), 5, session)
+            refresh.start()
+
+            hellos = []
+
+            self.menu()
+
+            destroy = True
+            while True:
+                try:
+                    c = raw_input("==> ")
+                    s = str(c)
+                    if s.isdigit():
+                        index = int(s)
+                        if index < len(hellos):
+                            hello = hellos[index]
+                            hello.sayHello()
+                        else:
+                            print "index is too high. " + str(len(hellos)) + " exist so far. " +\
+                                  "Use 'c' to create a new hello object."
+                    elif c == 'c':
+                        hellos.append(session.createHello())
+                    elif c == 's':
+                        factory.shutdown()
+                        break
+                    elif c == 'x':
+                        break
+                    elif c == 't':
+                        destroy = False
+                        break
+                    elif c == '?':
+                        self.menu()
+                    else:
+                        print "unknown command `" + c + "'"
+                        self.menu()
+                except EOFError:
+                    break
+            #
+            # The refresher thread must be terminated before destroy is
+            # called, otherwise it might get ObjectNotExistException. refresh
+            # is set to 0 so that if session->destroy() raises an exception
+            # the thread will not be re-terminated and re-joined.
+            #
+            refresh.terminate()
+            refresh.join()
+            refresh = None
+
+            if destroy:
+                session.destroy()
+        finally:
+            #
+            # The refresher thread must be terminated in the event of a
+            # failure.
+            #
+            if refresh != None:
+                refresh.terminate()
+                refresh.join()
+
+        return True
+
+    def menu(self):
+        print """
 usage:
-c:     create new hello
-0-9:   greet hello object
+c:     create a new per-client hello object
+0-9:   send a greeting to a hello object
 s:     shutdown server
 x:     exit
 t:     exit without destroying the session
 ?:     help
 """
 
-def run(args, communicator):
-    properties = communicator.getProperties()
-    refProperty = 'SessionFactory.Proxy'
-    proxy = properties.getProperty(refProperty)
-    if len(proxy) == 0:
-        print args[0] + ": property `" + refProperty + "' not set"
-        return False
 
-    base = communicator.stringToProxy(proxy)
-    factory = Demo.SessionFactoryPrx.checkedCast(base)
-    if not factory:
-        print args[0] + ": invalid proxy"
-        return False
-
-    try:
-        session = factory.create()
-        refresh = SessionRefreshThread(communicator.getLogger(), 5, session)
-        refresh.start()
-
-        hellos = []
-
-        menu()
-
-        c = None
-        destroy = True
-        while True:
-            try:
-                c = raw_input("==> ")
-                s = str(c)
-                if s.isdigit():
-		    index = int(s)
-                    if index < len(hellos):
-			hello = hellos[index]
-			hello.sayHello()
-		    else:
-			print "index is too high. " + str(len(hellos)) + " exist so far. " +\
-                              "Use 'c' to create a new hello object."
-                elif c == 'c':
-                    hellos.append(session.createHello())
-                elif c == 's':
-                    factory.shutdown()
-                    break
-                elif c == 'x':
-                    break
-                elif c == 't':
-                    destroy = False
-                    break
-                elif c == '?':
-                    menu()
-                else:
-                    print "unknown command `" + c + "'"
-                    menu()
-            except EOFError:
-                break
-        if destroy:
-            session.destroy()
-    finally:
-        refresh.terminate()
-        refresh.join()
-
-    return True
-
-communicator = None
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
-
-sys.exit(not status)
+app = SessionClient()
+sys.exit(app.main(sys.argv, "config"))
