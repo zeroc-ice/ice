@@ -114,15 +114,19 @@ namespace IceInternal
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_destroyed);
-	    }
 
-	    try
-	    {
-		Network.closeSocket(_fdIntrWrite);
-		Network.closeSocket(_fdIntrRead);
-	    }
-	    catch(System.Exception)
-	    {
+		/**
+		  * We cannot invoke methods on other objects in a destructor.
+		  *
+		try
+		{
+		    Network.closeSocket(_fdIntrWrite);
+		    Network.closeSocket(_fdIntrRead);
+		}
+		catch(System.Exception)
+		{
+		}
+		  */
 	    }
 	}
 #endif
@@ -895,8 +899,6 @@ namespace IceInternal
 		    }
 		}
 		
-		stream.destroy();
-       
 		#if TRACE_THREAD
 		    _threadPool.trace("run() terminated");
 		#endif

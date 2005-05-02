@@ -63,19 +63,25 @@ namespace IceInternal
 		}
 		_waitForShutdown = true;
 	    }
-	    
+
 	    //
 	    // Now we wait for deactivation of each object adapter.
 	    //
-	    foreach(Ice.ObjectAdapter adapter in _adapters.Values)
+	    if(_adapters != null)
 	    {
-		adapter.waitForDeactivate();
+		foreach(Ice.ObjectAdapter adapter in _adapters.Values)
+		{
+		    adapter.waitForDeactivate();
+		}
+
+		//
+		// We're done, now we can throw away the object adapters.
+		//
+		// We set _adapters to null because our destructor must not
+		// invoke methods on member objects.
+		//
+		_adapters = null;
 	    }
-	    
-	    //
-	    // We're done, now we can throw away the object adapters.
-	    //
-	    _adapters.Clear();
 	    
 	    lock(this)
 	    {
@@ -172,7 +178,7 @@ namespace IceInternal
 	    {
 		IceUtil.Assert.FinalizerAssert(_instance == null);
 		IceUtil.Assert.FinalizerAssert(_communicator == null);
-		IceUtil.Assert.FinalizerAssert(_adapters != null);
+		IceUtil.Assert.FinalizerAssert(_adapters == null);
 		IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
 	    }
 	}

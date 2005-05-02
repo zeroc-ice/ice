@@ -18,20 +18,7 @@ namespace IceInternal
             : base(inc)
         {
         }
-	
-        ~IncomingAsync()
-        {
-            //
-            // I must call __destroy() in the finalizer and not in
-            // __response() or __exception(), because an exception may be
-            // raised after the creation of an IncomingAsync but before
-            // calling __response() or __exception(). This can happen if
-            // an AMD operation raises an exception instead of calling
-            // ice_response() or ice_exception().
-            //
-            __destroy();
-        }
-	
+
         protected internal void __response(bool ok)
         {
 	    try

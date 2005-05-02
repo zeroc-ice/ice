@@ -32,7 +32,7 @@ namespace IceInternal
 	    _cookie = null;
 	}
 	
-	protected internal IncomingBase(IncomingBase inc)
+	protected internal IncomingBase(IncomingBase inc) // Adopts the argument. It must not be used afterwards.
 	{
 	    _current = inc._current;
 	    
@@ -57,21 +57,7 @@ namespace IceInternal
 	    _connection = inc._connection;
 	    inc._connection = null;
 	}
-	
-	//
-	// Do NOT use a finalizer, this would cause a severe performance
-	// penalty! We must make sure that __destroy() is called instead,
-	// to reclaim resources.
-	//
-	public virtual void __destroy()
-	{
-	    if(_os != null)
-	    {
-		_os.destroy();
-		_os = null;
-	    }
-	}
-	
+
 	//
 	// This function allows this object to be reused, rather than
 	// reallocated.
@@ -146,23 +132,7 @@ namespace IceInternal
 	{
 	    _is = new BasicStream(instance);
 	}
-	
-	//
-	// Do NOT user a finalizer, this would cause a sever perforrmance
-	// penalty! We must make sure that __destroy() is called instead,
-	// to reclaim resources.
-	//
-	public override void __destroy()
-	{
-	    base.__destroy();
-	    
-	    if(_is != null)
-	    {
-		_is.destroy();
-		_is = null;
-	    }
-	}
-	
+
 	//
 	// This function allows this object to be reused, rather than
 	// reallocated.

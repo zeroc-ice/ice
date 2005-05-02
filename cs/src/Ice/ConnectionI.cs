@@ -28,24 +28,24 @@ namespace Ice
 
 	public void validate()
 	{
-	    bool active;
-
-	    lock(this)
-	    {
-		Debug.Assert(_state == StateNotValidated);
-
-		if(_adapter != null)
-		{
-		    active = true; // The server side has the active role for connection validation.
-		}
-		else
-		{
-		    active = false; // The client side has the passive role for connection validation.
-		}
-	    }
-
 	    if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
 	    {
+		bool active;
+
+		lock(this)
+		{
+		    Debug.Assert(_state == StateNotValidated);
+
+		    if(_adapter != null)
+		    {
+			active = true; // The server side has the active role for connection validation.
+		    }
+		    else
+		    {
+			active = false; // The client side has the passive role for connection validation.
+		    }
+		}
+
 		try
 		{
 		    int timeout;
@@ -62,10 +62,7 @@ namespace Ice
 		    if(active)
 		    {
 			IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-			os.writeByte(IceInternal.Protocol.magic[0]);
-			os.writeByte(IceInternal.Protocol.magic[1]);
-			os.writeByte(IceInternal.Protocol.magic[2]);
-			os.writeByte(IceInternal.Protocol.magic[3]);
+			os.writeBlob(IceInternal.Protocol.magic);
 			os.writeByte(IceInternal.Protocol.protocolMajor);
 			os.writeByte(IceInternal.Protocol.protocolMinor);
 			os.writeByte(IceInternal.Protocol.encodingMajor);
@@ -98,11 +95,7 @@ namespace Ice
 			}
 			Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
 			ins.pos(0);
-			byte[] m = new byte[4];
-			m[0] = ins.readByte();
-			m[1] = ins.readByte();
-			m[2] = ins.readByte();
-			m[3] = ins.readByte();
+			byte[] m = ins.readBlob(4);
 			if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
 			   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 			{
@@ -227,14 +220,6 @@ namespace Ice
 	    }
 	}
 
-	public bool isValidated()
-	{
-	    lock(this)
-	    {
-		return _state > StateNotValidated;
-	    }
-	}
-
 	public bool isDestroyed()
 	{
 	    lock(this)
@@ -247,30 +232,17 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(_transceiver == null && _dispatchCount == 0)
-		{
-		    //
-		    // We must destroy the incoming cache. It is now not
-		    // needed anymore.
-		    //
-		    lock(_incomingCacheMutex)
-		    {
-			while(_incomingCache != null)
-			{
-			    _incomingCache.__destroy();
-			    _incomingCache = _incomingCache.next;
-			}
-		    }
-
-		    cleanup();
-
-		    return true;
-		}
-		else
+		if(_transceiver != null || _dispatchCount != 0)
 		{
 		    return false;
 		}
+
+		Debug.Assert(_state == StateClosed);
+
+		_incomingCache = null;
 	    }
+
+	    return true;
 	}
 
 	public void waitUntilHolding()
@@ -342,24 +314,11 @@ namespace Ice
 			Monitor.Wait(this);
 		    }
 		}
+
+		Debug.Assert(_state == StateClosed);
+
+		_incomingCache = null;
 	    }
-
-	    Debug.Assert(_state == StateClosed);
-
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
-	    lock(_incomingCacheMutex)
-	    {
-		while(_incomingCache != null)
-		{
-		    _incomingCache.__destroy();
-		    _incomingCache = _incomingCache.next;
-		}
-	    }
-
-	    cleanup();
 	}
 	
 	public void monitor()
@@ -492,7 +451,7 @@ namespace Ice
 	public void sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing og, bool compress)
 	{
 	    int requestId = 0;
-	    IceInternal.BasicStream stream;
+	    IceInternal.BasicStream stream = null;
 
 	    lock(this)
 	    {
@@ -597,19 +556,12 @@ namespace Ice
 		    }
 		}
 	    }
-	    finally
-	    {
-	        if(stream != null && !Object.ReferenceEquals(os, stream))
-		{
-		    stream.destroy();
-		}
-	    }
 	}
 	
 	public void sendAsyncRequest(IceInternal.BasicStream os, IceInternal.OutgoingAsync og, bool compress)
 	{
 	    int requestId = 0;
-	    IceInternal.BasicStream stream;
+	    IceInternal.BasicStream stream = null;
 
 	    lock(this)
 	    {
@@ -698,13 +650,6 @@ namespace Ice
 			Debug.Assert(o == og);
 			throw _exception;
 		    }
-		}
-	    }
-	    finally
-	    {
-	        if(!Object.ReferenceEquals(os, stream))
-		{
-		    stream.destroy();
 		}
 	    }
 	}
@@ -797,11 +742,10 @@ namespace Ice
 	    {
 		//
 		// Destroy and reset the batch stream and batch
-		// count. We cannot safe old requests in the batch
+		// count. We cannot save old requests in the batch
 		// stream, as they might be corrupted due to
 		// incomplete marshaling.
 		//
-		_batchStream.destroy();
 		_batchStream = new IceInternal.BasicStream(_instance);
 		_batchRequestNum = 0;
 		_batchRequestCompress = false;
@@ -818,7 +762,7 @@ namespace Ice
 
 	public void flushBatchRequests()
 	{
-	    IceInternal.BasicStream stream;
+	    IceInternal.BasicStream stream = null;
 
 	    lock(this)
 	    {
@@ -897,42 +841,17 @@ namespace Ice
 		    throw _exception;
 		}
 	    }
-	    finally
-	    {
-	        if(!Object.ReferenceEquals(_batchStream, stream))
-		{
-		    stream.destroy();
-		}
-	    }
 
 	    lock(this)
 	    {
 		//
 		// Reset the batch stream, and notify that flushing is over.
 		//
-		_batchStream.destroy();
 		_batchStream = new IceInternal.BasicStream(_instance);
 		_batchRequestNum = 0;
 		_batchRequestCompress = false;
 		_batchStreamInUse = false;
 		Monitor.PulseAll(this);
-	    }
-	}
-
-	public ObjectPrx createProxy(Identity ident)
-	{
-	    lock(this)
-	    {
-		//
-		// Create a reference and return a reverse proxy for this
-		// reference.
-		//
-		ConnectionI[] connections = new ConnectionI[1];
-		connections[0] = this;
-		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
-										 IceInternal.Reference.Mode.ModeTwoway,
-										 connections);
-		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
 	
@@ -963,13 +882,6 @@ namespace Ice
 		lock(this)
 		{
 		    setState(StateClosed, ex);
-		}
-	    }
-	    finally
-	    {
-	        if(stream != null && !Object.ReferenceEquals(os, stream))
-		{
-		    stream.destroy();
 		}
 	    }
 
@@ -1003,10 +915,10 @@ namespace Ice
 	
 	public void sendNoResponse()
 	{
-	    Debug.Assert(_state > StateNotValidated);
-
 	    lock(this)
 	    {
+		Debug.Assert(_state > StateNotValidated);
+
 		try
 		{
 		    if(--_dispatchCount == 0)
@@ -1056,7 +968,7 @@ namespace Ice
 		//
 		// TODO: Verify that this fix solves all cases.
 		//
-		if(_adapter != adapter)
+		if(!Object.ReferenceEquals(_adapter, adapter))
 		{
 		    while(_dispatchCount > 0)
 		    {
@@ -1089,6 +1001,23 @@ namespace Ice
 		return _adapter;
 	    }
 	}
+
+	public ObjectPrx createProxy(Identity ident)
+	{
+	    lock(this)
+	    {
+		//
+		// Create a reference and return a reverse proxy for this
+		// reference.
+		//
+		ConnectionI[] connections = new ConnectionI[1];
+		connections[0] = this;
+		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
+										 IceInternal.Reference.Mode.ModeTwoway,
+										 connections);
+		return _instance.proxyFactory().referenceToProxy(@ref);
+	    }
+	}
 	
 	//
 	// Operations from EventHandler
@@ -1096,7 +1025,7 @@ namespace Ice
 	
 	public override bool datagram()
 	{
-	    return _endpoint.datagram();
+	    return _endpoint.datagram(); // No mutex protection necessary, _endpoint is immutable.
 	}
 	
 	public override bool readable()
@@ -1106,11 +1035,8 @@ namespace Ice
 	
 	public override void read(IceInternal.BasicStream stream)
 	{
-	    if(_transceiver != null)
-	    {
-		_transceiver.read(stream, 0);
-	    }
-	    
+	    _transceiver.read(stream, 0);
+
 	    //
 	    // Updating _acmAbsoluteTimeoutMillis is to expensive here,
 	    // because we would have to acquire a lock just for this
@@ -1177,7 +1103,6 @@ namespace Ice
 			{
 			    IceInternal.BasicStream uncompressedStream
 				= stream.uncompress(IceInternal.Protocol.headerSize);
-			    stream.destroy();
 			    stream = uncompressedStream;
 			}
 			else
@@ -1405,7 +1330,6 @@ namespace Ice
 
 	    Hashtable requests = null;
 	    Hashtable asyncRequests = null;
-	    IceInternal.Incoming inc = null;
 
 	    lock(this)
 	    {
@@ -1443,12 +1367,6 @@ namespace Ice
 		    asyncRequests = _asyncRequests;
 		    _asyncRequests = new Hashtable();
 		}
-	    }
-
-	    while(inc != null)
-	    {
-		inc.__destroy();
-		inc = inc.next;
 	    }
 
 	    if(requests != null)
@@ -1583,7 +1501,7 @@ namespace Ice
 #if DEBUG
 	~ConnectionI()
 	{
-            lock(this)
+	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_transceiver == null);
@@ -1765,8 +1683,28 @@ namespace Ice
 		}
 	    }
 	    
+	    //  
+	    // We only register with the connection monitor if our new state
+	    // is StateActive. Otherwise we unregister with the connection
+	    // monitor, but only if we were registered before, i.e., if our
+	    // old state was StateActive.
+	    //
+	    IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    if(connectionMonitor != null)
+	    {   
+		if(state == StateActive)
+		{   
+		    connectionMonitor.add(this);
+		}   
+		else if(_state == StateActive)
+		{   
+		    connectionMonitor.remove(this);
+		}   
+	    }       
+
 	    _state = state;
 	    _stateTime = System.DateTime.Now.Ticks / 10;
+
 	    Monitor.PulseAll(this);
 	    
 	    if(_state == StateClosing && _dispatchCount == 0)
@@ -1796,10 +1734,7 @@ namespace Ice
 		    // message.
 		    //
 		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-		    os.writeByte(IceInternal.Protocol.magic[0]);
-		    os.writeByte(IceInternal.Protocol.magic[1]);
-		    os.writeByte(IceInternal.Protocol.magic[2]);
-		    os.writeByte(IceInternal.Protocol.magic[3]);
+		    os.writeBlob(IceInternal.Protocol.magic);
 		    os.writeByte(IceInternal.Protocol.protocolMajor);
 		    os.writeByte(IceInternal.Protocol.protocolMinor);
 		    os.writeByte(IceInternal.Protocol.encodingMajor);
@@ -1832,12 +1767,6 @@ namespace Ice
 	    {
 		_threadPool.register(_transceiver.fd(), this);
 		_registeredWithPool = true;
-		
-		IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
-		if(connectionMonitor != null)
-		{
-		    connectionMonitor.add(this);
-		}
 	    }
 	}
 	
@@ -1847,12 +1776,6 @@ namespace Ice
 	    {
 		_threadPool.unregister(_transceiver.fd());
 		_registeredWithPool = false;
-		
-		IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
-		if(connectionMonitor != null)
-		{
-		    connectionMonitor.remove(this);
-		}
 	    }
 	}
 	
@@ -1875,8 +1798,8 @@ namespace Ice
 		{
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
-		    inc.next = null;
 		    inc.reset(_instance, this, adapter, response, compress);
+		    inc.next = null;
 		}
 	    }
 	    
@@ -1892,21 +1815,6 @@ namespace Ice
 	    }
 	}
 
-	private void cleanup()
-	{
-	    //
-	    // This should be called when we know that this object is no longer used,
-	    // so it is safe to reclaim resources.
-	    //
-	    // We do this here instead of in a finalizer because a C# finalizer
-	    // cannot invoke methods on other types of objects.
-	    //
-	    _batchStream.destroy();
-	    _batchStream = null;
-
-	    base.destroy();
-	}
-	
 	private IceInternal.Transceiver _transceiver;
 	private string _desc;
 	private string _type;

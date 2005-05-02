@@ -39,14 +39,16 @@ namespace IceInternal
             {
                 _bzlibInstalled = false;
             }
+	    catch(System.EntryPointNotFoundException)
+	    {
+                _bzlibInstalled = false;
+	    }
         }
 
 	public BasicStream(IceInternal.Instance instance)
 	{
 	    _instance = instance;
-	    _bufferManager = instance.bufferManager();
-	    _buf = _bufferManager.allocate(1500);
-	    Debug.Assert(_buf != null);
+	    allocate(1500);
 	    _capacity = _buf.capacity();
 	    _limit = 0;
 	    Debug.Assert(_buf.limit() == _capacity);
@@ -65,19 +67,7 @@ namespace IceInternal
 	    _seqDataStack = null;
 	    _objectList = null;
 	}
-	
-	//
-	// Do NOT use a finalizer, this would cause a sever
-	// performance penalty! We must make sure that destroy() is
-	// called instead, to reclaim resources.
-	//
-	public virtual void destroy()
-	{
-	    Debug.Assert(_bufferManager != null);
-	    _bufferManager.reclaim(_buf);
-	    _buf = null;
-	}
-	
+
 	//
 	// This function allows this object to be reused, rather than
 	// reallocated.
@@ -165,11 +155,9 @@ namespace IceInternal
 	    if(total > _capacity)
 	    {
 		int cap2 = _capacity << 1;
-		int newCapacity = cap2 > total?cap2:total;
+		int newCapacity = cap2 > total ? cap2 : total;
 		_buf.limit(_limit);
-		_buf.position(0);
-		_buf = _bufferManager.reallocate(_buf, newCapacity);
-		Debug.Assert(_buf != null);
+		reallocate(newCapacity);
 		_capacity = _buf.capacity();
 	    }
 	    //
@@ -447,8 +435,8 @@ namespace IceInternal
 	    if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
 	    {
 		Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-		e.badMajor = eMajor < 0?eMajor + 256:eMajor;
-		e.badMinor = eMinor < 0?eMinor + 256:eMinor;
+		e.badMajor = eMajor < 0 ? eMajor + 256 : eMajor;
+		e.badMinor = eMinor < 0 ? eMinor + 256 : eMinor;
 		e.major = Protocol.encodingMajor;
 		e.minor = Protocol.encodingMinor;
 		throw e;
@@ -1775,9 +1763,7 @@ namespace IceInternal
 		    int newCapacity = cap2 > _limit ? cap2 : _limit;
 		    _buf.limit(oldLimit);
 		    int pos = _buf.position();
-		    _buf.position(0);
-		    _buf = _bufferManager.reallocate(_buf, newCapacity);
-		    Debug.Assert(_buf != null);
+		    reallocate(newCapacity);
 		    _capacity = _buf.capacity();
 		    _buf.limit(_capacity);
 		    _buf.position(pos);
@@ -1935,13 +1921,41 @@ namespace IceInternal
 	    }
 	    return id.Substring(2).Replace("::", ".");
 	}
-	
+
+        private void allocate(int size)
+        {
+            ByteBuffer buf = null;
+	    try
+	    {
+		buf = ByteBuffer.allocate(size);
+	    }
+	    catch(System.OutOfMemoryException ex)
+	    {
+		Ice.MarshalException e = new Ice.MarshalException(ex);
+		e.reason = "OutOfMemoryException occurred while allocating a ByteBuffer";
+		throw e;
+	    }
+	    buf.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
+            _buf = buf;
+        }
+
+	private void reallocate(int size)
+	{
+	    ByteBuffer old = _buf;
+	    Debug.Assert(old != null);
+
+	    allocate(size);
+	    Debug.Assert(_buf != null);
+
+	    old.position(0);
+	    _buf.put(old);
+	}
+
 	private IceInternal.Instance _instance;
-	private BufferManager _bufferManager;
 	private ByteBuffer _buf;
-	private int _capacity; // Cache capacity to avoid excessive method calls
-	private int _limit; // Cache limit to avoid excessive method calls
-	private byte[] _stringBytes; // Reusable array for reading strings
+	private int _capacity; // Cache capacity to avoid excessive method calls.
+	private int _limit; // Cache limit to avoid excessive method calls.
+	private byte[] _stringBytes; // Reusable array for reading strings.
 	
 	private sealed class ReadEncaps
 	{

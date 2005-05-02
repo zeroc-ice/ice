@@ -1271,11 +1271,11 @@ namespace IceInternal
 			{
 			    TraceLevels traceLevels = getInstance().traceLevels();
 			    Ice.Logger logger = getInstance().logger();
-			    
+
 			    if(traceLevels.retry >= 2)
 			    {
 				String s = "connection to cached endpoints failed\n" +
-					   "removing endpoints from cache and trying one more time\n" + ex;
+				           "removing endpoints from cache and trying one more time\n" + ex;
 				logger.trace(traceLevels.retryCat, s);
 			    }
 			    

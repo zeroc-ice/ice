@@ -292,6 +292,23 @@ namespace Ice
 	    _instance = new IceInternal.Instance(this, properties);
 	}
 	
+#if DEBUG
+	~CommunicatorI()
+	{
+            /**
+              * We cannot invoke methods on other objects in a destructor.
+              *
+	    lock(this)
+	    {
+		if(!_destroyed)
+		{
+		    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
+		}
+	    }
+              **/
+	}
+#endif
+
 	//
 	// Certain initialization tasks need to be completed after the
 	// constructor.

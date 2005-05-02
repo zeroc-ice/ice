@@ -236,12 +236,15 @@ namespace Ice
 	    // Now we wait for until all incoming connection factories are
 	    // finished.
 	    //
-	    int sz = _incomingConnectionFactories.Count;
-	    for(int i = 0; i < sz; ++i)
+	    if(_incomingConnectionFactories != null)
 	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		factory.waitUntilFinished();
+		int sz = _incomingConnectionFactories.Count;
+		for(int i = 0; i < sz; ++i)
+		{
+		    IceInternal.IncomingConnectionFactory factory =
+			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
+		    factory.waitUntilFinished();
+		}
 	    }
 	    
 	    //
@@ -274,7 +277,10 @@ namespace Ice
 		// We're done, now we can throw away all incoming connection
 		// factories.
 		//
-		_incomingConnectionFactories.Clear();
+		// We set _incomingConnectionFactories to null because the finalizer
+		// must not invoke methods on objects.
+		//
+		_incomingConnectionFactories = null;
 		
 		//
 		// Remove object references (some of them cyclic).
@@ -757,20 +763,37 @@ namespace Ice
 	}
 	
 #if DEBUG
-	~ObjectAdapterI()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_threadPool == null);
-		IceUtil.Assert.FinalizerAssert(_servantManager == null);
-		IceUtil.Assert.FinalizerAssert(_communicator == null);
-		IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories != null);
-		IceUtil.Assert.FinalizerAssert(_directCount == 0);
-		IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
-	    }
-	}
-#endif
-	
+        ~ObjectAdapterI()
+        {   
+            lock(this)
+            {
+		if(!_deactivated)
+		{
+		    //
+		    // It's not safe to invoke methods in a destructor.
+		    //
+		    //_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+		}
+		else if(_instance != null)
+		{
+		    //
+		    // It's not safe to invoke methods in a destructor.
+		    //
+		    //_instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+		}
+		else
+		{
+		    IceUtil.Assert.FinalizerAssert(_threadPool == null);
+		    IceUtil.Assert.FinalizerAssert(_servantManager == null);
+		    IceUtil.Assert.FinalizerAssert(_communicator == null);
+		    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
+		    IceUtil.Assert.FinalizerAssert(_directCount == 0);
+		    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
+		}
+            }   
+        }
+#endif          
+
 	private ObjectPrx newProxy(Identity ident, string facet)
 	{
 	    if(_id.Length == 0)
@@ -784,7 +807,8 @@ namespace Ice
 		// proxy for the reference.
 		//
 		IceInternal.Reference reference =
-		    _instance.referenceFactory().create(ident, new Context(), facet, IceInternal.Reference.Mode.ModeTwoway,
+		    _instance.referenceFactory().create(ident, new Context(), facet,
+							IceInternal.Reference.Mode.ModeTwoway,
 							false, _id, null, _locatorInfo, true);
 		return _instance.proxyFactory().referenceToProxy(reference);
 	    }

@@ -418,16 +418,8 @@ namespace IceInternal
         {
 	    _reference = null;
 	    _connection = null;
-            if(__is != null)
-            {
-                __is.destroy();
-                __is = null;
-            }
-            if(__os != null)
-            {
-                __os.destroy();
-                __os = null;
-            }
+	    __is = null;
+	    __os = null;
 
             Monitor.Pulse(_monitor);
         }

@@ -60,9 +60,8 @@ namespace IceInternal
 		// We want to wait until all connections are finished
 		// outside the thread synchronization.
 		//
-		// We set _connections to null rather than to a
-		// new empty list so that our finalizer does not try to invoke any
-		// methods on member objects.
+		// We set _connections to null because our destructor must not
+		// invoke methods on member objects.
 		//
 		connections = _connections;
 		_connections = null;
@@ -390,6 +389,10 @@ namespace IceInternal
 		    for(int i = 0; i < endpoints.Length; i++)
 		    {
 			Endpoint endpoint = endpoints[i];
+
+			//
+			// Modify endpoints with overrides.
+			//
 			if(defaultsAndOverrides.overrideTimeout)
 			{
 			    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
@@ -476,16 +479,13 @@ namespace IceInternal
 	    
 	    foreach(Ice.ConnectionI conn in c)
 	    {
-		if(conn.isValidated())
+		try
 		{
-		    try
-		    {
-			conn.flushBatchRequests();
-		    }
-		    catch(Ice.LocalException)
-		    {
-			// Ignore.
-		    }
+		    conn.flushBatchRequests();
+		}
+		catch(Ice.LocalException)
+		{
+		    // Ignore.
 		}
 	    }
 	}
@@ -507,6 +507,7 @@ namespace IceInternal
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_destroyed);
+		IceUtil.Assert.FinalizerAssert(_connections == null);
 	    }
 	}
 #endif
@@ -535,7 +536,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public override void destroy() // TODO: should up-call here?
+	public void destroy()
 	{
 	    lock(this)
 	    {
@@ -592,8 +593,11 @@ namespace IceInternal
 		// We want to wait until all connections are finished
 		// outside the thread synchronization.
 		//
+		// We set _connections to null because our destructor must not
+		// invoke methods on member objects.
+		//
 		connections = _connections;
-		_connections = new LinkedList();
+		_connections = null;
 	    }
 	    
 	    //
@@ -604,16 +608,6 @@ namespace IceInternal
 	    {
 		connection.waitUntilFinished();
 	    }
-
-	    //
-	    // At this point we know that this factory is no longer used, so it is
-	    // safe to invoke destroy() on the EventHandler base class to reclaim
-	    // resources.
-	    //
-	    // We call this here instead of in the finalizer because a C# finalizer
-	    // cannot invoke methods on other types of objects.
-	    //
-	    base.destroy();
 	}
 	
 	public Endpoint endpoint()
@@ -706,7 +700,6 @@ namespace IceInternal
 		    if(_state != StateActive)
 		    {
 			Thread.Sleep(0);
-			threadPool.promoteFollower();
 			return;
 		    }
 		    
@@ -842,7 +835,7 @@ namespace IceInternal
 	    _endpoint = endpoint;
 	    _adapter = adapter;
 	    _registeredWithPool = false;
-	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0?true:false;
+	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	    _connections = new LinkedList();
 	    _state = StateHolding;
 	    
@@ -904,7 +897,7 @@ namespace IceInternal
 	    {
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_acceptor == null);
-		IceUtil.Assert.FinalizerAssert(_connections != null);
+		IceUtil.Assert.FinalizerAssert(_connections == null);
 	    }
 	}
 #endif
@@ -915,8 +908,7 @@ namespace IceInternal
 	
 	private void setState(int state)
 	{
-	    if(_state == state)
-	    // Don't switch twice.
+	    if(_state == state) // Don't switch twice.
 	    {
 		return;
 	    }
@@ -925,8 +917,7 @@ namespace IceInternal
 	    {
 		case StateActive: 
 		{
-		    if(_state != StateHolding)
-		    // Can only switch from holding to active.
+		    if(_state != StateHolding) // Can only switch from holding to active.
 		    {
 			return;
 		    }
@@ -941,8 +932,7 @@ namespace IceInternal
 		
 		case StateHolding: 
 		{
-		    if(_state != StateActive)
-		    // Can only switch from active to holding.
+		    if(_state != StateActive) // Can only switch from active to holding.
 		    {
 			return;
 		    }

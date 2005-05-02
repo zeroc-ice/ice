@@ -17,11 +17,6 @@ namespace Ice
 	    _os = new IceInternal.BasicOutputStream(Util.getInstance(communicator), this);
 	}
 
-	~OutputStreamI()
-	{
-	    destroy();
-	}
-
 	public Communicator communicator()
 	{
 	    return _communicator;
@@ -170,7 +165,6 @@ namespace Ice
 	{
 	    if(_os != null)
 	    {
-		_os.destroy();
 		_os = null;
 	    }
 	}

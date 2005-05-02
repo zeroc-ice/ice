@@ -268,7 +268,7 @@ namespace IceInternal
 	    // No mutex lock, immutable.
 	    return _serverACM;
 	}
-
+	
         public void setDefaultContext(Ice.Context ctx)
 	{
 	    if(ctx == null || ctx.Count == 0)
@@ -304,12 +304,6 @@ namespace IceInternal
 	    
 	    connectionFactory.flushBatchRequests();
 	    adapterFactory.flushBatchRequests();
-	}
-	
-	public BufferManager bufferManager()
-	{
-	    // No mutex lock, immutable.
-	    return _bufferManager;
 	}
 	
 	//
@@ -430,8 +424,6 @@ namespace IceInternal
 		_servantFactoryManager = new ObjectFactoryManager();
 		
 		_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-		
-		_bufferManager = new BufferManager(); // Must be created before the ThreadPool
 	    }
 	    catch(Ice.LocalException ex)
 	    {
@@ -670,7 +662,6 @@ namespace IceInternal
 	private Ice.PluginManager _pluginManager;
 	private Ice.Context _defaultContext;
 	private static Ice.Context _emptyContext = new Ice.Context();
-	private BufferManager _bufferManager; // Immutable, not reset by destroy().
 	private static bool _printProcessIdDone = false;
 
         private static bool _oneOffDone = false;

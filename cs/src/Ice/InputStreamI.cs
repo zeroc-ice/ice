@@ -23,11 +23,6 @@ namespace Ice
 	    buf.position(0);
 	}
 
-	~InputStreamI()
-	{
-	    destroy();
-	}
-
 	public Communicator communicator()
 	{
 	    return _communicator;
@@ -197,7 +192,6 @@ namespace Ice
 	{
 	    if(_is != null)
 	    {
-		_is.destroy();
 		_is = null;
 	    }
 	}

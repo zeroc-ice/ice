@@ -200,6 +200,7 @@ public sealed class ServantManager
 	_adapterName = adapterName;
     }
     
+#if DEBUG
     ~ServantManager()
     {
 	//
@@ -212,6 +213,7 @@ public sealed class ServantManager
 	    //IceUtil.Assert.FinalizerAssert(_instance == null);
 	//}
     }
+#endif
     
     //
     // Only for use by Ice.ObjectAdapterI.

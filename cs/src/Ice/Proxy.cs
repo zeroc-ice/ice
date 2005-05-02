@@ -1141,6 +1141,7 @@ namespace Ice
                     outg = __outgoingCache;
                     __outgoingCache = __outgoingCache.next;
                     outg.reset(operation, mode, context);
+		    outg.next = null;
                 }
             }
 	    
@@ -1155,24 +1156,9 @@ namespace Ice
                 __outgoingCache = outg;
             }
         }
-	
-        ~_ObjectDelM()
-        {
-	    lock(this)
-	    {
-		while(__outgoingCache != null)
-		{
-		    IceInternal.Outgoing next = __outgoingCache.next;
-		    __outgoingCache.destroy();
-		    __outgoingCache.next = null;
-		    __outgoingCache = next;
-		}
-	    }
-        }
-	
+
         private IceInternal.Outgoing __outgoingCache;
         private System.Object __outgoingMutex;
         protected bool __compress;
     }
-
 }
