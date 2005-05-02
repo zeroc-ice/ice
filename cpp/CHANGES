@@ -1,6 +1,11 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Fixed bug with the random selection of an endpoint for a proxy with
+  multiple endpoints configured. The random number generator used
+  by GCC was not being seeded, causing the selection order to always
+  be the same.
+
 - Fixed Slice compilers to allow file names containing whitespace.
 
 - Fixed a thread pool bug on Win32 in which the file descriptors for
