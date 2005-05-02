@@ -65,8 +65,8 @@ class SessionClient extends Ice.Application
     {
         System.out.println(
 	    "usage:\n" +
-	    "c:     create new hello\n" +
-	    "0-9:   greet hello object\n" +
+	    "c:     create a new per-client hello object\n" +
+	    "0-9:   send a greeting to a hello object\n" +
 	    "s:     shutdown server\n" +
 	    "x:     exit\n" +
 	    "t:     exit without destroying the session\n" +
