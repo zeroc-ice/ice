@@ -41,8 +41,9 @@ ReapThread::run()
 		    //
 		    if((IceUtil::Time::now() - p->session->timestamp()) > _timeout)
 		    {
+			string name = p->proxy->getName();
 			p->proxy->destroy();
-			cout << "The session " << p->proxy->getName() << " has timed out." << endl;
+			cout << "The session " << name << " has timed out." << endl;
     	    	    	p = _sessions.erase(p);
 		    }
 		    else
