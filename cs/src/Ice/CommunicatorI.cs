@@ -295,17 +295,13 @@ namespace Ice
 #if DEBUG
 	~CommunicatorI()
 	{
-            /**
-              * We cannot invoke methods on other objects in a destructor.
-              *
 	    lock(this)
 	    {
-		if(!_destroyed)
+		if(!_destroyed && ~Environment.HasShutdownStarted)
 		{
 		    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
 		}
 	    }
-              **/
 	}
 #endif
 

@@ -108,16 +108,17 @@ namespace IceInternal
 	    }
 	}
 	
-#if DEBUG
 	~ThreadPool()
 	{
+#if DEBUG
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(_destroyed);
+	    }
+#endif
 
-		/**
-		  * We cannot invoke methods on other objects in a destructor.
-		  *
+	    if(!Environment.HasShutdownStarted)
+	    {
 		try
 		{
 		    Network.closeSocket(_fdIntrWrite);
@@ -126,10 +127,8 @@ namespace IceInternal
 		catch(System.Exception)
 		{
 		}
-		  */
 	    }
 	}
-#endif
 	
 	public void destroy()
 	{

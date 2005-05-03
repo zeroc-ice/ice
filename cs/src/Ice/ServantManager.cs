@@ -200,7 +200,7 @@ public sealed class ServantManager
 	_adapterName = adapterName;
     }
     
-#if DEBUG
+#if FALSE
     ~ServantManager()
     {
 	//

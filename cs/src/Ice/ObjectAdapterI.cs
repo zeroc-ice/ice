@@ -767,19 +767,13 @@ namespace Ice
         {   
             lock(this)
             {
-		if(!_deactivated)
+		if(!_deactivated && !Environment.HasShutdownStarted)
 		{
-		    //
-		    // It's not safe to invoke methods in a destructor.
-		    //
-		    //_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+		    _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
 		}
-		else if(_instance != null)
+		else if(_instance != null && !Environment.HasShutdownStarted)
 		{
-		    //
-		    // It's not safe to invoke methods in a destructor.
-		    //
-		    //_instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+		    _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
 		}
 		else
 		{
