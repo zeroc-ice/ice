@@ -20,16 +20,15 @@ namespace IceUtil
 	// order of finalization is undefined. So, we don't run assertions
         // once shutdown has started. Under Mono, this doesn't work:
 	// HasShutdownStarted becomes true eventually, but not until far too
-	// late. Sor, under Mono, assertions in finalizers are not checked
+	// late. So, under Mono, assertions in finalizers are not checked
 	// at all :-(
 	//
 	public static void
 	FinalizerAssert(bool b)
 	{
-	    if(!b && AssemblyUtil._platform == AssemblyUtil.Platform.Windows && !System.Environment.HasShutdownStarted)
+	    if(!b && AssemblyUtil._runtime == AssemblyUtil.Runtime.DotNET && !System.Environment.HasShutdownStarted)
             {
                     System.Console.Error.WriteLine("Assertion failure:");
-
                     System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(true);
 	            System.Console.Error.WriteLine(st);
             }
