@@ -58,6 +58,7 @@ main(int argc, char* argv[])
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("E");
     opts.addOpt("s", "stand-alone");
     opts.addOpt("", "no-globals");
     opts.addOpt("", "chapter");
@@ -112,7 +113,7 @@ main(int argc, char* argv[])
 	    cppArgs += " -I" + *i;
 	}
     }
-    preprocess = opts.isSet("-E");
+    preprocess = opts.isSet("E");
     standAlone = opts.isSet("s") || opts.isSet("stand-alone");
     noGlobals = opts.isSet("no-globals");
     chapter = opts.isSet("chapter");
