@@ -313,6 +313,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackSS", "demo\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionC", "demo\Ice\session\sessionC.csproj", "{36D1C0EC-E905-445F-90D9-9F9EAE31899A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionS", "demo\Ice\session\sessionS.csproj", "{79983842-2717-4F99-8691-A785C7833AD0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -583,6 +591,14 @@ Global
 		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Debug.Build.0 = Debug|.NET
 		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Release.ActiveCfg = Release|.NET
 		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Release.Build.0 = Release|.NET
+		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Debug.ActiveCfg = Debug|.NET
+		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Debug.Build.0 = Debug|.NET
+		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Release.ActiveCfg = Release|.NET
+		{36D1C0EC-E905-445F-90D9-9F9EAE31899A}.Release.Build.0 = Release|.NET
+		{79983842-2717-4F99-8691-A785C7833AD0}.Debug.ActiveCfg = Debug|.NET
+		{79983842-2717-4F99-8691-A785C7833AD0}.Debug.Build.0 = Debug|.NET
+		{79983842-2717-4F99-8691-A785C7833AD0}.Release.ActiveCfg = Release|.NET
+		{79983842-2717-4F99-8691-A785C7833AD0}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

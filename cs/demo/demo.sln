@@ -107,6 +107,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackSSD", "Glac
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionSD", "Ice\session\sessionSD.csproj", "{228B2AFC-57DC-4E1F-8335-D0CD657A987B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionCD", "Ice\session\sessionCD.csproj", "{228B2AFC-57DC-4E1F-8335-D0CD657A987B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -221,6 +229,14 @@ Global
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Debug.Build.0 = Debug|.NET
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release.ActiveCfg = Release|.NET
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release.Build.0 = Release|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.ActiveCfg = Debug|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.Build.0 = Debug|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.ActiveCfg = Release|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.Build.0 = Release|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.ActiveCfg = Debug|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.Build.0 = Debug|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.ActiveCfg = Release|.NET
+		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
