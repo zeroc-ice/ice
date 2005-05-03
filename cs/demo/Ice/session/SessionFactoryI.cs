@@ -12,14 +12,12 @@ using System;
 
 public class SessionFactoryI : _SessionFactoryDisp
 {
-    public
-    SessionFactoryI(ReapThread reapThread)
+    public SessionFactoryI(ReapThread reapThread)
     {
 	_reaper = reapThread;
     }
 
-    public override SessionPrx
-    create(string name, Ice.Current c)
+    public override SessionPrx create(string name, Ice.Current c)
     {
 	SessionI session = new SessionI(name);
 	SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(session));
@@ -27,8 +25,7 @@ public class SessionFactoryI : _SessionFactoryDisp
 	return proxy;
     }
 
-    public override void
-    shutdown(Ice.Current c)
+    public override void shutdown(Ice.Current c)
     {
 	Console.Out.WriteLine("Shutting down...");
 	c.adapter.getCommunicator().shutdown();

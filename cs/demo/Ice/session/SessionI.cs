@@ -13,8 +13,7 @@ using System.Collections;
 
 public class SessionI : _SessionDisp
 {
-    public
-    SessionI(string name)
+    public SessionI(string name)
     {
 	_name = name;
 	_timestamp = System.DateTime.Now;
@@ -25,8 +24,7 @@ public class SessionI : _SessionDisp
 	Console.Out.WriteLine("The session " + _name + " is now created.");
     }
 
-    public override HelloPrx
-    createHello(Ice.Current c)
+    public override HelloPrx createHello(Ice.Current c)
     {
 	lock(this)
 	{
@@ -41,8 +39,7 @@ public class SessionI : _SessionDisp
 	}
     }
 
-    public override void
-    refresh(Ice.Current c)
+    public override void refresh(Ice.Current c)
     {
 	lock(this)
 	{
@@ -55,8 +52,7 @@ public class SessionI : _SessionDisp
 	}
     }
 
-    public override string
-    getName(Ice.Current c)
+    public override string getName(Ice.Current c)
     {
 	lock(this)
 	{
@@ -69,8 +65,7 @@ public class SessionI : _SessionDisp
 	}
     }
 
-    public override void
-    destroy(Ice.Current c)
+    public override void destroy(Ice.Current c)
     {
 	lock(this)
 	{
@@ -100,8 +95,7 @@ public class SessionI : _SessionDisp
 	_objs.Clear();
     }
 
-    public System.DateTime
-    timestamp() 
+    public System.DateTime timestamp() 
     {
 	lock(this)
 	{

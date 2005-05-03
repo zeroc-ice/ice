@@ -297,7 +297,7 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(!_destroyed && ~Environment.HasShutdownStarted)
+		if(!_destroyed && !System.Environment.HasShutdownStarted)
 		{
 		    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
 		}

@@ -24,8 +24,7 @@ class SessionClient : Ice.Application
 	    _terminated = false;
 	}
 
-	public void
-	run()
+	public void run()
 	{
 	    lock(this)
 	    {
@@ -48,8 +47,7 @@ class SessionClient : Ice.Application
 	    }
 	}
 
-	public void
-	terminate()
+	public void terminate()
 	{
 	    lock(this)
 	    {
@@ -126,7 +124,7 @@ class SessionClient : Ice.Application
 		    if(index < hellos.Count)
 		    {
 			HelloPrx hello = (HelloPrx)hellos[index];
-				hello.sayHello();
+		        hello.sayHello();
 		    }
 		    else
 		    {

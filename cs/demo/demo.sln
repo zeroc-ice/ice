@@ -107,11 +107,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackSSD", "Glac
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionSD", "Ice\session\sessionSD.csproj", "{228B2AFC-57DC-4E1F-8335-D0CD657A987B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionCD", "Ice\session\sessionCD.csproj", "{C735D2B4-548E-4B46-BA4A-B081EFB728AA}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionCD", "Ice\session\sessionCD.csproj", "{228B2AFC-57DC-4E1F-8335-D0CD657A987B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionSD", "Ice\session\sessionSD.csproj", "{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -229,14 +229,14 @@ Global
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Debug.Build.0 = Debug|.NET
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release.ActiveCfg = Release|.NET
 		{B41A6B60-9582-4814-9291-4758BEF1E9CC}.Release.Build.0 = Release|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.ActiveCfg = Debug|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.Build.0 = Debug|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.ActiveCfg = Release|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.Build.0 = Release|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.ActiveCfg = Debug|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Debug.Build.0 = Debug|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.ActiveCfg = Release|.NET
-		{228B2AFC-57DC-4E1F-8335-D0CD657A987B}.Release.Build.0 = Release|.NET
+		{C735D2B4-548E-4B46-BA4A-B081EFB728AA}.Debug.ActiveCfg = Debug|.NET
+		{C735D2B4-548E-4B46-BA4A-B081EFB728AA}.Debug.Build.0 = Debug|.NET
+		{C735D2B4-548E-4B46-BA4A-B081EFB728AA}.Release.ActiveCfg = Release|.NET
+		{C735D2B4-548E-4B46-BA4A-B081EFB728AA}.Release.Build.0 = Release|.NET
+		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Debug.ActiveCfg = Debug|.NET
+		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Debug.Build.0 = Debug|.NET
+		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Release.ActiveCfg = Release|.NET
+		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

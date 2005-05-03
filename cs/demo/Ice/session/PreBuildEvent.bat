@@ -1,5 +1,5 @@
 @echo off
-C:\src\icecs\demo\\..\bin\generatecs.exe C:\src\icecs\demo\ C:\src\icecs\demo\Ice\session\ sessionSD
+C:\cygwin\home\michi\src\icecs\\bin\generatecs.exe C:\cygwin\home\michi\src\icecs\ C:\cygwin\home\michi\src\icecs\demo\Ice\session\ sessionS
 if errorlevel 1 goto CSharpReportError
 goto CSharpEnd
 :CSharpReportError

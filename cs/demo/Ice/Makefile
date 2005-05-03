@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= bidir callback hello latency nested throughput value invoke
+SUBDIRS		= bidir callback hello invoke latency nested session throughput value
 
 install::
 	@if test ! -d $(prefix) ; \

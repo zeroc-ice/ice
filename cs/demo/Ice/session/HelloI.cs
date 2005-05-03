@@ -12,15 +12,13 @@ using System;
 
 public class HelloI : _HelloDisp
 {
-    public
-    HelloI(string name, int id)
+    public HelloI(string name, int id)
     {
 	_name =  name;
 	_id = id;
     }
 
-    public override void
-    sayHello(Ice.Current c) 
+    public override void sayHello(Ice.Current c) 
     {
 	Console.Out.WriteLine("Hello object #" + _id + " for session `" + _name + "' says:\n" +
 			      "Hello " + _name + "!");

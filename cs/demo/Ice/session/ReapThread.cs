@@ -16,8 +16,7 @@ public class ReapThread
 {
     public class SessionProxyPair
     {
-	public
-	SessionProxyPair(SessionPrx p, SessionI s)
+	public SessionProxyPair(SessionPrx p, SessionI s)
 	{
 	    proxy = p;
 	    session = s;
@@ -27,16 +26,14 @@ public class ReapThread
 	public SessionI session;
     }
 
-    public
-    ReapThread()
+    public ReapThread()
     {
     	_timeout = System.TimeSpan.FromSeconds(10);
 	_terminated = false;
 	_sessions = new ArrayList();
     }
 
-    public void
-    run()
+    public void run()
     {
 	lock(this)
 	{
@@ -77,8 +74,7 @@ public class ReapThread
 	}
     }
 
-    public void
-    terminate()
+    public void terminate()
     {
 	lock(this)
 	{
@@ -101,8 +97,7 @@ public class ReapThread
 	}
     }
 
-    public void
-    add(SessionPrx proxy, SessionI session)
+    public void add(SessionPrx proxy, SessionI session)
     {
 	lock(this)
 	{
