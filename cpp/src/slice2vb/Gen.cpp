@@ -3591,7 +3591,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "End Function";
 
 
-    _out << sp << nl << "Public Shared Function checkedCast(ByVal B As Ice.ObjectPrx, ByVal f As String) As "
+    _out << sp << nl << "Public Shared Function checkedCast(ByVal b As Ice.ObjectPrx, ByVal f As String) As "
          << name << "Prx";
     _out.inc();
     _out << nl << "If b Is Nothing Then";
@@ -3616,7 +3616,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out.dec();
     _out << nl << "End Function";
 
-    _out << sp << nl << "Public Shared Function checkedCast(ByVal B As Ice.ObjectPrx, ByVal f As String, "
+    _out << sp << nl << "Public Shared Function checkedCast(ByVal b As Ice.ObjectPrx, ByVal f As String, "
          << "ByVal ctx As Ice.Context) As " << name << "Prx";
     _out.inc();
     _out << nl << "If b Is Nothing Then";
