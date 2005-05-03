@@ -443,6 +443,12 @@ def copyExpatFiles(expatLocation, version):
 def makePHPbinary(sources, buildDir, installDir, version, clean):
     """ Create the IcePHP binaries and install to Ice installation directory """
 
+    platform = getPlatform()
+    if platform == 'aix':
+	'''The primary purpose here is to create a shared library.  Since IcePHP is not supported as a shared library
+	on this platform, we don't bother.'''
+	return
+
     #
     # We currently run configure each time even if clean=false.  This is because a large part of the IcePHP build
     # process is actually the configure step.  This could probably be bypassed afterwards.
@@ -526,12 +532,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     else:
 	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure')
 
-    if platform == 'aix':
-	#
-	# Shared library isn't supported on AIX.  XXX Does this platform have libxml installed?
-	#
-	os.system('./configure --disable-libxml --with-ice=' + installDir + '/Ice-' + version)
-    elif platform == 'hpux':
+    if platform == 'hpux':
 	#
 	# Our HP-UX platform doesn't seem to have a libxml installed.
 	#
@@ -666,56 +667,6 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 		    print line.rstrip('\n')
 		makefile.close()
 
-
-	elif platform == 'aix':
-	    xtraCXXFlags = True
-	    xtraCFlags = True
-	    replacingCC = False
-	    makefile = fileinput.input('Makefile', True)
-	    for line in makefile:
-		if not replacingCC:
-		    if line.startswith('EXTRA_CXXFLAGS ='):
-			xtraCXXFlags = False
-			print line.rstrip('\n') + ' -brtl -qrtti=all -qstaticinline -D_LARGE_FILES'
-		    if line.startswith('EXTRA_CFLAGS ='):
-			xtraCFlags = False
-			print line.rstrip('\n') + ' -DIEEE_BIG_ENDIAN'
-		    elif line.find('BUILD_CLI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.find('BUILD_CGI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.startswith('libphp5.la:'):
-			replacingCC = True
-			print line.strip('\n')
-		    elif line.startswith('libs/libphp5.bundle:'):
-			replacingCC = True
-			print line.strip('\n')
-		    else:
-			print line.rstrip('\n')
-		else:
-		    if len(line.rstrip('\n').strip()) == 0:
-			replacingCC = False
-			print 
-		    else:
-			print line.strip('\n'). replace('$(CC)', '$(CXX)')
-
-	    makefile.close()
-
-	    if xtraCXXFlags or xtraCFlags:
-
-		start = True
-		makefile = fileinput.input('Makefile', True)
-		for line in makefile:
-		    if start:
-			if xtraCXXFlags:
-			    print 'EXTRA_CXXFLAGS =  -brtl -qrtti=all -qstaticinline -D_LARGE_FILES'
-			if xtraCFlags:
-			    print 'EXTRA_CFLAGS = -DIEEE_BIG_ENDIAN'
-			start = False
-		    print line.rstrip('\n')
-		makefile.close()
-
-
 	elif platform == 'macosx':
 	    replacingCC = False
 	    makefile = fileinput.input('Makefile', True)
@@ -742,9 +693,11 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 
 	    makefile.close()
 
-    shutil.copy(phpDir + '/modules/ice.so', installDir + '/Ice-' + version + '/lib/icephp.so')
-
     os.system('gmake')
+
+    moduleName = '%s/modules/ice%s' % (phpDir, getPlatformLibExtension())
+    shutil.copy(moduleName, '%s/Ice-%s/lib/icephp%s' % (installDir, version, getPlatformLibExtension()))
+
     os.chdir(cwd)
 
 def usage():
@@ -1045,16 +998,17 @@ def main():
 	#
 	# I need to get third party libraries.
 	#
-	dbLocation = buildEnvironment['DB_HOME']
+	dbLocation = os.environ['DB_HOME']
 	dbFiles = getDBfiles(dbLocation)
 	for f in dbFiles:
-	    shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
+            if not os.path.exists('Ice-' + version + '/' + f.strip()):
+                shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
 
     if getPlatform() == 'macosx':
-	copyExpatFiles(buildEnvironment['EXPAT_HOME'], version)	
+	copyExpatFiles(os.environ['EXPAT_HOME'], version)	
 
     if getPlatform() == 'hpux':
-	ssl = buildEnvironment['OPENSSL_HOME']
+	ssl = os.environ['OPENSSL_HOME']
 	os.system('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
 	os.system('cp -R ' + ssl + '/include/* Ice-' + version + '/include')
 	os.system('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
