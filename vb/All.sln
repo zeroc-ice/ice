@@ -202,6 +202,18 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSS", "demo\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionC", "demo\Ice\session\sessionC.vbproj", "{91EA579C-141C-40D5-824C-ED86327AD522}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionS", "demo\Ice\session\sessionS.vbproj", "{1DDDE220-DA51-4EBC-8920-27E6737441F0}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommon", "demo\Ice\session\sessionCommon.vbproj", "{443FF424-742D-4753-B785-0854BEFCCBF5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -376,6 +388,18 @@ Global
 		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Debug.Build.0 = Debug|.NET
 		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Release.ActiveCfg = Release|.NET
 		{8042C825-DA24-4908-A54C-C3FF3C94A120}.Release.Build.0 = Release|.NET
+		{91EA579C-141C-40D5-824C-ED86327AD522}.Debug.ActiveCfg = Debug|.NET
+		{91EA579C-141C-40D5-824C-ED86327AD522}.Debug.Build.0 = Debug|.NET
+		{91EA579C-141C-40D5-824C-ED86327AD522}.Release.ActiveCfg = Release|.NET
+		{91EA579C-141C-40D5-824C-ED86327AD522}.Release.Build.0 = Release|.NET
+		{1DDDE220-DA51-4EBC-8920-27E6737441F0}.Debug.ActiveCfg = Debug|.NET
+		{1DDDE220-DA51-4EBC-8920-27E6737441F0}.Debug.Build.0 = Debug|.NET
+		{1DDDE220-DA51-4EBC-8920-27E6737441F0}.Release.ActiveCfg = Release|.NET
+		{1DDDE220-DA51-4EBC-8920-27E6737441F0}.Release.Build.0 = Release|.NET
+		{443FF424-742D-4753-B785-0854BEFCCBF5}.Debug.ActiveCfg = Debug|.NET
+		{443FF424-742D-4753-B785-0854BEFCCBF5}.Debug.Build.0 = Debug|.NET
+		{443FF424-742D-4753-B785-0854BEFCCBF5}.Release.ActiveCfg = Release|.NET
+		{443FF424-742D-4753-B785-0854BEFCCBF5}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
