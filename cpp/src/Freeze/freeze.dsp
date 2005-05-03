@@ -298,6 +298,7 @@ SOURCE=..\..\slice\freeze\CatalogData.ice
 
 !IF  "$(CFG)" == "freeze - Win32 Release"
 
+USERDEP__CATAL="..\..\bin\slice2cpp.exe"	"..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\CatalogData.ice
 
@@ -323,6 +324,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
+USERDEP__CATAL="..\..\bin\slice2cpp.exe"	"..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\CatalogData.ice
 
@@ -373,7 +375,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__CONNE="..\..\bin\slice2cpp.exe"	
+USERDEP__CONNE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\Connection.ice
 
@@ -416,7 +418,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__CONNEC="..\..\bin\slice2cpp.exe"	
+USERDEP__CONNEC="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\ConnectionF.ice
 
@@ -484,7 +486,7 @@ SOURCE=..\..\slice\freeze\Evictor.ice
 
 !IF  "$(CFG)" == "freeze - Win32 Release"
 
-USERDEP__EVICT="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__EVICT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\Evictor.ice
 
@@ -502,7 +504,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__EVICT="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+USERDEP__EVICT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\Evictor.ice
 
@@ -540,7 +542,7 @@ InputPath=..\..\slice\freeze\EvictorF.ice
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	
+USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\EvictorF.ice
 
@@ -621,7 +623,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	
+USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\Exception.ice
 
@@ -664,7 +666,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
-USERDEP__TRANS="..\..\bin\slice2cpp.exe"	
+USERDEP__TRANS="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\freeze\Transaction.ice
 
