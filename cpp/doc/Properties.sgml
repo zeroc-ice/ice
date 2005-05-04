@@ -3451,10 +3451,9 @@ Glacier2.Client.Trace.Reject=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Glacier2; router logs a trace message whenever a request from a
-client was rejected because its identity category did not match one of
-the entries in <literal>REVISIT</literal>.
-The default value is 0.
+the &Glacier2; router logs a trace message whenever it rejects a client's
+request because its identity category did not match one of the entries in
+<literal>Glacier2.AllowCategories</literal>. The default value is 0.
 </para>
 </section>
 </section>
@@ -3646,24 +3645,6 @@ Glacier2.Server.Trace.Override=<replaceable>num</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the &Glacier2; router logs a trace message whenever a request was
 overridden. The default value is 0.
-</para>
-</section>
-</section>
-
-<section><title>Glacier2.Server.Trace.Reject</title>
-<section><title>Synopsis</title>
-<synopsis>
-Glacier2.Server.Trace.Reject=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the &Glacier2; router logs a trace message whenever a request from a
-server was rejected because its identity category did not match one of
-the entries in <literal>REVISIT</literal>.
-The default value is 0.
 </para>
 </section>
 </section>
