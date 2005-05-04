@@ -38,6 +38,21 @@ def find(path, patt):
     return result
 
 #
+# Fix version in README, INSTALL files
+#   
+def fixVersion(files, version):
+
+    for file in files:
+        origfile = file + ".orig"
+        os.rename(file, origfile)
+        oldFile = open(origfile, "r")
+        newFile = open(file, "w")
+        newFile.write(re.sub("@ver@", version, oldFile.read()))
+        newFile.close()
+        oldFile.close()
+        os.remove(origfile)
+
+#
 # Are we on Windows?
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
@@ -199,6 +214,10 @@ os.chdir(cwd)
 config = open(os.path.join("icepy", "config", "Make.rules"), "r")
 version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
 
+print "Fixing version in README and INSTALL files..."
+fixVersion(find("icepy", "README*"), version)
+fixVersion(find("icepy", "INSTALL*"), version)
+
 #
 # Create source archives.
 #
@@ -220,7 +239,7 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
-#shutil.copyfile(os.path.join(icever, "CHANGES"), "IcePy-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icever, "CHANGES"), "IcePy-" + version + "-CHANGES")
 
 #
 # Done.
