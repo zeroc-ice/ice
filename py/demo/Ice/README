@@ -36,3 +36,9 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
+
+- session
+
+  This demo shows how to create a session manager and sessions so
+  that client specific server side resources are cleaned up when the client
+  shutsdown or crashes.
