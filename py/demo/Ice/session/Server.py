@@ -24,7 +24,7 @@ class HelloI(Demo.Hello):
 
 class SessionI(Demo.Session):
     def __init__(self, name):
-	self._timestamp = time.clock()
+	self._timestamp = time.time()
 	self._name = name
         self._lock = threading.Lock()
         self._destroy = False # true if destroy() was called, false otherwise.
@@ -51,7 +51,7 @@ class SessionI(Demo.Session):
         try:
             if self._destroy:
                 raise Ice.ObjectNotExistException()
-            self._timestamp = time.clock()
+            self._timestamp = time.time()
         finally:
 	    self._lock.release()
 
@@ -118,7 +118,7 @@ class ReapThread(threading.Thread):
                             # real-world example. Therefore the current time
                             # is computed for each iteration.
                             #
-                            if (time.clock() - p.session.timestamp()) > self._timeout:
+                            if (time.time() - p.session.timestamp()) > self._timeout:
                                 name = p.proxy.getName()
                                 p.proxy.destroy()
                                 print "The session " + name + " has timed out."
