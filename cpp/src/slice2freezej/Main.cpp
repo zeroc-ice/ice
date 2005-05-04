@@ -349,8 +349,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 
 	    out << nl << "IceInternal.BasicStream __os = "
 		<< "new IceInternal.BasicStream(Ice.Util.getInstance(__communicator));";
-	    out << nl << "try";
-	    out << sb;
 	    int iter = 0;
 	    writeMarshalUnmarshalCode(out, "", indexTypes[i], valueS, true, iter, false);
 	    if(indexTypes[i]->usesClasses())
@@ -361,11 +359,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 	    out << nl << "byte[] __r = new byte[__buf.limit()];";
 	    out << nl << "__buf.get(__r);";
 	    out << nl << "return __r;";
-	    out << eb;
-	    out << nl << "finally";
-	    out << sb;
-	    out << nl << "__os.destroy();";
-	    out << eb;
 	}
 	out << eb;
     }
@@ -464,8 +457,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << nl << "assert(o instanceof " << typeS << ");";
         out << nl << "IceInternal.BasicStream __os = "
             << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
-        out << nl << "try";
-        out << sb;
         if(encaps)
         {
             out << nl << "__os.startWriteEncaps();";
@@ -485,11 +476,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << nl << "__buf.get(__r);";
         out << nl << "return __r;";
         out << eb;
-        out << nl << "finally";
-        out << sb;
-        out << nl << "__os.destroy();";
-        out << eb;
-        out << eb;
 
         //
         // decode
@@ -502,8 +488,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             out << nl << "__is.sliceObjects(false);";
         }
-        out << nl << "try";
-        out << sb;
         out << nl << "__is.resize(b.length, true);";
         out << nl << "java.nio.ByteBuffer __buf = __is.prepareRead();";
         out << nl << "__buf.position(0);";
@@ -594,11 +578,6 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         {
             out << nl << "return __r;";
         }
-        out << eb;
-        out << nl << "finally";
-        out << sb;
-        out << nl << "__is.destroy();";
-        out << eb;
         out << eb;
     }
 
@@ -827,8 +806,6 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     out << sb;
     out << nl << "IceInternal.BasicStream __os = "
 	<< "new IceInternal.BasicStream(Ice.Util.getInstance(communicator()));";
-    out << nl << "try";
-    out << sb;
     int iter = 0;
     writeMarshalUnmarshalCode(out, "", dataMember->type(), valueS, true, iter, false);
     if(type->usesClasses())
@@ -839,11 +816,6 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     out << nl << "byte[] __r = new byte[__buf.limit()];";
     out << nl << "__buf.get(__r);";
     out << nl << "return __r;";
-    out << eb;
-    out << nl << "finally";
-    out << sb;
-    out << nl << "__os.destroy();";
-    out << eb;
     out << eb;
 
     out << eb;
