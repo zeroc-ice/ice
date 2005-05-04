@@ -19,8 +19,8 @@ Class SessionClient
 
         Public Sub New(ByVal logger As Ice.Logger, ByVal timeout As Integer, ByVal session As SessionPrx)
             _logger = logger
-            _session = Session
-            _timeout = Timeout
+            _session = session
+            _timeout = timeout
             _terminated = False
         End Sub
 
@@ -83,7 +83,7 @@ Class SessionClient
 
         Dim session As SessionPrx = factory.create(name)
 
-        Dim refresh As SessionRefreshThread = New SessionRefreshThread(communicator().getLogger(), 5000, Session)
+        Dim refresh As SessionRefreshThread = New SessionRefreshThread(communicator().getLogger(), 5000, session)
         Dim refreshThread As Thread = New Thread(New ThreadStart(AddressOf refresh.run))
         refreshThread.Start()
 

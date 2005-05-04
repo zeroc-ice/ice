@@ -201,14 +201,17 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "glacier2callbackSSD", "Glac
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommonD", "Ice\session\sessionCommonD.vbproj", "{53595BE6-647C-4F3E-9EE8-E8BFA2F95E15}"
 	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCD", "Ice\session\sessionCD.vbproj", "{9A8AE05D-ADD2-45FC-B11D-8AC3FB40D9A3}"
 	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionSD", "Ice\session\sessionSD.vbproj", "{538DC68C-250A-4D9B-9C84-457D80DD6F1D}"
 	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
 Global

@@ -62,14 +62,14 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "helloCommon"
-                    Project = "{443FF424-742D-4753-B785-0854BEFCCBF5}"
-                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-                />
-                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
                     HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                />
+                <Reference
+                    Name = "helloCommon"
+                    Project = "{443FF424-742D-4753-B785-0854BEFCCBF5}"
+                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
                 />
             </References>
             <Imports>
