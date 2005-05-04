@@ -83,7 +83,7 @@ Class SessionClient
 
         Dim session As SessionPrx = factory.create(name)
 
-        Dim refresh As SessionRefreshThread = New SessionRefreshThread(communicator().getLogger(), 5000, session)
+        Dim refresh As SessionRefreshThread = New SessionRefreshThread(communicator().getLogger(), 5000, Session)
         Dim refreshThread As Thread = New Thread(New ThreadStart(AddressOf refresh.run))
         refreshThread.Start()
 
@@ -106,8 +106,7 @@ Class SessionClient
                         Dim hello As HelloPrx = hellos.Item(index)
                         hello.sayHello()
                     Else
-                        Console.Out.Write("Index Is too high. " & hellos.Count)
-                        Console.Out.Write(" hello objects exist so far.\n")
+                        Console.Out.WriteLine("Index is too high. " & hellos.Count & " hello objects exist so far.")
                         Console.Out.WriteLine("Use `c' to create a new hello object.")
                     End If
                 ElseIf line.Equals("c") Then
