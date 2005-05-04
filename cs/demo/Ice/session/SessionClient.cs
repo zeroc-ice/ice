@@ -170,7 +170,7 @@ class SessionClient : Ice.Application
 	    //
 	    refresh.terminate();
 	    refreshThread.Join();
-	    refreshThread = null;
+	    refresh = null;
 
 	    if(destroy)
 	    {
@@ -187,7 +187,7 @@ class SessionClient : Ice.Application
 	    {
 		refresh.terminate();
 		refreshThread.Join();
-		refreshThread = null;
+		refresh = null;
 	    }
 	    throw;
 	}

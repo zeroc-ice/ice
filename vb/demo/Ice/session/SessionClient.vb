@@ -135,7 +135,7 @@ Class SessionClient
             '
             refresh.terminate()
             refreshThread.Join()
-            refreshThread = Nothing
+            refresh = Nothing
 
             If destroy Then
                 session.destroy()
@@ -148,7 +148,7 @@ Class SessionClient
             If Not refresh Is Nothing Then
                 refresh.terminate()
                 refreshThread.Join()
-                refreshThread = Nothing
+                refresh = Nothing
             End If
             Throw e
         End Try
