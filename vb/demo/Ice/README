@@ -48,6 +48,5 @@ Demos in this directory:
 
 - session
 
-  This demo shows how to create a session manager and sessions so
-  that client specific server side resources are cleaned up when the client
-  shutsdown or crashes.
+  This demo shows how to use sessions to clean up client-specific
+  resources in a server after the client shuts down or crashes.
