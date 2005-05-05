@@ -67,7 +67,7 @@ class SessionClient extends Ice.Application
 	    "usage:\n" +
 	    "c:     create a new per-client hello object\n" +
 	    "0-9:   send a greeting to a hello object\n" +
-	    "s:     shutdown server\n" +
+	    "s:     shutdown server and exit\n" +
 	    "x:     exit\n" +
 	    "t:     exit without destroying the session\n" +
 	    "?:     help\n");
@@ -123,6 +123,7 @@ class SessionClient extends Ice.Application
 	try
 	{
 	    boolean destroy = true;
+	    boolean shutdown = false;
 	    while(true)
 	    {
                 System.out.print("==> ");
@@ -162,7 +163,9 @@ class SessionClient extends Ice.Application
                 }
                 else if(line.equals("s"))
                 {
-		    factory.shutdown();
+		    destroy = false;
+		    shutdown = true;
+		    break;
                 }
                 else if(line.equals("x"))
                 {
@@ -202,6 +205,10 @@ class SessionClient extends Ice.Application
     	    if(destroy)
 	    {
 		session.destroy();
+	    }
+    	    if(shutdown)
+	    {
+		factory.shutdown();
 	    }
 	}
 	catch(java.io.IOException ex)
