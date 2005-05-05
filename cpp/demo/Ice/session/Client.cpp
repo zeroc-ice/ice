@@ -126,6 +126,7 @@ SessionClient::run(int argc, char* argv[])
     try
     {
     	bool destroy = true;
+	bool shutdown = false;
 	while(true)
 	{
 	    cout << "==> ";
@@ -157,7 +158,9 @@ SessionClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 's')
 	    {
-		factory->shutdown();
+		destroy = false;
+		shutdown = true;
+    	    	break;
 	    }
 	    else if(c == 'x')
 	    {
@@ -193,6 +196,10 @@ SessionClient::run(int argc, char* argv[])
 	{
 	    session->destroy();
 	}
+	if(shutdown)
+	{
+	    factory->shutdown();
+	}
     }
     catch(...)
     {
@@ -218,7 +225,7 @@ SessionClient::menu()
 	"usage:\n"
 	"c:     create a new per-client hello object\n"
 	"0-9:   send a greeting to a hello object\n"
-	"s:     shutdown the server\n"
+	"s:     shutdown the server and exit\n"
 	"x:     exit\n"
 	"t:     exit without destroying the session\n"
 	"?:     help\n";

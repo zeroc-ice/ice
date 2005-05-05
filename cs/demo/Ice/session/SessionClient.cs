@@ -109,6 +109,7 @@ class SessionClient : Ice.Application
 	try
 	{
 	    bool destroy = true;
+	    bool shutdown = false;
 	    while(true)
 	    {
 		Console.Out.Write("==> ");
@@ -140,7 +141,9 @@ class SessionClient : Ice.Application
 		}
 		else if(line.Equals("s"))
 		{
-		    factory.shutdown();
+		    destroy = false;
+    	    	    shutdown = true;
+		    break;
 		}
 		else if(line.Equals("x"))
 		{
@@ -176,6 +179,10 @@ class SessionClient : Ice.Application
 	    {
 		session.destroy();
 	    }
+    	    if(shutdown)
+	    {
+		factory.shutdown();
+	    }
 	}
 	catch(System.Exception)
 	{
@@ -201,7 +208,7 @@ class SessionClient : Ice.Application
 	    "usage:\n" +
 	    "c:     create a new per-client hello object\n" +
 	    "0-9:   send a greeting to a hello object\n" +
-	    "s:     shutdown the server\n" +
+	    "s:     shutdown the server and exit\n" +
 	    "x:     exit\n" +
 	    "t:     exit without destroying the session\n" +
 	    "?:     help\n");

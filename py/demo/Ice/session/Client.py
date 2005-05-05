@@ -74,6 +74,7 @@ class SessionClient(Ice.Application):
             self.menu()
 
             destroy = True
+            shutdown = False
             while True:
                 try:
                     c = raw_input("==> ")
@@ -89,7 +90,8 @@ class SessionClient(Ice.Application):
                     elif c == 'c':
                         hellos.append(session.createHello())
                     elif c == 's':
-                        factory.shutdown()
+			destroy = False
+			shutdown = True
                         break
                     elif c == 'x':
                         break
@@ -115,6 +117,8 @@ class SessionClient(Ice.Application):
 
             if destroy:
                 session.destroy()
+            if shutdown:
+                factory.shutdown()
         finally:
             #
             # The refresher thread must be terminated in the event of a
@@ -131,7 +135,7 @@ class SessionClient(Ice.Application):
 usage:
 c:     create a new per-client hello object
 0-9:   send a greeting to a hello object
-s:     shutdown server
+s:     shutdown the server and exit
 x:     exit
 t:     exit without destroying the session
 ?:     help
