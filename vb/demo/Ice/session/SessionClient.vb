@@ -93,6 +93,7 @@ Class SessionClient
 
         Try
             Dim destroy As Boolean = True
+            Dim shutdown As Boolean = False
             While True
                 Console.Out.Write("==> ")
                 Console.Out.Flush()
@@ -100,7 +101,7 @@ Class SessionClient
                 If line Is Nothing Then
                     Exit While
                 End If
-                If line.Length > 0 And Char.IsDigit(line.Chars(0)) Then
+                If line.Length > 0 AndAlso Char.IsDigit(line.Chars(0)) Then
                     Dim index As Integer = Int32.Parse(line)
                     If index < hellos.Count Then
                         Dim hello As HelloPrx = hellos.Item(index)
@@ -113,7 +114,9 @@ Class SessionClient
                     hellos.Add(session.createHello())
                     Console.Out.WriteLine("Created hello object " & (hellos.Count - 1))
                 ElseIf line.Equals("s") Then
-                    factory.shutdown()
+    	    	    destroy = false
+    	    	    shutdown = true
+		    Exit While
                 ElseIf line.Equals("x") Then
                     Exit While
                 ElseIf line.Equals("t") Then
@@ -140,6 +143,9 @@ Class SessionClient
             If destroy Then
                 session.destroy()
             End If
+            If shutdown Then
+                factory.shutdown()
+            End If
         Catch e As System.Exception
             '
             ' The refresher thread must be terminated in the event of a
@@ -160,7 +166,7 @@ Class SessionClient
         Console.Out.WriteLine("usage:")
         Console.Out.WriteLine("c:     create a new per-client hello object")
         Console.Out.WriteLine("0-9:   send a greeting to a hello object")
-        Console.Out.WriteLine("s:     shutdown the server")
+        Console.Out.WriteLine("s:     shutdown the server and exit")
         Console.Out.WriteLine("x:     exit")
         Console.Out.WriteLine("t:     exit without destroying the session")
         Console.Out.WriteLine("?:     help")
