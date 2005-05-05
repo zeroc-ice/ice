@@ -2039,6 +2039,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	boolean closed = false;
 
+	IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
+
 	while(!closed)
 	{
 	    //
@@ -2046,202 +2048,207 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    // synchronization, because we use blocking accept.
 	    //
 
-	    IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
-
 	    try
 	    {
-		stream.resize(IceInternal.Protocol.headerSize, true);
-		stream.pos(0);
-		_transceiver.read(stream, -1);
+		try
+		{
+		    stream.resize(IceInternal.Protocol.headerSize, true);
+		    stream.pos(0);
+		    _transceiver.read(stream, -1);
 
-		int pos = stream.pos();
-		assert(pos >= IceInternal.Protocol.headerSize);
-		stream.pos(0);
-		byte[] m = stream.readBlob(4);
-		if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-		   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-		{
-		    BadMagicException ex = new BadMagicException();
-		    ex.badMagic = m;
-		    throw ex;
-		}
-		byte pMajor = stream.readByte();
-		byte pMinor = stream.readByte();
-		if(pMajor != IceInternal.Protocol.protocolMajor)
-		{
-		    UnsupportedProtocolException e = new UnsupportedProtocolException();
-		    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-		    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-		    e.major = IceInternal.Protocol.protocolMajor;
-		    e.minor = IceInternal.Protocol.protocolMinor;
-		    throw e;
-		}
-		byte eMajor = stream.readByte();
-		byte eMinor = stream.readByte();
-		if(eMajor != IceInternal.Protocol.encodingMajor)
-		{
-		    UnsupportedEncodingException e = new UnsupportedEncodingException();
-		    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-		    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-		    e.major = IceInternal.Protocol.encodingMajor;
-		    e.minor = IceInternal.Protocol.encodingMinor;
-		    throw e;
-		}
-		byte messageType = stream.readByte();
-		byte compress = stream.readByte();
-		int size = stream.readInt();
-		if(size < IceInternal.Protocol.headerSize)
-		{
-		    throw new IllegalMessageSizeException();
-		}
-		if(size > _instance.messageSizeMax())
-		{
-		    throw new MemoryLimitException();
-		}
-		if(size > stream.size())
-		{
-		    stream.resize(size, true);
-		}
-		stream.pos(pos);
-
-		if(pos != stream.size())
-		{
-		    if(_endpoint.datagram())
+		    int pos = stream.pos();
+		    assert(pos >= IceInternal.Protocol.headerSize);
+		    stream.pos(0);
+		    byte[] m = stream.readBlob(4);
+		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+		       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 		    {
-			if(warnUdp)
+			BadMagicException ex = new BadMagicException();
+			ex.badMagic = m;
+			throw ex;
+		    }
+		    byte pMajor = stream.readByte();
+		    byte pMinor = stream.readByte();
+		    if(pMajor != IceInternal.Protocol.protocolMajor)
+		    {
+			UnsupportedProtocolException e = new UnsupportedProtocolException();
+			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+			e.major = IceInternal.Protocol.protocolMajor;
+			e.minor = IceInternal.Protocol.protocolMinor;
+			throw e;
+		    }
+		    byte eMajor = stream.readByte();
+		    byte eMinor = stream.readByte();
+		    if(eMajor != IceInternal.Protocol.encodingMajor)
+		    {
+			UnsupportedEncodingException e = new UnsupportedEncodingException();
+			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+			e.major = IceInternal.Protocol.encodingMajor;
+			e.minor = IceInternal.Protocol.encodingMinor;
+			throw e;
+		    }
+		    byte messageType = stream.readByte();
+		    byte compress = stream.readByte();
+		    int size = stream.readInt();
+		    if(size < IceInternal.Protocol.headerSize)
+		    {
+			throw new IllegalMessageSizeException();
+		    }
+		    if(size > _instance.messageSizeMax())
+		    {
+			throw new MemoryLimitException();
+		    }
+		    if(size > stream.size())
+		    {
+			stream.resize(size, true);
+		    }
+		    stream.pos(pos);
+
+		    if(pos != stream.size())
+		    {
+			if(_endpoint.datagram())
 			{
-			    _logger.warning("DatagramLimitException: maximum size of " + pos + " exceeded");
+			    if(warnUdp)
+			    {
+				_logger.warning("DatagramLimitException: maximum size of " + pos + " exceeded");
+			    }
+			    throw new DatagramLimitException();
 			}
-			throw new DatagramLimitException();
-		    }
-		    else
-		    {
-			_transceiver.read(stream, -1);
-			assert(stream.pos() == stream.size());
-		    }
-		}
-	    }
-	    catch(DatagramLimitException ex) // Expected.
-	    {
-		continue;
-	    }
-	    catch(LocalException ex)
-	    {
-		exception(ex);
-	    }
-
-	    MessageInfo info = new MessageInfo(stream);
-
-	    LocalException exception = null;
-
-	    IceInternal.IntMap requests = null;
-	    IceInternal.IntMap asyncRequests = null;
-
-	    synchronized(this)
-	    {
-		while(_state == StateHolding)
-		{
-		    try
-		    {
-			wait();
-		    }
-		    catch(InterruptedException ex)
-		    {
+			else
+			{
+			    _transceiver.read(stream, -1);
+			    assert(stream.pos() == stream.size());
+			}
 		    }
 		}
-		
-		if(_state != StateClosed)
+		catch(DatagramLimitException ex) // Expected.
 		{
-		    parseMessage(info);
+		    continue;
+		}
+		catch(LocalException ex)
+		{
+		    exception(ex);
 		}
 
-		//
-		// parseMessage() can close the connection, so we must
-		// check for closed state again.
-		//
-		if(_state == StateClosed)
+		MessageInfo info = new MessageInfo(stream);
+
+		LocalException exception = null;
+
+		IceInternal.IntMap requests = null;
+		IceInternal.IntMap asyncRequests = null;
+
+		synchronized(this)
 		{
-		    //
-		    // We must make sure that nobody is sending when we close
-		    // the transceiver.
-		    //
-		    synchronized(_sendMutex)
+		    while(_state == StateHolding)
 		    {
 			try
 			{
-			    _transceiver.close();
+			    wait();
 			}
-			catch(LocalException ex)
+			catch(InterruptedException ex)
 			{
-			    exception = ex;
 			}
-			
-			_transceiver = null;
-			notifyAll();
+		    }
+		
+		    if(_state != StateClosed)
+		    {
+			parseMessage(info);
 		    }
 
 		    //
-		    // We cannot simply return here. We have to make sure
-		    // that all requests (regular and async) are notified
-		    // about the closed connection below.
+		    // parseMessage() can close the connection, so we must
+		    // check for closed state again.
 		    //
-		    closed = true;
+		    if(_state == StateClosed)
+		    {
+			//
+			// We must make sure that nobody is sending when we close
+			// the transceiver.
+			//
+			synchronized(_sendMutex)
+			{
+			    try
+			    {
+				_transceiver.close();
+			    }
+			    catch(LocalException ex)
+			    {
+				exception = ex;
+			    }
+			    
+			    _transceiver = null;
+			    notifyAll();
+			}
+
+			//
+			// We cannot simply return here. We have to make sure
+			// that all requests (regular and async) are notified
+			// about the closed connection below.
+			//
+			closed = true;
+		    }
+
+		    if(_state == StateClosed || _state == StateClosing)
+		    {
+			requests = _requests;
+			_requests = new IceInternal.IntMap();
+
+			asyncRequests = _asyncRequests;
+			_asyncRequests = new IceInternal.IntMap();
+		    }
 		}
 
-		if(_state == StateClosed || _state == StateClosing)
+		//
+		// Asynchronous replies must be handled outside the thread
+		// synchronization, so that nested calls are possible.
+		//
+		if(info.outAsync != null)
 		{
-		    requests = _requests;
-		    _requests = new IceInternal.IntMap();
-
-		    asyncRequests = _asyncRequests;
-		    _asyncRequests = new IceInternal.IntMap();
+		    info.outAsync.__finished(info.stream);
 		}
-	    }
+		
+		//
+		// Method invocation (or multiple invocations for batch messages)
+		// must be done outside the thread synchronization, so that nested
+		// calls are possible.
+		//
+		invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
+			  info.adapter);
 
-	    //
-	    // Asynchronous replies must be handled outside the thread
-	    // synchronization, so that nested calls are possible.
-	    //
-	    if(info.outAsync != null)
-	    {
-		info.outAsync.__finished(info.stream);
-	    }
-	    
-	    //
-	    // Method invocation (or multiple invocations for batch messages)
-	    // must be done outside the thread synchronization, so that nested
-	    // calls are possible.
-	    //
-	    invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
-		      info.adapter);
-
-	    if(requests != null)
-	    {
-		java.util.Iterator i = requests.entryIterator();
-		while(i.hasNext())
+		if(requests != null)
 		{
-		    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-		    IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
-		    out.finished(_exception); // The exception is immutable at this point.
+		    java.util.Iterator i = requests.entryIterator();
+		    while(i.hasNext())
+		    {
+			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+			IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+			out.finished(_exception); // The exception is immutable at this point.
+		    }
 		}
-	    }
 
-	    if(asyncRequests != null)
-	    {
-		java.util.Iterator i = asyncRequests.entryIterator();
-		while(i.hasNext())
+		if(asyncRequests != null)
 		{
-		    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
-		    IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
-		    out.__finished(_exception); // The exception is immutable at this point.
+		    java.util.Iterator i = asyncRequests.entryIterator();
+		    while(i.hasNext())
+		    {
+			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+			IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
+			out.__finished(_exception); // The exception is immutable at this point.
+		    }
 		}
-	    }
 
-	    if(exception != null)
+		if(exception != null)
+		{
+		    assert(closed);
+		    throw exception;
+		}    
+	    }
+	    finally
 	    {
-		assert(closed);
-		throw exception;
-	    }    
+		stream.reset();
+	    }
 	}
     }
 
@@ -2282,7 +2289,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
-                in.reset(_instance, this, adapter, response, compress);
+		in.reset(_instance, this, adapter, response, compress);
                 in.next = null;
             }
         }
@@ -2297,6 +2304,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
 	    in.next = _incomingCache;
 	    _incomingCache = in;
+	    //
+	    // Clear references to Ice objects as soon as possible.
+	    //
+	    _incomingCache.reclaim();
         }
     }
 

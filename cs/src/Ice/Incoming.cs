@@ -59,8 +59,7 @@ namespace IceInternal
 	}
 
 	//
-	// This function allows this object to be reused, rather than
-	// reallocated.
+	// These functions allow this object to be reused, rather than reallocated.
 	//
 	public virtual void reset(Instance instance, Ice.ConnectionI connection,
 	                          Ice.ObjectAdapter adapter, bool response, byte compress)
@@ -77,7 +76,7 @@ namespace IceInternal
 	    
 	    _locator = null;
 	    
-	    _cookie = null;
+	    Debug.Assert(_cookie == null);
 	    
 	    _response = response;
 	    
@@ -87,14 +86,20 @@ namespace IceInternal
 	    {
 		_os = new BasicStream(instance);
 	    }
-	    else
-	    {
-		_os.reset();
-	    }
-	    
+
 	    _connection = connection;
 	}
 	
+	public virtual void reclaim()
+	{
+	    _cookie = null;
+
+	    if(_os != null)
+	    {
+		_os.reset();
+	    }
+	}
+
 	protected internal void __warning(System.Exception ex)
 	{
 	    Debug.Assert(_os != null);
@@ -134,8 +139,7 @@ namespace IceInternal
 	}
 
 	//
-	// This function allows this object to be reused, rather than
-	// reallocated.
+	// These functions allow this object to be reused, rather than reallocated.
 	//
 	public override void reset(Instance instance, Ice.ConnectionI connection,
 	                           Ice.ObjectAdapter adapter, bool response, byte compress)
@@ -144,14 +148,20 @@ namespace IceInternal
 	    {
 		_is = new BasicStream(instance);
 	    }
-	    else
-	    {
-		_is.reset();
-	    }
 
 	    base.reset(instance, connection, adapter, response, compress);
 	}
 	
+	public override void reclaim()
+	{
+	    if(_is != null)
+	    {
+		_is.reset();
+	    }
+
+	    base.reclaim();
+	}
+
 	public void invoke(ServantManager servantManager)
 	{
 	    //

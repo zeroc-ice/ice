@@ -20,8 +20,7 @@ final public class Incoming extends IncomingBase
     }
 
     //
-    // This function allows this object to be reused, rather than
-    // reallocated.
+    // These functions allow this object to be reused, rather than reallocated.
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
@@ -30,12 +29,19 @@ final public class Incoming extends IncomingBase
 	{
 	    _is = new BasicStream(instance);
 	}
-	else
+
+	super.reset(instance, connection, adapter, response, compress);
+    }
+
+    public void
+    reclaim()
+    {
+	if(_is != null)
 	{
 	    _is.reset();
 	}
 
-	super.reset(instance, connection, adapter, response, compress);
+	super.reclaim();
     }
 
     public void

@@ -1,6 +1,9 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Modified the Ice marshaling engine so that references to Ice objects
+  are released as soon as possible.
+
 - Fixed a race condition in the Ice run time that could cause a
   NullPointerException during process shutdown on machines with
   more than one CPU.

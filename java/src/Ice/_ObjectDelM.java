@@ -231,6 +231,10 @@ public class _ObjectDelM implements _ObjectDel
 	{
 	    out.next = __outgoingCache;
 	    __outgoingCache = out;
+	    //
+	    // Clear references to Ice objects as soon as possible.
+	    //
+	    __outgoingCache.reclaim();
 	}
     }
 

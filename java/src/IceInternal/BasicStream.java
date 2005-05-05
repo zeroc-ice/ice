@@ -52,6 +52,7 @@ public class BasicStream
             _readEncapsStack.next = _readEncapsCache;
             _readEncapsCache = _readEncapsStack;
             _readEncapsStack = null;
+	    _readEncapsCache.reset();
         }
 
         if(_objectList != null)
@@ -321,14 +322,7 @@ public class BasicStream
 	    WriteEncaps curr = _writeEncapsCache;
 	    if(curr != null)
 	    {
-		if(curr.toBeMarshaledMap != null)
-		{
-		    curr.writeIndex = 0;
-		    curr.toBeMarshaledMap.clear();
-		    curr.marshaledMap.clear();
-		    curr.typeIdIndex = 0;
-		    curr.typeIdMap.clear();
-		}
+		curr.reset();
 		_writeEncapsCache = _writeEncapsCache.next;
 	    }
 	    else
@@ -353,12 +347,11 @@ public class BasicStream
         int sz = _buf.position() - start; // Size includes size and version.
 	_buf.putInt(start, sz);
 
-	{
-	    WriteEncaps curr = _writeEncapsStack;
-	    _writeEncapsStack = curr.next;
-	    curr.next = _writeEncapsCache;
-	    _writeEncapsCache = curr;
-	}
+	WriteEncaps curr = _writeEncapsStack;
+	_writeEncapsStack = curr.next;
+	curr.next = _writeEncapsCache;
+	_writeEncapsCache = curr;
+	_writeEncapsCache.reset();
     }
 
     public void
@@ -368,13 +361,7 @@ public class BasicStream
 	    ReadEncaps curr = _readEncapsCache;
 	    if(curr != null)
 	    {
-		if(curr.patchMap != null)
-		{
-		    curr.patchMap.clear();
-		    curr.unmarshaledMap.clear();
-		    curr.typeIdIndex = 0;
-		    curr.typeIdMap.clear();
-		}
+		curr.reset();
 		_readEncapsCache = _readEncapsCache.next;
 	    }
 	    else
@@ -436,12 +423,11 @@ public class BasicStream
             throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-	{
-	    ReadEncaps curr = _readEncapsStack;
-	    _readEncapsStack = curr.next;
-	    curr.next = _readEncapsCache;
-	    _readEncapsCache = curr;
-	}
+	ReadEncaps curr = _readEncapsStack;
+	_readEncapsStack = curr.next;
+	curr.next = _readEncapsCache;
+	_readEncapsCache = curr;
+	_readEncapsCache.reset();
     }
 
     public void
@@ -2257,6 +2243,18 @@ public class BasicStream
 	int typeIdIndex;
 	java.util.TreeMap typeIdMap;
         ReadEncaps next;
+
+	void
+	reset()
+	{
+	    if(patchMap != null)
+	    {
+		patchMap.clear();
+		unmarshaledMap.clear();
+		typeIdIndex = 0;
+		typeIdMap.clear();
+	    }
+	}
     }
 
     private static final class WriteEncaps
@@ -2269,6 +2267,19 @@ public class BasicStream
 	int typeIdIndex;
 	java.util.TreeMap typeIdMap;
         WriteEncaps next;
+
+	void
+	reset()
+	{
+	    if(toBeMarshaledMap != null)
+	    {
+		writeIndex = 0;
+		toBeMarshaledMap.clear();
+		marshaledMap.clear();
+		typeIdIndex = 0;
+		typeIdMap.clear();
+	    }
+	}
     }
 
     private ReadEncaps _readEncapsStack;

@@ -1812,6 +1812,10 @@ namespace Ice
 	    {
 		inc.next = _incomingCache;
 		_incomingCache = inc;
+		//
+		// Clear references to Ice objects as soon as possible.
+		//
+		_incomingCache.reclaim();
 	    }
 	}
 
@@ -1819,7 +1823,7 @@ namespace Ice
 	private string _desc;
 	private string _type;
 	private IceInternal.Endpoint _endpoint;
-	
+
 	private ObjectAdapter _adapter;
 	private IceInternal.ServantManager _servantManager;
 	

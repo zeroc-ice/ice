@@ -29,21 +29,20 @@ namespace IceInternal
 	}
 
 	//
-	// This function allows this object to be reused, rather than
-	// reallocated.
+	// These functions allow this object to be reused, rather than reallocated.
 	//
 	public void reset(string operation, Ice.OperationMode mode, Ice.Context context)
 	{
 	    _state = StateUnsent;
 	    _exception = null;
 	    
-	    Debug.Assert(_is != null);
-	    _is.reset();
-
-	    Debug.Assert(_os != null);
-	    _os.reset();
-	    
 	    writeHeader(operation, mode, context);
+	}
+
+	public void reclaim()
+	{
+	    _is.reset();
+	    _os.reset();
 	}
 	
 	// Returns true if ok, false if user exception.

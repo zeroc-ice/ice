@@ -1154,6 +1154,10 @@ namespace Ice
             {
                 outg.next = __outgoingCache;
                 __outgoingCache = outg;
+		//
+		// Clear references to Ice objects as soon as possible.
+		//
+		__outgoingCache.reclaim();
             }
         }
 

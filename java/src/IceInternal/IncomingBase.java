@@ -58,7 +58,7 @@ public class IncomingBase
     }
 
     //
-    // This function allows this object to be reused, rather than reallocated.
+    // These functions allow this object to be reused, rather than reallocated.
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
@@ -79,28 +79,31 @@ public class IncomingBase
 	{
 	    _cookie = new Ice.LocalObjectHolder();
 	}
-	else
-	{
-	    _cookie.value = null;
-	}
 
 	_response = response;
 
         _compress = compress;
 
-	synchronized(this)
+	if(_os == null)
 	{
-	    if(_os == null)
-	    {
-		_os = new BasicStream(instance);
-	    }
-	    else
-	    {
-		_os.reset();
-	    }
+	    _os = new BasicStream(instance);
 	}
 
 	_connection = connection;
+    }
+
+    public void
+    reclaim()
+    {
+	if(_cookie != null)
+	{
+	    _cookie.value = null;
+	}
+
+	if(_os != null)
+	{
+	    _os.reset();
+	}
     }
 
     final protected void

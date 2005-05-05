@@ -27,7 +27,7 @@ public final class Outgoing
     }
 
     //
-    // This function allows this object to be reused, rather than
+    // These functions allow this object to be reused, rather than
     // reallocated.
     //
     public void
@@ -37,13 +37,14 @@ public final class Outgoing
         _state = StateUnsent;
         _exception = null;
 
-	assert(_is != null);
-        _is.reset();
-
-	assert(_os != null);
-        _os.reset();
-
         writeHeader(operation, mode, context);
+    }
+
+    public void
+    reclaim()
+    {
+	_is.reset();
+	_os.reset();
     }
 
     // Returns true if ok, false if user exception.
