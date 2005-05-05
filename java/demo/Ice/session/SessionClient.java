@@ -67,7 +67,7 @@ class SessionClient extends Ice.Application
 	    "usage:\n" +
 	    "c:     create a new per-client hello object\n" +
 	    "0-9:   send a greeting to a hello object\n" +
-	    "s:     shutdown server and exit\n" +
+	    "s:     shutdown the server and exit\n" +
 	    "x:     exit\n" +
 	    "t:     exit without destroying the session\n" +
 	    "?:     help\n");
