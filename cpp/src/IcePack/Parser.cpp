@@ -116,9 +116,19 @@ ServerDescribe::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr
 	if(!s->jvmOptions.empty())
 	{
 	    _out << nl << "jvmOptions = '";
-	    for(Ice::StringSeq::const_iterator p = s->jvmOptions.begin(); p != s->jvmOptions.end();)
+	    Ice::StringSeq::const_iterator p = s->jvmOptions.begin();
+	    while(p != s->jvmOptions.end())
 	    {
-		_out << *p << ((++p != s->jvmOptions.end()) ? " " : "'");
+		_out << *p;
+		++p;
+		if(p != s->jvmOptions.end())
+		{
+		    _out << " ";
+		}
+		else
+		{
+		    _out << "'";
+		}
 	    }
 	}
     }
@@ -142,9 +152,19 @@ ServerDescribe::visitServerStart(const ServerWrapper&, const ServerDescriptorPtr
     if(!server->options.empty())
     {
 	_out << nl << "options = '";
-	for(Ice::StringSeq::const_iterator p = server->options.begin(); p != server->options.end();)
+	Ice::StringSeq::const_iterator p = server->options.begin();
+ 	while(p != server->options.end())
 	{
-	    _out << *p << ((++p != server->options.end()) ? " " : "'");
+	    _out << *p;
+	    ++p;
+	    if(p != server->options.end())
+	    {
+		_out << " ";
+	    }
+	    else
+	    {
+		_out << "'";
+	    }
 	}
     }
     if(!server->envs.empty())
