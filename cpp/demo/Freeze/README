@@ -3,7 +3,7 @@ Demos in this directory:
 - backup
 
   Illustrates how to back up a Berkeley DB database. (Hot backups are
-  possible.)
+  possible.) This demo is not supported on Windows.
 
 - bench
 
