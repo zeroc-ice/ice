@@ -1,9 +1,6 @@
-The IcePack node starts Java server processes, therefore prior to
-starting the node you must set the CLASSPATH environment variable to
-contain at least Ice.jar and the classes subdirectory, as shown in the
-Unix example below:
-
-$ export CLASSPATH=<Ice-directory>/lib/Ice.jar:classes
+The IcePack node starts Java server processes. Prior to starting the
+node you must set the CLASSPATH environment variable as described in
+the INSTALL file.
 
 To run the demo, first start the IcePack service:
 
