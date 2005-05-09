@@ -113,7 +113,7 @@ public class Client
         System.out.println();
         System.out.println("Now we call the same method, but on the remote object. Watch the");
         System.out.println("server's output.");
-        System.out.println("press enter]");
+        System.out.println("[press enter]");
         readline(in);
 
         printerProxy.value.printBackwards();
