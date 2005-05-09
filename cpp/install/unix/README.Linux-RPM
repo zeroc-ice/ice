@@ -39,6 +39,11 @@ These RPMs are available for download at the ZeroC web site at
 
 http://www.zeroc.com/download.html
 
+Note that the Ice extension for PHP is not included in the Ice RPM
+distribution due to the lack of a standard RPM package for PHP5.
+A precompiled shared library for the Ice extension is included in
+the .tar.gz distribution for Linux.
+
 
 ======================================================================
 64 bit builds on x86-64
@@ -91,8 +96,8 @@ supporting Python files:
 $ export PYTHONPATH=/usr/lib/Ice-@ver@/python:/usr/lib:$PYTHONPATH
 
 
-Mono
-----
+C#/Mono
+-------
 
 The RPM installation adds the C# runtime libraries to the global
 assembly cache (GAC), so that no changes to your environment are

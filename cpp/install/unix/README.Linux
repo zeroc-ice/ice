@@ -97,6 +97,14 @@ installing libicu-2.6.2-1.1.fc3.rf.i386.rpm, available from
 http://dag.wieers.com/packages/icu/.
 
 
+PHP
+---
+
+The Ice extension for PHP included in this distribution requires
+PHP 5.0.4. You can obtain a PHP source code distribution from
+http://www.php.net.
+
+
 ======================================================================
 64 bit builds on x86-64
 ======================================================================
@@ -166,8 +174,8 @@ supporting Python files:
 $ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH
 
 
-Mono
-----
+C#/Mono
+-------
 
 You can update MONO_PATH with the directory containing the Ice for C#
 runtime libraries, as the following bash command shows:
@@ -200,6 +208,25 @@ If you don't want to do this you need to run the executable with
 mono. For example,
 
 $ mono server.exe
+
+
+PHP
+---
+
+The Ice extension for PHP must be added to your PHP configuration
+by editing php.ini and adding the following lines:
+
+extension_dir = <ICE_HOME>/lib
+extension = icephp.so
+
+At run time, the PHP interpreter requires the Ice shared libraries
+as well as the Slice preprocessor ($ICE_HOME/bin/icecpp), therefore
+these components must be in a standard location or accessible via the
+PATH and LD_LIBRARY_PATH environment variables.
+
+You can verify that the Ice extension is installed properly by
+examining the output of the "php -m" command, or by calling the
+phpinfo() function from a script.
 
 
 ======================================================================
