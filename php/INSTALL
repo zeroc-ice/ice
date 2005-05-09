@@ -119,7 +119,10 @@ See the PHP documentation for more details on the PHP build process.
 Additional Requirements for Linux with GCC
 =========================================================================
 
-No additional steps are necessary on Linux.
+If you are building the Ice extension in a dynamic configuration,
+edit the file <phpdir>/Makefile and add the following definition:
+
+     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
 
 
 =========================================================================
@@ -213,6 +216,11 @@ the file <phpdir>/Makefile and make the following changes:
 - If a Web server module is being built, search for the line beginning
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
   well as in the rule for "libs/libphp5.bundle" below.
+
+If you are building the Ice extension in a dynamic configuration,
+edit the file <phpdir>/Makefile and add the following definition:
+
+     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
 
 
 =========================================================================
