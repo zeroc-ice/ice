@@ -18,17 +18,25 @@
 <?php
 Ice_loadProfile();
 
+//
+// Change this to true if SSL is configured for the PHP extension.
+//
+$have_ssl = false;
+
 if(isset($_POST["submitted"]))
 {
     echo "<HR>\n";
     echo "<P>Status:<BR><B>\n";
     try
     {
-	//
-	// We assume SSL is not configured.
-	//
-	//$p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
-        $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
+	if($have_ssl)
+	{
+	    $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
+	}
+	else
+	{
+	    $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
+	}
 
         if($_POST["mode"] == "oneway")
         {
@@ -83,21 +91,22 @@ if(isset($_POST["submitted"]))
     <FORM method="POST" action="<?php echo basename($_SERVER["PHP_SELF"]); ?>">
         <P>Mode: 
         <INPUT type="radio" name="mode" value="twoway"
-            <?php if(!isset($_POST["mode"]) or $_POST["mode"] == "twoway") echo "checked"; ?>
+            <?php if(!isset($_POST["mode"]) or $_POST["mode"] == "twoway") echo " checked "; ?>
         > Twoway
         <INPUT type="radio" name="mode" value="oneway"
-            <?php if($_POST["mode"] == "oneway") echo "checked"; ?>
+            <?php if($_POST["mode"] == "oneway") echo " checked "; ?>
         > Oneway
         <INPUT type="radio" name="mode" value="datagram"
-            <?php if($_POST["mode"] == "datagram") echo "checked"; ?>
+            <?php if($_POST["mode"] == "datagram") echo " checked "; ?>
         > Datagram
         </P>
         <P>Options: 
         <INPUT type="checkbox" name="secure" value="yes"
-            <?php if($_POST["secure"] == "yes") echo "checked"; ?>
+            <?php if($_POST["secure"] == "yes") echo " checked "; ?>
+            <?php if(!$have_ssl) echo " disabled "; ?>
         > Secure
         <INPUT type="checkbox" name="timeout" value="yes"
-            <?php if($_POST["timeout"] == "yes") echo "checked"; ?>
+            <?php if($_POST["timeout"] == "yes") echo " checked "; ?>
         > Timeout
         </P>
         <P>

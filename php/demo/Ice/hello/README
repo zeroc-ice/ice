@@ -7,9 +7,9 @@ directory.
 Alternatively, if you're using CGI, then you will need to make this
 script executable, add a line at the top of the script to indicate the
 path to the PHP CGI binary, and copy the script to your cgi-bin
-directory. On Linux or Solaris, the line at the top of the file should
-look something like this, where /opt/php5 is the PHP5 installation
-directory:
+directory. On Unix platforms, the line at the top of the file should
+look something like the one below, where /opt/php5 is the PHP5
+installation directory:
 
 #! /opt/php5/bin/php
 
@@ -20,3 +20,7 @@ ice.slice=/opt/icephp/demo/Ice/hello/Hello.ice
 
 Finally, start the hello server on the Web server host and try out the
 script.
+
+Note that support for secure invocations via SSL are disabled by
+default. If you have configured SSL for the Ice extension, edit
+hello.php and set the have_ssl variable to true.
