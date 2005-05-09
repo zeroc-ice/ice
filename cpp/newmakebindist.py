@@ -342,19 +342,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean):
 	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
 	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXX'
-    print 'XXX Optimization is disabled to speed up builds during development '
-    print 'XXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 
-    os.system('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=' + installDir + ' install')
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -444,11 +433,9 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     """ Create the IcePHP binaries and install to Ice installation directory """
 
     platform = getPlatform()
-    if platform == 'aix':
-	'''The primary purpose here is to create a shared library.  Since IcePHP is not supported as a shared library
-	on this platform, we don't bother.'''
-	return
-
+    if not platform in ['linux', 'macosx']:
+        return         
+        
     #
     # We currently run configure each time even if clean=false.  This is because a large part of the IcePHP build
     # process is actually the configure step.  This could probably be bypassed afterwards.
@@ -570,128 +557,59 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     #
     # Makefile changes
     #
-    if platform <> 'linux':
-	#
-	# Each platform has its own special tweaks.
-	#
-	if platform == 'solaris':
-	    xtraCXXFlags = True
-	    xtraCFlags = True
-	    replacingCC = False
-	    makefile = fileinput.input('Makefile', True)
-	    for line in makefile:
-		if not replacingCC:
-		    if line.startswith('CFLAGS ='):
-			print line.rstrip('\n') + ' -D__sparc__'
-		    elif line.startswith('EXTRA_CXXFLAGS ='):
-			xtraCXXFlags = False
-			print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
-		    elif line.startswith('EXTRA_CFLAGS ='):
-			xtraCFlags = False
-			print line.rstrip('\n') + ' -DIEEE_BIG_ENDIAN'
-		    elif line.startswith('libphp5.la:'):
-			replacingCC = True
-			print line.strip('\n')
-		    elif line.startswith('libs/libphp5.bundle:'):
-			replacingCC = True
-			print line.strip('\n')
-		    else:
-			print line.rstrip('\n')
-		else:
-		    if len(line.rstrip('\n').strip()) == 0:
-			replacingCC = False
-			print 
-		    else:
-			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+    xtraCXXFlags = True
+    if platform == 'linux':
+        makefile = fileinput.input('Makefile', True)
+        for line in makefile:
+            if line.startswith('EXTRA_CXXFLAGS ='):
+                xtraCXXFlags = False
+                print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
+            else:
+                print line.strip('\n')
 
-	    makefile.close()
-
-	    if xtraCXXFlags or xtraCFlags:
-		start = True
-		makefile = fileinput.input('Makefile', True)
-		for line in makefile:
-		    if start:
-			if xtraCXXFlags:
-			    print 'EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE'
-			if xtraCFlags:
-			    print 'EXTRA_CFLAGS = -DIEEE_BIG_ENDIAN -D__sparc__'
-			start = False
-		    print line.rstrip('\n')
-		makefile.close()
+        makefile.close()
 
 
-	elif platform == 'hpux':
-	    xtraCXXFlags = True
-	    xtraLDFlags = True
-	    replacingCC = False
-	    makefile = fileinput.input('Makefile', True)
-	    for line in makefile:
-		if not replacingCC:
-		    if line.startswith('EXTRA_LDFLAGS_PROGRAM ='):
-			xtraLDFlags = False
-			print line.rstrip('\n') + ' $(EXTRA_CXXFLAGS) -Wl,+s'
-		    elif line.startswith('EXTRA_CXXFLAGS ='):
-			xtraCXXFlags = False
-			print line.rstrip('\n') + ' -AA +Z -mt +DA2.0N'
-		    elif line.find('BUILD_CLI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.find('BUILD_CGI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.startswith('libphp5.la:'):
-			replacingCC = True
-			print line.strip('\n')
-		    elif line.startswith('libs/libphp5.bundle:'):
-			replacingCC = True
-			print line.strip('\n')
-		    else:
-			print line.rstrip('\n')
-		else:
-		    if len(line.rstrip('\n').strip()) == 0:
-			replacingCC = False
-			print 
-		    else:
-			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+    elif platform == 'macosx':
+        replacingCC = False
+        makefile = fileinput.input('Makefile', True)
+        for line in makefile: 
+            if not replacingCC:
+                if line.startswith('EXTRA_CXXFLAGS ='):
+                    xtraCXXFlags = False
+                    print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
+                elif line.find('BUILD_CLI') != -1:
+                    print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+                elif line.find('BUILD_CGI') != -1:
+                    print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+                elif line.startswith('libphp5.la:'):
+                    replacingCC = True
+                    print line.strip('\n')
+                elif line.startswith('libs/libphp5.bundle:'):
+                    replacingCC = True
+                    print line.strip('\n')
+                else:
+                    print line.rstrip('\n')
+            else:
+                if len(line.rstrip('\n').strip()) == 0:
+                    replacingCC = False
+                    print 
+                else:
+                    print line.strip('\n'). replace('$(CC)', '$(CXX)')
 
-	    makefile.close()
-
-	    if xtraCXXFlags or xtraLDFlags:
-		start = True
-		makefile = fileinput.input('Makefile', True)
-		for line in makefile:
-		    if start:
-			if xtraCXXFlags:
-			    print 'EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N'
-			if xtraLDFlags:
-			    print 'EXTRA_LDFLAGS_PROGRAM = $(EXTRA_CXXFLAGS) -Wl,+s'
-			start = False
-		    print line.rstrip('\n')
-		makefile.close()
-
-	elif platform == 'macosx':
-	    replacingCC = False
-	    makefile = fileinput.input('Makefile', True)
-	    for line in makefile: 
-		if not replacingCC:
-		    if line.find('BUILD_CLI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.find('BUILD_CGI') != -1:
-			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
-		    elif line.startswith('libphp5.la:'):
-			replacingCC = True
-			print line.strip('\n')
-		    elif line.startswith('libs/libphp5.bundle:'):
-			replacingCC = True
-			print line.strip('\n')
-		    else:
-			print line.rstrip('\n')
-		else:
-		    if len(line.rstrip('\n').strip()) == 0:
-			replacingCC = False
-			print 
-		    else:
-			print line.strip('\n'). replace('$(CC)', '$(CXX)')
-
-	    makefile.close()
+        makefile.close()
+        
+    if xtraCXXFlags:
+        makefile = fileinput.input('Makefile', True)
+        start = True
+        for line in makefile:
+            if start:
+                print 'EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE'
+                start = False
+            else:
+                print line.rstrip('\n')
+                
+    makefile.close()
 
     os.system('gmake')
 
