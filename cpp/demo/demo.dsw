@@ -149,6 +149,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name bidirS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sessionS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -574,6 +580,30 @@ Package=<4>
 ###############################################################################
 
 Project: "printerS"=.\book\printer\printerS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sessionC"=.\Ice\session\sessionC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "sessionS"=.\Ice\session\sessionS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
