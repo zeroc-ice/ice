@@ -353,7 +353,8 @@ examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Note that if you want to use IceSSL from the Ice extension, then PHP
-will also need access to the shared libraries for IceSSL and Xerces.
+will also need access to the shared libraries for IceSSL, IceXML and
+expat.
 
 Finally, the Ice extension will need to execute the Ice preprocessor
 (icecpp), therefore this binary must reside in an accessible directory.
