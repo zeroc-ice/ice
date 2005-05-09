@@ -93,7 +93,7 @@ Module ValueC
 	Console.Out.WriteLine()
 	Console.Out.WriteLine("Now we call the same method, but on the remote object. Watch the")
 	Console.Out.WriteLine("server's output.")
-	Console.Out.WriteLine("press enter]")
+	Console.Out.WriteLine("[press enter]")
 	Console.In.ReadLine()
 
 	printerProxy.printBackwards()
