@@ -405,7 +405,7 @@ Package=<4>
     Project_Dep_Name icepacknode
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icepackRegistry
+    Project_Dep_Name icepackregistry
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name deployerC
@@ -1791,7 +1791,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "icepackregistry"=.\src\icepack\icepackRegistry.dsp - Package Owner=<4>
+Project: "icepackregistry"=.\src\icepack\icepackregistry.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

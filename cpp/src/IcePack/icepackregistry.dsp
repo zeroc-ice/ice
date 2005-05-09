@@ -8,12 +8,12 @@ CFG=icepackregistry - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "icepackRegistry.mak".
+!MESSAGE NMAKE /f "icepackregistry.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icepackRegistry.mak" CFG="icepackregistry - Win32 Debug"
+!MESSAGE NMAKE /f "icepackregistry.mak" CFG="icepackregistry - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -55,7 +55,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=icepackRegistry
+TargetName=icepackregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -87,7 +87,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /incremental:no /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=icepackRegistry
+TargetName=icepackregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
