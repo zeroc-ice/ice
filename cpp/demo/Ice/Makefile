@@ -18,7 +18,8 @@ SUBDIRS		= hello \
 		  callback \
 		  nested \
 		  invoke \
-		  bidir
+		  bidir \
+		  session
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
