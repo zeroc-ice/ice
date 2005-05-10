@@ -159,6 +159,7 @@ if isWin32():
 else:
     sep = ":"
 
+os.environ["CLASSPATH"] = os.path.join(toplevel, "lib", "Ice.jar") + sep + os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
 
 if protocol == "ssl":
