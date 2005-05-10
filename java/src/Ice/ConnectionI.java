@@ -262,8 +262,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
-
-	    _incomingCache = null;
 	}
 
 	if(threadPerConnection != null)
@@ -377,8 +375,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
-
-	    _incomingCache = null;
 	}
 
 	if(threadPerConnection != null)
@@ -1365,7 +1361,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	IceUtil.Assert.FinalizerAssert(_transceiver == null);
 	IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
 	IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
-	IceUtil.Assert.FinalizerAssert(_incomingCache == null);
 
         super.finalize();
     }

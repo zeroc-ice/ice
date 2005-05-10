@@ -238,8 +238,6 @@ namespace Ice
 		}
 
 		Debug.Assert(_state == StateClosed);
-
-		_incomingCache = null;
 	    }
 
 	    return true;
@@ -316,8 +314,6 @@ namespace Ice
 		}
 
 		Debug.Assert(_state == StateClosed);
-
-		_incomingCache = null;
 	    }
 	}
 	
@@ -1506,7 +1502,6 @@ namespace Ice
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_transceiver == null);
 		IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-		IceUtil.Assert.FinalizerAssert(_incomingCache == null);
 	    }
 	}
 #endif
