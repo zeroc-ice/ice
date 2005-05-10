@@ -1,6 +1,6 @@
 The IcePack node starts Java server processes. Prior to starting the
-node you must set the CLASSPATH environment variable as described in
-the INSTALL file.
+node, you must set the CLASSPATH environment variable as described in
+the installation instructions.
 
 To run the demo, first start the IcePack service:
 
