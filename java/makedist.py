@@ -209,10 +209,12 @@ else:
 os.system("ant" + quiet)
 
 #
-# Clean out the lib directory but save Ice.jar.
+# Clean out the lib directory but save Ice.jar, and do a clean so we don't ship
+# all the generated sources and the compile .class files.
 #
 os.rename(os.path.join("lib", "Ice.jar"), "Ice.jar")
 shutil.rmtree("lib")
+os.system("ant clean" + quiet)
 os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
 
