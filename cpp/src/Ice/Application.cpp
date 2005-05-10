@@ -217,7 +217,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     {
 	cerr << _appName << ": std::exception: " << ex.what() << endl;
 	status = EXIT_FAILURE;
-	assert(0);
     }
     catch(const std::string& msg)
     {
