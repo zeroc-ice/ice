@@ -33,10 +33,10 @@
                     DebugSymbols = "true"
                     IncrementalBuild = "true"
                     Optimize = "false"
-                    OutputPath = "bin\"
+                    OutputPath = ".\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
+                    TreatWarningsAsErrors = "true"
                     WarningLevel = "1"
                 />
                 <Config
@@ -49,10 +49,10 @@
                     DebugSymbols = "false"
                     IncrementalBuild = "false"
                     Optimize = "true"
-                    OutputPath = "bin\"
+                    OutputPath = ".\"
                     RegisterForComInterop = "false"
                     RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
+                    TreatWarningsAsErrors = "true"
                     WarningLevel = "1"
                 />
             </Settings>
