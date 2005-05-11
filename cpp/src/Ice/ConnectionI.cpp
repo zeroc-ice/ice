@@ -93,6 +93,14 @@ Ice::ConnectionI::validate()
 	    
 	    if(active)
 	    {
+		IceUtil::Mutex::Lock sendSync(_sendMutex);
+
+		if(!_transceiver) // Has the transceiver already been closed?
+		{
+		    assert(_exception.get()); 
+		    _exception->ice_throw(); // The exception is immutable at this point.
+		}
+
 		BasicStream os(_instance.get());
 		os.writeBlob(magic, sizeof(magic));
 		os.write(protocolMajor);
@@ -1582,6 +1590,14 @@ Ice::ConnectionI::setState(State state)
     // only supports oneway transmission from client to server.
     //
     if(_endpoint->datagram() && state == StateClosing)
+    {
+	state = StateClosed;
+    }
+
+    //
+    // Skip graceful shutdown if we are destroyed before validation.
+    //
+    if(_state == StateNotValidated && state == StateClosing)
     {
 	state = StateClosed;
     }

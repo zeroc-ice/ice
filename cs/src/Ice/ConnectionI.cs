@@ -61,23 +61,32 @@ namespace Ice
 		    
 		    if(active)
 		    {
-			IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-			os.writeBlob(IceInternal.Protocol.magic);
-			os.writeByte(IceInternal.Protocol.protocolMajor);
-			os.writeByte(IceInternal.Protocol.protocolMinor);
-			os.writeByte(IceInternal.Protocol.encodingMajor);
-			os.writeByte(IceInternal.Protocol.encodingMinor);
-			os.writeByte(IceInternal.Protocol.validateConnectionMsg);
-			os.writeByte((byte)0); // Compression status (always zero for validate connection).
-			os.writeInt(IceInternal.Protocol.headerSize); // Message size.
-			IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-			try
+			lock(_sendMutex)
 			{
-			    _transceiver.write(os, timeout);
-			}
-			catch(TimeoutException)
-			{
-			    throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			    if(_transceiver == null) // Has the transceiver already been closed?
+			    {
+				Debug.Assert(_exception != null);
+				throw _exception; // The exception is immutable at this point.
+			    }
+
+			    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+			    os.writeBlob(IceInternal.Protocol.magic);
+			    os.writeByte(IceInternal.Protocol.protocolMajor);
+			    os.writeByte(IceInternal.Protocol.protocolMinor);
+			    os.writeByte(IceInternal.Protocol.encodingMajor);
+			    os.writeByte(IceInternal.Protocol.encodingMinor);
+			    os.writeByte(IceInternal.Protocol.validateConnectionMsg);
+			    os.writeByte((byte)0); // Compression status (always zero for validate connection).
+			    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+			    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+			    try
+			    {
+				_transceiver.write(os, timeout);
+			    }
+			    catch(TimeoutException)
+			    {
+				throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			    }
 			}
 		    }
 		    else
@@ -1569,7 +1578,15 @@ namespace Ice
 	    {
 		state = StateClosed;
 	    }
-	    
+
+	    //
+	    // Skip graceful shutdown if we are destroyed before validation.
+	    //
+	    if(_state == StateNotValidated && state == StateClosing)
+	    {
+		state = StateClosed;
+	    }
+
 	    if(_state == state) // Don't switch twice.
 	    {
 		return;
