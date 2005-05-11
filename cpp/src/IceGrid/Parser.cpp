@@ -167,9 +167,19 @@ describe(IceUtil::Output& out, const Ice::CommunicatorPtr& communicator, const S
 	if(!s->jvmOptions.empty())
 	{
 	    out << nl << "jvmOptions = '";
-	    for(Ice::StringSeq::const_iterator p = s->jvmOptions.begin(); p != s->jvmOptions.end();)
+	    Ice::StringSeq::const_iterator p = s->jvmOptions.begin();
+	    while(p != s->jvmOptions.end())
 	    {
-		out << *p << ((++p != s->jvmOptions.end()) ? " " : "'");
+		out << *p;
+		++p;
+		if(p != s->jvmOptions.end())
+		{
+		    out << " ";
+		}
+		else
+		{
+		    out << "'";
+		}
 	    }
 	}
     }
@@ -186,9 +196,19 @@ describe(IceUtil::Output& out, const Ice::CommunicatorPtr& communicator, const S
     if(!server->options.empty())
     {
 	out << nl << "options = '";
-	for(Ice::StringSeq::const_iterator p = server->options.begin(); p != server->options.end();)
+	Ice::StringSeq::const_iterator p = server->options.begin();
+ 	while(p != server->options.end())
 	{
-	    out << *p << ((++p != server->options.end()) ? " " : "'");
+	    out << *p;
+	    ++p;
+	    if(p != server->options.end())
+	    {
+		out << " ";
+	    }
+	    else
+	    {
+		out << "'";
+	    }
 	}
     }
     if(!server->envs.empty())

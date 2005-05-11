@@ -349,33 +349,37 @@ Activator::activate(const string& name,
     }
 
     string pwd = pwdPath;
-
 #ifdef _WIN32
-    //
-    // Get the absolute pathname of the executable.
-    //
-    char absbuf[_MAX_PATH];
-    char* filePart;
-    if(SearchPath(NULL, path.c_str(), ".exe", _MAX_PATH, absbuf, &filePart) == 0)
+    if(path[0] != '.' && path[0] != '\\' && path[0] != '/' && !(path.size() > 1 && isalpha(path[0]) && path[1] == ':'))
     {
-        Error out(_traceLevels->logger);
-        out << "cannot convert `" << path << "' into an absolute path";
-        return false;
+	//
+	// Get the absolute pathname of the executable.
+	//
+	char absbuf[_MAX_PATH];
+	char* filePart;
+	string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
+ 	if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "cannot convert `" << path << "' into an absolute path";
+	    return false;
+	}
+	path = absbuf;
     }
-    path = absbuf;
 
     //
     // Get the absolute pathname of the working directory.
     //
     if(!pwd.empty())
     {
-        if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
-        {
-            Error out(_traceLevels->logger);
-            out << "cannot convert `" << pwd << "' into an absolute path";
-            return false;
-        }
-        pwd = absbuf;
+	char absbuf[_MAX_PATH];
+	if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "cannot convert `" << pwd << "' into an absolute path";
+	    return false;
+	}
+	pwd = absbuf;
     }
 #else
     //
