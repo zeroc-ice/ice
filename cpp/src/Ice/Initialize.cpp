@@ -151,7 +151,18 @@ CommunicatorPtr
 Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
+    //
+    // Major and minor version numbers must match.
+    //
     if(version != ICE_INT_VERSION)
+    {
+	throw VersionMismatchException(__FILE__, __LINE__);
+    }
+    //
+    // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
+    // backward-compatible, but not forward-compatible.)
+    //
+    if(version % 100 > ICE_INT_VERSION % 100)
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
