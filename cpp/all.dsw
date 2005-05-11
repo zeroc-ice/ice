@@ -429,7 +429,7 @@ Package=<4>
     Project_Dep_Name freezescriptevictor
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name TransformDB
+    Project_Dep_Name transformDB
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name dumpdb
@@ -3372,7 +3372,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "transformdb"=.\src\freezescript\TransformDB.dsp - Package Owner=<4>
+Project: "transformdb"=.\src\freezescript\transformdb.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

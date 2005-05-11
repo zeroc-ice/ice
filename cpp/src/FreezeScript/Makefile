@@ -28,7 +28,7 @@ COMMON_OBJS	= Grammar.o \
 TRANSFORM_OBJS	= TransformAnalyzer.o \
 		  TransformVisitor.o \
 		  Transformer.o \
-		  TransformDB.o
+		  transformdb.o
 
 DUMP_OBJS	= DumpDescriptors.o \
 		  DumpDB.o
