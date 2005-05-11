@@ -90,8 +90,11 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    out << "\n#   if ICE_INT_VERSION != " << ICE_INT_VERSION;
+    out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
     out << "\n#       error Ice version mismatch!";
+    out << "\n#   endif";
+    out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+    out << "\n#       error Ice patch level mismatch!";
     out << "\n#   endif";
     out << "\n#endif";
 }

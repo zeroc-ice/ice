@@ -154,7 +154,18 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
     //
     // Major and minor version numbers must match.
     //
+    //
+    // Major and minor version numbers must match.
+    //
     if(version != ICE_INT_VERSION)
+    //
+    // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
+    // backward-compatible, but not forward-compatible.)
+    //
+    if(version % 100 > ICE_INT_VERSION % 100)
+    {
+	throw VersionMismatchException(__FILE__, __LINE__);
+    }
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
