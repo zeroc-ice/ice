@@ -27,9 +27,21 @@ Filesystem::NodeI::name(const Ice::Current &) const
 
 Filesystem::NodeI::NodeI(const string & name, const DirectoryIPtr & parent) : _name(name), _parent(parent)
 {
-    // Create an identity. The parent has the fixed identity "/"
+    // Create an identity. The parent has the fixed identity "RootDir"
     //
-    Ice::Identity myID = Ice::stringToIdentity(parent ? IceUtil::generateUUID() : "RootDir");
+    // COMPILERFIX:
+    //
+    // The line below causes a "thread synchronization error" exception on HP-UX (64 bit only):
+    //
+    // Ice::Identity myID = Ice::stringToIdentity(parent ? IceUtil::generateUUID() : "RootDir");
+    //
+    // We've rearranged the code to avoid the problem.
+    //
+    Ice::Identity myID;
+    if (parent)
+	myID = Ice::stringToIdentity(IceUtil::generateUUID());
+    else
+	myID = Ice::stringToIdentity("RootDir");
 
     // Create a proxy for the new node and add it as a child to the parent
     //
