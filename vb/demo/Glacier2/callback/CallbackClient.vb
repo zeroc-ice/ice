@@ -129,7 +129,7 @@ Class CallbackClient
                     If Not override Is Nothing Then
                         context("_ovrd") = override
                     End If
-                    batchOneway.initiateCallback(onewayR)
+                    batchOneway.initiateCallback(onewayR, context)
                 ElseIf line.Equals("f") Then
                     communicator().flushBatchRequests()
                 ElseIf line.Equals("v") Then

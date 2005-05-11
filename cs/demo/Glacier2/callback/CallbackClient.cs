@@ -155,7 +155,7 @@ class CallbackClient : Ice.Application
 		    {
 			context["_ovrd"] = @override;
 		    } 
-		    batchOneway.initiateCallback(onewayR);
+		    batchOneway.initiateCallback(onewayR, context);
                 }
                 else if(line.Equals("f"))
                 {

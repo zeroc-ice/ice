@@ -160,7 +160,7 @@ class CallbackClient extends Ice.Application
 		    {
 			context.put("_ovrd", override);
 		    } 
-		    batchOneway.initiateCallback(onewayR);
+		    batchOneway.initiateCallback(onewayR, context);
                 }
                 else if(line.equals("f"))
                 {
