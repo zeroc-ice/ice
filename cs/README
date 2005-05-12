@@ -3,7 +3,7 @@ for C++:
 
 - Protocol encryption
 
-- Any of the Ice services (Freeze, Glacier2, etc.)
+- Any of the Ice services (Freeze and IceBox)
 
 Protocol compression is supported. Note that, for compression to work,
 libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH. If
