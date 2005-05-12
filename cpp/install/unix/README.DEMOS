@@ -75,7 +75,7 @@ Running the C# demos
 ====================
 
 The C# demos are only officially supported under Linux or Windows,
-therefore the Ice for C# runtime is only included the Linux and
+therefore the Ice for C# runtime is only included in the Linux and
 Windows distributions.
 
 To run a demo, open a terminal window, change to the desired demo
@@ -101,3 +101,32 @@ To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
 $ python Client.py
+
+
+Running the PHP demos
+---------------------
+
+Two PHP demos are provided in the demophp directory.
+
+To run the PHP demos, you need PHP 5.0.4. It can be downloaded from:
+
+http://www.php.net/downloads.php
+
+The Ice extension for PHP is provided as a dynamically-loadable
+shared library (lib/icephp.so) in the Linux and MacOS X binary
+distributions. On all other Unix platforms, the Ice extension can
+only be used in a static configuration, which requires that you build
+PHP and the Ice extension from source code. Please refer to the
+INSTALL file included in the IcePHP source distribution for more
+information.
+
+The example in demophp/Ice/hello demonstrates the use of the Ice
+extension for PHP in a dynamic Web page, whereas the example in
+demophp/Ice/value requires PHP's command line interpreter. Both
+examples require that an Ice server be available; a matching server
+from any of the other language mappings can be used. A README file is
+provided in each of the example directories.
+
+Note that you must modify the php.ini files in each demo directory to
+match your PHP installation and ensure that the Ice extension is
+loaded properly.
