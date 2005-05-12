@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -49,9 +50,8 @@ namespace Generate
 
 		Directory.SetCurrentDirectory(projDir);
 
-		const string slicePat = @"*.ice";
 		string sliceDir = projDir;
-		string[] sliceFiles = Directory.GetFiles(projDir, slicePat);
+		ArrayList sliceFiles = getSliceFiles(projDir);
 
 		string includes = "";
 		if(Directory.Exists(Path.Combine(solDir, "slice")))
@@ -63,23 +63,23 @@ namespace Generate
 		    includes += " -I" + Path.Combine(iceHome, "slice");
 		}
 
-		if(sliceFiles.Length == 0)
+		if(sliceFiles.Count == 0)
 		{
 		    sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
 		    if(Directory.Exists(sliceDir))
 		    {
-			sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+			sliceFiles = getSliceFiles(sliceDir);
 		    }
 		}
-		if(sliceFiles.Length == 0)
+		if(sliceFiles.Count == 0)
 		{
 		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
 		    if(Directory.Exists(sliceDir))
 		    {
-			sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+			sliceFiles = getSliceFiles(sliceDir);
 		    }
 		}
-		if(sliceFiles.Length == 0)
+		if(sliceFiles.Count == 0)
 		{
 		    Console.Error.WriteLine(progName + ": no Slice files found");
 		    Environment.Exit(1);
@@ -122,7 +122,7 @@ namespace Generate
 		    DateTime sliceTime = File.GetLastWriteTime(sliceFile);
 		    string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
 		    if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
-		    {	  
+		    {
 			cmdArgs += " " + sliceFile;
 			Console.Out.WriteLine(Path.GetFileName(sliceFile));
 			needCompile = true;
@@ -162,7 +162,27 @@ namespace Generate
 	    }
 	}
 
-	static Process p;
+        //
+        // Return all the files ending in ".ice" in the specified dir.
+        // Unfortunately, we can't use Directory.GetFiles(dir, ".ice") for
+        // this because, for three-letter file extensions, it returns files
+        // with extensions that have three *or more* letters :-(
+        //
+	private static ArrayList getSliceFiles(string dir)
+	{
+	    ArrayList result = new ArrayList();
+	    string[] files = Directory.GetFiles(dir);
+	    foreach(string file in files)
+	    {
+	        if(file.EndsWith(".ice"))
+		{
+		    result.Add(file);
+		}
+	    }
+	    return result;
+	}
+
+	static volatile Process p;
 
 	private static void RedirectStandardOutput()
 	{
