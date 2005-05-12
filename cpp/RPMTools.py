@@ -288,7 +288,7 @@ fileLists = [
 		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
 		]),
     Subpackage("dotnet",
-               "ice = %version%, mono-core >= 1.0.6, mono-core < 1.1",
+               "ice = %version%, mono-core >= 1.1.7",
                "The Ice runtime for C# applications",
                "System Environment/Libraries",
 	       iceDescription,
