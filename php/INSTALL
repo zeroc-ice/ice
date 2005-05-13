@@ -43,8 +43,8 @@ There are two ways to do this:
 
 2) Create a symbolic link to the extension:
 
-   $ cd <phpdir>
-   $ ln -s <icephpdir>/src/ice ext
+   $ cd <phpdir>/ext
+   $ ln -s <icephpdir>/src/ice ice
 
 
 Updating configure
