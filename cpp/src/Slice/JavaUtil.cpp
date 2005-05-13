@@ -1450,7 +1450,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                                                       const StringList& metaData,
                                                       const string& patchParams)
 {
-    string stream = marshal ? "__out" : "__in";
+    string stream = marshal ? "__outS" : "__inS";
     string v;
     if(holder)
     {
@@ -1720,7 +1720,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                                                               bool useHelper,
                                                               const StringList& metaData)
 {
-    string stream = marshal ? "__out" : "__in";
+    string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
     //

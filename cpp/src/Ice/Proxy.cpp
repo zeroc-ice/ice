@@ -812,14 +812,14 @@ bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
-    BasicStream* __is = __out.is();
-    BasicStream* __os = __out.os();
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    BasicStream* __is = __outS.is();
+    BasicStream* __os = __outS.os();
     __os->write(__id);
     bool __ret;
     try
     {
-	if(!__out.invoke())
+	if(!__outS.invoke())
 	{
 	    __is->throwException();
 	}
@@ -836,11 +836,11 @@ void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
-    BasicStream* __is = __out.is();
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    BasicStream* __is = __outS.is();
     try
     {
-	if(!__out.invoke())
+	if(!__outS.invoke())
 	{
 	    __is->throwException();
 	}
@@ -855,12 +855,12 @@ vector<string>
 IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
-    BasicStream* __is = __out.is();
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    BasicStream* __is = __outS.is();
     vector<string> __ret;
     try
     {
-	if(!__out.invoke())
+	if(!__outS.invoke())
 	{
 	    __is->throwException();
 	}
@@ -877,12 +877,12 @@ string
 IceDelegateM::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __out(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
-    BasicStream* __is = __out.is();
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context, __compress);
+    BasicStream* __is = __outS.is();
     string __ret;
     try
     {
-	if(!__out.invoke())
+	if(!__outS.invoke())
 	{
 	    __is->throwException();
 	}
@@ -902,15 +902,15 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __out(__connection.get(), __reference.get(), operation, mode, context, __compress);
-    BasicStream* __os = __out.os();
+    Outgoing __outS(__connection.get(), __reference.get(), operation, mode, context, __compress);
+    BasicStream* __os = __outS.os();
     __os->writeBlob(inParams);
-    bool ok = __out.invoke();
+    bool ok = __outS.invoke();
     if(__reference->getMode() == Reference::ModeTwoway)
     {
         try
         {
-            BasicStream* __is = __out.is();
+            BasicStream* __is = __outS.is();
             Int sz = __is->getReadEncapsSize();
             __is->readBlob(outParams, sz);
         }

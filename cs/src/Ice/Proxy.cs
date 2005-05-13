@@ -958,13 +958,13 @@ namespace Ice
 
         public virtual bool ice_isA(string __id, Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_isA", OperationMode.Nonmutating, __context, __compress);
+            IceInternal.Outgoing __outS = getOutgoing("ice_isA", OperationMode.Nonmutating, __context, __compress);
             try
             {
-                IceInternal.BasicStream __is = __out.istr();
-                IceInternal.BasicStream __os = __out.ostr();
+                IceInternal.BasicStream __is = __outS.istr();
+                IceInternal.BasicStream __os = __outS.ostr();
                 __os.writeString(__id);
-                if(!__out.invoke())
+                if(!__outS.invoke())
                 {
                     throw new UnknownUserException();
                 }
@@ -979,33 +979,33 @@ namespace Ice
             }
             finally
             {
-                reclaimOutgoing(__out);
+                reclaimOutgoing(__outS);
             }
         }
 	
         public virtual void ice_ping(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_ping", OperationMode.Nonmutating, __context, __compress);
+            IceInternal.Outgoing __outS = getOutgoing("ice_ping", OperationMode.Nonmutating, __context, __compress);
             try
             {
-                if(!__out.invoke())
+                if(!__outS.invoke())
                 {
                     throw new UnknownUserException();
                 }
             }
             finally
             {
-                reclaimOutgoing(__out);
+                reclaimOutgoing(__outS);
             }
         }
 	
         public virtual string[] ice_ids(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context, __compress);
+            IceInternal.Outgoing __outS = getOutgoing("ice_ids", OperationMode.Nonmutating, __context, __compress);
             try
             {
-                IceInternal.BasicStream __is = __out.istr();
-                if(!__out.invoke())
+                IceInternal.BasicStream __is = __outS.istr();
+                if(!__outS.invoke())
                 {
                     throw new UnknownUserException();
                 }
@@ -1020,17 +1020,17 @@ namespace Ice
             }
             finally
             {
-                reclaimOutgoing(__out);
+                reclaimOutgoing(__outS);
             }
         }
 	
         public virtual string ice_id(Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing("ice_id", OperationMode.Nonmutating, __context, __compress);
+            IceInternal.Outgoing __outS = getOutgoing("ice_id", OperationMode.Nonmutating, __context, __compress);
             try
             {
-                IceInternal.BasicStream __is = __out.istr();
-                if(!__out.invoke())
+                IceInternal.BasicStream __is = __outS.istr();
+                if(!__outS.invoke())
                 {
                     throw new UnknownUserException();
                 }
@@ -1045,25 +1045,25 @@ namespace Ice
             }
             finally
             {
-                reclaimOutgoing(__out);
+                reclaimOutgoing(__outS);
             }
         }
 	
         public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
                                        Ice.Context __context)
         {
-            IceInternal.Outgoing __out = getOutgoing(operation, mode, __context, __compress);
+            IceInternal.Outgoing __outS = getOutgoing(operation, mode, __context, __compress);
             try
             {
-                IceInternal.BasicStream __os = __out.ostr();
+                IceInternal.BasicStream __os = __outS.ostr();
                 __os.writeBlob(inParams);
-                bool ok = __out.invoke();
+                bool ok = __outS.invoke();
                 outParams = null;
                 if(__reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
                 {
                     try
                     {
-                        IceInternal.BasicStream __is = __out.istr();
+                        IceInternal.BasicStream __is = __outS.istr();
                         int sz = __is.getReadEncapsSize();
                         outParams = __is.readBlob(sz);
                     }
@@ -1076,7 +1076,7 @@ namespace Ice
             }
             finally
             {
-                reclaimOutgoing(__out);
+                reclaimOutgoing(__outS);
             }
         }
 	

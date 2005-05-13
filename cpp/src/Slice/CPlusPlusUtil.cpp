@@ -522,7 +522,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
     string stream;
     if(str.empty())
     {
-	stream = marshal ? "__out" : "__in";
+	stream = marshal ? "__outS" : "__inS";
     }
     else
     {

@@ -98,7 +98,7 @@ LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
 
 MCSFLAGS = -warnaserror
 ifeq ($(DEBUG),yes)
-    MCSFLAGS := $(MCSFLAGS) -g
+    MCSFLAGS := $(MCSFLAGS) -debug
 endif
 
 SLICE2CS		= slice2cs

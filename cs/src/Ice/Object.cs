@@ -55,8 +55,8 @@ namespace Ice
 	void __write(IceInternal.BasicStream __os);
 	void __read(IceInternal.BasicStream __is, bool __rid);
 
-	void __write(OutputStream __out);
-	void __read(InputStream __in, bool __rid);
+	void __write(OutputStream __outS);
+	void __read(InputStream __inS, bool __rid);
     }
 
     public class ObjectImpl : Object
@@ -87,11 +87,11 @@ namespace Ice
             return s.Equals(__ids[0]);
         }
 	
-        public static IceInternal.DispatchStatus ___ice_isA(Ice.Object __obj, IceInternal.Incoming __in,
+        public static IceInternal.DispatchStatus ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS,
             Current __current)
         {
-            IceInternal.BasicStream __is = __in.istr();
-            IceInternal.BasicStream __os = __in.ostr();
+            IceInternal.BasicStream __is = __inS.istr();
+            IceInternal.BasicStream __os = __inS.ostr();
             string __id = __is.readString();
             bool __ret = __obj.ice_isA(__id, __current);
             __os.writeBool(__ret);
@@ -108,7 +108,7 @@ namespace Ice
             // Nothing to do.
         }
 	
-        public static IceInternal.DispatchStatus ___ice_ping(Ice.Object __obj, IceInternal.Incoming __in,
+        public static IceInternal.DispatchStatus ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS,
             Current __current)
         {
             __obj.ice_ping(__current);
@@ -125,10 +125,10 @@ namespace Ice
             return __ids;
         }
 	
-        public static IceInternal.DispatchStatus ___ice_ids(Ice.Object __obj, IceInternal.Incoming __in,
+        public static IceInternal.DispatchStatus ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS,
             Current __current)
         {
-            IceInternal.BasicStream __os = __in.ostr();
+            IceInternal.BasicStream __os = __inS.ostr();
             __os.writeStringSeq(__obj.ice_ids(__current));
             return IceInternal.DispatchStatus.DispatchOK;
         }
@@ -143,10 +143,10 @@ namespace Ice
             return __ids[0];
         }
 	
-        public static IceInternal.DispatchStatus ___ice_id(Ice.Object __obj, IceInternal.Incoming __in,
+        public static IceInternal.DispatchStatus ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS,
             Current __current)
         {
-            IceInternal.BasicStream __os = __in.ostr();
+            IceInternal.BasicStream __os = __inS.ostr();
             string __ret = __obj.ice_id(__current);
             __os.writeString(__ret);
             return IceInternal.DispatchStatus.DispatchOK;
@@ -230,31 +230,31 @@ namespace Ice
             __is.endReadSlice();
         }
 
-	public virtual void __write(OutputStream __out)
+	public virtual void __write(OutputStream __outS)
 	{
-	    __out.writeTypeId(ice_staticId());
-	    __out.startSlice();
-	    __out.writeSize(0); // For compatibility with the old AFM.
-	    __out.endSlice();
+	    __outS.writeTypeId(ice_staticId());
+	    __outS.startSlice();
+	    __outS.writeSize(0); // For compatibility with the old AFM.
+	    __outS.endSlice();
 	}
 
-	public virtual void __read(InputStream __in, bool __rid)
+	public virtual void __read(InputStream __inS, bool __rid)
 	{
 	    if(__rid)
 	    {
-		/* string myId = */ __in.readTypeId();
+		/* string myId = */ __inS.readTypeId();
 	    }
 
-	    __in.startSlice();
+	    __inS.startSlice();
 
 	    // For compatibility with the old AFM.
-	    int sz = __in.readSize();
+	    int sz = __inS.readSize();
 	    if(sz != 0)
 	    {
 		throw new MarshalException();
 	    }
 
-	    __in.endSlice();
+	    __inS.endSlice();
 	}
 
         public static Ice.Current defaultCurrent = new Ice.Current();

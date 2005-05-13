@@ -40,12 +40,12 @@ namespace Ice
         public abstract void __write(IceInternal.BasicStream __os);
         public abstract void __read(IceInternal.BasicStream __is, bool __rid);
 
-	public virtual void __write(Ice.OutputStream __out)
+	public virtual void __write(Ice.OutputStream __outS)
 	{
 	    Debug.Assert(false);
 	}
 
-	public virtual void __read(Ice.InputStream __in, bool __rid)
+	public virtual void __read(Ice.InputStream __inS, bool __rid)
 	{
 	    Debug.Assert(false);
 	}

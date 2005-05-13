@@ -524,22 +524,22 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(_stream)
         {
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __out) const";
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
-            C << nl << "__out->writeString(::std::string(\"" << p->scoped() << "\"));";
-            C << nl << "__out->startSlice();";
+            C << nl << "__outS->writeString(::std::string(\"" << p->scoped() << "\"));";
+            C << nl << "__outS->startSlice();";
             writeStreamMarshalCode(C, memberList, 0);
-            C << nl << "__out->endSlice();";
+            C << nl << "__outS->endSlice();";
             if(base)
             {
                 C.zeroIndent();
                 C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 C.restoreIndent();
-                C << nl << fixKwd(base->name()) << "::__write(__out);";
+                C << nl << fixKwd(base->name()) << "::__write(__outS);";
                 C.zeroIndent();
                 C << nl << "#else";
                 C.restoreIndent();
-                C << nl << fixKwd(base->scoped()) << "::__write(__out);";
+                C << nl << fixKwd(base->scoped()) << "::__write(__outS);";
                 C.zeroIndent();
                 C << nl << "#endif";
                 C.restoreIndent();
@@ -547,25 +547,25 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2)
-              << "::__read(const ::Ice::InputStreamPtr& __in, bool __rid)";
+              << "::__read(const ::Ice::InputStreamPtr& __inS, bool __rid)";
             C << sb;
             C << nl << "if(__rid)";
             C << sb;
-            C << nl << "__in->readString();";
+            C << nl << "__inS->readString();";
             C << eb;
-            C << nl << "__in->startSlice();";
+            C << nl << "__inS->startSlice();";
             writeStreamUnmarshalCode(C, memberList, 0);
-            C << nl << "__in->endSlice();";
+            C << nl << "__inS->endSlice();";
             if(base)
             {
                 C.zeroIndent();
                 C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
                 C.restoreIndent();
-                C << nl << fixKwd(base->name()) << "::__read(__in, true);";
+                C << nl << fixKwd(base->name()) << "::__read(__inS, true);";
                 C.zeroIndent();
                 C << nl << "#else";
                 C.restoreIndent();
-                C << nl << fixKwd(base->scoped()) << "::__read(__in, true);";
+                C << nl << fixKwd(base->scoped()) << "::__read(__inS, true);";
                 C.zeroIndent();
                 C << nl << "#endif";
                 C.restoreIndent();
@@ -751,12 +751,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(_stream)
 	{
-	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __out) const";
+	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
 	    C << sb;
 	    writeStreamMarshalCode(C, memberList, 0);
 	    C << eb;
 
-	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __in)";
+	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS)";
 	    C << sb;
 	    writeStreamUnmarshalCode(C, memberList, 0);
 	    C << eb;
@@ -772,15 +772,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
 
         C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-          << "(const ::Ice::OutputStreamPtr& __out, const " << scoped << "& __v)";
+          << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& __v)";
         C << sb;
-        C << nl << "__v.__write(__out);";
+        C << nl << "__v.__write(__outS);";
         C << eb;
 
         C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-          << "(const ::Ice::InputStreamPtr& __in, " << scoped << "& __v)";
+          << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& __v)";
         C << sb;
-        C << nl << "__v.__read(__in);";
+        C << nl << "__v.__read(__inS);";
         C << eb;
     }
 }
@@ -884,9 +884,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         if(_stream)
         {
             C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-              << "(const ::Ice::OutputStreamPtr& __out, const " << scoped << "& v)";
+              << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
             C << sb;
-            C << nl << "__out->writeSize(::Ice::Int(v.size()));";
+            C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
             C << nl << scoped << "::const_iterator p;";
             C << nl << "for(p = v.begin(); p != v.end(); ++p)";
             C << sb;
@@ -895,9 +895,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             C << eb;
 
             C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-              << "(const ::Ice::InputStreamPtr& __in, " << scoped << "& v)";
+              << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
             C << sb;
-            C << nl << "::Ice::Int sz = __in->readSize();";
+            C << nl << "::Ice::Int sz = __inS->readSize();";
             C << nl << "v.resize(sz);";
             C << nl << "for(int i = 0; i < sz; ++i)";
             C << sb;
@@ -970,9 +970,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	if(_stream)
 	{
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-	      << "(const ::Ice::OutputStreamPtr& __out, const " << scoped << "& v)";
+	      << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
 	    C << sb;
-	    C << nl << "__out->writeSize(::Ice::Int(v.size()));";
+	    C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
 	    C << nl << scoped << "::const_iterator p;";
 	    C << nl << "for(p = v.begin(); p != v.end(); ++p)";
 	    C << sb;
@@ -982,9 +982,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	    C << eb;
 
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-	      << "(const ::Ice::InputStreamPtr& __in, " << scoped << "& v)";
+	      << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
 	    C << sb;
-	    C << nl << "::Ice::Int sz = __in->readSize();";
+	    C << nl << "::Ice::Int sz = __inS->readSize();";
 	    C << nl << "while(sz--)";
 	    C << sb;
 	    C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
@@ -1077,38 +1077,38 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	if(_stream)
 	{
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-              << "(const ::Ice::OutputStreamPtr& __out, " << scoped << " v)";
+              << "(const ::Ice::OutputStreamPtr& __outS, " << scoped << " v)";
 	    C << sb;
 	    if(sz <= 0x7f)
 	    {
-		C << nl << "__out->writeByte(static_cast< ::Ice::Byte>(v));";
+		C << nl << "__outS->writeByte(static_cast< ::Ice::Byte>(v));";
 	    }
 	    else if(sz <= 0x7fff)
 	    {
-		C << nl << "__out->writeShort(static_cast< ::Ice::Short>(v));";
+		C << nl << "__outS->writeShort(static_cast< ::Ice::Short>(v));";
 	    }
 	    else
 	    {
-		C << nl << "__out->writeInt(static_cast< ::Ice::Int>(v));";
+		C << nl << "__outS->writeInt(static_cast< ::Ice::Int>(v));";
 	    }
 	    C << eb;
 
 	    C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-              << "(const ::Ice::InputStreamPtr& __in, " << scoped << "& v)";
+              << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
 	    C << sb;
 	    if(sz <= 0x7f)
 	    {
-		C << nl << "::Ice::Byte val = __in->readByte();";
+		C << nl << "::Ice::Byte val = __inS->readByte();";
 		C << nl << "v = static_cast< " << scoped << ">(val);";
 	    }
 	    else if(sz <= 0x7fff)
 	    {
-		C << nl << "::Ice::Short val = __in->readShort();";
+		C << nl << "::Ice::Short val = __inS->readShort();";
 		C << nl << "v = static_cast< " << scoped << ">(val);";
 	    }
 	    else
 	    {
-		C << nl << "::Ice::Int val = __in->readInt();";
+		C << nl << "::Ice::Int val = __inS->readInt();";
 		C << nl << "v = static_cast< " << scoped << ">(val);";
 	    }
 	    C << eb;
@@ -1790,13 +1790,13 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "::IceInternal::Outgoing __out(__connection.get(), __reference.get(), __operation, "
+    C << nl << "::IceInternal::Outgoing __outS(__connection.get(), __reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context, __compress);";
     if(!inParams.empty())
     {
 	C << nl << "try";
 	C << sb;
-	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
+	C << nl << "::IceInternal::BasicStream* __os = __outS.os();";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{
@@ -1805,13 +1805,13 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
-	C << nl << "__out.abort(__ex);";
+	C << nl << "__outS.abort(__ex);";
 	C << eb;
     }
-    C << nl << "bool __ok = __out.invoke();";
+    C << nl << "bool __ok = __outS.invoke();";
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::BasicStream* __is = __out.is();";
+    C << nl << "::IceInternal::BasicStream* __is = __outS.is();";
     C << nl << "if(!__ok)";
     C << sb;
     C << nl << "__is->throwException();";
@@ -2461,42 +2461,42 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	if(_stream)
 	{
 	    C << sp;
-	    C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __out) const";
+	    C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
 	    C << sb;
-	    C << nl << "__out->writeTypeId(ice_staticId());";
-	    C << nl << "__out->startSlice();";
+	    C << nl << "__outS->writeTypeId(ice_staticId());";
+	    C << nl << "__outS->startSlice();";
 	    writeStreamMarshalCode(C, memberList, 0);
-	    C << nl << "__out->endSlice();";
+	    C << nl << "__outS->endSlice();";
 	    C.zeroIndent();
 	    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
 	    C.restoreIndent();
-	    C << nl << (base ? fixKwd(base->name()) : "Object") << "::__write(__out);";
+	    C << nl << (base ? fixKwd(base->name()) : "Object") << "::__write(__outS);";
 	    C.zeroIndent();
 	    C << nl << "#else";
 	    C.restoreIndent();
-	    C << nl << (base ? fixKwd(base->scoped()) : "::Ice::Object") << "::__write(__out);";
+	    C << nl << (base ? fixKwd(base->scoped()) : "::Ice::Object") << "::__write(__outS);";
 	    C.zeroIndent();
 	    C << nl << "#endif";
 	    C.restoreIndent();
 	    C << eb;
 	    C << sp;
-	    C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __in, bool __rid)";
+	    C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS, bool __rid)";
 	    C << sb;
 	    C << nl << "if(__rid)";
 	    C << sb;
-	    C << nl << "__in->readTypeId();";
+	    C << nl << "__inS->readTypeId();";
 	    C << eb;
-	    C << nl << "__in->startSlice();";
+	    C << nl << "__inS->startSlice();";
 	    writeStreamUnmarshalCode(C, memberList, 0);
-	    C << nl << "__in->endSlice();";
+	    C << nl << "__inS->endSlice();";
 	    C.zeroIndent();
 	    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
 	    C.restoreIndent();
-	    C << nl << (base ? fixKwd(base->name()) : "Object") << "::__read(__in, true);";
+	    C << nl << (base ? fixKwd(base->name()) : "Object") << "::__read(__inS, true);";
 	    C.zeroIndent();
 	    C << nl << "#else";
 	    C.restoreIndent();
-	    C << nl << (base ? fixKwd(base->scoped()) : "::Ice::Object") << "::__read(__in, true);";
+	    C << nl << (base ? fixKwd(base->scoped()) : "::Ice::Object") << "::__read(__inS, true);";
 	    C.zeroIndent();
 	    C << nl << "#endif";
 	    C.restoreIndent();
@@ -2776,7 +2776,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
+	  << "(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
 	C << sb;
 	if(!amd)
 	{
@@ -2799,11 +2799,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	    if(!inParams.empty())
 	    {
-		C << nl << "::IceInternal::BasicStream* __is = __in.is();";
+		C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
 	    }
 	    if(ret || !outParams.empty() || !throws.empty())
 	    {
-		C << nl << "::IceInternal::BasicStream* __os = __in.os();";
+		C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
@@ -2847,7 +2847,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	{
 	    if(!inParams.empty())
 	    {
-		C << nl << "::IceInternal::BasicStream* __is = __in.is();";
+		C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
 	    }
 	    writeAllocateCode(C, inParams, 0);
 	    writeUnmarshalCode(C, inParams, 0);
@@ -2856,7 +2856,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 		C << nl << "__is->readPendingObjects();";
 	    }
 	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
-	      << "(__in);";
+	      << "(__inS);";
 	    C << nl << "try";
 	    C << sb;
 	    C << nl << name << "_async" << argsAMD << ';';
@@ -3337,16 +3337,16 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    C << sp;
 	    C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
-              << "Prx(const ::Ice::OutputStreamPtr& __out, const " << scope << name << "Prx& v)";
+              << "Prx(const ::Ice::OutputStreamPtr& __outS, const " << scope << name << "Prx& v)";
 	    C << sb;
-	    C << nl << "__out->writeProxy(v);";
+	    C << nl << "__outS->writeProxy(v);";
 	    C << eb;
 
 	    C << sp;
 	    C << nl << "void" << nl << scope.substr(2) << "ice_read" << name
-              << "Prx(const ::Ice::InputStreamPtr& __in, " << scope << name << "Prx& v)";
+              << "Prx(const ::Ice::InputStreamPtr& __inS, " << scope << name << "Prx& v)";
 	    C << sb;
-	    C << nl << "::Ice::ObjectPrx proxy = __in->readProxy();";
+	    C << nl << "::Ice::ObjectPrx proxy = __inS->readProxy();";
 	    C << nl << "if(!proxy)";
 	    C << sb;
 	    C << nl << "v = 0;";
@@ -3360,18 +3360,18 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    C << sp;
 	    C << nl << "void" << nl << scope.substr(2) << "ice_write" << name
-              << "(const ::Ice::OutputStreamPtr& __out, const " << scope << name << "Ptr& v)";
+              << "(const ::Ice::OutputStreamPtr& __outS, const " << scope << name << "Ptr& v)";
 	    C << sb;
-	    C << nl << "__out->writeObject(v);";
+	    C << nl << "__outS->writeObject(v);";
 	    C << eb;
 
             C << sp;
-            C << nl << "void" << nl << scope.substr(2) << "ice_read" << name << "(const ::Ice::InputStreamPtr& __in, "
+            C << nl << "void" << nl << scope.substr(2) << "ice_read" << name << "(const ::Ice::InputStreamPtr& __inS, "
               << scoped << "Ptr& __v)";
             C << sb;
             C << nl << "::Ice::ReadObjectCallbackPtr __cb = new ::Ice::ReadObjectCallbackI(" << scope << "__patch__"
               << name << "Ptr, &__v);";
-            C << nl << "__in->readObject(__cb);";
+            C << nl << "__inS->readObject(__cb);";
             C << eb;
 	}
     }

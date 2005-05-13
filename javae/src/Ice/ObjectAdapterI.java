@@ -635,22 +635,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     finalize()
         throws Throwable
     {
-        if(!_deactivated)
-        {
-            _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
-        }
-        else if(_instance != null)
-        {
-            _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
-        }
-	else
-	{
-	    assert(_servantManager == null);
-	    assert(_communicator == null);
-	    assert(_incomingConnectionFactories.isEmpty());
-	    assert(_directCount == 0);
-	    assert(!_waitForDeactivate);
-	}
+	assert(_servantManager == null);
+	assert(_communicator == null);
+	assert(_incomingConnectionFactories != null);
+	assert(_directCount == 0);
+	assert(!_waitForDeactivate);
 
         super.finalize();
     }

@@ -111,10 +111,10 @@ Ice::Object::ice_postUnmarshal()
 }
 
 DispatchStatus
-Ice::Object::___ice_isA(Incoming& __in, const Current& __current)
+Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __is = __in.is();
-    BasicStream* __os = __in.os();
+    BasicStream* __is = __inS.is();
+    BasicStream* __os = __inS.os();
     string __id;
     __is->read(__id);
     bool __ret = ice_isA(__id, __current);
@@ -130,18 +130,18 @@ Ice::Object::___ice_ping(Incoming&, const Current& __current)
 }
 
 DispatchStatus
-Ice::Object::___ice_ids(Incoming& __in, const Current& __current)
+Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __os = __in.os();
+    BasicStream* __os = __inS.os();
     vector<string> __ret = ice_ids(__current);
     __os->write(__ret);
     return DispatchOK;
 }
 
 DispatchStatus
-Ice::Object::___ice_id(Incoming& __in, const Current& __current)
+Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
-    BasicStream* __os = __in.os();
+    BasicStream* __os = __inS.os();
     string __ret = ice_id(__current);
     __os->write(__ret);
     return DispatchOK;
@@ -222,32 +222,32 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
-Ice::Object::__write(const OutputStreamPtr& __out) const
+Ice::Object::__write(const OutputStreamPtr& __outS) const
 {
-    __out->writeTypeId(ice_staticId());
-    __out->startSlice();
-    __out->writeSize(0); // For compatibility with the old AFM.
-    __out->endSlice();
+    __outS->writeTypeId(ice_staticId());
+    __outS->startSlice();
+    __outS->writeSize(0); // For compatibility with the old AFM.
+    __outS->endSlice();
 }
 
 void
-Ice::Object::__read(const InputStreamPtr& __in, bool __rid)
+Ice::Object::__read(const InputStreamPtr& __inS, bool __rid)
 {
     if(__rid)
     {
-	__in->readTypeId();
+	__inS->readTypeId();
     }
 
-    __in->startSlice();
+    __inS->startSlice();
 
     // For compatibility with the old AFM.
-    Int sz = __in->readSize();
+    Int sz = __inS->readSize();
     if(sz != 0)
     {
 	throw Ice::MarshalException(__FILE__, __LINE__);
     }
 
-    __in->endSlice();
+    __inS->endSlice();
 }
 
 void

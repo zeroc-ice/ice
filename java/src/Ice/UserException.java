@@ -35,13 +35,13 @@ public abstract class UserException extends Exception
     __read(IceInternal.BasicStream __is, boolean __rid);
 
     public void
-    __write(Ice.OutputStream __out)
+    __write(Ice.OutputStream __outS)
     {
         assert(false);
     }
 
     public void
-    __read(Ice.InputStream __in, boolean __rid)
+    __read(Ice.InputStream __inS, boolean __rid)
     {
         assert(false);
     }

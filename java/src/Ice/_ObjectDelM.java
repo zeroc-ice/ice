@@ -15,13 +15,13 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __outS = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
         try
         {
-            IceInternal.BasicStream __is = __out.is();
-            IceInternal.BasicStream __os = __out.os();
+            IceInternal.BasicStream __is = __outS.is();
+            IceInternal.BasicStream __os = __outS.os();
             __os.writeString(__id);
-            if(!__out.invoke())
+            if(!__outS.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -36,7 +36,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__out);
+            reclaimOutgoing(__outS);
         }
     }
 
@@ -44,17 +44,17 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __outS = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
         try
         {
-            if(!__out.invoke())
+            if(!__outS.invoke())
             {
                 throw new UnknownUserException();
             }
         }
         finally
         {
-            reclaimOutgoing(__out);
+            reclaimOutgoing(__outS);
         }
     }
 
@@ -62,11 +62,11 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __outS = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
         try
         {
-            IceInternal.BasicStream __is = __out.is();
-            if(!__out.invoke())
+            IceInternal.BasicStream __is = __outS.is();
+            if(!__outS.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -81,7 +81,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__out);
+            reclaimOutgoing(__outS);
         }
     }
 
@@ -89,11 +89,11 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __outS = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
         try
         {
-            IceInternal.BasicStream __is = __out.is();
-            if(!__out.invoke())
+            IceInternal.BasicStream __is = __outS.is();
+            if(!__outS.invoke())
             {
                 throw new UnknownUserException();
             }
@@ -108,7 +108,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__out);
+            reclaimOutgoing(__outS);
         }
     }
 
@@ -116,20 +116,20 @@ public class _ObjectDelM implements _ObjectDel
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing(operation, mode, __context);
+        IceInternal.Outgoing __outS = getOutgoing(operation, mode, __context);
         try
         {
             if(inParams != null)
             {
-                IceInternal.BasicStream __os = __out.os();
+                IceInternal.BasicStream __os = __outS.os();
                 __os.writeBlob(inParams);
             }
-            boolean ok = __out.invoke();
+            boolean ok = __outS.invoke();
             if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
                 try
                 {
-                    IceInternal.BasicStream __is = __out.is();
+                    IceInternal.BasicStream __is = __outS.is();
                     int sz = __is.getReadEncapsSize();
                     if(outParams != null)
                     {
@@ -145,7 +145,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__out);
+            reclaimOutgoing(__outS);
         }
     }
 

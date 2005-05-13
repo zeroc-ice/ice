@@ -227,11 +227,11 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
 
     if(marshal)
     {
-        stream = streamingAPI ? "__out" : "__os";
+        stream = streamingAPI ? "__outS" : "__os";
     }
     else
     {
-        stream = streamingAPI ? "__in" : "__is";
+        stream = streamingAPI ? "__inS" : "__is";
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -523,11 +523,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string stream;
     if(marshal)
     {
-        stream = streamingAPI ? "__out" : "__os";
+        stream = streamingAPI ? "__outS" : "__os";
     }
     else
     {
-        stream = streamingAPI ? "__in" : "__is";
+        stream = streamingAPI ? "__inS" : "__is";
     }
     
     TypePtr type = seq->type();

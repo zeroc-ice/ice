@@ -47,10 +47,10 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public static IceInternal.DispatchStatus
-    ___ice_isA(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
+    ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __is = __in.is();
-        IceInternal.BasicStream __os = __in.os();
+        IceInternal.BasicStream __is = __inS.is();
+        IceInternal.BasicStream __os = __inS.os();
         String __id = __is.readString();
         boolean __ret = __obj.ice_isA(__id, __current);
         __os.writeBool(__ret);
@@ -70,7 +70,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public static IceInternal.DispatchStatus
-    ___ice_ping(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
+    ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __obj.ice_ping(__current);
         return IceInternal.DispatchStatus.DispatchOK;
@@ -89,9 +89,9 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public static IceInternal.DispatchStatus
-    ___ice_ids(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
+    ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __os = __in.os();
+        IceInternal.BasicStream __os = __inS.os();
         String[] __ret = __obj.ice_ids(__current);
         __os.writeStringSeq(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
@@ -110,9 +110,9 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public static IceInternal.DispatchStatus
-    ___ice_id(Ice.Object __obj, IceInternal.Incoming __in, Current __current)
+    ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __os = __in.os();
+        IceInternal.BasicStream __os = __inS.os();
         String __ret = __obj.ice_id(__current);
         __os.writeString(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
