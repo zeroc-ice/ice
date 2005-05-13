@@ -7,10 +7,18 @@
 //
 // **********************************************************************
 
+<<<<<<< TestI.cs
 using System;
 using System.Diagnostics;
 using System.Threading;
 using IceInternal;
+=======
+using System;
+using System.IO;
+using System.Diagnostics;
+using System.Threading;
+using IceInternal;
+>>>>>>> 1.9.2.2
 using Test;
 
 public sealed class TestI : _TestIntfDisp
@@ -27,12 +35,22 @@ public sealed class TestI : _TestIntfDisp
     
     private void commitSuicide()
     {
+	//
+	// Process.Kill() under UNIX MONO sends SIGKILL to the
+	// process, which causes it to hang around for a bit cleaning
+	// up. We want the process to die immmediately.
+	//
 	if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows
 	   && AssemblyUtil._runtime == AssemblyUtil.Runtime.Mono)
 	{
-	    ProcessStartInfo info = new ProcessStartInfo("/usr/bin/kill");
+	    //
+	    // Just using "kill" results uses the shell built-in which
+	    // has other undesirable results, therefore we will use
+	    // "/bin/kill". This should exist on all UNIX systems.
+	    //
+	    ProcessStartInfo info = new ProcessStartInfo("/bin/kill");
 	    info.CreateNoWindow = true;
-	    info.Arguments = "-s 9 " + _pid;
+	    info.Arguments = "-9 " + _pid;
 	    Process.Start(info);
 	}
 	else
