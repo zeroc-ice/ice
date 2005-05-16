@@ -379,6 +379,8 @@ def getDBfiles(dbLocation):
     findCmd = ''
     if getPlatform() == 'solaris':
 	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
+    elif getPlatform() == 'macosx':
+	findCmd = 'find lib \( -name "*'  + getPlatformLibExtension() + '" -or -name "*jnilib" \) -type f '
     else:
 	findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
     pipe_stdin, pipe_stdout = os.popen2(findCmd)
@@ -426,8 +428,9 @@ def copyExpatFiles(expatLocation, version):
 
     os.chdir(cwd)
 
-    shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
-    os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
+    if not os.path.exists('Ice-' + version + '/' + fileList[0].strip()):
+	shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
+	os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
 
 def makePHPbinary(sources, buildDir, installDir, version, clean):
     """ Create the IcePHP binaries and install to Ice installation directory """
