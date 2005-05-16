@@ -105,8 +105,7 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icej ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src" +
-	  " ice/install/vc71/doc/KNOWN_ISSUES.txt")
+          " icej ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
 
 #
 # Copy Slice directories.
@@ -240,11 +239,6 @@ version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icej", "README*"), version)
 fixVersion(find("icej", "INSTALL*"), version)
-
-#
-# Copy KNOWN_ISSUES.txt
-#
-shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icej", "KNOWN_ISSUES.txt"))
 
 #
 # Create source archives.

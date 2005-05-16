@@ -80,10 +80,9 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export sources from CVS. (Assumes icephp and ice use the same tag.)
+# Export sources from CVS.
 #
 os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp")
-os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/install/vc71/doc/KNOWN_ISSUES.txt")
 
 #
 # Remove files.
@@ -104,13 +103,6 @@ version = re.search("ICEPHP_STRING_VERSION \"([0-9\.]*)\"", config.read()).group
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icephp", "README*"), version)
 fixVersion(find("icephp", "INSTALL*"), version)
-
-#
-# Copy KNOWN_ISSUES.txt.
-#
-shutil.copyfile("ice/install/vc71/doc/KNOWN_ISSUES.txt", "icephp/KNOWN_ISSUES.txt")
-
-shutil.rmtree("ice")
 
 #
 # Create archives.

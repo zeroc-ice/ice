@@ -119,7 +119,7 @@ else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
           " icevb ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src" +
-          " ice/install/vc71/doc/KNOWN_ISSUES.txt icecs/src/Ice/AssemblyInfo.cs")
+          " icecs/src/Ice/AssemblyInfo.cs")
 
 #
 # Copy Slice directories.
@@ -137,11 +137,6 @@ slicedirs = [\
 os.mkdir(os.path.join("icevb", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icevb", "slice", x), 1)
-
-#
-# Copy KNOWN_ISSUES.txt
-#
-shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icevb", "KNOWN_ISSUES.txt"))
 
 #
 # Generate HTML documentation. We need to build icecpp
