@@ -34,6 +34,24 @@ includes the following components:
 
 
 ======================================================================
+Binary compatibility
+======================================================================
+
+Patch releases of Ice are binary compatible. For example, version 2.1.1
+is compatible with 2.1.0, so you can run applications compiled with
+2.1.0 with the 2.1.1 runtime without having to recompile.
+
+With the binary installers, simply uninstall the previous version of
+Ice and install the new one. Already deployed applications that were
+compiled against the 2.1.0 runtime will automatically use the 2.1.1
+runtime.
+
+Note: Under Mono, binary compatibility currently does not work due to
+      issues with Mono. Until this problem in Mono is fixed, you cannot
+      run 2.1.0 applications against the 2.1.1 runtime.
+
+
+======================================================================
 Requirements
 ======================================================================
 
@@ -87,10 +105,10 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 C#
 --
 
-Ice for C# requires Mono 1.0.6. The following RPM can be downloaded at
+Ice for C# requires Mono 1.1.7. The following RPM can be downloaded at
 http://www.mono-project.com/Downloads:
 
-mono-core-1.0.6-1.novell.9.1.i386.rpm
+mono-core-1.1.7-1.novell.i586.rpm
 
 Note that this RPM depends on libicu 2.6, which can be obtained by
 installing libicu-2.6.2-1.1.fc3.rf.i386.rpm, available from
