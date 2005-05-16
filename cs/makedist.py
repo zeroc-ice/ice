@@ -103,8 +103,7 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icecs ice/bin ice/config ice/doc ice/include ice/lib " +
-	  " ice/slice ice/src ice/install/vc71/doc/KNOWN_ISSUES.txt")
+          " icecs ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
 
 #
 # Copy Slice directories.
@@ -149,12 +148,6 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icecs", "doc", "reference"))
     os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icecs", "doc", "README.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icecs", "doc", "images"))
-
-#
-# Copy KNOWN_ISSUES.txt
-#
-shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icecs", "KNOWN_ISSUES.txt"))
-
 shutil.rmtree("ice")
 
 #

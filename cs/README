@@ -1,5 +1,3 @@
-KNOWN_ISSUES.txt lists any known issues for this distribution.
-
 Ice for C# currently does not support the following features of Ice
 for C++:
 
