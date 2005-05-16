@@ -232,6 +232,11 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
 
 #
+# Copy KNOWN_ISSUES.txt.
+#
+shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("ice", "KNOWN_ISSUES.txt"))
+
+#
 # Remove files.
 #
 print "Removing unnecessary files..."
@@ -241,6 +246,7 @@ filesToRemove = [ \
     os.path.join("ice", "newmakebindist.py"), \
     os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
+    os.path.join("ice", "fixVersion.py"), \
     os.path.join("ice", "certs", "makecerts"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))

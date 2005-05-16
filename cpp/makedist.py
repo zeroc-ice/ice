@@ -232,6 +232,11 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
 
 #
+# Copy KNOWN_ISSUES.txt.
+#
+shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("ice", "KNOWN_ISSUES.txt"))
+
+#
 # Remove files.
 #
 print "Removing unnecessary files..."

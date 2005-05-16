@@ -1,4 +1,3 @@
-
 Build instructions
 ------------------
 
@@ -107,14 +106,3 @@ correctly without having to set environment variables.
 
 Another option is to copy icecs.dll into the directory that contains
 the .exe for your application.
-
-
-Known issues
-------------
-
-On non-Windows platforms, a number of the tests fail, hang, or fail
-intermittently. (These tests pass with Mono on Windows.) We are
-actively working with the Mono developers to get this fixed.
-
-Please let us know about any bugs, comments, or feedback in the Ice
-forum at http://www.zeroc.com/vbulletin/.

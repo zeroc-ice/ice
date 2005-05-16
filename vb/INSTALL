@@ -21,6 +21,3 @@ run-time support is provided by icecs.dll. The build environment
 expects icecs.dll to be installed in $(solutiondir)/icecs/bin.
 Alternatively, you can install icecs.dll in the GAC. (See Ice for C#
 for details of how to do this.)
-
-Please let us know about any bugs, comments, or feedback in the Ice
-forum at http://www.zeroc.com/vbulletin/.

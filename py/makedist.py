@@ -103,7 +103,8 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icepy ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
+          " icepy ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src" +
+	  " ice/install/vc71/doc/KNOWN_ISSUES.txt")
 
 #
 # Copy Slice directories.
@@ -123,6 +124,11 @@ for x in slicedirs:
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
     if not os.path.exists(os.path.join("icepy", "config", os.path.basename(x))):
 	shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
+
+#
+# Copy KNOWN_ISSUES.txt.
+#
+shutil.copyfile("ice/install/vc71/doc/KNOWN_ISSUES.txt", "icepy/KNOWN_ISSUES.txt")
 
 #
 # Remove files.

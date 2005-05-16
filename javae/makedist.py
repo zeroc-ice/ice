@@ -149,7 +149,6 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
     os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
-shutil.rmtree("ice")
 
 #
 # Remove files.
@@ -193,6 +192,13 @@ version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("ice", "README*"), version)
 fixVersion(find("ice", "INSTALL*"), version)
+
+#
+# Copy KNOWN_ISSUES.txt
+#
+shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icej", "KNOWN_ISSUES.txt"))
+
+shutil.rmtree("ice")
 
 #
 # Create source archives.

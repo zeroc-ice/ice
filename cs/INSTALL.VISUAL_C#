@@ -104,10 +104,3 @@ GAC in the preceding step. Now copy the icecs.pdb file into this
 directory:
 
     copy <path_to_icecs.pdb> .
-
-
-Known issues
-------------
-
-Please let us know about any bugs, comments, or feedback in the Ice
-forum at http://www.zeroc.com/vbulletin/.
