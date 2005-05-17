@@ -28,7 +28,7 @@ public sealed class TestI : _TestIntfDisp
     private void commitSuicide()
     {
 	//
-	// Process.Kill() under UNIX MONO sends SIGINT to the
+	// Process.Kill() under UNIX MONO sends SIGHUP to the
 	// process, which causes it to hang around for a bit cleaning
 	// up. We want the process to die immmediately.
 	//
