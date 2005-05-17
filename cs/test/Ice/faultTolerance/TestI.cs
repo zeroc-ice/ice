@@ -7,18 +7,10 @@
 //
 // **********************************************************************
 
-<<<<<<< TestI.cs
 using System;
 using System.Diagnostics;
 using System.Threading;
 using IceInternal;
-=======
-using System;
-using System.IO;
-using System.Diagnostics;
-using System.Threading;
-using IceInternal;
->>>>>>> 1.9.2.2
 using Test;
 
 public sealed class TestI : _TestIntfDisp
@@ -36,7 +28,7 @@ public sealed class TestI : _TestIntfDisp
     private void commitSuicide()
     {
 	//
-	// Process.Kill() under UNIX MONO sends SIGKILL to the
+	// Process.Kill() under UNIX MONO sends SIGINT to the
 	// process, which causes it to hang around for a bit cleaning
 	// up. We want the process to die immmediately.
 	//
