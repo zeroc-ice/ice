@@ -35,20 +35,11 @@ public sealed class TestI : _TestIntfDisp
 	if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows
 	   && AssemblyUtil._runtime == AssemblyUtil.Runtime.Mono)
 	{
-	    //
-	    // Just using "kill" results uses the shell built-in which
-	    // has other undesirable results, therefore we will use
-	    // "/bin/kill". This should exist on all UNIX systems.
-	    //
-	    ProcessStartInfo info = new ProcessStartInfo("/bin/kill");
-	    info.CreateNoWindow = true;
-	    info.Arguments = "-9 " + _pid;
-	    Process.Start(info);
+#if __MonoCS__
+	    Mono.Unix.Syscall.kill(_pid, Mono.Unix.Signum.SIGKILL);
+#endif
 	}
-	else
-	{
-	    _p.Kill();
-	}
+	_p.Kill();
 	Thread.Sleep(5000); // Give other threads time to die.
     }
 

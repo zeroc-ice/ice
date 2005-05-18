@@ -30,6 +30,6 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:Mono.Posix $^
 
 include .depend
