@@ -1,3 +1,11 @@
+
+Changes since version 2.1.1
+---------------------------
+
+- Added constructors to for structures and classes to VB# mapping to
+  allow structures and classes to be created and initialized in
+  a single statement.
+
 Changes since version 2.1.0
 ---------------------------
 
