@@ -201,7 +201,7 @@ public class _ObjectDel
     {
         IceInternal.Outgoing out;
 
-        synchronized(__outS)
+        synchronized(__outgoingMutex)
         {
             if(__outgoingCache == null)
             {

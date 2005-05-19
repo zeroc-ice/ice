@@ -48,16 +48,14 @@ StartTest::run()
     StartTestThreadPtr t = new StartTestThread();
     ThreadControl control = t->start();
     control.join();
-    bool gotException = false;
     try
     {
 	t->start();
+	test(false);
     }
     catch(const ThreadStartedException&)
     {
-	gotException = true;
     }
-    test(gotException);
 
     //
     // Now let's create a bunch of short-lived threads

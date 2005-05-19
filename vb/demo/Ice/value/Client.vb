@@ -59,14 +59,13 @@ Module ValueC
 
 	Dim printer As printer
 	Dim printerProxy As PrinterPrx
-	Dim gotException As Boolean = False
 	Try
 	    initial.getPrinter(printer, printerProxy)
+	    Console.Error.WriteLine("Did not get the expected NoObjectFactoryException!")
+	    Environment.Exit(1)
 	Catch ex As Ice.NoObjectFactoryException
 	    Console.Out.WriteLine("==> " & ex.ToString())
-	    gotException = True
 	End Try
-	Debug.Assert(gotException)
 
 	Console.Out.WriteLine()
 	Console.Out.WriteLine("Yep, that's what we expected. Now let's try again, but with")

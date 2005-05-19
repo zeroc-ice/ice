@@ -667,28 +667,24 @@ public class AllTests
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
             adapter.add(obj, Ice.Util.stringToIdentity("x"));
-            bool gotException = false;
             try
             {
                 adapter.add(obj, Ice.Util.stringToIdentity("x"));
+		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
-                gotException = true;
             }
-            test(gotException);
             
-            gotException = false;
             adapter.remove(Ice.Util.stringToIdentity("x"));
             try
             {
                 adapter.remove(Ice.Util.stringToIdentity("x"));
+		test(false);
             }
             catch(Ice.NotRegisteredException)
             {
-                gotException = true;
             }
-            test(gotException);
             adapter.deactivate();
             Console.WriteLine("ok");
         }
@@ -698,16 +694,14 @@ public class AllTests
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
             Ice.ServantLocator loc = new ServantLocatorI();
             adapter.addServantLocator(loc, "x");
-            bool gotException = false;
             try
             {
                 adapter.addServantLocator(loc, "x");
+		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
-                gotException = true;
             }
-            test(gotException);
             
             adapter.deactivate();
             Console.WriteLine("ok");
@@ -717,28 +711,24 @@ public class AllTests
             Console.Write("testing object factory registration exceptions... ");
             Ice.ObjectFactory of = new ObjectFactoryI();
             communicator.addObjectFactory(of, "::x");
-            bool gotException = false;
             try
             {
                 communicator.addObjectFactory(of, "::x");
+		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
-                gotException = true;
             }
-            test(gotException);
             
-            gotException = false;
             communicator.removeObjectFactory("::x");
             try
             {
                 communicator.removeObjectFactory("::x");
+		test(false);
             }
             catch(Ice.NotRegisteredException)
             {
-                gotException = true;
             }
-            test(gotException);
             Console.WriteLine("ok");
         }
         

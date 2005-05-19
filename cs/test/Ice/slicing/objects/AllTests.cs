@@ -1263,17 +1263,15 @@ public class AllTests
                 test(b2.sb.Equals("D3.sb"));
                 test(b2.ice_id().Equals("::Test::B")); // Sliced by server
                 test(b2.pb == b1);
-                bool gotException = false;
                 try
                 {
                     D3 p3 = (D3) b2;
+		    test(false);
 		    D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
                 }
                 catch(InvalidCastException)
                 {
-                    gotException = true;
                 }
-                test(gotException);
                 
                 test(b1 != d1);
                 test(b1 != d3);
@@ -1319,17 +1317,15 @@ public class AllTests
             test(b2.sb.Equals("D3.sb"));
             test(b2.ice_id().Equals("::Test::B")); // Sliced by server
             test(b2.pb == b1);
-            bool gotException = false;
             try
             {
                 D3 p3 = (D3) b2;
+		test(false);
 		D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
             }
             catch(InvalidCastException)
             {
-                gotException = true;
             }
-            test(gotException);
             
             test(b1 != d1);
             test(b1 != d3);
@@ -1360,17 +1356,15 @@ public class AllTests
                 test(b1.sb.Equals("D3.sb"));
                 test(b1.ice_id().Equals("::Test::B")); // Sliced by server
                 
-                bool gotException = false;
                 try
                 {
                     D3 p1 = (D3) b1;
+		    test(false);
 		    D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
                 }
                 catch(InvalidCastException)
                 {
-                    gotException = true;
                 }
-                test(gotException);
                 
                 B b2 = b1.pb;
                 test(b2 != null);
@@ -1417,17 +1411,15 @@ public class AllTests
             test(b1.sb.Equals("D3.sb"));
             test(b1.ice_id().Equals("::Test::B")); // Sliced by server
             
-            bool gotException = false;
             try
             {
                 D3 p1 = (D3) b1;
+		test(false);
 		D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
             }
             catch(InvalidCastException)
             {
-                gotException = true;
             }
-            test(gotException);
             
             B b2 = b1.pb;
             test(b2 != null);

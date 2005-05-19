@@ -70,28 +70,24 @@ public class AllTests
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
-	    boolean gotException = false;
 	    try
             {
 		adapter.add(obj, Ice.Util.stringToIdentity("x"));
+		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
-	    gotException = false;
 	    adapter.remove(Ice.Util.stringToIdentity("x"));
 	    try
             {
 		adapter.remove(Ice.Util.stringToIdentity("x"));
+		test(false);
 	    }
 	    catch(Ice.NotRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 	    adapter.deactivate();
 	    System.out.println("ok");
 	}

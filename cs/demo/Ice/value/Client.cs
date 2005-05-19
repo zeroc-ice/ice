@@ -62,17 +62,16 @@ public class Client
         
         Printer printer;
         PrinterPrx printerProxy;
-        bool gotException = false;
         try
         {
             initial.getPrinter(out printer, out printerProxy);
+	    Console.Error.WriteLine("Did not get the expected NoObjectFactoryException!");
+	    Environment.Exit(1);
         }
         catch(Ice.NoObjectFactoryException ex)
         {
             Console.Out.WriteLine("==> " + ex);
-            gotException = true;
         }
-        Debug.Assert(gotException);
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Yep, that's what we expected. Now let's try again, but with");

@@ -66,17 +66,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     PrinterPtr printer;
     PrinterPrx printerProxy;
-    bool gotException = false;
     try
     {
 	initial->getPrinter(printer, printerProxy);
+	cerr << argv[0] << "Did not get the expected NoObjectFactoryException!" << endl;
+	exit(EXIT_FAILURE);
     }
     catch(const Ice::NoObjectFactoryException& ex)
     {
 	cout << "==> " << ex << endl;
-	gotException = true;
     }
-    assert(gotException);
 
     cout << '\n'
 	 << "Yep, that's what we expected. Now let's try again, but with\n"
@@ -154,18 +153,21 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(c, 2);
 
-    gotException = false;
     try
     {
 	initial->throwDerivedPrinter();
+	cerr << argv[0] << "Did not get the expected DerivedPrinterException!" << endl;
+	exit(EXIT_FAILURE);
     }
     catch(const DerivedPrinterException& ex)
     {
 	derived = ex.derived;
-	assert(derived);
-	gotException = true;
+	if(!derived)
+	{
+	    cerr << argv[0] << "Unexpected null pointer for `derived'" << endl;
+	    exit(EXIT_FAILURE);
+	}
     }
-    assert(gotException);
 
     cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";

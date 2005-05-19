@@ -240,16 +240,14 @@ def allTests(communicator):
     t = Test.TestIntfPrx.checkedCast(obj)
 
     print "base... ",
-    gotException = False
     try:
         t.baseAsBase()
+	test(false)
     except Test.Base, b:
         test(b.b == "Base.b")
         test(b.ice_name() == "Test::Base")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "base (AMI)... ",
@@ -259,16 +257,14 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of unknown derived... ",
-    gotException = False
     try:
         t.unknownDerivedAsBase()
+	test(false)
     except Test.Base, b:
         test(b.b == "UnknownDerived.b")
         test(b.ice_name() == "Test::Base")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of unknown derived (AMI)... ",
@@ -278,17 +274,15 @@ def allTests(communicator):
     print "ok"
 
     print "non-slicing of known derived as base... ",
-    gotException = False
     try:
         t.knownDerivedAsBase()
+	test(false)
     except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
         test(k.ice_name() == "Test::KnownDerived")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "non-slicing of known derived as base (AMI)... ",
@@ -298,17 +292,15 @@ def allTests(communicator):
     print "ok"
 
     print "non-slicing of known derived as derived... ",
-    gotException = False
     try:
         t.knownDerivedAsKnownDerived()
+	test(false)
     except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
         test(k.ice_name() == "Test::KnownDerived")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "non-slicing of known derived as derived (AMI)... ",
@@ -318,16 +310,14 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of unknown intermediate as base... ",
-    gotException = False
     try:
         t.unknownIntermediateAsBase()
+	test(false)
     except Test.Base, b:
         test(b.b == "UnknownIntermediate.b")
         test(b.ice_name() == "Test::Base")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of unknown intermediate as base (AMI)... ",
@@ -337,17 +327,15 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of known intermediate as base... ",
-    gotException = False
     try:
         t.knownIntermediateAsBase()
+	test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
         test(ki.ice_name() == "Test::KnownIntermediate")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of known intermediate as base (AMI)... ",
@@ -357,18 +345,16 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of known most derived as base... ",
-    gotException = False
     try:
         t.knownMostDerivedAsBase()
+	test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_name() == "Test::KnownMostDerived")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of known most derived as base (AMI)... ",
@@ -378,17 +364,15 @@ def allTests(communicator):
     print "ok"
 
     print "non-slicing of known intermediate as intermediate... ",
-    gotException = False
     try:
         t.knownIntermediateAsKnownIntermediate()
+	test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
         test(ki.ice_name() == "Test::KnownIntermediate")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "non-slicing of known intermediate as intermediate (AMI)... ",
@@ -398,18 +382,16 @@ def allTests(communicator):
     print "ok"
 
     print "non-slicing of known most derived exception as intermediate... ",
-    gotException = False
     try:
         t.knownMostDerivedAsKnownIntermediate()
+	test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_name() == "Test::KnownMostDerived")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "non-slicing of known most derived as intermediate (AMI)... ",
@@ -419,18 +401,16 @@ def allTests(communicator):
     print "ok"
 
     print "non-slicing of known most derived as most derived... ",
-    gotException = False
     try:
         t.knownMostDerivedAsKnownMostDerived()
+	test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
         test(kmd.ice_name() == "Test::KnownMostDerived")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "non-slicing of known most derived as most derived (AMI)... ",
@@ -440,17 +420,15 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of unknown most derived, known intermediate as base... ",
-    gotException = False
     try:
         t.unknownMostDerived1AsBase()
+	test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
         test(ki.ice_name() == "Test::KnownIntermediate")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of unknown most derived, known intermediate as base (AMI)... ",
@@ -460,17 +438,15 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of unknown most derived, known intermediate as intermediate... ",
-    gotException = False
     try:
         t.unknownMostDerived1AsKnownIntermediate()
+	test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
         test(ki.ice_name() == "Test::KnownIntermediate")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of unknown most derived, known intermediate as intermediate (AMI)... ",
@@ -480,16 +456,14 @@ def allTests(communicator):
     print "ok"
 
     print "slicing of unknown most derived, unknown intermediate as base... ",
-    gotException = False
     try:
         t.unknownMostDerived2AsBase()
+	test(false)
     except Test.Base, b:
         test(b.b == "UnknownMostDerived2.b")
         test(b.ice_name() == "Test::Base")
-        gotException = True
     except:
         test(False)
-    test(gotException)
     print "ok"
 
     print "slicing of unknown most derived, unknown intermediate as base (AMI)... ",

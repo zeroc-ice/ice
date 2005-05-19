@@ -474,22 +474,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->baseAsBase();
+	    test(false);
 	}
 	catch(const Base& b)
 	{
 	    test(b.b == "Base.b");
 	    test(b.ice_name() =="Test::Base");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -503,22 +501,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown derived... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->unknownDerivedAsBase();
+	    test(false);
 	}
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownDerived.b");
 	    test(b.ice_name() =="Test::Base");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -532,23 +528,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known derived as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownDerivedAsBase();
+	    test(false);
 	}
 	catch(const KnownDerived& k)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
 	    test(k.ice_name() =="Test::KnownDerived");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -562,23 +556,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known derived as derived... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownDerivedAsKnownDerived();
+	    test(false);
 	}
 	catch(const KnownDerived& k)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
 	    test(k.ice_name() =="Test::KnownDerived");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -592,22 +584,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown intermediate as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->unknownIntermediateAsBase();
+	    test(false);
 	}
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownIntermediate.b");
 	    test(b.ice_name() =="Test::Base");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -621,23 +611,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of known intermediate as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownIntermediateAsBase();
+	    test(false);
 	}
 	catch(const KnownIntermediate& ki)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
 	    test(ki.ice_name() =="Test::KnownIntermediate");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -651,10 +639,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of known most derived as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownMostDerivedAsBase();
+	    test(false);
 	}
 	catch(const KnownMostDerived& kmd)
 	{
@@ -662,13 +650,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
 	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -682,23 +668,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known intermediate as intermediate... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownIntermediateAsKnownIntermediate();
+	    test(false);
 	}
 	catch(const KnownIntermediate& ki)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
 	    test(ki.ice_name() =="Test::KnownIntermediate");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -712,10 +696,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known most derived exception as intermediate... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownMostDerivedAsKnownIntermediate();
+	    test(false);
 	}
 	catch(const KnownMostDerived& kmd)
 	{
@@ -723,13 +707,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
 	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -743,10 +725,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "non-slicing of known most derived as most derived... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->knownMostDerivedAsKnownMostDerived();
+	    test(false);
 	}
 	catch(const KnownMostDerived& kmd)
 	{
@@ -754,13 +736,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
 	    test(kmd.ice_name() =="Test::KnownMostDerived");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -774,23 +754,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, known intermediate as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->unknownMostDerived1AsBase();
+	    test(false);
 	}
 	catch(const KnownIntermediate& ki)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
 	    test(ki.ice_name() =="Test::KnownIntermediate");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -804,23 +782,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, known intermediate as intermediate... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->unknownMostDerived1AsKnownIntermediate();
+	    test(false);
 	}
 	catch(const KnownIntermediate& ki)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
 	    test(ki.ice_name() =="Test::KnownIntermediate");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 
@@ -834,22 +810,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "slicing of unknown most derived, unknown intermediate as base... " << flush;
     {
-	bool gotException = false;
 	try
 	{
 	    test->unknownMostDerived2AsBase();
+	    test(false);
 	}
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownMostDerived2.b");
 	    test(b.ice_name() =="Test::Base");
-	    gotException = true;
 	}
 	catch(...)
 	{
-	    test(0);
+	    test(false);
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 

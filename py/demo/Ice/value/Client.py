@@ -69,13 +69,12 @@ def run(args, communicator):
           "[press enter]"
     raw_input()
 
-    gotException = False
     try:
         printer, printerProxy = initial.getPrinter()
+        print args[0] + "Did not get the expected NoObjectFactoryException!"
+	sys.exit(false)
     except Ice.NoObjectFactoryException, ex:
         print "==>", ex
-        gotException = True
-    assert(gotException)
 
     print '\n'\
           "Yep, that's what we expected. Now let's try again, but with\n"\
@@ -149,14 +148,13 @@ def run(args, communicator):
           "[press enter]"
     raw_input()
 
-    gotException = False
     try:
         initial.throwDerivedPrinter()
+        print args[0] + "Did not get the expected DerivedPrinterException!"
+	sys.exit(false)
     except Demo.DerivedPrinterException, ex:
         derived = ex.derived
         assert(derived)
-        gotException = True
-    assert(gotException)
 
     print "==> " + derived.derivedMessage
     print "==>",

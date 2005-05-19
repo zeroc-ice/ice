@@ -87,17 +87,15 @@ try
     echo "[press enter]\n";
     fgets(STDIN);
 
-    $gotException = false;
     try
     {
         $initial->getPrinter($printer, $printerProxy);
+        die("Did not get the expected NoObjectFactoryException!");
     }
     catch(Ice_NoObjectFactoryException $ex)
     {
         print_r($ex);
-        $gotException = true;
     }
-    assert($gotException);
 
     echo "\n";
     echo "Yep, that's what we expected. Now let's try again, but with\n";
@@ -174,18 +172,16 @@ try
     echo "[press enter]\n";
     fgets(STDIN);
 
-    $gotException = false;
     try
     {
         $initial->throwDerivedPrinter();
+        die("Did not get the expected DerivedPrinterException!");
     }
     catch(Demo_DerivedPrinterException $ex)
     {
         $derived = $ex->derived;
         assert($derived != null);
-        $gotException = true;
     }
-    assert($gotException);
 
     echo "==> ",$derived->derivedMessage,"\n";
     echo "==> ";

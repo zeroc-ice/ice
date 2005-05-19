@@ -26,27 +26,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPtr obj = new EmptyI;
     adapter->add(obj, Ice::stringToIdentity("d"));
     adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
-    bool gotException = false;
     try
     {
 	adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
+	test(false);
     }
     catch(Ice::AlreadyRegisteredException&)
     {
-	gotException = true;
     }
-    test(gotException);
     adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
-    gotException = false;
     try
     {
 	adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
+	test(false);
     }
     catch(Ice::NotRegisteredException&)
     {
-	gotException = true;
     }
-    test(gotException);
     cout << "ok" << endl;
 
     cout << "testing removeAllFacets..." << flush;
@@ -62,16 +58,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(fm.size() == 2);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);
-    gotException = false;
     try
     {
 	adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+	test(false);
     }
     catch(Ice::NotRegisteredException&)
     {
-	gotException = true;
     }
-    test(gotException);
     fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
     test(fm.size() == 3);
     test(fm["f1"] == obj1);

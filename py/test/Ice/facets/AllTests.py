@@ -26,19 +26,17 @@ def allTests(communicator):
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("d"))
     adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
-    gotException = False
     try:
         adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
+	test(false)
     except Ice.AlreadyRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
     adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
-    gotException = False
     try:
         adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
+	test(false)
     except Ice.NotRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
     print "ok"
 
     print "testing removeAllFacets...",
@@ -54,12 +52,11 @@ def allTests(communicator):
     test(len(fm) == 2)
     test(fm["f1"] == obj1)
     test(fm["f2"] == obj2)
-    gotException = False
     try:
         adapter.removeAllFacets(Ice.stringToIdentity("id1"))
+	test(false)
     except Ice.NotRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
     fm = adapter.removeAllFacets(Ice.stringToIdentity("id2"))
     test(len(fm) == 3)
     test(fm["f1"] == obj1)

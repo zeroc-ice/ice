@@ -521,22 +521,20 @@ public class AllTests
         Console.Out.Write("base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.baseAsBase();
+		test(false);
             }
             catch(Base b)
             {
                 test(b.b.Equals("Base.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
     
@@ -552,22 +550,20 @@ public class AllTests
         Console.Out.Write("slicing of unknown derived... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.unknownDerivedAsBase();
+		test(false);
             }
             catch(Base b)
             {
                 test(b.b.Equals("UnknownDerived.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -583,23 +579,21 @@ public class AllTests
         Console.Out.Write("non-slicing of known derived as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownDerivedAsBase();
+		test(false);
             }
             catch(KnownDerived k)
             {
                 test(k.b.Equals("KnownDerived.b"));
                 test(k.kd.Equals("KnownDerived.kd"));
                 test(k.GetType().FullName.Equals("Test.KnownDerived"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -615,23 +609,21 @@ public class AllTests
         Console.Out.Write("non-slicing of known derived as derived... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownDerivedAsKnownDerived();
+		test(false);
             }
             catch(KnownDerived k)
             {
                 test(k.b.Equals("KnownDerived.b"));
                 test(k.kd.Equals("KnownDerived.kd"));
                 test(k.GetType().FullName.Equals("Test.KnownDerived"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -647,22 +639,20 @@ public class AllTests
         Console.Out.Write("slicing of unknown intermediate as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.unknownIntermediateAsBase();
+		test(false);
             }
             catch(Base b)
             {
                 test(b.b.Equals("UnknownIntermediate.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -678,23 +668,21 @@ public class AllTests
         Console.Out.Write("slicing of known intermediate as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownIntermediateAsBase();
+		test(false);
             }
             catch(KnownIntermediate ki)
             {
                 test(ki.b.Equals("KnownIntermediate.b"));
                 test(ki.ki.Equals("KnownIntermediate.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -710,10 +698,10 @@ public class AllTests
         Console.Out.Write("slicing of known most derived as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownMostDerivedAsBase();
+		test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -721,13 +709,11 @@ public class AllTests
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -743,23 +729,21 @@ public class AllTests
         Console.Out.Write("non-slicing of known intermediate as intermediate... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownIntermediateAsKnownIntermediate();
+		test(false);
             }
             catch(KnownIntermediate ki)
             {
                 test(ki.b.Equals("KnownIntermediate.b"));
                 test(ki.ki.Equals("KnownIntermediate.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -775,10 +759,10 @@ public class AllTests
         Console.Out.Write("non-slicing of known most derived as intermediate... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownMostDerivedAsKnownIntermediate();
+		test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -786,13 +770,11 @@ public class AllTests
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -808,10 +790,10 @@ public class AllTests
         Console.Out.Write("non-slicing of known most derived as most derived... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.knownMostDerivedAsKnownMostDerived();
+		test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -819,13 +801,11 @@ public class AllTests
                 test(kmd.ki.Equals("KnownMostDerived.ki"));
                 test(kmd.kmd.Equals("KnownMostDerived.kmd"));
                 test(kmd.GetType().FullName.Equals("Test.KnownMostDerived"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -841,23 +821,21 @@ public class AllTests
         Console.Out.Write("slicing of unknown most derived, known intermediate as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.unknownMostDerived1AsBase();
+		test(false);
             }
             catch(KnownIntermediate ki)
             {
                 test(ki.b.Equals("UnknownMostDerived1.b"));
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -873,23 +851,21 @@ public class AllTests
         Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.unknownMostDerived1AsKnownIntermediate();
+		test(false);
             }
             catch(KnownIntermediate ki)
             {
                 test(ki.b.Equals("UnknownMostDerived1.b"));
                 test(ki.ki.Equals("UnknownMostDerived1.ki"));
                 test(ki.GetType().FullName.Equals("Test.KnownIntermediate"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         
@@ -905,22 +881,20 @@ public class AllTests
         Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
         Console.Out.Flush();
         {
-            bool gotException = false;
             try
             {
                 testPrx.unknownMostDerived2AsBase();
+		test(false);
             }
             catch(Base b)
             {
                 test(b.b.Equals("UnknownMostDerived2.b"));
                 test(b.GetType().FullName.Equals("Test.Base"));
-                gotException = true;
             }
             catch(Exception)
             {
                 test(false);
             }
-            test(gotException);
         }
         Console.Out.WriteLine("ok");
         

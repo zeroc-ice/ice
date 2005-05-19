@@ -566,28 +566,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
 	Ice::ObjectPtr obj = new EmptyI;
 	adapter->add(obj, Ice::stringToIdentity("x"));
-	bool gotException = false;
 	try
 	{
 	    adapter->add(obj, Ice::stringToIdentity("x"));
+	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
 	{
-	    gotException = true;
 	}
-	test(gotException);
 
-	gotException = false;
 	adapter->remove(Ice::stringToIdentity("x"));
 	try
 	{
 	    adapter->remove(Ice::stringToIdentity("x"));
+	    test(false);
 	}
 	catch(const Ice::NotRegisteredException&)
 	{
-	    gotException = true;
 	}
-	test(gotException);
 
 	adapter->deactivate();
     }
@@ -598,16 +594,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
 	Ice::ServantLocatorPtr loc = new ServantLocatorI;
 	adapter->addServantLocator(loc, "x");
-	bool gotException = false;
 	try
 	{
 	    adapter->addServantLocator(loc, "x");
+	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
 	{
-	    gotException = true;
 	}
-	test(gotException);
 
 	adapter->deactivate();
     }
@@ -617,28 +611,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
 	Ice::ObjectFactoryPtr of = new ObjectFactoryI;
 	communicator->addObjectFactory(of, "x");
-	bool gotException = false;
 	try
 	{
 	    communicator->addObjectFactory(of, "x");
+	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
 	{
-	    gotException = true;
 	}
-	test(gotException);
 
-	gotException = false;
 	communicator->removeObjectFactory("x");
 	try
 	{
 	    communicator->removeObjectFactory("x");
+	    test(false);
 	}
 	catch(const Ice::NotRegisteredException&)
 	{
-	    gotException = true;
 	}
-	test(gotException);
     }
     cout << "ok" << endl;
 

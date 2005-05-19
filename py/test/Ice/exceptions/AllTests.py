@@ -291,20 +291,18 @@ def allTests(communicator):
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("x"))
-    gotException = False
     try:
         adapter.add(obj, Ice.stringToIdentity("x"))
+	test(false)
     except Ice.AlreadyRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
 
-    gotException = False
     adapter.remove(Ice.stringToIdentity("x"))
     try:
         adapter.remove(Ice.stringToIdentity("x"))
+	test(false)
     except Ice.NotRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
 
     adapter.deactivate()
     print "ok"
@@ -313,12 +311,11 @@ def allTests(communicator):
     adapter = communicator.createObjectAdapter("TestAdapter2")
     loc = ServantLocatorI()
     adapter.addServantLocator(loc, "x")
-    gotException = False
     try:
         adapter.addServantLocator(loc, "x")
+	test(false)
     except Ice.AlreadyRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
 
     adapter.deactivate()
     print "ok"
@@ -326,20 +323,18 @@ def allTests(communicator):
     print "testing object factory registration exceptions... ",
     of = ObjectFactoryI()
     communicator.addObjectFactory(of, "x")
-    gotException = False
     try:
         communicator.addObjectFactory(of, "x")
+	test(false)
     except Ice.AlreadyRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
 
-    gotException = False
     communicator.removeObjectFactory("x")
     try:
         communicator.removeObjectFactory("x")
+	test(false)
     except Ice.NotRegisteredException:
-        gotException = True
-    test(gotException)
+        pass
     print "ok"
 
     print "testing stringToProxy... ",

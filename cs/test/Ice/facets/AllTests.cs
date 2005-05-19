@@ -27,27 +27,23 @@ public class AllTests
         Ice.Object obj = new EmptyI();
         adapter.add(obj, Ice.Util.stringToIdentity("d"));
         adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
-        bool gotException = false;
         try
         {
             adapter.addFacet(obj, Ice.Util.stringToIdentity("d"), "facetABCD");
+	    test(false);
         }
         catch(Ice.AlreadyRegisteredException)
         {
-            gotException = true;
         }
-        test(gotException);
         adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
-        gotException = false;
         try
         {
             adapter.removeFacet(Ice.Util.stringToIdentity("d"), "facetABCD");
+	    test(false);
         }
         catch(Ice.NotRegisteredException)
         {
-            gotException = true;
         }
-        test(gotException);
         Console.WriteLine("ok");
 
         Console.Write("testing removeAllFacets... ");
@@ -63,16 +59,14 @@ public class AllTests
 	test(fm.Count == 2);
 	test(fm["f1"] == obj1);
 	test(fm["f2"] == obj2);
-	gotException = false;
 	try
 	{
             adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+	    test(false);
 	}
 	catch(Ice.NotRegisteredException)
 	{
-	    gotException = true;
 	}
-	test(gotException);
 	fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id2"));
 	test(fm.Count == 3);
 	test(fm["f1"] == obj1);
