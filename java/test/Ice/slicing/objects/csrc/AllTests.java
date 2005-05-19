@@ -1495,16 +1495,14 @@ public class AllTests
 		test(b2.sb.equals("D3.sb"));
 		test(b2.ice_id().equals("::Test::B"));	// Sliced by server
 		test(b2.pb == b1);
-		boolean gotException = false;
 		try
 		{
 		    D3 p3 = (D3)b2;
+		    test(false);
 		}
 		catch(ClassCastException ex)
 		{
-		    gotException = true;
 		}
-		test(gotException);
 
 		test(b1 != d1);
 		test(b1 != d3);
@@ -1550,16 +1548,14 @@ public class AllTests
 	    test(b2.sb.equals("D3.sb"));
 	    test(b2.ice_id().equals("::Test::B"));	// Sliced by server
 	    test(b2.pb == b1);
-	    boolean gotException = false;
 	    try
 	    {
 		D3 p3 = (D3)b2;
+		test(false);
 	    }
 	    catch(ClassCastException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
 	    test(b1 != d1);
 	    test(b1 != d3);
@@ -1590,16 +1586,14 @@ public class AllTests
 		test(b1.sb.equals("D3.sb"));
 		test(b1.ice_id().equals("::Test::B"));	// Sliced by server
 
-		boolean gotException = false;
 		try
 		{
 		    D3 p1 = (D3)b1;
+		    test(false);
 		}
 		catch(ClassCastException ex)
 		{
-		    gotException = true;
 		}
-		test(gotException);
 
 		B b2 = b1.pb;
 		test(b2 != null);
@@ -1646,16 +1640,14 @@ public class AllTests
 	    test(b1.sb.equals("D3.sb"));
 	    test(b1.ice_id().equals("::Test::B"));	// Sliced by server
 
-	    boolean gotException = false;
 	    try
 	    {
 		D3 p1 = (D3)b1;
+		test(false);
 	    }
 	    catch(ClassCastException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
 	    B b2 = b1.pb;
 	    test(b2 != null);

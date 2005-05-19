@@ -691,28 +691,24 @@ public class AllTests
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
-	    boolean gotException = false;
 	    try
             {
 		adapter.add(obj, Ice.Util.stringToIdentity("x"));
+		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
-	    gotException = false;
 	    adapter.remove(Ice.Util.stringToIdentity("x"));
 	    try
             {
 		adapter.remove(Ice.Util.stringToIdentity("x"));
+		test(false);
 	    }
 	    catch(Ice.NotRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 	    adapter.deactivate();
 	    System.out.println("ok");
 	}
@@ -722,16 +718,14 @@ public class AllTests
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
 	    Ice.ServantLocator loc = new ServantLocatorI();
 	    adapter.addServantLocator(loc, "x");
-	    boolean gotException = false;
 	    try
             {
 		adapter.addServantLocator(loc, "x");
+		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
 	    adapter.deactivate();
 	    System.out.println("ok");
@@ -741,28 +735,24 @@ public class AllTests
 	    System.out.print("testing object factory registration exceptions... ");
 	    Ice.ObjectFactory of = new ObjectFactoryI();
 	    communicator.addObjectFactory(of, "::x");
-	    boolean gotException = false;
 	    try
             {
 		communicator.addObjectFactory(of, "::x");
+		test(false);
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 
-	    gotException = false;
 	    communicator.removeObjectFactory("::x");
 	    try
             {
 		communicator.removeObjectFactory("::x");
+		test(false);
 	    }
 	    catch(Ice.NotRegisteredException ex)
 	    {
-		gotException = true;
 	    }
-	    test(gotException);
 	    System.out.println("ok");
 	}
 

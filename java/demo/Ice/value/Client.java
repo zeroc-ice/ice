@@ -80,13 +80,13 @@ public class Client
         try
         {
             initial.getPrinter(printer, printerProxy);
+	    System.err.println("Did not get the expected NoObjectFactoryException!");
+	    System.exit(1);
         }
         catch(Ice.NoObjectFactoryException ex)
         {
             System.out.println("==> " + ex);
-	    gotException = true;
         }
-	assert(gotException);
 
         System.out.println();
         System.out.println("Yep, that's what we expected. Now let's try again, but with");
