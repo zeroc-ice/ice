@@ -205,8 +205,7 @@ command like this:
 
 $ gacutil -i bin/icecs.dll
 
-(Note that the gacutil that ships with Mono 1.0.6 only accepts a
-relative path, but not an absolute one.)
+You also need to add $MONO_PATH/lib to your LD_LIBRARY_PATH.
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
