@@ -767,13 +767,28 @@ namespace Ice
         {   
             lock(this)
             {
-		if(!_deactivated && !Environment.HasShutdownStarted)
+		if(!_deactivated)
 		{
-		    _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+		    if(!Environment.HasShutdownStarted)
+		    {
+			_instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
+		    }
+		    else
+		    {
+			Console.Error.WriteLine("object adapter `" + _name + "' has not been deactivated");
+		    }
 		}
-		else if(_instance != null && !Environment.HasShutdownStarted)
+		else if(_instance != null)
 		{
-		    _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+		    if(!Environment.HasShutdownStarted)
+		    {
+			_instance.logger().warning("object adapter `" + _name +
+			                           "' deactivation had not been waited for");
+		    }
+		    else
+		    {
+			Console.Error.WriteLine("object adapter `" + _name + "' deactivation had not been waited for");
+		    }
 		}
 		else
 		{
