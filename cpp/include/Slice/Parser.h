@@ -653,6 +653,7 @@ public:
     virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers() const;
+    DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;

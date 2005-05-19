@@ -1078,6 +1078,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
 
     if(!p->isLocal() && _stream)
     {
@@ -1150,7 +1151,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	_out << "class " << fixId(name) << " : ";
 
-	if(bases.empty() || bases.front()->isInterface())
+	if(!hasBaseClass)
 	{
 	    if(p->isLocal())
 	    {
@@ -1208,22 +1209,76 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
+    DataMemberList classMembers = p->classDataMembers();
+    DataMemberList allClassMembers = p->allClassDataMembers();
     DataMemberList dataMembers = p->dataMembers();
+    DataMemberList allDataMembers = p->allDataMembers();
+    ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    DataMemberList::const_iterator d;
 
     if(!p->isInterface())
     {
         if(p->hasDataMembers() && !p->hasOperations())
 	{
-	    _out << sp << nl << "#endregion // Slice data members";
+	    _out << sp << nl << "#endregion"; // Slice data members"
 	}
 	else if(p->hasDataMembers())
 	{
-	    _out << sp << nl << "#endregion // Slice data members and operations";
+	    _out << sp << nl << "#endregion"; // Slice data members and operations"
 	}
 	else if(p->hasOperations())
 	{
-	    _out << sp << nl << "#endregion // Slice operations";
+	    _out << sp << nl << "#endregion"; // Slice operations"
 	}
+
+	if(!allDataMembers.empty())
+	{
+	    _out << sp << nl << "#region Constructors";
+
+	    _out << sp << nl << "public " << name << spar << epar;
+	    if(hasBaseClass)
+	    {
+	        _out << " : base()";
+	    }
+	    _out << sb;
+	    _out << eb;
+
+	    _out << sp << nl << "public " << name << spar;
+	    vector<string> paramDecl;
+	    for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+	    {
+	        string memberName = fixId((*d)->name());
+		string memberType = typeToString((*d)->type());
+		paramDecl.push_back(memberType + " " + memberName);
+	    }
+	    _out << paramDecl << epar;
+	    if(hasBaseClass && allDataMembers.size() != dataMembers.size())
+	    {
+		_out << " : base" << spar;
+		vector<string> baseParamNames;
+		DataMemberList baseDataMembers = bases.front()->allDataMembers();
+		for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+		{
+		    baseParamNames.push_back(fixId((*d)->name()));
+		}
+		_out << baseParamNames << epar;
+	    }
+	    _out << sb;
+	    vector<string> paramNames;
+	    for(d = dataMembers.begin(); d != dataMembers.end(); ++d)
+	    {
+	        paramNames.push_back(fixId((*d)->name()));
+	    }
+	    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+	    {
+	        _out << nl << "this." << *i << " = " << *i << ';';
+	    }
+	    _out << eb;
+
+	    _out << sp << nl << "#endregion"; // Constructors
+	}
+
 	writeInheritedOperations(p);
     }
 
@@ -1232,7 +1287,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	writeDispatch(p);
 
 	DataMemberList members = p->dataMembers();
-	DataMemberList::const_iterator d;
 
 	_out << sp << nl << "#region Marshaling support";
 
@@ -1251,12 +1305,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "base.__write(__os);";
 	_out << eb;
 
-	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
 	    _out << sp << nl << "public sealed ";
-	    ClassList bases = p->bases();
-	    if(!bases.empty() && !bases.front()->isInterface() && bases.front()->declaration()->usesClasses())
+	    if(hasBaseClass && bases.front()->declaration()->usesClasses())
 	    {
 	    	_out << "new ";
 	    }
@@ -1323,7 +1375,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "/* string myId = */ __is.readTypeId();";
 	_out << eb;
 	_out << nl << "__is.startReadSlice();";
-	DataMemberList classMembers = p->classDataMembers();
 	int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
 	for(d = members.begin(); d != members.end(); ++d)
 	{
@@ -1764,6 +1815,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixId(p->name());
 
+    DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
@@ -2116,12 +2168,40 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     string name = fixId(p->name());
 
+    DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
     _out << sp << nl << "#endregion"; // Slice data members
 
+    _out << sp << nl << "#region Constructor";
+
+    _out << sp << nl << "public " << name << spar;
+    vector<string> paramDecl;
+    vector<string> paramNames;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+	string memberType = typeToString((*q)->type());
+	paramDecl.push_back(memberType + " " + memberName);
+	paramNames.push_back(memberName);
+    }
+    _out << paramDecl << epar;
+    _out << sb;
+    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+    {
+	_out << nl << "this." << *i << " = " << *i << ';';
+    }
     bool isClass = p->hasMetaData("cs:class");
+    bool patchStruct = !isClass && classMembers.size() != 0;
+    if(!p->isLocal() && patchStruct)
+    {
+        _out << nl << "_pm = null;";
+    }
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Constructor
+
     if(isClass)
     {
 	_out << sp << nl << "#region ICloneable members";
@@ -2235,9 +2315,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	}
         _out << eb;
 
-	DataMemberList classMembers = p->classDataMembers();
-
-	bool patchStruct = !isClass && classMembers.size() != 0;
 
 	if(classMembers.size() != 0)
 	{

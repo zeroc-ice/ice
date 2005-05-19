@@ -1064,9 +1064,10 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = fixId(p->name());
+    string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
 
     if(!p->isLocal() && _stream)
     {
@@ -1147,7 +1148,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << "Class " << name;
 	_out.inc();
 
-	if(bases.empty() || bases.front()->isInterface())
+	if(!hasBaseClass)
 	{
 	    if(p->isLocal())
 	    {
@@ -1207,6 +1208,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
     DataMemberList dataMembers = p->dataMembers();
+    DataMemberList allDataMembers = p->allDataMembers();
+    ClassList bases = p->bases();
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    DataMemberList::const_iterator d;
 
     if(!p->isInterface())
     {
@@ -1224,6 +1229,60 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << sp << nl << "#End Region"; // Slice operations
 	}
 	_out.restoreIndent();
+
+	if(!allDataMembers.empty())
+	{
+	    _out.zeroIndent();
+	    _out << sp << nl << "#Region \"Constructors\"";
+	    _out.restoreIndent();
+
+	    _out << sp << nl << "Public Sub New" << spar << epar;
+	    _out.inc();
+	    if(hasBaseClass)
+	    {
+	        _out << nl << "MyBase.New()";
+	    }
+	    _out.dec();
+	    _out << nl << "End Sub";
+
+	    _out << sp << nl << "Public Sub New" << spar;
+	    vector<string> paramDecl;
+	    for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+	    {
+	        string memberName = fixId((*d)->name());
+		string memberType = typeToString((*d)->type());
+		paramDecl.push_back("ByVal " + memberName + " As " + memberType);
+	    }
+	    _out << paramDecl << epar;
+	    _out.inc();
+	    if(hasBaseClass && allDataMembers.size() != dataMembers.size())
+	    {
+		_out << nl << "MyBase.New" << spar;
+		vector<string> baseParamNames;
+		DataMemberList baseDataMembers = bases.front()->allDataMembers();
+		for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+		{
+		    baseParamNames.push_back(fixId((*d)->name()));
+		}
+		_out << baseParamNames << epar;
+	    }
+	    vector<string> paramNames;
+	    for(d = dataMembers.begin(); d != dataMembers.end(); ++d)
+	    {
+	        paramNames.push_back(fixId((*d)->name()));
+	    }
+	    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+	    {
+	        _out << nl << "Me." << *i << " = " << *i;
+	    }
+	    _out.dec();
+	    _out << nl << "End Sub";
+
+	    _out.zeroIndent();
+	    _out << sp << nl << "#End Region"; // Constructors
+	    _out.restoreIndent();
+	}
+
 	writeInheritedOperations(p);
     }
 
@@ -2277,14 +2336,45 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     string name = fixId(p->name());
 
+    DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Slice data members
+
+    _out << sp << nl << "#Region \"Constructor\"";
     _out.restoreIndent();
 
+    _out << sp << nl << "Public Sub New" << spar;
+    vector<string> paramDecl;
+    vector<string> paramNames;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+	string memberType = typeToString((*q)->type());
+	paramDecl.push_back("ByVal " + memberName + " As " + memberType);
+	paramNames.push_back(memberName);
+    }
+    _out << paramDecl << epar;
+    _out.inc();
+    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+    {
+        _out << nl << "Me." << *i << " = " << *i;
+    }
     bool isClass = p->hasMetaData("vb:class");
+    bool patchStruct = !isClass && classMembers.size() != 0;
+    if(!p->isLocal() && patchStruct)
+    {
+        _out << nl << "_pm = Nothing";
+    }
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out.zeroIndent();
+    _out << sp << nl << "#End Region"; // Constructor
+    _out.restoreIndent();
+
     if(isClass)
     {
 	_out.zeroIndent();
@@ -2453,9 +2543,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out.dec();
 	_out << nl << "End Sub";
 
-	DataMemberList classMembers = p->classDataMembers();
-
-	bool patchStruct = !p->hasMetaData("vb:class") && classMembers.size() != 0;
 
 	if(classMembers.size() != 0)
 	{
@@ -4923,7 +5010,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         opIntfName += "NC";
     }
 
-    _out << sp << nl << "public class _" << name << "Tie";
+    _out << sp << nl << "Public Class _" << name << "Tie";
     _out.inc();
     _out << nl << "Inherits ";
     if(p->isInterface())

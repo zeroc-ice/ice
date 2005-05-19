@@ -2752,18 +2752,29 @@ Slice::ClassDef::dataMembers() const
     return result;
 }
 
+//
+// Return the data members of this class and its parent classes, in base-to-derived order.
+//
 DataMemberList
 Slice::ClassDef::allDataMembers() const
 {
-    DataMemberList result = dataMembers();
-    result.sort();
-    result.unique();
-    for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    DataMemberList result;
+
+    //
+    // Check if we have a base class. If so, recursively
+    // get the data members of the base(s).
+    //
+    if(!_bases.empty() && !_bases.front()->isInterface())
     {
-	DataMemberList li = (*p)->allDataMembers();
-	result.merge(li);
-	result.unique();
+	result = _bases.front()->allDataMembers();
     }
+
+    //
+    // Append this class's data members.
+    //
+    DataMemberList myMembers = dataMembers();
+    result.splice(result.end(), myMembers);
+
     return result;
 }
 
@@ -2786,6 +2797,9 @@ Slice::ClassDef::classDataMembers() const
     return result;
 }
 
+//
+// Return the class data members of this class and its parent classes, in base-to-derived order.
+//
 DataMemberList
 Slice::ClassDef::allClassDataMembers() const
 {
@@ -3149,6 +3163,32 @@ Slice::Exception::dataMembers() const
     return result;
 }
 
+//
+// Return the data members of this exception and its parent exceptions, in base-to-derived order.
+//
+DataMemberList
+Slice::Exception::allDataMembers() const
+{
+    DataMemberList result;
+
+    //
+    // Check if we have a base exception. If so, recursively
+    // get the data members of the base exception(s).
+    //
+    if(base())
+    {
+	result = base()->allDataMembers();
+    }
+
+    //
+    // Append this exceptions's data members.
+    //
+    DataMemberList myMembers = dataMembers();
+    result.splice(result.end(), myMembers);
+
+    return result;
+}
+
 DataMemberList
 Slice::Exception::classDataMembers() const
 {
@@ -3168,6 +3208,9 @@ Slice::Exception::classDataMembers() const
     return result;
 }
 
+//
+// Return the class data members of this exception and its parent exceptions, in base-to-derived order.
+//
 DataMemberList
 Slice::Exception::allClassDataMembers() const
 {
@@ -3183,20 +3226,11 @@ Slice::Exception::allClassDataMembers() const
     }
 
     //
-    // Append this exception's class members.
+    // Append this exceptions's class data members.
     //
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
-	if(q)
-	{
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
-	    {
-		result.push_back(q);
-	    }
-	}
-    }
+    DataMemberList myMembers = classDataMembers();
+    result.splice(result.end(), myMembers);
+
     return result;
 }
 
