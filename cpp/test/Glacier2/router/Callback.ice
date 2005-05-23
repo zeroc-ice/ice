@@ -25,6 +25,8 @@ interface CallbackReceiver
 
     void callbackEx()
 	throws CallbackException;
+
+    ["amd", "ami"] int nestedCallback(int number);
 };
 
 interface Callback
@@ -33,6 +35,8 @@ interface Callback
 
     void initiateCallbackEx(CallbackReceiver* proxy)
 	throws CallbackException;
+
+    ["amd", "ami"] int initiateNestedCallback(int number, CallbackReceiver* proxy);
 
     void shutdown();
 };

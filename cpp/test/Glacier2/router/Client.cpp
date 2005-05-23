@@ -16,6 +16,60 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+class AMI_Callback_initiateNestedCallbackI : public AMI_Callback_initiateNestedCallback,
+					     public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    AMI_Callback_initiateNestedCallbackI() :
+	_haveResponse(false)
+    {
+    }
+
+    virtual void
+    ice_response(Int response)
+    {
+	Lock sync(*this);
+	_haveResponse = true;
+	_response = response;
+	notify();
+    }
+
+    virtual void
+    ice_exception(const Exception& e)
+    {
+	Lock sync(*this);
+	_haveResponse = true;
+	_ex = auto_ptr<Exception>(e.ice_clone());
+	notify();
+    }
+
+    int
+    waitResponse() const
+    {
+	Lock sync(*this);
+	while(!_haveResponse)
+	{
+	    if(!timedWait(IceUtil::Time::milliSeconds(5000)))
+	    {
+		throw TimeoutException(__FILE__, __LINE__);
+	    }
+	}
+	if(_ex.get())
+	{
+	    _ex->ice_throw();
+	}
+	return _response;
+    }
+
+private:
+
+    bool _haveResponse;
+    auto_ptr<Exception> _ex;
+    Int _response;
+};
+typedef IceUtil::Handle<AMI_Callback_initiateNestedCallbackI> AMI_Callback_initiateNestedCallbackIPtr;
+
 class CallbackClient : public Application
 {
 public:
@@ -213,6 +267,23 @@ CallbackClient::run(int argc, char* argv[])
 	context["_fwd"] = "t";
 	twoway->initiateCallback(twowayR, context);
 	test(callbackReceiverImpl->callbackOK());
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing nested twoway callback... " << flush;
+	Context context;
+	context["_fwd"] = "t";
+	AMI_Callback_initiateNestedCallbackIPtr cb0 = new AMI_Callback_initiateNestedCallbackI();
+	twoway->initiateNestedCallback_async(cb0, 0, twowayR, context);
+	AMI_Callback_initiateNestedCallbackIPtr cb1 = new AMI_Callback_initiateNestedCallbackI();
+	twoway->initiateNestedCallback_async(cb1, 1, twowayR, context);
+	AMI_Callback_initiateNestedCallbackIPtr cb2 = new AMI_Callback_initiateNestedCallbackI();
+	twoway->initiateNestedCallback_async(cb2, 2, twowayR, context);
+	test(callbackReceiverImpl->answerNestedCallbacks(3));
+	test(cb0->waitResponse() == 0);
+	test(cb1->waitResponse() == 1);
+	test(cb2->waitResponse() == 2);
 	cout << "ok" << endl;
     }
 

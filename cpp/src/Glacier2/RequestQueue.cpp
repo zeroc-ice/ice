@@ -14,6 +14,38 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
+namespace Glacier2
+{
+
+class AMI_Object_ice_invokeI : public AMI_Object_ice_invoke
+{
+public:
+
+    AMI_Object_ice_invokeI(const AMD_Object_ice_invokePtr& amdCB) :
+	_amdCB(amdCB)
+    {
+	assert(_amdCB);
+    }
+
+    virtual void
+    ice_response(bool ok, const std::vector<Byte>& outParams)
+    {
+	_amdCB->ice_response(ok, outParams);
+    }
+
+    virtual void
+    ice_exception(const Exception& ex)
+    {
+	_amdCB->ice_exception(ex);
+    }
+
+private:
+
+    const AMD_Object_ice_invokePtr _amdCB;
+};
+
+}
+
 Glacier2::Request::Request(const ObjectPrx& proxy, const ByteSeq& inParams, const Current& current,
 			   bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
@@ -40,33 +72,32 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const ByteSeq& inParams, cons
     }
 }
 
+
 void
 Glacier2::Request::invoke()
 {
-    bool ok;
-    ByteSeq outParams;
-    
-    try
+    if(_proxy->ice_isTwoway())
     {
+	AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(_amdCB);
 	if(_forwardContext)
 	{
-	    ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams, _current.ctx);
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams, _current.ctx);
 	}
 	else
 	{
-	    ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
-	}
-	
-	if(_proxy->ice_isTwoway())
-	{
-	    _amdCB->ice_response(ok, outParams);
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams);
 	}
     }
-    catch(const LocalException& ex)
+    else
     {
-	if(_proxy->ice_isTwoway())
+	ByteSeq outParams;
+	if(_forwardContext)
 	{
-	    _amdCB->ice_exception(ex);
+	    _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams, _current.ctx);
+	}
+	else
+	{
+	    _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	}
     }
 }

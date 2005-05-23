@@ -13,8 +13,9 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <Callback.h>
+#include <vector>
 
-class CallbackReceiverI : public ::Test::CallbackReceiver, IceUtil::Monitor<IceUtil::Mutex>
+class CallbackReceiverI : public ::Test::CallbackReceiver, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -22,11 +23,16 @@ public:
 
     virtual void callback(const Ice::Current&);
     virtual void callbackEx(const Ice::Current&);
+    virtual void nestedCallback_async(const ::Test::AMD_CallbackReceiver_nestedCallbackPtr&,
+				      Ice::Int,
+				      const ::Ice::Current&);
     bool callbackOK();
+    bool answerNestedCallbacks(unsigned int);
 
 private:
 
     bool _callback;
+    std::vector<std::pair< ::Test::AMD_CallbackReceiver_nestedCallbackPtr, Ice::Int> > _callbacks;
 };
 
 class CallbackI : public ::Test::Callback
@@ -37,6 +43,10 @@ public:
 
     virtual void initiateCallback(const ::Test::CallbackReceiverPrx&, const Ice::Current&);
     virtual void initiateCallbackEx(const ::Test::CallbackReceiverPrx&, const Ice::Current&);
+    virtual void initiateNestedCallback_async(const ::Test::AMD_Callback_initiateNestedCallbackPtr&,
+					      Ice::Int,
+					      const ::Test::CallbackReceiverPrx&,
+					      const ::Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

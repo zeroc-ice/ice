@@ -14,6 +14,32 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
+class AMI_CallbackReceiver_nestedCallbackI : public AMI_CallbackReceiver_nestedCallback
+{
+public:
+
+    AMI_CallbackReceiver_nestedCallbackI(const AMD_Callback_initiateNestedCallbackPtr cb) :
+	_cb(cb)
+    {
+    }
+
+    virtual void
+    ice_response(Int number)
+    {
+	_cb->ice_response(number);
+    }
+
+    virtual void
+    ice_exception(const Exception& e)
+    {
+	_cb->ice_exception(e);
+    }
+
+private:
+
+    const AMD_Callback_initiateNestedCallbackPtr _cb;
+};
+
 CallbackReceiverI::CallbackReceiverI() :
     _callback(false)
 {
@@ -22,7 +48,8 @@ CallbackReceiverI::CallbackReceiverI() :
 void
 CallbackReceiverI::callback(const Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
+
     assert(!_callback);
     _callback = true;
     notify();
@@ -38,10 +65,24 @@ CallbackReceiverI::callbackEx(const Current& current)
     throw ex;
 }
 
+void
+CallbackReceiverI::nestedCallback_async(const AMD_CallbackReceiver_nestedCallbackPtr& cb,
+					Int number,
+					const Current&)
+{
+    Lock sync(*this);
+
+    pair<AMD_CallbackReceiver_nestedCallbackPtr, Int> p;
+    p.first = cb;
+    p.second = number;
+    _callbacks.push_back(p);
+    notify();
+}
+
 bool
 CallbackReceiverI::callbackOK()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
 
     while(!_callback)
     {
@@ -52,6 +93,29 @@ CallbackReceiverI::callbackOK()
     }
 
     _callback = false;
+    return true;
+}
+
+bool
+CallbackReceiverI::answerNestedCallbacks(unsigned int num)
+{
+    Lock sync(*this);
+
+    while(_callbacks.size() != num)
+    {
+	if(!timedWait(IceUtil::Time::milliSeconds(5000)))
+	{
+	    return false;
+	}
+    }
+
+    for(vector<pair<AMD_CallbackReceiver_nestedCallbackPtr, Int> >::const_iterator p = _callbacks.begin();
+	p != _callbacks.end();
+	++p)
+    {
+	p->first->ice_response(p->second);
+    }
+    _callbacks.clear();
     return true;
 }
 
@@ -69,6 +133,15 @@ void
 CallbackI::initiateCallbackEx(const CallbackReceiverPrx& proxy, const Current& current)
 {
     proxy->callbackEx(current.ctx);
+}
+
+void
+CallbackI::initiateNestedCallback_async(const AMD_Callback_initiateNestedCallbackPtr& cb,
+					Int number,
+					const CallbackReceiverPrx& proxy,
+					const Current& current)
+{
+    proxy->nestedCallback_async(new AMI_CallbackReceiver_nestedCallbackI(cb), number, current.ctx);
 }
 
 void
