@@ -86,24 +86,33 @@ public final class ConnectionI implements Connection
 
 	    if(active)
 	    {
-	        IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-	        os.writeBlob(IceInternal.Protocol.magic);
-	        os.writeByte(IceInternal.Protocol.protocolMajor);
-	        os.writeByte(IceInternal.Protocol.protocolMinor);
-	        os.writeByte(IceInternal.Protocol.encodingMajor);
-	        os.writeByte(IceInternal.Protocol.encodingMinor);
-	        os.writeByte(IceInternal.Protocol.validateConnectionMsg);
-	        os.writeByte((byte)0); // Compression status (always zero for validate connection).
-	        os.writeInt(IceInternal.Protocol.headerSize); // Message size.
-	        IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-	        try
-	        {
-	    	    _transceiver.write(os, timeout);
-	        }
-	        catch(Ice.TimeoutException ex)
-	        {
-	    	    throw new Ice.ConnectTimeoutException();
-	        }
+		synchronized(_sendMutex)
+		{
+		    if(_transceiver == null) // Has the transceiver already been closed?
+		    {
+			assert(_exception != null);
+			throw _exception; // The exception is immutable at this point.
+		    }
+
+		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+		    os.writeBlob(IceInternal.Protocol.magic);
+		    os.writeByte(IceInternal.Protocol.protocolMajor);
+		    os.writeByte(IceInternal.Protocol.protocolMinor);
+		    os.writeByte(IceInternal.Protocol.encodingMajor);
+		    os.writeByte(IceInternal.Protocol.encodingMinor);
+		    os.writeByte(IceInternal.Protocol.validateConnectionMsg);
+		    os.writeByte((byte)0); // Compression status (always zero for validate connection).
+		    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+		    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		    try
+		    {
+			_transceiver.write(os, timeout);
+		    }
+		    catch(Ice.TimeoutException ex)
+		    {
+			throw new Ice.ConnectTimeoutException();
+		    }
+		}
 	    }
 	    else
 	    {
@@ -254,21 +263,6 @@ public final class ConnectionI implements Connection
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
-
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
-	    synchronized(_incomingCacheMutex)
-	    {
-		while(_incomingCache != null)
-		{
-		    _incomingCache.__destroy();
-		    _incomingCache = _incomingCache.next;
-		}
-	    }
-
-	    cleanup();
 	}
 
 	if(threadPerConnection != null)
@@ -382,21 +376,6 @@ public final class ConnectionI implements Connection
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
-
-	    //
-	    // We must destroy the incoming cache. It is now not
-	    // needed anymore.
-	    //
-	    synchronized(_incomingCacheMutex)
-	    {
-		while(_incomingCache != null)
-		{
-		    _incomingCache.__destroy();
-		    _incomingCache = _incomingCache.next;
-		}
-	    }
-
-	    cleanup();
 	}
 
 	if(threadPerConnection != null)
@@ -635,10 +614,9 @@ public final class ConnectionI implements Connection
     {
 	//
 	// Destroy and reset the batch stream and batch count. We
-	// cannot safe old requests in the batch stream, as they might
+	// cannot save old requests in the batch stream, as they might
 	// be corrupted due to incomplete marshaling.
 	//
-	_batchStream.destroy();
 	_batchStream = new IceInternal.BasicStream(_instance);
 	_batchRequestNum = 0;
 
@@ -740,7 +718,6 @@ public final class ConnectionI implements Connection
 	    //
 	    // Reset the batch stream, and notify that flushing is over.
 	    //
-	    _batchStream.destroy();
 	    _batchStream = new IceInternal.BasicStream(_instance);
 	    _batchRequestNum = 0;
 	    _batchStreamInUse = false;
@@ -1016,7 +993,6 @@ public final class ConnectionI implements Connection
 	IceUtil.Assert.FinalizerAssert(_transceiver == null);
 	IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
 	IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
-	IceUtil.Assert.FinalizerAssert(_incomingCache == null);
     }
 
     private static final int StateNotValidated = 0;
@@ -1076,6 +1052,14 @@ public final class ConnectionI implements Connection
     private void
     setState(int state)
     {
+	//
+	// Skip graceful shutdown if we are destroyed before validation.
+	//
+	if(_state == StateNotValidated && state == StateClosing)
+	{
+	    state = StateClosed;
+	}
+
         if(_state == state) // Don't switch twice.
         {
             return;
@@ -1132,7 +1116,7 @@ public final class ConnectionI implements Connection
 		//
 		// If we are in thread per connection mode, we
 		// shutdown both for reading and writing. This will
-		// unblock and read call with an exception. The thread
+		// unblock any read call with an exception. The thread
 		// per connection then closes the transceiver.
 		//
 		_transceiver.shutdownReadWrite();
@@ -1205,7 +1189,6 @@ public final class ConnectionI implements Connection
 	}
 
 	IceInternal.BasicStream stream;
-	boolean destroyStream;
 	int invokeNum;
 	int requestId;
 	IceInternal.ServantManager servantManager;
@@ -1327,12 +1310,6 @@ public final class ConnectionI implements Connection
 	catch(LocalException ex)
 	{
 	    setState(StateClosed, ex);
-
-	    if(info.destroyStream)
-	    {
-		info.stream.destroy();
-		info.destroyStream = false;
-	    }
 	}
     }
 
@@ -1470,7 +1447,7 @@ public final class ConnectionI implements Connection
     {
 	//
 	// The thread-per-connection must validate and activate this connection,
-	// and not in the // connection factory. Please see the comments in the
+	// and not in the connection factory. Please see the comments in the
 	// connection factory for details.
 	//
 	try
@@ -1509,6 +1486,8 @@ public final class ConnectionI implements Connection
 
 	boolean closed = false;
 
+	IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
+
 	while(!closed)
 	{
 	    //
@@ -1516,83 +1495,81 @@ public final class ConnectionI implements Connection
 	    // synchronization, because we use blocking accept.
 	    //
 
-	    IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
-
 	    try
 	    {
-		stream.resize(IceInternal.Protocol.headerSize, true);
-		stream.pos(0);
-		_transceiver.read(stream, -1);
-
-		int pos = stream.pos();
-		assert(pos >= IceInternal.Protocol.headerSize);
-		stream.pos(0);
-		byte[] m = stream.readBlob(4);
-		if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-		   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+		try
 		{
-		    BadMagicException ex = new BadMagicException();
-		    ex.badMagic = m;
-		    throw ex;
-		}
-		byte pMajor = stream.readByte();
-		byte pMinor = stream.readByte();
-		if(pMajor != IceInternal.Protocol.protocolMajor)
-		{
-		    UnsupportedProtocolException e = new UnsupportedProtocolException();
-		    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-		    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-		    e.major = IceInternal.Protocol.protocolMajor;
-		    e.minor = IceInternal.Protocol.protocolMinor;
-		    throw e;
-		}
-		byte eMajor = stream.readByte();
-		byte eMinor = stream.readByte();
-		if(eMajor != IceInternal.Protocol.encodingMajor)
-		{
-		    UnsupportedEncodingException e = new UnsupportedEncodingException();
-		    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-		    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-		    e.major = IceInternal.Protocol.encodingMajor;
-		    e.minor = IceInternal.Protocol.encodingMinor;
-		    throw e;
-		}
-		byte messageType = stream.readByte();
-		byte compress = stream.readByte();
-		int size = stream.readInt();
-		if(size < IceInternal.Protocol.headerSize)
-		{
-		    throw new IllegalMessageSizeException();
-		}
-		if(size > _instance.messageSizeMax())
-		{
-		    throw new MemoryLimitException();
-		}
-		if(size > stream.size())
-		{
-		    stream.resize(size, true);
-		}
-		stream.pos(pos);
-
-		if(pos != stream.size())
-		{
+		    stream.resize(IceInternal.Protocol.headerSize, true);
+		    stream.pos(0);
 		    _transceiver.read(stream, -1);
-		    assert(stream.pos() == stream.size());
+
+		    int pos = stream.pos();
+		    assert(pos >= IceInternal.Protocol.headerSize);
+		    stream.pos(0);
+		    byte[] m = stream.readBlob(4);
+		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+		       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+		    {
+			BadMagicException ex = new BadMagicException();
+			ex.badMagic = m;
+			throw ex;
+		    }
+		    byte pMajor = stream.readByte();
+		    byte pMinor = stream.readByte();
+		    if(pMajor != IceInternal.Protocol.protocolMajor)
+		    {
+			UnsupportedProtocolException e = new UnsupportedProtocolException();
+			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+			e.major = IceInternal.Protocol.protocolMajor;
+			e.minor = IceInternal.Protocol.protocolMinor;
+			throw e;
+		    }
+		    byte eMajor = stream.readByte();
+		    byte eMinor = stream.readByte();
+		    if(eMajor != IceInternal.Protocol.encodingMajor)
+		    {
+			UnsupportedEncodingException e = new UnsupportedEncodingException();
+			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+			e.major = IceInternal.Protocol.encodingMajor;
+			e.minor = IceInternal.Protocol.encodingMinor;
+			throw e;
+		    }
+		    byte messageType = stream.readByte();
+		    byte compress = stream.readByte();
+		    int size = stream.readInt();
+		    if(size < IceInternal.Protocol.headerSize)
+		    {
+			throw new IllegalMessageSizeException();
+		    }
+		    if(size > _instance.messageSizeMax())
+		    {
+			throw new MemoryLimitException();
+		    }
+		    if(size > stream.size())
+		    {
+			stream.resize(size, true);
+		    }
+		    stream.pos(pos);
+
+		    if(pos != stream.size())
+		    {
+			_transceiver.read(stream, -1);
+			assert(stream.pos() == stream.size());
+		    }
 		}
-	    }
-	    catch(LocalException ex)
-	    {
-		exception(ex);
-	    }
+		catch(LocalException ex)
+		{
+		    exception(ex);
+		}
 
-	    MessageInfo info = new MessageInfo(stream);
+		MessageInfo info = new MessageInfo(stream);
 
-	    LocalException exception = null;
+		LocalException exception = null;
 
-	    IceInternal.IntMap requests = null;
+		IceInternal.IntMap requests = null;
 
-	    try
-	    {
 		synchronized(this)
 		{
 		    while(_state == StateHolding)
@@ -1656,8 +1633,7 @@ public final class ConnectionI implements Connection
 		// must be done outside the thread synchronization, so that nested
 		// calls are possible.
 		//
-		invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager,
-			  info.adapter);
+		invokeAll(info.stream, info.invokeNum, info.requestId, info.servantManager, info.adapter);
 
 		if(requests != null)
 		{
@@ -1674,14 +1650,11 @@ public final class ConnectionI implements Connection
 		{
 		    assert(closed);
 		    throw exception;
-		}    
+		}
 	    }
 	    finally
 	    {
-		if(info.destroyStream)
-		{
-		    info.stream.destroy();
-		}
+		stream.reset();
 	    }
 	}
     }
@@ -1739,20 +1712,6 @@ public final class ConnectionI implements Connection
             in.next = _incomingCache;
             _incomingCache = in;
         }
-    }
-
-    private void
-    cleanup()
-    {
-	//
-	// This should be called when we know that this object is no longer used,
-	// so it is safe to reclaim resources.
-	//
-	// We do this here instead of in a finalizer because a C# finalizer
-	// cannot invoke methods on other types of objects.
-	//
-	_batchStream.destroy();
-	_batchStream = null;
     }
 
     private class ThreadPerConnection extends Thread

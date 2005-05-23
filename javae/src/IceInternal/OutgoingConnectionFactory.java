@@ -65,7 +65,7 @@ public final class OutgoingConnectionFactory
 	    // outside the thread synchronization.
 	    //
 	    connections = _connections;
-	    _connections = new java.util.HashMap();
+	    _connections = null;
 	}
 	
 	//
@@ -493,8 +493,8 @@ public final class OutgoingConnectionFactory
     finalize()
         throws Throwable
     {
-        assert(_destroyed);
-	assert(_connections.isEmpty());
+        IceUtil.Assert.FinalizerAssert(_destroyed);
+	IceUtil.Assert.FinalizerAssert(_connections == null);
 
         super.finalize();
     }

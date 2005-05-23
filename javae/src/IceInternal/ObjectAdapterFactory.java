@@ -75,17 +75,20 @@ public final class ObjectAdapterFactory
 	//
 	// Now we wait for deactivation of each object adapter.
 	//
-        java.util.Iterator i = _adapters.values().iterator();
-        while(i.hasNext())
-        {
-            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
-            adapter.waitForDeactivate();
-        }
-	
+	if(_adapters != null)
+	{
+	    java.util.Iterator i = _adapters.values().iterator();
+	    while(i.hasNext())
+	    {
+		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+		adapter.waitForDeactivate();
+	    }
+	}
+
 	//
 	// We're done, now we can throw away the object adapters.
 	//
-	_adapters.clear();
+	_adapters = null;
 
 	synchronized(this)
 	{
@@ -177,10 +180,10 @@ public final class ObjectAdapterFactory
     finalize()
         throws Throwable
     {
-	assert(_instance == null);
-	assert(_communicator == null);
-	assert(_adapters.size() == 0);
-	assert(!_waitForShutdown);
+	IceUtil.Assert.FinalizerAssert(_instance == null);
+	IceUtil.Assert.FinalizerAssert(_communicator == null);
+	IceUtil.Assert.FinalizerAssert(_adapters == null);
+	IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
 
         super.finalize();
     }

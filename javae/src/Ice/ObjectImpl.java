@@ -174,33 +174,4 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         assert(false);
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
-
-    public void
-    __write(IceInternal.BasicStream __os)
-    {
-        __os.writeTypeId(ice_staticId());
-        __os.startWriteSlice();
-        __os.writeSize(0); // For compatibility with the old AFM.
-        __os.endWriteSlice();
-    }
-
-    public void
-    __read(IceInternal.BasicStream __is, boolean __rid)
-    {
-        if(__rid)
-        {
-            String myId = __is.readTypeId();
-        }
-
-        __is.startReadSlice();
-
-        // For compatibility with the old AFM.
-        int sz = __is.readSize();
-        if(sz != 0)
-        {
-            throw new MarshalException();
-        }
-
-        __is.endReadSlice();
-    }
 }

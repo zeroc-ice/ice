@@ -26,6 +26,14 @@ public class Client
         {
             Ice.Properties properties = Ice.Util.createProperties(args);
 	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12345");
+	    //
+	    // This test requires an extra retry interval because it is possible for
+	    // a proxy to encounter two CloseConnectionExceptions in a row during
+	    // retries. The first is raised by an already-closed connection, and the
+	    // second occurs when a CloseConnection message is pending on the next
+	    // connection that is tried.
+	    //
+	    properties.setProperty("Ice.RetryIntervals", "0 0");
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }

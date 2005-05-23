@@ -11,12 +11,6 @@ package IceInternal;
 
 class TcpAcceptor implements Acceptor
 {
-    public java.nio.channels.ServerSocketChannel
-    fd()
-    {
-        return _fd;
-    }
-
     public void
     close()
     {
@@ -26,7 +20,7 @@ class TcpAcceptor implements Acceptor
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        java.nio.channels.ServerSocketChannel fd;
+        java.net.ServerSocket fd;
 	synchronized(this)
         {
 	    fd = _fd;
@@ -60,24 +54,56 @@ class TcpAcceptor implements Acceptor
     public Transceiver
     accept(int timeout)
     {
-        java.nio.channels.SocketChannel fd = Network.doAccept(_fd, timeout);
+	java.net.Socket fd = null;
+	try
+	{
+	    if(timeout == -1)
+	    {
+		timeout = 0; // Infinite
+	    }
+	    else if(timeout == 0)
+	    {
+		timeout = 1;
+	    }
+	    _fd.setSoTimeout(timeout);
+	    fd = _fd.accept();
+	}
+	catch(java.io.InterruptedIOException ex)
+	{
+	    Ice.TimeoutException e = new Ice.TimeoutException();
+	    e.initCause(ex);
+	    throw e;
+	}
+	catch(java.io.IOException ex)
+	{
+	    Ice.SocketException e = new Ice.SocketException();
+	    e.initCause(ex);
+	    throw e;
+	}
 
-        if(_traceLevels.network >= 1)
-        {
-            String s = "accepted tcp connection\n" + Network.fdToString(fd);
-            _logger.trace(_traceLevels.networkCat, s);
-        }
+	if(_traceLevels.network >= 1)
+	{
+	    String s = "accepted tcp connection\n" + Network.fdToString(fd);
+	    _logger.trace(_traceLevels.networkCat, s);
+	}
 
-        return new TcpTransceiver(_instance, fd);
+	return new TcpTransceiver(_instance, fd);
     }
 
     public void
     connectToSelf()
     {
-	java.nio.channels.SocketChannel fd = Network.createTcpSocket();
-	Network.setBlock(fd, false);
-	Network.doConnect(fd, _addr, -1);
-	Network.closeSocket(fd);
+	try
+	{
+	    java.net.Socket fd = new java.net.Socket(_addr.getAddress(), _addr.getPort());
+	    fd.close();
+	}
+	catch(java.io.IOException ex)
+	{
+	    Ice.SocketException e = new Ice.SocketException();
+	    e.initCause(ex);
+	    throw e;
+	}
     }
 
     public String
@@ -89,7 +115,7 @@ class TcpAcceptor implements Acceptor
     final boolean
     equivalent(String host, int port)
     {
-        java.net.InetSocketAddress addr = Network.getAddress(host, port);
+        InetSocketAddress addr = Network.getAddress(host, port);
         return addr.equals(_addr);
     }
 
@@ -113,19 +139,45 @@ class TcpAcceptor implements Acceptor
 
         try
         {
-            _fd = Network.createTcpServerSocket();
-            Network.setBlock(_fd, false);
-            _addr = new java.net.InetSocketAddress(host, port);
+	    _addr = Network.getAddress(host, port);
 	    if(_traceLevels.network >= 2)
 	    {
 		String s = "attempting to bind to tcp socket " + toString();
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
-            _addr = Network.doBind(_fd, _addr);
+	    _fd = new java.net.ServerSocket(port, _backlog, _addr.getAddress());
+	    _addr = new InetSocketAddress(_addr.getAddress(), _fd.getLocalPort());
+        }
+        catch(java.io.IOException ex)
+        {
+	    if(_fd != null)
+	    {
+		try
+		{
+		    _fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+		_fd = null;
+	    }
+	    Ice.SocketException e = new Ice.SocketException();
+	    e.initCause(ex);
+	    throw e;
         }
         catch(RuntimeException ex)
         {
-            _fd = null;
+	    if(_fd != null)
+	    {
+		try
+		{
+		    _fd.close();
+		}
+		catch(java.io.IOException e)
+		{
+		}
+		_fd = null;
+	    }
             throw ex;
         }
     }
@@ -134,7 +186,7 @@ class TcpAcceptor implements Acceptor
     finalize()
         throws Throwable
     {
-        assert(_fd == null);
+        IceUtil.Assert.FinalizerAssert(_fd == null);
 
         super.finalize();
     }
@@ -142,7 +194,7 @@ class TcpAcceptor implements Acceptor
     private Instance _instance;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
-    private java.nio.channels.ServerSocketChannel _fd;
+    private java.net.ServerSocket _fd;
     private int _backlog;
-    private java.net.InetSocketAddress _addr;
+    private InetSocketAddress _addr;
 }

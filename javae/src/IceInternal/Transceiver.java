@@ -11,7 +11,6 @@ package IceInternal;
 
 public interface Transceiver
 {
-    java.nio.channels.SelectableChannel fd();
     void close();
     void shutdownWrite();
     void shutdownReadWrite();

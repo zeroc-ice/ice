@@ -359,7 +359,7 @@ final class TcpEndpoint implements Endpoint
             //
             // We do the most time-consuming part of the comparison last.
             //
-            java.net.InetSocketAddress laddr = null;
+            InetSocketAddress laddr = null;
 	    try
 	    {
 		laddr = Network.getAddress(_host, _port);
@@ -368,7 +368,7 @@ final class TcpEndpoint implements Endpoint
 	    {
 	    }
 
-            java.net.InetSocketAddress raddr = null;
+            InetSocketAddress raddr = null;
 	    try
 	    {
 		raddr = Network.getAddress(p._host, p._port);

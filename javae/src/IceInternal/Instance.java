@@ -184,13 +184,6 @@ public class Instance
 	adapterFactory.flushBatchRequests();
     }
 
-    public BufferManager
-    bufferManager()
-    {
-	// No mutex lock, immutable.
-        return _bufferManager;
-    }
-
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -303,8 +296,6 @@ public class Instance
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
-
-            _bufferManager = new BufferManager();
         }
         catch(Ice.LocalException ex)
         {
@@ -317,14 +308,14 @@ public class Instance
     finalize()
         throws Throwable
     {
-        assert(_destroyed);
-        assert(_referenceFactory == null);
-        assert(_proxyFactory == null);
-        assert(_outgoingConnectionFactory == null);
-        assert(_objectAdapterFactory == null);
-        assert(_routerManager == null);
-        assert(_locatorManager == null);
-        assert(_endpointFactoryManager == null);
+        IceUtil.Assert.FinalizerAssert(_destroyed);
+        IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
+        IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
+        IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+        IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
+        IceUtil.Assert.FinalizerAssert(_routerManager == null);
+        IceUtil.Assert.FinalizerAssert(_locatorManager == null);
+        IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
 
         super.finalize();
     }
@@ -458,7 +449,6 @@ public class Instance
     private EndpointFactoryManager _endpointFactoryManager;
     private java.util.Map _defaultContext;
     private static java.util.Map _emptyContext = new java.util.HashMap();
-    private final BufferManager _bufferManager; // Immutable, not reset by destroy().
 
     private static boolean _oneOffDone = false;
 }

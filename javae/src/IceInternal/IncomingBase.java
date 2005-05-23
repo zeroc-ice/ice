@@ -24,7 +24,6 @@ public class IncomingBase
         _current.con = _connection;
 
         _cookie = new Ice.LocalObjectHolder();
-
     }
 
     protected
@@ -47,21 +46,6 @@ public class IncomingBase
 
 	_connection = in._connection;
 	in._connection = null;
-    }
-
-    //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that __destroy() is called instead,
-    // to reclaim resources.
-    //
-    public synchronized void
-    __destroy()
-    {
-	if(_os != null)
-	{
-	    _os.destroy();
-	    _os = null;
-	}
     }
 
     //

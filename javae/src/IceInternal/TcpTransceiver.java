@@ -11,13 +11,6 @@ package IceInternal;
 
 final class TcpTransceiver implements Transceiver
 {
-    public java.nio.channels.SelectableChannel
-    fd()
-    {
-        assert(_fd != null);
-        return _fd;
-    }
-
     public void
     close()
     {
@@ -29,17 +22,17 @@ final class TcpTransceiver implements Transceiver
 
 	synchronized(this)
 	{
-        assert(_fd != null);
-        try
-        {
-            _fd.close();
-        }
-        catch(java.io.IOException ex)
-        {
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-        }
+	    assert(_fd != null);
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
 	    finally
 	    {
 	        _fd = null;
@@ -50,160 +43,78 @@ final class TcpTransceiver implements Transceiver
     public void
     shutdownWrite()
     {
-        if(_traceLevels.network >= 2)
-        {
-            String s = "shutting down tcp connection for writing\n" + toString();
-            _logger.trace(_traceLevels.networkCat, s);
-        }
-
-        assert(_fd != null);
-        java.net.Socket socket = _fd.socket();
-        try
-        {
-            socket.shutdownOutput(); // Shutdown socket for writing
-        }
-        catch(java.net.SocketException ex)
-        {
-	    //
-	    // Ignore errors indicating that we are shutdown already.
-	    //
-	    if(Network.notConnected(ex))
-	    {
-		return;
-	    }
-
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-        }
-        catch(java.io.IOException ex)
-        {
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-        }
+	//
+	// Not implemented.
+	//
     }
 
     public void
     shutdownReadWrite()
     {
-        if(_traceLevels.network >= 2)
-        {
-            String s = "shutting down tcp connection for reading and writing\n" + toString();
-            _logger.trace(_traceLevels.networkCat, s);
-        }
+	if(_traceLevels.network >= 2)
+	{
+	    String s = "shutting down tcp connection for reading and writing\n" + toString();
+	    _logger.trace(_traceLevels.networkCat, s);
+	}
 
-        assert(_fd != null);
-        java.net.Socket socket = _fd.socket();
-        try
-        {
-	    //
-	    // TODO: Java does not support SHUT_RDWR. Calling both
-	    // shutdownInput and shutdownOutput results in an exception.
-	    //
-	    socket.shutdownInput(); // Shutdown socket for reading
-	    //socket.shutdownOutput(); // Shutdown socket for writing
-        }
-        catch(java.net.SocketException ex)
-        {
-	    // Ignore.
-        }
-        catch(java.io.IOException ex)
-        {
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-        }
+	assert(_fd != null);
+
+	_shutdown = true;
     }
 
     public void
     write(BasicStream stream, int timeout)
     {
-        java.nio.ByteBuffer buf = stream.prepareWrite();
+        ByteBuffer buf = stream.prepareWrite();
 
-	java.nio.channels.Selector selector = null;
+	byte[] data = buf.array();
 
 	try
 	{
-	    while(buf.hasRemaining())
+	    if(timeout == -1)
 	    {
-		try
-		{
-		    assert(_fd != null);
-		    int ret = _fd.write(buf);
-		    
-		    if(ret == -1)
-		    {
-			throw new Ice.ConnectionLostException();
-		    }
-		    
-		    if(ret == 0)
-		    {
-			if(timeout == 0)
-			{
-			    throw new Ice.TimeoutException();
-			}
-			
-			if(selector == null)
-			{
-			    selector = java.nio.channels.Selector.open();
-			    _fd.register(selector, java.nio.channels.SelectionKey.OP_WRITE, null);
-			}
-			
-			try
-			{
-			    if(timeout > 0)
-			    {
-				long start = System.currentTimeMillis();
-				int n = selector.select(timeout);
-				if(n == 0 && System.currentTimeMillis() >= start + timeout)
-				{
-				    throw new Ice.TimeoutException();
-				}
-			    }
-			    else
-			    {
-				selector.select();
-			    }
-			}
-			catch(java.io.InterruptedIOException ex)
-			{
-			    // Ignore.
-			}
-
-			continue;
-		    }
-		    
-		    if(_traceLevels.network >= 3)
-		    {
-			String s = "sent " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
-			_logger.trace(_traceLevels.networkCat, s);
-		    }
-		}
-		catch(java.io.InterruptedIOException ex)
-		{
-		    continue;
-		}
-		catch(java.io.IOException ex)
-		{
-		    Ice.SocketException se = new Ice.SocketException();
-		    se.initCause(ex);
-		    throw se;
-		}
+		timeout = 0; // Infinite
 	    }
-	}
-	finally
-	{
-	    if(selector != null)
+	    else if(timeout == 0)
 	    {
-		try
+		timeout = 1;
+	    }
+	    _fd.setSoTimeout(timeout);
+	}
+	catch(java.net.SocketException ex)
+	{
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+	}
+
+	while(buf.hasRemaining())
+	{
+	    int pos = buf.position();
+	    try
+	    {
+		assert(_fd != null);
+		int rem = buf.remaining();
+		_out.write(data, pos, rem);
+		buf.position(pos + rem);
+
+		if(_traceLevels.network >= 3)
 		{
-		    selector.close();
+		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp\n" + toString();
+		    _logger.trace(_traceLevels.networkCat, s);
 		}
-		catch(java.io.IOException ex)
-		{
-		    // Ignore.
-		}
+
+		break;
+	    }
+	    catch(java.io.InterruptedIOException ex)
+	    {
+		buf.position(pos + ex.bytesTransferred);
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
 	    }
 	}
     }
@@ -211,108 +122,80 @@ final class TcpTransceiver implements Transceiver
     public void
     read(BasicStream stream, int timeout)
     {
-        java.nio.ByteBuffer buf = stream.prepareRead();
+	ByteBuffer buf = stream.prepareRead();
 
-        int remaining = 0;
-        if(_traceLevels.network >= 3)
-        {
-            remaining = buf.remaining();
-        }
-
-	java.nio.channels.Selector selector = null;
-
-	try
+	int remaining = 0;
+	if(_traceLevels.network >= 3)
 	{
-	    while(buf.hasRemaining())
+	    remaining = buf.remaining();
+	}
+
+	byte[] data = buf.array();
+
+	int interval = 500;
+	if(timeout >= 0 && timeout < interval)
+	{
+	    interval = timeout;
+	}
+
+	while(buf.hasRemaining() && !_shutdown)
+	{
+	    int pos = buf.position();
+	    try
 	    {
-		try
+		_fd.setSoTimeout(interval);
+		assert(_fd != null);
+		int ret = _in.read(data, pos, buf.remaining());
+		
+		if(ret == -1)
 		{
-		    assert(_fd != null);
-		    int ret = _fd.read(buf);
-		    
-		    if(ret == -1)
-		    {
-			throw new Ice.ConnectionLostException();
-		    }
-		    
-		    if(ret == 0)
-		    {
-			if(timeout == 0)
-			{
-			    throw new Ice.TimeoutException();
-			}
-
-			if(selector == null)
-			{
-			    selector = java.nio.channels.Selector.open();
-			    _fd.register(selector, java.nio.channels.SelectionKey.OP_READ, null);
-			}
-			
-			try
-			{
-			    if(timeout > 0)
-			    {
-				long start = System.currentTimeMillis();
-				int n = selector.select(timeout);
-				if(n == 0 && System.currentTimeMillis() >= start + timeout)
-				{
-				    throw new Ice.TimeoutException();
-				}
-			    }
-			    else
-			    {
-				selector.select();
-			    }
-			}
-			catch(java.io.InterruptedIOException ex)
-			{
-			    // Ignore.
-			}
-
-			continue;
-		    }
-		    
-		    if(ret > 0)
-		    {
-                        if(_traceLevels.network >= 3)
-                        {
-                            String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
-                            _logger.trace(_traceLevels.networkCat, s);
-                        }
-                    }
+		    throw new Ice.ConnectionLostException();
 		}
-		catch(java.io.InterruptedIOException ex)
+
+		if(ret > 0)
 		{
-		    continue;
-		}
-		catch(java.io.IOException ex)
-		{
-		    if(Network.connectionLost(ex))
+		    if(_traceLevels.network >= 3)
 		    {
-			Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-			se.initCause(ex);
-			throw se;
+			String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
+			_logger.trace(_traceLevels.networkCat, s);
 		    }
-		    
-		    Ice.SocketException se = new Ice.SocketException();
+
+		    buf.position(pos + ret);
+		}
+	    }
+	    catch(java.io.InterruptedIOException ex)
+	    {
+		if(ex.bytesTransferred > 0)
+		{
+		    buf.position(pos + ex.bytesTransferred);
+		}
+		if(timeout >= 0)
+		{
+		    if(interval >= timeout)
+		    {
+			throw new Ice.TimeoutException();
+		    }
+		    timeout -= interval;
+		}
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		if(Network.connectionLost(ex))
+		{
+		    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
 		    se.initCause(ex);
 		    throw se;
 		}
+		
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
 	    }
-        }
-	finally
+	}
+
+	if(_shutdown)
 	{
-	    if(selector != null)
-	    {
-		try
-		{
-		    selector.close();
-		}
-		catch(java.io.IOException ex)
-		{
-		    // Ignore.
-		}
-	    }
+	    throw new Ice.ConnectionLostException();
 	}
     }
 
@@ -331,25 +214,48 @@ final class TcpTransceiver implements Transceiver
     //
     // Only for use by TcpConnector, TcpAcceptor
     //
-    TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd)
+    TcpTransceiver(Instance instance, java.net.Socket fd)
     {
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
         _desc = Network.fdToString(_fd);
+	try
+	{
+	    _in = _fd.getInputStream();
+	    _out = _fd.getOutputStream();
+	}
+	catch(java.io.IOException ex)
+	{
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException e)
+	    {
+	    }
+	    _fd = null;
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
+	}
+	_shutdown = false;
     }
 
     protected synchronized void
     finalize()
         throws Throwable
     {
-        assert(_fd == null);
+        IceUtil.Assert.FinalizerAssert(_fd == null);
 
         super.finalize();
     }
 
-    private java.nio.channels.SocketChannel _fd;
+    private java.net.Socket _fd;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private String _desc;
+    private java.io.InputStream _in;
+    private java.io.OutputStream _out;
+    private volatile boolean _shutdown;
 }

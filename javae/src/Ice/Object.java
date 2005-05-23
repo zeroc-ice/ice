@@ -33,7 +33,4 @@ public interface Object
     void ice_postUnmarshal();
 
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
-
-    void __write(IceInternal.BasicStream __os);
-    void __read(IceInternal.BasicStream __is, boolean __rid);
 }

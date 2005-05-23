@@ -20,25 +20,7 @@ final public class Incoming extends IncomingBase
     }
 
     //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that __destroy() is called instead,
-    // to reclaim resources.
-    //
-    public void
-    __destroy()
-    {
-	if(_is != null)
-	{
-	    _is.destroy();
-	    _is = null;
-	}
-
-	super.__destroy();
-    }
-
-    //
-    // This function allows this object to be reused, rather than
-    // reallocated.
+    // This function allows this object to be reused, rather than reallocated.
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response)

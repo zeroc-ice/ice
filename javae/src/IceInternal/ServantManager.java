@@ -165,7 +165,7 @@ public final class ServantManager
 	// not been called if the associated object adapter was not
 	// properly deactivated.
 	//
-	//assert(_instance == null);
+	//IceUtil.Assert.FinalizerAssert(_instance == null);
 	
         super.finalize();
     }

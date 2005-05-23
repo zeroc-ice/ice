@@ -15,41 +15,21 @@ public class BasicStream
     BasicStream(IceInternal.Instance instance)
     {
         _instance = instance;
-        _bufferManager = instance.bufferManager();
-        _buf = _bufferManager.allocate(1500);
-        assert(_buf != null);
+        allocate(1500);
         _capacity = _buf.capacity();
         _limit = 0;
         assert(_buf.limit() == _capacity);
 
         _readEncapsStack = null;
         _writeEncapsStack = null;
-        _readEncapsCache = null;
-        _writeEncapsCache = null;
-	
-        _sliceObjects = true;
 
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
 	_seqDataStack = null;
-        _objectList = null;
     }
 
     //
-    // Do NOT use a finalizer, this would cause a severe performance
-    // penalty! We must make sure that destroy() is called instead, to
-    // reclaim resources.
-    //
-    public void
-    destroy()
-    {
-        _bufferManager.reclaim(_buf);
-        _buf = null;
-    }
-
-    //
-    // This function allows this object to be reused, rather than
-    // reallocated.
+    // This function allows this object to be reused, rather than reallocated.
     //
     public void
     reset()
@@ -58,18 +38,7 @@ public class BasicStream
         _buf.limit(_capacity);
         _buf.position(0);
 
-        if(_readEncapsStack != null)
-        {
-            assert(_readEncapsStack.next == null);
-            _readEncapsStack.next = _readEncapsCache;
-            _readEncapsCache = _readEncapsStack;
-            _readEncapsStack = null;
-        }
-
-        if(_objectList != null)
-        {
-            _objectList.clear();
-        }
+        _readEncapsStack = null;
     }
 
     public IceInternal.Instance
@@ -83,7 +52,7 @@ public class BasicStream
     {
         assert(_instance == other._instance);
 
-        java.nio.ByteBuffer tmpBuf = other._buf;
+        ByteBuffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
@@ -99,17 +68,9 @@ public class BasicStream
         other._readEncapsStack = _readEncapsStack;
         _readEncapsStack = tmpRead;
 
-        tmpRead = other._readEncapsCache;
-        other._readEncapsCache = _readEncapsCache;
-        _readEncapsCache = tmpRead;
-
         WriteEncaps tmpWrite = other._writeEncapsStack;
         other._writeEncapsStack = _writeEncapsStack;
         _writeEncapsStack = tmpWrite;
-
-        tmpWrite = other._writeEncapsCache;
-        other._writeEncapsCache = _writeEncapsCache;
-        _writeEncapsCache = tmpWrite;
 
 	int tmpReadSlice = other._readSlice;
 	other._readSlice = _readSlice;
@@ -122,10 +83,6 @@ public class BasicStream
 	SeqData tmpSeqDataStack = other._seqDataStack;
 	other._seqDataStack = _seqDataStack;
 	_seqDataStack = tmpSeqDataStack;
-
-        java.util.ArrayList tmpObjectList = other._objectList;
-        other._objectList = _objectList;
-        _objectList = tmpObjectList;
     }
 
     public void
@@ -140,9 +97,7 @@ public class BasicStream
             final int cap2 = _capacity << 1;
             int newCapacity = cap2 > total ? cap2 : total;
             _buf.limit(_limit);
-            _buf.position(0);
-            _buf = _bufferManager.reallocate(_buf, newCapacity);
-            assert(_buf != null);
+            reallocate(newCapacity);
             _capacity = _buf.capacity();
         }
         //
@@ -163,13 +118,13 @@ public class BasicStream
         _limit = total;
     }
 
-    public java.nio.ByteBuffer
+    public ByteBuffer
     prepareRead()
     {
         return _buf;
     }
 
-    public java.nio.ByteBuffer
+    public ByteBuffer
     prepareWrite()
     {
         _buf.limit(_limit);
@@ -331,27 +286,9 @@ public class BasicStream
     public void
     startWriteEncaps()
     {
-	{
-	    WriteEncaps curr = _writeEncapsCache;
-	    if(curr != null)
-	    {
-		if(curr.toBeMarshaledMap != null)
-		{
-		    curr.writeIndex = 0;
-		    curr.toBeMarshaledMap.clear();
-		    curr.marshaledMap.clear();
-		    curr.typeIdIndex = 0;
-		    curr.typeIdMap.clear();
-		}
-		_writeEncapsCache = _writeEncapsCache.next;
-	    }
-	    else
-	    {
-		curr = new WriteEncaps();
-	    }
-	    curr.next = _writeEncapsStack;
-	    _writeEncapsStack = curr;
-	}
+	WriteEncaps curr = new WriteEncaps();
+	curr.next = _writeEncapsStack;
+	_writeEncapsStack = curr;
 
         _writeEncapsStack.start = _buf.position();
         writeInt(0); // Placeholder for the encapsulation length.
@@ -367,37 +304,15 @@ public class BasicStream
         int sz = _buf.position() - start; // Size includes size and version.
 	_buf.putInt(start, sz);
 
-	{
-	    WriteEncaps curr = _writeEncapsStack;
-	    _writeEncapsStack = curr.next;
-	    curr.next = _writeEncapsCache;
-	    _writeEncapsCache = curr;
-	}
+	_writeEncapsStack = _writeEncapsStack.next;
     }
 
     public void
     startReadEncaps()
     {
-	{
-	    ReadEncaps curr = _readEncapsCache;
-	    if(curr != null)
-	    {
-		if(curr.patchMap != null)
-		{
-		    curr.patchMap.clear();
-		    curr.unmarshaledMap.clear();
-		    curr.typeIdIndex = 0;
-		    curr.typeIdMap.clear();
-		}
-		_readEncapsCache = _readEncapsCache.next;
-	    }
-	    else
-	    {
-		curr = new ReadEncaps();
-	    }
-	    curr.next = _readEncapsStack;
-	    _readEncapsStack = curr;
-	}
+	ReadEncaps curr = new ReadEncaps();
+	curr.next = _readEncapsStack;
+	_readEncapsStack = curr;
 
         _readEncapsStack.start = _buf.position();
 	
@@ -450,12 +365,7 @@ public class BasicStream
             throw new Ice.UnmarshalOutOfBoundsException();
         }
 
-	{
-	    ReadEncaps curr = _readEncapsStack;
-	    _readEncapsStack = curr.next;
-	    curr.next = _readEncapsCache;
-	    _readEncapsCache = curr;
-	}
+	_readEncapsStack = _readEncapsStack.next;
     }
 
     public void
@@ -575,52 +485,10 @@ public class BasicStream
 		return (int)(b < 0 ? b + 256 : b);
 	    }
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-    }
-
-    public void
-    writeTypeId(String id)
-    {
-	Integer index = (Integer)_writeEncapsStack.typeIdMap.get(id);
-	if(index != null)
-	{
-	    writeBool(true);
-	    writeSize(index.intValue());
-	}
-	else
-	{
-	    index = new Integer(++_writeEncapsStack.typeIdIndex);
-	    _writeEncapsStack.typeIdMap.put(id, index);
-	    writeBool(false);
-	    writeString(id);
-	}
-    }
-
-    public String
-    readTypeId()
-    {
-	String id;
-	Integer index;
-        final boolean isIndex = readBool();
-	if(isIndex)
-	{
-	    index = new Integer(readSize());
-	    id = (String)_readEncapsStack.typeIdMap.get(index);
-	    if(id == null)
-	    {
-	        throw new Ice.UnmarshalOutOfBoundsException();
-	    }
-	}
-	else
-	{
-	    id = readString();
-	    index = new Integer(++_readEncapsStack.typeIdIndex);
-	    _readEncapsStack.typeIdMap.put(index, id);
-	}
-	return id;
     }
 
     public void
@@ -646,7 +514,7 @@ public class BasicStream
             _buf.get(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -681,7 +549,7 @@ public class BasicStream
         {
             return _buf.get();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -698,7 +566,7 @@ public class BasicStream
             _buf.get(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -736,7 +604,7 @@ public class BasicStream
         {
             return _buf.get() == 1;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -756,7 +624,7 @@ public class BasicStream
             }
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -780,9 +648,7 @@ public class BasicStream
 	{
 	    writeSize(v.length);
 	    expand(v.length * 2);
-	    java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
-	    shortBuf.put(v);
-	    _buf.position(_buf.position() + v.length * 2);
+	    _buf.putShortSeq(v);
 	}
     }
 
@@ -793,7 +659,7 @@ public class BasicStream
         {
             return _buf.getShort();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -807,12 +673,10 @@ public class BasicStream
             final int sz = readSize();
 	    checkFixedSeq(sz, 2);
             short[] v = new short[sz];
-            java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
-            shortBuf.get(v);
-            _buf.position(_buf.position() + sz * 2);
+            _buf.getShortSeq(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -836,9 +700,7 @@ public class BasicStream
 	{
 	    writeSize(v.length);
 	    expand(v.length * 4);
-	    java.nio.IntBuffer intBuf = _buf.asIntBuffer();
-	    intBuf.put(v);
-	    _buf.position(_buf.position() + v.length * 4);
+	    _buf.putIntSeq(v);
 	}
     }
 
@@ -849,7 +711,7 @@ public class BasicStream
         {
             return _buf.getInt();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -863,12 +725,10 @@ public class BasicStream
             final int sz = readSize();
 	    checkFixedSeq(sz, 4);
             int[] v = new int[sz];
-            java.nio.IntBuffer intBuf = _buf.asIntBuffer();
-            intBuf.get(v);
-            _buf.position(_buf.position() + sz * 4);
+            _buf.getIntSeq(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -892,9 +752,7 @@ public class BasicStream
 	{
 	    writeSize(v.length);
 	    expand(v.length * 8);
-	    java.nio.LongBuffer longBuf = _buf.asLongBuffer();
-	    longBuf.put(v);
-	    _buf.position(_buf.position() + v.length * 8);
+	    _buf.putLongSeq(v);
 	}
     }
 
@@ -905,7 +763,7 @@ public class BasicStream
         {
             return _buf.getLong();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -919,12 +777,10 @@ public class BasicStream
             final int sz = readSize();
 	    checkFixedSeq(sz, 8);
             long[] v = new long[sz];
-            java.nio.LongBuffer longBuf = _buf.asLongBuffer();
-            longBuf.get(v);
-            _buf.position(_buf.position() + sz * 8);
+            _buf.getLongSeq(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -948,9 +804,7 @@ public class BasicStream
 	{
 	    writeSize(v.length);
 	    expand(v.length * 4);
-	    java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
-	    floatBuf.put(v);
-	    _buf.position(_buf.position() + v.length * 4);
+	    _buf.putFloatSeq(v);
 	}
     }
 
@@ -961,7 +815,7 @@ public class BasicStream
         {
             return _buf.getFloat();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -975,12 +829,10 @@ public class BasicStream
             final int sz = readSize();
 	    checkFixedSeq(sz, 4);
             float[] v = new float[sz];
-            java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
-            floatBuf.get(v);
-            _buf.position(_buf.position() + sz * 4);
+            _buf.getFloatSeq(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -1004,9 +856,7 @@ public class BasicStream
 	{
 	    writeSize(v.length);
 	    expand(v.length * 8);
-	    java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
-	    doubleBuf.put(v);
-	    _buf.position(_buf.position() + v.length * 8);
+	    _buf.putDoubleSeq(v);
 	}
     }
 
@@ -1017,7 +867,7 @@ public class BasicStream
         {
             return _buf.getDouble();
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -1031,12 +881,10 @@ public class BasicStream
             final int sz = readSize();
 	    checkFixedSeq(sz, 8);
             double[] v = new double[sz];
-            java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
-            doubleBuf.get(v);
-            _buf.position(_buf.position() + sz * 8);
+            _buf.getDoubleSeq(v);
             return v;
         }
-        catch(java.nio.BufferUnderflowException ex)
+        catch(ByteBuffer.UnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -1150,7 +998,7 @@ public class BasicStream
                 assert(false);
                 return "";
             }
-            catch(java.nio.BufferUnderflowException ex)
+            catch(ByteBuffer.UnderflowException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }
@@ -1239,34 +1087,6 @@ public class BasicStream
 	// eventually fail to read another type ID and throw a
 	// MarshalException.
 	//
-    }
-
-    public void
-    sliceObjects(boolean b)
-    {
-        _sliceObjects = b;
-    }
-
-    void
-    writeInstance(Ice.Object v, Integer index)
-    {
-        writeInt(index.intValue());
-        try
-        {
-            v.ice_preMarshal();
-        }
-        catch(java.lang.Exception ex)
-        {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-            out.setUseTab(false);
-            out.print("exception raised by ice_preMarshal:\n");
-            ex.printStackTrace(pw);
-            pw.flush();
-            _instance.logger().warning(sw.toString());
-        }
-        v.__write(this);
     }
 
     public int
@@ -1367,7 +1187,7 @@ public class BasicStream
                 _buf.limit(oldLimit);
                 int pos = _buf.position();
                 _buf.position(0);
-                _buf = _bufferManager.reallocate(_buf, newCapacity);
+                reallocate(newCapacity);
                 assert(_buf != null);
                 _capacity = _buf.capacity();
                 _buf.limit(_capacity);
@@ -1581,13 +1401,44 @@ public class BasicStream
         return buf.toString();
     }
 
+    private void
+    allocate(int size)
+    {
+	ByteBuffer buf = null;
+	try
+	{
+	    buf = ByteBuffer.allocate(size);
+	}
+	catch(OutOfMemoryError ex)
+	{
+	    Ice.MarshalException e = new Ice.MarshalException();
+	    e.reason = "OutOfMemoryError occurred while allocating a ByteBuffer";
+	    e.initCause(ex);
+	    throw e;
+	}
+	buf.order(ByteBuffer.LITTLE_ENDIAN);
+	_buf = buf;
+    }
+
+    private void
+    reallocate(int size)
+    {
+	ByteBuffer old = _buf;
+	assert(old != null);
+
+	allocate(size);
+	assert(_buf != null);
+
+	old.position(0);
+	_buf.put(old);
+    }
+
     private IceInternal.Instance _instance;
-    private BufferManager _bufferManager;
-    private java.nio.ByteBuffer _buf;
-    private int _capacity; // Cache capacity to avoid excessive method calls
-    private int _limit; // Cache limit to avoid excessive method calls
-    private byte[] _stringBytes; // Reusable array for reading strings
-    private char[] _stringChars; // Reusable array for reading strings
+    private ByteBuffer _buf;
+    private int _capacity; // Cache capacity to avoid excessive method calls.
+    private int _limit; // Cache limit to avoid excessive method calls.
+    private byte[] _stringBytes; // Reusable array for reading strings.
+    private char[] _stringChars; // Reusable array for reading strings.
 
     private static final class ReadEncaps
     {
@@ -1597,10 +1448,6 @@ public class BasicStream
         byte encodingMajor;
         byte encodingMinor;
 
-        java.util.TreeMap patchMap;
-	java.util.TreeMap unmarshaledMap;
-	int typeIdIndex;
-	java.util.TreeMap typeIdMap;
         ReadEncaps next;
     }
 
@@ -1608,23 +1455,14 @@ public class BasicStream
     {
         int start;
 
-	int writeIndex;
-	java.util.IdentityHashMap toBeMarshaledMap;
-	java.util.IdentityHashMap marshaledMap;
-	int typeIdIndex;
-	java.util.TreeMap typeIdMap;
         WriteEncaps next;
     }
 
     private ReadEncaps _readEncapsStack;
     private WriteEncaps _writeEncapsStack;
-    private ReadEncaps _readEncapsCache;
-    private WriteEncaps _writeEncapsCache;
 
     private int _readSlice;
     private int _writeSlice;
-
-    private boolean _sliceObjects;
 
     private int _messageSizeMax;
 
@@ -1641,8 +1479,6 @@ public class BasicStream
 	public SeqData previous;
     }
     SeqData _seqDataStack;
-
-    private java.util.ArrayList _objectList;
 
     private static java.util.HashMap _exceptionFactories = new java.util.HashMap();
     private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
