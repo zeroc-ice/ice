@@ -361,7 +361,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     
     if(p->isLocal())
     {
-	H << nl << "virtual void ice_print(::std::ostream&) const;";
+	H << nl << "virtual ::std::string  toString() const;";
     }
 
     H << nl << "virtual ::Ice::Exception* ice_clone() const;";
