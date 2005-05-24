@@ -76,21 +76,21 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const ByteSeq& inParams, cons
 void
 Glacier2::Request::invoke()
 {
-    try
+    if(_proxy->ice_isTwoway())
     {
-	if(_proxy->ice_isTwoway())
+	AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(_amdCB);
+	if(_forwardContext)
 	{
-	    AMI_Object_ice_invokePtr cb = new AMI_Object_ice_invokeI(_amdCB);
-	    if(_forwardContext)
-	    {
-		_proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams, _current.ctx);
-	    }
-	    else
-	    {
-		_proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams);
-	    }
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams, _current.ctx);
 	}
 	else
+	{
+	    _proxy->ice_invoke_async(cb, _current.operation, _current.mode, _inParams);
+	}
+    }
+    else
+    {
+	try
 	{
 	    ByteSeq outParams;
 	    if(_forwardContext)
@@ -102,12 +102,8 @@ Glacier2::Request::invoke()
 		_proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	    }
 	}
-    }
-    catch(const LocalException& ex)
-    {
-	if(_proxy->ice_isTwoway())
+	catch(const LocalException& ex)
 	{
-	    _amdCB->ice_exception(ex);
 	}
     }
 }
