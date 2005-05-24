@@ -11,13 +11,12 @@
 #define TEST_COMMON_H
 
 #include <IceUtil/Config.h>
-#include <cstdlib>
 
 void
 inline testFailed(const char* expr, const char* file, unsigned int line)
 {
-    std::cout << "failed!" << std::endl;
-    std::cout << file << ':' << line << ": assertion `" << expr << "' failed" << std::endl;
+    printf("failed!\n");
+    printf("%s:%d: assertion `%s' failed\n", file, line, expr);
     abort();
 }
 
