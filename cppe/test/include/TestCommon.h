@@ -12,6 +12,8 @@
 
 #include <IceUtil/Config.h>
 
+#include <stdio.h>
+
 void
 inline testFailed(const char* expr, const char* file, unsigned int line)
 {
