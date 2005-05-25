@@ -29,5 +29,5 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + clas
 TestUtil.clientServerTestWithOptions("", " --Ice.Warn.Connections=0")
 
 print "tests with collocated server."
-TestUtil.collocatedTest()
+TestUtil.collocatedTestWithOptions(" --Ice.Warn.Dispatch=0")
 sys.exit(0)

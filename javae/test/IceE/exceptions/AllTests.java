@@ -54,7 +54,7 @@ public class AllTests
 	public synchronized void
 	called()
 	{
-	    assert(!_called);
+	    IceUtil.Debug.Assert(!_called);
 	    _called = true;
 	    notify();
 	}
@@ -116,7 +116,6 @@ public class AllTests
         }
         catch(A ex)
         {
-	    System.out.println(ex.aMem);
             test(ex.aMem == 1);
         }
         catch(Exception ex)

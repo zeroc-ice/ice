@@ -12,6 +12,12 @@ public class Collocated
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+	//
+	// For this test, we need a dummy logger, otherwise the
+	// assertion test will print an error message.
+	//
+	communicator.setLogger(new DummyLogger());
+
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ThrowerI(adapter);

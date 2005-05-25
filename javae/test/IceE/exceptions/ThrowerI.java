@@ -141,7 +141,7 @@ public final class ThrowerI extends _ThrowerDisp
     public void
     throwAssertException(Ice.Current current)
     {
-        throw new java.lang.AssertionError();
+        throw new IceUtil.AssertionError();
     }
 
     private Ice.ObjectAdapter _adapter;
