@@ -11,38 +11,16 @@
 
 <project name="main" default="all" basedir=".">
 
-    <!-- get access to env variables globally -->
-    <property environment="env" />
+    <property name="top.dir" value="."/>
 
-    <!-- install slice2javae task -->
-    <taskdef name="slice2javae" classpath="ant" classname="Slice2JavaETask" />
+    <import file="config/common.xml"/>
 
     <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
-    <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
 
-    <property file="config/build.properties"/>
-
-    <target name="init">
-        <!-- Create the time stamp -->
-        <tstamp/>
-
-        <!-- Define the slice.dir property -->
-        <condition property="slice.dir" value="slice">
-            <available file="slice" type="dir"/>
-        </condition>
-        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
-            <and>
-                <available type="dir" file="${env.ICE_HOME}/slice"/>
-                <not>
-                    <available file="slice" type="dir"/>
-                </not>
-            </and>
-        </condition>
-        <fail message="Slice source directory not found" unless="slice.dir"/>
-    </target>
+    <target name="init" depends="config-init"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -74,12 +52,11 @@
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-            source="1.4" debug="${debug}" optimize="${optimize}" deprecation="on"/>
+            debug="${debug}" optimize="${optimize}" deprecation="on"/>
     </target>
 
     <target name="jar" depends="compile">
-        <jar jarfile="${lib.dir}/IceE.jar" basedir="${lib.dir}"
-            excludes="IceE.jar"/>
+        <jar jarfile="${lib.dir}/IceE.jar" basedir="${lib.dir}" excludes="IceE.jar"/>
     </target>
 
     <target name="all" depends="jar">
@@ -91,8 +68,8 @@
         <delete dir="${generated.dir}"/>
         <delete dir="${lib.dir}"/>
         <delete dir="${cache.dir}"/>
-        <ant inheritAll="false" dir="demo" target="clean"/>
-        <ant inheritAll="false" dir="test" target="clean"/>
+        <!--ant inheritAll="false" dir="demo" target="clean"/-->
+        <!--ant inheritAll="false" dir="test" target="clean"/-->
     </target>
 
 </project>

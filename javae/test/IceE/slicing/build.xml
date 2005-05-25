@@ -13,28 +13,18 @@
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../../.."/>
-    <property name="lib.dir" value="${top.dir}/lib"/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="init" depends="config-init"/>
+
     <property name="cclass.dir" value="cclasses"/>
     <property name="sclass.dir" value="sclasses"/>
     <property name="cgen.dir" value="cgenerated"/>
     <property name="sgen.dir" value="sgenerated"/>
     <property name="csrc.dir" value="csrc"/>
     <property name="ssrc.dir" value="ssrc"/>
-
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- set common build properties for this build -->
-    <property file="${top.dir}/config/build.properties"/>
-
-    <!-- install slice2javae task -->
-    <taskdef name="slice2javae" classpath="${top.dir}/ant"
-        classname="Slice2JavaETask" />
-
-    <target name="init">
-        <!-- Create the time stamp -->
-        <tstamp/>
-    </target>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -63,14 +53,12 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
-        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}"
-            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
-        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" source="1.4"
+        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${lib.dir}" debug="${debug}"/>
+        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}"
             classpath="${lib.dir}" excludes="${cgen.dir}/**" debug="${debug}"/>
         <mkdir dir="${sclass.dir}"/>
-        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}"
-            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
-        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" source="1.4"
+        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${lib.dir}" debug="${debug}"/>
+        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}"
             classpath="${lib.dir}" excludes="${sgen.dir}/**" debug="${debug}"/>
     </target>
 
