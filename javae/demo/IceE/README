@@ -20,10 +20,6 @@ Demos in this directory:
   well as how to invoke oneway operations, use datagrams, secure
   invocations, and how to used batched invocations.
 
-- invoke
-
-  This demo illustrates the use of the Ice streaming API.
-
 - latency
 
   A simple latency test that measures the basic call dispatch delay of
@@ -40,8 +36,3 @@ Demos in this directory:
   various types between client and server and to measure the maximum
   bandwidth that can be achieved using serialized synchronous
   requests.
-
-- value
-
-  This demo shows how to use classes, class factories, and the
-  difference between local and remote invocations of class operations.
