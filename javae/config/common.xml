@@ -9,6 +9,9 @@
  **********************************************************************
 -->
 
+<project name="common">
+
+    <!-- get access to env variables globally -->
     <property environment="env"/>
 
     <!-- Figure out install type -->
@@ -79,13 +82,6 @@
 	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
 	<property name="lib.dir" value="${top.dir}/lib" />
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
-	      
-	<!-- Ice classpath -->
-	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
-	    </fileset>
-	</path>
     </target>
 
     <target name="properties-opt" if="is-opt">
@@ -96,33 +92,24 @@
 	
 	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
 	 <taskdef name="slice2javae" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaETask"/>
-		  
-	<!-- Ice classpath -->
-	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
-	    </fileset>
-	</path>
     </target>
 
     <target name="properties-src" if="is-src">
 	<property name="lib.dir" value="${top.dir}/lib" />
 	<property name="slice.dir" value="${top.dir}/slice"/>
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
-	
-	<!-- Ice classpath -->
-	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
-	    </fileset>
-	</path>
     </target>
 
     <target name="properties-rpm" if="is-rpm">
 	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
 	<property name="slice.dir" value="/usr/share/slice"/>
 	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
-	
+    </target>
+    
+    <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
+        <!-- Create the time stamp -->
+        <tstamp/>
+
 	<!-- Ice classpath -->
 	<path id="ice.classpath">
 	    <fileset dir="${lib.dir}">
@@ -130,8 +117,11 @@
 	    </fileset>
 	</path>
     </target>
-    
-    <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
-    </target>
 
+    <dirname property="common.basedir" file="${ant.file.common}"/>
     <property file="${common.basedir}/build.properties"/>
+
+    <property name="class.dir" value="classes"/>
+    <property name="generated.dir" value="generated"/>
+
+</project>
