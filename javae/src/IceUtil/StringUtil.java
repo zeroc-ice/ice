@@ -167,7 +167,10 @@ public final class StringUtil
         }
         catch(java.io.UnsupportedEncodingException ex)
         {
-            assert(false);
+	    if(Debug.ASSERT)
+	    {
+		Debug.Assert(false);
+	    }
             return null;
         }
 
@@ -188,9 +191,12 @@ public final class StringUtil
     unescapeString(String s, int start, int end, Ice.StringHolder result)
     {
         final int len = s.length();
-        assert(start >= 0);
-        assert(end <= len);
-        assert(start <= end);
+	if(Debug.ASSERT)
+	{
+	    Debug.Assert(start >= 0);
+	    Debug.Assert(end <= len);
+	    Debug.Assert(start <= end);
+	}
 
         byte[] bytes = new byte[len];
         int bc = 0;
@@ -297,7 +303,10 @@ public final class StringUtil
         }
         catch(java.io.UnsupportedEncodingException ex)
         {
-            assert(false);
+	    if(Debug.ASSERT)
+	    {
+		Debug.Assert(false);
+	    }
         }
 
         return true;
@@ -335,5 +344,32 @@ public final class StringUtil
             return -1; // Unmatched quote
         }
         return 0; // Not quoted
+    }
+
+    public static String[]
+    split(String s, String delim)
+    {
+	java.util.ArrayList arr = new java.util.ArrayList();
+	int beg = findFirstNotOf(s, delim);
+	int end = s.length();
+	while(beg != -1 && (end = findFirstOf(s, delim, beg)) != -1)
+	{
+	    arr.add(s.substring(beg, end));
+	    beg = findFirstNotOf(s, delim, end);
+	}
+	if(beg != -1)
+	{
+	    if(end == -1)
+	    {
+		arr.add(s.substring(beg));
+	    }
+	    else
+	    {
+		arr.add(s.substring(beg, end));
+	    }
+	}
+	String[] result = new String[arr.size()];
+	arr.toArray(result);
+	return result;
     }
 }
