@@ -14,6 +14,58 @@ public abstract class LocalException extends RuntimeException
     public abstract String
     ice_name();
 
+    public Throwable
+    getCause()
+    {
+	return _cause;
+    }
+
+    public Throwable
+    initCause(Throwable cause)
+    {
+	if(_cause != null)
+	{
+	    throw new IllegalStateException();
+	}
+
+	_cause = cause;
+
+	return this;
+    }
+
+    public void
+    printStackTrace()
+    {
+	super.printStackTrace();
+	if(_cause != null)
+	{
+	    System.err.println("\nCaused by:");
+	    _cause.printStackTrace();
+	}
+    }
+
+    public void
+    printStackTrace(java.io.PrintStream ps)
+    {
+	super.printStackTrace(ps);
+	if(_cause != null)
+	{
+	    ps.println("\nCaused by:");
+	    _cause.printStackTrace(ps);
+	}
+    }
+
+    public void
+    printStackTrace(java.io.PrintWriter pw)
+    {
+	super.printStackTrace(pw);
+	if(_cause != null)
+	{
+	    pw.println("\nCaused by:");
+	    _cause.printStackTrace(pw);
+	}
+    }
+
     public String
     toString()
     {
@@ -27,4 +79,6 @@ public abstract class LocalException extends RuntimeException
         pw.flush();
         return sw.toString();
     }
+
+    private Throwable _cause;
 }
