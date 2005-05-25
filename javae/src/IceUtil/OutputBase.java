@@ -100,7 +100,10 @@ public class OutputBase
     public void
     dec()
     {
-        assert(_indent >= _indentSize);
+	if(Debug.ASSERT)
+	{
+	    Debug.Assert(_indent >= _indentSize);
+	}
         _indent -= _indentSize;
     }
 
@@ -121,7 +124,10 @@ public class OutputBase
     public void
     restoreIndent()
     {
-        assert(!_indentSave.isEmpty());
+	if(Debug.ASSERT)
+	{
+	    Debug.Assert(!_indentSave.isEmpty());
+	}
         _indent = ((Integer)_indentSave.removeFirst()).intValue();
     }
 

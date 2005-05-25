@@ -9,8 +9,32 @@
 
 package IceUtil;
 
-public final class Assert
+public final class Debug
 {
+    //
+    // The ASSERT member determines whether assertions are enabled.
+    // Applications should use the following idiom:
+    //
+    // if(IceUtil.Debug.ASSERT)
+    // {
+    //     IceUtil.Debug.Assert(expression);
+    // }
+    //
+    // When ASSERT is set to false, a decent Java compiler will detect that
+    // the above block can never be executed and eliminate it from the
+    // bytecode.
+    //
+    public static final boolean ASSERT = false;
+
+    public static void
+    Assert(boolean b)
+    {
+	if(!b)
+	{
+	    throw new AssertionError();
+	}
+    }
+
     //
     // The JVM ignores exceptions raised in finalizers, therefore finalizers
     // that use assertions should call this method.
