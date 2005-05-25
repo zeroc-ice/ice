@@ -167,8 +167,8 @@ cppClientServerOptions = cppClientServerProtocol + defaultHost + cppCommonServer
 
 def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java -ea Server --Ice.ProgramName=Server "
-    client = "java -ea Client --Ice.ProgramName=Client "
+    server = "java Server --Ice.ProgramName=Server "
+    client = "java Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1")
@@ -190,8 +190,8 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
 
 def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
-    server = "java -ea Server --Ice.ProgramName=Server"
-    client = "java -ea Client --Ice.ProgramName=Client"
+    server = "java Server --Ice.ProgramName=Server"
+    client = "java Client --Ice.ProgramName=Client"
 
     classpath = os.getenv("CLASSPATH", "")
     scp = serverClasspath + sep + classpath
@@ -226,8 +226,8 @@ def clientServerTest():
 
 def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java -ea Server --Ice.ProgramName=Server "
-    client = "java -ea Client --Ice.ProgramName=Client "
+    server = "java Server --Ice.ProgramName=Server "
+    client = "java Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
@@ -253,7 +253,7 @@ def mixedClientServerTest():
 
 def collocatedTestWithOptions(additionalOptions):
 
-    collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
+    collocated = "java Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
