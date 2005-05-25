@@ -60,7 +60,7 @@ public class AllTests
 	private bool _called;
     }
     
-    private class AMI_Thrower_throwAasAI:AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAI : AMI_Thrower_throwAasA
     {
 	public AMI_Thrower_throwAasAI()
 	{
@@ -100,7 +100,7 @@ public class AllTests
 	private Callback callback;
     }
     
-    private class AMI_Thrower_throwAasAObjectNotExistI:AMI_Thrower_throwAasA
+    private class AMI_Thrower_throwAasAObjectNotExistI : AMI_Thrower_throwAasA
     {
 	public AMI_Thrower_throwAasAObjectNotExistI()
 	{
@@ -173,7 +173,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private class AMI_Thrower_throwAorDasAorDI:AMI_Thrower_throwAorDasAorD
+    private class AMI_Thrower_throwAorDasAorDI : AMI_Thrower_throwAorDasAorD
     {
         public AMI_Thrower_throwAorDasAorDI()
         {
@@ -217,7 +217,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwBasAI:AMI_Thrower_throwBasA
+    private class AMI_Thrower_throwBasAI : AMI_Thrower_throwBasA
     {
         public AMI_Thrower_throwBasAI()
         {
@@ -258,7 +258,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasAI:AMI_Thrower_throwCasA
+    private class AMI_Thrower_throwCasAI : AMI_Thrower_throwCasA
     {
         public AMI_Thrower_throwCasAI()
         {
@@ -300,7 +300,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwBasBI:AMI_Thrower_throwBasB
+    private class AMI_Thrower_throwBasBI : AMI_Thrower_throwBasB
     {
         public AMI_Thrower_throwBasBI()
         {
@@ -341,7 +341,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasBI:AMI_Thrower_throwCasB
+    private class AMI_Thrower_throwCasBI : AMI_Thrower_throwCasB
     {
         public AMI_Thrower_throwCasBI()
         {
@@ -383,7 +383,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwCasCI:AMI_Thrower_throwCasC
+    private class AMI_Thrower_throwCasCI : AMI_Thrower_throwCasC
     {
         public AMI_Thrower_throwCasCI()
         {
@@ -425,7 +425,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredAI:AMI_Thrower_throwUndeclaredA
+    private class AMI_Thrower_throwUndeclaredAI : AMI_Thrower_throwUndeclaredA
     {
         public AMI_Thrower_throwUndeclaredAI()
         {
@@ -464,7 +464,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredBI:AMI_Thrower_throwUndeclaredB
+    private class AMI_Thrower_throwUndeclaredBI : AMI_Thrower_throwUndeclaredB
     {
         public AMI_Thrower_throwUndeclaredBI()
         {
@@ -503,7 +503,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwUndeclaredCI:AMI_Thrower_throwUndeclaredC
+    private class AMI_Thrower_throwUndeclaredCI : AMI_Thrower_throwUndeclaredC
     {
         public AMI_Thrower_throwUndeclaredCI()
         {
@@ -542,7 +542,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwLocalExceptionI:AMI_Thrower_throwLocalException
+    private class AMI_Thrower_throwLocalExceptionI : AMI_Thrower_throwLocalException
     {
         public AMI_Thrower_throwLocalExceptionI()
         {
@@ -581,7 +581,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_Thrower_throwNonIceExceptionI:AMI_Thrower_throwNonIceException
+    private class AMI_Thrower_throwNonIceExceptionI : AMI_Thrower_throwNonIceException
     {
         public AMI_Thrower_throwNonIceExceptionI()
         {
@@ -620,7 +620,7 @@ public class AllTests
         private Callback callback;
     }
     
-    private class AMI_WrongOperation_noSuchOperationI:AMI_WrongOperation_noSuchOperation
+    private class AMI_WrongOperation_noSuchOperationI : AMI_WrongOperation_noSuchOperation
     {
         public AMI_WrongOperation_noSuchOperationI()
         {
