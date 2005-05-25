@@ -294,7 +294,7 @@ public class SliceTask extends org.apache.tools.ant.Task
 		    l.toArray(depend._dependencies);
 		    depend._timeStamp = new java.util.Date().getTime();
                     pos = depend._dependencies[0].lastIndexOf(':');
-                    assert(pos == depend._dependencies[0].length() - 1);
+                    //assert(pos == depend._dependencies[0].length() - 1);
                     depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
                     for(int i = 0; i < depend._dependencies.length; ++i)
                     {
