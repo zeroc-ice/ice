@@ -170,13 +170,19 @@ public class IndirectReference extends RoutableReference
 	    {
 		OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
 		connection = factory.create(filteredEndpoints);
-		assert(connection != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(connection != null);
+		}
 	    }
 	    catch(Ice.LocalException ex)
 	    {
 		if(getRouterInfo() == null)
 		{
-		    assert(_locatorInfo != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_locatorInfo != null);
+		    }
 		    _locatorInfo.clearCache(this);
 
 		    if(cached.value)
@@ -211,7 +217,10 @@ public class IndirectReference extends RoutableReference
 	    connection.setAdapter(getRouterInfo().getAdapter());
 	}
 
-	assert(connection != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(connection != null);
+	}
 	return connection;
     }
 

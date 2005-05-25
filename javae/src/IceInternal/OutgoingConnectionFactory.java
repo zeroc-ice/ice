@@ -89,7 +89,10 @@ public final class OutgoingConnectionFactory
     public Ice.ConnectionI
     create(Endpoint[] endpts)
     {
-	assert(endpts.length > 0);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(endpts.length > 0);
+	}
 	Endpoint[] endpoints = new Endpoint[endpts.length];
 	System.arraycopy(endpts, 0, endpoints, 0, endpts.length);
 
@@ -257,7 +260,10 @@ public final class OutgoingConnectionFactory
 		if(transceiver == null)
 		{
 		    Connector connector = endpoint.connector();
-		    assert(connector != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(connector != null);
+		    }
 
 		    int timeout;
 		    if(defaultsAndOverrides.overrideConnectTimeout)
@@ -273,7 +279,10 @@ public final class OutgoingConnectionFactory
 		    }
 
 		    transceiver = connector.connect(timeout);
-		    assert(transceiver != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(transceiver != null);
+		    }
 		}
 		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
 		connection.validate();
@@ -326,7 +335,10 @@ public final class OutgoingConnectionFactory
 	    
 	    if(connection == null)
 	    {
-		assert(exception != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(exception != null);
+		}
 		throw exception;
 	    }
 	    else
@@ -351,7 +363,10 @@ public final class OutgoingConnectionFactory
 	    }
 	}
 	
-	assert(connection != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(connection != null);
+	}
         return connection;
     }
 
@@ -493,8 +508,8 @@ public final class OutgoingConnectionFactory
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_destroyed);
-	IceUtil.Assert.FinalizerAssert(_connections == null);
+        IceUtil.Debug.FinalizerAssert(_destroyed);
+	IceUtil.Debug.FinalizerAssert(_connections == null);
 
         super.finalize();
     }

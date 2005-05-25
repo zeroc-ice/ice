@@ -375,7 +375,7 @@ public class IntMap
     //
     // The load factor for the hash table.
     //
-    private final float _loadFactor;
+    private /*final*/ float _loadFactor;
 
     //
     // The number of times this map has been structurally modified

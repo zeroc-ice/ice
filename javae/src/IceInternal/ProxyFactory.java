@@ -170,7 +170,7 @@ public final class ProxyFactory
 
 	String str = _instance.properties().getPropertyWithDefault("Ice.RetryIntervals", "0");
 
-        String[] arr = str.trim().split("[ \t\n\r]+");
+        String[] arr = IceUtil.StringUtil.split(str.trim(), " \t\n\r");
 
 	if(arr.length > 0)
 	{

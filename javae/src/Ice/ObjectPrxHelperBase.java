@@ -444,8 +444,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // called upon initialization.
         //
 
-	assert(_reference == null);
-	assert(_delegate == null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_reference == null);
+	    IceUtil.Debug.Assert(_delegate == null);
+	}
 
         _reference = ref;
 
@@ -558,8 +561,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // upon initial initialization.
         //
 
-	assert(_reference == null);
-	assert(_delegate == null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_reference == null);
+	    IceUtil.Debug.Assert(_delegate == null);
+	}
 
         _reference = ref;
     }

@@ -52,14 +52,20 @@ public final class ConnectionI implements Connection
 		    
 	        if(_state >= StateClosing)
 	        {
-	    	    assert(_exception != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_exception != null);
+		    }
 	    	    throw _exception;
 	        }
 	        
 	        return;
 	    }
-		
-	    assert(_state == StateNotValidated);
+
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state == StateNotValidated);
+	    }
 		
 	    if(_adapter != null)
 	    {
@@ -90,7 +96,10 @@ public final class ConnectionI implements Connection
 		{
 		    if(_transceiver == null) // Has the transceiver already been closed?
 		    {
-			assert(_exception != null);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(_exception != null);
+			}
 			throw _exception; // The exception is immutable at this point.
 		    }
 
@@ -127,7 +136,10 @@ public final class ConnectionI implements Connection
 	        {
 	    	    throw new Ice.ConnectTimeoutException();
 	        }
-	        assert(is.pos() == IceInternal.Protocol.headerSize);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(is.pos() == IceInternal.Protocol.headerSize);
+		}
 	        is.pos(0);
 	        byte[] m = is.readBlob(4);
 	        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
@@ -178,7 +190,10 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
-		assert(_exception != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
 		throw _exception;
 	    }
 	}
@@ -259,7 +274,10 @@ public final class ConnectionI implements Connection
 		return false;
 	    }
 
-	    assert(_state == StateClosed);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state == StateClosed);
+	    }
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
@@ -372,7 +390,10 @@ public final class ConnectionI implements Connection
 		}
 	    }
 
-	    assert(_state == StateClosed);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state == StateClosed);
+	    }
 
 	    threadPerConnection = _threadPerConnection;
 	    _threadPerConnection = null;
@@ -431,8 +452,11 @@ public final class ConnectionI implements Connection
 		throw _exception;
 	    }
 
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state > StateNotValidated);
+		IceUtil.Debug.Assert(_state < StateClosing);
+	    }
 
 	    //
 	    // Only add to the request map if this is a twoway call.
@@ -480,7 +504,10 @@ public final class ConnectionI implements Connection
 	    {
 		if(_transceiver == null) // Has the transceiver already been closed?
 		{
-		    assert(_exception != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_exception != null);
+		    }
 		    throw _exception; // The exception is immutable at this point.
 		}
 
@@ -496,7 +523,10 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
-		assert(_exception != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
 		
 		if(out != null)
 		{
@@ -519,7 +549,10 @@ public final class ConnectionI implements Connection
 		    IceInternal.Outgoing o = (IceInternal.Outgoing)_requests.remove(requestId);
 		    if(o != null)
 		    {
-			assert(o == out);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(o == out);
+			}
 			throw _exception;
 		    }
 		}
@@ -566,8 +599,11 @@ public final class ConnectionI implements Connection
             throw _exception;
         }
 
-        assert(_state > StateNotValidated);
-	assert(_state < StateClosing);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state > StateNotValidated);
+	    IceUtil.Debug.Assert(_state < StateClosing);
+	}
 
         if(_batchStream.isEmpty())
         {
@@ -604,7 +640,10 @@ public final class ConnectionI implements Connection
 	//
 	// Notify about the batch stream not being in use anymore.
 	//
-	assert(_batchStreamInUse);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_batchStreamInUse);
+	}
         _batchStreamInUse = false;
 	notifyAll();
     }
@@ -623,7 +662,10 @@ public final class ConnectionI implements Connection
 	//
 	// Notify about the batch stream not being in use anymore.
 	//
-	assert(_batchStreamInUse);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_batchStreamInUse);
+	}
         _batchStreamInUse = false;
 	notifyAll();
     }
@@ -654,8 +696,11 @@ public final class ConnectionI implements Connection
 		return; // Nothing to do.
 	    }
 
-	    assert(_state > StateNotValidated);
-	    assert(_state < StateClosing);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state > StateNotValidated);
+		IceUtil.Debug.Assert(_state < StateClosing);
+	    }
 
 	    //
 	    // Fill in the message size.
@@ -687,7 +732,10 @@ public final class ConnectionI implements Connection
 	    {
 		if(_transceiver == null) // Has the transceiver already been closed?
 		{
-		    assert(_exception != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_exception != null);
+		    }
 		    throw _exception; // The exception is immutable at this point.
 		}
 
@@ -703,7 +751,10 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
-		assert(_exception != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
 		
 		//
 		// Since batch requests are all oneways, we
@@ -734,7 +785,10 @@ public final class ConnectionI implements Connection
 	    {
 		if(_transceiver == null) // Has the transceiver already been closed?
 		{
-		    assert(_exception != null);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_exception != null);
+		    }
 		    throw _exception; // The exception is immutable at this point.
 		}
 
@@ -767,7 +821,10 @@ public final class ConnectionI implements Connection
 
 	synchronized(this)
 	{
-	    assert(_state > StateNotValidated);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state > StateNotValidated);
+	    }
 
 	    try
 	    {
@@ -791,7 +848,10 @@ public final class ConnectionI implements Connection
     public synchronized void
     sendNoResponse()
     {
-	assert(_state > StateNotValidated);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state > StateNotValidated);
+	}
 	
 	try
 	{
@@ -826,7 +886,10 @@ public final class ConnectionI implements Connection
 	    throw _exception;
 	}
 	
-	assert(_state < StateClosing);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state < StateClosing);
+	}
 
 	//
 	// Before we set an adapter (or reset it) we wait until the
@@ -989,10 +1052,10 @@ public final class ConnectionI implements Connection
     finalize()
         throws Throwable
     {
-	IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-	IceUtil.Assert.FinalizerAssert(_transceiver == null);
-	IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-	IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
+	IceUtil.Debug.FinalizerAssert(_state == StateClosed);
+	IceUtil.Debug.FinalizerAssert(_transceiver == null);
+	IceUtil.Debug.FinalizerAssert(_dispatchCount == 0);
+	IceUtil.Debug.FinalizerAssert(_threadPerConnection == null);
     }
 
     private static final int StateNotValidated = 0;
@@ -1008,7 +1071,10 @@ public final class ConnectionI implements Connection
 	// If setState() is called with an exception, then only closed
 	// and closing states are permissible.
 	//
-	assert(state == StateClosing || state == StateClosed);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(state == StateClosing || state == StateClosed);
+	}
 
         if(_state == state) // Don't switch twice.
         {
@@ -1069,7 +1135,10 @@ public final class ConnectionI implements Connection
         {
 	    case StateNotValidated:
 	    {
-		assert(false);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(false);
+		}
 		break;
 	    }
 
@@ -1145,8 +1214,11 @@ public final class ConnectionI implements Connection
     private void
     initiateShutdown()
     {
-	assert(_state == StateClosing);
-	assert(_dispatchCount == 0);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state == StateClosing);
+	    IceUtil.Debug.Assert(_dispatchCount == 0);
+	}
 
 	synchronized(_sendMutex)
 	{
@@ -1198,7 +1270,10 @@ public final class ConnectionI implements Connection
     private void
     parseMessage(MessageInfo info)
     {
-	assert(_state > StateNotValidated && _state < StateClosed);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state > StateNotValidated && _state < StateClosed);
+	}
 
 	try
 	{
@@ -1207,7 +1282,10 @@ public final class ConnectionI implements Connection
 	    // already been done by the ThreadPool or ThreadPerConnection,
 	    // which provides us with the stream.
 	    //
-	    assert(info.stream.pos() == info.stream.size());
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(info.stream.pos() == info.stream.size());
+	    }
 	    info.stream.pos(8);
 	    byte messageType = info.stream.readByte();
 	    byte compress = info.stream.readByte();
@@ -1357,7 +1435,10 @@ public final class ConnectionI implements Connection
 		//
 		if(response)
 		{
-		    assert(invokeNum == 1); // No further invocations if a response is expected.
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
+		    }
 		    os.writeBlob(_replyHdr);
 		    
 		    //
@@ -1387,7 +1468,7 @@ public final class ConnectionI implements Connection
 		setState(StateClosed, ex);
 	    }
 	}
-	catch(java.lang.AssertionError ex) // Upon assertion, we print the stack trace.
+	catch(IceUtil.AssertionError ex) // Upon assertion, we print the stack trace.
 	{
 	    synchronized(this)
 	    {
@@ -1431,9 +1512,15 @@ public final class ConnectionI implements Connection
 	{
 	    synchronized(this)
 	    {
-		assert(_dispatchCount > 0);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_dispatchCount > 0);
+		}
 		_dispatchCount -= invokeNum;
-		assert(_dispatchCount >= 0);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_dispatchCount >= 0);
+		}
 		if(_dispatchCount == 0)
 		{
 		    notifyAll();
@@ -1458,7 +1545,10 @@ public final class ConnectionI implements Connection
 	{
 	    synchronized(this)
 	    {
-	        assert(_state == StateClosed);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_state == StateClosed);
+		}
 	        
 	        //
 	        // We must make sure that nobody is sending when
@@ -1504,7 +1594,10 @@ public final class ConnectionI implements Connection
 		    _transceiver.read(stream, -1);
 
 		    int pos = stream.pos();
-		    assert(pos >= IceInternal.Protocol.headerSize);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(pos >= IceInternal.Protocol.headerSize);
+		    }
 		    stream.pos(0);
 		    byte[] m = stream.readBlob(4);
 		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
@@ -1556,7 +1649,10 @@ public final class ConnectionI implements Connection
 		    if(pos != stream.size())
 		    {
 			_transceiver.read(stream, -1);
-			assert(stream.pos() == stream.size());
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(stream.pos() == stream.size());
+			}
 		    }
 		}
 		catch(LocalException ex)
@@ -1648,7 +1744,10 @@ public final class ConnectionI implements Connection
 
 		if(exception != null)
 		{
-		    assert(closed);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(closed);
+		    }
 		    throw exception;
 		}
 	    }
@@ -1733,17 +1832,17 @@ public final class ConnectionI implements Connection
 
     private IceInternal.Instance _instance;
     private IceInternal.Transceiver _transceiver;
-    private final String _desc;
-    private final String _type;
-    private final IceInternal.Endpoint _endpoint;
+    private /*final*/ String _desc;
+    private /*final*/ String _type;
+    private /*final*/ IceInternal.Endpoint _endpoint;
 
     private ObjectAdapter _adapter;
     private IceInternal.ServantManager _servantManager;
 
-    private final Logger _logger;
-    private final IceInternal.TraceLevels _traceLevels;
+    private /*final*/ Logger _logger;
+    private /*final*/ IceInternal.TraceLevels _traceLevels;
 
-    private final boolean _warn;
+    private /*final*/ boolean _warn;
 
     private int _nextRequestId;
 

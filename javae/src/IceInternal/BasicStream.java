@@ -18,7 +18,10 @@ public class BasicStream
         allocate(1500);
         _capacity = _buf.capacity();
         _limit = 0;
-        assert(_buf.limit() == _capacity);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_buf.limit() == _capacity);
+	}
 
         _readEncapsStack = null;
         _writeEncapsStack = null;
@@ -50,7 +53,10 @@ public class BasicStream
     public void
     swap(BasicStream other)
     {
-        assert(_instance == other._instance);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance == other._instance);
+	}
 
         ByteBuffer tmpBuf = other._buf;
         other._buf = _buf;
@@ -252,14 +258,20 @@ public class BasicStream
 	// Pop the sequence stack.
 	//
 	SeqData oldSeqData = _seqDataStack;
-	assert(oldSeqData != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(oldSeqData != null);
+	}
 	_seqDataStack = oldSeqData.previous;
     }
 
     public void
     endElement()
     {
-        assert(_seqDataStack != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_seqDataStack != null);
+	}
 	--_seqDataStack.numElements;
     }
 
@@ -299,7 +311,10 @@ public class BasicStream
     public void
     endWriteEncaps()
     {
-        assert(_writeEncapsStack != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_writeEncapsStack != null);
+	}
         int start = _writeEncapsStack.start;
         int sz = _buf.position() - start; // Size includes size and version.
 	_buf.putInt(start, sz);
@@ -353,7 +368,10 @@ public class BasicStream
     public void
     endReadEncaps()
     {
-	assert(_readEncapsStack != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_readEncapsStack != null);
+	}
         int start = _readEncapsStack.start;
         int sz = _readEncapsStack.sz;
         try
@@ -371,7 +389,10 @@ public class BasicStream
     public void
     checkReadEncaps()
     {
-	assert(_readEncapsStack != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_readEncapsStack != null);
+	}
         int start = _readEncapsStack.start;
         int sz = _readEncapsStack.sz;
         if(_buf.position() != start + sz)
@@ -383,7 +404,10 @@ public class BasicStream
     public int
     getReadEncapsSize()
     {
-        assert(_readEncapsStack != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_readEncapsStack != null);
+	}
 	return _readEncapsStack.sz - 6;
     }
 
@@ -911,7 +935,10 @@ public class BasicStream
                 }
                 catch(java.io.UnsupportedEncodingException ex)
                 {
-                    assert(false);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(false);
+		    }
                 }
             }
             else
@@ -995,7 +1022,10 @@ public class BasicStream
             }
             catch(java.io.UnsupportedEncodingException ex)
             {
-                assert(false);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(false);
+		}
                 return "";
             }
             catch(ByteBuffer.UnderflowException ex)
@@ -1136,7 +1166,10 @@ public class BasicStream
 	write(byte[] b)
 	    throws java.io.IOException
 	{
-	    assert(_data.length - _pos >= b.length);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_data.length - _pos >= b.length);
+	    }
 	    System.arraycopy(b, 0, _data, _pos, b.length);
 	    _pos += b.length;
 	}
@@ -1145,7 +1178,10 @@ public class BasicStream
 	write(byte[] b, int off, int len)
 	    throws java.io.IOException
 	{
-	    assert(_data.length - _pos >= len);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_data.length - _pos >= len);
+	    }
 	    System.arraycopy(b, off, _data, _pos, len);
 	    _pos += len;
 	}
@@ -1154,7 +1190,10 @@ public class BasicStream
 	write(int b)
 	    throws java.io.IOException
 	{
-	    assert(_data.length - _pos >= 1);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_data.length - _pos >= 1);
+	    }
 	    _data[_pos] = (byte)b;
 	    ++_pos;
 	}
@@ -1188,7 +1227,10 @@ public class BasicStream
                 int pos = _buf.position();
                 _buf.position(0);
                 reallocate(newCapacity);
-                assert(_buf != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_buf != null);
+		}
                 _capacity = _buf.capacity();
                 _buf.limit(_capacity);
                 _buf.position(pos);
@@ -1424,10 +1466,16 @@ public class BasicStream
     reallocate(int size)
     {
 	ByteBuffer old = _buf;
-	assert(old != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(old != null);
+	}
 
 	allocate(size);
-	assert(_buf != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_buf != null);
+	}
 
 	old.position(0);
 	_buf.put(old);

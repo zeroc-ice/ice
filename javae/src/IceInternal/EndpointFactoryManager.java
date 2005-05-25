@@ -24,7 +24,10 @@ public final class EndpointFactoryManager
             EndpointFactory f = (EndpointFactory)_factories.get(i);
             if(f.type() == factory.type())
             {
-                assert(false);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(false);
+		}
             }
         }
         _factories.add(factory);
@@ -55,12 +58,28 @@ public final class EndpointFactoryManager
 	    throw e;
         }
 
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile("([ \t\n\r]+)|$");
-        java.util.regex.Matcher m = p.matcher(s);
-        boolean b = m.find();
-        assert(b);
-
-        String protocol = s.substring(0, m.start());
+	String protocol;
+	String args;
+	final String delim = " \t\n\r";
+	int pos = IceUtil.StringUtil.findFirstOf(s, delim);
+	if(pos == -1)
+	{
+	    protocol = s;
+	    args = "";
+	}
+	else
+	{
+	    protocol = s.substring(0, pos);
+	    int beg = IceUtil.StringUtil.findFirstNotOf(s, delim, pos);
+	    if(beg == -1)
+	    {
+		args = "";
+	    }
+	    else
+	    {
+		args = s.substring(beg);
+	    }
+	}
 
         if(protocol.equals("default"))
         {
@@ -72,7 +91,7 @@ public final class EndpointFactoryManager
             EndpointFactory f = (EndpointFactory)_factories.get(i);
             if(f.protocol().equals(protocol))
             {
-                return f.create(s.substring(m.end()));
+		return f.create(args);
             }
         }
 

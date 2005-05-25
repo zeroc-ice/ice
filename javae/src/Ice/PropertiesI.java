@@ -101,6 +101,9 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    return;
 	}
 
+	/*
+	 * TODO: Cannot rely on regex.
+	 *
         int dotPos = key.indexOf('.');
 	if(dotPos != -1)
 	{
@@ -109,7 +112,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    {
 	        String pattern = IceInternal.PropertyNames.validProps[i][0];
 		dotPos = pattern.indexOf('.');
-		assert(dotPos != -1);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(dotPos != -1);
+		}
 		String propPrefix = pattern.substring(1, dotPos - 1);
 		if(!propPrefix.equals(prefix))
 		{
@@ -130,6 +136,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 		}
 	    }
 	}
+	 */
 
 	//
 	// Set or clear the property.
@@ -155,7 +162,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             result[i++] = "--" + entry.getKey() + "=" + entry.getValue();
         }
-        assert(i == result.length);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(i == result.length);
+	}
         return result;
     }
 
@@ -339,7 +349,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 
         if(value.length() > 0)
         {
-            String[] files = value.split(",");
+            String[] files = IceUtil.StringUtil.split(value, ",");
             for(int i = 0; i < files.length; i++)
             {
                 load(files[i]);

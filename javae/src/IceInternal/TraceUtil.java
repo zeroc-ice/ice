@@ -139,7 +139,10 @@ public final class TraceUtil
 			
 			default:
 			{
-			    assert(false);
+			    if(IceUtil.Debug.ASSERT)
+			    {
+				IceUtil.Debug.Assert(false);
+			    }
 			    break;
 			}
 		    }
@@ -174,7 +177,10 @@ public final class TraceUtil
 			
 			default:
 			{
-			    assert(false);
+			    if(IceUtil.Debug.ASSERT)
+			    {
+				IceUtil.Debug.Assert(false);
+			    }
 			    break;
 			}
 		    }
@@ -288,7 +294,10 @@ public final class TraceUtil
         }
         catch(java.io.IOException ex)
         {
-            assert(false);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(false);
+	    }
         }
     }
 
@@ -343,7 +352,10 @@ public final class TraceUtil
         }
         catch(java.io.IOException ex)
         {
-            assert(false);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(false);
+	    }
         }
     }
 
@@ -441,7 +453,10 @@ public final class TraceUtil
         }
         catch(java.io.IOException ex)
         {
-            assert(false);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(false);
+	    }
         }
     }
 }

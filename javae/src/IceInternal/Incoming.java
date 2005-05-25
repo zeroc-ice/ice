@@ -80,7 +80,10 @@ final public class Incoming extends IncomingBase
 
         if(_response)
         {
-            assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
+	    }
             _os.writeByte((byte)0);
             _os.startWriteEncaps();
         }
@@ -159,7 +162,10 @@ final public class Incoming extends IncomingBase
 		}
 		else
 		{
-		    assert(false);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(false);
+		    }
 		}
 		ex.id.__write(_os);
 
@@ -338,9 +344,12 @@ final public class Incoming extends IncomingBase
 	    
 	    if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
 	    {
-		assert(status == DispatchStatus.DispatchObjectNotExist ||
-		       status == DispatchStatus.DispatchFacetNotExist ||
-		       status == DispatchStatus.DispatchOperationNotExist);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(status == DispatchStatus.DispatchObjectNotExist ||
+					 status == DispatchStatus.DispatchFacetNotExist ||
+					 status == DispatchStatus.DispatchOperationNotExist);
+		}
 		
 		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		_os.writeByte((byte)status.value());

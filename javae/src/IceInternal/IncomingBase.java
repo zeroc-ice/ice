@@ -90,7 +90,10 @@ public class IncomingBase
     final protected void
     __warning(java.lang.Exception ex)
     {
-	assert(_os != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_os != null);
+	}
 
 	java.io.StringWriter sw = new java.io.StringWriter();
 	java.io.PrintWriter pw = new java.io.PrintWriter(sw);

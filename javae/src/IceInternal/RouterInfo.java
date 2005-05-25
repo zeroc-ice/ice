@@ -16,7 +16,10 @@ public final class RouterInfo
         _router = router;
         _routingTable = new Ice.RoutingTable();
 
-        assert(_router != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_router != null);
+	}
     }
 
     synchronized public void

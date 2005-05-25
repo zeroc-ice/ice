@@ -117,7 +117,10 @@ public abstract class Reference implements Cloneable
 	}
 	catch(CloneNotSupportedException ex)
 	{
-	    assert(false);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(false);
+	    }
 	}
 	return r;
     }
@@ -375,9 +378,12 @@ public abstract class Reference implements Cloneable
         //
         // Validate string arguments.
         //
-        assert(ident.name != null);
-        assert(ident.category != null);
-        assert(fac != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(ident.name != null);
+	    IceUtil.Debug.Assert(ident.category != null);
+	    IceUtil.Debug.Assert(fac != null);
+	}
 
         _instance = inst;
         _mode = md;

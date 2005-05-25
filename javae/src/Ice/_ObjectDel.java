@@ -171,8 +171,11 @@ public class _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__connection == null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(__reference == null);
+	    IceUtil.Debug.Assert(__connection == null);
+	}
 
         __reference = from.__reference;
         __connection = from.__connection;
@@ -189,8 +192,11 @@ public class _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__connection == null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(__reference == null);
+	    IceUtil.Debug.Assert(__connection == null);
+	}
 
 	__reference = ref;
 	__connection = __reference.getConnection();

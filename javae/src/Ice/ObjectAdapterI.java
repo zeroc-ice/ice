@@ -540,18 +540,23 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	checkForDeactivation();
 
-	assert(_directCount >= 0);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_directCount >= 0);
+	}
 	++_directCount;
     }
 
     public synchronized void
     decDirectCount()
     {
-	// Not check for deactivation here!
+	// No check for deactivation here!
 	
-	assert(_instance != null); // Must not be called after waitForDeactivate().
-	
-	assert(_directCount > 0);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after waitForDeactivate().
+	    IceUtil.Debug.Assert(_directCount > 0);
+	}
 	if(--_directCount == 0)
 	{
 	    notifyAll();
@@ -565,9 +570,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	// immutable after creation until it is removed in
 	// waitForDeactivate().
 	
-	// Not check for deactivation here!
+	// No check for deactivation here!
 	
-	assert(_instance != null); // Must not be called after waitForDeactivate().
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after waitForDeactivate().
+	}
 
 	return _servantManager;
     }
@@ -648,11 +656,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
 	else
 	{
-	    IceUtil.Assert.FinalizerAssert(_servantManager == null);
-	    IceUtil.Assert.FinalizerAssert(_communicator == null);
-	    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
-	    IceUtil.Assert.FinalizerAssert(_directCount == 0);
-	    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
+	    IceUtil.Debug.FinalizerAssert(_servantManager == null);
+	    IceUtil.Debug.FinalizerAssert(_communicator == null);
+	    IceUtil.Debug.FinalizerAssert(_incomingConnectionFactories == null);
+	    IceUtil.Debug.FinalizerAssert(_directCount == 0);
+	    IceUtil.Debug.FinalizerAssert(!_waitForDeactivate);
 	}
 
         super.finalize();
@@ -751,7 +759,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             }
             catch(CloneNotSupportedException ex)
             {
-                assert(false);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(false);
+		}
             }
             throw e;
         }

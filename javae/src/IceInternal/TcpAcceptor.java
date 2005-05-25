@@ -186,7 +186,7 @@ class TcpAcceptor implements Acceptor
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_fd == null);
+        IceUtil.Debug.FinalizerAssert(_fd == null);
 
         super.finalize();
     }

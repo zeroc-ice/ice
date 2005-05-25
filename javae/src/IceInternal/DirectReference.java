@@ -155,7 +155,10 @@ public class DirectReference extends RoutableReference
 	    connection.setAdapter(getRouterInfo().getAdapter());
 	}
 
-	assert(connection != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(connection != null);
+	}
 	return connection;
     }
 

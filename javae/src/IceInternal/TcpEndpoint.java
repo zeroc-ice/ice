@@ -31,7 +31,7 @@ final class TcpEndpoint implements Endpoint
         _port = 0;
         _timeout = -1;
 
-        String[] arr = str.split("[ \t\n\r]+");
+        String[] arr = IceUtil.StringUtil.split(str, " \t\n\r");
 
         int i = 0;
         while(i < arr.length)
@@ -389,7 +389,10 @@ final class TcpEndpoint implements Endpoint
 	    {
 		byte[] larr = laddr.getAddress().getAddress();
 		byte[] rarr = raddr.getAddress().getAddress();
-		assert(larr.length == rarr.length);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(larr.length == rarr.length);
+		}
 		for(int i = 0; i < larr.length; i++)
 		{
 		    if(larr[i] < rarr[i])

@@ -49,7 +49,10 @@ public final class DispatchStatus
     public static DispatchStatus
     convert(int val)
     {
-        assert val < 8;
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(val < 8);
+	}
         return __values[val];
     }
 

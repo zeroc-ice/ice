@@ -180,10 +180,10 @@ public final class ObjectAdapterFactory
     finalize()
         throws Throwable
     {
-	IceUtil.Assert.FinalizerAssert(_instance == null);
-	IceUtil.Assert.FinalizerAssert(_communicator == null);
-	IceUtil.Assert.FinalizerAssert(_adapters == null);
-	IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
+	IceUtil.Debug.FinalizerAssert(_instance == null);
+	IceUtil.Debug.FinalizerAssert(_communicator == null);
+	IceUtil.Debug.FinalizerAssert(_adapters == null);
+	IceUtil.Debug.FinalizerAssert(!_waitForShutdown);
 
         super.finalize();
     }

@@ -145,7 +145,10 @@ public final class IncomingConnectionFactory
             return endp.equivalent(_transceiver);
         }
 
-        assert(_acceptor != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_acceptor != null);
+	}
         return endp.equivalent(_acceptor);
     }
 
@@ -197,7 +200,10 @@ public final class IncomingConnectionFactory
 	    return _transceiver.toString();
         }
 
-        assert(_acceptor != null);	
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_acceptor != null);	
+	}
 	return _acceptor.toString();
     }
 
@@ -251,7 +257,10 @@ public final class IncomingConnectionFactory
 	    h.value = _endpoint;
 	    _acceptor = _endpoint.acceptor(h);
 	    _endpoint = h.value;
-	    assert(_acceptor != null);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_acceptor != null);
+	    }
 	    _acceptor.listen();
 	    
 	    try
@@ -299,10 +308,10 @@ public final class IncomingConnectionFactory
     finalize()
         throws Throwable
     {
-	IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-	IceUtil.Assert.FinalizerAssert(_acceptor == null);
-	IceUtil.Assert.FinalizerAssert(_connections == null);
-	IceUtil.Assert.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
+	IceUtil.Debug.FinalizerAssert(_state == StateClosed);
+	IceUtil.Debug.FinalizerAssert(_acceptor == null);
+	IceUtil.Debug.FinalizerAssert(_connections == null);
+	IceUtil.Debug.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
     }
 
     private static final int StateActive = 0;
@@ -401,7 +410,10 @@ public final class IncomingConnectionFactory
     private void
     run()
     {
-	assert(_acceptor != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_acceptor != null);
+	}
 
 	while(true)
 	{
@@ -477,7 +489,10 @@ public final class IncomingConnectionFactory
 		    return;
 		}
 
-		assert(_state == StateActive);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_state == StateActive);
+		}
 
 		//
 		// Reap connections for which destruction has completed.
@@ -540,12 +555,12 @@ public final class IncomingConnectionFactory
 
     private Instance _instance;
     private Acceptor _acceptor;
-    private final Transceiver _transceiver;
+    private /*final*/ Transceiver _transceiver;
     private Endpoint _endpoint;
 
-    private final Ice.ObjectAdapter _adapter;
+    private /*final*/ Ice.ObjectAdapter _adapter;
 
-    private final boolean _warn;
+    private /*final*/ boolean _warn;
 
     private java.util.LinkedList _connections = new java.util.LinkedList();
 

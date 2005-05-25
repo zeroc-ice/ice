@@ -14,7 +14,10 @@ public final class ServantManager
     public synchronized void
     addServant(Ice.Object servant, Ice.Identity ident, String facet)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         if(facet == null)
         {
@@ -48,7 +51,10 @@ public final class ServantManager
     public synchronized Ice.Object
     removeServant(Ice.Identity ident, String facet)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         if(facet == null)
         {
@@ -79,7 +85,10 @@ public final class ServantManager
     public synchronized java.util.Map
     removeAllFacets(Ice.Identity ident)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
@@ -98,7 +107,10 @@ public final class ServantManager
     public synchronized Ice.Object
     findServant(Ice.Identity ident, String facet)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         if(facet == null)
         {
@@ -118,7 +130,10 @@ public final class ServantManager
     public synchronized java.util.Map
     findAllFacets(Ice.Identity ident)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m != null)
@@ -132,7 +147,10 @@ public final class ServantManager
     public synchronized boolean
     hasServant(Ice.Identity ident)
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
         java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
@@ -141,7 +159,10 @@ public final class ServantManager
         }
         else
         {
-            assert(!m.isEmpty());
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(!m.isEmpty());
+	    }
             return true;
         }
     }
@@ -165,7 +186,7 @@ public final class ServantManager
 	// not been called if the associated object adapter was not
 	// properly deactivated.
 	//
-	//IceUtil.Assert.FinalizerAssert(_instance == null);
+	//IceUtil.Debug.FinalizerAssert(_instance == null);
 	
         super.finalize();
     }
@@ -176,7 +197,10 @@ public final class ServantManager
     public synchronized void
     destroy()
     {
-	assert(_instance != null); // Must not be called after destruction.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
+	}
 
 	_servantMapMap.clear();
 	_instance = null;

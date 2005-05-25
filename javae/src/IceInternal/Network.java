@@ -88,24 +88,6 @@ public final class Network
 	return false;
     }
 
-    public static java.net.Socket
-    createTcpSocket()
-    {
-        try
-        {
-	    java.net.Socket fd = new java.net.Socket();
-            fd.setTcpNoDelay(true);
-            fd.setKeepAlive(true);
-            return fd;
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
     public static void
     closeSocket(java.net.Socket fd)
     {
@@ -181,7 +163,10 @@ public final class Network
 	    }
 	}
 
-        assert(addr != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(addr != null);
+	}
         return addr;
     }
 

@@ -171,7 +171,10 @@ public class ObjectImpl implements Object, java.lang.Cloneable
             }
         }
 
-        assert(false);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(false);
+	}
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
 }

@@ -22,7 +22,10 @@ final class TcpTransceiver implements Transceiver
 
 	synchronized(this)
 	{
-	    assert(_fd != null);
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_fd != null);
+	    }
 	    try
 	    {
 		_fd.close();
@@ -57,7 +60,10 @@ final class TcpTransceiver implements Transceiver
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
-	assert(_fd != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_fd != null);
+	}
 
 	_shutdown = true;
     }
@@ -93,7 +99,10 @@ final class TcpTransceiver implements Transceiver
 	    int pos = buf.position();
 	    try
 	    {
-		assert(_fd != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_fd != null);
+		}
 		int rem = buf.remaining();
 		_out.write(data, pos, rem);
 		buf.position(pos + rem);
@@ -144,7 +153,10 @@ final class TcpTransceiver implements Transceiver
 	    try
 	    {
 		_fd.setSoTimeout(interval);
-		assert(_fd != null);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_fd != null);
+		}
 		int ret = _in.read(data, pos, buf.remaining());
 		
 		if(ret == -1)
@@ -246,7 +258,7 @@ final class TcpTransceiver implements Transceiver
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_fd == null);
+        IceUtil.Debug.FinalizerAssert(_fd == null);
 
         super.finalize();
     }

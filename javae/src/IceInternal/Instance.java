@@ -308,14 +308,14 @@ public class Instance
     finalize()
         throws Throwable
     {
-        IceUtil.Assert.FinalizerAssert(_destroyed);
-        IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
-        IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
-        IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-        IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
-        IceUtil.Assert.FinalizerAssert(_routerManager == null);
-        IceUtil.Assert.FinalizerAssert(_locatorManager == null);
-        IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
+        IceUtil.Debug.FinalizerAssert(_destroyed);
+        IceUtil.Debug.FinalizerAssert(_referenceFactory == null);
+        IceUtil.Debug.FinalizerAssert(_proxyFactory == null);
+        IceUtil.Debug.FinalizerAssert(_outgoingConnectionFactory == null);
+        IceUtil.Debug.FinalizerAssert(_objectAdapterFactory == null);
+        IceUtil.Debug.FinalizerAssert(_routerManager == null);
+        IceUtil.Debug.FinalizerAssert(_locatorManager == null);
+        IceUtil.Debug.FinalizerAssert(_endpointFactoryManager == null);
 
         super.finalize();
     }
@@ -345,7 +345,10 @@ public class Instance
     public void
     destroy()
     {
-	assert(!_destroyed);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(!_destroyed);
+	}
 
         if(_objectAdapterFactory != null)
         {

@@ -48,14 +48,18 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    s.append(_prefix);
 	    s.append(category);
 	    s.append(": ");
-	    s.append(message);
-	    s.append(" ]");
-            int idx = 0;
-            while((idx = s.indexOf("\n", idx)) != -1)
+            int beg = 0, end;
+            while((end = message.indexOf('\n', beg)) != -1)
             {
-                s.insert(idx + 1, "  ");
-                ++idx;
+		s.append(message.substring(beg, end + 1));
+		s.append("  ");
+		beg = end + 1;
             }
+	    if(beg < message.length())
+	    {
+		s.append(message.substring(beg));
+	    }
+	    s.append(" ]");
             System.err.println(s.toString());
 	}
     }

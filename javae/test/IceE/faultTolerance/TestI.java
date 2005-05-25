@@ -27,19 +27,19 @@ public final class TestI extends _TestIntfDisp
     public void
     abort(Ice.Current current)
     {
-	Runtime.getRuntime().halt(1);
+	System.exit(1);
     }
 
     public void
     idempotentAbort(Ice.Current current)
     {
-	Runtime.getRuntime().halt(1);
+	System.exit(1);
     }
 
     public void
     nonmutatingAbort(Ice.Current current)
     {
-	Runtime.getRuntime().halt(1);
+	System.exit(1);
     }
 
     public int

@@ -33,10 +33,16 @@ public final class Outgoing
         _state = StateUnsent;
         _exception = null;
 
-	assert(_is != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_is != null);
+	}
         _is.reset();
 
-	assert(_os != null);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_os != null);
+	}
         _os.reset();
 
         writeHeader(operation, mode, context);
@@ -47,7 +53,10 @@ public final class Outgoing
     invoke()
         throws NonRepeatable
     {
-	assert(_state == StateUnsent);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state == StateUnsent);
+	}
 
         _os.endWriteEncaps();
 
@@ -171,7 +180,10 @@ public final class Outgoing
                     return false;
                 }
 		
-                assert(_state == StateOK);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_state == StateOK);
+		}
                 break;
             }
 
@@ -210,7 +222,10 @@ public final class Outgoing
     abort(Ice.LocalException ex)
         throws NonRepeatable
     {
-	assert(_state == StateUnsent);
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_state == StateUnsent);
+	}
 
 	//
 	// If we didn't finish a batch oneway request, we
@@ -237,9 +252,12 @@ public final class Outgoing
     public synchronized void
     finished(BasicStream is)
     {
-	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
 	
-	assert(_state <= StateInProgress);
+	    IceUtil.Debug.Assert(_state <= StateInProgress);
+	}
 	
 	_is.swap(is);
 	int status = (int)_is.readByte();
@@ -297,7 +315,10 @@ public final class Outgoing
 		    
 		    default:
 		    {
-			assert(false);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(false);
+			}
 			break;
 		    }
 		}
@@ -356,7 +377,10 @@ public final class Outgoing
 		    
 		    default:
 		    {
-			assert(false);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(false);
+			}
 			break;
 		    }
 		}
@@ -382,9 +406,12 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
 	
-	assert(_state <= StateInProgress);
+	    IceUtil.Debug.Assert(_state <= StateInProgress);
+	}
 
 	_state = StateLocalException;
 	_exception = ex;
