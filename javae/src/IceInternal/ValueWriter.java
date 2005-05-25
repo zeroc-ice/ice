@@ -14,11 +14,11 @@ public final class ValueWriter
     public static void
     write(java.lang.Object obj, IceUtil.OutputBase out)
     {
-        writeValue(null, obj, null, out);
+        writeValue(null, obj, out);
     }
 
     private static void
-    writeValue(String name, java.lang.Object value, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeValue(String name, java.lang.Object value, IceUtil.OutputBase out)
     {
         if(value == null)
         {
@@ -48,7 +48,7 @@ public final class ValueWriter
                 {
                     String elem = (name != null ? name : "");
                     elem += "[" + i + "]";
-                    writeValue(elem, java.lang.reflect.Array.get(value, i), objectTable, out);
+                    writeValue(elem, java.lang.reflect.Array.get(value, i), out);
                 }
             }
             else if(value instanceof java.util.Map)
@@ -59,8 +59,8 @@ public final class ValueWriter
                 {
                     java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
                     String elem = (name != null ? name + "." : "");
-                    writeValue(elem + "key", entry.getKey(), objectTable, out);
-                    writeValue(elem + "value", entry.getValue(), objectTable, out);
+                    writeValue(elem + "key", entry.getKey(), out);
+                    writeValue(elem + "value", entry.getValue(), out);
                 }
             }
             else if(value instanceof Ice.ObjectPrxHelperBase)
@@ -68,26 +68,6 @@ public final class ValueWriter
                 writeName(name, out);
                 Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)value;
                 out.print(proxy.__reference().toString());
-            }
-            else if(value instanceof Ice.Object)
-            {
-                //
-                // Check for recursion.
-                //
-                if(objectTable != null && objectTable.containsKey(value))
-                {
-                    writeName(name, out);
-                    out.print("(recursive)");
-                }
-                else
-                {
-                    if(objectTable == null)
-                    {
-                        objectTable = new java.util.IdentityHashMap();
-                    }
-                    objectTable.put(value, null);
-                    writeFields(name, value, c, objectTable, out);
-                }
             }
             else
             {
@@ -122,7 +102,10 @@ public final class ValueWriter
                         }
 
                         java.lang.Object val = valueMethod.invoke(value, new java.lang.Object[0]);
-                        assert(val instanceof Integer);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(val instanceof Integer);
+			}
                         java.lang.reflect.Field[] fields = c.getDeclaredFields();
                         for(int i = 0; i < fields.length; i++)
                         {
@@ -156,20 +139,20 @@ public final class ValueWriter
                 //
                 // Must be struct.
                 //
-                writeFields(name, value, c, objectTable, out);
+                writeFields(name, value, c, out);
             }
         }
     }
 
     private static void
-    writeFields(String name, java.lang.Object obj, Class c, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeFields(String name, java.lang.Object obj, Class c, IceUtil.OutputBase out)
     {
         if(!c.equals(java.lang.Object.class))
         {
             //
             // Write the superclass first.
             //
-            writeFields(name, obj, c.getSuperclass(), objectTable, out);
+            writeFields(name, obj, c.getSuperclass(), out);
 
             //
             // Write the declared fields of the given class.
@@ -188,11 +171,14 @@ public final class ValueWriter
                     try
                     {
                         java.lang.Object value = fields[i].get(obj);
-                        writeValue(fieldName, value, objectTable, out);
+                        writeValue(fieldName, value, out);
                     }
                     catch(IllegalAccessException ex)
                     {
-                        assert(false);
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(false);
+			}
                     }
                 }
             }
