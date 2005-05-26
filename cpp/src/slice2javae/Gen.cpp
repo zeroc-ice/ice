@@ -673,7 +673,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << eb;
         }
         out << eb;
-        out << sp << nl << "assert(false);";
+        out << sp << nl << "IceUtil.Debug.Assert(false);";
         out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
         out << eb;
     }
@@ -1669,7 +1669,10 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp << nl << "public static " << name << nl << "convert(int val)";
     out << sb;
-    out << nl << "assert val < " << sz << ';';
+    out << nl << "if(IceUtil.Debug.ASSERT)";
+    out << sb;
+    out << nl << "IceUtil.Debug.Assert(val < " << sz << ");";
+    out << eb;
     out << nl << "return __values[val];";
     out << eb;
 
