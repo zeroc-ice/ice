@@ -286,6 +286,7 @@ public:
     DataMemberList members;
     PyObjectHandle pythonType;
     PyObjectHandle typeObj;
+    bool defined;
 };
 
 //

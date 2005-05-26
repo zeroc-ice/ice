@@ -1,3 +1,9 @@
+Changes since version 2.1.1
+---------------------------
+
+- Fixed a bug that resulted in an UnmarshalOutOfBoundsException when
+  Slice definitions are reloaded.
+
 Changes since version 2.1.0
 ---------------------------
 

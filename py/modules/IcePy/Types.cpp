@@ -137,6 +137,11 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
     // duplicate definitions.
     //
 //    assert(_classInfoMap.find(id) == _classInfoMap.end());
+    ClassInfoMap::iterator p = _classInfoMap.find(id);
+    if(p != _classInfoMap.end())
+    {
+	_classInfoMap.erase(p);
+    }
     _classInfoMap.insert(ClassInfoMap::value_type(id, info));
 }
 
@@ -152,6 +157,11 @@ addProxyInfo(const string& id, const ProxyInfoPtr& info)
     // duplicate definitions.
     //
 //    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
+    ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
+    if(p != _proxyInfoMap.end())
+    {
+	_proxyInfoMap.erase(p);
+    }
     _proxyInfoMap.insert(ProxyInfoMap::value_type(id, info));
 }
 
@@ -2031,6 +2041,7 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         if(!PyObject_IsInstance(obj, _info->pythonType.get()))
         {
             Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
+	    ex.reason = "unmarshaled object is not an instance of " + _info->id;
             ex.type = _info->id;
             throw ex;
         }
@@ -2609,6 +2620,7 @@ IcePy_declareClass(PyObject*, PyObject* args)
         info = new ClassInfo;
         info->id = id;
         info->typeObj = createType(info);
+	info->defined = false;
         addClassInfo(id, info);
     }
 
@@ -2635,8 +2647,13 @@ IcePy_defineClass(PyObject*, PyObject* args)
     assert(PyTuple_Check(interfaces));
     assert(PyTuple_Check(members));
 
+    //
+    // A ClassInfo object will already exist for this id if a forward declaration
+    // was encountered, or if the Slice definition is being reloaded. In the latter
+    // case, we act as if it hasn't been defined yet.
+    //
     ClassInfoPtr info = lookupClassInfo(id);
-    if(!info)
+    if(!info || info->defined)
     {
         info = new ClassInfo;
         info->id = id;
@@ -2679,6 +2696,8 @@ IcePy_defineClass(PyObject*, PyObject* args)
 
     info->pythonType = type;
     Py_INCREF(type);
+
+    info->defined = true;
 
     Py_INCREF(info->typeObj.get());
     return info->typeObj.get();
