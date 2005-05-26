@@ -90,8 +90,8 @@ ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 2.1.0
-SOVERSION		= 21
+VERSION			= 2.2.0
+SOVERSION		= 22
 libdir			= $(top_srcdir)/lib
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
