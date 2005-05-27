@@ -125,9 +125,13 @@ DescriptorVariables::hasVariable(const string& name) const
 void
 DescriptorVariables::addVariable(const string& name, const string& value)
 {
+    if(_scopes.back().parameters.find(name) != _scopes.back().parameters.end())
+    {
+	throw "can't define variable `" + name + "': a parameter with the same was previously defined";
+    }
     if(_scopes.back().used.find(name) != _scopes.back().used.end())
     {
-	throw "you can't redefine the variable `" + name + "' after its use";
+	throw "can't redefine variable `" + name + "' after its use";
     }
     _scopes.back().variables[name] = value;
 }
@@ -190,6 +194,10 @@ DescriptorVariables::getCurrentScopeParameters() const
 void
 DescriptorVariables::addParameter(const string& name)
 {
+    if(_scopes.back().variables.find(name) != _scopes.back().variables.end())
+    {
+	throw "can't declare parameter `" + name + "': a variable with the same was previously defined";
+    }
     _scopes.back().parameters.insert(name);
 }
 
@@ -670,6 +678,11 @@ ComponentDescriptorHelper::operator==(const ComponentDescriptorHelper& helper) c
 
     if(set<DbEnvDescriptor>(_descriptor->dbEnvs.begin(), _descriptor->dbEnvs.end()) != 
        set<DbEnvDescriptor>(helper._descriptor->dbEnvs.begin(), helper._descriptor->dbEnvs.end()))
+    {
+	return false;
+    }
+
+    if(_descriptor->variables != helper._descriptor->variables)
     {
 	return false;
     }

@@ -683,6 +683,28 @@ Parser::diffApplication(const list<string>& args)
     InstanceDescriptorSeq::const_iterator p;
     ApplicationDescriptorHelper newAppHelper(_communicator, newApp);
     ApplicationDescriptorHelper origAppHelper(_communicator, origApp);
+
+//     //
+//     // Compare the server templates
+//     //
+    
+
+//     //
+//     // Compare the servers
+//     //
+//     set<string> oldSvrs;
+//     set<string> newSvrs;
+//     for_each(origApp->servers.begin(), origApp->servers.end(), AddServerName(oldSvrs));
+//     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(newSvrs));
+
+//     set<string> added, removed, updated; 
+//     set_intersection(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(updated));
+//     set_difference(oldSvrs.begin(), oldSvrs.end(), newSvrs.begin(), newSvrs.end(), set_inserter(removed));
+//     set_difference(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(added));
+
+//     out << nl << "servers";
+//     out << 
+
     for(p = newApp->servers.begin(); p != newApp->servers.end(); ++p)
     {
 	ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(p->descriptor);
