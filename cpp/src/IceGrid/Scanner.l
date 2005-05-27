@@ -209,6 +209,14 @@ NL	[\n]
     return ICE_GRID_INSTANTIATE;
 }
 
+"template" {
+    return ICE_GRID_TEMPLATE;
+}
+
+"service" {
+    return ICE_GRID_SERVICE;
+}
+
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)

@@ -1,20 +1,22 @@
 <icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server name="server" kind="cpp" exe="${test.dir}/server" activation="on-demand">
 
-  <server name="server" kind="cpp" exe="${test.dir}/server" activation="on-demand">
+	<adapters>
+	  <adapter name="TestAdapter" endpoints="default" register="true" id="TestAdapter">
+	    <object identity="test" type="Test"/>
+	  </adapter>
+	</adapters>
 
-    <adapters>
-      <adapter name="TestAdapter" endpoints="default" register="true" id="TestAdapter">
-        <object identity="test" type="Test"/>
-      </adapter>
-    </adapters>
+	<target name="debug">
+	  <properties>
+	    <property name="Ice.Trace.Network" value="0"/>
+	    <property name="Ice.Trace.Protocol" value="0"/>
+	  </properties>
+	</target>
 
-    <target name="debug">
-      <properties>
-        <property name="Ice.Network.Trace" value="1"/>
-        <property name="Ice.Network.Protocol" value="1"/>
-      </properties>
-    </target>
-
-  </server>
-
+      </server>
+    </node>
+  </application>
 </icegrid>

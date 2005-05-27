@@ -12,6 +12,7 @@
 #include <IceGrid/Database.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/DescriptorHelper.h>
 
 #include <algorithm>
 #include <functional>
@@ -44,19 +45,19 @@ struct AddComponent : std::unary_function<ComponentDescriptorPtr&, void>
     const Database::ServerEntryPtr _entry;
 };
 
-struct AddServerName : std::unary_function<ServerDescriptorPtr&, void>
+struct AddServerName : std::unary_function<InstanceDescriptor&, void>
 {
     AddServerName(set<string>& names) : _names(names)
     {
     }
 
     void
-    operator()(const ServerDescriptorPtr& desc)
+    operator()(const InstanceDescriptor& instance)
     {
-	if(!_names.insert(desc->name).second)
+	if(!_names.insert(instance.descriptor->name).second)
 	{
 	    DeploymentException ex;
-	    ex.reason = "invalid descriptor: duplicated server `" + desc->name + "'";
+	    ex.reason = "invalid descriptor: duplicated server `" + instance.descriptor->name + "'";
 	    throw ex;
 	}
     }
@@ -226,7 +227,7 @@ Database::Database(const Ice::CommunicatorPtr& communicator,
     //
     for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
     {
-	for(ServerDescriptorSeq::const_iterator q = p->second->servers.begin(); q != p->second->servers.end(); ++q)
+	for(InstanceDescriptorSeq::const_iterator q = p->second->servers.begin(); q != p->second->servers.end(); ++q)
 	{
 	    addServer(*q);
 	}
@@ -413,7 +414,7 @@ Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	// update the updated ones.
 	//
 	addServers(newDesc->servers, added, entries);
-	updateServers(newDesc->servers, updated, entries);
+	updateServers(origDesc, newDesc, updated, entries);
 	removeServers(origDesc->servers, removed, entries);
 
 	_descriptors.put(make_pair(newDesc->name, newDesc));
@@ -612,18 +613,34 @@ Database::getAllNodes(const string& expression)
     return Ice::StringSeq(nodes.begin(), nodes.end());
 }
 
-ServerDescriptorPtr 
+InstanceDescriptor
 Database::getServerDescriptor(const std::string& name)
 {
-    Lock sync(*this);
-    map<string, ServerEntryPtr>::const_iterator p = _servers.find(name);
-    if(p == _servers.end())
+    ServerDescriptorPtr descriptor;
     {
-	ServerNotExistException ex;
-	ex.name = name;
-	throw ex;
+	Lock sync(*this);
+	map<string, ServerEntryPtr>::const_iterator p = _servers.find(name);
+	if(p == _servers.end())
+	{
+	    ServerNotExistException ex;
+	    ex.name = name;
+	    throw ex;
+	}
+	descriptor = p->second->getDescriptor();
     }
-    return p->second->getDescriptor();
+    assert(descriptor);
+    ApplicationDescriptorPtr app = getApplicationDescriptor(descriptor->application);
+    for(InstanceDescriptorSeq::const_iterator p = app->servers.begin(); p != app->servers.end(); ++p)
+    {
+	if(p->descriptor->name == descriptor->name)
+	{
+	    return *p;
+	}
+    }
+
+    ServerNotExistException ex;
+    ex.name = name;
+    throw ex;
 }
 
 ServerPrx
@@ -638,7 +655,13 @@ Database::getServer(const string& name)
 	    entry = p->second;
 	}
     }
-    return entry ? entry->getProxy() : ServerPrx();
+    if(!entry)
+    {
+	ServerNotExistException ex;
+	ex.name = name;
+	throw ex;
+    }
+    return entry->getProxy();
 }
 
 Ice::StringSeq
@@ -922,11 +945,11 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 }
 
 void 
-Database::addServers(const ServerDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
+Database::addServers(const InstanceDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
 {
-    for(ServerDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    for(InstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	if(names.find((*p)->name) == names.end())
+	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
@@ -935,28 +958,40 @@ Database::addServers(const ServerDescriptorSeq& servers, const set<string>& name
 }
 
 void 
-Database::updateServers(const ServerDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
+Database::updateServers(const ApplicationDescriptorPtr& oldAppDesc, const ApplicationDescriptorPtr& newAppDesc,
+			const set<string>& names, ServerEntrySeq& entries)
 {
-    for(ServerDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    ApplicationDescriptorHelper oldAppDescHelper(_communicator, oldAppDesc);
+    ApplicationDescriptorHelper newAppDescHelper(_communicator, newAppDesc);
+
+    for(InstanceDescriptorSeq::const_iterator p = newAppDesc->servers.begin(); p != newAppDesc->servers.end(); ++p)
     {
-	if(names.find((*p)->name) == names.end())
+	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
-	ServerEntryPtr entry = updateServer(*p);
-	if(entry)
+
+	for(InstanceDescriptorSeq::const_iterator q = oldAppDesc->servers.begin(); q != oldAppDesc->servers.end(); ++q)
 	{
-	    entries.push_back(entry);
+	    if(p->descriptor->name == q->descriptor->name)
+	    {
+		if(ServerDescriptorHelper(oldAppDescHelper, ServerDescriptorPtr::dynamicCast(q->descriptor)) !=
+		   ServerDescriptorHelper(newAppDescHelper, ServerDescriptorPtr::dynamicCast(p->descriptor)))
+		{
+		    entries.push_back(updateServer(*p));
+		}
+		break;
+	    }
 	}
     }
 }
 
 void
-Database::removeServers(const ServerDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
+Database::removeServers(const InstanceDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
 {
-    for(ServerDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    for(InstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	if(names.find((*p)->name) == names.end())
+	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
@@ -965,8 +1000,9 @@ Database::removeServers(const ServerDescriptorSeq& servers, const set<string>& n
 }
 
 Database::ServerEntryPtr
-Database::addServer(const ServerDescriptorPtr& descriptor)
+Database::addServer(const InstanceDescriptor& instance)
 {
+    const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(instance.descriptor);
     ServerEntryPtr entry;
     map<string, ServerEntryPtr>::const_iterator q = _servers.find(descriptor->name);
     if(q != _servers.end())
@@ -979,7 +1015,7 @@ Database::addServer(const ServerDescriptorPtr& descriptor)
 	entry = new ServerEntry(*this, descriptor);
 	_servers.insert(make_pair(descriptor->name, entry));
     }
-
+    
     map<string, set<string> >::iterator p = _serversByNode.find(descriptor->node);
     if(p == _serversByNode.end())
     {
@@ -987,27 +1023,24 @@ Database::addServer(const ServerDescriptorPtr& descriptor)
     }
     p->second.insert(p->second.begin(), descriptor->name);
 
-    forEachComponent(AddComponent(*this, entry))(descriptor);
+    forEachComponent(AddComponent(*this, entry))(instance);
     return entry;
 }
 
 Database::ServerEntryPtr
-Database::updateServer(const ServerDescriptorPtr& descriptor)
+Database::updateServer(const InstanceDescriptor& instance)
 {
     //
     // Get the server entry and the current descriptor then check
     // if the server descriptor really changed.	
     //
+    const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(instance.descriptor);
     ServerEntryPtr entry;
     map<string, ServerEntryPtr>::const_iterator q = _servers.find(descriptor->name);
     assert(q != _servers.end());
 
     entry = q->second;
     ServerDescriptorPtr old = entry->getDescriptor();
-    if(equal(old, descriptor))
-    {
-	return 0;
-    }
 
     //
     // If the node changed, move the server from the old node to the
@@ -1043,13 +1076,14 @@ Database::updateServer(const ServerDescriptorPtr& descriptor)
     //
     // Add the new object adapters and objects.
     //
-    forEachComponent(AddComponent(*this, entry))(descriptor);
+    forEachComponent(AddComponent(*this, entry))(instance);
     return entry;
 }
 
 Database::ServerEntryPtr
-Database::removeServer(const ServerDescriptorPtr& descriptor)
+Database::removeServer(const InstanceDescriptor& instance)
 {
+    const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(instance.descriptor);
     ServerEntryPtr entry;
     map<string, ServerEntryPtr>::iterator q = _servers.find(descriptor->name);
     assert(q != _servers.end());
@@ -1068,7 +1102,7 @@ Database::removeServer(const ServerDescriptorPtr& descriptor)
     //
     // Remove the object adapters and objects.
     //
-    forEachComponent(objFunc(*this, &Database::removeComponent))(descriptor);
+    forEachComponent(objFunc(*this, &Database::removeComponent))(instance);
     return entry;
 }
 

@@ -1,0 +1,50 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+
+  <application name="Simple">
+
+     <server-template id="ServerTemplate" name="${name}" exe="./server"> 
+       <parameter name="name"/>
+       <adapters>
+	 <adapter name="Hello" endpoints="tcp" register="true">
+	   <object identity="hello1" type="::Demo::Hello"/>
+	 </adapter>
+       </adapters>
+       <properties>
+	 <property name="Identity" value="hello1"/>
+       </properties>
+     </server-template>
+
+     <server-template id="IceBoxTemplate" name="${name}" interpreter="icebox" endpoints="default">
+       <parameter name="name"/>
+       <service name="Hello" entry="HelloService:create">
+	 <adapters>
+	   <adapter name="Hello" endpoints="tcp">
+	     <object identity="hello2" type="::Demo::Hello"/>
+	   </adapter>
+	 </adapters>
+	 <properties>
+	   <property name="Identity" value="hello2"/>
+	   <property name="Name" value="${name}"/>
+	 </properties>    
+       </service>
+     </server-template>
+ 
+     <node name="node">
+       <server template="IceBoxTemplate" name="IceBox"/>
+       <server template="ServerTemplate" name="Server"/>
+     </node>
+
+  </application>
+
+</icegrid>

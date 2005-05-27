@@ -110,11 +110,14 @@ ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapt
     Ice::StringSeq knownFiles;
     updateConfigFile(_serverDir, descriptor);
     knownFiles.push_back("config");
-    ServiceDescriptorSeq services = getServices(descriptor);
-    for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+    if(iceBox)
     {
-	updateConfigFile(_serverDir, *p);
-	knownFiles.push_back("config_" + (*p)->name);
+	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	{
+	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor));
+	    knownFiles.push_back("config_" + p->descriptor->name);
+	}
     }
 
     //
@@ -181,12 +184,16 @@ ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapt
 	addAdapter(*p, self, current);
 	oldAdapters.erase(p->id);
     }
-    for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+    if(iceBox)
     {
-	for(AdapterDescriptorSeq::const_iterator q = (*p)->adapters.begin(); q != (*p)->adapters.end(); ++q)
+	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
 	{
-	    addAdapter(*q, self, current);
-	    oldAdapters.erase(q->id);
+	    ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
+	    for(AdapterDescriptorSeq::const_iterator q = s->adapters.begin(); q != s->adapters.end(); ++q)
+	    {
+		addAdapter(*q, self, current);
+		oldAdapters.erase(q->id);
+	    }
 	}
     }
     for(StringAdapterPrxDict::const_iterator p = oldAdapters.begin(); p != oldAdapters.end(); ++p)
@@ -218,11 +225,6 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const ServerPrx& self, 
 bool
 ServerI::start(ServerActivation act, const Ice::Current& current)
 {
-    string exe;
-    string wd;
-    Ice::StringSeq opts;
-    Ice::StringSeq evs;
-
     ServerDescriptorPtr desc;
     while(true)
     {
@@ -273,20 +275,27 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
     // Compute the server command line options.
     //
     Ice::StringSeq options;
-    JavaServerDescriptorPtr javaDesc = JavaServerDescriptorPtr::dynamicCast(desc);
-    if(javaDesc)
+    string exe;
+    if(!desc->interpreter.empty())
     {
-	copy(javaDesc->jvmOptions.begin(), javaDesc->jvmOptions.end(), back_inserter(options));
-	options.push_back("-ea");
-	options.push_back(javaDesc->className);
+	exe = desc->interpreter;
+	copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
+	options.push_back(desc->exe);
+    }
+    else
+    {
+	exe = desc->exe;
     }
     copy(desc->options.begin(), desc->options.end(), back_inserter(options));
     options.push_back("--Ice.Config=" + _serverDir + "/config/config");
 
+    Ice::StringSeq envs;
+    copy(desc->envs.begin(), desc->envs.end(), back_inserter(envs));
+
     try
     {
 	ServerPrx self = ServerPrx::uncheckedCast(current.adapter->createProxy(current.id));
-	bool active  = _node->getActivator()->activate(desc->name, desc->exe, desc->pwd, options, desc->envs, self);
+	bool active  = _node->getActivator()->activate(desc->name, exe, desc->pwd, options, envs, self);
 	setState(active ? Active : Inactive, current);
 	return active;
     }
@@ -749,14 +758,18 @@ ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr&
 	// Add service properties.
 	//
 	string servicesStr;
-	ServiceDescriptorSeq services = getServices(descriptor);
-	for(ServiceDescriptorSeq::const_iterator p = services.begin(); p != services.end(); ++p)
+	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+	if(iceBox)
 	{
-	    const string path = serverDir + "/config/config_" + (*p)->name;
-	    props.push_back(createProperty("IceBox.Service." + (*p)->name, (*p)->entry + " --Ice.Config=" + path));
-	    servicesStr += (*p)->name + " ";
+	    for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	    {
+		ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
+		const string path = serverDir + "/config/config_" + s->name;
+		props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=" + path));
+		servicesStr += s->name + " ";
+	    }
+	    props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 	}
-	props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
     }
     else
     {

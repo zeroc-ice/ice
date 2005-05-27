@@ -19,8 +19,12 @@
     </adapter>
   </adapters>
 
+  <variable name="var0" value="val0prop"/>
+  <target name="target1">
+    <variable name="var0" value="val0target1"/>
+  </target>
+
   <properties>
-    <variable name="var0" value="val0prop"/>
     <property name="Variable" value="${var0}"/>
     <property name="Type" value="Server"/>
     <property name="Name" value="${name}"/>
@@ -34,16 +38,13 @@
 
   <target name="target1">
     <properties>
-      <variable name="var0" value="val0target1"/>
-      <property name="Variable1" value="${var0}"/>
+      <property name="Variable" value="${var0}"/>
       <property name="Target1" value="1"/>
     </properties>    
   </target>
 
   <target name="target2">
     <properties>
-      <variable name="var0" value="val0target2"/>
-      <property name="Variable2" value="${var0}"/>
       <property name="Target2" value="1"/>
     </properties>    
   

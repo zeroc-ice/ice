@@ -1,6 +1,6 @@
 <icegrid>
 
-  <server name="${name}" kind="cpp-icebox" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">
+  <server name="${name}" interpreter="icebox" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">
 
     <variable name="inheritedvar" value="inherited"/>
   

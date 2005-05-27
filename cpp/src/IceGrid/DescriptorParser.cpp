@@ -31,8 +31,7 @@ public:
     DescriptorHandler(const string&);
 
     void setCommunicator(const Ice::CommunicatorPtr&);
-    void setVariables(const std::map<std::string, std::string>&);
-    void setTargets(const std::vector<std::string>&);
+    void setVariables(const std::map<std::string, std::string>&, const std::vector<std::string>&);
 
     virtual void startElement(const string&, const IceXML::Attributes&, int, int);
     virtual void endElement(const string&, int, int);
@@ -40,7 +39,6 @@ public:
     virtual void error(const string&, int, int);
     
     const ApplicationDescriptorPtr& getApplicationDescriptor() const;
-    const ServerDescriptorPtr& getServerDescriptor() const;
 
 private:
     
@@ -57,9 +55,6 @@ private:
     std::vector<std::string> _targets;    
     DescriptorVariablesPtr _variables;
     std::stack<std::string> _elements;
-    std::map<std::string, ServerDescriptorPtr> _serverTemplates;
-    std::map<std::string, ServiceDescriptorPtr> _serviceTemplates;
-    std::map<std::string, ComponentDescriptorPtr> _templates;
     int _targetCounter;
     bool _isCurrentTargetDeployable;
     int _line;
@@ -101,14 +96,9 @@ DescriptorHandler::setCommunicator(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-DescriptorHandler::setVariables(const std::map<std::string, std::string>& variables)
+DescriptorHandler::setVariables(const std::map<std::string, std::string>& variables, const vector<string>& targets)
 {
-    _variables->reset(variables);
-}
-
-void
-DescriptorHandler::setTargets(const vector<string>& targets)
-{
+    _variables->reset(variables, targets);
     _targets = targets;
 }
 
@@ -159,8 +149,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    _variables->push();
 	    
 	    string file;
-	    string targets;
-	    
+	    string targets;	    
 	    for(IceXML::Attributes::const_iterator p = attrs.begin(); p != attrs.end(); ++p)
 	    {
 		if(p->first == "descriptor")
@@ -173,8 +162,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		}
 		else
 		{
-		    string v = _variables->substitute(p->second);
-		    (*_variables)[p->first] = v;
+		    _variables->addVariable(p->first, _variables->substitute(p->second));
 		}
 	    }
 	    
@@ -212,14 +200,17 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 
 	    _currentApplication.reset(new ApplicationDescriptorHelper(_communicator, _variables, attrs));
-	    (*_variables)["application"] = _currentApplication->getDescriptor()->name;
 	}
 	else if(name == "node")
 	{
-	    (*_variables)["node"] = attributes("name");
+	    _currentApplication->addNode(attrs);
 	}
 	else if(name == "server")
 	{
+	    if(!_currentApplication.get())
+	    {
+		error("the <server> element can only be a child of a <application> element");
+	    }
 	    if(_currentServer.get())
 	    {
 		error("element <server> inside a server definition");
@@ -229,18 +220,15 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("the <server> element can only be a child of a <node> element");
 	    }
 
-	    _variables->push();
-
-	    if(!_currentApplication.get())
+	    if(attributes.contains("template"))
 	    {
-		_currentServer.reset(new ServerDescriptorHelper(_communicator, _variables, attrs));
+		_currentApplication->addServer(attributes("template"), attrs);
 	    }
 	    else
 	    {
-		_currentServer.reset(_currentApplication->addServer(attrs));
+		_currentServer = _currentApplication->addServerTemplate("", attrs);
+		_currentComponent = _currentServer.get();
 	    }
-	    _currentComponent = _currentServer.get();
-	    (*_variables)["server"] = _currentServer->getDescriptor()->name;
 	}
 	else if(name == "server-template")
 	{
@@ -249,27 +237,29 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("element <server-template> inside a server definition");
 	    }
 
-	    _variables->push();
-	    _variables->ignoreMissing(true);
-	    _variables->escape(false);
-	    (*_variables)["node"] = "${node}";
-
-	    _currentServer.reset(_currentApplication->addServerTemplate(attrs));
+	    _currentServer = _currentApplication->addServerTemplate(attributes("id"), attrs);
 	    _currentComponent = _currentServer.get();
-	    (*_variables)["server"] = _currentServer->getDescriptor()->name;
 	}
 	else if(name == "service")
 	{
+	    if(!_currentServer.get())
+	    {
+		error("the <service> element can only be a child of a <server> element");
+	    }
 	    if(_currentService.get())
 	    {
 		error("element <service> inside a service definition");
 	    }
 
-	    _variables->push();
-	    
-	    _currentService.reset(_currentServer->addService(attrs));
-	    _currentComponent = _currentService.get();
-	    (*_variables)["service"] = _currentService->getDescriptor()->name;
+	    if(attributes.contains("template"))
+	    {
+		_currentServer->addService(attributes("template"), attrs);
+	    }
+	    else
+	    {
+		_currentService = _currentServer->addServiceTemplate("", attrs);
+		_currentComponent = _currentService.get();
+	    }
 	}
 	else if(name == "service-template")
 	{
@@ -278,20 +268,16 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("element <service-template> inside a service definition");
 	    }
 
-	    _variables->push();
-	    _variables->ignoreMissing(true);
-	    _variables->escape(false);
-
-	    (*_variables)["node"] = "${node}";
-	    (*_variables)["server"] = "${server}";
-
-	    _currentService.reset(_currentApplication->addServiceTemplate(attrs));
+	    _currentService = _currentApplication->addServiceTemplate(attributes("id"), attrs);
 	    _currentComponent = _currentService.get();
-	    (*_variables)["service"] = _currentService->getDescriptor()->name;
 	}
 	else if(name == "variable")
 	{
-	    (*_variables)[attributes("name")] = attributes("value", "");
+	    _variables->addVariable(attributes("name"), attributes("value", ""));
+	}
+	else if(name == "parameter")
+	{
+	    _variables->addParameter(attributes("name"));
 	}
 	else if(name == "properties")
 	{
@@ -384,7 +370,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "application")
     {
-	_variables->remove("application");
+	_currentApplication->endParsing();
     }
     else if(name == "node")
     {
@@ -392,28 +378,29 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "server" || name == "server-template")
     {
-	if(_currentApplication.get())
+	if(_currentServer.get())
 	{
+	    _currentServer->endParsing();
+	    if(name == "server")
+	    {
+		_currentApplication->addServer(_currentServer->getDescriptor());
+	    }
 	    _currentServer.reset(0);
+	    _currentComponent = 0;
 	}
-	_currentComponent = 0;
-	if(name == "server-template")
-	{
-	    _variables->ignoreMissing(false);
-	    _variables->escape(true);
-	}
-	_variables->pop();
     }
     else if(name == "service" || name == "service-template")
     {
-	_currentService.reset(0);
-	_currentComponent = _currentServer.get();
-	if(name == "service-template")
+	if(_currentService.get())
 	{
-	    _variables->ignoreMissing(false);
-	    _variables->escape(true);
+	    _currentService->endParsing();
+	    if(name == "service")
+	    {
+		_currentServer->addService(_currentService->getDescriptor());
+	    }
+	    _currentService.reset(0);
+	    _currentComponent = _currentServer.get();
 	}
-	_variables->pop();
     }
     else if(name == "comment")
     {
@@ -424,6 +411,10 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	else if(_currentApplication.get())
 	{
 	    _currentApplication->setComment(elementValue());
+	}
+	else
+	{
+	    error("element <comment> can only be the child of an  <application>, <server> or <service> element");
 	}
     }
     else if(name == "option")
@@ -442,13 +433,16 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	}
 	_currentServer->addEnv(elementValue());
     }
-    else if(name == "jvm-option")
+    else if(name == "interpreter-option" || 
+	    _currentServer.get() && 
+	    !_currentServer->getDescriptor()->interpreter.empty() &&
+	    name == (_currentServer->getDescriptor()->interpreter + "-option"))
     {
 	if(!_currentServer.get())
 	{
-	    error("element <env> can only be the child of a <server> element");
+	    error("element " + name + " can only be the child of a <server> element");
 	}
-	_currentServer->addJvmOption(elementValue());
+	_currentServer->addInterpreterOption(elementValue());
     }
     else if(name == "properties")
     {
@@ -492,16 +486,6 @@ DescriptorHandler::getApplicationDescriptor() const
 	error("no application descriptor defined in this file");
     }
     return _currentApplication->getDescriptor();
-}
-
-const ServerDescriptorPtr&
-DescriptorHandler::getServerDescriptor() const
-{
-    if(!_currentServer.get())
-    {
-	error("no server descriptor defined in this file");
-    }
-    return _currentServer->getDescriptor();
 }
 
 string
@@ -660,29 +644,14 @@ DescriptorHandler::isTargetDeployable(const string& target) const
 }
 
 ApplicationDescriptorPtr
-DescriptorParser::parseApplicationDescriptor(const string& descriptor, 
-					     const Ice::StringSeq& targets, 
-					     const map<string, string>& variables,
-					     const Ice::CommunicatorPtr& communicator)
+DescriptorParser::parseDescriptor(const string& descriptor, 
+				  const Ice::StringSeq& targets, 
+				  const map<string, string>& variables,
+				  const Ice::CommunicatorPtr& communicator)
 {
     DescriptorHandler handler(descriptor);
     handler.setCommunicator(communicator);
-    handler.setTargets(targets);
-    handler.setVariables(variables);
+    handler.setVariables(variables, targets);
     IceXML::Parser::parse(descriptor, handler);
     return handler.getApplicationDescriptor();
-}
-
-ServerDescriptorPtr
-DescriptorParser::parseServerDescriptor(const string& descriptor, 
-					const Ice::StringSeq& targets, 
-					const map<string, string>& variables,
-					const Ice::CommunicatorPtr& communicator)
-{
-    DescriptorHandler handler(descriptor);
-    handler.setCommunicator(communicator);
-    handler.setTargets(targets);
-    handler.setVariables(variables);
-    IceXML::Parser::parse(descriptor, handler);
-    return handler.getServerDescriptor();
 }

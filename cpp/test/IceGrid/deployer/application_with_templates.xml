@@ -2,7 +2,10 @@
 
   <application name="test">
 
-    <server-template id="ServerTemplate" name="${name}" kind="cpp" exe="${test.dir}/server" activation="on-demand">
+    <server-template id="ServerTemplate" name="${name}" exe="${test.dir}/server" activation="on-demand">
+
+      <parameter name="name"/>
+
       <variable name="var0" value="val0"/>
 
       <option>--Test.Test=2</option>
@@ -39,6 +42,9 @@
     </server-template>
     
     <service-template id="ServiceTemplate" name="${name}" entry="TestService:create">
+
+      <parameter name="name"/>
+
       <adapters>
         <adapter name="${service}" endpoints="default">
           <object identity="${server}-${service}" type="::Test"/>
@@ -55,6 +61,8 @@
     </service-template>
 
     <service-template id="FreezeServiceTemplate" name="${name}" entry="TestService:create">
+
+      <parameter name="name"/>
 
       <adapters>
 	<adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
@@ -75,8 +83,10 @@
 
     </service-template>
 
-    <server-template id="IceBoxTemplate" name="${name}" kind="cpp-icebox" endpoints="default" 
+    <server-template id="IceBoxTemplate" name="${name}" interpreter="icebox" endpoints="default" 
                      exe="${ice.dir}/bin/icebox" activation="on-demand">
+
+      <parameter name="name"/>
 
       <variable name="inheritedvar" value="inherited"/>
   

@@ -16,19 +16,6 @@
 namespace IceGrid
 {
 
-ServiceDescriptorSeq getServices(const ComponentDescriptorPtr&);
-PropertyDescriptor createProperty(const std::string&, const std::string&);
-bool equal(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
-std::string getVariable(const std::vector<std::map<std::string, std::string> >&, const std::string&);
-bool hasVariable(const std::vector<std::map<std::string, std::string> >&, const std::string&);
-std::string substitute(const std::string&, const std::vector<std::map<std::string, std::string> >&, bool,
-		       std::vector<std::string>&);
-
-ServerDescriptorPtr instantiateTemplate(const ServerDescriptorPtr&, const std::map<std::string, std::string>&, 
-					std::vector<std::string>&);
-ServiceDescriptorPtr instantiateTemplate(const ServiceDescriptorPtr&, const std::map<std::string, std::string>&, 
-					 std::vector<std::string>&);
-
 template<typename T> std::insert_iterator<T>
 inline set_inserter(T& container) 
 { 
@@ -36,18 +23,27 @@ inline set_inserter(T& container)
 }
 
 template<class Function>
-struct ForEachComponent : std::unary_function<ServerDescriptorPtr&, void>
+struct ForEachComponent : std::unary_function<ComponentDescriptorPtr&, void>
 {
     ForEachComponent(Function f) : _function(f)
     {
     }
 
     void
-    operator()(const ServerDescriptorPtr& desc)
+    operator()(const InstanceDescriptor& instance)
     {
-	_function(desc);
-	ServiceDescriptorSeq services = getServices(desc);
-	for_each(services.begin(), services.end(), _function);
+	operator()(instance.descriptor);
+    }
+
+    void
+    operator()(const ComponentDescriptorPtr& descriptor)
+    {
+	_function(descriptor);
+	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+	if(iceBox)
+	{
+	    for_each(iceBox->services.begin(), iceBox->services.end(), forEachComponent(_function));
+	}
     }
 
     Function _function;

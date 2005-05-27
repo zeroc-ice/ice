@@ -18,6 +18,20 @@
 module IceGrid
 {
 
+dictionary<string, string> StringStringDict;
+
+/**
+ *
+ * Property descriptor.
+ * 
+ **/
+struct PropertyDescriptor
+{
+    string name;
+    string value;
+};
+sequence<PropertyDescriptor> PropertyDescriptorSeq;
+
 /**
  *
  * An &Ice; object descriptor.
@@ -106,35 +120,6 @@ sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
 /**
  *
- * A configuration property descriptor.
- * 
- **/
-struct PropertyDescriptor
-{
-    /**
-     *
-     * The name of the property.
-     *
-     **/
-    string name;
-
-    /**
-     *
-     * The value of the property.
-     *
-     **/
-    string value;
-};
-
-/**
- *
- * A sequence of property descriptors.
- *
- **/
-sequence<PropertyDescriptor> PropertyDescriptorSeq;
-
-/**
- *
  * A &Freeze; database environment descriptor.
  *
  **/
@@ -187,6 +172,13 @@ class ComponentDescriptor
 
     /**
      *
+     * The variables defined in the component.
+     *
+     **/
+    StringStringDict variables;
+
+    /**
+     *
      * The component object adapters.
      *
      **/
@@ -213,6 +205,58 @@ class ComponentDescriptor
      **/
     string comment;
 };
+
+struct InstanceDescriptor
+{
+    /**
+     *
+     * The template used by this instance.
+     * 
+     **/
+    string template;
+
+    /**
+     *
+     * The template parameter values.
+     *
+     **/
+    StringStringDict parameterValues;
+
+    /**
+     *
+     * The instantiated component descriptor (NOTE: this is provided
+     * as a convenience. This descriptor can also easily be computed
+     * from the template and the instance variables.)
+     *
+     **/
+    ComponentDescriptor descriptor;
+    
+    /**
+     *
+     * The targets used to deploy this instance.
+     *
+     **/
+    Ice::StringSeq targets;
+};
+sequence<InstanceDescriptor> InstanceDescriptorSeq;
+
+struct TemplateDescriptor
+{
+    /**
+     *
+     * The template.
+     *
+     **/
+    ComponentDescriptor descriptor;
+
+    /**
+     *
+     * The name of the parameters required to instantiate the template.
+     *
+     **/
+    Ice::StringSeq parameters;
+};
+dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
 /**
  *
@@ -258,6 +302,21 @@ class ServerDescriptor extends ComponentDescriptor
 
     /**
      *
+     * The name of the interpreter or empty if the executable isn't
+     * interpreted.
+     *
+     **/
+    string interpreter;
+
+    /**
+     *
+     * The command line options to pass to the interpreter.
+     *
+     **/
+    Ice::StringSeq interpreterOptions;
+
+    /**
+     *
      * The server environment variables.
      *
      **/
@@ -270,42 +329,8 @@ class ServerDescriptor extends ComponentDescriptor
      **/
     string activation;
 };
-
-/**
- *
- * A sequence of server descriptors.
- *
- **/
-sequence<ServerDescriptor> ServerDescriptorSeq;
-
-/**
- *
- * A dictionary of server descriptors.
- *
- **/
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
 
-/**
- *
- * A Java &Ice; server descriptor.
- *
- **/
-class JavaServerDescriptor extends ServerDescriptor
-{
-    /**
-     *
-     * The name of the Java class containing the main function.
-     *
-     **/
-    string className;
-
-    /**
-     *
-     * The command line options to pass to the JVM.
-     *
-     **/ 
-    Ice::StringSeq jvmOptions;
-};
 
 /**
  *
@@ -321,27 +346,21 @@ class ServiceDescriptor extends ComponentDescriptor
      **/
     string entry;
 };
+dictionary<string, ServiceDescriptor> ServiceDescriptorDict;
 
 /**
  *
- * A sequence of service descriptors.
+ * An &IceBox; server descriptor.
  *
  **/
-sequence<ServiceDescriptor> ServiceDescriptorSeq;
-
-/**
- *
- * A C++ &IceBox; server descriptor.
- *
- **/
-class CppIceBoxDescriptor extends ServerDescriptor
+class IceBoxDescriptor extends ServerDescriptor
 {
     /**
      *
-     * The &IceBox; C++ services.
-     * 
+     * The service instances.
+     *
      **/
-    ServiceDescriptorSeq services;
+    InstanceDescriptorSeq services;
 
     /**
      *
@@ -351,27 +370,23 @@ class CppIceBoxDescriptor extends ServerDescriptor
     string endpoints;
 };
 
-/**
- *
- * A Java &IceBox; server descriptor.
- *
- **/
-class JavaIceBoxDescriptor extends JavaServerDescriptor
+struct NodeDescriptor
 {
     /**
      *
-     * The &IceBox; Java services.
+     * The node name.
      * 
      **/
-    ServiceDescriptorSeq services;
+    string name;
 
     /**
      *
-     * The endpoints of the &IceBox; service manager interface.
+     * The variables defined for the node.
      *
      **/
-    string endpoints;
+    StringStringDict variables;
 };
+sequence<NodeDescriptor> NodeDescriptorSeq;
 
 /**
  *
@@ -389,18 +404,46 @@ class ApplicationDescriptor
     
     /**
      *
-     * The application servers.
+     * The variables defined in the application descriptor.
      *
      **/
-    ServerDescriptorSeq servers;
+    StringStringDict variables;
+
+    /**
+     *
+     * The server templates.
+     *
+     **/
+    TemplateDescriptorDict serverTemplates;
+
+    /**
+     *
+     * The service templates.
+     *
+     **/
+    TemplateDescriptorDict serviceTemplates;
+
+    /**
+     *
+     * The application nodes.
+     *
+     **/
+    NodeDescriptorSeq nodes;
     
     /**
      *
-     * The application server templates.
+     * The server instances.
      *
      **/
-    ServerDescriptorDict templates;
-    
+    InstanceDescriptorSeq servers;
+
+    /**
+     *
+     * The targets used to deploy the application.
+     *
+     **/
+    Ice::StringSeq targets;
+
     /**
      *
      * Some comments on the application.
@@ -485,8 +528,6 @@ enum ServerState
      **/
     Destroyed
 };
-
-dictionary<string, string> StringStringDict;
 
 /**
  *
@@ -578,9 +619,9 @@ interface Admin
 
     /**
      *
-     * Add a server to an &IceGrid; node.
+     * Add the server(s) from the given application descriptor.
      *
-     * @param descriptor The server deployment descriptor.
+     * @param descriptor The application deployment descriptor.
      *
      * @throws DeploymentException Raised if server deployment failed.
      *
@@ -588,7 +629,7 @@ interface Admin
      * @see updateServer
      *
      **/
-    void addServer(ServerDescriptor server)
+    void addServer(ApplicationDescriptor application)
 	throws DeploymentException, ServerExistsException;
 
     /**
@@ -605,7 +646,7 @@ interface Admin
      * @see removeServer
      *
      **/
-    void updateServer(ServerDescriptor server)
+    void updateServer(ApplicationDescriptor server)
 	throws DeploymentException, ServerNotExistException;
 
     /**
@@ -634,7 +675,7 @@ interface Admin
      * @returns The server descriptor.
      *
      **/
-    nonmutating ServerDescriptor getServerDescriptor(string name)
+    nonmutating InstanceDescriptor getServerDescriptor(string name)
 	throws ServerNotExistException;
 
     /**

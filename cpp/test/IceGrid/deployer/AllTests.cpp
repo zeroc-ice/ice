@@ -118,8 +118,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     test(obj->getProperty("Name") == "Server1");
 
     test(obj->getProperty("Variable") == "val0prop");
-    test(obj->getProperty("Variable1") == "");
-    test(obj->getProperty("Variable2") == "");
 
     test(obj->getProperty("NameName") == "Server1Server1");
     test(obj->getProperty("NameEscaped") == "${name}");
@@ -133,11 +131,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	test(obj->getProperty("Target1") == "1");
 	test(obj->getProperty("Target2") == "1");
     }
-    test(obj->getProperty("Variable") == "val0prop");
     if(!withTemplates)
     {
-	test(obj->getProperty("Variable1") == "val0target1");
-	test(obj->getProperty("Variable2") == "val0target2");
+	test(obj->getProperty("Variable") == "val0target1");
     }
     cout << "ok" << endl;
 

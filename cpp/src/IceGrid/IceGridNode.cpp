@@ -485,8 +485,7 @@ NodeService::start(int argc, char* argv[])
             try
             {
 		map<string, string> vars;
-		admin->addApplication(
-		    DescriptorParser::parseApplicationDescriptor(descriptor, targets, vars, communicator()));
+		admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, communicator()));
             }
             catch(const DeploymentException& ex)
             {

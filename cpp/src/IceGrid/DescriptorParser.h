@@ -17,15 +17,10 @@ class DescriptorParser
 {
 public:
 
-    static ApplicationDescriptorPtr parseApplicationDescriptor(const std::string&, 
-							       const Ice::StringSeq&, 
-							       const std::map<std::string, std::string>&, 
-							       const Ice::CommunicatorPtr&);
-
-    static ServerDescriptorPtr parseServerDescriptor(const std::string&, 
-						     const Ice::StringSeq&, 
-						     const std::map<std::string, std::string>&, 
-						     const Ice::CommunicatorPtr&);
+    static ApplicationDescriptorPtr parseDescriptor(const std::string&, 
+						    const Ice::StringSeq&, 
+						    const std::map<std::string, std::string>&, 
+						    const Ice::CommunicatorPtr&);
     
 };
 

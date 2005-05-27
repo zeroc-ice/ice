@@ -64,7 +64,7 @@ server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
 print "registering server with icegrid...",
-IceGridAdmin.addServer(os.path.join(testdir, "simple_server.xml"), "test.dir=" + testdir);
+IceGridAdmin.addApplication(os.path.join(testdir, "simple_server.xml"), "test.dir=" + testdir);
 print "ok"
   
 print "starting client...",

@@ -45,7 +45,7 @@ public:
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
     
-    ServerDescriptorPtr getServerDescriptor(const std::string&);
+    InstanceDescriptor getServerDescriptor(const std::string&);
     ServerPrx getServer(const std::string&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
@@ -96,12 +96,13 @@ private:
     typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
     typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 
-    void addServers(const ServerDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
-    void updateServers(const ServerDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
-    void removeServers(const ServerDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
-    ServerEntryPtr addServer(const ServerDescriptorPtr&);
-    ServerEntryPtr updateServer(const ServerDescriptorPtr&);
-    ServerEntryPtr removeServer(const ServerDescriptorPtr&);
+    void addServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
+    void updateServers(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&,
+		       const std::set<std::string>&, ServerEntrySeq&);
+    void removeServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
+    ServerEntryPtr addServer(const InstanceDescriptor&);
+    ServerEntryPtr updateServer(const InstanceDescriptor&);
+    ServerEntryPtr removeServer(const InstanceDescriptor&);
     void clearServer(const std::string&);
     void addComponent(const ServerEntryPtr&, const ComponentDescriptorPtr&);
     void removeComponent(const ComponentDescriptorPtr&);
