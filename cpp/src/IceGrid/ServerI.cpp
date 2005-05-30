@@ -278,9 +278,23 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
     string exe;
     if(!desc->interpreter.empty())
     {
-	exe = desc->interpreter;
-	copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
-	options.push_back(desc->exe);
+	if(desc->interpreter == "icebox")
+	{
+	    exe = desc->exe.empty() ? "icebox" : desc->exe;
+	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));	    
+	}
+	else if(desc->interpreter == "java-icebox")
+	{
+	    exe = desc->exe.empty() ? "java" : desc->exe;
+	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
+	    options.push_back("IceBox.Server");
+	}
+	else
+	{
+	    exe = desc->interpreter;
+	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
+	    options.push_back(desc->exe);
+	}
     }
     else
     {

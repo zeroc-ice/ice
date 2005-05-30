@@ -91,6 +91,26 @@ inline getMatchingKeys(const T& m, const std::string& expression)
     return keys;
 }
 
+struct AddServerName : std::unary_function<InstanceDescriptor&, void>
+{
+    AddServerName(std::set<std::string>& names) : _names(names)
+    {
+    }
+
+    void
+    operator()(const InstanceDescriptor& instance)
+    {
+	if(!_names.insert(instance.descriptor->name).second)
+	{
+	    DeploymentException ex;
+	    ex.reason = "invalid descriptor: duplicated server `" + instance.descriptor->name + "'";
+	    throw ex;
+	}
+    }
+
+    std::set<std::string>& _names;
+};
+
 };
 
 #endif

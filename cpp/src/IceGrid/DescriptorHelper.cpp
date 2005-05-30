@@ -855,29 +855,16 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     }
 
     string interpreter = attributes("interpreter", "");
-    if(interpreter == "icebox")
+    if(interpreter == "icebox" || interpreter == "java-icebox")
     {
 	_descriptor = new IceBoxDescriptor();
-	if(_descriptor->exe.empty())
-	{
-	    _descriptor->exe = "icebox";
-	}
-    }
-    else if(interpreter == "java-icebox")
-    {
-	_descriptor = new IceBoxDescriptor();
-	_descriptor->interpreter = "java";
-	if(_descriptor->exe.empty())
-	{
-	    _descriptor->exe = "IceBox.Server";
-	}
     }
     else
     {
 	_descriptor = new ServerDescriptor();
 	_descriptor->exe = attributes("exe");
-	_descriptor->interpreter = interpreter;
     }
+    _descriptor->interpreter = interpreter;
 
     ComponentDescriptorHelper::init(_descriptor, attrs);
 

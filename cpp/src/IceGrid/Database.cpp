@@ -45,26 +45,6 @@ struct AddComponent : std::unary_function<ComponentDescriptorPtr&, void>
     const Database::ServerEntryPtr _entry;
 };
 
-struct AddServerName : std::unary_function<InstanceDescriptor&, void>
-{
-    AddServerName(set<string>& names) : _names(names)
-    {
-    }
-
-    void
-    operator()(const InstanceDescriptor& instance)
-    {
-	if(!_names.insert(instance.descriptor->name).second)
-	{
-	    DeploymentException ex;
-	    ex.reason = "invalid descriptor: duplicated server `" + instance.descriptor->name + "'";
-	    throw ex;
-	}
-    }
-
-    set<string>& _names;
-};
-
 struct AddAdapterId : std::unary_function<ComponentDescriptorPtr&, void>
 {
     AddAdapterId(set<string>& ids) : _ids(ids)
