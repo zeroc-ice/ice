@@ -102,7 +102,7 @@ Glacier2::Request::invoke()
 		_proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	    }
 	}
-	catch(const LocalException& ex)
+	catch(const LocalException&)
 	{
 	}
     }
