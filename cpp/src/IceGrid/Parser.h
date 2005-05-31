@@ -70,12 +70,13 @@ public:
     void addApplication(const std::list<std::string>&);
     void removeApplication(const std::list<std::string>&);
     void describeApplication(const std::list<std::string>&);
-    void describeApplicationServerTemplate(const std::list<std::string>&);
-    void describeApplicationServiceTemplate(const std::list<std::string>&);
     void diffApplication(const std::list<std::string>&);
     void updateApplication(const std::list<std::string>&);
-    void instantiateApplication(const std::list<std::string>&);
     void listAllApplications();
+
+    void describeServerTemplate(const std::list<std::string>&);
+    void describeServiceTemplate(const std::list<std::string>&);
+    void instantiateServerTemplate(const std::list<std::string>&);
 
     void pingNode(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);

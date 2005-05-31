@@ -122,17 +122,17 @@ command
 {
     parser->describeApplication($3);
 }
-| ICE_GRID_APPLICATION ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
+| ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
 {
-    parser->describeApplicationServerTemplate($5);
+    parser->describeServerTemplate($4);
 }
-| ICE_GRID_APPLICATION ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
+| ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_INSTANTIATE strings ';'
 {
-    parser->describeApplicationServiceTemplate($5);
-}|
- ICE_GRID_APPLICATION ICE_GRID_INSTANTIATE strings ';'
+    parser->instantiateServerTemplate($4);
+}
+| ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
 {
-    parser->instantiateApplication($3);
+    parser->describeServiceTemplate($4);
 }
 | ICE_GRID_APPLICATION ICE_GRID_LIST ';'
 {

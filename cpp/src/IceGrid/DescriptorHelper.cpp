@@ -980,29 +980,64 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	{
 	    return false;
 	}
-
+	
+	//
+	// First we compare the service instances which have a
+	// descriptor set (this is the case for services not based on
+	// a template or server instances).
+	//
 	for(InstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
 	{
-	    bool found = false;
-	    for(InstanceDescriptorSeq::const_iterator q = irhs->services.begin(); q != irhs->services.end(); ++q)
+	    if(p->descriptor)
 	    {
-		if(p->descriptor->name != q->descriptor->name)
+		bool found = false;
+		for(InstanceDescriptorSeq::const_iterator q = irhs->services.begin(); q != irhs->services.end(); ++q)
 		{
-		    continue;
+		    if(q->descriptor && p->descriptor->name == q->descriptor->name)
+		    {
+			found = true;
+			if(ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(p->descriptor)) != 
+			   ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(q->descriptor)))
+			{
+			    return false;
+			}
+			break;
+		    }
 		}
+		if(!found)
+		{
+		    return false;
+		}
+	    }
+	}
 
-		found = true;
-		if(ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(p->descriptor)) != 
-		   ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(q->descriptor)))
-		{
-			return false;
-		}
-		break;
-	    }
-	    if(!found)
+	//
+	// Then, we compare the service instances for which no
+	// descriptor is set.
+	//
+	set<InstanceDescriptor> lsvcs;
+	set<InstanceDescriptor> rsvcs;
+	for(InstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
+	{
+	    if(!p->descriptor)
 	    {
-		return false;
+		InstanceDescriptor instance = *p;
+		instance.descriptor = 0;
+		lsvcs.insert(instance);
 	    }
+	}
+	for(InstanceDescriptorSeq::const_iterator p = irhs->services.begin(); p != irhs->services.end(); ++p)
+	{
+	    if(!p->descriptor)
+	    {
+		InstanceDescriptor instance = *p;
+		instance.descriptor = 0;
+		rsvcs.insert(instance);
+	    }
+	}
+	if(lsvcs != rsvcs)
+	{
+	    return false;
 	}
     }
     return true;

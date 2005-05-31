@@ -77,7 +77,7 @@ describeDbEnv(Output& out, const DbEnvDescriptor& dbEnv)
 	    out << sb;
 	    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
 	    {
-		out << nl << p->name << " = " << p->value;
+		out << nl << p->name << " = '" << p->value << "'";
 	    }
 	    out << eb;
 	}
@@ -114,7 +114,7 @@ describeProperties(Output& out, const PropertyDescriptorSeq& properties)
     out << sb;
     for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
-	out << nl << p->name << " = " << p->value;
+	out << nl << p->name << " = '" << p->value << "'";
     }
     out << eb;
 }
@@ -127,6 +127,16 @@ describeComponent(Output& out, const Ice::CommunicatorPtr& communicator, const C
 	out << nl << "comment";
 	out << sb;
 	out << nl << desc->comment;
+	out << eb;
+    }
+    if(!desc->variables.empty())
+    {
+	out << nl << "variables";
+	out << sb;
+	for(StringStringDict::const_iterator p = desc->variables.begin(); p != desc->variables.end(); ++p)
+	{
+	    out << nl << p->first << " = '" << p->second << "'";
+	}
 	out << eb;
     }
     if(!desc->properties.empty())
@@ -220,7 +230,7 @@ describe(Output& out, const Ice::CommunicatorPtr& communicator, const string& id
     ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(templ.descriptor);
     if(service)
     {
-	out << nl << "service template '" << id << "'";
+	out << "service template '" << id << "'";
     }
 
     out << sb;
@@ -228,29 +238,19 @@ describe(Output& out, const Ice::CommunicatorPtr& communicator, const string& id
     {
 	out << nl << "parameters = '" << toString(templ.parameters) << "'";
     }
-    if(!server->variables.empty())
-    {
-	out << nl << "variables";
-	out << sb;
-	for(StringStringDict::const_iterator p = server->variables.begin(); p != server->variables.end(); ++p)
-	{
-	    out << nl << p->first << " = " << p->second;
-	}
-	out << eb;
-    }
 
-    out << nl << "name = '" << server->name << "'";    
+    out << nl << "name = '" << templ.descriptor->name << "'";    
     if(server)
     {
 	describeServer(out, communicator, server);
 	out << eb;
-	out << nl;
     }
     if(service)
     {
 	describeService(out, communicator, service);
 	out << eb;
     }
+    out << nl;
 }
 
 
@@ -260,27 +260,70 @@ describe(Output& out, const Ice::CommunicatorPtr& communicator, const InstanceDe
     ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(inst.descriptor);
     if(server)
     {
-	out << "server '" << server->name << "' ";
+	if(inst._cpp_template.empty())
+	{
+	    out << "server '" << server->name << "' ";
+	}
+	else
+	{
+	    out << "server instance '" << server->name << "' ";
+	}
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	if(iceBox)
 	{
 	    out << " (IceBox)";
 	}
-	out << sb;
-	describeServer(out, communicator, server);	
-	out << eb;
     }
 
     ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(inst.descriptor);
     if(service)
     {
-	out << nl << "service '" << service->name << "'";
-	out << sb;
+	if(inst._cpp_template.empty())
+	{
+	    out << nl << "service '" << service->name << "'";
+	}
+	else
+	{
+	    out << nl << "service instance '" << service->name << "'";
+	}
+    }
+    
+    if(!server && !service)
+    {
+	out << nl << "service instance";
+    }
+
+    out << sb;
+    if(!inst._cpp_template.empty())
+    {
+	out << nl << "template = '" << inst._cpp_template << "'";
+	if(!inst.parameterValues.empty())
+	{
+	    out << nl << "parameters";
+	    out << sb;
+	    for(StringStringDict::const_iterator p = inst.parameterValues.begin(); p != inst.parameterValues.end();
+		++p)
+	    {
+		out << nl << p->first << " = '" << p->second << "'";
+	    }
+	    out << eb;
+	}
+    }
+    if(server)
+    {
+	describeServer(out, communicator, server);	
+	out << eb;
+	out << nl;
+    }
+    if(service)
+    {
 	describeService(out, communicator, service);
 	out << eb;
     }
-
-    out << nl;
+    if(!server && !service)
+    {
+	out << eb;
+    }
 }
 
 }
@@ -303,21 +346,22 @@ Parser::usage()
         "                            the optional targets TARGET will be deployed.\n"
 	"application remove NAME     Remove application NAME.\n"
 	"application describe NAME   Describe application NAME.\n"
-	"application server template describe NAME TEMPLATE\n"
-        "                            Describe application NAME server template TEMPLATE.\n"
-	"application service template describe NAME TEMPLATE\n"
-        "                            Describe application NAME service template TEMPLATE.\n"
-	"application describe NAME   Describe application NAME.\n"
 	"application diff DESC [TARGET ... ] [NAME=VALUE ... ]\n"
         "                            Print the differences betwen the application\n"
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
-	"application instantiate NAME TEMPLATE [NAME=VALUE ...]\n"
-	"                            Instantiate a server template and add the server\n"
 	"application list            List all deployed applications.\n"
 	"                            to the application."
         "\n"
+	"server template instantiate APPLICATION TEMPLATE NODE [NAME=VALUE ...]\n"
+	"                            Instantiate a server template\n"
+	"server template describe APPLICATION TEMPLATE\n"
+        "                            Describe application server template TEMPLATE.\n"
+	"\n"
+	"service template describe APPLICATION TEMPLATE\n"
+        "                            Describe application service template TEMPLATE.\n"
+	"\n"
 	"node list                   List all registered nodes.\n"
 	"node ping NAME              Ping node NAME.\n"
         "node remove NAME            Remove the servers deployed on node NAME and\n"
@@ -508,8 +552,7 @@ Parser::describeApplication(const list<string>& args)
 	    map<string, set<string> > servers;
 	    {
 		for(InstanceDescriptorSeq::const_iterator p = application->servers.begin(); 
-		    p != application->servers.end();
-		    ++p)
+		    p != application->servers.end(); ++p)
 		{
 		    const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(p->descriptor);
 		    map<string, set<string> >::iterator q = servers.find(descriptor->node);
@@ -521,15 +564,35 @@ Parser::describeApplication(const list<string>& args)
 		}
 	    }
 	    {
-		for(map<string, set<string> >::const_iterator p = servers.begin(); p != servers.end(); ++p)
+		for(NodeDescriptorSeq::const_iterator p = application->nodes.begin();
+		    p != application->nodes.end(); ++p)
 		{
-		    out << nl << "node '" << p->first << "'";
+		    out << nl << "node '" << p->name << "'";
 		    out << sb;
-		    for(set<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+		    if(!p->variables.empty())
 		    {
-			out << nl << *q;
+			out << nl << "variables";
+			out << sb;
+			for(StringStringDict::const_iterator q = p->variables.begin(); q != p->variables.end(); ++q)
+			{
+			    out << nl << q->first << " = '" << q->second << "'";
+			}
+			out << eb;
 		    }
-		    out << eb;
+		    {
+			map<string, set<string> >::const_iterator q = servers.find(p->name);
+			if(q != servers.end())
+			{
+			    out << nl << "servers";
+			    out << sb;
+			    for(set<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+			    {
+				out << nl << *r;
+			    }
+			    out << eb;
+			}
+			out << eb;
+		    }
 		}
 	    }
 	}
@@ -549,81 +612,6 @@ Parser::describeApplication(const list<string>& args)
 	error(s.str());
     }
 }
-
-void
-Parser::describeApplicationServerTemplate(const list<string>& args)
-{
-    if(args.size() != 2)
-    {
-	error("`application server template describe' requires exactly two arguments\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	list<string>::const_iterator p = args.begin();
-
-	string name = *p++;
-	string templ = *p++;
-
-	ApplicationDescriptorPtr application = _admin->getApplicationDescriptor(name);
-	
-	Output out(cout);
-	TemplateDescriptorDict::const_iterator q = application->serverTemplates.find(templ);
-	if(q != application->serverTemplates.end())
-	{
-	    describe(out, _communicator, templ, q->second);
-	}
-	else
-	{
-	    error("no server template with id `" + templ + "'");
-	}
-    }
-    catch(const Ice::Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-Parser::describeApplicationServiceTemplate(const list<string>& args)
-{
-    if(args.size() != 2)
-    {
-	error("`application service template describe' requires exactly two arguments\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	list<string>::const_iterator p = args.begin();
-
-	string name = *p++;
-	string templ = *p++;
-
-	ApplicationDescriptorPtr application = _admin->getApplicationDescriptor(name);
-	
-	Output out(cout);
-	TemplateDescriptorDict::const_iterator q = application->serviceTemplates.find(templ);
-	if(q != application->serviceTemplates.end())
-	{
-	    describe(out, _communicator, templ, q->second);
-	}
-	else
-	{
-	    error("no service template with id `" + templ + "'");
-	}
-    }
-    catch(const Ice::Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
 
 void
 Parser::diffApplication(const list<string>& args)
@@ -892,11 +880,64 @@ Parser::updateApplication(const list<string>& args)
 }
 
 void
-Parser::instantiateApplication(const list<string>& args)
+Parser::listAllApplications()
 {
-    if(args.size() < 2)
+    try
     {
-	error("`application instantiate' requires at least two arguments\n(`help' for more info)");
+	Ice::StringSeq names = _admin->getAllApplicationNames();
+	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::describeServerTemplate(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+	error("`server template describe' requires exactly two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+
+	string name = *p++;
+	string templ = *p++;
+
+	ApplicationDescriptorPtr application = _admin->getApplicationDescriptor(name);
+	
+	Output out(cout);
+	TemplateDescriptorDict::const_iterator q = application->serverTemplates.find(templ);
+	if(q != application->serverTemplates.end())
+	{
+	    describe(out, _communicator, templ, q->second);
+	}
+	else
+	{
+	    error("no server template with id `" + templ + "'");
+	}
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::instantiateServerTemplate(const list<string>& args)
+{
+    if(args.size() < 3)
+    {
+	error("`server template instantiate' requires at least three arguments\n(`help' for more info)");
 	return;
     }
 
@@ -907,6 +948,7 @@ Parser::instantiateApplication(const list<string>& args)
 	list<string>::const_iterator p = args.begin();
 	string application = *p++;
 	string templ = *p++;
+	string node = *p++;
 
 	for(; p != args.end(); ++p)
 	{
@@ -917,7 +959,7 @@ Parser::instantiateApplication(const list<string>& args)
 	    }
 	}
 
-	_admin->instantiateApplicationServer(application, templ, vars);
+	_admin->instantiateServer(application, templ, node, vars);
     }
     catch(const IceXML::ParserException& ex)
     {
@@ -940,12 +982,33 @@ Parser::instantiateApplication(const list<string>& args)
 }
 
 void
-Parser::listAllApplications()
+Parser::describeServiceTemplate(const list<string>& args)
 {
+    if(args.size() != 2)
+    {
+	error("`service template describe' requires exactly two arguments\n(`help' for more info)");
+	return;
+    }
+
     try
     {
-	Ice::StringSeq names = _admin->getAllApplicationNames();
-	copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+	list<string>::const_iterator p = args.begin();
+
+	string name = *p++;
+	string templ = *p++;
+
+	ApplicationDescriptorPtr application = _admin->getApplicationDescriptor(name);
+	
+	Output out(cout);
+	TemplateDescriptorDict::const_iterator q = application->serviceTemplates.find(templ);
+	if(q != application->serviceTemplates.end())
+	{
+	    describe(out, _communicator, templ, q->second);
+	}
+	else
+	{
+	    error("no service template with id `" + templ + "'");
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -1545,8 +1608,8 @@ Parser::describeObject(const list<string>& args)
 	    if(arg.find('*') == string::npos)
 	    {
 		ObjectDescriptor desc = _admin->getObjectDescriptor(Ice::stringToIdentity(arg));
-		cout << "proxy = " << _communicator->proxyToString(desc.proxy) << endl;
-		cout << "type = " << desc.type << endl;
+		cout << "proxy = '" << _communicator->proxyToString(desc.proxy) << "'" << endl;
+		cout << "type = '" << desc.type << "'" << endl;
 		return;
 	    }
 	    else

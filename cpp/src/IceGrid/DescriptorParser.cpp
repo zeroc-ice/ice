@@ -205,7 +205,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    _currentApplication->addNode(attrs);
 	}
-	else if(name == "server")
+	else if(name == "server" || name == "server-instance")
 	{
 	    if(!_currentApplication.get())
 	    {
@@ -220,7 +220,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("the <server> element can only be a child of a <node> element");
 	    }
 
-	    if(attributes.contains("template"))
+	    if(name == "server-instance")
 	    {
 		_currentApplication->addServer(attributes("template"), attrs);
 	    }
@@ -240,7 +240,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    _currentServer = _currentApplication->addServerTemplate(attributes("id"), attrs);
 	    _currentComponent = _currentServer.get();
 	}
-	else if(name == "service")
+	else if(name == "service" || name == "service-instance")
 	{
 	    if(!_currentServer.get())
 	    {
@@ -251,7 +251,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("element <service> inside a service definition");
 	    }
 
-	    if(attributes.contains("template"))
+	    if(name == "service-instance")
 	    {
 		_currentServer->addService(attributes("template"), attrs);
 	    }
@@ -374,33 +374,29 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "node")
     {
-	_variables->remove("node");
+	_currentApplication->endNodeParsing();
     }
     else if(name == "server" || name == "server-template")
     {
-	if(_currentServer.get())
+	assert(_currentServer.get());
+	_currentServer->endParsing();
+	if(name == "server")
 	{
-	    _currentServer->endParsing();
-	    if(name == "server")
-	    {
-		_currentApplication->addServer(_currentServer->getDescriptor());
-	    }
-	    _currentServer.reset(0);
-	    _currentComponent = 0;
+	    _currentApplication->addServer(_currentServer->getDescriptor());
 	}
+	_currentServer.reset(0);
+	_currentComponent = 0;
     }
     else if(name == "service" || name == "service-template")
     {
-	if(_currentService.get())
+	assert(_currentService.get());
+	_currentService->endParsing();
+	if(name == "service")
 	{
-	    _currentService->endParsing();
-	    if(name == "service")
-	    {
-		_currentServer->addService(_currentService->getDescriptor());
-	    }
-	    _currentService.reset(0);
-	    _currentComponent = _currentServer.get();
+	    _currentServer->addService(_currentService->getDescriptor());
 	}
+	_currentService.reset(0);
+	_currentComponent = _currentServer.get();
     }
     else if(name == "comment")
     {

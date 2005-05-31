@@ -568,18 +568,20 @@ interface Admin
 
     /**
      *
-     * Instantiate as server template from the given application.
+     * Instantiate a server template from the given application.
      *
      * @param application The application where the template is defined.
      *
      * @param template The identifier of the template.
      * 
-     * @param variables The variables used to instantiate the template.
+     * @param node The node where the server will be running.
+     * 
+     * @param parameters The parameters used to instantiate the template.
      *
      * @throws DeploymentException Raised if the deployment failed.
      *
      **/
-    void instantiateApplicationServer(string application, string template, StringStringDict variables)
+    void instantiateServer(string application, string template, string node, StringStringDict parameters)
 	throws ApplicationNotExistException, DeploymentException;
 
     /**

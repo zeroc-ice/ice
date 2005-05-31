@@ -58,12 +58,22 @@ AdminI::getApplicationDescriptor(const string& name, const Current&) const
 }
 
 void
-AdminI::instantiateApplicationServer(const string& name, const string& tmpl, const StringStringDict& variables,
-				     const Current&)
+AdminI::instantiateServer(const string& name, const string& tmpl, const string& node, 
+			  const StringStringDict& parameters, const Current&)
 {
-    ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
-    helper.addServer(tmpl, variables);
-    _database->updateApplicationDescriptor(helper.getDescriptor());
+    try
+    {
+	ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
+	helper.getVariables()->addVariable("node", node);
+	helper.addServer(tmpl, parameters);
+	_database->updateApplicationDescriptor(helper.getDescriptor());
+    }
+    catch(const std::string& msg)
+    {
+	DeploymentException ex;
+	ex.reason = msg;
+	throw ex;
+    }
 }
 
 Ice::StringSeq

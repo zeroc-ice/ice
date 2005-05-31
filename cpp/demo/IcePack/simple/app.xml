@@ -13,36 +13,59 @@
 
   <application name="Simple">
 
+     <variable name="id" value="app"/>
+     <variable name="name" value="test"/>
+
      <server-template id="ServerTemplate" name="${name}" exe="./server"> 
        <parameter name="name"/>
        <adapters>
 	 <adapter name="Hello" endpoints="tcp" register="true">
-	   <object identity="hello1" type="::Demo::Hello"/>
+	   <object identity="${server}-hello1" type="::Demo::Hello"/>
 	 </adapter>
        </adapters>
        <properties>
-	 <property name="Identity" value="hello1"/>
+	 <property name="Identity" value="${server}-hello1"/>
+	 <property name="Prop" value="${id}"/>
        </properties>
      </server-template>
 
      <server-template id="IceBoxTemplate" name="${name}" interpreter="icebox" endpoints="default">
        <parameter name="name"/>
-       <service name="Hello" entry="HelloService:create">
+
+       <service-instance template="HelloService" name="Hello"/>
+
+       <service name="HelloService2" entry="HelloService:create">
+	 <parameter name="name"/>
 	 <adapters>
 	   <adapter name="Hello" endpoints="tcp">
-	     <object identity="hello2" type="::Demo::Hello"/>
+	     <object identity="hello3" type="::Demo::Hello"/>
 	   </adapter>
 	 </adapters>
 	 <properties>
-	   <property name="Identity" value="hello2"/>
-	   <property name="Name" value="${name}"/>
+	   <property name="Identity" value="hello3"/>
+	   <property name="Name" value="${service}"/>
 	 </properties>    
        </service>
+
      </server-template>
+
+     <service-template id="HelloService" name="${name}" entry="HelloService:create">
+       <parameter name="name"/>
+       <adapters>
+	 <adapter name="Hello" endpoints="tcp">
+	   <object identity="hefllo2" type="::Demo::Hello"/>
+	 </adapter>
+       </adapters>
+       <properties>
+	 <property name="Identity" value="hello2"/>
+	 <property name="Name" value="${service}"/>
+       </properties>    
+     </service-template>
  
      <node name="node">
-       <server template="IceBoxTemplate" name="IceBox"/>
-       <server template="ServerTemplate" name="Server"/>
+       <variable name="node1" value="test"/>
+       <server-instance template="IceBoxTemplate" name="IceBox"/>
+       <server-instance template="ServerTemplate" name="Server"/>
      </node>
 
   </application>

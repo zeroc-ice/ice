@@ -90,8 +90,8 @@
 
       <variable name="inheritedvar" value="inherited"/>
   
-      <service template="ServiceTemplate" name="Service1"/>
-      <service template="FreezeServiceTemplate" name="Service2"/>
+      <service-instance template="ServiceTemplate" name="Service1"/>
+      <service-instance template="FreezeServiceTemplate" name="Service2"/>
 
       <properties>
         <property name="Ice.Warn.Connections" value="1"/>
@@ -100,10 +100,10 @@
 
     <node name="localnode">
 
-      <server template="IceBoxTemplate" name="IceBox1"/>
-      <server template="IceBoxTemplate" name="IceBox2"/>
-      <server template="ServerTemplate" name="Server1"/>
-      <server template="ServerTemplate" name="Server2"/>
+      <server-instance template="IceBoxTemplate" name="IceBox1"/>
+      <server-instance template="IceBoxTemplate" name="IceBox2"/>
+      <server-instance template="ServerTemplate" name="Server1"/>
+      <server-instance template="ServerTemplate" name="Server2"/>
 
     </node>
 
