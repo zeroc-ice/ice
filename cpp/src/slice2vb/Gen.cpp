@@ -4260,7 +4260,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
             for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
             {
-                _out << nl << "Catch __ex As " << fixId((*t)->name());
+                _out << nl << "Catch __ex As " << fixId((*t)->scoped());
                 _out.inc();
                 _out << nl << "Throw";
                 _out.dec();
