@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace Test;
+using namespace IceGrid;
 
 struct ProxyIdentityEqual : public std::binary_function<Ice::ObjectPrx,string,bool>
 {
@@ -33,7 +34,7 @@ public:
 void
 allCommonTests(const Ice::CommunicatorPtr& communicator)
 {
-    IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
+    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
     cout << "test server registration... "  << flush;
@@ -54,7 +55,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     cout << "ok" << endl;
 
-    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(communicator->stringToProxy("IceGrid/Query"));
+    QueryPrx query = QueryPrx::checkedCast(communicator->stringToProxy("IceGrid/Query"));
     test(query);
 
     cout << "testing object registration... " << flush;
@@ -78,7 +79,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     {
 	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
     }
-    catch(const IceGrid::ObjectNotExistException&)
+    catch(const ObjectNotExistException&)
     {
     }
 
@@ -152,9 +153,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     test(obj->getProperty("Service2.DebugProperty") == "");
     test(obj->getProperty("Service1.DebugProperty") == "");
     
-    IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
-    test(admin);
-
     cout << "ok" << endl;
 
     cout << "testing server options... " << flush;
@@ -164,6 +162,163 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     test(obj->getProperty("Test.Test1") == "0");
 
     cout << "ok" << endl;
+
+    cout << "testing application update..." << flush;
+    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
+    test(admin);
+
+    admin->stopServer("Server1");
+    admin->stopServer("Server2");
+    admin->stopServer("IceBox1");
+    admin->stopServer("IceBox2");
+
+    //
+    // Update the application
+    //
+    ApplicationDescriptorPtr application = admin->getApplicationDescriptor("test");
+
+    InstanceDescriptorSeq::iterator svr1;
+    InstanceDescriptor server1;
+    InstanceDescriptor server2;
+    InstanceDescriptor icebox1;
+    InstanceDescriptor icebox2;
+
+    for(InstanceDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
+    {
+	if(p->descriptor->name == "Server1")
+	{
+	    svr1 = p;
+	    server1 = *p;
+	}
+	else if(p->descriptor->name == "Server2")
+	{
+	    server2 = *p;
+	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(p->descriptor);
+	    assert(server);
+	    for(PropertyDescriptorSeq::iterator r = server->properties.begin(); r != server->properties.end(); ++r)
+	    {
+		if(r->name == "Type")
+		{
+		    r->value = "ServerUpdated";
+		}
+	    }
+	}
+	else if(p->descriptor->name == "IceBox1")
+	{
+	    icebox1 = *p;
+	    icebox1.descriptor = ComponentDescriptorPtr::dynamicCast(icebox1.descriptor->ice_clone());
+	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
+	    assert(iceBox);
+	    for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+	    {
+		if(r->descriptor->name == "Service1")
+		{
+		    iceBox->services.erase(r);
+		    break;
+		}
+	    }
+	}
+	else if(p->descriptor->name == "IceBox2")
+	{
+	    icebox2 = *p;
+	    icebox2.descriptor = ComponentDescriptorPtr::dynamicCast(icebox2.descriptor->ice_clone());
+	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
+	    assert(iceBox);
+	    for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+	    {
+		if(r->descriptor->name == "Service2")
+		{
+		    assert(!r->descriptor->dbEnvs.empty());
+		    r->descriptor = ComponentDescriptorPtr::dynamicCast(r->descriptor->ice_clone());
+		    r->descriptor->dbEnvs.clear();
+		}
+	    }
+	}
+    }
+
+    application->servers.erase(svr1);
+
+    try
+    {
+	admin->syncApplication(application);
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+
+    try
+    {
+	admin->startServer("Server1"); // Ensure Server1 was removed.
+	test(false);
+    }
+    catch(const ServerNotExistException&)
+    {
+    }
+
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    test(obj->getProperty("Type") == "ServerUpdated"); // Ensure Server2 configuration was updated.
+    
+    try
+    {
+	//
+	// Ensure the service 1 of the IceBox1 server is gone.
+	//
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+    }
+
+    //
+    // Make sure the database environment of Service2 of IceBox2 was removed.
+    //
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+    test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    test(obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+
+    //
+    // Make sure the IceBox server is totally started before to shut it down.
+    //
+    communicator->stringToProxy("IceBox2/ServiceManager@IceBox2.IceBox.ServiceManager")->ice_ping();
+
+    admin->stopServer("Server2");
+    admin->stopServer("IceBox1");
+    admin->stopServer("IceBox2");
+
+    ApplicationUpdateDescriptor update;
+    update.name = "test";
+    update.servers.push_back(server1);
+    update.removeServers.push_back(server2.descriptor->name);
+    update.servers.push_back(icebox1);
+    update.servers.push_back(icebox2);
+
+    admin->updateApplication(update);
+
+    admin->startServer("Server1"); // Ensure Server1 is back.
+    try
+    {
+	admin->startServer("Server2"); // Ensure Server2 was removed.
+	test(false);
+    }
+    catch(const ServerNotExistException&)
+    {
+    }
+
+    //
+    // Ensure the service 1 of the IceBox1 server is back.
+    //
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+
+    //
+    // Make sure the database environment of Service2 of IceBox2 is back.
+    //
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+
+    cout << "ok" << endl;
 }
 
 void
@@ -171,14 +326,13 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
 {
     allCommonTests(communicator);
 
-    IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(
-	communicator->stringToProxy("IceGrid/Admin"));
+    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
     cout << "pinging server objects... " << flush;
 
     TestIntfPrx obj;
-    admin->setServerActivation("Server1", IceGrid::Manual);
+    admin->setServerActivation("Server1", Manual);
     try
     {
 	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));

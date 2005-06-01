@@ -452,6 +452,79 @@ class ApplicationDescriptor
     string comment;
 };
 
+struct ApplicationUpdateDescriptor
+{
+    /**
+     *
+     * The name of the application to update.
+     *
+     **/
+    string name;
+    
+    /**
+     *
+     * The variables to update.
+     *
+     **/
+    StringStringDict variables;
+
+    /**
+     *
+     * The variables to remove.
+     *
+     **/
+    Ice::StringSeq removeVariables;
+
+    /**
+     *
+     * The server templates to update.
+     *
+     **/
+    TemplateDescriptorDict serverTemplates;
+
+    /**
+     *
+     * The ids of the server template to remove.
+     *
+     **/
+    Ice::StringSeq removeServerTemplates;
+
+    /**
+     *
+     * The service templates to update.
+     *
+     **/
+    TemplateDescriptorDict serviceTemplates;
+
+    /**
+     *
+     * The ids of the service tempate to remove.
+     *
+     **/
+    Ice::StringSeq removeServiceTemplates;
+
+    /**
+     *
+     * The application nodes to update.
+     *
+     **/
+    NodeDescriptorSeq nodes;
+    
+    /**
+     *
+     * The server instances to update.
+     *
+     **/
+    InstanceDescriptorSeq servers;
+
+    /**
+     *
+     * The name of the server instances to remove.
+     *
+     **/
+    Ice::StringSeq removeServers;
+};
+
 /**
  *
  * The server activation mode.
@@ -554,16 +627,35 @@ interface Admin
 
     /**
      *
-     * Update an application. An application is a set of servers.
+     * Synchronize a deployed application with the given application
+     * descriptor.
      *
      * @param descriptor The application descriptor.
      *
-     * @throws DeploymentException Raised if application deployment failed.
+     * @throws DeploymentException Raised if application deployment
+     * failed.
      *
      * @see removeApplication
      *
      **/
-    void updateApplication(ApplicationDescriptor descriptor)
+    void syncApplication(ApplicationDescriptor descriptor)
+	throws DeploymentException, ApplicationNotExistException;
+
+    /**
+     *
+     * Update a deployed application with the given update application
+     * descriptor.
+     *
+     * @param descriptor The update descriptor.
+     *
+     * @throws DeploymentException Raised if application deployment
+     * failed.
+     *
+     * @see syncApplication
+     * @see removeApplication
+     *
+     **/
+    void updateApplication(ApplicationUpdateDescriptor descriptor)
 	throws DeploymentException, ApplicationNotExistException;
 
     /**
@@ -619,20 +711,6 @@ interface Admin
     nonmutating ApplicationDescriptor getApplicationDescriptor(string name)
 	throws ApplicationNotExistException;
 
-    /**
-     *
-     * Add the server(s) from the given application descriptor.
-     *
-     * @param descriptor The application deployment descriptor.
-     *
-     * @throws DeploymentException Raised if server deployment failed.
-     *
-     * @see removeServer
-     * @see updateServer
-     *
-     **/
-    void addServer(ApplicationDescriptor application)
-	throws DeploymentException, ServerExistsException;
 
     /**
      *

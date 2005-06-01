@@ -403,7 +403,7 @@ Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
     if(_traceLevels->application > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-	out << "updated application `" << newDesc->name << "'";
+	out << "synced application `" << newDesc->name << "'";
     }
 
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&Database::ServerEntry::sync));

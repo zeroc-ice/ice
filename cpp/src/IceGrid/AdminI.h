@@ -26,7 +26,8 @@ public:
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
-    virtual void updateApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void syncApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual ApplicationDescriptorPtr getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
     virtual void instantiateServer(const std::string&, const std::string&, const std::string&, const StringStringDict&,

@@ -857,7 +857,7 @@ Parser::updateApplication(const list<string>& args)
 	    }
 	}
 
-	_admin->updateApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
+	_admin->syncApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
     }
     catch(const IceXML::ParserException& ex)
     {
@@ -1135,7 +1135,10 @@ Parser::addServer(const list<string>& args)
 	    }
 	}
 
-	_admin->addServer(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
+	//
+	// TODO
+	//
+	//_admin->addServer(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
     }
     catch(const DeploymentException& ex)
     {

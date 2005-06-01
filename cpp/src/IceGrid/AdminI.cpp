@@ -11,6 +11,7 @@
 #include <IceGrid/AdminI.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/Util.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
@@ -40,9 +41,72 @@ AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, const Current
 }
 
 void
-AdminI::updateApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
+AdminI::syncApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
 {
     _database->updateApplicationDescriptor(descriptor);
+}
+
+void
+AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
+{
+    ApplicationDescriptorPtr oldApp = _database->getApplicationDescriptor(descriptor.name);
+
+    ApplicationDescriptorPtr newApp = new ApplicationDescriptor();
+    newApp->name = oldApp->name;
+    newApp->comment = oldApp->comment;
+    newApp->targets = oldApp->targets;
+    newApp->variables = descriptor.variables;
+    newApp->variables.insert(oldApp->variables.begin(), oldApp->variables.end());
+    StringSeq::const_iterator p;
+    for(p = descriptor.removeVariables.begin(); p != descriptor.removeVariables.end(); ++p)
+    {
+	newApp->variables.erase(*p);
+    }
+
+    newApp->serverTemplates = descriptor.serverTemplates;
+    newApp->serverTemplates.insert(oldApp->serverTemplates.begin(), oldApp->serverTemplates.end());
+    for(p = descriptor.removeServerTemplates.begin(); p != descriptor.removeServerTemplates.end(); ++p)
+    {
+	newApp->serverTemplates.erase(*p);
+    }
+
+    newApp->serviceTemplates = descriptor.serviceTemplates;
+    newApp->serviceTemplates.insert(oldApp->serviceTemplates.begin(), oldApp->serviceTemplates.end());
+    for(p = descriptor.removeServiceTemplates.begin(); p != descriptor.removeServiceTemplates.end(); ++p)
+    {
+	newApp->serviceTemplates.erase(*p);
+    }
+
+    newApp->servers = descriptor.servers;
+    set<string> remove(descriptor.removeServers.begin(), descriptor.removeServers.end());
+    set<string> updated;
+    for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
+    for(InstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
+    {
+	if(updated.find(q->descriptor->name) == updated.end() && remove.find(q->descriptor->name) == remove.end())
+	{
+	    newApp->servers.push_back(*q);
+	}
+    }
+
+    newApp->nodes = descriptor.nodes;
+    for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
+    {
+	NodeDescriptorSeq::const_iterator r;
+	for(r = descriptor.nodes.begin(); r != descriptor.nodes.end(); ++r)
+	{
+	    if(q->name == r->name)
+	    {
+		break;
+	    }
+	}
+	if(r == descriptor.nodes.end())
+	{
+	    newApp->nodes.push_back(*q);
+	}
+    }
+
+    _database->updateApplicationDescriptor(newApp);
 }
 
 void
