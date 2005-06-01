@@ -14,10 +14,28 @@
 using namespace std;
 using namespace Demo;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class ValueClient : public Ice::Application
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    ValueClient app;
+    return app.main(argc, argv, "config");
+}
+
+int
+ValueClient::run(int argc, char* argv[])
+{
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* refProperty = "Value.Initial";
     std::string ref = properties->getProperty(refProperty);
     if(ref.empty())
@@ -26,7 +44,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator()->stringToProxy(ref);
     InitialPrx initial = InitialPrx::checkedCast(base);
     if(!initial)
     {
@@ -85,7 +103,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cin.getline(c, 2);
 
     Ice::ObjectFactoryPtr factory = new ObjectFactory;
-    communicator->addObjectFactory(factory, "::Demo::Printer");
+    communicator()->addObjectFactory(factory, "::Demo::Printer");
 
     initial->getPrinter(printer, printerProxy);
     cout << "==> " << printer->message << endl;
@@ -127,7 +145,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(c, 2);
     
-    communicator->addObjectFactory(factory, "::Demo::DerivedPrinter");
+    communicator()->addObjectFactory(factory, "::Demo::DerivedPrinter");
     
     derivedAsBase = initial->getDerivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);
@@ -177,39 +195,4 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "That's it for this demo. Have fun with Ice!\n";
 
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
 }
