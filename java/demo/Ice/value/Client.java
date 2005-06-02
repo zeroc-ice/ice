@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-public class Client
+public class Client extends Ice.Application
 {
     private static void
     readline(java.io.BufferedReader in)
@@ -24,10 +24,10 @@ public class Client
         }
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         final String refProperty = "Value.Initial";
         String ref = properties.getProperty(refProperty);
         if(ref.length() == 0)
@@ -36,7 +36,7 @@ public class Client
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
+        Ice.ObjectPrx base = communicator().stringToProxy(ref);
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
         if(initial == null)
         {
@@ -96,7 +96,7 @@ public class Client
         readline(in);
 
         Ice.ObjectFactory factory = new ObjectFactory();
-        communicator.addObjectFactory(factory, "::Demo::Printer");
+        communicator().addObjectFactory(factory, "::Demo::Printer");
 
         initial.getPrinter(printer, printerProxy);
         System.out.println("==> " + printer.value.message);
@@ -137,7 +137,7 @@ public class Client
         System.out.println("[press enter]");
         readline(in);
 
-        communicator.addObjectFactory(factory, "::Demo::DerivedPrinter");
+        communicator().addObjectFactory(factory, "::Demo::DerivedPrinter");
 
         derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;
@@ -186,35 +186,8 @@ public class Client
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+        Client app = new Client();
+        int status = app.main("Client", args, "config");
         System.exit(status);
     }
 }

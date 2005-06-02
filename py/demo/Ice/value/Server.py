@@ -44,31 +44,14 @@ class InitialI(Demo.Initial):
         ex.derived = self._derivedPrinter
         raise ex
 
-def run(argv, communicator):
-    adapter = communicator.createObjectAdapter("Value")
-    object = InitialI(adapter)
-    adapter.add(object, Ice.stringToIdentity("initial"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+class Server(Ice.Application):
+    def run(self, argv):
+	adapter = self.communicator().createObjectAdapter("Value")
+	object = InitialI(adapter)
+	adapter.add(object, Ice.stringToIdentity("initial"))
+	adapter.activate()
+	self.communicator().waitForShutdown()
+	return True
 
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
-
-if status:
-    sys.exit(0)
-else:
-    sys.exit(1)
+app = Server()
+sys.exit(app.main(sys.argv, "config"))
