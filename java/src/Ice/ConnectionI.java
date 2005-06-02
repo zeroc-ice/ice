@@ -1286,6 +1286,17 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
 	}
 
+	int compressionLevel = _instance.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+	if(compressionLevel < 1)
+	{
+	    compressionLevel = 1;
+	}
+	else if(compressionLevel > 9)
+	{
+	    compressionLevel = 9;
+	}
+	_compressionLevel = compressionLevel;
+
 	if(_adapter != null)
 	{
 	    _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
@@ -1686,7 +1697,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		//
 		// Do compression.
 		//
-		IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize);
+		IceInternal.BasicStream cstream = uncompressed.compress(IceInternal.Protocol.headerSize,
+									_compressionLevel);
 		if(cstream != null)
 		{
 		    //
@@ -2358,6 +2370,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private final int _acmTimeout;
     private long _acmAbsoluteTimeoutMillis;
+
+    private final int _compressionLevel;
 
     private int _nextRequestId;
 

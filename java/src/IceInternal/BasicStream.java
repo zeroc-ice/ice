@@ -1705,7 +1705,7 @@ public class BasicStream
     }
 
     public BasicStream
-    compress(int headerSize)
+    compress(int headerSize, int compressionLevel)
     {
 	assert(compressible());
 
@@ -1747,7 +1747,7 @@ public class BasicStream
 	    //
 	    bos.write((int)'B');
 	    bos.write((int)'Z');
-	    java.lang.Object[] args = new java.lang.Object[]{ bos };
+	    java.lang.Object[] args = new java.lang.Object[]{ bos, new Integer(compressionLevel) };
 	    java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
 	    os.write(data, offset + headerSize, uncompressedLen);
 	    os.close();
@@ -2334,7 +2334,9 @@ public class BasicStream
 	    types[0] = java.io.InputStream.class;
 	    _bzInputStreamCtor = cls.getDeclaredConstructor(types);
 	    cls = Class.forName("org.apache.tools.bzip2.CBZip2OutputStream");
+	    types = new Class[2];
 	    types[0] = java.io.OutputStream.class;
+	    types[1] = Integer.TYPE;
 	    _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
 	}
 	catch(Exception ex)
