@@ -196,7 +196,13 @@ IceStorm::TopicSubscribers::publish(const EventPtr& event)
 	{
 	    if((*p)->inactive())
 	    {
-		if((*p)->error())
+		//
+		// NOTE: only persistent subscribers need to be reaped
+		// and copied in the error list. Transient subscribers
+		// can be removed right away, the topic doesn't keep
+		// any reference on them.
+		//
+		if((*p)->error() && (*p)->persistent())
 		{
 		    e.push_back(*p);
 		}
@@ -638,25 +644,23 @@ TopicI::reap()
     for(SubscriberList::iterator p = error.begin(); p != error.end(); ++p)
     {
 	SubscriberPtr subscriber = *p;
-	assert(subscriber->error());
-	if(subscriber->persistent())
+	assert(subscriber->error() && subscriber->persistent()); // Only persistent subscribers need to be reaped.
+
+	if(_links.erase(subscriber->id().category) > 0)
 	{
-	    if(_links.erase(subscriber->id().category) > 0)
+	    updated = true;
+	    if(_traceLevels->topic > 0)
 	    {
-		updated = true;
-		if(_traceLevels->topic > 0)
-		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-		    out << "reaping " << subscriber->id();
-		}
+		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+		out << "reaping " << subscriber->id();
 	    }
-	    else
+	}
+	else
+	{
+	    if(_traceLevels->topic > 0)
 	    {
-		if(_traceLevels->topic > 0)
-		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-		    out << "reaping " << subscriber->id() << " failed - not in database";
-		}
+		Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+		out << "reaping " << subscriber->id() << " failed - not in database";
 	    }
 	}
     }

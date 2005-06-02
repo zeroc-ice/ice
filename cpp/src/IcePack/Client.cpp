@@ -128,14 +128,20 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin"));
+    PropertiesPtr properties = communicator()->getProperties();
+
+    const string adminIdProperty = "IcePack.Registry.AdminIdentity";
+    string adminId = properties->getPropertyWithDefault(adminIdProperty, "IcePack/Admin");
+    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
     if(!admin)
     {
 	cerr << appName() << ": no valid administrative interface" << endl;
 	return EXIT_FAILURE;
     }
 
-    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy("IcePack/Query"));
+    const string queryIdProperty = "IcePack.Registry.QueryIdentity";
+    string queryId = properties->getPropertyWithDefault(queryIdProperty, "IcePack/Query");
+    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy(queryId));
     if(!query)
     {
 	cerr << appName() << ": no valid query interface" << endl;

@@ -193,6 +193,7 @@ IcePack:
     Node.Trace.Server
     Node.WaitTime
     Node.BackgroundRegistration
+    Registry.AdminIdentity
     Registry.Admin.AdapterId
     Registry.Admin.Endpoints
     Registry.Admin.PublishedEndpoints
@@ -216,6 +217,7 @@ IcePack:
     Registry.Internal.ThreadPool.SizeMax
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
+    Registry.LocatorIdentity
     Registry.Server.AdapterId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints
@@ -227,6 +229,7 @@ IcePack:
     Registry.Trace.NodeRegistry
     Registry.Trace.ObjectRegistry
     Registry.Trace.ServerRegistry
+    Registry.QueryIdentity
 
 IceGrid:
     Node.AdapterId

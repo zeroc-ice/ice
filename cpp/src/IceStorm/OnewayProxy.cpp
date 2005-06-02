@@ -26,5 +26,5 @@ void
 IceStorm::OnewayProxy::deliver(const EventPtr& event)
 {
     vector<Ice::Byte> dummy;
-    _obj->ice_invoke(event->op, Ice::Idempotent, event->data, dummy, event->context);
+    _obj->ice_invoke(event->op, event->mode, event->data, dummy, event->context);
 }

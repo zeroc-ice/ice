@@ -243,14 +243,18 @@ Registry::start(bool nowarn)
     ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity("IcePack/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
     ObjectPtr locator = new LocatorI(adapterRegistry, objectRegistry, locatorRegistryPrx); 
-    clientAdapter->add(locator, stringToIdentity("IcePack/Locator"));
+    const string locatorIdProperty = "IcePack.Registry.LocatorIdentity";
+    Identity locatorId = stringToIdentity(properties->getPropertyWithDefault(locatorIdProperty, "IcePack/Locator"));
+    clientAdapter->add(locator, locatorId);
 
     //
     // Create the query interface and register it with the object registry.
     //
     QueryPtr query = new QueryI(_communicator, objectRegistry);
-    clientAdapter->add(query, stringToIdentity("IcePack/Query"));
-    ObjectPrx queryPrx = clientAdapter->createDirectProxy(stringToIdentity("IcePack/Query"));
+    const string queryIdProperty = "IcePack.Registry.QueryIdentity";
+    Identity queryId = stringToIdentity(properties->getPropertyWithDefault(queryIdProperty, "IcePack/Query"));
+    clientAdapter->add(query, queryId);
+    ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
     try
     {
 	objectRegistry->remove(queryPrx->ice_getIdentity());
@@ -266,10 +270,11 @@ Registry::start(bool nowarn)
     //
     // Create the admin interface and register it with the object registry.
     //
-    ObjectPtr admin = new AdminI(_communicator, nodeReg, appReg, serverRegistry, adapterRegistry, objectRegistry, 
-				 this);
-    adminAdapter->add(admin, stringToIdentity("IcePack/Admin"));    
-    ObjectPrx adminPrx = adminAdapter->createDirectProxy(stringToIdentity("IcePack/Admin"));
+    ObjectPtr admin = new AdminI(_communicator, nodeReg, appReg, serverRegistry, adapterRegistry, objectRegistry, this);
+    const string adminIdProperty = "IcePack.Registry.AdminIdentity";
+    Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IcePack/Admin"));
+    adminAdapter->add(admin, adminId);
+    ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
     try
     {
 	objectRegistry->remove(adminPrx->ice_getIdentity());
@@ -302,8 +307,8 @@ Registry::start(bool nowarn)
     // registered with the registry object adapter which is using an independant threadpool.
     //
     locator = new LocatorI(adapterRegistry, objectRegistry, locatorRegistryPrx);
-    registryAdapter->add(locator, stringToIdentity("IcePack/Locator"));
-    obj = registryAdapter->createDirectProxy(stringToIdentity("IcePack/Locator"));
+    registryAdapter->add(locator, locatorId);
+    obj = registryAdapter->createDirectProxy(locatorId);
     _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
 
     //

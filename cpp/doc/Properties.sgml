@@ -2359,6 +2359,51 @@ for the object adapter named <literal>IcePack.Registry.Internal</literal>.
 </section>
 </section>
 
+<section><title>IcePack.Registry.LocatorIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.LocatorIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the &IcePack; locator interface. If not specified the
+default value <literal>IcePack/Locator</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.QueryIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.QueryIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the &IcePack; query interface. If not specified the
+default value <literal>IcePack/Query</literal> is used.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.AdminIdentity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.AdminIdentity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The identity of the &IcePack; admin interface. If not specified the
+default value <literal>IcePack/Admin</literal> is used.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Registry.Data</title>
 <section><title>Synopsis</title>
 <synopsis>

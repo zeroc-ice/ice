@@ -76,7 +76,7 @@ IceStorm::UnorderedTwowayProxy::deliver(const EventPtr& event)
     //
     // TODO: Use a buffer of AMI callback objects to eliminate the dynamic memory allocation?
     //
-    _obj->ice_invoke_async(new UnorderedInvokeCB(this), event->op, Ice::Idempotent, event->data, event->context);
+    _obj->ice_invoke_async(new UnorderedInvokeCB(this), event->op, event->mode, event->data, event->context);
 }
 
 class OrderedInvokeCB : public Ice::AMI_Object_ice_invoke
@@ -202,6 +202,6 @@ IceStorm::OrderedTwowayProxy::deliver(const EventPtr& event)
     // TODO: Use a buffer of AMI callback objects to eliminate the dynamic memory allocation? (we could 
     // actually use only 2 AMI callback objects there.)
     //
-    _obj->ice_invoke_async(new OrderedInvokeCB(this), event->op, Ice::Idempotent, event->data, event->context);
+    _obj->ice_invoke_async(new OrderedInvokeCB(this), event->op, event->mode, event->data, event->context);
 }
 

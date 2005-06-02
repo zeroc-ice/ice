@@ -245,7 +245,9 @@ IcePack::NodeService::start(int argc, char* argv[])
         // collocated locator (this property is passed by the
         // activator to each activated server).
         //
-        string locatorPrx = "IcePack/Locator:" + properties->getProperty("IcePack.Registry.Client.Endpoints");
+	const string locatorIdProperty = "IcePack.Registry.LocatorIdentity";
+	string locatorId = properties->getPropertyWithDefault(locatorIdProperty, "IcePack/Locator");
+        string locatorPrx = locatorId + ":" + properties->getProperty("IcePack.Registry.Client.Endpoints");
         properties->setProperty("Ice.Default.Locator", locatorPrx);
     }
     else if(properties->getProperty("Ice.Default.Locator").empty())
