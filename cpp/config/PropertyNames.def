@@ -193,7 +193,6 @@ IcePack:
     Node.Trace.Server
     Node.WaitTime
     Node.BackgroundRegistration
-    Registry.AdminIdentity
     Registry.Admin.AdapterId
     Registry.Admin.Endpoints
     Registry.Admin.PublishedEndpoints
@@ -201,6 +200,7 @@ IcePack:
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
     Registry.Admin.ThreadPool.StackSize
+    Registry.AdminIdentity
     Registry.Client.AdapterId
     Registry.Client.Endpoints
     Registry.Client.PublishedEndpoints
@@ -218,6 +218,7 @@ IcePack:
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
     Registry.LocatorIdentity
+    Registry.QueryIdentity
     Registry.Server.AdapterId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints
@@ -229,7 +230,6 @@ IcePack:
     Registry.Trace.NodeRegistry
     Registry.Trace.ObjectRegistry
     Registry.Trace.ServerRegistry
-    Registry.QueryIdentity
 
 IceGrid:
     Node.AdapterId
@@ -258,6 +258,7 @@ IceGrid:
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
     Registry.Admin.ThreadPool.StackSize
+    Registry.AdminIdentity
     Registry.Client.AdapterId
     Registry.Client.Endpoints
     Registry.Client.PublishedEndpoints
@@ -274,6 +275,8 @@ IceGrid:
     Registry.Internal.ThreadPool.SizeMax
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
+    Registry.LocatorIdentity
+    Registry.QueryIdentity
     Registry.Server.AdapterId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints

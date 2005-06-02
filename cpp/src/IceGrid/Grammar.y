@@ -154,14 +154,6 @@ command
 {
     parser->listAllNodes();
 }
-| ICE_GRID_SERVER ICE_GRID_ADD strings ';'
-{
-    parser->addServer($3);
-}
-| ICE_GRID_SERVER ICE_GRID_UPDATE strings ';'
-{
-    parser->updateServer($3);
-}
 | ICE_GRID_SERVER ICE_GRID_DESCRIBE strings ';'
 {
     parser->describeServer($3);
@@ -197,10 +189,6 @@ command
 | ICE_GRID_SERVER ICE_GRID_ACTIVATION strings ';'
 {
     parser->activationServer($3);
-}
-| ICE_GRID_SERVER ICE_GRID_REMOVE strings ';'
-{
-    parser->removeServer($3);
 }
 | ICE_GRID_SERVER ICE_GRID_LIST ';'
 {

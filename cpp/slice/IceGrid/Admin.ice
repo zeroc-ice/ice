@@ -714,38 +714,6 @@ interface Admin
 
     /**
      *
-     * Update a server.
-     *
-     * @param descriptor The server deployment descriptor.
-     *
-     * @throws DeploymentException Raised if server deployment failed.
-     *
-     * @throws ServerNotExistException Raised if the server doesn't exist.
-     *
-     * @see addServer
-     * @see removeServer
-     *
-     **/
-    void updateServer(ApplicationDescriptor server)
-	throws DeploymentException, ServerNotExistException;
-
-    /**
-     *
-     * Remove a server from an &IceGrid; node.
-     *
-     * @param name The server name.
-     *
-     * @throws ServerNotExistException Raised if the server doesn't exist.
-     *
-     * @see addServer
-     * @see updateServer
-     *
-     **/
-    void removeServer(string name)
-	throws ServerNotExistException;
-
-    /**
-     *
      * Get a server descriptor.
      *
      * @param name The server name.

@@ -34,11 +34,7 @@ public:
 				   const Ice::Current&);
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
-    virtual void addServer(const ApplicationDescriptorPtr&, const Ice::Current&);
-    virtual void updateServer(const ApplicationDescriptorPtr&, const Ice::Current&);
-    virtual void removeServer(const ::std::string&, const Ice::Current&);
     virtual InstanceDescriptor getServerDescriptor(const ::std::string&, const Ice::Current&) const;
-
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual bool startServer(const ::std::string&, const Ice::Current&);

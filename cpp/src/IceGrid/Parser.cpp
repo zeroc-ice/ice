@@ -239,7 +239,7 @@ describe(Output& out, const Ice::CommunicatorPtr& communicator, const string& id
 	out << nl << "parameters = '" << toString(templ.parameters) << "'";
     }
 
-    out << nl << "name = '" << templ.descriptor->name << "'";    
+    out << nl << "name = '" << templ.descriptor->name << "'";
     if(server)
     {
 	describeServer(out, communicator, server);
@@ -308,6 +308,10 @@ describe(Output& out, const Ice::CommunicatorPtr& communicator, const InstanceDe
 	    }
 	    out << eb;
 	}
+    }
+    if(!inst.targets.empty())
+    {
+	out << nl << "targets = '" << toString(inst.targets) << "'";
     }
     if(server)
     {
@@ -518,6 +522,10 @@ Parser::describeApplication(const list<string>& args)
 	Output out(cout);
 	out << "application '" << application->name << "'";
 	out << sb;
+	if(!application->targets.empty())
+	{
+	    out << nl << "targets = '" << toString(application->targets) << "'";
+	}
 	if(!application->comment.empty())
 	{
 	    out << nl << "comment = " << application->comment;
@@ -1105,103 +1113,6 @@ Parser::listAllNodes()
 }
 
 void
-Parser::addServer(const list<string>& args)
-{
-    if(args.size() < 2)
-    {
-	error("`server add' requires at least two arguments\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	StringSeq targets;
-	map<string, string> vars;
-
-	list<string>::const_iterator p = args.begin();
-	string descriptor = *p++;
-	vars["node"] = *p++;
-
-	for(; p != args.end(); ++p)
-	{
-	    string::size_type pos = p->find('=');
-	    if(pos != string::npos)
-	    {
-		vars[p->substr(0, pos)] = p->substr(pos + 1);
-	    }
-	    else
-	    {
-		targets.push_back(*p);
-	    }
-	}
-
-	//
-	// TODO
-	//
-	//_admin->addServer(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
-    }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
-    catch(const Ice::Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-Parser::updateServer(const list<string>& args)
-{
-    if(args.size() < 2)
-    {
-	error("`server update' requires at least two arguments\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	StringSeq targets;
-	map<string, string> vars;
-
-	list<string>::const_iterator p = args.begin();
-	string descriptor = *p++;
-	vars["node"] = *p++;
-
-	for(; p != args.end(); ++p)
-	{
-	    string::size_type pos = p->find('=');
-	    if(pos != string::npos)
-	    {
-		vars[p->substr(0, pos)] = p->substr(pos + 1);
-	    }
-	    else
-	    {
-		targets.push_back(*p);
-	    }
-	}
-
-	_admin->updateServer(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
-    }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
-    catch(const Ice::Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
 Parser::startServer(const list<string>& args)
 {
     if(args.size() != 1)
@@ -1307,33 +1218,6 @@ Parser::describeServer(const list<string>& args)
 	InstanceDescriptor desc = _admin->getServerDescriptor(args.front());
 	Output out(cout);
 	describe(out, _communicator, desc);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-Parser::removeServer(const list<string>& args)
-{
-    if(args.size() != 1)
-    {
-	error("`server remove' requires exactly one argument\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	_admin->removeServer(args.front());
-    }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
     }
     catch(const Ice::Exception& ex)
     {

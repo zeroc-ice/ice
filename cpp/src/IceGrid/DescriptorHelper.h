@@ -39,7 +39,7 @@ public:
     std::vector<std::string> getCurrentScopeParameters() const;
     void addParameter(const std::string&);
 
-    const std::vector<std::string>& getDeploymentTargets() const;
+    std::vector<std::string> getDeploymentTargets(const std::string&) const;
 
     void substitution(bool);
     bool substitution() const;

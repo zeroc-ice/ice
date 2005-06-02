@@ -226,14 +226,18 @@ RegistryI::start(bool nowarn)
     ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity("IceGrid/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
     ObjectPtr locator = new LocatorI(_database, locatorRegistryPrx); 
-    clientAdapter->add(locator, stringToIdentity("IceGrid/Locator"));
+    const string locatorIdProperty = "IceGrid.Registry.LocatorIdentity";
+    Identity locatorId = stringToIdentity(properties->getPropertyWithDefault(locatorIdProperty, "IceGrid/Locator"));
+    clientAdapter->add(locator, locatorId);
 
     //
     // Create the query interface and register it with the object registry.
     //
     QueryPtr query = new QueryI(_communicator, _database);
-    clientAdapter->add(query, stringToIdentity("IceGrid/Query"));
-    ObjectPrx queryPrx = clientAdapter->createDirectProxy(stringToIdentity("IceGrid/Query"));
+    const string queryIdProperty = "IceGrid.Registry.QueryIdentity";
+    Identity queryId = stringToIdentity(properties->getPropertyWithDefault(queryIdProperty, "IceGrid/Query"));
+    clientAdapter->add(query, queryId);
+    ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
     try
     {
 	_database->removeObjectDescriptor(queryPrx->ice_getIdentity());
@@ -250,8 +254,10 @@ RegistryI::start(bool nowarn)
     // Create the admin interface and register it with the object registry.
     //
     ObjectPtr admin = new AdminI(_communicator, _database, this);
-    adminAdapter->add(admin, stringToIdentity("IceGrid/Admin"));    
-    ObjectPrx adminPrx = adminAdapter->createDirectProxy(stringToIdentity("IceGrid/Admin"));
+    const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
+    Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IceGrid/Admin"));
+    adminAdapter->add(admin, adminId);
+    ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
     try
     {
 	_database->removeObjectDescriptor(adminPrx->ice_getIdentity());
@@ -276,8 +282,8 @@ RegistryI::start(bool nowarn)
     // registered with the registry object adapter which is using an independant threadpool.
     //
     locator = new LocatorI(_database, locatorRegistryPrx);
-    registryAdapter->add(locator, stringToIdentity("IceGrid/Locator"));
-    obj = registryAdapter->createDirectProxy(stringToIdentity("IceGrid/Locator"));
+    registryAdapter->add(locator, locatorId);
+    obj = registryAdapter->createDirectProxy(locatorId);
     _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
 
     //

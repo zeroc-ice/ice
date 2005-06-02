@@ -83,8 +83,6 @@ public:
     void removeNode(const std::list<std::string>&);
     void listAllNodes();
 
-    void addServer(const std::list<std::string>&);
-    void updateServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
     void signalServer(const std::list<std::string>&);
@@ -93,7 +91,6 @@ public:
     void stateServer(const std::list<std::string>&);
     void activationServer(const std::list<std::string>&);
     void pidServer(const std::list<std::string>&);
-    void removeServer(const std::list<std::string>&);
     void listAllServers();
 
     void endpointsAdapter(const std::list<std::string>&);

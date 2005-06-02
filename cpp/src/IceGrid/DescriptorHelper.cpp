@@ -201,10 +201,24 @@ DescriptorVariables::addParameter(const string& name)
     _scopes.back().parameters.insert(name);
 }
 
-const vector<string>&
-DescriptorVariables::getDeploymentTargets() const
+vector<string>
+DescriptorVariables::getDeploymentTargets(const string& prefix) const
 {
-    return _deploymentTargets;
+    if(prefix.empty())
+    {
+	return _deploymentTargets;
+    }
+
+    vector<string> targets;
+    for(vector<string>::const_iterator p = _deploymentTargets.begin(); p != _deploymentTargets.end(); ++p)
+    {
+	string::size_type pos = p->find(prefix);
+	if(pos != string::npos)
+	{
+	    targets.push_back(p->substr(prefix.size()));
+	}
+    }
+    return targets;
 }
 
 void
@@ -544,6 +558,7 @@ ApplicationDescriptorHelper::ApplicationDescriptorHelper(const Ice::Communicator
 {
     XmlAttributesHelper attributes(_variables, attrs);
     _descriptor->name = attributes("name");
+    _descriptor->targets = _variables->getDeploymentTargets("");
     _variables->addVariable("application", _descriptor->name);
 }
 
@@ -595,7 +610,6 @@ ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attribu
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
     instance.parameterValues.erase("template");
-    instance.targets = _variables->getDeploymentTargets();
     instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
     _descriptor->servers.push_back(instance);
 }
@@ -605,7 +619,7 @@ ApplicationDescriptorHelper::addServer(const ServerDescriptorPtr& descriptor)
 {
     InstanceDescriptor instance;
     instance.descriptor = descriptor;
-    instance.targets = _variables->getDeploymentTargets();
+    instance.targets = _variables->getDeploymentTargets(descriptor->name + ".");
     _descriptor->servers.push_back(instance);
 }
 
@@ -1081,7 +1095,6 @@ ServerDescriptorHelper::addService(const string& tmpl, const IceXML::Attributes&
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
     instance.parameterValues.erase("template");
-    instance.targets = _variables->getDeploymentTargets();
     iceBox->services.push_back(instance);
 }
 
@@ -1096,7 +1109,10 @@ ServerDescriptorHelper::addService(const ServiceDescriptorPtr& descriptor)
 
     InstanceDescriptor instance;
     instance.descriptor = descriptor;
-    instance.targets = _variables->getDeploymentTargets();
+    if(_templateId.empty())
+    {
+	instance.targets = _variables->getDeploymentTargets(_descriptor->name + "." + descriptor->name + ".");
+    }
     iceBox->services.push_back(instance);
 }
 
