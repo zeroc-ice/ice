@@ -174,7 +174,7 @@ ValueClient::run(int argc, char* argv[])
     try
     {
 	initial->throwDerivedPrinter();
-	cerr << argv[0] << "Did not get the expected DerivedPrinterException!" << endl;
+	cerr << argv[0] << ": Did not get the expected DerivedPrinterException!" << endl;
 	exit(EXIT_FAILURE);
     }
     catch(const DerivedPrinterException& ex)
