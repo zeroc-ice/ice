@@ -21,12 +21,14 @@ namespace IceUtil
 	public static void
 	FinalizerAssert(bool b)
 	{
+#if DEBUG
 	    if(!b)
             {
 		System.Console.Error.WriteLine("Assertion failure:");
 		System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(true);
 		System.Console.Error.WriteLine(st);
             }
+#endif
 	}
     }
 
