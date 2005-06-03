@@ -1,0 +1,524 @@
+Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "bidirC"=.\demo\Ice\bidir\bidirC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bidirS"=.\demo\Ice\bidir\bidirS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "callbackC"=.\demo\Ice\callback\callbackC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "callbackS"=.\demo\Ice\callback\callbackS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "exceptionsCOL"=.\test\Ice\exceptions\exceptionsCOL.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "exceptionsS"=.\test\Ice\exceptions\exceptionsS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsC"=.\test\Ice\facets\facetsC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsCOL"=.\test\Ice\facets\facetsCOL.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsS"=.\test\Ice\facets\facetsS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "faulttoleranceC"=.\test\Ice\faultTolerance\faulttoleranceC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "faulttoleranceS"=.\test\Ice\faultTolerance\faulttoleranceS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "helloC"=.\demo\Ice\hello\helloC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "helloS"=.\demo\Ice\hello\helloS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ice"=.\src\Ice\ice.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "inheritanceC"=.\test\Ice\inheritance\inheritanceC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "inheritanceCOL"=.\test\Ice\inheritance\inheritanceCOL.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "inheritanceS"=.\test\Ice\inheritance\inheritanceS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "latencyC"=.\demo\Ice\latency\latencyC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "latencyS"=.\demo\Ice\latency\latencyS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "minimalC"=.\demo\Ice\minimal\minimalC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "minimalS"=.\demo\Ice\minimal\minimalS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nestedC"=.\demo\Ice\nested\nestedC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "nestedS"=.\demo\Ice\nested\nestedS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsC"=.\test\Ice\operations\operationsC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsCOL"=.\test\Ice\operations\operationsCOL.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsS"=.\test\Ice\operations\operationsS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "thread"=.\test\IceUtil\thread\thread.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "throughputC"=.\demo\Ice\throughput\throughputC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "throughputS"=.\demo\Ice\throughput\throughputS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uuid"=.\test\IceUtil\uuid\uuid.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "workqueue"=.\demo\IceUtil\workqueue\workqueue.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
