@@ -395,7 +395,7 @@ namespace Ice
 		    // Do compression.
 		    //
 		    IceInternal.BasicStream cstream = null;
-		    if(uncompressed.compress(ref cstream, IceInternal.Protocol.headerSize))
+		    if(uncompressed.compress(ref cstream, IceInternal.Protocol.headerSize, _compressionLevel))
 		    {
 			//
 			// Set compression status.
@@ -1468,6 +1468,16 @@ namespace Ice
 		}
 	    }
 
+	    _compressionLevel = _instance.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+	    if(_compressionLevel < 1)
+	    {
+		_compressionLevel = 1;
+	    }
+	    else if(_compressionLevel > 9)
+	    {
+		_compressionLevel = 9;
+	    }
+
 	    try
 	    {
 	        if(_adapter != null)
@@ -1849,7 +1859,9 @@ namespace Ice
 	
 	private int _acmTimeout;
 	private long _acmAbsoluteTimeoutMillis;
-	
+
+	private int _compressionLevel;
+
 	private int _nextRequestId;
 	private Hashtable _requests = new Hashtable();
 	private Hashtable _asyncRequests = new Hashtable();

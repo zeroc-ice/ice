@@ -1612,7 +1612,7 @@ namespace IceInternal
                                                    int verbosity,
                                                    int workFactor);
 
-        public bool compress(ref BasicStream cstream, int headerSize)
+        public bool compress(ref BasicStream cstream, int headerSize, int compressionLevel)
         {
             if(!_bzlibInstalled)
             {
@@ -1628,7 +1628,8 @@ namespace IceInternal
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
-            int rc = BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, uncompressedLen, 1, 0, 0);
+            int rc = BZ2_bzBuffToBuffCompress(compressed, ref compressedLen, uncompressed, uncompressedLen,
+					      compressionLevel, 0, 0);
             if(rc == BZ_OUTBUFF_FULL)
             {
                 cstream = null;

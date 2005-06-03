@@ -1,6 +1,10 @@
 Changes since version 2.1.1
 ---------------------------
 
+- Added the configuration property Ice.Compression.Level to provide
+  more control over the bzip2 algorithm used to compress Ice protocol
+  messages.
+
 - Fixed a bug in the code generator: incorrect code was generated
   if an operation used an exception from an unrelated module in
   its exception specification.
