@@ -11,10 +11,11 @@ Imports System
 Imports System.Diagnostics
 Imports Demo
 
-Module ValueC
+Class Client
+    Inherits Ice.Application
 
-    Private Function run(ByVal args() As String, ByVal communicator As Ice.Communicator) As Integer
-	Dim properties As Ice.Properties = communicator.getProperties()
+    Public Overloads Overrides Function run(ByVal args() As String) As Integer
+	Dim properties As Ice.Properties = communicator().getProperties()
 	Dim refProperty As String = "Value.Initial"
 	Dim ref As String = properties.getProperty(refProperty)
 	If ref.Length = 0 Then
@@ -22,7 +23,7 @@ Module ValueC
 	    Return 1
 	End If
 
-	Dim base As Ice.ObjectPrx = communicator.stringToProxy(ref)
+	Dim base As Ice.ObjectPrx = communicator().stringToProxy(ref)
 	Dim initial As InitialPrx = InitialPrxHelper.checkedCast(base)
 	If initial Is Nothing Then
 	    Console.Error.WriteLine("invalid object reference")
@@ -75,7 +76,7 @@ Module ValueC
 	Console.In.ReadLine()
 
 	Dim factory As Ice.ObjectFactory = New ObjectFactory
-	communicator.addObjectFactory(factory, "::Demo::Printer")
+	communicator().addObjectFactory(factory, "::Demo::Printer")
 
 	initial.getPrinter(printer, printerProxy)
 	Console.Out.WriteLine("==> " & printer.message)
@@ -116,7 +117,7 @@ Module ValueC
 	Console.Out.WriteLine("[press enter]")
 	Console.In.ReadLine()
 
-	communicator.addObjectFactory(factory, "::Demo::DerivedPrinter")
+	communicator().addObjectFactory(factory, "::Demo::DerivedPrinter")
 
 	derivedAsBase = initial.getDerivedPrinter()
 	Dim derived As DerivedPrinter = CType(derivedAsBase, DerivedPrinter)
@@ -159,29 +160,13 @@ Module ValueC
 	Return 0
     End Function
 
-    Public Sub Main(ByVal args() As String)
-	Dim status As Integer = 0
-	Dim communicator As Ice.Communicator = Nothing
+End Class
 
-	Try
-	    Dim properties As Ice.Properties = Ice.Util.createProperties()
-	    properties.load("config")
-	    communicator = Ice.Util.initializeWithProperties(args, properties)
-	    status = run(args, communicator)
-	Catch ex As System.Exception
-	    Console.Error.WriteLine(ex)
-	    status = 1
-	End Try
+Module valueC
 
-	If Not communicator Is Nothing Then
-	    Try
-		communicator.destroy()
-	    Catch ex As System.Exception
-		Console.Error.WriteLine(ex)
-		status = 1
-	    End Try
-	End If
-
+    Public Sub Main(ByVal args() as String)
+        Dim app as Client = new Client
+        Dim status as Integer = app.main(args, "config")
 	System.Environment.Exit(status)
     End Sub
 
