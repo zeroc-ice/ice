@@ -653,7 +653,7 @@ void
 ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
 {
     IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-    _process = proc;
+    _process = Ice::ProcessPrx::uncheckedCast(proc->ice_timeout(_waitTime));
     notifyAll();
 }
 
@@ -679,7 +679,11 @@ ServerI::stopInternal(const Ice::Current& current)
 		//
 		// Wait for the process to be set.
 		//
-		wait(); // TODO: timeout?
+		bool notify = timedWait(IceUtil::Time::seconds(_waitTime));
+		if(!notify)
+		{
+		    break;
+		}
 	    }
 	}
 	process = _process;

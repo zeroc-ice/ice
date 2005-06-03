@@ -46,6 +46,31 @@ private:
     Activator& _activator;
 };
 
+class ProcessShutdownCB : public AMI_Process_shutdown
+{
+public:
+
+    ProcessShutdownCB(const ActivatorPtr& activator, const string& name) : _activator(activator), _name(name)
+    {
+    }
+
+    virtual void 
+    ice_response()
+    {
+    }
+
+    virtual void 
+    ice_exception(const Ice::Exception&)
+    {
+	_activator->deactivate(_name, 0);
+    }
+
+private:
+
+    const ActivatorPtr _activator;
+    const string _name;
+};
+
 }
 
 #define ICE_STRING(X) #X
@@ -768,7 +793,7 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
 	}
 	try
 	{
-	    process->shutdown();
+	    process->shutdown_async(new ProcessShutdownCB(this, name));
 	    return;
 	}
 	catch(const Ice::LocalException& ex)
