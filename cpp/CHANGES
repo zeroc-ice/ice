@@ -1,6 +1,19 @@
 Changes since version 2.1.1
 ---------------------------
 
+- Fixed a bug in IcePack where stopping a server could hang
+  if the server didn't answer the Ice::Process::shutdown() call.
+
+- Changed IceStorm subscriber reaping to release more quickly from
+  memory dead subscribers.
+
+- Fixed a bug in IceStorm where the mode (idempotent or nonmutating)
+  of the update wasn't correctly forwarded to the suscribers.
+
+- Added IcePack.Registry.AdminIdentity, IcePack.Registry.QueryIdentity
+  and IcePack.Registry.LocatorIdentity properties to allow configuring
+  the identities of well known IcePack registry interfaces.
+
 - Fixed a bug in the Glacier2 router where buffered mode serialized
   twoway requests when it should not.
   
