@@ -81,16 +81,6 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
     
-#ifdef _WIN32
-    //
-    // Limit packet size to avoid performance problems on WIN32
-    //
-    if(packetSize > 64 * 1024)
-    {
-	packetSize = 64 * 1024;
-    }
-#endif
-
     while(buf.i != buf.b.end())
     {
 	assert(_fd != INVALID_SOCKET);

@@ -1,6 +1,8 @@
 Changes since version 2.1.1
 ---------------------------
 
+- Removed the 64KB packet size limitation for TCP in Windows.
+
 - Changed the C++ translator so that generated code no longer uses
   static function data.
 
