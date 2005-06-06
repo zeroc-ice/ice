@@ -1786,17 +1786,19 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     params.push_back("const ::Ice::Context&");
     paramsDecl.push_back("const ::Ice::Context& __context");
 
+    string flatName = p->flattenedScope() + p->name() + "_name";
+    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->name() << "\";";
+
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
-    C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "::IceInternal::Outgoing __outS(__connection.get(), __reference.get(), __operation, "
+    C << nl << "::IceInternal::Outgoing __og(__connection.get(), __reference.get(), " << flatName << ", "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context, __compress);";
     if(!inParams.empty())
     {
 	C << nl << "try";
 	C << sb;
-	C << nl << "::IceInternal::BasicStream* __os = __outS.os();";
+	C << nl << "::IceInternal::BasicStream* __os = __og.os();";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{
@@ -1805,13 +1807,13 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
-	C << nl << "__outS.abort(__ex);";
+	C << nl << "__og.abort(__ex);";
 	C << eb;
     }
-    C << nl << "bool __ok = __outS.invoke();";
+    C << nl << "bool __ok = __og.invoke();";
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::BasicStream* __is = __outS.is();";
+    C << nl << "::IceInternal::BasicStream* __is = __og.is();";
     C << nl << "if(!__ok)";
     C << sb;
     C << nl << "__is->throwException();";
@@ -3897,13 +3899,17 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
 	  << '_' << name  << "Ptr;";
 	
+	string flatName = "AMI" + p->flattenedScope() + name + "_name";
+	C << sp << nl << "static const ::std::string " << flatName << " = \"" << name << "\";";
+
 	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
 	  << paramsDeclInvoke << epar;
 	C << sb;
 	C << nl << "try";
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << name << "\");";
-	C << nl << "__prepare(__prx, __operation, static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
+	C << nl << "__prepare(__prx, " << flatName << ", static_cast< ::Ice::OperationMode>(" << p->mode()
+	  << "), __ctx);";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{
