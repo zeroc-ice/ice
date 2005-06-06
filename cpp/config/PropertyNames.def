@@ -106,6 +106,7 @@ Ice:
     ACM.Client
     ACM.Server
     ChangeUser
+    Compression.Level
     Config
     ConnectionIdleTime
     Default.Host

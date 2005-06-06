@@ -118,8 +118,8 @@ private:
     void registerWithPool();
     void unregisterWithPool();
 
-    static void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
-    static void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
+    void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
+    void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 
     void parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
 		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
@@ -165,6 +165,8 @@ private:
     const std::vector<Byte> _requestHdr;
     const std::vector<Byte> _requestBatchHdr;
     const std::vector<Byte> _replyHdr;
+
+    const int _compressionLevel;
 
     Int _nextRequestId;
 

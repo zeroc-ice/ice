@@ -1,18 +1,25 @@
 Changes since version 2.1.1
 ---------------------------
 
-- Fixed a bug in IcePack where stopping a server could hang
-  if the server didn't answer the Ice::Process::shutdown() call.
+- Changed the C++ translator so that generated code no longer uses
+  static function data.
 
-- Changed IceStorm subscriber reaping to release more quickly from
-  memory dead subscribers.
+- Fixed a bug in IcePack where stopping a server could hang if the
+  server didn't answer the Ice::Process::shutdown() call.
+
+- Changed IceStorm subscriber reaping to release dead subscribers
+  more quickly from memory.
 
 - Fixed a bug in IceStorm where the mode (idempotent or nonmutating)
-  of the update wasn't correctly forwarded to the suscribers.
+  of the request wasn't correctly forwarded to the subscribers.
 
 - Added IcePack.Registry.AdminIdentity, IcePack.Registry.QueryIdentity
   and IcePack.Registry.LocatorIdentity properties to allow configuring
-  the identities of well known IcePack registry interfaces.
+  the identities of well-known IcePack registry interfaces.
+
+- Added the configuration property Ice.Compression.Level to provide
+  more control over the bzip2 algorithm used to compress Ice protocol
+  messages.
 
 - Fixed a bug in the Glacier2 router where buffered mode serialized
   twoway requests when it should not.

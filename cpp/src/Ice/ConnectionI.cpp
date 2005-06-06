@@ -1452,6 +1452,17 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     replyHdr[8] = replyMsg;
     replyHdr[9] = 0;
 
+    int& compressionLevel = const_cast<int&>(_compressionLevel);
+    compressionLevel = _instance->properties()->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+    if(compressionLevel < 1)
+    {
+	compressionLevel = 1;
+    }
+    else if(compressionLevel > 9)
+    {
+	compressionLevel = 9;
+    }
+
     ObjectAdapterI* adapterImpl = _adapter ? dynamic_cast<ObjectAdapterI*>(_adapter.get()) : 0;
     if(adapterImpl)
     {
@@ -1904,7 +1915,7 @@ Ice::ConnectionI::doCompress(BasicStream& uncompressed, BasicStream& compressed)
 					   &compressedLen,
 					   reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
 					   uncompressedLen,
-					   1, 0, 0);
+					   _compressionLevel, 0, 0);
     if(bzError != BZ_OK)
     {
 	CompressionException ex(__FILE__, __LINE__);
