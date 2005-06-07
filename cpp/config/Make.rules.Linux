@@ -57,7 +57,7 @@ ifeq ($(CXX),c++)
    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
 
    ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+      CXXFLAGS		:= -O3 -DNDEBUG $(CXXFLAGS)
    else
       CXXFLAGS		:= -g $(CXXFLAGS)
    endif
@@ -83,7 +83,7 @@ ifeq ($(CXX),icpc)
    CXXFLAGS		= -fPIC -D_REENTRANT    
 
    ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+      CXXFLAGS		:= -O3 -DNDEBUG $(CXXFLAGS)
    else
       CXXFLAGS		:= -g $(CXXFLAGS)
    endif
