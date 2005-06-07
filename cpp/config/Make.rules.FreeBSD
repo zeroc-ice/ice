@@ -16,7 +16,7 @@ CXX               	:= c++
 CXXFLAGS		= -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT -D_THREAD_SAFE
 
 ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
+      CXXFLAGS		:= -O3 -DNDEBUG $(CXXFLAGS)
 else
       CXXFLAGS		:= -g $(CXXFLAGS)
 endif
