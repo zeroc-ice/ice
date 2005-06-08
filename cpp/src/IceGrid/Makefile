@@ -27,7 +27,8 @@ TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERV
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
-	 	  Exception.o
+	 	  Exception.o \
+		  Observer.o
 
 PERFLIB_OBJS	= PerfTypes.o \
                   PerfLinux.o
@@ -61,6 +62,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  AdminI.o \
 		  Util.o \
 		  DescriptorHelper.o \
+		  NodeSessionI.o \
+		  ReapThread.o \
 		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
@@ -86,6 +89,7 @@ SLICE_SRCS	= $(SDIR)/PerfTypes.ice \
 		  $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/Query.ice \
+		  $(SDIR)/Observer.ice \
 		  Internal.ice
 
 HDIR		= $(includedir)/IceGrid

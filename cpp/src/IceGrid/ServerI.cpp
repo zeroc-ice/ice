@@ -52,174 +52,42 @@ ServerI::~ServerI()
 }
 
 void
-ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const ServerPrx& self,
-	      const Ice::Current& current)
+ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const Ice::Current& current)
 {
-    Lock sync(*this);
-    if(_state == Destroying || _state == Destroyed)
+    while(true)
     {
-	Ice::ObjectNotExistException ex(__FILE__,__LINE__);
-	ex.id = current.id;
-	throw ex;
-    }
-
-    //
-    // Set this server descriptor and directory.
-    //
-    _desc = descriptor;
-    _serverDir = _serversDir + "/" + descriptor->name;
-    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
-
-    //
-    // Make sure the server directories exists.
-    //
-    try
-    {
-	Ice::StringSeq contents = readDirectory(_serverDir);
-	if(find(contents.begin(), contents.end(), "config") == contents.end())
 	{
-	    throw "can't find `config' directory in `" + _serverDir + "'";
-	}
-	if(find(contents.begin(), contents.end(), "dbs") == contents.end())
-	{
-	    throw "can't find `dbs' directory in `" + _serverDir + "'";
-	}
-    }
-    catch(const string& message)
-    {
-	//
-	// TODO: log message.
-	//
-	try
-	{
-	    createDirectory(_serverDir);
-	    createDirectory(_serverDir + "/config");
-	    createDirectory(_serverDir + "/dbs");
-	}
-	catch(const string& message)
-	{
-	    DeploymentException ex;
-	    ex.reason = message;
-	    throw ex;
-	}
-    }
-    
-    //
-    // Update the configuration file(s) of the server if necessary.
-    //
-    Ice::StringSeq knownFiles;
-    updateConfigFile(_serverDir, descriptor);
-    knownFiles.push_back("config");
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
-    if(iceBox)
-    {
-	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
-	{
-	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor));
-	    knownFiles.push_back("config_" + p->descriptor->name);
-	}
-    }
-
-    //
-    // Remove old configuration files.
-    //
-    Ice::StringSeq configFiles = readDirectory(_serverDir + "/config");
-    Ice::StringSeq toDel;
-    set_difference(configFiles.begin(), configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
-    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
-    {
-	if(p->find("config_") == 0)
-	{
-	    try
+	    Lock sync(*this);
+	    if(_state == Destroying || _state == Destroyed)
 	    {
-		remove(_serverDir + "/config/" + *p);
+		Ice::ObjectNotExistException ex(__FILE__,__LINE__);
+		ex.id = current.id;
+		throw ex;
 	    }
-	    catch(const string& message)
+	    else if(_state == Inactive)
 	    {
 		//
-		// TODO: warning
+		// If the server is inactive we can update its descriptor and its directory.
 		//
+		try
+		{
+		    update(descriptor, adapters, current);
+		}
+		catch(const string& msg)
+		{
+		    DeploymentException ex;
+		    ex.reason = msg;
+		    throw ex;
+		}
+		return;
 	    }
 	}
-    }
 
-    //
-    // Update the database environments if necessary.
-    //
-    Ice::StringSeq knownDbEnvs;
-    for(DbEnvDescriptorSeq::const_iterator p = descriptor->dbEnvs.begin(); p != descriptor->dbEnvs.end(); ++p)
-    {
-	updateDbEnv(_serverDir, *p);
-	knownDbEnvs.push_back(p->name);
+	//
+	// If the server is not inactive we stop it and try again to update it.
+	//
+	stop(current);
     }
-
-    //
-    // Remove old database environments.
-    //
-    Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
-    toDel.clear();
-    set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
-    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
-    {
-	try
-	{
-	    removeRecursive(_serverDir + "/dbs/" + *p);
-	}
-	catch(const string&)
-	{
-	    //
-	    // TODO: warning
-	    //
-	}
-    }
-
-    //
-    // Create the object adapter objects if necessary.
-    //
-    _processRegistered = false;
-    StringAdapterPrxDict oldAdapters;
-    oldAdapters.swap(_adapters);
-    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
-    {
-	addAdapter(*p, self, current);
-	oldAdapters.erase(p->id);
-    }
-    if(iceBox)
-    {
-	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
-	{
-	    ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
-	    for(AdapterDescriptorSeq::const_iterator q = s->adapters.begin(); q != s->adapters.end(); ++q)
-	    {
-		addAdapter(*q, self, current);
-		oldAdapters.erase(q->id);
-	    }
-	}
-    }
-    for(StringAdapterPrxDict::const_iterator p = oldAdapters.begin(); p != oldAdapters.end(); ++p)
-    {
-	try
-	{
-	    p->second->destroy();
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
-    }
-    adapters = _adapters;
-}
-
-void
-ServerI::addAdapter(const AdapterDescriptor& descriptor, const ServerPrx& self, const Ice::Current& current)
-{
-    Ice::Identity id;
-    id.category = "IceGridServerAdapter";
-    id.name = _desc->name + "-" + descriptor.id;
-    if(!current.adapter->find(id))
-    {
-	current.adapter->add(new ServerAdapterI(_node, self, descriptor.id, _waitTime), id);
-    }
-    _adapters[descriptor.id] = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
 }
 
 bool
@@ -238,7 +106,7 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
 	        return false;
 	    }
 
-	    _state = Activating;
+	    setStateNoSync(Activating, current);
 	    break;
 	}
 	case Activating:
@@ -260,11 +128,6 @@ ServerI::start(ServerActivation act, const Ice::Current& current)
 	}
 	}
 
-	if(_node->getTraceLevels()->server > 2)
-	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `Activating'";
-	}
 	assert(_state == Activating);
 
 	desc = _desc;
@@ -344,7 +207,7 @@ ServerI::stop(const Ice::Current& current)
 	}
  	case Active:
 	{	    
-	    _state = Deactivating;
+	    setStateNoSync(Deactivating, current);
 	    break;
 	}
 	case Destroying:
@@ -356,11 +219,6 @@ ServerI::stop(const Ice::Current& current)
 	}
 	}
 
-	if(_node->getTraceLevels()->server > 2)
-	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `Deactivating'";
-	}
 	assert(_state == Deactivating);
 	break;
     }
@@ -402,13 +260,13 @@ ServerI::destroy(const Ice::Current& current)
 	{
 	case Inactive:
 	{
-	    _state = Destroyed;
+	    setStateNoSync(Destroyed, current);
 	    break;
 	}
  	case Active:
 	{
 	    stop = true;
-	    _state = Destroying;
+	    setStateNoSync(Destroying, current);
 	    break;
 	}
 	case Activating:
@@ -427,13 +285,6 @@ ServerI::destroy(const Ice::Current& current)
 	}
 
 	assert(_state == Destroyed || _state == Destroying);
-
-	if(_node->getTraceLevels()->server > 2)
-	{
-	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `";
-	    out << (_state == Destroyed ? "Destroyed" : "Destroying") << "'";
-	}
 	break;
     }
 
@@ -459,7 +310,14 @@ ServerI::destroy(const Ice::Current& current)
     //
     // Delete the server directory from the disk.
     //
-    removeRecursive(_serverDir);
+    try
+    {
+	removeRecursive(_serverDir);
+    }
+    catch(const string&)
+    {
+	// TODO: warning?
+    }
     
     //
     // Unregister from the object adapter.
@@ -488,12 +346,7 @@ ServerI::terminated(const Ice::Current& current)
 	}
 	case Active:
 	{
-	    _state = Deactivating;
-	    if(_node->getTraceLevels()->server > 2)
-	    {
-		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-		out << "changed server `" << _name << "' state to `Deactivating'";
-	    }
+	    setStateNoSync(Deactivating, current);
 	    newState = Inactive;
 	    break;
 	}
@@ -704,8 +557,30 @@ void
 ServerI::setState(ServerState st, const Ice::Current& current)
 {
     Lock sync(*this);
+    setStateNoSync(st, current);
+    notifyAll();
+}
 
+void
+ServerI::setStateNoSync(ServerState st, const Ice::Current& current)
+{
     _state = st;
+
+    NodeObserverPrx observer = _node->getObserver();
+    if(observer)
+    {
+	ServerDynamicInfo info;
+	info.name = _name;
+	info.state = st;
+	info.pid = getPid(current);
+	try
+	{
+	    observer->updateServer(_node->getName(current), info);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
 
     if(_node->getTraceLevels()->server > 1)
     {
@@ -736,19 +611,166 @@ ServerI::setState(ServerState st, const Ice::Current& current)
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
 		out << "changed server `" << _name << "' state to `Deactivating'";
 	    }
+	    else if(_state == Destroying)
+	    {
+		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+		out << "changed server `" << _name << "' state to `Destroying'";
+	    }
+	}
+    }
+}
+
+void
+ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const Ice::Current& current)
+{
+    ServerPrx self = ServerPrx::uncheckedCast(current.adapter->createProxy(current.id));
+
+    _desc = descriptor;
+    _serverDir = _serversDir + "/" + descriptor->name;
+    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
+    
+    //
+    // Make sure the server directories exists.
+    //
+    try
+    {
+	Ice::StringSeq contents = readDirectory(_serverDir);
+	if(find(contents.begin(), contents.end(), "config") == contents.end())
+	{
+	    throw "can't find `config' directory in `" + _serverDir + "'";
+	}
+	if(find(contents.begin(), contents.end(), "dbs") == contents.end())
+	{
+	    throw "can't find `dbs' directory in `" + _serverDir + "'";
+	}
+    }
+    catch(const string& message)
+    {
+	//
+	// TODO: log message?
+	//
+
+	createDirectory(_serverDir);
+	createDirectory(_serverDir + "/config");
+	createDirectory(_serverDir + "/dbs");
+    }
+
+    //
+    // Update the configuration file(s) of the server if necessary.
+    //
+    Ice::StringSeq knownFiles;
+    updateConfigFile(_serverDir, descriptor);
+    knownFiles.push_back("config");
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+    if(iceBox)
+    {
+	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	{
+	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor));
+	    knownFiles.push_back("config_" + p->descriptor->name);
 	}
     }
 
-    notifyAll();
+    //
+    // Remove old configuration files.
+    //
+    Ice::StringSeq configFiles = readDirectory(_serverDir + "/config");
+    Ice::StringSeq toDel;
+    set_difference(configFiles.begin(), configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
+    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    {
+	if(p->find("config_") == 0)
+	{
+	    try
+	    {
+		remove(_serverDir + "/config/" + *p);
+	    }
+	    catch(const string& message)
+	    {
+		//
+		// TODO: warning
+		//
+	    }
+	}
+    }
+
+    //
+    // Update the database environments if necessary.
+    //
+    Ice::StringSeq knownDbEnvs;
+    for(DbEnvDescriptorSeq::const_iterator p = descriptor->dbEnvs.begin(); p != descriptor->dbEnvs.end(); ++p)
+    {
+	updateDbEnv(_serverDir, *p);
+	knownDbEnvs.push_back(p->name);
+    }
+
+    //
+    // Remove old database environments.
+    //
+    Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
+    toDel.clear();
+    set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
+    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    {
+	try
+	{
+	    removeRecursive(_serverDir + "/dbs/" + *p);
+	}
+	catch(const string&)
+	{
+	    //
+	    // TODO: warning
+	    //
+	}
+    }
+
+    //
+    // Create the object adapter objects if necessary.
+    //
+    _processRegistered = false;
+    StringAdapterPrxDict oldAdapters;
+    oldAdapters.swap(_adapters);
+    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    {
+	addAdapter(*p, self, current);
+	oldAdapters.erase(p->id);
+    }
+    if(iceBox)
+    {
+	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	{
+	    ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
+	    for(AdapterDescriptorSeq::const_iterator q = s->adapters.begin(); q != s->adapters.end(); ++q)
+	    {
+		addAdapter(*q, self, current);
+		oldAdapters.erase(q->id);
+	    }
+	}
+    }
+    for(StringAdapterPrxDict::const_iterator p = oldAdapters.begin(); p != oldAdapters.end(); ++p)
+    {
+	try
+	{
+	    p->second->destroy();
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+    adapters = _adapters;
 }
 
-PropertyDescriptor
-ServerI::createProperty(const string& name, const string& value)
+void
+ServerI::addAdapter(const AdapterDescriptor& descriptor, const ServerPrx& self, const Ice::Current& current)
 {
-    PropertyDescriptor prop;
-    prop.name = name;
-    prop.value = value;
-    return prop;
+    Ice::Identity id;
+    id.category = "IceGridServerAdapter";
+    id.name = _desc->name + "-" + descriptor.id;
+    if(!current.adapter->find(id))
+    {
+	current.adapter->add(new ServerAdapterI(_node, self, descriptor.id, _waitTime), id);
+    }
+    _adapters[descriptor.id] = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
 }
 
 void
@@ -905,5 +927,14 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
 	}
     }
     configfile.close();
+}
+
+PropertyDescriptor
+ServerI::createProperty(const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    return prop;
 }
 

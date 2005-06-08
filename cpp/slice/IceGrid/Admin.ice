@@ -14,6 +14,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/SliceChecksumDict.ice>
 #include <IceGrid/Exception.ice>
+#include <IceGrid/Observer.ice>
 
 module IceGrid
 {
@@ -548,58 +549,6 @@ enum ServerActivation
      *
      **/
     Manual
-};
-
-/**
- *
- * An enumeration representing the state of the server.
- *
- **/
-enum ServerState
-{
-    /**
-     *
-     * The server is not running.
-     *
-     **/
-    Inactive,
-
-    /**
-     *
-     * The server is being activated and will change to the active
-     * state if the server fork succeeded or to the Inactive state if
-     * it failed.
-     *
-     **/
-    Activating,
-
-    /**
-     *
-     * The server is running.
-     *
-     **/
-    Active,
-    
-    /**
-     *
-     * The server is being deactivated.
-     *
-     **/
-    Deactivating,
-
-    /**
-     *
-     * The server is being destroyed.
-     *
-     **/
-    Destroying,
-
-    /**
-     *
-     * The server is destroyed.
-     *
-     **/
-    Destroyed
 };
 
 /**

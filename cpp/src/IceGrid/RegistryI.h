@@ -18,6 +18,9 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class ReapThread;
+typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
+
 class RegistryI : public Registry
 {
 public:
@@ -26,15 +29,18 @@ public:
     ~RegistryI();
 
     bool start(bool);
+    void stop();
 
-    virtual Ice::StringSeq registerNode(const std::string& name, const NodePrx&, const Ice::Current&);
-    virtual void unregisterNode(const std::string& name, const Ice::Current&);
+    virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, const Ice::Current&);
+    virtual NodeObserverPrx getNodeObserver(const Ice::Current&);
     virtual void shutdown(const Ice::Current& current);
 
 private:
 
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
+    ReapThreadPtr _reaper;
+    int _nodeSessionTimeout;
 };
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 

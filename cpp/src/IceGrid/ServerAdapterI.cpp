@@ -191,6 +191,21 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
 
     _proxy = prx;
 
+    NodeObserverPrx observer = _node->getObserver();
+    if(observer)
+    {
+	AdapterDynamicInfo info;
+	info.id = _id;
+	info.proxy = _proxy;
+	try
+	{
+	    observer->updateAdapter(_node->getName(current), info);
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+
     if(_node->getTraceLevels()->adapter > 1)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);

@@ -163,7 +163,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 
     cout << "ok" << endl;
 
-    cout << "testing application update..." << flush;
+    cout << "testing application update... " << flush;
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 

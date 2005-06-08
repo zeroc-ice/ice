@@ -166,7 +166,6 @@ AdminI::getServerState(const string& name, const Current&) const
     }
     catch(const Ice::LocalException& ex)
     {
-	cerr << ex << endl;
 	throw NodeUnreachableException();
     }
 }
@@ -181,12 +180,10 @@ AdminI::getServerPid(const string& name, const Current&) const
     }
     catch(const Ice::ObjectNotExistException& ex)
     {
-	cerr << ex << endl;
 	throw ServerNotExistException();
     }
     catch(const Ice::LocalException& ex)
     {
-	cerr << ex << endl;
 	throw NodeUnreachableException();
     }
 }
@@ -388,11 +385,15 @@ AdminI::getAllObjectDescriptors(const string& expression, const Ice::Current&) c
 bool
 AdminI::pingNode(const string& name, const Current&) const
 {
-    NodePrx node = _database->getNode(name);
+    NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000));
     try
     {
 	node->ice_ping();
 	return true;
+    }
+    catch(const NodeUnreachableException&)
+    {
+ 	return false;
     }
     catch(const Ice::ObjectNotExistException&)
     {

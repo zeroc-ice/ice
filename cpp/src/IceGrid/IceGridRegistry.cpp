@@ -28,6 +28,7 @@ public:
 protected:
 
     virtual bool start(int, char*[]);
+    virtual bool stop();
     virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
 
 private:
@@ -89,6 +90,13 @@ RegistryService::start(int argc, char* argv[])
 	return false;
     }
 
+    return true;
+}
+
+bool
+RegistryService::stop()
+{
+    _registry->stop();
     return true;
 }
 

@@ -27,11 +27,14 @@ namespace IceGrid
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class NodeSessionI;
+typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
+
 class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
     
-    Database(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string&, const TraceLevelsPtr&);
+    Database(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
     virtual ~Database();
 
     void addApplicationDescriptor(const ApplicationDescriptorPtr&);
@@ -40,7 +43,7 @@ public:
     ApplicationDescriptorPtr getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
-    void addNode(const std::string&, const NodePrx&);
+    void addNode(const std::string&, const NodeSessionIPtr&);
     NodePrx getNode(const std::string&) const;
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
@@ -72,6 +75,7 @@ private:
 	ServerEntry(Database&, const ServerDescriptorPtr&);
 
 	void sync();
+	bool needsSync() const;
 	void update(const ServerDescriptorPtr&);
 	ServerDescriptorPtr getDescriptor();
 	ServerPrx getProxy();
@@ -89,6 +93,7 @@ private:
 	ServerPrx _proxy;
 	std::map<std::string, AdapterPrx> _adapters;
 	bool _synchronizing;
+	bool _failed;
     };
     friend class ServerEntry;
     friend struct AddComponent;
@@ -112,22 +117,22 @@ private:
     void checkObjectForAddition(const Ice::Identity&);
 
     static const std::string _descriptorDbName;
-    static const std::string _nodeDbName;
     static const std::string _objectDbName;
     static const std::string _adapterDbName;
 
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const std::string _envName;
+    const int _nodeSessionTimeout;
     const TraceLevelsPtr _traceLevels;
 
     std::map<std::string, ServerEntryPtr> _servers;
     std::map<std::string, ServerEntryPtr> _serversByAdapterId;
     std::map<std::string, std::set<std::string> > _serversByNode;
+    std::map<std::string, NodeSessionIPtr> _nodes;
 
     Freeze::ConnectionPtr _connection;
     StringApplicationDescriptorDict _descriptors;
-    StringObjectProxyDict _nodes;
     IdentityObjectDescDict _objects;
     StringObjectProxyDict _adapters;
 };

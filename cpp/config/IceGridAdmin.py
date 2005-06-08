@@ -67,7 +67,8 @@ def startIceGridRegistry(port, testdir):
               r' --IceGrid.Registry.Trace.Adapter=0' + \
               r' --IceGrid.Registry.Trace.Object=0' + \
               r' --IceGrid.Registry.Trace.Node=0' + \
-              r' --Ice.ProgramName=icegridregistry'
+              r' --Ice.ProgramName=icegridregistry' + \
+	      r' --Ice.NullHandleAbort'
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
@@ -105,7 +106,8 @@ def startIceGridNode(testdir):
               r' --IceGrid.Node.Trace.Activator=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
-              r' --IceGrid.Node.PrintServersReady=node'
+              r' --IceGrid.Node.PrintServersReady=node' + \
+	      r' --Ice.NullHandleAbort'
     
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
@@ -182,40 +184,6 @@ def removeApplication(name):
 
     iceGridAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(iceGridAdminPipe)
-    iceGridAdminStatus = iceGridAdminPipe.close()
-    if iceGridAdminStatus:
-        TestUtil.killServers()
-        sys.exit(1)
-
-def addServer(serverDescriptor, options):
-
-    global iceGridPort
-    iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
-
-    serverDescriptor = serverDescriptor.replace("\\", "/");
-    command = iceGridAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
-              r' -e "server add ' + serverDescriptor + ' localnode ' + \
-              r' ' + options + '\"' + " 2>&1"
-
-    iceGridAdminPipe = os.popen(command)
-    TestUtil.printOutputFromPipe(iceGridAdminPipe)
-    iceGridAdminStatus = iceGridAdminPipe.close()
-    if iceGridAdminStatus:
-        print "bailing out"
-        TestUtil.killServers()
-        sys.exit(1)
-
-def removeServer(name):
-
-    global iceGridPort
-    iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
-
-    command = iceGridAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
-              r' -e "server remove \"' + name + '\\" \"' + " 2>&1"
-
-    iceGridAdminPipe = os.popen(command)
     iceGridAdminStatus = iceGridAdminPipe.close()
     if iceGridAdminStatus:
         TestUtil.killServers()

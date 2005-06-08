@@ -876,8 +876,8 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     else
     {
 	_descriptor = new ServerDescriptor();
-	_descriptor->exe = attributes("exe");
     }
+    _descriptor->exe = attributes("exe");
     _descriptor->interpreter = interpreter;
 
     ComponentDescriptorHelper::init(_descriptor, attrs);

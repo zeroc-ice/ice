@@ -79,7 +79,7 @@ if clientStatus:
     sys.exit(1)
     
 print "unregister server with icegrid...",
-IceGridAdmin.removeServer("server");
+IceGridAdmin.removeApplication("Test");
 print "ok"
 
 IceGridAdmin.shutdownIceGridNode()

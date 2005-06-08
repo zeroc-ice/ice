@@ -9,7 +9,6 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
-#include <Freeze/Freeze.h>
 
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/LocatorI.h>
@@ -18,6 +17,8 @@
 #include <IceGrid/QueryI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Database.h>
+#include <IceGrid/NodeSessionI.h>
+#include <IceGrid/ReapThread.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,6 +35,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
+namespace IceStorm
+{
+};
+
+namespace IceGrid
+{
+
 string
 intToString(int v)
 {
@@ -41,6 +49,8 @@ intToString(int v)
     os << v;
     return os.str();
 }
+
+};
 
 RegistryI::RegistryI(const CommunicatorPtr& communicator) :
     _communicator(communicator)
@@ -125,18 +135,21 @@ RegistryI::start(bool nowarn)
     // Setup thread pool size for each thread pool.
     //
     int nThreadPool = 0;
-    if(properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.SizeMax") == 0)
+    const string clientThreadPool("IceGrid.Registry.Client.ThreadPool");
+    if(properties->getPropertyAsInt(clientThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(clientThreadPool + ".SizeMax") == 0)
     {
 	++nThreadPool;
     }
-    if(properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.SizeMax") == 0)
+    const string serverThreadPool("IceGrid.Registry.Server.ThreadPool");
+    if(properties->getPropertyAsInt(serverThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(serverThreadPool + ".SizeMax") == 0)
     {
 	++nThreadPool;
     }
-    if(properties->getPropertyAsInt("IceGrid.Registry.Admin.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Admin.ThreadPool.SizeMax") == 0)	
+    const string adminThreadPool("IceGrid.Registry.Admin.ThreadPool");
+    if(properties->getPropertyAsInt(adminThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(adminThreadPool + ".SizeMax") == 0)	
     {
 	++nThreadPool;
     }    
@@ -153,51 +166,52 @@ RegistryI::start(bool nowarn)
     }
     int sizeWarn = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeWarn", sizeMax * 80 / 100);
 
-    if(properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.SizeMax") == 0)
+    if(properties->getPropertyAsInt(clientThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(clientThreadPool + ".SizeMax") == 0)
     {
-	properties->setProperty("IceGrid.Registry.Client.ThreadPool.Size", intToString(size / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Client.ThreadPool.SizeMax", intToString(sizeMax / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Client.ThreadPool.SizeWarn", intToString(sizeWarn / nThreadPool));
+	properties->setProperty(clientThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
+	properties->setProperty(clientThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
+	properties->setProperty(clientThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
     }
-    if(properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.SizeMax") == 0)
+    if(properties->getPropertyAsInt(serverThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(serverThreadPool + ".SizeMax") == 0)
     {
-	properties->setProperty("IceGrid.Registry.Server.ThreadPool.Size", intToString(size / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Server.ThreadPool.SizeMax", intToString(sizeMax / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Server.ThreadPool.SizeWarn", intToString(sizeWarn / nThreadPool));
+	properties->setProperty(serverThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
+	properties->setProperty(serverThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
+	properties->setProperty(serverThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
     }
-    if(properties->getPropertyAsInt("IceGrid.Registry.Admin.ThreadPool.Size") == 0 &&
-       properties->getPropertyAsInt("IceGrid.Registry.Admin.ThreadPool.SizeMax") == 0)	
+    if(properties->getPropertyAsInt(adminThreadPool + ".Size") == 0 &&
+       properties->getPropertyAsInt(adminThreadPool + ".SizeMax") == 0)	
     {
-	properties->setProperty("IceGrid.Registry.Admin.ThreadPool.Size", intToString(size / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Admin.ThreadPool.SizeMax", intToString(sizeMax / nThreadPool));
-	properties->setProperty("IceGrid.Registry.Admin.ThreadPool.SizeWarn", intToString(sizeWarn / nThreadPool));
+	properties->setProperty(adminThreadPool + ".Size", IceGrid::intToString(size / nThreadPool));
+	properties->setProperty(adminThreadPool + ".SizeMax", IceGrid::intToString(sizeMax / nThreadPool));
+	properties->setProperty(adminThreadPool + ".SizeWarn", IceGrid::intToString(sizeWarn / nThreadPool));
     }    
 
-    int clientSize = properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.Size") * 2;
-    int serverSize = properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.Size") * 2;
-    properties->setProperty("IceGrid.Registry.Internal.ThreadPool.Size", intToString(clientSize + serverSize));
+    int clientSize = properties->getPropertyAsInt(clientThreadPool + ".Size") * 2;
+    int serverSize = properties->getPropertyAsInt(serverThreadPool + ".Size") * 2;
+    const string internalThreadPool("IceGrid.Registry.Internal.ThreadPool");
+    properties->setProperty(internalThreadPool + ".Size", IceGrid::intToString(clientSize + serverSize));
 
-    int clientSizeMax = properties->getPropertyAsInt("IceGrid.Registry.Client.ThreadPool.SizeMax") * 2;
+    int clientSizeMax = properties->getPropertyAsInt(clientThreadPool + ".SizeMax") * 2;
     if(clientSizeMax < clientSize)
     {
 	clientSizeMax = clientSize;
     }
-    int serverSizeMax = properties->getPropertyAsInt("IceGrid.Registry.Server.ThreadPool.SizeMax") * 2;
+    int serverSizeMax = properties->getPropertyAsInt(serverThreadPool + ".SizeMax") * 2;
     if(serverSizeMax < serverSize)
     {
 	serverSizeMax = serverSize;
     }
-    properties->setProperty("IceGrid.Registry.Internal.ThreadPool.SizeMax", 
-			    intToString(clientSizeMax + serverSizeMax));
+    properties->setProperty(internalThreadPool + ".SizeMax", IceGrid::intToString(clientSizeMax + serverSizeMax));
 
-    int clientSizeWarn = properties->getPropertyAsIntWithDefault("IceGrid.Registry.Client.ThreadPool.SizeWarn", 
-								 clientSizeMax * 80 / 100) * 2;
-    int serverSizeWarn = properties->getPropertyAsIntWithDefault("IceGrid.Registry.Server.ThreadPool.SizeWarn", 
-								 serverSizeMax * 80 / 100) * 2;
-    properties->setProperty("IceGrid.Registry.Internal.ThreadPool.SizeWarn", 
-			    intToString(clientSizeWarn + serverSizeWarn));
+    int clientSizeWarn = 
+	properties->getPropertyAsIntWithDefault(clientThreadPool + ".SizeWarn", clientSizeMax * 80 / 100) * 2;
+    int serverSizeWarn = 
+	properties->getPropertyAsIntWithDefault(serverThreadPool + ".SizeWarn", serverSizeMax * 80 / 100) * 2;
+    properties->setProperty(internalThreadPool + ".SizeWarn", IceGrid::intToString(clientSizeWarn + serverSizeWarn));
+
+    _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10) * 1000;
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, _communicator->getLogger(), false);
 
@@ -216,7 +230,7 @@ RegistryI::start(bool nowarn)
     //
     const string envName = "Registry";
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-    _database = new Database(_communicator, registryAdapter, envName, traceLevels);
+    _database = new Database(_communicator, registryAdapter, envName, _nodeSessionTimeout, traceLevels);
 
     //
     // Create the locator registry and locator interfaces.
@@ -245,7 +259,7 @@ RegistryI::start(bool nowarn)
     catch(const ObjectNotExistException&)
     {
     }	
-    IceGrid::ObjectDescriptor desc;
+    ObjectDescriptor desc;
     desc.proxy = queryPrx;
     desc.type = "::IceGrid::Query";	
     _database->addObjectDescriptor(desc);
@@ -287,6 +301,13 @@ RegistryI::start(bool nowarn)
     _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));
 
     //
+    // Start the reaper thread. The default value for the node session
+    // timeout is 10 seconds.
+    //
+    _reaper = new ReapThread(_nodeSessionTimeout);
+    _reaper->start();
+
+    //
     // We are ready to go!
     //
     serverAdapter->activate();
@@ -299,17 +320,27 @@ RegistryI::start(bool nowarn)
     return true;
 }
 
-Ice::StringSeq
-RegistryI::registerNode(const std::string& name, const NodePrx& node, const Ice::Current&)
+void
+RegistryI::stop()
 {
-    _database->addNode(name, node);
-    return _database->getAllNodeServers(name);
+    _reaper->terminate();
+    _reaper->getThreadControl().join();
 }
 
-void
-RegistryI::unregisterNode(const std::string& name, const Ice::Current&)
+NodeSessionPrx
+RegistryI::registerNode(const std::string& name, const NodePrx& node, const Ice::Current& c)
 {
-    _database->removeNode(name);
+    NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout));
+    NodeSessionIPtr session = new NodeSessionI(_database, name, n);
+    NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
+    _reaper->add(proxy, session);
+    return proxy;
+}
+
+NodeObserverPrx
+RegistryI::getNodeObserver(const Ice::Current& current)
+{
+    return 0;
 }
 
 void

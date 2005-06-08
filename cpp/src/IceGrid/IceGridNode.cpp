@@ -39,12 +39,14 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class RegistrationThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class KeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    RegistrationThread(const RegistryPrx& registry, const string& name, const NodePrx& node, const LoggerPtr& logger) :
-	_registry(registry), _name(name), _node(node), _logger(logger), _shutdown(false)
+    KeepAliveThread(const NodeIPtr& node, int timeout) : 
+	_node(node), 
+	_timeout(IceUtil::Time::seconds(timeout)), 
+	_shutdown(false)
     {
     }
 
@@ -54,45 +56,30 @@ public:
 	Lock sync(*this);
 	while(!_shutdown)
 	{
-	    try
-	    {
-		_registry->registerNode(_name, _node);
-		break;
-	    }
-	    catch(const NodeActiveException& ex)
-	    {
-		_logger->error("a node with the same name is already registered and active");
-	    }
-	    catch(const Ice::LocalException& ex)
-	    {
-		_logger->warning("couldn't contact the IceGrid registry");
-	    }
+	    _node->keepAlive();
 
-	    timedWait(IceUtil::Time::seconds(30));
+	    if(!_shutdown)
+	    {
+		timedWait(_timeout);
+	    }
 	}
     }
 
     virtual void
     terminate()
     {
-	{
-	    Lock(*this);
-	    _shutdown = true;
-	    notifyAll();
-	}
-
-	getThreadControl().join();
+	Lock sync(*this);
+	_shutdown = true;
+	notifyAll();
     }
 
 private:
 
-    const RegistryPrx _registry;
-    const string _name;
-    const NodePrx _node;
-    const Ice::LoggerPtr _logger;
+    const NodeIPtr _node;
+    const IceUtil::Time _timeout;
     bool _shutdown;
 };
-typedef IceUtil::Handle<RegistrationThread> RegistrationThreadPtr;
+typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
 
 class NodeService : public Service
 {
@@ -116,7 +103,8 @@ private:
     ActivatorPtr _activator;
     WaitQueuePtr _waitQueue;
     RegistryIPtr _registry;
-    RegistrationThreadPtr _registrationThread;
+    NodeIPtr _node;
+    KeepAliveThreadPtr _keepAliveThread;
 };
 
 class CollocatedRegistry : public RegistryI
@@ -402,7 +390,6 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the node object adapter.
     //
-    properties->setProperty("IceGrid.Node.AdapterId", "IceGrid.Node." + name);
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
     //
@@ -416,38 +403,17 @@ NodeService::start(int argc, char* argv[])
     // for the server and server adapter. It also takes care of installing the
     // evictors and object factories necessary to store these objects.
     //
-    NodeIPtr node = new NodeI(communicator(), _activator, _waitQueue, traceLevels, name);
     Identity id = stringToIdentity(IceUtil::generateUUID());
-    adapter->add(node, id);
-    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createDirectProxy(id));
+    NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->createProxy(id));
+    _node = new NodeI(adapter, _activator, _waitQueue, traceLevels, nodeProxy, name);
+    adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
     // Register this node with the node registry.
     //
-    RegistryPrx registry = 
-	RegistryPrx::uncheckedCast(communicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal"));
-    try
-    {
-	node->checkConsistency(registry->registerNode(name, nodeProxy));
-    }
-    catch(const NodeActiveException&)
-    {
-        error("a node with the same name is already registered and active");
-        return false;
-    }
-    catch(const LocalException& ex)
-    {
- 	if(properties->getPropertyAsInt("IceGrid.Node.BackgroundRegistration") > 0)
- 	{
- 	    _registrationThread = new RegistrationThread(registry, name, nodeProxy, communicator()->getLogger());
- 	    _registrationThread->start();
- 	}
- 	else
- 	{
-	    error("couldn't contact the IceGrid registry");
-	    return false;
-	}
-    }
+    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Node.KeepAliveTimeout", 5); // 5 seconds
+    _keepAliveThread = new KeepAliveThread(_node, timeout);
+    _keepAliveThread->start();
 
     //
     // Start the activator.
@@ -551,9 +517,10 @@ NodeService::stop()
     //
     // Terminate the registration thread if it was started.
     //
-    if(_registrationThread)
+    if(_keepAliveThread)
     {
-	_registrationThread->terminate();
+	_keepAliveThread->terminate();
+	_keepAliveThread->getThreadControl().join();
     }
 
     //
@@ -569,6 +536,16 @@ NodeService::stop()
     }
 
     _activator = 0;
+
+    _node->stop();
+
+    //
+    // Shutdown the collocated registry.
+    //
+    if(_registry)
+    {
+	_registry->stop();
+    }
 
     return true;
 }

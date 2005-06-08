@@ -14,6 +14,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/ProcessF.ice>
 #include <IceGrid/Admin.ice>
+#include <IceGrid/Observer.ice>
 
 module IceGrid
 {
@@ -100,6 +101,14 @@ exception AdapterExistsException
 
 interface Server
 {
+    /**
+     *
+     * Load the server.
+     *
+     **/
+    void load(ServerDescriptor desc, out StringAdapterPrxDict adapters)
+	throws DeploymentException;
+
     /**
      *
      * Start the server.
@@ -223,7 +232,7 @@ interface Node
      * Destroy the given server.
      *
      **/
-    idempotent void destroyServer(ServerDescriptor desc);
+    idempotent void destroyServer(string name);
 
     /**
      *
@@ -257,6 +266,30 @@ exception NodeActiveException
 {
 };
 
+interface NodeSession
+{
+    /**
+     *
+     * The node call this method to keep the session alive.
+     *
+     **/
+    void keepAlive();
+
+    /**
+     *
+     * Get the name of the servers deployed on the node.
+     *
+     **/
+    Ice::StringSeq getServers();
+
+    /**
+     *
+     * Destroy this node session.
+     *
+     **/
+    void destroy();
+};
+
 interface Registry
 {
     /**
@@ -275,16 +308,16 @@ interface Registry
      * registered and currently active.
      *
      **/
-    Ice::StringSeq registerNode(string name, Node* nd)
+    NodeSession* registerNode(string name, Node* nd)
 	throws NodeActiveException;
 
     /**
      *
-     * Unregister a node from the registry.
+     * Get the node observer object. This is used by nodes to publish
+     * updates about the state of the nodes (server up/down, etc).
      *
      **/
-    void unregisterNode(string name)
-	throws NodeNotExistException;
+    NodeObserver* getNodeObserver();
 
     /**
      *

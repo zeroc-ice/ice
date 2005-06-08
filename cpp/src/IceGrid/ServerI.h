@@ -30,9 +30,7 @@ public:
     ServerI(const NodeIPtr&, const std::string&, const std::string&);
     virtual ~ServerI();
 
-    void load(const ServerDescriptorPtr&, StringAdapterPrxDict&, const ServerPrx&, const Ice::Current&);
-    void addAdapter(const AdapterDescriptor&, const ServerPrx&, const Ice::Current& current);
-    
+    virtual void load(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
     virtual bool start(ServerActivation, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
@@ -52,7 +50,10 @@ private:
 
     void stopInternal(bool, const Ice::Current&);
     void setState(ServerState, const Ice::Current&);
+    void setStateNoSync(ServerState, const Ice::Current&);
 
+    void update(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
+    void addAdapter(const AdapterDescriptor&, const ServerPrx&, const Ice::Current&);
     void updateConfigFile(const std::string&, const ComponentDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
