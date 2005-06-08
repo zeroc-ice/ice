@@ -1813,11 +1813,13 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 			    default:
 			    {
 				unsigned char uc = *c;
-				out << "\\u";
-				out.flags(ios_base::hex);
-				out.width(4);
-				out.fill('0');
-				out << static_cast<unsigned>(uc);
+				ostringstream s;
+				s << "\\u";
+				s.flags(ios_base::hex);
+				s.width(4);
+				s.fill('0');
+				s << static_cast<unsigned>(uc);
+				out << s.str();
 				break;
 			    }
 			}

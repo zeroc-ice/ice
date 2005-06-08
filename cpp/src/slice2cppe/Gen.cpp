@@ -827,14 +827,10 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
 					       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 					       "0123456789"
-					       "_{}[]#()<>%:;,?*+=/^&|~!=,\\\"' \t";
+					       "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
     	static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
 	H << "\"";					// Opening "
-
-	ios_base::fmtflags originalFlags = H.flags();	// Save stream state
-	streamsize originalWidth = H.width();
-	ostream::char_type originalFill = H.fill();
 
 	const string val = p->value();
 	for(string::const_iterator c = val.begin(); c != val.end(); ++c)
@@ -842,21 +838,19 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	    if(charSet.find(*c) == charSet.end())
 	    {
 		unsigned char uc = *c;			// char may be signed, so make it positive
-		H << "\\";    				// Print as octal if not in basic source character set
-		H.flags(ios_base::oct);
-		H.width(3);
-		H.fill('0');
-		H << static_cast<unsigned>(uc);
+		ostringstream s;
+		s << "\\";    				// Print as octal if not in basic source character set
+		s.flags(ios_base::oct);
+		s.width(3);
+		s.fill('0');
+		s << static_cast<unsigned>(uc);
+		H << s.str();
 	    }
 	    else
 	    {
 		H << *c;				// Print normally if in basic source character set
 	    }
 	}
-
-	H.fill(originalFill);				// Restore stream state
-	H.width(originalWidth);
-	H.flags(originalFlags);
 
 	H << "\"";					// Closing "
     }

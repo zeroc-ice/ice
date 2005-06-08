@@ -2783,14 +2783,10 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
 					       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 					       "0123456789"
-					       "_{}[]#()<>%:;,?*+=/^&|~!=,\\\"' \t";
+					       "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
     	static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
 	_out << "\"";					 // Opening "
-
-	ios_base::fmtflags originalFlags = _out.flags(); // Save stream state
-	streamsize originalWidth = _out.width();
-	ostream::char_type originalFill = _out.fill();
 
 	const string val = p->value();
 	for(string::const_iterator c = val.begin(); c != val.end(); ++c)
@@ -2798,21 +2794,19 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	    if(charSet.find(*c) == charSet.end())
 	    {
 		unsigned char uc = *c;			 // char may be signed, so make it positive
-		_out << "\\u";    			 // Print as unicode if not in basic source character set
-		_out.flags(ios_base::hex);
-		_out.width(4);
-		_out.fill('0');
-		_out << static_cast<unsigned>(uc);
+		ostringstream s;
+		s << "\\u";    			 // Print as unicode if not in basic source character set
+		s << hex;
+		s.width(4);
+		s.fill('0');
+		s << static_cast<unsigned>(uc);
+		_out << s.str();
 	    }
 	    else
 	    {
 		_out << *c;				 // Print normally if in basic source character set
 	    }
 	}
-
-	_out.fill(originalFill);			 // Restore stream state
-	_out.width(originalWidth);
-	_out.flags(originalFlags);
 
 	_out << "\"";					 // Closing "
     }

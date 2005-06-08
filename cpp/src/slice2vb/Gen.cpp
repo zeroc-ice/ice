@@ -3084,7 +3084,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	static const string basicStringChars = "abcdefghijklmnopqrstuvwxyz"
 					       "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 					       "0123456789"
-					       "_{}[]#()<>%:;,?*+=/^&|~!=,\\'\" \t";
+					       "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
     	static const set<char> charSet(basicStringChars.begin(), basicStringChars.end());
 
 	enum Position { Beginning, InString, NotInString };
