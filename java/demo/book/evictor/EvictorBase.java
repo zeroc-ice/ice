@@ -63,7 +63,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
 	    ec.entry.servant = add(c, cookieHolder); // Down-call
 	    if(ec.entry.servant == null)
 	    {
-		throw new Ice.ObjectNotExistException();
+		return null;
 	    }
 	    ec.entry.userCookie = cookieHolder.value;
 	    ec.entry.useCount = 0;

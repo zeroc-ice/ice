@@ -44,7 +44,7 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
 	ec->entry->servant = add(c, ec->entry->userCookie); // Down-call
 	if(!ec->entry->servant)
 	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	    return 0;
 	}
 	ec->entry->useCount = 0;
 	i = _map.insert(std::make_pair(c.id, ec->entry)).first;

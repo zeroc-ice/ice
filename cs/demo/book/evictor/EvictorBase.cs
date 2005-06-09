@@ -59,7 +59,7 @@ namespace Evictor
 		    ec.entry.servant = add(c, out theCookie); // Down-call
 		    if(ec.entry.servant == null)
 		    {
-			throw new Ice.ObjectNotExistException();
+			return null;
 		    }
 		    ec.entry.userCookie = theCookie;
 		    ec.entry.useCount = 0;
