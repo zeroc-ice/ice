@@ -469,6 +469,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
+	    if(_featureProfile == Slice::IceE)
+	    {
+		return "java.util.Hashtable";
+	    }
+	    
             if(dictType.empty())
             {
                 StringList l = dict->getMetaData();
@@ -491,7 +496,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         string listType = findMetaData(metaData);
         if(mode == TypeModeOut)
         {
-            if(listType.empty())
+            if(listType.empty() || _featureProfile == Slice::IceE)
             {
                 return getAbsolute(seq, package, "", "Holder");
             }
@@ -510,6 +515,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         }
         else
         {
+	    if(_featureProfile == Slice::IceE)
+	    {
+                return typeToString(seq->type(), mode, package) + "[]";
+	    }
+	    
             if(listType.empty())
             {
                 StringList l = seq->getMetaData();

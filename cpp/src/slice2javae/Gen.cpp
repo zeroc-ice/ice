@@ -290,12 +290,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
     out << sp << nl << "public boolean" << nl << "ice_isA(String s)";
     out << sb;
-    out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
+    out << nl << "return IceUtil.Arrays.search(__ids, s) >= 0;";
     out << eb;
 
     out << sp << nl << "public boolean" << nl << "ice_isA(String s, Ice.Current __current)";
     out << sb;
-    out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
+    out << nl << "return IceUtil.Arrays.search(__ids, s) >= 0;";
     out << eb;
 
     out << sp << nl << "public String[]" << nl << "ice_ids()";
@@ -607,7 +607,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sp << nl << "public IceInternal.DispatchStatus" << nl
 	    << "__dispatch(IceInternal.Incoming in, Ice.Current __current)";
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
+        out << nl << "int pos = IceUtil.Arrays.search(__all, __current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
         out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
@@ -957,12 +957,19 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "return hashCode();";
 	out << eb;
 
-	out << sp << nl << "public java.lang.Object" << nl << "clone()";
+	out << sp << nl << "public java.lang.Object" << nl << "ice_clone()";
 	out.inc();
-	out << nl << "throws java.lang.CloneNotSupportedException";
+	out << nl << "throws IceUtil.CloneException";
 	out.dec();
 	out << sb;
+	out << nl << "try";
+	out << sb;
 	out << nl << "return super.clone();";
+	out << eb;
+	out << nl << "catch(java.lang.CloneNotSupportedException ex)";
+	out << sb;
+	out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
+	out << eb;
 	out << eb;
     }
 
@@ -1191,6 +1198,23 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDispatch(out, p);
     }
 
+    if(!p->isInterface())
+    {
+	out << sp << nl << "public void" << nl << "shallowCopy(" << name << " dest)";
+	out << sb;
+	if(!bases.empty())
+	{
+	    out << nl << "super.shallowCopy(dest);";
+	}
+	DataMemberList members = p->dataMembers();
+	for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+	{
+	    string memberName = fixKwd((*d)->name());
+	    out << nl << "dest." << memberName << " = " << memberName << ";";
+	}
+	out << eb;
+    }
+
     return true;
 }
 
@@ -1387,7 +1411,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public final class " << name << " implements java.lang.Cloneable";
+    out << sp << nl << "public final class " << name << " implements IceUtil.Cloneable";
     out << sb;
 
     return true;
@@ -1519,12 +1543,35 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return __h;";
     out << eb;
 
-    out << sp << nl << "public java.lang.Object" << nl << "clone()";
+    string name = fixKwd(p->name());
+    out << sp << nl << "public void" << nl << "shallowCopy(" << name << " dest)";
+    out << sb;
+    for(d = members.begin(); d != members.end(); ++d)
+    {
+	string memberName = fixKwd((*d)->name());
+	out << nl << "dest." << memberName << " = " << memberName << ";";
+    }
+    out << eb;
+
+    out << sp << nl << "public java.lang.Object" << nl << "ice_clone()";
     out.inc();
-    out << nl << "throws java.lang.CloneNotSupportedException";
+    out << nl << "throws IceUtil.CloneException";
     out.dec();
     out << sb;
-    out << nl << "return super.clone();";
+    out << nl << "try";
+    out << sb;
+    out << nl << name << " o = (" << name << ")getClass().newInstance();";
+    out << nl << "shallowCopy(o);";
+    out << nl << "return o;";
+    out << eb;
+    out << nl << "catch(java.lang.IllegalAccessException ex)";
+    out << sb;
+    out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
+    out << eb;
+    out << nl << "catch(java.lang.InstantiationException ex)";
+    out << sb;
+    out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
+    out << eb;
     out << eb;
 
     if(!p->isLocal())
@@ -2037,7 +2084,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Hashtable __ctx" << epar;
         writeThrowsClause(package, throws);
         out << sb;
         out << nl << "int __cnt = 0;";
@@ -2103,7 +2150,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, java.util.Map ctx)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, java.util.Hashtable ctx)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2148,7 +2195,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx b, String f, java.util.Map ctx)";
+        << nl << "checkedCast(Ice.ObjectPrx b, String f, java.util.Hashtable ctx)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2305,7 +2352,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << "java.util.Map __v)";
+        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << "java.util.Hashtable __v)";
         out << sb;
         out << nl << "if(__v == null)";
         out << sb;
@@ -2314,10 +2361,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "else";
         out << sb;
         out << nl << "__os.writeSize(__v.size());";
-        out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
-        out << nl << "while(__i.hasNext())";
+        out << nl << "java.util.Enumeration __i = __v.keys();";
+        out << nl << "while(__i.hasMoreElements())";
         out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
+	out << nl << "java.lang.Object key = __i.nextElement();";
+	out << nl << "java.lang.Object value = __v.get(key);";
         iter = 0;
         for(i = 0; i < 2; i++)
         {
@@ -2326,12 +2374,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             TypePtr type;
             if(i == 0)
             {
-                arg = "__e.getKey()";
+                arg = "key";
                 type = key;
             }
             else
             {
-                arg = "__e.getValue()";
+                arg = "value";
                 type = value;
             }
 
@@ -2455,7 +2503,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 		    }
 		}
 	    }
-	    out << sp << nl << "Patcher(java.util.Map m, " << keyTypeS << " key)";
+	    out << sp << nl << "Patcher(java.util.Hashtable m, " << keyTypeS << " key)";
 	    out << sb;
 	    out << nl << "__m = m;";
 	    out << nl << "__key = key;";
@@ -2472,17 +2520,17 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    out << nl << "return \"" << value->typeId() << "\";";
 	    out << eb;
 
-	    out << sp << nl << "private java.util.Map __m;";
+	    out << sp << nl << "private java.util.Hashtable __m;";
 	    out << nl << "private " << keyTypeS << " __key;";
 	    out << eb;
 	}
 
-        out << sp << nl << "public static " << (dictType.empty() ? "java.util.Map" : dictType);
+        out << sp << nl << "public static " << (dictType.empty() ? "java.util.Hashtable" : dictType);
         out << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readSize();";
-        out << nl << (dictType.empty() ? "java.util.Map" : dictType) << " __r = new "
-	    << (dictType.empty() ? "java.util.HashMap(__sz)" : dictType + "()") << ';';
+        out << nl << (dictType.empty() ? "java.util.Hashtable" : dictType) << " __r = new "
+	    << (dictType.empty() ? "java.util.Hashtable(__sz)" : dictType + "()") << ';';
         out << nl << "for(int __i = 0; __i < __sz; __i++)";
         out << sb;
         iter = 0;
@@ -2670,7 +2718,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << nl << "public " << retS << ' ' << name << spar << params << epar;
     writeThrowsClause(package, throws);
     out << ';';
-    out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Map __ctx" << epar;
+    out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Hashtable __ctx" << epar;
     writeThrowsClause(package, throws);
     out << ';';
 }
@@ -2750,7 +2798,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParams(op, package);
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Hashtable __ctx" << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
@@ -2859,10 +2907,10 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
     out.inc();
-    out << nl << "throws java.lang.CloneNotSupportedException";
+    out << nl << "throws IceUtil.CloneException";
     out.dec();
     out << sb;
-    out << nl << "throw new java.lang.CloneNotSupportedException();";
+    out << nl << "throw new IceUtil.CloneException();";
     out << eb;
 
     writeDispatch(out, p);
