@@ -11,6 +11,15 @@
 #define ICE_GRID_REGISTRYI_H
 
 #include <IceGrid/Internal.h>
+#include <IceStorm/IceStorm.h>
+
+namespace IceStorm
+{
+
+class TopicManagerI;
+typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;
+
+}
 
 namespace IceGrid
 {
@@ -35,12 +44,19 @@ public:
     virtual NodeObserverPrx getNodeObserver(const Ice::Current&);
     virtual void shutdown(const Ice::Current& current);
 
+    virtual IceStorm::TopicManagerPrx getTopicManager();
+
 private:
 
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
     ReapThreadPtr _reaper;
     int _nodeSessionTimeout;
+
+    IceStorm::TopicManagerIPtr _topicManager;
+    IceStorm::TopicManagerPrx _topicManagerProxy;
+    RegistryObserverPrx _registryObserver;
+    NodeObserverPrx _nodeObserver;
 };
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 

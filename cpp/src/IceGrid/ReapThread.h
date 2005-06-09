@@ -11,7 +11,8 @@
 #define ICEGRID_REAPER_THREAD_H
 
 #include <IceUtil/Thread.h>
-#include <IceGrid/NodeSessionI.h>
+#include <Glacier2/SessionF.h>
+#include <IceGrid/SessionI.h>
 #include <list>
 
 namespace IceGrid
@@ -25,13 +26,13 @@ public:
 
     virtual void run();
     void terminate();
-    void add(const NodeSessionPrx&, const NodeSessionIPtr&);
+    void add(const Glacier2::SessionPrx&, const SessionIPtr&);
 
 private:
 
     const IceUtil::Time _timeout;
     bool _terminated;
-    std::list<std::pair<NodeSessionIPtr, NodeSessionPrx> > _sessions;
+    std::list<std::pair<SessionIPtr, Glacier2::SessionPrx> > _sessions;
 };
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 

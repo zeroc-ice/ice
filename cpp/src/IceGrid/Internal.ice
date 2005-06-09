@@ -13,6 +13,7 @@
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/ProcessF.ice>
+#include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
 #include <IceGrid/Observer.ice>
 
@@ -213,6 +214,13 @@ interface Server
      *
      **/
     ["ami"] void setProcess(Ice::Process* proc);
+
+    /**
+     *
+     * Get the server adapters.
+     * 
+     **/
+    StringAdapterPrxDict getAdapters();
 };
 
 interface Node
@@ -266,7 +274,7 @@ exception NodeActiveException
 {
 };
 
-interface NodeSession
+interface NodeSession extends Glacier2::Session
 {
     /**
      *
@@ -281,13 +289,6 @@ interface NodeSession
      *
      **/
     Ice::StringSeq getServers();
-
-    /**
-     *
-     * Destroy this node session.
-     *
-     **/
-    void destroy();
 };
 
 interface Registry

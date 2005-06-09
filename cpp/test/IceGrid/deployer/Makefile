@@ -42,7 +42,7 @@ LINKWITH	:= -lIceBox -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lIceBox $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid -lGlacier2 -lIceBox $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

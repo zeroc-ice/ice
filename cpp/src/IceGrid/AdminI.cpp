@@ -393,7 +393,7 @@ AdminI::pingNode(const string& name, const Current&) const
     }
     catch(const NodeUnreachableException&)
     {
- 	return false;
+	return false;
     }
     catch(const Ice::ObjectNotExistException&)
     {

@@ -34,7 +34,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lIceGrid
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS) -lIceGrid -lGlacier2
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Glacier2/Session.h>
 #include <IceGrid/ReapThread.h>
 
 using namespace std;
@@ -26,7 +27,7 @@ ReapThread::run()
 
     while(!_terminated)
     {
-	list<pair<NodeSessionIPtr, NodeSessionPrx> >::iterator p = _sessions.begin();
+	list<pair<SessionIPtr, Glacier2::SessionPrx> >::iterator p = _sessions.begin();
 	while(p != _sessions.end())
 	{
 	    try
@@ -59,7 +60,7 @@ ReapThread::terminate()
     _terminated = true;
     notify();
 
-    for(list<pair<NodeSessionIPtr, NodeSessionPrx> >::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    for(list<pair<SessionIPtr, Glacier2::SessionPrx> >::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
 	try
 	{
@@ -75,7 +76,7 @@ ReapThread::terminate()
 }
 
 void
-ReapThread::add(const NodeSessionPrx& proxy, const NodeSessionIPtr& session)
+ReapThread::add(const Glacier2::SessionPrx& proxy, const SessionIPtr& session)
 {
     Lock sync(*this);
     _sessions.push_back(make_pair(session, proxy));

@@ -45,6 +45,7 @@ public:
     virtual ServerActivation getActivationMode(const ::Ice::Current&);
     virtual ServerDescriptorPtr getDescriptor(const ::Ice::Current&);
     virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
+    virtual StringAdapterPrxDict getAdapters(const Ice::Current&);
 
 private:
 

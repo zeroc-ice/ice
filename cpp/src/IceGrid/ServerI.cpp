@@ -446,6 +446,13 @@ ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
     notifyAll();
 }
 
+StringAdapterPrxDict
+ServerI::getAdapters(const Ice::Current&)
+{
+    Lock sync(*this);
+    return _adapters;
+}
+
 void
 ServerI::stopInternal(bool kill, const Ice::Current& current)
 {
@@ -572,7 +579,14 @@ ServerI::setStateNoSync(ServerState st, const Ice::Current& current)
 	ServerDynamicInfo info;
 	info.name = _name;
 	info.state = st;
-	info.pid = getPid(current);
+	//
+	// NOTE: this must be done only for the active state. 
+	// Otherwise, we could get a deadlock since getPid()
+	// will lock the activator and since this method might 
+	// be called from the activator locked.
+	//
+	info.pid = st == Active ? getPid(current) : 0;
+
 	try
 	{
 	    observer->updateServer(_node->getName(current), info);

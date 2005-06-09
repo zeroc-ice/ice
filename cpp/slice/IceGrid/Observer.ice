@@ -10,6 +10,8 @@
 #ifndef ICE_GRID_OBSERVER_ICE
 #define ICE_GRID_OBSERVER_ICE
 
+#include <Glacier2/Session.ice>
+
 module IceGrid
 {
 
@@ -87,6 +89,23 @@ interface NodeObserver
     void updateServer(string node, ServerDynamicInfo updatedInfo);
 
     void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
+};
+
+interface RegistryObserver
+{
+    void nodeUp(string name);
+    void nodeDown(string name);
+};
+
+interface Session extends Glacier2::Session
+{
+    void keepAlive();
+    void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
+};
+
+interface SessionManager extends Glacier2::SessionManager
+{
+    Session* createLocalSession(string userId);
 };
 
 };

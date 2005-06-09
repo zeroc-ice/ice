@@ -18,12 +18,13 @@ PERFSONAME      = $(call mksoname,IcePerf,$(SOVERSION))
 PERFLIBNAME	= $(call mklibname,IcePerf)
 
 ADMIN		= $(top_srcdir)/bin/icegridadmin
+OBSERVER	= $(top_srcdir)/bin/icegridobserver
 NODE_SERVER	= $(top_srcdir)/bin/icegridnode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icegridregistry
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 PERFLIBTARGETS	= $(call mklibtargets,$(libdir)/$(PERFLIBFILENAME),$(libdir)/$(PERFSONAME),$(libdir)/$(PERFLIBNAME))
-TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
+TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN) $(OBSERVER)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
@@ -41,6 +42,8 @@ ADMIN_OBJS	= Grammar.o \
 		  Util.o \
 		  Internal.o \
 		  Client.o
+
+OBSERVER_OBJS	= IceGridObserver.o
 
 COMMON_OBJS	= Internal.o \
 		  TraceLevels.o
@@ -64,6 +67,8 @@ REGISTRY_OBJS   = RegistryI.o \
 		  DescriptorHelper.o \
 		  NodeSessionI.o \
 		  ReapThread.o \
+		  ObserverSessionI.o \
+		  SessionManagerI.o \
 		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
@@ -104,7 +109,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
-LINKWITH        := -lIce -lIceUtil
+LINKWITH        := -lGlacier2 -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	rm -f $@
@@ -132,15 +137,23 @@ $(libdir)/$(PERFLIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePatch2 -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePatch2 -lGlacier2 -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) \
+	$(EXPAT_LIBS)
+
+$(OBSERVER): $(OBSERVER_OBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBSERVER_OBJS) -lGlacier2 -lIceGrid $(LIBS) $(READLINE_LIBS) \
+	$(EXPAT_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIcePatch2 -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStormService -lGlacier2 -lIcePatch2 -lFreeze \
+	-lIceXML $(LIBS) $(DB_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIcePatch2 -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIcePatch2 -lIceStormService -lGlacier2 -lFreeze -lIceXML \
+	$(LIBS) $(DB_LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp

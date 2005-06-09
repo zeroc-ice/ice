@@ -237,6 +237,7 @@ NodeI::checkConsistency()
 	    {
 		_serial = 1; // We can reset the serial number.
 		checkConsistencyNoSync(servers);
+		initObserver(servers);
 		break;
 	    }
 	    serial = _serial;
@@ -415,3 +416,57 @@ NodeI::canRemoveServerDirectory(const string& name)
     return true;
 }
 
+void
+NodeI::initObserver(const Ice::StringSeq& servers)
+{
+    ServerDynamicInfoSeq serverInfos;
+    AdapterDynamicInfoSeq adapterInfos;
+
+    for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+	Ice::Identity id;
+	id.category = "IceGridServer";
+	id.name = *p;
+	if(_adapter->find(id))
+	{
+	    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+	    try
+	    {
+		ServerDynamicInfo server;
+		server.name = *p;
+		server.pid = proxy->getPid();
+		server.state = proxy->getState();
+		serverInfos.push_back(server);
+
+		StringAdapterPrxDict adapters = proxy->getAdapters();
+		for(StringAdapterPrxDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+		{
+		    AdapterDynamicInfo adapter;
+		    adapter.id = p->first;
+		    try
+		    {
+			adapter.proxy = p->second->getDirectProxy();
+		    }
+		    catch(const AdapterNotActiveException&)
+		    {
+		    }
+		    catch(const Ice::ObjectNotExistException&)
+		    {
+		    }
+		    adapterInfos.push_back(adapter);
+		}
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
+	}
+    }
+
+    try
+    {
+	_observer->init(_name, serverInfos, adapterInfos);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+}

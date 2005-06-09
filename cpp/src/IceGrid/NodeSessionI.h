@@ -11,6 +11,7 @@
 #define ICEGRID_NODE_SESSION_H
 
 #include <IceGrid/Internal.h>
+#include <IceGrid/SessionI.h>
 
 namespace IceGrid
 {
@@ -18,22 +19,23 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
-class NodeSessionI : public NodeSession, public IceUtil::Mutex
+class NodeSessionI : public NodeSession, public SessionI,  public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&);
+    NodeSessionI(const DatabasePtr&, const RegistryObserverPrx&, const std::string&, const NodePrx&);
 
     virtual void keepAlive(const Ice::Current&);
     virtual Ice::StringSeq getServers(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     
     const NodePrx& getNode() const;
-    IceUtil::Time timestamp() const;
+    virtual IceUtil::Time timestamp() const;
 
 private:
     
     const DatabasePtr _database;
+    const RegistryObserverPrx _observer;
     const std::string _name;
     const NodePrx _node;
     const IceUtil::Time _startTime;

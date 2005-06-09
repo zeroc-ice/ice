@@ -54,7 +54,8 @@ private:
     void checkConsistency();
     void checkConsistencyNoSync(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
-    
+    void initObserver(const Ice::StringSeq&);
+
     const Ice::ObjectAdapterPtr _adapter;
     const ActivatorPtr _activator;
     const WaitQueuePtr _waitQueue;
@@ -68,6 +69,8 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
+    std::set<std::string> _servers;
+    std::set<std::string> _adapters;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
