@@ -181,15 +181,15 @@ tprintf(const char* fmt, ...)
     va_list va;
     va_start(va, fmt);
     char buf[1024];
-    vprintf(buf, sizeof(buf)-1, fmt, va);
+    _vsnprintf(buf, sizeof(buf)-1, fmt, va);
     buf[sizeof(buf)-1] = '\0';
     va_end(va);
 }
 
 int
-TestApplication::main(int ac, char*[] av)
+TestApplication::main(int ac, char* av[])
 {
-    run(ac, av);
+    return run(ac, av);
 }
 #endif
 

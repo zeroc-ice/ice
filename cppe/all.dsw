@@ -23,6 +23,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2cppe
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -44,6 +47,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2cppe
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -64,6 +70,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2cppe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -512,6 +521,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name minimalS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -593,6 +605,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -607,6 +622,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -623,6 +641,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -637,6 +658,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -653,6 +677,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -667,6 +694,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -683,6 +713,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -697,6 +730,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -764,6 +800,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -779,6 +818,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -793,6 +835,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -845,6 +890,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -859,6 +907,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -986,6 +1037,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1000,6 +1054,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -1016,6 +1073,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1030,6 +1090,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -1046,6 +1109,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "testCommon"=.\test\Common\testCommon.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -1060,6 +1138,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
@@ -1105,6 +1186,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
