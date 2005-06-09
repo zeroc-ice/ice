@@ -1200,17 +1200,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-	out << sp << nl << "public void" << nl << "shallowCopy(" << name << " dest)";
+	out << sp << nl << "public void" << nl << "__copyFrom(" << name << " source)";
 	out << sb;
 	if(!bases.empty())
 	{
-	    out << nl << "super.shallowCopy(dest);";
+	    out << nl << "super.__copyFrom(source);";
 	}
 	DataMemberList members = p->dataMembers();
 	for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
 	{
 	    string memberName = fixKwd((*d)->name());
-	    out << nl << "dest." << memberName << " = " << memberName << ";";
+	    out << nl << memberName << " = " << "source." << memberName << ";";
 	}
 	out << eb;
     }
@@ -1544,12 +1544,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     string name = fixKwd(p->name());
-    out << sp << nl << "public void" << nl << "shallowCopy(" << name << " dest)";
+    out << sp << nl << "public void" << nl << "__copyFrom(" << name << " source)";
     out << sb;
     for(d = members.begin(); d != members.end(); ++d)
     {
 	string memberName = fixKwd((*d)->name());
-	out << nl << "dest." << memberName << " = " << memberName << ";";
+	out << nl << memberName << " = " << "source." << memberName << ";";
     }
     out << eb;
 
@@ -1561,7 +1561,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "try";
     out << sb;
     out << nl << name << " o = (" << name << ")getClass().newInstance();";
-    out << nl << "shallowCopy(o);";
+    out << nl << "o.__copyFrom(this);";
     out << nl << "return o;";
     out << eb;
     out << nl << "catch(java.lang.IllegalAccessException ex)";
