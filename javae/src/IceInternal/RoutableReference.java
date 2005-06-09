@@ -70,9 +70,24 @@ public abstract class RoutableReference extends Reference
     }
 
     protected
+    RoutableReference()
+    {
+	//
+	// Required for cloning operations.
+	//
+    }
+
+    protected void
+    shallowCopy(RoutableReference ref)
+    {
+	super.shallowCopy(ref);
+	ref._routerInfo = _routerInfo;
+    }
+
+    protected
     RoutableReference(Instance inst,
 		      Ice.Identity ident,
-		      java.util.Map ctx,
+		      java.util.Hashtable ctx,
 		      String fac,
 		      int md,
 		      RouterInfo rtrInfo)

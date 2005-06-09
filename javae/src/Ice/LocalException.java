@@ -43,41 +43,18 @@ public abstract class LocalException extends RuntimeException
 	    _cause.printStackTrace();
 	}
     }
-
-    public void
-    printStackTrace(java.io.PrintStream ps)
-    {
-	super.printStackTrace(ps);
-	if(_cause != null)
-	{
-	    ps.println("\nCaused by:");
-	    _cause.printStackTrace(ps);
-	}
-    }
-
-    public void
-    printStackTrace(java.io.PrintWriter pw)
-    {
-	super.printStackTrace(pw);
-	if(_cause != null)
-	{
-	    pw.println("\nCaused by:");
-	    _cause.printStackTrace(pw);
-	}
-    }
-
+ 
     public String
     toString()
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+	java.io.ByteArrayOutputStream os = new java.io.ByteArrayOutputStream();
+	java.io.PrintStream ps = new java.io.PrintStream(os);
+        IceUtil.OutputBase out = new IceUtil.OutputBase(ps);
         out.setUseTab(false);
         out.print(getClass().getName());
         out.inc();
-        IceInternal.ValueWriter.write(this, out);
-        pw.flush();
-        return sw.toString();
+// XXX        IceInternal.ValueWriter.write(this, out);
+        return os.toString();
     }
 
     private Throwable _cause;

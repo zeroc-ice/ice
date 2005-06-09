@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public interface Endpoint extends java.lang.Comparable
+public interface Endpoint
 {
     //
     // Marshal the endpoint.

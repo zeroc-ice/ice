@@ -28,8 +28,8 @@ public class ServerManagerI extends _ServerManagerDisp
 	// adapter. The object adapter is started on a system allocated
 	// port. The configuration used here contains the Ice.Locator
 	// configuration variable. The new object adapter will register
-	// its endpoints with the locator and create references containing
-	// the adapter id instead of the endpoints.
+	// its endpoints with the locator and create references
+	// containing the adapter id instead of the endpoints.
 	//
 	Ice.Communicator serverCommunicator = Ice.Util.initialize(argv);
 	_communicators.add(serverCommunicator);

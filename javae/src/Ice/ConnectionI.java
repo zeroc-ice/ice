@@ -12,10 +12,10 @@ package Ice;
 public final class ConnectionI implements Connection
 {
     public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
+    ice_clone()
+        throws IceUtil.CloneException
     {
-        return super.clone();
+	return new ConnectionI(this);
     }
 
     public int
@@ -950,7 +950,7 @@ public final class ConnectionI implements Connection
         //
         ConnectionI[] connections = new ConnectionI[1];
         connections[0] = this;
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
                                                                         IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
@@ -983,6 +983,29 @@ public final class ConnectionI implements Connection
     _toString()
     {
 	return _desc; // No mutex lock, _desc is immutable.
+    }
+
+    protected
+    ConnectionI(ConnectionI source)
+    {
+	_instance = source._instance;
+	_transceiver = source._transceiver;
+	_desc = source._desc;
+	_type = source._type;
+	_endpoint = source._endpoint;
+	_adapter = source._adapter;
+	_logger = source._logger;
+	_traceLevels = source._traceLevels;
+	_warn = source._warn;
+	_nextRequestId = source._nextRequestId;
+	_batchStream = source._batchStream;
+	_batchStreamInUse = source._batchStreamInUse;
+	_batchRequestNum = source._batchRequestNum;
+	_dispatchCount = source._dispatchCount;
+	_state = source._state;
+	_stateTime = source._stateTime;
+	_servantManager = source._servantManager;
+	_threadPerConnection = source._threadPerConnection;
     }
 
     public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
@@ -1025,12 +1048,9 @@ public final class ConnectionI implements Connection
 	}
 	catch(java.lang.Exception ex)
 	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    ex.printStackTrace(pw);
-	    pw.flush();
+	    ex.printStackTrace();
 	    String s = "cannot create thread for connection:\n";;
-	    s += sw.toString();
+	    s += ex.toString();
 	    _instance.logger().error(s);
 	    
 	    try
@@ -1473,11 +1493,7 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		UnknownException uex = new UnknownException();
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		uex.unknown = sw.toString();
+		uex.unknown = ex.toString();
 		_logger.error(uex.unknown);
 		setState(StateClosed, uex);
 	    }
@@ -1487,11 +1503,7 @@ public final class ConnectionI implements Connection
 	    synchronized(this)
 	    {
 		UnknownException uex = new UnknownException();
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		uex.unknown = sw.toString();
+		uex.unknown = ex.toString();
 		setState(StateClosed, uex);
 	    }
 	}
@@ -1733,10 +1745,10 @@ public final class ConnectionI implements Connection
 
 		if(requests != null)
 		{
-		    java.util.Iterator i = requests.entryIterator();
-		    while(i.hasNext())
+		    java.util.Enumeration i = requests.elements();
+		    while(i.hasMoreElements())
 		    {
-			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+			IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.nextElement();
 			IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
 			out.finished(_exception); // The exception is immutable at this point.
 		    }
@@ -1761,22 +1773,14 @@ public final class ConnectionI implements Connection
     private void
     warning(String msg, Exception ex)
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	ex.printStackTrace(pw);
-        pw.flush();
-        String s = msg + ":\n" + sw.toString() + _desc;
+        String s = msg + ":\n" + ex.toString() + _desc;
         _logger.warning(s);
     }
 
     private void
     error(String msg, Exception ex)
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	ex.printStackTrace(pw);
-        pw.flush();
-        String s = msg + ":\n" + _desc + sw.toString();
+        String s = msg + ":\n" + _desc + ex.toString();
         _logger.error(s);
     }
 

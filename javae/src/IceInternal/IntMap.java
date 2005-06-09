@@ -142,7 +142,11 @@ public class IntMap
             e = next;
         }
 
-        return (e == null ? e : e.value);
+	if(e != null)
+	{
+	    return e.value;
+	}
+	return e;
     }
 
     public void
@@ -157,8 +161,8 @@ public class IntMap
         _size = 0;
     }
 
-    public java.util.Iterator
-    entryIterator()
+    public java.util.Enumeration
+    elements()
     {
         return new EntryIterator();
     }
@@ -269,7 +273,7 @@ public class IntMap
         }
     }
 
-    private class EntryIterator implements java.util.Iterator
+    private class EntryIterator implements java.util.Enumeration
     {
         EntryIterator()
         {
@@ -287,17 +291,17 @@ public class IntMap
         }
 
         public boolean
-        hasNext()
+        hasMoreElements()
         {
             return _next != null;
         }
 
         public Object
-        next()
+        nextElement()
         {
             if(_modCount != _expectedModCount)
             {
-                throw new java.util.ConcurrentModificationException();
+                throw new IceUtil.ConcurrentModificationException();
             }
             Entry e = _next;
             if(e == null)
@@ -326,7 +330,7 @@ public class IntMap
             }
             if(_modCount != _expectedModCount)
             {
-                throw new java.util.ConcurrentModificationException();
+                throw new IceUtil.ConcurrentModificationException();
             }
             int k = _current.key;
             _current = null;

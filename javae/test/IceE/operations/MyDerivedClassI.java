@@ -79,15 +79,26 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1;
     }
 
-    public java.util.Map
-    opByteBoolD(java.util.Map p1, java.util.Map p2,
+    protected void
+    copyHashtable(java.util.Hashtable from, java.util.Hashtable to)
+    {
+	java.util.Enumeration e = from.keys();
+	while(e.hasMoreElements())
+	{
+	    java.lang.Object key = e.nextElement();
+	    to.put(key, from.get(key));
+	}
+    }
+
+    public java.util.Hashtable
+    opByteBoolD(java.util.Hashtable p1, java.util.Hashtable p2,
 		Test.ByteBoolDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
+        java.util.Hashtable r = new java.util.Hashtable();
+	copyHashtable(p1, r);
+	copyHashtable(p2, r);
         return r;
     }
 
@@ -172,15 +183,15 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public java.util.Map
-    opLongFloatD(java.util.Map p1, java.util.Map p2,
+    public java.util.Hashtable
+    opLongFloatD(java.util.Hashtable p1, java.util.Hashtable p2,
 		 Test.LongFloatDHolder p3,
                  Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
+        java.util.Hashtable r = new java.util.Hashtable();
+	copyHashtable(p1, r);
+	copyHashtable(p2, r);
         return r;
     }
 
@@ -204,15 +215,15 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return Test.MyEnum.enum3;
     }
 
-    public java.util.Map
-    opShortIntD(java.util.Map p1, java.util.Map p2,
+    public java.util.Hashtable
+    opShortIntD(java.util.Hashtable p1, java.util.Hashtable p2,
 		Test.ShortIntDHolder p3,
                 Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
+        java.util.Hashtable r = new java.util.Hashtable();
+	copyHashtable(p1, r);
+	copyHashtable(p2, r);
         return r;
     }
 
@@ -270,15 +281,15 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return p1 + " " + p2;
     }
 
-    public java.util.Map
-    opStringMyEnumD(java.util.Map p1, java.util.Map p2,
+    public java.util.Hashtable
+    opStringMyEnumD(java.util.Hashtable p1, java.util.Hashtable p2,
                     Test.StringMyEnumDHolder p3,
 		    Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
+        java.util.Hashtable r = new java.util.Hashtable();
+	copyHashtable(p1, r);
+	copyHashtable(p2, r);
         return r;
     }
 
@@ -298,7 +309,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
     }
 
-    public java.util.Map
+    public java.util.Hashtable
     opContext(Ice.Current current)
     {
 	return current.ctx;
@@ -355,15 +366,15 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public java.util.Map
-    opStringStringD(java.util.Map p1, java.util.Map p2,
+    public java.util.Hashtable
+    opStringStringD(java.util.Hashtable p1, java.util.Hashtable p2,
                     Test.StringStringDHolder p3,
 		    Ice.Current current)
     {
         p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
+        java.util.Hashtable r = new java.util.Hashtable();
+	copyHashtable(p1, r);
+	copyHashtable(p2, r);
         return r;
     }
 

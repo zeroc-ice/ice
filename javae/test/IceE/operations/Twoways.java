@@ -479,16 +479,16 @@ class Twoways
 	}
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Hashtable di1 = new java.util.Hashtable();
             di1.put(new Byte((byte)10), Boolean.TRUE);
             di1.put(new Byte((byte)100), Boolean.FALSE);
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Hashtable di2 = new java.util.Hashtable();
             di2.put(new Byte((byte)10), Boolean.TRUE);
             di2.put(new Byte((byte)11), Boolean.FALSE);
             di2.put(new Byte((byte)101), Boolean.TRUE);
 
             Test.ByteBoolDHolder _do = new Test.ByteBoolDHolder();
-            java.util.Map ro = p.opByteBoolD(di1, di2, _do);
+            java.util.Hashtable ro = p.opByteBoolD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
@@ -499,16 +499,16 @@ class Twoways
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Hashtable di1 = new java.util.Hashtable();
             di1.put(new Short((short)110), new Integer(-1));
             di1.put(new Short((short)1100), new Integer(123123));
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Hashtable di2 = new java.util.Hashtable();
             di2.put(new Short((short)110), new Integer(-1));
             di2.put(new Short((short)111), new Integer(-100));
             di2.put(new Short((short)1101), new Integer(0));
 
             Test.ShortIntDHolder _do = new Test.ShortIntDHolder();
-            java.util.Map ro = p.opShortIntD(di1, di2, _do);
+            java.util.Hashtable ro = p.opShortIntD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
@@ -519,16 +519,16 @@ class Twoways
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Hashtable di1 = new java.util.Hashtable();
             di1.put(new Long(999999110L), new Float(-1.1f));
             di1.put(new Long(999999111L), new Float(123123.2f));
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Hashtable di2 = new java.util.Hashtable();
             di2.put(new Long(999999110L), new Float(-1.1f));
             di2.put(new Long(999999120L), new Float(-100.4f));
             di2.put(new Long(999999130L), new Float(0.5f));
 
             Test.LongFloatDHolder _do = new Test.LongFloatDHolder();
-            java.util.Map ro = p.opLongFloatD(di1, di2, _do);
+            java.util.Hashtable ro = p.opLongFloatD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
@@ -539,16 +539,16 @@ class Twoways
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Hashtable di1 = new java.util.Hashtable();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Hashtable di2 = new java.util.Hashtable();
             di2.put("foo", "abc -1.1");
             di2.put("FOO", "abc -100.4");
             di2.put("BAR", "abc 0.5");
 
             Test.StringStringDHolder _do = new Test.StringStringDHolder();
-            java.util.Map ro = p.opStringStringD(di1, di2, _do);
+            java.util.Hashtable ro = p.opStringStringD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
@@ -559,16 +559,16 @@ class Twoways
         }
 
         {
-            java.util.Map di1 = new java.util.HashMap();
+            java.util.Hashtable di1 = new java.util.Hashtable();
             di1.put("abc", Test.MyEnum.enum1);
             di1.put("", Test.MyEnum.enum2);
-            java.util.Map di2 = new java.util.HashMap();
+            java.util.Hashtable di2 = new java.util.Hashtable();
             di2.put("abc", Test.MyEnum.enum1);
             di2.put("qwerty", Test.MyEnum.enum3);
             di2.put("Hello!!", Test.MyEnum.enum2);
 
             Test.StringMyEnumDHolder _do = new Test.StringMyEnumDHolder();
-            java.util.Map ro = p.opStringMyEnumD(di1, di2, _do);
+            java.util.Hashtable ro = p.opStringMyEnumD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
@@ -598,24 +598,24 @@ class Twoways
         }
 
 	{
-	    java.util.HashMap ctx = new java.util.HashMap();
+	    java.util.Hashtable ctx = new java.util.Hashtable();
 	    ctx.put("one", "ONE");
 	    ctx.put("two", "TWO");
 	    ctx.put("three", "THREE");
 	    {
 		test(p.ice_getContext().isEmpty());
-		java.util.Map r = p.opContext();
+		java.util.Hashtable r = p.opContext();
 		test(!r.equals(ctx));
 	    }
 	    {
-		java.util.Map r = p.opContext(ctx);
+		java.util.Hashtable r = p.opContext(ctx);
 		test(p.ice_getContext().isEmpty());
 		test(r.equals(ctx));
 	    }
 	    {
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
 		test(p2.ice_getContext().equals(ctx));
-		java.util.Map r = p2.opContext();
+		java.util.Hashtable r = p2.opContext();
 		test(r.equals(ctx));
 		r = p2.opContext(ctx);
 		test(r.equals(ctx));
@@ -624,18 +624,18 @@ class Twoways
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
-		java.util.HashMap dflt = new java.util.HashMap();
+		java.util.Hashtable dflt = new java.util.Hashtable();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
 		test(p.opContext().equals(dflt));
 
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.HashMap()));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.Hashtable()));
 		test(p2.opContext().isEmpty());
 
 		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
 		test(p2.opContext().equals(dflt));
 
-		communicator.setDefaultContext(new java.util.HashMap());
+		communicator.setDefaultContext(new java.util.Hashtable());
 		test(p.opContext().isEmpty());
 		test(p2.opContext().isEmpty());
 	    }

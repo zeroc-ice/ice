@@ -12,7 +12,7 @@ package Ice;
 public class _ObjectDel
 {
     public boolean
-    ice_isA(String __id, java.util.Map __context)
+    ice_isA(String __id, java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __og = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
@@ -41,7 +41,7 @@ public class _ObjectDel
     }
 
     public void
-    ice_ping(java.util.Map __context)
+    ice_ping(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __og = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
@@ -59,7 +59,7 @@ public class _ObjectDel
     }
 
     public String[]
-    ice_ids(java.util.Map __context)
+    ice_ids(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __og = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
@@ -86,7 +86,7 @@ public class _ObjectDel
     }
 
     public String
-    ice_id(java.util.Map __context)
+    ice_id(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __og = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
@@ -113,7 +113,7 @@ public class _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __og = getOutgoing(operation, mode, __context);
@@ -203,7 +203,7 @@ public class _ObjectDel
     }
     
     protected IceInternal.Outgoing
-    getOutgoing(String operation, OperationMode mode, java.util.Map context)
+    getOutgoing(String operation, OperationMode mode, java.util.Hashtable context)
     {
         IceInternal.Outgoing out;
 

@@ -13,7 +13,7 @@ public final class Outgoing
 {
     public
     Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
-	     java.util.Map context)
+	     java.util.Hashtable context)
     {
         _connection = connection;
         _reference = ref;
@@ -28,7 +28,7 @@ public final class Outgoing
     // This function allows this object to be reused, rather than reallocated.
     //
     public void
-    reset(String operation, Ice.OperationMode mode, java.util.Map context)
+    reset(String operation, Ice.OperationMode mode, java.util.Hashtable context)
     {
         _state = StateUnsent;
         _exception = null;
@@ -148,8 +148,11 @@ public final class Outgoing
 
                 if(_exception != null)
                 {
-		    _exception.fillInStackTrace();
-
+		    //
+		    // XXX- what we want to do is fill in the exception's stack trace, but there doesn't seem to be
+		    // a way to do this in CLDC.
+		    //
+		    
                     //      
                     // A CloseConnectionException indicates graceful
                     // server shutdown, and is therefore always repeatable
@@ -431,7 +434,7 @@ public final class Outgoing
     }
 
     private void
-    writeHeader(String operation, Ice.OperationMode mode, java.util.Map context)
+    writeHeader(String operation, Ice.OperationMode mode, java.util.Hashtable context)
     {
         switch(_reference.getMode())
         {
@@ -479,12 +482,13 @@ public final class Outgoing
             _os.writeSize(sz);
             if(sz > 0)
             {
-                java.util.Iterator i = context.entrySet().iterator();
-                while(i.hasNext())
+		java.util.Enumeration e = context.keys();
+                while(e.hasMoreElements())
                 {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-                    _os.writeString((String)entry.getKey());
-                    _os.writeString((String)entry.getValue());
+		    String key = (String)e.nextElement();
+		    String value = (String)context.get(key);
+                    _os.writeString(key);
+                    _os.writeString(value);
                 }
             }
         }

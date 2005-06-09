@@ -49,7 +49,7 @@ public final class Debug
 	    //
 	    Throwable t = new Throwable();
 	    System.err.println("Assertion failure:");
-	    t.printStackTrace(System.err);
+	    t.printStackTrace();
 	}
     }
 }

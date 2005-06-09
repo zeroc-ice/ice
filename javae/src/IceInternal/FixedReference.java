@@ -14,7 +14,7 @@ public class FixedReference extends Reference
     public
     FixedReference(Instance inst,
     		   Ice.Identity ident,
-		   java.util.Map ctx,
+		   java.util.Hashtable ctx,
 		   String fs,
 		   int md,
 		   Ice.ConnectionI[] fixedConns)
@@ -100,7 +100,29 @@ public class FixedReference extends Reference
         {
             return false;
         }
-	return java.util.Arrays.equals(_fixedConnections, rhs._fixedConnections);
+	
+	return IceUtil.Arrays.equals(_fixedConnections, rhs._fixedConnections);
+    }
+
+    protected
+    FixedReference()
+    {
+    }
+
+    protected void
+    shallowCopy(FixedReference ref)
+    {
+	super.shallowCopy(ref);
+	ref._fixedConnections = _fixedConnections;
+	ref._rand = _rand;
+    }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	FixedReference result = new FixedReference();
+        shallowCopy(result);
+	return result;
     }
 
     private Ice.ConnectionI _fixedConnections[];

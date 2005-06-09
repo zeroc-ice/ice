@@ -69,5 +69,5 @@ public final class RoutingTable
         }
     }
 
-    private java.util.HashMap _table = new java.util.HashMap();
+    private java.util.Hashtable _table = new java.util.Hashtable();
 }

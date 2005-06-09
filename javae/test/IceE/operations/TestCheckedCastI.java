@@ -9,17 +9,17 @@
 
 public final class TestCheckedCastI extends Test._TestCheckedCastDisp
 {
-    public java.util.Map
+    public java.util.Hashtable
     getContext(Ice.Current current)
     {
         return _ctx;
     }
 
     public void
-    setContext(java.util.Map ctx)
+    setContext(java.util.Hashtable ctx)
     {
         _ctx = ctx;
     }
 
-    private java.util.Map _ctx;
+    private java.util.Hashtable _ctx;
 }

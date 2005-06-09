@@ -18,10 +18,10 @@ public final class LocatorManager
     synchronized void
     destroy()
     {
-	java.util.Iterator i = _table.values().iterator();
-        while(i.hasNext())
+	java.util.Enumeration e = _table.elements();
+        while(e.hasMoreElements())
         {
-            LocatorInfo info = (LocatorInfo)i.next();
+            LocatorInfo info = (LocatorInfo)e.nextElement();
             info.destroy();
         }
         _table.clear();
@@ -74,6 +74,6 @@ public final class LocatorManager
         }
     }
 
-    private java.util.HashMap _table = new java.util.HashMap();
-    private java.util.HashMap _locatorTables = new java.util.HashMap();
+    private java.util.Hashtable _table = new java.util.Hashtable();
+    private java.util.Hashtable _locatorTables = new java.util.Hashtable();
 }

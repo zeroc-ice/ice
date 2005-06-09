@@ -14,7 +14,7 @@ public class DirectReference extends RoutableReference
     public
     DirectReference(Instance inst,
     		    Ice.Identity ident,
-		    java.util.Map ctx,
+		    java.util.Hashtable ctx,
 		    String fs,
 		    int md,
 		    Endpoint[] endpts,
@@ -179,6 +179,26 @@ public class DirectReference extends RoutableReference
             return false;
         }
 	return compare(_endpoints, rhs._endpoints);
+    }
+
+    protected
+    DirectReference()
+    {
+    }
+
+    protected void
+    shallowCopy(DirectReference ref)
+    {
+	super.shallowCopy(ref);
+	ref._endpoints = _endpoints;
+    }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	DirectReference result = new DirectReference();
+        shallowCopy(result);
+	return result;
     }
 
     private Endpoint[] _endpoints;

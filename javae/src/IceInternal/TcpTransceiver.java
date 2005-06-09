@@ -259,8 +259,6 @@ final class TcpTransceiver implements Transceiver
         throws Throwable
     {
         IceUtil.Debug.FinalizerAssert(_fd == null);
-
-        super.finalize();
     }
 
     private java.net.Socket _fd;

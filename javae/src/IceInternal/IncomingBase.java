@@ -95,8 +95,8 @@ public class IncomingBase
 	    IceUtil.Debug.Assert(_os != null);
 	}
 
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+	java.io.PrintStream pw = new java.io.PrintStream(sw);
 	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
 	out.setUseTab(false);
 	out.print("dispatch exception:");
@@ -104,7 +104,7 @@ public class IncomingBase
 	out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
 	out.print("\noperation: " + _current.operation);
 	out.print("\n");
-	ex.printStackTrace(pw);
+	out.print(ex.toString());
 	pw.flush();
 	_os.instance().logger().warning(sw.toString());
     }

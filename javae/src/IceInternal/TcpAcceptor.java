@@ -187,8 +187,6 @@ class TcpAcceptor implements Acceptor
         throws Throwable
     {
         IceUtil.Debug.FinalizerAssert(_fd == null);
-
-        super.finalize();
     }
 
     private Instance _instance;

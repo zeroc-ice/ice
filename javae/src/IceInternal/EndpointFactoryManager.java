@@ -19,9 +19,10 @@ public final class EndpointFactoryManager
     public synchronized void
     add(EndpointFactory factory)
     {
-        for(int i = 0; i < _factories.size(); i++)
+	java.util.Enumeration e = _factories.elements();
+	while(e.hasMoreElements())
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = (EndpointFactory)e.nextElement();
             if(f.type() == factory.type())
             {
 		if(IceUtil.Debug.ASSERT)
@@ -30,15 +31,16 @@ public final class EndpointFactoryManager
 		}
             }
         }
-        _factories.add(factory);
+        _factories.addElement(factory);
     }
 
     public synchronized EndpointFactory
     get(short type)
     {
-        for(int i = 0; i < _factories.size(); i++)
+	java.util.Enumeration e = _factories.elements();
+	while(e.hasMoreElements())
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = (EndpointFactory)e.nextElement();
             if(f.type() == type)
             {
                 return f;
@@ -86,18 +88,19 @@ public final class EndpointFactoryManager
             protocol = _instance.defaultsAndOverrides().defaultProtocol;
         }
 
-        for(int i = 0; i < _factories.size(); i++)
+	java.util.Enumeration e = _factories.elements();
+	while(e.hasMoreElements())
         {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+            EndpointFactory f = (EndpointFactory)e.nextElement();
             if(f.protocol().equals(protocol))
             {
 		return f.create(args);
             }
         }
 
-	Ice.EndpointParseException e = new Ice.EndpointParseException();
-	e.str = str;
-	throw e;
+	Ice.EndpointParseException ex = new Ice.EndpointParseException();
+	ex.str = str;
+	throw ex;
     }
 
     public synchronized Endpoint
@@ -106,9 +109,10 @@ public final class EndpointFactoryManager
         Endpoint v;
         short type = s.readShort();
 
-        for(int i = 0; i < _factories.size(); i++)
-        {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
+	java.util.Enumeration e = _factories.elements();
+	while(e.hasMoreElements())
+	{
+            EndpointFactory f = (EndpointFactory)e.nextElement();
             if(f.type() == type)
             {
                 return f.read(s);
@@ -121,14 +125,15 @@ public final class EndpointFactoryManager
     void
     destroy()
     {
-        for(int i = 0; i < _factories.size(); i++)
-        {
-            EndpointFactory f = (EndpointFactory)_factories.get(i);
-            f.destroy();
-        }
-        _factories.clear();
+	java.util.Enumeration e = _factories.elements();
+	while(e.hasMoreElements())
+	{
+	    EndpointFactory f = (EndpointFactory)e.nextElement();
+	    f.destroy();
+	}
+        _factories.removeAllElements();
     }
 
     private Instance _instance;
-    private java.util.ArrayList _factories = new java.util.ArrayList();
+    private java.util.Vector _factories = new java.util.Vector();
 }

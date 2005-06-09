@@ -17,13 +17,13 @@ public abstract class UserException extends Exception
     public String
     toString()
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+        java.io.PrintStream pw = new java.io.PrintStream(sw);
         IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
         out.setUseTab(false);
         out.print(getClass().getName());
         out.inc();
-        IceInternal.ValueWriter.write(this, out);
+// XXX	IceInternal.ValueWriter.write(this, out);
         pw.flush();
         return sw.toString();
     }

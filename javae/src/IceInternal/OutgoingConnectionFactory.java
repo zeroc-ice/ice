@@ -19,15 +19,15 @@ public final class OutgoingConnectionFactory
             return;
         }
 
-        java.util.Iterator p = _connections.values().iterator();
-        while(p.hasNext())
+        java.util.Enumeration p = _connections.elements();
+        while(p.hasMoreElements())
         {
-	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+	    java.util.Vector connectionList = (java.util.Vector)p.nextElement();
 		
-	    java.util.Iterator q = connectionList.iterator();
-	    while(q.hasNext())
+	    java.util.Enumeration q = connectionList.elements();
+	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
 		connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 	    }
 	}
@@ -39,7 +39,7 @@ public final class OutgoingConnectionFactory
     public void
     waitUntilFinished()
     {
-	java.util.HashMap connections;
+	java.util.Hashtable connections;
 
 	synchronized(this)
 	{
@@ -72,15 +72,15 @@ public final class OutgoingConnectionFactory
 	// Now we wait for until the destruction of each connection is
 	// finished.
 	//
-        java.util.Iterator p = connections.values().iterator();
-        while(p.hasNext())
+        java.util.Enumeration p = connections.elements();
+        while(p.hasMoreElements())
         {
-	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+	    java.util.Vector connectionList = (java.util.Vector)p.nextElement();
 		
-	    java.util.Iterator q = connectionList.iterator();
-	    while(q.hasNext())
+	    java.util.Enumeration q = connectionList.elements();
+	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
 		connection.waitUntilFinished();
 	    }
         }
@@ -108,24 +108,24 @@ public final class OutgoingConnectionFactory
 	    //
 	    // Reap connections for which destruction has completed.
 	    //
-	    java.util.Iterator p = _connections.values().iterator();
-	    while(p.hasNext())
+	    java.util.Enumeration p = _connections.keys();
+	    while(p.hasMoreElements())
 	    {
-		java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
-		
-		java.util.Iterator q = connectionList.iterator();
-		while(q.hasNext())
+		java.lang.Object key = p.nextElement();
+		java.util.Vector connectionList = (java.util.Vector)_connections.get(key);
+
+		for(int i = connectionList.size(); i > 0 ; --i)
 		{
-		    Ice.ConnectionI con = (Ice.ConnectionI)q.next();
+		    Ice.ConnectionI con = (Ice.ConnectionI)connectionList.elementAt(i - 1);
 		    if(con.isFinished())
 		    {
-			q.remove();
+			connectionList.removeElementAt(i - 1);
 		    }
 		}
 
 		if(connectionList.isEmpty())
 		{
-		    p.remove();
+		    _connections.remove(key);
 		}
 	    }
 
@@ -145,14 +145,14 @@ public final class OutgoingConnectionFactory
 	    //
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
-		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		java.util.Vector connectionList = (java.util.Vector)_connections.get(endpoints[i]);
 		if(connectionList != null)
 		{
-		    java.util.Iterator q = connectionList.iterator();
+		    java.util.Enumeration q = connectionList.elements();
 			
-		    while(q.hasNext())
+		    while(q.hasMoreElements())
 		    {
-			Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+			Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
 			
 			//
 			// Don't return connections for which destruction has
@@ -213,14 +213,14 @@ public final class OutgoingConnectionFactory
 	    {
 		for(int i = 0; i < endpoints.length; i++)
 		{
-		    java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		    java.util.Vector connectionList = (java.util.Vector)_connections.get(endpoints[i]);
 		    if(connectionList != null)
 		    {
-			java.util.Iterator q = connectionList.iterator();
+			java.util.Enumeration q = connectionList.elements();
 			
-			while(q.hasNext())
+			while(q.hasMoreElements())
 			{
-			    Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+			    Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
 			    
 			    //
 			    // Don't return connections for which destruction has
@@ -243,7 +243,7 @@ public final class OutgoingConnectionFactory
 	    //
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
-		_pending.add(endpoints[i]);
+		_pending.put(endpoints[i], endpoints[i]);
 	    }
 	}
 
@@ -343,13 +343,13 @@ public final class OutgoingConnectionFactory
 	    }
 	    else
 	    {
-		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(connection.endpoint());
+		java.util.Vector connectionList = (java.util.Vector)_connections.get(connection.endpoint());
 		if(connectionList == null)
 		{
-		    connectionList = new java.util.LinkedList();
+		    connectionList = new java.util.Vector();
 		    _connections.put(connection.endpoint(), connectionList);
 		}
-		connectionList.add(connection);
+		connectionList.addElement(connection);
 
 		if(_destroyed)
 		{
@@ -403,14 +403,14 @@ public final class OutgoingConnectionFactory
 		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
 
-		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		java.util.Vector connectionList = (java.util.Vector)_connections.get(endpoints[i]);
 		if(connectionList != null)
 		{
-		    java.util.Iterator p = connectionList.iterator();
+		    java.util.Enumeration p = connectionList.elements();
 		    
-		    while(p.hasNext())
+		    while(p.hasMoreElements())
 		    {
-			Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+			Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
 			try
 			{
 			    connection.setAdapter(adapter);
@@ -435,15 +435,15 @@ public final class OutgoingConnectionFactory
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        java.util.Iterator p = _connections.values().iterator();
-        while(p.hasNext())
+        java.util.Enumeration p = _connections.elements();
+        while(p.hasMoreElements())
         {
-	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+	    java.util.Vector connectionList = (java.util.Vector)p.nextElement();
 		
-	    java.util.Iterator q = connectionList.iterator();
-	    while(q.hasNext())
+	    java.util.Enumeration q = connectionList.elements();
+	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
 		if(connection.getAdapter() == adapter)
 		{
 		    try
@@ -464,26 +464,26 @@ public final class OutgoingConnectionFactory
     public void
     flushBatchRequests()
     {
-	java.util.LinkedList c = new java.util.LinkedList();
+	java.util.Vector c = new java.util.Vector();
 
         synchronized(this)
 	{
-	    java.util.Iterator p = _connections.values().iterator();
-	    while(p.hasNext())
+	    java.util.Enumeration p = _connections.elements();
+	    while(p.hasMoreElements())
 	    {
-		java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
-		java.util.Iterator q = connectionList.iterator();
-		while(q.hasNext())
+		java.util.Vector connectionList = (java.util.Vector)p.nextElement();
+		java.util.Enumeration q = connectionList.elements();
+		while(q.hasMoreElements())
 		{
-		    c.add(q.next());
+		    c.addElement(q.nextElement());
 		}
 	    }
 	}
 
-	java.util.Iterator p = c.iterator();
-	while(p.hasNext())
+	java.util.Enumeration p = c.elements();
+	while(p.hasMoreElements())
 	{
-	    Ice.ConnectionI conn = (Ice.ConnectionI)p.next();
+	    Ice.ConnectionI conn = (Ice.ConnectionI)p.nextElement();
 	    try
 	    {
 		conn.flushBatchRequests();
@@ -511,11 +511,13 @@ public final class OutgoingConnectionFactory
         IceUtil.Debug.FinalizerAssert(_destroyed);
 	IceUtil.Debug.FinalizerAssert(_connections == null);
 
-        super.finalize();
+	//
+	// Cannot call parent's finalizer here. java.lang.Object in CLDC doesn't have a finalize call.
+	//
     }
 
     private final Instance _instance;
     private boolean _destroyed;
-    private java.util.HashMap _connections = new java.util.HashMap();
-    private java.util.HashSet _pending = new java.util.HashSet();
+    private java.util.Hashtable _connections = new java.util.Hashtable();
+    private java.util.Hashtable _pending = new java.util.Hashtable();
 }

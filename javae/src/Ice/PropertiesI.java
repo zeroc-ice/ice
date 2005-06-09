@@ -70,16 +70,15 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	}
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Hashtable
     getPropertiesForPrefix(String prefix)
     {
-	java.util.HashMap result = new java.util.HashMap();
-        java.util.Iterator p = _properties.entrySet().iterator();
-        while(p.hasNext())
+	java.util.Hashtable result = new java.util.Hashtable();
+        java.util.Enumeration p = _properties.keys();
+        while(p.hasMoreElements())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String key = (String)entry.getKey();
-            String value = (String)entry.getValue();
+            String key = (String)p.nextElement();
+            String value = (String)_properties.get(key);
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
 		result.put(key, value);
@@ -88,79 +87,17 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	return result;
     }
 
-    public synchronized void
-    setProperty(String key, String value)
-    {
-	//
-	// Check if the property is legal. (We write to System.err instead of using
-	// a logger because no logger may be established at the time the property
-	// is parsed.)
-	//
-	if(key == null || key.length() == 0)
-	{
-	    return;
-	}
-
-	/*
-	 * TODO: Cannot rely on regex.
-	 *
-        int dotPos = key.indexOf('.');
-	if(dotPos != -1)
-	{
-	    String prefix = key.substring(0, dotPos);
-	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
-	    {
-	        String pattern = IceInternal.PropertyNames.validProps[i][0];
-		dotPos = pattern.indexOf('.');
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(dotPos != -1);
-		}
-		String propPrefix = pattern.substring(1, dotPos - 1);
-		if(!propPrefix.equals(prefix))
-		{
-		    continue;
-		}
-
-		boolean found = false;
-		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
-		{
-		    pattern = IceInternal.PropertyNames.validProps[i][j];
-		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
-		    java.util.regex.Matcher m = pComp.matcher(key);
-		    found = m.matches();
-		}
-		if(!found)
-		{
-		    System.err.println("warning: unknown property: " + key);
-		}
-	    }
-	}
-	 */
-
-	//
-	// Set or clear the property.
-	//
-	if(value != null && value.length() > 0)
-	{
-	    _properties.put(key, value);
-	}
-	else
-	{
-	    _properties.remove(key);
-	}
-    }
-
     public synchronized String[]
     getCommandLineOptions()
     {
         String[] result = new String[_properties.size()];
-        java.util.Iterator p = _properties.entrySet().iterator();
+        java.util.Enumeration p = _properties.keys();
         int i = 0;
-        while(p.hasNext())
+        while(p.hasMoreElements())
         {
-            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            result[i++] = "--" + entry.getKey() + "=" + entry.getValue();
+            java.lang.Object key = p.nextElement();
+	    java.lang.Object value = _properties.get(key);
+            result[i++] = "--" + key + "=" + value;
         }
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -179,7 +116,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	}
 	pfx = "--" + pfx;
 
-        java.util.ArrayList result = new java.util.ArrayList();
+	java.util.Vector result  = new java.util.Vector();
         for(int i = 0; i < options.length; i++)
         {
             String opt = options[i];
@@ -194,11 +131,11 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             }
             else
             {
-                result.add(opt);
+                result.addElement(opt);
             }
         }
         String[] arr = new String[result.size()];
-        result.toArray(arr);
+        result.copyInto(arr);
         return arr;
     }
 
@@ -206,23 +143,6 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     parseIceCommandLineOptions(String[] options)
     {
         return parseCommandLineOptions("Ice", options);
-    }
-
-    public synchronized void
-    load(String file)
-    {
-        try
-        {
-            java.io.FileReader fr = new java.io.FileReader(file);
-            java.io.BufferedReader br = new java.io.BufferedReader(fr);
-            parse(br);
-        }
-        catch(java.io.IOException ex)
-        {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
-        }
     }
 
     public synchronized Properties
@@ -233,7 +153,13 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 
     PropertiesI(PropertiesI p)
     {
-        _properties.putAll(p._properties);
+	java.util.Enumeration e = p._properties.keys();
+	while(e.hasMoreElements())
+	{
+	    java.lang.Object key = e.nextElement();
+	    java.lang.Object value = p._properties.get(key);
+	    _properties.put(key, value);
+	}
     }
 
     PropertiesI()
@@ -268,24 +194,62 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	args.value = parseIceCommandLineOptions(args.value);
     }
 
-    private void
-    parse(java.io.BufferedReader in)
+    public synchronized void
+    setProperty(String key, String value)
     {
-        try
-        {
-            String line;
-            while((line = in.readLine()) != null)
-            {
-                parseLine(line);
-            }
-        }
-        catch(java.io.IOException ex)
-        {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
-        }
+	//
+	// Check if the property is legal. (We write to System.err instead of using
+	// a logger because no logger may be established at the time the property
+	// is parsed.)
+	//
+	if(key == null || key.length() == 0)
+	{
+	    return;
+	}
+
+        int dotPos = key.indexOf('.');
+	if(dotPos != -1)
+	{
+	    String prefix = key.substring(0, dotPos);
+	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
+	    {
+	        String pattern = IceInternal.PropertyNames.validProps[i][0];
+		dotPos = pattern.indexOf('.');
+		assert(dotPos != -1);
+		String propPrefix = pattern.substring(1, dotPos - 1);
+		if(!propPrefix.equals(prefix))
+		{
+		    continue;
+		}
+
+		boolean found = false;
+		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
+		{
+		    pattern = IceInternal.PropertyNames.validProps[i][j];
+		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
+		    java.util.regex.Matcher m = pComp.matcher(key);
+		    found = m.matches();
+		}
+		if(!found)
+		{
+		    System.err.println("warning: unknown property: " + key);
+		}
+	    }
+	}
+
+	//
+	// Set or clear the property.
+	//
+	if(value != null && value.length() > 0)
+	{
+	    _properties.put(key, value);
+	}
+	else
+	{
+	    _properties.remove(key);
+	}
     }
+    
 
     private void
     parseLine(String line)
@@ -352,12 +316,55 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             String[] files = IceUtil.StringUtil.split(value, ",");
             for(int i = 0; i < files.length; i++)
             {
-                load(files[i]);
+		load(files[i]);
             }
         }
 
         setProperty("Ice.Config", value);
     }
 
-    private java.util.HashMap _properties = new java.util.HashMap();
+    public synchronized void
+    load(String filename)
+    {
+        try
+        {
+            java.io.FileReader fr = new java.io.FileReader(filename);
+            java.io.BufferedReader br = new java.io.BufferedReader(fr);
+            parse(br);
+        }
+        catch(java.io.IOException ex)
+        {
+            SyscallException se = new SyscallException();
+            se.initCause(ex); // Exception chaining
+            throw se;
+        }
+    }
+    
+    private void
+    parse(java.io.BufferedReader in)
+    {
+        try
+        {
+            String line;
+            while((line = in.readLine()) != null)
+            {
+                parseLine(line);
+            }
+        }
+        catch(java.io.IOException ex)
+        {
+            SyscallException se = new SyscallException();
+            se.initCause(ex); // Exception chaining
+            throw se;
+        }
+    }
+    
+    public java.lang.Object
+    ice_clone()
+    {
+	return new PropertiesI(this);
+    }
+
+    private java.util.Hashtable _properties = new java.util.Hashtable();
 }
+

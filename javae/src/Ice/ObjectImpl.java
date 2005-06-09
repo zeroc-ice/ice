@@ -9,7 +9,7 @@
 
 package Ice;
 
-public class ObjectImpl implements Object, java.lang.Cloneable
+public class ObjectImpl implements Object, IceUtil.Cloneable
 {
     public
     ObjectImpl()
@@ -17,10 +17,21 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
+    ice_clone()
+        throws IceUtil.CloneException
     {
-        return super.clone();
+	try
+	{
+	    return getClass().newInstance();
+	}
+	catch(java.lang.IllegalAccessException ex)
+	{
+	    throw new IceUtil.CloneException(ex.getMessage());
+	}
+	catch(java.lang.InstantiationException ex)
+	{
+	    throw new IceUtil.CloneException(ex.getMessage());
+	}
     }
 
     public int
@@ -145,7 +156,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     public IceInternal.DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
-        int pos = java.util.Arrays.binarySearch(__all, current.operation);
+        int pos = IceUtil.Arrays.search(__all, current.operation);
         if(pos < 0)
         {
             return IceInternal.DispatchStatus.DispatchOperationNotExist;

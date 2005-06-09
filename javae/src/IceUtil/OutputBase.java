@@ -23,7 +23,7 @@ public class OutputBase
     }
 
     public
-    OutputBase(java.io.PrintWriter out)
+    OutputBase(java.io.PrintStream out)
     {
         _out = out;
         _pos = 0;
@@ -31,19 +31,6 @@ public class OutputBase
         _indentSize = 4;
         _useTab = true;
         _separator = true;
-    }
-
-    public
-    OutputBase(String s)
-    {
-        _out = null;
-        _pos = 0;
-        _indent = 0;
-        _indentSize = 4;
-        _useTab = true;
-        _separator = true;
-
-        open(s);
     }
 
     public void
@@ -56,20 +43,6 @@ public class OutputBase
     setUseTab(boolean useTab)
     {
         _useTab = useTab;
-    }
-
-    public void
-    open(String s)
-    {
-        try
-        {
-            java.io.FileWriter fw = new java.io.FileWriter(s);
-            java.io.BufferedWriter bw = new java.io.BufferedWriter(fw);
-            _out = new java.io.PrintWriter(bw);
-        }
-        catch(java.io.IOException ex)
-        {
-        }
     }
 
     public void
@@ -110,14 +83,14 @@ public class OutputBase
     public void
     useCurrentPosAsIndent()
     {
-        _indentSave.addFirst(new Integer(_indent));
+        _indentSave.addElement(new Integer(_indent));
         _indent = _pos;
     }
 
     public void
     zeroIndent()
     {
-        _indentSave.addFirst(new Integer(_indent));
+        _indentSave.addElement(new Integer(_indent));
         _indent = 0;
     }
 
@@ -128,7 +101,8 @@ public class OutputBase
 	{
 	    Debug.Assert(!_indentSave.isEmpty());
 	}
-        _indent = ((Integer)_indentSave.removeFirst()).intValue();
+	_indent = ((Integer)_indentSave.lastElement()).intValue();
+	_indentSave.removeElementAt(_indentSave.size() - 1);
     }
 
     public void
@@ -184,11 +158,12 @@ public class OutputBase
         return (_out != null);
     }
 
-    protected java.io.PrintWriter _out;
+    protected java.io.PrintStream _out;
+    
     protected int _pos;
     protected int _indent;
     protected int _indentSize;
-    protected java.util.LinkedList _indentSave = new java.util.LinkedList();
+    protected java.util.Vector _indentSave = new java.util.Vector();
     protected boolean _useTab;
     protected boolean _separator;
 

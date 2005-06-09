@@ -183,6 +183,9 @@ public final class Util
     public static synchronized String
     generateUUID()
     {
+	//
+	// XXX- Need a way to create UUIDs on J2ME.
+	//
         java.rmi.server.UID uid = new java.rmi.server.UID();
 
         if(_localAddress == null)

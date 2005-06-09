@@ -19,10 +19,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    _prefix = prefix + ": ";
 	}
 
-	if(timestamp)
-	{
-	    _date = new java.text.SimpleDateFormat("MM/dd/yy HH:mm:ss:SSS");
-	}
+	_timestamp = timestamp;
     }
 
     public void
@@ -40,9 +37,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
             StringBuffer s = new StringBuffer("[ ");
-	    if(_date != null)
+	    if(_timestamp)
 	    {
-		s.append(_date.format(new java.util.Date()));
+		s.append(new java.util.Date().toString());
 		s.append(' ');
 	    }
 	    s.append(_prefix);
@@ -70,9 +67,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
+	    if(_timestamp)
 	    {
-		s.append(_date.format(new java.util.Date()));
+		s.append(new java.util.Date().toString());
 		s.append(' ');
 	    }
 	    s.append(_prefix);
@@ -88,9 +85,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
+	    if(_timestamp)
 	    {
-		s.append(_date.format(new java.util.Date()));
+		s.append(new java.util.Date().toString());
 		s.append(' ');
 	    }
 	    s.append(_prefix);
@@ -100,7 +97,21 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	}
     }
 
+    protected
+    LoggerI(LoggerI source)
+    {
+	super(source);
+	_prefix = source._prefix;
+	_timestamp = source._timestamp;
+    }
+    
+    public java.lang.Object
+    ice_clone()
+    {
+	return new LoggerI(this);
+    }
+
     String _prefix = "";
     static java.lang.Object _globalMutex = new java.lang.Object();
-    java.text.SimpleDateFormat _date = null;
+    boolean _timestamp = false;
 }

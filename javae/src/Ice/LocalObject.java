@@ -13,7 +13,7 @@ public interface LocalObject
 {
     boolean equals(java.lang.Object rhs);
 
-    java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+    java.lang.Object ice_clone() throws IceUtil.CloneException;
 
     int ice_hash();
 }

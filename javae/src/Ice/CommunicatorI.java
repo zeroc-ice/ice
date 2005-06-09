@@ -184,7 +184,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.referenceFactory().setDefaultLocator(locator);
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Hashtable
     getDefaultContext()
     {
         if(_destroyed)
@@ -195,7 +195,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     }
 
     public synchronized void
-    setDefaultContext(java.util.Map ctx)
+    setDefaultContext(java.util.Hashtable ctx)
     {
         if(_destroyed)
         {
@@ -224,8 +224,6 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         {
             _instance.logger().warning("Ice::Communicator::destroy() has not been called");
         }
-
-        super.finalize();
     }
 
     //
@@ -255,6 +253,20 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     getInstance()
     {
         return _instance;
+    }
+
+    protected
+    CommunicatorI(CommunicatorI source)
+    {
+	super(source);
+	_destroyed = source._destroyed;
+	_instance = source._instance;
+    }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	return new CommunicatorI(this);
     }
 
     private boolean _destroyed;

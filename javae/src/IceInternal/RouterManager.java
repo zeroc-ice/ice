@@ -18,10 +18,10 @@ public final class RouterManager
     synchronized void
     destroy()
     {
-	java.util.Iterator i = _table.values().iterator();
-        while(i.hasNext())
+	java.util.Enumeration e = _table.elements();
+        while(e.hasMoreElements())
         {
-            RouterInfo info = (RouterInfo)i.next();
+            RouterInfo info = (RouterInfo)e.nextElement();
             info.destroy();
         }
         _table.clear();
@@ -54,5 +54,5 @@ public final class RouterManager
         }
     }
 
-    private java.util.HashMap _table = new java.util.HashMap();
+    private java.util.Hashtable _table = new java.util.Hashtable();
 }

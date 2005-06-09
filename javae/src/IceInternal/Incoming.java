@@ -71,7 +71,7 @@ final public class Incoming extends IncomingBase
             String second = _is.readString();
             if(_current.ctx == null)
             {
-                _current.ctx = new java.util.HashMap();
+                _current.ctx = new java.util.Hashtable();
             }
             _current.ctx.put(first, second);
         }
@@ -280,9 +280,9 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		//_os.writeString(ex.toString());
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
+		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+		java.io.PrintStream pw = new java.io.PrintStream(sw);
+		pw.println(ex.toString());
 		pw.flush();
 		_os.writeString(sw.toString());
 		_connection.sendResponse(_os);
@@ -315,9 +315,9 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 		//_os.writeString(ex.toString());
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
+		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
+		java.io.PrintStream pw = new java.io.PrintStream(sw);
+		pw.println(ex.toString());
 		pw.flush();
 		_os.writeString(sw.toString());
 		_connection.sendResponse(_os);

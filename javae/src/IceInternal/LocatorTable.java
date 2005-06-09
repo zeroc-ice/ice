@@ -58,7 +58,7 @@ final class LocatorTable
 	return (Ice.ObjectPrx)_objectTable.remove(id);
     }
 
-    private java.util.HashMap _adapterEndpointsTable = new java.util.HashMap();
-    private java.util.HashMap _objectTable = new java.util.HashMap();
+    private java.util.Hashtable _adapterEndpointsTable = new java.util.Hashtable();
+    private java.util.Hashtable _objectTable = new java.util.Hashtable();
 }
 

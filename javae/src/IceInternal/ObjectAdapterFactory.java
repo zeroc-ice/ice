@@ -23,10 +23,10 @@ public final class ObjectAdapterFactory
 	    return;
 	}
 
-        java.util.Iterator i = _adapters.values().iterator();
-        while(i.hasNext())
+        java.util.Enumeration i = _adapters.elements();
+        while(i.hasMoreElements())
         {
-            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
             adapter.deactivate();
         }
 
@@ -77,10 +77,10 @@ public final class ObjectAdapterFactory
 	//
 	if(_adapters != null)
 	{
-	    java.util.Iterator i = _adapters.values().iterator();
-	    while(i.hasNext())
+	    java.util.Enumeration i = _adapters.elements();
+	    while(i.hasMoreElements())
 	    {
-		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
 		adapter.waitForDeactivate();
 	    }
 	}
@@ -127,10 +127,10 @@ public final class ObjectAdapterFactory
 	    return null;
 	}
 
-        java.util.Iterator i = _adapters.values().iterator();
-        while(i.hasNext())
+        java.util.Enumeration i = _adapters.elements();
+        while(i.hasMoreElements())
         {
-            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.next();
+            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.nextElement();
 	    try
 	    {
 		if(adapter.isLocal(proxy))
@@ -150,19 +150,19 @@ public final class ObjectAdapterFactory
     public void
     flushBatchRequests()
     {
-	java.util.LinkedList a = new java.util.LinkedList();
+	java.util.Vector a = new java.util.Vector();
         synchronized(this)
 	{
-	    java.util.Iterator i = _adapters.values().iterator();
-	    while(i.hasNext())
+	    java.util.Enumeration i = _adapters.elements();
+	    while(i.hasMoreElements())
 	    {
-	        a.add(i.next());
+	        a.addElement(i.nextElement());
 	    }
 	}
-	java.util.Iterator p = a.iterator();
-	while(p.hasNext())
+	java.util.Enumeration p = a.elements();
+	while(p.hasMoreElements())
 	{
-	    ((Ice.ObjectAdapterI)p.next()).flushBatchRequests();
+	    ((Ice.ObjectAdapterI)p.nextElement()).flushBatchRequests();
 	}
     }
 
@@ -185,11 +185,11 @@ public final class ObjectAdapterFactory
 	IceUtil.Debug.FinalizerAssert(_adapters == null);
 	IceUtil.Debug.FinalizerAssert(!_waitForShutdown);
 
-        super.finalize();
+        // Cannot call finalize on superclass. java.lang.Object.finalize() not available in CLDC.
     }
 
     private Instance _instance;
     private Ice.Communicator _communicator;
-    private java.util.HashMap _adapters = new java.util.HashMap();
+    private java.util.Hashtable _adapters = new java.util.Hashtable();
     private boolean _waitForShutdown;
 }

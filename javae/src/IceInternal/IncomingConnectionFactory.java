@@ -32,7 +32,7 @@ public final class IncomingConnectionFactory
     public void
     waitUntilHolding()
     {
-	java.util.LinkedList connections;
+	java.util.Vector connections = null;
 
 	synchronized(this)
 	{
@@ -55,16 +55,22 @@ public final class IncomingConnectionFactory
 	    // We want to wait until all connections are in holding state
 	    // outside the thread synchronization.
 	    //
-	    connections = (java.util.LinkedList)_connections.clone();
+
+	    connections = new java.util.Vector(_connections.size());
+	    java.util.Enumeration e = _connections.elements();
+	    while(e.hasMoreElements())
+	    {
+		connections.addElement(e.nextElement());
+	    }
 	}
 
-	//
+	// 
 	// Now we wait until each connection is in holding state.
 	//
-	java.util.ListIterator p = connections.listIterator();
-	while(p.hasNext())
+	java.util.Enumeration e = connections.elements();
+	while(e.hasMoreElements())
 	{
-	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+	    Ice.ConnectionI connection = (Ice.ConnectionI)e.nextElement();
 	    connection.waitUntilHolding();
 	}
     }
@@ -73,7 +79,7 @@ public final class IncomingConnectionFactory
     waitUntilFinished()
     {
 	Thread threadPerIncomingConnectionFactory = null;
-	java.util.LinkedList connections;
+	java.util.Vector connections;
 
 	synchronized(this)
 	{
@@ -122,10 +128,10 @@ public final class IncomingConnectionFactory
 	    }
 	}
 
-	java.util.ListIterator p = connections.listIterator();
-	while(p.hasNext())
+	java.util.Enumeration p = connections.elements();
+	while(p.hasMoreElements())
 	{
-	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+	    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
 	    connection.waitUntilFinished();
 	}
     }
@@ -155,23 +161,23 @@ public final class IncomingConnectionFactory
     public synchronized Ice.ConnectionI[]
     connections()
     {
-	java.util.LinkedList connections = new java.util.LinkedList();
+	java.util.Vector connections = new java.util.Vector();
 
 	//
 	// Only copy connections which have not been destroyed.
 	//
-        java.util.ListIterator p = _connections.listIterator();
-        while(p.hasNext())
+        java.util.Enumeration p = _connections.elements();
+        while(p.hasMoreElements())
         {
-            Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+            Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
             if(!connection.isDestroyed())
             {
-                connections.add(connection);
+                connections.addElement(connection);
             }
         }
 
         Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
-        connections.toArray(arr);
+        connections.copyInto(arr);
         return arr;
     }
 
@@ -250,7 +256,7 @@ public final class IncomingConnectionFactory
 		return;
 	    }
 	    
-	    _connections.add(connection);
+	    _connections.addElement(connection);
 	}
 	else
 	{
@@ -335,10 +341,10 @@ public final class IncomingConnectionFactory
                     return;
                 }
 
-                java.util.ListIterator p = _connections.listIterator();
-                while(p.hasNext())
+                java.util.Enumeration p = _connections.elements();
+                while(p.hasMoreElements())
                 {
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
                     connection.activate();
                 }
                 break;
@@ -351,10 +357,10 @@ public final class IncomingConnectionFactory
                     return;
                 }
 
-                java.util.ListIterator p = _connections.listIterator();
-                while(p.hasNext())
+                java.util.Enumeration p = _connections.elements();
+                while(p.hasMoreElements())
                 {
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
                     connection.hold();
                 }
                 break;
@@ -371,10 +377,10 @@ public final class IncomingConnectionFactory
 		    _acceptor.connectToSelf();
 		}
 
-                java.util.ListIterator p = _connections.listIterator();
-                while(p.hasNext())
+                java.util.Enumeration p = _connections.elements();
+                while(p.hasMoreElements())
                 {   
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
                     connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
                 }
 		break;
@@ -388,22 +394,14 @@ public final class IncomingConnectionFactory
     private void
     warning(Ice.LocalException ex)
     {
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
-        pw.flush();
-        String s = "connection exception:\n" + sw.toString() + '\n' + _acceptor.toString();
+        String s = "connection exception:\n" + ex.toString() + '\n' + _acceptor.toString();
         _instance.logger().warning(s);
     }
 
     private void
     error(String msg, Exception ex)
     {
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	ex.printStackTrace(pw);
-	pw.flush();
-	String s = msg + ":\n" + toString() + sw.toString();
+	String s = msg + ":\n" + toString() + ex.toString();
 	_instance.logger().error(s);
     }
 
@@ -497,16 +495,16 @@ public final class IncomingConnectionFactory
 		//
 		// Reap connections for which destruction has completed.
 		//
-		java.util.ListIterator p = _connections.listIterator();
-		while(p.hasNext())
+		java.util.Enumeration p = _connections.elements();
+		for(int i = _connections.size(); i > 0; --i)
 		{
-		    Ice.ConnectionI con = (Ice.ConnectionI)p.next();
+		    Ice.ConnectionI con = (Ice.ConnectionI)_connections.elementAt(i - 1);
 		    if(con.isFinished())
 		    {
-			p.remove();
+			_connections.removeElementAt(i - 1);
 		    }
 		}
-
+		
 		//
 		// Create a connection object for the connection.
 		//
@@ -521,7 +519,7 @@ public final class IncomingConnectionFactory
 			return;
 		    }
 
-		    _connections.add(connection);
+		    _connections.addElement(connection);
 		}
 	    }
 
@@ -562,7 +560,7 @@ public final class IncomingConnectionFactory
 
     private /*final*/ boolean _warn;
 
-    private java.util.LinkedList _connections = new java.util.LinkedList();
+    private java.util.Vector _connections = new java.util.Vector();
 
     private int _state;
 }

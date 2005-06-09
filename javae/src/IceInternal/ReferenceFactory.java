@@ -13,7 +13,7 @@ public final class ReferenceFactory
 {
     public synchronized Reference
     create(Ice.Identity ident,
-           java.util.Map context,
+           java.util.Hashtable context,
            String facet,
            int mode,
            Endpoint[] endpoints,
@@ -38,7 +38,7 @@ public final class ReferenceFactory
 
     public synchronized Reference
     create(Ice.Identity ident,
-           java.util.Map context,
+           java.util.Hashtable context,
            String facet,
            int mode,
            String adapterId,
@@ -65,7 +65,7 @@ public final class ReferenceFactory
 
     public synchronized Reference
     create(Ice.Identity ident,
-           java.util.Map context,
+           java.util.Hashtable context,
            String facet,
            int mode,
 	   Ice.ConnectionI[] fixedConnections)
@@ -100,7 +100,7 @@ public final class ReferenceFactory
 	{
 	    return null;
 	}
-	return (Reference)r.clone();
+	return (Reference)r.ice_clone();
     }
 
     public Reference
@@ -345,10 +345,10 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, new java.util.HashMap(), facet, mode, "", routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, "", routerInfo, locatorInfo);
 	}
 
-        java.util.ArrayList endpoints = new java.util.ArrayList();
+        java.util.Vector endpoints = new java.util.Vector();
 
 	if(s.charAt(beg) == ':')
 	{
@@ -366,11 +366,11 @@ public final class ReferenceFactory
 		
 		String es = s.substring(beg, end);
 		Endpoint endp = _instance.endpointFactoryManager().create(es);
-		endpoints.add(endp);
+		endpoints.addElement(endp);
 	    }
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
-	    endpoints.toArray(endp);
-	    return create(ident, new java.util.HashMap(), facet, mode, endp, routerInfo);
+	    endpoints.copyInto(endp);
+	    return create(ident, new java.util.Hashtable(), facet, mode, endp, routerInfo);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -410,7 +410,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, new java.util.HashMap(), facet, mode, adapter, routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, adapter, routerInfo, locatorInfo);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -469,13 +469,13 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, new java.util.HashMap(), facet, mode, endpoints, routerInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, endpoints, routerInfo);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, new java.util.HashMap(), facet, mode, adapterId, routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, adapterId, routerInfo, locatorInfo);
 	}
     }
 
@@ -528,18 +528,26 @@ public final class ReferenceFactory
     private Reference
     updateCache(Reference ref)
     {
+	return ref;
+
+	/*
+	//
+	// TODO: This method has been modified to function in a similar way to the full version of Ice. The
+	// function and purpose of this method should be revisited to determine whether what it is doing is still
+	// appropriate for IceJ E.
+	//
+	
         //
-        // If we already have an equivalent reference, use such equivalent
-        // reference. Otherwise add the new reference to the reference
-        // set.
+        // If we already have an equivalent reference, use such equivalent reference. Otherwise add the new
+        // reference to the reference set.
         //
-        // Java implementation note: A WeakHashMap is used to hold References,
-        // allowing References to be garbage collected automatically. A
-        // Reference serves as both key and value in the map. The
-        // WeakHashMap class internally creates a weak reference for the
-        // key, and we use a weak reference for the value as well.
+	// Note: A WeakHashMap is used in the full version of Ice. This collection type is not available in
+	// CLDC+MIDP compliant runtimes. We can however get similar behavior by using the hashCode() directly as
+	// the hash value and reaping the hashtable manually.
         //
-        java.lang.ref.WeakReference w = (java.lang.ref.WeakReference)_references.get(ref);
+        java.lang.ref.WeakReference w =
+	    (java.lang.ref.WeakReference)_references.get(new Integer(ref.hashCode()));
+	
         if(w != null)
         {
             Reference r = (Reference)w.get();
@@ -549,19 +557,35 @@ public final class ReferenceFactory
             }
             else
             {
-                _references.put(ref, new java.lang.ref.WeakReference(ref));
+                _references.put(new Integer(ref.hashCode()), new java.lang.ref.WeakReference(ref));
             }
         }
         else
         {
-            _references.put(ref, new java.lang.ref.WeakReference(ref));
+            _references.put(new Integer(ref.hashCode()), new java.lang.ref.WeakReference(ref));
         }
 
+	//
+	// Scan hash table and remove mappings for references that have been cleared.
+	//
+	java.util.Enumeration e = _references.keys();
+	while(e.hasMoreElements())
+	{
+	    java.lang.Object currentKey = e.nextElement();
+	    java.lang.ref.WeakReference wRef = (java.lang.ref.WeakReference)_references.get(currentKey);
+
+	    if(wRef.get() == null)
+	    {
+		_references.remove(currentKey);
+	    }
+	}
+
         return ref;
+	*/
     }
 
     private Instance _instance;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
-    private java.util.WeakHashMap _references = new java.util.WeakHashMap();
+    private java.util.Hashtable _references = new java.util.Hashtable();
 }

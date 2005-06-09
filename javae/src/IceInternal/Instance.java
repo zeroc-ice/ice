@@ -144,7 +144,7 @@ public class Instance
     }
 
     public void
-    setDefaultContext(java.util.Map ctx)
+    setDefaultContext(java.util.Hashtable ctx)
     {
 	if(ctx == null || ctx.isEmpty())
 	{
@@ -152,14 +152,28 @@ public class Instance
 	}
 	else
 	{
-	    _defaultContext = new java.util.HashMap(ctx);
+	    _defaultContext = new java.util.Hashtable(ctx.size());
+	    java.util.Enumeration e = ctx.keys();
+	    while(e.hasMoreElements())
+	    {
+		java.lang.Object key = e.nextElement();
+		_defaultContext.put(key, ctx.get(key));
+	    }
 	}
     }
 
-    public java.util.Map
+    public java.util.Hashtable
     getDefaultContext()
     {
-        return new java.util.HashMap(_defaultContext);
+	java.util.Hashtable result = new java.util.Hashtable(_defaultContext.size());
+	java.util.Enumeration e = _defaultContext.keys();
+	while(e.hasMoreElements())
+	{
+	    java.lang.Object key = e.nextElement();
+	    java.lang.Object value = _defaultContext.get(key);
+	    result.put(key, value);
+	}
+	return result;
     }
 
     public void
@@ -195,55 +209,6 @@ public class Instance
 
         try
         {
-	    try
-	    {
-		synchronized(Instance.class)
-		{
-		    if(!_oneOffDone)
-		    {
-			String stdOut = _properties.getProperty("Ice.StdOut");
-			String stdErr = _properties.getProperty("Ice.StdErr");
-			
-			java.io.PrintStream outStream = null;
-			
-			if(stdOut.length() > 0)
-			{
-			    //
-			    // We need to close the existing stdout for JVM thread dump to go
-			    // to the new file
-			    //
-			    System.out.close();
-
-			    outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
-			    System.setOut(outStream);
-			}
-			if(stdErr.length() > 0)
-			{
-			    //
-			    // close for consistency with stdout
-			    //
-			    System.err.close();
-
-			    if(stdErr.equals(stdOut))
-			    {
-				System.setErr(outStream); 
-			    }
-			    else
-			    {
-				System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
-			    }
-			}
-			_oneOffDone = true;
-		    }
-		}
-	    }
-	    catch(java.io.FileNotFoundException ex)
-	    {
-		Ice.SyscallException se = new Ice.SyscallException();
-		se.initCause(ex);
-		throw se;
-	    }
-
 	    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
 				      _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 
@@ -317,9 +282,11 @@ public class Instance
         IceUtil.Debug.FinalizerAssert(_locatorManager == null);
         IceUtil.Debug.FinalizerAssert(_endpointFactoryManager == null);
 
-        super.finalize();
+	//
+	// Do not call parent's finalizer, CLDC Object does not have it.
+	//
     }
-
+    
     public void
     finishSetup(Ice.StringSeqHolder args)
     {
@@ -412,13 +379,12 @@ public class Instance
     validatePackages()
     {
         final String prefix = "Ice.Package.";
-        java.util.Map map = _properties.getPropertiesForPrefix(prefix);
-        java.util.Iterator p = map.entrySet().iterator();
-        while(p.hasNext())
+        java.util.Hashtable map = _properties.getPropertiesForPrefix(prefix);
+        java.util.Enumeration p = map.keys();
+        while(p.hasMoreElements())
         {
-            java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-            String key = (String)e.getKey();
-            String pkg = (String)e.getValue();
+            String key = (String)p.nextElement();
+            String pkg = (String)map.get(key);
             if(key.length() == prefix.length())
             {
                 _logger.warning("ignoring invalid property: " + key + "=" + pkg);
@@ -450,8 +416,8 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
-    private java.util.Map _defaultContext;
-    private static java.util.Map _emptyContext = new java.util.HashMap();
+    private java.util.Hashtable _defaultContext;
+    private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
 
     private static boolean _oneOffDone = false;
 }

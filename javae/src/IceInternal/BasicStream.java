@@ -1246,6 +1246,11 @@ public class BasicStream
             _class = c;
         }
 
+	DynamicUserExceptionFactory(DynamicUserExceptionFactory source)
+	{
+	    _class = source._class;
+	}
+
         public void
         createAndThrow()
             throws Ice.UserException
@@ -1271,6 +1276,12 @@ public class BasicStream
         {
         }
 
+	public java.lang.Object
+	ice_clone()
+	{
+	    return new DynamicUserExceptionFactory(this);
+	}
+
         private Class _class;
     }
 
@@ -1286,6 +1297,10 @@ public class BasicStream
 
         if(factory == null)
         {
+	    /*
+	      XXX- LinkageError is not available in CLDC. The try/catch block has no meaning unless a replacement
+	      for checking if a class is instantiable or not.
+	      
             try
             {
                 Class c = findClass(id);
@@ -1300,6 +1315,13 @@ public class BasicStream
                 e.initCause(ex);
                 throw e;
             }
+	    */
+
+	    Class c = findClass(id);
+	    if(c != null)
+	    {
+		factory = new DynamicUserExceptionFactory(c);
+	    }
 
             if(factory != null)
             {
@@ -1315,7 +1337,6 @@ public class BasicStream
 
     private Class
     findClass(String id)
-        throws LinkageError
     {
         Class c = null;
 
@@ -1359,21 +1380,19 @@ public class BasicStream
 
     private Class
     getConcreteClass(String className)
-        throws LinkageError
     {
         try
         {
             Class c = Class.forName(className);
             //
-            // Ensure the class is instantiable. The constants are
-            // defined in the JVM specification (0x200 = interface,
-            // 0x400 = abstract).
+            // Ensure the class is instantiable.
+	    //
+	    // XXX- Need to check for abstract classes.
             //
-            int modifiers = c.getModifiers();
-            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
-            {
-                return c;
-            }
+	    if(!c.isInterface())
+	    {
+		return c;
+	    }
         }
         catch(ClassNotFoundException ex)
         {
@@ -1403,7 +1422,7 @@ public class BasicStream
             "synchronized", "this", "throw", "throws", "toString", "transient",
             "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
         };
-        boolean found =  java.util.Arrays.binarySearch(keywordList, name) >= 0;
+        boolean found = IceUtil.Arrays.search(keywordList, name) >= 0;
         return found ? "_" + name : name;
     }
 
@@ -1528,6 +1547,6 @@ public class BasicStream
     }
     SeqData _seqDataStack;
 
-    private static java.util.HashMap _exceptionFactories = new java.util.HashMap();
+    private static java.util.Hashtable _exceptionFactories = new java.util.Hashtable();
     private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
 }

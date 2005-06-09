@@ -349,27 +349,27 @@ public final class StringUtil
     public static String[]
     split(String s, String delim)
     {
-	java.util.ArrayList arr = new java.util.ArrayList();
+	java.util.Vector arr = new java.util.Vector();
 	int beg = findFirstNotOf(s, delim);
 	int end = s.length();
 	while(beg != -1 && (end = findFirstOf(s, delim, beg)) != -1)
 	{
-	    arr.add(s.substring(beg, end));
+	    arr.addElement(s.substring(beg, end));
 	    beg = findFirstNotOf(s, delim, end);
 	}
 	if(beg != -1)
 	{
 	    if(end == -1)
 	    {
-		arr.add(s.substring(beg));
+		arr.addElement(s.substring(beg));
 	    }
 	    else
 	    {
-		arr.add(s.substring(beg, end));
+		arr.addElement(s.substring(beg, end));
 	    }
 	}
 	String[] result = new String[arr.size()];
-	arr.toArray(result);
+	arr.copyInto(result);
 	return result;
     }
 }

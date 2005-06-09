@@ -9,7 +9,7 @@
 
 package Ice;
 
-public abstract class LocalObjectImpl implements LocalObject, java.lang.Cloneable
+public abstract class LocalObjectImpl implements LocalObject, IceUtil.Cloneable
 {
     public boolean
     equals(java.lang.Object rhs)
@@ -25,16 +25,22 @@ public abstract class LocalObjectImpl implements LocalObject, java.lang.Cloneabl
         return false;
     }
 
-    public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
-    {
-        return super.clone();
-    }
-
     public int
     ice_hash()
     {
         return hashCode();
+    }
+
+    protected
+    LocalObjectImpl()
+    {
+    }
+    
+    protected
+    LocalObjectImpl(LocalObjectImpl source)
+    {
+	//
+	// Intentionally left blank.
+	//
     }
 }

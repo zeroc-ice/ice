@@ -24,10 +24,10 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         if(m == null)
         {
-            m = new java.util.HashMap();
+            m = new java.util.Hashtable();
             _servantMapMap.put(ident, m);
         }
         else
@@ -61,7 +61,7 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         Ice.Object obj = null;
         if(m == null || (obj = (Ice.Object)m.remove(facet)) == null)
 	{
@@ -82,7 +82,7 @@ public final class ServantManager
 	return obj;
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Hashtable
     removeAllFacets(Ice.Identity ident)
     {
 	if(IceUtil.Debug.ASSERT)
@@ -90,7 +90,7 @@ public final class ServantManager
 	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
 	}
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         if(m == null)
 	{
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -117,7 +117,7 @@ public final class ServantManager
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         Ice.Object obj = null;
         if(m != null)
         {
@@ -127,7 +127,7 @@ public final class ServantManager
         return obj;
     }
 
-    public synchronized java.util.Map
+    public synchronized java.util.Hashtable
     findAllFacets(Ice.Identity ident)
     {
 	if(IceUtil.Debug.ASSERT)
@@ -135,13 +135,21 @@ public final class ServantManager
 	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
 	}
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         if(m != null)
         {
-            return new java.util.HashMap(m);
+	    java.util.Hashtable result = new java.util.Hashtable(m.size());
+	    java.util.Enumeration e = m.keys();
+	    while(e.hasMoreElements())
+	    {
+		java.lang.Object key = e.nextElement();
+		java.lang.Object value = m.get(key);
+		result.put(key, value);
+	    }
+	    return result;
         }
 
-        return new java.util.HashMap();
+        return new java.util.Hashtable();
     }
 
     public synchronized boolean
@@ -152,7 +160,7 @@ public final class ServantManager
 	    IceUtil.Debug.Assert(_instance != null); // Must not be called after destruction.
 	}
 
-        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        java.util.Hashtable m = (java.util.Hashtable)_servantMapMap.get(ident);
         if(m == null)
         {
             return false;
@@ -187,8 +195,6 @@ public final class ServantManager
 	// properly deactivated.
 	//
 	//IceUtil.Debug.FinalizerAssert(_instance == null);
-	
-        super.finalize();
     }
 
     //
@@ -208,5 +214,5 @@ public final class ServantManager
 
     private Instance _instance;
     final private String _adapterName;
-    private java.util.HashMap _servantMapMap = new java.util.HashMap();
+    private java.util.Hashtable _servantMapMap = new java.util.Hashtable();
 }

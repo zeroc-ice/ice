@@ -30,7 +30,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final boolean
-    ice_isA(String __id, java.util.Map __context)
+    ice_isA(String __id, java.util.Hashtable __context)
     {
         int __cnt = 0;
         while(true)
@@ -59,7 +59,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final void
-    ice_ping(java.util.Map __context)
+    ice_ping(java.util.Hashtable __context)
     {
         int __cnt = 0;
         while(true)
@@ -89,7 +89,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public String[]
-    ice_ids(java.util.Map __context)
+    ice_ids(java.util.Hashtable __context)
     {
         int __cnt = 0;
         while(true)
@@ -118,7 +118,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public String
-    ice_id(java.util.Map __context)
+    ice_id(java.util.Hashtable __context)
     {
         int __cnt = 0;
         while(true)
@@ -148,7 +148,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map context)
+               java.util.Hashtable context)
     {
         int __cnt = 0;
         while(true)
@@ -197,14 +197,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final java.util.Map
+    public final java.util.Hashtable
     ice_getContext()
     {
         return _reference.getContext();
     }
 
     public final ObjectPrx
-    ice_newContext(java.util.Map newContext)
+    ice_newContext(java.util.Hashtable newContext)
     {
         if(_reference.hasContext() && newContext != null && newContext.equals(_reference.getContext()))
         {
@@ -544,7 +544,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return new _ObjectDel();
     }
 
-    protected java.util.Map
+    protected java.util.Hashtable
     __defaultContext()
     {
         return _reference.getContext();

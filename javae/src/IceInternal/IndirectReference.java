@@ -14,7 +14,7 @@ public class IndirectReference extends RoutableReference
     public
     IndirectReference(Instance inst,
     		      Ice.Identity ident,
-		      java.util.Map ctx,
+		      java.util.Hashtable ctx,
 		      String fs,
 		      int md,
 		      String adptid,
@@ -247,6 +247,27 @@ public class IndirectReference extends RoutableReference
 	return _locatorInfo == null ? rhs._locatorInfo == null : _locatorInfo.equals(rhs._locatorInfo);
     }
 
+    protected
+    IndirectReference()
+    {
+    }
+
+    protected void
+    shallowCopy(IndirectReference ref)
+    {
+	super.shallowCopy(ref);
+	ref._adapterId = _adapterId;
+	ref._locatorInfo = _locatorInfo;
+    }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	IndirectReference result = new IndirectReference();
+        shallowCopy(result);
+	return result;
+    }
+    
     private String _adapterId;
     private LocatorInfo _locatorInfo;
 }

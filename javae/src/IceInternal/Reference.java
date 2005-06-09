@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public abstract class Reference implements Cloneable
+public abstract class Reference implements IceUtil.Cloneable
 {
     public final static int ModeTwoway = 0;
     public final static int ModeOneway = 1;
@@ -40,7 +40,7 @@ public abstract class Reference implements Cloneable
         return _instance;
     }
 
-    public final java.util.Map
+    public final java.util.Hashtable
     getContext()
     {
 	return _hasContext ? _context : _instance.getDefaultContext();
@@ -68,7 +68,7 @@ public abstract class Reference implements Cloneable
     // corresponding value changed.
     //
     public final Reference
-    changeContext(java.util.Map newContext)
+    changeContext(java.util.Hashtable newContext)
     {
 	if(newContext == null)
 	{
@@ -86,7 +86,14 @@ public abstract class Reference implements Cloneable
 	}
 	else
 	{
-	    r._context = new java.util.HashMap(newContext);
+	    java.util.Hashtable newTable = new java.util.Hashtable(newContext.size());
+	    java.util.Enumeration e = newContext.keys();
+	    while(e.hasMoreElements())
+	    {
+		java.lang.Object key = e.nextElement();
+		newTable.put(key, newContext.get(key));
+	    }
+	    r._context = newTable;
 	}
 	return r;
     }
@@ -113,9 +120,9 @@ public abstract class Reference implements Cloneable
 	Reference r = _instance.referenceFactory().copy(this);
 	try
 	{
-	    r._identity = (Ice.Identity)newIdentity.clone();
+	    r._identity = (Ice.Identity)newIdentity.ice_clone();
 	}
-	catch(CloneNotSupportedException ex)
+	catch(IceUtil.CloneException ex)
 	{
 	    if(IceUtil.Debug.ASSERT)
 	    {
@@ -185,7 +192,7 @@ public abstract class Reference implements Cloneable
 
 	if(_hasContext)
 	{
-	    h = 5 * h + _context.entrySet().hashCode();
+	    h = 5 * h + _context.elements().hashCode();
 	}
 
         sz = _facet.length();
@@ -340,20 +347,27 @@ public abstract class Reference implements Cloneable
         return true;
     }
 
-    public Object clone()
+    protected void
+    shallowCopy(Reference dest)
+    {
+	dest._instance = _instance;
+	dest._mode = _mode;
+	dest._identity = _identity;
+	dest._hasContext = _hasContext;
+	dest._context = _context;
+	dest._emptyContext = _emptyContext;
+	dest._facet = _facet;
+	dest._hashInitialized = false;
+    }
+
+    public java.lang.Object
+    ice_clone()
     {
 	//
-	// A member-wise copy is safe because the members are immutable.
+	// This should not be called. The cloning operation will be handled by descendents.
 	//
-	Object o = null;
-	try
-	{
-	    o = super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	}
-	return o;
+	IceUtil.Debug.Assert(false);
+	return null;
     }
 
     private Instance _instance;
@@ -361,17 +375,25 @@ public abstract class Reference implements Cloneable
     private int _mode;
     private Ice.Identity _identity;
     private boolean _hasContext;
-    private java.util.Map _context;
-    private static java.util.HashMap _emptyContext = new java.util.HashMap();
+    private java.util.Hashtable _context;
+    private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
     private String _facet;
 
     private int _hashValue;
     private boolean _hashInitialized;
 
     protected
+    Reference()
+    {
+	//
+	// Default constructor required for cloning operation.
+	//
+    }
+    
+    protected
     Reference(Instance inst,
               Ice.Identity ident,
-	      java.util.Map ctx,
+	      java.util.Hashtable ctx,
               String fac,
               int md)
     {
@@ -400,7 +422,14 @@ public abstract class Reference implements Cloneable
     protected Endpoint[]
     filterEndpoints(Endpoint[] allEndpoints)
     {
-        java.util.ArrayList endpoints = new java.util.ArrayList();
+	//
+	// XXX
+	//
+	if(allEndpoints.length == 0)
+	{
+	    System.err.println("ALERT! WARNING! Filtering endpoint array with no endpoints!");
+	}
+        java.util.Vector endpoints = new java.util.Vector();
 
         //
         // Filter out unknown endpoints.
@@ -409,17 +438,26 @@ public abstract class Reference implements Cloneable
         {
             if(!allEndpoints[i].unknown())
             {
-                endpoints.add(allEndpoints[i]);
+                endpoints.addElement(allEndpoints[i]);
             }
         }
 
         //
-        // Randomize the order of endpoints.
+        // Randomize the order while copying the endpoints into an array.
         //
-        java.util.Collections.shuffle(endpoints);
-
+	java.util.Random r = new java.util.Random();
         Endpoint[] arr = new Endpoint[endpoints.size()];
-        endpoints.toArray(arr);
+        java.util.Enumeration e = endpoints.elements();
+	while(e.hasMoreElements())
+	{
+	    int index = r.nextInt(endpoints.size());
+	    while(arr[index] != null)
+	    {
+		index = r.nextInt(endpoints.size());
+	    }
+	    
+	    arr[index] = (IceInternal.Endpoint)e.nextElement();
+	}
         return arr;
     }
 
