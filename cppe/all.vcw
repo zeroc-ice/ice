@@ -435,6 +435,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "testCommon"=.\test\Common\testCommon.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "thread"=.\test\IceUtil\thread\thread.vcp - Package Owner=<4>
 
 Package=<5>
@@ -445,6 +457,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 

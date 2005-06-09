@@ -12,16 +12,29 @@
 
 #include <IceUtil/Config.h>
 
-#include <stdio.h>
+#ifdef ICE_TEST_COMMON_API_EXPORTS
+#   define ICE_TEST_COMMON_API ICE_DECLSPEC_EXPORT
+#else
+#   define ICE_TEST_COMMON_API ICE_DECLSPEC_IMPORT
+#endif
 
-void
-inline testFailed(const char* expr, const char* file, unsigned int line)
-{
-    printf("failed!\n");
-    printf("%s:%d: assertion `%s' failed\n", file, line, expr);
-    abort();
-}
+ICE_TEST_COMMON_API void tprintf(const char* fmt, ...);
+
+ICE_TEST_COMMON_API void testFailed(const char*, const char*, unsigned int);
 
 #define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))
+
+class ICE_TEST_COMMON_API TestApplication
+{
+public:
+
+#ifdef _WIN32_WCE
+    int main(HINSTANCE);
+#else
+    int main(int, char*[]);
+#endif
+
+    virtual int run(int, char*[]) = 0;
+};
 
 #endif
