@@ -34,16 +34,6 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     locate(Ice.Current c, Ice.LocalObjectHolder cookie)
     {
 	//
-	// Make a copy of the ID. We need to do this because
-	// Ice.Current.id is the same reference on every call: its
-	// contents change, but it is the same object every time. We
-	// need a copy to insert into the queue and the map.
-	//
-	Ice.Identity idCopy = new Ice.Identity();
-	idCopy.name = c.id.name;
-	idCopy.category = c.id.category;
-
-	//
 	// Create a cookie.
 	//
 	EvictorCookie ec = new EvictorCookie();
@@ -77,7 +67,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
 	    }
 	    ec.entry.userCookie = cookieHolder.value;
 	    ec.entry.useCount = 0;
-	    _map.put(idCopy, ec.entry);
+	    _map.put(c.id, ec.entry);
 	}
 
 	//
@@ -85,7 +75,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
 	// the entry at the front, so we get LRU order.
 	//
 	++(ec.entry.useCount);
-	_queue.addFirst(idCopy);
+	_queue.addFirst(c.id);
 	ec.entry.pos = _queue.iterator();
 	ec.entry.pos.next(); // Position the iterator on the element.
 
