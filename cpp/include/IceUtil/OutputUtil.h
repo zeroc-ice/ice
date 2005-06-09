@@ -58,15 +58,6 @@ public:
 
     bool operator!() const; // Check whether the output state is ok.
 
-    std::streamsize width() const;
-    std::streamsize width(std::streamsize newWidth);
-
-    std::ios_base::fmtflags flags() const;
-    std::ios_base::fmtflags flags(std::ios_base::fmtflags newFlags);
-
-    std::ostream::char_type fill() const;
-    std::ostream::char_type fill(std::ostream::char_type newFill);
-
 protected:
 
     std::ofstream _fout;

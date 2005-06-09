@@ -197,42 +197,6 @@ IceUtil::OutputBase::operator!() const
     return !_out;
 }
 
-streamsize
-IceUtil::OutputBase::width() const
-{
-    return _out.width();
-}
-
-streamsize
-IceUtil::OutputBase::width(streamsize newWidth)
-{
-    return _out.width(newWidth);
-}
-
-ios_base::fmtflags
-IceUtil::OutputBase::flags() const
-{
-    return _out.flags();
-}
-
-ios_base::fmtflags
-IceUtil::OutputBase::flags(ios_base::fmtflags newFlags)
-{
-    return _out.flags(newFlags);
-}
-
-ostream::char_type
-IceUtil::OutputBase::fill() const
-{
-    return _out.fill();
-}
-
-ostream::char_type
-IceUtil::OutputBase::fill(ostream::char_type newFill)
-{
-    return _out.fill(newFill);
-}
-
 // ----------------------------------------------------------------------
 // Output
 // ----------------------------------------------------------------------

@@ -1776,10 +1776,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	    {
 		out << "\"";
 
-		ios_base::fmtflags originalFlags = out.flags();
-		streamsize originalWidth = out.width();
-		ostream::char_type originalFill = out.fill();
-
 		const string val = p->value();
 		for(string::const_iterator c = val.begin(); c != val.end(); ++c)
 		{
@@ -1825,10 +1821,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 			}
 		    }
 		}
-
-		out.fill(originalFill);
-		out.width(originalWidth);
-		out.flags(originalFlags);
 
 		out << "\"";
 		break;
