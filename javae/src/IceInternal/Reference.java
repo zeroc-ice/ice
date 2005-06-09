@@ -422,13 +422,6 @@ public abstract class Reference implements IceUtil.Cloneable
     protected Endpoint[]
     filterEndpoints(Endpoint[] allEndpoints)
     {
-	//
-	// XXX
-	//
-	if(allEndpoints.length == 0)
-	{
-	    System.err.println("ALERT! WARNING! Filtering endpoint array with no endpoints!");
-	}
         java.util.Vector endpoints = new java.util.Vector();
 
         //
