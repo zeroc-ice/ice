@@ -14,8 +14,8 @@ using namespace std;
 using namespace IceGrid;
 
 ObserverSessionI::ObserverSessionI(const string& userId, 
-				   const IceStorm::TopicPrx& registryObserverTopic,
-				   const IceStorm::TopicPrx& nodeObserverTopic) :
+				   RegistryObserverTopic& registryObserverTopic,
+				   NodeObserverTopic& nodeObserverTopic) :
     _userId(userId), 
     _destroyed(false),
     _registryObserverTopic(registryObserverTopic), 
@@ -42,10 +42,8 @@ ObserverSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     //
     // Subscribe to the topics.
     //
-    IceStorm::QoS qos;
-    qos["reliability"] = "twoway ordered";
-    _registryObserverTopic->subscribe(qos, registryObserver); 
-    _nodeObserverTopic->subscribe(qos, nodeObserver);
+    _registryObserverTopic.subscribe(registryObserver); 
+    _nodeObserverTopic.subscribe(nodeObserver);
 }
 
 void
@@ -54,13 +52,13 @@ ObserverSessionI::destroy(const Ice::Current&)
     //
     // Unsubscribe from the topics.
     //
-    _registryObserverTopic->unsubscribe(_registryObserver);
-    _nodeObserverTopic->unsubscribe(_nodeObserver);
+    _registryObserverTopic.unsubscribe(_registryObserver);
+    _nodeObserverTopic.unsubscribe(_nodeObserver);
 }
 
 LocalObserverSessionI::LocalObserverSessionI(const string& userId, 
-					     const IceStorm::TopicPrx& registryObserverTopic,
-					     const IceStorm::TopicPrx& nodeObserverTopic) :
+					     RegistryObserverTopic& registryObserverTopic,
+					     NodeObserverTopic& nodeObserverTopic) :
     ObserverSessionI(userId, registryObserverTopic, nodeObserverTopic),
     _timestamp(IceUtil::Time::now())
 {
@@ -88,8 +86,8 @@ LocalObserverSessionI::timestamp() const
 }
 
 Glacier2ObserverSessionI::Glacier2ObserverSessionI(const string& userId, 
-						   const IceStorm::TopicPrx& registryObserverTopic,
-						   const IceStorm::TopicPrx& nodeObserverTopic) :
+						   RegistryObserverTopic& registryObserverTopic,
+						   NodeObserverTopic& nodeObserverTopic) :
     ObserverSessionI(userId, registryObserverTopic, nodeObserverTopic)
 {
 }

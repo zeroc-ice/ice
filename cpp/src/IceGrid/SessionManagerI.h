@@ -13,6 +13,7 @@
 #include <IceStorm/IceStorm.h>
 #include <Glacier2/Session.h>
 #include <IceGrid/Observer.h>
+#include <IceGrid/Topics.h>
 
 namespace IceGrid
 {
@@ -27,15 +28,15 @@ class SessionManagerI : virtual public SessionManager
 {
 public:
 
-    SessionManagerI(const IceStorm::TopicPrx&, const IceStorm::TopicPrx&, const ReapThreadPtr&);
+    SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const ReapThreadPtr&);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
 
 private:
 
-    const IceStorm::TopicPrx _registryObserverTopic;
-    const IceStorm::TopicPrx _nodeObserverTopic;
+    RegistryObserverTopic& _registryObserverTopic;
+    NodeObserverTopic& _nodeObserverTopic;
     const ReapThreadPtr _reaper;
 
 };

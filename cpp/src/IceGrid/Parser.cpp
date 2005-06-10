@@ -358,7 +358,7 @@ Parser::usage()
 	"application list            List all deployed applications.\n"
 	"                            to the application."
         "\n"
-	"server template instantiate APPLICATION TEMPLATE NODE [NAME=VALUE ...]\n"
+	"server template instantiate APPLICATION TEMPLATE [NAME=VALUE ...]\n"
 	"                            Instantiate a server template\n"
 	"server template describe APPLICATION TEMPLATE\n"
         "                            Describe application server template TEMPLATE.\n"
@@ -943,9 +943,9 @@ Parser::describeServerTemplate(const list<string>& args)
 void
 Parser::instantiateServerTemplate(const list<string>& args)
 {
-    if(args.size() < 3)
+    if(args.size() < 2)
     {
-	error("`server template instantiate' requires at least three arguments\n(`help' for more info)");
+	error("`server template instantiate' requires at least two arguments\n(`help' for more info)");
 	return;
     }
 
@@ -956,7 +956,6 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	list<string>::const_iterator p = args.begin();
 	string application = *p++;
 	string templ = *p++;
-	string node = *p++;
 
 	for(; p != args.end(); ++p)
 	{
@@ -967,7 +966,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	    }
 	}
 
-	_admin->instantiateServer(application, templ, node, vars);
+	_admin->instantiateServer(application, templ, vars);
     }
     catch(const IceXML::ParserException& ex)
     {

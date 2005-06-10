@@ -183,17 +183,16 @@ private:
 
 }
 
-Database::Database(const Ice::CommunicatorPtr& communicator, 
-		   const Ice::ObjectAdapterPtr& adapter,
+Database::Database(const Ice::ObjectAdapterPtr& adapter,
 		   const string& envName,
 		   int nodeSessionTimeout,
 		   const TraceLevelsPtr& traceLevels) :
-    _communicator(communicator),
+    _communicator(adapter->getCommunicator()),
     _internalAdapter(adapter),
     _envName(envName),
     _nodeSessionTimeout(nodeSessionTimeout),
     _traceLevels(traceLevels),
-    _connection(Freeze::createConnection(communicator, envName)),
+    _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
     _adapters(_connection, _adapterDbName)
@@ -217,6 +216,13 @@ Database::Database(const Ice::CommunicatorPtr& communicator,
 
 Database::~Database()
 {
+}
+
+void
+Database::setRegistryObserver(const RegistryObserverPrx& observer)
+{
+    Lock sync(*this);
+    _registryObserver = observer;
 }
 
 void
@@ -291,6 +297,11 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
 	_descriptors.put(make_pair(descriptor->name, descriptor));
     }
 
+    //
+    // Notify the observers.
+    //
+    _registryObserver->applicationAdded(0, descriptor);
+
     if(_traceLevels->application > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
@@ -304,15 +315,53 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
 }
 
 void
-Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
+Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
+{
+    ServerEntrySeq entries;
+    {
+	Lock sync(*this);
+	
+	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(update.name);
+	if(p == _descriptors.end())
+	{
+	    ApplicationNotExistException ex;
+	    ex.name = update.name;
+	    throw ex;
+	}
+
+	//
+	// Update the application descriptor.
+	//
+	ApplicationDescriptorHelper helper(_communicator, p->second);
+	helper.update(update);
+
+	//
+	// Synchronize the application descriptor.
+	//
+	syncApplicationDescriptorNoSync(p->second, helper.getDescriptor(), entries);
+    }    
+
+    //
+    // Notify the observers.
+    //
+    _registryObserver->applicationUpdated(0, update);
+
+    if(_traceLevels->application > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	out << "updated application `" << update.name << "'";
+    }
+
+    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&Database::ServerEntry::sync));
+}
+
+void
+Database::syncApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 {
     ServerEntrySeq entries;
     {
 	Lock sync(*this);
 
-	//
-	// Find the application to update.
-	//
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(newDesc->name);
 	if(p == _descriptors.end())
 	{
@@ -323,83 +372,15 @@ Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	ApplicationDescriptorPtr origDesc = p->second;
 
 	//
-	// Ensure that the new application servers aren't already
-	// registered.
+	// Synchronize the application descriptor.
 	//
-	set<string> oldSvrs;
-	set<string> newSvrs;
-	for_each(origDesc->servers.begin(), origDesc->servers.end(), AddServerName(oldSvrs));
-	for_each(newDesc->servers.begin(), newDesc->servers.end(), AddServerName(newSvrs));
+	syncApplicationDescriptorNoSync(origDesc, newDesc, entries);
+    }
 
-	set<string> added, removed, updated; 
-	set_intersection(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(updated));
-	set_difference(oldSvrs.begin(), oldSvrs.end(), newSvrs.begin(), newSvrs.end(), set_inserter(removed));
-	set_difference(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(added));
-	try
-	{
-	    for_each(added.begin(), added.end(), objFunc(*this, &Database::checkServerForAddition));
-	}
-	catch(const ServerExistsException& e)
-	{
-	    DeploymentException ex;
-	    ex.reason = "server `" + e.name + "' is already registered"; 
-	    throw ex;
-	}
-
-	//
-	// Ensure that the new application adapters aren't already
-	// registered.
-	//
-	set<string> oldAdpts;
-	set<string> newAdpts;
-	for_each(origDesc->servers.begin(), origDesc->servers.end(), forEachComponent(AddAdapterId(oldAdpts)));
-	for_each(newDesc->servers.begin(), newDesc->servers.end(), forEachComponent(AddAdapterId(newAdpts)));
-
-	set<string> addedAdpts;
-	set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), set_inserter(addedAdpts));
-	try
-	{
-	    for_each(addedAdpts.begin(), addedAdpts.end(), objFunc(*this, &Database::checkAdapterForAddition));
-	}
-	catch(const AdapterExistsException& e)
-	{
-	    DeploymentException ex;
-	    ex.reason = "adapter `" + e.id + "' is already registered"; 
-	    throw ex;
-	}	
-
-	//
-	// Ensure that the new application objects aren't already
-	// registered.
-	//
-	set<Ice::Identity> oldObjs;
-	set<Ice::Identity> newObjs;
-	for_each(origDesc->servers.begin(), origDesc->servers.end(), forEachComponent(AddObjectId(oldObjs)));
-	for_each(newDesc->servers.begin(), newDesc->servers.end(), forEachComponent(AddObjectId(newObjs)));
-
-	set<Ice::Identity> addedObjs;
-	set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), set_inserter(addedObjs));
-	try
-	{
-	    for_each(addedObjs.begin(), addedObjs.end(), objFunc(*this, &Database::checkObjectForAddition));
-	}
-	catch(const ObjectExistsException& e)
-	{
-	    DeploymentException ex;
-	    ex.reason = "object `" + Ice::identityToString(e.id) + "' is already registered"; 
-	    throw ex;
-	}	
-
-	//
-	// Register the new servers, unregister the old ones and
-	// update the updated ones.
-	//
-	addServers(newDesc->servers, added, entries);
-	updateServers(origDesc, newDesc, updated, entries);
-	removeServers(origDesc->servers, removed, entries);
-
-	_descriptors.put(make_pair(newDesc->name, newDesc));
-    }    
+    //
+    // Notify the observers.
+    //
+    _registryObserver->applicationSynced(0, newDesc);
 
     if(_traceLevels->application > 0)
     {
@@ -408,6 +389,90 @@ Database::updateApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
     }
 
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&Database::ServerEntry::sync));
+}
+
+void
+Database::syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr& origDesc,
+					  const ApplicationDescriptorPtr& newDesc,
+					  ServerEntrySeq& entries)
+{
+    //
+    // Ensure that the new application servers aren't already
+    // registered.
+    //
+    set<string> oldSvrs;
+    set<string> newSvrs;
+    for_each(origDesc->servers.begin(), origDesc->servers.end(), AddServerName(oldSvrs));
+    for_each(newDesc->servers.begin(), newDesc->servers.end(), AddServerName(newSvrs));
+
+    set<string> added, removed, updated; 
+    set_intersection(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(updated));
+    set_difference(oldSvrs.begin(), oldSvrs.end(), newSvrs.begin(), newSvrs.end(), set_inserter(removed));
+    set_difference(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(added));
+    try
+    {
+	for_each(added.begin(), added.end(), objFunc(*this, &Database::checkServerForAddition));
+    }
+    catch(const ServerExistsException& e)
+    {
+	DeploymentException ex;
+	ex.reason = "server `" + e.name + "' is already registered"; 
+	throw ex;
+    }
+
+    //
+    // Ensure that the new application adapters aren't already
+    // registered.
+    //
+    set<string> oldAdpts;
+    set<string> newAdpts;
+    for_each(origDesc->servers.begin(), origDesc->servers.end(), forEachComponent(AddAdapterId(oldAdpts)));
+    for_each(newDesc->servers.begin(), newDesc->servers.end(), forEachComponent(AddAdapterId(newAdpts)));
+
+    set<string> addedAdpts;
+    set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), set_inserter(addedAdpts));
+    try
+    {
+	for_each(addedAdpts.begin(), addedAdpts.end(), objFunc(*this, &Database::checkAdapterForAddition));
+    }
+    catch(const AdapterExistsException& e)
+    {
+	DeploymentException ex;
+	ex.reason = "adapter `" + e.id + "' is already registered"; 
+	throw ex;
+    }	
+
+    //
+    // Ensure that the new application objects aren't already
+    // registered.
+    //
+    set<Ice::Identity> oldObjs;
+    set<Ice::Identity> newObjs;
+    for_each(origDesc->servers.begin(), origDesc->servers.end(), forEachComponent(AddObjectId(oldObjs)));
+    for_each(newDesc->servers.begin(), newDesc->servers.end(), forEachComponent(AddObjectId(newObjs)));
+
+    set<Ice::Identity> addedObjs;
+    set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), set_inserter(addedObjs));
+    try
+    {
+	for_each(addedObjs.begin(), addedObjs.end(), objFunc(*this, &Database::checkObjectForAddition));
+    }
+    catch(const ObjectExistsException& e)
+    {
+	DeploymentException ex;
+	ex.reason = "object `" + Ice::identityToString(e.id) + "' is already registered"; 
+	throw ex;
+    }	
+
+    //
+    // Register the new servers, unregister the old ones and
+    // update the updated ones.
+    //
+    addServers(newDesc->servers, added, entries);
+    updateServers(origDesc, newDesc, updated, entries);
+    removeServers(origDesc->servers, removed, entries);
+
+    _descriptors.put(make_pair(newDesc->name, newDesc));
 }
 
 void
@@ -431,6 +496,11 @@ Database::removeApplicationDescriptor(const std::string& name)
 	for_each(descriptor->servers.begin(), descriptor->servers.end(), AddServerName(servers));
 	removeServers(descriptor->servers, servers, entries);
     }
+
+    //
+    // Notify the observers
+    //
+    _registryObserver->applicationRemoved(0, descriptor->name);
 
     if(_traceLevels->application > 0)
     {

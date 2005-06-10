@@ -16,12 +16,10 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionManagerI::SessionManagerI(const IceStorm::TopicPrx& registryObserverTopic, 
-				 const IceStorm::TopicPrx& nodeObserverTopic,
+SessionManagerI::SessionManagerI(RegistryObserverTopic& regTopic,
+				 NodeObserverTopic& nodeTopic,
 				 const ReapThreadPtr& reaper) :
-    _registryObserverTopic(registryObserverTopic),
-    _nodeObserverTopic(nodeObserverTopic),
-    _reaper(reaper)
+    _registryObserverTopic(regTopic), _nodeObserverTopic(nodeTopic), _reaper(reaper)
 {
 }
 

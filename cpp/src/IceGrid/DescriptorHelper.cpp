@@ -609,6 +609,7 @@ ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attribu
     InstanceDescriptor instance;
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
+    instance.parameterValues["node"] = _variables->getVariable("node");
     instance.parameterValues.erase("template");
     instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
     _descriptor->servers.push_back(instance);
@@ -633,6 +634,78 @@ auto_ptr<ServiceDescriptorHelper>
 ApplicationDescriptorHelper::addServiceTemplate(const std::string& id, const IceXML::Attributes& attrs)
 {
     return auto_ptr<ServiceDescriptorHelper>(new ServiceDescriptorHelper(*this, attrs, id));
+}
+
+void
+ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
+{
+    ApplicationDescriptorPtr newApp = new ApplicationDescriptor();
+    newApp->name = _descriptor->name;
+    newApp->comment = _descriptor->comment;
+    newApp->targets = _descriptor->targets;
+    newApp->variables = update.variables;
+    newApp->variables.insert(_descriptor->variables.begin(), _descriptor->variables.end());
+    Ice::StringSeq::const_iterator p;
+    for(p = update.removeVariables.begin(); p != update.removeVariables.end(); ++p)
+    {
+	newApp->variables.erase(*p);
+    }
+
+    //
+    // TODO: Check if the new templates are valid?
+    //
+    newApp->serverTemplates = update.serverTemplates;
+    newApp->serverTemplates.insert(_descriptor->serverTemplates.begin(), _descriptor->serverTemplates.end());
+    for(p = update.removeServerTemplates.begin(); p != update.removeServerTemplates.end(); ++p)
+    {
+	newApp->serverTemplates.erase(*p);
+    }
+
+    //
+    // TODO: Check if the new templates are valid?
+    //
+    newApp->serviceTemplates = update.serviceTemplates;
+    newApp->serviceTemplates.insert(_descriptor->serviceTemplates.begin(), _descriptor->serviceTemplates.end());
+    for(p = update.removeServiceTemplates.begin(); p != update.removeServiceTemplates.end(); ++p)
+    {
+	newApp->serviceTemplates.erase(*p);
+    }
+
+    newApp->nodes = update.nodes;
+    for(NodeDescriptorSeq::const_iterator q = _descriptor->nodes.begin(); q != _descriptor->nodes.end(); ++q)
+    {
+	NodeDescriptorSeq::const_iterator r;
+	for(r = update.nodes.begin(); r != update.nodes.end(); ++r)
+	{
+	    if(q->name == r->name)
+	    {
+		break;
+	    }
+	}
+	if(r == update.nodes.end())
+	{
+	    newApp->nodes.push_back(*q);
+	}
+    }
+
+    //
+    // TODO: This isn't correct we need to check that the instances
+    // are valid, we can't just add them like this!
+    //
+
+    newApp->servers = update.servers;
+    set<string> remove(update.removeServers.begin(), update.removeServers.end());
+    set<string> updated;
+    for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
+    for(InstanceDescriptorSeq::const_iterator q = _descriptor->servers.begin(); q != _descriptor->servers.end(); ++q)
+    {
+	if(updated.find(q->descriptor->name) == updated.end() && remove.find(q->descriptor->name) == remove.end())
+	{
+	    newApp->servers.push_back(*q);
+	}
+    }
+
+    _descriptor = newApp;
 }
 
 ComponentDescriptorHelper::ComponentDescriptorHelper(const DescriptorHelper& helper) : DescriptorHelper(helper)
@@ -866,6 +939,7 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     if(!_templateId.empty())
     {
 	_variables->substitution(false);
+ 	_variables->addParameter("node");
     }
 
     string interpreter = attributes("interpreter", "");
@@ -884,7 +958,7 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
     _descriptor->application = _variables->substitute("${application}");
-    _descriptor->node = _variables->substitute("${node}");
+    _descriptor->node = "${node}";
     _descriptor->pwd = attributes("pwd", "");
     _descriptor->activation = attributes("activation", "manual");
     

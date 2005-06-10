@@ -32,42 +32,6 @@ typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
 class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
-public:
-    
-    Database(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
-    virtual ~Database();
-
-    void addApplicationDescriptor(const ApplicationDescriptorPtr&);
-    void updateApplicationDescriptor(const ApplicationDescriptorPtr&);
-    void removeApplicationDescriptor(const std::string&);
-    ApplicationDescriptorPtr getApplicationDescriptor(const std::string&);
-    Ice::StringSeq getAllApplications(const std::string& = std::string());
-
-    void addNode(const std::string&, const NodeSessionIPtr&);
-    NodePrx getNode(const std::string&) const;
-    void removeNode(const std::string&);
-    Ice::StringSeq getAllNodes(const std::string& = std::string());
-    
-    InstanceDescriptor getServerDescriptor(const std::string&);
-    ServerPrx getServer(const std::string&);
-    Ice::StringSeq getAllServers(const std::string& = std::string());
-    Ice::StringSeq getAllNodeServers(const std::string&);
-
-    void setAdapterDirectProxy(const std::string&, const Ice::ObjectPrx&);
-    Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
-    AdapterPrx getAdapter(const std::string&);
-    Ice::StringSeq getAllAdapters(const std::string& = std::string());
-
-    void addObjectDescriptor(const ObjectDescriptor&);
-    void removeObjectDescriptor(const Ice::Identity&);
-    void updateObjectDescriptor(const Ice::ObjectPrx&);
-    ObjectDescriptor getObjectDescriptor(const Ice::Identity&);
-    Ice::ObjectPrx getObjectByType(const std::string&);
-    Ice::ObjectProxySeq getObjectsWithType(const std::string&);
-    ObjectDescriptorSeq getAllObjectDescriptors(const std::string& = std::string());
-
-private:
-
     class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
     {
     public:
@@ -101,6 +65,47 @@ private:
     typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
     typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 
+public:
+    
+    Database(const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
+    virtual ~Database();
+
+    void setRegistryObserver(const RegistryObserverPrx&);
+
+    void addApplicationDescriptor(const ApplicationDescriptorPtr&);
+    void updateApplicationDescriptor(const ApplicationUpdateDescriptor&);
+    void syncApplicationDescriptor(const ApplicationDescriptorPtr&);
+    void syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&, 
+					 ServerEntrySeq&);
+    void removeApplicationDescriptor(const std::string&);
+    ApplicationDescriptorPtr getApplicationDescriptor(const std::string&);
+    Ice::StringSeq getAllApplications(const std::string& = std::string());
+
+    void addNode(const std::string&, const NodeSessionIPtr&);
+    NodePrx getNode(const std::string&) const;
+    void removeNode(const std::string&);
+    Ice::StringSeq getAllNodes(const std::string& = std::string());
+    
+    InstanceDescriptor getServerDescriptor(const std::string&);
+    ServerPrx getServer(const std::string&);
+    Ice::StringSeq getAllServers(const std::string& = std::string());
+    Ice::StringSeq getAllNodeServers(const std::string&);
+
+    void setAdapterDirectProxy(const std::string&, const Ice::ObjectPrx&);
+    Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
+    AdapterPrx getAdapter(const std::string&);
+    Ice::StringSeq getAllAdapters(const std::string& = std::string());
+
+    void addObjectDescriptor(const ObjectDescriptor&);
+    void removeObjectDescriptor(const Ice::Identity&);
+    void updateObjectDescriptor(const Ice::ObjectPrx&);
+    ObjectDescriptor getObjectDescriptor(const Ice::Identity&);
+    Ice::ObjectPrx getObjectByType(const std::string&);
+    Ice::ObjectProxySeq getObjectsWithType(const std::string&);
+    ObjectDescriptorSeq getAllObjectDescriptors(const std::string& = std::string());
+
+private:
+
     void addServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
     void updateServers(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&,
 		       const std::set<std::string>&, ServerEntrySeq&);
@@ -125,6 +130,7 @@ private:
     const std::string _envName;
     const int _nodeSessionTimeout;
     const TraceLevelsPtr _traceLevels;
+    RegistryObserverPrx _registryObserver;
 
     std::map<std::string, ServerEntryPtr> _servers;
     std::map<std::string, ServerEntryPtr> _serversByAdapterId;

@@ -11,61 +11,10 @@
 #define ICE_GRID_OBSERVER_ICE
 
 #include <Glacier2/Session.ice>
+#include <IceGrid/Descriptor.ice>
 
 module IceGrid
 {
-
-/**
- *
- * An enumeration representing the state of the server.
- *
- **/
-enum ServerState
-{
-    /**
-     *
-     * The server is not running.
-     *
-     **/
-    Inactive,
-
-    /**
-     *
-     * The server is being activated and will change to the active
-     * state if the server fork succeeded or to the Inactive state if
-     * it failed.
-     *
-     **/
-    Activating,
-
-    /**
-     *
-     * The server is running.
-     *
-     **/
-    Active,
-    
-    /**
-     *
-     * The server is being deactivated.
-     *
-     **/
-    Deactivating,
-
-    /**
-     *
-     * The server is being destroyed.
-     *
-     **/
-    Destroying,
-
-    /**
-     *
-     * The server is destroyed.
-     *
-     **/
-    Destroyed
-};
 
 struct ServerDynamicInfo
 {
@@ -93,6 +42,13 @@ interface NodeObserver
 
 interface RegistryObserver
 {
+    void init(int serial, ApplicationDescriptorSeq applications, Ice::StringSeq nodesUp);
+
+    void applicationAdded(int serial, ApplicationDescriptor desc);
+    void applicationRemoved(int serial, string name);
+    void applicationSynced(int serial, ApplicationDescriptor desc);
+    void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
+    
     void nodeUp(string name);
     void nodeDown(string name);
 };

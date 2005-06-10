@@ -75,6 +75,32 @@ class RegistryObserverI : public RegistryObserver
 {
 public:
 
+    virtual void 
+    init(int, const ApplicationDescriptorSeq&, const Ice::StringSeq& nodes, const Ice::Current&)
+    {
+	cout << "active nodes: ";
+	for(Ice::StringSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+	{
+	    cout << *p << " ";
+	}
+	cout << endl;
+    }
+
+    virtual void
+    applicationAdded(int, const ApplicationDescriptorPtr&, const Ice::Current&)
+    {
+    }
+
+    virtual void 
+    applicationRemoved(int, const std::string&, const Ice::Current&)
+    {
+    }
+
+    virtual void 
+    applicationUpdated(int, const ApplicationUpdateDescriptor&, const Ice::Current&)
+    {
+    }
+
     virtual void
     nodeUp(const string& name, const Ice::Current& current)
     {
@@ -96,7 +122,17 @@ public:
     init(const string& node, const ServerDynamicInfoSeq& servers, const AdapterDynamicInfoSeq& adapters, 
 	 const Ice::Current&)
     {
-	cout << "node init" << endl;
+	cout << "node `" << node << "' servers: ";
+	for(ServerDynamicInfoSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+	{
+	    cout << p->name << " ";
+	}
+	cout << "adapters: ";
+	for(AdapterDynamicInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	{
+	    cout << p->id << " ";
+	}	
+	cout << endl;
     }
 
     virtual void

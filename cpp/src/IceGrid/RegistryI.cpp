@@ -20,6 +20,7 @@
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/SessionManagerI.h>
+#include <IceGrid/Topics.h>
 
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/TopicManagerI.h>
@@ -239,7 +240,7 @@ RegistryI::start(bool nowarn)
     //
     const string envName = "Registry";
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-    _database = new Database(_communicator, registryAdapter, envName, _nodeSessionTimeout, traceLevels);
+    _database = new Database(registryAdapter, envName, _nodeSessionTimeout, traceLevels);
 
     //
     // Create the locator registry and locator interfaces.
@@ -340,17 +341,26 @@ RegistryI::start(bool nowarn)
 	nodeObserverTopic = _topicManagerProxy->retrieve("NodeObserver");
     }
 
+    obj = nodeObserverTopic->getPublisher()->ice_collocationOptimization(false);
+    obj = obj->ice_locator(_communicator->getDefaultLocator()); // TODO: Why is this necessary?
+    NodeObserverTopic* nodeTopic = new NodeObserverTopic(nodeObserverTopic, NodeObserverPrx::uncheckedCast(obj));
+    obj = registryAdapter->addWithUUID(nodeTopic)->ice_collocationOptimization(false);
+    obj = obj->ice_locator(_communicator->getDefaultLocator());
+    _nodeObserver = NodeObserverPrx::uncheckedCast(obj);
+
     obj = registryObserverTopic->getPublisher()->ice_collocationOptimization(false);
+    obj = obj->ice_locator(_communicator->getDefaultLocator()); // TODO: Why is this necessary?
+    RegistryObserverTopic* regTopic; 
+    regTopic = new RegistryObserverTopic(registryObserverTopic, RegistryObserverPrx::uncheckedCast(obj), *nodeTopic);
+    obj = registryAdapter->addWithUUID(regTopic)->ice_collocationOptimization(false);
     obj = obj->ice_locator(_communicator->getDefaultLocator());
     _registryObserver = RegistryObserverPrx::uncheckedCast(obj);
-
-    obj = nodeObserverTopic->getPublisher()->ice_collocationOptimization(false);
-    _nodeObserver = NodeObserverPrx::uncheckedCast(obj);
+    _database->setRegistryObserver(_registryObserver);
 
     //
     // Create the session manager.
     //
-    ObjectPtr sessionManager = new SessionManagerI(registryObserverTopic, nodeObserverTopic, _reaper);
+    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _reaper);
     const string sessionManagerIdProperty = "IceGrid.Registry.SessionManagerIdentity";
     Identity sessionManagerId = stringToIdentity(properties->getPropertyWithDefault(sessionManagerIdProperty, 
 										    "IceGrid/SessionManager"));

@@ -30,8 +30,7 @@ public:
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual ApplicationDescriptorPtr getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
-    virtual void instantiateServer(const std::string&, const std::string&, const std::string&, const StringStringDict&,
-				   const Ice::Current&);
+    virtual void instantiateServer(const std::string&, const std::string&, const StringStringDict&,const Ice::Current&);
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
     virtual InstanceDescriptor getServerDescriptor(const ::std::string&, const Ice::Current&) const;

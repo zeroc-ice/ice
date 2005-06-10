@@ -144,6 +144,8 @@ public:
     std::auto_ptr<ServerDescriptorHelper> addServerTemplate(const std::string&, const IceXML::Attributes&);
     std::auto_ptr<ServiceDescriptorHelper> addServiceTemplate(const std::string&, const IceXML::Attributes&);
 
+    void update(const ApplicationUpdateDescriptor&);
+
 private:
 
     ApplicationDescriptorPtr _descriptor;

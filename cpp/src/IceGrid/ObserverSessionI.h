@@ -12,10 +12,9 @@
 
 #include <IceUtil/Mutex.h>
 
-#include <IceStorm/IceStorm.h>
-
 #include <IceGrid/Observer.h>
 #include <IceGrid/SessionI.h>
+#include <IceGrid/Topics.h>
 
 namespace IceGrid
 {
@@ -24,7 +23,7 @@ class ObserverSessionI : public Session, public SessionI, public IceUtil::Mutex
 {
 public:
 
-    ObserverSessionI(const std::string&, const IceStorm::TopicPrx&, const IceStorm::TopicPrx&);
+    ObserverSessionI(const std::string&, RegistryObserverTopic&, NodeObserverTopic&);
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
@@ -36,8 +35,8 @@ protected:
 
 private:
     
-    const IceStorm::TopicPrx _registryObserverTopic;
-    const IceStorm::TopicPrx _nodeObserverTopic;
+    RegistryObserverTopic& _registryObserverTopic;
+    NodeObserverTopic& _nodeObserverTopic;
 
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
@@ -47,7 +46,7 @@ class LocalObserverSessionI : public ObserverSessionI
 {
 public:
 
-    LocalObserverSessionI(const std::string&, const IceStorm::TopicPrx&, const IceStorm::TopicPrx&);
+    LocalObserverSessionI(const std::string&, RegistryObserverTopic&, NodeObserverTopic&);
 
     virtual void keepAlive(const Ice::Current&);
 
@@ -62,7 +61,7 @@ class Glacier2ObserverSessionI : public ObserverSessionI
 {
 public:
 
-    Glacier2ObserverSessionI(const std::string&, const IceStorm::TopicPrx&, const IceStorm::TopicPrx&);
+    Glacier2ObserverSessionI(const std::string&, RegistryObserverTopic&, NodeObserverTopic&);
 
     virtual void keepAlive(const Ice::Current&);
 
