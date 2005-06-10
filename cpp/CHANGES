@@ -1,6 +1,9 @@
 Changes since version 2.1.1
 ---------------------------
 
+- Changed the Ice::Service class on Windows so that service failures
+  do not cause the obscure message "Error1: Incorrect function".
+
 - Removed the 64KB packet size limitation for TCP in Windows.
 
 - Changed the C++ translator so that generated code no longer uses

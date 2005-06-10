@@ -161,6 +161,43 @@ Ice::Service::main(int& argc, char* argv[])
     {
         if(strcmp(argv[idx], "--service") == 0)
         {
+	    //
+	    // When running as a service, we need an event logger in order to report
+	    // failures that occur prior to initializing a communicator. After we have
+	    // a communicator, we can use the configured logger instead.
+	    //
+	    // We postpone the initialization of the communicator until serviceMain so
+	    // that we can incorporate the executable's arguments and the service's
+	    // arguments into one vector.
+	    //
+	    try
+	    {
+		//
+		// Use the executable name as the source for the temporary logger.
+		//
+		string loggerName = _name;
+		transform(loggerName.begin(), loggerName.end(), loggerName.begin(), ::tolower);
+		string::size_type pos = loggerName.find_last_of("\\/");
+		if(pos != string::npos)
+		{
+		    loggerName.erase(0, pos + 1); // Remove leading path.
+		}
+		pos = loggerName.rfind(".exe");
+		if(pos != string::npos)
+		{
+		    loggerName.erase(pos, loggerName.size() - pos); // Remove .exe extension.
+		}
+
+		_logger = new EventLoggerI(loggerName);
+	    }
+	    catch(const IceUtil::Exception& ex)
+	    {
+		ostringstream ostr;
+		ostr << ex;
+		error("unable to create EventLogger:\n" + ostr.str());
+		return EXIT_FAILURE;
+	    }
+
             if(idx + 1 >= argc)
             {
                 error("service name argument expected for `" + string(argv[idx]) + "'");
@@ -1038,27 +1075,6 @@ Ice::Service::runService(int argc, char* argv[])
     }
 
     //
-    // When running as a service, we need an event logger in order to report
-    // failures that occur prior to initializing a communicator. After we have
-    // a communicator, we can use the configured logger instead.
-    //
-    // We postpone the initialization of the communicator until serviceMain so
-    // that we can incorporate the executable's arguments and the service's
-    // arguments into one vector.
-    //
-    try
-    {
-        _logger = new EventLoggerI(_name);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        ostringstream ostr;
-        ostr << ex;
-        error("unable to create EventLogger:\n" + ostr.str());
-        return EXIT_FAILURE;
-    }
-
-    //
     // Arguments passed to the executable are not passed to the service's main function,
     // so save them now and serviceMain will merge them later.
     //
@@ -1294,7 +1310,15 @@ Ice::ServiceStatusThread::stop(DWORD state, DWORD exitCode)
 {
     Lock sync(*this);
     _status->dwCurrentState = state;
-    _status->dwWin32ExitCode = exitCode;
+    if(exitCode == 0)
+    {
+	_status->dwWin32ExitCode = 0;
+    }
+    else
+    {
+	_status->dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+    }
+    _status->dwServiceSpecificExitCode = exitCode;
     _stopped = true;
     notify();
 }
