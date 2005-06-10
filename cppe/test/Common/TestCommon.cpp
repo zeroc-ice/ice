@@ -8,8 +8,57 @@
 // **********************************************************************
 
 #include <TestCommon.h>
+#include <TestApplication.h>
+#include <IceUtil/StaticMutex.h>
+#include <IceUtil/Thread.h>
 
 #include <stdarg.h>
+
+using namespace Ice;
+using namespace std;
+
+class LoggerI : public Ice::Logger
+{
+public:
+
+    virtual void
+    print(const string& message)
+    {
+	tprintf("%s\n", message.c_str());
+    }
+    
+    virtual void
+    trace(const string& category, const string& message)
+    {
+	string s = "[ ";
+	if(!category.empty())
+	{
+	    s += category + ": ";
+	}
+	s += message + " ]";
+	
+	string::size_type idx = 0;
+	while((idx = s.find("\n", idx)) != string::npos)
+	{
+	    s.insert(idx + 1, "  ");
+	    ++idx;
+	}
+    	tprintf("%s\n", s.c_str());
+    }
+    
+    virtual void
+    warning(const string& message)
+    {
+	tprintf("warning: %s\n", message.c_str());
+    }
+
+    virtual void
+    error(const string& message)
+    {
+	tprintf("error: %s\n", message.c_str());
+    }
+};
+
 
 #ifdef _WIN32_WCE
 
@@ -23,9 +72,13 @@ public:
 };
 
 static HWND hEdit;
+static HWND mainWnd;
+static IceUtil::ThreadControl mainThread;
+
 void
 tprintf(const char* fmt, ...)
 {
+
     va_list va;
     va_start(va, fmt);
     char buf[1024];
@@ -49,12 +102,34 @@ tprintf(const char* fmt, ...)
 	    nl = true;
 	}
 	*curr = '\0';
-	TCHAR wtext[1024];
-	mbstowcs(wtext, start, (curr - start) + 1);
-	::SendMessage(hEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)wtext);
-	if(nl)
+	static TCHAR nlStr[] = L"\r\n";
+
+	//
+	// If the thread is not the main thread we have to post a message
+	// to the main thread to do the EM_REPLACESEL. Calling SendMessage
+	// from a thread other than main is not permitted.
+	//
+	if(IceUtil::ThreadControl() != mainThread)
 	{
-	    ::SendMessage(hEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)L"\r\n");
+	    wchar_t* wtext = new wchar_t[sizeof(wchar_t) * (curr - start)+1];
+	    mbstowcs(wtext, start, (curr - start) + 1);
+	    ::PostMessage(mainWnd, WM_USER, (WPARAM)FALSE, (LPARAM)wtext);
+	    if(nl)
+	    {
+		wchar_t* wtext = new wchar_t[sizeof(nlStr)];
+    	    	wcscpy(wtext, nlStr);
+		::PostMessage(mainWnd, WM_USER, (WPARAM)FALSE, (LPARAM)wtext);
+	    }
+	}
+    	else
+	{
+	    TCHAR wtext[1024];
+	    mbstowcs(wtext, start, (curr - start) + 1);
+	    ::SendMessage(hEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)wtext);
+	    if(nl)
+	    {
+		::SendMessage(hEdit, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)nlStr);
+	    }
 	}
 	++curr;
 	start = curr;
@@ -63,11 +138,14 @@ tprintf(const char* fmt, ...)
     //
     // Process pending events.
     //
-    MSG Msg;
-    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+    if(IceUtil::ThreadControl() == mainThread)
     {
-	TranslateMessage(&Msg);
-	DispatchMessage(&Msg);
+	MSG Msg;
+	while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+	{
+	    TranslateMessage(&Msg);
+	    DispatchMessage(&Msg);
+	}
     }
 }
 
@@ -76,6 +154,15 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch(msg)
     {
+    case WM_USER:
+    {
+    	// tprint from a thread other than main. lParam holds a pointer to the text.
+	::SendMessage(hEdit, EM_REPLACESEL, (WPARAM)wParam, (LPARAM)lParam);
+    	wchar_t* text = (wchar_t*)lParam;
+    	delete[] text;
+    }
+    break;
+
     case WM_CREATE:
     {
 	//HFONT hfDefault;
@@ -121,7 +208,6 @@ int
 TestApplication::main(HINSTANCE hInstance)
 {
     WNDCLASS wc;
-    HWND hWnd;
     
     wc.style	         = CS_HREDRAW|CS_VREDRAW;
     wc.lpfnWndProc	 = (WNDPROC)WndProc;
@@ -141,29 +227,54 @@ TestApplication::main(HINSTANCE hInstance)
 	return 0;
     }
 
-    hWnd = CreateWindow(windowClassName, L"Test", WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
+    mainWnd = CreateWindow(windowClassName, L"Test", WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT, 320, 200,
 			NULL, NULL, hInstance, NULL);
-    if(hWnd == NULL)
+    if(mainWnd == NULL)
     {
 	MessageBox(NULL, L"Window Creation Failed!", L"Error!",
 		   MB_ICONEXCLAMATION | MB_OK);
 	return 0;
     }
 
-    ShowWindow(hWnd, SW_SHOW);
-    UpdateWindow(hWnd);
+    ShowWindow(mainWnd, SW_SHOW);
+    UpdateWindow(mainWnd);
+    int status = EXIT_SUCCESS;
 
     try
     {
 	extern int    __argc;
 	extern char **__argv; 
-	run(__argc, __argv);
-    	tprintf("success!");
+	status = run(__argc, __argv);
     }
     catch(const TestSuiteFailed& e)
     {
 	tprintf("test failed\n");
+    }
+    catch(const Exception& ex)
+    {
+	tprintf("%s\n", ex.toString().c_str());
+	status = EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+	tprintf("std::exception: %s\n", ex.what());
+	status = EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+	tprintf("std::string: %s\n", msg.c_str());
+	status = EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+	tprintf("const char*: %s\n", msg);
+	status = EXIT_FAILURE;
+    }
+    catch(...)
+    {
+	tprintf("unknown exception\n");
+	status = EXIT_FAILURE;
     }
 
     MSG Msg;
@@ -172,26 +283,103 @@ TestApplication::main(HINSTANCE hInstance)
 	TranslateMessage(&Msg);
 	DispatchMessage(&Msg);
     }
-    return Msg.wParam;
+
+    if(_communicator)
+    {
+	try
+	{
+	    _communicator->destroy();
+	}
+	catch(const Exception& ex)
+	{
+    	    tprintf("communicator::destroy() failed: %s\n", ex.toString().c_str());
+	    status = EXIT_FAILURE;
+	}
+	_communicator = 0;
+    }
+
+    return status;
 }
 #else
+
+static IceUtil::StaticMutex tprintMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
 void
 tprintf(const char* fmt, ...)
 {
+    IceUtil::StaticMutex::Lock sync(tprintMutex);
+
     va_list va;
     va_start(va, fmt);
     char buf[1024];
-    _vsnprintf(buf, sizeof(buf)-1, fmt, va);
+    vprintf(fmt, va);
     buf[sizeof(buf)-1] = '\0';
     va_end(va);
+    fflush(stdout);
 }
 
 int
 TestApplication::main(int ac, char* av[])
 {
-    return run(ac, av);
+    int status;
+    try
+    {
+	status = run(ac, av);
+    }
+    catch(const Exception& ex)
+    {
+	tprintf("%s\n", ex.toString().c_str());
+	status = EXIT_FAILURE;
+    }
+    catch(const std::exception& ex)
+    {
+	tprintf("std::exception: %s\n", ex.what());
+	status = EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+	tprintf("std::string: %s\n", msg.c_str());
+	status = EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+	tprintf("const char*: %s\n", msg);
+	status = EXIT_FAILURE;
+    }
+    catch(...)
+    {
+	tprintf("unknown exception\n");
+	status = EXIT_FAILURE;
+    }
+    if(_communicator)
+    {
+	try
+	{
+	    _communicator->destroy();
+	}
+	catch(const Exception& ex)
+	{
+    	    tprintf("communicator::destroy() failed: %s\n", ex.toString().c_str());
+	    status = EXIT_FAILURE;
+	}
+	_communicator = 0;
+    }
+    return status;
 }
 #endif
+
+void
+TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
+{
+    _communicator = communicator;
+    _communicator->setLogger(new LoggerI);
+}
+
+Ice::CommunicatorPtr
+TestApplication::communicator()
+{
+    return _communicator;
+}
 
 void
 testFailed(const char* expr, const char* file, unsigned int line)
@@ -204,4 +392,3 @@ testFailed(const char* expr, const char* file, unsigned int line)
     abort();
 #endif
 }
-
