@@ -529,63 +529,11 @@ public final class ReferenceFactory
     updateCache(Reference ref)
     {
 	return ref;
-
-	/*
-	//
-	// TODO: This method has been modified to function in a similar way to the full version of Ice. The
-	// function and purpose of this method should be revisited to determine whether what it is doing is still
-	// appropriate for IceJ E.
-	//
-	
-        //
-        // If we already have an equivalent reference, use such equivalent reference. Otherwise add the new
-        // reference to the reference set.
-        //
-	// Note: A WeakHashMap is used in the full version of Ice. This collection type is not available in
-	// CLDC+MIDP compliant runtimes. We can however get similar behavior by using the hashCode() directly as
-	// the hash value and reaping the hashtable manually.
-        //
-        java.lang.ref.WeakReference w =
-	    (java.lang.ref.WeakReference)_references.get(new Integer(ref.hashCode()));
-	
-        if(w != null)
-        {
-            Reference r = (Reference)w.get();
-            if(r != null)
-            {
-                ref = r;
-            }
-            else
-            {
-                _references.put(new Integer(ref.hashCode()), new java.lang.ref.WeakReference(ref));
-            }
-        }
-        else
-        {
-            _references.put(new Integer(ref.hashCode()), new java.lang.ref.WeakReference(ref));
-        }
-
-	//
-	// Scan hash table and remove mappings for references that have been cleared.
-	//
-	java.util.Enumeration e = _references.keys();
-	while(e.hasMoreElements())
-	{
-	    java.lang.Object currentKey = e.nextElement();
-	    java.lang.ref.WeakReference wRef = (java.lang.ref.WeakReference)_references.get(currentKey);
-
-	    if(wRef.get() == null)
-	    {
-		_references.remove(currentKey);
-	    }
-	}
-
-        return ref;
-	*/
     }
 
     private Instance _instance;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
     private java.util.Hashtable _references = new java.util.Hashtable();
+    private int _hashUpdateCounter = 0;
 }
