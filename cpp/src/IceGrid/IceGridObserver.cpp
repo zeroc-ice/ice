@@ -101,6 +101,11 @@ public:
     {
     }
 
+    virtual void 
+    applicationSynced(int, const ApplicationDescriptorPtr&, const Ice::Current&)
+    {
+    }
+
     virtual void
     nodeUp(const string& name, const Ice::Current& current)
     {
