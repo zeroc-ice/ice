@@ -19,22 +19,6 @@ final class SslConnector implements IceInternal.Connector
 	    _addr = addr;
 	}
 
-	protected synchronized void
-	finalize()
-	    throws Throwable
-	{
-	    if(_fd != null)
-	    {
-		try
-		{
-		    _fd.close();
-		}
-		catch(java.io.IOException ex)
-		{
-		}
-	    }
-	}
-
 	public void
 	run()
 	{
