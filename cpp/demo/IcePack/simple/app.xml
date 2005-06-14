@@ -15,13 +15,13 @@
 
      <variable name="id" value="app"/>
      <variable name="name" value="test"/>
+     <variable name="name2" value="${name}"/>
 
      <server-template id="ServerTemplate" name="${name}" exe="./server"> 
        <parameter name="name"/>
        <adapters>
 	 <adapter name="Hello" endpoints="tcp" register="true">
 	   <object identity="${server}-hello1" type="::Demo::Hello"/>
-	   <object identity="${server}hello1" type="::Demo::Hello"/>
 	 </adapter>
        </adapters>
        <properties>
@@ -65,6 +65,9 @@
  
      <node name="node">
        <variable name="node1" value="test"/>
+       <variable name="name" value="$${test}"/>
+       <variable name="name2" value="${name}"/>
+
        <server-instance template="IceBoxTemplate" name="IceBox"/>
        <server-instance template="ServerTemplate" name="Server"/>
        <server-instance template="ServerTemplate" name="Server2"/>

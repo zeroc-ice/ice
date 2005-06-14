@@ -100,7 +100,7 @@ print "ok"
 startClient("-e")
 
 print "removing application...",
-IceGridAdmin.removeApplication("test");
+#IceGridAdmin.removeApplication("test");
 print "ok"    
 
 #

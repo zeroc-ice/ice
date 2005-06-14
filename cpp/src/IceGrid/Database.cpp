@@ -226,9 +226,10 @@ Database::setRegistryObserver(const RegistryObserverPrx& observer)
 }
 
 void
-Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
+Database::addApplicationDescriptor(const ApplicationDescriptorPtr& newApp)
 {
     ServerEntrySeq entries;
+    ApplicationDescriptorPtr descriptor;
     {
 	Lock sync(*this);
 	
@@ -236,16 +237,25 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
 	// We first ensure that the application doesn't already exist
 	// and that the application components don't already exist.
 	//
-	if(_descriptors.find(descriptor->name) != _descriptors.end())
+	if(_descriptors.find(newApp->name) != _descriptors.end())
 	{
 	    ApplicationExistsException ex;
-	    ex.name = descriptor->name;
+	    ex.name = newApp->name;
 	    throw ex;
 	}
 
-	ApplicationDescriptorHelper helper(_communicator, descriptor);
-	helper.instantiate();
-	descriptor = helper.getDescriptor();
+	try
+	{
+	    ApplicationDescriptorHelper helper(_communicator, newApp);
+	    helper.instantiate();
+	    descriptor = helper.getDescriptor();
+	}
+	catch(const string& msg)
+	{
+	    DeploymentException ex;
+	    ex.reason = msg;
+	    throw ex;
+	}
 
 	//
 	// Ensure that the application servers, adapters and objects
@@ -336,13 +346,24 @@ Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
 	//
 	// Update the application descriptor.
 	//
-	ApplicationDescriptorHelper helper(_communicator, p->second);
-	helper.update(update);
+	ApplicationDescriptorPtr descriptor;
+	try
+	{
+	    ApplicationDescriptorHelper helper(_communicator, p->second);
+	    helper.update(update);
+	    descriptor = helper.getDescriptor();
+	}
+	catch(const string& msg)
+	{
+	    DeploymentException ex;
+	    ex.reason = msg;
+	    throw ex;
+	}
 
 	//
 	// Synchronize the application descriptor.
 	//
-	syncApplicationDescriptorNoSync(p->second, helper.getDescriptor(), entries);
+	syncApplicationDescriptorNoSync(p->second, descriptor, entries);
     }    
 
     //
@@ -374,14 +395,24 @@ Database::syncApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	    throw ex;
 	}
 
-	ApplicationDescriptorHelper helper(_communicator, newDesc);
-	helper.instantiate();
-
+	ApplicationDescriptorPtr descriptor;
+	try
+	{
+	    ApplicationDescriptorHelper helper(_communicator, newDesc);
+	    helper.instantiate();
+	    descriptor = helper.getDescriptor();
+	}
+	catch(const string& msg)
+	{
+	    DeploymentException ex;
+	    ex.reason = msg;
+	    throw ex;
+	}
 	
 	//
 	// Synchronize the application descriptor.
 	//
-	syncApplicationDescriptorNoSync(p->second, helper.getDescriptor(), entries);
+	syncApplicationDescriptorNoSync(p->second, descriptor, entries);
     }
 
     //

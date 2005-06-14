@@ -481,7 +481,6 @@ DescriptorHandler::getApplicationDescriptor() const
     {
 	error("no application descriptor defined in this file");
     }
-    _currentApplication->instantiate();
     return _currentApplication->getDescriptor();
 }
 

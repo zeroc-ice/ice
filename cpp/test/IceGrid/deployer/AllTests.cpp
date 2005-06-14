@@ -167,6 +167,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
+    //
+    // Make sure the IceBox servers are totally started before to shut it down.
+    //
+    communicator->stringToProxy("IceBox1/ServiceManager@IceBox1.IceBox.ServiceManager")->ice_ping();
+    communicator->stringToProxy("IceBox2/ServiceManager@IceBox2.IceBox.ServiceManager")->ice_ping();
+
     admin->stopServer("Server1");
     admin->stopServer("Server2");
     admin->stopServer("IceBox1");
@@ -329,8 +335,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     test(obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
 
     //
-    // Make sure the IceBox server is totally started before to shut it down.
+    // Make sure the IceBox servers are totally started before to shut it down.
     //
+    communicator->stringToProxy("IceBox1/ServiceManager@IceBox1.IceBox.ServiceManager")->ice_ping();
     communicator->stringToProxy("IceBox2/ServiceManager@IceBox2.IceBox.ServiceManager")->ice_ping();
 
     admin->stopServer("Server2");
@@ -390,6 +397,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     {
 	test(false);
     }
+
+    //
+    // Make sure the IceBox servers are totally started before to shut it down.
+    //
+    communicator->stringToProxy("IceBox1/ServiceManager@IceBox1.IceBox.ServiceManager")->ice_ping();
+    communicator->stringToProxy("IceBox2/ServiceManager@IceBox2.IceBox.ServiceManager")->ice_ping();
+
+    admin->stopServer("Server1");
+    admin->stopServer("IceBox1");
+    admin->stopServer("IceBox2");
 
     cout << "ok" << endl;
 }

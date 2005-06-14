@@ -355,7 +355,6 @@ DescriptorTemplates::instantiateServer(const DescriptorHelper& helper,
     assert(tmpl);
     ServerDescriptorPtr descriptor = ServerDescriptorHelper(helper, tmpl).instantiate(missing);
     helper.getVariables()->pop();
-
     if(!missing.empty())
     {
 	ostringstream os;
@@ -624,7 +623,7 @@ ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attribu
     instance.parameterValues = attrs;
     instance.parameterValues["node"] = _variables->getVariable("node");
     instance.parameterValues.erase("template");
-    _descriptor->servers.push_back(instance);
+    _descriptor->servers.push_back(instantiate(instance));
 }
 
 void
@@ -653,11 +652,15 @@ void
 ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 {
     ApplicationDescriptorPtr newApp = new ApplicationDescriptor();
-    newApp->name = _descriptor->name;
-    newApp->comment = _descriptor->comment;
-    newApp->targets = _descriptor->targets;
+    ApplicationDescriptorPtr oldApp = _descriptor;
+    _descriptor = newApp;
+    _templates->setDescriptor(newApp);
+
+    newApp->name = oldApp->name;
+    newApp->comment = oldApp->comment;
+    newApp->targets = oldApp->targets;
     newApp->variables = update.variables;
-    newApp->variables.insert(_descriptor->variables.begin(), _descriptor->variables.end());
+    newApp->variables.insert(oldApp->variables.begin(), oldApp->variables.end());
     Ice::StringSeq::const_iterator p;
     for(p = update.removeVariables.begin(); p != update.removeVariables.end(); ++p)
     {
@@ -668,17 +671,17 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     // TODO: Check if the new templates are valid?
     //
     newApp->serverTemplates = update.serverTemplates;
-    newApp->serverTemplates.insert(_descriptor->serverTemplates.begin(), _descriptor->serverTemplates.end());
+    newApp->serverTemplates.insert(oldApp->serverTemplates.begin(), oldApp->serverTemplates.end());
     for(p = update.removeServerTemplates.begin(); p != update.removeServerTemplates.end(); ++p)
     {
 	newApp->serverTemplates.erase(*p);
     }
 
     //
-    // TODO: Check if the new templates are valid?
+    // TODO: Check if the new templates are valid? 
     //
     newApp->serviceTemplates = update.serviceTemplates;
-    newApp->serviceTemplates.insert(_descriptor->serviceTemplates.begin(), _descriptor->serviceTemplates.end());
+    newApp->serviceTemplates.insert(oldApp->serviceTemplates.begin(), oldApp->serviceTemplates.end());
     for(p = update.removeServiceTemplates.begin(); p != update.removeServiceTemplates.end(); ++p)
     {
 	newApp->serviceTemplates.erase(*p);
@@ -688,7 +691,7 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     // Update the node descriptors.
     //
     newApp->nodes = update.nodes;
-    for(NodeDescriptorSeq::const_iterator q = _descriptor->nodes.begin(); q != _descriptor->nodes.end(); ++q)
+    for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
     {
 	NodeDescriptorSeq::const_iterator r;
 	for(r = update.nodes.begin(); r != update.nodes.end(); ++r)
@@ -704,25 +707,23 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	}
     }
 
-    newApp->servers = update.servers;
+    newApp->servers.clear();
+    for(InstanceDescriptorSeq::const_iterator q = update.servers.begin(); q != update.servers.end(); ++q)
+    {
+	newApp->servers.push_back(instantiate(*q));
+    }
+
     set<string> remove(update.removeServers.begin(), update.removeServers.end());
     set<string> updated;
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
-    for(InstanceDescriptorSeq::const_iterator q = _descriptor->servers.begin(); q != _descriptor->servers.end(); ++q)
+    for(InstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
     {
-	if(updated.find(q->descriptor->name) == updated.end() && remove.find(q->descriptor->name) == remove.end())
+	InstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
+	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
 	{
-	    newApp->servers.push_back(*q);
+	    newApp->servers.push_back(inst);
 	}
     }
-
-    _descriptor = newApp;
-    _templates->setDescriptor(newApp);
-
-    //
-    // Re-instantiate the servers based on a template.
-    //
-    instantiate();
 }
 
 void
@@ -745,16 +746,24 @@ ApplicationDescriptorHelper::instantiate()
 {
     for(InstanceDescriptorSeq::iterator p = _descriptor->servers.begin(); p != _descriptor->servers.end(); ++p)
     {
-	if(p->_cpp_template.empty())
-	{
-	    continue;
-	}
-
-	XmlAttributesHelper attributes(_variables, p->parameterValues);
-	pushNodeVariables(attributes("node"));
-	p->descriptor = _templates->instantiateServer(*this, p->_cpp_template, p->parameterValues);
-	_variables->pop();
+	*p = instantiate(*p);
     }
+}
+
+InstanceDescriptor
+ApplicationDescriptorHelper::instantiate(const InstanceDescriptor& inst)
+{
+    InstanceDescriptor instance = inst;
+    if(instance._cpp_template.empty())
+    {
+	assert(instance.descriptor);
+	return instance;
+    }
+    XmlAttributesHelper attributes(_variables, instance.parameterValues);
+    pushNodeVariables(attributes("node"));
+    instance.descriptor = _templates->instantiateServer(*this, instance._cpp_template, instance.parameterValues);
+    _variables->pop();
+    return instance;
 }
 
 void

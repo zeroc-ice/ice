@@ -70,7 +70,7 @@ AdminI::instantiateServer(const string& name, const string& tmpl, const StringSt
     try
     {
 	ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
-	helper.addServer(tmpl, parameters);
+	helper.addServerInstance(tmpl, parameters);
 	_database->syncApplicationDescriptor(helper.getDescriptor());
 	ApplicationUpdateDescriptor update;
     }

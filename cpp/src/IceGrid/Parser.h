@@ -83,6 +83,7 @@ public:
     void removeNode(const std::list<std::string>&);
     void listAllNodes();
 
+    void removeServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
     void signalServer(const std::list<std::string>&);

@@ -373,14 +373,6 @@ Parser::usage()
 	"node shutdown NAME          Shutdown node NAME.\n"
 	"\n"
         "server list                 List all registered servers.\n"
-        "server add DESC NODE [TARGET ... ] [NAME=VALUE ... ]\n"
-        "                            Add server described in descriptor DESC to the node\n"
-        "                            NODE. If specified the optional targets TARGET will\n"
-        "                            be deployed.\n"
-        "server update DESC NODE [TARGET ... ] [NAME=VALUE ... ]\n"
-        "                            Update server described in descriptor DESC on the\n"
-        "                            node NODE. If specified the optional targets TARGET\n"
-        "                            will be deployed.\n"
         "server remove NAME          Remove server NAME.\n"
         "server describe NAME        Describe server NAME.\n"
 	"server state NAME           Get server NAME state.\n"
@@ -966,7 +958,13 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	    }
 	}
 
-	_admin->instantiateServer(application, templ, vars);
+	ApplicationUpdateDescriptor update;
+	update.name = application;
+	InstanceDescriptor desc;
+	desc._cpp_template = templ;
+	desc.parameterValues = vars;
+	update.servers.push_back(desc);
+	_admin->updateApplication(update);
     }
     catch(const IceXML::ParserException& ex)
     {
@@ -1109,6 +1107,31 @@ Parser::listAllNodes()
 	s << ex;
 	error(s.str());
     }
+}
+
+void
+Parser::removeServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server start' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	InstanceDescriptor server = _admin->getServerDescriptor(args.front());
+	ApplicationUpdateDescriptor update;
+	update.name = ServerDescriptorPtr::dynamicCast(server.descriptor)->application;
+	update.removeServers.push_back(server.descriptor->name);
+	_admin->updateApplication(update);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }    
 }
 
 void

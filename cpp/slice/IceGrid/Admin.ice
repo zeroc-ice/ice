@@ -102,24 +102,6 @@ interface Admin
 
     /**
      *
-     * Instantiate a server template from the given application.
-     *
-     * @param application The application where the template is defined.
-     *
-     * @param template The identifier of the template.
-     * 
-     * @param node The node where the server will be running.
-     * 
-     * @param parameters The parameters used to instantiate the template.
-     *
-     * @throws DeploymentException Raised if the deployment failed.
-     *
-     **/
-    void instantiateServer(string application, string template, StringStringDict parameters)
-	throws ApplicationNotExistException, DeploymentException;
-
-    /**
-     *
      * Get all the &IceGrid; applications currently registered.
      *
      * @return The application names.
