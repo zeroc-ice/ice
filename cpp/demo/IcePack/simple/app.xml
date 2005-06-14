@@ -66,6 +66,20 @@
        <variable name="node1" value="test"/>
        <server-instance template="IceBoxTemplate" name="IceBox"/>
        <server-instance template="ServerTemplate" name="Server"/>
+
+
+     <server name="Server1" exe="./server"> 
+       <adapters>
+	 <adapter name="Hello" endpoints="tcp" register="true">
+	   <object identity="${server}-hello2" type="::Demo::Hello"/>
+	 </adapter>
+       </adapters>
+       <properties>
+	 <property name="Identity" value="${server}-hello2"/>
+	 <property name="Prop" value="${id}"/>
+       </properties>
+     </server>
+
      </node>
 
   </application>

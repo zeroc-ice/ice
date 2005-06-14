@@ -69,6 +69,7 @@ class DescriptorTemplates : public IceUtil::SimpleShared
 public:
 
     DescriptorTemplates(const ApplicationDescriptorPtr&);
+    void setDescriptor(const ApplicationDescriptorPtr&);
 
     ServerDescriptorPtr instantiateServer(const DescriptorHelper&, const std::string&, 
 					  const std::map<std::string, std::string>&);
@@ -83,7 +84,7 @@ public:
 
 private:
 
-    const ApplicationDescriptorPtr _application;
+    ApplicationDescriptorPtr _application;
 };
 typedef IceUtil::Handle<DescriptorTemplates> DescriptorTemplatesPtr;
 
@@ -145,8 +146,12 @@ public:
     std::auto_ptr<ServiceDescriptorHelper> addServiceTemplate(const std::string&, const IceXML::Attributes&);
 
     void update(const ApplicationUpdateDescriptor&);
+    void addServerInstance(const std::string&, const std::map<std::string, std::string>&);
+    void instantiate();
 
 private:
+
+    void pushNodeVariables(const std::string&);
 
     ApplicationDescriptorPtr _descriptor;
 };

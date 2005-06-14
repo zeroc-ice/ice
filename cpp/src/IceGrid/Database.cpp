@@ -243,6 +243,10 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& descriptor)
 	    throw ex;
 	}
 
+	ApplicationDescriptorHelper helper(_communicator, descriptor);
+	helper.instantiate();
+	descriptor = helper.getDescriptor();
+
 	//
 	// Ensure that the application servers, adapters and objects
 	// aren't already registered.
@@ -369,12 +373,15 @@ Database::syncApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	    ex.name = newDesc->name;
 	    throw ex;
 	}
-	ApplicationDescriptorPtr origDesc = p->second;
 
+	ApplicationDescriptorHelper helper(_communicator, newDesc);
+	helper.instantiate();
+
+	
 	//
 	// Synchronize the application descriptor.
 	//
-	syncApplicationDescriptorNoSync(origDesc, newDesc, entries);
+	syncApplicationDescriptorNoSync(p->second, helper.getDescriptor(), entries);
     }
 
     //
@@ -440,7 +447,7 @@ Database::syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr& origDe
 	DeploymentException ex;
 	ex.reason = "adapter `" + e.id + "' is already registered"; 
 	throw ex;
-    }	
+    }
 
     //
     // Ensure that the new application objects aren't already

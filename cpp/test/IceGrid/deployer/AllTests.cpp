@@ -182,6 +182,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     InstanceDescriptor server2;
     InstanceDescriptor icebox1;
     InstanceDescriptor icebox2;
+    TemplateDescriptor iceBoxTmpl;
+    TemplateDescriptor serviceTmpl;
 
     for(InstanceDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
     {
@@ -192,8 +194,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	}
 	else if(p->descriptor->name == "Server2")
 	{
-	    server2 = *p;
-	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(p->descriptor);
+	    server2 = *p;	    
+	    ServerDescriptorPtr server;
+	    if(withTemplates)
+	    {
+		TemplateDescriptorDict::iterator q = application->serverTemplates.find(p->_cpp_template);
+		assert(q != application->serverTemplates.end());
+		server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
+	    }
+	    else
+	    {
+		server = ServerDescriptorPtr::dynamicCast(p->descriptor);
+	    }
 	    assert(server);
 	    for(PropertyDescriptorSeq::iterator r = server->properties.begin(); r != server->properties.end(); ++r)
 	    {
@@ -206,33 +218,65 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	else if(p->descriptor->name == "IceBox1")
 	{
 	    icebox1 = *p;
-	    icebox1.descriptor = ComponentDescriptorPtr::dynamicCast(icebox1.descriptor->ice_clone());
-	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
-	    assert(iceBox);
-	    for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+	    IceBoxDescriptorPtr iceBox;
+	    if(withTemplates)
 	    {
-		if(r->descriptor->name == "Service1")
+		TemplateDescriptorDict::iterator q = application->serverTemplates.find(p->_cpp_template);
+		assert(q != application->serverTemplates.end());
+		iceBoxTmpl = q->second;
+		q->second.descriptor = ComponentDescriptorPtr::dynamicCast(q->second.descriptor->ice_clone());
+		iceBox = IceBoxDescriptorPtr::dynamicCast(q->second.descriptor);
+		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
 		{
-		    iceBox->services.erase(r);
-		    break;
+		    if(r->parameterValues["name"] == "Service1")
+		    {
+			iceBox->services.erase(r);
+			break;
+		    }
+		}
+	    }
+	    else
+	    {
+		p->descriptor = ComponentDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
+		iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
+		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+		{
+		    if(r->descriptor->name == "Service1")
+		    {
+			iceBox->services.erase(r);
+			break;
+		    }
 		}
 	    }
 	}
 	else if(p->descriptor->name == "IceBox2")
 	{
 	    icebox2 = *p;
-	    icebox2.descriptor = ComponentDescriptorPtr::dynamicCast(icebox2.descriptor->ice_clone());
-	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
-	    assert(iceBox);
-	    for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+	    ComponentDescriptorPtr service;
+	    if(withTemplates)
 	    {
-		if(r->descriptor->name == "Service2")
+		TemplateDescriptorDict::iterator q = application->serviceTemplates.find("FreezeServiceTemplate");
+		assert(q != application->serviceTemplates.end());
+		serviceTmpl = q->second;
+		q->second.descriptor = ComponentDescriptorPtr::dynamicCast(q->second.descriptor->ice_clone());
+		service = q->second.descriptor;
+	    }
+	    else
+	    {
+		p->descriptor = ComponentDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
+		IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
+		assert(iceBox);
+		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
 		{
-		    assert(!r->descriptor->dbEnvs.empty());
-		    r->descriptor = ComponentDescriptorPtr::dynamicCast(r->descriptor->ice_clone());
-		    r->descriptor->dbEnvs.clear();
+		    if(r->descriptor->name == "Service2")
+		    {
+			r->descriptor = ComponentDescriptorPtr::dynamicCast(r->descriptor->ice_clone());
+			service = r->descriptor;
+		    }
 		}
 	    }
+	    assert(!service->dbEnvs.empty());
+	    service->dbEnvs.clear();
 	}
     }
 
@@ -270,11 +314,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     {
     }
 
+    
     //
     // Make sure the database environment of Service2 of IceBox2 was removed.
     //
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-    test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+    
+    if(!withTemplates)
+    {
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+	test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+    }
 
     obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
@@ -290,10 +339,20 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 
     ApplicationUpdateDescriptor update;
     update.name = "test";
-    update.servers.push_back(server1);
-    update.removeServers.push_back(server2.descriptor->name);
-    update.servers.push_back(icebox1);
-    update.servers.push_back(icebox2);
+    if(withTemplates)
+    {
+	update.servers.push_back(server1);
+	update.removeServers.push_back(server2.descriptor->name);
+	update.serverTemplates["IceBoxTemplate"] = iceBoxTmpl;
+	update.serviceTemplates["FreezeServiceTemplate"] = serviceTmpl;
+    }
+    else
+    {
+	update.servers.push_back(server1);
+	update.removeServers.push_back(server2.descriptor->name);
+	update.servers.push_back(icebox1);
+	update.servers.push_back(icebox2);
+    }
 
     admin->updateApplication(update);
 
@@ -310,13 +369,27 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     //
     // Ensure the service 1 of the IceBox1 server is back.
     //
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    try
+    {
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
 
     //
     // Make sure the database environment of Service2 of IceBox2 is back.
     //
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
-    test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+    try
+    {
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+	test(!obj->getProperty("Freeze.DbEnv.Service2.DbHome").empty());
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
 
     cout << "ok" << endl;
 }

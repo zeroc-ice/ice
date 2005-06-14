@@ -296,6 +296,12 @@ DescriptorTemplates::DescriptorTemplates(const ApplicationDescriptorPtr& descrip
 {
 }
 
+void
+DescriptorTemplates::setDescriptor(const ApplicationDescriptorPtr& desc)
+{
+    _application = desc;
+}
+
 ServerDescriptorPtr
 DescriptorTemplates::instantiateServer(const DescriptorHelper& helper, 
 				       const string& name, 
@@ -585,39 +591,47 @@ void
 ApplicationDescriptorHelper::addNode(const IceXML::Attributes& attrs)
 {
     XmlAttributesHelper attributes(_variables, attrs);
-
-    NodeDescriptor node;
-    node.name = attributes("name");    
-
+    
+    string node = attributes("name");	
     _variables->push();
-    _variables->addVariable("node", node.name);
-
-    _descriptor->nodes.push_back(node);
+    _variables->addVariable("node", node);
+    for(NodeDescriptorSeq::const_iterator p = _descriptor->nodes.begin(); p != _descriptor->nodes.end(); ++p)
+    {
+	if(p->name == node)
+	{
+	    _variables->push(p->variables);
+	    break;
+	}
+    }
 }
 
 void
 ApplicationDescriptorHelper::endNodeParsing()
 {
-    _descriptor->nodes.back().variables = _variables->getCurrentScopeVariables();
+    NodeDescriptor node;
+    node.name = _variables->getVariable("node");
+    node.variables = _variables->getCurrentScopeVariables();
+    _descriptor->nodes.push_back(node);
     _variables->pop();
 }
+
 
 void
 ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attributes& attrs)
 {
-    XmlAttributesHelper attributes(_variables, attrs);
+    assert(_variables->hasVariable("node"));
     InstanceDescriptor instance;
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
     instance.parameterValues["node"] = _variables->getVariable("node");
     instance.parameterValues.erase("template");
-    instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
     _descriptor->servers.push_back(instance);
 }
 
 void
 ApplicationDescriptorHelper::addServer(const ServerDescriptorPtr& descriptor)
 {
+    assert(_variables->hasVariable("node"));
     InstanceDescriptor instance;
     instance.descriptor = descriptor;
     instance.targets = _variables->getDeploymentTargets(descriptor->name + ".");
@@ -671,6 +685,9 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->serviceTemplates.erase(*p);
     }
 
+    //
+    // Update the node descriptors.
+    //
     newApp->nodes = update.nodes;
     for(NodeDescriptorSeq::const_iterator q = _descriptor->nodes.begin(); q != _descriptor->nodes.end(); ++q)
     {
@@ -688,11 +705,6 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	}
     }
 
-    //
-    // TODO: This isn't correct we need to check that the instances
-    // are valid, we can't just add them like this!
-    //
-
     newApp->servers = update.servers;
     set<string> remove(update.removeServers.begin(), update.removeServers.end());
     set<string> updated;
@@ -706,6 +718,63 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     }
 
     _descriptor = newApp;
+    _templates->setDescriptor(newApp);
+
+    //
+    // Re-instantiate the servers based on a template.
+    //
+    instantiate();
+}
+
+void
+ApplicationDescriptorHelper::addServerInstance(const string& tmpl, const map<string, string>& parameters)
+{
+    XmlAttributesHelper attributes(_variables, parameters);
+    pushNodeVariables(attributes("node"));
+
+    InstanceDescriptor instance;
+    instance._cpp_template = tmpl;
+    instance.parameterValues = parameters;
+    instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
+    _descriptor->servers.push_back(instance);    
+
+    _variables->pop();
+}
+
+void
+ApplicationDescriptorHelper::instantiate()
+{
+    for(InstanceDescriptorSeq::iterator p = _descriptor->servers.begin(); p != _descriptor->servers.end(); ++p)
+    {
+	if(p->_cpp_template.empty())
+	{
+	    continue;
+	}
+
+	XmlAttributesHelper attributes(_variables, p->parameterValues);
+	pushNodeVariables(attributes("node"));
+	p->descriptor = _templates->instantiateServer(*this, p->_cpp_template, p->parameterValues);
+	_variables->pop();
+    }
+}
+
+void
+ApplicationDescriptorHelper::pushNodeVariables(const string& node)
+{
+    NodeDescriptorSeq::const_iterator q;
+    for(q = _descriptor->nodes.begin(); q != _descriptor->nodes.end(); ++q)
+    {
+	if(q->name == node)
+	{
+	    _variables->push(q->variables);
+	    break;
+	}
+    }
+    if(q == _descriptor->nodes.end())
+    {
+	_variables->push();
+    }
+    _variables->addVariable("node", node);
 }
 
 ComponentDescriptorHelper::ComponentDescriptorHelper(const DescriptorHelper& helper) : DescriptorHelper(helper)
@@ -958,7 +1027,7 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
     _descriptor->application = _variables->substitute("${application}");
-    _descriptor->node = "${node}";
+    _descriptor->node = _variables->substitute("${node}");
     _descriptor->pwd = attributes("pwd", "");
     _descriptor->activation = attributes("activation", "manual");
     
