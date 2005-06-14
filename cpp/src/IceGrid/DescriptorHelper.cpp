@@ -572,7 +572,6 @@ void
 ApplicationDescriptorHelper::endParsing()
 {
     _descriptor->variables = _variables->getCurrentScopeVariables();
-    _variables->remove("application");
 }
 
 const ApplicationDescriptorPtr&

@@ -26,7 +26,7 @@ IceGrid.Registry.Data=db/registry
 IceGrid.Node.Name=node
 IceGrid.Node.Endpoints=default
 IceGrid.Node.Data=db/node
-#IceGrid.Node.CollocateRegistry=1
+IceGrid.Node.CollocateRegistry=1
 #IceGrid.Node.Output=db
 #IceGrid.Node.RedirectErrToOut=1
 
