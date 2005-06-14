@@ -171,42 +171,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "faulttoleranceC"=.\test\Ice\faultTolerance\faulttoleranceC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "faulttoleranceS"=.\test\Ice\faultTolerance\faulttoleranceS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "helloC"=.\demo\Ice\hello\helloC.vcp - Package Owner=<4>
 
 Package=<5>
