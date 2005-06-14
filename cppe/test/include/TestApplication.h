@@ -22,6 +22,7 @@ class ICE_TEST_COMMON_API TestApplication
 {
 public:
 
+    TestApplication(const std::string& = "");
 #ifdef _WIN32_WCE
     int main(HINSTANCE);
 #else
@@ -35,6 +36,7 @@ public:
 
 private:
 
+    const std::string _name;
     Ice::CommunicatorPtr _communicator;
 };
 

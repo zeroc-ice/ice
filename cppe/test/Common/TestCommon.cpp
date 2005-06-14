@@ -30,7 +30,12 @@ public:
     virtual void
     trace(const string& category, const string& message)
     {
+	char buf[1024];
+	sprintf(buf, "%ld", GetTickCount());
 	string s = "[ ";
+	s += buf;
+	s += ' ';
+	
 	if(!category.empty())
 	{
 	    s += category + ": ";
@@ -71,6 +76,7 @@ class TestSuiteFailed
 public:
 };
 
+static FILE* _tprintfp = 0;
 static HWND hEdit;
 static HWND mainWnd;
 static IceUtil::ThreadControl mainThread;
@@ -78,13 +84,20 @@ static IceUtil::ThreadControl mainThread;
 void
 tprintf(const char* fmt, ...)
 {
-
     va_list va;
     va_start(va, fmt);
     char buf[1024];
     _vsnprintf(buf, sizeof(buf)-1, fmt, va);
     buf[sizeof(buf)-1] = '\0';
     va_end(va);
+
+    if(_tprintfp)
+    {
+	fwrite(buf, strlen(buf), 1, _tprintfp);
+	fflush(_tprintfp);
+	return;
+    }
+
     char* start = buf;
     const char* end = start + strlen(start);
     char* curr = start;
@@ -227,7 +240,18 @@ TestApplication::main(HINSTANCE hInstance)
 	return 0;
     }
 
-    mainWnd = CreateWindow(windowClassName, L"Test", WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
+    wchar_t wName[1024] = L"Test";
+    if(_name.size() > 0)
+    {
+	int len = _name.size();
+	if(len > 1023)
+	{
+	    len = 1023;
+	}
+        mbstowcs(wName, _name.c_str(), len);
+	wName[len] = L'\0';
+    }
+    mainWnd = CreateWindow(windowClassName, wName, WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
 			CW_USEDEFAULT, CW_USEDEFAULT, 320, 200,
 			NULL, NULL, hInstance, NULL);
     if(mainWnd == NULL)
@@ -368,11 +392,19 @@ TestApplication::main(int ac, char* av[])
 }
 #endif
 
+TestApplication::TestApplication(const std::string& name)
+    : _name(name)
+{
+
+}
+
 void
 TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
 {
     _communicator = communicator;
     _communicator->setLogger(new LoggerI);
+
+    //_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
 }
 
 Ice::CommunicatorPtr
