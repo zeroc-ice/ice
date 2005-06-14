@@ -59,7 +59,7 @@
 	<!-- <javac srcdir="${src.dir}" destdir="${lib.dir}" -->
 	<javac srcdir="${generated.dir}:${src.dir}:${target-profile}" destdir="${lib.dir}"
 	    debug="${debug}" optimize="${optimize}" deprecation="on">
-		<bootclasspath refid="bootclasspath"/> 
+<!--		<bootclasspath refid="bootclasspath"/>  -->
 	</javac>
     </target>
 
