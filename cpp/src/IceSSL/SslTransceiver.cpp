@@ -347,57 +347,47 @@ IceSSL::SslTransceiver::toString() const
 void
 IceSSL::SslTransceiver::forceHandshake()
 {
-    int retryCount = 0;
-
-    while(retryCount < _handshakeRetries)
+    try
     {
-	++retryCount;
-
-        try
-        {
-            if(handshake(_handshakeReadTimeout) > 0)
-            {
-                // Handshake complete.
-                break;
-            }
-        }
-        catch(TimeoutException)
-        {
-	    // Do nothing.
-        }
+	if(handshake(_readTimeout) > 0)
+	{
+	    return; // Handshake complete.
+	}
+    }
+    catch(const TimeoutException&)
+    {
+	// Fall through.
     }
 
-    if(retryCount >= _handshakeRetries)
+    if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
     {
-        if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
-        {
- 	    Trace out(_logger, _traceLevels->securityCat);
-            out << "Handshake retry maximum reached.\n" << toString();
-        }
+	Trace out(_logger, _traceLevels->securityCat);
+	if(_readTimeout >= 0)
+	{
+	    out << "Timeout occurred during SSL handshake.\n" << toString();
+	}
+	else
+	{
+	    out << "Failure occurred during SSL handshake.\n" << toString();
+	}
+    }
 
-        close();
+    close();
 
-        // If the handshake fails, we consider the connection as refused.
-        ConnectionRefusedException ex(__FILE__, __LINE__);
+    if(_readTimeout >= 0)
+    {
+	throw ConnectTimeoutException(__FILE__, __LINE__);
+    }
+    else
+    {
+	ConnectionRefusedException ex(__FILE__, __LINE__);
 #ifdef _WIN32
-        ex.error = WSAECONNREFUSED;
+	ex.error = WSAECONNREFUSED;
 #else
-        ex.error = ECONNREFUSED;
+	ex.error = ECONNREFUSED;
 #endif
-        throw ex;
+	throw ex;
     }
-}
-
-void
-IceSSL::SslTransceiver::setHandshakeReadTimeout(int timeout)
-{
-    _handshakeReadTimeout = timeout;
-}
-
-void
-IceSSL::SslTransceiver::setHandshakeRetries(int retries)
-{
-    _handshakeRetries = retries;
 }
 
 IceSSL::SslTransceiverPtr
@@ -1057,8 +1047,10 @@ IceSSL::SslTransceiver::showClientCAList(BIO* bio, const char* connType)
 IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
                                        SOCKET fd,
 		                       const CertificateVerifierPtr& certificateVerifier,
-                                       SSL* sslConnection) :
+                                       SSL* sslConnection,
+				       int timeout) :
     _sslConnection(sslConnection),
+    _readTimeout(timeout),
     _plugin(plugin),
     _traceLevels(plugin->getTraceLevels()),
     _logger(plugin->getLogger()),
@@ -1080,9 +1072,6 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
 
     _initWantRead = 0;
     _initWantWrite = 0;
-
-    _handshakeReadTimeout = 0;
-    _handshakeRetries = 0;
 
     // Set up the SSL to be able to refer back to our connection object.
     addTransceiver(_sslConnection, this);

@@ -325,7 +325,6 @@ IcePatch2:
 IceSSL:
     Client.CertPath
     Client.Config
-    Client.Handshake.Retries
     Client.IgnoreValidPeriod
     Client.Overrides.CACertificate
     Client.Overrides.DSA.Certificate

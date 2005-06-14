@@ -609,26 +609,6 @@ IceSSL::Context::createSSLConnection(int socket)
 }
 
 void
-IceSSL::Context::transceiverSetup(const SslTransceiverPtr& transceiver, int timeout)
-{
-    // This timeout is implemented once on the first read after hanshake.
-    //
-    // Note: This is here because of some strange issue where SSL sometimes has long pauses
-    //       during handshake which cause timeouts.  If the IceSSL timeout is less than 5s,
-    //       there is a possibility (increasing in probability as you set the timeout lower)
-    //       that the handshake will faile due to a timeout.
-    //
-    transceiver->setHandshakeReadTimeout(timeout < 5000 ? 5000 : timeout);
-
-    // Note: Likewise, because the handshake has to be completed by a single thread, we do
-    //       handshake retries in the Transceiver.  This is obviously not what we'd like, but
-    //       this is due to the way the OpenSSL library handles handshaking.
-    //
-    int retries = _communicator->getProperties()->getPropertyAsIntWithDefault(_connectionHandshakeRetries, 10);
-    transceiver->setHandshakeRetries(retries);
-}
-
-void
 IceSSL::Context::setCipherList(const string& cipherList)
 {
     assert(_sslContext != 0);

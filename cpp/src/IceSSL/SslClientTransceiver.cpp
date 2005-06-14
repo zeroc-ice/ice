@@ -188,11 +188,9 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
 
     while(!retCode)
     {
-        _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
-
         if(_initWantRead)
         {
-            int i = readSelect(_readTimeout);
+            int i = readSelect(timeout);
 
             if(i == 0)
             {
@@ -262,7 +260,7 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
 
                     if(wouldBlock())
                     {
-                        readSelect(_readTimeout);
+                        readSelect(timeout);
                         break;
                     }
 
@@ -395,8 +393,9 @@ IceSSL::SslClientTransceiver::showConnectionInfo()
 IceSSL::SslClientTransceiver::SslClientTransceiver(const OpenSSLPluginIPtr& plugin,
                                                    SOCKET fd,
                                                    const CertificateVerifierPtr& certVerifier,
-                                                   SSL* sslConnection) :
-    SslTransceiver(plugin, fd, certVerifier, sslConnection)
+                                                   SSL* sslConnection,
+						   int timeout) :
+    SslTransceiver(plugin, fd, certVerifier, sslConnection, timeout)
 {
     // Set the Connect Connection state for this connection.
     SSL_set_connect_state(_sslConnection);

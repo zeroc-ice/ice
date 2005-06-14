@@ -1431,27 +1431,6 @@ for the proper operation of the &IceSSL; plug-in.
 </section>
 </section>
 
-<section><title>IceSSL.Client.Handshake.Retries</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceSSL.Client.Handshake.Retries=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-IceSSL clients attempt to perform an entire SSL handshake in the connection
-phase. When attempting this handshake, it is possible for the client to
-time out while waiting for a response from the server. This property specifies
-the number of handshake retries the client attempts before throwing a
-<literal>Ice::ConnectionFailedException</literal>. (C++ only)
-</para>
-<para>
-If not specified, the default value for this property is 10 retries.
-</para>
-</section>
-</section>
-
 <section><title>IceSSL.Client.Passphrase.Retries, IceSSL.Server.Passphrase.Retries</title>
 <section><title>Synopsis</title>
 <synopsis>

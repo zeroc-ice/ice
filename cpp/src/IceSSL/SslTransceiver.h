@@ -139,8 +139,6 @@ public:
 
     void forceHandshake();
     virtual int handshake(int timeout = 0) = 0;
-    void setHandshakeReadTimeout(int);
-    void setHandshakeRetries(int);
     static SslTransceiverPtr getTransceiver(SSL*);
 
     // Callback from OpenSSL for purposes of certificate verification
@@ -195,13 +193,11 @@ protected:
     SafeFlag _handshakeFlag;
     int _initWantRead;
     int _initWantWrite;
-    int _handshakeReadTimeout;
-    int _handshakeRetries;
     int _readTimeout;
 
     ConnectPhase _phase;
  
-    SslTransceiver(const OpenSSLPluginIPtr&, SOCKET, const IceSSL::CertificateVerifierPtr&, SSL*);
+    SslTransceiver(const OpenSSLPluginIPtr&, SOCKET, const IceSSL::CertificateVerifierPtr&, SSL*, int);
     virtual ~SslTransceiver();
 
     const OpenSSLPluginIPtr _plugin;

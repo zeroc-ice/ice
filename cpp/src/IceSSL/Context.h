@@ -79,8 +79,6 @@ protected:
 
     SSL* createSSLConnection(int);
 
-    void transceiverSetup(const SslTransceiverPtr&, int);
-
     void setCipherList(const std::string&);
 
     void setDHParams(const BaseCertificates&);
