@@ -37,25 +37,25 @@ AdminI::~AdminI()
 void
 AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
 {
-    _database->addApplicationDescriptor(descriptor);
+    _database->addApplicationDescriptor(0, descriptor);
 }
 
 void
 AdminI::syncApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
 {
-    _database->syncApplicationDescriptor(descriptor);
+    _database->syncApplicationDescriptor(0, descriptor);
 }
 
 void
 AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const Current&)
 {
-    _database->updateApplicationDescriptor(descriptor);
+    _database->updateApplicationDescriptor(0, descriptor);
 }
 
 void
 AdminI::removeApplication(const string& name, const Current&)
 {
-    _database->removeApplicationDescriptor(name);
+    _database->removeApplicationDescriptor(0, name);
 }
 
 ApplicationDescriptorPtr
@@ -71,7 +71,7 @@ AdminI::instantiateServer(const string& name, const string& tmpl, const StringSt
     {
 	ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
 	helper.addServerInstance(tmpl, parameters);
-	_database->syncApplicationDescriptor(helper.getDescriptor());
+	_database->syncApplicationDescriptor(0, helper.getDescriptor());
 	ApplicationUpdateDescriptor update;
     }
     catch(const std::string& msg)

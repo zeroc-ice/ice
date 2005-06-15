@@ -24,11 +24,14 @@ typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
+class Database;
+typedef IceUtil::Handle<Database> DatabasePtr;
+
 class SessionManagerI : virtual public SessionManager
 {
 public:
 
-    SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const ReapThreadPtr&);
+    SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
@@ -37,6 +40,7 @@ private:
 
     RegistryObserverTopic& _registryObserverTopic;
     NodeObserverTopic& _nodeObserverTopic;
+    const DatabasePtr _database;
     const ReapThreadPtr _reaper;
 
 };

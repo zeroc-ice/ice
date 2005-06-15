@@ -156,7 +156,7 @@ command
 }
 | ICE_GRID_SERVER ICE_GRID_REMOVE strings ';'
 {
-    parser->describeServer($3);
+    parser->removeServer($3);
 }
 | ICE_GRID_SERVER ICE_GRID_DESCRIBE strings ';'
 {

@@ -53,14 +53,120 @@ interface RegistryObserver
     void nodeDown(string name);
 };
 
+/**
+ *
+ * This exception is raised if the cache is out of date.
+ *
+ **/
+exception CacheOutOfDate
+{
+};
+
+/**
+ *
+ * This exception is raised if an operation can't be performed because
+ * the regitry lock wasn't acquired or is already acquired by a session.
+ *
+ **/
+exception AccessDenied
+{
+    string lockUserId;
+};
+
 interface Session extends Glacier2::Session
 {
+    /**
+     *
+     * Keep alive the session. Clients should call this method
+     * regularily to ensure the server won't reap the session.
+     *
+     **/
     void keepAlive();
+
+    /**
+     *
+     * Set the proxies of the observer objects that will receive
+     * notifications from the servers when the state of the registry
+     * or nodes changes.
+     *
+     * @param registryObs The registry observer.
+     *
+     * @param nodeObs The node observer.
+     *
+     **/
     void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs);
+
+    /**
+     *
+     * Set the identities of the observer objects that will receive
+     * notifications from the servers when the state of the registry
+     * or nodes changes. This method should be used by clients which
+     * are using a bi-directional connection to communicator with the
+     * session.
+     *
+     * @param registryObs The registry observer identity.
+     *
+     * @param nodeObs The node observer identity.
+     *
+     **/
+    void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs);
+
+    /**
+     *
+     * Acquires to registry exclusive lock to start updating the
+     * registry applications.
+     *
+     * @param cacheSerialSession The client cache serial number.
+     * 
+     * @throws CacheOutOfDate Raised if the cache serial number
+     * provided by the client is inferior to the current registry
+     * serial number. The client should refresh its cache and try
+     * again.
+     *
+     * @throws AccessDenied Raised if the exclusive lock can't be
+     * acquired. This might be because it's already acquired by
+     * another session.
+     *
+     **/
+    void startUpdate(int cacheSerialSession)
+	throws CacheOutOfDate, AccessDenied;
+    
+    /**
+     *
+     * Update an application. This method must be called to update the
+     * registry applications using the lock mechanism.
+     *
+     * @throws AccessDenied Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void updateApplication(ApplicationUpdateDescriptor update)
+	throws AccessDenied;
+
+    /**
+     *
+     * Finish to update the registry and release the exclusive
+     * lock.
+     *
+     * @throws AccessDenied Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void finishUpdate()
+	throws AccessDenied;
 };
 
 interface SessionManager extends Glacier2::SessionManager
 {
+    /**
+     *
+     * Create a local session.
+     *
+     * @param userId An identifier to identify the session user.
+     *
+     * @return The proxy on the local session.
+     *
+     **/
     Session* createLocalSession(string userId);
 };
 

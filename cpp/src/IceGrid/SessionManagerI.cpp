@@ -12,21 +12,23 @@
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/ObserverSessionI.h>
 #include <IceGrid/ReapThread.h>
+#include <IceGrid/Database.h>
 
 using namespace std;
 using namespace IceGrid;
 
 SessionManagerI::SessionManagerI(RegistryObserverTopic& regTopic,
 				 NodeObserverTopic& nodeTopic,
+				 const DatabasePtr& database,
 				 const ReapThreadPtr& reaper) :
-    _registryObserverTopic(regTopic), _nodeObserverTopic(nodeTopic), _reaper(reaper)
+    _registryObserverTopic(regTopic), _nodeObserverTopic(nodeTopic), _database(database), _reaper(reaper)
 {
 }
 
 Glacier2::SessionPrx
 SessionManagerI::create(const string& userId, const Ice::Current& current)
 {
-    SessionIPtr session = new Glacier2ObserverSessionI(userId, _registryObserverTopic, _nodeObserverTopic);
+    SessionIPtr session = new Glacier2ObserverSessionI(userId, _database, _registryObserverTopic, _nodeObserverTopic);
     Glacier2::SessionPrx proxy = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(proxy, session);
     return proxy;
@@ -35,7 +37,7 @@ SessionManagerI::create(const string& userId, const Ice::Current& current)
 SessionPrx
 SessionManagerI::createLocalSession(const string& userId, const Ice::Current& current)
 {
-    SessionIPtr session = new LocalObserverSessionI(userId, _registryObserverTopic, _nodeObserverTopic);
+    SessionIPtr session = new LocalObserverSessionI(userId, _database, _registryObserverTopic, _nodeObserverTopic);
     SessionPrx proxy = SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     _reaper->add(proxy, session);
     return proxy;

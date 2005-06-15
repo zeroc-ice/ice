@@ -195,7 +195,8 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
-    _adapters(_connection, _adapterDbName)
+    _adapters(_connection, _adapterDbName),
+    _serial(0)
 {
     //
     // Register a default servant to manage manually registered object adapters.
@@ -221,18 +222,77 @@ Database::~Database()
 void
 Database::setRegistryObserver(const RegistryObserverPrx& observer)
 {
-    Lock sync(*this);
-    _registryObserver = observer;
+    int serial;
+    ApplicationDescriptorSeq applications;
+    Ice::StringSeq nodes;
+    {
+	Lock sync(*this);
+	_registryObserver = observer;
+	serial = _serial;
+
+	for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
+	{
+	    applications.push_back(p->second);
+	}
+
+	for(map<string, NodeSessionIPtr>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
+	{
+	    nodes.push_back(p->first);
+	}
+    }
+
+    //
+    // Notify the observers.
+    //
+    _registryObserver->init(serial, applications, nodes);
 }
 
 void
-Database::addApplicationDescriptor(const ApplicationDescriptorPtr& newApp)
+Database::checkSessionLock(ObserverSessionI* session)
+{
+    if(_lock != 0 && session != _lock)
+    {
+	AccessDenied ex;
+	ex.lockUserId = _lockUserId;
+	throw ex;
+    }
+}
+
+void
+Database::lock(int serial, ObserverSessionI* session, const string& userId)
+{
+    Lock sync(*this);
+    checkSessionLock(session);
+
+    if(serial != _serial)
+    {
+	throw CacheOutOfDate();
+    }
+
+    _lock = session;
+    _lockUserId = userId;
+}
+
+void
+Database::unlock(ObserverSessionI* session)
+{
+    Lock sync(*this);
+    assert(_lock == session);
+    _lock = 0;
+    _lockUserId.clear();
+}
+
+void
+Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationDescriptorPtr& newApp)
 {
     ServerEntrySeq entries;
     ApplicationDescriptorPtr descriptor;
+    int serial;
     {
 	Lock sync(*this);
 	
+	checkSessionLock(session);
+
 	//
 	// We first ensure that the application doesn't already exist
 	// and that the application components don't already exist.
@@ -309,12 +369,14 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& newApp)
 	// Save the application descriptor.
 	//
 	_descriptors.put(make_pair(descriptor->name, descriptor));
+
+	serial = ++_serial;
     }
 
     //
     // Notify the observers.
     //
-    _registryObserver->applicationAdded(0, descriptor);
+    _registryObserver->applicationAdded(serial, descriptor);
 
     if(_traceLevels->application > 0)
     {
@@ -329,12 +391,15 @@ Database::addApplicationDescriptor(const ApplicationDescriptorPtr& newApp)
 }
 
 void
-Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
+Database::updateApplicationDescriptor(ObserverSessionI* session, const ApplicationUpdateDescriptor& update)
 {
     ServerEntrySeq entries;
+    int serial;
+    ApplicationUpdateDescriptor newUpdate;
     {
-	Lock sync(*this);
-	
+	Lock sync(*this);	
+	checkSessionLock(session);
+
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(update.name);
 	if(p == _descriptors.end())
 	{
@@ -350,7 +415,7 @@ Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
 	try
 	{
 	    ApplicationDescriptorHelper helper(_communicator, p->second);
-	    helper.update(update);
+	    newUpdate = helper.update(update);
 	    descriptor = helper.getDescriptor();
 	}
 	catch(const string& msg)
@@ -364,12 +429,14 @@ Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
 	// Synchronize the application descriptor.
 	//
 	syncApplicationDescriptorNoSync(p->second, descriptor, entries);
+
+	serial = ++_serial;
     }    
 
     //
     // Notify the observers.
     //
-    _registryObserver->applicationUpdated(0, update);
+    _registryObserver->applicationUpdated(serial, newUpdate);
 
     if(_traceLevels->application > 0)
     {
@@ -381,11 +448,13 @@ Database::updateApplicationDescriptor(const ApplicationUpdateDescriptor& update)
 }
 
 void
-Database::syncApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
+Database::syncApplicationDescriptor(ObserverSessionI* session, const ApplicationDescriptorPtr& newDesc)
 {
     ServerEntrySeq entries;
+    int serial;
     {
 	Lock sync(*this);
+	checkSessionLock(session);
 
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(newDesc->name);
 	if(p == _descriptors.end())
@@ -413,12 +482,14 @@ Database::syncApplicationDescriptor(const ApplicationDescriptorPtr& newDesc)
 	// Synchronize the application descriptor.
 	//
 	syncApplicationDescriptorNoSync(p->second, descriptor, entries);
+
+	serial = ++_serial;
     }
 
     //
     // Notify the observers.
     //
-    _registryObserver->applicationSynced(0, newDesc);
+    _registryObserver->applicationSynced(serial, newDesc);
 
     if(_traceLevels->application > 0)
     {
@@ -514,12 +585,14 @@ Database::syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr& origDe
 }
 
 void
-Database::removeApplicationDescriptor(const std::string& name)
+Database::removeApplicationDescriptor(ObserverSessionI* session, const std::string& name)
 {
     ApplicationDescriptorPtr descriptor;
     ServerEntrySeq entries;
+    int serial;
     {
 	Lock sync(*this);
+	checkSessionLock(session);
 
 	StringApplicationDescriptorDict::iterator p = _descriptors.find(name);
 	if(p == _descriptors.end())
@@ -533,12 +606,14 @@ Database::removeApplicationDescriptor(const std::string& name)
 	set<string> servers;
 	for_each(descriptor->servers.begin(), descriptor->servers.end(), AddServerName(servers));
 	removeServers(descriptor->servers, servers, entries);
+
+	serial = ++_serial;
     }
 
     //
     // Notify the observers
     //
-    _registryObserver->applicationRemoved(0, descriptor->name);
+    _registryObserver->applicationRemoved(serial, descriptor->name);
 
     if(_traceLevels->application > 0)
     {

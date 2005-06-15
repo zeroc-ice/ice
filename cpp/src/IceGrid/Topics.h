@@ -45,7 +45,7 @@ private:
     std::map<std::string, AdapterDynamicInfoSeq> _adapters;
 };
 
-class RegistryObserverTopic : public RegistryObserver, public IceUtil::Mutex 
+class RegistryObserverTopic : public RegistryObserver, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -64,6 +64,8 @@ public:
     void unsubscribe(const RegistryObserverPrx&);
 
 private:
+
+    void updateSerial(int);
 
     const IceStorm::TopicPrx _topic;
     const RegistryObserverPrx _publisher;

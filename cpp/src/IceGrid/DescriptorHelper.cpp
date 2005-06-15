@@ -648,9 +648,10 @@ ApplicationDescriptorHelper::addServiceTemplate(const std::string& id, const Ice
     return auto_ptr<ServiceDescriptorHelper>(new ServiceDescriptorHelper(*this, attrs, id));
 }
 
-void
+ApplicationUpdateDescriptor
 ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 {
+    ApplicationUpdateDescriptor newUpdate = update;
     ApplicationDescriptorPtr newApp = new ApplicationDescriptor();
     ApplicationDescriptorPtr oldApp = _descriptor;
     _descriptor = newApp;
@@ -659,10 +660,10 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     newApp->name = oldApp->name;
     newApp->comment = oldApp->comment;
     newApp->targets = oldApp->targets;
-    newApp->variables = update.variables;
+    newApp->variables = newUpdate.variables;
     newApp->variables.insert(oldApp->variables.begin(), oldApp->variables.end());
     Ice::StringSeq::const_iterator p;
-    for(p = update.removeVariables.begin(); p != update.removeVariables.end(); ++p)
+    for(p = newUpdate.removeVariables.begin(); p != newUpdate.removeVariables.end(); ++p)
     {
 	newApp->variables.erase(*p);
     }
@@ -670,9 +671,9 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     //
     // TODO: Check if the new templates are valid?
     //
-    newApp->serverTemplates = update.serverTemplates;
+    newApp->serverTemplates = newUpdate.serverTemplates;
     newApp->serverTemplates.insert(oldApp->serverTemplates.begin(), oldApp->serverTemplates.end());
-    for(p = update.removeServerTemplates.begin(); p != update.removeServerTemplates.end(); ++p)
+    for(p = newUpdate.removeServerTemplates.begin(); p != newUpdate.removeServerTemplates.end(); ++p)
     {
 	newApp->serverTemplates.erase(*p);
     }
@@ -680,9 +681,9 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     //
     // TODO: Check if the new templates are valid? 
     //
-    newApp->serviceTemplates = update.serviceTemplates;
+    newApp->serviceTemplates = newUpdate.serviceTemplates;
     newApp->serviceTemplates.insert(oldApp->serviceTemplates.begin(), oldApp->serviceTemplates.end());
-    for(p = update.removeServiceTemplates.begin(); p != update.removeServiceTemplates.end(); ++p)
+    for(p = newUpdate.removeServiceTemplates.begin(); p != newUpdate.removeServiceTemplates.end(); ++p)
     {
 	newApp->serviceTemplates.erase(*p);
     }
@@ -690,30 +691,31 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     //
     // Update the node descriptors.
     //
-    newApp->nodes = update.nodes;
+    newApp->nodes = newUpdate.nodes;
     for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
     {
 	NodeDescriptorSeq::const_iterator r;
-	for(r = update.nodes.begin(); r != update.nodes.end(); ++r)
+	for(r = newUpdate.nodes.begin(); r != newUpdate.nodes.end(); ++r)
 	{
 	    if(q->name == r->name)
 	    {
 		break;
 	    }
 	}
-	if(r == update.nodes.end())
+	if(r == newUpdate.nodes.end())
 	{
 	    newApp->nodes.push_back(*q);
 	}
     }
 
     newApp->servers.clear();
-    for(InstanceDescriptorSeq::const_iterator q = update.servers.begin(); q != update.servers.end(); ++q)
+    for(InstanceDescriptorSeq::iterator q = newUpdate.servers.begin(); q != newUpdate.servers.end(); ++q)
     {
-	newApp->servers.push_back(instantiate(*q));
+	*q = instantiate(*q);
+	newApp->servers.push_back(*q);
     }
 
-    set<string> remove(update.removeServers.begin(), update.removeServers.end());
+    set<string> remove(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
     set<string> updated;
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
     for(InstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
@@ -721,9 +723,16 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	InstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
 	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
 	{
+	    if(ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(q->descriptor)) != 
+	       ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(inst.descriptor)))
+	    {
+		newUpdate.servers.push_back(inst);
+	    }
 	    newApp->servers.push_back(inst);
 	}
     }
+
+    return newUpdate;
 }
 
 void

@@ -30,6 +30,8 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class NodeSessionI;
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
+class ObserverSessionI;
+
 class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
     class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
@@ -72,12 +74,14 @@ public:
 
     void setRegistryObserver(const RegistryObserverPrx&);
 
-    void addApplicationDescriptor(const ApplicationDescriptorPtr&);
-    void updateApplicationDescriptor(const ApplicationUpdateDescriptor&);
-    void syncApplicationDescriptor(const ApplicationDescriptorPtr&);
-    void syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&, 
-					 ServerEntrySeq&);
-    void removeApplicationDescriptor(const std::string&);
+    void lock(int serial, ObserverSessionI*, const std::string&);
+    void unlock(ObserverSessionI*);
+
+    void addApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptorPtr&);
+    void updateApplicationDescriptor(ObserverSessionI*, const ApplicationUpdateDescriptor&);
+    void syncApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptorPtr&);
+    void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
+
     ApplicationDescriptorPtr getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
@@ -106,6 +110,9 @@ public:
 
 private:
 
+    void syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&, 
+					 ServerEntrySeq&);
+
     void addServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
     void updateServers(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&,
 		       const std::set<std::string>&, ServerEntrySeq&);
@@ -120,6 +127,8 @@ private:
     void checkServerForAddition(const std::string&);
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
+
+    void checkSessionLock(ObserverSessionI*);
 
     static const std::string _descriptorDbName;
     static const std::string _objectDbName;
@@ -141,6 +150,10 @@ private:
     StringApplicationDescriptorDict _descriptors;
     IdentityObjectDescDict _objects;
     StringObjectProxyDict _adapters;
+    
+    ObserverSessionI* _lock;
+    std::string _lockUserId;
+    int _serial;
 };
 typedef IceUtil::Handle<Database> DatabasePtr;
 

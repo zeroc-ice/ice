@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <IceGrid/Topics.h>
+#include <IceGrid/DescriptorHelper.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -123,12 +125,14 @@ NodeObserverTopic::removeNode(const string& name)
 RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicPrx& topic, 
 					     const RegistryObserverPrx& publisher,
 					     NodeObserverTopic& nodeObserver) :
-    _topic(topic), _publisher(publisher), _nodeObserver(nodeObserver)
+    _topic(topic), _publisher(publisher), _nodeObserver(nodeObserver), _serial(0)
 {
 }
 
 void 
-RegistryObserverTopic::init(int serial, const ApplicationDescriptorSeq& apps, const Ice::StringSeq& nodes, 
+RegistryObserverTopic::init(int serial,
+			    const ApplicationDescriptorSeq& apps, 
+			    const Ice::StringSeq& nodes, 
 			    const Ice::Current&)
 {
     Lock sync(*this);
@@ -145,6 +149,8 @@ RegistryObserverTopic::applicationAdded(int serial, const ApplicationDescriptorP
 {
     Lock sync(*this);
 
+    updateSerial(serial);
+
     _applications.push_back(desc);
 
     _publisher->applicationAdded(serial, desc);
@@ -155,9 +161,15 @@ RegistryObserverTopic::applicationRemoved(int serial, const string& name, const 
 {
     Lock sync(*this);
 
-    //
-    // TODO: update cache
-    //
+    updateSerial(serial);
+    for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
+    {
+	if((*p)->name == name)
+	{
+	    _applications.erase(p);
+	    break;
+	}
+    }
 
     _publisher->applicationRemoved(serial, name);
 }
@@ -167,23 +179,45 @@ RegistryObserverTopic::applicationSynced(int serial, const ApplicationDescriptor
 {
     Lock sync(*this);
 
-    //
-    // TODO: update cache
-    //
+    updateSerial(serial);
+    for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
+    {
+	if((*p)->name == desc->name)
+	{
+	    *p = desc;
+	    break;
+	}
+    }
 
     _publisher->applicationSynced(serial, desc);
 }
 
 void 
-RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current&)
+RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current& c)
 {
     Lock sync(*this);
 
-    //
-    // TODO: update cache
-    //
+    updateSerial(serial);
+    ApplicationUpdateDescriptor newDesc;
+    try
+    {
+	for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
+	{
+	    if((*p)->name == desc.name)
+	    {
+		ApplicationDescriptorHelper helper(c.adapter->getCommunicator(), *p);
+		newDesc = helper.update(desc);
+		*p = helper.getDescriptor();
+		break;
+	    }
+	}
+    }
+    catch(...)
+    {
+	assert(false);
+    }
 
-    _publisher->applicationUpdated(serial, desc);
+    _publisher->applicationUpdated(serial, newDesc);
 }
 
 void 
@@ -235,4 +269,19 @@ RegistryObserverTopic::unsubscribe(const RegistryObserverPrx& observer)
 {
     Lock sync(*this);
     _topic->unsubscribe(observer);
+}
+
+void
+RegistryObserverTopic::updateSerial(int serial)
+{
+    //
+    // This loop ensures that updates from the database are processed
+    // sequentially.
+    //
+    while(_serial + 1 != serial)
+    {
+	wait();
+    }
+    _serial = serial;
+    notifyAll();
 }

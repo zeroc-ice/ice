@@ -87,23 +87,27 @@ public:
     }
 
     virtual void
-    applicationAdded(int, const ApplicationDescriptorPtr&, const Ice::Current&)
+    applicationAdded(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
     {
+	cout << "application `" << app->name << "' added (serial = " << serial << ")" << endl;
     }
 
     virtual void 
-    applicationRemoved(int, const std::string&, const Ice::Current&)
+    applicationRemoved(int serial, const std::string& name, const Ice::Current&)
     {
+	cout << "application `" << name << "' removed (serial = " << serial << ")" << endl;
     }
 
     virtual void 
-    applicationUpdated(int, const ApplicationUpdateDescriptor&, const Ice::Current&)
+    applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current&)
     {
+	cout << "application `" << desc.name << "' updated (serial = " << serial << ")" << endl;
     }
 
     virtual void 
-    applicationSynced(int, const ApplicationDescriptorPtr&, const Ice::Current&)
+    applicationSynced(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
     {
+	cout << "application `" << app->name << "' synced (serial = " << serial << ")" << endl;
     }
 
     virtual void
@@ -150,13 +154,13 @@ public:
 	    cout << "Inactive";
 	    break;
 	case Activating:
-	    cout << "Activation";
+	    cout << "Activating";
 	    break;
 	case Active:
 	    cout << "Active";
 	    break;
 	case Deactivating:
-	    cout << "Deactivation";
+	    cout << "Deactivating";
 	    break;
 	case Destroying:
 	    cout << "Destroying";
@@ -269,12 +273,13 @@ Client::run(int argc, char* argv[])
     RegistryObserverPrx regObserver = RegistryObserverPrx::uncheckedCast(adapter->addWithUUID(new RegistryObserverI()));
     NodeObserverPrx nodeObserver = NodeObserverPrx::uncheckedCast(adapter->addWithUUID(new NodeObserverI()));
     adapter->activate();
+    manager->ice_connection()->setAdapter(adapter);
 
     SessionKeepAliveThreadPtr keepAlive;
     keepAlive = new SessionKeepAliveThread(communicator()->getLogger(), IceUtil::Time::seconds(5), session);
     keepAlive->start();
 
-    session->setObservers(regObserver, nodeObserver);
+    session->setObserversByIdentity(regObserver->ice_getIdentity(), nodeObserver->ice_getIdentity());
 
     communicator()->waitForShutdown();
 

@@ -360,7 +360,7 @@ RegistryI::start(bool nowarn)
     //
     // Create the session manager.
     //
-    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _reaper);
+    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, _reaper);
     const string sessionManagerIdProperty = "IceGrid.Registry.SessionManagerIdentity";
     Identity sessionManagerId = stringToIdentity(properties->getPropertyWithDefault(sessionManagerIdProperty, 
 										    "IceGrid/SessionManager"));

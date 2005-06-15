@@ -9,15 +9,18 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/ObserverSessionI.h>
+#include <IceGrid/Database.h>
 
 using namespace std;
 using namespace IceGrid;
 
 ObserverSessionI::ObserverSessionI(const string& userId, 
+				   const DatabasePtr& database,
 				   RegistryObserverTopic& registryObserverTopic,
 				   NodeObserverTopic& nodeObserverTopic) :
     _userId(userId), 
     _destroyed(false),
+    _database(database),
     _registryObserverTopic(registryObserverTopic), 
     _nodeObserverTopic(nodeObserverTopic)
 {
@@ -42,8 +45,62 @@ ObserverSessionI::setObservers(const RegistryObserverPrx& registryObserver,
     //
     // Subscribe to the topics.
     //
-    _registryObserverTopic.subscribe(registryObserver); 
-    _nodeObserverTopic.subscribe(nodeObserver);
+    _registryObserverTopic.subscribe(_registryObserver); 
+    _nodeObserverTopic.subscribe(_nodeObserver);
+}
+
+void
+ObserverSessionI::setObserversByIdentity(const Ice::Identity& registryObserver, 
+					 const Ice::Identity& nodeObserver,
+					 const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    _registryObserver = RegistryObserverPrx::uncheckedCast(current.con->createProxy(registryObserver));
+    _nodeObserver = NodeObserverPrx::uncheckedCast(current.con->createProxy(nodeObserver));
+
+    //
+    // Subscribe to the topics.
+    //
+    _registryObserverTopic.subscribe(_registryObserver); 
+    _nodeObserverTopic.subscribe(_nodeObserver);
+}
+
+void
+ObserverSessionI::startUpdate(int serial, const Ice::Current&)
+{
+    Lock sync(*this);
+    _database->lock(serial, this, _userId);
+    _updating = true;
+}
+
+void
+ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, const Ice::Current&)
+{
+    Lock sync(*this);
+    if(!_updating)
+    {
+	throw AccessDenied();
+    }
+    _database->updateApplicationDescriptor(this, update);
+}
+
+void
+ObserverSessionI::finishUpdate(const Ice::Current&)
+{
+    Lock sync(*this);
+    if(!_updating)
+    {
+	throw AccessDenied();
+    }
+
+    _database->unlock(this);
 }
 
 void
@@ -56,10 +113,11 @@ ObserverSessionI::destroy(const Ice::Current&)
     _nodeObserverTopic.unsubscribe(_nodeObserver);
 }
 
-LocalObserverSessionI::LocalObserverSessionI(const string& userId, 
+LocalObserverSessionI::LocalObserverSessionI(const string& userId,
+					     const DatabasePtr& database,
 					     RegistryObserverTopic& registryObserverTopic,
 					     NodeObserverTopic& nodeObserverTopic) :
-    ObserverSessionI(userId, registryObserverTopic, nodeObserverTopic),
+    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic),
     _timestamp(IceUtil::Time::now())
 {
 }
@@ -85,10 +143,11 @@ LocalObserverSessionI::timestamp() const
     return _timestamp;
 }
 
-Glacier2ObserverSessionI::Glacier2ObserverSessionI(const string& userId, 
+Glacier2ObserverSessionI::Glacier2ObserverSessionI(const string& userId,
+						   const DatabasePtr& database,
 						   RegistryObserverTopic& registryObserverTopic,
 						   NodeObserverTopic& nodeObserverTopic) :
-    ObserverSessionI(userId, registryObserverTopic, nodeObserverTopic)
+    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic)
 {
 }
 
