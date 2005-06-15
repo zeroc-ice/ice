@@ -473,7 +473,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) coredll.lib ws2.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorDbg/testCommon21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorDbg/testCommon21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4I) Release"
 
@@ -953,51 +953,51 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\include\IceUtil\Thread.h"\
 	"..\..\include\IceUtil\ThreadException.h"\
-	{$(INCLUDE)}"config\_epilog.h"\
-	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
-	{$(INCLUDE)}"config\_prolog.h"\
-	{$(INCLUDE)}"config\stl_apcc.h"\
-	{$(INCLUDE)}"config\stl_apple.h"\
-	{$(INCLUDE)}"config\stl_as400.h"\
-	{$(INCLUDE)}"config\stl_bc.h"\
-	{$(INCLUDE)}"config\stl_como.h"\
-	{$(INCLUDE)}"config\stl_confix.h"\
-	{$(INCLUDE)}"config\stl_cray.h"\
-	{$(INCLUDE)}"config\stl_dec.h"\
-	{$(INCLUDE)}"config\stl_dec_vms.h"\
-	{$(INCLUDE)}"config\stl_dm.h"\
-	{$(INCLUDE)}"config\stl_fujitsu.h"\
-	{$(INCLUDE)}"config\stl_gcc.h"\
-	{$(INCLUDE)}"config\stl_hpacc.h"\
-	{$(INCLUDE)}"config\stl_ibm.h"\
-	{$(INCLUDE)}"config\stl_icc.h"\
-	{$(INCLUDE)}"config\stl_intel.h"\
-	{$(INCLUDE)}"config\stl_kai.h"\
-	{$(INCLUDE)}"config\stl_msvc.h"\
-	{$(INCLUDE)}"config\stl_mwerks.h"\
-	{$(INCLUDE)}"config\stl_mycomp.h"\
-	{$(INCLUDE)}"config\stl_sco.h"\
-	{$(INCLUDE)}"config\stl_select_lib.h"\
-	{$(INCLUDE)}"config\stl_sgi.h"\
-	{$(INCLUDE)}"config\stl_solaris.h"\
-	{$(INCLUDE)}"config\stl_sunpro.h"\
-	{$(INCLUDE)}"config\stl_symantec.h"\
-	{$(INCLUDE)}"config\stl_watcom.h"\
-	{$(INCLUDE)}"config\stl_wince.h"\
-	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"config\vc_select_lib.h"\
-	{$(INCLUDE)}"pthread.h"\
-	{$(INCLUDE)}"stl\_abbrevs.h"\
-	{$(INCLUDE)}"stl\_config.h"\
-	{$(INCLUDE)}"stl\_config_compat.h"\
-	{$(INCLUDE)}"stl\_config_compat_post.h"\
-	{$(INCLUDE)}"stl\_epilog.h"\
-	{$(INCLUDE)}"stl\_prolog.h"\
-	{$(INCLUDE)}"stl\_site_config.h"\
-	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	".\onfig\_epilog.h"\
+	".\onfig\_msvc_warnings_off.h"\
+	".\onfig\_prolog.h"\
+	".\onfig\stl_apcc.h"\
+	".\onfig\stl_apple.h"\
+	".\onfig\stl_as400.h"\
+	".\onfig\stl_bc.h"\
+	".\onfig\stl_como.h"\
+	".\onfig\stl_confix.h"\
+	".\onfig\stl_cray.h"\
+	".\onfig\stl_dec.h"\
+	".\onfig\stl_dec_vms.h"\
+	".\onfig\stl_dm.h"\
+	".\onfig\stl_fujitsu.h"\
+	".\onfig\stl_gcc.h"\
+	".\onfig\stl_hpacc.h"\
+	".\onfig\stl_ibm.h"\
+	".\onfig\stl_icc.h"\
+	".\onfig\stl_intel.h"\
+	".\onfig\stl_kai.h"\
+	".\onfig\stl_msvc.h"\
+	".\onfig\stl_mwerks.h"\
+	".\onfig\stl_mycomp.h"\
+	".\onfig\stl_sco.h"\
+	".\onfig\stl_select_lib.h"\
+	".\onfig\stl_sgi.h"\
+	".\onfig\stl_solaris.h"\
+	".\onfig\stl_sunpro.h"\
+	".\onfig\stl_symantec.h"\
+	".\onfig\stl_watcom.h"\
+	".\onfig\stl_wince.h"\
+	".\onfig\stlcomp.h"\
+	".\onfig\vc_select_lib.h"\
+	".\thread.h"\
+	".\tl\_abbrevs.h"\
+	".\tl\_config.h"\
+	".\tl\_config_compat.h"\
+	".\tl\_config_compat_post.h"\
+	".\tl\_epilog.h"\
+	".\tl\_prolog.h"\
+	".\tl\_site_config.h"\
+	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE emulator) Debug"
@@ -1067,6 +1067,7 @@ DEP_CPP_TESTC=\
 	{$(INCLUDE)}"config\stl_dec.h"\
 	{$(INCLUDE)}"config\stl_dec_vms.h"\
 	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
 	{$(INCLUDE)}"config\stl_fujitsu.h"\
 	{$(INCLUDE)}"config\stl_gcc.h"\
 	{$(INCLUDE)}"config\stl_hpacc.h"\
@@ -1078,7 +1079,6 @@ DEP_CPP_TESTC=\
 	{$(INCLUDE)}"config\stl_mwerks.h"\
 	{$(INCLUDE)}"config\stl_mycomp.h"\
 	{$(INCLUDE)}"config\stl_sco.h"\
-	{$(INCLUDE)}"config\stl_select_lib.h"\
 	{$(INCLUDE)}"config\stl_sgi.h"\
 	{$(INCLUDE)}"config\stl_solaris.h"\
 	{$(INCLUDE)}"config\stl_sunpro.h"\
@@ -1086,7 +1086,6 @@ DEP_CPP_TESTC=\
 	{$(INCLUDE)}"config\stl_watcom.h"\
 	{$(INCLUDE)}"config\stl_wince.h"\
 	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"config\vc_select_lib.h"\
 	{$(INCLUDE)}"pthread.h"\
 	{$(INCLUDE)}"stl\_abbrevs.h"\
 	{$(INCLUDE)}"stl\_config.h"\
@@ -1095,6 +1094,7 @@ DEP_CPP_TESTC=\
 	{$(INCLUDE)}"stl\_epilog.h"\
 	{$(INCLUDE)}"stl\_prolog.h"\
 	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
