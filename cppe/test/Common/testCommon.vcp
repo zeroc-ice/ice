@@ -85,7 +85,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSII_FPRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSII_FPRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
 # Begin Special Build Tool
 OutDir=.\MIPSII_FPRel
 SOURCE="$(InputPath)"
@@ -123,7 +123,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSII_FPDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSII_FPDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE MIPSII) Release"
 
@@ -156,7 +156,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIIRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIIRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
 # Begin Special Build Tool
 OutDir=.\MIPSIIRel
 SOURCE="$(InputPath)"
@@ -194,7 +194,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPS
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIIDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIIDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPS
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE SH4) Release"
 
@@ -227,7 +227,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH4
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"SH4Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:SH4
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"SH4Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:SH4
 # Begin Special Build Tool
 OutDir=.\SH4Rel
 SOURCE="$(InputPath)"
@@ -265,7 +265,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH4
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"SH4Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:SH4
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"SH4Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:SH4
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE SH3) Release"
 
@@ -298,7 +298,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"SH3Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"SH3Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
 # Begin Special Build Tool
 OutDir=.\SH3Rel
 SOURCE="$(InputPath)"
@@ -336,7 +336,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"SH3Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"SH3Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:SH3 /align:4096
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE MIPSIV) Release"
 
@@ -369,7 +369,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIVRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIVRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 # Begin Special Build Tool
 OutDir=.\MIPSIVRel
 SOURCE="$(InputPath)"
@@ -407,7 +407,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIVDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIVDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE emulator) Release"
 
@@ -440,7 +440,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) coredll.lib ws2.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorRel/testCommon21.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorRel/testCommon21.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE emulator) Debug"
 
@@ -473,7 +473,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorDbg/testCommon21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) ccrtrtti.lib coredll.lib ws2.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"emulatorDbg/testCommon21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4I) Release"
 
@@ -506,7 +506,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:THUMB
 # Begin Special Build Tool
 OutDir=.\ARMV4IRel
 SOURCE="$(InputPath)"
@@ -544,7 +544,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE MIPSIV_FP) Release"
 
@@ -577,7 +577,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIV_FPRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIV_FPRel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 # Begin Special Build Tool
 OutDir=.\MIPSIV_FPRel
 SOURCE="$(InputPath)"
@@ -615,7 +615,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIV_FPDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"MIPSIV_FPDbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:MIPSFPU
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4) Release"
 
@@ -648,7 +648,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Rel/testCommone21.dll" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Rel/testCommone21.dll" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # Begin Special Build Tool
 OutDir=.\ARMV4Rel
 SOURCE="$(InputPath)"
@@ -686,7 +686,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE x86) Release"
 
@@ -719,7 +719,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"X86Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"X86Rel/testCommone21.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
 # Begin Special Build Tool
 OutDir=.\X86Rel
 SOURCE="$(InputPath)"
@@ -757,7 +757,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) winsock.lib uuid.lib commctrl.lib coredll.lib ws2.lib mmtimer.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"X86Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ws2.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"X86Dbg/testCommone21d.dll" /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ENDIF 
 

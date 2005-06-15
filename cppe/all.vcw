@@ -3,7 +3,7 @@ Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
 
 ###############################################################################
 
-Project: "bidirC"=.\demo\Ice\bidir\bidirC.vcp - Package Owner=<4>
+Project: "all"=.\all.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -11,53 +11,77 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name exceptionsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name exceptionsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloS
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "bidirS"=.\demo\Ice\bidir\bidirS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name inheritanceC
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "callbackC"=.\demo\Ice\callback\callbackC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name inheritanceCOL
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "callbackS"=.\demo\Ice\callback\callbackS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name inheritanceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfchelloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfchelloS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name thread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uuid
     End Project Dependency
 }}}
 
@@ -267,36 +291,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "latencyC"=.\demo\Ice\latency\latencyC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "latencyS"=.\demo\Ice\latency\latencyS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "locationC"=.\test\Ice\location\locationC.vcp - Package Owner=<4>
 
 Package=<5>
@@ -349,66 +343,6 @@ Package=<4>
 ###############################################################################
 
 Project: "mfchelloS"=.\demo\Ice\MFC\server\mfchelloS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "minimalC"=.\demo\Ice\minimal\minimalC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "minimalS"=.\demo\Ice\minimal\minimalS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "nestedC"=.\demo\Ice\nested\nestedC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "nestedS"=.\demo\Ice\nested\nestedS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -546,36 +480,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "throughputC"=.\demo\Ice\throughput\throughputC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "throughputS"=.\demo\Ice\throughput\throughputS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "uuid"=.\test\IceUtil\uuid\uuid.vcp - Package Owner=<4>
 
 Package=<5>
@@ -589,21 +493,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "workqueue"=.\demo\IceUtil\workqueue\workqueue.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
     End Project Dependency
 }}}
 
