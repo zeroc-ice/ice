@@ -618,10 +618,10 @@ void
 ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attributes& attrs)
 {
     assert(_variables->hasVariable("node"));
-    InstanceDescriptor instance;
+    ServerInstanceDescriptor instance;
     instance._cpp_template = tmpl;
+    instance.node = _variables->getVariable("node");
     instance.parameterValues = attrs;
-    instance.parameterValues["node"] = _variables->getVariable("node");
     instance.parameterValues.erase("template");
     _descriptor->servers.push_back(instantiate(instance));
 }
@@ -630,7 +630,8 @@ void
 ApplicationDescriptorHelper::addServer(const ServerDescriptorPtr& descriptor)
 {
     assert(_variables->hasVariable("node"));
-    InstanceDescriptor instance;
+    ServerInstanceDescriptor instance;
+    instance.node = _variables->getVariable("node");
     instance.descriptor = descriptor;
     instance.targets = _variables->getDeploymentTargets(descriptor->name + ".");
     _descriptor->servers.push_back(instance);
@@ -709,7 +710,7 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     }
 
     newApp->servers.clear();
-    for(InstanceDescriptorSeq::iterator q = newUpdate.servers.begin(); q != newUpdate.servers.end(); ++q)
+    for(ServerInstanceDescriptorSeq::iterator q = newUpdate.servers.begin(); q != newUpdate.servers.end(); ++q)
     {
 	*q = instantiate(*q);
 	newApp->servers.push_back(*q);
@@ -718,9 +719,9 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     set<string> remove(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
     set<string> updated;
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
-    for(InstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
+    for(ServerInstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
     {
-	InstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
+	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
 	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
 	{
 	    if(ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(q->descriptor)) != 
@@ -736,13 +737,15 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 }
 
 void
-ApplicationDescriptorHelper::addServerInstance(const string& tmpl, const map<string, string>& parameters)
+ApplicationDescriptorHelper::addServerInstance(const string& tmpl, 
+					       const string& node, 
+					       const map<string, string>& parameters)
 {
-    XmlAttributesHelper attributes(_variables, parameters);
-    pushNodeVariables(attributes("node"));
+    pushNodeVariables(node);
 
-    InstanceDescriptor instance;
+    ServerInstanceDescriptor instance;
     instance._cpp_template = tmpl;
+    instance.node = node;
     instance.parameterValues = parameters;
     instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
     _descriptor->servers.push_back(instance);    
@@ -753,23 +756,23 @@ ApplicationDescriptorHelper::addServerInstance(const string& tmpl, const map<str
 void
 ApplicationDescriptorHelper::instantiate()
 {
-    for(InstanceDescriptorSeq::iterator p = _descriptor->servers.begin(); p != _descriptor->servers.end(); ++p)
+    for(ServerInstanceDescriptorSeq::iterator p = _descriptor->servers.begin(); p != _descriptor->servers.end(); ++p)
     {
 	*p = instantiate(*p);
     }
 }
 
-InstanceDescriptor
-ApplicationDescriptorHelper::instantiate(const InstanceDescriptor& inst)
+ServerInstanceDescriptor
+ApplicationDescriptorHelper::instantiate(const ServerInstanceDescriptor& inst)
 {
-    InstanceDescriptor instance = inst;
+    ServerInstanceDescriptor instance = inst;
     if(instance._cpp_template.empty())
     {
 	assert(instance.descriptor);
 	return instance;
     }
-    XmlAttributesHelper attributes(_variables, instance.parameterValues);
-    pushNodeVariables(attributes("node"));
+
+    pushNodeVariables(inst.node);
     instance.descriptor = _templates->instantiateServer(*this, instance._cpp_template, instance.parameterValues);
     _variables->pop();
     return instance;
@@ -1025,7 +1028,6 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     if(!_templateId.empty())
     {
 	_variables->substitution(false);
- 	_variables->addParameter("node");
     }
 
     string interpreter = attributes("interpreter", "");
@@ -1043,7 +1045,6 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
 
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
-    _descriptor->application = _variables->substitute("${application}");
     _descriptor->node = _variables->substitute("${node}");
     _descriptor->pwd = attributes("pwd", "");
     _descriptor->activation = attributes("activation", "manual");
@@ -1111,11 +1112,6 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	return false;
     }
     
-    if(_descriptor->application != helper._descriptor->application)
-    {
-	return false;
-    }
-
     if(set<string>(_descriptor->options.begin(), _descriptor->options.end()) != 
        set<string>(helper._descriptor->options.begin(), helper._descriptor->options.end()))
     {
@@ -1161,12 +1157,14 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	// descriptor set (this is the case for services not based on
 	// a template or server instances).
 	//
-	for(InstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
 	{
 	    if(p->descriptor)
 	    {
 		bool found = false;
-		for(InstanceDescriptorSeq::const_iterator q = irhs->services.begin(); q != irhs->services.end(); ++q)
+		for(ServiceInstanceDescriptorSeq::const_iterator q = irhs->services.begin();
+		    q != irhs->services.end();
+		    ++q)
 		{
 		    if(q->descriptor && p->descriptor->name == q->descriptor->name)
 		    {
@@ -1190,22 +1188,22 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	// Then, we compare the service instances for which no
 	// descriptor is set.
 	//
-	set<InstanceDescriptor> lsvcs;
-	set<InstanceDescriptor> rsvcs;
-	for(InstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
+	set<ServiceInstanceDescriptor> lsvcs;
+	set<ServiceInstanceDescriptor> rsvcs;
+	for(ServiceInstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
 	{
 	    if(!p->descriptor)
 	    {
-		InstanceDescriptor instance = *p;
+		ServiceInstanceDescriptor instance = *p;
 		instance.descriptor = 0;
 		lsvcs.insert(instance);
 	    }
 	}
-	for(InstanceDescriptorSeq::const_iterator p = irhs->services.begin(); p != irhs->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator p = irhs->services.begin(); p != irhs->services.end(); ++p)
 	{
 	    if(!p->descriptor)
 	    {
-		InstanceDescriptor instance = *p;
+		ServiceInstanceDescriptor instance = *p;
 		instance.descriptor = 0;
 		rsvcs.insert(instance);
 	    }
@@ -1252,7 +1250,7 @@ ServerDescriptorHelper::addService(const string& tmpl, const IceXML::Attributes&
 	throw "element <service> can only be a child of an IceBox <server> element";
     }
 
-    InstanceDescriptor instance;
+    ServiceInstanceDescriptor instance;
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
     instance.parameterValues.erase("template");
@@ -1268,7 +1266,7 @@ ServerDescriptorHelper::addService(const ServiceDescriptorPtr& descriptor)
 	throw "element <service> can only be a child of an IceBox <server> element";
     }
 
-    InstanceDescriptor instance;
+    ServiceInstanceDescriptor instance;
     instance.descriptor = descriptor;
     if(_templateId.empty())
     {
@@ -1318,7 +1316,6 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<str
 
     ComponentDescriptorHelper::instantiateImpl(desc, missing);
 
-    substitute(desc->application);
     substitute(desc->node);
     substitute(desc->exe);
     substitute(desc->pwd);
@@ -1331,7 +1328,7 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<str
     if(iceBox)
     {
  	ServiceDescriptorDict newServices;
- 	for(InstanceDescriptorSeq::iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+ 	for(ServiceInstanceDescriptorSeq::iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
  	{
 	    if(p->_cpp_template.empty())
 	    {

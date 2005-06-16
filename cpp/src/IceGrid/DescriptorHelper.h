@@ -146,14 +146,14 @@ public:
     std::auto_ptr<ServiceDescriptorHelper> addServiceTemplate(const std::string&, const IceXML::Attributes&);
 
     ApplicationUpdateDescriptor update(const ApplicationUpdateDescriptor&);
-    void addServerInstance(const std::string&, const std::map<std::string, std::string>&);
+    void addServerInstance(const std::string&, const std::string&, const std::map<std::string, std::string>&);
 
     void instantiate();
 
 private:
 
     void pushNodeVariables(const std::string&);
-    InstanceDescriptor instantiate(const InstanceDescriptor&);
+    ServerInstanceDescriptor instantiate(const ServerInstanceDescriptor&);
 
     ApplicationDescriptorPtr _descriptor;
 };

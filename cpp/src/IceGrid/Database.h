@@ -38,12 +38,13 @@ class Database : public IceUtil::Shared, public IceUtil::Mutex
     {
     public:
 
-	ServerEntry(Database&, const ServerDescriptorPtr&);
+	ServerEntry(Database&, const ServerInstanceDescriptor&);
 
 	void sync();
 	bool needsSync() const;
-	void update(const ServerDescriptorPtr&);
-	ServerDescriptorPtr getDescriptor();
+	void update(const ServerInstanceDescriptor&);
+	void destroy();
+	ServerInstanceDescriptor getDescriptor();
 	ServerPrx getProxy();
 	AdapterPrx getAdapter(const std::string&);
 	bool canRemove();
@@ -53,9 +54,9 @@ class Database : public IceUtil::Shared, public IceUtil::Mutex
 	ServerPrx sync(StringAdapterPrxDict& adapters);
 
 	Database& _database;
-	ServerDescriptorPtr _loaded;
-	ServerDescriptorPtr _load;
-	ServerDescriptorPtr _destroy;
+	std::auto_ptr<ServerInstanceDescriptor> _loaded;
+	std::auto_ptr<ServerInstanceDescriptor> _load;
+	std::auto_ptr<ServerInstanceDescriptor> _destroy;
 	ServerPrx _proxy;
 	std::map<std::string, AdapterPrx> _adapters;
 	bool _synchronizing;
@@ -90,7 +91,8 @@ public:
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
     
-    InstanceDescriptor getServerDescriptor(const std::string&);
+    ServerInstanceDescriptor getServerDescriptor(const std::string&);
+    std::string getServerApplication(const std::string&);
     ServerPrx getServer(const std::string&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
@@ -113,13 +115,15 @@ private:
     void syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&, 
 					 ServerEntrySeq&);
 
-    void addServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
+    void addServers(const std::string&, const ServerInstanceDescriptorSeq&, const std::set<std::string>&, 
+		    ServerEntrySeq&);
     void updateServers(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&,
 		       const std::set<std::string>&, ServerEntrySeq&);
-    void removeServers(const InstanceDescriptorSeq&, const std::set<std::string>&, ServerEntrySeq&);
-    ServerEntryPtr addServer(const InstanceDescriptor&);
-    ServerEntryPtr updateServer(const InstanceDescriptor&);
-    ServerEntryPtr removeServer(const InstanceDescriptor&);
+    void removeServers(const std::string&, const ServerInstanceDescriptorSeq&, const std::set<std::string>&, 
+		       ServerEntrySeq&);
+    ServerEntryPtr addServer(const std::string&, const ServerInstanceDescriptor&);
+    ServerEntryPtr updateServer(const ServerInstanceDescriptor&);
+    ServerEntryPtr removeServer(const std::string&, const ServerInstanceDescriptor&);
     void clearServer(const std::string&);
     void addComponent(const ServerEntryPtr&, const ComponentDescriptorPtr&);
     void removeComponent(const ComponentDescriptorPtr&);
@@ -145,7 +149,8 @@ private:
     std::map<std::string, ServerEntryPtr> _serversByAdapterId;
     std::map<std::string, std::set<std::string> > _serversByNode;
     std::map<std::string, NodeSessionIPtr> _nodes;
-
+    std::map<std::string, std::string> _applicationsByServerName;
+ 
     Freeze::ConnectionPtr _connection;
     StringApplicationDescriptorDict _descriptors;
     IdentityObjectDescDict _objects;

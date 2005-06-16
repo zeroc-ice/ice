@@ -208,9 +208,10 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     //
     for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
     {
-	for(InstanceDescriptorSeq::const_iterator q = p->second->servers.begin(); q != p->second->servers.end(); ++q)
+	ServerInstanceDescriptorSeq::const_iterator q;
+	for(q = p->second->servers.begin(); q != p->second->servers.end(); ++q)
 	{
-	    addServer(*q);
+	    addServer(p->first, *q);
 	}
     }
 }
@@ -363,7 +364,7 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 	//
 	// Register the application servers.
 	//
-	addServers(descriptor->servers, servers, entries);
+	addServers(descriptor->name, descriptor->servers, servers, entries);
 
 	//
 	// Save the application descriptor.
@@ -577,9 +578,9 @@ Database::syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr& origDe
     // Register the new servers, unregister the old ones and
     // update the updated ones.
     //
-    addServers(newDesc->servers, added, entries);
+    addServers(newDesc->name, newDesc->servers, added, entries);
     updateServers(origDesc, newDesc, updated, entries);
-    removeServers(origDesc->servers, removed, entries);
+    removeServers(origDesc->name, origDesc->servers, removed, entries);
 
     _descriptors.put(make_pair(newDesc->name, newDesc));
 }
@@ -605,7 +606,7 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 
 	set<string> servers;
 	for_each(descriptor->servers.begin(), descriptor->servers.end(), AddServerName(servers));
-	removeServers(descriptor->servers, servers, entries);
+	removeServers(descriptor->name, descriptor->servers, servers, entries);
 
 	serial = ++_serial;
     }
@@ -737,26 +738,17 @@ Database::getAllNodes(const string& expression)
     return Ice::StringSeq(nodes.begin(), nodes.end());
 }
 
-InstanceDescriptor
+ServerInstanceDescriptor
 Database::getServerDescriptor(const std::string& name)
 {
-    ServerDescriptorPtr descriptor;
+    ApplicationDescriptorPtr app = getApplicationDescriptor(getServerApplication(name));
+
+    //
+    // TODO: Is it really safe to read the application descriptor outside the lock!?
+    //
+    for(ServerInstanceDescriptorSeq::const_iterator p = app->servers.begin(); p != app->servers.end(); ++p)
     {
-	Lock sync(*this);
-	map<string, ServerEntryPtr>::const_iterator p = _servers.find(name);
-	if(p == _servers.end())
-	{
-	    ServerNotExistException ex;
-	    ex.name = name;
-	    throw ex;
-	}
-	descriptor = p->second->getDescriptor();
-    }
-    assert(descriptor);
-    ApplicationDescriptorPtr app = getApplicationDescriptor(descriptor->application);
-    for(InstanceDescriptorSeq::const_iterator p = app->servers.begin(); p != app->servers.end(); ++p)
-    {
-	if(p->descriptor->name == descriptor->name)
+	if(p->descriptor->name == name)
 	{
 	    return *p;
 	}
@@ -765,6 +757,21 @@ Database::getServerDescriptor(const std::string& name)
     ServerNotExistException ex;
     ex.name = name;
     throw ex;
+}
+
+string
+Database::getServerApplication(const string& name)
+{
+    Lock sync(*this);
+    map<string, string>::const_iterator p = _applicationsByServerName.find(name);
+    if(p == _applicationsByServerName.end())
+    {
+	ServerNotExistException ex;
+	ex.name = name;
+	throw ex;
+    }
+
+    return p->second;
 }
 
 ServerPrx
@@ -1069,15 +1076,16 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 }
 
 void 
-Database::addServers(const InstanceDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
+Database::addServers(const string& application, const ServerInstanceDescriptorSeq& servers, const set<string>& names, 
+		     ServerEntrySeq& entries)
 {
-    for(InstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    for(ServerInstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
-	entries.push_back(addServer(*p));
+	entries.push_back(addServer(application, *p));
     }
 }
 
@@ -1088,14 +1096,16 @@ Database::updateServers(const ApplicationDescriptorPtr& oldAppDesc, const Applic
     ApplicationDescriptorHelper oldAppDescHelper(_communicator, oldAppDesc);
     ApplicationDescriptorHelper newAppDescHelper(_communicator, newAppDesc);
 
-    for(InstanceDescriptorSeq::const_iterator p = newAppDesc->servers.begin(); p != newAppDesc->servers.end(); ++p)
+    ServerInstanceDescriptorSeq::const_iterator p;
+    for(p = newAppDesc->servers.begin(); p != newAppDesc->servers.end(); ++p)
     {
 	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
 
-	for(InstanceDescriptorSeq::const_iterator q = oldAppDesc->servers.begin(); q != oldAppDesc->servers.end(); ++q)
+	ServerInstanceDescriptorSeq::const_iterator q;
+	for(q = oldAppDesc->servers.begin(); q != oldAppDesc->servers.end(); ++q)
 	{
 	    if(p->descriptor->name == q->descriptor->name)
 	    {
@@ -1111,20 +1121,21 @@ Database::updateServers(const ApplicationDescriptorPtr& oldAppDesc, const Applic
 }
 
 void
-Database::removeServers(const InstanceDescriptorSeq& servers, const set<string>& names, ServerEntrySeq& entries)
+Database::removeServers(const string& application, const ServerInstanceDescriptorSeq& servers, 
+			const set<string>& names, ServerEntrySeq& entries)
 {
-    for(InstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    for(ServerInstanceDescriptorSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	if(names.find(p->descriptor->name) == names.end())
 	{
 	    continue;
 	}
-	entries.push_back(removeServer(*p));
+	entries.push_back(removeServer(application, *p));
     }
 }
 
 Database::ServerEntryPtr
-Database::addServer(const InstanceDescriptor& instance)
+Database::addServer(const string& application, const ServerInstanceDescriptor& instance)
 {
     const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(instance.descriptor);
     ServerEntryPtr entry;
@@ -1132,27 +1143,29 @@ Database::addServer(const InstanceDescriptor& instance)
     if(q != _servers.end())
     {
 	entry = q->second;
-	entry->update(descriptor);
+	entry->update(instance);
     }
     else
     {
-	entry = new ServerEntry(*this, descriptor);
+	entry = new ServerEntry(*this, instance);
 	_servers.insert(make_pair(descriptor->name, entry));
     }
     
     map<string, set<string> >::iterator p = _serversByNode.find(descriptor->node);
     if(p == _serversByNode.end())
     {
-	p = _serversByNode.insert(make_pair(descriptor->node, set<string>())).first;
+	p = _serversByNode.insert(make_pair(instance.node, set<string>())).first;
     }
     p->second.insert(p->second.begin(), descriptor->name);
+
+    _applicationsByServerName.insert(make_pair(descriptor->name, application));
 
     forEachComponent(AddComponent(*this, entry))(instance);
     return entry;
 }
 
 Database::ServerEntryPtr
-Database::updateServer(const InstanceDescriptor& instance)
+Database::updateServer(const ServerInstanceDescriptor& instance)
 {
     //
     // Get the server entry and the current descriptor then check
@@ -1164,25 +1177,25 @@ Database::updateServer(const InstanceDescriptor& instance)
     assert(q != _servers.end());
 
     entry = q->second;
-    ServerDescriptorPtr old = entry->getDescriptor();
+    ServerInstanceDescriptor old = entry->getDescriptor();
 
     //
     // If the node changed, move the server from the old node to the
     // new one.
     //
-    if(old->node != descriptor->node)
+    if(old.node != instance.node)
     {
-	map<string, set<string> >::iterator p = _serversByNode.find(old->node);
+	map<string, set<string> >::iterator p = _serversByNode.find(old.node);
 	assert(p != _serversByNode.end());
-	p->second.erase(old->name);
+	p->second.erase(descriptor->name);
 	if(p->second.empty())
 	{
 	    _serversByNode.erase(p);
 	}
-	p = _serversByNode.find(descriptor->node);
+	p = _serversByNode.find(instance.node);
 	if(p == _serversByNode.end())
 	{
-	    p = _serversByNode.insert(make_pair(descriptor->node, set<string>())).first;
+	    p = _serversByNode.insert(make_pair(instance.node, set<string>())).first;
 	}
 	p->second.insert(p->second.begin(), descriptor->name);
     }
@@ -1195,7 +1208,7 @@ Database::updateServer(const InstanceDescriptor& instance)
     //
     // Update the server entry.
     //
-    entry->update(descriptor);
+    entry->update(instance);
 
     //
     // Add the new object adapters and objects.
@@ -1205,14 +1218,14 @@ Database::updateServer(const InstanceDescriptor& instance)
 }
 
 Database::ServerEntryPtr
-Database::removeServer(const InstanceDescriptor& instance)
+Database::removeServer(const string& application, const ServerInstanceDescriptor& instance)
 {
     const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(instance.descriptor);
     ServerEntryPtr entry;
     map<string, ServerEntryPtr>::iterator q = _servers.find(descriptor->name);
     assert(q != _servers.end());
     
-    map<string, set<string> >::iterator p = _serversByNode.find(descriptor->node);
+    map<string, set<string> >::iterator p = _serversByNode.find(instance.node);
     assert(p != _serversByNode.end());
     p->second.erase(descriptor->name);
     if(p->second.empty())
@@ -1221,7 +1234,9 @@ Database::removeServer(const InstanceDescriptor& instance)
     }
     
     entry = q->second;
-    entry->update(0);
+    entry->destroy();
+
+    _applicationsByServerName.erase(descriptor->name);
     
     //
     // Remove the object adapters and objects.
@@ -1270,11 +1285,12 @@ Database::removeComponent(const ComponentDescriptorPtr& component)
     }
 }
 
-Database::ServerEntry::ServerEntry(Database& database, const ServerDescriptorPtr& descriptor) :
+Database::ServerEntry::ServerEntry(Database& database, const ServerInstanceDescriptor& descriptor) :
     _database(database), 
-    _load(descriptor),
     _synchronizing(false)
 {
+    _load.reset(new ServerInstanceDescriptor());
+    *_load = descriptor;
 }
 
 void
@@ -1298,37 +1314,62 @@ Database::ServerEntry::needsSync() const
 }
 
 void
-Database::ServerEntry::update(const ServerDescriptorPtr& descriptor)
+Database::ServerEntry::update(const ServerInstanceDescriptor& instance)
 {
     Lock sync(*this);
-    if(_loaded && (!descriptor || descriptor->node != _loaded->node))
+
+    auto_ptr<ServerInstanceDescriptor> descriptor(new ServerInstanceDescriptor());
+    *descriptor = instance;
+
+    if(_loaded.get() && descriptor->node != _loaded->node)
     {
-	assert(!_destroy);
+	assert(!_destroy.get());
 	_destroy = _loaded;
     }
-    else if(_load && (!descriptor || descriptor->node != _load->node))
+    else if(_load.get() && descriptor->node != _load->node)
     {
-	assert(!_destroy);
+	assert(!_destroy.get());
 	_destroy = _load;
     }
 
     _load = descriptor;
-    _loaded = 0;
+    _loaded.reset(0);
     _proxy = 0;
     _adapters.clear();
 }
 
-ServerDescriptorPtr
+void
+Database::ServerEntry::destroy()
+{
+    Lock sync(*this);
+    if(_loaded.get())
+    {
+	assert(!_destroy.get());
+	_destroy = _loaded;
+    }
+    else if(_load.get())
+    {
+	assert(!_destroy.get());
+	_destroy = _load;
+    }
+
+    _load.reset(0);
+    _loaded.reset(0);
+    _proxy = 0;
+    _adapters.clear();
+}
+
+ServerInstanceDescriptor
 Database::ServerEntry::getDescriptor()
 {
     Lock sync(*this);
     if(_proxy)
     {
-	return _loaded;
+	return *_loaded.get();
     }
     else 
     {
-	return _load;
+	return *_load.get();
     }
 }
 
@@ -1401,15 +1442,15 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	    wait();
 	}
 
-	if(!_load && !_destroy)
+	if(!_load.get() && !_destroy.get())
 	{
 	    _load = _loaded; // Re-load the current server.
 	}
 
 	_synchronizing = true;
 	_failed = false;
-	load = _load;
-	destroy = _destroy;
+	load = _load.get() ? _load->descriptor : ServerDescriptorPtr();
+	destroy = _destroy.get() ? _destroy->descriptor : ServerDescriptorPtr();
     }
 
     ServerPrx proxy;
@@ -1462,7 +1503,7 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	{
 	    Lock sync(*this);
 	    _synchronizing = false;
-	    _destroy = 0;
+	    _destroy.reset(0);
 	    _failed = true;
 	    notifyAll();
 	}
@@ -1477,8 +1518,8 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	Lock sync(*this);
 	_synchronizing = false;
 	_loaded = _load;
-	_load = 0;
-	_destroy = 0;
+	_load.reset(0);
+	_destroy.reset(0);
 	_proxy = proxy ? ServerPrx::uncheckedCast(proxy->ice_timeout(_database._nodeSessionTimeout)) : ServerPrx();
 	_adapters.clear();
 	for(StringAdapterPrxDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
@@ -1499,5 +1540,5 @@ bool
 Database::ServerEntry::canRemove()
 {
      Lock sync(*this);
-     return !_loaded && !_load && !_destroy;
+     return !_loaded.get() && !_load.get() && !_destroy.get();
 }

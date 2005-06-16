@@ -64,34 +64,22 @@ AdminI::getApplicationDescriptor(const string& name, const Current&) const
     return _database->getApplicationDescriptor(name);
 }
 
-void
-AdminI::instantiateServer(const string& name, const string& tmpl, const StringStringDict& parameters, const Current&)
-{
-    try
-    {
-	ApplicationDescriptorHelper helper(_communicator, _database->getApplicationDescriptor(name));
-	helper.addServerInstance(tmpl, parameters);
-	_database->syncApplicationDescriptor(0, helper.getDescriptor());
-	ApplicationUpdateDescriptor update;
-    }
-    catch(const std::string& msg)
-    {
-	DeploymentException ex;
-	ex.reason = msg;
-	throw ex;
-    }
-}
-
 Ice::StringSeq
 AdminI::getAllApplicationNames(const Current&) const
 {
     return _database->getAllApplications();
 }
 
-InstanceDescriptor
+ServerInstanceDescriptor
 AdminI::getServerDescriptor(const string& name, const Current&) const
 {
     return _database->getServerDescriptor(name);
+}
+
+string
+AdminI::getServerApplication(const string& name, const Current&) const
+{
+    return _database->getServerApplication(name);
 }
 
 ServerState

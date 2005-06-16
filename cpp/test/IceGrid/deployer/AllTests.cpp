@@ -183,15 +183,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
     //
     ApplicationDescriptorPtr application = admin->getApplicationDescriptor("test");
 
-    InstanceDescriptorSeq::iterator svr1;
-    InstanceDescriptor server1;
-    InstanceDescriptor server2;
-    InstanceDescriptor icebox1;
-    InstanceDescriptor icebox2;
+    ServerInstanceDescriptorSeq::iterator svr1;
+    ServerInstanceDescriptor server1;
+    ServerInstanceDescriptor server2;
+    ServerInstanceDescriptor icebox1;
+    ServerInstanceDescriptor icebox2;
     TemplateDescriptor iceBoxTmpl;
     TemplateDescriptor serviceTmpl;
 
-    for(InstanceDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
+    for(ServerInstanceDescriptorSeq::iterator p = application->servers.begin(); p != application->servers.end(); ++p)
     {
 	if(p->descriptor->name == "Server1")
 	{
@@ -232,7 +232,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 		iceBoxTmpl = q->second;
 		q->second.descriptor = ComponentDescriptorPtr::dynamicCast(q->second.descriptor->ice_clone());
 		iceBox = IceBoxDescriptorPtr::dynamicCast(q->second.descriptor);
-		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+		for(ServiceInstanceDescriptorSeq::iterator r = iceBox->services.begin(); 
+		    r != iceBox->services.end(); ++r)
 		{
 		    if(r->parameterValues["name"] == "Service1")
 		    {
@@ -243,9 +244,10 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	    }
 	    else
 	    {
-		p->descriptor = ComponentDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
+		p->descriptor = ServerDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
 		iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
-		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+		for(ServiceInstanceDescriptorSeq::iterator r = iceBox->services.begin(); 
+		    r != iceBox->services.end(); ++r)
 		{
 		    if(r->descriptor->name == "Service1")
 		    {
@@ -269,14 +271,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	    }
 	    else
 	    {
-		p->descriptor = ComponentDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
+		p->descriptor = ServerDescriptorPtr::dynamicCast(p->descriptor->ice_clone());
 		IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(p->descriptor);
 		assert(iceBox);
-		for(InstanceDescriptorSeq::iterator r = iceBox->services.begin(); r != iceBox->services.end(); ++r)
+		for(ServiceInstanceDescriptorSeq::iterator r = iceBox->services.begin(); 
+		    r != iceBox->services.end(); ++r)
 		{
 		    if(r->descriptor->name == "Service2")
 		    {
-			r->descriptor = ComponentDescriptorPtr::dynamicCast(r->descriptor->ice_clone());
+			r->descriptor = ServiceDescriptorPtr::dynamicCast(r->descriptor->ice_clone());
 			service = r->descriptor;
 		    }
 		}

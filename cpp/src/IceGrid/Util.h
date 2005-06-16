@@ -30,7 +30,13 @@ struct ForEachComponent : std::unary_function<ComponentDescriptorPtr&, void>
     }
 
     void
-    operator()(const InstanceDescriptor& instance)
+    operator()(const ServerInstanceDescriptor& instance)
+    {
+	operator()(instance.descriptor);
+    }
+
+    void
+    operator()(const ServiceInstanceDescriptor& instance)
     {
 	operator()(instance.descriptor);
     }
@@ -91,14 +97,14 @@ inline getMatchingKeys(const T& m, const std::string& expression)
     return keys;
 }
 
-struct AddServerName : std::unary_function<InstanceDescriptor&, void>
+struct AddServerName : std::unary_function<ServerInstanceDescriptor&, void>
 {
     AddServerName(std::set<std::string>& names) : _names(names)
     {
     }
 
     void
-    operator()(const InstanceDescriptor& instance)
+    operator()(const ServerInstanceDescriptor& instance)
     {
 	if(!_names.insert(instance.descriptor->name).second)
 	{

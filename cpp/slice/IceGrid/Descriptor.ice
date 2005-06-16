@@ -204,58 +204,6 @@ class ComponentDescriptor
     string comment;
 };
 
-struct InstanceDescriptor
-{
-    /**
-     *
-     * The template used by this instance.
-     * 
-     **/
-    string template;
-
-    /**
-     *
-     * The template parameter values.
-     *
-     **/
-    StringStringDict parameterValues;
-
-    /**
-     *
-     * The instantiated component descriptor (NOTE: this is provided
-     * as a convenience. This descriptor can also easily be computed
-     * from the template and the instance variables.)
-     *
-     **/
-    ComponentDescriptor descriptor;
-    
-    /**
-     *
-     * The targets used to deploy this instance.
-     *
-     **/
-    Ice::StringSeq targets;
-};
-sequence<InstanceDescriptor> InstanceDescriptorSeq;
-
-struct TemplateDescriptor
-{
-    /**
-     *
-     * The template.
-     *
-     **/
-    ComponentDescriptor descriptor;
-
-    /**
-     *
-     * The name of the parameters required to instantiate the template.
-     *
-     **/
-    Ice::StringSeq parameters;
-};
-dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
-
 /**
  *
  * An &Ice; server descriptor.
@@ -283,13 +231,6 @@ class ServerDescriptor extends ComponentDescriptor
      *
      **/
     string node;
-    
-    /**
-     *
-     * The name of the application this server belongs to.
-     *
-     **/
-    string application;
     
     /**
      *
@@ -346,6 +287,99 @@ class ServiceDescriptor extends ComponentDescriptor
 };
 dictionary<string, ServiceDescriptor> ServiceDescriptorDict;
 
+struct ServerInstanceDescriptor
+{
+    /**
+     *
+     * The template used by this instance.
+     * 
+     **/
+    string template;
+
+    /**
+     *
+     * The node hosting the server.
+     *
+     **/
+    string node;    
+
+    /**
+     *
+     * The template parameter values.
+     *
+     **/
+    StringStringDict parameterValues;
+
+    /**
+     *
+     * The instantiated component descriptor (NOTE: this is provided
+     * as a convenience. This descriptor can also be computed from the
+     * template and the instance variables.)
+     *
+     **/
+    ServerDescriptor descriptor;
+    
+    /**
+     *
+     * The targets used to deploy this instance.
+     *
+     **/
+    Ice::StringSeq targets;
+};
+sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
+
+struct ServiceInstanceDescriptor
+{
+    /**
+     *
+     * The template used by this instance.
+     * 
+     **/
+    string template;
+
+    /**
+     *
+     * The template parameter values.
+     *
+     **/
+    StringStringDict parameterValues;
+
+    /**
+     *
+     * The instantiated component descriptor (NOTE: this is provided
+     * as a convenience. This descriptor can also be computed from the
+     * template and the instance variables.)
+     *
+     **/
+    ServiceDescriptor descriptor;
+    
+    /**
+     *
+     * The targets used to deploy this instance.
+     *
+     **/
+    Ice::StringSeq targets;
+};
+sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
+
+struct TemplateDescriptor
+{
+    /**
+     *
+     * The template.
+     *
+     **/
+    ComponentDescriptor descriptor;
+
+    /**
+     *
+     * The name of the parameters required to instantiate the template.
+     *
+     **/
+    Ice::StringSeq parameters;
+};
+dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
+
 /**
  *
  * An &IceBox; server descriptor.
@@ -358,7 +392,7 @@ class IceBoxDescriptor extends ServerDescriptor
      * The service instances.
      *
      **/
-    InstanceDescriptorSeq services;
+    ServiceInstanceDescriptorSeq services;
 
     /**
      *
@@ -433,7 +467,7 @@ class ApplicationDescriptor
      * The server instances.
      *
      **/
-    InstanceDescriptorSeq servers;
+    ServerInstanceDescriptorSeq servers;
 
     /**
      *
@@ -514,7 +548,7 @@ struct ApplicationUpdateDescriptor
      * The server instances to update.
      *
      **/
-    InstanceDescriptorSeq servers;
+    ServerInstanceDescriptorSeq servers;
 
     /**
      *

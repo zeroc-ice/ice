@@ -147,7 +147,21 @@ interface Admin
      * @returns The server descriptor.
      *
      **/
-    nonmutating InstanceDescriptor getServerDescriptor(string name)
+    nonmutating ServerInstanceDescriptor getServerDescriptor(string name)
+	throws ServerNotExistException;
+
+    /**
+     *
+     * Get the name of the application of the given server.
+     *
+     * @param name The server name.
+     *
+     * @throws ServerNotExistException Raised if the server doesn't exist.
+     *
+     * @returns The server descriptor.
+     *
+     **/
+    nonmutating string getServerApplication(string name)
 	throws ServerNotExistException;
 
     /**

@@ -678,7 +678,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
     if(iceBox)
     {
-	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
 	{
 	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor));
 	    knownFiles.push_back("config_" + p->descriptor->name);
@@ -751,7 +751,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
     }
     if(iceBox)
     {
-	for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
 	{
 	    ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
 	    for(AdapterDescriptorSeq::const_iterator q = s->adapters.begin(); q != s->adapters.end(); ++q)
@@ -811,7 +811,8 @@ ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr&
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
 	if(iceBox)
 	{
-	    for(InstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	    ServiceInstanceDescriptorSeq::const_iterator p;
+	    for(p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
 	    {
 		ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
 		const string path = serverDir + "/config/config_" + s->name;
