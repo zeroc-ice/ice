@@ -724,8 +724,8 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
 	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
 	{
-	    if(ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(q->descriptor)) != 
-	       ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(inst.descriptor)))
+	    if(q->node != inst.node ||
+	       ServerDescriptorHelper(*this, q->descriptor) != ServerDescriptorHelper(*this, inst.descriptor))
 	    {
 		newUpdate.servers.push_back(inst);
 	    }
@@ -1045,7 +1045,6 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
 
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
-    _descriptor->node = _variables->substitute("${node}");
     _descriptor->pwd = attributes("pwd", "");
     _descriptor->activation = attributes("activation", "manual");
     
@@ -1107,11 +1106,6 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	return false;
     }
 
-    if(_descriptor->node != helper._descriptor->node)
-    {
-	return false;
-    }
-    
     if(set<string>(_descriptor->options.begin(), _descriptor->options.end()) != 
        set<string>(helper._descriptor->options.begin(), helper._descriptor->options.end()))
     {
@@ -1169,8 +1163,8 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 		    if(q->descriptor && p->descriptor->name == q->descriptor->name)
 		    {
 			found = true;
-			if(ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(p->descriptor)) != 
-			   ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(q->descriptor)))
+			if(ServiceDescriptorHelper(*this, p->descriptor) !=
+			   ServiceDescriptorHelper(*this, q->descriptor))
 			{
 			    return false;
 			}
@@ -1316,7 +1310,6 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<str
 
     ComponentDescriptorHelper::instantiateImpl(desc, missing);
 
-    substitute(desc->node);
     substitute(desc->exe);
     substitute(desc->pwd);
     for_each(desc->options.begin(), desc->options.end(), substitute);
@@ -1332,7 +1325,7 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<str
  	{
 	    if(p->_cpp_template.empty())
 	    {
-		ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(p->descriptor);
+		ServiceDescriptorPtr service = p->descriptor;
 		assert(service);
 		p->descriptor = ServiceDescriptorHelper(*this, service).instantiate(missing);
 	    }

@@ -227,13 +227,6 @@ class ServerDescriptor extends ComponentDescriptor
 
     /**
      *
-     * The &IceGrid node on which the server is deployed.
-     *
-     **/
-    string node;
-    
-    /**
-     *
      * The command line options to pass to the server executable.
      *
      **/

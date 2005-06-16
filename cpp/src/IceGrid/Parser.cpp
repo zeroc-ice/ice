@@ -579,13 +579,12 @@ Parser::describeApplication(const list<string>& args)
 		for(ServerInstanceDescriptorSeq::const_iterator p = application->servers.begin(); 
 		    p != application->servers.end(); ++p)
 		{
-		    const ServerDescriptorPtr descriptor = ServerDescriptorPtr::dynamicCast(p->descriptor);
-		    map<string, set<string> >::iterator q = servers.find(descriptor->node);
+		    map<string, set<string> >::iterator q = servers.find(p->node);
 		    if(q == servers.end())
 		    {
-			q = servers.insert(make_pair(descriptor->node, set<string>())).first;
+			q = servers.insert(make_pair(p->node, set<string>())).first;
 		    }
-		    q->second.insert(descriptor->name);
+		    q->second.insert(p->descriptor->name);
 		}
 	    }
 	    {
@@ -823,8 +822,9 @@ Parser::diffApplication(const list<string>& args)
 	    {
 		if(desc->name == q->descriptor->name)
 		{
-		    ServerDescriptorPtr orig = ServerDescriptorPtr::dynamicCast(q->descriptor);
-		    if(ServerDescriptorHelper(newAppHelper, desc) != ServerDescriptorHelper(origAppHelper, orig))
+		    ServerDescriptorPtr orig = q->descriptor;
+		    if(q->node != p->node ||
+		       ServerDescriptorHelper(newAppHelper, desc) != ServerDescriptorHelper(origAppHelper, orig))
 		    {
 			updated.insert(orig->name);
 		    }
