@@ -35,7 +35,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(ba1.theS.str == "");
     test(ba1.str == "");
 
-    S s("hello");
+    S s;
+    s.str = "hello";
     Base ba2(s, "hi");
     test(ba2.theS.str == "hello");
     test(ba2.str == "hi");
