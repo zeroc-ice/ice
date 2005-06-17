@@ -2359,7 +2359,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << sb;
 	if(!allDataMembers.empty())
 	{
-	    H << nl << "return __swap(*this, rhs);";
+	    H << nl << "__swap(*this, rhs);";
 	}
 	H << eb;
 
