@@ -128,16 +128,24 @@ class NodeObserverI : public NodeObserver
 public:
 
     virtual void 
-    init(const string& node, const ServerDynamicInfoSeq& servers, const AdapterDynamicInfoSeq& adapters, 
-	 const Ice::Current&)
+    init(const NodeDynamicInfoSeq& nodes, const Ice::Current& c)
     {
-	cout << "node `" << node << "' servers: ";
-	for(ServerDynamicInfoSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+	for(NodeDynamicInfoSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+	{
+	    initNode(*p, c);
+	}
+    }
+
+    virtual void 
+    initNode(const NodeDynamicInfo& node, const Ice::Current&)
+    {
+	cout << "node `" << node.name << "' servers: ";
+	for(ServerDynamicInfoSeq::const_iterator p = node.servers.begin(); p != node.servers.end(); ++p)
 	{
 	    cout << p->name << " ";
 	}
 	cout << "adapters: ";
-	for(AdapterDynamicInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	for(AdapterDynamicInfoSeq::const_iterator p = node.adapters.begin(); p != node.adapters.end(); ++p)
 	{
 	    cout << p->id << " ";
 	}	
