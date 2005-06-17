@@ -11,6 +11,10 @@
 #include <TestApplication.h>
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Thread.h>
+#ifndef _WIN32
+# include <IceUtil/Time.h>
+#endif
+
 
 #include <stdarg.h>
 
@@ -30,10 +34,14 @@ public:
     virtual void
     trace(const string& category, const string& message)
     {
+	string s = "[ ";
+#ifdef _WIN32
 	char buf[1024];
 	sprintf(buf, "%ld", GetTickCount());
-	string s = "[ ";
 	s += buf;
+#else
+ 	s += IceUtil::Time::now().toString();
+#endif
 	s += ' ';
 	
 	if(!category.empty())
