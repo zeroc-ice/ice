@@ -903,3 +903,15 @@ Slice::writeStreamUnmarshalCode(Output& out, const list<pair<TypePtr, string> >&
 	writeStreamMarshalUnmarshalCode(out, ret, "__ret", false, "");
     }
 }
+
+void
+Slice::writeUndefines(Output& out, const vector<string>& symbols)
+{
+    out.zeroIndent();
+    out << sp;
+    for(vector<string>::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
+    {
+	out << nl << "#undef " << *i;
+    }
+    out.restoreIndent();
+}

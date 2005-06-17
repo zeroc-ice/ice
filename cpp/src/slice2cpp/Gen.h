@@ -76,7 +76,7 @@ private:
 
     private:
 
-	void emitExceptionBase(const ExceptionPtr&, const std::string&);
+	void emitUpcall(const ExceptionPtr&, const std::string&, bool = false);
 
 	::IceUtil::Output& H;
 	::IceUtil::Output& C;
@@ -231,6 +231,7 @@ private:
 	void emitGCFunctions(const ClassDefPtr&);
 	void emitGCInsertCode(const TypePtr&, const std::string&, const std::string&, int);
 	void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
+	void emitUpcall(const ClassDefPtr&, const std::string&);
 
 	::IceUtil::Output& H;
 	::IceUtil::Output& C;

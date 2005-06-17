@@ -13,6 +13,17 @@
 module Test
 {
 
+struct S
+{
+    string str;
+};
+
+class Base
+{
+    S theS;
+    string str;
+};
+
 class B;
 class C;
 

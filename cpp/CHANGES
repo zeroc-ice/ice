@@ -1,6 +1,43 @@
 Changes since version 2.1.1
 ---------------------------
 
+- Added new features to the C++ mapping:
+
+  - Structures, classes, and exceptions now have one-shot constructors.
+    For example, for a class
+
+      class Example {
+          int i;
+	  string s;
+      };
+
+    the following constructors are generated:
+
+      class Example {
+	  Example();
+	  Example(::Ice::Int, const ::std::string&);
+	  // ...
+      };
+
+    This allows you to construct a structure, class, or exception
+    and supply values for the data members in a single statement,
+    instead of having to assign to the members of a default-constructed
+    instance.
+
+    For derived exceptions and classes, the constructor expects values
+    for all data members, including those of base exceptions or classes,
+    in base-to-derived order of declaration.
+
+  - Classes are now copyable and assignable. For example, using the
+    previous Example class, the following statements are now valid
+    (whereas, previously, they would have caused compile-time errors):
+
+      Example e1;
+      Example e2(1, "hello");
+      e1 = e2;
+      ExamplePtr ep1 = new Example();
+      *ep1 = e2;
+
 - Removed IceSSL's internal handshake retry loop, along with the
   related property IceSSL.Client.Handshake.Retries.
 

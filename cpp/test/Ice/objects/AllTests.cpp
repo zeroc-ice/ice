@@ -29,6 +29,28 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(initial == base);
     cout << "ok" << endl;
 
+    cout << "testing constructor, copy constructor, and assignment operator... " << flush;
+
+    Base ba1;
+    test(ba1.theS.str == "");
+    test(ba1.str == "");
+
+    S s("hello");
+    Base ba2(s, "hi");
+    test(ba2.theS.str == "hello");
+    test(ba2.str == "hi");
+
+    ba1 = ba2;
+    test(ba1.theS.str == "hello");
+    test(ba1.str == "hi");
+
+    BasePtr bp1 = new Base();
+    *bp1 = ba2;
+    test(bp1->theS.str == "hello");
+    test(bp1->str == "hi");
+
+    cout << "ok" << endl;
+
     cout << "getting B1... " << flush;
     BPtr b1 = initial->getB1();
     test(b1);

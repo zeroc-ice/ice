@@ -15,4 +15,6 @@ SessionRouterI.o: SessionRouterI.cpp ../../include/Glacier2/PermissionsVerifier.
 PermissionsVerifierF.cpp: ../../slice/Glacier2/PermissionsVerifierF.ice
 PermissionsVerifier.cpp: ../../slice/Glacier2/PermissionsVerifier.ice
 Router.cpp: ../../slice/Glacier2/Router.ice ../../slice/Ice/Router.ice ../../slice/Glacier2/Session.ice
+RouterF.cpp: ../../slice/Glacier2/RouterF.ice
 Session.cpp: ../../slice/Glacier2/Session.ice
+SessionF.cpp: ../../slice/Glacier2/SessionF.ice
