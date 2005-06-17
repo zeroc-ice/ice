@@ -227,7 +227,6 @@ private:
     void showServiceStatus(const std::string&, SERVICE_STATUS&);
 
     SERVICE_STATUS_HANDLE _statusHandle;
-    SERVICE_STATUS _status; // NOTE: Unused but retained for backward-compatibility in 2.1.
     std::vector<std::string> _serviceArgs;
 
 public:
