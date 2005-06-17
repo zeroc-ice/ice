@@ -50,8 +50,10 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 {
     //
     // Shift all elements in argv which are present in args to the
-    // beginning of argv.
+    // beginning of argv. We record the original value of argc so
+    // that we can know later if we've shifted the array.
     //
+    const int argcOrig = argc;
     int i = 0;
     while(i < argc)
     {
@@ -71,8 +73,10 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 
     //
     // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
+    // We can only do this if we've shifted the array, otherwise argv[argc]
+    // may point to an invalid address.
     //
-    if(argv)
+    if(argv && argcOrig != argc)
     {
 	argv[argc] = 0;
     }
