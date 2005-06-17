@@ -44,13 +44,11 @@ ctrlCHandlerCallback(int sig)
 }
 
 #ifdef _WIN32
-extern "C"
-{
 
 //
 // Main function for Win32 service.
 //
-void
+void WINAPI
 Ice_Service_ServiceMain(DWORD argc, LPTSTR* argv)
 {
     Ice::Service* service = Ice::Service::instance();
@@ -61,7 +59,7 @@ Ice_Service_ServiceMain(DWORD argc, LPTSTR* argv)
 //
 // Win32 service control handler.
 //
-void
+void WINAPI
 Ice_Service_CtrlHandler(DWORD ctrl)
 {
     Ice::Service* service = Ice::Service::instance();
@@ -69,30 +67,69 @@ Ice_Service_CtrlHandler(DWORD ctrl)
     service->control(ctrl);
 }
 
-}
-
 namespace Ice
 {
 
-class ServiceStatusThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class ServiceStatusManager : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    ServiceStatusThread(SERVICE_STATUS_HANDLE, SERVICE_STATUS*);
+    ServiceStatusManager(SERVICE_STATUS_HANDLE);
 
-    virtual void run();
+    //
+    // Start a thread to provide regular status updates to the SCM.
+    //
+    void startUpdate(DWORD);
 
-    void stop(DWORD, DWORD);
+    //
+    // Stop the update thread.
+    //
+    void stopUpdate();
+
+    //
+    // Change the service status and report it (once).
+    //
+    void changeStatus(DWORD, DWORD);
+
+    //
+    // Report the current status.
+    //
+    void reportStatus();
 
 private:
 
+    void run();
+
+    class StatusThread : public IceUtil::Thread
+    {
+    public:
+
+	StatusThread(ServiceStatusManager* manager) :
+	    _manager(manager)
+	{
+	}
+
+	virtual void run()
+	{
+	    _manager->run();
+	}
+
+    private:
+
+	ServiceStatusManager* _manager;
+    };
+    friend class StatusThread;
+
     SERVICE_STATUS_HANDLE _handle;
-    SERVICE_STATUS* _status;
+    SERVICE_STATUS _status;
+    IceUtil::ThreadPtr _thread;
     bool _stopped;
 };
-typedef IceUtil::Handle<ServiceStatusThread> ServiceStatusThreadPtr;
 
 }
+
+static Ice::ServiceStatusManager* serviceStatusManager;
+
 #endif
 
 Ice::Service::Service()
@@ -126,8 +163,7 @@ Ice::Service::shutdown()
 	catch(const CommunicatorDestroyedException&)
 	{
 	    //
-	    // Expected if the service communicator is being
-	    // destroyed.
+	    // Expected if the service communicator is being destroyed.
 	    //
 	}
 	catch(const Ice::Exception& ex)
@@ -135,6 +171,10 @@ Ice::Service::shutdown()
 	    ostringstream ostr;
 	    ostr << "exception during shutdown:\n" << ex;
 	    warning(ostr.str());
+	}
+	catch(...)
+	{
+	    warning("unknown exception during shutdown");
 	}
     }
     return true;
@@ -738,80 +778,18 @@ Ice::Service::startService(const string& name, const vector<string>& args)
         return EXIT_FAILURE;
     }
 
-    SERVICE_STATUS status;
-    DWORD oldCheckPoint;
-    DWORD startTickCount;
-    DWORD waitTime;
-
     trace("Service start pending.");
 
     //
-    // Get the initial status of the service.
+    // Wait until the service is started or an error is detected.
     //
-    if(!QueryServiceStatus(hService, &status))
+    SERVICE_STATUS status;
+    if(!waitForServiceState(hService, SERVICE_START_PENDING, status))
     {
         syserror("unable to query status of service `" + name + "'");
         CloseServiceHandle(hService);
         CloseServiceHandle(hSCM);
         return EXIT_FAILURE;
-    }
-
-    //
-    // Save the tick count and initial checkpoint.
-    //
-    startTickCount = GetTickCount();
-    oldCheckPoint = status.dwCheckPoint;
-
-    //
-    // Loop until the service is started or an error is detected.
-    //
-    while(status.dwCurrentState == SERVICE_START_PENDING)
-    {
-        //
-        // Do not wait longer than the wait hint. A good interval is
-        // one tenth the wait hint, but no less than 1 second and no
-        // more than 10 seconds.
-        //
-
-        waitTime = status.dwWaitHint / 10;
-
-        if(waitTime < 1000)
-        {
-            waitTime = 1000;
-        }
-        else if(waitTime > 10000)
-        {
-            waitTime = 10000;
-        }
-
-        Sleep(waitTime);
-
-        //
-        // Check the status again.
-        //
-        if(!QueryServiceStatus(hService, &status))
-        {
-            break;
-        }
-
-        if(status.dwCheckPoint > oldCheckPoint)
-        {
-            //
-            // The service is making progress.
-            //
-            startTickCount = GetTickCount();
-            oldCheckPoint = status.dwCheckPoint;
-        }
-        else
-        {
-            if(GetTickCount() - startTickCount > status.dwWaitHint)
-            {
-                //
-                // No progress made within the wait hint.
-                //
-                break;
-            }
-        }
     }
 
     CloseServiceHandle(hService);
@@ -823,14 +801,7 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     }
     else
     {
-        ostringstream ostr;
-        ostr << "Service failed to start." << endl
-             << "  Current state: " << status.dwCurrentState << endl
-             << "  Exit code: " << status.dwWin32ExitCode << endl
-             << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
-             << "  Check point: " << status.dwCheckPoint << endl
-             << "  Wait hint: " << status.dwWaitHint;
-        trace(ostr.str());
+	showServiceStatus("Service failed to start.", status);
 	return EXIT_FAILURE;
     }
 
@@ -866,17 +837,31 @@ Ice::Service::stopService(const string& name)
         return EXIT_FAILURE;
     }
 
-    CloseServiceHandle(hSCM);
-    CloseServiceHandle(hService);
+    trace("Service stop pending.");
 
-    ostringstream ostr;
-    ostr << "Stop request sent to service." << endl
-         << "  Current state: " << status.dwCurrentState << endl
-         << "  Exit code: " << status.dwWin32ExitCode << endl
-         << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
-         << "  Check point: " << status.dwCheckPoint << endl
-         << "  Wait hint: " << status.dwWaitHint;
-    trace(ostr.str());
+    //
+    // Wait until the service is stopped or an error is detected.
+    //
+    if(!waitForServiceState(hService, SERVICE_STOP_PENDING, status))
+    {
+        syserror("unable to query status of service `" + name + "'");
+        CloseServiceHandle(hService);
+        CloseServiceHandle(hSCM);
+        return EXIT_FAILURE;
+    }
+
+    CloseServiceHandle(hService);
+    CloseServiceHandle(hSCM);
+
+    if(status.dwCurrentState == SERVICE_STOPPED)
+    {
+        trace("Service is stopped.");
+    }
+    else
+    {
+	showServiceStatus("Service failed to stop.", status);
+	return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -1085,7 +1070,7 @@ Ice::Service::runService(int argc, char* argv[])
 
     SERVICE_TABLE_ENTRY ste[] =
     {
-        { const_cast<char*>(_name.c_str()), (LPSERVICE_MAIN_FUNCTIONA)Ice_Service_ServiceMain },
+        { const_cast<char*>(_name.c_str()), Ice_Service_ServiceMain },
         { NULL, NULL },
     };
 
@@ -1102,24 +1087,152 @@ Ice::Service::runService(int argc, char* argv[])
 }
 
 void
+Ice::Service::terminateService(DWORD exitCode)
+{
+    serviceStatusManager->stopUpdate();
+    delete serviceStatusManager;
+    serviceStatusManager = 0;
+
+    SERVICE_STATUS status;
+
+    status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    status.dwCurrentState = SERVICE_STOPPED;
+    status.dwControlsAccepted = 0;
+    if(exitCode != 0)
+    {
+	status.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+    }
+    else
+    {
+	status.dwWin32ExitCode = 0;
+    }
+    status.dwServiceSpecificExitCode = exitCode;
+    status.dwCheckPoint = 0;
+    status.dwWaitHint = 0;
+
+    SetServiceStatus(_statusHandle, &status);
+}
+
+bool
+Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVICE_STATUS& status)
+{
+    if(!QueryServiceStatus(hService, &status))
+    {
+	return false;
+    }
+
+    //
+    // Save the tick count and initial checkpoint.
+    //
+    DWORD startTickCount = GetTickCount();
+    DWORD oldCheckPoint = status.dwCheckPoint;
+
+    //
+    // Loop while the service is in the pending state.
+    //
+    while(status.dwCurrentState == pendingState)
+    {
+        //
+        // Do not wait longer than the wait hint. A good interval is
+        // one tenth the wait hint, but no less than 1 second and no
+        // more than 10 seconds.
+        //
+
+        DWORD waitTime = status.dwWaitHint / 10;
+
+        if(waitTime < 1000)
+        {
+            waitTime = 1000;
+        }
+        else if(waitTime > 10000)
+        {
+            waitTime = 10000;
+        }
+
+        Sleep(waitTime);
+
+        //
+        // Check the status again.
+        //
+        if(!QueryServiceStatus(hService, &status))
+        {
+            return false;
+        }
+
+        if(status.dwCheckPoint > oldCheckPoint)
+        {
+            //
+            // The service is making progress.
+            //
+            startTickCount = GetTickCount();
+            oldCheckPoint = status.dwCheckPoint;
+        }
+        else
+        {
+            if(GetTickCount() - startTickCount > status.dwWaitHint)
+            {
+                //
+                // No progress made within the wait hint.
+                //
+                break;
+            }
+        }
+    }
+
+    return true;
+}
+
+void
+Ice::Service::showServiceStatus(const string& msg, SERVICE_STATUS& status)
+{
+    string state;
+    switch(status.dwCurrentState)
+    {
+    case SERVICE_STOPPED:
+	state = "STOPPED";
+	break;
+    case SERVICE_START_PENDING:
+	state = "START PENDING";
+	break;
+    case SERVICE_STOP_PENDING:
+	state = "STOP PENDING";
+	break;
+    case SERVICE_RUNNING:
+	state = "RUNNING";
+	break;
+    case SERVICE_CONTINUE_PENDING:
+	state = "CONTINUE PENDING";
+	break;
+    case SERVICE_PAUSE_PENDING:
+	state = "PAUSE PENDING";
+	break;
+    case SERVICE_PAUSED:
+	state = "PAUSED";
+	break;
+    default:
+	state = "UNKNOWN";
+	break;
+    }
+
+    ostringstream ostr;
+    ostr << msg << endl
+	 << "  Current state: " << state << endl
+	 << "  Exit code: " << status.dwWin32ExitCode << endl
+	 << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
+	 << "  Check point: " << status.dwCheckPoint << endl
+	 << "  Wait hint: " << status.dwWaitHint;
+    trace(ostr.str());
+}
+
+void
 Ice::Service::serviceMain(int argc, char* argv[])
 {
     _ctrlCHandler = new IceUtil::CtrlCHandler;
 
     //
-    // Initialize the service status.
-    //
-    _status.dwServiceType = SERVICE_WIN32;
-    _status.dwControlsAccepted = SERVICE_ACCEPT_STOP;
-    _status.dwWin32ExitCode = 0;
-    _status.dwServiceSpecificExitCode = 0;
-    _status.dwCheckPoint = 0;
-    _status.dwWaitHint = 0;
-
-    //
     // Register the control handler function.
     //
-    _statusHandle = RegisterServiceCtrlHandler(argv[0], (LPHANDLER_FUNCTION)Ice_Service_CtrlHandler);
+    _statusHandle = RegisterServiceCtrlHandler(argv[0], Ice_Service_CtrlHandler);
     if(_statusHandle == (SERVICE_STATUS_HANDLE)0)
     {
         syserror("unable to register service control handler");
@@ -1127,14 +1240,13 @@ Ice::Service::serviceMain(int argc, char* argv[])
     }
 
     //
-    // Start a thread to periodically update the service's status with the
-    // service control manager (SCM). The SCM must receive periodic updates
-    // otherwise it assumes that initialization failed and terminates the
-    // service.
+    // Create the service status manager and start a thread to periodically
+    // update the service's status with the service control manager (SCM).
+    // The SCM must receive periodic updates otherwise it assumes that
+    // initialization failed and terminates the service.
     //
-    _status.dwCurrentState = SERVICE_START_PENDING;
-    ServiceStatusThreadPtr statusThread = new ServiceStatusThread(_statusHandle, &_status);
-    statusThread->start();
+    serviceStatusManager = new ServiceStatusManager(_statusHandle);
+    serviceStatusManager->startUpdate(SERVICE_START_PENDING);
 
     //
     // Merge the executable's arguments with the service's arguments.
@@ -1163,10 +1275,16 @@ Ice::Service::serviceMain(int argc, char* argv[])
     {
         delete[] args;
         ostringstream ostr;
-        ostr << ex;
+        ostr << "exception occurred while initializing a communicator:\n" << ex;
         error(ostr.str());
-        statusThread->stop(SERVICE_STOPPED, EXIT_FAILURE);
-        statusThread->getThreadControl().join();
+	terminateService(EXIT_FAILURE);
+        return;
+    }
+    catch(...)
+    {
+        delete[] args;
+        error("unknown exception occurred while initializing a communicator");
+	terminateService(EXIT_FAILURE);
         return;
     }
 
@@ -1188,23 +1306,15 @@ Ice::Service::serviceMain(int argc, char* argv[])
             trace("Service started successfully.");
 
             //
-            // Stop the status thread and set our current status to running.
+            // Change the current status from START_PENDING to RUNNING.
             //
-            statusThread->stop(SERVICE_RUNNING, NO_ERROR);
-            statusThread->getThreadControl().join();
-            statusThread = 0;
+	    serviceStatusManager->stopUpdate();
+	    serviceStatusManager->changeStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
 
             //
             // Wait for the service to be shut down.
             //
             waitForShutdown();
-
-            //
-            // Notify the service control manager that a stop is pending.
-            //
-            _status.dwCurrentState = SERVICE_STOP_PENDING;
-            statusThread = new ServiceStatusThread(_statusHandle, &_status);
-            statusThread->start();
 
             //
             // Give the service a chance to clean up.
@@ -1236,91 +1346,123 @@ Ice::Service::serviceMain(int argc, char* argv[])
     {
     }
 
-    if(statusThread)
-    {
-        statusThread->stop(SERVICE_STOPPED, status);
-        statusThread->getThreadControl().join();
-    }
+    terminateService(status);
 }
 
 void
 Ice::Service::control(int ctrl)
 {
+    assert(serviceStatusManager);
+
     switch(ctrl)
     {
-        case SERVICE_CONTROL_INTERROGATE:
-        {
-            SERVICE_STATUS status = _status; // TODO: Small risk of race with ServiceStatusThread
-            if(!SetServiceStatus(_statusHandle, &status))
-            {
-                syserror("unable to set service status");
-            }
-            break;
-        }
-        case SERVICE_CONTROL_STOP:
-        {
-            //
-            // Shut down the service. The serviceMain method will update the service status.
-            //
-            shutdown();
-            break;
-        }
-        default:
-        {
-            ostringstream ostr;
-            ostr << "unrecognized service control code " << ctrl;
-            error(ostr.str());
-            break;
-        }
+    case SERVICE_CONTROL_SHUTDOWN:
+    case SERVICE_CONTROL_STOP:
+    {
+	serviceStatusManager->startUpdate(SERVICE_STOP_PENDING);
+	shutdown();
+	break;
+    }
+    default:
+    {
+	if(ctrl != SERVICE_CONTROL_INTERROGATE)
+	{
+	    ostringstream ostr;
+	    ostr << "unrecognized service control code " << ctrl;
+	    error(ostr.str());
+	}
+
+	serviceStatusManager->reportStatus();
+	break;
+    }
     }
 }
 
-Ice::ServiceStatusThread::ServiceStatusThread(SERVICE_STATUS_HANDLE handle, SERVICE_STATUS* status) :
-    _handle(handle), _status(status), _stopped(false)
+Ice::ServiceStatusManager::ServiceStatusManager(SERVICE_STATUS_HANDLE handle) :
+    _handle(handle), _stopped(false)
 {
+    _status.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+    _status.dwControlsAccepted = 0;
+    _status.dwWin32ExitCode = 0;
+    _status.dwServiceSpecificExitCode = 0;
+    _status.dwCheckPoint = 0;
+    _status.dwWaitHint = 0;
 }
 
 void
-Ice::ServiceStatusThread::run()
+Ice::ServiceStatusManager::startUpdate(DWORD state)
 {
     Lock sync(*this);
 
-    IceUtil::Time delay = IceUtil::Time::milliSeconds(500);
-    _status->dwWaitHint = 1000;
+    assert(state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING);
+    assert(!_thread);
+
+    _status.dwCurrentState = state;
+    _status.dwControlsAccepted = 0; // Don't accept any other control messages while pending.
+
+    _stopped = false;
+
+    _thread = new StatusThread(this);
+    _thread->start();
+}
+
+void
+Ice::ServiceStatusManager::stopUpdate()
+{
+    IceUtil::ThreadPtr thread;
+
+    {
+	Lock sync(*this);
+
+	if(_thread)
+	{
+	    _stopped = true;
+	    notify();
+	    thread = _thread;
+	    _thread = 0;
+	}
+    }
+
+    if(thread)
+    {
+	thread->getThreadControl().join();
+    }
+}
+
+void
+Ice::ServiceStatusManager::changeStatus(DWORD state, DWORD controlsAccepted)
+{
+    Lock sync(*this);
+
+    _status.dwCurrentState = state;
+    _status.dwControlsAccepted = controlsAccepted;
+
+    SetServiceStatus(_handle, &_status);
+}
+
+void
+Ice::ServiceStatusManager::reportStatus()
+{
+    Lock sync(*this);
+
+    SetServiceStatus(_handle, &_status);
+}
+
+void
+Ice::ServiceStatusManager::run()
+{
+    Lock sync(*this);
+
+    IceUtil::Time delay = IceUtil::Time::milliSeconds(1000);
+    _status.dwWaitHint = 2000;
+    _status.dwCheckPoint = 0;
 
     while(!_stopped)
     {
-        if(!SetServiceStatus(_handle, _status))
-        {
-            return;
-        }
-
+        _status.dwCheckPoint++;
+        SetServiceStatus(_handle, &_status);
         timedWait(delay);
-
-        _status->dwCheckPoint++;
     }
-
-    _status->dwCheckPoint = 0;
-    _status->dwWaitHint = 0;
-    SetServiceStatus(_handle, _status);
-}
-
-void
-Ice::ServiceStatusThread::stop(DWORD state, DWORD exitCode)
-{
-    Lock sync(*this);
-    _status->dwCurrentState = state;
-    if(exitCode == 0)
-    {
-	_status->dwWin32ExitCode = 0;
-    }
-    else
-    {
-	_status->dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
-    }
-    _status->dwServiceSpecificExitCode = exitCode;
-    _stopped = true;
-    notify();
 }
 
 #else
