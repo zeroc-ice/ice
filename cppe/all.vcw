@@ -3,90 +3,6 @@ Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
 
 ###############################################################################
 
-Project: "all"=.\all.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name exceptionsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name exceptionsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name facetsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfchelloC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfchelloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name thread
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name uuid
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.vcp - Package Owner=<4>
 
 Package=<5>
@@ -190,36 +106,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "helloC"=.\demo\Ice\hello\helloC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "helloS"=.\demo\Ice\hello\helloS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
     End Project Dependency
 }}}
 
