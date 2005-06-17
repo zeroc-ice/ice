@@ -37,13 +37,12 @@ class HELLO_API HelloI : public Demo::Hello
 public:
 
     HelloI(const std::string&);
-
     virtual void sayHello(const Ice::Current&) const;
 
     virtual void destroy(const Ice::Current&);
 
 private:
-
+    HelloI(const HelloI&);
     Ice::CommunicatorPtr _communicator;
 };
 
