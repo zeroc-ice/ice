@@ -669,9 +669,6 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->variables.erase(*p);
     }
 
-    //
-    // TODO: Check if the new templates are valid?
-    //
     newApp->serverTemplates = newUpdate.serverTemplates;
     newApp->serverTemplates.insert(oldApp->serverTemplates.begin(), oldApp->serverTemplates.end());
     for(p = newUpdate.removeServerTemplates.begin(); p != newUpdate.removeServerTemplates.end(); ++p)
@@ -679,9 +676,6 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->serverTemplates.erase(*p);
     }
 
-    //
-    // TODO: Check if the new templates are valid? 
-    //
     newApp->serviceTemplates = newUpdate.serviceTemplates;
     newApp->serviceTemplates.insert(oldApp->serviceTemplates.begin(), oldApp->serviceTemplates.end());
     for(p = newUpdate.removeServiceTemplates.begin(); p != newUpdate.removeServiceTemplates.end(); ++p)
@@ -689,9 +683,6 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->serviceTemplates.erase(*p);
     }
 
-    //
-    // Update the node descriptors.
-    //
     newApp->nodes = newUpdate.nodes;
     for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
     {
@@ -721,7 +712,7 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
     for(ServerInstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
     {
-	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old server.
+	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old servers.
 	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
 	{
 	    if(q->node != inst.node ||
@@ -1123,10 +1114,8 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	return false;
     }
 
-    if(set<string>(_descriptor->interpreterOptions.begin(), 
-			     _descriptor->interpreterOptions.end()) != 
-       set<string>(helper._descriptor->interpreterOptions.begin(), 
-			     helper._descriptor->interpreterOptions.end()))
+    if(set<string>(_descriptor->interpreterOptions.begin(), _descriptor->interpreterOptions.end()) != 
+       set<string>(helper._descriptor->interpreterOptions.begin(), helper._descriptor->interpreterOptions.end()))
     {
 	return false;
     }

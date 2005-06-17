@@ -73,17 +73,49 @@ ObserverSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
 }
 
 void
-ObserverSessionI::startUpdate(int serial, const Ice::Current&)
+ObserverSessionI::startUpdate(int serial, const Ice::Current& current)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
     _database->lock(serial, this, _userId);
     _updating = true;
 }
 
 void
-ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, const Ice::Current&)
+ObserverSessionI::addApplication(const ApplicationDescriptorPtr& app, const Ice::Current& current)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    if(!_updating)
+    {
+	throw AccessDenied();
+    }
+    _database->addApplicationDescriptor(this, app);
+}
+
+void
+ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
     if(!_updating)
     {
 	throw AccessDenied();
@@ -92,20 +124,76 @@ ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, c
 }
 
 void
-ObserverSessionI::finishUpdate(const Ice::Current&)
+ObserverSessionI::syncApplication(const ApplicationDescriptorPtr& app, const Ice::Current& current)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
     if(!_updating)
     {
 	throw AccessDenied();
     }
-
-    _database->unlock(this);
+    _database->syncApplicationDescriptor(this, app);
 }
 
 void
-ObserverSessionI::destroy(const Ice::Current&)
+ObserverSessionI::removeApplication(const string& name, const Ice::Current& current)
 {
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    if(!_updating)
+    {
+	throw AccessDenied();
+    }
+    _database->removeApplicationDescriptor(this, name);
+}
+
+void
+ObserverSessionI::finishUpdate(const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+
+    if(!_updating)
+    {
+	throw AccessDenied();
+    }
+    _database->unlock(this);
+    _updating = false;
+}
+
+void
+ObserverSessionI::destroy(const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(_destroyed)
+    {
+	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
+    if(_updating)
+    {
+	_database->unlock(this);
+	_updating = false;
+    }
+
     //
     // Unsubscribe from the topics.
     //

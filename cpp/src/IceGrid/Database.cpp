@@ -743,9 +743,6 @@ Database::getServerDescriptor(const std::string& name)
 {
     ApplicationDescriptorPtr app = getApplicationDescriptor(getServerApplication(name));
 
-    //
-    // TODO: Is it really safe to read the application descriptor outside the lock!?
-    //
     for(ServerInstanceDescriptorSeq::const_iterator p = app->servers.begin(); p != app->servers.end(); ++p)
     {
 	if(p->descriptor->name == name)

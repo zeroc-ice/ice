@@ -25,12 +25,12 @@ public:
 
     NodeObserverTopic(const IceStorm::TopicPrx&, const NodeObserverPrx&);
 
-    virtual void init(const std::string&, const ServerDynamicInfoSeq&, const AdapterDynamicInfoSeq&, 
-		      const Ice::Current&);
+    virtual void init(const NodeDynamicInfoSeq&, const Ice::Current&);
+    virtual void initNode(const NodeDynamicInfo&, const Ice::Current&);
     virtual void updateServer(const std::string&, const ServerDynamicInfo&, const Ice::Current&);
     virtual void updateAdapter(const std::string&, const AdapterDynamicInfo&, const Ice::Current&);
 
-    void subscribe(const NodeObserverPrx&);
+    void subscribe(const NodeObserverPrx&, int serial = -1);
     void unsubscribe(const NodeObserverPrx&);
 
     void removeNode(const std::string&);
@@ -40,10 +40,10 @@ private:
     const IceStorm::TopicPrx _topic;
     const NodeObserverPrx _publisher;
 
-    std::set<std::string> _nodes;
-    std::map<std::string, ServerDynamicInfoSeq> _servers;
-    std::map<std::string, AdapterDynamicInfoSeq> _adapters;
+    int _serial;
+    std::map<std::string, NodeDynamicInfo> _nodes;
 };
+typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
 
 class RegistryObserverTopic : public RegistryObserver, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -60,7 +60,7 @@ public:
     virtual void nodeUp(const std::string&, const Ice::Current&);
     virtual void nodeDown(const std::string&, const Ice::Current&);
 
-    void subscribe(const RegistryObserverPrx&);
+    void subscribe(const RegistryObserverPrx&, int = -1);
     void unsubscribe(const RegistryObserverPrx&);
 
 private:
@@ -75,6 +75,7 @@ private:
     ApplicationDescriptorSeq _applications;
     Ice::StringSeq _nodes;
 };
+typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
 
 };
 

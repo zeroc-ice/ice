@@ -84,6 +84,12 @@ RegistryService::start(int argc, char* argv[])
 	return false;
     }
 
+    PropertiesPtr properties = communicator()->getProperties();
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
+    {
+	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
+    }
+
     _registry = new RegistryI(communicator());
     if(!_registry->start(nowarn))
     {

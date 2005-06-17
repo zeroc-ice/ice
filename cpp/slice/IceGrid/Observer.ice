@@ -12,6 +12,7 @@
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Descriptor.ice>
+#include <IceGrid/Exception.ice>
 
 module IceGrid
 {
@@ -31,9 +32,19 @@ struct AdapterDynamicInfo
 };
 sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
+struct NodeDynamicInfo
+{
+    string name;
+    ServerDynamicInfoSeq servers;
+    AdapterDynamicInfoSeq adapters;
+};
+sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
+
 interface NodeObserver
 {
-    void init(string node, ServerDynamicInfoSeq servers, AdapterDynamicInfoSeq adapters);
+    ["ami"] void init(NodeDynamicInfoSeq nodes);
+
+    void initNode(NodeDynamicInfo node);
 
     void updateServer(string node, ServerDynamicInfo updatedInfo);
 
@@ -42,7 +53,7 @@ interface NodeObserver
 
 interface RegistryObserver
 {
-    void init(int serial, ApplicationDescriptorSeq applications, Ice::StringSeq nodesUp);
+    ["ami"] void init(int serial, ApplicationDescriptorSeq applications, Ice::StringSeq nodesUp);
 
     void applicationAdded(int serial, ApplicationDescriptor desc);
     void applicationRemoved(int serial, string name);
@@ -133,6 +144,30 @@ interface Session extends Glacier2::Session
     
     /**
      *
+     * Add an application. This method must be called to update the
+     * registry applications using the lock mechanism.
+     *
+     * @throws AccessDenied Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void addApplication(ApplicationDescriptor application)
+	throws AccessDenied, DeploymentException, ApplicationExistsException;
+
+    /**
+     *
+     * Update an application. This method must be called to update the
+     * registry applications using the lock mechanism.
+     *
+     * @throws AccessDenied Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void syncApplication(ApplicationDescriptor app)
+	throws AccessDenied, DeploymentException, ApplicationNotExistException;
+
+    /**
+     *
      * Update an application. This method must be called to update the
      * registry applications using the lock mechanism.
      *
@@ -141,7 +176,19 @@ interface Session extends Glacier2::Session
      *
      **/
     void updateApplication(ApplicationUpdateDescriptor update)
-	throws AccessDenied;
+	throws AccessDenied, DeploymentException, ApplicationNotExistException;
+
+    /**
+     *
+     * Update an application. This method must be called to update the
+     * registry applications using the lock mechanism.
+     *
+     * @throws AccessDenied Raised if the session doesn't hold the
+     * exclusive lock.
+     *
+     **/
+    void removeApplication(string name)
+	throws AccessDenied, ApplicationNotExistException;
 
     /**
      *
