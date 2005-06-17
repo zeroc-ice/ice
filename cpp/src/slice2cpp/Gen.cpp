@@ -742,52 +742,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList::const_iterator q;
 
     vector<string> params;
-    vector<string> types;
-    vector<string> paramDecls;
     vector<string>::const_iterator pi;
 
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	string paramName = fixKwd((*q)->name());
-	string typeName = inputTypeToString((*q)->type());
-	params.push_back(paramName);
-	types.push_back(typeName);
-	paramDecls.push_back(typeName + " __" + paramName);
+	params.push_back(fixKwd((*q)->name()));
     }
-
-    H.zeroIndent();
-    H << sp << "#undef " << name;
-    H.restoreIndent();
-
-    H << sp;
-    H << nl << _dllExport << name << "() {};";
-    H << nl << _dllExport;
-    if(dataMembers.size() == 1)
-    {
-	H << "explicit ";
-    }
-    H << name << spar << types << epar << ';';
 
     H << sp;
     H << nl << _dllExport << "bool operator==(const " << name << "&) const;";
     H << nl << _dllExport << "bool operator!=(const " << name << "&) const;";
     H << nl << _dllExport << "bool operator<(const " << name << "&) const;";
     
-    writeUndefines(C, params);
-    C << sp << nl << scoped.substr(2) << "::" << name << spar << paramDecls << epar << " :" << nl;
-    C.inc();
-    for(pi = params.begin(); pi != params.end(); ++pi)
-    {
-	if(pi != params.begin())
-	{
-	    C << ',' << nl;
-	}
-	C << *pi << '(' << "__" << *pi << ')';
-    }
-    C.dec();
-    C << sb;
-    C << eb;
-
     C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator==(const " << name << "& __rhs) const";
     C << sb;
     C << nl << "return !operator!=(__rhs);";
