@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public interface Endpoint
+public interface Endpoint extends IceUtil.Comparable
 {
     //
     // Marshal the endpoint.
@@ -85,5 +85,4 @@ public interface Endpoint
     // Compare endpoints for sorting purposes.
     //
     boolean equals(java.lang.Object obj);
-    int compareTo(java.lang.Object obj); // From java.lang.Comparable.
 }

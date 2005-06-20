@@ -185,9 +185,7 @@ public final class Util
     {
 	if(_localAddress == null)
         {
-            java.net.InetAddress addr = IceInternal.Network.getLocalAddress();
-
-            byte[] ip = addr.getAddress();
+            byte[] ip = IceInternal.Network.getLocalAddress();
             _localAddress = "";
             for(int i = 0; i < ip.length; i++)
             {

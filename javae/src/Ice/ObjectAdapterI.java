@@ -413,10 +413,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             {
                 _routerEndpoints.addElement(endpoints[i]);
             }
-	    //
-	    // XXX- need to implement a home grown sorting routine.
-	    //
-            java.util.Collections.sort(_routerEndpoints); // Must be sorted.
+	    
+            IceUtil.Arrays.sort(_routerEndpoints); // Must be sorted.
             for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
             {
 		//

@@ -40,6 +40,27 @@ public final class Arrays
 	return -1;
     }
 
+    public static void
+    sort(java.util.Vector vector)
+    {
+	//
+	// Bubble sort. This is only used to sequences of endpoints, which for embedded applications will be quite
+	// short.
+	//
+	for(int i = 0; i < vector.size() ; ++i)
+	{
+	    for(int j = 0; j < vector.size() -1 ; ++j)
+	    {
+		if(((IceUtil.Comparable)vector.elementAt(j)).compareTo(vector.elementAt(j + 1)) > 0)
+		{
+		    java.lang.Object t = vector.elementAt(j + 1);
+		    vector.setElementAt(vector.elementAt(j), j + 1);
+		    vector.setElementAt(t, j);
+		}
+	    }
+	}
+    }
+
     public static boolean
     equals(java.lang.Object[] a1, java.lang.Object[] a2)
     {

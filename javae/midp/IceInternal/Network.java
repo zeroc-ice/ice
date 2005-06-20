@@ -46,13 +46,15 @@ public final class Network
     }
 
     public static boolean
-    connectionRefused(java.net.ConnectException ex)
+    connectionRefused(java.io.IOException ex)
     {
         //
         // The JDK raises a generic ConnectException when the server
         // actively refuses a connection. Unfortunately, our only
         // choice is to search the exception message for
         // distinguishing phrases.
+	//
+	// TODO: Confirm actual message under MIDP
         //
 
         String msg = ex.getMessage().toLowerCase();
@@ -75,7 +77,8 @@ public final class Network
 
         return false;
     }
-
+    /*
+    
     public static boolean
     notConnected(java.net.SocketException ex)
     {
@@ -87,13 +90,14 @@ public final class Network
 
 	return false;
     }
+    */
 
     public static void
-    closeSocket(java.net.Socket fd)
+    closeSocket(javax.microedition.io.SocketConnection connection)
     {
 	try
 	{
-	    fd.close();
+	    connection.close();
 	}
 	catch(java.io.IOException ex)
 	{
@@ -102,7 +106,8 @@ public final class Network
 	    throw se;
 	}
     }
-
+    
+    /*
     public static InetSocketAddress
     getAddress(String host, int port)
     {
@@ -118,96 +123,99 @@ public final class Network
 	    throw e;
         }
     }
+    */
 
     public static String
     getLocalHost(boolean numeric)
     {
-        java.net.InetAddress addr = getLocalAddress();
-
-        return numeric ? addr.getHostAddress() : addr.getHostName();
+	//
+	// TODO: This isn't right. We should pull the address from SocketConnection.getLocalAddress(). The problem
+	// is that we don't have an accessible socket at this point.
+	//
+	String result = System.getProperty("microedition.hostname");
+	if(result == null)
+	{
+	    result = "127.0.0.1";
+	}
+	return result;
     }
 
     public static byte[]
     getLocalAddress()
     {
-        java.net.InetAddress addr = null;
-
-        try
-        {
-            addr = java.net.InetAddress.getLocalHost();
-        }
-        catch(java.net.UnknownHostException ex)
-        {
-            //
-            // May be raised on DHCP systems.
-            //
-        }
-        catch(NullPointerException ex)
-        {
-            //
-            // Workaround for bug in JDK.
-            //
-        }
-
-	if(addr == null)
-	{
-	    try
-	    {
-		addr = java.net.InetAddress.getByName("127.0.0.1");
-	    }
-	    catch(java.net.UnknownHostException ex)
-	    {
-		Ice.DNSException e = new Ice.DNSException();
-		e.host = "127.0.0.1";
-		throw e;
-	    }
-	}
-
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(addr != null);
-	}
-	return addr.getAddress();
+	byte[] b = new byte[4];
+	b[0] = 127;
+	b[1] = 0;
+	b[2] = 0;
+	b[3] = 1;
+	return b;
     }
 
     public static String
-    fdToString(java.net.Socket fd)
+    toString(javax.microedition.io.SocketConnection connection)
     {
-	if(fd == null)
+	if(connection == null)
 	{
 	    return "<closed>";
 	}
 
-	java.net.InetAddress localAddr = fd.getLocalAddress();
-	int localPort = fd.getLocalPort();
-	java.net.InetAddress remoteAddr = fd.getInetAddress();
-	int remotePort = fd.getPort();
+	try
+	{
+	    String localAddr = connection.getLocalAddress();
+	    int localPort = connection.getLocalPort();
+	    String remoteAddr = connection.getAddress();
+	    int remotePort = connection.getPort();
 
-	return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+	    return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+	}
+	catch(java.io.IOException ex)
+	{
+	    return "<closed>";
+	}
+    }
+    
+    public static String
+    toString(javax.microedition.io.ServerSocketConnection connection)
+    {
+	if(connection == null)
+	{
+	    return "<closed>";
+	}
+
+	try
+	{
+	    return connection.getLocalAddress() + ":" + connection.getLocalPort();
+	}
+	catch(java.io.IOException ex)
+	{
+	    return "<closed>";
+	}
     }
 
     public static String
-    addressesToString(java.net.InetAddress localAddr, int localPort, java.net.InetAddress remoteAddr, int remotePort)
+    addressesToString(String localAddr, int localPort, String remoteAddr, int remotePort)
     {
 	StringBuffer s = new StringBuffer();
 	s.append("local address = ");
-	s.append(localAddr.getHostAddress());
+	s.append(localAddr);
 	s.append(':');
 	s.append(localPort);
-	if(remoteAddr == null)
+	if(remoteAddr == null || remoteAddr.length() == 0)
 	{
 	    s.append("\nremote address = <not connected>");
 	}
 	else
 	{
 	    s.append("\nremote address = ");
-	    s.append(remoteAddr.getHostAddress());
+	    s.append(remoteAddr);
 	    s.append(':');
 	    s.append(remotePort);
 	}
 
 	return s.toString();
     }
+
+    /*
 
     public static String
     addrToString(InetSocketAddress addr)
@@ -217,6 +225,88 @@ public final class Network
         s.append(':');
         s.append(addr.getPort());
         return s.toString();
+    }
+    */
+
+    //
+    // Attempt to parse a string containing an IP address into octets.
+    //
+    public static byte[]
+    addrStringToIP(String str)
+    {
+	if(str.length() < "1.1.1.1".length())
+	{
+	    return null;
+	}
+	
+	//
+	// Copy to an array because it will make a few of the following operations more convenient.
+	//
+	char[] stringChars = str.toCharArray();
+	StringBuffer[] octetStr = new StringBuffer[4];
+
+	//
+	// We need 4 octets so we are looking for three periods, if we don't have them we might as well return a
+	// null, indicating failure.
+	//
+	int dotCount = 0;
+	for(int i = 0; i < stringChars.length; ++i)
+	{
+	    if(stringChars[i] == '.')
+	    {
+		++dotCount;
+		if(dotCount > 3)
+		{
+		    //
+		    // Too many periods to be an IP address, treat as a hostname.
+		    //
+		    return null;
+		}
+	    }
+	    else if(!Character.isDigit(stringChars[i]))
+	    {
+		return null;
+	    }
+	    else
+	    {
+		if(octetStr[dotCount] == null)
+		{
+		    octetStr[dotCount] = new StringBuffer(3);
+		}
+		octetStr[dotCount].append(stringChars[i]);
+		if(octetStr[dotCount].length() > 3)
+		{
+		    return null;
+		}
+	    }
+	}
+
+	//
+	// We didn't find enough periods for this to be an IP address.
+	//
+	if(dotCount != 3)
+	{
+	    return null;
+	}
+
+	byte[] ip = new byte[octetStr.length];
+	for(int i = 0; i < octetStr.length; ++i)
+	{
+	    try
+	    {
+		Integer s = Integer.valueOf(octetStr[i].toString());
+		if(s.intValue() < 0 || s.intValue() > 255)
+		{
+		    return null;
+		}
+		ip[i] = s.byteValue();
+	    }
+	    catch(NumberFormatException ex)
+	    {
+		return null;
+	    }
+	}
+	return ip;
     }
 
     public static boolean
