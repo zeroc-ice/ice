@@ -49,7 +49,6 @@ SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::p
 SLICE_API void writeStreamUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
                                         const TypePtr&);
 
-SLICE_API void writeUndefines(::IceUtil::Output&, const std::vector<std::string>&);
 }
 
 #endif

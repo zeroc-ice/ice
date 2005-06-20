@@ -20,9 +20,11 @@ using namespace IceInternal;
 void IceInternal::incRef(Object* p) { p->__incRef(); }
 void IceInternal::decRef(Object* p) { p->__decRef(); }
 
+#if 0
 Ice::Object::Object()
 {
 }
+#endif
 
 bool
 Ice::Object::operator==(const Object& r) const
@@ -83,20 +85,10 @@ Ice::Object::ice_staticId()
     return __Ice__Object_ids[0];
 }
 
-void
-Ice::Object::__copyMembers(ObjectPtr to) const
-{
-}
-
 ObjectPtr
 Ice::Object::ice_clone() const
 {
     ObjectPtr __p = new Ice::Object;
-#ifdef _WIN32
-    Object::__copyMembers(__p);
-#else
-    ::Ice::Object::__copyMembers(__p);
-#endif
     return __p;
 }
 

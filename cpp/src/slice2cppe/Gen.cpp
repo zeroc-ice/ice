@@ -218,6 +218,8 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#include <" << changeInclude(*q, _includePaths) << "." << _headerExtension << ">";
     }
 
+    H << "\n#include <Ice/UndefSysMacros.h>";
+
     printVersionCheck(H);
     printVersionCheck(C);
 
@@ -337,10 +339,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	}
     }
 
-    H.zeroIndent();
-    H << sp << "#undef " << name;
-    H.restoreIndent();
-
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
     H << "public ";
@@ -388,9 +386,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(p->isLocal())
     {
-	C << sp << nl << scoped << "::" << name << spar << "const char* __file" << "int __line" << epar << " :";
+	C << sp << nl << scoped.substr(2) << "::" << name << spar << "const char* __file" << "int __line" << epar
+	  << " :";
 	C.inc();
-	C << nl;
 	emitUpcall(base, "(__file, __line)", true);
     	C.dec();
 	C << sb;
@@ -399,10 +397,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(!allTypes.empty())
     {
-	writeUndefines(C, params);
-
 	C << sp << nl;
-	C << scoped << "::" << name << spar;
+	C << scoped.substr(2) << "::" << name << spar;
 	if(p->isLocal())
 	{
 	    C << "const char* __file" << "int __line";
@@ -412,34 +408,37 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	{
 	    C << " :";
 	    C.inc();
-	    C << nl;
-	}
-	if(p->isLocal() || !baseParams.empty())
-	{
-	    if(p->isLocal())
+	    string upcall;
+	    if(!allParamDecls.empty())
 	    {
-		C << (base ? fixKwd(base->scoped()) : "::Ice::LocalException") << spar << "__file" << "__line";
-	    }
-	    else
-	    {
-		C << fixKwd(base->scoped()) << spar;
-	    }
-	    C << baseParams << epar;
-	}
-	if(!params.empty())
-	{
-	    if(p->isLocal() || !baseParams.empty())
-	    {
-		C << ',' << nl;
-	    }
-	    for(pi = params.begin(); pi != params.end(); ++pi)
-	    {
-		if(pi != params.begin())
+		upcall = "(";
+		if(p->isLocal())
 		{
-		    C << ',' << nl;
+		    upcall += "__file, __line";
 		}
-		C << *pi << "(__" << *pi << ')';
+		for(pi = baseParams.begin(); pi != baseParams.end(); ++pi)
+		{
+		    if(p->isLocal() || pi != baseParams.begin())
+		    {
+			upcall += ", ";
+		    }
+		    upcall += *pi;
+		}
+		upcall += ")";
 	    }
+	    if(!params.empty())
+	    {
+		upcall += ",";
+	    }
+	    emitUpcall(base, upcall, p->isLocal());
+	}
+	for(pi = params.begin(); pi != params.end(); ++pi)
+	{
+	    if(pi != params.begin())
+	    {
+	        C << ",";
+	    }
+	    C << nl << *pi << "(__" << *pi << ')';
 	}
 	if(p->isLocal() || !baseParams.empty() || !params.empty())
 	{
@@ -461,7 +460,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     
     if(p->isLocal())
     {
-	H << nl << "virtual ::std::string  toString() const;";
+	H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
 
     H << nl << "virtual ::Ice::Exception* ice_clone() const;";
@@ -973,11 +972,11 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
     C.zeroIndent();
     C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->name()) : (isLocal ? "LocalException" : "Exception")) << call;
+    C << nl << (base ? fixKwd(base->name()) : (isLocal ? "LocalException" : "UserException")) << call;
     C.zeroIndent();
     C << nl << "#else";
     C.restoreIndent();
-    C << nl << (base ? fixKwd(base->scoped()) : (isLocal ? "::Ice::LocalException" : "::Ice::Exception")) << call;
+    C << nl << (base ? fixKwd(base->scoped()) : (isLocal ? "::Ice::LocalException" : "::Ice::UserException")) << call;
     C.zeroIndent();
     C << nl << "#endif";
     C.restoreIndent();
@@ -1561,14 +1560,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
-    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+	base = bases.front();
+    }
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList::const_iterator q;
-
-    H.zeroIndent();
-    H << sp << nl << "#undef " << name;
-    H.restoreIndent();
 
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
@@ -1631,11 +1630,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    H << name << spar << allTypes << epar << ';';
 	}
-	H << nl << name << "(const " << name << "&)"; 
-	if(allDataMembers.empty())
-	{
-	    H << " {}";
-	}
+
+	/*
+	 * Strong guarantee: commented-out code marked "String guarantee" generates
+	 * a copy-assignment operator that provides the strong exception guarantee.
+	 * For now, this is commented out, and we use the compiler-generated
+	 * copy-assignment operator. However, that one does not provide the strong
+	 * guarantee.
+
 	H << ';';
 	if(!p->isAbstract())
 	{
@@ -1666,15 +1668,17 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	H << eb;
 
+	 * Strong guarantee
+	 */
+
 	if(!allParamDecls.empty())
 	{
-	    writeUndefines(C, params);
 	    C << sp << nl << scoped.substr(2) << "::" << name << spar << allParamDecls << epar << " :";
 	    C.inc();
-	    if(hasBaseClass)
+	    if(base)
 	    {
 		string upcall;
-		if(!allParamDecls.empty() && hasBaseClass)
+		if(!allParamDecls.empty() && base)
 		{
 		    upcall = "(";
 		    DataMemberList baseDataMembers = bases.front()->allDataMembers();
@@ -1692,7 +1696,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 		{
 		    upcall += ",";
 		}
-		emitUpcall(bases.front(), upcall);
+		emitUpcall(base, upcall);
 	    }
 	    C << nl;
 	    for(pi = params.begin(); pi != params.end(); ++pi)
@@ -1708,33 +1712,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    C << eb;
 	}
 
-	if(!allParamDecls.empty())
-	{
-	    C << sp << nl << scoped.substr(2) << "::" << name << "(const " << name << "& __rhs)";
-	    C << " :";
-	    C.inc();
-	    if(hasBaseClass)
-	    {
-		string upcall = "(__rhs)";
-		if(!params.empty())
-		{
-		    upcall += ",";
-		}
-		emitUpcall(bases.front(), upcall);
-	    }
-	    C << nl;
-	    for(pi = params.begin(); pi != params.end(); ++pi)
-	    {
-		if(pi != params.begin())
-		{
-		    C << ',' << nl;
-		}
-		C << *pi << '(' << "__rhs." << *pi << ')';
-	    }
-	    C.dec();
-	    C << sb;
-	    C << eb;
-	}
+	/*
+	 * Strong guarantee
 
 	if(!allDataMembers.empty())
 	{
@@ -1742,9 +1721,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    C << nl << scoped.substr(2) << "::__swap(" << name << "& __lhs, " << name << "& __rhs) throw()";
 	    C << sb;
 
-	    if(hasBaseClass)
+	    if(base)
 	    {
-		emitUpcall(bases.front(), "::__swap(__lhs, __rhs);");
+		emitUpcall(base, "::__swap(__lhs, __rhs);");
 	    }
 
 	    //
@@ -1806,6 +1785,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	}
 
+	 * Strong guarantee
+	 */
     }
 
     if(!p->isLocal())

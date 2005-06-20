@@ -53,7 +53,10 @@ class ICE_API Object : public IceUtil::GCShared
 {
 public:
 
-    Object();
+    Object() {}
+    Object(const Object&) {}
+    
+    Object& operator=(const Object&) { return *this; }
 
     virtual bool operator==(const Object&) const;
     virtual bool operator!=(const Object&) const;
@@ -74,7 +77,6 @@ public:
 
     static const std::string& ice_staticId();
 
-    void __copyMembers(ObjectPtr) const;
     virtual ObjectPtr ice_clone() const;
 
     virtual void ice_preMarshal();

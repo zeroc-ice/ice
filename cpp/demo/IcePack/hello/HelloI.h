@@ -42,7 +42,6 @@ public:
     virtual void destroy(const Ice::Current&);
 
 private:
-    HelloI(const HelloI&);
     Ice::CommunicatorPtr _communicator;
 };
 
