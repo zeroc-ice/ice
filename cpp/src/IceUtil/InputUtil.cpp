@@ -102,6 +102,10 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     if(*s == '\0')
     {
+	if(endptr)
+	{
+	    *endptr = const_cast<char*>(s);
+	}
 	return 0;
     }
 
