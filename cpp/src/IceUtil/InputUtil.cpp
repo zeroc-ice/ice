@@ -82,18 +82,15 @@ strToInt64Impl(const char* s, char** endptr, int base)
 	    base = 8;
 	    ++s;
 	    
-	    if(*s == '\0')
+	    //
+	    // We have at least this zero
+	    //
+	    if(endptr)
 	    {
-		//
-		// Just '0'
-		//
-		if(endptr)
-		{
-		    *endptr = const_cast<char *>(s);
-		}
-		return 0;
+		*endptr = const_cast<char *>(s);
 	    }
-	    else if(*s == 'x' || *s == 'X')
+	    
+	    if(*s == 'x' || *s == 'X')
 	    {
 		base = 16;
 		++s;
@@ -116,7 +113,7 @@ strToInt64Impl(const char* s, char** endptr, int base)
     if(*s == '\0')
     {
 	//
-	// We did not read any digit so we don't update endptr
+	// We did not read any new digit so we don't update endptr
 	//
 	return 0;
     }
