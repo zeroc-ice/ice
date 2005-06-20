@@ -43,20 +43,19 @@ static IceUtil::Int64
 strToInt64Impl(const char* s, char** endptr, int base)
 {
     //
-    // Skip leading whitespace
-    //
-    const char* start = s.c_str();
-    while(*start && isspace(*start))
-    {
-	++start;
-    }
-
-    //
     // Assume nothing will be there to convert for now
     //
     if(endptr)
     {
 	*endptr = const_cast<char *>(s);
+    }
+
+    //
+    // Skip leading whitespace
+    //
+    while(*s && isspace(*s))
+    {
+	++s;
     }
 
     //
@@ -81,7 +80,20 @@ strToInt64Impl(const char* s, char** endptr, int base)
 	if(*s == '0')
 	{
 	    base = 8;
-	    if(*++s == 'x' || *s == 'X')
+	    ++s;
+	    
+	    if(*s == '\0')
+	    {
+		//
+		// Just '0'
+		//
+		if(endptr)
+		{
+		    *endptr = const_cast<char *>(s);
+		}
+		return 0;
+	    }
+	    else if(*s == 'x' || *s == 'X')
 	    {
 		base = 16;
 		++s;
@@ -103,10 +115,9 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     if(*s == '\0')
     {
-	if(endptr)
-	{
-	    *endptr = const_cast<char*>(s);
-	}
+	//
+	// We did not read any digit so we don't update endptr
+	//
 	return 0;
     }
 
@@ -153,7 +164,7 @@ strToInt64Impl(const char* s, char** endptr, int base)
     {
 	*endptr = const_cast<char *>(s);
     }
-
+ 
     return result;
 }
 
@@ -181,15 +192,7 @@ strToInt64(const char* s, char** endptr, int base)
 bool
 stringToInt64(const string& s, Int64& result)
 {
-    //
-    // Skip leading whitespace
-    //
     const char* start = s.c_str();
-    while(*start && isspace(*start))
-    {
-	++start;
-    }
-
     char* end = 0;
     errno = 0;
     result = strToInt64(start, &end, 0);
