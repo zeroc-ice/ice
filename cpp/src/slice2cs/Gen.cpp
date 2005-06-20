@@ -4215,7 +4215,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "__send();";
 	_out << eb;
 
-	_out << sp << nl << "protected override void __response(bool __ok)";
+	_out << sp << nl << "protected internal override void __response(bool __ok)";
 	_out << sb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
