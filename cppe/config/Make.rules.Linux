@@ -113,7 +113,7 @@ ifeq ($(CXX),icpc)
 endif
 
 BASELIBS		= $(STLPORT_LIBS) -lpthread 
-LIBS			= -lIceE $(BASELIBS)
+LIBS			= -lIceE -lIceETCP $(BASELIBS)
 TESTLIBS		= -lTestCommon $(LIBS)
 
 ICEUTIL_OS_LIBS         = 
