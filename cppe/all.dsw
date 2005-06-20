@@ -26,6 +26,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -50,6 +53,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -73,6 +79,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -539,6 +548,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -553,6 +565,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -572,6 +587,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -589,6 +607,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -608,6 +629,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -625,6 +649,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -644,6 +671,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -661,6 +691,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -680,6 +713,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -697,6 +733,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -716,6 +755,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -733,6 +775,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -752,6 +797,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -769,6 +817,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -803,6 +854,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -820,6 +874,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -839,6 +896,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -856,6 +916,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -875,6 +938,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -892,6 +958,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -911,6 +980,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -925,6 +997,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -941,6 +1016,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -955,6 +1033,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -971,6 +1052,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -985,6 +1069,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1004,6 +1091,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icessl
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1021,6 +1111,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1040,6 +1133,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1057,6 +1153,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1076,6 +1175,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1093,6 +1195,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1112,6 +1217,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tcp"=.\src\TcpTransport\tcp.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -1160,6 +1280,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1174,6 +1297,9 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcp
     End Project Dependency
 }}}
 

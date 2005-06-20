@@ -55,6 +55,8 @@ IceInternal::EndpointFactory::create(const std::string& str) const
     }
 
     EndpointParseException ex(__FILE__, __LINE__);
+    ex.str = str;
+    throw ex;
 }
 
 EndpointPtr
