@@ -132,7 +132,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy          $(OutDir)\testCommone.lib          ..\..\lib\ 
+PostBuild_Cmds=copy           $(OutDir)\testCommon.lib           ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Debug Static"
@@ -165,7 +165,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy         $(OutDir)\testCommoned.lib         ..\..\lib\ 
+PostBuild_Cmds=copy          $(OutDir)\testCommoned.lib          ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 

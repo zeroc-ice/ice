@@ -16,6 +16,9 @@
 #include <Ice/Instance.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/SafeStdio.h>
+#ifndef ICEE_PURE_CLIENT
+#    include <Ice/Acceptor.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -336,3 +339,21 @@ IceInternal::Endpoint::operator<(const Endpoint& r) const
 
     return false;
 }
+
+#ifndef ICEE_PURE_CLIENT
+
+AcceptorPtr
+IceInternal::Endpoint::acceptor(EndpointPtr& endp) const
+{
+    Acceptor* p = new Acceptor(_instance, _host, _port);
+    endp = new Endpoint(_instance, _host, p->effectivePort(), _timeout);
+    return p;
+}
+
+bool
+IceInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
+{
+    return acceptor->equivalent(_host, _port);
+}
+
+#endif
