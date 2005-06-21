@@ -401,8 +401,8 @@ namespace IceInternal
             }
         }
 
-        protected internal abstract void __response(bool ok);
-	
+        protected abstract void __response(bool ok);
+
         private void warning(System.Exception ex)
         {
 	    if(_reference != null) // Don't print anything if cleanup() was already called.
@@ -466,7 +466,7 @@ namespace Ice
             __send();
         }
 
-        protected internal override void __response(bool ok) // ok == true means no user exception.
+        protected override void __response(bool ok) // ok == true means no user exception.
         {
             byte[] outParams;
             try

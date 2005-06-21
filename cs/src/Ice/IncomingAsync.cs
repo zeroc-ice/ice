@@ -19,7 +19,7 @@ namespace IceInternal
         {
         }
 
-        protected internal void __response(bool ok)
+        protected void __response(bool ok)
         {
 	    try
 	    {
