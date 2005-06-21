@@ -1,3 +1,33 @@
+Changes since version 2.1.2
+---------------------------
+
+- Added new features to the Java mapping:
+
+  - Structures, classes, and exceptions now have one-shot constructors.
+    For example, for a class
+
+      class Example {
+          int i;
+	  string s;
+      };
+
+    the following constructors are generated:
+
+      public class Example extends Ice.ObjectImpl {
+	  public Example() { /* ... */ }
+	  public Example(int i, String s) { /* ... */ }
+	  // ...
+      }
+
+    This allows you to construct a structure, class, or exception
+    and supply values for the data members in a single statement,
+    instead of having to assign to the members of a default-constructed
+    instance.
+
+    For derived exceptions and classes, the constructor expects values
+    for all data members, including those of base exceptions or classes,
+    in base-to-derived order of declaration.
+
 Changes since version 2.1.1
 ---------------------------
 
