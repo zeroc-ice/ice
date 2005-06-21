@@ -785,6 +785,7 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const ServerPrx& self, 
 	current.adapter->add(new ServerAdapterI(_node, self, descriptor.id, _waitTime), id);
     }
     _adapters[descriptor.id] = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
+    _processRegistered |= descriptor.registerProcess;
 }
 
 void

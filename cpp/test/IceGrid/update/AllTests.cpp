@@ -10,6 +10,7 @@
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Observer.h>
+#include <IceGrid/Admin.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -94,7 +95,7 @@ public:
 	{
 	    this->applications.insert(make_pair((*p)->name, *p));
 	}
-	this->nodes = nodes;
+	this->nodes = set<string>(nodes.begin(), nodes.end());
 	updated(serial);
     }
 
@@ -136,11 +137,17 @@ public:
     virtual void
     nodeUp(const string& name, const Ice::Current& current)
     {
+	Lock sync(*this);
+	this->nodes.insert(name);
+	updated();
     }
 
     virtual void
     nodeDown(const string& name, const Ice::Current& current)
     {
+	Lock sync(*this);
+	this->nodes.erase(name);
+	updated();
     }
 
     void
@@ -160,14 +167,17 @@ public:
 
     int serial;
     map<string, ApplicationDescriptorPtr> applications;
-    Ice::StringSeq nodes;
+    set<string> nodes;
 
 private:
 
     void
-    updated(int serial)
+    updated(int serial = -1)
     {
-	this->serial = serial;
+	if(serial != -1)
+	{
+	    this->serial = serial;
+	}
 	_updated = true;
 	notifyAll();
     }
@@ -205,6 +215,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     SessionManagerPrx manager = SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
     test(manager);
+
+    AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
+    test(admin);
+
+    Ice::PropertiesPtr properties = communicator->getProperties();
 
     SessionKeepAliveThreadPtr keepAlive;
     keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
@@ -413,7 +428,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-	cout << "testing observers... " << flush;
+	cout << "testing registry observer... " << flush;
 	SessionPrx session1 = manager->createLocalSession("Observer1");
 	
 	keepAlive->add(session1);
@@ -443,8 +458,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(regObs1->applications["Application"]);
 	    test(++serial == regObs1->serial);
 	}
-	catch(const Ice::UserException&)
+	catch(const Ice::UserException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 
@@ -459,8 +475,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(regObs1->applications["Application"]->variables["test"] == "test");
 	    test(++serial == regObs1->serial);
 	}
-	catch(const Ice::UserException&)
+	catch(const Ice::UserException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 
@@ -477,8 +494,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(regObs1->applications["Application"]->variables["test1"] == "test");
 	    test(++serial == regObs1->serial);
 	}
-	catch(const Ice::UserException&)
+	catch(const Ice::UserException& ex)
 	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 
@@ -489,8 +507,79 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(regObs1->applications.empty());
 	    test(++serial == regObs1->serial);
 	}
-	catch(const Ice::UserException&)
+	catch(const Ice::UserException& ex)
 	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	//
+	// Setup a descriptor to deploy a node on the node.
+	//
+	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
+	nodeApp->name = "NodeApp";
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->name = "node-1";
+	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	AdapterDescriptor adapter;
+	adapter.name = "IceGrid.Node";
+	adapter.endpoints = "default";
+	adapter.id = "IceGrid.Node.node-1";
+	adapter.registerProcess = true;
+	server->adapters.push_back(adapter);
+	PropertyDescriptor prop;
+	prop.name = "IceGrid.Node.Name";
+	prop.value = "node-1";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.Data";
+	prop.value = properties->getProperty("TestDir") + "/db/node-1";
+	server->properties.push_back(prop);
+	ServerInstanceDescriptor instance;
+	instance.descriptor = server;
+	instance.node = "localnode";
+	nodeApp->servers.push_back(instance);
+	
+	try
+	{
+	    session1->startUpdate(serial);
+	    session1->addApplication(nodeApp);
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->applications["NodeApp"]);
+	    test(++serial == regObs1->serial);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	admin->startServer("node-1");
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
+	admin->stopServer("node-1");
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
+
+	try
+	{
+	    session1->removeApplication("NodeApp");
+	    regObs1->waitForUpdate(__FILE__, __LINE__);
+	    test(regObs1->applications.empty());
+	    test(++serial == regObs1->serial);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
 	    test(false);
 	}
 

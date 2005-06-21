@@ -757,14 +757,27 @@ ServerInstanceDescriptor
 ApplicationDescriptorHelper::instantiate(const ServerInstanceDescriptor& inst)
 {
     ServerInstanceDescriptor instance = inst;
+    pushNodeVariables(inst.node);
     if(instance._cpp_template.empty())
     {
-	assert(instance.descriptor);
-	return instance;
+	//
+	// We can't re-instantiate here -- this would break escaped variables.
+	//
+// 	assert(instance.descriptor);
+// 	set<string> missing;
+// 	instance.descriptor = ServerDescriptorHelper(*this, instance.descriptor).instantiate(missing);
+// 	if(!missing.empty())
+// 	{
+// 	    ostringstream os;
+// 	    os << "server undefined variables: ";
+// 	    copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
+// 	    throw os.str();
+// 	}
     }
-
-    pushNodeVariables(inst.node);
-    instance.descriptor = _templates->instantiateServer(*this, instance._cpp_template, instance.parameterValues);
+    else
+    {
+	instance.descriptor = _templates->instantiateServer(*this, instance._cpp_template, instance.parameterValues);
+    }
     _variables->pop();
     return instance;
 }

@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= perf simple deployer
+SUBDIRS		= perf simple deployer update
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -26,10 +26,11 @@ main(int argc, char* argv[])
 {
     int status;
     Ice::CommunicatorPtr communicator;
-
     try
     {
+	
 	communicator = Ice::initialize(argc, argv);
+	communicator->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

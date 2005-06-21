@@ -19,6 +19,7 @@ ObserverSessionI::ObserverSessionI(const string& userId,
 				   RegistryObserverTopic& registryObserverTopic,
 				   NodeObserverTopic& nodeObserverTopic) :
     _userId(userId), 
+    _updating(false),
     _destroyed(false),
     _database(database),
     _registryObserverTopic(registryObserverTopic), 

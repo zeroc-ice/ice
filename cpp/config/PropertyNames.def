@@ -234,6 +234,7 @@ IcePack:
 
 IceGrid:
     Node.AdapterId
+    Node.RegisterProcess
     Node.CollocateRegistry
     Node.Data
     Node.Endpoints

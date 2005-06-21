@@ -9,6 +9,7 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
+#include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/WaitQueue.h>
@@ -80,6 +81,21 @@ private:
     bool _shutdown;
 };
 typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
+
+class ProcessI : public Process
+{
+public:
+    
+    ProcessI(const ActivatorPtr&);
+
+    virtual void shutdown(const Current&);
+    virtual void writeMessage(const std::string&, Int, const Current&);
+    
+private:
+    
+    ActivatorPtr _activator;
+};
+
 
 class NodeService : public Service
 {
@@ -160,6 +176,34 @@ void
 CollocatedRegistry::shutdown()
 {
     _activator->shutdown();
+}
+
+ProcessI::ProcessI(const ActivatorPtr& activator) : _activator(activator)
+{
+}
+
+void
+ProcessI::shutdown(const Current&)
+{
+    _activator->shutdown();
+}
+
+void
+ProcessI::writeMessage(const string& message, Int fd, const Current&)
+{
+    switch(fd)
+    {
+	case 1:
+	{
+	    cout << message << endl;
+	    break;
+	}
+	case 2:
+	{
+	    cerr << message << endl;
+	    break;
+	}
+    }
 }
 
 NodeService::NodeService()
@@ -314,7 +358,8 @@ NodeService::start(int argc, char* argv[])
         if(::_stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
         {
 	    ostringstream os;
-	    SyscallException ex(__FILE__, __LINE__);
+	    FileException ex(__FILE__, __LINE__);
+	    ex.path = dataPath;
 	    ex.error = getSystemErrno();
 	    os << ex;
             error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
@@ -325,7 +370,8 @@ NodeService::start(int argc, char* argv[])
         if(::stat(dataPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
         {
 	    ostringstream os;
-	    SyscallException ex(__FILE__, __LINE__);
+	    FileException ex(__FILE__, __LINE__);
+	    ex.path = dataPath;
 	    ex.error = getSystemErrno();
 	    os << ex;
             error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
@@ -390,6 +436,8 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the node object adapter.
     //
+    properties->setProperty("IceGrid.Node.RegisterProcess", "0");
+    properties->setProperty("IceGrid.Node.AdapterId", "");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
     //
@@ -416,19 +464,34 @@ NodeService::start(int argc, char* argv[])
     _keepAliveThread->start();
 
     //
+    // Add a process servant to allow shutdown through the process
+    // interface if a server id is set on the node.
+    //
+    if(!properties->getProperty("Ice.ServerId").empty() && communicator()->getDefaultLocator())
+    {
+	try
+	{
+	    ProcessPrx proxy = ProcessPrx::uncheckedCast(adapter->addWithUUID(new ProcessI(_activator)));
+	    LocatorRegistryPrx locatorRegistry = communicator()->getDefaultLocator()->getRegistry();
+	    locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.ServerId"), proxy);
+	}
+	catch(const Ice::ServerNotFoundException&)
+	{
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	}
+    }
+
+    //
     // Start the activator.
     //
     _activator->start();
 
     //
-    // We are ready to go! Activate the object adapter. NOTE: we don't want the activate call to 
-    // set the direct proxy of the object adapter with the locator registry. This was already 
-    // taken care of by the node registry. Furthermore, this wouldn't work anyway because the 
-    // locator registry proxy would have collocation optimization enabled.
+    // Activate the adapter.
     //
-    adapter->setLocator(0);
     adapter->activate();
-    adapter->setLocator(communicator()->getDefaultLocator());
 
     //
     // Deploy application if a descriptor is passed as a command-line option.
