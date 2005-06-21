@@ -115,6 +115,22 @@
             </fileset>
         </slice2java>
 
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.IceGrid">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/IceGrid">
+                <include name="Admin.ice" />
+                <include name="Query.ice" />
+                <include name="Exception.ice" />
+                <include name="PerfTypes.ice" />
+                <include name="Observer.ice" />
+                <include name="Descriptor.ice" />
+            </fileset>
+        </slice2java>
+
+
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">
             <includepath>
@@ -144,7 +160,7 @@
         <ant inheritAll="false" dir="test"/>
     </target>
 
-    <target name="clean">
+    <target name="clean" depends="config-init">
         <delete dir="${generated.dir}"/>
         <delete dir="${lib.dir}"/>
         <delete dir="${cache.dir}"/>
