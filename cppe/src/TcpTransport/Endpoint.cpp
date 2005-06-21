@@ -211,19 +211,6 @@ IceInternal::Endpoint::unknown() const
     return false;
 }
 
-TransceiverPtr
-IceInternal::Endpoint::clientTransceiver() const
-{
-    return 0;
-}
-
-TransceiverPtr
-IceInternal::Endpoint::serverTransceiver(EndpointPtr& endp) const
-{
-    endp = const_cast<Endpoint*>(this);
-    return 0;
-}
-
 ConnectorPtr
 IceInternal::Endpoint::connector() const
 {
@@ -247,22 +234,14 @@ IceInternal::Endpoint::equivalent(const TransceiverPtr&) const
 bool
 IceInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
 {
-    const Acceptor* tcpAcceptor = dynamic_cast<const Acceptor*>(acceptor.get());
-    if(!tcpAcceptor)
-    {
-	return false;
-    }
-    return tcpAcceptor->equivalent(_host, _port);
+    return acceptor->equivalent(_host, _port);
 }
 
 bool
 IceInternal::Endpoint::operator==(const Endpoint& r) const
 {
     const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
-    if(!p)
-    {
-	return false;
-    }
+    assert(p);
 
     if(this == p)
     {
@@ -312,10 +291,7 @@ bool
 IceInternal::Endpoint::operator<(const Endpoint& r) const
 {
     const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
-    if(!p)
-    {
-        return type() < r.type();
-    }
+    assert(p);
 
     if(this == p)
     {
