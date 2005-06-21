@@ -1375,8 +1375,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = p->name();
     ClassList bases = p->bases();
+    ClassDefPtr baseClass;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+	baseClass = bases.front();
+    }
+
     string package = getPackage(p);
     string absolute = getAbsolute(p);
+    DataMemberList members = p->dataMembers();
+    DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList::const_iterator d;
 
     if(!open(absolute))
     {
@@ -1443,8 +1452,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         else
         {
             out << " extends ";
-            ClassDefPtr base = bases.front();
-            out << getAbsolute(base, package);
+            out << getAbsolute(baseClass, package);
             bases.pop_front();
         }
 
@@ -1494,6 +1502,53 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
+    if(!p->isInterface() && !allDataMembers.empty())
+    {
+	//
+	// Constructors.
+	//
+	out << sp;
+	out << nl << "public " << name << "()";
+	out << sb;
+	if(baseClass)
+	{
+	    out << nl << "super();";
+	}
+	out << eb;
+
+	out << sp << nl << "public " << name << spar;
+	vector<string> paramDecl;
+	for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+	{
+	    string memberName = fixKwd((*d)->name());
+	    string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+	    paramDecl.push_back(memberType + " " + memberName);
+	}
+	out << paramDecl << epar;
+	out << sb;
+	if(baseClass && allDataMembers.size() != members.size())
+	{
+	    out << nl << "super" << spar;
+	    vector<string> baseParamNames;
+	    DataMemberList baseDataMembers = baseClass->allDataMembers();
+	    for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+	    {
+		baseParamNames.push_back(fixKwd((*d)->name()));
+	    }
+	    out << baseParamNames << epar << ';';
+	}
+	vector<string> paramNames;
+	for(d = members.begin(); d != members.end(); ++d)
+	{
+	    paramNames.push_back(fixKwd((*d)->name()));
+	}
+	for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+	{
+	    out << nl << "this." << *i << " = " << *i << ';';
+	}
+	out << eb;
+    }
+
     //
     // Default factory for non-abstract classes.
     //
@@ -1526,8 +1581,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         writeDispatch(out, p);
 
-        DataMemberList members = p->dataMembers();
-        DataMemberList::const_iterator d;
         int iter;
 
         out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
@@ -1738,6 +1791,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     string package = getPackage(p);
     string absolute = getAbsolute(p);
+    DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList members = p->dataMembers();
+    DataMemberList::const_iterator d;
 
     if(!open(absolute))
     {
@@ -1764,6 +1820,53 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << getAbsolute(base, package);
     }
     out << sb;
+
+    if(!allDataMembers.empty())
+    {
+	//
+	// Constructors.
+	//
+	out << sp;
+	out << nl << "public " << name << "()";
+	out << sb;
+	if(base)
+	{
+	    out << nl << "super();";
+	}
+	out << eb;
+
+	out << sp << nl << "public " << name << spar;
+	vector<string> paramDecl;
+	for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+	{
+	    string memberName = fixKwd((*d)->name());
+	    string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+	    paramDecl.push_back(memberType + " " + memberName);
+	}
+	out << paramDecl << epar;
+	out << sb;
+	if(base && allDataMembers.size() != members.size())
+	{
+	    out << nl << "super" << spar;
+	    vector<string> baseParamNames;
+	    DataMemberList baseDataMembers = base->allDataMembers();
+	    for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+	    {
+		baseParamNames.push_back(fixKwd((*d)->name()));
+	    }
+	    out << baseParamNames << epar << ';';
+	}
+	vector<string> paramNames;
+	for(d = members.begin(); d != members.end(); ++d)
+	{
+	    paramNames.push_back(fixKwd((*d)->name()));
+	}
+	for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+	{
+	    out << nl << "this." << *i << " = " << *i << ';';
+	}
+	out << eb;
+    }
 
     out << sp << nl << "public String" << nl << "ice_name()";
     out << sb;
@@ -2034,7 +2137,30 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList::const_iterator d;
     int iter;
 
+    string name = fixKwd(p->name());
     string typeS = typeToString(p, TypeModeIn, package);
+
+    out << sp << nl << "public " << name << "()";
+    out << sb;
+    out << eb;
+
+    vector<string> paramDecl;
+    vector<string> paramNames;
+    for(d = members.begin(); d != members.end(); ++d)
+    {
+	string memberName = fixKwd((*d)->name());
+	string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+	paramDecl.push_back(memberType + " " + memberName);
+	paramNames.push_back(memberName);
+    }
+
+    out << sp << nl << "public " << name << spar << paramDecl << epar;
+    out << sb;
+    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+    {
+	out << nl << "this." << *i << " = " << *i << ';';
+    }
+    out << eb;
 
     out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
     out << sb;
