@@ -9,7 +9,6 @@
 
 #include <Ice/Endpoint.h>
 #include <Ice/Network.h>
-#include <Ice/Acceptor.h>
 #include <Ice/Connector.h>
 #include <Ice/Transceiver.h>
 #include <Ice/BasicStream.h>
@@ -217,24 +216,10 @@ IceInternal::Endpoint::connector() const
     return new Connector(_instance, _host, _port);
 }
 
-AcceptorPtr
-IceInternal::Endpoint::acceptor(EndpointPtr& endp) const
-{
-    Acceptor* p = new Acceptor(_instance, _host, _port);
-    endp = new Endpoint(_instance, _host, p->effectivePort(), _timeout);
-    return p;
-}
-
 bool
 IceInternal::Endpoint::equivalent(const TransceiverPtr&) const
 {
     return false;
-}
-
-bool
-IceInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
-{
-    return acceptor->equivalent(_host, _port);
 }
 
 bool
