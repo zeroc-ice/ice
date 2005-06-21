@@ -158,7 +158,6 @@ public:
 	{
 	    if(!timedWait(IceUtil::Time::seconds(10)))
 	    {
-		cerr << "wait timed out " << file << ":" << line << endl;
 		test(false); // Timeout
 	    }
 	}
@@ -185,29 +184,88 @@ private:
     bool _updated;
 };
 
-class NodeObserverI : public NodeObserver
+class NodeObserverI : public NodeObserver, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    virtual void 
-    init(const NodeDynamicInfoSeq& info, const Ice::Current&)
+    NodeObserverI() : _updated(0)
     {
     }
 
     virtual void 
-    initNode(const NodeDynamicInfo& info, const Ice::Current&)
+    init(const NodeDynamicInfoSeq& info, const Ice::Current& current)
     {
+	Lock sync(*this);
+	for(NodeDynamicInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
+	{
+	    this->nodes[p->name] = *p;
+	}
+	updated(current);
+    }
+
+    virtual void 
+    initNode(const NodeDynamicInfo& info, const Ice::Current& current)
+    {
+	Lock sync(*this);
+	this->nodes[info.name] = info;
+	updated(current);
     }
 
     virtual void
-    updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current&)
+    updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
     {
+	Lock sync(*this);
+	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
+	for(ServerDynamicInfoSeq::iterator p = servers.begin(); p != servers.end(); ++p)
+	{
+	    if(p->name == info.name)
+	    {
+		*p = info;
+	    }
+	}
+	updated(current);
     }
 
     virtual void
     updateAdapter(const string& node, const AdapterDynamicInfo& info, const Ice::Current& current)
     {
+	AdapterDynamicInfoSeq& adapters = this->nodes[node].adapters;
+	for(AdapterDynamicInfoSeq::iterator p = adapters.begin(); p != adapters.end(); ++p)
+	{
+	    if(p->id == info.id)
+	    {
+		*p = info;
+	    }
+	}
+	updated(current);
     }
+
+    void
+    waitForUpdate(const char* file, int line)
+    {
+	Lock sync(*this);
+	while(!_updated)
+	{
+	    if(!timedWait(IceUtil::Time::seconds(10)))
+	    {
+		test(false); // Timeout
+	    }
+	}
+	--_updated;
+    }
+
+    map<string, NodeDynamicInfo> nodes;
+
+private:
+
+    void
+    updated(const Ice::Current& current)
+    {
+	++_updated;
+	notifyAll();
+    }
+
+    int _updated;
 };
 
 void 
@@ -586,6 +644,80 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->destroy();
 	adpt1->deactivate();
 	adpt1->waitForDeactivate();
+
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing node observer... " << flush;
+	SessionPrx session1 = manager->createLocalSession("Observer1");
+	
+	keepAlive->add(session1);
+	
+	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.2");
+	RegistryObserverI* regObs1 = new RegistryObserverI();
+	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
+	NodeObserverI* nodeObs1 = new NodeObserverI();
+	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
+	adpt1->activate();
+	manager->ice_connection()->setAdapter(adpt1);	
+	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
+	
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+	nodeObs1->waitForUpdate(__FILE__, __LINE__);
+
+	int serial = regObs1->serial;
+	test(find(regObs1->nodes.begin(), regObs1->nodes.end(), "localnode") != regObs1->nodes.end());
+	test(regObs1->applications.empty());
+	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
+
+	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
+	nodeApp->name = "NodeApp";
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->name = "node-1";
+	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	AdapterDescriptor adapter;
+	adapter.name = "IceGrid.Node";
+	adapter.endpoints = "default";
+	adapter.id = "IceGrid.Node.node-1";
+	adapter.registerProcess = true;
+	server->adapters.push_back(adapter);
+	PropertyDescriptor prop;
+	prop.name = "IceGrid.Node.Name";
+	prop.value = "node-1";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.Data";
+	prop.value = properties->getProperty("TestDir") + "/db/node-1";
+	server->properties.push_back(prop);
+	ServerInstanceDescriptor instance;
+	instance.descriptor = server;
+	instance.node = "localnode";
+	nodeApp->servers.push_back(instance);
+
+	admin->addApplication(nodeApp);
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+
+	admin->startServer("node-1");
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
+
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // initNode
+	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
+	test(nodeObs1->nodes["localnode"].servers.size() == 1);
+	test(nodeObs1->nodes["localnode"].servers[0].state == Active);
+	admin->stopServer("node-1");
+
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // adapterUpdate
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
+	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
+
+	admin->removeApplication("NodeApp");
+
+	regObs1->waitForUpdate(__FILE__, __LINE__);
+	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
 
 	cout << "ok" << endl;
     }

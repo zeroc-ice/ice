@@ -1250,6 +1250,7 @@ ServerDescriptorHelper::addService(const string& tmpl, const IceXML::Attributes&
     instance._cpp_template = tmpl;
     instance.parameterValues = attrs;
     instance.parameterValues.erase("template");
+    instance.descriptor = _templates->instantiateService(*this, instance._cpp_template, instance.parameterValues);
     iceBox->services.push_back(instance);
 }
 
