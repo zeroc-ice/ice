@@ -149,6 +149,7 @@ Slice::JavaOutput::printHeader()
 }
 
 Slice::JavaGenerator::JavaGenerator(const string& dir) :
+    _featureProfile(Slice::Ice),
     _dir(dir),
     _out(0)
 {
