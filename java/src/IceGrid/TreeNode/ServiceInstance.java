@@ -32,13 +32,21 @@ class ServiceInstance extends Parent
     public String toString()
     {
 	String result = "";
+
+	//
+	// The if Temporary
+	//
 	if(_descriptor.descriptor != null)
 	{
-	    result = _descriptor.descriptor.name + ": ";
+	    result = _descriptor.descriptor.name;
 	}
-	result += templateLabel(_descriptor.template, 
-				_templateDescriptor.parameters,
-				_descriptor.parameterValues);
+
+	if(_templateDescriptor != null)
+	{
+	    result += ": " + templateLabel(_descriptor.template, 
+					   _templateDescriptor.parameters,
+					   _descriptor.parameterValues);
+	}
 	return result;
     }
 

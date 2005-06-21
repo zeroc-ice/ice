@@ -140,10 +140,15 @@ class ServerInstance extends Parent
    
     public String toString()
     {
-	String result = _descriptor.descriptor.name + ": ";
-	result += templateLabel(_descriptor.template, 
-				_templateDescriptor.parameters,
-				_descriptor.parameterValues);
+	String result = _descriptor.descriptor.name;
+
+	if(_templateDescriptor != null)
+	{
+	    
+	    result += ": " + templateLabel(_descriptor.template, 
+					   _templateDescriptor.parameters,
+					   _descriptor.parameterValues);
+	}
 	return result;
     }
 
