@@ -132,10 +132,21 @@ class Model
 
 
     //
-    // Notification from the SessionKeeper thread
+    // Runs in UI thread
     //
     void lostSession()
     {
+	_latestSerial = -1;
+
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	
+	nodeViewRoot.clear();
+	
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	
+	applicationViewRoot.clear();
     }
 
     boolean save()

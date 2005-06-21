@@ -37,6 +37,14 @@ public class NodeViewRoot extends Parent
 	    }
 	}
     }
+    
+    public void clear()
+    {
+	_nodeMap.clear();
+	clearChildren();
+	fireStructureChanged(this);
+    }
+
 
     Node findNode(String name)
     {

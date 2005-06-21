@@ -42,6 +42,12 @@ public class ApplicationViewRoot extends Parent
 	_nodeViewRoot.fireStructureChanged(this);
     }
     
+    public void clear()
+    {
+	clearChildren();
+	_descriptors = null;
+	fireStructureChanged(this);
+    }
 
     public String toString()
     {

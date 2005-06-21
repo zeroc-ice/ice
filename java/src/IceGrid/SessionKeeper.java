@@ -35,34 +35,20 @@ class SessionKeeper
 {
     class ConnectDialog extends JDialog
     {
-	ConnectDialog(ConnectInfo info)
+	ConnectDialog()
 	{
 	    super(_parent, "New Connection - IceGrid Admin", true);
-	    setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	    setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	    
-	    _info = info;
-
 	    _locatorProxy = new JTextField(30);
-	    _locatorProxy.setText(_info.locatorProxy);
 	    _username = new JTextField(30);
-	    _username.setText(_info.username);
 	    _passwordLabel = new JLabel("Password");
 	    _password = new JPasswordField(30);
-
 	    _adminIdentity = new JTextField(30);
-	    _adminIdentity.setText(_info.adminIdentity);
 	    _sessionManagerIdentity = new JTextField(30);
-	    _sessionManagerIdentity.setText(_info.sessionManagerIdentity);
-
 	    _useGlacier = new JCheckBox("Connect using Glacier");
-	    _useGlacier.setSelected(_info.useGlacier);
 	    _autoconnect = new JCheckBox("Autoconnect");
-	    _autoconnect.setSelected(_info.autoconnect);
-
-	    _autoconnect.setEnabled(!info.useGlacier);
-	    _passwordLabel.setEnabled(info.useGlacier);
-	    _password.setEnabled(info.useGlacier);
-
+	
 	    _useGlacier.addItemListener(new ItemListener() 
 		{
 		    public void itemStateChanged(ItemEvent e)
@@ -92,7 +78,7 @@ class SessionKeeper
 			
 			if(doConnect(ConnectDialog.this, _info))
 			{
-			    dispose();
+			    setVisible(false);
 			}
 			//
 			// Otherwise go back to the dialog
@@ -107,7 +93,7 @@ class SessionKeeper
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-			dispose();
+			setVisible(false);
 		    }
 		};
 	    cancelButton.addActionListener(cancelListener);
@@ -153,10 +139,33 @@ class SessionKeeper
 	    setResizable(false);
 	}
 
-	void getSession()
+	boolean showDialog(ConnectInfo info)
 	{
-	    setLocationRelativeTo(_parent);
-	    setVisible(true);
+	    if(isVisible() == false)
+	    {
+		_info = info;
+		_locatorProxy.setText(_info.locatorProxy);
+		_username.setText(_info.username);
+		_adminIdentity.setText(_info.adminIdentity);
+		_sessionManagerIdentity.setText(_info.sessionManagerIdentity);
+
+		_useGlacier.setSelected(_info.useGlacier);
+		_autoconnect.setSelected(_info.autoconnect);
+		_autoconnect.setEnabled(!info.useGlacier);
+		_passwordLabel.setEnabled(info.useGlacier);
+		_password.setEnabled(info.useGlacier);
+
+		setLocationRelativeTo(_parent);
+		setVisible(true);
+		return true;
+	    }
+	    else
+	    {
+		//
+		// Otherwise it was already on the screen!
+		//
+		return false;
+	    }
 	}
 	
 	private ConnectInfo _info;
@@ -242,13 +251,14 @@ class SessionKeeper
 		catch(final Ice.LocalException e)
 		{
 		    _done = true;
-		    destroyObservers();
-		    _model.lostSession();
-
+		  
 		    SwingUtilities.invokeLater(new Runnable() 
 			{
 			    public void run() 
 			    {
+				destroyObservers();
+				_model.lostSession();
+
 				JOptionPane.showMessageDialog(
 				    _parent,
 				    "Failed to contact the IceGrid registry: "  + e.toString(),
@@ -295,6 +305,7 @@ class SessionKeeper
 		  Preferences prefs, StatusBar statusBar)
     {
 	_parent = parent;
+	_connectDialog = new ConnectDialog();
 	_communicator = communicator;
 	_model = model;
 	_connectionPrefs = prefs.node("Connection");
@@ -320,7 +331,7 @@ class SessionKeeper
 	    // When the user presses OK on the connect dialog, doConnect
 	    // is called
 	    //
-	    (new ConnectDialog(connectInfo)).getSession();
+	    _connectDialog.showDialog(connectInfo);
 	}
     }
 
@@ -577,6 +588,8 @@ class SessionKeeper
    
     
     private Frame _parent;
+    private ConnectDialog _connectDialog;
+
     private Ice.Communicator _communicator;
     private Model _model;
     private Preferences _connectionPrefs;
