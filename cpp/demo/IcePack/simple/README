@@ -15,6 +15,10 @@ and start the client.
 
 Messages will be displayed in the IcePack service window.
 
+Note that if you shut down a server, you must make an invocation using
+TCP or SSL in order to reactivate the server; a datagram request does
+not trigger reactivation.
+
 Unix Note:
 
 In order to allow the node to start the IceBox service included in
