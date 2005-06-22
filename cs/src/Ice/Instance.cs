@@ -327,7 +327,16 @@ namespace IceInternal
 			
 			if(stdOut.Length > 0)
 			{
-			    outStream = System.IO.File.AppendText(stdOut);
+			    try
+			    {			    
+				outStream = System.IO.File.AppendText(stdOut);
+			    }
+			    catch(System.IO.IOException ex)
+			    {
+				Ice.FileException fe = new Ice.FileException(ex);
+				fe.path = stdOut;
+				throw fe;	
+			    }
 			    outStream.AutoFlush = true;
 			    System.Console.SetOut(outStream);
 			}
@@ -339,7 +348,17 @@ namespace IceInternal
 			    }
 			    else
 			    {
-				System.IO.StreamWriter errStream = System.IO.File.AppendText(stdErr);
+				System.IO.StreamWriter errStream = null;
+				try
+				{
+				    errStream = System.IO.File.AppendText(stdErr);
+				}
+				catch(System.IO.IOException ex)
+				{
+				    Ice.FileException fe = new Ice.FileException(ex);
+				    fe.path = stdErr;
+				    throw fe;	
+				}
 				errStream.AutoFlush = true;
 				System.Console.SetError(errStream);
 			    }

@@ -220,8 +220,9 @@ namespace Ice
 		}
 		catch(System.IO.IOException ex)
 		{
-		    SyscallException se = new SyscallException(ex);
-		    throw se;
+		    Ice.FileException fe = new Ice.FileException(ex);
+		    fe.path = file;
+		    throw fe;
 		}
 	    }
 	}
