@@ -217,9 +217,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         }
         catch(java.io.IOException ex)
         {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
+            FileException fe = new FileException();
+	    fe.path = file;
+            fe.initCause(ex); // Exception chaining
+            throw fe;
         }
     }
 

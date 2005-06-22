@@ -303,53 +303,66 @@ public final class Instance
 
         try
         {
-	    try
+	    synchronized(Instance.class)
 	    {
-		synchronized(Instance.class)
+		if(!_oneOffDone)
 		{
-		    if(!_oneOffDone)
+		    String stdOut = _properties.getProperty("Ice.StdOut");
+		    String stdErr = _properties.getProperty("Ice.StdErr");
+		    
+		    java.io.PrintStream outStream = null;
+		    
+		    if(stdOut.length() > 0)
 		    {
-			String stdOut = _properties.getProperty("Ice.StdOut");
-			String stdErr = _properties.getProperty("Ice.StdErr");
+			//
+			// We need to close the existing stdout for JVM thread dump to go
+			// to the new file
+			//
+			System.out.close();
 			
-			java.io.PrintStream outStream = null;
-			
-			if(stdOut.length() > 0)
+			try
 			{
-			    //
-			    // We need to close the existing stdout for JVM thread dump to go
-			    // to the new file
-			    //
-			    System.out.close();
-
 			    outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
-			    System.setOut(outStream);
 			}
-			if(stdErr.length() > 0)
+			catch(java.io.FileNotFoundException ex)
 			{
-			    //
-			    // close for consistency with stdout
-			    //
-			    System.err.close();
+			    Ice.FileException fe = new Ice.FileException();
+			    fe.path = stdOut;
+			    fe.initCause(ex);
+			    throw fe;
+			}
 
-			    if(stdErr.equals(stdOut))
-			    {
-				System.setErr(outStream); 
-			    }
-			    else
+			System.setOut(outStream);
+		    }
+		    if(stdErr.length() > 0)
+		    {
+			//
+			// close for consistency with stdout
+			//
+			System.err.close();
+			
+			if(stdErr.equals(stdOut))
+			{
+			    System.setErr(outStream); 
+			}
+			else
+			{
+			    try
 			    {
 				System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
 			    }
+			    catch(java.io.FileNotFoundException ex)
+			    {
+				Ice.FileException fe = new Ice.FileException();
+				fe.path = stdErr;
+				fe.initCause(ex);
+				throw fe;
+			    }
+
 			}
-			_oneOffDone = true;
 		    }
+		    _oneOffDone = true;
 		}
-	    }
-	    catch(java.io.FileNotFoundException ex)
-	    {
-		Ice.SyscallException se = new Ice.SyscallException();
-		se.initCause(ex);
-		throw se;
 	    }
 
 	    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
