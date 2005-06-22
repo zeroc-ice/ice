@@ -272,23 +272,20 @@ public final class IncomingConnectionFactory
 		}
 		_acceptor.listen();
 		
+		//
+		// If we are in thread per connection mode, we also use
+		// one thread per incoming connection factory, that
+		// accepts new connections on this endpoint.
+		//
 		try
 		{
-		    //
-		    // If we are in thread per connection mode, we also use
-		    // one thread per incoming connection factory, that
-		    // accepts new connections on this endpoint.
-		    //
-		    try
-		    {
-			_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
-			_threadPerIncomingConnectionFactory.start();
-		    }
-		    catch(java.lang.Exception ex)
-		    {
-			error("cannot create thread for incoming connection factory", ex);
-			throw ex;
-		    }
+		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
+		    _threadPerIncomingConnectionFactory.start();
+		}
+		catch(java.lang.Exception ex)
+		{
+		    error("cannot create thread for incoming connection factory", ex);
+		    throw ex;
 		}
 	    }
 	}
